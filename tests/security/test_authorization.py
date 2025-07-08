@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 from unittest.mock import patch
 
 import pytest
-
 from pynomaly.domain.exceptions import AuthorizationError, SecurityError
 from pynomaly.infrastructure.auth.access_control import AccessControlManager
 from pynomaly.infrastructure.auth.rbac import Permission, Role, RoleBasedAccessControl

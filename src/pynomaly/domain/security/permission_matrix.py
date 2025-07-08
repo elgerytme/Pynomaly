@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Set, List
-from pynomaly.domain.entities.user import UserRole, Permission
+
+from pynomaly.domain.entities.user import Permission, UserRole
 
 
 class ResourceType(str, Enum):
@@ -51,7 +51,7 @@ class PermissionRule:
     resource: ResourceType
     action: ActionType
     description: str
-    conditions: List[str] = None  # Additional conditions like "own_only", "tenant_only"
+    conditions: list[str] = None  # Additional conditions like "own_only", "tenant_only"
 
     def to_permission(self) -> Permission:
         """Convert to domain Permission object."""
@@ -65,7 +65,7 @@ class PermissionRule:
 
 class PermissionMatrix:
     """Central permission matrix defining all role-based access control rules."""
-    
+
     # Super Admin - Full platform access
     SUPER_ADMIN_PERMISSIONS = [
         PermissionRule(ResourceType.PLATFORM, ActionType.MANAGE, "Full platform management"),
@@ -78,7 +78,7 @@ class PermissionMatrix:
         PermissionRule(ResourceType.BILLING, ActionType.READ, "View all billing information"),
         PermissionRule(ResourceType.METRIC, ActionType.READ, "View platform metrics"),
     ]
-    
+
     # Tenant Admin - Full access within their tenant
     TENANT_ADMIN_PERMISSIONS = [
         PermissionRule(ResourceType.TENANT, ActionType.READ, "View own tenant", ["own_tenant_only"]),
@@ -99,7 +99,7 @@ class PermissionMatrix:
         PermissionRule(ResourceType.AUDIT_LOG, ActionType.READ, "View tenant audit logs"),
         PermissionRule(ResourceType.METRIC, ActionType.READ, "View tenant metrics"),
     ]
-    
+
     # Data Scientist - Can create and manage their own models and datasets
     DATA_SCIENTIST_PERMISSIONS = [
         PermissionRule(ResourceType.DATASET, ActionType.CREATE, "Create datasets"),
@@ -128,7 +128,7 @@ class PermissionMatrix:
         PermissionRule(ResourceType.API_KEY, ActionType.READ, "View own API keys", ["own_only"]),
         PermissionRule(ResourceType.METRIC, ActionType.READ, "View metrics"),
     ]
-    
+
     # Analyst - Can run detections and create reports on existing models
     ANALYST_PERMISSIONS = [
         PermissionRule(ResourceType.DATASET, ActionType.READ, "View datasets"),
@@ -145,7 +145,7 @@ class PermissionMatrix:
         PermissionRule(ResourceType.API_KEY, ActionType.READ, "View own API keys", ["own_only"]),
         PermissionRule(ResourceType.METRIC, ActionType.READ, "View metrics"),
     ]
-    
+
     # Viewer - Read-only access
     VIEWER_PERMISSIONS = [
         PermissionRule(ResourceType.DATASET, ActionType.READ, "View datasets"),
@@ -156,9 +156,9 @@ class PermissionMatrix:
         PermissionRule(ResourceType.REPORT, ActionType.READ, "View reports"),
         PermissionRule(ResourceType.METRIC, ActionType.READ, "View metrics"),
     ]
-    
+
     @classmethod
-    def get_role_permissions(cls, role: UserRole) -> Set[Permission]:
+    def get_role_permissions(cls, role: UserRole) -> set[Permission]:
         """Get all permissions for a specific role."""
         permission_rules = {
             UserRole.SUPER_ADMIN: cls.SUPER_ADMIN_PERMISSIONS,
@@ -167,20 +167,20 @@ class PermissionMatrix:
             UserRole.ANALYST: cls.ANALYST_PERMISSIONS,
             UserRole.VIEWER: cls.VIEWER_PERMISSIONS,
         }
-        
+
         rules = permission_rules.get(role, [])
         return {rule.to_permission() for rule in rules}
-    
+
     @classmethod
-    def get_all_permissions(cls) -> Set[Permission]:
+    def get_all_permissions(cls) -> set[Permission]:
         """Get all possible permissions in the system."""
         all_permissions = set()
         for role in UserRole:
             all_permissions.update(cls.get_role_permissions(role))
         return all_permissions
-    
+
     @classmethod
-    def get_permission_hierarchy(cls) -> Dict[UserRole, int]:
+    def get_permission_hierarchy(cls) -> dict[UserRole, int]:
         """Get role hierarchy (higher number = more permissions)."""
         return {
             UserRole.VIEWER: 1,
@@ -189,16 +189,16 @@ class PermissionMatrix:
             UserRole.TENANT_ADMIN: 4,
             UserRole.SUPER_ADMIN: 5,
         }
-    
+
     @classmethod
     def can_role_grant_permission(cls, granter_role: UserRole, permission: Permission) -> bool:
         """Check if a role can grant a specific permission to another user."""
         granter_permissions = cls.get_role_permissions(granter_role)
-        
+
         # Super admins can grant any permission
         if granter_role == UserRole.SUPER_ADMIN:
             return True
-        
+
         # Tenant admins can grant permissions within their scope
         if granter_role == UserRole.TENANT_ADMIN:
             # Cannot grant super admin permissions
@@ -206,38 +206,38 @@ class PermissionMatrix:
             if permission in super_admin_permissions:
                 return False
             return True
-        
+
         # Other roles cannot grant permissions
         return False
-    
+
     @classmethod
-    def get_matrix_summary(cls) -> Dict[str, Dict[str, List[str]]]:
+    def get_matrix_summary(cls) -> dict[str, dict[str, list[str]]]:
         """Get a summary of the permission matrix for documentation."""
         summary = {}
-        
+
         for role in UserRole:
             permissions = cls.get_role_permissions(role)
             role_summary = {}
-            
+
             # Group permissions by resource
             for permission in permissions:
                 resource = permission.resource
                 if resource not in role_summary:
                     role_summary[resource] = []
                 role_summary[resource].append(permission.action)
-            
+
             summary[role.value] = role_summary
-        
+
         return summary
 
 
 # Permission checking utilities
-def has_permission(user_permissions: Set[Permission], required_permission: Permission) -> bool:
+def has_permission(user_permissions: set[Permission], required_permission: Permission) -> bool:
     """Check if user has a specific permission."""
     return required_permission in user_permissions
 
 
-def has_resource_access(user_permissions: Set[Permission], resource: ResourceType, action: ActionType) -> bool:
+def has_resource_access(user_permissions: set[Permission], resource: ResourceType, action: ActionType) -> bool:
     """Check if user can perform an action on a resource."""
     required_permission = Permission(
         name=f"{resource.value}.{action.value}",
@@ -248,7 +248,7 @@ def has_resource_access(user_permissions: Set[Permission], resource: ResourceTyp
     return has_permission(user_permissions, required_permission)
 
 
-def get_user_resource_permissions(user_permissions: Set[Permission], resource: ResourceType) -> List[ActionType]:
+def get_user_resource_permissions(user_permissions: set[Permission], resource: ResourceType) -> list[ActionType]:
     """Get all actions a user can perform on a specific resource."""
     actions = []
     for permission in user_permissions:
@@ -260,4 +260,3 @@ def get_user_resource_permissions(user_permissions: Set[Permission], resource: R
                 # Skip invalid actions
                 pass
     return actions
-

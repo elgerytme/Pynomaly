@@ -4,11 +4,10 @@ Domain entities for third-party integrations.
 
 from __future__ import annotations
 
-import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Any, Union
+from typing import Any, Optional
 
 from pynomaly.shared.types import TenantId, UserId
 
@@ -64,8 +63,8 @@ class IntegrationCredentials:
     encrypted_data: str
     encryption_key_id: str
     expires_at: Optional[datetime] = None
-    scopes: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    scopes: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -73,26 +72,26 @@ class IntegrationConfig:
     """Configuration for a specific integration."""
     # Basic settings
     enabled: bool = True
-    notification_levels: List[NotificationLevel] = field(default_factory=list)
-    triggers: List[TriggerType] = field(default_factory=list)
-    
+    notification_levels: list[NotificationLevel] = field(default_factory=list)
+    triggers: list[TriggerType] = field(default_factory=list)
+
     # Delivery settings
     retry_count: int = 3
     retry_delay_seconds: int = 60
     timeout_seconds: int = 30
     rate_limit_per_minute: int = 60
-    
+
     # Content settings
     template_id: Optional[str] = None
     custom_template: Optional[str] = None
     include_charts: bool = False
     include_raw_data: bool = False
-    
+
     # Filtering
-    filters: Dict[str, Any] = field(default_factory=dict)
-    
+    filters: dict[str, Any] = field(default_factory=dict)
+
     # Integration-specific settings
-    settings: Dict[str, Any] = field(default_factory=dict)
+    settings: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -113,14 +112,14 @@ class Integration:
     trigger_count: int = 0
     success_count: int = 0
     error_count: int = 0
-    
+
     @property
     def success_rate(self) -> float:
         """Calculate success rate percentage."""
         if self.trigger_count == 0:
             return 0.0
         return (self.success_count / self.trigger_count) * 100
-    
+
     def is_healthy(self) -> bool:
         """Check if integration is healthy."""
         return (
@@ -140,10 +139,10 @@ class NotificationPayload:
     timestamp: datetime = field(default_factory=datetime.utcnow)
     tenant_id: Optional[TenantId] = None
     user_id: Optional[UserId] = None
-    data: Dict[str, Any] = field(default_factory=dict)
-    attachments: List[Dict[str, Any]] = field(default_factory=list)
-    
-    def to_slack_format(self) -> Dict[str, Any]:
+    data: dict[str, Any] = field(default_factory=dict)
+    attachments: list[dict[str, Any]] = field(default_factory=list)
+
+    def to_slack_format(self) -> dict[str, Any]:
         """Convert to Slack message format."""
         color_map = {
             NotificationLevel.INFO: "#36a64f",      # Green
@@ -151,7 +150,7 @@ class NotificationPayload:
             NotificationLevel.ERROR: "#ff0000",     # Red
             NotificationLevel.CRITICAL: "#8b0000"   # Dark red
         }
-        
+
         return {
             "text": self.title,
             "attachments": [
@@ -177,8 +176,8 @@ class NotificationPayload:
                 }
             ] + self.attachments
         }
-    
-    def to_teams_format(self) -> Dict[str, Any]:
+
+    def to_teams_format(self) -> dict[str, Any]:
         """Convert to Microsoft Teams message format."""
         theme_color_map = {
             NotificationLevel.INFO: "0078D4",      # Blue
@@ -186,7 +185,7 @@ class NotificationPayload:
             NotificationLevel.ERROR: "DC143C",     # Crimson
             NotificationLevel.CRITICAL: "8B0000"   # Dark red
         }
-        
+
         return {
             "@type": "MessageCard",
             "@context": "http://schema.org/extensions",
@@ -210,8 +209,8 @@ class NotificationPayload:
                 }
             ]
         }
-    
-    def to_pagerduty_format(self) -> Dict[str, Any]:
+
+    def to_pagerduty_format(self) -> dict[str, Any]:
         """Convert to PagerDuty event format."""
         severity_map = {
             NotificationLevel.INFO: "info",
@@ -219,7 +218,7 @@ class NotificationPayload:
             NotificationLevel.ERROR: "error",
             NotificationLevel.CRITICAL: "critical"
         }
-        
+
         return {
             "payload": {
                 "summary": self.title,
@@ -235,8 +234,8 @@ class NotificationPayload:
             },
             "event_action": "trigger"
         }
-    
-    def to_webhook_format(self) -> Dict[str, Any]:
+
+    def to_webhook_format(self) -> dict[str, Any]:
         """Convert to generic webhook format."""
         return {
             "event": "notification",
@@ -258,17 +257,17 @@ class NotificationTemplate:
     id: str
     name: str
     integration_type: IntegrationType
-    trigger_types: List[TriggerType]
+    trigger_types: list[TriggerType]
     title_template: str
     message_template: str
     tenant_id: TenantId
     created_by: UserId
     is_default: bool = False
-    variables: List[str] = field(default_factory=list)
+    variables: list[str] = field(default_factory=list)
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    
-    def render(self, context: Dict[str, Any]) -> Dict[str, str]:
+
+    def render(self, context: dict[str, Any]) -> dict[str, str]:
         """Render template with provided context."""
         try:
             title = self.title_template.format(**context)
@@ -293,7 +292,7 @@ class NotificationHistory:
     delivery_time_ms: Optional[int] = None
     retry_count: int = 0
     error_message: Optional[str] = None
-    
+
     @property
     def was_successful(self) -> bool:
         """Check if notification was successfully delivered."""
@@ -371,14 +370,14 @@ class IntegrationMetrics:
     last_failure: Optional[datetime] = None
     uptime_percentage: float = 100.0
     rate_limit_hits: int = 0
-    
+
     @property
     def success_rate(self) -> float:
         """Calculate success rate percentage."""
         if self.total_notifications == 0:
             return 0.0
         return (self.successful_notifications / self.total_notifications) * 100
-    
+
     @property
     def failure_rate(self) -> float:
         """Calculate failure rate percentage."""

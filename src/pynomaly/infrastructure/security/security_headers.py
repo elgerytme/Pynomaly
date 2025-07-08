@@ -263,9 +263,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
         # X-Content-Type-Options
         if self.config.x_content_type_options:
-            response.headers["X-Content-Type-Options"] = (
-                self.config.x_content_type_options
-            )
+            response.headers[
+                "X-Content-Type-Options"
+            ] = self.config.x_content_type_options
 
         # X-XSS-Protection
         if self.config.x_xss_protection:
@@ -288,19 +288,19 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
         # Cross-Origin Policies
         if self.config.cross_origin_embedder_policy:
-            response.headers["Cross-Origin-Embedder-Policy"] = (
-                self.config.cross_origin_embedder_policy
-            )
+            response.headers[
+                "Cross-Origin-Embedder-Policy"
+            ] = self.config.cross_origin_embedder_policy
 
         if self.config.cross_origin_opener_policy:
-            response.headers["Cross-Origin-Opener-Policy"] = (
-                self.config.cross_origin_opener_policy
-            )
+            response.headers[
+                "Cross-Origin-Opener-Policy"
+            ] = self.config.cross_origin_opener_policy
 
         if self.config.cross_origin_resource_policy:
-            response.headers["Cross-Origin-Resource-Policy"] = (
-                self.config.cross_origin_resource_policy
-            )
+            response.headers[
+                "Cross-Origin-Resource-Policy"
+            ] = self.config.cross_origin_resource_policy
 
         # Cache Control for sensitive endpoints
         if self._is_sensitive_endpoint(request):

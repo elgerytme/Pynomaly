@@ -12,10 +12,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from ....application.dto.export_options import (
-    ExportFormat,
-    ExportOptions,
-)
+from ....application.dto.export_options import ExportFormat, ExportOptions
 from ....application.services.export_service import ExportService
 from ....domain.entities.detection_result import DetectionResult
 from ..deps import get_container

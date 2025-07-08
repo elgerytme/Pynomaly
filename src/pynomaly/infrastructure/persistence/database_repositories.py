@@ -560,7 +560,7 @@ class DatabaseDetectionResultRepository(DetectionResultRepositoryProtocol):
 
 # User Management Models
 
-from sqlalchemy import ForeignKey, Float
+from sqlalchemy import Float, ForeignKey
 
 
 class UserModel(Base):
@@ -620,12 +620,12 @@ class UserRoleModel(Base):
 
     __tablename__ = "user_roles"
 
-    user_id = Column(UUIDType, ForeignKey('users.id'), primary_key=True)
-    tenant_id = Column(UUIDType, ForeignKey('tenants.id'), primary_key=True)
-    role_id = Column(UUIDType, ForeignKey('roles.id'), primary_key=True)
+    user_id = Column(UUIDType, ForeignKey("users.id"), primary_key=True)
+    tenant_id = Column(UUIDType, ForeignKey("tenants.id"), primary_key=True)
+    role_id = Column(UUIDType, ForeignKey("roles.id"), primary_key=True)
     permissions = Column(JSONType)
     granted_at = Column(DateTime, nullable=False)
-    granted_by = Column(UUIDType, ForeignKey('users.id'))
+    granted_by = Column(UUIDType, ForeignKey("users.id"))
     expires_at = Column(DateTime)
 
 

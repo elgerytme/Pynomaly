@@ -7,7 +7,6 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import List, Optional
 
 import typer
 from rich.console import Console
@@ -52,7 +51,7 @@ def explain(
         "-t", "--explanation-type",
         help="Type of explanation to generate (options: local, global, both)"
     ),
-    methods: Optional[List[str]] = typer.Option(
+    methods: list[str] | None = typer.Option(
         None,
         "-m", "--methods",
         help="Explanation methods to use (options: shap, lime, permutation, gradient)"
@@ -63,7 +62,7 @@ def explain(
         "--audience",
         help="Target audience for explanations (technical, business, regulatory)"
     ),
-    output: Optional[Path] = typer.Option(None, "--output", help="Output file for explanation report"),
+    output: Path | None = typer.Option(None, "--output", help="Output file for explanation report"),
     output_format: str = typer.Option(
         "json",
         "--format",
@@ -151,19 +150,19 @@ def explain(
 def analyze_bias(
     detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
     dataset_path: Path = typer.Argument(..., help="Path to dataset file with protected attributes", exists=True),
-    protected_attributes: Optional[List[str]] = typer.Option(
+    protected_attributes: list[str] | None = typer.Option(
         None,
         "-p", "--protected-attributes",
         help="Protected attribute column names"
     ),
-    metrics: Optional[List[str]] = typer.Option(
+    metrics: list[str] | None = typer.Option(
         None,
         "-m", "--metrics",
         help="Fairness metrics to compute (options: demographic_parity, equalized_odds, statistical_parity)"
     ),
     threshold: float = typer.Option(0.5, "--threshold", help="Decision threshold for binary classification"),
     min_group_size: int = typer.Option(30, "--min-group-size", help="Minimum group size for analysis"),
-    output: Optional[Path] = typer.Option(None, "--output", help="Output file for bias analysis results"),
+    output: Path | None = typer.Option(None, "--output", help="Output file for bias analysis results"),
 ):
     """Analyze model for potential bias and fairness issues.
 
@@ -241,7 +240,7 @@ def assess_trust(
     consistency: bool = typer.Option(True, "--consistency/--no-consistency", help="Enable consistency analysis"),
     stability: bool = typer.Option(True, "--stability/--no-stability", help="Enable stability analysis"),
     fidelity: bool = typer.Option(True, "--fidelity/--no-fidelity", help="Enable fidelity assessment"),
-    output: Optional[Path] = typer.Option(None, "--output", help="Output file for trust assessment"),
+    output: Path | None = typer.Option(None, "--output", help="Output file for trust assessment"),
 ):
     """Assess trust and reliability of model predictions.
 
@@ -317,7 +316,7 @@ def feature_importance(
         help="Feature importance method (shap, lime, permutation)"
     ),
     top_k: int = typer.Option(15, "--top-k", help="Number of top features to display"),
-    output: Optional[Path] = typer.Option(None, "--output", help="Output file for feature importance"),
+    output: Path | None = typer.Option(None, "--output", help="Output file for feature importance"),
 ):
     """Analyze global feature importance for the model.
 

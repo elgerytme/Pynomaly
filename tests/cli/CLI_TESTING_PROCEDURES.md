@@ -366,22 +366,22 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: [3.11, 3.12]
-    
+
     runs-on: ${{ matrix.os }}
-    
+
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Run Bash tests
       if: runner.os != 'Windows'
       run: |
         chmod +x tests/cli/test_cli_bash.sh
         tests/cli/test_cli_bash.sh
-    
+
     - name: Run PowerShell tests
       if: runner.os == 'Windows'
       run: |

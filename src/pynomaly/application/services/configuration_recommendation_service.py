@@ -308,10 +308,15 @@ class ConfigurationRecommendationService:
         y_algorithm = np.array(algorithms)
 
         # Split data
-        X_train, X_test, y_acc_train, y_acc_test, y_alg_train, y_alg_test = (
-            train_test_split(
-                X, y_accuracy, y_algorithm, test_size=test_size, random_state=42
-            )
+        (
+            X_train,
+            X_test,
+            y_acc_train,
+            y_acc_test,
+            y_alg_train,
+            y_alg_test,
+        ) = train_test_split(
+            X, y_accuracy, y_algorithm, test_size=test_size, random_state=42
         )
 
         # Scale features

@@ -11,9 +11,8 @@ from unittest.mock import Mock, patch
 
 import pandas as pd
 import pytest
-from typer.testing import CliRunner
-
 from pynomaly.presentation.cli.preprocessing import app
+from typer.testing import CliRunner
 
 
 class TestPreprocessingCLI:

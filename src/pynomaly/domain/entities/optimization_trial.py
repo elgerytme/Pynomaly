@@ -8,7 +8,7 @@ tracking of parameters, results, and metadata for machine learning experiments.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet
 
@@ -40,14 +40,14 @@ class TrialMetadata:
 
     algorithm_name: str
     optimization_strategy: str
-    sampler_name: Optional[str] = None
-    pruner_name: Optional[str] = None
-    study_name: Optional[str] = None
-    experiment_id: Optional[str] = None
-    user_id: Optional[str] = None
-    worker_id: Optional[str] = None
+    sampler_name: str | None = None
+    pruner_name: str | None = None
+    study_name: str | None = None
+    experiment_id: str | None = None
+    user_id: str | None = None
+    worker_id: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "algorithm_name": self.algorithm_name,
@@ -70,7 +70,7 @@ class TrialResourceUsage:
     gpu_memory_peak: float = 0.0  # MB
     evaluation_time: float = 0.0
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Convert to dictionary."""
         return {
             "cpu_time": self.cpu_time,
@@ -92,13 +92,13 @@ class OptimizationTrial:
 
     # Core identification
     trial_id: int
-    study_id: Optional[str] = None
-    number: Optional[int] = None  # Trial number within study
+    study_id: str | None = None
+    number: int | None = None  # Trial number within study
 
     # Parameters and results
     parameters: HyperparameterSet = field(default_factory=lambda: HyperparameterSet({}))
     score: float = 0.0
-    objective_values: List[float] = field(
+    objective_values: list[float] = field(
         default_factory=list
     )  # For multi-objective optimization
 
@@ -108,33 +108,33 @@ class OptimizationTrial:
 
     # Timing information
     start_time: datetime = field(default_factory=datetime.utcnow)
-    end_time: Optional[datetime] = None
+    end_time: datetime | None = None
     duration: float = 0.0  # seconds
 
     # Intermediate values for pruning
-    intermediate_values: List[float] = field(default_factory=list)
-    intermediate_steps: List[int] = field(default_factory=list)
+    intermediate_values: list[float] = field(default_factory=list)
+    intermediate_steps: list[int] = field(default_factory=list)
 
     # Metadata and attributes
-    metadata: Optional[TrialMetadata] = None
-    user_attrs: Dict[str, Any] = field(default_factory=dict)
-    system_attrs: Dict[str, Any] = field(default_factory=dict)
+    metadata: TrialMetadata | None = None
+    user_attrs: dict[str, Any] = field(default_factory=dict)
+    system_attrs: dict[str, Any] = field(default_factory=dict)
 
     # Resource tracking
     resource_usage: TrialResourceUsage = field(default_factory=TrialResourceUsage)
 
     # Error handling
-    error_message: Optional[str] = None
-    error_traceback: Optional[str] = None
+    error_message: str | None = None
+    error_traceback: str | None = None
 
     # Pruning information
-    pruned_at_step: Optional[int] = None
-    pruning_reason: Optional[str] = None
+    pruned_at_step: int | None = None
+    pruning_reason: str | None = None
 
     # Validation and cross-validation scores
-    validation_scores: List[float] = field(default_factory=list)
-    cv_scores: List[float] = field(default_factory=list)
-    cv_std: Optional[float] = None
+    validation_scores: list[float] = field(default_factory=list)
+    cv_scores: list[float] = field(default_factory=list)
+    cv_std: float | None = None
 
     @property
     def is_complete(self) -> bool:
@@ -171,7 +171,7 @@ class OptimizationTrial:
         if self.end_time:
             self.duration = (self.end_time - self.start_time).total_seconds()
 
-    def fail(self, error_message: str, error_traceback: Optional[str] = None) -> None:
+    def fail(self, error_message: str, error_traceback: str | None = None) -> None:
         """Mark trial as failed."""
         self.status = TrialStatus.FAILED
         self.state = TrialState.ERROR
@@ -212,7 +212,7 @@ class OptimizationTrial:
         """Add a system attribute."""
         self.system_attrs[key] = value
 
-    def get_best_intermediate_value(self) -> Optional[float]:
+    def get_best_intermediate_value(self) -> float | None:
         """Get the best intermediate value."""
         if not self.intermediate_values:
             return None
@@ -230,7 +230,7 @@ class OptimizationTrial:
         """Add a validation score."""
         self.validation_scores.append(score)
 
-    def add_cv_scores(self, scores: List[float]) -> None:
+    def add_cv_scores(self, scores: list[float]) -> None:
         """Add cross-validation scores."""
         self.cv_scores = scores
         if scores:
@@ -238,7 +238,7 @@ class OptimizationTrial:
 
             self.cv_std = float(np.std(scores))
 
-    def get_summary_stats(self) -> Dict[str, Any]:
+    def get_summary_stats(self) -> dict[str, Any]:
         """Get summary statistics for the trial."""
         stats = {
             "trial_id": self.trial_id,
@@ -282,7 +282,7 @@ class OptimizationTrial:
 
         return stats
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert trial to dictionary."""
         return {
             "trial_id": self.trial_id,
@@ -312,7 +312,7 @@ class OptimizationTrial:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "OptimizationTrial":
+    def from_dict(cls, data: dict[str, Any]) -> "OptimizationTrial":
         """Create trial from dictionary."""
         # Handle datetime fields
         if "start_time" in data:
@@ -375,7 +375,7 @@ class OptimizationTrial:
         else:
             raise ValueError(f"Unknown comparison metric: {metric}")
 
-    def is_pareto_optimal(self, other_trials: List["OptimizationTrial"]) -> bool:
+    def is_pareto_optimal(self, other_trials: list["OptimizationTrial"]) -> bool:
         """
         Check if this trial is Pareto optimal compared to other trials.
 
@@ -401,7 +401,7 @@ class OptimizationTrial:
 
         return True
 
-    def calculate_improvement_rate(self) -> Optional[float]:
+    def calculate_improvement_rate(self) -> float | None:
         """Calculate the improvement rate from intermediate values."""
         if len(self.intermediate_values) < 2:
             return None

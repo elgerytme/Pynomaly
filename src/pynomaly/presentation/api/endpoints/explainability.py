@@ -1,7 +1,7 @@
 """API endpoints for explainability operations."""
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
@@ -18,7 +18,6 @@ from pynomaly.application.dto.explainability_dto import (
 )
 from pynomaly.application.use_cases.explainability_use_case import (
     CompareExplanationsRequest,
-    ExplainabilityUseCase,
     ExplainCohortRequest,
     ExplainModelRequest,
     ExplainPredictionRequest,
@@ -392,12 +391,12 @@ async def compare_explanations(
         )
 
 
-@router.get("/methods", response_model=List[str])
+@router.get("/methods", response_model=list[str])
 async def get_available_methods(
     container: Container = Depends(get_container),
     current_user: str | None = Depends(get_current_user),
     _permissions: str = Depends(require_read),
-) -> List[str]:
+) -> list[str]:
     """Get list of available explanation methods.
 
     Returns all explanation methods that are currently supported and available
@@ -609,7 +608,7 @@ async def _analyze_feature_interactions_background(
 @router.get("/health")
 async def explainability_health_check(
     container: Container = Depends(get_container),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Health check for explainability service.
 
     Returns:

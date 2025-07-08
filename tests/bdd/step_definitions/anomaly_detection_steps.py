@@ -4,9 +4,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from pytest_bdd import given, parsers, then, when
-from sklearn.datasets import make_blobs
-
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.services import AnomalyScorer, ThresholdCalculator
 from pynomaly.infrastructure.adapters import SklearnAdapter
@@ -14,6 +11,8 @@ from pynomaly.infrastructure.repositories import (
     InMemoryDetectorRepository,
     InMemoryResultRepository,
 )
+from pytest_bdd import given, parsers, then, when
+from sklearn.datasets import make_blobs
 
 
 @pytest.fixture

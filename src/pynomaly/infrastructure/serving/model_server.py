@@ -15,7 +15,6 @@ from fastapi.responses import JSONResponse
 from prometheus_client import Counter, Gauge, Histogram, generate_latest
 from prometheus_client.exposition import choose_encoder
 from pydantic import BaseModel, Field
-
 from pynomaly.application.services.deployment_orchestration_service import (
     DeploymentOrchestrationService,
 )

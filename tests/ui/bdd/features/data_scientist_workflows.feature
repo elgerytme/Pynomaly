@@ -18,13 +18,13 @@ Feature: Data Scientist Research and Analysis Workflows
     And I should see "Dataset uploaded successfully" message within 30 seconds
     And I should see the dataset "financial_fraud_detection.csv" in the datasets list
     And I should see dataset statistics showing "50,000 records, 15 features"
-    
+
     When I click on "View Dataset Details"
     Then I should see the dataset preview with first 10 records
     And I should see feature distribution charts
     And I should see data quality metrics
     And I should see recommendations for preprocessing
-    
+
     When I navigate to the detectors page
     And I click "Create New Detector"
     And I fill in the detector name as "Fraud Detection Model"
@@ -34,14 +34,14 @@ Feature: Data Scientist Research and Analysis Workflows
     And I click "Create Detector"
     Then I should see "Detector created successfully" message
     And I should see the detector "Fraud Detection Model" in the detectors list
-    
+
     When I click "Train Detector" for "Fraud Detection Model"
     Then I should see training progress indicator
     And I should see "Training in progress..." status
     And training should complete within 60 seconds
     And I should see "Training completed successfully" message
     And I should see training metrics including accuracy and F1-score
-    
+
     When I navigate to the detection page
     And I select the trained detector "Fraud Detection Model"
     And I upload new transaction data for detection
@@ -49,14 +49,14 @@ Feature: Data Scientist Research and Analysis Workflows
     And I should see anomaly scores for each transaction
     And I should see highlighted fraudulent transactions
     And I should see confidence intervals for predictions
-    
+
     When I navigate to the visualizations page
     Then I should see scatter plot of anomaly scores
     And I should see feature importance chart
     And I should see ROC curve analysis
     And I should see precision-recall curve
     And I should be able to filter results by confidence threshold
-    
+
     When I navigate to the export page
     And I select CSV format
     And I click "Export Results"
@@ -74,11 +74,11 @@ Feature: Data Scientist Research and Analysis Workflows
       | One-Class SVM | 0.05 | all |
       | Autoencoder | 0.05 | all |
     Then I should see all detectors created successfully
-    
+
     When I train all detectors on the same dataset
     Then all training should complete successfully
     And I should see training metrics for each detector
-    
+
     When I run detection with all trained detectors
     Then I should see detection results for each algorithm
     And I should see performance comparison metrics
@@ -92,7 +92,7 @@ Feature: Data Scientist Research and Analysis Workflows
     When I upload the dataset
     Then I should see data quality warnings
     And I should see preprocessing recommendations
-    
+
     When I click "Apply Preprocessing"
     And I select the following options:
       | Option | Setting |
@@ -116,7 +116,7 @@ Feature: Data Scientist Research and Analysis Workflows
     And I should see algorithm recommendations within 30 seconds
     And I should see reasoning for each recommendation
     And I should see expected performance estimates
-    
+
     When I accept the top recommendation
     And I click "Run Autonomous Detection"
     Then I should see automatic model training progress
@@ -134,7 +134,7 @@ Feature: Data Scientist Research and Analysis Workflows
     And I should see feature contribution chart
     And I should see local explanation details
     And I should see similar anomalies for comparison
-    
+
     When I click "Global Explanations"
     Then I should see overall feature importance
     And I should see model behavior analysis
@@ -149,7 +149,7 @@ Feature: Data Scientist Research and Analysis Workflows
     Then I should see time series visualization
     And I should see seasonal pattern analysis
     And I should see trend detection results
-    
+
     When I create a time series anomaly detector
     And I configure temporal parameters:
       | Parameter | Value |
@@ -159,7 +159,7 @@ Feature: Data Scientist Research and Analysis Workflows
     And I train the detector
     Then I should see time series model metrics
     And I should see forecasting accuracy
-    
+
     When I run detection on new time series data
     Then I should see temporal anomalies highlighted
     And I should see anomaly timeline visualization
@@ -178,7 +178,7 @@ Feature: Data Scientist Research and Analysis Workflows
     Then I should see live data visualization
     And I should see real-time anomaly alerts
     And I should see streaming performance metrics
-    
+
     When an anomaly is detected in the stream
     Then I should receive an immediate alert
     And I should see the anomaly highlighted in real-time
@@ -191,13 +191,13 @@ Feature: Data Scientist Research and Analysis Workflows
     When I create a new project workspace
     And I invite team members to the project
     Then team members should receive collaboration invitations
-    
+
     When I share a detector with the team
     And I add research notes and observations
     Then team members should see the shared detector
     And team members should see my research notes
     And team members should be able to add their own comments
-    
+
     When a team member makes changes to the model
     Then I should see version history
     And I should see change notifications
@@ -211,7 +211,7 @@ Feature: Data Scientist Research and Analysis Workflows
     Then I should see chunked upload progress
     And upload should complete within 5 minutes
     And I should see memory usage indicators
-    
+
     When I train a detector on the large dataset
     Then I should see distributed training options
     And I should see training progress with ETA
@@ -231,7 +231,7 @@ Feature: Data Scientist Research and Analysis Workflows
     And I should see average performance metrics
     And I should see confidence intervals
     And I should see statistical significance tests
-    
+
     When I compare multiple models using validation
     Then I should see statistical comparison results
     And I should see model ranking with significance
@@ -244,12 +244,12 @@ Feature: Data Scientist Research and Analysis Workflows
     Then I should see a clear error message about data corruption
     And I should see suggestions for data repair
     And the system should remain stable
-    
+
     When training fails due to insufficient memory
     Then I should see memory usage warnings
     And I should see recommendations for reducing memory usage
     And I should be able to retry with different settings
-    
+
     When detection is interrupted by network issues
     Then I should see connection status indicators
     And I should be able to resume detection when connection is restored
@@ -263,7 +263,7 @@ Feature: Data Scientist Research and Analysis Workflows
     And all charts should have alternative text descriptions
     And all form controls should have clear labels
     And keyboard navigation should work throughout
-    
+
     When I interact with data visualizations
     Then I should be able to access chart data via keyboard
     And I should hear audio descriptions of trends

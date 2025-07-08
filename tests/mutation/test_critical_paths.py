@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import InvalidValueError
 from pynomaly.domain.services import AnomalyScorer, ThresholdCalculator

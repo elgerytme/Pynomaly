@@ -51,11 +51,7 @@ def test_new_entities():
 
         # Test Experiment entity
         print("\n2. Testing Experiment entity...")
-        from pynomaly.domain.entities import (
-            Experiment,
-            ExperimentRun,
-            ExperimentType,
-        )
+        from pynomaly.domain.entities import Experiment, ExperimentRun, ExperimentType
 
         experiment = Experiment(
             name="algorithm_comparison_v1",

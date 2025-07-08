@@ -26,12 +26,12 @@ jobs:
       test-selection: ${{ steps.changes.outputs.test-selection }}
       affected-components: ${{ steps.changes.outputs.affected-components }}
       run-full-suite: ${{ steps.decision.outputs.run-full-suite }}
-    
+
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: Detect changed files
       id: changes
       run: |
@@ -43,12 +43,12 @@ jobs:
           BASE_SHA="HEAD~1"
           HEAD_SHA="HEAD"
         fi
-        
+
         # Get changed files
         CHANGED_FILES=$(git diff --name-only $BASE_SHA...$HEAD_SHA)
         echo "Changed files:"
         echo "$CHANGED_FILES"
-        
+
         # Analyze changes and determine test selection strategy
         DOMAIN_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^src/pynomaly/domain/" | wc -l)
         APPLICATION_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^src/pynomaly/application/" | wc -l)
@@ -56,7 +56,7 @@ jobs:
         PRESENTATION_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^src/pynomaly/presentation/" | wc -l)
         TEST_CHANGES=$(echo "$CHANGED_FILES" | grep -E "^tests/" | wc -l)
         CONFIG_CHANGES=$(echo "$CHANGED_FILES" | grep -E "(pyproject.toml|requirements|Dockerfile|\.github/)" | wc -l)
-        
+
         # Determine affected components
         AFFECTED_COMPONENTS=""
         [ $DOMAIN_CHANGES -gt 0 ] && AFFECTED_COMPONENTS="${AFFECTED_COMPONENTS},domain"
@@ -65,13 +65,13 @@ jobs:
         [ $PRESENTATION_CHANGES -gt 0 ] && AFFECTED_COMPONENTS="${AFFECTED_COMPONENTS},presentation"
         [ $TEST_CHANGES -gt 0 ] && AFFECTED_COMPONENTS="${AFFECTED_COMPONENTS},tests"
         [ $CONFIG_CHANGES -gt 0 ] && AFFECTED_COMPONENTS="${AFFECTED_COMPONENTS},config"
-        
+
         # Remove leading comma
         AFFECTED_COMPONENTS=$(echo "$AFFECTED_COMPONENTS" | sed 's/^,//')
-        
+
         # Determine test selection strategy
         TOTAL_CHANGES=$(echo "$CHANGED_FILES" | wc -l)
-        
+
         if [ $TOTAL_CHANGES -gt 50 ] || [ $CONFIG_CHANGES -gt 0 ] || [[ "$AFFECTED_COMPONENTS" == *"config"* ]]; then
           TEST_SELECTION="full"
         elif [ $DOMAIN_CHANGES -gt 0 ] && [ $APPLICATION_CHANGES -gt 0 ] && [ $INFRASTRUCTURE_CHANGES -gt 0 ]; then
@@ -81,13 +81,13 @@ jobs:
         else
           TEST_SELECTION="targeted"
         fi
-        
+
         echo "test-selection=$TEST_SELECTION" >> $GITHUB_OUTPUT
         echo "affected-components=$AFFECTED_COMPONENTS" >> $GITHUB_OUTPUT
-        
+
         echo "Test selection strategy: $TEST_SELECTION"
         echo "Affected components: $AFFECTED_COMPONENTS"
-    
+
     - name: Make execution decision
       id: decision
       run: |
@@ -107,23 +107,23 @@ jobs:
     strategy:
       matrix:
         component: ${{ fromJson(format('[{0}]', needs.detect-changes.outputs.affected-components)) }}
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: poetry install --with dev,test
-    
+
     - name: Run targeted tests
       run: |
         case "${{ matrix.component }}" in
@@ -166,7 +166,7 @@ jobs:
               -v --maxfail=5
             ;;
         esac
-    
+
     - name: Upload test results
       uses: actions/upload-artifact@v3
       if: always()
@@ -181,23 +181,23 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.test-selection == 'extended' || needs.detect-changes.outputs.test-selection == 'comprehensive'
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: poetry install --with dev,test
-    
+
     - name: Run extended test suite
       run: |
         if [[ "${{ needs.detect-changes.outputs.test-selection }}" == "comprehensive" ]]; then
@@ -212,7 +212,7 @@ jobs:
           # Run tests for affected components plus integration tests
           AFFECTED="${{ needs.detect-changes.outputs.affected-components }}"
           TEST_PATHS=""
-          
+
           if [[ "$AFFECTED" == *"domain"* ]]; then
             TEST_PATHS="$TEST_PATHS tests/domain/"
           fi
@@ -225,17 +225,17 @@ jobs:
           if [[ "$AFFECTED" == *"presentation"* ]]; then
             TEST_PATHS="$TEST_PATHS tests/presentation/"
           fi
-          
+
           # Always include integration tests for extended runs
           TEST_PATHS="$TEST_PATHS tests/integration/"
-          
+
           poetry run pytest $TEST_PATHS \
             --cov=src/pynomaly \
             --cov-report=xml:coverage-extended.xml \
             --junitxml=junit-extended.xml \
             -v --maxfail=15
         fi
-    
+
     - name: Upload extended test results
       uses: actions/upload-artifact@v3
       if: always()
@@ -250,36 +250,36 @@ jobs:
     needs: detect-changes
     if: contains(needs.detect-changes.outputs.affected-components, 'presentation') || contains(needs.detect-changes.outputs.affected-components, 'infrastructure')
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: poetry install --with dev,test,security
-    
+
     - name: Run targeted security tests
       run: |
         echo "Running security tests for affected components..."
         poetry run pytest tests/security/ \
           --junitxml=junit-security-smart.xml \
           -v
-    
+
     - name: Run security scan
       run: |
         echo "Running security scan..."
         poetry run bandit -r src/ -f json -o security-scan-smart.json
         poetry run safety check --json --output safety-scan-smart.json
-    
+
     - name: Upload security results
       uses: actions/upload-artifact@v3
       if: always()
@@ -302,20 +302,20 @@ jobs:
     needs: [detect-changes, smart-unit-tests, extended-tests, smart-security-tests, full-test-suite]
     if: always()
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Download all test results
       uses: actions/download-artifact@v3
       with:
         path: smart-test-results/
-    
+
     - name: Analyze test execution efficiency
       run: |
         echo "🚀 Smart Test Selection Analysis"
         echo "================================"
-        
+
         # Calculate execution time savings
         if [[ "${{ needs.detect-changes.outputs.run-full-suite }}" == "true" ]]; then
           echo "📊 Execution Mode: Full Test Suite"
@@ -325,7 +325,7 @@ jobs:
           echo "📊 Execution Mode: Smart Test Selection"
           echo "🎯 Selection Strategy: ${{ needs.detect-changes.outputs.test-selection }}"
           echo "🔧 Affected Components: ${{ needs.detect-changes.outputs.affected-components }}"
-          
+
           case "${{ needs.detect-changes.outputs.test-selection }}" in
             "targeted")
               echo "⏱️  Estimated Time: 5-8 minutes"
@@ -341,32 +341,32 @@ jobs:
               ;;
           esac
         fi
-        
+
         echo ""
         echo "✅ Smart test selection executed successfully"
         echo "📈 Optimized CI feedback time while maintaining quality"
-    
+
     - name: Generate smart test report
       run: |
         cat > smart-test-summary.md << EOF
         # 🎯 Smart Test Selection Results
-        
+
         ## Execution Summary
         - **Selection Strategy**: ${{ needs.detect-changes.outputs.test-selection }}
         - **Affected Components**: ${{ needs.detect-changes.outputs.affected-components }}
         - **Full Suite**: ${{ needs.detect-changes.outputs.run-full-suite }}
-        
+
         ## Performance Benefits
         Smart test selection optimizes CI execution time by running only relevant tests based on code changes.
-        
+
         ## Quality Assurance
         - Maintains comprehensive coverage for critical changes
         - Automatically escalates to full suite when needed
         - Preserves all quality gates and security checks
-        
+
         Generated: $(date)
         EOF
-    
+
     - name: Upload smart test summary
       uses: actions/upload-artifact@v3
       with:
@@ -378,17 +378,17 @@ jobs:
     needs: [detect-changes, test-result-analysis]
     if: always()
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Record performance metrics
       run: |
         # Create performance tracking entry
         TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         STRATEGY="${{ needs.detect-changes.outputs.test-selection }}"
         FULL_SUITE="${{ needs.detect-changes.outputs.run-full-suite }}"
-        
+
         # Estimate execution time based on strategy
         case "$STRATEGY" in
           "targeted") ESTIMATED_TIME="5-8" ;;
@@ -397,12 +397,12 @@ jobs:
           "full") ESTIMATED_TIME="25-30" ;;
           *) ESTIMATED_TIME="unknown" ;;
         esac
-        
+
         echo "Recording performance metrics..."
         echo "Timestamp: $TIMESTAMP"
         echo "Strategy: $STRATEGY"
         echo "Full Suite: $FULL_SUITE"
         echo "Estimated Time: $ESTIMATED_TIME minutes"
-        
+
         # In a real implementation, this would be sent to a monitoring system
         echo "Performance tracking completed"

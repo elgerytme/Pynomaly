@@ -421,7 +421,7 @@ medical_columns = {
 }
 
 processed_data, metadata = preprocessor.preprocess(
-    patient_data, 
+    patient_data,
     patient_id_col='patient_id',
     medical_columns=medical_columns
 )
@@ -448,7 +448,7 @@ for algorithm_config in config.algorithms:
         algorithm=algorithm_config.name,
         params=algorithm_config.params
     )
-    
+
     # Record results
     test_manager.record_test_result(
         test_name=f"{config.experiment.name}_{algorithm_config.name}",
@@ -529,14 +529,14 @@ experiment:
   name: "fraud_detection_v2"
   version: "2.1.0"
   description: "Enhanced fraud detection with ensemble methods"
-  
+
 dataset:
   validation:
     enable: true
     rules:
       - "amount > 0"
       - "currency in ['USD', 'EUR', 'GBP']"
-      
+
 preprocessing:
   strategy: "domain_specific"
   validation:
@@ -586,15 +586,15 @@ def monitor_performance(func):
     def wrapper(*args, **kwargs):
         start_time = time.time()
         start_memory = psutil.Process().memory_info().rss / 1024 / 1024
-        
+
         result = func(*args, **kwargs)
-        
+
         end_time = time.time()
         end_memory = psutil.Process().memory_info().rss / 1024 / 1024
-        
+
         logger.info(f"Execution time: {end_time - start_time:.2f}s")
         logger.info(f"Memory usage: {end_memory - start_memory:.2f}MB")
-        
+
         return result
     return wrapper
 ```
@@ -625,11 +625,11 @@ from templates.scripts.preprocessing.base_preprocessor import BasePreprocessor
 
 class CustomDomainPreprocessor(BasePreprocessor):
     """Custom preprocessor for specific domain requirements."""
-    
+
     def __init__(self, config=None, **kwargs):
         super().__init__(config, **kwargs)
         self.domain_specific_config = self._get_domain_config()
-    
+
     def _get_domain_config(self):
         """Get domain-specific configuration."""
         return {
@@ -637,18 +637,18 @@ class CustomDomainPreprocessor(BasePreprocessor):
             'custom_features': True,
             'specialized_handling': True
         }
-    
+
     def preprocess(self, data, **kwargs):
         """Apply custom domain preprocessing."""
         # Custom preprocessing logic
         processed_data = self._apply_domain_preprocessing(data)
-        
+
         # Call parent preprocessing
         final_data, metadata = super().preprocess(processed_data, **kwargs)
-        
+
         # Add domain-specific metadata
         metadata['domain_info'] = self._get_domain_metadata(data)
-        
+
         return final_data, metadata
 ```
 
@@ -660,35 +660,35 @@ class CustomDomainPreprocessor(BasePreprocessor):
 # Integration example
 class ProductionPipeline:
     """Production pipeline integrating multiple templates."""
-    
+
     def __init__(self, config_path):
         self.config = self._load_config(config_path)
         self._initialize_components()
-    
+
     def _initialize_components(self):
         """Initialize pipeline components."""
         # Preprocessing
         self.preprocessor = self._create_preprocessor()
-        
+
         # Detection
         self.detector = self._create_detector()
-        
+
         # Reporting
         self.reporter = self._create_reporter()
-    
+
     def run_pipeline(self, data):
         """Run complete anomaly detection pipeline."""
         # Preprocess
         processed_data, prep_metadata = self.preprocessor.preprocess(data)
-        
+
         # Detect anomalies
         anomalies, detection_results = self.detector.detect(processed_data)
-        
+
         # Generate report
         report = self.reporter.generate_report(
             detection_results, prep_metadata
         )
-        
+
         return {
             'anomalies': anomalies,
             'results': detection_results,
@@ -708,25 +708,25 @@ from multiprocessing import Pool
 
 class ScalableTemplate:
     """Template with scaling capabilities."""
-    
+
     def __init__(self, config=None):
         self.config = config or {}
         self.chunk_size = self.config.get('chunk_size', 10000)
         self.n_workers = self.config.get('n_workers', 4)
-    
+
     def process_large_dataset(self, data_path):
         """Process large dataset with chunking."""
         # Use Dask for large datasets
         if self.config.get('use_dask', False):
             df = dd.read_csv(data_path)
             return self._process_with_dask(df)
-        
+
         # Use chunking for memory efficiency
         chunks = pd.read_csv(data_path, chunksize=self.chunk_size)
-        
+
         with Pool(self.n_workers) as pool:
             results = pool.map(self._process_chunk, chunks)
-        
+
         return self._combine_results(results)
 ```
 
@@ -817,7 +817,7 @@ if result.overall_status == 'failed':
     print("Errors:")
     for error in result.errors:
         print(f"  - {error}")
-    
+
     print("Recommendations:")
     for rec in result.recommendations:
         print(f"  - {rec}")

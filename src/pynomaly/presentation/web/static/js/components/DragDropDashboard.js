@@ -242,7 +242,7 @@ class DragDropDashboard {
         this.state.isEditing
           ? `
         <div class="widget-controls">
-          <button class="widget-control widget-control--move" 
+          <button class="widget-control widget-control--move"
                   aria-label="Move ${widget.title}"
                   title="Drag to move">
             ⋮⋮
@@ -250,7 +250,7 @@ class DragDropDashboard {
           ${
             this.options.enableResize
               ? `
-            <button class="widget-control widget-control--resize" 
+            <button class="widget-control widget-control--resize"
                     aria-label="Resize ${widget.title}"
                     title="Drag to resize">
               ⤡
@@ -258,7 +258,7 @@ class DragDropDashboard {
           `
               : ""
           }
-          <button class="widget-control widget-control--remove" 
+          <button class="widget-control widget-control--remove"
                   aria-label="Remove ${widget.title}"
                   title="Remove widget">
             ×
@@ -328,8 +328,8 @@ class DragDropDashboard {
 
       case "iframe":
         return `
-          <iframe src="${widget.src || "about:blank"}" 
-                  frameborder="0" 
+          <iframe src="${widget.src || "about:blank"}"
+                  frameborder="0"
                   style="width: 100%; height: 100%;"
                   title="${widget.title}">
           </iframe>

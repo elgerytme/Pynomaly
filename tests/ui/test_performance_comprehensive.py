@@ -6,7 +6,7 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import pytest
 from playwright.sync_api import Page
@@ -98,7 +98,7 @@ class PerformanceMonitor:
                 resources: [],
                 observers: []
             };
-            
+
             // Core Web Vitals monitoring
             if ('PerformanceObserver' in window) {
                 // Largest Contentful Paint
@@ -109,7 +109,7 @@ class PerformanceMonitor:
                 });
                 lcpObserver.observe({entryTypes: ['largest-contentful-paint']});
                 window.performanceData.observers.push(lcpObserver);
-                
+
                 // First Input Delay (requires actual interaction)
                 const fidObserver = new PerformanceObserver((entryList) => {
                     const firstEntry = entryList.getEntries()[0];
@@ -117,7 +117,7 @@ class PerformanceMonitor:
                 });
                 fidObserver.observe({entryTypes: ['first-input']});
                 window.performanceData.observers.push(fidObserver);
-                
+
                 // Cumulative Layout Shift
                 let clsValue = 0;
                 const clsObserver = new PerformanceObserver((entryList) => {
@@ -130,7 +130,7 @@ class PerformanceMonitor:
                 });
                 clsObserver.observe({entryTypes: ['layout-shift']});
                 window.performanceData.observers.push(clsObserver);
-                
+
                 // Navigation timing
                 const navObserver = new PerformanceObserver((entryList) => {
                     const navigation = entryList.getEntries()[0];
@@ -145,7 +145,7 @@ class PerformanceMonitor:
                 });
                 navObserver.observe({entryTypes: ['navigation']});
                 window.performanceData.observers.push(navObserver);
-                
+
                 // Paint timing
                 const paintObserver = new PerformanceObserver((entryList) => {
                     const entries = entryList.getEntries();
@@ -155,7 +155,7 @@ class PerformanceMonitor:
                 });
                 paintObserver.observe({entryTypes: ['paint']});
                 window.performanceData.observers.push(paintObserver);
-                
+
                 // Resource timing
                 const resourceObserver = new PerformanceObserver((entryList) => {
                     const entries = entryList.getEntries();
@@ -171,7 +171,7 @@ class PerformanceMonitor:
                 resourceObserver.observe({entryTypes: ['resource']});
                 window.performanceData.observers.push(resourceObserver);
             }
-            
+
             // Custom performance markers
             window.markPerformance = (name) => {
                 if (performance.mark) {
@@ -179,16 +179,16 @@ class PerformanceMonitor:
                     window.performanceData.metrics[name] = performance.now();
                 }
             };
-            
+
             // Bundle size estimation
             window.estimateBundleSize = () => {
                 const resources = performance.getEntriesByType('resource');
                 const jsResources = resources.filter(r => r.initiatorType === 'script');
                 const cssResources = resources.filter(r => r.initiatorType === 'link');
-                
+
                 const totalJsSize = jsResources.reduce((sum, r) => sum + (r.transferSize || 0), 0);
                 const totalCssSize = cssResources.reduce((sum, r) => sum + (r.transferSize || 0), 0);
-                
+
                 return {
                     totalJs: totalJsSize,
                     totalCss: totalCssSize,
@@ -199,7 +199,7 @@ class PerformanceMonitor:
         """
         )
 
-    async def collect_performance_metrics(self) -> Dict[str, Any]:
+    async def collect_performance_metrics(self) -> dict[str, Any]:
         """Collect comprehensive performance metrics."""
         if not self.monitoring_active:
             await self.start_monitoring()
@@ -214,26 +214,26 @@ class PerformanceMonitor:
                 async () => {
                     // Wait a bit more for observers to collect data
                     await new Promise(resolve => setTimeout(resolve, 1000));
-                    
+
                     const data = window.performanceData || {};
                     const navigation = performance.getEntriesByType('navigation')[0];
                     const paint = performance.getEntriesByType('paint');
                     const bundleSize = window.estimateBundleSize ? window.estimateBundleSize() : {};
-                    
+
                     // Memory usage (if available)
                     const memory = (performance as any).memory ? {
                         usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
                         totalJSHeapSize: (performance as any).memory.totalJSHeapSize,
                         jsHeapSizeLimit: (performance as any).memory.jsHeapSizeLimit
                     } : null;
-                    
+
                     // Connection information
                     const connection = (navigator as any).connection ? {
                         effectiveType: (navigator as any).connection.effectiveType,
                         downlink: (navigator as any).connection.downlink,
                         rtt: (navigator as any).connection.rtt
                     } : null;
-                    
+
                     return {
                         // Core Web Vitals
                         coreWebVitals: {
@@ -243,7 +243,7 @@ class PerformanceMonitor:
                             firstContentfulPaint: data.vitals?.first_contentful_paint || 0,
                             firstPaint: data.vitals?.first_paint || 0
                         },
-                        
+
                         // Navigation timing
                         navigationTiming: {
                             domContentLoaded: navigation?.domContentLoadedEventEnd - navigation?.domContentLoadedEventStart || 0,
@@ -255,7 +255,7 @@ class PerformanceMonitor:
                             serverResponse: navigation?.responseEnd - navigation?.requestStart || 0,
                             domProcessing: navigation?.domComplete - navigation?.domLoading || 0
                         },
-                        
+
                         // Resource metrics
                         resourceMetrics: {
                             totalResources: data.resources?.length || 0,
@@ -266,7 +266,7 @@ class PerformanceMonitor:
                                 return types;
                             }, {}) || {}
                         },
-                        
+
                         // System metrics
                         systemMetrics: {
                             memory: memory,
@@ -278,7 +278,7 @@ class PerformanceMonitor:
                             },
                             pixelRatio: window.devicePixelRatio || 1
                         },
-                        
+
                         // Timestamp and URL
                         timestamp: new Date().toISOString(),
                         url: window.location.href,
@@ -300,7 +300,7 @@ class PerformanceMonitor:
         except Exception as e:
             return {"error": str(e), "timestamp": time.time(), "url": self.page.url}
 
-    def _evaluate_performance(self, metrics: Dict[str, Any]) -> Dict[str, Any]:
+    def _evaluate_performance(self, metrics: dict[str, Any]) -> dict[str, Any]:
         """Evaluate performance metrics against thresholds."""
         evaluation = {
             "overall_score": 0,
@@ -486,8 +486,8 @@ class PerformanceMonitor:
         return evaluation
 
     async def run_lighthouse_audit(
-        self, url: str, device_config: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, url: str, device_config: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """Run Lighthouse audit for comprehensive performance analysis."""
         if not LIGHTHOUSE_ENABLED:
             return {"error": "Lighthouse not enabled", "lighthouse_available": False}
@@ -617,7 +617,7 @@ class PerformanceMonitor:
             return {"error": f"Lighthouse audit failed: {str(e)}"}
 
     async def save_performance_report(
-        self, metrics: Dict[str, Any], test_name: str = "performance_test"
+        self, metrics: dict[str, Any], test_name: str = "performance_test"
     ):
         """Save performance report to file."""
         timestamp = metrics.get("timestamp", time.time())
@@ -726,7 +726,7 @@ class TestPerformanceComprehensive:
         self,
         performance_monitor: PerformanceMonitor,
         page: Page,
-        device_config: Dict[str, Any],
+        device_config: dict[str, Any],
     ):
         """Test performance across different device configurations."""
         # Set viewport for device
@@ -896,7 +896,7 @@ class TestPerformanceComprehensive:
 # Utility functions
 def generate_performance_summary_report(
     reports_dir: Path = PERFORMANCE_REPORTS_DIR,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate summary report from all performance test results."""
     summary = {
         "total_reports": 0,

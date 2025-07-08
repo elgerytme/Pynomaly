@@ -376,7 +376,7 @@ class PyTorchAdapter(DetectorProtocol):
         # Handle backward compatibility
         if algorithm is not None:
             algorithm_name = algorithm
-            
+
         self.algorithm = algorithm_name
         self._name = name or f"PyTorch_{algorithm_name}"
         self._contamination_rate = contamination_rate
@@ -542,7 +542,9 @@ class PyTorchAdapter(DetectorProtocol):
         """Train AutoEncoder model."""
         # Create configuration with contamination
         model_config = self.model_config.copy()
-        model_config["contamination"] = model_config.get("contamination", self._contamination_rate)
+        model_config["contamination"] = model_config.get(
+            "contamination", self._contamination_rate
+        )
         config = AutoEncoderConfig(input_dim=X_tensor.shape[1], **model_config)
 
         # Initialize model
@@ -593,7 +595,9 @@ class PyTorchAdapter(DetectorProtocol):
     def _fit_vae(self, X_tensor: torch.Tensor):
         """Train VAE model."""
         model_config = self.model_config.copy()
-        model_config["contamination"] = model_config.get("contamination", self._contamination_rate)
+        model_config["contamination"] = model_config.get(
+            "contamination", self._contamination_rate
+        )
         config = VAEConfig(input_dim=X_tensor.shape[1], **model_config)
 
         self.model = VAE(config).to(self.device)
@@ -631,7 +635,9 @@ class PyTorchAdapter(DetectorProtocol):
     def _fit_lstm(self, X_tensor: torch.Tensor):
         """Train LSTM model for time series."""
         model_config = self.model_config.copy()
-        model_config["contamination"] = model_config.get("contamination", self._contamination_rate)
+        model_config["contamination"] = model_config.get(
+            "contamination", self._contamination_rate
+        )
         config = LSTMConfig(input_dim=X_tensor.shape[1], **model_config)
 
         # Reshape for time series
@@ -727,7 +733,7 @@ class PyTorchAdapter(DetectorProtocol):
                 scores = self._lstm_scores(X_tensor)
             else:
                 raise ValueError(f"Unknown algorithm: {self.algorithm}")
-        
+
         scores_np = scores.cpu().numpy()
 
         if hasattr(self.model, "config"):
@@ -750,9 +756,9 @@ class PyTorchAdapter(DetectorProtocol):
 
         # Get complete model config including input_dim
         complete_config = self.model_config.copy()
-        if hasattr(self.model, 'config'):
-            complete_config['input_dim'] = self.model.config.input_dim
-        
+        if hasattr(self.model, "config"):
+            complete_config["input_dim"] = self.model.config.input_dim
+
         save_dict = {
             "model_state_dict": self.model.state_dict(),
             "model_config": complete_config,

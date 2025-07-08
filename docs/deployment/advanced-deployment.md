@@ -111,13 +111,13 @@ CREATE USER replication_user REPLICATION PASSWORD 'secure_password';
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO replication_user;
 
 -- Read replica setup (eu-west-1)
-CREATE SUBSCRIPTION pynomaly_replica_eu 
-CONNECTION 'host=primary-db.us-east-1.rds.amazonaws.com port=5432 user=replication_user dbname=pynomaly sslmode=require' 
+CREATE SUBSCRIPTION pynomaly_replica_eu
+CONNECTION 'host=primary-db.us-east-1.rds.amazonaws.com port=5432 user=replication_user dbname=pynomaly sslmode=require'
 PUBLICATION pynomaly_replication;
 
 -- Read replica setup (asia-pacific)
-CREATE SUBSCRIPTION pynomaly_replica_ap 
-CONNECTION 'host=primary-db.us-east-1.rds.amazonaws.com port=5432 user=replication_user dbname=pynomaly sslmode=require' 
+CREATE SUBSCRIPTION pynomaly_replica_ap
+CONNECTION 'host=primary-db.us-east-1.rds.amazonaws.com port=5432 user=replication_user dbname=pynomaly sslmode=require'
 PUBLICATION pynomaly_replication;
 ```
 
@@ -161,18 +161,18 @@ REGION_CONFIGS = {
 
 class RegionalConfigManager:
     """Manages regional configuration with built-in resilience."""
-    
+
     def __init__(self, region: str):
         self.region = region
         self.config = REGION_CONFIGS.get(region)
         if not self.config:
             raise ValueError(f"Unknown region: {region}")
-    
+
     @ml_resilient(timeout_seconds=300, max_attempts=2)
     async def get_regional_config(self) -> Dict[str, Any]:
         """Get configuration for specific region with resilience."""
         return self.config.copy()
-    
+
     @database_resilient(timeout_seconds=30, max_attempts=3)
     async def test_database_connection(self) -> bool:
         """Test database connectivity with resilience patterns."""
@@ -185,7 +185,7 @@ class RegionalConfigManager:
         except Exception as e:
             print(f"Database connection failed: {e}")
             return False
-    
+
     @api_resilient(timeout_seconds=10, max_attempts=2)
     async def test_cache_connection(self) -> bool:
         """Test cache connectivity with resilience patterns."""
@@ -197,7 +197,7 @@ class RegionalConfigManager:
         except Exception as e:
             print(f"Cache connection failed: {e}")
             return False
-    
+
     async def health_check(self) -> Dict[str, bool]:
         """Comprehensive health check for region."""
         return {
@@ -211,15 +211,15 @@ class RegionalConfigManager:
 async def setup_regional_deployment():
     import os
     region = os.getenv('AWS_REGION', 'us-east-1')
-    
+
     config_manager = RegionalConfigManager(region)
     config = await config_manager.get_regional_config()
     health = await config_manager.health_check()
-    
+
     print(f"Region: {region}")
     print(f"Role: {config['role']}")
     print(f"Health: {health}")
-    
+
     return config_manager
 ```
 
@@ -235,54 +235,54 @@ import json
 
 class GlobalModelSynchronizer:
     """Synchronize trained models across regions with resilience."""
-    
+
     def __init__(self, region: str, config_manager: RegionalConfigManager):
         self.region = region
         self.config_manager = config_manager
         self.s3_client = boto3.client('s3')
         self.sync_interval = 300  # 5 minutes
-    
+
     @ml_resilient(timeout_seconds=600, max_attempts=2)
     async def sync_models_globally(self):
         """Synchronize models across all regions."""
         config = await self.config_manager.get_regional_config()
-        
+
         if config['role'] == 'primary':
             await self._push_models_to_replicas()
         else:
             await self._pull_models_from_primary()
-    
+
     async def _push_models_to_replicas(self):
         """Push models from primary to replica regions."""
         config = await self.config_manager.get_regional_config()
         primary_bucket = config['model_storage'].replace('s3://', '')
-        
+
         # List all models in primary region
         models = self._list_models(primary_bucket)
-        
+
         for region_config in REGION_CONFIGS.values():
             if region_config['role'] == 'replica':
                 replica_bucket = region_config['model_storage'].replace('s3://', '')
                 await self._copy_models_to_bucket(models, primary_bucket, replica_bucket)
-    
+
     async def _pull_models_from_primary(self):
         """Pull latest models from primary region."""
         # Find primary region
         primary_config = next(
-            config for config in REGION_CONFIGS.values() 
+            config for config in REGION_CONFIGS.values()
             if config['role'] == 'primary'
         )
-        
+
         primary_bucket = primary_config['model_storage'].replace('s3://', '')
         local_config = await self.config_manager.get_regional_config()
         local_bucket = local_config['model_storage'].replace('s3://', '')
-        
+
         # Get latest models from primary
         models = self._list_models(primary_bucket)
         latest_models = self._filter_latest_models(models)
-        
+
         await self._copy_models_to_bucket(latest_models, primary_bucket, local_bucket)
-    
+
     @api_resilient(timeout_seconds=30, max_attempts=3)
     async def _copy_models_to_bucket(self, models: list, source_bucket: str, dest_bucket: str):
         """Copy models between S3 buckets with resilience."""
@@ -290,7 +290,7 @@ class GlobalModelSynchronizer:
             try:
                 copy_source = {'Bucket': source_bucket, 'Key': model['Key']}
                 await asyncio.get_event_loop().run_in_executor(
-                    None, 
+                    None,
                     self.s3_client.copy_object,
                     copy_source,
                     dest_bucket,
@@ -300,7 +300,7 @@ class GlobalModelSynchronizer:
             except Exception as e:
                 print(f"Failed to copy model {model['Key']}: {e}")
                 # Circuit breaker will handle retries
-    
+
     def _list_models(self, bucket: str) -> list:
         """List all models in S3 bucket."""
         try:
@@ -309,13 +309,13 @@ class GlobalModelSynchronizer:
         except Exception as e:
             print(f"Failed to list models in {bucket}: {e}")
             return []
-    
+
     def _filter_latest_models(self, models: list, hours: int = 24) -> list:
         """Filter models updated in the last N hours."""
         from datetime import datetime, timedelta
-        
+
         cutoff_time = datetime.now() - timedelta(hours=hours)
-        
+
         return [
             model for model in models
             if model.get('LastModified', datetime.min).replace(tzinfo=None) > cutoff_time
@@ -379,7 +379,7 @@ spec:
       attempts: 3
       perTryTimeout: 10s
       retryOn: 5xx,reset,connect-failure,refused-stream
-  
+
   # Dataset service with load balancing
   - match:
     - uri:
@@ -390,7 +390,7 @@ spec:
         port:
           number: 8001
     timeout: 60s
-  
+
   # Model service with caching
   - match:
     - uri:
@@ -487,40 +487,40 @@ app = FastAPI(title="Detector Service")
 
 class DetectorService:
     """Microservice for detector management with built-in resilience."""
-    
+
     def __init__(self):
         self.dataset_service_url = "http://dataset-service:8001"
         self.model_service_url = "http://model-service:8002"
-    
+
     @ml_resilient(timeout_seconds=300, max_attempts=2)
     async def create_detector(self, detector_config: dict):
         """Create detector with ML resilience patterns."""
         try:
             # Create detector using domain services
             from pynomaly.domain.services import DetectorFactory
-            
+
             factory = DetectorFactory()
             detector = await factory.create_detector(
                 algorithm=detector_config['algorithm'],
                 parameters=detector_config.get('parameters', {})
             )
-            
+
             return {
                 "id": detector.id,
                 "algorithm": detector.algorithm,
                 "parameters": detector.parameters,
                 "created_at": detector.created_at.isoformat()
             }
-            
+
         except Exception as e:
             # Circuit breaker will handle retries
             raise HTTPException(status_code=500, detail=f"Detector creation failed: {str(e)}")
-    
+
     @api_resilient(timeout_seconds=30, max_attempts=3)
     async def get_dataset_info(self, dataset_id: str):
         """Get dataset information from dataset service with API resilience."""
         import aiohttp
-        
+
         async with aiohttp.ClientSession() as session:
             async with session.get(f"{self.dataset_service_url}/datasets/{dataset_id}") as response:
                 if response.status == 200:
@@ -530,30 +530,30 @@ class DetectorService:
                         status_code=response.status,
                         detail=f"Dataset service error: {response.status}"
                     )
-    
+
     @ml_resilient(timeout_seconds=600, max_attempts=1)  # No retry for training
     async def train_detector(self, detector_id: str, dataset_id: str):
         """Train detector with comprehensive resilience."""
         try:
             # Get dataset information
             dataset_info = await self.get_dataset_info(dataset_id)
-            
+
             # Perform training with timeout protection
             from pynomaly.application.use_cases import TrainDetector
-            
+
             train_use_case = TrainDetector()
             result = await train_use_case.execute(
                 detector_id=detector_id,
                 dataset_id=dataset_id
             )
-            
+
             return {
                 "detector_id": detector_id,
                 "training_status": "completed",
                 "training_time_ms": result.training_time_ms,
                 "samples_processed": result.samples_processed
             }
-            
+
         except asyncio.TimeoutError:
             raise HTTPException(status_code=408, detail="Training timeout")
         except Exception as e:
@@ -582,7 +582,7 @@ async def readiness_check():
         dataset_health = await detector_service.get_dataset_info("health-check")
     except:
         dataset_health = None
-    
+
     return {
         "ready": dataset_health is not None,
         "dependencies": {
@@ -692,7 +692,7 @@ logger = logging.getLogger(__name__)
 
 class EdgeSyncService:
     """Service for synchronizing edge nodes with central system."""
-    
+
     def __init__(self, central_api_url: str, sync_interval: int = 300):
         self.central_api_url = central_api_url
         self.sync_interval = sync_interval
@@ -700,7 +700,7 @@ class EdgeSyncService:
         self.pending_results = []
         self.offline_mode = os.getenv('OFFLINE_MODE', 'false').lower() == 'true'
         self.last_sync_time = datetime.now()
-    
+
     async def start_sync_loop(self):
         """Start continuous synchronization loop."""
         while True:
@@ -710,66 +710,66 @@ class EdgeSyncService:
             except Exception as e:
                 logger.error(f"Sync cycle failed: {e}")
                 await asyncio.sleep(self.sync_interval * 2)  # Back off on error
-    
+
     async def sync_cycle(self):
         """Perform one complete sync cycle."""
         logger.info("Starting sync cycle...")
-        
+
         # Try to sync models (download)
         await self.sync_models()
-        
+
         # Try to upload results
         await self.upload_results()
-        
+
         # Clean up old data
         await self.cleanup_old_data()
-        
+
         self.last_sync_time = datetime.now()
         logger.info("Sync cycle completed")
-    
+
     @api_resilient(timeout_seconds=30, max_attempts=3)
     async def sync_models(self):
         """Sync models from central system with resilience."""
         if self.offline_mode and not await self._test_connectivity():
             logger.info("Offline mode: skipping model sync")
             return
-        
+
         try:
             import aiohttp
             async with aiohttp.ClientSession() as session:
                 async with session.get(f"{self.central_api_url}/api/v1/models/edge") as response:
                     if response.status == 200:
                         models = await response.json()
-                        
+
                         for model_info in models:
                             if self._should_download_model(model_info):
                                 await self.download_model(model_info)
                     else:
                         logger.warning(f"Model sync failed with status {response.status}")
-                        
+
         except Exception as e:
             logger.error(f"Model sync failed: {e}")
             if not self.offline_mode:
                 raise  # Let circuit breaker handle retries
-    
+
     @ml_resilient(timeout_seconds=60, max_attempts=2)
     async def download_model(self, model_info: dict):
         """Download individual model with ML resilience."""
         model_id = model_info['id']
         model_url = model_info['download_url']
-        
+
         try:
             import aiohttp
             async with aiohttp.ClientSession() as session:
                 async with session.get(model_url) as response:
                     if response.status == 200:
                         model_data = await response.read()
-                        
+
                         # Save model locally
                         model_path = f"/app/models/{model_id}.pkl"
                         with open(model_path, 'wb') as f:
                             f.write(model_data)
-                        
+
                         # Update local model registry
                         self.local_models[model_id] = {
                             'path': model_path,
@@ -777,25 +777,25 @@ class EdgeSyncService:
                             'downloaded_at': datetime.now().isoformat(),
                             'metadata': model_info.get('metadata', {})
                         }
-                        
+
                         logger.info(f"Downloaded model {model_id} version {model_info['version']}")
                     else:
                         logger.error(f"Failed to download model {model_id}: HTTP {response.status}")
-                        
+
         except Exception as e:
             logger.error(f"Model download failed for {model_id}: {e}")
             raise
-    
+
     @api_resilient(timeout_seconds=60, max_attempts=2)
     async def upload_results(self):
         """Upload pending results to central system."""
         if not self.pending_results:
             return
-        
+
         if self.offline_mode and not await self._test_connectivity():
             logger.info(f"Offline mode: queuing {len(self.pending_results)} results")
             return
-        
+
         try:
             import aiohttp
             async with aiohttp.ClientSession() as session:
@@ -804,37 +804,37 @@ class EdgeSyncService:
                     "results": self.pending_results[:100],  # Batch upload
                     "timestamp": datetime.now().isoformat()
                 }
-                
+
                 async with session.post(
                     f"{self.central_api_url}/api/v1/results/edge",
                     json=upload_data
                 ) as response:
-                    
+
                     if response.status == 200:
                         uploaded_count = len(upload_data['results'])
                         self.pending_results = self.pending_results[uploaded_count:]
                         logger.info(f"Uploaded {uploaded_count} results to central system")
                     else:
                         logger.warning(f"Result upload failed with status {response.status}")
-                        
+
         except Exception as e:
             logger.error(f"Result upload failed: {e}")
             # Keep results for next attempt
             if len(self.pending_results) > 10000:  # Prevent memory overflow
                 self.pending_results = self.pending_results[-5000:]  # Keep recent results
                 logger.warning("Trimmed pending results due to memory constraints")
-    
+
     async def queue_detection_result(self, result: dict):
         """Queue detection result for upload."""
         result['edge_timestamp'] = datetime.now().isoformat()
         result['edge_node_id'] = os.getenv('EDGE_NODE_ID', 'unknown')
-        
+
         self.pending_results.append(result)
-        
+
         # Immediate upload for critical anomalies
         if result.get('anomaly_score', 0) > 0.9:
             await self.upload_critical_result(result)
-    
+
     @api_resilient(timeout_seconds=10, max_attempts=1)
     async def upload_critical_result(self, result: dict):
         """Immediately upload critical anomaly results."""
@@ -849,19 +849,19 @@ class EdgeSyncService:
                         logger.info(f"Critical anomaly uploaded immediately: {result.get('anomaly_score')}")
         except Exception as e:
             logger.warning(f"Critical result upload failed (will retry in batch): {e}")
-    
+
     def _should_download_model(self, model_info: dict) -> bool:
         """Check if model should be downloaded."""
         model_id = model_info['id']
-        
+
         if model_id not in self.local_models:
             return True
-        
+
         local_version = self.local_models[model_id].get('version', 0)
         remote_version = model_info.get('version', 0)
-        
+
         return remote_version > local_version
-    
+
     async def _test_connectivity(self) -> bool:
         """Test connectivity to central system."""
         try:
@@ -871,12 +871,12 @@ class EdgeSyncService:
                     return response.status == 200
         except:
             return False
-    
+
     async def cleanup_old_data(self):
         """Clean up old models and results."""
         # Remove old model files
         cutoff_time = datetime.now() - timedelta(days=7)
-        
+
         for model_id, model_info in list(self.local_models.items()):
             downloaded_at = datetime.fromisoformat(model_info['downloaded_at'])
             if downloaded_at < cutoff_time:
@@ -886,7 +886,7 @@ class EdgeSyncService:
                     logger.info(f"Cleaned up old model {model_id}")
                 except Exception as e:
                     logger.warning(f"Failed to clean up model {model_id}: {e}")
-        
+
         # Limit pending results
         if len(self.pending_results) > 5000:
             self.pending_results = self.pending_results[-2500:]
@@ -895,11 +895,11 @@ class EdgeSyncService:
 # Edge detection service with local models
 class EdgeDetectionService:
     """Local anomaly detection service for edge nodes."""
-    
+
     def __init__(self, sync_service: EdgeSyncService):
         self.sync_service = sync_service
         self.loaded_models = {}
-    
+
     @ml_resilient(timeout_seconds=30, max_attempts=1)
     async def detect_anomalies(self, data: dict, model_id: str = None):
         """Perform local anomaly detection with resilience."""
@@ -907,22 +907,22 @@ class EdgeDetectionService:
             # Use best available model if none specified
             if model_id is None:
                 model_id = self._select_best_model(data)
-            
+
             # Load model if not in memory
             if model_id not in self.loaded_models:
                 await self._load_model(model_id)
-            
+
             # Perform detection
             model = self.loaded_models[model_id]
-            
+
             # Convert data to format expected by model
             import numpy as np
             features = np.array(list(data.values())).reshape(1, -1)
-            
+
             # Run inference
             prediction = model.predict(features)[0]
             score = model.decision_function(features)[0]
-            
+
             result = {
                 'data': data,
                 'is_anomaly': bool(prediction == -1),
@@ -930,12 +930,12 @@ class EdgeDetectionService:
                 'model_id': model_id,
                 'detected_at': datetime.now().isoformat()
             }
-            
+
             # Queue result for upload
             await self.sync_service.queue_detection_result(result)
-            
+
             return result
-            
+
         except Exception as e:
             logger.error(f"Edge detection failed: {e}")
             # Return safe default
@@ -947,32 +947,32 @@ class EdgeDetectionService:
                 'error': str(e),
                 'detected_at': datetime.now().isoformat()
             }
-    
+
     async def _load_model(self, model_id: str):
         """Load model into memory."""
         if model_id not in self.sync_service.local_models:
             raise ValueError(f"Model {model_id} not available locally")
-        
+
         model_info = self.sync_service.local_models[model_id]
         model_path = model_info['path']
-        
+
         import joblib
         model = joblib.load(model_path)
         self.loaded_models[model_id] = model
-        
+
         logger.info(f"Loaded model {model_id} into memory")
-    
+
     def _select_best_model(self, data: dict) -> str:
         """Select best available model for given data."""
         # Simple heuristic: use most recent model
         if not self.sync_service.local_models:
             raise ValueError("No models available locally")
-        
+
         latest_model = max(
             self.sync_service.local_models.items(),
             key=lambda x: x[1]['downloaded_at']
         )
-        
+
         return latest_model[0]
 ```
 

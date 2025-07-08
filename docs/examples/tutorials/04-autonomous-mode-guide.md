@@ -227,44 +227,44 @@ monitoring_config = {
 ```python
 class AutonomousController:
     """Main controller for autonomous anomaly detection."""
-    
+
     def __init__(self):
         self.data_analyzer = DataAnalyzer()
         self.algorithm_selector = AlgorithmSelector()
         self.optimizer = HyperparameterOptimizer()
         self.monitor = PerformanceMonitor()
         self.explainer = ExplanationEngine()
-    
+
     async def auto_detect(
-        self, 
+        self,
         data: np.ndarray,
         target_metric: str = "f1_score",
         time_budget: int = 3600,  # seconds
         compute_budget: float = 1.0  # relative
     ) -> AutonomousResult:
         """Execute autonomous anomaly detection."""
-        
+
         # 1. Analyze data
         profile = await self.data_analyzer.analyze(data)
-        
+
         # 2. Select algorithms
         candidates = await self.algorithm_selector.select(
             profile, target_metric
         )
-        
+
         # 3. Optimize and evaluate
         results = await self.optimizer.optimize_ensemble(
             candidates, data, time_budget, compute_budget
         )
-        
+
         # 4. Build final model
         final_model = await self._build_final_model(results)
-        
+
         # 5. Generate explanations
         explanations = await self.explainer.explain(
             final_model, data, profile
         )
-        
+
         return AutonomousResult(
             model=final_model,
             performance=results.best_performance,
@@ -277,33 +277,33 @@ class AutonomousController:
 ```python
 class DataAnalyzer:
     """Comprehensive data analysis for autonomous mode."""
-    
+
     async def analyze(self, data: np.ndarray) -> DataProfile:
         """Analyze data characteristics."""
-        
+
         profile = DataProfile()
-        
+
         # Basic statistics
         profile.size = data.shape
         profile.dtypes = self._infer_types(data)
-        
+
         # Quality assessment
         profile.quality = await self._assess_quality(data)
-        
+
         # Distribution analysis
         profile.distributions = await self._analyze_distributions(data)
-        
+
         # Pattern detection
         profile.patterns = await self._detect_patterns(data)
-        
+
         # Complexity estimation
         profile.complexity = self._estimate_complexity(data)
-        
+
         # Anomaly characteristics
         profile.anomaly_hints = await self._detect_anomaly_hints(data)
-        
+
         return profile
-    
+
     async def _assess_quality(self, data: np.ndarray) -> QualityMetrics:
         """Assess data quality."""
         return QualityMetrics(
@@ -313,21 +313,21 @@ class DataAnalyzer:
             noise_level=self._estimate_noise(data),
             consistency_score=self._check_consistency(data)
         )
-    
+
     async def _detect_patterns(self, data: np.ndarray) -> PatternInfo:
         """Detect temporal and spatial patterns."""
         patterns = PatternInfo()
-        
+
         # Temporal patterns
         if self._has_temporal_structure(data):
             patterns.seasonality = self._detect_seasonality(data)
             patterns.trends = self._detect_trends(data)
             patterns.cycles = self._detect_cycles(data)
-        
+
         # Spatial patterns
         patterns.clusters = self._detect_clusters(data)
         patterns.correlations = self._analyze_correlations(data)
-        
+
         return patterns
 ```
 
@@ -335,61 +335,61 @@ class DataAnalyzer:
 ```python
 class AlgorithmSelector:
     """Intelligent algorithm selection based on data characteristics."""
-    
+
     def __init__(self):
         self.meta_learner = MetaLearner()
         self.knowledge_base = AlgorithmKnowledgeBase()
-    
+
     async def select(
-        self, 
-        profile: DataProfile, 
+        self,
+        profile: DataProfile,
         target_metric: str
     ) -> List[AlgorithmCandidate]:
         """Select optimal algorithms for given data profile."""
-        
+
         # 1. Get meta-learned recommendations
         meta_predictions = await self.meta_learner.predict(
             profile, target_metric
         )
-        
+
         # 2. Apply rule-based filters
         rule_based = self._apply_rules(profile)
-        
+
         # 3. Combine recommendations
         candidates = self._combine_recommendations(
             meta_predictions, rule_based
         )
-        
+
         # 4. Rank by expected performance
         ranked_candidates = await self._rank_candidates(
             candidates, profile, target_metric
         )
-        
+
         return ranked_candidates[:5]  # Top 5 candidates
-    
+
     def _apply_rules(self, profile: DataProfile) -> List[str]:
         """Apply rule-based algorithm selection."""
-        
+
         rules = []
-        
+
         # Size-based rules
         if profile.size[0] < 1000:
             rules.extend(["LOF", "OneClassSVM"])
         elif profile.size[0] > 100000:
             rules.extend(["IsolationForest", "MiniBatchKMeans"])
-        
+
         # Dimensionality rules
         if profile.size[1] > 100:
             rules.extend(["AutoEncoder", "PCA"])
-        
+
         # Pattern-based rules
         if profile.patterns.has_temporal:
             rules.extend(["LSTM", "Prophet"])
-        
+
         # Quality-based rules
         if profile.quality.noise_level > 0.3:
             rules.extend(["RobustScaler", "IsolationForest"])
-        
+
         return rules
 ```
 
@@ -406,27 +406,27 @@ autonomous_mode:
   auto_feature_selection: true
   auto_algorithm_selection: true
   auto_hyperparameter_tuning: true
-  
+
   # Performance targets
   target_metrics:
     primary: "f1_score"
     minimum_threshold: 0.8
     optimization_direction: "maximize"
-  
+
   # Resource constraints
   time_budget: 3600  # seconds
   compute_budget: 1.0  # relative to available resources
   memory_limit: "8GB"
   cpu_cores: -1  # use all available
   gpu_enabled: true
-  
+
   # Algorithm preferences
   algorithm_constraints:
     excluded_algorithms: []
     preferred_families: ["tree_based", "ensemble"]
     interpretability_weight: 0.3
     speed_weight: 0.2
-  
+
   # Adaptation settings
   adaptation:
     enabled: true
@@ -449,7 +449,7 @@ autonomous_config = AutonomousConfig(
         pattern_detection=True,
         statistical_tests=True
     ),
-    
+
     # Algorithm selection
     algorithm_selection=AlgorithmSelectionConfig(
         max_candidates=5,
@@ -458,7 +458,7 @@ autonomous_config = AutonomousConfig(
         meta_learning_enabled=True,
         cold_start_algorithms=["IsolationForest", "LOF"]
     ),
-    
+
     # Optimization settings
     optimization=OptimizationConfig(
         method="bayesian",
@@ -467,7 +467,7 @@ autonomous_config = AutonomousConfig(
         pruning_enabled=True,
         parallel_trials=4
     ),
-    
+
     # Ensemble configuration
     ensemble=EnsembleConfig(
         enabled=True,
@@ -476,7 +476,7 @@ autonomous_config = AutonomousConfig(
         combination_method="weighted_voting",
         weight_optimization=True
     ),
-    
+
     # Monitoring and adaptation
     monitoring=MonitoringConfig(
         metrics=["accuracy", "precision", "recall", "f1_score"],
@@ -542,7 +542,7 @@ pynomaly auto detect \
     --dataset financial_transactions.csv \
     --preset fraud_detection
 
-# Available presets: fraud_detection, quality_control, 
+# Available presets: fraud_detection, quality_control,
 # network_security, predictive_maintenance, etc.
 ```
 
@@ -585,7 +585,7 @@ detector.start_continuous_learning(
 preprocessing_pipeline = AutonomousPreprocessor(
     numeric_strategies=[
         "standard_scaling",
-        "outlier_clipping", 
+        "outlier_clipping",
         "polynomial_features",
         "interaction_terms"
     ],
@@ -611,7 +611,7 @@ processed_data = preprocessing_pipeline.fit_transform(raw_data)
 feature_selector = AutonomousFeatureSelector(
     methods=[
         "variance_threshold",
-        "correlation_filter", 
+        "correlation_filter",
         "mutual_info_selection",
         "recursive_elimination",
         "lasso_selection"
@@ -629,22 +629,22 @@ selected_features = feature_selector.select(data, target)
 ```python
 class MetaLearner:
     """Predicts algorithm performance based on dataset characteristics."""
-    
+
     def __init__(self):
         self.meta_features_extractor = MetaFeaturesExtractor()
         self.performance_predictor = GradientBoostingRegressor()
         self.knowledge_base = self._load_knowledge_base()
-    
+
     def predict_performance(
-        self, 
-        dataset_profile: DataProfile, 
+        self,
+        dataset_profile: DataProfile,
         algorithm: str
     ) -> PerformancePrediction:
         """Predict expected performance of algorithm on dataset."""
-        
+
         # Extract meta-features
         meta_features = self.meta_features_extractor.extract(dataset_profile)
-        
+
         # Predict performance metrics
         predicted_metrics = {}
         for metric in ["accuracy", "precision", "recall", "f1_score"]:
@@ -652,10 +652,10 @@ class MetaLearner:
                 meta_features + [self._encode_algorithm(algorithm)]
             ])[0]
             predicted_metrics[metric] = prediction
-        
+
         # Estimate confidence
         confidence = self._calculate_confidence(meta_features, algorithm)
-        
+
         return PerformancePrediction(
             metrics=predicted_metrics,
             confidence=confidence,
@@ -667,13 +667,13 @@ class MetaLearner:
 ```python
 class TransferLearner:
     """Applies knowledge from similar datasets."""
-    
+
     def find_similar_datasets(
-        self, 
+        self,
         target_profile: DataProfile
     ) -> List[SimilarDataset]:
         """Find datasets similar to target for knowledge transfer."""
-        
+
         similarities = []
         for dataset in self.knowledge_base.datasets:
             similarity = self._calculate_similarity(
@@ -685,20 +685,20 @@ class TransferLearner:
                     similarity=similarity,
                     best_algorithms=dataset.performance.best_algorithms
                 ))
-        
+
         return sorted(similarities, key=lambda x: x.similarity, reverse=True)
-    
+
     def transfer_hyperparameters(
-        self, 
-        algorithm: str, 
+        self,
+        algorithm: str,
         similar_datasets: List[SimilarDataset]
     ) -> Dict[str, Any]:
         """Transfer hyperparameters from similar datasets."""
-        
+
         # Weighted average of hyperparameters based on similarity
         transferred_params = {}
         total_weight = sum(ds.similarity for ds in similar_datasets)
-        
+
         for param_name in self._get_algorithm_params(algorithm):
             weighted_sum = 0
             for dataset in similar_datasets:
@@ -706,10 +706,10 @@ class TransferLearner:
                     param_value = dataset.best_algorithms[algorithm].params.get(param_name)
                     if param_value is not None:
                         weighted_sum += param_value * dataset.similarity
-            
+
             if total_weight > 0:
                 transferred_params[param_name] = weighted_sum / total_weight
-        
+
         return transferred_params
 ```
 
@@ -719,30 +719,30 @@ class TransferLearner:
 ```python
 class IntelligentEnsembleBuilder:
     """Builds optimal ensembles based on model diversity and performance."""
-    
+
     def build_ensemble(
-        self, 
+        self,
         candidate_models: List[Model],
         validation_data: Tuple[np.ndarray, np.ndarray]
     ) -> EnsembleModel:
         """Build optimal ensemble from candidate models."""
-        
+
         X_val, y_val = validation_data
-        
+
         # Evaluate individual models
         model_performances = {}
         model_predictions = {}
-        
+
         for model in candidate_models:
             predictions = model.predict(X_val)
             performance = self._evaluate_model(predictions, y_val)
-            
+
             model_performances[model.id] = performance
             model_predictions[model.id] = predictions
-        
+
         # Calculate diversity matrix
         diversity_matrix = self._calculate_diversity_matrix(model_predictions)
-        
+
         # Select models using multi-objective optimization
         selected_models = self._select_ensemble_models(
             candidate_models,
@@ -750,18 +750,18 @@ class IntelligentEnsembleBuilder:
             diversity_matrix,
             max_models=5
         )
-        
+
         # Optimize ensemble weights
         weights = self._optimize_ensemble_weights(
             selected_models, model_predictions, y_val
         )
-        
+
         return EnsembleModel(
             models=selected_models,
             weights=weights,
             combination_method="weighted_voting"
         )
-    
+
     def _select_ensemble_models(
         self,
         candidates: List[Model],
@@ -770,16 +770,16 @@ class IntelligentEnsembleBuilder:
         max_models: int
     ) -> List[Model]:
         """Select models for ensemble using Pareto optimization."""
-        
+
         # Multi-objective optimization: maximize performance and diversity
         def objective(model_indices):
             selected_models = [candidates[i] for i in model_indices]
-            
+
             # Average performance
             avg_performance = np.mean([
                 performances[model.id] for model in selected_models
             ])
-            
+
             # Average pairwise diversity
             if len(model_indices) > 1:
                 diversity_pairs = []
@@ -791,15 +791,15 @@ class IntelligentEnsembleBuilder:
                 avg_diversity = np.mean(diversity_pairs)
             else:
                 avg_diversity = 0
-            
+
             # Combined objective (weighted sum)
             return 0.7 * avg_performance + 0.3 * avg_diversity
-        
+
         # Use genetic algorithm for selection
         best_combination = self._genetic_algorithm_selection(
             objective, len(candidates), max_models
         )
-        
+
         return [candidates[i] for i in best_combination]
 ```
 
@@ -809,11 +809,11 @@ class IntelligentEnsembleBuilder:
 ```python
 class DriftDetector:
     """Detects various types of drift in data and model performance."""
-    
+
     def __init__(self):
         self.data_drift_detectors = {
             "ks_test": KolmogorovSmirnovTest(),
-            "wasserstein": WassersteinDistance(), 
+            "wasserstein": WassersteinDistance(),
             "jensen_shannon": JensenShannonDivergence()
         }
         self.concept_drift_detectors = {
@@ -821,56 +821,56 @@ class DriftDetector:
             "page_hinkley": PageHinkley(),
             "ddm": DDM()
         }
-        
+
     def detect_drift(
-        self, 
+        self,
         reference_data: np.ndarray,
         current_data: np.ndarray,
         performance_history: List[float]
     ) -> DriftReport:
         """Comprehensive drift detection."""
-        
+
         report = DriftReport()
-        
+
         # Data drift detection
         data_drift_results = {}
         for name, detector in self.data_drift_detectors.items():
             drift_score = detector.detect(reference_data, current_data)
             data_drift_results[name] = drift_score
-        
+
         # Aggregate data drift signals
         report.data_drift = DriftSignal(
             detected=np.mean(list(data_drift_results.values())) > 0.1,
             confidence=np.std(list(data_drift_results.values())),
             details=data_drift_results
         )
-        
+
         # Concept drift detection
         concept_drift_results = {}
         for name, detector in self.concept_drift_detectors.items():
             for performance in performance_history:
                 detector.add_element(performance)
-            
+
             concept_drift_results[name] = detector.detected_change()
-        
+
         report.concept_drift = DriftSignal(
             detected=any(concept_drift_results.values()),
             confidence=sum(concept_drift_results.values()) / len(concept_drift_results),
             details=concept_drift_results
         )
-        
+
         # Performance drift
         if len(performance_history) > 10:
             recent_performance = np.mean(performance_history[-5:])
             baseline_performance = np.mean(performance_history[:5])
             performance_degradation = baseline_performance - recent_performance
-            
+
             report.performance_drift = DriftSignal(
                 detected=performance_degradation > 0.1,
                 confidence=abs(performance_degradation),
                 details={"degradation": performance_degradation}
             )
-        
+
         return report
 ```
 
@@ -878,7 +878,7 @@ class DriftDetector:
 ```python
 class AdaptiveResponseSystem:
     """Responds to detected drift with appropriate adaptation strategies."""
-    
+
     def __init__(self):
         self.adaptation_strategies = {
             "incremental_update": IncrementalLearning(),
@@ -887,28 +887,28 @@ class AdaptiveResponseSystem:
             "parameter_tuning": ParameterAdaptation(),
             "algorithm_switch": AlgorithmSwitching()
         }
-    
+
     def respond_to_drift(
-        self, 
+        self,
         drift_report: DriftReport,
         current_model: Model,
         new_data: np.ndarray
     ) -> AdaptationResult:
         """Select and execute appropriate adaptation strategy."""
-        
+
         # Determine adaptation strategy based on drift type and severity
         strategy = self._select_adaptation_strategy(drift_report)
-        
+
         # Execute adaptation
         adaptation_result = strategy.adapt(current_model, new_data, drift_report)
-        
+
         # Validate adaptation
         validation_result = self._validate_adaptation(
             original_model=current_model,
             adapted_model=adaptation_result.model,
             validation_data=new_data
         )
-        
+
         return AdaptationResult(
             strategy=strategy.name,
             model=adaptation_result.model,
@@ -916,28 +916,28 @@ class AdaptiveResponseSystem:
             adaptation_confidence=validation_result.confidence,
             rollback_available=True
         )
-    
+
     def _select_adaptation_strategy(self, drift_report: DriftReport) -> str:
         """Select optimal adaptation strategy based on drift characteristics."""
-        
+
         # Data drift -> incremental learning or retraining
         if drift_report.data_drift.detected:
             if drift_report.data_drift.confidence < 0.3:
                 return "incremental_update"
             else:
                 return "model_retraining"
-        
+
         # Concept drift -> ensemble update or algorithm switch
         if drift_report.concept_drift.detected:
             if drift_report.concept_drift.confidence < 0.5:
                 return "ensemble_update"
             else:
                 return "algorithm_switch"
-        
+
         # Performance drift -> parameter tuning
         if drift_report.performance_drift.detected:
             return "parameter_tuning"
-        
+
         return "incremental_update"  # Default conservative approach
 ```
 
@@ -949,20 +949,20 @@ class AdaptiveResponseSystem:
 ```python
 class ResourceManager:
     """Manages computational resources for optimal performance."""
-    
+
     def __init__(self):
         self.system_monitor = SystemMonitor()
         self.resource_predictor = ResourcePredictor()
-    
+
     def optimize_resource_allocation(
-        self, 
+        self,
         training_tasks: List[TrainingTask]
     ) -> ResourceAllocation:
         """Optimize resource allocation across training tasks."""
-        
+
         # Monitor current system state
         system_state = self.system_monitor.get_current_state()
-        
+
         # Predict resource requirements for each task
         resource_predictions = {}
         for task in training_tasks:
@@ -972,14 +972,14 @@ class ResourceManager:
                 hyperparameter_space=task.param_space
             )
             resource_predictions[task.id] = prediction
-        
+
         # Optimize allocation using integer programming
         allocation = self._solve_resource_allocation(
             tasks=training_tasks,
             predictions=resource_predictions,
             constraints=system_state.constraints
         )
-        
+
         return allocation
 ```
 
@@ -987,12 +987,12 @@ class ResourceManager:
 ```python
 class DistributedTrainingCoordinator:
     """Coordinates distributed training across multiple nodes."""
-    
+
     def __init__(self, cluster_config: ClusterConfig):
         self.cluster = cluster_config
         self.task_scheduler = TaskScheduler()
         self.result_aggregator = ResultAggregator()
-    
+
     async def distribute_hyperparameter_search(
         self,
         algorithm: str,
@@ -1001,12 +1001,12 @@ class DistributedTrainingCoordinator:
         n_trials: int
     ) -> OptimizationResult:
         """Distribute hyperparameter search across cluster."""
-        
+
         # Partition parameter space
         param_partitions = self._partition_parameter_space(
             param_space, self.cluster.n_nodes
         )
-        
+
         # Create training tasks
         tasks = []
         for i, partition in enumerate(param_partitions):
@@ -1018,19 +1018,19 @@ class DistributedTrainingCoordinator:
                 n_trials=n_trials // self.cluster.n_nodes
             )
             tasks.append(task)
-        
+
         # Schedule and execute tasks
         task_futures = []
         for task in tasks:
             future = self.task_scheduler.schedule(task)
             task_futures.append(future)
-        
+
         # Collect results
         node_results = await asyncio.gather(*task_futures)
-        
+
         # Aggregate results
         final_result = self.result_aggregator.aggregate(node_results)
-        
+
         return final_result
 ```
 
@@ -1040,11 +1040,11 @@ class DistributedTrainingCoordinator:
 ```python
 class MemoryOptimizer:
     """Optimizes memory usage during training."""
-    
+
     def __init__(self):
         self.memory_monitor = MemoryMonitor()
         self.data_sampler = AdaptiveDataSampler()
-    
+
     def optimize_training_memory(
         self,
         algorithm: str,
@@ -1052,10 +1052,10 @@ class MemoryOptimizer:
         memory_limit: int
     ) -> OptimizedTrainingPlan:
         """Create memory-optimized training plan."""
-        
+
         # Estimate memory requirements
         memory_estimate = self._estimate_memory_usage(algorithm, data.shape)
-        
+
         if memory_estimate <= memory_limit:
             # Sufficient memory - use full dataset
             return OptimizedTrainingPlan(
@@ -1063,7 +1063,7 @@ class MemoryOptimizer:
                 batch_size=len(data),
                 data_sampling_ratio=1.0
             )
-        
+
         # Insufficient memory - optimize
         if memory_estimate <= memory_limit * 2:
             # Use mini-batch training
@@ -1128,11 +1128,11 @@ monitoring_metrics = {
 ```python
 class AlertSystem:
     """Intelligent alerting for autonomous mode."""
-    
+
     def __init__(self):
         self.alert_rules = self._initialize_alert_rules()
         self.notification_channels = NotificationChannels()
-    
+
     def _initialize_alert_rules(self) -> List[AlertRule]:
         return [
             AlertRule(
@@ -1142,7 +1142,7 @@ class AlertSystem:
                 actions=["retrain_model", "notify_admin"]
             ),
             AlertRule(
-                name="data_drift_detected", 
+                name="data_drift_detected",
                 condition="drift_score > 0.2",
                 severity="medium",
                 actions=["schedule_adaptation", "notify_team"]
@@ -1156,16 +1156,16 @@ class AlertSystem:
             AlertRule(
                 name="adaptation_failure",
                 condition="adaptation_success_rate < 0.8",
-                severity="high", 
+                severity="high",
                 actions=["fallback_to_baseline", "expert_review"]
             )
         ]
-    
+
     async def check_alerts(self, metrics: Dict[str, Any]) -> List[Alert]:
         """Check all alert conditions against current metrics."""
-        
+
         triggered_alerts = []
-        
+
         for rule in self.alert_rules:
             if self._evaluate_condition(rule.condition, metrics):
                 alert = Alert(
@@ -1176,11 +1176,11 @@ class AlertSystem:
                     suggested_actions=rule.actions
                 )
                 triggered_alerts.append(alert)
-        
+
         # Execute alert actions
         for alert in triggered_alerts:
             await self._execute_alert_actions(alert)
-        
+
         return triggered_alerts
 ```
 
@@ -1190,11 +1190,11 @@ class AlertSystem:
 ```python
 class ManualOverrideSystem:
     """Allows manual control over autonomous decisions."""
-    
+
     def __init__(self):
         self.override_history = []
         self.current_overrides = {}
-    
+
     def override_algorithm_selection(
         self,
         forced_algorithms: List[str],
@@ -1202,7 +1202,7 @@ class ManualOverrideSystem:
         duration: Optional[int] = None
     ) -> OverrideResult:
         """Force specific algorithms to be used."""
-        
+
         override = Override(
             type="algorithm_selection",
             parameters={"forced_algorithms": forced_algorithms},
@@ -1211,16 +1211,16 @@ class ManualOverrideSystem:
             created_by="manual",
             created_at=datetime.utcnow()
         )
-        
+
         self.current_overrides["algorithm_selection"] = override
         self.override_history.append(override)
-        
+
         return OverrideResult(
             success=True,
             override_id=override.id,
             message=f"Algorithm selection overridden with {forced_algorithms}"
         )
-    
+
     def override_hyperparameters(
         self,
         algorithm: str,
@@ -1228,7 +1228,7 @@ class ManualOverrideSystem:
         reason: str
     ) -> OverrideResult:
         """Force specific hyperparameters."""
-        
+
         override = Override(
             type="hyperparameters",
             parameters={
@@ -1239,25 +1239,25 @@ class ManualOverrideSystem:
             created_by="manual",
             created_at=datetime.utcnow()
         )
-        
+
         self.current_overrides[f"hyperparameters_{algorithm}"] = override
         self.override_history.append(override)
-        
+
         return OverrideResult(
             success=True,
             override_id=override.id,
             message=f"Hyperparameters overridden for {algorithm}"
         )
-    
+
     def clear_override(self, override_id: str) -> bool:
         """Clear a specific override."""
-        
+
         for key, override in self.current_overrides.items():
             if override.id == override_id:
                 del self.current_overrides[key]
                 override.cleared_at = datetime.utcnow()
                 return True
-        
+
         return False
 ```
 
@@ -1268,31 +1268,31 @@ class ManualOverrideSystem:
 ```python
 class MultiDatasetLearner:
     """Learns from multiple related datasets simultaneously."""
-    
+
     async def learn_from_multiple_datasets(
         self,
         datasets: List[Dataset],
         relationships: Dict[str, str]  # dataset relationships
     ) -> MultiDatasetModel:
         """Learn optimal models across multiple related datasets."""
-        
+
         # Analyze dataset relationships
         relationship_graph = self._build_relationship_graph(datasets, relationships)
-        
+
         # Identify shared patterns
         shared_patterns = await self._identify_shared_patterns(datasets)
-        
+
         # Train base models on individual datasets
         individual_models = {}
         for dataset in datasets:
             model = await self._train_individual_model(dataset)
             individual_models[dataset.id] = model
-        
+
         # Train meta-model for cross-dataset knowledge
         meta_model = await self._train_meta_model(
             individual_models, shared_patterns, relationship_graph
         )
-        
+
         return MultiDatasetModel(
             individual_models=individual_models,
             meta_model=meta_model,
@@ -1305,48 +1305,48 @@ class MultiDatasetLearner:
 ```python
 class FederatedAutonomousLearner:
     """Autonomous learning across federated data sources."""
-    
+
     def __init__(self, federation_config: FederationConfig):
         self.federation = federation_config
         self.consensus_engine = ConsensusEngine()
         self.privacy_engine = PrivacyEngine()
-    
+
     async def federated_learning(
         self,
         local_data: np.ndarray,
         global_rounds: int = 10
     ) -> FederatedModel:
         """Perform federated autonomous learning."""
-        
+
         # Initialize local autonomous detector
         local_detector = AutonomousDetector()
-        
+
         # Global training loop
         global_model = None
         for round_num in range(global_rounds):
-            
+
             # Local training
             local_model = await local_detector.fit(
-                local_data, 
+                local_data,
                 base_model=global_model
             )
-            
+
             # Privacy-preserving model update
             private_update = self.privacy_engine.privatize_model(
                 local_model, global_model
             )
-            
+
             # Send update to federation
             await self.federation.send_update(private_update)
-            
+
             # Receive global model update
             global_updates = await self.federation.receive_updates()
-            
+
             # Consensus-based aggregation
             global_model = self.consensus_engine.aggregate_models(
                 global_updates, consensus_threshold=0.7
             )
-        
+
         return FederatedModel(
             global_model=global_model,
             local_contribution=local_model,
@@ -1359,41 +1359,41 @@ class FederatedAutonomousLearner:
 ```python
 class ExplainableAutonomousMode:
     """Provides explanations for all autonomous decisions."""
-    
+
     def __init__(self):
         self.decision_logger = DecisionLogger()
         self.explanation_generator = ExplanationGenerator()
-    
+
     async def explain_algorithm_selection(
         self,
         selected_algorithms: List[str],
         data_profile: DataProfile
     ) -> AlgorithmSelectionExplanation:
         """Explain why specific algorithms were selected."""
-        
+
         explanation = AlgorithmSelectionExplanation()
-        
+
         for algorithm in selected_algorithms:
             # Rule-based reasoning
             rule_reasons = self._get_rule_based_reasons(algorithm, data_profile)
-            
+
             # Meta-learning reasoning
             meta_reasons = await self._get_meta_learning_reasons(
                 algorithm, data_profile
             )
-            
+
             # Performance prediction reasoning
             perf_reasons = self._get_performance_reasons(algorithm, data_profile)
-            
+
             explanation.add_algorithm_explanation(
                 algorithm=algorithm,
                 rule_based_reasons=rule_reasons,
                 meta_learning_reasons=meta_reasons,
                 performance_reasons=perf_reasons
             )
-        
+
         return explanation
-    
+
     async def explain_hyperparameter_choices(
         self,
         algorithm: str,
@@ -1401,26 +1401,26 @@ class ExplainableAutonomousMode:
         optimization_history: List[Trial]
     ) -> HyperparameterExplanation:
         """Explain hyperparameter selection process."""
-        
+
         explanation = HyperparameterExplanation(algorithm=algorithm)
-        
+
         for param_name, param_value in selected_params.items():
-            
+
             # Optimization path explanation
             optimization_path = self._trace_optimization_path(
                 param_name, optimization_history
             )
-            
+
             # Sensitivity analysis
             sensitivity = self._analyze_parameter_sensitivity(
                 param_name, optimization_history
             )
-            
+
             # Literature-based reasoning
             literature_support = self._get_literature_support(
                 algorithm, param_name, param_value
             )
-            
+
             explanation.add_parameter_explanation(
                 parameter=param_name,
                 value=param_value,
@@ -1428,7 +1428,7 @@ class ExplainableAutonomousMode:
                 sensitivity=sensitivity,
                 literature_support=literature_support
             )
-        
+
         return explanation
 ```
 

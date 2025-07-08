@@ -5,7 +5,6 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pandas as pd
 import pytest
-
 from pynomaly.application.services.advanced_explainability_service import (
     AdvancedExplainabilityService,
     BiasAnalysisConfig,

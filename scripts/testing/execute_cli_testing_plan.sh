@@ -49,21 +49,21 @@ run_test_step() {
     local step_name="$1"
     local command="$2"
     local expected_exit_code="${3:-0}"
-    
+
     print_status "TEST" "Running: $step_name"
     echo "Command: $command"
     echo "----------------------------------------"
-    
+
     # Capture both stdout and stderr
     local output
     local exit_code
-    
+
     if output=$(eval "$command" 2>&1); then
         exit_code=0
     else
         exit_code=$?
     fi
-    
+
     if [ $exit_code -eq $expected_exit_code ]; then
         print_status "SUCCESS" "$step_name completed successfully"
         echo "$output" | head -10  # Show first 10 lines of output
@@ -357,7 +357,7 @@ for adapter_type, algorithm in algorithms:
             adapter = SklearnAdapter(algorithm)
         else:
             adapter = PyODAdapter(algorithm)
-        
+
         adapter.fit(dataset)
         result = adapter.detect(dataset)
         results[f'{adapter_type}_{algorithm}'] = {
@@ -541,7 +541,7 @@ training_time = time.time() - start_time
 
 print(f'✓ Model training: {training_time:.2f} seconds')
 
-# Detection performance  
+# Detection performance
 start_time = time.time()
 result = adapter.detect(dataset)
 detection_time = time.time() - start_time
@@ -669,7 +669,7 @@ if [ $failed_tests -eq 0 ]; then
     echo ""
     echo "CLI FUNCTIONALITY ASSESSMENT:"
     echo "✅ Installation and registration: WORKING"
-    echo "✅ Core CLI commands: WORKING"  
+    echo "✅ Core CLI commands: WORKING"
     echo "✅ Data management: WORKING"
     echo "✅ Anomaly detection: WORKING"
     echo "✅ API integration: WORKING"

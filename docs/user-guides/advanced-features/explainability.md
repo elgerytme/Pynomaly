@@ -218,8 +218,8 @@ explainer = LIMEExplainer(
 explanations = []
 for _ in range(10):  # 10 independent runs
     exp = explainer.explain_instance(
-        X_test[0], 
-        detector.predict, 
+        X_test[0],
+        detector.predict,
         num_samples=1000
     )
     explanations.append(exp.as_map()[1])
@@ -476,7 +476,7 @@ streaming_explainer = StreamingExplainer(
 # Process streaming data
 for batch in data_stream:
     results = streaming_explainer.process_batch(batch)
-    
+
     for result in results:
         if result.is_anomaly and result.explanation:
             print(f"Anomaly detected: {result.anomaly_score:.3f}")
@@ -509,22 +509,22 @@ from pynomaly.infrastructure.explainers import CustomExplainer
 
 class BusinessLogicExplainer(CustomExplainer):
     """Custom explainer incorporating business rules"""
-    
+
     def explain_instance(self, instance, **kwargs):
         # Custom business logic explanation
         explanation = {}
-        
+
         # Rule-based explanations
         if instance[transaction_amount_idx] > 10000:
             explanation["high_amount"] = 0.8
-        
+
         if instance[location_idx] not in known_locations:
             explanation["unusual_location"] = 0.6
-        
+
         # Combine with ML explanation
         ml_explanation = self.base_explainer.explain_instance(instance)
         explanation.update(ml_explanation)
-        
+
         return explanation
 
 # Use custom explainer

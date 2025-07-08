@@ -5,10 +5,9 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pandas as pd
 import pytest
-from typer.testing import CliRunner
-
 from pynomaly.domain.entities import Dataset
 from pynomaly.presentation.cli.preprocessing import app
+from typer.testing import CliRunner
 
 
 @pytest.fixture

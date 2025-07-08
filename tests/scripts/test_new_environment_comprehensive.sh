@@ -58,18 +58,18 @@ run_pynomali_test() {
     local command="$2"
     local expected_exit_code="${3:-0}"
     local allow_warnings="${4:-false}"
-    
+
     ((total_tests++))
-    
+
     echo "----------------------------------------"
     print_status "TEST" "$test_name"
     echo "COMMAND: $command"
     echo "----------------------------------------"
-    
+
     # Capture output and exit code
     local output
     local exit_code
-    
+
     if [ "$allow_warnings" = "true" ]; then
         output=$(eval "$command" 2>&1)
         exit_code=$?
@@ -77,14 +77,14 @@ run_pynomali_test() {
         output=$(eval "$command" 2>&1)
         exit_code=$?
     fi
-    
+
     # Display output (first 10 lines)
     echo "$output" | head -10
     local line_count=$(echo "$output" | wc -l)
     if [ $line_count -gt 10 ]; then
         echo "... (output truncated)"
     fi
-    
+
     # Check result
     if [ $exit_code -eq $expected_exit_code ]; then
         print_status "SUCCESS" "✅ PASSED: $test_name"
@@ -135,9 +135,9 @@ import os
 print('Testing virtual environment support...')
 try:
     # Try to create a test virtual environment
-    result = subprocess.run(['python3', '-m', 'venv', 'test_env_check'], 
+    result = subprocess.run(['python3', '-m', 'venv', 'test_env_check'],
                           capture_output=True, text=True, timeout=30)
-    
+
     if result.returncode == 0 and os.path.exists('test_env_check'):
         print('✓ Virtual environment creation supported')
         # Clean up
@@ -191,17 +191,17 @@ print('Testing dependency injection container...')
 try:
     container = create_container()
     print(f'Container type: {type(container).__name__}')
-    
+
     # Test repository creation
     detector_repo = container.detector_repository()
     print(f'Detector repository: {type(detector_repo).__name__}')
-    
+
     dataset_repo = container.dataset_repository()
     print(f'Dataset repository: {type(dataset_repo).__name__}')
-    
+
     result_repo = container.result_repository()
     print(f'Result repository: {type(result_repo).__name__}')
-    
+
     print('✓ Dependency injection container working')
 except Exception as e:
     print(f'✗ DI container error: {str(e)}')
@@ -227,7 +227,7 @@ print('Creating test datasets...')
 np.random.seed(42)
 data_small = pd.DataFrame({
     'x': np.random.normal(0, 1, 50).tolist() + [5, 6, 7],
-    'y': np.random.normal(0, 1, 50).tolist() + [5, 6, 7],  
+    'y': np.random.normal(0, 1, 50).tolist() + [5, 6, 7],
     'z': np.random.normal(0, 1, 50).tolist() + [5, 6, 7]
 })
 data_small.to_csv('test_data_bash.csv', index=False)
@@ -258,14 +258,14 @@ try:
     print(f'Raw data shape: {data.shape}')
     print(f'Raw data columns: {data.columns.tolist()}')
     print(f'Raw data types: {data.dtypes.tolist()}')
-    
+
     # Create Pynomaly dataset
     dataset = Dataset(name='Bash Test Dataset', data=data)
     print(f'Dataset name: {dataset.name}')
     print(f'Dataset ID: {dataset.id}')
     print(f'Dataset shape: {dataset.data.shape}')
     print(f'Dataset columns: {dataset.data.columns.tolist()}')
-    
+
     print('✓ Dataset loading successful')
 except Exception as e:
     print(f'✗ Dataset loading error: {str(e)}')
@@ -282,17 +282,17 @@ import numpy as np
 print('Testing data validation and analysis...')
 try:
     data = pd.read_csv('test_data_bash.csv')
-    
+
     # Basic validation
     print(f'Data shape: {data.shape}')
     print(f'Data types: {data.dtypes.unique().tolist()}')
     print(f'Missing values: {data.isnull().sum().sum()}')
     print(f'Numeric columns: {len(data.select_dtypes(include=[np.number]).columns)}')
-    
+
     # Statistical analysis
     print(f'Data mean: {data.mean().mean():.3f}')
     print(f'Data std: {data.std().mean():.3f}')
-    
+
     # Outlier detection using IQR
     outlier_counts = {}
     for col in data.columns:
@@ -303,10 +303,10 @@ try:
         outliers = data[(data[col] < lower_bound) | (data[col] > upper_bound)]
         outlier_counts[col] = len(outliers)
         print(f'{col}: {len(outliers)} potential outliers')
-    
+
     total_outliers = sum(outlier_counts.values())
     print(f'Total potential outliers detected: {total_outliers}')
-    
+
     print('✓ Data validation and analysis successful')
 except Exception as e:
     print(f'✗ Data validation error: {str(e)}')
@@ -332,29 +332,29 @@ try:
     data = pd.read_csv('test_data_bash.csv')
     dataset = Dataset(name='ML Test Dataset', data=data)
     print(f'Dataset loaded: {dataset.data.shape}')
-    
+
     # Create adapter
     adapter = SklearnAdapter('IsolationForest', {'contamination': 0.1})
     print(f'Adapter created: {adapter.algorithm_name}')
     print(f'Parameters: {adapter.parameters}')
-    
+
     # Fit the model
     adapter.fit(dataset)
     print('✓ Model fitted successfully')
     print(f'Model is fitted: {adapter.is_fitted}')
-    
+
     # Run detection
     result = adapter.detect(dataset)
     print(f'Detection completed: {len(result.scores)} scores generated')
     print(f'Anomalies detected: {len(result.anomalies)}')
     print(f'Anomaly rate: {result.anomaly_rate:.2%}')
-    
+
     # Analyze results
     score_values = [s.value for s in result.scores]
     high_scores = [s for s in score_values if s > 0.6]
     print(f'High anomaly scores (>0.6): {len(high_scores)}')
     print(f'Score range: {min(score_values):.3f} - {max(score_values):.3f}')
-    
+
     print('✓ Basic ML algorithm test successful')
 except Exception as e:
     print(f'✗ ML algorithm error: {str(e)}')
@@ -380,52 +380,52 @@ try:
     data = pd.read_csv('test_data_bash.csv')
     dataset = Dataset(name='Multi-Algorithm Test', data=data)
     print(f'Dataset loaded: {dataset.data.shape}')
-    
+
     # Define algorithms to test
     algorithms = [
         ('sklearn', 'IsolationForest'),
         ('sklearn', 'LocalOutlierFactor'),
         ('pyod', 'IsolationForest')
     ]
-    
+
     results = {}
     successful_algorithms = 0
-    
+
     for lib, algo in algorithms:
         try:
             print(f'Testing {lib} {algo}...')
-            
+
             if lib == 'sklearn':
                 adapter = SklearnAdapter(algo)
             else:
                 adapter = PyODAdapter(algo)
-            
+
             adapter.fit(dataset)
             result = adapter.detect(dataset)
-            
+
             results[f'{lib}_{algo}'] = {
                 'anomalies': len(result.anomalies),
                 'rate': result.anomaly_rate,
                 'scores': len(result.scores)
             }
-            
+
             print(f'✓ {lib} {algo}: {len(result.anomalies)} anomalies ({result.anomaly_rate:.2%})')
             successful_algorithms += 1
-            
+
         except Exception as e:
             print(f'✗ {lib} {algo} failed: {str(e)}')
             results[f'{lib}_{algo}'] = {'error': str(e)}
-    
+
     print(f'Algorithm testing summary:')
     print(f'- Total algorithms tested: {len(algorithms)}')
     print(f'- Successful algorithms: {successful_algorithms}')
     print(f'- Success rate: {successful_algorithms/len(algorithms)*100:.1f}%')
-    
+
     if successful_algorithms >= 2:
         print('✓ Multiple ML algorithms test successful')
     else:
         print('⚠ Some ML algorithms failed')
-        
+
 except Exception as e:
     print(f'✗ Multiple ML algorithms error: {str(e)}')
     raise
@@ -447,26 +447,26 @@ try:
     # Create container and app
     container = create_container()
     print(f'Container created: {type(container).__name__}')
-    
+
     app = create_app(container)
     print(f'FastAPI app created: {type(app).__name__}')
-    
+
     # Create test client
     client = TestClient(app)
     print('✓ Test client created')
-    
+
     # Test health endpoint
     print('Testing health endpoint...')
     health_response = client.get('/api/health/')
     print(f'Health response status: {health_response.status_code}')
-    
+
     if health_response.status_code == 200:
         health_data = health_response.json()
         print(f'Health status: {health_data.get(\\\"overall_status\\\", \\\"unknown\\\")}')
         print('✓ Health endpoint working')
     else:
         print(f'⚠ Health endpoint returned {health_response.status_code}')
-    
+
     print('✓ API server creation successful')
 except Exception as e:
     print(f'✗ API server creation error: {str(e)}')
@@ -489,7 +489,7 @@ try:
     container = create_container()
     app = create_app(container)
     client = TestClient(app)
-    
+
     # Test detector creation
     print('Creating detector via API...')
     detector_data = {
@@ -497,10 +497,10 @@ try:
         'algorithm_name': 'IsolationForest',
         'parameters': {'contamination': 0.1}
     }
-    
+
     create_response = client.post('/api/detectors/', json=detector_data)
     print(f'Create detector status: {create_response.status_code}')
-    
+
     if create_response.status_code == 200:
         detector = create_response.json()
         print(f'✓ Detector created: {detector[\\\"name\\\"]}')
@@ -509,12 +509,12 @@ try:
     else:
         print(f'✗ Detector creation failed: {create_response.status_code}')
         print(f'Response: {create_response.text}')
-    
+
     # Test detector listing
     print('Listing detectors via API...')
     list_response = client.get('/api/detectors/')
     print(f'List detectors status: {list_response.status_code}')
-    
+
     if list_response.status_code == 200:
         detectors = list_response.json()
         print(f'✓ Detectors listed: {len(detectors)} found')
@@ -522,7 +522,7 @@ try:
             print(f'Sample detector: {detectors[0][\\\"name\\\"]}')
     else:
         print(f'✗ Detector listing failed: {list_response.status_code}')
-    
+
     print('✓ API detector operations successful')
 except Exception as e:
     print(f'✗ API detector operations error: {str(e)}')
@@ -552,49 +552,49 @@ try:
     # Get process for memory monitoring
     process = psutil.Process(os.getpid())
     memory_before = process.memory_info().rss / 1024 / 1024  # MB
-    
+
     # Load medium dataset
     print('Loading medium dataset...')
     start_time = time.time()
     data = pd.read_csv('test_data_medium_bash.csv')
     dataset = Dataset(name='Performance Test Dataset', data=data)
     load_time = time.time() - start_time
-    
+
     print(f'✓ Data loaded: {data.shape} in {load_time:.3f} seconds')
-    
+
     # Test model fitting performance
     print('Testing model fitting performance...')
     start_time = time.time()
     adapter = SklearnAdapter('IsolationForest')
     adapter.fit(dataset)
     fit_time = time.time() - start_time
-    
+
     print(f'✓ Model fitted in {fit_time:.3f} seconds')
-    
+
     # Test detection performance
     print('Testing detection performance...')
     start_time = time.time()
     result = adapter.detect(dataset)
     detect_time = time.time() - start_time
-    
+
     print(f'✓ Detection completed in {detect_time:.3f} seconds')
     print(f'Anomalies found: {len(result.anomalies)} ({result.anomaly_rate:.2%})')
-    
+
     # Memory usage
     memory_after = process.memory_info().rss / 1024 / 1024  # MB
     memory_used = memory_after - memory_before
-    
+
     # Performance summary
     total_time = load_time + fit_time + detect_time
     throughput = data.shape[0] / total_time
-    
+
     print(f'Performance Summary:')
     print(f'- Dataset size: {data.shape}')
     print(f'- Total time: {total_time:.3f} seconds')
     print(f'- Throughput: {throughput:.0f} samples/second')
     print(f'- Memory used: {memory_used:.1f} MB')
     print(f'- Time per sample: {(total_time * 1000 / data.shape[0]):.2f} ms')
-    
+
     # Performance criteria
     if total_time < 10 and memory_used < 100:
         print('✓ Performance criteria met')
@@ -602,7 +602,7 @@ try:
         print('⚠ Performance acceptable but could be improved')
     else:
         print('⚠ Performance slower than expected')
-    
+
     print('✓ Performance testing successful')
 except Exception as e:
     print(f'✗ Performance testing error: {str(e)}')

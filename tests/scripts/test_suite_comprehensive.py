@@ -262,7 +262,6 @@ class ComprehensiveTestSuite:
         # Test import performance
         start_time = time.time()
         try:
-
             import_time = time.time() - start_time
 
             performance_results.append(
@@ -372,7 +371,6 @@ class ComprehensiveTestSuite:
         # Test health service
         start_time = time.time()
         try:
-
             health_results.append(
                 TestResult(
                     name="health_service_import",

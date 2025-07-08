@@ -1,7 +1,7 @@
 """Data Transfer Objects for streaming anomaly detection."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -9,17 +9,15 @@ from pydantic import BaseModel, Field, field_validator
 class StreamDataPointDTO(BaseModel):
     """DTO for individual stream data point."""
 
-    timestamp: Optional[datetime] = Field(
-        default=None, description="Data point timestamp"
-    )
-    features: Dict[str, float] = Field(description="Feature values for the data point")
-    metadata: Optional[Dict[str, Any]] = Field(
+    timestamp: datetime | None = Field(default=None, description="Data point timestamp")
+    features: dict[str, float] = Field(description="Feature values for the data point")
+    metadata: dict[str, Any] | None = Field(
         default_factory=dict, description="Additional metadata"
     )
-    anomaly_score: Optional[float] = Field(
+    anomaly_score: float | None = Field(
         default=None, description="Anomaly score if computed"
     )
-    is_anomaly: Optional[bool] = Field(
+    is_anomaly: bool | None = Field(
         default=None, description="Whether this point is an anomaly"
     )
 
@@ -58,8 +56,9 @@ class StreamDataPointDTO(BaseModel):
         timestamp = None
         if data.get("timestamp"):
             from datetime import datetime
-            timestamp = datetime.fromisoformat(data["timestamp"].replace('Z', '+00:00'))
-        
+
+            timestamp = datetime.fromisoformat(data["timestamp"].replace("Z", "+00:00"))
+
         return cls(
             timestamp=timestamp,
             features=data["features"],
@@ -72,13 +71,13 @@ class StreamDataPointDTO(BaseModel):
 class StreamDataBatchDTO(BaseModel):
     """DTO for batch of stream data points."""
 
-    batch_id: Optional[str] = Field(default=None, description="Batch identifier")
-    data_points: List[StreamDataPointDTO] = Field(
+    batch_id: str | None = Field(default=None, description="Batch identifier")
+    data_points: list[StreamDataPointDTO] = Field(
         description="List of data points in the batch"
     )
-    timestamp: Optional[datetime] = Field(default=None, description="Batch timestamp")
-    window_start: Optional[datetime] = Field(default=None, description="Window start time")
-    window_end: Optional[datetime] = Field(default=None, description="Window end time")
+    timestamp: datetime | None = Field(default=None, description="Batch timestamp")
+    window_start: datetime | None = Field(default=None, description="Window start time")
+    window_end: datetime | None = Field(default=None, description="Window end time")
 
     @field_validator("data_points")
     @classmethod
@@ -99,10 +98,10 @@ class StreamDataBatchDTO(BaseModel):
             import pandas as pd
         except ImportError:
             raise ImportError("pandas is required for to_pandas() method")
-        
+
         if not self.data_points:
             return pd.DataFrame()
-        
+
         # Convert data points to records
         records = []
         for point in self.data_points:
@@ -119,7 +118,7 @@ class StreamDataBatchDTO(BaseModel):
                 for k, v in point.metadata.items():
                     record[f"meta_{k}"] = v
             records.append(record)
-        
+
         return pd.DataFrame(records)
 
 
@@ -128,7 +127,7 @@ class StreamDetectionRequestDTO(BaseModel):
 
     detector_id: str = Field(description="Detector identifier")
     data_batch: StreamDataBatchDTO = Field(description="Data batch to process")
-    configuration: Optional[Dict[str, Any]] = Field(
+    configuration: dict[str, Any] | None = Field(
         default_factory=dict, description="Additional configuration"
     )
 
@@ -137,8 +136,8 @@ class StreamDetectionResponseDTO(BaseModel):
     """DTO for stream detection response."""
 
     request_id: str = Field(description="Request identifier")
-    predictions: List[int] = Field(description="Anomaly predictions")
-    scores: List[float] = Field(description="Anomaly scores")
+    predictions: list[int] = Field(description="Anomaly predictions")
+    scores: list[float] = Field(description="Anomaly scores")
     processing_time: float = Field(description="Processing time in seconds")
     timestamp: datetime = Field(description="Response timestamp")
 
@@ -167,7 +166,7 @@ class StreamStatusDTO(BaseModel):
     stream_id: str = Field(description="Stream identifier")
     status: str = Field(description="Current status")
     last_updated: datetime = Field(description="Last update timestamp")
-    message: Optional[str] = Field(default=None, description="Status message")
+    message: str | None = Field(default=None, description="Status message")
 
 
 class StreamErrorDTO(BaseModel):
@@ -194,7 +193,7 @@ class WindowConfigDTO(BaseModel):
 
     window_type: str = Field(description="Window type (sliding, tumbling, session)")
     size_ms: int = Field(description="Window size in milliseconds")
-    advance_ms: Optional[int] = Field(
+    advance_ms: int | None = Field(
         default=None, description="Window advance in milliseconds"
     )
     allowed_lateness_ms: int = Field(
@@ -369,16 +368,16 @@ class StreamingConfigurationDTO(BaseModel):
 class StreamingSampleDTO(BaseModel):
     """DTO for streaming sample data."""
 
-    id: Optional[str] = Field(
+    id: str | None = Field(
         default=None, description="Sample ID (auto-generated if not provided)"
     )
-    data: Union[List[float], Dict[str, Any]] = Field(
+    data: list[float] | dict[str, Any] = Field(
         description="Sample data as array or key-value pairs"
     )
-    timestamp: Optional[float] = Field(
+    timestamp: float | None = Field(
         default=None, description="Sample timestamp (auto-generated if not provided)"
     )
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional sample metadata"
     )
     priority: int = Field(
@@ -416,10 +415,10 @@ class StreamingRequestDTO(BaseModel):
     enable_ensemble: bool = Field(
         default=False, description="Enable ensemble streaming with multiple detectors"
     )
-    ensemble_detector_ids: List[str] = Field(
+    ensemble_detector_ids: list[str] = Field(
         default_factory=list, description="List of detector IDs for ensemble streaming"
     )
-    callback_settings: Dict[str, Any] = Field(
+    callback_settings: dict[str, Any] = Field(
         default_factory=dict, description="Callback handler settings"
     )
 
@@ -441,19 +440,19 @@ class StreamingResponseDTO(BaseModel):
     stream_id: str = Field(
         default="", description="Unique identifier for the streaming session"
     )
-    configuration: Optional[StreamingConfigurationDTO] = Field(
+    configuration: StreamingConfigurationDTO | None = Field(
         default=None, description="Applied streaming configuration"
     )
-    performance_metrics: Dict[str, Any] = Field(
+    performance_metrics: dict[str, Any] = Field(
         default_factory=dict, description="Initial performance metrics"
     )
-    error_message: Optional[str] = Field(
+    error_message: str | None = Field(
         default=None, description="Error message if setup failed"
     )
-    estimated_throughput: Optional[float] = Field(
+    estimated_throughput: float | None = Field(
         default=None, description="Estimated throughput (samples/second)"
     )
-    resource_allocation: Dict[str, Any] = Field(
+    resource_allocation: dict[str, Any] = Field(
         default_factory=dict, description="Allocated system resources"
     )
 
@@ -474,10 +473,10 @@ class StreamingResultDTO(BaseModel):
     processing_time: float = Field(ge=0.0, description="Processing time in seconds")
     detector_id: str = Field(description="ID of detector that made the prediction")
     timestamp: float = Field(description="Result timestamp")
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional result metadata"
     )
-    quality_indicators: Dict[str, float] = Field(
+    quality_indicators: dict[str, float] = Field(
         default_factory=dict, description="Quality indicators for the prediction"
     )
 
@@ -512,13 +511,13 @@ class StreamingMetricsDTO(BaseModel):
     last_updated: float = Field(description="Last metrics update timestamp")
 
     # Advanced metrics
-    latency_percentiles: Dict[str, float] = Field(
+    latency_percentiles: dict[str, float] = Field(
         default_factory=dict, description="Latency percentiles (p50, p95, p99)"
     )
-    detector_performance: Dict[str, float] = Field(
+    detector_performance: dict[str, float] = Field(
         default_factory=dict, description="Individual detector performance metrics"
     )
-    resource_utilization: Dict[str, float] = Field(
+    resource_utilization: dict[str, float] = Field(
         default_factory=dict, description="System resource utilization"
     )
 
@@ -526,21 +525,21 @@ class StreamingMetricsDTO(BaseModel):
 class StreamingStatusDTO(BaseModel):
     """DTO for streaming system status."""
 
-    active_streams: List[str] = Field(description="List of active stream IDs")
+    active_streams: list[str] = Field(description="List of active stream IDs")
     total_streams_created: int = Field(
         ge=0, description="Total number of streams created"
     )
-    system_capacity: Dict[str, Any] = Field(
+    system_capacity: dict[str, Any] = Field(
         description="Current system capacity and limits"
     )
-    performance_summary: Dict[str, float] = Field(
+    performance_summary: dict[str, float] = Field(
         description="Aggregate performance metrics across all streams"
     )
     health_status: str = Field(description="Overall system health status")
-    available_strategies: List[Dict[str, str]] = Field(
+    available_strategies: list[dict[str, str]] = Field(
         description="Available streaming strategies with descriptions"
     )
-    resource_usage: Dict[str, float] = Field(
+    resource_usage: dict[str, float] = Field(
         description="Current resource usage statistics"
     )
 
@@ -550,7 +549,7 @@ class StreamingBatchResultDTO(BaseModel):
 
     stream_id: str = Field(description="Stream identifier")
     batch_id: str = Field(description="Batch identifier")
-    results: List[StreamingResultDTO] = Field(
+    results: list[StreamingResultDTO] = Field(
         description="List of individual results in the batch"
     )
     batch_processing_time: float = Field(
@@ -560,7 +559,7 @@ class StreamingBatchResultDTO(BaseModel):
     anomaly_count: int = Field(
         ge=0, description="Number of anomalies detected in the batch"
     )
-    quality_metrics: Dict[str, float] = Field(
+    quality_metrics: dict[str, float] = Field(
         default_factory=dict, description="Batch quality metrics"
     )
     timestamp: float = Field(description="Batch completion timestamp")
@@ -572,10 +571,10 @@ class StreamingControlDTO(BaseModel):
     action: str = Field(
         description="Control action (start, stop, pause, resume, configure)"
     )
-    stream_id: Optional[str] = Field(
+    stream_id: str | None = Field(
         default=None, description="Target stream ID (required for stop, pause, resume)"
     )
-    configuration_updates: Optional[Dict[str, Any]] = Field(
+    configuration_updates: dict[str, Any] | None = Field(
         default=None, description="Configuration updates for configure action"
     )
     force: bool = Field(
@@ -610,16 +609,16 @@ class StreamingHealthCheckDTO(BaseModel):
     )
     active_streams_count: int = Field(ge=0, description="Number of active streams")
     total_throughput: float = Field(ge=0.0, description="Total system throughput")
-    error_rates: Dict[str, float] = Field(description="Error rates by category")
-    resource_health: Dict[str, str] = Field(
+    error_rates: dict[str, float] = Field(description="Error rates by category")
+    resource_health: dict[str, str] = Field(
         description="Health status of system resources"
     )
-    performance_indicators: Dict[str, float] = Field(
+    performance_indicators: dict[str, float] = Field(
         description="Key performance indicators"
     )
-    recommendations: List[str] = Field(
+    recommendations: list[str] = Field(
         default_factory=list, description="Health improvement recommendations"
     )
-    alerts: List[Dict[str, Any]] = Field(
+    alerts: list[dict[str, Any]] = Field(
         default_factory=list, description="Active system alerts"
     )

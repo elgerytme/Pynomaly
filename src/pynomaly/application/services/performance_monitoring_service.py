@@ -13,7 +13,6 @@ from typing import Any
 from ...domain.entities import Dataset, DetectionResult, Detector
 from ...infrastructure.config.feature_flags import require_feature
 from ...infrastructure.monitoring.performance_monitor import (
-    PerformanceAlert,
     PerformanceMetrics,
     PerformanceMonitor,
     PerformanceTracker,
@@ -443,16 +442,20 @@ class PerformanceMonitoringService:
             },
         }
 
-    def _default_alert_handler(self, alert: PerformanceAlert) -> None:
+    def _default_alert_handler(self, alert) -> None:
         """Default handler for performance alerts."""
-        print(f"🚨 Performance Alert: {alert.severity.upper()} - {alert.message}")
+        # Use lazy import to avoid circular import
+        from ...infrastructure.monitoring.performance_monitor import PerformanceAlert
 
-        # Call custom alert handlers
-        for handler in self.alert_handlers:
-            try:
-                handler(alert)
-            except Exception as e:
-                print(f"Alert handler error: {e}")
+        if isinstance(alert, PerformanceAlert):
+            print(f"🚨 Performance Alert: {alert.severity.upper()} - {alert.message}")
+
+            # Call custom alert handlers
+            for handler in self.alert_handlers:
+                try:
+                    handler(alert)
+                except Exception as e:
+                    print(f"Alert handler error: {e}")
 
     def _calculate_reliability_score(self, metrics: list[PerformanceMetrics]) -> float:
         """Calculate reliability score based on consistency of metrics."""

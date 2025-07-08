@@ -73,7 +73,7 @@ export class TrainingMonitor {
                             </span>
                         </div>
                     </div>
-                    
+
                     <div class="training-monitor__toolbar">
                         <button class="btn btn--primary" data-action="start-training">
                             <i class="icon-play"></i> Start Training
@@ -86,7 +86,7 @@ export class TrainingMonitor {
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Active Trainings Grid -->
                 <div class="training-monitor__content">
                     <div class="training-monitor__grid">
@@ -108,7 +108,7 @@ export class TrainingMonitor {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Training Details Panel -->
                         <div class="training-panel">
                             <div class="panel-header">
@@ -127,7 +127,7 @@ export class TrainingMonitor {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Metrics Visualization Panel -->
                         <div class="training-panel training-panel--wide">
                             <div class="panel-header">
@@ -148,13 +148,13 @@ export class TrainingMonitor {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Training History Panel -->
                         <div class="training-panel training-panel--full">
                             <div class="panel-header">
                                 <h3>Training History</h3>
                                 <div class="panel-controls">
-                                    <input type="search" class="form-input form-input--sm" 
+                                    <input type="search" class="form-input form-input--sm"
                                            placeholder="Search trainings..." data-control="history-search">
                                     <select class="form-select form-select--sm" data-control="history-filter">
                                         <option value="">All Statuses</option>
@@ -195,7 +195,7 @@ export class TrainingMonitor {
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Start Training Modal -->
                 <div class="modal" data-modal="start-training">
                     <div class="modal-content">
@@ -214,20 +214,20 @@ export class TrainingMonitor {
                                             <option value="">Select detector...</option>
                                         </select>
                                     </div>
-                                    
+
                                     <div class="form-group">
                                         <label>Dataset</label>
                                         <select class="form-select" name="dataset_id" required>
                                             <option value="">Select dataset...</option>
                                         </select>
                                     </div>
-                                    
+
                                     <div class="form-group">
                                         <label>Experiment Name</label>
-                                        <input type="text" class="form-input" name="experiment_name" 
+                                        <input type="text" class="form-input" name="experiment_name"
                                                placeholder="Optional experiment name">
                                     </div>
-                                    
+
                                     <div class="form-group">
                                         <label>Optimization Objective</label>
                                         <select class="form-select" name="optimization_objective">
@@ -237,20 +237,20 @@ export class TrainingMonitor {
                                             <option value="f1_score">F1 Score</option>
                                         </select>
                                     </div>
-                                    
+
                                     <div class="form-group">
                                         <label>Max Algorithms</label>
-                                        <input type="number" class="form-input" name="max_algorithms" 
+                                        <input type="number" class="form-input" name="max_algorithms"
                                                value="3" min="1" max="10">
                                     </div>
-                                    
+
                                     <div class="form-group">
                                         <label>Max Optimization Time (minutes)</label>
-                                        <input type="number" class="form-input" name="max_optimization_time" 
+                                        <input type="number" class="form-input" name="max_optimization_time"
                                                value="60" min="1" max="1440">
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <div class="form-checkboxes">
                                         <label class="checkbox-label">
@@ -499,14 +499,14 @@ export class TrainingMonitor {
                         <span class="status-badge status-badge--${statusClass}">${training.status}</span>
                     </div>
                     <div class="training-item__actions">
-                        <button class="btn btn--icon btn--sm" data-action="view-training" 
+                        <button class="btn btn--icon btn--sm" data-action="view-training"
                                 data-training-id="${training.training_id}" title="View Details">
                             <i class="icon-eye"></i>
                         </button>
                         ${
                           training.status === "running"
                             ? `
-                            <button class="btn btn--icon btn--sm btn--danger" data-action="cancel-training" 
+                            <button class="btn btn--icon btn--sm btn--danger" data-action="cancel-training"
                                     data-training-id="${training.training_id}" title="Cancel">
                                 <i class="icon-stop"></i>
                             </button>
@@ -515,7 +515,7 @@ export class TrainingMonitor {
                         }
                     </div>
                 </div>
-                
+
                 <div class="training-item__progress">
                     <div class="progress-bar">
                         <div class="progress-bar__fill" style="width: ${progressWidth}%"></div>
@@ -525,7 +525,7 @@ export class TrainingMonitor {
                         <span>${progressWidth}%</span>
                     </div>
                 </div>
-                
+
                 <div class="training-item__details">
                     ${
                       training.current_algorithm
@@ -557,7 +557,7 @@ export class TrainingMonitor {
                         : ""
                     }
                 </div>
-                
+
                 ${
                   training.warnings && training.warnings.length > 0
                     ? `
@@ -623,7 +623,7 @@ export class TrainingMonitor {
                         ${trainingData.status}
                     </span>
                 </div>
-                
+
                 <div class="details-grid">
                     <div class="detail-group">
                         <h5>Progress</h5>
@@ -650,7 +650,7 @@ export class TrainingMonitor {
                             : ""
                         }
                     </div>
-                    
+
                     ${
                       trainingData.current_algorithm
                         ? `
@@ -695,7 +695,7 @@ export class TrainingMonitor {
                     `
                         : ""
                     }
-                    
+
                     ${
                       this.options.showResourceMonitoring
                         ? `
@@ -726,7 +726,7 @@ export class TrainingMonitor {
                         : ""
                     }
                 </div>
-                
+
                 ${
                   trainingData.current_message
                     ? `
@@ -890,7 +890,7 @@ export class TrainingMonitor {
                 <td><span class="status-badge status-badge--${this.getStatusClass(training.status)}">${training.status}</span></td>
                 <td>${training.start_time ? new Date(training.start_time).toLocaleDateString() : "N/A"}</td>
                 <td>
-                    <button class="btn btn--icon btn--sm" data-action="view-result" 
+                    <button class="btn btn--icon btn--sm" data-action="view-result"
                             data-training-id="${training.training_id}" title="View Details">
                         <i class="icon-eye"></i>
                     </button>

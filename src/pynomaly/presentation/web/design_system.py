@@ -5,7 +5,7 @@ Production-ready UI component specifications and standards
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 class ColorPalette(Enum):
@@ -110,10 +110,10 @@ class ComponentSpec:
 
     name: str
     description: str
-    variants: List[str]
-    props: Dict[str, Any]
-    accessibility: Dict[str, str]
-    examples: List[Dict[str, str]]
+    variants: list[str]
+    props: dict[str, Any]
+    accessibility: dict[str, str]
+    examples: list[dict[str, str]]
 
 
 class DesignTokens:
@@ -432,7 +432,7 @@ class PWAFeatures:
     }
 
 
-def generate_tailwind_config() -> Dict[str, Any]:
+def generate_tailwind_config() -> dict[str, Any]:
     """Generate Tailwind CSS configuration for the design system"""
     return {
         "content": [

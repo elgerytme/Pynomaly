@@ -39,7 +39,7 @@ Once Buck2 is installed, uncomment the following sections in `pyproject.toml`:
 ```toml
 [build-system]
 requires = [
-    "hatchling", 
+    "hatchling",
     "hatch-vcs",
     "hatch-buck2-plugin @ file:///absolute/path/to/pynomaly/hatch_buck2_plugin",
 ]
@@ -48,7 +48,7 @@ requires = [
 executable = "buck2"
 targets = [
     "//:pynomaly-lib",
-    "//:pynomaly-cli", 
+    "//:pynomaly-cli",
     "//:pynomaly-api",
     "//:pynomaly-web",
     "//:web-assets",

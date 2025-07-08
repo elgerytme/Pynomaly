@@ -7,7 +7,6 @@ management functions that were previously untested (0% coverage).
 from datetime import datetime
 
 import pytest
-
 from pynomaly.application.dto.configuration_dto import (
     AlgorithmConfigurationDTO,
     ConfigurationMetadataDTO,

@@ -17,7 +17,6 @@ from uuid import UUID
 
 from fastapi import WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ValidationError
-
 from pynomaly.application.services.automated_training_service import (
     AutomatedTrainingService,
     TrainingConfig,
@@ -96,9 +95,9 @@ class TrainingWebSocketHandler:
         """
         self.training_service = training_service
         self.connected_clients: dict[str, WebSocket] = {}
-        self.client_subscriptions: dict[str, set[str]] = (
-            {}
-        )  # client_id -> set of training_ids
+        self.client_subscriptions: dict[
+            str, set[str]
+        ] = {}  # client_id -> set of training_ids
 
     async def connect(self, websocket: WebSocket, client_id: str):
         """Handle WebSocket connection.

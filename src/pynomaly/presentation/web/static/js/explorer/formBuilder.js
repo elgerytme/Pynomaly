@@ -24,11 +24,11 @@ function generateFormFromSchema(endpoint, method, schema) {
     const fields = Object.entries(schema.properties).map(([name, prop]) => {
         const type = prop.type === 'integer' ? 'number' : (prop.type === 'string' ? 'text' : 'text');
         const required = schema.required && schema.required.includes(name) ? 'required' : '';
-        
+
         return `
             <div class="field">
                 <label for="${name}">${name}${required ? ' *' : ''}:</label>
-                <input type="${type}" name="${name}" ${required} 
+                <input type="${type}" name="${name}" ${required}
                        placeholder="${prop.description || ''}" />
                 ${prop.description ? `<small>${prop.description}</small>` : ''}
             </div>
@@ -41,16 +41,16 @@ function generateFormFromSchema(endpoint, method, schema) {
 function generateCurlCommand(endpoint, method, formData) {
     const baseUrl = window.location.origin;
     const url = `${baseUrl}${endpoint}`;
-    
+
     let curl = `curl -X ${method.toUpperCase()} "${url}"`;
-    
+
     // Add headers
     curl += ` -H "Content-Type: application/json"`;
     const token = localStorage.getItem('auth_token');
     if (token) {
         curl += ` -H "Authorization: Bearer ${token}"`;
     }
-    
+
     // Add data if POST/PUT/PATCH
     if (['post', 'put', 'patch'].includes(method.toLowerCase()) && formData) {
         const jsonData = {};
@@ -59,29 +59,29 @@ function generateCurlCommand(endpoint, method, formData) {
         }
         curl += ` -d '${JSON.stringify(jsonData)}'`;
     }
-    
+
     return curl;
 }
 
 function createEndpointForm(path, method, endpointSpec) {
     const requestBody = endpointSpec.requestBody;
     const schema = requestBody?.content?.['application/json']?.schema;
-    
+
     return `
         <div class="endpoint-form">
             <h3>${method.toUpperCase()} ${path}</h3>
             <p>${endpointSpec.summary || 'No description available'}</p>
-            
+
             <form onsubmit="submitEndpointForm(event, '${path}', '${method}')">
                 ${generateFormFromSchema(path, method, schema)}
                 <button type="submit">Send Request</button>
             </form>
-            
+
             <div class="curl-section">
                 <h4>cURL Command:</h4>
                 <pre id="curl-${path.replace(/\//g, '-')}-${method}"></pre>
             </div>
-            
+
             <div class="response-section">
                 <h4>Response:</h4>
                 <pre id="response-${path.replace(/\//g, '-')}-${method}"></pre>
@@ -92,22 +92,22 @@ function createEndpointForm(path, method, endpointSpec) {
 
 function submitEndpointForm(event, path, method) {
     event.preventDefault();
-    
+
     const form = event.target;
     const formData = new FormData(form);
     const curlId = `curl-${path.replace(/\//g, '-')}-${method}`;
     const responseId = `response-${path.replace(/\//g, '-')}-${method}`;
-    
+
     // Generate and display cURL command
     const curlCommand = generateCurlCommand(path, method, formData);
     document.getElementById(curlId).textContent = curlCommand;
-    
+
     // Prepare request data
     const requestData = {};
     for (const [key, value] of formData.entries()) {
         requestData[key] = value;
     }
-    
+
     // Send request
     const url = `/api/v1${path}`;
     const options = {
@@ -116,16 +116,16 @@ function submitEndpointForm(event, path, method) {
             'Content-Type': 'application/json',
         },
     };
-    
+
     const token = localStorage.getItem('auth_token');
     if (token) {
         options.headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
         options.body = JSON.stringify(requestData);
     }
-    
+
     fetch(url, options)
         .then(response => {
             return response.json().then(data => ({ status: response.status, data }));
@@ -149,21 +149,21 @@ window.selectEndpoint = function(path, method) {
         alert('OpenAPI specification not loaded yet');
         return;
     }
-    
+
     const endpointSpec = openApiSpec.paths[path][method];
     const contentArea = document.querySelector('.content');
-    
+
     contentArea.innerHTML = createEndpointForm(path, method, endpointSpec);
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     const contentArea = document.querySelector('.content');
-    
+
     contentArea.innerHTML = `
         <div class="welcome">
             <h1>API Explorer</h1>
             <p>Select an endpoint from the sidebar to start exploring the API.</p>
-            
+
             <div class="auth-section">
                 <h3>Authentication</h3>
                 <form onsubmit="authenticate(event)">
@@ -179,10 +179,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function authenticate(event) {
     event.preventDefault();
-    
+
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    
+
     fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: {
@@ -194,15 +194,15 @@ function authenticate(event) {
     .then(data => {
         if (data.access_token) {
             localStorage.setItem('auth_token', data.access_token);
-            document.getElementById('auth-status').innerHTML = 
+            document.getElementById('auth-status').innerHTML =
                 '<div class="success">Authenticated successfully!</div>';
         } else {
-            document.getElementById('auth-status').innerHTML = 
+            document.getElementById('auth-status').innerHTML =
                 '<div class="error">Authentication failed</div>';
         }
     })
     .catch(error => {
-        document.getElementById('auth-status').innerHTML = 
+        document.getElementById('auth-status').innerHTML =
             `<div class="error">Error: ${error.message}</div>`;
     });
 }

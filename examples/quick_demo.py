@@ -17,7 +17,6 @@ import time
 
 import numpy as np
 import pandas as pd
-
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
@@ -85,7 +84,7 @@ def create_demo_data():
     print(
         f"   📊 Created: {len(df)} samples ({n_normal} normal, {n_anomalies} anomalies)"
     )
-    print(f"   🖥️ Metrics: CPU usage, Memory usage, Network traffic")
+    print("   🖥️ Metrics: CPU usage, Memory usage, Network traffic")
 
     return dataset, labels[indices]
 
@@ -125,7 +124,7 @@ def demo_basic_detection(dataset, true_labels):
     threat_indices = np.where(result.labels == 1)[0]
     top_threats = threat_indices[np.argsort(scores[threat_indices])[-3:]][::-1]
 
-    print(f"\n🚨 Top 3 Security Threats Detected:")
+    print("\n🚨 Top 3 Security Threats Detected:")
     for i, idx in enumerate(top_threats, 1):
         sample = dataset.data.iloc[idx]
         threat_score = scores[idx]

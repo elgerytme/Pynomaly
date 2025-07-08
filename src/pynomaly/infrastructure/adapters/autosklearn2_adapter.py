@@ -212,9 +212,9 @@ class AutoSklearn2Adapter(DetectorProtocol):
 
             # Store model and metadata
             self._models[detector.id] = model
-            self._preprocessors[detector.id] = (
-                None  # auto-sklearn2 handles preprocessing
-            )
+            self._preprocessors[
+                detector.id
+            ] = None  # auto-sklearn2 handles preprocessing
 
             # Calculate threshold for anomaly detection
             scores = self._compute_scores(model, X, algorithm)

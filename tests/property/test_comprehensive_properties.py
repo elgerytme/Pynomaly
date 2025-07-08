@@ -13,7 +13,6 @@ import pytest
 from hypothesis import assume, given
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
-
 from pynomaly.domain.entities import Dataset, DetectionResult
 from pynomaly.domain.value_objects import (
     AnomalyScore,

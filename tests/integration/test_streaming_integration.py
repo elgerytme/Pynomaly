@@ -22,7 +22,6 @@ async def test_streaming_integration():
         from pynomaly.application.dto.streaming_dto import (
             StreamingConfigurationDTO,
             StreamingRequestDTO,
-            StreamingResponseDTO,
             StreamingSampleDTO,
         )
         from pynomaly.application.use_cases.streaming_detection_use_case import (
@@ -148,7 +147,7 @@ async def test_streaming_integration():
         # Create streaming request
         request = StreamingRequest(detector_id=mock_detector.id, configuration=config)
 
-        print(f"📊 Created streaming request")
+        print("📊 Created streaming request")
         print(f"   Detector: {request.detector_id}")
         print(f"   Strategy: {request.configuration.strategy.value}")
         print(f"   Backpressure: {request.configuration.backpressure_strategy.value}")
@@ -157,7 +156,7 @@ async def test_streaming_integration():
         # Start streaming session
         response = await streaming_use_case.start_streaming(request)
 
-        print(f"✅ Streaming session started")
+        print("✅ Streaming session started")
         print(f"   Success: {response.success}")
         print(f"   Stream ID: {response.stream_id}")
 
@@ -191,7 +190,7 @@ async def test_streaming_integration():
 
             if results:
                 result = results[0]
-                print(f"   Sample result:")
+                print("   Sample result:")
                 print(f"     Sample ID: {result.sample_id}")
                 print(
                     f"     Prediction: {'Anomaly' if result.prediction == 1 else 'Normal'}"
@@ -206,7 +205,7 @@ async def test_streaming_integration():
 
             metrics = await streaming_use_case.get_stream_metrics(stream_id)
             if metrics:
-                print(f"✅ Retrieved streaming metrics")
+                print("✅ Retrieved streaming metrics")
                 print(f"   Samples processed: {metrics.samples_processed}")
                 print(f"   Samples dropped: {metrics.samples_dropped}")
                 print(f"   Anomalies detected: {metrics.anomalies_detected}")
@@ -236,15 +235,15 @@ async def test_streaming_integration():
                 samples_added_total = metrics_after.samples_processed - samples_before
                 samples_dropped_total = metrics_after.samples_dropped - dropped_before
 
-                print(f"✅ Backpressure test completed")
+                print("✅ Backpressure test completed")
                 print(f"   Samples processed: {samples_added_total}")
                 print(f"   Samples dropped: {samples_dropped_total}")
                 print(f"   Backpressure activated: {metrics_after.backpressure_active}")
 
                 if samples_dropped_total > 0:
-                    print(f"   🔒 Backpressure successfully handled overflow")
+                    print("   🔒 Backpressure successfully handled overflow")
                 else:
-                    print(f"   ℹ️  All samples processed (no backpressure needed)")
+                    print("   ℹ️  All samples processed (no backpressure needed)")
 
             # Test streaming strategies
             print("\n⚙️ Testing Different Streaming Strategies")
@@ -319,7 +318,7 @@ async def test_streaming_integration():
             detector_id="api_detector", configuration=api_config, enable_ensemble=False
         )
 
-        print(f"✅ API request DTO created")
+        print("✅ API request DTO created")
         print(f"   Strategy: {api_request.configuration.strategy}")
         print(f"   Buffer size: {api_request.configuration.max_buffer_size}")
         print(
@@ -336,7 +335,7 @@ async def test_streaming_integration():
             metadata={"type": "dict_format"},
         )
 
-        print(f"✅ Sample DTOs created for different data formats")
+        print("✅ Sample DTOs created for different data formats")
         print(f"   Array sample: {len(array_sample.data)} features")
         print(f"   Dict sample: {len(dict_sample.data)} features")
 

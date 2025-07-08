@@ -20,7 +20,6 @@ except ImportError:
     PANDAS_AVAILABLE = False
 
 try:
-
     NUMPY_AVAILABLE = True
 except ImportError:
     NUMPY_AVAILABLE = False
@@ -307,7 +306,6 @@ class QueryCache:
             len(self._cache) >= self.max_size
             or sum(self._size_estimates.values()) >= self.max_memory_bytes
         ):
-
             if not self._cache:
                 break
 
@@ -499,10 +497,11 @@ class QueryOptimizer:
         optimized_data = data
 
         if self.df_optimizer and PANDAS_AVAILABLE and isinstance(data, pd.DataFrame):
-            optimized_data, optimizations_applied = (
-                self.df_optimizer.optimize_dataframe_operation(
-                    data, operation, **kwargs
-                )
+            (
+                optimized_data,
+                optimizations_applied,
+            ) = self.df_optimizer.optimize_dataframe_operation(
+                data, operation, **kwargs
             )
 
         # Execute operation

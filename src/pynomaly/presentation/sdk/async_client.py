@@ -19,12 +19,7 @@ import aiohttp
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
 
 from .config import SDKConfig, load_config
-from .exceptions import (
-    NetworkError,
-    PynomaliSDKError,
-    TimeoutError,
-    map_http_error,
-)
+from .exceptions import NetworkError, PynomaliSDKError, TimeoutError, map_http_error
 from .models import (
     AlgorithmType,
     DataFormat,

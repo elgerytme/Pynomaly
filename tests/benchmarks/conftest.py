@@ -3,6 +3,7 @@
 # Import all fixtures from root conftest
 from ..conftest import *
 
+
 # Additional benchmark-specific hooks
 def pytest_benchmark_update_machine_info(config, machine_info):
     """Update machine info for benchmark reports."""

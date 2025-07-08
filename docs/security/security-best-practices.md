@@ -1,6 +1,6 @@
 # Security Best Practices Guide
 
-🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Security
+🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 [Security](README.md)
 
 ---
 
@@ -8,6 +8,8 @@
 ## Overview
 
 This comprehensive guide covers security best practices for deploying and operating Pynomaly in production environments. It addresses authentication, authorization, data protection, network security, and compliance considerations for enterprise deployments.
+
+> **Development Security:** For secure development lifecycle practices, see the [SDLC Security Guide](SDLC-security-guide.md).
 
 ## Table of Contents
 
@@ -130,11 +132,11 @@ def require_permission(permission: str):
             current_user = kwargs.get('current_user')
             if not current_user:
                 raise HTTPException(status_code=401, detail="Authentication required")
-            
+
             user_permissions = get_user_permissions(current_user)
             if permission not in user_permissions:
                 raise HTTPException(status_code=403, detail="Insufficient permissions")
-            
+
             return await func(*args, **kwargs)
         return wrapper
     return decorator
@@ -161,21 +163,21 @@ class MFAService:
         # Store secret securely associated with user
         store_user_mfa_secret(user_id, secret)
         return secret
-    
+
     def generate_qr_code(self, user_email: str, secret: str) -> str:
         """Generate QR code for authenticator app setup."""
         totp_uri = pyotp.totp.TOTP(secret).provisioning_uri(
             name=user_email,
             issuer_name="Pynomaly"
         )
-        
+
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
         qr.add_data(totp_uri)
         qr.make(fit=True)
-        
+
         # Return base64 encoded QR code image
         return generate_qr_image_base64(qr)
-    
+
     def verify_token(self, user_id: str, token: str) -> bool:
         """Verify TOTP token."""
         secret = get_user_mfa_secret(user_id)
@@ -200,7 +202,7 @@ class DataEncryption:
     def __init__(self, password: bytes, salt: bytes = None):
         if salt is None:
             salt = os.urandom(16)
-        
+
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
@@ -210,11 +212,11 @@ class DataEncryption:
         key = base64.urlsafe_b64encode(kdf.derive(password))
         self.cipher = Fernet(key)
         self.salt = salt
-    
+
     def encrypt(self, data: str) -> str:
         """Encrypt string data."""
         return self.cipher.encrypt(data.encode()).decode()
-    
+
     def decrypt(self, encrypted_data: str) -> str:
         """Decrypt string data."""
         return self.cipher.decrypt(encrypted_data.encode()).decode()
@@ -223,12 +225,12 @@ class DataEncryption:
 class EncryptedDetector:
     def __init__(self):
         self.encryption = DataEncryption(get_encryption_key())
-    
+
     def save_model(self, model_data: bytes, metadata: dict):
         # Encrypt sensitive metadata
         if 'api_key' in metadata:
             metadata['api_key'] = self.encryption.encrypt(metadata['api_key'])
-        
+
         # Save encrypted data
         save_to_storage(model_data, metadata)
 ```
@@ -250,7 +252,7 @@ data:
     ssl_cert_file = '/etc/ssl/certs/server.crt'
     ssl_key_file = '/etc/ssl/private/server.key'
     ssl_ca_file = '/etc/ssl/certs/ca.crt'
-    
+
     # Encryption settings
     password_encryption = scram-sha-256
     log_statement = 'none'  # Don't log SQL statements
@@ -267,11 +269,11 @@ from sqlalchemy_utils.types.encrypted.encrypted_type import AesEngine
 
 class User(Base):
     __tablename__ = "users"
-    
+
     id = Column(Integer, primary_key=True)
     username = Column(String(50), unique=True, nullable=False)
     email = Column(String(120), unique=True, nullable=False)
-    
+
     # Encrypted sensitive fields
     api_key = Column(EncryptedType(String, get_encryption_key(), AesEngine, 'pkcs5'))
     personal_info = Column(EncryptedType(JSON, get_encryption_key(), AesEngine, 'pkcs5'))
@@ -288,21 +290,21 @@ Implement proper TLS configuration:
 server {
     listen 443 ssl http2;
     server_name api.pynomaly.io;
-    
+
     # SSL certificates
     ssl_certificate /etc/ssl/certs/pynomaly.crt;
     ssl_certificate_key /etc/ssl/private/pynomaly.key;
-    
+
     # SSL security settings
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 10m;
-    
+
     # HSTS
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-    
+
     # Security headers
     add_header X-Frame-Options DENY always;
     add_header X-Content-Type-Options nosniff always;
@@ -385,7 +387,7 @@ resource "aws_vpc" "pynomaly_vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
   enable_dns_support   = true
-  
+
   tags = {
     Name = "pynomaly-vpc"
   }
@@ -397,7 +399,7 @@ resource "aws_subnet" "private_db" {
   vpc_id            = aws_vpc.pynomaly_vpc.id
   cidr_block        = "10.0.${count.index + 10}.0/24"
   availability_zone = data.aws_availability_zones.available.names[count.index]
-  
+
   tags = {
     Name = "pynomaly-private-db-${count.index + 1}"
   }
@@ -407,7 +409,7 @@ resource "aws_subnet" "private_db" {
 resource "aws_security_group" "api" {
   name_prefix = "pynomaly-api-"
   vpc_id      = aws_vpc.pynomaly_vpc.id
-  
+
   # Allow HTTPS from load balancer
   ingress {
     from_port       = 8000
@@ -415,7 +417,7 @@ resource "aws_security_group" "api" {
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
   }
-  
+
   # Allow all outbound
   egress {
     from_port   = 0
@@ -429,7 +431,7 @@ resource "aws_security_group" "api" {
 resource "aws_security_group" "database" {
   name_prefix = "pynomaly-db-"
   vpc_id      = aws_vpc.pynomaly_vpc.id
-  
+
   # Allow PostgreSQL from API
   ingress {
     from_port       = 5432
@@ -457,7 +459,7 @@ class CreateDetectorRequest(BaseModel):
     contamination_rate: float = Field(..., ge=0.0, le=0.5)
     hyperparameters: Optional[dict] = Field(default_factory=dict)
     description: Optional[str] = Field(None, max_length=500)
-    
+
     @validator('name')
     def validate_name(cls, v):
         # Sanitize name - remove potentially dangerous characters
@@ -465,23 +467,23 @@ class CreateDetectorRequest(BaseModel):
         if not sanitized:
             raise ValueError('Name cannot be empty after sanitization')
         return sanitized
-    
+
     @validator('hyperparameters')
     def validate_hyperparameters(cls, v):
         if v is None:
             return {}
-        
+
         # Validate hyperparameter keys and values
         allowed_keys = {'n_estimators', 'max_samples', 'contamination', 'n_neighbors'}
         for key in v.keys():
             if key not in allowed_keys:
                 raise ValueError(f'Invalid hyperparameter: {key}')
-        
+
         return v
 
 class SQLInjectionProtector:
     """Protect against SQL injection attacks."""
-    
+
     DANGEROUS_PATTERNS = [
         r"('|(\\')|(;)|(\\;))|(\|)|(\*))",
         r"((\%27)|(\'))((\%6F)|o|(\%4F))((\%72)|r|(\%52))",
@@ -492,19 +494,19 @@ class SQLInjectionProtector:
         r"delete\s+from",
         r"drop\s+table"
     ]
-    
+
     @classmethod
     def is_safe(cls, input_string: str) -> bool:
         """Check if input string is safe from SQL injection."""
         if not input_string:
             return True
-        
+
         input_lower = input_string.lower()
         for pattern in cls.DANGEROUS_PATTERNS:
             if re.search(pattern, input_lower, re.IGNORECASE):
                 return False
         return True
-    
+
     @classmethod
     def sanitize(cls, input_string: str) -> str:
         """Sanitize input string."""
@@ -603,14 +605,14 @@ from starlette.middleware.base import BaseHTTPMiddleware
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
-        
+
         # Security headers
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
-        
+
         # Content Security Policy
         csp = (
             "default-src 'self'; "
@@ -630,11 +632,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "manifest-src 'self'"
         )
         response.headers["Content-Security-Policy"] = csp
-        
+
         # HSTS (only in production with HTTPS)
         if request.headers.get("X-Forwarded-Proto") == "https":
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
-        
+
         return response
 
 app.add_middleware(SecurityHeadersMiddleware)
@@ -831,7 +833,7 @@ import hvac
 class VaultSecretManager:
     def __init__(self, vault_url: str, vault_token: str):
         self.client = hvac.Client(url=vault_url, token=vault_token)
-    
+
     def get_secret(self, path: str, key: str) -> str:
         """Retrieve secret from Vault."""
         try:
@@ -839,7 +841,7 @@ class VaultSecretManager:
             return response['data']['data'][key]
         except Exception as e:
             raise SecurityError(f"Failed to retrieve secret: {e}")
-    
+
     def rotate_secret(self, path: str, key: str, new_value: str):
         """Rotate a secret in Vault."""
         current_data = self.client.secrets.kv.v2.read_secret_version(path=path)
@@ -868,7 +870,7 @@ from typing import Optional
 class AuditLogger:
     def __init__(self):
         self.logger = structlog.get_logger("audit")
-    
+
     def log_authentication(self, user_id: str, success: bool, ip_address: str, user_agent: str):
         """Log authentication attempts."""
         self.logger.info(
@@ -879,7 +881,7 @@ class AuditLogger:
             user_agent=user_agent,
             timestamp=datetime.utcnow().isoformat()
         )
-    
+
     def log_data_access(self, user_id: str, resource_type: str, resource_id: str, action: str):
         """Log data access events."""
         self.logger.info(
@@ -890,7 +892,7 @@ class AuditLogger:
             action=action,
             timestamp=datetime.utcnow().isoformat()
         )
-    
+
     def log_security_event(self, event_type: str, severity: str, details: dict):
         """Log security events."""
         self.logger.warning(
@@ -906,17 +908,17 @@ class AuditMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, audit_logger: AuditLogger):
         super().__init__(app)
         self.audit_logger = audit_logger
-    
+
     async def dispatch(self, request: Request, call_next):
         start_time = time.time()
-        
+
         # Extract user information
         user_id = extract_user_id(request)
         ip_address = request.client.host
         user_agent = request.headers.get("user-agent", "")
-        
+
         response = await call_next(request)
-        
+
         # Log the request
         self.audit_logger.log_data_access(
             user_id=user_id,
@@ -928,7 +930,7 @@ class AuditMiddleware(BaseHTTPMiddleware):
             ip_address=ip_address,
             user_agent=user_agent
         )
-        
+
         return response
 ```
 
@@ -942,29 +944,29 @@ class SecurityMonitor:
         self.alert_threshold = alert_threshold
         self.time_window = time_window
         self.failed_attempts = {}
-    
+
     def check_failed_logins(self, ip_address: str) -> bool:
         """Check for suspicious login patterns."""
         now = time.time()
-        
+
         # Clean old entries
         self.failed_attempts = {
             ip: times for ip, times in self.failed_attempts.items()
             if any(t > now - self.time_window for t in times)
         }
-        
+
         # Add current failure
         if ip_address not in self.failed_attempts:
             self.failed_attempts[ip_address] = []
-        
+
         self.failed_attempts[ip_address].append(now)
-        
+
         # Check if threshold exceeded
         recent_failures = [
             t for t in self.failed_attempts[ip_address]
             if t > now - self.time_window
         ]
-        
+
         if len(recent_failures) >= self.alert_threshold:
             self.send_security_alert(
                 "brute_force_attempt",
@@ -972,9 +974,9 @@ class SecurityMonitor:
                 {"ip_address": ip_address, "attempts": len(recent_failures)}
             )
             return True
-        
+
         return False
-    
+
     def send_security_alert(self, alert_type: str, message: str, details: dict):
         """Send security alert to monitoring system."""
         # Send to Slack, email, PagerDuty, etc.
@@ -985,10 +987,10 @@ class SecurityMonitor:
             "timestamp": datetime.utcnow().isoformat(),
             "severity": "high"
         }
-        
+
         # Example: Send to Slack
         send_slack_alert(alert_data)
-        
+
         # Example: Store in database for analysis
         store_security_alert(alert_data)
 ```
@@ -1041,7 +1043,7 @@ Implement GDPR compliance features:
 class GDPRCompliance:
     def __init__(self, data_retention_days: int = 365):
         self.data_retention_days = data_retention_days
-    
+
     def handle_data_subject_request(self, user_id: str, request_type: str):
         """Handle GDPR data subject requests."""
         if request_type == "access":
@@ -1052,7 +1054,7 @@ class GDPRCompliance:
             return self.export_portable_data(user_id)
         else:
             raise ValueError(f"Unknown request type: {request_type}")
-    
+
     def export_user_data(self, user_id: str) -> dict:
         """Export all user data for GDPR access request."""
         user_data = {
@@ -1062,7 +1064,7 @@ class GDPRCompliance:
             "experiments": get_user_experiments(user_id),
             "audit_logs": get_user_audit_logs(user_id)
         }
-        
+
         # Log the data export
         audit_logger.log_data_access(
             user_id=user_id,
@@ -1070,9 +1072,9 @@ class GDPRCompliance:
             resource_id=user_id,
             action="export_all_data"
         )
-        
+
         return user_data
-    
+
     def delete_user_data(self, user_id: str) -> bool:
         """Delete all user data for GDPR deletion request."""
         try:
@@ -1080,20 +1082,20 @@ class GDPRCompliance:
             delete_user_detectors(user_id)
             delete_user_datasets(user_id)
             delete_user_experiments(user_id)
-            
+
             # Anonymize audit logs (keep for compliance but remove PII)
             anonymize_audit_logs(user_id)
-            
+
             # Delete user profile
             delete_user_profile(user_id)
-            
+
             # Log the deletion
             audit_logger.log_security_event(
                 "gdpr_deletion",
                 "high",
                 {"user_id": user_id, "deletion_type": "complete"}
             )
-            
+
             return True
         except Exception as e:
             audit_logger.log_security_event(
@@ -1126,11 +1128,11 @@ class DataClassifier:
             "experiment_results": DataClassification.INTERNAL,
             "system_logs": DataClassification.INTERNAL
         }
-    
+
     def classify_data(self, data_type: str) -> DataClassification:
         """Classify data based on type."""
         return self.classification_rules.get(data_type, DataClassification.INTERNAL)
-    
+
     def get_access_requirements(self, classification: DataClassification) -> dict:
         """Get access requirements for data classification."""
         requirements = {
@@ -1174,11 +1176,11 @@ class IncidentResponse:
             "high": {"response_time": 900, "escalation_time": 1800},
             "critical": {"response_time": 300, "escalation_time": 900}
         }
-    
+
     def handle_security_incident(self, incident_type: str, severity: str, details: dict):
         """Handle security incident according to response plan."""
         incident_id = generate_incident_id()
-        
+
         # Create incident record
         incident = {
             "id": incident_id,
@@ -1189,7 +1191,7 @@ class IncidentResponse:
             "status": "open",
             "assigned_to": None
         }
-        
+
         # Immediate response actions
         if incident_type == "brute_force_attack":
             self.block_ip_address(details.get("ip_address"))
@@ -1197,38 +1199,38 @@ class IncidentResponse:
             self.initiate_containment_procedures()
         elif incident_type == "malware_detected":
             self.isolate_affected_systems(details.get("affected_systems"))
-        
+
         # Notify response team
         self.notify_response_team(incident)
-        
+
         # Start response timer
         self.start_response_timer(incident_id, severity)
-        
+
         return incident_id
-    
+
     def block_ip_address(self, ip_address: str):
         """Block malicious IP address."""
         # Add to firewall rules
         add_firewall_rule(f"DENY {ip_address}")
-        
+
         # Add to rate limiter blacklist
         add_to_blacklist(ip_address)
-        
+
         # Log the action
         audit_logger.log_security_event(
             "ip_blocked",
             "medium",
             {"ip_address": ip_address, "reason": "automated_security_response"}
         )
-    
+
     def initiate_containment_procedures(self):
         """Initiate data breach containment procedures."""
         # Immediately disable external API access
         disable_external_api()
-        
+
         # Notify legal and compliance teams
         notify_legal_team()
-        
+
         # Begin forensic data collection
         start_forensic_collection()
 ```

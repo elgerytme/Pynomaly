@@ -8,7 +8,7 @@ quantification use cases.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union
+from typing import Union
 
 from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
@@ -28,7 +28,7 @@ class UncertaintyRequest:
         n_bootstrap: Number of bootstrap samples (for bootstrap method)
     """
 
-    detection_results: List[DetectionResult]
+    detection_results: list[DetectionResult]
     method: str = "bootstrap"
     confidence_level: float = 0.95
     include_prediction_intervals: bool = True
@@ -68,9 +68,9 @@ class UncertaintyResponse:
         n_samples: Number of samples analyzed
     """
 
-    confidence_intervals: Dict[str, ConfidenceInterval]
-    uncertainty_metrics: Dict[str, Union[float, ConfidenceInterval]]
-    additional_metrics: Dict[str, Union[float, ConfidenceInterval]]
+    confidence_intervals: dict[str, ConfidenceInterval]
+    uncertainty_metrics: dict[str, Union[float, ConfidenceInterval]]
+    additional_metrics: dict[str, Union[float, ConfidenceInterval]]
     method: str
     confidence_level: float
     n_samples: int
@@ -99,7 +99,7 @@ class UncertaintyResponse:
             "n_samples": self.n_samples,
         }
 
-    def get_summary(self) -> Dict[str, Union[str, float]]:
+    def get_summary(self) -> dict[str, Union[str, float]]:
         """Get a summary of key uncertainty metrics."""
         summary = {
             "method": self.method,
@@ -141,7 +141,7 @@ class EnsembleUncertaintyRequest:
         include_disagreement: Whether to include disagreement metrics
     """
 
-    ensemble_results: List[List[DetectionResult]]
+    ensemble_results: list[list[DetectionResult]]
     method: str = "bootstrap"
     confidence_level: float = 0.95
     include_disagreement: bool = True
@@ -184,9 +184,9 @@ class EnsembleUncertaintyResponse:
         n_models: Number of models in ensemble
     """
 
-    ensemble_metrics: Dict[str, Union[float, ConfidenceInterval]]
-    model_uncertainties: List[Dict[str, Union[int, Dict]]]
-    disagreement_metrics: Dict[str, float]
+    ensemble_metrics: dict[str, Union[float, ConfidenceInterval]]
+    model_uncertainties: list[dict[str, Union[int, dict]]]
+    disagreement_metrics: dict[str, float]
     method: str
     confidence_level: float
     n_models: int
@@ -207,7 +207,7 @@ class EnsembleUncertaintyResponse:
             "n_models": self.n_models,
         }
 
-    def get_summary(self) -> Dict[str, Union[str, float]]:
+    def get_summary(self) -> dict[str, Union[str, float]]:
         """Get a summary of key ensemble uncertainty metrics."""
         summary = {
             "method": self.method,
@@ -250,7 +250,7 @@ class BootstrapRequest:
         statistic: Statistic to calculate ("mean", "median", "std")
     """
 
-    scores: List[float]
+    scores: list[float]
     confidence_level: float = 0.95
     n_bootstrap: int = 1000
     statistic: str = "mean"
@@ -286,7 +286,7 @@ class BayesianRequest:
         prior_beta: Beta parameter of Beta prior
     """
 
-    binary_scores: List[int]
+    binary_scores: list[int]
     confidence_level: float = 0.95
     prior_alpha: float = 1.0
     prior_beta: float = 1.0
@@ -320,7 +320,7 @@ class PredictionIntervalRequest:
         confidence_level: Desired confidence level
     """
 
-    training_scores: List[float]
+    training_scores: list[float]
     confidence_level: float = 0.95
 
     def __post_init__(self) -> None:

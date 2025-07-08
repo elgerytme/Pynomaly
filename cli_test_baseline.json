@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "generated_at": "2025-07-08T09:05:00Z",
+    "python_version": "3.11.4",
+    "pytest_version": "8.4.0",
+    "platform": "win32",
+    "total_tests": 26,
+    "purpose": "Baseline before Click-to-Typer conversion"
+  },
+  "summary": {
+    "total": 26,
+    "passed": 18,
+    "failed": 8,
+    "skipped": 0,
+    "pass_rate": 69.2
+  },
+  "failed_tests": [
+    {
+      "test_name": "test_cli_simple.py::test_cli_module_structure",
+      "reason": "Expected None, but test returned True. Did you mean to use `assert` instead of `return`?",
+      "category": "test_structure_issue"
+    },
+    {
+      "test_name": "test_cli_simple.py::test_typer_cli_structure",
+      "reason": "Expected None, but test returned False. Did you mean to use `assert` instead of `return`?",
+      "category": "test_structure_issue"
+    },
+    {
+      "test_name": "test_cli_simple.py::test_cli_help_generation",
+      "reason": "Expected None, but test returned True. Did you mean to use `assert` instead of `return`?",
+      "category": "test_structure_issue"
+    },
+    {
+      "test_name": "test_cli_simple.py::test_data_loaders",
+      "reason": "Expected None, but test returned True. Did you mean to use `assert` instead of `return`?",
+      "category": "test_structure_issue"
+    },
+    {
+      "test_name": "test_cli_simple.py::test_autonomous_service",
+      "reason": "Expected None, but test returned True. Did you mean to use `assert` instead of `return`?",
+      "category": "test_structure_issue"
+    },
+    {
+      "test_name": "test_converted_commands.py::TestConvertedCommands::test_explainability_info",
+      "reason": "assert 2 == 0 (exit_code)",
+      "category": "exit_code_assertion"
+    },
+    {
+      "test_name": "test_converted_commands.py::TestConvertedCommands::test_invalid_choice_options",
+      "reason": "assert 0 != 0 (exit_code)",
+      "category": "exit_code_assertion"
+    },
+    {
+      "test_name": "test_converted_commands.py::test_cli_imports_successfully",
+      "reason": "Expected None, but test returned True. Did you mean to use `assert` instead of `return`?",
+      "category": "test_structure_issue"
+    }
+  ],
+  "click_modules_backup": {
+    "backup_location": "src/pynomaly/presentation/cli/_click_backup/",
+    "modules": [
+      {
+        "name": "alert.py",
+        "size_bytes": 25331,
+        "backed_up": true
+      },
+      {
+        "name": "benchmarking.py",
+        "size_bytes": 30917,
+        "backed_up": true
+      },
+      {
+        "name": "cost_optimization.py",
+        "size_bytes": 28245,
+        "backed_up": true
+      },
+      {
+        "name": "dashboard.py",
+        "size_bytes": 25226,
+        "backed_up": true
+      },
+      {
+        "name": "enhanced_automl.py",
+        "size_bytes": 23566,
+        "backed_up": true
+      },
+      {
+        "name": "ensemble.py",
+        "size_bytes": 24337,
+        "backed_up": true
+      },
+      {
+        "name": "explain.py",
+        "size_bytes": 33223,
+        "backed_up": true
+      },
+      {
+        "name": "governance.py",
+        "size_bytes": 36554,
+        "backed_up": true
+      },
+      {
+        "name": "quality.py",
+        "size_bytes": 17572,
+        "backed_up": true
+      },
+      {
+        "name": "security.py",
+        "size_bytes": 28482,
+        "backed_up": true
+      },
+      {
+        "name": "tenant.py",
+        "size_bytes": 22222,
+        "backed_up": true
+      },
+      {
+        "name": "training_automation_commands.py",
+        "size_bytes": 22912,
+        "backed_up": true
+      }
+    ],
+    "total_modules": 12,
+    "total_size_bytes": 318585
+  },
+  "warnings": [
+    "17 Pydantic deprecation warnings",
+    "SHAP not available",
+    "LIME not available",
+    "TensorFlow oneDNN optimization notices"
+  ],
+  "test_environment": {
+    "config_file": "pytest.ini",
+    "plugins": ["Faker", "anyio", "hypothesis", "asyncio", "bdd", "benchmark", "cov", "mock", "timeout", "xdist"],
+    "working_directory": "C:\\Users\\andre\\Pynomaly\\tests"
+  }
+}

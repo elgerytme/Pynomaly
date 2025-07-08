@@ -46,11 +46,7 @@ from .middleware_integration import (
     setup_security_middleware,
     validate_sql_query,
 )
-from .security_headers import (
-    CSPConfig,
-    SecurityHeaders,
-    SecurityHeadersMiddleware,
-)
+from .security_headers import CSPConfig, SecurityHeaders, SecurityHeadersMiddleware
 from .security_monitor import (
     SecurityAlert,
     SecurityMetrics,

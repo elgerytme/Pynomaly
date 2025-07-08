@@ -12,14 +12,13 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Callable
+from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.application.dto.configuration_dto import OptimizationConfigDTO
 from pynomaly.application.services.automl_service import (
     AutoMLService,
     OptimizationObjective,
@@ -31,8 +30,6 @@ from pynomaly.application.use_cases.train_detector import (
     TrainDetectorRequest,
     TrainDetectorUseCase,
 )
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import AutoMLError, FittingError
 from pynomaly.shared.protocols import DetectorRepositoryProtocol
 
 logger = logging.getLogger(__name__)

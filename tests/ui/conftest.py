@@ -1,17 +1,12 @@
 """UI Test Configuration - Playwright-specific fixtures that extend the root conftest.py."""
 
 # Import all fixtures from root conftest
-from ..conftest import *
-
-import asyncio
-import json
 import os
 import tempfile
-import time
 from collections.abc import Generator
 from datetime import datetime
 from pathlib import Path
-from typing import Any, AsyncGenerator
+from typing import Any
 
 import pytest
 from playwright.async_api import (
@@ -19,8 +14,9 @@ from playwright.async_api import (
     BrowserContext,
     Page,
     Playwright,
-    async_playwright,
 )
+
+from ..conftest import *
 
 # Enhanced Configuration
 BASE_URL = os.getenv("PYNOMALY_BASE_URL", "http://localhost:8000")
@@ -77,9 +73,7 @@ def context(browser: Browser) -> Generator[BrowserContext, None, None]:
         viewport=TEST_CONFIG["viewport"],
         user_agent="Mozilla/5.0 (compatible; Pynomaly-UI-Tests/1.0)",
         ignore_https_errors=True,
-        record_video_dir=(
-            str(VIDEOS_DIR) if TEST_CONFIG["record_videos"] else None
-        ),
+        record_video_dir=(str(VIDEOS_DIR) if TEST_CONFIG["record_videos"] else None),
     )
     yield context
     context.close()
@@ -102,7 +96,7 @@ def page(context: BrowserContext) -> Generator[Page, None, None]:
 def take_screenshot_on_failure(request, page: Page):
     """Automatically take screenshot on test failure."""
     yield
-    if hasattr(request.node, 'rep_call') and request.node.rep_call.failed:
+    if hasattr(request.node, "rep_call") and request.node.rep_call.failed:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         test_name = request.node.name
         screenshot_path = SCREENSHOTS_DIR / f"failure_{test_name}_{timestamp}.png"

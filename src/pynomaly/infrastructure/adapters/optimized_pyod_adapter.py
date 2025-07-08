@@ -8,15 +8,13 @@ import hashlib
 import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 import numpy as np
-import pandas as pd
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.preprocessing import StandardScaler
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore, PerformanceMetrics
 from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
 
 
@@ -26,7 +24,7 @@ class OptimizedPyODAdapter(PyODAdapter):
     def __init__(
         self,
         algorithm: str,
-        parameters: Optional[Dict[str, Any]] = None,
+        parameters: Optional[dict[str, Any]] = None,
         feature_importance_threshold: float = 0.01,
         enable_feature_selection: bool = True,
         enable_batch_processing: bool = True,
@@ -64,8 +62,8 @@ class OptimizedPyODAdapter(PyODAdapter):
         self._scaler: Optional[StandardScaler] = None
 
         # Performance tracking
-        self._prediction_cache: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
-        self._performance_metrics: Dict[str, float] = {}
+        self._prediction_cache: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+        self._performance_metrics: dict[str, float] = {}
 
         self.logger = logging.getLogger(__name__)
 
@@ -328,7 +326,7 @@ class OptimizedPyODAdapter(PyODAdapter):
             samples_per_cluster = (sample_size * cluster_counts / len(X)).astype(int)
 
             sample_indices = []
-            for cluster_id, n_samples in zip(unique_clusters, samples_per_cluster):
+            for cluster_id, n_samples in zip(unique_clusters, samples_per_cluster, strict=False):
                 cluster_indices = np.where(cluster_labels == cluster_id)[0]
                 if len(cluster_indices) > 0:
                     selected = np.random.choice(
@@ -371,9 +369,9 @@ class OptimizedPyODAdapter(PyODAdapter):
         )
 
         if self._selected_features is not None:
-            detector.metadata["selected_features_mask"] = (
-                self._selected_features.tolist()
-            )
+            detector.metadata[
+                "selected_features_mask"
+            ] = self._selected_features.tolist()
 
         return detector
 
@@ -403,7 +401,7 @@ class OptimizedPyODAdapter(PyODAdapter):
 
         return result
 
-    def get_performance_summary(self) -> Dict[str, Any]:
+    def get_performance_summary(self) -> dict[str, Any]:
         """Get comprehensive performance summary."""
         return {
             "algorithm": self.algorithm,
@@ -470,10 +468,10 @@ class AsyncAlgorithmExecutor:
 
     async def execute_multiple_algorithms(
         self,
-        algorithms: List[str],
+        algorithms: list[str],
         dataset: Dataset,
-        algorithm_params: Optional[Dict[str, Dict[str, Any]]] = None,
-    ) -> List[Tuple[str, Optional[DetectionResult]]]:
+        algorithm_params: Optional[dict[str, dict[str, Any]]] = None,
+    ) -> list[tuple[str, Optional[DetectionResult]]]:
         """Execute multiple algorithms in parallel.
 
         Args:

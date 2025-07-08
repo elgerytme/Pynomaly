@@ -22,7 +22,7 @@
 
 ### Essential Project Files
 - `README.md` ✅
-- `LICENSE` ✅ 
+- `LICENSE` ✅
 - `CHANGELOG.md` ✅
 - `TODO.md` ✅
 - `CLAUDE.md` ✅

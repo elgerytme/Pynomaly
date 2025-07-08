@@ -89,7 +89,7 @@ export class AdvancedDashboard {
             </div>
           </div>
         </div>
-        
+
         <div class="header-center">
           <div class="dashboard-controls" role="group" aria-label="Dashboard controls">
             <button class="btn btn-secondary btn-sm" id="add-widget-btn" aria-label="Add new widget">
@@ -98,13 +98,13 @@ export class AdvancedDashboard {
               </svg>
               Add Widget
             </button>
-            
+
             <button class="btn btn-secondary btn-sm" id="layout-menu-btn" aria-label="Layout options">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
               </svg>
             </button>
-            
+
             <div class="btn-group" role="group" aria-label="Real-time controls">
               <button class="btn btn-secondary btn-sm" id="pause-btn" aria-label="Pause real-time updates">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -112,7 +112,7 @@ export class AdvancedDashboard {
                 </svg>
                 Pause
               </button>
-              
+
               <button class="btn btn-secondary btn-sm" id="clear-btn" aria-label="Clear all data">
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"/>
@@ -123,7 +123,7 @@ export class AdvancedDashboard {
             </div>
           </div>
         </div>
-        
+
         <div class="header-right">
           <div class="dashboard-metrics-summary">
             <div class="metric-summary" id="data-rate-summary">
@@ -135,7 +135,7 @@ export class AdvancedDashboard {
               <span class="metric-value">0.0%</span>
             </div>
           </div>
-          
+
           <div class="dashboard-actions">
             <button class="btn btn-primary btn-sm" id="export-btn" aria-label="Export dashboard data">
               <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -143,7 +143,7 @@ export class AdvancedDashboard {
               </svg>
               Export
             </button>
-            
+
             <button class="btn btn-secondary btn-sm" id="settings-btn" aria-label="Dashboard settings">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
@@ -152,7 +152,7 @@ export class AdvancedDashboard {
           </div>
         </div>
       </div>
-      
+
       <!-- Dashboard Content -->
       <div class="dashboard-content" role="main">
         <!-- Sidebar -->
@@ -165,7 +165,7 @@ export class AdvancedDashboard {
               </svg>
             </button>
           </div>
-          
+
           <div class="sidebar-content">
             <!-- Widget Library -->
             <div class="widget-library">
@@ -178,7 +178,7 @@ export class AdvancedDashboard {
                     <div class="widget-description">Anomalies over time</div>
                   </div>
                 </div>
-                
+
                 <div class="widget-item" data-widget-type="anomaly-heatmap" draggable="true">
                   <div class="widget-icon">🔥</div>
                   <div class="widget-info">
@@ -186,7 +186,7 @@ export class AdvancedDashboard {
                     <div class="widget-description">Feature correlation</div>
                   </div>
                 </div>
-                
+
                 <div class="widget-item" data-widget-type="metrics-summary" draggable="true">
                   <div class="widget-icon">📊</div>
                   <div class="widget-info">
@@ -194,7 +194,7 @@ export class AdvancedDashboard {
                     <div class="widget-description">Key statistics</div>
                   </div>
                 </div>
-                
+
                 <div class="widget-item" data-widget-type="alert-list" draggable="true">
                   <div class="widget-icon">🚨</div>
                   <div class="widget-info">
@@ -202,7 +202,7 @@ export class AdvancedDashboard {
                     <div class="widget-description">Recent notifications</div>
                   </div>
                 </div>
-                
+
                 <div class="widget-item" data-widget-type="data-stream" draggable="true">
                   <div class="widget-icon">⚡</div>
                   <div class="widget-info">
@@ -210,7 +210,7 @@ export class AdvancedDashboard {
                     <div class="widget-description">Real-time data</div>
                   </div>
                 </div>
-                
+
                 <div class="widget-item" data-widget-type="model-performance" draggable="true">
                   <div class="widget-icon">🎯</div>
                   <div class="widget-info">
@@ -220,7 +220,7 @@ export class AdvancedDashboard {
                 </div>
               </div>
             </div>
-            
+
             <!-- Data Sources -->
             <div class="data-sources">
               <h4>Data Sources</h4>
@@ -230,13 +230,13 @@ export class AdvancedDashboard {
                   <div class="source-name">Real-time Stream</div>
                   <div class="source-status">Connected</div>
                 </div>
-                
+
                 <div class="source-item" data-source="historical">
                   <div class="source-indicator disconnected"></div>
                   <div class="source-name">Historical Data</div>
                   <div class="source-status">Available</div>
                 </div>
-                
+
                 <div class="source-item" data-source="simulation">
                   <div class="source-indicator warning"></div>
                   <div class="source-name">Simulation Mode</div>
@@ -244,7 +244,7 @@ export class AdvancedDashboard {
                 </div>
               </div>
             </div>
-            
+
             <!-- Dashboard Settings -->
             <div class="dashboard-settings">
               <h4>Settings</h4>
@@ -253,17 +253,17 @@ export class AdvancedDashboard {
                   <input type="checkbox" id="auto-refresh" checked>
                   <span class="setting-label">Auto Refresh</span>
                 </label>
-                
+
                 <label class="setting-item">
                   <input type="checkbox" id="sound-alerts">
                   <span class="setting-label">Sound Alerts</span>
                 </label>
-                
+
                 <label class="setting-item">
                   <input type="checkbox" id="compact-mode">
                   <span class="setting-label">Compact Mode</span>
                 </label>
-                
+
                 <div class="setting-item">
                   <label class="setting-label">Update Rate</label>
                   <select id="update-rate">
@@ -277,7 +277,7 @@ export class AdvancedDashboard {
             </div>
           </div>
         </aside>
-        
+
         <!-- Main Dashboard Area -->
         <main class="dashboard-main" id="dashboard-main">
           <div class="layout-container" id="layout-container" data-component="dashboard-layout">
@@ -291,7 +291,7 @@ export class AdvancedDashboard {
           </div>
         </main>
       </div>
-      
+
       <!-- Dashboard Overlays -->
       <div class="dashboard-overlays">
         <!-- Drop Zone Indicator -->
@@ -301,7 +301,7 @@ export class AdvancedDashboard {
             <div class="drop-zone-text">Drop widget here</div>
           </div>
         </div>
-        
+
         <!-- Performance Overlay -->
         <div class="performance-overlay" id="performance-overlay" style="display: none;">
           <div class="performance-content">
@@ -323,7 +323,7 @@ export class AdvancedDashboard {
           </div>
         </div>
       </div>
-      
+
       <!-- Loading Overlay -->
       <div class="loading-overlay" id="loading-overlay" style="display: none;">
         <div class="loading-content">
@@ -1441,17 +1441,17 @@ export class AdvancedDashboard {
     return `
       <div class="setting-group">
         <h4>Real-Time Settings</h4>
-        
+
         <div class="setting-item">
           <label for="setting-update-interval">Update Interval (ms)</label>
           <input type="number" id="setting-update-interval" value="${currentSettings.updateInterval}" min="100" max="10000" step="100">
         </div>
-        
+
         <div class="setting-item">
           <label for="setting-max-data-points">Max Data Points</label>
           <input type="number" id="setting-max-data-points" value="${currentSettings.maxDataPoints}" min="100" max="100000" step="100">
         </div>
-        
+
         <div class="setting-item">
           <label>
             <input type="checkbox" id="setting-enable-realtime" ${currentSettings.enableRealTime ? "checked" : ""}>
@@ -1459,17 +1459,17 @@ export class AdvancedDashboard {
           </label>
         </div>
       </div>
-      
+
       <div class="setting-group">
         <h4>Layout Settings</h4>
-        
+
         <div class="setting-item">
           <label>
             <input type="checkbox" id="setting-enable-dragdrop" ${currentSettings.enableDragDrop ? "checked" : ""}>
             Enable Drag & Drop
           </label>
         </div>
-        
+
         <div class="setting-item">
           <label>
             <input type="checkbox" id="setting-auto-save" ${currentSettings.autoSave ? "checked" : ""}>
@@ -1477,10 +1477,10 @@ export class AdvancedDashboard {
           </label>
         </div>
       </div>
-      
+
       <div class="setting-group">
         <h4>Collaboration</h4>
-        
+
         <div class="setting-item">
           <label>
             <input type="checkbox" id="setting-collaboration-mode" ${currentSettings.collaborationMode ? "checked" : ""}>

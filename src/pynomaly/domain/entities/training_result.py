@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 
@@ -30,12 +30,12 @@ class TrainingResult:
     detector_id: UUID
     dataset_id: UUID
     success: bool
-    metrics: Dict[str, Any] = field(default_factory=dict)
-    training_duration: Optional[float] = None
+    metrics: dict[str, Any] = field(default_factory=dict)
+    training_duration: float | None = None
     id: UUID = field(default_factory=uuid4)
     created_at: datetime = field(default_factory=datetime.utcnow)
-    error_message: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    error_message: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         """Validate training result after initialization."""
@@ -46,24 +46,24 @@ class TrainingResult:
             raise ValueError("Failed training must have error message")
 
     @property
-    def training_time_minutes(self) -> Optional[float]:
+    def training_time_minutes(self) -> float | None:
         """Get training duration in minutes."""
         if self.training_duration is None:
             return None
         return self.training_duration / 60.0
 
     @property
-    def samples_processed(self) -> Optional[int]:
+    def samples_processed(self) -> int | None:
         """Get number of samples processed during training."""
         return self.metrics.get("n_samples")
 
     @property
-    def model_parameters(self) -> Optional[Dict[str, Any]]:
+    def model_parameters(self) -> dict[str, Any] | None:
         """Get final model parameters after training."""
         return self.metrics.get("model_parameters")
 
     @property
-    def validation_score(self) -> Optional[float]:
+    def validation_score(self) -> float | None:
         """Get validation score if available."""
         return self.metrics.get("validation_score")
 
@@ -75,7 +75,7 @@ class TrainingResult:
         """Add training metadata."""
         self.metadata[key] = value
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """Get a summary of the training result."""
         return {
             "id": str(self.id),
@@ -97,8 +97,8 @@ class TrainingResult:
         cls,
         detector_id: UUID,
         dataset_id: UUID,
-        metrics: Dict[str, Any],
-        training_duration: Optional[float] = None,
+        metrics: dict[str, Any],
+        training_duration: float | None = None,
         **metadata: Any,
     ) -> TrainingResult:
         """Create a successful training result."""
@@ -117,7 +117,7 @@ class TrainingResult:
         detector_id: UUID,
         dataset_id: UUID,
         error_message: str,
-        training_duration: Optional[float] = None,
+        training_duration: float | None = None,
         **metadata: Any,
     ) -> TrainingResult:
         """Create a failed training result."""

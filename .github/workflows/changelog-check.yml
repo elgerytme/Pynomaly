@@ -9,38 +9,38 @@ jobs:
   changelog-check:
     name: Check Changelog Update
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0  # Fetch full history for proper diff analysis
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Check if CHANGELOG.md update is required
       run: |
         echo "🔍 Checking if CHANGELOG.md update is required for this PR..."
-        
+
         # Get the list of changed files in this PR
         git diff --name-only origin/main...HEAD > changed_files.txt
-        
+
         # Get diff statistics
         git diff --numstat origin/main...HEAD > diff_stats.txt
-        
+
         echo "📁 Files changed in this PR:"
         cat changed_files.txt
-        
+
         echo ""
         echo "📊 Diff statistics:"
         cat diff_stats.txt
-        
+
         # Run the changelog checker with PR context
         python3 scripts/check_changelog_update_pr.py
-      
+
     - name: Comment on PR if changelog update needed
       if: failure()
       uses: actions/github-script@v6
@@ -48,9 +48,9 @@ jobs:
         script: |
           const comment = `
           ## ⚠️ CHANGELOG.md Update Required
-          
+
           This PR contains significant changes that require a CHANGELOG.md update:
-          
+
           ### Why is this required?
           Your changes meet one or more of these criteria:
           - Modified core functionality (src/, pynomaly/)
@@ -58,15 +58,15 @@ jobs:
           - Fixed bugs or issues
           - Updated documentation, examples, or scripts
           - Changed more than 20 lines of code
-          
+
           ### How to fix this:
           1. **Update CHANGELOG.md** with your changes:
              \`\`\`bash
              python3 scripts/update_changelog_helper.py
              \`\`\`
-          
+
           2. **Follow the format** defined in CLAUDE.md > Changelog Management Rules
-          
+
           3. **Include these sections** as appropriate:
              - **Added**: New features, capabilities, or functionality
              - **Changed**: Changes in existing functionality
@@ -74,26 +74,26 @@ jobs:
              - **Documentation**: Documentation updates
              - **Infrastructure**: CI/CD or deployment changes
              - **Testing**: Test improvements or additions
-          
+
           4. **Commit the changelog** update to this PR
-          
+
           ### Example changelog entry:
           \`\`\`markdown
           ## [X.Y.Z] - ${new Date().toISOString().split('T')[0]}
-          
+
           ### Added
           - [Describe what you added]
-          
-          ### Changed  
+
+          ### Changed
           - [Describe what you changed]
-          
+
           ### Fixed
           - [Describe what you fixed]
           \`\`\`
-          
+
           Once you update CHANGELOG.md, this check will pass automatically! 🚀
           `;
-          
+
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
@@ -105,45 +105,45 @@ jobs:
     name: Validate Changelog Format
     runs-on: ubuntu-latest
     if: contains(github.event.pull_request.changed_files, 'CHANGELOG.md')
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Validate changelog format
       run: |
         echo "📋 Validating CHANGELOG.md format..."
-        
+
         # Check if CHANGELOG.md follows proper format
         if ! grep -q "## \[.*\] - [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}" CHANGELOG.md; then
           echo "❌ CHANGELOG.md does not contain proper version entries"
           echo "   Expected format: ## [X.Y.Z] - YYYY-MM-DD"
           exit 1
         fi
-        
+
         # Check for required sections
         if ! grep -q "### Added\|### Changed\|### Fixed\|### Documentation\|### Infrastructure\|### Testing" CHANGELOG.md; then
           echo "❌ CHANGELOG.md does not contain required sections"
           echo "   Required: Added, Changed, Fixed, Documentation, Infrastructure, or Testing"
           exit 1
         fi
-        
+
         echo "✅ CHANGELOG.md format is valid"
-    
+
     - name: Check for version increment
       run: |
         echo "🔢 Checking version increment..."
-        
+
         # Extract versions from changelog
         versions=$(grep -o "\[.*\]" CHANGELOG.md | grep -o "[0-9]\+\.[0-9]\+\.[0-9]\+" | head -2)
-        
+
         if [ $(echo "$versions" | wc -l) -ge 2 ]; then
           latest=$(echo "$versions" | head -1)
           previous=$(echo "$versions" | head -2 | tail -1)
-          
+
           echo "Latest version: $latest"
           echo "Previous version: $previous"
-          
+
           # Simple version comparison (would need more sophisticated logic for production)
           if [ "$latest" = "$previous" ]; then
             echo "⚠️ Version was not incremented"

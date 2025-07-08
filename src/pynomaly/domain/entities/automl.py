@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import UUID
 
 
 class OptimizationObjective(str, Enum):

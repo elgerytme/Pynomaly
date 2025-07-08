@@ -895,9 +895,9 @@ class QueryOptimizer:
             ]
 
             # Get performance summary
-            optimization_results["performance_summary"] = (
-                self.performance_tracker.get_performance_summary()
-            )
+            optimization_results[
+                "performance_summary"
+            ] = self.performance_tracker.get_performance_summary()
 
             # Get cache stats
             optimization_results["cache_stats"] = self.cache.get_stats()

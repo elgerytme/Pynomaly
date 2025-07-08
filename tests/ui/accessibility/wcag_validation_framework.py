@@ -5,18 +5,15 @@ Comprehensive accessibility testing and validation for Pynomaly UI
 
 import asyncio
 import json
-import os
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import pytest
-from playwright.async_api import Browser, BrowserContext, Page
-
-from tests.ui.enhanced_page_objects.base_page import BasePage
+from playwright.async_api import Page
 
 
 class WCAGLevel(Enum):
@@ -42,11 +39,11 @@ class WCAGViolation:
 
     id: str
     impact: str  # critical, serious, moderate, minor
-    tags: List[str]
+    tags: list[str]
     description: str
     help: str
     help_url: str
-    nodes: List[Dict[str, Any]]
+    nodes: list[dict[str, Any]]
     principle: WCAGPrinciple
     guideline: str
     success_criterion: str
@@ -66,14 +63,14 @@ class AccessibilityTestResult:
     serious_violations: int
     moderate_violations: int
     minor_violations: int
-    violations: List[WCAGViolation]
-    passes: List[Dict[str, Any]]
-    inapplicable: List[Dict[str, Any]]
-    incomplete: List[Dict[str, Any]]
+    violations: list[WCAGViolation]
+    passes: list[dict[str, Any]]
+    inapplicable: list[dict[str, Any]]
+    incomplete: list[dict[str, Any]]
     execution_time: float
     timestamp: str
     browser: str
-    viewport: Dict[str, int]
+    viewport: dict[str, int]
     user_agent: str
 
 
@@ -82,7 +79,7 @@ class WCAGValidationFramework:
 
     def __init__(self, target_level: WCAGLevel = WCAGLevel.AA):
         self.target_level = target_level
-        self.results: List[AccessibilityTestResult] = []
+        self.results: list[AccessibilityTestResult] = []
         self.reports_dir = Path("test_reports/accessibility")
         self.reports_dir.mkdir(parents=True, exist_ok=True)
 
@@ -153,9 +150,9 @@ class WCAGValidationFramework:
 
     async def run_comprehensive_validation(
         self, page: Page, base_url: str = "http://localhost:8000"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Run comprehensive WCAG 2.1 AA validation across all test pages"""
-        print(f"🔍 Starting comprehensive WCAG 2.1 AA validation...")
+        print("🔍 Starting comprehensive WCAG 2.1 AA validation...")
         start_time = time.time()
 
         validation_results = {
@@ -341,7 +338,7 @@ class WCAGValidationFramework:
             axe_script = (Path(__file__).parent / "axe-core.min.js").read_text()
             await page.add_script_tag(content=axe_script)
 
-    async def _check_keyboard_navigation(self, page: Page) -> List[WCAGViolation]:
+    async def _check_keyboard_navigation(self, page: Page) -> list[WCAGViolation]:
         """Check keyboard navigation accessibility"""
         violations = []
 
@@ -383,7 +380,7 @@ class WCAGValidationFramework:
 
         return violations
 
-    async def _check_color_contrast(self, page: Page) -> List[WCAGViolation]:
+    async def _check_color_contrast(self, page: Page) -> list[WCAGViolation]:
         """Check color contrast ratios"""
         violations = []
 
@@ -421,7 +418,7 @@ class WCAGValidationFramework:
 
         return violations
 
-    async def _check_form_accessibility(self, page: Page) -> List[WCAGViolation]:
+    async def _check_form_accessibility(self, page: Page) -> list[WCAGViolation]:
         """Check form accessibility"""
         violations = []
 
@@ -462,7 +459,7 @@ class WCAGValidationFramework:
 
         return violations
 
-    async def _check_chart_accessibility(self, page: Page) -> List[WCAGViolation]:
+    async def _check_chart_accessibility(self, page: Page) -> list[WCAGViolation]:
         """Check data visualization accessibility"""
         violations = []
 
@@ -476,8 +473,8 @@ class WCAGValidationFramework:
             has_alt = await chart.evaluate(
                 """
                 el => {
-                    return el.hasAttribute('aria-label') || 
-                           el.hasAttribute('aria-labelledby') || 
+                    return el.hasAttribute('aria-label') ||
+                           el.hasAttribute('aria-labelledby') ||
                            el.hasAttribute('aria-describedby') ||
                            el.querySelector('title, desc');
                 }
@@ -505,7 +502,7 @@ class WCAGValidationFramework:
 
         return violations
 
-    async def _check_responsive_accessibility(self, page: Page) -> List[WCAGViolation]:
+    async def _check_responsive_accessibility(self, page: Page) -> list[WCAGViolation]:
         """Check responsive design accessibility"""
         violations = []
 
@@ -556,7 +553,7 @@ class WCAGValidationFramework:
 
     async def _check_dynamic_content_accessibility(
         self, page: Page
-    ) -> List[WCAGViolation]:
+    ) -> list[WCAGViolation]:
         """Check dynamic content accessibility (ARIA live regions, etc.)"""
         violations = []
 
@@ -576,8 +573,8 @@ class WCAGValidationFramework:
             for element in elements:
                 has_live_region = await element.evaluate(
                     """
-                    el => el.hasAttribute('aria-live') || 
-                          el.hasAttribute('aria-atomic') || 
+                    el => el.hasAttribute('aria-live') ||
+                          el.hasAttribute('aria-atomic') ||
                           el.hasAttribute('role') && ['alert', 'status', 'log'].includes(el.getAttribute('role'))
                 """
                 )
@@ -604,7 +601,7 @@ class WCAGValidationFramework:
         return violations
 
     def _create_wcag_violation(
-        self, axe_violation: Dict[str, Any], page_url: str
+        self, axe_violation: dict[str, Any], page_url: str
     ) -> WCAGViolation:
         """Create WCAGViolation from axe-core violation"""
         # Map axe tags to WCAG principles
@@ -649,13 +646,13 @@ class WCAGValidationFramework:
             timestamp=datetime.now().isoformat(),
         )
 
-    async def _get_browser_info(self, page: Page) -> Dict[str, Any]:
+    async def _get_browser_info(self, page: Page) -> dict[str, Any]:
         """Get browser information"""
         return await page.evaluate(
             """
             () => ({
-                name: navigator.userAgent.includes('Chrome') ? 'Chrome' : 
-                      navigator.userAgent.includes('Firefox') ? 'Firefox' : 
+                name: navigator.userAgent.includes('Chrome') ? 'Chrome' :
+                      navigator.userAgent.includes('Firefox') ? 'Firefox' :
                       navigator.userAgent.includes('Safari') ? 'Safari' : 'Unknown',
                 user_agent: navigator.userAgent,
                 viewport: {
@@ -667,8 +664,8 @@ class WCAGValidationFramework:
         )
 
     def _generate_summary(
-        self, results: List[AccessibilityTestResult]
-    ) -> Dict[str, Any]:
+        self, results: list[AccessibilityTestResult]
+    ) -> dict[str, Any]:
         """Generate validation summary"""
         total_violations = sum(r.total_violations for r in results)
         total_critical = sum(r.critical_violations for r in results)
@@ -692,7 +689,7 @@ class WCAGValidationFramework:
         }
 
     def _calculate_compliance_score(
-        self, results: List[AccessibilityTestResult]
+        self, results: list[AccessibilityTestResult]
     ) -> float:
         """Calculate WCAG compliance score"""
         if not results:
@@ -720,8 +717,8 @@ class WCAGValidationFramework:
         return min(100, compliance_score)
 
     def _generate_recommendations(
-        self, results: List[AccessibilityTestResult]
-    ) -> List[Dict[str, Any]]:
+        self, results: list[AccessibilityTestResult]
+    ) -> list[dict[str, Any]]:
         """Generate accessibility improvement recommendations"""
         recommendations = []
 
@@ -759,7 +756,7 @@ class WCAGValidationFramework:
 
         return recommendations
 
-    async def _save_comprehensive_report(self, validation_results: Dict[str, Any]):
+    async def _save_comprehensive_report(self, validation_results: dict[str, Any]):
         """Save comprehensive accessibility validation report"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -774,11 +771,11 @@ class WCAGValidationFramework:
         with open(html_report_path, "w") as f:
             f.write(html_content)
 
-        print(f"📊 Reports saved:")
+        print("📊 Reports saved:")
         print(f"  JSON: {json_report_path}")
         print(f"  HTML: {html_report_path}")
 
-    def _generate_html_report(self, results: Dict[str, Any]) -> str:
+    def _generate_html_report(self, results: dict[str, Any]) -> str:
         """Generate HTML accessibility report"""
         return f"""
         <!DOCTYPE html>
@@ -811,7 +808,7 @@ class WCAGValidationFramework:
                     <p>Compliance Score</p>
                     <p><small>Generated: {results['timestamp']}</small></p>
                 </div>
-                
+
                 <div class="summary">
                     <div class="metric">
                         <div style="font-size: 2em; font-weight: bold;">{results['summary']['total_pages_tested']}</div>
@@ -830,22 +827,22 @@ class WCAGValidationFramework:
                         <div>Serious</div>
                     </div>
                 </div>
-                
+
                 <div class="recommendations">
                     <h3>💡 Top Recommendations</h3>
                     <ul>
                         {''.join([f"<li><strong>{rec['criterion_name']}</strong> - {rec['recommendation']}</li>" for rec in results['recommendations'][:5]])}
                     </ul>
                 </div>
-                
+
                 <h3>📄 Page Results</h3>
                 {''.join([f'''
                 <div class="violation">
                     <h4>{page['page_url']}</h4>
-                    <p>Violations: {page['total_violations']} 
-                       (Critical: {page['critical_violations']}, 
-                        Serious: {page['serious_violations']}, 
-                        Moderate: {page['moderate_violations']}, 
+                    <p>Violations: {page['total_violations']}
+                       (Critical: {page['critical_violations']},
+                        Serious: {page['serious_violations']},
+                        Moderate: {page['moderate_violations']},
                         Minor: {page['minor_violations']})</p>
                 </div>
                 ''' for page in results['page_results']])}
@@ -926,7 +923,7 @@ if __name__ == "__main__":
             validator = WCAGValidationFramework()
             results = await validator.run_comprehensive_validation(page)
 
-            print(f"\n🎯 WCAG 2.1 AA Validation Complete")
+            print("\n🎯 WCAG 2.1 AA Validation Complete")
             print(f"Compliance Score: {results['compliance_score']:.1f}%")
             print(f"Critical Issues: {results['summary']['critical_violations']}")
             print(f"Total Violations: {results['summary']['total_violations']}")

@@ -770,7 +770,6 @@ class ABTesting:
                         control.variant_id in self.variant_performances
                         and treatment.variant_id in self.variant_performances
                     ):
-
                         control_perf = self.variant_performances[control.variant_id]
                         treatment_perf = self.variant_performances[treatment.variant_id]
 
@@ -778,7 +777,6 @@ class ABTesting:
                             metric.metric_name in control_perf.aggregated_metrics
                             and metric.metric_name in treatment_perf.aggregated_metrics
                         ):
-
                             result = self._perform_statistical_test(
                                 control, treatment, metric, control_perf, treatment_perf
                             )

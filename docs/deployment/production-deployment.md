@@ -789,7 +789,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
-    
+
     services:
       postgres:
         image: postgres:15
@@ -803,7 +803,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-      
+
       redis:
         image: redis:7
         options: >-
@@ -898,7 +898,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test, security-scan]
     if: github.event_name != 'pull_request'
-    
+
     strategy:
       matrix:
         component: [api, worker, web]
@@ -947,7 +947,7 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/develop'
     environment: staging
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -970,10 +970,10 @@ jobs:
         sed -i "s|image: pynomaly/.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-api:develop|" k8s/staging/api-deployment.yaml
         sed -i "s|image: pynomaly/.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-worker:develop|" k8s/staging/worker-deployment.yaml
         sed -i "s|image: pynomaly/.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web:develop|" k8s/staging/web-deployment.yaml
-        
+
         # Apply manifests
         kubectl apply -f k8s/staging/
-        
+
         # Wait for rollout
         kubectl rollout status deployment/pynomaly-api -n pynomaly-staging --timeout=300s
         kubectl rollout status deployment/pynomaly-worker -n pynomaly-staging --timeout=300s
@@ -982,7 +982,7 @@ jobs:
       run: |
         # Wait for services to be ready
         kubectl wait --for=condition=ready pod -l app=pynomaly-api -n pynomaly-staging --timeout=300s
-        
+
         # Run integration tests against staging
         poetry install --no-interaction --no-ansi
         poetry run pytest tests/integration/ \
@@ -995,7 +995,7 @@ jobs:
     needs: build
     if: github.event_name == 'release'
     environment: production
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -1016,15 +1016,15 @@ jobs:
       run: |
         # Get release tag
         RELEASE_TAG=${GITHUB_REF#refs/tags/}
-        
+
         # Update image tags in manifests
         sed -i "s|image: pynomaly/.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-api:${RELEASE_TAG}|" k8s/production/api-deployment.yaml
         sed -i "s|image: pynomaly/.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-worker:${RELEASE_TAG}|" k8s/production/worker-deployment.yaml
         sed -i "s|image: pynomaly/.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-web:${RELEASE_TAG}|" k8s/production/web-deployment.yaml
-        
+
         # Apply manifests
         kubectl apply -f k8s/production/
-        
+
         # Wait for rollout
         kubectl rollout status deployment/pynomaly-api -n pynomaly --timeout=600s
         kubectl rollout status deployment/pynomaly-worker -n pynomaly --timeout=600s
@@ -1033,7 +1033,7 @@ jobs:
       run: |
         # Health check
         kubectl wait --for=condition=ready pod -l app=pynomaly-api -n pynomaly --timeout=600s
-        
+
         # Test API endpoint
         kubectl run curl-test --image=curlimages/curl --rm -i --restart=Never -- \
           curl -f http://pynomaly-api-service:8000/health
@@ -1071,7 +1071,7 @@ terraform {
       version = "~> 2.10"
     }
   }
-  
+
   backend "s3" {
     bucket = "pynomaly-terraform-state"
     key    = "infrastructure/terraform.tfstate"
@@ -1082,7 +1082,7 @@ terraform {
 # Provider configurations
 provider "aws" {
   region = var.aws_region
-  
+
   default_tags {
     tags = {
       Project     = "pynomaly"
@@ -1102,7 +1102,7 @@ data "aws_caller_identity" "current" {}
 # Local values
 locals {
   cluster_name = "pynomaly-${var.environment}"
-  
+
   common_tags = {
     Project     = "pynomaly"
     Environment = var.environment
@@ -1159,28 +1159,28 @@ variable "node_min_capacity" {
 # VPC Configuration
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
-  
+
   name = "${local.cluster_name}-vpc"
   cidr = "10.0.0.0/16"
-  
+
   azs             = data.aws_availability_zones.available.names
   private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
-  
+
   enable_nat_gateway   = true
   enable_vpn_gateway   = false
   enable_dns_hostnames = true
   enable_dns_support   = true
-  
+
   tags = merge(local.common_tags, {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
   })
-  
+
   public_subnet_tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
     "kubernetes.io/role/elb"                      = "1"
   }
-  
+
   private_subnet_tags = {
     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"             = "1"
@@ -1190,54 +1190,54 @@ module "vpc" {
 # EKS Cluster
 module "eks" {
   source = "terraform-aws-modules/eks/aws"
-  
+
   cluster_name    = local.cluster_name
   cluster_version = var.cluster_version
-  
+
   vpc_id                         = module.vpc.vpc_id
   subnet_ids                     = module.vpc.private_subnets
   cluster_endpoint_public_access = true
-  
+
   # OIDC Identity provider
   cluster_identity_providers = {
     sts = {
       client_id = "sts.amazonaws.com"
     }
   }
-  
+
   # Managed node groups
   eks_managed_node_groups = {
     main = {
       name           = "${local.cluster_name}-main"
       instance_types = var.node_instance_types
-      
+
       min_size     = var.node_min_capacity
       max_size     = var.node_max_capacity
       desired_size = var.node_desired_capacity
-      
+
       vpc_security_group_ids = [aws_security_group.node_group.id]
-      
+
       # Launch template
       launch_template_name    = "${local.cluster_name}-main"
       launch_template_version = "$Latest"
-      
+
       # Disk
       disk_size = 50
       disk_type = "gp3"
-      
+
       # Taints and labels
       labels = {
         Environment = var.environment
         NodeGroup   = "main"
       }
-      
+
       tags = local.common_tags
     }
   }
-  
+
   # aws-auth configmap
   manage_aws_auth_configmap = true
-  
+
   aws_auth_roles = [
     {
       rolearn  = aws_iam_role.eks_admin.arn
@@ -1245,7 +1245,7 @@ module "eks" {
       groups   = ["system:masters"]
     }
   ]
-  
+
   tags = local.common_tags
 }
 
@@ -1253,21 +1253,21 @@ module "eks" {
 resource "aws_security_group" "node_group" {
   name_prefix = "${local.cluster_name}-node-group"
   vpc_id      = module.vpc.vpc_id
-  
+
   ingress {
     from_port = 0
     to_port   = 65535
     protocol  = "tcp"
     self      = true
   }
-  
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
+
   tags = merge(local.common_tags, {
     Name = "${local.cluster_name}-node-group"
   })
@@ -1276,7 +1276,7 @@ resource "aws_security_group" "node_group" {
 # IAM Roles
 resource "aws_iam_role" "eks_admin" {
   name = "${local.cluster_name}-eks-admin"
-  
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -1289,50 +1289,50 @@ resource "aws_iam_role" "eks_admin" {
       }
     ]
   })
-  
+
   tags = local.common_tags
 }
 
 # RDS Database
 module "rds" {
   source = "terraform-aws-modules/rds/aws"
-  
+
   identifier = "${local.cluster_name}-postgres"
-  
+
   engine               = "postgres"
   engine_version       = "15.4"
   family               = "postgres15"
   major_engine_version = "15"
   instance_class       = var.environment == "production" ? "db.t3.large" : "db.t3.micro"
-  
+
   allocated_storage     = 20
   max_allocated_storage = 100
   storage_encrypted     = true
-  
+
   db_name  = "pynomaly"
   username = "postgres"
   password = random_password.db_password.result
   port     = 5432
-  
+
   manage_master_user_password = false
-  
+
   vpc_security_group_ids = [aws_security_group.rds.id]
   db_subnet_group_name   = aws_db_subnet_group.main.name
-  
+
   backup_retention_period = var.environment == "production" ? 7 : 3
   backup_window          = "03:00-04:00"
   maintenance_window     = "sun:04:00-sun:05:00"
-  
+
   deletion_protection = var.environment == "production"
   skip_final_snapshot = var.environment != "production"
-  
+
   tags = local.common_tags
 }
 
 resource "aws_db_subnet_group" "main" {
   name       = "${local.cluster_name}-db-subnet-group"
   subnet_ids = module.vpc.private_subnets
-  
+
   tags = merge(local.common_tags, {
     Name = "${local.cluster_name}-db-subnet-group"
   })
@@ -1341,14 +1341,14 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_security_group" "rds" {
   name   = "${local.cluster_name}-rds"
   vpc_id = module.vpc.vpc_id
-  
+
   ingress {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
     security_groups = [aws_security_group.node_group.id]
   }
-  
+
   tags = merge(local.common_tags, {
     Name = "${local.cluster_name}-rds"
   })
@@ -1368,35 +1368,35 @@ resource "aws_elasticache_subnet_group" "main" {
 resource "aws_elasticache_replication_group" "main" {
   replication_group_id       = "${local.cluster_name}-redis"
   description                = "Redis cluster for ${local.cluster_name}"
-  
+
   node_type                  = var.environment == "production" ? "cache.t3.medium" : "cache.t3.micro"
   port                       = 6379
   parameter_group_name       = "default.redis7"
-  
+
   num_cache_clusters         = var.environment == "production" ? 2 : 1
   automatic_failover_enabled = var.environment == "production"
   multi_az_enabled          = var.environment == "production"
-  
+
   subnet_group_name = aws_elasticache_subnet_group.main.name
   security_group_ids = [aws_security_group.redis.id]
-  
+
   at_rest_encryption_enabled = true
   transit_encryption_enabled = true
-  
+
   tags = local.common_tags
 }
 
 resource "aws_security_group" "redis" {
   name   = "${local.cluster_name}-redis"
   vpc_id = module.vpc.vpc_id
-  
+
   ingress {
     from_port       = 6379
     to_port         = 6379
     protocol        = "tcp"
     security_groups = [aws_security_group.node_group.id]
   }
-  
+
   tags = merge(local.common_tags, {
     Name = "${local.cluster_name}-redis"
   })
@@ -1405,13 +1405,13 @@ resource "aws_security_group" "redis" {
 # S3 Buckets
 resource "aws_s3_bucket" "data" {
   bucket = "${local.cluster_name}-data-${random_id.bucket_suffix.hex}"
-  
+
   tags = local.common_tags
 }
 
 resource "aws_s3_bucket" "models" {
   bucket = "${local.cluster_name}-models-${random_id.bucket_suffix.hex}"
-  
+
   tags = local.common_tags
 }
 
@@ -1435,7 +1435,7 @@ resource "aws_s3_bucket_versioning" "models" {
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "data" {
   bucket = aws_s3_bucket.data.id
-  
+
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
@@ -1445,7 +1445,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "data" {
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "models" {
   bucket = aws_s3_bucket.models.id
-  
+
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"

@@ -9,8 +9,8 @@ import logging
 import pickle
 import time
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional, Union
+from collections.abc import Callable
+from typing import Any
 from uuid import UUID
 
 logger = logging.getLogger(__name__)
@@ -20,12 +20,12 @@ class CacheBackend(ABC):
     """Abstract base class for cache backends."""
 
     @abstractmethod
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from cache."""
         pass
 
     @abstractmethod
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in cache with optional TTL."""
         pass
 
@@ -35,7 +35,7 @@ class CacheBackend(ABC):
         pass
 
     @abstractmethod
-    async def clear(self, pattern: Optional[str] = None) -> int:
+    async def clear(self, pattern: str | None = None) -> int:
         """Clear cache entries, optionally by pattern."""
         pass
 
@@ -45,7 +45,7 @@ class CacheBackend(ABC):
         pass
 
     @abstractmethod
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         pass
 
@@ -57,20 +57,20 @@ class MemoryCache(CacheBackend):
         """Initialize memory cache."""
         self.max_size = max_size
         self.default_ttl = default_ttl
-        self._cache: Dict[str, Dict[str, Any]] = {}
-        self._access_times: Dict[str, float] = {}
+        self._cache: dict[str, dict[str, Any]] = {}
+        self._access_times: dict[str, float] = {}
         self._hits = 0
         self._misses = 0
         self._evictions = 0
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from memory cache."""
         if key not in self._cache:
             self._misses += 1
             return None
 
         entry = self._cache[key]
-        
+
         # Check expiration
         if entry['expires_at'] and time.time() > entry['expires_at']:
             await self.delete(key)
@@ -80,10 +80,10 @@ class MemoryCache(CacheBackend):
         # Update access time for LRU
         self._access_times[key] = time.time()
         self._hits += 1
-        
+
         return entry['value']
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in memory cache."""
         ttl = ttl or self.default_ttl
         expires_at = time.time() + ttl if ttl > 0 else None
@@ -109,7 +109,7 @@ class MemoryCache(CacheBackend):
             return True
         return False
 
-    async def clear(self, pattern: Optional[str] = None) -> int:
+    async def clear(self, pattern: str | None = None) -> int:
         """Clear cache entries."""
         if pattern is None:
             count = len(self._cache)
@@ -121,14 +121,14 @@ class MemoryCache(CacheBackend):
         keys_to_delete = [k for k in self._cache.keys() if pattern in k]
         for key in keys_to_delete:
             await self.delete(key)
-        
+
         return len(keys_to_delete)
 
     async def exists(self, key: str) -> bool:
         """Check if key exists and is not expired."""
         return await self.get(key) is not None
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get memory cache statistics."""
         total_requests = self._hits + self._misses
         hit_rate = (self._hits / total_requests * 100) if total_requests > 0 else 0
@@ -157,8 +157,8 @@ class MemoryCache(CacheBackend):
 class RedisCache(CacheBackend):
     """Redis cache implementation (requires redis-py)."""
 
-    def __init__(self, host: str = 'localhost', port: int = 6379, 
-                 db: int = 0, password: Optional[str] = None,
+    def __init__(self, host: str = 'localhost', port: int = 6379,
+                 db: int = 0, password: str | None = None,
                  default_ttl: int = 3600, key_prefix: str = 'pynomaly:'):
         """Initialize Redis cache."""
         self.host = host
@@ -191,14 +191,14 @@ class RedisCache(CacheBackend):
             except Exception as e:
                 logger.error(f"Failed to connect to Redis: {e}")
                 return None
-        
+
         return self._redis
 
     def _make_key(self, key: str) -> str:
         """Create prefixed cache key."""
         return f"{self.key_prefix}{key}"
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from Redis cache."""
         redis = await self._get_redis()
         if not redis:
@@ -207,20 +207,20 @@ class RedisCache(CacheBackend):
         try:
             prefixed_key = self._make_key(key)
             data = await redis.get(prefixed_key)
-            
+
             if data is None:
                 self._misses += 1
                 return None
 
             self._hits += 1
             return pickle.loads(data)
-        
+
         except Exception as e:
             logger.error(f"Redis get error for key {key}: {e}")
             self._misses += 1
             return None
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in Redis cache."""
         redis = await self._get_redis()
         if not redis:
@@ -230,10 +230,10 @@ class RedisCache(CacheBackend):
             prefixed_key = self._make_key(key)
             serialized_value = pickle.dumps(value)
             ttl = ttl or self.default_ttl
-            
+
             result = await redis.setex(prefixed_key, ttl, serialized_value)
             return bool(result)
-        
+
         except Exception as e:
             logger.error(f"Redis set error for key {key}: {e}")
             return False
@@ -248,12 +248,12 @@ class RedisCache(CacheBackend):
             prefixed_key = self._make_key(key)
             result = await redis.delete(prefixed_key)
             return bool(result)
-        
+
         except Exception as e:
             logger.error(f"Redis delete error for key {key}: {e}")
             return False
 
-    async def clear(self, pattern: Optional[str] = None) -> int:
+    async def clear(self, pattern: str | None = None) -> int:
         """Clear Redis cache entries."""
         redis = await self._get_redis()
         if not redis:
@@ -271,7 +271,7 @@ class RedisCache(CacheBackend):
                 result = await redis.delete(*keys)
                 return result
             return 0
-        
+
         except Exception as e:
             logger.error(f"Redis clear error: {e}")
             return 0
@@ -286,12 +286,12 @@ class RedisCache(CacheBackend):
             prefixed_key = self._make_key(key)
             result = await redis.exists(prefixed_key)
             return bool(result)
-        
+
         except Exception as e:
             logger.error(f"Redis exists error for key {key}: {e}")
             return False
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get Redis cache statistics."""
         total_requests = self._hits + self._misses
         hit_rate = (self._hits / total_requests * 100) if total_requests > 0 else 0
@@ -315,47 +315,47 @@ class CacheManager:
         """Initialize cache manager."""
         self.backend = backend
         self.enable_metrics = enable_metrics
-        self._operation_times: List[float] = []
+        self._operation_times: list[float] = []
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from cache with metrics."""
         start_time = time.perf_counter()
-        
+
         try:
             result = await self.backend.get(key)
-            
+
             if self.enable_metrics:
                 operation_time = time.perf_counter() - start_time
                 self._operation_times.append(operation_time)
-                
+
                 # Keep only last 1000 operations for metrics
                 if len(self._operation_times) > 1000:
                     self._operation_times = self._operation_times[-1000:]
-            
+
             return result
-        
+
         except Exception as e:
             logger.error(f"Cache get error: {e}")
             return None
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in cache with metrics."""
         start_time = time.perf_counter()
-        
+
         try:
             result = await self.backend.set(key, value, ttl)
-            
+
             if self.enable_metrics:
                 operation_time = time.perf_counter() - start_time
                 self._operation_times.append(operation_time)
-            
+
             return result
-        
+
         except Exception as e:
             logger.error(f"Cache set error: {e}")
             return False
 
-    async def get_or_set(self, key: str, factory: Callable, ttl: Optional[int] = None) -> Any:
+    async def get_or_set(self, key: str, factory: Callable, ttl: int | None = None) -> Any:
         """Get value from cache or set it using factory function."""
         # Try to get from cache first
         cached_value = await self.get(key)
@@ -368,11 +368,11 @@ class CacheManager:
                 value = await factory()
             else:
                 value = factory()
-            
+
             # Cache the value
             await self.set(key, value, ttl)
             return value
-        
+
         except Exception as e:
             logger.error(f"Factory function error for key {key}: {e}")
             raise
@@ -381,7 +381,7 @@ class CacheManager:
         """Delete key from cache."""
         return await self.backend.delete(key)
 
-    async def clear(self, pattern: Optional[str] = None) -> int:
+    async def clear(self, pattern: str | None = None) -> int:
         """Clear cache entries."""
         return await self.backend.clear(pattern)
 
@@ -393,10 +393,10 @@ class CacheManager:
         """Asynchronously invalidate cache entries matching pattern."""
         return asyncio.create_task(self.clear(pattern))
 
-    def get_performance_stats(self) -> Dict[str, Any]:
+    def get_performance_stats(self) -> dict[str, Any]:
         """Get cache performance statistics."""
         backend_stats = self.backend.get_stats()
-        
+
         if self._operation_times:
             avg_time = sum(self._operation_times) / len(self._operation_times)
             max_time = max(self._operation_times)
@@ -426,32 +426,32 @@ class CacheKey:
             'args': [str(arg) for arg in args],
             'kwargs': {k: str(v) for k, v in sorted(kwargs.items())}
         }
-        
+
         # Serialize and hash for consistent keys
         key_string = json.dumps(key_data, sort_keys=True)
         key_hash = hashlib.md5(key_string.encode()).hexdigest()
-        
+
         return f"{namespace}:{key_hash}"
 
     @staticmethod
-    def for_detector(detector_id: Union[str, UUID], operation: str = "default") -> str:
+    def for_detector(detector_id: str | UUID, operation: str = "default") -> str:
         """Generate cache key for detector operations."""
         return CacheKey.generate("detector", str(detector_id), operation)
 
     @staticmethod
-    def for_dataset(dataset_id: Union[str, UUID], operation: str = "default") -> str:
+    def for_dataset(dataset_id: str | UUID, operation: str = "default") -> str:
         """Generate cache key for dataset operations."""
         return CacheKey.generate("dataset", str(dataset_id), operation)
 
     @staticmethod
-    def for_detection_result(detector_id: Union[str, UUID], 
-                           dataset_id: Union[str, UUID],
+    def for_detection_result(detector_id: str | UUID,
+                           dataset_id: str | UUID,
                            operation: str = "result") -> str:
         """Generate cache key for detection results."""
         return CacheKey.generate("detection", str(detector_id), str(dataset_id), operation)
 
     @staticmethod
-    def for_user(user_id: Union[str, UUID], operation: str = "profile") -> str:
+    def for_user(user_id: str | UUID, operation: str = "profile") -> str:
         """Generate cache key for user operations."""
         return CacheKey.generate("user", str(user_id), operation)
 
@@ -463,8 +463,8 @@ class CacheKey:
 
 # Cache decorators
 
-def cached(ttl: int = 3600, key_prefix: str = "func", 
-          cache_manager: Optional[CacheManager] = None):
+def cached(ttl: int = 3600, key_prefix: str = "func",
+          cache_manager: CacheManager | None = None):
     """Decorator to cache function results."""
     def decorator(func):
         async def async_wrapper(*args, **kwargs):
@@ -475,7 +475,7 @@ def cached(ttl: int = 3600, key_prefix: str = "func",
 
             # Generate cache key
             cache_key = CacheKey.generate(f"{key_prefix}:{func.__name__}", *args, **kwargs)
-            
+
             # Try to get from cache
             cached_result = await cache_manager.get(cache_key)
             if cached_result is not None:
@@ -487,10 +487,10 @@ def cached(ttl: int = 3600, key_prefix: str = "func",
                 result = await func(*args, **kwargs)
             else:
                 result = func(*args, **kwargs)
-            
+
             await cache_manager.set(cache_key, result, ttl)
             logger.debug(f"Cached result for {func.__name__}")
-            
+
             return result
 
         def sync_wrapper(*args, **kwargs):
@@ -506,7 +506,7 @@ def cached(ttl: int = 3600, key_prefix: str = "func",
     return decorator
 
 
-def cache_invalidate(pattern: str, cache_manager: Optional[CacheManager] = None):
+def cache_invalidate(pattern: str, cache_manager: CacheManager | None = None):
     """Decorator to invalidate cache entries after function execution."""
     def decorator(func):
         async def async_wrapper(*args, **kwargs):
@@ -523,7 +523,7 @@ def cache_invalidate(pattern: str, cache_manager: Optional[CacheManager] = None)
             # Invalidate cache pattern
             invalidated_count = await cache_manager.clear(pattern)
             logger.debug(f"Invalidated {invalidated_count} cache entries with pattern: {pattern}")
-            
+
             return result
 
         def sync_wrapper(*args, **kwargs):
@@ -539,7 +539,7 @@ def cache_invalidate(pattern: str, cache_manager: Optional[CacheManager] = None)
 
 
 # Global cache instance
-_global_cache_manager: Optional[CacheManager] = None
+_global_cache_manager: CacheManager | None = None
 
 
 def get_cache_manager() -> CacheManager:
@@ -554,7 +554,7 @@ def get_cache_manager() -> CacheManager:
 def configure_cache(cache_type: str = "memory", **kwargs) -> CacheManager:
     """Configure global cache manager."""
     global _global_cache_manager
-    
+
     if cache_type == "memory":
         backend = MemoryCache(
             max_size=kwargs.get('max_size', 5000),
@@ -571,8 +571,8 @@ def configure_cache(cache_type: str = "memory", **kwargs) -> CacheManager:
         )
     else:
         raise ValueError(f"Unsupported cache type: {cache_type}")
-    
+
     _global_cache_manager = CacheManager(backend, enable_metrics=kwargs.get('enable_metrics', True))
     logger.info(f"Configured {cache_type} cache manager")
-    
+
     return _global_cache_manager

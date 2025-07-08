@@ -362,6 +362,15 @@ benchmarks/results/
 /DEPLOYMENT_*.md
 /IMPLEMENTATION_*.md
 
+# Prohibited directories in root
+/test_*
+/venv*
+/.venv*
+/env*
+/temp*
+/backup*
+/scratch*
+
 # Build and temp directories that need to be ignored
 buck-out/
 build/

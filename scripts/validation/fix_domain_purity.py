@@ -8,9 +8,7 @@ violations in Clean Architecture, particularly external dependency usage.
 
 import argparse
 import ast
-import re
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
 
 
 class DomainPurityFixer:
@@ -19,8 +17,8 @@ class DomainPurityFixer:
     def __init__(self, src_root: Path):
         self.src_root = src_root
         self.domain_root = src_root / "pynomaly" / "domain"
-        self.violations: List[Dict] = []
-        self.fixes_applied: List[str] = []
+        self.violations: list[dict] = []
+        self.fixes_applied: list[str] = []
 
         # External dependencies commonly found in domain that should be abstracted
         self.problematic_imports = {
@@ -65,7 +63,7 @@ class DomainPurityFixer:
             "__future__",
         }
 
-    def analyze_violations(self) -> List[Dict]:
+    def analyze_violations(self) -> list[dict]:
         """
         Analyze domain layer for architectural violations.
 
@@ -90,12 +88,12 @@ class DomainPurityFixer:
         )
         return self.violations
 
-    def _analyze_file(self, file_path: Path) -> List[Dict]:
+    def _analyze_file(self, file_path: Path) -> list[dict]:
         """Analyze a single file for violations."""
         violations = []
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
                 tree = ast.parse(content)
 
@@ -165,7 +163,7 @@ class DomainPurityFixer:
 
         return violations
 
-    def generate_remediation_plan(self) -> Dict:
+    def generate_remediation_plan(self) -> dict:
         """Generate a comprehensive remediation plan."""
         print("📋 Generating remediation plan...")
 
@@ -200,7 +198,7 @@ class DomainPurityFixer:
 
         return remediation_plan
 
-    def _generate_strategies(self, by_module: Dict) -> Dict:
+    def _generate_strategies(self, by_module: dict) -> dict:
         """Generate specific remediation strategies for each module."""
         strategies = {}
 
@@ -237,7 +235,7 @@ from pynomaly.domain.entities import Anomaly
 class AnomalyValidator(BaseModel):
     score: float
     threshold: float
-    
+
     def to_domain(self) -> Anomaly:
         return Anomaly(score=self.score, threshold=self.threshold)
 """,
@@ -269,7 +267,7 @@ class StatisticalService(Protocol):
 class AnomalyScore:
     def __init__(self, stats_service: StatisticalService):
         self._stats = stats_service
-    
+
     def calculate_percentile(self, scores: List[float]) -> float:
         return self._stats.calculate_percentile(scores, 95)
 
@@ -339,14 +337,14 @@ class PandasDatasetAdapter:
 
         return strategies
 
-    def _determine_implementation_order(self, by_file: Dict) -> List[Dict]:
+    def _determine_implementation_order(self, by_file: dict) -> list[dict]:
         """Determine the optimal order for implementing fixes."""
         # Prioritize by impact and dependency complexity
         priority_order = []
 
         for file_path, violations in by_file.items():
-            violation_types = set(v["type"] for v in violations)
-            modules = set(v["module"] for v in violations)
+            violation_types = {v["type"] for v in violations}
+            modules = {v["module"] for v in violations}
 
             # Calculate priority score
             priority_score = 0
@@ -372,10 +370,10 @@ class PandasDatasetAdapter:
 
         return priority_order
 
-    def _estimate_effort(self, violations: List[Dict]) -> str:
+    def _estimate_effort(self, violations: list[dict]) -> str:
         """Estimate the effort required to fix violations."""
         violation_count = len(violations)
-        modules = set(v["module"] for v in violations)
+        modules = {v["module"] for v in violations}
 
         if violation_count <= 2:
             return "Low (1-2 hours)"
@@ -386,7 +384,7 @@ class PandasDatasetAdapter:
         else:
             return "Medium-High (3-6 hours)"
 
-    def print_remediation_report(self, plan: Dict):
+    def print_remediation_report(self, plan: dict):
         """Print a comprehensive remediation report."""
         print("\n" + "=" * 80)
         print("🏗️  DOMAIN LAYER PURITY REMEDIATION PLAN")
@@ -394,13 +392,13 @@ class PandasDatasetAdapter:
 
         # Summary
         summary = plan["summary"]
-        print(f"\n📊 SUMMARY:")
+        print("\n📊 SUMMARY:")
         print(f"   • Total violations: {summary['total_violations']}")
         print(f"   • Affected files: {summary['affected_files']}")
         print(f"   • Problematic modules: {', '.join(summary['problematic_modules'])}")
 
         # Implementation order
-        print(f"\n🎯 IMPLEMENTATION ORDER (by priority):")
+        print("\n🎯 IMPLEMENTATION ORDER (by priority):")
         for i, item in enumerate(plan["implementation_order"][:10], 1):  # Top 10
             print(f"   {i:2d}. {item['file']}")
             print(f"       • {item['violations_count']} violations")
@@ -409,7 +407,7 @@ class PandasDatasetAdapter:
             print()
 
         # Strategies
-        print(f"\n🔧 REMEDIATION STRATEGIES:")
+        print("\n🔧 REMEDIATION STRATEGIES:")
         for module, strategy in plan["strategies"].items():
             print(f"\n   📦 {module.upper()}:")
             print(f"      Strategy: {strategy['strategy']}")
@@ -417,12 +415,12 @@ class PandasDatasetAdapter:
                 for step in strategy["steps"]:
                     print(f"      {step}")
 
-        print(f"\n💡 NEXT STEPS:")
-        print(f"   1. Start with highest priority files")
-        print(f"   2. Create infrastructure adapters first")
-        print(f"   3. Define domain protocols for interfaces")
-        print(f"   4. Update application layer to use dependency injection")
-        print(f"   5. Run validation after each file to track progress")
+        print("\n💡 NEXT STEPS:")
+        print("   1. Start with highest priority files")
+        print("   2. Create infrastructure adapters first")
+        print("   3. Define domain protocols for interfaces")
+        print("   4. Update application layer to use dependency injection")
+        print("   5. Run validation after each file to track progress")
 
 
 def main():
@@ -467,7 +465,7 @@ def main():
         print(f"\n📄 Detailed plan saved to: {args.output}")
 
     if args.detailed:
-        print(f"\n" + "=" * 80)
+        print("\n" + "=" * 80)
         print("🔧 DETAILED REMEDIATION EXAMPLES")
         print("=" * 80)
         for module, strategy in plan["strategies"].items():

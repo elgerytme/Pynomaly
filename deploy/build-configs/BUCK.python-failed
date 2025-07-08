@@ -50,7 +50,7 @@ python_library(
     ]),
     deps = [
         ":domain",
-        ":application", 
+        ":application",
         ":infrastructure",
     ],
     visibility = ["//src/pynomaly/..."],
@@ -78,7 +78,7 @@ python_library(
     deps = [
         ":domain",
         ":application",
-        ":infrastructure", 
+        ":infrastructure",
         ":presentation",
         ":shared",
     ],
@@ -108,7 +108,7 @@ python_binary(
 # Web UI Server Binary
 python_binary(
     name = "pynomaly-web",
-    main = "scripts/run_web_ui.py", 
+    main = "scripts/run_web_ui.py",
     deps = [":pynomaly-lib"],
     visibility = ["PUBLIC"],
 )
@@ -129,7 +129,7 @@ python_test(
     ],
 )
 
-# Application Layer Tests  
+# Application Layer Tests
 python_test(
     name = "test-application",
     srcs = glob([
@@ -144,7 +144,7 @@ python_test(
 
 # Infrastructure Layer Tests
 python_test(
-    name = "test-infrastructure", 
+    name = "test-infrastructure",
     srcs = glob([
         "tests/infrastructure/**/*.py",
     ]),
@@ -165,7 +165,7 @@ python_test(
     deps = [
         ":presentation",
         ":infrastructure",
-        ":application", 
+        ":application",
         ":domain",
         ":test-utils",
     ],
@@ -207,7 +207,7 @@ genrule(
     cmd = "echo 'All tests completed' > $OUT",
     deps = [
         ":test-domain",
-        ":test-application", 
+        ":test-application",
         ":test-infrastructure",
         ":test-presentation",
         ":test-integration",

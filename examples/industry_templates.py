@@ -20,12 +20,9 @@ from pathlib import Path
 # Add src to path for direct execution
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-import time
-from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
-
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
@@ -153,7 +150,7 @@ class FinancialFraudDetector:
                 print(f"   ❌ {algo}: {str(e)[:50]}...")
 
         # Display results
-        print(f"📊 Fraud Detection Results:")
+        print("📊 Fraud Detection Results:")
         print(
             f"{'Algorithm':<15} {'Accuracy':<10} {'Precision':<11} {'Recall':<8} {'Detected':<9} {'Time (s)':<9}"
         )
@@ -265,7 +262,7 @@ class IndustrialIoTMonitor:
 
         accuracy = np.mean(result.labels == true_labels)
 
-        print(f"⚙️ Equipment Health Monitoring:")
+        print("⚙️ Equipment Health Monitoring:")
         print(f"   Total readings: {len(dataset.data)}")
         print(f"   Anomalies detected: {len(result.anomalies)}")
         print(f"   Detection accuracy: {accuracy:.1%}")
@@ -277,7 +274,7 @@ class IndustrialIoTMonitor:
         scores = np.array([score.value for score in result.scores])
         critical_indices = np.where((result.labels == 1) & (scores > 0.8))[0]
 
-        print(f"\n🚨 Critical Equipment Alerts:")
+        print("\n🚨 Critical Equipment Alerts:")
         for i, idx in enumerate(critical_indices[:3], 1):
             sample = dataset.data.iloc[idx]
             score = scores[idx]
@@ -397,7 +394,7 @@ class CybersecurityThreatDetector:
             np.sum(result.labels == 1), 1
         )
 
-        print(f"🔒 Network Security Analysis:")
+        print("🔒 Network Security Analysis:")
         print(f"   Total connections: {len(dataset.data)}")
         print(f"   Threats detected: {len(result.anomalies)}")
         print(f"   Detection accuracy: {accuracy:.1%}")
@@ -410,7 +407,7 @@ class CybersecurityThreatDetector:
         scores = np.array([score.value for score in result.scores])
         threat_indices = np.where(result.labels == 1)[0]
 
-        print(f"\n🚨 Top Security Threats:")
+        print("\n🚨 Top Security Threats:")
         for i, idx in enumerate(
             threat_indices[np.argsort(scores[threat_indices])[-3:]][::-1], 1
         ):
@@ -461,36 +458,36 @@ def run_industry_templates():
     )
 
     # Summary
-    print(f"\n🎯 INDUSTRY TEMPLATES SUMMARY")
+    print("\n🎯 INDUSTRY TEMPLATES SUMMARY")
     print("=" * 60)
 
-    print(f"✅ Financial Fraud Detection:")
+    print("✅ Financial Fraud Detection:")
     best_fraud = max(fraud_results, key=lambda x: x["precision"])
     print(f"   Best Algorithm: {best_fraud['algorithm']}")
     print(f"   Precision: {best_fraud['precision']:.1%} (Critical for fraud)")
     print(f"   Processing: {best_fraud['execution_time']:.3f}s for 10K transactions")
 
-    print(f"\n✅ Industrial IoT Monitoring:")
-    print(f"   Algorithm: ECOD (Optimized for speed)")
-    print(f"   Real-time capability: ✓")
-    print(f"   Equipment failure detection: ✓")
+    print("\n✅ Industrial IoT Monitoring:")
+    print("   Algorithm: ECOD (Optimized for speed)")
+    print("   Real-time capability: ✓")
+    print("   Equipment failure detection: ✓")
 
-    print(f"\n✅ Cybersecurity Threat Detection:")
-    print(f"   Algorithm: IsolationForest")
-    print(f"   Multi-threat detection: ✓")
-    print(f"   Network-scale processing: ✓")
+    print("\n✅ Cybersecurity Threat Detection:")
+    print("   Algorithm: IsolationForest")
+    print("   Multi-threat detection: ✓")
+    print("   Network-scale processing: ✓")
 
-    print(f"\n🚀 Key Benefits:")
-    print(f"   📊 Domain-optimized algorithms")
-    print(f"   ⚡ Real-time processing capabilities")
-    print(f"   🎯 Industry-specific metrics and alerts")
-    print(f"   🔧 Ready-to-deploy templates")
+    print("\n🚀 Key Benefits:")
+    print("   📊 Domain-optimized algorithms")
+    print("   ⚡ Real-time processing capabilities")
+    print("   🎯 Industry-specific metrics and alerts")
+    print("   🔧 Ready-to-deploy templates")
 
-    print(f"\n💡 Each template can be customized for specific:")
-    print(f"   • Data formats and preprocessing")
-    print(f"   • Algorithm parameters and thresholds")
-    print(f"   • Alert systems and integrations")
-    print(f"   • Compliance and regulatory requirements")
+    print("\n💡 Each template can be customized for specific:")
+    print("   • Data formats and preprocessing")
+    print("   • Algorithm parameters and thresholds")
+    print("   • Alert systems and integrations")
+    print("   • Compliance and regulatory requirements")
 
 
 def main():

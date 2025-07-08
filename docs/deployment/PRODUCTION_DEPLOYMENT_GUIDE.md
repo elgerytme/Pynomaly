@@ -210,24 +210,24 @@ app:
   name: "Pynomaly Production"
   version: "1.0.0"
   debug: false
-  
+
 autonomous:
   max_algorithms: 10
   confidence_threshold: 0.7
   enable_preprocessing: true
   max_preprocessing_time: 600
-  
+
 performance:
   chunk_size: 10000
   memory_limit_mb: 2048
   enable_parallel_processing: true
   max_workers: 8
-  
+
 monitoring:
   prometheus_enabled: true
   metrics_retention_hours: 168  # 7 days
   alert_cooldown_seconds: 300
-  
+
 security:
   auth_enabled: true
   rate_limiting_enabled: true
@@ -280,7 +280,7 @@ upstream pynomaly_api {
 server {
     listen 80;
     server_name your-domain.com;
-    
+
     # Redirect HTTP to HTTPS
     return 301 https://$server_name$request_uri;
 }
@@ -288,41 +288,41 @@ server {
 server {
     listen 443 ssl http2;
     server_name your-domain.com;
-    
+
     # SSL Configuration
     ssl_certificate /etc/ssl/certs/pynomaly.crt;
     ssl_certificate_key /etc/ssl/private/pynomaly.key;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
-    
+
     # Security Headers
     add_header X-Frame-Options DENY;
     add_header X-Content-Type-Options nosniff;
     add_header X-XSS-Protection "1; mode=block";
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
-    
+
     # Rate Limiting
     limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
-    
+
     # File Upload Limits
     client_max_body_size 500M;
-    
+
     # API Endpoints
     location /api/ {
         limit_req zone=api burst=20 nodelay;
-        
+
         proxy_pass http://pynomaly_api;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
+
         # Timeouts
         proxy_connect_timeout 60s;
         proxy_send_timeout 300s;
         proxy_read_timeout 300s;
     }
-    
+
     # Web UI
     location / {
         proxy_pass http://pynomaly_api;
@@ -331,13 +331,13 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
-    
+
     # Health Check
     location /health {
         proxy_pass http://pynomaly_api/api/health/;
         access_log off;
     }
-    
+
     # Metrics (restrict access)
     location /metrics {
         allow 10.0.0.0/8;  # Internal networks only
@@ -885,13 +885,13 @@ performance:
   enable_parallel_processing: true
   max_workers: 16
   enable_gpu_acceleration: true
-  
+
 autonomous:
   max_algorithms: 8
   confidence_threshold: 0.75
   auto_tune_hyperparams: true
   enable_preprocessing: true
-  
+
 api:
   workers: 8
   worker_connections: 2000
@@ -907,13 +907,13 @@ performance:
   memory_limit_mb: 1024
   enable_parallel_processing: false
   max_workers: 2
-  
+
 autonomous:
   max_algorithms: 3
   confidence_threshold: 0.8
   auto_tune_hyperparams: false
   max_samples_analysis: 10000
-  
+
 api:
   workers: 2
   worker_connections: 500
@@ -1252,7 +1252,7 @@ async def test_optimized_loading():
     # Create test data
     data = pd.DataFrame(np.random.randn(10000, 10), columns=[f'col_{i}' for i in range(10)])
     data.to_csv('test_data.csv', index=False)
-    
+
     loader = OptimizedCSVLoader(memory_optimization=True, dtype_inference=True)
     dataset = await loader.load('test_data.csv')
     print(f'✓ Optimized loading: {len(dataset.data)} rows, memory optimized')
@@ -1292,13 +1292,13 @@ from pynomaly.infrastructure.adapters.optimized_pyod_adapter import OptimizedPyO
 async def test_optimization():
     data = pd.DataFrame(np.random.randn(1000, 20), columns=[f'feature_{i}' for i in range(20)])
     dataset = Dataset(name='test', data=data)
-    
+
     adapter = OptimizedPyODAdapter(
         algorithm='IsolationForest',
         enable_feature_selection=True,
         enable_prediction_cache=True
     )
-    
+
     detector = await adapter.train(dataset)
     print('✓ Algorithm optimization: Feature selection and caching enabled')
 

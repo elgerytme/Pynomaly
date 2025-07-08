@@ -353,7 +353,7 @@ Results:
     Recall: 0.887
     F1 Score: 0.905
     AUC Score: 0.943
-  
+
   Model saved to: models/detector_123e4567_20240115.pkl
   Training log: logs/training_20240115_103045.log
 ```
@@ -764,14 +764,14 @@ while true; do
         echo "Server is down, restarting..."
         pynomaly server restart
     fi
-    
+
     # Check performance metrics
     CPU_USAGE=$(pynomaly perf system --cpu --output json | jq '.cpu_usage')
     if (( $(echo "$CPU_USAGE > 90" | bc -l) )); then
         echo "High CPU usage detected: $CPU_USAGE%"
         # Send alert or take action
     fi
-    
+
     # Wait 5 minutes
     sleep 300
 done
@@ -789,10 +789,10 @@ def run_pynomaly_command(command):
     """Execute Pynomaly CLI command and return JSON result."""
     cmd = f"pynomaly {command} --output json"
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    
+
     if result.returncode != 0:
         raise Exception(f"Command failed: {result.stderr}")
-    
+
     return json.loads(result.stdout)
 
 # Example: Automated batch processing
@@ -800,19 +800,19 @@ def process_daily_data(data_file, detector_id):
     # Load dataset
     dataset = run_pynomaly_command(f"dataset load {data_file} --name 'Daily Batch'")
     dataset_id = dataset['id']
-    
+
     # Run predictions
     results = run_pynomaly_command(f"predict --detector {detector_id} --dataset {dataset_id}")
-    
+
     # Export results
     subprocess.run(f"pynomaly results export {results['id']} --output daily_results.csv", shell=True)
-    
+
     # Load and analyze results
     df = pd.read_csv("daily_results.csv")
     anomaly_count = df['is_anomaly'].sum()
-    
+
     print(f"Processed {len(df)} records, found {anomaly_count} anomalies")
-    
+
     return df
 
 # Run daily processing
@@ -833,32 +833,32 @@ on:
 jobs:
   anomaly-detection:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v2
-    
+
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.11'
-    
+
     - name: Install Pynomaly
       run: pip install pynomaly[cli]
-    
+
     - name: Download data
       run: wget ${{ secrets.DATA_URL }} -O daily_data.csv
-    
+
     - name: Run anomaly detection
       run: |
         pynomaly dataset load daily_data.csv --name "Daily Data"
         pynomaly predict --detector ${{ secrets.DETECTOR_ID }} --dataset daily_data.csv --output results.csv
-    
+
     - name: Upload results
       uses: actions/upload-artifact@v2
       with:
         name: anomaly-results
         path: results.csv
-    
+
     - name: Send notification
       if: failure()
       run: echo "Anomaly detection pipeline failed" | mail -s "Pipeline Alert" admin@example.com

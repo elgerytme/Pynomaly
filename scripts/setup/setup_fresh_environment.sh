@@ -43,13 +43,13 @@ if [ "$1" = "--use-venv" ]; then
         print_status "Removing existing virtual environment..."
         rm -rf "$VENV_PATH"
     fi
-    
+
     python3 -m venv "$VENV_PATH" || {
         print_error "Failed to create virtual environment. Installing python3-venv..."
         sudo apt update && sudo apt install -y python3-venv python3-pip
         python3 -m venv "$VENV_PATH"
     }
-    
+
     source "$VENV_PATH/bin/activate"
     print_success "Virtual environment activated"
 fi

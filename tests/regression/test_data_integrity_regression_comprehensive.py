@@ -15,7 +15,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
-
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.value_objects import AnomalyScore
 from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
@@ -753,9 +752,7 @@ class TestEdgeCaseDataIntegrityRegression:
         )
 
         # Add unicode metadata
-        unicode_dataset = Dataset(
-            name="Unicode Test: 测试 🚀 émojis", data=unicode_data
-        )
+        unicode_dataset = Dataset(name="Unicode Test: 测试 🚀 émojis", data=unicode_data)
 
         # Store original name
         original_name = unicode_dataset.name

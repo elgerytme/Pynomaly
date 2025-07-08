@@ -1,12 +1,10 @@
 """Test cases for database loader."""
 
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pandas as pd
 import pytest
 import sqlalchemy as sa
-
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import DataValidationError
 from pynomaly.infrastructure.data_loaders.database_loader import DatabaseLoader
@@ -252,7 +250,6 @@ class TestDatabaseLoader:
             patch("pandas.read_sql", return_value=mock_df),
             patch.object(loader, "_get_engine", return_value=mock_engine),
         ):
-
             with pytest.raises(
                 DataValidationError, match="Target column 'missing' not found"
             ):
@@ -291,7 +288,6 @@ class TestDatabaseLoader:
             patch.object(loader, "_get_engine", return_value=mock_engine),
             patch.object(loader, "get_table_info", return_value={"columns": 3}),
         ):
-
             result = loader.load_table(
                 "users", connection="mysql://user:pass@host/db", name="users_table"
             )
@@ -318,7 +314,6 @@ class TestDatabaseLoader:
             patch.object(loader, "_get_engine", return_value=mock_engine),
             patch.object(loader, "get_table_info", return_value={}),
         ):
-
             result = loader.load_table(
                 "test_table",
                 connection="postgresql://user:pass@host/db",
@@ -345,7 +340,6 @@ class TestDatabaseLoader:
             patch.object(loader, "_get_engine", return_value=mock_engine),
             patch.object(loader, "get_table_info", return_value={}),
         ):
-
             result = loader.load_table(
                 "users",
                 connection="sqlite:///test.db",
@@ -502,7 +496,6 @@ class TestDatabaseLoader:
             patch.object(loader, "_get_engine", return_value=mock_engine),
             patch.object(loader, "get_table_info", return_value=table_info),
         ):
-
             result = loader.estimate_size("users")
 
         assert result["type"] == "table"
@@ -713,7 +706,6 @@ class TestDatabaseLoader:
             patch.object(loader, "_get_engine", return_value=mock_engine),
             patch("sqlalchemy.inspect", return_value=mock_inspector),
         ):
-
             assert loader.validate("test_table") is True
 
     def test_validate_table_name_invalid(self):
@@ -728,7 +720,6 @@ class TestDatabaseLoader:
             patch.object(loader, "_get_engine", return_value=mock_engine),
             patch("sqlalchemy.inspect", return_value=mock_inspector),
         ):
-
             assert loader.validate("nonexistent_table") is False
 
     def test_validate_no_connection_string(self):

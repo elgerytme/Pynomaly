@@ -9,7 +9,6 @@ from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI
-
 from pynomaly.application.services.deployment_orchestration_service import (
     DeploymentOrchestrationService,
 )

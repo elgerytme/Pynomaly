@@ -18,6 +18,26 @@ env:
 
 jobs:
 
+  validate-structure:
+    name: Validate Structure
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Run validation scripts
+      run: |
+        python scripts/validation/validate_structure.py
+        python scripts/validation/validate_environment_organization.py
+        python scripts/validation/validate_file_organization.py
+        python scripts/validation/validate_quality_gates.py
+
   docs-lint:
     name: Documentation Lint
     runs-on: ubuntu-latest
@@ -67,7 +87,7 @@ jobs:
   code-quality:
     name: Code Quality & Linting
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -137,7 +157,7 @@ jobs:
   build:
     name: Build & Package
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -166,7 +186,7 @@ jobs:
       run: |
         ls -la dist/
         echo "✅ Build artifacts created successfully"
-        
+
         # Test installation
         pip install dist/*.whl
         python -c "import pynomaly; print('✅ Package installation test successful')"
@@ -187,7 +207,7 @@ jobs:
         python-version: ["3.11", "3.12"]
         test-type: ["unit", "integration"]
       fail-fast: false
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -236,15 +256,16 @@ jobs:
         name: test-results-${{ matrix.test-type }}-py${{ matrix.python-version }}
         path: |
           htmlcov/
-          coverage.xml
+          coverage-reports/
           .coverage
+          coverage-combined.xml
         retention-days: 30
 
   # Job 4: API & CLI Testing
   api-cli-test:
     name: API & CLI Testing
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -289,7 +310,7 @@ jobs:
   security:
     name: Security & Dependencies
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -332,14 +353,22 @@ jobs:
     name: Docker Build
     runs-on: ubuntu-latest
     needs: [build]
-    
+
     steps:
+    - name: Cache Python packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          ~/scripts/**
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+
     - name: Checkout code
       uses: actions/checkout@v4
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    
+
     - name: Build Docker image
       uses: docker/build-push-action@v5
       with:
@@ -356,12 +385,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: [docs-lint, code-quality, build, test, api-cli-test, security, docker]
     if: always()
-    
+
     steps:
     - name: Generate CI summary
       run: |
         mkdir -p ci-reports
-        
+
         echo "# 🚀 CI Pipeline Summary" > ci-reports/ci-summary.md
         echo "" >> ci-reports/ci-summary.md
         echo "**Run Date:** $(date)" >> ci-reports/ci-summary.md
@@ -369,7 +398,7 @@ jobs:
         echo "**Branch:** ${{ github.ref_name }}" >> ci-reports/ci-summary.md
         echo "**Trigger:** ${{ github.event_name }}" >> ci-reports/ci-summary.md
         echo "" >> ci-reports/ci-summary.md
-        
+
         echo "## 📊 Job Results" >> ci-reports/ci-summary.md
         echo "" >> ci-reports/ci-summary.md
         echo "| Job | Status | Description |" >> ci-reports/ci-summary.md
@@ -382,9 +411,9 @@ jobs:
         echo "| Security Scan | ${{ needs.security.result == 'success' && '✅ Passed' || needs.security.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Bandit security scan, Safety check |" >> ci-reports/ci-summary.md
         echo "| Docker Build | ${{ needs.docker.result == 'success' && '✅ Passed' || needs.docker.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Container image build test |" >> ci-reports/ci-summary.md
         echo "" >> ci-reports/ci-summary.md
-        
+
         # Overall status
-        if [[ "${{ needs.build.result }}" == "success" && 
+        if [[ "${{ needs.build.result }}" == "success" &&
               "${{ needs.test.result }}" == "success" ]]; then
           echo "## 🎉 Overall Status: **PASSED**" >> ci-reports/ci-summary.md
           echo "" >> ci-reports/ci-summary.md
@@ -403,7 +432,7 @@ jobs:
           echo "- Build & Package must pass" >> ci-reports/ci-summary.md
           echo "- Test Suite must pass" >> ci-reports/ci-summary.md
         fi
-        
+
         echo "" >> ci-reports/ci-summary.md
         echo "## 🔧 Hatch Commands Used" >> ci-reports/ci-summary.md
         echo "" >> ci-reports/ci-summary.md
@@ -428,7 +457,7 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          
+
           // Generate summary comment
           const summary = `## 🚀 CI Pipeline Results
 
@@ -445,12 +474,12 @@ jobs:
 
 **Artifacts Generated:**
 - Build artifacts (wheel and source distribution)
-- Test coverage reports  
+- Test coverage reports
 - Code quality analysis
 - Security scan results
 
 View detailed reports in the Actions artifacts.`;
-          
+
           // Post comment
           github.rest.issues.createComment({
             issue_number: context.issue.number,
@@ -461,7 +490,7 @@ View detailed reports in the Actions artifacts.`;
 
     - name: Set final exit code
       run: |
-        if [[ "${{ needs.build.result }}" == "success" && 
+        if [[ "${{ needs.build.result }}" == "success" &&
               "${{ needs.test.result }}" == "success" ]]; then
           echo "✅ CI Pipeline completed successfully"
           exit 0

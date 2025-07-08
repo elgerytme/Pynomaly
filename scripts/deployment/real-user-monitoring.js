@@ -10,11 +10,11 @@ class RealUserMonitoring {
     this.batchSize = options.batchSize || 10;
     this.flushInterval = options.flushInterval || 30000; // 30 seconds
     this.enabled = options.enabled !== false;
-    
+
     this.metrics = [];
     this.sessionId = this.generateSessionId();
     this.startTime = performance.now();
-    
+
     if (this.enabled && this.shouldSample()) {
       this.initialize();
     }
@@ -22,31 +22,31 @@ class RealUserMonitoring {
 
   initialize() {
     console.log('[RUM] Real User Monitoring initialized');
-    
+
     // Collect Core Web Vitals
     this.collectCoreWebVitals();
-    
+
     // Monitor navigation timing
     this.collectNavigationTiming();
-    
+
     // Monitor resource timing
     this.collectResourceTiming();
-    
+
     // Monitor user interactions
     this.collectUserInteractions();
-    
+
     // Monitor JavaScript errors
     this.collectErrorMetrics();
-    
+
     // Monitor memory usage
     this.collectMemoryMetrics();
-    
+
     // Monitor network conditions
     this.collectNetworkMetrics();
-    
+
     // Start periodic flushing
     this.startPeriodicFlush();
-    
+
     // Flush on page unload
     this.setupUnloadHandler();
   }
@@ -57,7 +57,7 @@ class RealUserMonitoring {
       const lcpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const lastEntry = entries[entries.length - 1];
-        
+
         this.addMetric({
           type: 'core-web-vitals',
           name: 'largest-contentful-paint',
@@ -67,7 +67,7 @@ class RealUserMonitoring {
           sessionId: this.sessionId
         });
       });
-      
+
       try {
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
       } catch (e) {
@@ -91,7 +91,7 @@ class RealUserMonitoring {
           });
         });
       });
-      
+
       try {
         fidObserver.observe({ entryTypes: ['first-input'] });
       } catch (e) {
@@ -102,7 +102,7 @@ class RealUserMonitoring {
     // Cumulative Layout Shift (CLS)
     if ('PerformanceObserver' in window) {
       let clsValue = 0;
-      
+
       const clsObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         entries.forEach(entry => {
@@ -110,7 +110,7 @@ class RealUserMonitoring {
             clsValue += entry.value;
           }
         });
-        
+
         this.addMetric({
           type: 'core-web-vitals',
           name: 'cumulative-layout-shift',
@@ -120,7 +120,7 @@ class RealUserMonitoring {
           sessionId: this.sessionId
         });
       });
-      
+
       try {
         clsObserver.observe({ entryTypes: ['layout-shift'] });
       } catch (e) {
@@ -182,7 +182,7 @@ class RealUserMonitoring {
           }
         });
       });
-      
+
       try {
         resourceObserver.observe({ entryTypes: ['resource'] });
       } catch (e) {
@@ -216,17 +216,17 @@ class RealUserMonitoring {
     // Track scroll depth
     let maxScrollDepth = 0;
     let scrollTimeout;
-    
+
     window.addEventListener('scroll', () => {
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
         const scrollDepth = Math.round(
           (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
         );
-        
+
         if (scrollDepth > maxScrollDepth) {
           maxScrollDepth = scrollDepth;
-          
+
           // Report at 25%, 50%, 75%, 100% milestones
           if ([25, 50, 75, 100].includes(Math.floor(scrollDepth / 25) * 25)) {
             this.addMetric({
@@ -312,7 +312,7 @@ class RealUserMonitoring {
   collectNetworkMetrics() {
     if ('connection' in navigator) {
       const connection = navigator.connection;
-      
+
       this.addMetric({
         type: 'network',
         name: 'connection-info',
@@ -348,7 +348,7 @@ class RealUserMonitoring {
 
   addMetric(metric) {
     this.metrics.push(metric);
-    
+
     if (this.metrics.length >= this.batchSize) {
       this.flush();
     }

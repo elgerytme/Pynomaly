@@ -4,7 +4,6 @@ import os
 from unittest.mock import patch
 
 import pytest
-
 from pynomaly.infrastructure.distributed.distributed_config import (
     AggregationStrategy,
     ClusterConfig,

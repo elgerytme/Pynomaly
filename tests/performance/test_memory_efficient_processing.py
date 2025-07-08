@@ -7,9 +7,8 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pandas as pd
 import pytest
-
-from src.pynomaly.domain.entities import Dataset
-from src.pynomaly.infrastructure.data_processing import (
+from pynomaly.domain.entities import Dataset
+from pynomaly.infrastructure.data_processing import (
     DataChunk,
     DataValidator,
     LargeDatasetAnalyzer,

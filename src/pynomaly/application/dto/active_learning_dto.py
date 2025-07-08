@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import numpy as np
 
@@ -46,10 +46,10 @@ class CreateSessionRequest:
     model_version: str
     sampling_strategy: SamplingStrategy
     max_samples: int = 20
-    timeout_minutes: Optional[int] = 60
+    timeout_minutes: int | None = 60
     min_feedback_quality: float = 0.7
-    target_corrections: Optional[int] = None
-    metadata: Dict = None
+    target_corrections: int | None = None
+    metadata: dict = None
 
     def __post_init__(self) -> None:
         """Validate request parameters."""
@@ -88,7 +88,7 @@ class CreateSessionResponse:
     session_id: str
     status: SessionStatus
     created_at: datetime
-    configuration: Dict[str, Any]
+    configuration: dict[str, Any]
     message: str
 
 
@@ -110,14 +110,14 @@ class SelectSamplesRequest:
     """
 
     session_id: str
-    detection_results: List[DetectionResult]
+    detection_results: list[DetectionResult]
     n_samples: int
     sampling_strategy: SamplingStrategy
-    features: Optional[np.ndarray] = None
-    strategy_params: Dict[str, Any] = None
-    ensemble_results: Optional[List[List[DetectionResult]]] = None
-    model_gradients: Optional[np.ndarray] = None
-    existing_feedback: Optional[List[HumanFeedback]] = None
+    features: np.ndarray | None = None
+    strategy_params: dict[str, Any] = None
+    ensemble_results: list[list[DetectionResult]] | None = None
+    model_gradients: np.ndarray | None = None
+    existing_feedback: list[HumanFeedback] | None = None
 
     def __post_init__(self) -> None:
         """Validate request parameters."""
@@ -150,9 +150,9 @@ class SelectSamplesResponse:
     """
 
     session_id: str
-    selected_samples: List[Dict[str, Any]]
+    selected_samples: list[dict[str, Any]]
     sampling_strategy: SamplingStrategy
-    selection_metadata: Dict[str, Any]
+    selection_metadata: dict[str, Any]
 
 
 @dataclass
@@ -176,11 +176,11 @@ class SubmitFeedbackRequest:
     sample_id: str
     annotator_id: str
     feedback_type: FeedbackType
-    feedback_value: Union[bool, float, str, Dict]
+    feedback_value: bool | float | str | dict
     confidence: FeedbackConfidence
-    original_prediction: Optional[AnomalyScore] = None
-    time_spent_seconds: Optional[float] = None
-    metadata: Dict = None
+    original_prediction: AnomalyScore | None = None
+    time_spent_seconds: float | None = None
+    metadata: dict = None
 
     def __post_init__(self) -> None:
         """Validate request parameters."""
@@ -239,9 +239,9 @@ class SubmitFeedbackResponse:
 
     feedback_id: str
     session_id: str
-    feedback_summary: Dict[str, Any]
-    quality_assessment: Dict[str, float]
-    next_recommendations: List[str]
+    feedback_summary: dict[str, Any]
+    quality_assessment: dict[str, float]
+    next_recommendations: list[str]
 
 
 @dataclass
@@ -281,10 +281,10 @@ class SessionStatusResponse:
 
     session_id: str
     status: SessionStatus
-    progress: Dict[str, float]
-    quality_metrics: Dict[str, float]
-    recent_activity: Optional[List[Dict[str, Any]]] = None
-    message: Optional[str] = None
+    progress: dict[str, float]
+    quality_metrics: dict[str, float]
+    recent_activity: list[dict[str, Any]] | None = None
+    message: str | None = None
 
 
 @dataclass
@@ -301,7 +301,7 @@ class UpdateModelRequest:
     """
 
     session_id: str
-    feedback_list: List[HumanFeedback]
+    feedback_list: list[HumanFeedback]
     learning_rate: float = 0.1
     validation_split: float = 0.2
     update_strategy: str = "incremental"
@@ -338,11 +338,11 @@ class UpdateModelResponse:
 
     session_id: str
     update_applied: bool
-    update_statistics: Dict[str, float]
-    feedback_analysis: Dict[str, Any]
-    performance_impact: Dict[str, float]
-    recommendations: List[str]
-    next_session_suggestions: Dict[str, Any]
+    update_statistics: dict[str, float]
+    feedback_analysis: dict[str, Any]
+    performance_impact: dict[str, float]
+    recommendations: list[str]
+    next_session_suggestions: dict[str, Any]
 
 
 @dataclass
@@ -360,11 +360,11 @@ class AnnotationTaskRequest:
     """
 
     sample_id: str
-    sample_data: Dict[str, Any]
-    current_prediction: Dict[str, Any]
-    context: Optional[Dict[str, Any]] = None
-    instruction: Optional[str] = None
-    expected_time: Optional[int] = None
+    sample_data: dict[str, Any]
+    current_prediction: dict[str, Any]
+    context: dict[str, Any] | None = None
+    instruction: str | None = None
+    expected_time: int | None = None
 
     def __post_init__(self) -> None:
         """Validate request parameters."""
@@ -394,10 +394,10 @@ class AnnotationTaskResponse:
 
     task_id: str
     sample_id: str
-    annotation_interface: Dict[str, Any]
-    guidance: List[str]
-    shortcuts: Dict[str, str]
-    validation_rules: List[str]
+    annotation_interface: dict[str, Any]
+    guidance: list[str]
+    shortcuts: dict[str, str]
+    validation_rules: list[str]
 
 
 @dataclass
@@ -441,11 +441,11 @@ class LearningProgressResponse:
     """
 
     annotator_id: str
-    analysis_period: Dict[str, str]
-    overall_metrics: Dict[str, float]
-    session_history: Optional[List[Dict[str, Any]]] = None
-    trends: Optional[Dict[str, Any]] = None
-    recommendations: Optional[List[str]] = None
+    analysis_period: dict[str, str]
+    overall_metrics: dict[str, float]
+    session_history: list[dict[str, Any]] | None = None
+    trends: dict[str, Any] | None = None
+    recommendations: list[str] | None = None
 
 
 @dataclass
@@ -461,7 +461,7 @@ class BatchFeedbackRequest:
     """
 
     session_id: str
-    feedback_batch: List[SubmitFeedbackRequest]
+    feedback_batch: list[SubmitFeedbackRequest]
     validate_consistency: bool = True
     auto_quality_check: bool = True
 
@@ -495,7 +495,7 @@ class BatchFeedbackResponse:
 
     session_id: str
     processed_count: int
-    feedback_ids: List[str]
-    batch_quality: Dict[str, float]
-    consistency_analysis: Dict[str, Any]
-    warnings: List[str]
+    feedback_ids: list[str]
+    batch_quality: dict[str, float]
+    consistency_analysis: dict[str, Any]
+    warnings: list[str]

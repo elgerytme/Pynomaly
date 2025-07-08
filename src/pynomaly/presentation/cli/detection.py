@@ -127,9 +127,8 @@ def detect_anomalies(
     save_results: bool = typer.Option(
         True, "--save/--no-save", help="Save detection results"
     ),
-    output: Path | None = typer.Option(
-        None, "--output", "-o", help="Export results to file"
-    ),
+    output: Path
+    | None = typer.Option(None, "--output", "-o", help="Export results to file"),
 ):
     """Run anomaly detection on a dataset."""
     container = get_cli_container()
@@ -381,9 +380,8 @@ def evaluate_detector(
     dataset: str = typer.Argument(..., help="Dataset ID or name with labels"),
     cv: bool = typer.Option(False, "--cv", help="Use cross-validation"),
     folds: int = typer.Option(5, "--folds", "-k", help="Number of CV folds"),
-    metrics: list[str] | None = typer.Option(
-        None, "--metric", "-m", help="Metrics to compute"
-    ),
+    metrics: list[str]
+    | None = typer.Option(None, "--metric", "-m", help="Metrics to compute"),
 ):
     """Evaluate detector performance on labeled data."""
     container = get_cli_container()
@@ -508,12 +506,10 @@ def evaluate_detector(
 
 @app.command("results")
 def list_results(
-    detector: str | None = typer.Option(
-        None, "--detector", "-d", help="Filter by detector"
-    ),
-    dataset: str | None = typer.Option(
-        None, "--dataset", "-s", help="Filter by dataset"
-    ),
+    detector: str
+    | None = typer.Option(None, "--detector", "-d", help="Filter by detector"),
+    dataset: str
+    | None = typer.Option(None, "--dataset", "-s", help="Filter by dataset"),
     limit: int = typer.Option(10, "--limit", "-l", help="Maximum results to show"),
     latest: bool = typer.Option(False, "--latest", help="Show only the latest result"),
 ):

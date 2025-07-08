@@ -16,7 +16,7 @@ cleanup() {
     rm -rf "$testDir" 2>/dev/null
 }
 
-# Set trap for cleanup  
+# Set trap for cleanup
 trap cleanup EXIT
 
 # Create test directory and copy essential files

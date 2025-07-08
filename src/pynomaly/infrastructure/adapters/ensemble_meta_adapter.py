@@ -6,11 +6,9 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
-import pandas as pd
-from scipy import stats
 
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
 from pynomaly.domain.exceptions import DetectorNotFittedError, FittingError
@@ -38,7 +36,7 @@ class DetectorConfig:
     detector: DetectorProtocol
     weight: float = 1.0
     enabled: bool = True
-    performance_score: Optional[float] = None
+    performance_score: float | None = None
 
 
 @dataclass
@@ -47,10 +45,10 @@ class EnsembleMetadata:
 
     n_detectors: int
     aggregation_method: str
-    individual_scores: Dict[str, List[float]]
-    individual_predictions: Dict[str, List[int]]
-    confidence_scores: List[float]
-    agreement_scores: List[float]
+    individual_scores: dict[str, list[float]]
+    individual_predictions: dict[str, list[int]]
+    confidence_scores: list[float]
+    agreement_scores: list[float]
 
 
 class EnsembleMetaAdapter(EnsembleDetectorProtocol):
@@ -59,10 +57,10 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
     def __init__(
         self,
         name: str = "EnsembleDetector",
-        contamination_rate: Optional[ContaminationRate] = None,
+        contamination_rate: ContaminationRate | None = None,
         aggregation_method: AggregationMethod = AggregationMethod.WEIGHTED_AVERAGE,
         enable_parallel: bool = True,
-        max_workers: Optional[int] = None,
+        max_workers: int | None = None,
     ):
         """Initialize ensemble meta-adapter.
 
@@ -80,12 +78,12 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
         self._max_workers = max_workers
 
         # Detector management
-        self._detector_configs: Dict[str, DetectorConfig] = {}
+        self._detector_configs: dict[str, DetectorConfig] = {}
         self._is_fitted = False
-        self._ensemble_metadata: Optional[EnsembleMetadata] = None
+        self._ensemble_metadata: EnsembleMetadata | None = None
 
         # Performance tracking
-        self._performance_history: List[Dict[str, Any]] = []
+        self._performance_history: list[dict[str, Any]] = []
 
     @property
     def name(self) -> str:
@@ -103,7 +101,7 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
         return self._is_fitted
 
     @property
-    def parameters(self) -> Dict[str, Any]:
+    def parameters(self) -> dict[str, Any]:
         """Get ensemble parameters."""
         return {
             "aggregation_method": self._aggregation_method.value,
@@ -114,7 +112,7 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
         }
 
     @property
-    def base_detectors(self) -> List[DetectorProtocol]:
+    def base_detectors(self) -> list[DetectorProtocol]:
         """Get the base detectors in the ensemble."""
         return [
             config.detector
@@ -165,7 +163,7 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
         if detector_name in self._detector_configs:
             self._detector_configs[detector_name].weight = weight
 
-    def get_detector_weights(self) -> Dict[str, float]:
+    def get_detector_weights(self) -> dict[str, float]:
         """Get weights of all detectors in the ensemble.
 
         Returns:
@@ -291,7 +289,7 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
                 },
             )
 
-    def score(self, dataset: Dataset) -> List[AnomalyScore]:
+    def score(self, dataset: Dataset) -> list[AnomalyScore]:
         """Calculate ensemble anomaly scores.
 
         Args:
@@ -344,7 +342,7 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
         self.fit(dataset)
         return self.detect(dataset)
 
-    def get_params(self) -> Dict[str, Any]:
+    def get_params(self) -> dict[str, Any]:
         """Get ensemble parameters."""
         return self.parameters
 
@@ -364,7 +362,7 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
             self._max_workers = params["max_workers"]
 
     def _fit_parallel(
-        self, dataset: Dataset, configs: List[Tuple[str, DetectorConfig]]
+        self, dataset: Dataset, configs: list[tuple[str, DetectorConfig]]
     ) -> None:
         """Fit detectors in parallel."""
         with ThreadPoolExecutor(max_workers=self._max_workers) as executor:
@@ -385,7 +383,7 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
                     ) from e
 
     def _fit_sequential(
-        self, dataset: Dataset, configs: List[Tuple[str, DetectorConfig]]
+        self, dataset: Dataset, configs: list[tuple[str, DetectorConfig]]
     ) -> None:
         """Fit detectors sequentially."""
         for name, config in configs:
@@ -397,8 +395,8 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
                 ) from e
 
     def _detect_parallel(
-        self, dataset: Dataset, configs: List[Tuple[str, DetectorConfig]]
-    ) -> Dict[str, DetectionResult]:
+        self, dataset: Dataset, configs: list[tuple[str, DetectorConfig]]
+    ) -> dict[str, DetectionResult]:
         """Run detection in parallel."""
         results = {}
 
@@ -420,8 +418,8 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
         return results
 
     def _detect_sequential(
-        self, dataset: Dataset, configs: List[Tuple[str, DetectorConfig]]
-    ) -> Dict[str, DetectionResult]:
+        self, dataset: Dataset, configs: list[tuple[str, DetectorConfig]]
+    ) -> dict[str, DetectionResult]:
         """Run detection sequentially."""
         results = {}
 
@@ -436,7 +434,7 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
         return results
 
     def _aggregate_results(
-        self, dataset: Dataset, individual_results: Dict[str, DetectionResult]
+        self, dataset: Dataset, individual_results: dict[str, DetectionResult]
     ) -> DetectionResult:
         """Aggregate individual detection results into ensemble result."""
         if not individual_results:
@@ -535,8 +533,8 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
         )
 
     def _aggregate_scores_with_method(
-        self, all_scores: Dict[str, List[float]], weights: Dict[str, float]
-    ) -> List[float]:
+        self, all_scores: dict[str, list[float]], weights: dict[str, float]
+    ) -> list[float]:
         """Aggregate scores using the specified method."""
         if not all_scores:
             return []
@@ -574,8 +572,8 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
             return (np.sum(weighted_scores, axis=0) / np.sum(weight_array)).tolist()
 
     def _aggregate_predictions_with_method(
-        self, all_predictions: Dict[str, List[int]], weights: Dict[str, float]
-    ) -> List[int]:
+        self, all_predictions: dict[str, list[int]], weights: dict[str, float]
+    ) -> list[int]:
         """Aggregate predictions using majority voting with weights."""
         if not all_predictions:
             return []
@@ -595,16 +593,16 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
 
     def _aggregate_scores(
         self,
-        all_scores: Dict[str, List[float]],
-        configs: List[Tuple[str, DetectorConfig]],
-    ) -> List[float]:
+        all_scores: dict[str, list[float]],
+        configs: list[tuple[str, DetectorConfig]],
+    ) -> list[float]:
         """Aggregate scores from individual detectors."""
         weights = {
             name: config.weight for name, config in configs if name in all_scores
         }
         return self._aggregate_scores_with_method(all_scores, weights)
 
-    def _calculate_ensemble_threshold(self, scores: List[float]) -> float:
+    def _calculate_ensemble_threshold(self, scores: list[float]) -> float:
         """Calculate ensemble threshold based on contamination rate."""
         if not scores:
             return 0.5
@@ -618,10 +616,10 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
     def _create_ensemble_anomalies(
         self,
         dataset: Dataset,
-        labels: List[int],
-        scores: List[AnomalyScore],
-        individual_results: Dict[str, DetectionResult],
-    ) -> List[Anomaly]:
+        labels: list[int],
+        scores: list[AnomalyScore],
+        individual_results: dict[str, DetectionResult],
+    ) -> list[Anomaly]:
         """Create ensemble anomaly entities."""
         anomalies = []
         anomaly_indices = [i for i, label in enumerate(labels) if label == 1]
@@ -674,8 +672,8 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
         return anomalies
 
     def _calculate_agreement_scores(
-        self, all_predictions: Dict[str, List[int]]
-    ) -> List[float]:
+        self, all_predictions: dict[str, list[int]]
+    ) -> list[float]:
         """Calculate agreement scores between detectors."""
         if len(all_predictions) < 2:
             return [1.0] * len(next(iter(all_predictions.values())))
@@ -695,8 +693,8 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
         return agreement_scores
 
     def _calculate_confidence_scores(
-        self, all_scores: Dict[str, List[float]], agreement_scores: List[float]
-    ) -> List[float]:
+        self, all_scores: dict[str, list[float]], agreement_scores: list[float]
+    ) -> list[float]:
         """Calculate confidence scores combining score variance and agreement."""
         if not all_scores:
             return []
@@ -717,7 +715,7 @@ class EnsembleMetaAdapter(EnsembleDetectorProtocol):
         return confidence_scores.tolist()
 
     def _calculate_dynamic_weights(
-        self, all_scores: Dict[str, List[float]]
+        self, all_scores: dict[str, list[float]]
     ) -> np.ndarray:
         """Calculate dynamic weights based on score consistency."""
         if len(all_scores) < 2:

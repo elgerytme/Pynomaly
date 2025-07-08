@@ -20,33 +20,33 @@ jobs:
   security-scan:
     name: Security Vulnerability Scan
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: |
         poetry install --with dev,security
-    
+
     - name: Run Bandit Security Scan
       run: |
         poetry run bandit -r src/ -f json -o security-report.json
         poetry run bandit -r src/ --severity-level medium
-    
+
     - name: Run Safety Dependency Check
       run: |
         poetry run safety check --json --output safety-report.json
-    
+
     - name: Upload Security Reports
       uses: actions/upload-artifact@v3
       if: always()
@@ -68,24 +68,24 @@ jobs:
           - application
           - presentation-api
           - presentation-cli
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: |
         poetry install --with dev,test
-    
+
     - name: Run Unit Tests with Coverage
       run: |
         case "${{ matrix.test-group }}" in
@@ -108,13 +108,13 @@ jobs:
             poetry run pytest tests/presentation/cli/ --cov=src/pynomaly/presentation/cli --cov-report=xml:coverage-cli.xml --junitxml=junit-cli.xml -v
             ;;
         esac
-    
+
     - name: Upload Coverage Reports
       uses: actions/upload-artifact@v3
       with:
         name: coverage-${{ matrix.test-group }}
         path: coverage-*.xml
-    
+
     - name: Upload Test Results
       uses: actions/upload-artifact@v3
       if: always()
@@ -125,24 +125,24 @@ jobs:
   branch-coverage-tests:
     name: Branch Coverage Tests
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: |
         poetry install --with dev,test
-    
+
     - name: Run Branch Coverage Tests
       run: |
         poetry run pytest tests/branch_coverage/ \
@@ -154,11 +154,11 @@ jobs:
           --cov-fail-under=${{ env.COVERAGE_THRESHOLD_BRANCH }} \
           --junitxml=junit-branch.xml \
           -v
-    
+
     - name: Check Branch Coverage Threshold
       run: |
         poetry run coverage report --show-missing --fail-under=${{ env.COVERAGE_THRESHOLD_BRANCH }}
-    
+
     - name: Upload Branch Coverage Report
       uses: actions/upload-artifact@v3
       with:
@@ -184,7 +184,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
-      
+
       redis:
         image: redis:7
         options: >-
@@ -194,28 +194,28 @@ jobs:
           --health-retries 5
         ports:
           - 6379:6379
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: |
         poetry install --with dev,test,integration
-    
+
     - name: Wait for services
       run: |
         sleep 10
-    
+
     - name: Run Integration Tests
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pynomaly_test
@@ -227,7 +227,7 @@ jobs:
           --cov-report=xml:coverage-integration.xml \
           --junitxml=junit-integration.xml \
           -v --tb=short
-    
+
     - name: Upload Integration Test Results
       uses: actions/upload-artifact@v3
       if: always()
@@ -240,24 +240,24 @@ jobs:
   performance-tests:
     name: Performance & Load Tests
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: |
         poetry install --with dev,test,performance
-    
+
     - name: Run Performance Benchmarks
       run: |
         poetry run pytest tests/performance/ \
@@ -265,14 +265,14 @@ jobs:
           --benchmark-json=benchmark-results.json \
           --benchmark-compare-fail=min:5% \
           -v
-    
+
     - name: Run Memory Profile Tests
       run: |
         poetry run pytest tests/performance/test_memory_usage.py \
           --memray \
           --junitxml=junit-memory.xml \
           -v
-    
+
     - name: Upload Performance Results
       uses: actions/upload-artifact@v3
       with:
@@ -288,24 +288,24 @@ jobs:
     strategy:
       matrix:
         framework: [pyod, sklearn, pytorch, tensorflow, jax]
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: |
         poetry install --with dev,test,ml-${{ matrix.framework }}
-    
+
     - name: Run ML Framework Tests
       run: |
         case "${{ matrix.framework }}" in
@@ -335,7 +335,7 @@ jobs:
               --junitxml=junit-ml-jax.xml -v
             ;;
         esac
-    
+
     - name: Upload ML Test Results
       uses: actions/upload-artifact@v3
       if: always()
@@ -346,31 +346,31 @@ jobs:
   end-to-end-tests:
     name: End-to-End Workflow Tests
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: |
         poetry install --with dev,test
-    
+
     - name: Start Pynomaly Server
       run: |
         poetry run uvicorn pynomaly.presentation.api:app --host 0.0.0.0 --port 8000 &
         sleep 10
       env:
         PYNOMALY_ENV: testing
-    
+
     - name: Run End-to-End Tests
       run: |
         poetry run pytest tests/e2e/ \
@@ -380,7 +380,7 @@ jobs:
           -v
       env:
         PYNOMALY_API_URL: http://localhost:8000
-    
+
     - name: Upload E2E Test Results
       uses: actions/upload-artifact@v3
       if: always()
@@ -394,40 +394,40 @@ jobs:
     name: Consolidate Coverage Reports
     needs: [unit-tests, branch-coverage-tests, integration-tests]
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
-    
+
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
         version: ${{ env.POETRY_VERSION }}
-    
+
     - name: Install dependencies
       run: |
         poetry install --with dev,test
-    
+
     - name: Download all coverage reports
       uses: actions/download-artifact@v3
       with:
         path: coverage-reports/
-    
+
     - name: Combine coverage reports
       run: |
         poetry run coverage combine coverage-reports/*/coverage-*.xml
         poetry run coverage xml -o coverage-combined.xml
         poetry run coverage html -d htmlcov-combined
         poetry run coverage report --show-missing
-    
+
     - name: Check Overall Coverage Thresholds
       run: |
         poetry run coverage report --fail-under=${{ env.COVERAGE_THRESHOLD_LINE }}
-    
+
     - name: Upload Combined Coverage
       uses: actions/upload-artifact@v3
       with:
@@ -435,7 +435,7 @@ jobs:
         path: |
           coverage-combined.xml
           htmlcov-combined/
-    
+
     - name: Upload to Codecov
       uses: codecov/codecov-action@v3
       with:
@@ -449,15 +449,15 @@ jobs:
     needs: [unit-tests, integration-tests, performance-tests, ml-algorithm-tests, end-to-end-tests]
     runs-on: ubuntu-latest
     if: always()
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Download all test results
       uses: actions/download-artifact@v3
       with:
         path: test-results/
-    
+
     - name: Generate comprehensive test report
       run: |
         python scripts/generate_test_report.py \
@@ -466,13 +466,13 @@ jobs:
           --include-coverage \
           --include-performance \
           --include-security
-    
+
     - name: Upload Comprehensive Report
       uses: actions/upload-artifact@v3
       with:
         name: comprehensive-test-report
         path: comprehensive-test-report.html
-    
+
     - name: Comment PR with Test Summary
       if: github.event_name == 'pull_request'
       uses: actions/github-script@v6
@@ -480,7 +480,7 @@ jobs:
         script: |
           const fs = require('fs');
           const testSummary = fs.readFileSync('test-summary.md', 'utf8');
-          
+
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
@@ -493,10 +493,10 @@ jobs:
     needs: [security-scan, coverage-consolidation, test-report-generation]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Deployment Readiness Assessment
       run: |
         echo "🎯 Deployment Readiness Assessment"
@@ -508,15 +508,15 @@ jobs:
         echo "✅ ML algorithms verified"
         echo ""
         echo "🚀 READY FOR PRODUCTION DEPLOYMENT"
-    
+
     - name: Create Deployment Tag
       if: success()
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        
+
         TIMESTAMP=$(date +%Y%m%d-%H%M%S)
         TAG_NAME="deploy-ready-${TIMESTAMP}"
-        
+
         git tag -a "$TAG_NAME" -m "Deployment ready: All tests passed, coverage thresholds met"
         git push origin "$TAG_NAME"

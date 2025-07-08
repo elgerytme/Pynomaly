@@ -8,7 +8,6 @@ anomaly detection predictions through various statistical methods.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Union
 
 import numpy as np
 
@@ -22,7 +21,6 @@ from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.services.uncertainty_service import (
     UncertaintyQuantificationService,
 )
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
 from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
@@ -131,7 +129,7 @@ class QuantifyUncertaintyUseCase:
 
     def calculate_bootstrap_interval(
         self,
-        scores: List[float],
+        scores: list[float],
         confidence_level: float = 0.95,
         n_bootstrap: int = 1000,
         statistic: str = "mean",
@@ -157,7 +155,7 @@ class QuantifyUncertaintyUseCase:
 
     def calculate_bayesian_interval(
         self,
-        binary_scores: List[int],
+        binary_scores: list[int],
         confidence_level: float = 0.95,
         prior_alpha: float = 1.0,
         prior_beta: float = 1.0,
@@ -182,7 +180,7 @@ class QuantifyUncertaintyUseCase:
         )
 
     def calculate_prediction_interval(
-        self, training_scores: List[float], confidence_level: float = 0.95
+        self, training_scores: list[float], confidence_level: float = 0.95
     ) -> ConfidenceInterval:
         """
         Calculate prediction interval for individual predictions.
@@ -200,10 +198,10 @@ class QuantifyUncertaintyUseCase:
 
     def _calculate_confidence_intervals(
         self,
-        detection_results: List[DetectionResult],
+        detection_results: list[DetectionResult],
         confidence_level: float,
         method: str,
-    ) -> Dict[str, ConfidenceInterval]:
+    ) -> dict[str, ConfidenceInterval]:
         """Calculate various confidence intervals based on method."""
         scores = [result.score.value for result in detection_results]
 
@@ -239,10 +237,10 @@ class QuantifyUncertaintyUseCase:
 
     def _calculate_additional_metrics(
         self,
-        detection_results: List[DetectionResult],
+        detection_results: list[DetectionResult],
         include_prediction_intervals: bool,
         include_entropy: bool,
-    ) -> Dict[str, Union[float, ConfidenceInterval]]:
+    ) -> dict[str, float | ConfidenceInterval]:
         """Calculate additional uncertainty metrics."""
         additional_metrics = {}
 
@@ -270,8 +268,8 @@ class QuantifyUncertaintyUseCase:
         return additional_metrics
 
     def _calculate_ensemble_disagreement(
-        self, ensemble_results: List[List[DetectionResult]]
-    ) -> Dict[str, float]:
+        self, ensemble_results: list[list[DetectionResult]]
+    ) -> dict[str, float]:
         """Calculate disagreement metrics between ensemble models."""
         # Extract predictions (binary) from each model
         model_predictions = []

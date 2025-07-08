@@ -231,7 +231,7 @@ cov-report = [
     "coverage report",
 ]
 cov-html = [
-    "- coverage combine", 
+    "- coverage combine",
     "coverage html",
 ]
 
@@ -272,7 +272,7 @@ dependencies = [
 ]
 [tool.hatch.envs.web.scripts]
 build-css = "npm run build-css"
-watch-css = "npm run watch-css" 
+watch-css = "npm run watch-css"
 serve = "uvicorn pynomaly.presentation.api:app --reload"
 ```
 
@@ -290,18 +290,18 @@ from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 
 class Buck2BuildHook(BuildHookInterface):
     """Custom build hook that triggers Buck2 builds before Hatch packaging."""
-    
+
     PLUGIN_NAME = "buck2"
-    
+
     def initialize(self, version: str, build_data: dict[str, Any]) -> None:
         """Initialize the Buck2 build hook."""
         self.buck2_targets = self.config.get("targets", ["//src/pynomaly:all"])
         self.buck2_output_dir = Path(self.config.get("output_dir", "bazel-bin"))
-        
+
     def clean(self, versions: list[str]) -> None:
         """Clean Buck2 build artifacts."""
         subprocess.run(["buck2", "clean"], check=True)
-        
+
     def finalize(self, version: str, build_data: dict[str, Any], artifact_path: str) -> None:
         """Run Buck2 build before Hatch packaging."""
         # Execute Buck2 build
@@ -313,20 +313,20 @@ class Buck2BuildHook(BuildHookInterface):
             )
             if result.returncode != 0:
                 raise RuntimeError(f"Buck2 build failed for {target}: {result.stderr}")
-        
+
         # Copy Buck2 artifacts to Hatch build directory
         self._copy_buck2_artifacts(build_data)
-    
+
     def _copy_buck2_artifacts(self, build_data: dict[str, Any]) -> None:
         """Copy Buck2 build artifacts to Hatch build directory."""
         import shutil
-        
+
         # Define artifact mappings
         artifact_mappings = [
             ("bazel-bin/src/pynomaly", "pynomaly"),
             ("bazel-bin/src/pynomaly/presentation/web/static", "pynomaly/presentation/web/static"),
         ]
-        
+
         for src_pattern, dest_path in artifact_mappings:
             src_path = Path(src_pattern)
             if src_path.exists():
@@ -407,7 +407,7 @@ build-all = [
 
 test-all = [
     "buck2 test //tests:unit",
-    "buck2 test //tests:integration", 
+    "buck2 test //tests:integration",
     "hatch run test-cov",
 ]
 
@@ -454,7 +454,7 @@ docs-serve = "hatch run docs:serve"
 # Release workflow
 release-check = [
     "hatch run qa",
-    "hatch run benchmark", 
+    "hatch run benchmark",
     "hatch build",
     "hatch publish --dry-run",
 ]
@@ -520,12 +520,12 @@ from typing import List, Optional
 
 class BuildPipeline:
     """Manages the complete Buck2 + Hatch build pipeline."""
-    
+
     def __init__(self, project_root: Path):
         self.project_root = project_root
         self.buck2_available = self._check_buck2()
         self.hatch_available = self._check_hatch()
-    
+
     def run_full_pipeline(self, target: str = "development") -> bool:
         """Run the complete build pipeline."""
         stages = [
@@ -537,53 +537,53 @@ class BuildPipeline:
             ("Hatch packaging", self._hatch_build),
             ("Integration validation", self._validate_build),
         ]
-        
+
         if target == "release":
             stages.extend([
                 ("Performance benchmarks", self._run_benchmarks),
                 ("Security validation", self._security_check),
                 ("Release preparation", self._prepare_release),
             ])
-        
+
         for stage_name, stage_func in stages:
             print(f"🔄 {stage_name}...")
             if not stage_func():
                 print(f"❌ {stage_name} failed")
                 return False
             print(f"✅ {stage_name} completed")
-        
+
         print("🎉 Build pipeline completed successfully!")
         return True
-    
+
     def _buck2_build(self) -> bool:
         """Execute Buck2 build."""
         result = subprocess.run([
-            "buck2", "build", 
+            "buck2", "build",
             "//src/pynomaly:all",
             "//src/pynomaly/presentation/web:static",
         ])
         return result.returncode == 0
-    
+
     def _buck2_test(self) -> bool:
         """Execute Buck2 tests."""
         result = subprocess.run([
-            "buck2", "test", 
+            "buck2", "test",
             "//tests:all",
             "--test-output", "streaming"
         ])
         return result.returncode == 0
-    
+
     def _hatch_build(self) -> bool:
         """Execute Hatch build with Buck2 artifacts."""
         result = subprocess.run(["hatch", "build", "--clean"])
         return result.returncode == 0
-    
+
     def _build_web_assets(self) -> bool:
         """Build web UI assets."""
         npm_result = subprocess.run(["npm", "run", "build-css"])
         if npm_result.returncode != 0:
             return False
-            
+
         # Buck2 web asset build
         web_result = subprocess.run([
             "buck2", "build", "//src/pynomaly/presentation/web:assets"
@@ -592,12 +592,12 @@ class BuildPipeline:
 
 if __name__ == "__main__":
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Run Pynomaly build pipeline")
-    parser.add_argument("--target", choices=["development", "release"], 
+    parser.add_argument("--target", choices=["development", "release"],
                        default="development", help="Build target")
     args = parser.parse_args()
-    
+
     pipeline = BuildPipeline(Path.cwd())
     success = pipeline.run_full_pipeline(args.target)
     sys.exit(0 if success else 1)
@@ -628,18 +628,18 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.11", "3.12"]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # For version detection
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      
+
       - name: Install Buck2
         shell: bash
         run: |
@@ -651,31 +651,31 @@ jobs:
             curl -L https://github.com/facebook/buck2/releases/latest/download/buck2-x86_64-pc-windows-msvc.exe -o buck2.exe
           fi
           chmod +x buck2* && sudo mv buck2* /usr/local/bin/ || move buck2.exe "C:\Windows\System32\"
-      
+
       - name: Install Hatch
         run: pip install hatch
-      
+
       - name: Install Node.js (for web assets)
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
-      
+
       - name: Install web dependencies
         run: npm install
-      
+
       - name: Run Buck2 build
         run: buck2 build //src/pynomaly:all
-      
+
       - name: Run Buck2 tests
         run: buck2 test //tests:all --test-output streaming
-      
+
       - name: Build web assets
         run: npm run build-css
-      
+
       - name: Run Hatch build
         run: hatch build
-      
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -686,29 +686,29 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install Buck2
         run: |
           curl -L https://github.com/facebook/buck2/releases/latest/download/buck2-x86_64-unknown-linux-gnu.zst | zstd -d > buck2
           chmod +x buck2 && sudo mv buck2 /usr/local/bin/
-      
+
       - name: Install Hatch
         run: pip install hatch
-      
+
       - name: Run performance benchmarks
         run: |
           hatch run benchmark
           buck2 run //benchmarks:perf > benchmark_results.txt
-      
+
       - name: Upload benchmark results
         uses: actions/upload-artifact@v3
         with:
@@ -719,42 +719,42 @@ jobs:
     needs: [build-and-test, benchmarks]
     runs-on: ubuntu-latest
     if: github.event_name == 'release'
-    environment: 
+    environment:
       name: pypi
       url: https://pypi.org/project/pynomaly/
     permissions:
       id-token: write  # For trusted publishing
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-      
+
       - name: Install Buck2
         run: |
           curl -L https://github.com/facebook/buck2/releases/latest/download/buck2-x86_64-unknown-linux-gnu.zst | zstd -d > buck2
           chmod +x buck2 && sudo mv buck2 /usr/local/bin/
-      
+
       - name: Install Hatch
         run: pip install hatch
-      
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
-      
+
       - name: Build for release
         run: |
           npm install
           python scripts/build_pipeline.py --target release
-      
+
       - name: Publish to PyPI
         run: hatch publish
 ```

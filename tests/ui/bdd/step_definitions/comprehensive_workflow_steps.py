@@ -1,16 +1,12 @@
 """Comprehensive BDD Step Definitions for All User Workflows."""
 
-import asyncio
-import json
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
 from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, then, when
-
-from tests.ui.enhanced_page_objects.base_page import BasePage
 
 # Test data and configuration
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "test_data"
@@ -714,13 +710,13 @@ def wait_for_element_with_retry(page: Page, selector: str, timeout: int = 30):
             time.sleep(1)
 
 
-def verify_data_table_structure(page: Page, expected_columns: List[str]):
+def verify_data_table_structure(page: Page, expected_columns: list[str]):
     """Verify data table has expected structure."""
     for column in expected_columns:
         expect(page.locator(f"th:has-text('{column}')")).to_be_visible()
 
 
-def simulate_api_response(response_data: Dict[str, Any]):
+def simulate_api_response(response_data: dict[str, Any]):
     """Simulate API response for testing."""
     test_context["mock_api_response"] = response_data
 

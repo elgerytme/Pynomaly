@@ -25,13 +25,13 @@ This runbook provides step-by-step procedures for disaster recovery scenarios in
    ```bash
    # Check pod status
    kubectl get pods -n pynomaly
-   
+
    # Check service status
    kubectl get svc -n pynomaly
-   
+
    # Check ingress
    kubectl get ingress -n pynomaly
-   
+
    # Check events
    kubectl get events -n pynomaly --sort-by='.lastTimestamp'
    ```
@@ -40,10 +40,10 @@ This runbook provides step-by-step procedures for disaster recovery scenarios in
    ```bash
    # Check node status
    kubectl get nodes
-   
+
    # Check system pods
    kubectl get pods -n kube-system
-   
+
    # Check AWS EKS cluster
    aws eks describe-cluster --name pynomaly-production
    ```
@@ -53,7 +53,7 @@ This runbook provides step-by-step procedures for disaster recovery scenarios in
    # Restart deployment
    kubectl rollout restart deployment/pynomaly-api -n pynomaly
    kubectl rollout restart deployment/pynomaly-worker -n pynomaly
-   
+
    # Wait for rollout
    kubectl rollout status deployment/pynomaly-api -n pynomaly --timeout=300s
    ```
@@ -65,10 +65,10 @@ If quick recovery fails:
    ```bash
    # Check rollout history
    helm history pynomaly -n pynomaly
-   
+
    # Rollback to previous version
    helm rollback pynomaly -n pynomaly
-   
+
    # Wait for rollback
    kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly --timeout=600s
    ```
@@ -77,7 +77,7 @@ If quick recovery fails:
    ```bash
    # Scale API pods
    kubectl scale deployment pynomaly-api --replicas=10 -n pynomaly
-   
+
    # Scale worker pods
    kubectl scale deployment pynomaly-worker --replicas=5 -n pynomaly
    ```
@@ -94,10 +94,10 @@ If quick recovery fails:
    ```bash
    # Check PostgreSQL pods
    kubectl get pods -n pynomaly -l app.kubernetes.io/name=postgresql
-   
+
    # Check PostgreSQL logs
    kubectl logs -n pynomaly -l app.kubernetes.io/name=postgresql --tail=100
-   
+
    # Check persistent volumes
    kubectl get pv,pvc -n pynomaly
    ```
@@ -120,7 +120,7 @@ If quick recovery fails:
    ```bash
    # List available backups
    aws s3 ls s3://pynomaly-backups/postgresql/
-   
+
    # Restore from latest backup
    kubectl exec -it pynomaly-postgresql-0 -n pynomaly -- \
      psql -U pynomaly -d pynomaly -f /backups/latest-backup.sql
@@ -163,10 +163,10 @@ If quick recovery fails:
    ```bash
    # Check PVC status
    kubectl get pvc -n pynomaly
-   
+
    # Check node storage
    kubectl describe nodes
-   
+
    # Check pod disk usage
    kubectl exec -it deployment/pynomaly-api -n pynomaly -- df -h
    ```
@@ -176,7 +176,7 @@ If quick recovery fails:
    # Clean temporary files
    kubectl exec -it deployment/pynomaly-api -n pynomaly -- \
      find /app/temp -type f -mtime +7 -delete
-   
+
    # Clean old logs
    kubectl exec -it deployment/pynomaly-api -n pynomaly -- \
      find /app/logs -name "*.log" -mtime +30 -delete
@@ -201,10 +201,10 @@ If quick recovery fails:
    ```bash
    # Check ingress controller
    kubectl get pods -n ingress-nginx
-   
+
    # Check CoreDNS
    kubectl get pods -n kube-system -l k8s-app=kube-dns
-   
+
    # Check load balancer
    kubectl describe svc pynomaly -n pynomaly
    ```
@@ -214,7 +214,7 @@ If quick recovery fails:
    # Test internal connectivity
    kubectl exec -it deployment/pynomaly-api -n pynomaly -- \
      nslookup pynomaly-postgresql
-   
+
    # Test external connectivity
    kubectl exec -it deployment/pynomaly-api -n pynomaly -- \
      curl -I https://api.pynomaly.ai/health
@@ -240,10 +240,10 @@ If quick recovery fails:
    ```bash
    # Install ingress controller
    kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/aws/deploy.yaml
-   
+
    # Install cert-manager
    kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
-   
+
    # Install metrics server
    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
    ```
@@ -252,10 +252,10 @@ If quick recovery fails:
    ```bash
    # Create namespace
    kubectl create namespace pynomaly
-   
+
    # Restore database from backup
    # (Detailed steps depend on backup strategy)
-   
+
    # Deploy application
    helm install pynomaly ./deploy/helm/pynomaly \
      --namespace pynomaly \

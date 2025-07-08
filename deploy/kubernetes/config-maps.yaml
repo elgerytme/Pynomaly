@@ -19,7 +19,7 @@ data:
   PYNOMALY_CORS_ORIGINS: '["https://pynomaly.local","https://grafana.pynomaly.local"]'
   PYNOMALY_ALLOWED_HOSTS: '["pynomaly.local","localhost"]'
   PYNOMALY_TRUSTED_PROXIES: '["127.0.0.1","10.0.0.0/8","172.16.0.0/12","192.168.0.0/16"]'
-  
+
   # Feature flags
   FEATURE_WEB_UI: "true"
   FEATURE_STREAMING: "true"
@@ -28,44 +28,44 @@ data:
   FEATURE_ENSEMBLE: "true"
   FEATURE_DRIFT_DETECTION: "true"
   FEATURE_MONITORING: "true"
-  
+
   # Performance configuration
   API_WORKERS: "4"
   API_WORKER_CLASS: "uvicorn.workers.UvicornWorker"
   API_MAX_CONNECTIONS: "1000"
   API_BACKLOG: "2048"
-  
+
   # Rate limiting
   RATE_LIMIT_ENABLED: "true"
   RATE_LIMIT_REQUESTS_PER_MINUTE: "60"
   RATE_LIMIT_BURST: "20"
-  
+
   # Machine learning configuration
   ML_MODEL_CACHE_SIZE: "100"
   ML_TRAINING_TIMEOUT: "3600"
   ML_PREDICTION_TIMEOUT: "30"
   ML_ENSEMBLE_SIZE: "5"
-  
+
   # AutoML configuration
   AUTOML_ENABLED: "true"
   AUTOML_MAX_TRIALS: "50"
   AUTOML_TIMEOUT: "7200"
-  
+
   # Drift detection configuration
   DRIFT_DETECTION_ENABLED: "true"
   DRIFT_CHECK_INTERVAL: "3600"
   DRIFT_ALERT_THRESHOLD: "0.1"
-  
+
   # Logging configuration
   LOG_LEVEL: "INFO"
   LOG_FORMAT: "json"
   LOG_FILE_MAX_SIZE: "10MB"
   LOG_FILE_BACKUP_COUNT: "5"
-  
+
   # Cache configuration
   REDIS_CACHE_TTL: "3600"
   REDIS_MAX_CONNECTIONS: "100"
-  
+
   # File upload limits
   PYNOMALY_MAX_FILE_SIZE: "100MB"
   PYNOMALY_MAX_DATASET_SIZE: "1GB"
@@ -86,17 +86,17 @@ data:
   CELERY_ACCEPT_CONTENT: '["json"]'
   CELERY_TIMEZONE: "UTC"
   CELERY_ENABLE_UTC: "true"
-  
+
   # Worker-specific configuration
   TRAINING_WORKER_CONCURRENCY: "4"
   DRIFT_WORKER_CONCURRENCY: "2"
   GENERAL_WORKER_CONCURRENCY: "2"
-  
+
   # Task timeouts
   TASK_SOFT_TIME_LIMIT: "3600"
   TASK_TIME_LIMIT: "7200"
   TASK_REJECT_ON_WORKER_LOST: "true"
-  
+
   # Performance configuration
   WORKER_PREFETCH_MULTIPLIER: "4"
   WORKER_MAX_TASKS_PER_CHILD: "1000"
@@ -422,7 +422,7 @@ data:
     max_parallel_workers_per_gather = 2
     max_parallel_workers = 8
     max_parallel_maintenance_workers = 2
-    
+
     # Logging
     log_destination = 'stderr'
     logging_collector = on
@@ -446,12 +446,12 @@ data:
     -- Initialize Pynomaly database schema
     CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
     CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
-    
+
     -- Create application schemas
     CREATE SCHEMA IF NOT EXISTS pynomaly_core;
     CREATE SCHEMA IF NOT EXISTS pynomaly_models;
     CREATE SCHEMA IF NOT EXISTS pynomaly_monitoring;
-    
+
     -- Set default search path
     ALTER ROLE pynomaly SET search_path = pynomaly_core, pynomaly_models, pynomaly_monitoring, public;
 ---
@@ -469,30 +469,30 @@ data:
     # Redis configuration for Pynomaly production
     bind 0.0.0.0
     port 6379
-    
+
     # Memory management
     maxmemory 1gb
     maxmemory-policy allkeys-lru
-    
+
     # Persistence
     save 900 1
     save 300 10
     save 60 10000
-    
+
     # Append only file
     appendonly yes
     appendfsync everysec
     no-appendfsync-on-rewrite no
     auto-aof-rewrite-percentage 100
     auto-aof-rewrite-min-size 64mb
-    
+
     # Security
     requirepass ${REDIS_PASSWORD}
-    
+
     # Performance
     tcp-keepalive 300
     timeout 0
-    
+
     # Logging
     loglevel notice
     logfile ""

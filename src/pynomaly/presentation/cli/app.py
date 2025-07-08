@@ -12,25 +12,23 @@ from rich.table import Table
 from pynomaly.presentation.cli import (
     automl,
     autonomous,
-    deep_learning,
-    explainability,
-    selection,
-)
-from pynomaly.presentation.cli import config as config_cli
-from pynomaly.presentation.cli import (
     datasets,
+    deep_learning,
     detection,
     detectors,
+    explainability,
     preprocessing,
+    selection,
     server,
     tdd,
 )
+from pynomaly.presentation.cli import config as config_cli
 from pynomaly.presentation.cli.export import export_app
 from pynomaly.presentation.cli.performance import performance_app
 
 # These modules are now properly converted to Typer
 # from pynomaly.presentation.cli import deep_learning  # ✅ Now uses Typer - re-enabled below
-# from pynomaly.presentation.cli import explainability  # ✅ Now uses Typer - re-enabled below  
+# from pynomaly.presentation.cli import explainability  # ✅ Now uses Typer - re-enabled below
 # from pynomaly.presentation.cli import selection  # ✅ Now uses Typer - re-enabled below
 # from pynomaly.presentation.cli.security import security_commands  # Temporarily disabled
 # from pynomaly.presentation.cli.dashboard import dashboard_commands  # Temporarily disabled

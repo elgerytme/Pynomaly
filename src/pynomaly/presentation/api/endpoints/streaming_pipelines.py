@@ -1,6 +1,6 @@
 """REST API endpoints for streaming pipeline management."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -9,9 +9,7 @@ from pydantic import BaseModel, Field
 from pynomaly.application.services.streaming_pipeline_manager import (
     StreamingPipelineManager,
 )
-from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import (
-    AlertSeverity,
-)
+from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import AlertSeverity
 from pynomaly.presentation.api.deps import (
     get_current_user,
     get_streaming_pipeline_manager,
@@ -27,23 +25,23 @@ router = APIRouter(prefix="/streaming", tags=["Streaming Pipelines"])
 class CreatePipelineRequest(BaseModel):
     """Request model for creating a streaming pipeline."""
 
-    pipeline_id: Optional[str] = Field(None, description="Optional custom pipeline ID")
+    pipeline_id: str | None = Field(None, description="Optional custom pipeline ID")
     data_source_type: str = Field(
         ..., description="Data source type (kafka, websocket)"
     )
-    data_source_config: Dict[str, Any] = Field(
+    data_source_config: dict[str, Any] = Field(
         ..., description="Data source configuration"
     )
-    detector_config: Dict[str, Any] = Field(..., description="Detector configuration")
-    streaming_config: Dict[str, Any] = Field(..., description="Streaming configuration")
+    detector_config: dict[str, Any] = Field(..., description="Detector configuration")
+    streaming_config: dict[str, Any] = Field(..., description="Streaming configuration")
 
 
 class CreatePipelineFromTemplateRequest(BaseModel):
     """Request model for creating a pipeline from template."""
 
     template_name: str = Field(..., description="Template name to use")
-    pipeline_id: Optional[str] = Field(None, description="Optional custom pipeline ID")
-    override_config: Optional[Dict[str, Any]] = Field(
+    pipeline_id: str | None = Field(None, description="Optional custom pipeline ID")
+    override_config: dict[str, Any] | None = Field(
         None, description="Configuration overrides"
     )
 
@@ -60,13 +58,13 @@ class PipelineStatusResponse(BaseModel):
 
     pipeline_id: str = Field(..., description="Pipeline ID")
     is_running: bool = Field(..., description="Whether pipeline is running")
-    start_time: Optional[str] = Field(None, description="Start time")
+    start_time: str | None = Field(None, description="Start time")
     uptime_seconds: float = Field(..., description="Uptime in seconds")
     buffer_size: int = Field(..., description="Current buffer size")
     buffer_capacity: int = Field(..., description="Buffer capacity")
     detector_trained: bool = Field(..., description="Whether detector is trained")
     samples_processed: int = Field(..., description="Total samples processed")
-    metrics: Dict[str, Any] = Field(..., description="Pipeline metrics")
+    metrics: dict[str, Any] = Field(..., description="Pipeline metrics")
 
 
 class AggregatedMetricsResponse(BaseModel):
@@ -93,18 +91,18 @@ class AlertResponse(BaseModel):
     severity: str = Field(..., description="Alert severity")
     alert_type: str = Field(..., description="Alert type")
     message: str = Field(..., description="Alert message")
-    pipeline_id: Optional[str] = Field(None, description="Associated pipeline ID")
-    anomaly_score: Optional[float] = Field(None, description="Anomaly score")
-    metadata: Dict[str, Any] = Field(..., description="Additional metadata")
+    pipeline_id: str | None = Field(None, description="Associated pipeline ID")
+    anomaly_score: float | None = Field(None, description="Anomaly score")
+    metadata: dict[str, Any] = Field(..., description="Additional metadata")
 
 
 class AlertStatisticsResponse(BaseModel):
     """Response model for alert statistics."""
 
     total_alerts: int = Field(..., description="Total number of alerts")
-    alerts_by_severity: Dict[str, int] = Field(..., description="Alerts by severity")
-    alerts_by_type: Dict[str, int] = Field(..., description="Alerts by type")
-    alerts_by_pipeline: Dict[str, int] = Field(..., description="Alerts by pipeline")
+    alerts_by_severity: dict[str, int] = Field(..., description="Alerts by severity")
+    alerts_by_type: dict[str, int] = Field(..., description="Alerts by type")
+    alerts_by_pipeline: dict[str, int] = Field(..., description="Alerts by pipeline")
     recent_alert_rate: float = Field(..., description="Recent alert rate per minute")
 
 
@@ -114,9 +112,9 @@ class TemplateResponse(BaseModel):
     name: str = Field(..., description="Template name")
     description: str = Field(..., description="Template description")
     data_source_type: str = Field(..., description="Data source type")
-    data_source_config: Dict[str, Any] = Field(..., description="Data source config")
-    detector_config: Dict[str, Any] = Field(..., description="Detector config")
-    streaming_config: Dict[str, Any] = Field(..., description="Streaming config")
+    data_source_config: dict[str, Any] = Field(..., description="Data source config")
+    detector_config: dict[str, Any] = Field(..., description="Detector config")
+    streaming_config: dict[str, Any] = Field(..., description="Streaming config")
 
 
 class HealthCheckResponse(BaseModel):
@@ -124,10 +122,10 @@ class HealthCheckResponse(BaseModel):
 
     overall_status: str = Field(..., description="Overall health status")
     timestamp: str = Field(..., description="Health check timestamp")
-    pipeline_health: Dict[str, Any] = Field(
+    pipeline_health: dict[str, Any] = Field(
         ..., description="Individual pipeline health"
     )
-    issues: List[str] = Field(..., description="Overall issues")
+    issues: list[str] = Field(..., description="Overall issues")
 
 
 # ==================== Pipeline Management Endpoints ====================
@@ -195,7 +193,7 @@ async def start_pipeline(
     current_user: dict = Depends(get_current_user),
     manager: StreamingPipelineManager = Depends(get_streaming_pipeline_manager),
     _: None = Depends(require_write),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Start a streaming pipeline."""
     try:
         await manager.start_pipeline(pipeline_id)
@@ -215,7 +213,7 @@ async def stop_pipeline(
     current_user: dict = Depends(get_current_user),
     manager: StreamingPipelineManager = Depends(get_streaming_pipeline_manager),
     _: None = Depends(require_write),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Stop a streaming pipeline."""
     try:
         await manager.stop_pipeline(pipeline_id)
@@ -235,7 +233,7 @@ async def delete_pipeline(
     current_user: dict = Depends(get_current_user),
     manager: StreamingPipelineManager = Depends(get_streaming_pipeline_manager),
     _: None = Depends(require_write),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Delete a streaming pipeline."""
     try:
         await manager.delete_pipeline(pipeline_id)
@@ -254,7 +252,7 @@ async def start_all_pipelines(
     current_user: dict = Depends(get_current_user),
     manager: StreamingPipelineManager = Depends(get_streaming_pipeline_manager),
     _: None = Depends(require_write),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Start all registered pipelines."""
     try:
         await manager.start_all_pipelines()
@@ -273,7 +271,7 @@ async def stop_all_pipelines(
     current_user: dict = Depends(get_current_user),
     manager: StreamingPipelineManager = Depends(get_streaming_pipeline_manager),
     _: None = Depends(require_write),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Stop all running pipelines."""
     try:
         await manager.stop_all_pipelines()
@@ -309,7 +307,7 @@ async def get_pipeline_status(
 @router.get("/pipelines/status")
 async def get_all_pipeline_status(
     manager: StreamingPipelineManager = Depends(get_streaming_pipeline_manager),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get status of all pipelines."""
     try:
         return manager.get_all_pipeline_status()
@@ -324,7 +322,7 @@ async def get_all_pipeline_status(
 async def get_pipeline_metrics(
     pipeline_id: str,
     manager: StreamingPipelineManager = Depends(get_streaming_pipeline_manager),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get metrics for a specific pipeline."""
     try:
         return manager.get_pipeline_metrics(pipeline_id)
@@ -355,13 +353,13 @@ async def get_aggregated_metrics(
 # ==================== Alert Management Endpoints ====================
 
 
-@router.get("/alerts", response_model=List[AlertResponse])
+@router.get("/alerts", response_model=list[AlertResponse])
 async def get_recent_alerts(
     limit: int = 100,
-    severity: Optional[str] = None,
-    pipeline_id: Optional[str] = None,
+    severity: str | None = None,
+    pipeline_id: str | None = None,
     manager: StreamingPipelineManager = Depends(get_streaming_pipeline_manager),
-) -> List[AlertResponse]:
+) -> list[AlertResponse]:
     """Get recent alerts with optional filtering."""
     try:
         # Convert severity string to enum if provided
@@ -422,10 +420,10 @@ async def get_alert_statistics(
 # ==================== Template Management Endpoints ====================
 
 
-@router.get("/templates", response_model=List[TemplateResponse])
+@router.get("/templates", response_model=list[TemplateResponse])
 async def get_templates(
     manager: StreamingPipelineManager = Depends(get_streaming_pipeline_manager),
-) -> List[TemplateResponse]:
+) -> list[TemplateResponse]:
     """Get all available pipeline templates."""
     try:
         templates = manager.get_templates()
@@ -498,7 +496,7 @@ async def get_health_check(
 
 
 @router.get("/info")
-async def get_streaming_info() -> Dict[str, Any]:
+async def get_streaming_info() -> dict[str, Any]:
     """Get information about streaming capabilities and configuration."""
     return {
         "service": "streaming_pipelines",

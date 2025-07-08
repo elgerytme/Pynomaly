@@ -11,7 +11,6 @@ import time
 
 import requests
 import uvicorn
-
 from pynomaly.presentation.api.app import create_app
 
 

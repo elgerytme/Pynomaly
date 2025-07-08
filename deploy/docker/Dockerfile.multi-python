@@ -121,10 +121,10 @@ EXIT_CODE=0
 
 for version in 3.11.4 3.11.9 3.12.8 3.13.1; do
     echo -e "\n--- Testing Python $version ---"
-    
+
     if pyenv shell $version; then
         echo "Python version: $(python --version)"
-        
+
         # Run basic tests
         if python -m pytest tests/ -v --tb=short --maxfail=5; then
             echo "✓ Python $version tests passed"
@@ -132,7 +132,7 @@ for version in 3.11.4 3.11.9 3.12.8 3.13.1; do
             echo "✗ Python $version tests failed"
             EXIT_CODE=1
         fi
-        
+
         # Run compatibility tests
         echo "Running compatibility tests..."
         python -c "
@@ -235,7 +235,7 @@ result = sum(i*i for i in range(100000))
 python_time = time.perf_counter() - start
 print(f'  Python computation: {python_time:.4f}s')
 
-# NumPy performance test  
+# NumPy performance test
 start = time.perf_counter()
 data = np.random.rand(1000, 100)
 result = np.dot(data, data.T)

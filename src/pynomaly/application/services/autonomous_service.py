@@ -361,10 +361,11 @@ class AutonomousDetectionService:
             return dataset, initial_profile
 
         # Assess data quality
-        should_preprocess, quality_report = (
-            self.preprocessing_orchestrator.should_preprocess(
-                dataset, config.quality_threshold
-            )
+        (
+            should_preprocess,
+            quality_report,
+        ) = self.preprocessing_orchestrator.should_preprocess(
+            dataset, config.quality_threshold
         )
 
         # Update profile with quality information
@@ -391,10 +392,11 @@ class AutonomousDetectionService:
                 "Applying intelligent preprocessing to improve data quality"
             )
 
-        processed_dataset, preprocessing_metadata = (
-            self.preprocessing_orchestrator.preprocess_for_autonomous_detection(
-                dataset, quality_report, config.max_preprocessing_time
-            )
+        (
+            processed_dataset,
+            preprocessing_metadata,
+        ) = self.preprocessing_orchestrator.preprocess_for_autonomous_detection(
+            dataset, quality_report, config.max_preprocessing_time
         )
 
         # Update profile with preprocessing results
@@ -1567,7 +1569,9 @@ class AutonomousDetectionService:
                     "category": (
                         "large"
                         if profile.n_samples > 10000
-                        else "medium" if profile.n_samples > 1000 else "small"
+                        else "medium"
+                        if profile.n_samples > 1000
+                        else "small"
                     ),
                 },
                 "feature_count": {
@@ -1575,7 +1579,9 @@ class AutonomousDetectionService:
                     "category": (
                         "high"
                         if profile.n_features > 50
-                        else "medium" if profile.n_features > 10 else "low"
+                        else "medium"
+                        if profile.n_features > 10
+                        else "low"
                     ),
                 },
                 "data_complexity": {
@@ -1583,7 +1589,9 @@ class AutonomousDetectionService:
                     "category": (
                         "high"
                         if profile.complexity_score > 0.7
-                        else "medium" if profile.complexity_score > 0.4 else "low"
+                        else "medium"
+                        if profile.complexity_score > 0.4
+                        else "low"
                     ),
                 },
             },

@@ -1,12 +1,11 @@
 """Comprehensive test suite for explainability service."""
 
 from datetime import datetime
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock
 
 import numpy as np
 import pandas as pd
 import pytest
-
 from pynomaly.application.services.explainability_service import (
     ApplicationExplainabilityService,
     ExplanationRequest,
@@ -21,7 +20,6 @@ from pynomaly.domain.services.explainability_service import (
     GlobalExplanation,
     LocalExplanation,
 )
-from pynomaly.infrastructure.explainers.shap_explainer import SHAPExplainer
 
 
 class TestExplainabilityService:

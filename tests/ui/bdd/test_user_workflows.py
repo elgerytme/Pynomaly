@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from playwright.async_api import Page, expect
-from pytest_bdd import given, parsers, scenarios, then, when
+from pytest_bdd import given, scenarios, then, when
 
 from tests.ui.conftest import TEST_CONFIG, UITestHelper
 

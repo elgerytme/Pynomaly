@@ -10,10 +10,7 @@ import numpy as np
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
 from pynomaly.domain.services import AnomalyScorer, EnsembleAggregator
 from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.shared.protocols import (
-    DetectorProtocol,
-    DetectorRepositoryProtocol,
-)
+from pynomaly.shared.protocols import DetectorProtocol, DetectorRepositoryProtocol
 
 
 class EnsembleService:
@@ -186,9 +183,10 @@ class EnsembleService:
             all_labels[detector.name] = result.labels
 
         # Calculate agreement
-        agreement_rate, per_sample_agreement = (
-            self.ensemble_aggregator.calculate_agreement(all_labels)
-        )
+        (
+            agreement_rate,
+            per_sample_agreement,
+        ) = self.ensemble_aggregator.calculate_agreement(all_labels)
 
         # Calculate correlation between detectors
         import pandas as pd

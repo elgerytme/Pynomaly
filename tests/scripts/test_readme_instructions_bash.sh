@@ -58,18 +58,18 @@ test_readme_instruction() {
     local command="$2"
     local expected_exit_code="${3:-0}"
     local allow_warnings="${4:-false}"
-    
+
     ((total_tests++))
-    
+
     echo "----------------------------------------"
     print_status "TEST" "$test_name"
     echo "COMMAND: $command"
     echo "----------------------------------------"
-    
+
     # Capture output and exit code
     local output
     local exit_code
-    
+
     if [ "$allow_warnings" = "true" ]; then
         output=$(eval "$command" 2>&1)
         exit_code=$?
@@ -77,14 +77,14 @@ test_readme_instruction() {
         output=$(eval "$command" 2>&1)
         exit_code=$?
     fi
-    
+
     # Display output (first 10 lines)
     echo "$output" | head -10
     local line_count=$(echo "$output" | wc -l)
     if [ $line_count -gt 10 ]; then
         echo "... (output truncated)"
     fi
-    
+
     # Check result
     if [ $exit_code -eq $expected_exit_code ]; then
         print_status "SUCCESS" "✅ PASSED: $test_name"
@@ -402,7 +402,7 @@ if [ $failed_tests -eq 0 ]; then
     echo "✅ CLI functionality: WORKING"
     echo "✅ Poetry integration: VERIFIED"
     echo "✅ Python API examples: WORKING"
-    echo "✅ Web API setup: WORKING" 
+    echo "✅ Web API setup: WORKING"
     echo "✅ Development commands: VERIFIED"
     exit 0
 elif [ $success_rate -ge 80 ]; then

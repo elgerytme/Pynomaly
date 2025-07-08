@@ -605,9 +605,10 @@ class IntelligentAlertService:
             features = self.noise_classifier.extract_features(
                 alert, list(self.alert_history)
             )
-            classification, confidence = (
-                self.noise_classifier.predict_noise_probability(features)
-            )
+            (
+                classification,
+                confidence,
+            ) = self.noise_classifier.predict_noise_probability(features)
 
             alert.update_ml_classification(classification, confidence, features)
             self.metrics["noise_classifications"][classification.value] += 1
@@ -899,9 +900,9 @@ class IntelligentAlertService:
         ]
 
         if noise_alerts:
-            analytics["noise_reduction_stats"]["avg_noise_confidence"] = (
-                statistics.mean([a.noise_confidence for a in noise_alerts])
-            )
+            analytics["noise_reduction_stats"][
+                "avg_noise_confidence"
+            ] = statistics.mean([a.noise_confidence for a in noise_alerts])
 
         if signal_alerts and noise_alerts:
             analytics["noise_reduction_stats"]["signal_to_noise_ratio"] = len(
@@ -911,10 +912,10 @@ class IntelligentAlertService:
         # Calculate correlation stats
         correlated_alerts = [a for a in recent_alerts if a.correlation]
         if correlated_alerts:
-            analytics["correlation_stats"]["avg_correlation_strength"] = (
-                statistics.mean(
-                    [a.correlation.correlation_strength for a in correlated_alerts]
-                )
+            analytics["correlation_stats"][
+                "avg_correlation_strength"
+            ] = statistics.mean(
+                [a.correlation.correlation_strength for a in correlated_alerts]
             )
 
             for alert in correlated_alerts:

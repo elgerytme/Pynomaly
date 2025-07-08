@@ -2,16 +2,14 @@
 
 from datetime import datetime
 from unittest.mock import Mock
-from uuid import UUID
 
 import pandas as pd
 import pytest
-
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.entities.training_result import TrainingResult
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from pynomaly.domain.value_objects import AnomalyScore
 
 
 class TestDetectorTraining:

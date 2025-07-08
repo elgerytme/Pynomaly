@@ -1345,21 +1345,21 @@ class EnsembleSelector:
 
         if best_performance:
             algorithms = best_performance[1]["ensemble_data"]["algorithms"]
-            use_cases["high_accuracy"] = (
-                f"For maximum accuracy: {', '.join(algorithms)}"
-            )
+            use_cases[
+                "high_accuracy"
+            ] = f"For maximum accuracy: {', '.join(algorithms)}"
 
         if best_diversity:
             algorithms = best_diversity[1]["ensemble_data"]["algorithms"]
-            use_cases["robust_detection"] = (
-                f"For robust detection: {', '.join(algorithms)}"
-            )
+            use_cases[
+                "robust_detection"
+            ] = f"For robust detection: {', '.join(algorithms)}"
 
         if best_efficiency:
             algorithms = best_efficiency[1]["ensemble_data"]["algorithms"]
-            use_cases["real_time"] = (
-                f"For real-time applications: {', '.join(algorithms)}"
-            )
+            use_cases[
+                "real_time"
+            ] = f"For real-time applications: {', '.join(algorithms)}"
 
         return use_cases
 

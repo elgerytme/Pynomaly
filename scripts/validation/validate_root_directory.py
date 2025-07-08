@@ -8,10 +8,8 @@ organization, preventing prohibited files from being committed to the root.
 
 import fnmatch
 import json
-import os
 import sys
 from pathlib import Path
-from typing import List, Set, Tuple
 
 
 class RootDirectoryValidator:
@@ -102,10 +100,10 @@ class RootDirectoryValidator:
 
     def __init__(self, project_root: Path = None):
         self.project_root = project_root or Path.cwd()
-        self.violations: List[str] = []
-        self.warnings: List[str] = []
+        self.violations: list[str] = []
+        self.warnings: list[str] = []
 
-    def validate(self) -> Tuple[bool, List[str], List[str]]:
+    def validate(self) -> tuple[bool, list[str], list[str]]:
         """
         Validate root directory organization.
 
@@ -204,7 +202,7 @@ class RootDirectoryValidator:
                 f"Root directory has {len(files)} files (maximum: 12)"
             )
 
-    def get_relocation_suggestions(self) -> List[str]:
+    def get_relocation_suggestions(self) -> list[str]:
         """Provide suggestions for relocating problematic files."""
         suggestions = []
 
@@ -313,7 +311,7 @@ def main():
         if args.fix_suggestions:
             suggestions = validator.get_relocation_suggestions()
             if suggestions:
-                print(f"\n💡 Relocation Suggestions:")
+                print("\n💡 Relocation Suggestions:")
                 for suggestion in suggestions:
                     print(f"  • {suggestion}")
 

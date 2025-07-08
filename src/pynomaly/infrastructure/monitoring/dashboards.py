@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Dashboard configuration templates
 PYNOMALY_DASHBOARD_TEMPLATE = {
@@ -345,10 +345,10 @@ class DashboardConfig:
 
     title: str
     description: str
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
     refresh_interval: str = "30s"
     time_range: str = "1h"
-    panels: List[Dict[str, Any]] = field(default_factory=list)
+    panels: list[dict[str, Any]] = field(default_factory=list)
 
     def to_json(self) -> str:
         """Convert dashboard config to Grafana JSON format."""
@@ -483,7 +483,7 @@ class DashboardGenerator:
         )
 
     @staticmethod
-    def generate_all_dashboards() -> Dict[str, str]:
+    def generate_all_dashboards() -> dict[str, str]:
         """Generate all Pynomaly dashboards.
 
         Returns:

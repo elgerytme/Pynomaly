@@ -1,12 +1,10 @@
 """Tests for TrainDetector use case."""
 
-from datetime import datetime
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import Mock
 from uuid import uuid4
 
 import pandas as pd
 import pytest
-
 from pynomaly.application.use_cases.train_detector import (
     TrainDetectorRequest,
     TrainDetectorResponse,
@@ -14,7 +12,6 @@ from pynomaly.application.use_cases.train_detector import (
 )
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.entities.training_result import TrainingResult
 from pynomaly.domain.exceptions import FittingError, InsufficientDataError
 from pynomaly.domain.value_objects import ContaminationRate
 

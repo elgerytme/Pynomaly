@@ -9,9 +9,6 @@ import time
 from pathlib import Path
 
 import pandas as pd
-from rich.console import Console
-from rich.table import Table
-
 from pynomaly.application.use_cases import (
     DetectAnomaliesRequest,
     EvaluateModelRequest,
@@ -19,6 +16,8 @@ from pynomaly.application.use_cases import (
 )
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.infrastructure.config import create_container
+from rich.console import Console
+from rich.table import Table
 
 console = Console()
 

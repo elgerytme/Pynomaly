@@ -9,7 +9,6 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
-
 from pynomaly.domain.exceptions import AuthenticationError
 from pynomaly.infrastructure.config import create_container
 from pynomaly.presentation.api.app import create_app

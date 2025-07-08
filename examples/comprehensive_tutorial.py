@@ -25,7 +25,6 @@ import time
 
 import numpy as np
 import pandas as pd
-
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
@@ -281,7 +280,7 @@ def tutorial_02_algorithm_comparison(dataset, true_labels):
             print(f"      ❌ Failed: {str(e)[:50]}...")
 
     # Display comparison
-    print(f"\n📊 Algorithm Comparison Results:")
+    print("\n📊 Algorithm Comparison Results:")
     print(
         f"{'Algorithm':<18} {'Accuracy':<10} {'Precision':<11} {'Recall':<8} {'F1-Score':<9} {'Time (s)':<9}"
     )
@@ -311,9 +310,7 @@ def tutorial_03_automl_selection(dataset, true_labels):
     """Tutorial 3: AutoML for Algorithm Selection."""
     print_section("Tutorial 3: AutoML Algorithm Selection")
 
-    print(
-        "🎯 Learning Objective: Use AutoML to automatically select the best algorithm"
-    )
+    print("🎯 Learning Objective: Use AutoML to automatically select the best algorithm")
     print("📝 AutoML will test multiple algorithms and hyperparameters automatically")
 
     # Simple AutoML implementation (inline for this tutorial)
@@ -334,14 +331,14 @@ def tutorial_03_automl_selection(dataset, true_labels):
         summary = {"error": "AutoML example not available"}
 
     if "error" not in summary:
-        print(f"\n🎯 AutoML Results:")
+        print("\n🎯 AutoML Results:")
         print(f"   🧪 Algorithms tested: {summary['total_tested']}")
         print(f"   ✅ Successful runs: {summary['successful']}")
         print(f"   🏆 Best algorithm: {summary['best_algorithm']}")
         print(f"   📊 Best score: {summary['best_score']:.3f}")
         print(f"   ⚡ Total time: {summary['total_time']:.2f}s")
 
-        print(f"\n🏆 Top 3 AutoML Recommendations:")
+        print("\n🏆 Top 3 AutoML Recommendations:")
         for i, result in enumerate(summary["top_3"], 1):
             print(
                 f"   {i}. {result['algorithm']:15} | Score: {result['avg_score']:.3f} | "
@@ -387,20 +384,20 @@ def tutorial_04_explainable_ai(dataset, true_labels):
     importance_scores = explainer.calculate_feature_importance(dataset)
 
     print("\n📊 Feature Importance Results:")
-    for name, importance in zip(dataset.feature_names, importance_scores):
+    for name, importance in zip(dataset.feature_names, importance_scores, strict=False):
         bar = "█" * int(importance * 20)
         print(f"   {name:12}: {importance:.3f} {bar}")
 
     # Global explanation
     global_explanation = explainer.generate_global_explanation(dataset)
 
-    print(f"\n🌍 Global Model Explanation:")
+    print("\n🌍 Global Model Explanation:")
     print(f"   📊 Total samples: {global_explanation['total_samples']}")
     print(f"   🎯 Anomalies detected: {global_explanation['anomalies_detected']}")
     print(f"   📈 Detection rate: {global_explanation['detection_rate']:.1%}")
 
     # Individual explanations
-    print(f"\n🔍 Explaining top anomalies...")
+    print("\n🔍 Explaining top anomalies...")
     explanations = explainer.explain_prediction(dataset)
 
     for i, explanation in enumerate(explanations[:2], 1):
@@ -466,7 +463,7 @@ def tutorial_05_production_considerations(dataset):
             except Exception as e:
                 print(f"      {algo:15}: Error - {str(e)[:30]}...")
 
-    print(f"\n🏗️ Production Deployment Checklist:")
+    print("\n🏗️ Production Deployment Checklist:")
     checklist = [
         "✅ Algorithm selected and validated",
         "✅ Performance benchmarks established",
@@ -481,7 +478,7 @@ def tutorial_05_production_considerations(dataset):
     for item in checklist:
         print(f"   {item}")
 
-    print(f"\n📊 Monitoring Recommendations:")
+    print("\n📊 Monitoring Recommendations:")
     monitoring = [
         "Track detection latency and throughput",
         "Monitor anomaly detection rates over time",
@@ -526,7 +523,7 @@ def run_comprehensive_tutorial():
     print("   ✅ Explain model decisions")
     print("   ✅ Consider production deployment")
 
-    print(f"\n📚 Next Steps:")
+    print("\n📚 Next Steps:")
     print("   🔗 Explore the web interface: python scripts/run/run_web_app.py")
     print(
         "   🔗 Try real-time monitoring: python examples/realtime_monitoring_example.py"
@@ -534,7 +531,7 @@ def run_comprehensive_tutorial():
     print("   🔗 Read the documentation: docs/")
     print("   🔗 Deploy to production using provided Docker/Kubernetes files")
 
-    print(f"\n🚀 Ready for production anomaly detection with Pynomaly!")
+    print("\n🚀 Ready for production anomaly detection with Pynomaly!")
 
 
 def main():

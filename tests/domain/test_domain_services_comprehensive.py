@@ -8,7 +8,6 @@ anomaly scoring, and explainability services.
 import numpy as np
 import pandas as pd
 import pytest
-
 from pynomaly.domain.entities import Anomaly, Dataset
 from pynomaly.domain.exceptions import InvalidValueError, ValidationError
 from pynomaly.domain.services.anomaly_scorer import AnomalyScorer
@@ -114,13 +113,14 @@ class TestThresholdCalculator:
         self, threshold_calculator, sample_scores
     ):
         """Test threshold calculation with confidence intervals."""
-        threshold, confidence = (
-            threshold_calculator.calculate_threshold_with_confidence(
-                scores=sample_scores,
-                method="percentile",
-                percentile=95.0,
-                confidence_level=0.95,
-            )
+        (
+            threshold,
+            confidence,
+        ) = threshold_calculator.calculate_threshold_with_confidence(
+            scores=sample_scores,
+            method="percentile",
+            percentile=95.0,
+            confidence_level=0.95,
         )
 
         assert isinstance(threshold, float)

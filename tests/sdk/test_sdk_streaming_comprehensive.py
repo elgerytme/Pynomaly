@@ -16,7 +16,6 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import pytest
-
 from pynomaly.domain.entities import Dataset
 from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 

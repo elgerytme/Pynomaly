@@ -23,6 +23,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Confirmed CLI and GUI script entry points are properly defined
 
 ### Added
+- **Container Security Enhancements** (2025-07-07): Hardened docker images with improved security practices and continuous integration checks
+  - Referenced TODO item C-004 for detailed security implementation
+  - Implemented multi-stage hardened builds with non-root execution and limited capabilities
+  - Integrated container vulnerability scans with Trivy and enhanced CI pipelines
+- **Comprehensive Monitoring Documentation** (2025-01-12): Complete monitoring setup guide with architecture diagrams, deployment instructions, and troubleshooting procedures
+  - **Architecture Overview**: Detailed diagram showing Prometheus ↔ Grafana ↔ Pynomaly integration with OpenTelemetry Collector, Alertmanager, and Workers
+  - **Docker Setup Guide**: Step-by-step Docker Compose deployment with required environment variables, networking configuration, and service health checks
+  - **Kubernetes Deployment**: Complete Kubernetes setup with namespace creation, secrets management, ConfigMaps, and service discovery configuration
+  - **Metrics Extension Guide**: Comprehensive guide for adding custom Prometheus metrics, creating Grafana dashboards, and implementing alert rules
+  - **Troubleshooting Guide**: Detailed solutions for common issues including Prometheus configuration, Grafana connectivity, OpenTelemetry tracing, and container problems
+  - **Security Considerations**: Authentication, authorization, HTTPS setup, RBAC implementation, and network security best practices
+  - **Performance Optimization**: Prometheus retention tuning, Grafana caching, metric collection optimization, and scaling strategies
+  - **FAQ Section**: Common questions about configuration management, backup procedures, alert setup, and debugging techniques
 - **Progressive Web App Implementation with Complete Offline Capabilities** (2025-06-26): Enterprise-grade PWA with advanced offline functionality, data synchronization, and mobile optimization
   - **Service Worker Architecture**: Intelligent caching strategies (cache-first, network-first, stale-while-revalidate), background synchronization with conflict resolution, push notification system, and IndexedDB integration for offline storage
   - **Offline Anomaly Detection**: Browser-based algorithms (Z-Score, IQR, Isolation Forest, MAD) running entirely offline, cached dataset management, offline visualization capabilities, and local analysis results storage
@@ -1856,18 +1869,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Entities: Anomaly, Detector, Dataset, DetectionResult
   - Value Objects: AnomalyScore, ContaminationRate, ConfidenceInterval
   - Domain Services: AnomalyScorer, ThresholdCalculator, FeatureValidator
-  
+
 - **Application Layer**
   - Use Cases: DetectAnomalies, TrainDetector, EvaluateModel, ExplainAnomaly
   - Services: DetectionService, EnsembleService, ModelPersistenceService
   - DTOs for data transfer
-  
+
 - **Infrastructure Layer**
   - PyOD adapter supporting 40+ algorithms
   - Scikit-learn adapter for additional algorithms
   - Data loaders for CSV and Parquet files
   - In-memory repositories with planned database support
-  
+
 - **Presentation Layer**
   - REST API with comprehensive endpoints
   - CLI with intuitive commands

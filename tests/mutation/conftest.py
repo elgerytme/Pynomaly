@@ -1,12 +1,12 @@
 """Mutation testing fixtures that extend the root conftest.py."""
 
 # Import all fixtures from root conftest
-from ..conftest import *
-
 # Mutation-specific fixtures
 import numpy as np
 import pandas as pd
 import pytest
+
+from ..conftest import *
 
 try:
     from pynomaly.domain.entities import Dataset, Detector
@@ -23,7 +23,7 @@ def mutation_sample_dataset() -> Dataset:
     """Create a sample dataset for mutation testing."""
     if not MUTATION_DEPENDENCIES_AVAILABLE:
         pytest.skip("Mutation testing dependencies not available")
-        
+
     # Generate synthetic data with known anomalies
     np.random.seed(42)
 
@@ -48,7 +48,7 @@ def basic_detector() -> Detector:
     """Create a basic detector for mutation testing."""
     if not MUTATION_DEPENDENCIES_AVAILABLE:
         pytest.skip("Mutation testing dependencies not available")
-        
+
     return PyODAdapter(
         algorithm_name="IsolationForest",
         contamination_rate=ContaminationRate(0.2),

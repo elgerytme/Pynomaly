@@ -9,14 +9,10 @@ validation and serialization support.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 from uuid import UUID
 
 from pynomaly.application.dto.configuration_dto import OptimizationConfigDTO
-from pynomaly.domain.value_objects.hyperparameters import (
-    HyperparameterSet,
-    HyperparameterSpace,
-)
 
 
 class TrainingTrigger(Enum):
@@ -44,20 +40,20 @@ class ResourceConstraintsDTO:
     """Resource constraints for training."""
 
     # Time constraints
-    max_training_time_seconds: Optional[int] = None
-    max_time_per_trial: Optional[int] = None
+    max_training_time_seconds: int | None = None
+    max_time_per_trial: int | None = None
 
     # Resource limits
-    max_memory_mb: Optional[int] = None
-    max_cpu_cores: Optional[int] = None
-    max_gpu_memory_mb: Optional[int] = None
+    max_memory_mb: int | None = None
+    max_cpu_cores: int | None = None
+    max_gpu_memory_mb: int | None = None
     enable_gpu: bool = False
 
     # Concurrency
     n_jobs: int = 1
-    max_concurrent_trials: Optional[int] = None
+    max_concurrent_trials: int | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "max_training_time_seconds": self.max_training_time_seconds,
@@ -71,7 +67,7 @@ class ResourceConstraintsDTO:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ResourceConstraintsDTO":
+    def from_dict(cls, data: dict[str, Any]) -> "ResourceConstraintsDTO":
         """Create from dictionary."""
         return cls(**data)
 
@@ -87,16 +83,16 @@ class AutoMLConfigDTO:
     ensemble_method: str = "voting"  # voting, stacking, blending
 
     # Algorithm selection
-    algorithm_whitelist: Optional[List[str]] = None
-    algorithm_blacklist: Optional[List[str]] = None
+    algorithm_whitelist: list[str] | None = None
+    algorithm_blacklist: list[str] | None = None
 
     # Model selection criteria
     model_selection_strategy: str = (
         "best_single_metric"  # best_single_metric, weighted_score, pareto_optimal
     )
-    metric_weights: Optional[Dict[str, float]] = None
+    metric_weights: dict[str, float] | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "enable_automl": self.enable_automl,
@@ -111,7 +107,7 @@ class AutoMLConfigDTO:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AutoMLConfigDTO":
+    def from_dict(cls, data: dict[str, Any]) -> "AutoMLConfigDTO":
         """Create from dictionary."""
         return cls(**data)
 
@@ -136,7 +132,7 @@ class ValidationConfigDTO:
     min_samples_required: int = 100
     max_missing_ratio: float = 0.1
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "validation_strategy": self.validation_strategy,
@@ -153,7 +149,7 @@ class ValidationConfigDTO:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ValidationConfigDTO":
+    def from_dict(cls, data: dict[str, Any]) -> "ValidationConfigDTO":
         """Create from dictionary."""
         return cls(**data)
 
@@ -163,22 +159,22 @@ class NotificationConfigDTO:
     """Notification configuration for training."""
 
     enable_notifications: bool = True
-    notification_channels: List[str] = field(default_factory=lambda: ["websocket"])
+    notification_channels: list[str] = field(default_factory=lambda: ["websocket"])
 
     # Email notifications
-    email_recipients: List[str] = field(default_factory=list)
+    email_recipients: list[str] = field(default_factory=list)
     email_on_completion: bool = True
     email_on_failure: bool = True
 
     # Webhook notifications
-    webhook_urls: List[str] = field(default_factory=list)
-    webhook_events: List[str] = field(default_factory=lambda: ["completion", "failure"])
+    webhook_urls: list[str] = field(default_factory=list)
+    webhook_events: list[str] = field(default_factory=lambda: ["completion", "failure"])
 
     # Slack notifications
-    slack_webhook_url: Optional[str] = None
-    slack_channel: Optional[str] = None
+    slack_webhook_url: str | None = None
+    slack_channel: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "enable_notifications": self.enable_notifications,
@@ -193,7 +189,7 @@ class NotificationConfigDTO:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "NotificationConfigDTO":
+    def from_dict(cls, data: dict[str, Any]) -> "NotificationConfigDTO":
         """Create from dictionary."""
         return cls(**data)
 
@@ -209,19 +205,19 @@ class TrainingConfigDTO:
     """
 
     # Core training settings
-    experiment_name: Optional[str] = None
-    description: Optional[str] = None
-    tags: List[str] = field(default_factory=list)
+    experiment_name: str | None = None
+    description: str | None = None
+    tags: list[str] = field(default_factory=list)
 
     # Dataset and model settings
-    dataset_id: Optional[str] = None
-    detector_id: Optional[UUID] = None
-    target_algorithms: Optional[List[str]] = None
+    dataset_id: str | None = None
+    detector_id: UUID | None = None
+    target_algorithms: list[str] | None = None
 
     # Configuration components
     automl_config: AutoMLConfigDTO = field(default_factory=AutoMLConfigDTO)
     validation_config: ValidationConfigDTO = field(default_factory=ValidationConfigDTO)
-    optimization_config: Optional[OptimizationConfigDTO] = None
+    optimization_config: OptimizationConfigDTO | None = None
     resource_constraints: ResourceConstraintsDTO = field(
         default_factory=ResourceConstraintsDTO
     )
@@ -230,7 +226,7 @@ class TrainingConfigDTO:
     )
 
     # Scheduling settings
-    schedule_cron: Optional[str] = None
+    schedule_cron: str | None = None
     schedule_enabled: bool = False
 
     # Performance monitoring
@@ -249,11 +245,11 @@ class TrainingConfigDTO:
     enable_feature_selection: bool = True
 
     # Metadata
-    created_by: Optional[str] = None
-    created_at: Optional[datetime] = None
+    created_by: str | None = None
+    created_at: datetime | None = None
     priority: TrainingPriorityLevel = TrainingPriorityLevel.NORMAL
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {
             "experiment_name": self.experiment_name,
@@ -286,7 +282,7 @@ class TrainingConfigDTO:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TrainingConfigDTO":
+    def from_dict(cls, data: dict[str, Any]) -> "TrainingConfigDTO":
         """Create from dictionary representation."""
         data = data.copy()
 
@@ -338,17 +334,17 @@ class TrainingRequestDTO:
     dataset_id: str
 
     # Configuration
-    config: Optional[TrainingConfigDTO] = None
+    config: TrainingConfigDTO | None = None
 
     # Trigger information
     trigger_type: TrainingTrigger = TrainingTrigger.MANUAL
-    trigger_metadata: Dict[str, Any] = field(default_factory=dict)
+    trigger_metadata: dict[str, Any] = field(default_factory=dict)
 
     # Request metadata
-    requested_by: Optional[str] = None
+    requested_by: str | None = None
     requested_at: datetime = field(default_factory=datetime.utcnow)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "detector_id": str(self.detector_id),
@@ -361,7 +357,7 @@ class TrainingRequestDTO:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TrainingRequestDTO":
+    def from_dict(cls, data: dict[str, Any]) -> "TrainingRequestDTO":
         """Create from dictionary."""
         data = data.copy()
 
@@ -386,33 +382,33 @@ class ModelMetricsDTO:
     """Model evaluation metrics DTO."""
 
     # Core metrics
-    accuracy: Optional[float] = None
-    precision: Optional[float] = None
-    recall: Optional[float] = None
-    f1_score: Optional[float] = None
-    roc_auc: Optional[float] = None
+    accuracy: float | None = None
+    precision: float | None = None
+    recall: float | None = None
+    f1_score: float | None = None
+    roc_auc: float | None = None
 
     # Anomaly detection specific
-    anomaly_score_mean: Optional[float] = None
-    anomaly_score_std: Optional[float] = None
-    contamination_detected: Optional[float] = None
+    anomaly_score_mean: float | None = None
+    anomaly_score_std: float | None = None
+    contamination_detected: float | None = None
 
     # Cross-validation metrics
-    cv_scores: Optional[List[float]] = None
-    cv_mean: Optional[float] = None
-    cv_std: Optional[float] = None
+    cv_scores: list[float] | None = None
+    cv_mean: float | None = None
+    cv_std: float | None = None
 
     # Training metrics
-    training_time_seconds: Optional[float] = None
-    inference_time_ms: Optional[float] = None
-    model_size_mb: Optional[float] = None
+    training_time_seconds: float | None = None
+    inference_time_ms: float | None = None
+    model_size_mb: float | None = None
 
     # Additional metrics
-    confusion_matrix: Optional[List[List[int]]] = None
-    feature_importance: Optional[Dict[str, float]] = None
-    additional_metrics: Dict[str, Any] = field(default_factory=dict)
+    confusion_matrix: list[list[int]] | None = None
+    feature_importance: dict[str, float] | None = None
+    additional_metrics: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "accuracy": self.accuracy,
@@ -435,7 +431,7 @@ class ModelMetricsDTO:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ModelMetricsDTO":
+    def from_dict(cls, data: dict[str, Any]) -> "ModelMetricsDTO":
         """Create from dictionary."""
         return cls(**data)
 
@@ -450,44 +446,44 @@ class TrainingResultDTO:
     dataset_id: str
 
     # Training metadata
-    experiment_name: Optional[str] = None
+    experiment_name: str | None = None
     trigger_type: TrainingTrigger = TrainingTrigger.MANUAL
     status: str = "completed"
 
     # Results
-    best_algorithm: Optional[str] = None
-    best_hyperparameters: Optional[Dict[str, Any]] = None
-    best_metrics: Optional[ModelMetricsDTO] = None
+    best_algorithm: str | None = None
+    best_hyperparameters: dict[str, Any] | None = None
+    best_metrics: ModelMetricsDTO | None = None
 
     # Model information
-    model_id: Optional[str] = None
-    model_version: Optional[str] = None
-    model_path: Optional[str] = None
+    model_id: str | None = None
+    model_version: str | None = None
+    model_path: str | None = None
 
     # Training process
-    total_trials: Optional[int] = None
-    successful_trials: Optional[int] = None
-    training_duration_seconds: Optional[float] = None
-    optimization_history: List[Dict[str, Any]] = field(default_factory=list)
+    total_trials: int | None = None
+    successful_trials: int | None = None
+    training_duration_seconds: float | None = None
+    optimization_history: list[dict[str, Any]] = field(default_factory=list)
 
     # Performance comparison
-    baseline_metrics: Optional[ModelMetricsDTO] = None
-    performance_improvement: Optional[float] = None
+    baseline_metrics: ModelMetricsDTO | None = None
+    performance_improvement: float | None = None
 
     # Resource usage
-    peak_memory_mb: Optional[float] = None
-    total_cpu_hours: Optional[float] = None
+    peak_memory_mb: float | None = None
+    total_cpu_hours: float | None = None
 
     # Timing
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
     # Messages and logs
-    error_message: Optional[str] = None
-    warnings: List[str] = field(default_factory=list)
-    logs: List[str] = field(default_factory=list)
+    error_message: str | None = None
+    warnings: list[str] = field(default_factory=list)
+    logs: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "training_id": self.training_id,
@@ -522,7 +518,7 @@ class TrainingResultDTO:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TrainingResultDTO":
+    def from_dict(cls, data: dict[str, Any]) -> "TrainingResultDTO":
         """Create from dictionary."""
         data = data.copy()
 
@@ -560,26 +556,26 @@ class TrainingStatusDTO:
     current_step: str
 
     # Current operation details
-    current_algorithm: Optional[str] = None
-    current_trial: Optional[int] = None
-    total_trials: Optional[int] = None
-    current_score: Optional[float] = None
-    best_score: Optional[float] = None
+    current_algorithm: str | None = None
+    current_trial: int | None = None
+    total_trials: int | None = None
+    current_score: float | None = None
+    best_score: float | None = None
 
     # Timing
-    started_at: Optional[datetime] = None
-    estimated_completion: Optional[datetime] = None
+    started_at: datetime | None = None
+    estimated_completion: datetime | None = None
 
     # Resource usage
-    memory_usage_mb: Optional[float] = None
-    cpu_usage_percent: Optional[float] = None
+    memory_usage_mb: float | None = None
+    cpu_usage_percent: float | None = None
 
     # Messages
-    current_message: Optional[str] = None
-    recent_logs: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    current_message: str | None = None
+    recent_logs: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "training_id": self.training_id,
@@ -606,7 +602,7 @@ class TrainingStatusDTO:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TrainingStatusDTO":
+    def from_dict(cls, data: dict[str, Any]) -> "TrainingStatusDTO":
         """Create from dictionary."""
         data = data.copy()
 

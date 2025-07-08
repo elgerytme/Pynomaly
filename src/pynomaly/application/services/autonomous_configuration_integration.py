@@ -366,9 +366,9 @@ class AutonomousConfigurationIntegration:
             params["dataset_name"] = Path(data_source).stem
         elif isinstance(data_source, pd.DataFrame):
             params["dataset_shape"] = data_source.shape
-            params["dataset_name"] = (
-                f"dataframe_{data_source.shape[0]}x{data_source.shape[1]}"
-            )
+            params[
+                "dataset_name"
+            ] = f"dataframe_{data_source.shape[0]}x{data_source.shape[1]}"
 
         # Add capture metadata
         if capture_metadata:

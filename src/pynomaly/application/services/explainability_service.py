@@ -10,14 +10,12 @@ import numpy as np
 
 from pynomaly.domain.services.explainability_service import (
     CohortExplanation,
-)
-from pynomaly.domain.services.explainability_service import (
-    ExplainabilityService as DomainExplainabilityService,
-)
-from pynomaly.domain.services.explainability_service import (
     ExplanationMethod,
     GlobalExplanation,
     LocalExplanation,
+)
+from pynomaly.domain.services.explainability_service import (
+    ExplainabilityService as DomainExplainabilityService,
 )
 from pynomaly.infrastructure.repositories.dataset_repository import DatasetRepository
 from pynomaly.infrastructure.repositories.detector_repository import DetectorRepository

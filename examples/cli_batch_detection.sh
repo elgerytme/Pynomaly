@@ -16,7 +16,7 @@ echo "1. Loading datasets from $DATA_DIR..."
 for dataset in "$DATA_DIR"/*.csv; do
     filename=$(basename "$dataset")
     name="${filename%.*}"
-    
+
     echo "   Loading $filename as '$name'..."
     python cli.py dataset load "$dataset" --name "$name"
 done
@@ -88,7 +88,7 @@ summary = []
 for result in results:
     detector = container.detector_repository().get(result.detector_id)
     dataset = container.dataset_repository().get(result.dataset_id)
-    
+
     summary.append({
         'Algorithm': detector.algorithm,
         'Dataset': dataset.name,

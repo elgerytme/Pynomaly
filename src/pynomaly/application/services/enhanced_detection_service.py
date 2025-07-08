@@ -5,15 +5,13 @@ from __future__ import annotations
 import asyncio
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Dict, List, Optional, Union
-from uuid import UUID
+from typing import Any
 
 from pynomaly.domain.entities import Dataset, DetectionResult
 from pynomaly.domain.exceptions import DetectorNotFittedError, FittingError
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.adapters.algorithm_factory import (
     AlgorithmFactory,
-    AlgorithmLibrary,
     AlgorithmRecommendation,
     DatasetCharacteristics,
 )
@@ -29,7 +27,7 @@ class EnhancedDetectionService:
 
     def __init__(
         self,
-        algorithm_factory: Optional[AlgorithmFactory] = None,
+        algorithm_factory: AlgorithmFactory | None = None,
         max_workers: int = 4,
         enable_caching: bool = True,
     ):
@@ -45,19 +43,19 @@ class EnhancedDetectionService:
         self.enable_caching = enable_caching
 
         # Cache for fitted detectors and results
-        self._detector_cache: Dict[str, DetectorProtocol] = {}
-        self._result_cache: Dict[str, DetectionResult] = {}
+        self._detector_cache: dict[str, DetectorProtocol] = {}
+        self._result_cache: dict[str, DetectionResult] = {}
 
         # Performance tracking
-        self._performance_history: List[Dict[str, Any]] = []
+        self._performance_history: list[dict[str, Any]] = []
 
     async def auto_detect(
         self,
         dataset: Dataset,
         performance_preference: str = "balanced",
-        contamination_rate: Optional[ContaminationRate] = None,
+        contamination_rate: ContaminationRate | None = None,
         save_detector: bool = True,
-        detector_name: Optional[str] = None,
+        detector_name: str | None = None,
     ) -> DetectionResult:
         """Automatically select and run the best detector for the dataset.
 
@@ -110,11 +108,11 @@ class EnhancedDetectionService:
     async def compare_algorithms(
         self,
         dataset: Dataset,
-        algorithm_configs: Optional[List[Dict[str, Any]]] = None,
-        contamination_rate: Optional[ContaminationRate] = None,
+        algorithm_configs: list[dict[str, Any]] | None = None,
+        contamination_rate: ContaminationRate | None = None,
         include_ensembles: bool = True,
         max_algorithms: int = 5,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Compare multiple algorithms on the same dataset.
 
         Args:
@@ -182,11 +180,11 @@ class EnhancedDetectionService:
     async def create_ensemble_detector(
         self,
         dataset: Dataset,
-        base_algorithms: Optional[List[str]] = None,
-        aggregation_method: Union[
-            AggregationMethod, str
-        ] = AggregationMethod.WEIGHTED_AVERAGE,
-        contamination_rate: Optional[ContaminationRate] = None,
+        base_algorithms: list[str] | None = None,
+        aggregation_method: (
+            AggregationMethod | str
+        ) = AggregationMethod.WEIGHTED_AVERAGE,
+        contamination_rate: ContaminationRate | None = None,
         ensemble_name: str = "CustomEnsemble",
         auto_weight: bool = True,
     ) -> EnsembleMetaAdapter:
@@ -254,13 +252,13 @@ class EnhancedDetectionService:
     async def recommend_and_create(
         self,
         dataset: Dataset,
-        contamination_rate: Optional[ContaminationRate] = None,
+        contamination_rate: ContaminationRate | None = None,
         top_k: int = 3,
         return_recommendations: bool = False,
-    ) -> Union[
-        List[DetectorProtocol],
-        tuple[List[DetectorProtocol], List[AlgorithmRecommendation]],
-    ]:
+    ) -> (
+        list[DetectorProtocol] |
+        tuple[list[DetectorProtocol], list[AlgorithmRecommendation]]
+    ):
         """Get algorithm recommendations and create corresponding detectors.
 
         Args:
@@ -300,10 +298,10 @@ class EnhancedDetectionService:
 
     async def batch_detect(
         self,
-        detectors: List[DetectorProtocol],
-        datasets: List[Dataset],
+        detectors: list[DetectorProtocol],
+        datasets: list[Dataset],
         fit_if_needed: bool = True,
-    ) -> Dict[str, Dict[str, DetectionResult]]:
+    ) -> dict[str, dict[str, DetectionResult]]:
         """Run batch detection across multiple detectors and datasets.
 
         Args:
@@ -340,7 +338,7 @@ class EnhancedDetectionService:
 
         return results
 
-    def get_cached_detector(self, name: str) -> Optional[DetectorProtocol]:
+    def get_cached_detector(self, name: str) -> DetectorProtocol | None:
         """Get a cached detector by name."""
         return self._detector_cache.get(name)
 
@@ -353,12 +351,12 @@ class EnhancedDetectionService:
         self._detector_cache.clear()
         self._result_cache.clear()
 
-    def get_performance_history(self) -> List[Dict[str, Any]]:
+    def get_performance_history(self) -> list[dict[str, Any]]:
         """Get performance tracking history."""
         return self._performance_history.copy()
 
     def _analyze_dataset(
-        self, dataset: Dataset, contamination_rate: Optional[ContaminationRate] = None
+        self, dataset: Dataset, contamination_rate: ContaminationRate | None = None
     ) -> DatasetCharacteristics:
         """Analyze dataset to extract characteristics."""
         # Basic characteristics
@@ -447,8 +445,8 @@ class EnhancedDetectionService:
             return await loop.run_in_executor(executor, detector.detect, dataset)
 
     async def _run_parallel_detection(
-        self, detectors: List[DetectorProtocol], dataset: Dataset
-    ) -> List[DetectionResult]:
+        self, detectors: list[DetectorProtocol], dataset: Dataset
+    ) -> list[DetectionResult]:
         """Run detection with multiple detectors in parallel."""
         # Fit all detectors first
         fit_tasks = [
@@ -476,10 +474,10 @@ class EnhancedDetectionService:
 
     def _analyze_comparison_results(
         self,
-        detector_names: List[str],
-        results: List[DetectionResult],
+        detector_names: list[str],
+        results: list[DetectionResult],
         dataset: Dataset,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyze and compare detection results."""
         comparison = {
             "individual_results": {},
@@ -488,7 +486,7 @@ class EnhancedDetectionService:
         }
 
         # Analyze individual results
-        for name, result in zip(detector_names, results):
+        for name, result in zip(detector_names, results, strict=False):
             if isinstance(result, DetectionResult):
                 comparison["individual_results"][name] = {
                     "n_anomalies": len(result.anomalies),
@@ -569,7 +567,7 @@ class EnhancedDetectionService:
         import numpy as np
 
         weights = {}
-        for detector, result in zip(base_detectors, individual_results):
+        for detector, result in zip(base_detectors, individual_results, strict=False):
             scores = [s.value for s in result.scores]
             # Lower variance indicates more consistent scoring
             variance = np.var(scores)
@@ -589,7 +587,7 @@ class EnhancedDetectionService:
             if detector.name in weights:
                 ensemble.update_detector_weight(detector.name, weights[detector.name])
 
-    def _track_performance(self, metrics: Dict[str, Any]) -> None:
+    def _track_performance(self, metrics: dict[str, Any]) -> None:
         """Track performance metrics."""
         metrics["timestamp"] = time.time()
         self._performance_history.append(metrics)

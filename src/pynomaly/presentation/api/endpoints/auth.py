@@ -6,8 +6,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
-from pynomaly.infrastructure.security.rbac_middleware import require_auth
-
 # from pydantic import EmailStr  # Temporarily disabled due to missing email-validator
 from pynomaly.domain.exceptions import AuthenticationError
 from pynomaly.infrastructure.auth import (
@@ -17,6 +15,7 @@ from pynomaly.infrastructure.auth import (
     get_auth,
 )
 from pynomaly.infrastructure.auth.middleware import get_current_user
+from pynomaly.infrastructure.security.rbac_middleware import require_auth
 
 router = APIRouter()
 
@@ -196,7 +195,7 @@ async def get_current_user_profile(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required",
         )
-    
+
     return UserResponse(
         id=current_user.id,
         username=current_user.username,
@@ -234,7 +233,7 @@ async def create_api_key(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required",
         )
-    
+
     if not auth_service:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -283,7 +282,7 @@ async def revoke_api_key(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required",
         )
-    
+
     if not auth_service:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -327,7 +326,7 @@ async def logout(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required",
         )
-    
+
     # In a production system, you might want to:
     # 1. Add the token to a blacklist
     # 2. Clear any server-side sessions

@@ -573,11 +573,11 @@ class PerformanceTestingService:
         )
 
         # Generate recommendations
-        comparison_results["recommendations"] = (
-            self._generate_algorithm_recommendations(
-                comparison_results["rankings"],
-                comparison_results["statistical_analysis"],
-            )
+        comparison_results[
+            "recommendations"
+        ] = self._generate_algorithm_recommendations(
+            comparison_results["rankings"],
+            comparison_results["statistical_analysis"],
         )
 
         comparison_results["completed_at"] = datetime.utcnow().isoformat()

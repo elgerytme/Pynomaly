@@ -1,15 +1,13 @@
 """Test data generation and management system for consistent testing."""
 
-import json
 import pickle
 import sys
-from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 import pandas as pd
-from sklearn.datasets import make_blobs, make_classification, make_moons
+from sklearn.datasets import make_blobs
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
@@ -32,7 +30,7 @@ class TestDataGenerator:
 
     def generate_simple_dataset(
         self, n_samples: int = 1000, n_features: int = 10, contamination: float = 0.1
-    ) -> Tuple[pd.DataFrame, np.ndarray]:
+    ) -> tuple[pd.DataFrame, np.ndarray]:
         """Generate a simple dataset with known anomalies.
 
         Args:
@@ -79,7 +77,7 @@ class TestDataGenerator:
         n_features: int = 5,
         n_clusters: int = 3,
         contamination: float = 0.1,
-    ) -> Tuple[pd.DataFrame, np.ndarray]:
+    ) -> tuple[pd.DataFrame, np.ndarray]:
         """Generate dataset with clustered normal data and scattered anomalies.
 
         Args:
@@ -128,8 +126,8 @@ class TestDataGenerator:
         self,
         n_timestamps: int = 1000,
         n_features: int = 5,
-        anomaly_periods: Optional[List[Tuple[int, int]]] = None,
-    ) -> Tuple[pd.DataFrame, np.ndarray]:
+        anomaly_periods: list[tuple[int, int]] | None = None,
+    ) -> tuple[pd.DataFrame, np.ndarray]:
         """Generate time series data with temporal anomalies.
 
         Args:
@@ -186,7 +184,7 @@ class TestDataGenerator:
 
     def generate_mixed_type_dataset(
         self, n_samples: int = 1000, contamination: float = 0.1
-    ) -> Tuple[pd.DataFrame, np.ndarray]:
+    ) -> tuple[pd.DataFrame, np.ndarray]:
         """Generate dataset with mixed data types (numeric, categorical, text).
 
         Args:
@@ -245,7 +243,7 @@ class TestDataGenerator:
 
     def generate_high_dimensional_dataset(
         self, n_samples: int = 500, n_features: int = 100, contamination: float = 0.1
-    ) -> Tuple[pd.DataFrame, np.ndarray]:
+    ) -> tuple[pd.DataFrame, np.ndarray]:
         """Generate high-dimensional dataset for testing curse of dimensionality.
 
         Args:
@@ -283,7 +281,7 @@ class TestDataManager:
 
     def get_dataset(
         self, dataset_type: str, use_cache: bool = True, **kwargs
-    ) -> Tuple[pd.DataFrame, np.ndarray]:
+    ) -> tuple[pd.DataFrame, np.ndarray]:
         """Get a dataset of specified type, using cache if available.
 
         Args:
@@ -334,7 +332,7 @@ class TestDataManager:
 
     def create_domain_entities(
         self, dataset_type: str, **kwargs
-    ) -> Tuple[Dataset, List[Anomaly], DetectionResult]:
+    ) -> tuple[Dataset, list[Anomaly], DetectionResult]:
         """Create domain entities from test data.
 
         Args:
@@ -418,7 +416,7 @@ class TestDataManager:
         for cache_file in self.cache_dir.glob("*.pkl"):
             cache_file.unlink()
 
-    def get_cache_info(self) -> Dict[str, Any]:
+    def get_cache_info(self) -> dict[str, Any]:
         """Get information about cached datasets.
 
         Returns:
@@ -442,7 +440,7 @@ class TestScenarioFactory:
         """Initialize test scenario factory."""
         self.data_manager = TestDataManager()
 
-    def create_basic_anomaly_detection_scenario(self) -> Dict[str, Any]:
+    def create_basic_anomaly_detection_scenario(self) -> dict[str, Any]:
         """Create a basic anomaly detection test scenario.
 
         Returns:
@@ -472,7 +470,7 @@ class TestScenarioFactory:
             },
         }
 
-    def create_high_dimensional_scenario(self) -> Dict[str, Any]:
+    def create_high_dimensional_scenario(self) -> dict[str, Any]:
         """Create high-dimensional data test scenario."""
         dataset, anomalies, detection_result = self.data_manager.create_domain_entities(
             "high_dimensional", n_samples=300, n_features=100, contamination=0.15
@@ -496,7 +494,7 @@ class TestScenarioFactory:
             },
         }
 
-    def create_time_series_scenario(self) -> Dict[str, Any]:
+    def create_time_series_scenario(self) -> dict[str, Any]:
         """Create time series anomaly detection scenario."""
         dataset, anomalies, detection_result = self.data_manager.create_domain_entities(
             "timeseries",
@@ -523,7 +521,7 @@ class TestScenarioFactory:
             },
         }
 
-    def create_mixed_data_types_scenario(self) -> Dict[str, Any]:
+    def create_mixed_data_types_scenario(self) -> dict[str, Any]:
         """Create scenario with mixed data types."""
         dataset, anomalies, detection_result = self.data_manager.create_domain_entities(
             "mixed_types", n_samples=800, contamination=0.12

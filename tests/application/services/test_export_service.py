@@ -11,7 +11,6 @@ from uuid import uuid4
 
 import numpy as np
 import pytest
-
 from pynomaly.application.dto.export_options import (
     ExportDestination,
     ExportFormat,

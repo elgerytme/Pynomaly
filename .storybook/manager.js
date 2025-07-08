@@ -8,17 +8,17 @@ import pynomalyTheme from './theme';
 
 addons.setConfig({
   theme: pynomalyTheme,
-  
+
   // Panel configuration
   panelPosition: 'bottom',
   selectedPanel: 'controls',
-  
+
   // Sidebar configuration
   sidebar: {
     showRoots: true,
     collapsedRoots: ['other']
   },
-  
+
   // Toolbar configuration
   toolbar: {
     title: { hidden: false },
@@ -30,13 +30,13 @@ addons.setConfig({
     'storybook/viewport': { hidden: false },
     'storybook/toolbars': { hidden: false }
   },
-  
+
   // Enable keyboard shortcuts
   enableShortcuts: true,
-  
+
   // Show addon panel by default
   showPanel: true,
-  
+
   // Initial active tab
   initialActive: 'sidebar'
 });

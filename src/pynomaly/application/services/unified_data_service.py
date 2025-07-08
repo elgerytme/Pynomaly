@@ -7,13 +7,12 @@ import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 import pandas as pd
 
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.data_loaders.data_loader_factory import (
     DataLoaderFactory,
     SmartDataLoader,
@@ -23,7 +22,6 @@ from pynomaly.infrastructure.data_processing.advanced_data_pipeline import (
     AdvancedDataPipeline,
     ProcessingConfig,
     ProcessingReport,
-    ValidationRule,
 )
 
 
@@ -42,11 +40,11 @@ class UnifiedDataService:
 
     def __init__(
         self,
-        data_loader_factory: Optional[DataLoaderFactory] = None,
-        database_loader: Optional[DatabaseLoader] = None,
-        data_pipeline: Optional[AdvancedDataPipeline] = None,
+        data_loader_factory: DataLoaderFactory | None = None,
+        database_loader: DatabaseLoader | None = None,
+        data_pipeline: AdvancedDataPipeline | None = None,
         max_workers: int = 4,
-        default_processing_config: Optional[ProcessingConfig] = None,
+        default_processing_config: ProcessingConfig | None = None,
     ):
         """Initialize unified data service.
 
@@ -71,19 +69,19 @@ class UnifiedDataService:
         )
 
         # Processing history and caching
-        self._processing_cache: Dict[str, Tuple[Dataset, ProcessingReport]] = {}
-        self._dataset_registry: Dict[str, Dataset] = {}
+        self._processing_cache: dict[str, tuple[Dataset, ProcessingReport]] = {}
+        self._dataset_registry: dict[str, Dataset] = {}
 
     async def load_and_process(
         self,
-        source: Union[str, Path, pd.DataFrame],
-        name: Optional[str] = None,
-        processing_config: Optional[ProcessingConfig] = None,
+        source: str | Path | pd.DataFrame,
+        name: str | None = None,
+        processing_config: ProcessingConfig | None = None,
         auto_detect_target: bool = True,
         return_report: bool = False,
         cache_result: bool = True,
         **kwargs: Any,
-    ) -> Union[Dataset, Tuple[Dataset, ProcessingReport]]:
+    ) -> Dataset | tuple[Dataset, ProcessingReport]:
         """Load data from source and apply processing pipeline.
 
         Args:
@@ -163,13 +161,13 @@ class UnifiedDataService:
 
     async def load_multiple_sources(
         self,
-        sources: List[Union[str, Path, pd.DataFrame]],
-        names: Optional[List[str]] = None,
+        sources: list[str | Path | pd.DataFrame],
+        names: list[str] | None = None,
         combine: bool = False,
-        processing_config: Optional[ProcessingConfig] = None,
+        processing_config: ProcessingConfig | None = None,
         parallel: bool = True,
         **kwargs: Any,
-    ) -> Union[List[Dataset], Dataset]:
+    ) -> list[Dataset] | Dataset:
         """Load and process multiple data sources.
 
         Args:
@@ -227,7 +225,7 @@ class UnifiedDataService:
 
     def create_processing_config(
         self,
-        dataset_characteristics: Optional[Dict[str, Any]] = None,
+        dataset_characteristics: dict[str, Any] | None = None,
         use_case: str = "anomaly_detection",
         performance_preference: str = "balanced",
         **custom_settings: Any,
@@ -306,8 +304,8 @@ class UnifiedDataService:
     def validate_dataset_quality(
         self,
         dataset: Dataset,
-        requirements: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[bool, Dict[str, Any]]:
+        requirements: dict[str, Any] | None = None,
+    ) -> tuple[bool, dict[str, Any]]:
         """Validate dataset quality for anomaly detection.
 
         Args:
@@ -413,7 +411,7 @@ class UnifiedDataService:
         is_valid = len(issues) == 0
         return is_valid, quality_report
 
-    def get_dataset_summary(self, dataset_name: str) -> Optional[Dict[str, Any]]:
+    def get_dataset_summary(self, dataset_name: str) -> dict[str, Any] | None:
         """Get summary information about a registered dataset.
 
         Args:
@@ -460,11 +458,11 @@ class UnifiedDataService:
 
         return summary
 
-    def list_registered_datasets(self) -> List[str]:
+    def list_registered_datasets(self) -> list[str]:
         """Get list of all registered dataset names."""
         return list(self._dataset_registry.keys())
 
-    def get_registered_dataset(self, name: str) -> Optional[Dataset]:
+    def get_registered_dataset(self, name: str) -> Dataset | None:
         """Get a registered dataset by name."""
         return self._dataset_registry.get(name)
 
@@ -476,8 +474,8 @@ class UnifiedDataService:
 
     async def _load_data_async(
         self,
-        source: Union[str, Path, pd.DataFrame],
-        name: Optional[str],
+        source: str | Path | pd.DataFrame,
+        name: str | None,
         **kwargs: Any,
     ) -> Dataset:
         """Load data asynchronously."""
@@ -490,9 +488,9 @@ class UnifiedDataService:
 
     def _load_data_sync(
         self,
-        source: Union[str, Path, pd.DataFrame],
-        name: Optional[str],
-        kwargs: Dict[str, Any],
+        source: str | Path | pd.DataFrame,
+        name: str | None,
+        kwargs: dict[str, Any],
     ) -> Dataset:
         """Load data synchronously."""
         # Handle different source types
@@ -518,7 +516,7 @@ class UnifiedDataService:
             raise DataValidationError(f"Unsupported source type: {type(source)}")
 
     def _load_from_dataframe(
-        self, df: pd.DataFrame, name: Optional[str], **kwargs: Any
+        self, df: pd.DataFrame, name: str | None, **kwargs: Any
     ) -> Dataset:
         """Load data from pandas DataFrame."""
         dataset_name = name or "dataframe_dataset"
@@ -538,13 +536,13 @@ class UnifiedDataService:
         )
 
     def _load_from_file(
-        self, file_path: Union[str, Path], name: Optional[str], **kwargs: Any
+        self, file_path: str | Path, name: str | None, **kwargs: Any
     ) -> Dataset:
         """Load data from file."""
         return self.smart_loader.load(file_path, name, **kwargs)
 
     def _load_from_database(
-        self, connection_string: str, name: Optional[str], **kwargs: Any
+        self, connection_string: str, name: str | None, **kwargs: Any
     ) -> Dataset:
         """Load data from database."""
         query = kwargs.get("query")
@@ -563,7 +561,7 @@ class UnifiedDataService:
                 "Either 'query' or 'table_name' must be provided for database sources"
             )
 
-    def _load_from_url(self, url: str, name: Optional[str], **kwargs: Any) -> Dataset:
+    def _load_from_url(self, url: str, name: str | None, **kwargs: Any) -> Dataset:
         """Load data from URL."""
         # For now, delegate to smart loader
         # In a full implementation, you might want special URL handling
@@ -574,7 +572,7 @@ class UnifiedDataService:
         db_schemes = ["postgresql", "mysql", "sqlite", "mssql", "oracle", "snowflake"]
         return any(source.startswith(f"{scheme}://") for scheme in db_schemes)
 
-    def _auto_detect_target_column(self, data: pd.DataFrame) -> Optional[str]:
+    def _auto_detect_target_column(self, data: pd.DataFrame) -> str | None:
         """Auto-detect potential target column."""
         # Common target column names for anomaly detection
         target_candidates = [
@@ -605,7 +603,7 @@ class UnifiedDataService:
 
         return None
 
-    def _combine_datasets(self, datasets: List[Dataset]) -> Dataset:
+    def _combine_datasets(self, datasets: list[Dataset]) -> Dataset:
         """Combine multiple datasets into one."""
         if not datasets:
             raise ValueError("No datasets to combine")

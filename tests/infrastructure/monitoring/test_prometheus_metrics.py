@@ -1,9 +1,6 @@
 """Tests for Prometheus metrics service."""
 
-import time
-from unittest.mock import Mock, patch
-
-import pytest
+from unittest.mock import patch
 
 from pynomaly.infrastructure.monitoring.prometheus_metrics import (
     MetricDefinition,

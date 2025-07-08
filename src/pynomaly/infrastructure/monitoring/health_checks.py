@@ -9,10 +9,11 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import psutil
 from pydantic import BaseModel
@@ -52,15 +53,15 @@ class HealthCheckResult:
     component_type: ComponentType
     status: HealthStatus
     message: str
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
-    response_time_ms: Optional[float] = None
+    response_time_ms: float | None = None
 
     def is_healthy(self) -> bool:
         """Check if component is healthy."""
         return self.status == HealthStatus.HEALTHY
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {
             "component": self.component,
@@ -79,12 +80,12 @@ class SystemHealth:
 
     status: HealthStatus
     message: str
-    checks: List[HealthCheckResult] = field(default_factory=list)
+    checks: list[HealthCheckResult] = field(default_factory=list)
     timestamp: datetime = field(default_factory=datetime.now)
     version: str = "unknown"
     uptime_seconds: float = 0.0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {
             "status": self.status.value,
@@ -117,8 +118,8 @@ class HealthChecker:
     def __init__(self):
         """Initialize health checker."""
         self._start_time = time.time()
-        self._check_functions: Dict[str, Callable] = {}
-        self._last_check_results: Dict[str, HealthCheckResult] = {}
+        self._check_functions: dict[str, Callable] = {}
+        self._last_check_results: dict[str, HealthCheckResult] = {}
 
     def register_check(self, name: str, check_function: Callable) -> None:
         """Register a health check function.
@@ -167,7 +168,7 @@ class HealthChecker:
             logger.error(f"Health check '{name}' failed: {e}")
             return error_result
 
-    async def check_all_components(self) -> List[HealthCheckResult]:
+    async def check_all_components(self) -> list[HealthCheckResult]:
         """Run all registered health checks.
 
         Returns:
@@ -239,7 +240,7 @@ class HealthChecker:
             uptime_seconds=time.time() - self._start_time,
         )
 
-    def get_cached_results(self) -> Dict[str, HealthCheckResult]:
+    def get_cached_results(self) -> dict[str, HealthCheckResult]:
         """Get last known health check results.
 
         Returns:
@@ -373,7 +374,7 @@ async def check_filesystem_health() -> HealthCheckResult:
                 f.write("health_check_test")
 
             # Verify we can read it back
-            with open(temp_file, "r") as f:
+            with open(temp_file) as f:
                 content = f.read()
                 if content == "health_check_test":
                     write_test_success = True
@@ -520,7 +521,7 @@ async def check_streaming_service() -> HealthCheckResult:
 
 
 # Global health checker instance
-_health_checker: Optional[HealthChecker] = None
+_health_checker: HealthChecker | None = None
 
 
 def get_health_checker() -> HealthChecker:
@@ -559,7 +560,7 @@ class ProbeResponse(BaseModel):
 
     status: str
     timestamp: str
-    details: Optional[Dict[str, Any]] = None
+    details: dict[str, Any] | None = None
 
 
 async def liveness_probe() -> ProbeResponse:

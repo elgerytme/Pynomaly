@@ -29,7 +29,7 @@ coverage_threshold = 85
 # Mutation operators to use
 operators = [
     "AOD",  # Arithmetic Operator Deletion
-    "AOR",  # Arithmetic Operator Replacement  
+    "AOR",  # Arithmetic Operator Replacement
     "COD",  # Conditional Operator Deletion
     "COR",  # Conditional Operator Replacement
     "LCR",  # Logical Connector Replacement

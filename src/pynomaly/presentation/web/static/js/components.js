@@ -457,10 +457,10 @@ class DataTable extends BaseComponent {
             this.options.searchable
               ? `
             <div class="relative">
-              <input type="text" placeholder="Search..." 
-                     class="form-input search-input pl-10" 
+              <input type="text" placeholder="Search..."
+                     class="form-input search-input pl-10"
                      data-action="search">
-              <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
+              <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                    fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
               </svg>
@@ -468,7 +468,7 @@ class DataTable extends BaseComponent {
           `
               : ""
           }
-          
+
           <select class="form-select" data-action="page-size">
             <option value="10">10 per page</option>
             <option value="25">25 per page</option>
@@ -476,7 +476,7 @@ class DataTable extends BaseComponent {
             <option value="100">100 per page</option>
           </select>
         </div>
-        
+
         <div class="flex items-center gap-2">
           ${
             this.options.exportable
@@ -490,7 +490,7 @@ class DataTable extends BaseComponent {
           `
               : ""
           }
-          
+
           <button class="btn-base btn-secondary btn-sm" data-action="refresh">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
@@ -616,18 +616,18 @@ class DataTable extends BaseComponent {
           </p>
         </div>
         <div class="flex items-center gap-2">
-          <button class="btn-base btn-secondary btn-sm" 
-                  data-action="prev-page" 
+          <button class="btn-base btn-secondary btn-sm"
+                  data-action="prev-page"
                   ${currentPage === 0 ? "disabled" : ""}>
             Previous
           </button>
-          
+
           <div class="flex gap-1">
             ${this.renderPageNumbers(currentPage, totalPages)}
           </div>
-          
-          <button class="btn-base btn-secondary btn-sm" 
-                  data-action="next-page" 
+
+          <button class="btn-base btn-secondary btn-sm"
+                  data-action="next-page"
                   ${currentPage >= totalPages - 1 ? "disabled" : ""}>
             Next
           </button>
@@ -649,8 +649,8 @@ class DataTable extends BaseComponent {
 
     for (let i = start; i < end; i++) {
       pages.push(`
-        <button class="btn-base btn-sm ${i === currentPage ? "btn-primary" : "btn-secondary"}" 
-                data-action="goto-page" 
+        <button class="btn-base btn-sm ${i === currentPage ? "btn-primary" : "btn-secondary"}"
+                data-action="goto-page"
                 data-page="${i}">
           ${i + 1}
         </button>

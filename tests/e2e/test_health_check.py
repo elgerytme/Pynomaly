@@ -3,7 +3,6 @@
 
 import asyncio
 import sys
-import time
 from pathlib import Path
 
 # Add project root to path
@@ -16,7 +15,6 @@ try:
 
     import uvicorn
     from httpx import AsyncClient
-
     from pynomaly.infrastructure.config import create_container
     from pynomaly.presentation.api.app import create_app
 except ImportError as e:
@@ -51,7 +49,6 @@ async def check_api_health():
         async with AsyncClient(
             transport=transport, base_url="http://testserver"
         ) as client:
-
             # Test root endpoint
             response = await client.get("/")
             assert response.status_code == 200
@@ -231,7 +228,6 @@ async def run_sample_integration_test():
         async with AsyncClient(
             transport=transport, base_url="http://testserver"
         ) as client:
-
             # Simple workflow test
             print("  📋 Testing basic API workflow...")
 

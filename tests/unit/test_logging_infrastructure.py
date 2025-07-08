@@ -6,7 +6,6 @@ from datetime import timedelta
 from pathlib import Path
 
 import pytest
-
 from pynomaly.infrastructure.logging.log_aggregator import (
     LogAggregator,
     LogEntry,
@@ -20,9 +19,7 @@ from pynomaly.infrastructure.logging.log_analysis import (
     PatternType,
     Severity,
 )
-from pynomaly.infrastructure.logging.metrics_collector import (
-    MetricsCollector,
-)
+from pynomaly.infrastructure.logging.metrics_collector import MetricsCollector
 from pynomaly.infrastructure.logging.observability_service import (
     ObservabilityConfig,
     ObservabilityService,

@@ -139,7 +139,7 @@ All functionality is available from a keyboard.
 <button onclick="startDetection()" onkeydown="handleKeyDown(event)">Start Detection</button>
 
 <!-- Custom interactive elements -->
-<div role="button" tabindex="0" aria-label="Expand anomaly details" 
+<div role="button" tabindex="0" aria-label="Expand anomaly details"
      onclick="toggleDetails()" onkeydown="handleToggleKeyDown(event)">
   Details
 </div>
@@ -174,12 +174,12 @@ Text has a contrast ratio of at least 4.5:1 (3:1 for large text).
   --color-primary-500: #0ea5e9;    /* 4.52:1 on white background */
   --color-primary-600: #0284c7;    /* 5.77:1 on white background */
   --color-primary-700: #0369a1;    /* 7.25:1 on white background */
-  
+
   /* Text colors */
   --color-text-primary: #1e293b;   /* 15.36:1 on white background */
   --color-text-secondary: #64748b; /* 4.78:1 on white background */
   --color-text-muted: #94a3b8;     /* 3.07:1 on white (large text only) */
-  
+
   /* Status colors */
   --color-success: #16a34a;        /* 4.68:1 on white background */
   --color-warning: #ca8a04;        /* 4.51:1 on white background */
@@ -333,20 +333,20 @@ Changing the setting of a user interface component does not automatically cause 
 <body>
   <!-- Skip links -->
   <a href="#main" class="skip-link">Skip to main content</a>
-  
+
   <!-- Header with navigation -->
   <header role="banner">
     <nav role="navigation" aria-label="Main navigation">
       <!-- navigation items -->
     </nav>
   </header>
-  
+
   <!-- Main content -->
   <main id="main" role="main">
     <h1>Page Heading</h1>
     <!-- page content -->
   </main>
-  
+
   <!-- Footer -->
   <footer role="contentinfo">
     <!-- footer content -->
@@ -361,16 +361,16 @@ Changing the setting of a user interface component does not automatically cause 
 <form>
   <fieldset>
     <legend>Dataset Configuration</legend>
-    
+
     <div class="form-group">
       <label for="dataset-name" class="form-label required">
         Dataset Name
       </label>
-      <input 
-        type="text" 
-        id="dataset-name" 
+      <input
+        type="text"
+        id="dataset-name"
         class="form-input"
-        required 
+        required
         aria-describedby="name-help name-error"
         aria-invalid="false"
       >
@@ -381,7 +381,7 @@ Changing the setting of a user interface component does not automatically cause 
         Dataset name is required
       </div>
     </div>
-    
+
     <div class="form-group">
       <label for="algorithm-select" class="form-label">
         Detection Algorithm
@@ -392,7 +392,7 @@ Changing the setting of a user interface component does not automatically cause 
         <option value="one-class-svm">One-Class SVM</option>
       </select>
     </div>
-    
+
     <button type="submit" class="btn-primary">
       Create Dataset
     </button>
@@ -406,8 +406,8 @@ Changing the setting of a user interface component does not automatically cause 
 <!-- Chart with alternative text -->
 <div class="chart-container">
   <h3 id="chart-title">Anomaly Detection Results</h3>
-  <div 
-    id="anomaly-chart" 
+  <div
+    id="anomaly-chart"
     role="img"
     aria-labelledby="chart-title"
     aria-describedby="chart-summary"
@@ -415,10 +415,10 @@ Changing the setting of a user interface component does not automatically cause 
     <!-- D3.js chart content -->
   </div>
   <div id="chart-summary" class="sr-only">
-    Chart showing 150 data points over the last 24 hours, with 12 anomalies detected. 
+    Chart showing 150 data points over the last 24 hours, with 12 anomalies detected.
     Peak anomaly activity occurred between 2 PM and 4 PM with 7 anomalies detected.
   </div>
-  
+
   <!-- Alternative data table -->
   <details>
     <summary>View data table</summary>
@@ -454,9 +454,9 @@ Changing the setting of a user interface component does not automatically cause 
 </div>
 
 <!-- Progress indicator -->
-<div role="progressbar" 
-     aria-valuenow="45" 
-     aria-valuemin="0" 
+<div role="progressbar"
+     aria-valuenow="45"
+     aria-valuemin="0"
      aria-valuemax="100"
      aria-label="Dataset processing progress">
   <div class="progress-bar" style="width: 45%"></div>
@@ -467,9 +467,9 @@ Changing the setting of a user interface component does not automatically cause 
 
 ```html
 <!-- Modal dialog -->
-<div 
-  id="settings-modal" 
-  role="dialog" 
+<div
+  id="settings-modal"
+  role="dialog"
   aria-modal="true"
   aria-labelledby="modal-title"
   aria-describedby="modal-desc"
@@ -477,8 +477,8 @@ Changing the setting of a user interface component does not automatically cause 
 >
   <div class="modal-header">
     <h2 id="modal-title">Detection Settings</h2>
-    <button 
-      type="button" 
+    <button
+      type="button"
       class="modal-close"
       aria-label="Close settings dialog"
       onclick="closeModal()"
@@ -493,7 +493,7 @@ Changing the setting of a user interface component does not automatically cause 
 </div>
 
 <!-- Expandable content -->
-<button 
+<button
   type="button"
   aria-expanded="false"
   aria-controls="advanced-options"
@@ -596,8 +596,8 @@ Test across multiple browsers and assistive technologies:
   <label for="file-input" class="form-label required">
     Dataset File
   </label>
-  <input 
-    type="file" 
+  <input
+    type="file"
     id="file-input"
     aria-describedby="file-error"
     aria-invalid="true"
@@ -672,7 +672,7 @@ def accessibility_page(page: Page):
     """Configure page for accessibility testing"""
     # Set high contrast mode for testing
     page.emulate_media(color_scheme="no-preference")
-    
+
     # Enable accessibility tree
     page.add_init_script("""
         window.accessibility = true;
@@ -680,7 +680,7 @@ def accessibility_page(page: Page):
             get: () => false,
         });
     """)
-    
+
     return page
 ```
 
@@ -693,48 +693,48 @@ from playwright.sync_api import Page, expect
 
 @pytest.mark.accessibility
 class TestPynomaloAccessibility:
-    
+
     def test_dashboard_keyboard_navigation(self, page: Page):
         """Test keyboard navigation on dashboard"""
         page.goto("/dashboard")
-        
+
         # Test skip links
         page.keyboard.press("Tab")
         expect(page.locator(".skip-link")).to_be_focused()
-        
+
         # Test main navigation
         page.keyboard.press("Tab")
         expect(page.locator("nav a:first-child")).to_be_focused()
-        
+
         # Test main content area
         page.keyboard.press("Enter")  # Activate skip link
         expect(page.locator("main")).to_be_focused()
-    
+
     def test_form_accessibility(self, page: Page):
         """Test form accessibility"""
         page.goto("/datasets/upload")
-        
+
         # Check form labels
         form_inputs = page.locator("input, select, textarea")
         for i in range(form_inputs.count()):
             input_elem = form_inputs.nth(i)
             input_id = input_elem.get_attribute("id")
-            
+
             if input_id:
                 label = page.locator(f"label[for='{input_id}']")
                 expect(label).to_be_visible()
-    
+
     def test_chart_accessibility(self, page: Page):
         """Test chart accessibility"""
         page.goto("/dashboard")
-        
+
         # Wait for chart to load
         page.wait_for_selector("[data-component='anomaly-chart']")
-        
+
         # Check for alternative text
         chart = page.locator("[data-component='anomaly-chart']")
         expect(chart).to_have_attribute("aria-label")
-        
+
         # Check for data table alternative
         page.click("text=View data table")
         expect(page.locator("table")).to_be_visible()

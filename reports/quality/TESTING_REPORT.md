@@ -81,7 +81,7 @@ Comprehensive testing revealed **5 critical issues** requiring immediate attenti
 #### Working Endpoints ✅
 - `/` - API root (200 OK)
 - `/docs/swagger` - Custom Swagger UI (200 OK)
-- `/docs/postman` - Postman collection (200 OK) 
+- `/docs/postman` - Postman collection (200 OK)
 - `/docs/sdk-info` - SDK information (200 OK)
 - `/api/export/formats` - Export formats (200 OK)
 - `/api/export/history` - Export history (200 OK)

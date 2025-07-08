@@ -208,7 +208,6 @@ class TestAlgorithmPerformanceProperties:
         import os
 
         import psutil
-
         from pynomaly.infrastructure.adapters import SklearnAdapter
 
         adapter = SklearnAdapter()

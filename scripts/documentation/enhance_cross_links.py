@@ -7,10 +7,8 @@ across all documentation following established patterns and user journeys.
 """
 
 import argparse
-import os
 import re
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
 
 
 class CrossLinkEnhancer:
@@ -18,8 +16,8 @@ class CrossLinkEnhancer:
 
     def __init__(self, docs_root: Path):
         self.docs_root = docs_root
-        self.enhanced_files: List[str] = []
-        self.errors: List[str] = []
+        self.enhanced_files: list[str] = []
+        self.errors: list[str] = []
 
         # Define cross-linking patterns based on document analysis
         self.link_patterns = {
@@ -120,7 +118,7 @@ class CrossLinkEnhancer:
 
 ### **User Guides**
 - **[Basic Usage](../basic-usage/README.md)** - Essential functionality
-- **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities  
+- **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities
 - **[Troubleshooting](../troubleshooting/README.md)** - Problem solving
 
 ### **Reference**
@@ -207,7 +205,7 @@ class CrossLinkEnhancer:
 """,
         }
 
-    def enhance_all_documents(self) -> Tuple[int, int]:
+    def enhance_all_documents(self) -> tuple[int, int]:
         """
         Enhance all documentation with improved cross-linking.
 
@@ -498,7 +496,7 @@ def main():
 
     enhanced_count, error_count = enhancer.enhance_all_documents()
 
-    print(f"\n📊 Cross-link Enhancement Summary:")
+    print("\n📊 Cross-link Enhancement Summary:")
     print(f"  • Files enhanced: {enhanced_count}")
     print(f"  • Errors: {error_count}")
 

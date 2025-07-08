@@ -22,9 +22,6 @@ async def test_ensemble_integration():
         # Test imports
         from pynomaly.application.dto.ensemble_dto import (
             EnsembleDetectionRequestDTO,
-            EnsembleDetectionResponseDTO,
-            EnsembleOptimizationRequestDTO,
-            EnsembleOptimizationResponseDTO,
         )
         from pynomaly.application.use_cases.ensemble_detection_use_case import (
             EnsembleDetectionRequest,
@@ -149,7 +146,7 @@ async def test_ensemble_integration():
         # Execute ensemble detection
         response = await ensemble_use_case.detect_anomalies_ensemble(request)
 
-        print(f"✅ Ensemble detection completed")
+        print("✅ Ensemble detection completed")
         print(f"   Success: {response.success}")
         print(f"   Processing time: {response.processing_time:.3f}s")
 
@@ -189,7 +186,7 @@ async def test_ensemble_integration():
             max_ensemble_size=3,
         )
 
-        print(f"🎯 Created optimization request")
+        print("🎯 Created optimization request")
         print(f"   Objective: {opt_request.optimization_objective.value}")
         print(
             f"   Target strategies: {[s.value for s in opt_request.target_voting_strategies]}"
@@ -199,7 +196,7 @@ async def test_ensemble_integration():
         # Execute optimization
         opt_response = await ensemble_use_case.optimize_ensemble(opt_request)
 
-        print(f"✅ Ensemble optimization completed")
+        print("✅ Ensemble optimization completed")
         print(f"   Success: {opt_response.success}")
         print(f"   Optimization time: {opt_response.optimization_time:.3f}s")
 

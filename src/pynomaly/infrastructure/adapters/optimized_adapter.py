@@ -100,10 +100,11 @@ class OptimizedAdapter:
         """
         level = optimization_level or self.optimization_level
 
-        self.optimized_detector, self.optimization_results = (
-            self.optimization_service.optimize_detector(
-                self.detector, dataset, level, contamination_rate=contamination_rate
-            )
+        (
+            self.optimized_detector,
+            self.optimization_results,
+        ) = self.optimization_service.optimize_detector(
+            self.detector, dataset, level, contamination_rate=contamination_rate
         )
 
         self.is_optimized = True
@@ -169,10 +170,11 @@ class OptimizedAdapter:
     def _optimize_for_dataset(self, dataset: Dataset) -> None:
         """Internal method to optimize for dataset."""
         try:
-            self.optimized_detector, self.optimization_results = (
-                self.optimization_service.optimize_detector(
-                    self.detector, dataset, self.optimization_level
-                )
+            (
+                self.optimized_detector,
+                self.optimization_results,
+            ) = self.optimization_service.optimize_detector(
+                self.detector, dataset, self.optimization_level
             )
             self.is_optimized = True
         except Exception as e:
@@ -252,10 +254,11 @@ class OptimizedEnsembleAdapter:
     def fit(self, dataset: Dataset) -> None:
         """Fit the ensemble with optimization."""
         # Optimize entire ensemble
-        optimized_detectors, self.ensemble_results = (
-            self.optimization_service.optimize_ensemble(
-                self.detectors, dataset, self.ensemble_strategy, self.optimization_level
-            )
+        (
+            optimized_detectors,
+            self.ensemble_results,
+        ) = self.optimization_service.optimize_ensemble(
+            self.detectors, dataset, self.ensemble_strategy, self.optimization_level
         )
 
         # Create optimized adapters

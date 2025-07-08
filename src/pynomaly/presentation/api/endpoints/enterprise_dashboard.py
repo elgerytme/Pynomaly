@@ -157,12 +157,10 @@ async def get_operational_metrics(
 
 @router.get("/dashboard/alerts")
 async def get_active_alerts(
-    priority: AlertPriority | None = Query(
-        None, description="Filter by alert priority"
-    ),
-    metric_type: DashboardMetricType | None = Query(
-        None, description="Filter by metric type"
-    ),
+    priority: AlertPriority
+    | None = Query(None, description="Filter by alert priority"),
+    metric_type: DashboardMetricType
+    | None = Query(None, description="Filter by metric type"),
     limit: int = Query(
         50, ge=1, le=500, description="Maximum number of alerts to return"
     ),

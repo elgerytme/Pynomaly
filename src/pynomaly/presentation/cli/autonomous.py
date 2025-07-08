@@ -37,9 +37,8 @@ def autonomous_detect(
     data_source: str = typer.Argument(
         ..., help="Path to data file or connection string"
     ),
-    output: Path | None = typer.Option(
-        None, "--output", "-o", help="Export results to file"
-    ),
+    output: Path
+    | None = typer.Option(None, "--output", "-o", help="Export results to file"),
     max_algorithms: int = typer.Option(
         5, "--max-algorithms", "-a", help="Maximum algorithms to try"
     ),
@@ -241,15 +240,12 @@ def profile_data(
 @app.command("quick")
 def quick_detect(
     data_source: str = typer.Argument(..., help="Path to data file"),
-    algorithm: str | None = typer.Option(
-        None, "--algorithm", "-a", help="Force specific algorithm"
-    ),
-    contamination: float | None = typer.Option(
-        None, "--contamination", "-c", help="Contamination rate"
-    ),
-    output: Path | None = typer.Option(
-        None, "--output", "-o", help="Export results to file"
-    ),
+    algorithm: str
+    | None = typer.Option(None, "--algorithm", "-a", help="Force specific algorithm"),
+    contamination: float
+    | None = typer.Option(None, "--contamination", "-c", help="Contamination rate"),
+    output: Path
+    | None = typer.Option(None, "--output", "-o", help="Export results to file"),
 ):
     """Quick anomaly detection with minimal configuration.
 
@@ -496,7 +492,9 @@ def _display_profile(profile, recommendations, verbose: bool) -> None:
         quality_color = (
             "green"
             if quality_score >= 0.8
-            else "yellow" if quality_score >= 0.6 else "red"
+            else "yellow"
+            if quality_score >= 0.6
+            else "red"
         )
         quality_table.add_row(
             "Quality Score", f"[{quality_color}]{quality_score:.2f}[/{quality_color}]"
@@ -569,13 +567,17 @@ def _display_profile(profile, recommendations, verbose: bool) -> None:
             and profile.quality_report
             and profile.quality_report.issues
         ):
-            console.print("\n[bold yellow]⚠️ Data Quality Issues Detected[/bold yellow]")
+            console.print(
+                "\n[bold yellow]⚠️ Data Quality Issues Detected[/bold yellow]"
+            )
 
             for issue in profile.quality_report.issues[:5]:  # Show top 5 issues
                 severity_color = (
                     "red"
                     if issue.severity > 0.7
-                    else "yellow" if issue.severity > 0.4 else "green"
+                    else "yellow"
+                    if issue.severity > 0.4
+                    else "green"
                 )
                 console.print(
                     f"• [{severity_color}]{issue.issue_type.value.replace('_', ' ').title()}[/{severity_color}]: {issue.description}"
@@ -594,7 +596,9 @@ def _display_profile(profile, recommendations, verbose: bool) -> None:
             confidence_color = (
                 "green"
                 if rec.confidence > 0.8
-                else "yellow" if rec.confidence > 0.6 else "red"
+                else "yellow"
+                if rec.confidence > 0.6
+                else "red"
             )
 
             console.print(

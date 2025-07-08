@@ -9,12 +9,10 @@ model selection for anomaly detection algorithms.
 import asyncio
 import logging
 import uuid
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from datetime import datetime
+from typing import Any
 
 import numpy as np
-import pandas as pd
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -24,15 +22,14 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
 )
-from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.model_selection import train_test_split
 
 from pynomaly.application.dto.training_dto import (
     TrainingConfigDTO,
     TrainingRequestDTO,
-    TrainingResultDTO,
 )
 from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.model import Model, ModelMetrics, ModelVersion
+from pynomaly.domain.entities.model import ModelMetrics, ModelVersion
 from pynomaly.domain.entities.training_job import TrainingJob, TrainingStatus
 from pynomaly.domain.services.model_service import ModelService
 from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet
@@ -42,7 +39,6 @@ from pynomaly.infrastructure.persistence.model_repository import ModelRepository
 from pynomaly.infrastructure.persistence.training_repository import TrainingRepository
 from pynomaly.shared.exceptions import (
     DataValidationError,
-    ModelValidationError,
     TrainingError,
 )
 
@@ -67,7 +63,7 @@ class AutomatedTrainingService:
         training_repository: TrainingRepository,
         model_repository: ModelRepository,
         model_service: ModelService,
-        algorithm_adapters: Dict[str, AlgorithmAdapter],
+        algorithm_adapters: dict[str, AlgorithmAdapter],
         config: TrainingConfig,
     ):
         self.training_repository = training_repository
@@ -77,8 +73,8 @@ class AutomatedTrainingService:
         self.config = config
 
         # Training state
-        self.active_jobs: Dict[str, TrainingJob] = {}
-        self.job_queue: List[TrainingJob] = []
+        self.active_jobs: dict[str, TrainingJob] = {}
+        self.job_queue: list[TrainingJob] = []
         self.resource_lock = asyncio.Lock()
 
         # Performance tracking
@@ -202,7 +198,7 @@ class AutomatedTrainingService:
         X_val: np.ndarray,
         y_val: np.ndarray,
         job: TrainingJob,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Train a specific algorithm with hyperparameter optimization.
 
@@ -261,13 +257,13 @@ class AutomatedTrainingService:
     async def _optimize_hyperparameters(
         self,
         adapter: AlgorithmAdapter,
-        search_space: Dict[str, Any],
+        search_space: dict[str, Any],
         X_train: np.ndarray,
         y_train: np.ndarray,
         X_val: np.ndarray,
         y_val: np.ndarray,
         config: TrainingConfigDTO,
-    ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         """
         Optimize hyperparameters using the configured optimization strategy.
 
@@ -305,13 +301,13 @@ class AutomatedTrainingService:
     async def _optimize_with_optuna(
         self,
         adapter: AlgorithmAdapter,
-        search_space: Dict[str, Any],
+        search_space: dict[str, Any],
         X_train: np.ndarray,
         y_train: np.ndarray,
         X_val: np.ndarray,
         y_val: np.ndarray,
         config: TrainingConfigDTO,
-    ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         """
         Optimize hyperparameters using Optuna.
 
@@ -442,7 +438,7 @@ class AutomatedTrainingService:
 
     def _calculate_anomaly_metrics(
         self, y_true: np.ndarray, y_scores: np.ndarray, y_pred: np.ndarray
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate metrics for anomaly detection tasks."""
         return {
             "accuracy": accuracy_score(y_true, y_pred),
@@ -462,7 +458,7 @@ class AutomatedTrainingService:
 
     def _calculate_classification_metrics(
         self, y_true: np.ndarray, y_pred: np.ndarray, y_pred_proba: np.ndarray
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Calculate metrics for classification tasks."""
         return {
             "accuracy": accuracy_score(y_true, y_pred),
@@ -485,8 +481,8 @@ class AutomatedTrainingService:
         }
 
     async def _select_best_model(
-        self, training_results: List[Dict[str, Any]], config: TrainingConfigDTO
-    ) -> Optional[ModelVersion]:
+        self, training_results: list[dict[str, Any]], config: TrainingConfigDTO
+    ) -> ModelVersion | None:
         """
         Select the best model based on specified criteria.
 
@@ -543,8 +539,8 @@ class AutomatedTrainingService:
         return await self.model_repository.get_version(model_id)
 
     def _find_pareto_optimal_models(
-        self, training_results: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, training_results: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         Find Pareto-optimal models considering multiple objectives.
 
@@ -613,7 +609,7 @@ class AutomatedTrainingService:
 
     async def _prepare_training_data(
         self, dataset: Dataset, config: TrainingConfigDTO
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Prepare training data from dataset."""
         # This would typically load and preprocess the actual data
         # For now, return placeholder data
@@ -625,7 +621,7 @@ class AutomatedTrainingService:
 
         return X, y
 
-    def _get_default_algorithms(self) -> List[str]:
+    def _get_default_algorithms(self) -> list[str]:
         """Get default algorithms for training."""
         return list(self.algorithm_adapters.keys())[:3]  # Use first 3 algorithms
 
@@ -671,16 +667,16 @@ class AutomatedTrainingService:
         await self.training_repository.update_job(job)
 
     # Public API methods
-    async def get_training_job(self, job_id: str) -> Optional[TrainingJob]:
+    async def get_training_job(self, job_id: str) -> TrainingJob | None:
         """Get training job by ID."""
         return await self.training_repository.get_job(job_id)
 
     async def list_training_jobs(
         self,
-        dataset_id: Optional[str] = None,
-        status: Optional[TrainingStatus] = None,
+        dataset_id: str | None = None,
+        status: TrainingStatus | None = None,
         limit: int = 100,
-    ) -> List[TrainingJob]:
+    ) -> list[TrainingJob]:
         """List training jobs with optional filtering."""
         return await self.training_repository.list_jobs(
             dataset_id=dataset_id, status=status, limit=limit
@@ -703,7 +699,7 @@ class AutomatedTrainingService:
 
         return False
 
-    async def get_training_metrics(self) -> Dict[str, Any]:
+    async def get_training_metrics(self) -> dict[str, Any]:
         """Get training service metrics."""
         return {
             "active_jobs": len(self.active_jobs),

@@ -7,9 +7,8 @@ import json
 import os
 import sys
 import tempfile
-from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Union
-from unittest.mock import MagicMock, Mock, patch
+from datetime import UTC, datetime
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -18,15 +17,10 @@ import pytest
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import (
-    ConfigurationError,
-    DetectorNotFittedError,
-    FittingError,
-    InvalidAlgorithmError,
     ValidationError,
 )
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from pynomaly.domain.value_objects import ContaminationRate
 
 
 class TestDomainEntityBranches:
@@ -220,7 +214,7 @@ class TestDomainEntityBranches:
 
         # Simulate fitting
         full_detector.is_fitted = True
-        full_detector.trained_at = datetime.now(timezone.utc)
+        full_detector.trained_at = datetime.now(UTC)
 
         assert full_detector.is_fitted
         assert full_detector.trained_at is not None

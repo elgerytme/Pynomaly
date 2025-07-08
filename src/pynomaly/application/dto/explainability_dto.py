@@ -1007,9 +1007,9 @@ class ExplanationAuditLogDTO(BaseModel):
     session_id: str | None = Field(default=None, description="Session identifier")
 
     # Action details
-    action: Literal["generate", "view", "export", "feedback", "modify", "delete"] = (
-        Field(..., description="Action performed")
-    )
+    action: Literal[
+        "generate", "view", "export", "feedback", "modify", "delete"
+    ] = Field(..., description="Action performed")
     explanation_id: str = Field(..., description="Explanation identifier")
     explanation_type: ExplanationType = Field(..., description="Type of explanation")
 

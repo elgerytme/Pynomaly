@@ -27,7 +27,7 @@ Brief status summary
 ### ⏳ **Active Tasks**
 - Currently in progress items
 
-### ✅ **Recently Completed** 
+### ✅ **Recently Completed**
 - Items completed in last 30 days
 
 ## ✅ **Recently Completed Work**

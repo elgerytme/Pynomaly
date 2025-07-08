@@ -8,8 +8,8 @@ Provides endpoints for:
 """
 
 import logging
-from datetime import datetime, timezone
-from typing import Any, List, Optional
+from datetime import UTC, datetime
+from typing import Any, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -18,9 +18,6 @@ from pydantic import BaseModel, Field
 from pynomaly.application.services.automated_training_service import (
     AutomatedTrainingService,
     TrainingConfig,
-    TrainingProgress,
-    TrainingResult,
-    TrainingStatus,
     TriggerType,
 )
 from pynomaly.application.services.automl_service import OptimizationObjective
@@ -144,7 +141,7 @@ class TrainingProgressResponse(BaseModel):
 
     # Messages and logs
     current_message: Optional[str] = None
-    warnings: List[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
 
 
 class TrainingResultResponse(BaseModel):
@@ -177,13 +174,13 @@ class TrainingResultResponse(BaseModel):
     start_time: Optional[datetime] = None
     completion_time: Optional[datetime] = None
     error_message: Optional[str] = None
-    warnings: List[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
 
 
 class TrainingHistoryResponse(BaseModel):
     """Response containing training history."""
 
-    trainings: List[TrainingResultResponse]
+    trainings: list[TrainingResultResponse]
     total_count: int
     page: int
     page_size: int
@@ -491,7 +488,7 @@ async def get_training_result(
         )
 
 
-@router.get("/active", response_model=List[TrainingProgressResponse])
+@router.get("/active", response_model=list[TrainingProgressResponse])
 async def get_active_trainings(
     training_service: AutomatedTrainingService = Depends(get_training_service),
     current_user: dict = Depends(get_current_user),
@@ -644,7 +641,7 @@ async def update_performance(
             "detector_id": str(request.detector_id),
             "score": request.score,
             "metric_name": request.metric_name,
-            "timestamp": request.timestamp or datetime.now(timezone.utc),
+            "timestamp": request.timestamp or datetime.now(UTC),
             "needs_retraining": needs_retraining,
             "message": "Performance updated successfully",
         }

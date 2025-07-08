@@ -130,7 +130,7 @@ export const DataTable = () => {
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Anomaly Detection Results</h3>
         <div class="flex items-center space-x-3">
           <div class="relative">
-            <input type="text" placeholder="Search anomalies..." 
+            <input type="text" placeholder="Search anomalies..."
                    class="w-64 pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <svg class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
@@ -363,7 +363,7 @@ export const AdvancedForm = () => {
                   Contamination Rate
                 </label>
                 <div class="relative">
-                  <input type="range" min="0.01" max="0.5" step="0.01" value="0.1" 
+                  <input type="range" min="0.01" max="0.5" step="0.01" value="0.1"
                          class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer">
                   <span class="absolute -top-8 left-1/2 transform -translate-x-1/2 text-sm text-gray-600 dark:text-gray-400">10%</span>
                 </div>
@@ -372,7 +372,7 @@ export const AdvancedForm = () => {
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Random State
                 </label>
-                <input type="number" value="42" 
+                <input type="number" value="42"
                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               </div>
             </div>
@@ -468,14 +468,14 @@ export const ModalDialog = () => {
                 </svg>
               </button>
             </div>
-            
+
             <div class="sm:flex sm:items-start">
               <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
                 <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
               </div>
-              
+
               <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                 <h3 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">
                   Delete Anomaly Detection Model
@@ -485,7 +485,7 @@ export const ModalDialog = () => {
                     Are you sure you want to delete this model? This action cannot be undone and all associated data will be permanently removed.
                   </p>
                 </div>
-                
+
                 <div class="mt-4 bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
                   <div class="text-sm">
                     <div class="font-medium text-gray-900 dark:text-white">Model Details:</div>
@@ -498,7 +498,7 @@ export const ModalDialog = () => {
                 </div>
               </div>
             </div>
-            
+
             <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
               <button type="button" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">
                 Delete Model

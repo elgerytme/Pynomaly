@@ -11,14 +11,13 @@ This module provides comprehensive integration with external monitoring systems:
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 from urllib.parse import urljoin
 from uuid import uuid4
 
@@ -93,17 +92,17 @@ class MonitoringConfiguration:
     enabled: bool = True
 
     # Connection settings
-    endpoint_url: Optional[str] = None
-    api_key: Optional[str] = None
-    api_secret: Optional[str] = None
-    organization_id: Optional[str] = None
+    endpoint_url: str | None = None
+    api_key: str | None = None
+    api_secret: str | None = None
+    organization_id: str | None = None
 
     # Provider-specific settings
-    settings: Dict[str, Any] = field(default_factory=dict)
+    settings: dict[str, Any] = field(default_factory=dict)
 
     # Alert settings
     default_severity: AlertSeverity = AlertSeverity.MEDIUM
-    alert_endpoints: List[str] = field(default_factory=list)
+    alert_endpoints: list[str] = field(default_factory=list)
 
     # Retry and timeout
     timeout_seconds: float = 30.0
@@ -116,12 +115,12 @@ class MetricData:
     """Represents a metric to be sent to external monitoring."""
 
     name: str
-    value: Union[int, float]
+    value: int | float
     metric_type: MetricType
-    tags: Dict[str, str] = field(default_factory=dict)
-    timestamp: Optional[datetime] = None
-    unit: Optional[str] = None
-    description: Optional[str] = None
+    tags: dict[str, str] = field(default_factory=dict)
+    timestamp: datetime | None = None
+    unit: str | None = None
+    description: str | None = None
 
 
 @dataclass
@@ -132,14 +131,14 @@ class AlertData:
     message: str
     severity: AlertSeverity
     source: str
-    tags: Dict[str, str] = field(default_factory=dict)
-    timestamp: Optional[datetime] = None
+    tags: dict[str, str] = field(default_factory=dict)
+    timestamp: datetime | None = None
     alert_id: str = field(default_factory=lambda: str(uuid4()))
 
     # Additional context
-    affected_components: List[str] = field(default_factory=list)
-    remediation_steps: List[str] = field(default_factory=list)
-    related_metrics: List[str] = field(default_factory=list)
+    affected_components: list[str] = field(default_factory=list)
+    remediation_steps: list[str] = field(default_factory=list)
+    related_metrics: list[str] = field(default_factory=list)
 
 
 class ExternalMonitoringProvider(ABC):
@@ -147,7 +146,7 @@ class ExternalMonitoringProvider(ABC):
 
     def __init__(self, config: MonitoringConfiguration):
         self.config = config
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
 
     async def initialize(self) -> None:
         """Initialize the monitoring provider."""
@@ -176,7 +175,7 @@ class ExternalMonitoringProvider(ABC):
         """Test connection to the monitoring system."""
         pass
 
-    async def send_batch_metrics(self, metrics: List[MetricData]) -> List[bool]:
+    async def send_batch_metrics(self, metrics: list[MetricData]) -> list[bool]:
         """Send multiple metrics in batch."""
         results = []
         for metric in metrics:
@@ -715,13 +714,13 @@ class ExternalMonitoringService:
     """Service for managing external monitoring integrations."""
 
     def __init__(self):
-        self.providers: Dict[str, ExternalMonitoringProvider] = {}
-        self.configurations: Dict[str, MonitoringConfiguration] = {}
-        self.metrics_buffer: List[MetricData] = []
-        self.alerts_buffer: List[AlertData] = []
+        self.providers: dict[str, ExternalMonitoringProvider] = {}
+        self.configurations: dict[str, MonitoringConfiguration] = {}
+        self.metrics_buffer: list[MetricData] = []
+        self.alerts_buffer: list[AlertData] = []
         self.buffer_size = 100
         self.flush_interval = 60  # seconds
-        self._flush_task: Optional[asyncio.Task] = None
+        self._flush_task: asyncio.Task | None = None
 
     async def initialize(self) -> None:
         """Initialize the monitoring service."""
@@ -779,12 +778,12 @@ class ExternalMonitoringService:
     async def send_metric(
         self,
         name: str,
-        value: Union[int, float],
+        value: int | float,
         metric_type: MetricType = MetricType.GAUGE,
-        tags: Optional[Dict[str, str]] = None,
-        providers: Optional[List[str]] = None,
+        tags: dict[str, str] | None = None,
+        providers: list[str] | None = None,
         buffered: bool = True,
-    ) -> Dict[str, bool]:
+    ) -> dict[str, bool]:
         """Send metric to specified providers."""
         metric = MetricData(
             name=name,
@@ -808,10 +807,10 @@ class ExternalMonitoringService:
         message: str,
         severity: AlertSeverity = AlertSeverity.MEDIUM,
         source: str = "pynomaly",
-        tags: Optional[Dict[str, str]] = None,
-        providers: Optional[List[str]] = None,
+        tags: dict[str, str] | None = None,
+        providers: list[str] | None = None,
         buffered: bool = False,
-    ) -> Dict[str, bool]:
+    ) -> dict[str, bool]:
         """Send alert to specified providers."""
         alert = AlertData(
             title=title,
@@ -829,8 +828,8 @@ class ExternalMonitoringService:
             return await self._send_alert_to_providers(alert, providers)
 
     async def _send_metric_to_providers(
-        self, metric: MetricData, providers: Optional[List[str]] = None
-    ) -> Dict[str, bool]:
+        self, metric: MetricData, providers: list[str] | None = None
+    ) -> dict[str, bool]:
         """Send metric to specified providers."""
         target_providers = providers or list(self.providers.keys())
         results = {}
@@ -852,8 +851,8 @@ class ExternalMonitoringService:
         return results
 
     async def _send_alert_to_providers(
-        self, alert: AlertData, providers: Optional[List[str]] = None
-    ) -> Dict[str, bool]:
+        self, alert: AlertData, providers: list[str] | None = None
+    ) -> dict[str, bool]:
         """Send alert to specified providers."""
         target_providers = providers or list(self.providers.keys())
         results = {}
@@ -917,7 +916,7 @@ class ExternalMonitoringService:
             except Exception as e:
                 logger.error(f"Error during periodic buffer flush: {e}")
 
-    async def test_all_providers(self) -> Dict[str, bool]:
+    async def test_all_providers(self) -> dict[str, bool]:
         """Test connection to all providers."""
         results = {}
 
@@ -940,7 +939,7 @@ class ExternalMonitoringService:
 
         return results
 
-    def get_provider_status(self) -> Dict[str, Dict[str, Any]]:
+    def get_provider_status(self) -> dict[str, dict[str, Any]]:
         """Get status of all providers."""
         status = {}
 
@@ -967,7 +966,7 @@ async def send_anomaly_detection_metrics(
     anomaly_count: int,
     total_samples: int,
     detection_time: float,
-    accuracy_score: Optional[float] = None,
+    accuracy_score: float | None = None,
 ) -> None:
     """Send anomaly detection metrics."""
     tags = {"detector": detector_name, "dataset": dataset_name}
@@ -999,8 +998,8 @@ async def send_training_job_metrics(
     job_id: str,
     algorithm: str,
     trial_count: int,
-    best_score: Optional[float] = None,
-    execution_time: Optional[float] = None,
+    best_score: float | None = None,
+    execution_time: float | None = None,
 ) -> None:
     """Send training job metrics."""
     tags = {"job_id": job_id[:8], "algorithm": algorithm}  # Truncated for cardinality

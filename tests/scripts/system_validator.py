@@ -49,7 +49,6 @@ class SystemValidator:
 
         # Validate domain layer
         try:
-
             arch_results.append(
                 ValidationResult(
                     component="domain_entities",
@@ -70,7 +69,6 @@ class SystemValidator:
 
         # Validate application layer
         try:
-
             arch_results.append(
                 ValidationResult(
                     component="application_services",
@@ -91,7 +89,6 @@ class SystemValidator:
 
         # Validate infrastructure layer
         try:
-
             arch_results.append(
                 ValidationResult(
                     component="infrastructure_adapters",
@@ -112,7 +109,6 @@ class SystemValidator:
 
         # Validate presentation layer
         try:
-
             arch_results.append(
                 ValidationResult(
                     component="presentation_cli",
@@ -182,7 +178,6 @@ class SystemValidator:
 
         # Test autonomous service
         try:
-
             auto_results.append(
                 ValidationResult(
                     component="autonomous_service",
@@ -236,7 +231,6 @@ class SystemValidator:
 
         # Test API endpoints
         try:
-
             api_results.append(
                 ValidationResult(
                     component="api_endpoints",

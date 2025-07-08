@@ -9,7 +9,6 @@ import numpy as np
 import pytest
 from click.testing import CliRunner
 from fastapi.testclient import TestClient
-
 from pynomaly.application.services import (
     DatasetService,
     DetectionService,

@@ -31,10 +31,10 @@ services:
         echo 'Waiting for dependencies...' &&
         sleep 10 &&
         echo 'Running comprehensive test suite...' &&
-        pytest tests/ -v 
-          --cov=pynomaly 
-          --cov-report=html:/app/coverage-reports 
-          --cov-report=term-missing 
+        pytest tests/ -v
+          --cov=pynomaly
+          --cov-report=html:/app/coverage-reports
+          --cov-report=term-missing
           --cov-report=xml:/app/coverage-reports/coverage.xml
           --junit-xml=/app/test-results/junit.xml
           --tb=short
@@ -97,9 +97,9 @@ services:
     command: >
       sh -c "
         echo 'Running parallel test suite...' &&
-        pytest tests/ -v 
-          --cov=pynomaly 
-          --cov-report=html:/app/coverage-reports 
+        pytest tests/ -v
+          --cov=pynomaly
+          --cov-report=html:/app/coverage-reports
           --cov-report=term-missing
           --cov-report=xml:/app/coverage-reports/coverage.xml
           --junit-xml=/app/test-results/junit.xml

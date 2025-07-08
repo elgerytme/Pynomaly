@@ -71,7 +71,7 @@ environments/
 ├── README.md                    # Documentation and conventions
 ├── .env/                       # Legacy environment (renamed)
 ├── .venv/                      # Main development environment
-├── .venv_testing/              # Testing environment 
+├── .venv_testing/              # Testing environment
 ├── .test_env_check/            # Environment validation (renamed)
 ├── .test_venv/                 # General testing (renamed)
 ├── .test_venv_bash/            # Bash testing (renamed)

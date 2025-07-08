@@ -10,7 +10,6 @@ import jwt
 import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
-
 from pynomaly.infrastructure.config import create_container
 from pynomaly.presentation.api.app import create_app
 

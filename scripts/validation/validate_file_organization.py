@@ -188,26 +188,26 @@ def get_suggested_location(filename: str) -> str:
 def print_results(is_valid: bool, violations: list[str], suggestions: list[str]):
     """Print validation results."""
     if is_valid:
-        print("✅ File organization validation PASSED")
+        print("File organization validation PASSED")
         return
 
-    print("❌ File organization validation FAILED")
-    print("\n🚨 Violations found:")
+    print("File organization validation FAILED")
+    print("\nViolations found:")
     for violation in violations:
-        print(f"  • {violation}")
+        print(f"  - {violation}")
 
     if suggestions:
-        print("\n💡 Suggested actions:")
+        print("\nSuggested actions:")
         for suggestion in suggestions:
-            print(f"  • {suggestion}")
+            print(f"  - {suggestion}")
 
-    print("\n📚 For more information, see:")
+    print("\nFor more information, see:")
     print("  docs/development/FILE_ORGANIZATION_STANDARDS.md")
 
 
 def main():
     """Main validation function."""
-    print("🔍 Validating file organization...")
+    print("Validating file organization...")
 
     is_valid, violations, suggestions = validate_file_organization()
 

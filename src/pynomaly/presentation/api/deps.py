@@ -7,10 +7,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from pynomaly.infrastructure.auth import (
     UserModel,
-    get_current_user as auth_get_current_user,
     require_analyst,
-    require_data_scientist,
-    require_super_admin,
     require_tenant_admin,
     require_viewer,
 )
@@ -101,14 +98,17 @@ async def require_auth(
 # RBAC dependencies - these now use proper role-based access control
 # Import the actual RBAC dependencies from the auth module
 
+
 # For backward compatibility, provide simplified role mapping
 def require_read() -> UserModel:
     """Require user with read permissions (viewer role or higher)."""
     return require_viewer
 
+
 def require_write() -> UserModel:
     """Require user with write permissions (analyst role or higher)."""
     return require_analyst
+
 
 def require_admin() -> UserModel:
     """Require user with admin permissions (tenant admin or higher)."""

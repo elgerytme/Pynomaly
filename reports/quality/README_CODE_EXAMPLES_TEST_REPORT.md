@@ -33,7 +33,7 @@ This report documents the testing of all code examples and instructions in the R
 - **Location**: README.md lines 231-278
 - **Status**: ✅ **WORKING** (Modified version)
 - **Test Result**: Successfully detected 11 anomalies out of 110 samples
-- **Notes**: 
+- **Notes**:
   - Original example had import issues, was updated to use working imports
   - Uses `SklearnAdapter` instead of `PyODAdapter` as documented
   - Performance metrics work correctly

@@ -389,9 +389,11 @@ class AdvancedEnsembleDetector:
             ensemble_scores = np.average(scores, axis=0, weights=weights)
 
         elif method == EnsembleMethod.UNCERTAINTY_WEIGHTED:
-            ensemble_predictions, confidence_intervals, ensemble_scores = (
-                self.uncertainty_weighted_ensemble(scores)
-            )
+            (
+                ensemble_predictions,
+                confidence_intervals,
+                ensemble_scores,
+            ) = self.uncertainty_weighted_ensemble(scores)
 
         elif method == EnsembleMethod.RANK_AGGREGATION:
             ensemble_predictions = self.rank_aggregation_borda(scores)

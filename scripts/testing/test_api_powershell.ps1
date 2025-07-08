@@ -14,7 +14,7 @@ function Test-ApiEndpoint {
         [string]$Url,
         [string]$Description
     )
-    
+
     try {
         Write-Host "Testing $Description..." -ForegroundColor Yellow
         $response = Invoke-RestMethod -Uri $Url -Method Get -TimeoutSec 10
@@ -46,7 +46,7 @@ try {
         Write-Host "  Message: $($rootResponse.message)" -ForegroundColor Cyan
         Write-Host "  Version: $($rootResponse.version)" -ForegroundColor Cyan
     }
-    
+
     # Test health endpoint
     $healthResponse = Test-ApiEndpoint -Url "$apiUrl/api/health/" -Description "Health endpoint"
     if ($healthResponse) {
@@ -54,10 +54,10 @@ try {
         Write-Host "  Uptime: $([math]::Round($healthResponse.uptime_seconds, 2)) seconds" -ForegroundColor Cyan
         Write-Host "  Healthy Checks: $($healthResponse.summary.healthy_checks)/$($healthResponse.summary.total_checks)" -ForegroundColor Cyan
     }
-    
+
     # Test docs endpoint
     $docsResponse = Test-ApiEndpoint -Url "$apiUrl/api/docs" -Description "Documentation endpoint"
-    
+
     # Test OpenAPI schema
     $openApiResponse = Test-ApiEndpoint -Url "$apiUrl/api/openapi.json" -Description "OpenAPI schema"
     if ($openApiResponse) {
@@ -65,9 +65,9 @@ try {
         Write-Host "  API Version: $($openApiResponse.info.version)" -ForegroundColor Cyan
         Write-Host "  Endpoints: $($openApiResponse.paths.Count)" -ForegroundColor Cyan
     }
-    
+
     Write-Host "`n=== PowerShell API Test Complete ===" -ForegroundColor Green
-    
+
 } catch {
     Write-Host "Test failed with error: $($_.Exception.Message)" -ForegroundColor Red
 } finally {
@@ -77,9 +77,9 @@ try {
         $serverProcess.Kill()
         $serverProcess.WaitForExit(5000)
     }
-    
+
     # Kill any remaining uvicorn processes
     Get-Process -Name "uvicorn" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-    
+
     Write-Host "Cleanup complete." -ForegroundColor Blue
 }

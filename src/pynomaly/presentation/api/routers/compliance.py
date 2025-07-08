@@ -3,23 +3,28 @@ FastAPI router for compliance and audit logging.
 """
 
 from datetime import datetime, timedelta
-from typing import List, Optional, Dict, Any
+from typing import Any, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, EmailStr
-
 from pynomaly.application.services.compliance_service import ComplianceService
 from pynomaly.domain.entities.compliance import (
-    AuditAction, AuditSeverity, ComplianceFramework, DataClassification,
-    RetentionPolicyStatus
+    AuditAction,
+    AuditSeverity,
+    ComplianceFramework,
+    DataClassification,
+    RetentionPolicyStatus,
 )
 from pynomaly.domain.entities.user import User
-from pynomaly.shared.exceptions import ValidationError, ComplianceError, AuthorizationError
+from pynomaly.shared.exceptions import (
+    ValidationError,
+)
 from pynomaly.shared.types import TenantId, UserId
 
 # Router setup
 router = APIRouter(prefix="/api/compliance", tags=["Compliance & Audit"])
+
 
 # Request/Response Models
 class AuditEventResponse(BaseModel):
@@ -30,11 +35,11 @@ class AuditEventResponse(BaseModel):
     user_id: Optional[str]
     resource_type: Optional[str]
     resource_id: Optional[str]
-    details: Dict[str, Any]
+    details: dict[str, Any]
     ip_address: Optional[str]
     outcome: str
     risk_score: int
-    compliance_frameworks: List[ComplianceFramework]
+    compliance_frameworks: list[ComplianceFramework]
     is_high_risk: bool
 
 
@@ -44,7 +49,7 @@ class CreateRetentionPolicyRequest(BaseModel):
     data_type: str
     classification: DataClassification
     retention_period_days: int
-    compliance_frameworks: List[ComplianceFramework]
+    compliance_frameworks: list[ComplianceFramework]
     auto_delete: bool = True
     archive_before_delete: bool = True
 
@@ -56,7 +61,7 @@ class RetentionPolicyResponse(BaseModel):
     data_type: str
     classification: DataClassification
     retention_period_days: int
-    compliance_frameworks: List[ComplianceFramework]
+    compliance_frameworks: list[ComplianceFramework]
     auto_delete: bool
     archive_before_delete: bool
     status: RetentionPolicyStatus
@@ -87,7 +92,7 @@ class GDPRRequestResponse(BaseModel):
 
 
 class ProcessGDPRRequestRequest(BaseModel):
-    response_data: Optional[Dict[str, Any]] = None
+    response_data: Optional[dict[str, Any]] = None
     notes: str = ""
 
 
@@ -98,8 +103,8 @@ class ComplianceCheckResponse(BaseModel):
     framework: ComplianceFramework
     status: str
     check_timestamp: datetime
-    details: Dict[str, Any]
-    recommendations: List[str]
+    details: dict[str, Any]
+    recommendations: list[str]
     next_check_due: Optional[datetime]
     is_compliant: bool
     needs_attention: bool
@@ -118,8 +123,8 @@ class ComplianceReportResponse(BaseModel):
     warning_checks: int
     compliance_score: float
     risk_level: str
-    findings: List[ComplianceCheckResponse]
-    recommendations: List[str]
+    findings: list[ComplianceCheckResponse]
+    recommendations: list[str]
     high_risk_events: int
     total_audit_events: int
 
@@ -146,7 +151,7 @@ class CreateEncryptionKeyRequest(BaseModel):
 class BackupRecordResponse(BaseModel):
     id: str
     backup_type: str
-    data_types: List[str]
+    data_types: list[str]
     backup_location: str
     started_at: datetime
     completed_at: Optional[datetime]
@@ -160,7 +165,7 @@ class BackupRecordResponse(BaseModel):
 
 class CreateBackupRequest(BaseModel):
     backup_type: str
-    data_types: List[str]
+    data_types: list[str]
     backup_location: str
     encryption_key_id: str
 
@@ -178,30 +183,34 @@ async def get_current_user() -> User:
     pass
 
 
-async def require_compliance_access(tenant_id: UUID, current_user: User = Depends(get_current_user)):
+async def require_compliance_access(
+    tenant_id: UUID, current_user: User = Depends(get_current_user)
+):
     """Require compliance access to specific tenant."""
-    if not (current_user.is_super_admin() or 
-            current_user.has_role_in_tenant(TenantId(str(tenant_id)), ["tenant_admin"])):
+    if not (
+        current_user.is_super_admin()
+        or current_user.has_role_in_tenant(TenantId(str(tenant_id)), ["tenant_admin"])
+    ):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Access denied - requires compliance/admin permissions"
+            detail="Access denied - requires compliance/admin permissions",
         )
     return current_user
 
 
 # Audit Trail Endpoints
-@router.get("/tenants/{tenant_id}/audit-trail", response_model=List[AuditEventResponse])
+@router.get("/tenants/{tenant_id}/audit-trail", response_model=list[AuditEventResponse])
 async def get_audit_trail(
     tenant_id: UUID,
     start_date: Optional[datetime] = Query(None),
     end_date: Optional[datetime] = Query(None),
-    actions: Optional[List[AuditAction]] = Query(None),
+    actions: Optional[list[AuditAction]] = Query(None),
     user_id: Optional[UUID] = Query(None),
     resource_type: Optional[str] = Query(None),
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Get audit trail for a tenant."""
     try:
@@ -213,9 +222,9 @@ async def get_audit_trail(
             user_id=UserId(str(user_id)) if user_id else None,
             resource_type=resource_type,
             limit=limit,
-            offset=offset
+            offset=offset,
         )
-        
+
         return [
             AuditEventResponse(
                 id=event.id,
@@ -230,31 +239,33 @@ async def get_audit_trail(
                 outcome=event.outcome,
                 risk_score=event.risk_score,
                 compliance_frameworks=event.compliance_frameworks,
-                is_high_risk=event.is_high_risk
+                is_high_risk=event.is_high_risk,
             )
             for event in events
         ]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve audit trail: {str(e)}"
+            detail=f"Failed to retrieve audit trail: {str(e)}",
         )
 
 
-@router.get("/tenants/{tenant_id}/audit-trail/high-risk", response_model=List[AuditEventResponse])
+@router.get(
+    "/tenants/{tenant_id}/audit-trail/high-risk",
+    response_model=list[AuditEventResponse],
+)
 async def get_high_risk_events(
     tenant_id: UUID,
     days: int = Query(7, ge=1, le=365),
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Get high-risk audit events."""
     try:
         events = await compliance_service.get_high_risk_events(
-            tenant_id=TenantId(str(tenant_id)),
-            days=days
+            tenant_id=TenantId(str(tenant_id)), days=days
         )
-        
+
         return [
             AuditEventResponse(
                 id=event.id,
@@ -269,29 +280,33 @@ async def get_high_risk_events(
                 outcome=event.outcome,
                 risk_score=event.risk_score,
                 compliance_frameworks=event.compliance_frameworks,
-                is_high_risk=event.is_high_risk
+                is_high_risk=event.is_high_risk,
             )
             for event in events
         ]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve high-risk events: {str(e)}"
+            detail=f"Failed to retrieve high-risk events: {str(e)}",
         )
 
 
 # Data Retention Policy Endpoints
-@router.post("/tenants/{tenant_id}/retention-policies", response_model=RetentionPolicyResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/tenants/{tenant_id}/retention-policies",
+    response_model=RetentionPolicyResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_retention_policy(
     tenant_id: UUID,
     request: CreateRetentionPolicyRequest,
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Create a new data retention policy."""
     try:
         from pynomaly.domain.entities.compliance import DataRetentionPolicy
-        
+
         policy = DataRetentionPolicy(
             id="",  # Will be set by service
             name=request.name,
@@ -302,14 +317,13 @@ async def create_retention_policy(
             retention_period_days=request.retention_period_days,
             compliance_frameworks=request.compliance_frameworks,
             auto_delete=request.auto_delete,
-            archive_before_delete=request.archive_before_delete
+            archive_before_delete=request.archive_before_delete,
         )
-        
+
         created_policy = await compliance_service.create_retention_policy(
-            policy=policy,
-            user_id=UserId(current_user.id)
+            policy=policy, user_id=UserId(current_user.id)
         )
-        
+
         return RetentionPolicyResponse(
             id=created_policy.id,
             name=created_policy.name,
@@ -322,45 +336,48 @@ async def create_retention_policy(
             archive_before_delete=created_policy.archive_before_delete,
             status=created_policy.status,
             created_at=created_policy.created_at,
-            updated_at=created_policy.updated_at
+            updated_at=created_policy.updated_at,
         )
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post("/tenants/{tenant_id}/retention-policies/apply")
 async def apply_retention_policies(
     tenant_id: UUID,
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Apply all active retention policies for a tenant."""
     try:
-        results = await compliance_service.apply_retention_policies(TenantId(str(tenant_id)))
-        
+        results = await compliance_service.apply_retention_policies(
+            TenantId(str(tenant_id))
+        )
+
         return {
             "message": "Retention policies applied successfully",
             "deleted_records": results["deleted_records"],
             "archived_records": results["archived_records"],
-            "policies_applied": results["policies_applied"]
+            "policies_applied": results["policies_applied"],
         }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to apply retention policies: {str(e)}"
+            detail=f"Failed to apply retention policies: {str(e)}",
         )
 
 
 # GDPR Compliance Endpoints
-@router.post("/tenants/{tenant_id}/gdpr-requests", response_model=GDPRRequestResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/tenants/{tenant_id}/gdpr-requests",
+    response_model=GDPRRequestResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_gdpr_request(
     tenant_id: UUID,
     request: CreateGDPRRequestRequest,
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Create a new GDPR data subject request."""
     try:
@@ -370,9 +387,9 @@ async def create_gdpr_request(
             data_subject_id=request.data_subject_id,
             data_subject_email=request.data_subject_email,
             request_details=request.request_details,
-            submitted_by=UserId(current_user.id)
+            submitted_by=UserId(current_user.id),
         )
-        
+
         return GDPRRequestResponse(
             id=gdpr_request.id,
             request_type=gdpr_request.request_type,
@@ -381,39 +398,41 @@ async def create_gdpr_request(
             request_details=gdpr_request.request_details,
             submitted_at=gdpr_request.submitted_at,
             status=gdpr_request.status,
-            assigned_to=str(gdpr_request.assigned_to) if gdpr_request.assigned_to else None,
+            assigned_to=str(gdpr_request.assigned_to)
+            if gdpr_request.assigned_to
+            else None,
             completion_deadline=gdpr_request.completion_deadline,
             processed_at=gdpr_request.processed_at,
             is_overdue=gdpr_request.is_overdue,
-            notes=gdpr_request.notes
+            notes=gdpr_request.notes,
         )
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.put("/tenants/{tenant_id}/gdpr-requests/{request_id}/process", response_model=GDPRRequestResponse)
+@router.put(
+    "/tenants/{tenant_id}/gdpr-requests/{request_id}/process",
+    response_model=GDPRRequestResponse,
+)
 async def process_gdpr_request(
     tenant_id: UUID,
     request_id: str,
     request: ProcessGDPRRequestRequest,
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Process a GDPR data subject request."""
     try:
         processed_request = await compliance_service.process_gdpr_request(
             request_id=request_id,
             processor_id=UserId(current_user.id),
-            response_data=request.response_data
+            response_data=request.response_data,
         )
-        
+
         # Update notes if provided
         if request.notes:
             processed_request.notes = request.notes
-        
+
         return GDPRRequestResponse(
             id=processed_request.id,
             request_type=processed_request.request_type,
@@ -422,29 +441,33 @@ async def process_gdpr_request(
             request_details=processed_request.request_details,
             submitted_at=processed_request.submitted_at,
             status=processed_request.status,
-            assigned_to=str(processed_request.assigned_to) if processed_request.assigned_to else None,
+            assigned_to=str(processed_request.assigned_to)
+            if processed_request.assigned_to
+            else None,
             completion_deadline=processed_request.completion_deadline,
             processed_at=processed_request.processed_at,
             is_overdue=processed_request.is_overdue,
-            notes=processed_request.notes
+            notes=processed_request.notes,
         )
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
-@router.get("/tenants/{tenant_id}/gdpr-requests/overdue", response_model=List[GDPRRequestResponse])
+@router.get(
+    "/tenants/{tenant_id}/gdpr-requests/overdue",
+    response_model=list[GDPRRequestResponse],
+)
 async def get_overdue_gdpr_requests(
     tenant_id: UUID,
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Get GDPR requests that are overdue."""
     try:
-        overdue_requests = await compliance_service.get_overdue_gdpr_requests(TenantId(str(tenant_id)))
-        
+        overdue_requests = await compliance_service.get_overdue_gdpr_requests(
+            TenantId(str(tenant_id))
+        )
+
         return [
             GDPRRequestResponse(
                 id=req.id,
@@ -458,33 +481,35 @@ async def get_overdue_gdpr_requests(
                 completion_deadline=req.completion_deadline,
                 processed_at=req.processed_at,
                 is_overdue=req.is_overdue,
-                notes=req.notes
+                notes=req.notes,
             )
             for req in overdue_requests
         ]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve overdue GDPR requests: {str(e)}"
+            detail=f"Failed to retrieve overdue GDPR requests: {str(e)}",
         )
 
 
 # Compliance Check Endpoints
-@router.post("/tenants/{tenant_id}/compliance-check", response_model=ComplianceReportResponse)
+@router.post(
+    "/tenants/{tenant_id}/compliance-check", response_model=ComplianceReportResponse
+)
 async def run_compliance_check(
     tenant_id: UUID,
     framework: ComplianceFramework,
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Run a comprehensive compliance check."""
     try:
         report = await compliance_service.run_compliance_check(
             tenant_id=TenantId(str(tenant_id)),
             framework=framework,
-            user_id=UserId(current_user.id)
+            user_id=UserId(current_user.id),
         )
-        
+
         findings = [
             ComplianceCheckResponse(
                 id=check.id,
@@ -497,11 +522,11 @@ async def run_compliance_check(
                 recommendations=check.recommendations,
                 next_check_due=check.next_check_due,
                 is_compliant=check.is_compliant,
-                needs_attention=check.needs_attention
+                needs_attention=check.needs_attention,
             )
             for check in report.findings
         ]
-        
+
         return ComplianceReportResponse(
             id=report.id,
             report_type=report.report_type,
@@ -518,22 +543,26 @@ async def run_compliance_check(
             findings=findings,
             recommendations=report.recommendations,
             high_risk_events=report.high_risk_events,
-            total_audit_events=report.total_audit_events
+            total_audit_events=report.total_audit_events,
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to run compliance check: {str(e)}"
+            detail=f"Failed to run compliance check: {str(e)}",
         )
 
 
 # Encryption Key Management Endpoints
-@router.post("/tenants/{tenant_id}/encryption-keys", response_model=EncryptionKeyResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/tenants/{tenant_id}/encryption-keys",
+    response_model=EncryptionKeyResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_encryption_key(
     tenant_id: UUID,
     request: CreateEncryptionKeyRequest,
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Create a new encryption key."""
     try:
@@ -543,9 +572,9 @@ async def create_encryption_key(
             key_size=request.key_size,
             tenant_id=TenantId(str(tenant_id)),
             purpose=request.purpose,
-            user_id=UserId(current_user.id)
+            user_id=UserId(current_user.id),
         )
-        
+
         return EncryptionKeyResponse(
             id=key.id,
             key_name=key.key_name,
@@ -555,46 +584,46 @@ async def create_encryption_key(
             created_at=key.created_at,
             expires_at=key.expires_at,
             status=key.status,
-            needs_rotation=key.needs_rotation
+            needs_rotation=key.needs_rotation,
         )
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.post("/tenants/{tenant_id}/encryption-keys/rotate")
 async def rotate_encryption_keys(
     tenant_id: UUID,
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Rotate encryption keys that need rotation."""
     try:
         rotated_count = await compliance_service.rotate_encryption_keys(
-            tenant_id=TenantId(str(tenant_id)),
-            user_id=UserId(current_user.id)
+            tenant_id=TenantId(str(tenant_id)), user_id=UserId(current_user.id)
         )
-        
+
         return {
             "message": "Encryption key rotation completed",
-            "rotated_keys": rotated_count
+            "rotated_keys": rotated_count,
         }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to rotate encryption keys: {str(e)}"
+            detail=f"Failed to rotate encryption keys: {str(e)}",
         )
 
 
 # Backup Management Endpoints
-@router.post("/tenants/{tenant_id}/backups", response_model=BackupRecordResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/tenants/{tenant_id}/backups",
+    response_model=BackupRecordResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_backup_record(
     tenant_id: UUID,
     request: CreateBackupRequest,
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Create a backup operation record."""
     try:
@@ -604,9 +633,9 @@ async def create_backup_record(
             data_types=request.data_types,
             backup_location=request.backup_location,
             encryption_key_id=request.encryption_key_id,
-            user_id=UserId(current_user.id)
+            user_id=UserId(current_user.id),
         )
-        
+
         return BackupRecordResponse(
             id=backup.id,
             backup_type=backup.backup_type,
@@ -619,13 +648,10 @@ async def create_backup_record(
             compressed_size_bytes=backup.compressed_size_bytes,
             compression_ratio=backup.compression_ratio,
             retention_until=backup.retention_until,
-            is_expired=backup.is_expired
+            is_expired=backup.is_expired,
         )
     except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 # Compliance Dashboard Endpoint
@@ -633,7 +659,7 @@ async def create_backup_record(
 async def get_compliance_dashboard(
     tenant_id: UUID,
     current_user: User = Depends(require_compliance_access),
-    compliance_service: ComplianceService = Depends(get_compliance_service)
+    compliance_service: ComplianceService = Depends(get_compliance_service),
 ):
     """Get compliance dashboard summary."""
     try:
@@ -641,37 +667,40 @@ async def get_compliance_dashboard(
         recent_events = await compliance_service.get_audit_trail(
             tenant_id=TenantId(str(tenant_id)),
             start_date=datetime.utcnow() - timedelta(days=7),
-            limit=100
+            limit=100,
         )
-        
+
         # Get high-risk events
         high_risk_events = await compliance_service.get_high_risk_events(
-            tenant_id=TenantId(str(tenant_id)),
-            days=7
+            tenant_id=TenantId(str(tenant_id)), days=7
         )
-        
+
         # Get overdue GDPR requests
-        overdue_gdpr = await compliance_service.get_overdue_gdpr_requests(TenantId(str(tenant_id)))
-        
+        overdue_gdpr = await compliance_service.get_overdue_gdpr_requests(
+            TenantId(str(tenant_id))
+        )
+
         # Calculate summary statistics
         total_events = len(recent_events)
         high_risk_count = len(high_risk_events)
         failed_events = len([e for e in recent_events if e.outcome == "failure"])
-        
+
         return {
             "summary": {
                 "total_audit_events_7_days": total_events,
                 "high_risk_events_7_days": high_risk_count,
                 "failed_operations_7_days": failed_events,
                 "overdue_gdpr_requests": len(overdue_gdpr),
-                "compliance_status": "healthy" if high_risk_count < 5 else "attention_needed"
+                "compliance_status": "healthy"
+                if high_risk_count < 5
+                else "attention_needed",
             },
             "recent_high_risk_events": [
                 {
                     "id": event.id,
                     "action": event.action.value,
                     "timestamp": event.timestamp.isoformat(),
-                    "risk_score": event.risk_score
+                    "risk_score": event.risk_score,
                 }
                 for event in high_risk_events[:5]
             ],
@@ -679,23 +708,27 @@ async def get_compliance_dashboard(
                 {
                     "type": "overdue_gdpr",
                     "count": len(overdue_gdpr),
-                    "message": f"{len(overdue_gdpr)} GDPR requests are overdue"
-                } if overdue_gdpr else None,
+                    "message": f"{len(overdue_gdpr)} GDPR requests are overdue",
+                }
+                if overdue_gdpr
+                else None,
                 {
                     "type": "high_risk_events",
                     "count": high_risk_count,
-                    "message": f"{high_risk_count} high-risk events in the last 7 days"
-                } if high_risk_count > 0 else None
+                    "message": f"{high_risk_count} high-risk events in the last 7 days",
+                }
+                if high_risk_count > 0
+                else None,
             ],
             "recommendations": [
                 "Review high-risk audit events for potential security issues",
                 "Process overdue GDPR requests immediately",
                 "Consider implementing additional access controls",
-                "Schedule regular compliance reviews"
-            ]
+                "Schedule regular compliance reviews",
+            ],
         }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate compliance dashboard: {str(e)}"
+            detail=f"Failed to generate compliance dashboard: {str(e)}",
         )

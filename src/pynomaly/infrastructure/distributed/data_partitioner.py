@@ -13,7 +13,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from .distributed_config import PartitionStrategy, get_distributed_config_manager
 
@@ -91,8 +91,7 @@ class DataPartition(BaseModel):
         default=None, description="Processing start time"
     )
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @property
     def size_mb(self) -> float:

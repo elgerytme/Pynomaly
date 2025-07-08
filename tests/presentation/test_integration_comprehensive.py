@@ -8,7 +8,6 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
-
 from pynomaly.infrastructure.config import create_container
 from pynomaly.presentation.api.app import create_app
 from pynomaly.presentation.web.app import create_web_app
@@ -568,9 +567,8 @@ class TestCLIIntegration:
 
     def test_cli_api_integration(self):
         """Test CLI commands that interact with API."""
-        from typer.testing import CliRunner
-
         from pynomaly.presentation.cli.app import app
+        from typer.testing import CliRunner
 
         runner = CliRunner()
 
@@ -588,9 +586,8 @@ class TestCLIIntegration:
 
     def test_cli_direct_service_integration(self):
         """Test CLI commands that use services directly."""
-        from typer.testing import CliRunner
-
         from pynomaly.presentation.cli.app import app
+        from typer.testing import CliRunner
 
         runner = CliRunner()
 

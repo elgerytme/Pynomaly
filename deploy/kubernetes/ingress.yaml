@@ -16,21 +16,21 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    
+
     # Rate limiting
     nginx.ingress.kubernetes.io/rate-limit: "100"
     nginx.ingress.kubernetes.io/rate-limit-window: "1m"
     nginx.ingress.kubernetes.io/rate-limit-connections: "10"
-    
+
     # Request size limits
     nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     nginx.ingress.kubernetes.io/client-max-body-size: "100m"
-    
+
     # Timeouts
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
-    
+
     # Security headers
     nginx.ingress.kubernetes.io/configuration-snippet: |
       add_header X-Content-Type-Options nosniff;
@@ -39,23 +39,23 @@ metadata:
       add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
       add_header Referrer-Policy "strict-origin-when-cross-origin";
       add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';";
-    
+
     # SSL certificate management (cert-manager)
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     cert-manager.io/acme-challenge-type: "http01"
-    
+
     # CORS configuration
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "https://pynomaly.local,https://grafana.pynomaly.local"
     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
     nginx.ingress.kubernetes.io/cors-allow-headers: "Authorization, Content-Type, X-Requested-With"
     nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
-    
+
     # Load balancing
     nginx.ingress.kubernetes.io/upstream-hash-by: "$remote_addr"
     nginx.ingress.kubernetes.io/affinity: "cookie"
     nginx.ingress.kubernetes.io/affinity-mode: "persistent"
-    
+
     # Health check
     nginx.ingress.kubernetes.io/health-check-path: "/api/health"
     nginx.ingress.kubernetes.io/health-check-interval: "30s"
@@ -102,20 +102,20 @@ metadata:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    
+
     # Authentication for monitoring services
     nginx.ingress.kubernetes.io/auth-type: basic
     nginx.ingress.kubernetes.io/auth-secret: pynomaly-monitoring-auth
     nginx.ingress.kubernetes.io/auth-realm: 'Pynomaly Monitoring - Authentication Required'
-    
+
     # Rate limiting for monitoring
     nginx.ingress.kubernetes.io/rate-limit: "50"
     nginx.ingress.kubernetes.io/rate-limit-window: "1m"
-    
+
     # SSL certificate management
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     cert-manager.io/acme-challenge-type: "http01"
-    
+
     # Security headers
     nginx.ingress.kubernetes.io/configuration-snippet: |
       add_header X-Content-Type-Options nosniff;
@@ -177,23 +177,23 @@ metadata:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    
+
     # Strong authentication for admin services
     nginx.ingress.kubernetes.io/auth-type: basic
     nginx.ingress.kubernetes.io/auth-secret: pynomaly-admin-auth
     nginx.ingress.kubernetes.io/auth-realm: 'Pynomaly Admin - Administrator Access Required'
-    
+
     # Strict rate limiting for admin
     nginx.ingress.kubernetes.io/rate-limit: "20"
     nginx.ingress.kubernetes.io/rate-limit-window: "1m"
-    
+
     # IP whitelist for admin access (customize for your environment)
     nginx.ingress.kubernetes.io/whitelist-source-range: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
-    
+
     # SSL certificate management
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     cert-manager.io/acme-challenge-type: "http01"
-    
+
     # Additional security headers for admin
     nginx.ingress.kubernetes.io/configuration-snippet: |
       add_header X-Content-Type-Options nosniff;

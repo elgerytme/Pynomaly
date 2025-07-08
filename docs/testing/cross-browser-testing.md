@@ -143,11 +143,11 @@ Our cross-browser testing strategy follows a **risk-based testing** approach:
 test.describe('Navigation Compatibility', () => {
   test('should navigate consistently across browsers', async ({ page, browserName }) => {
     await page.goto('/');
-    
+
     // Test main navigation
     await page.click('nav a[href="/dashboard"]');
     await expect(page).toHaveURL(/dashboard/);
-    
+
     // Verify browser-specific behavior
     if (browserName === 'webkit') {
       // Safari-specific assertions
@@ -190,13 +190,13 @@ Tests for form behavior across browsers:
 ```typescript
 test('should meet Core Web Vitals thresholds', async ({ page, browserName }) => {
   await page.goto('/dashboard');
-  
+
   const metrics = await page.evaluate(() => {
     return new Promise((resolve) => {
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const vitals = {};
-        
+
         entries.forEach((entry) => {
           if (entry.entryType === 'largest-contentful-paint') {
             vitals.LCP = entry.startTime;
@@ -208,23 +208,23 @@ test('should meet Core Web Vitals thresholds', async ({ page, browserName }) => 
             vitals.CLS = (vitals.CLS || 0) + entry.value;
           }
         });
-        
+
         setTimeout(() => resolve(vitals), 3000);
       });
-      
+
       observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
     });
   });
-  
+
   // Browser-specific thresholds
   const thresholds = {
     'chromium': { LCP: 2500, FID: 100, CLS: 0.1 },
     'firefox': { LCP: 3000, FID: 150, CLS: 0.15 },
     'webkit': { LCP: 3500, FID: 200, CLS: 0.2 }
   };
-  
+
   const threshold = thresholds[browserName] || thresholds['chromium'];
-  
+
   if (metrics.LCP) expect(metrics.LCP).toBeLessThan(threshold.LCP);
   if (metrics.FID) expect(metrics.FID).toBeLessThan(threshold.FID);
   if (metrics.CLS) expect(metrics.CLS).toBeLessThan(threshold.CLS);
@@ -245,7 +245,7 @@ test('should meet Core Web Vitals thresholds', async ({ page, browserName }) => 
 ```typescript
 test('should handle memory constraints efficiently', async ({ page, browserName }) => {
   await page.goto('/datasets');
-  
+
   const memoryUsage = await page.evaluate(() => {
     if (performance.memory) {
       return {
@@ -256,7 +256,7 @@ test('should handle memory constraints efficiently', async ({ page, browserName 
     }
     return null;
   });
-  
+
   if (memoryUsage) {
     // Memory usage should be reasonable
     expect(memoryUsage.used / memoryUsage.limit).toBeLessThan(0.8);
@@ -271,37 +271,37 @@ test('should handle memory constraints efficiently', async ({ page, browserName 
 ```typescript
 test('should maintain accessibility across browsers', async ({ page }) => {
   await page.goto('/');
-  
+
   // Test keyboard navigation
   await page.keyboard.press('Tab');
   const firstFocusable = await page.locator(':focus').first();
   await expect(firstFocusable).toBeVisible();
-  
+
   // Test screen reader landmarks
   const landmarks = await page.locator('[role="main"], [role="navigation"], [role="banner"]').count();
   expect(landmarks).toBeGreaterThan(0);
-  
+
   // Test color contrast
   const contrastIssues = await page.evaluate(() => {
     // Simplified contrast check
     const elements = document.querySelectorAll('*');
     let issues = 0;
-    
+
     elements.forEach(el => {
       const styles = window.getComputedStyle(el);
       const bgColor = styles.backgroundColor;
       const textColor = styles.color;
-      
+
       // Check if colors are set and contrasting
       if (bgColor !== 'rgba(0, 0, 0, 0)' && textColor !== 'rgba(0, 0, 0, 0)') {
         // Simplified contrast calculation
         // In real implementation, use proper contrast ratio calculation
       }
     });
-    
+
     return issues;
   });
-  
+
   expect(contrastIssues).toBe(0);
 });
 ```
@@ -381,7 +381,7 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] }
     },
     {
-      name: 'Desktop Firefox', 
+      name: 'Desktop Firefox',
       use: { ...devices['Desktop Firefox'] }
     },
     {
@@ -392,7 +392,7 @@ export default defineConfig({
       name: 'Desktop Edge',
       use: { ...devices['Desktop Edge'] }
     },
-    
+
     // Mobile browsers
     {
       name: 'Mobile Chrome',
@@ -402,14 +402,14 @@ export default defineConfig({
       name: 'Mobile Safari',
       use: { ...devices['iPhone 12'] }
     },
-    
+
     // Tablets
     {
       name: 'iPad',
       use: { ...devices['iPad Pro'] }
     }
   ],
-  
+
   reporter: [
     ['html'],
     ['./tests/ui/reporters/cross-browser-reporter.ts']
@@ -451,23 +451,23 @@ jobs:
     strategy:
       matrix:
         browser: [chromium, firefox, webkit]
-    
+
     steps:
       - uses: actions/checkout@v3
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps ${{ matrix.browser }}
-      
+
       - name: Run cross-browser tests
         run: npx playwright test --project="${{ matrix.browser }}"
-      
+
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()

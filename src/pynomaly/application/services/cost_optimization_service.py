@@ -969,7 +969,9 @@ class CostOptimizationService:
                         "severity": (
                             "critical"
                             if threshold >= 1.0
-                            else "high" if threshold >= 0.9 else "medium"
+                            else "high"
+                            if threshold >= 0.9
+                            else "medium"
                         ),
                     }
                 )

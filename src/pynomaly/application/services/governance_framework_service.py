@@ -474,7 +474,7 @@ class GovernanceFrameworkService:
         # Compliance monitoring
         self.compliance_violations: list[dict[str, Any]] = []
         self.compliance_file = self.storage_path / "compliance_violations.json"
-        
+
         # Compliance metrics storage
         self.compliance_metrics: dict[str, ComplianceMetric] = {}
         self.compliance_metrics_file = self.storage_path / "compliance_metrics.json"

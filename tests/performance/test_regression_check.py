@@ -142,7 +142,6 @@ def run_basic_functionality_test() -> dict[str, float]:
         start_time = time.time()
 
         import numpy as np
-
         from pynomaly.domain.entities import Dataset
         from pynomaly.infrastructure.adapters import SklearnAdapter
 

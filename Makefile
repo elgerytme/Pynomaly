@@ -53,6 +53,11 @@ help: ## Show this help message
 	@echo "  make docs-serve     - Serve documentation locally"
 	@echo "  make docker         - Build Docker image"
 	@echo ""
+	@echo "Data Generation:"
+	@echo "  make small_csv      - Generate a small 10,000-row CSV file"
+	@echo "  make synthetic_dataset - Generate a 10 GB synthetic dataset"
+	@echo "  make kafka_stream   - Start Kafka stream producing 1000 events per second"
+	@echo ""
 	@echo "Utilities:"
 	@echo "  make status         - Show project status and environment info"
 	@echo "  make env-show       - Show all Hatch environments"
@@ -93,6 +98,15 @@ help-detailed: ## Show detailed help with examples
 	@echo "• cli: CLI-specific testing"
 
 # === SETUP & INSTALLATION ===
+
+small_csv: ## Generate a small 10,000-row CSV file
+	@python scripts/generate_csv.py
+
+synthetic_dataset: ## Generate a 10 GB synthetic dataset
+	@python scripts/generate_synthetic_dataset.py
+
+kafka_stream: ## Start Kafka stream producing 1000 events per second
+	@python scripts/kafka_producer.py
 
 setup: ## Initial project setup - install Hatch and create environments
 	@echo "🚀 Setting up Pynomaly development environment..."
@@ -363,11 +377,29 @@ clean: npm-clean buck-clean ## Clean all build artifacts
 # === QUICK ALIASES ===
 
 l: lint     ## Alias for lint
-f: format   ## Alias for format  
+f: format   ## Alias for format
 t: test     ## Alias for test
 b: build    ## Alias for build
 c: clean    ## Alias for clean
 s: status   ## Alias for status
+
+# === CONTAINER SECURITY TARGETS (C-004) ===
+
+.PHONY: docker-build-hardened docker-security-scan docker-security-all
+
+docker-build-hardened: ## Build hardened Docker image
+	@echo "🔒 Building hardened Docker image..."
+	docker build -f deploy/docker/Dockerfile.hardened -t pynomaly:hardened .
+	@echo "✅ Hardened image built successfully"
+
+docker-security-scan: ## Run comprehensive container security scan
+	@echo "🔍 Running container security scan..."
+	@mkdir -p reports/security
+	python scripts/security/run_container_scans.py pynomaly:hardened --output-dir reports/security
+	@echo "✅ Security scan completed"
+
+docker-security-all: docker-build-hardened docker-security-scan ## Build and scan hardened image
+	@echo "🔒 Complete container security pipeline finished"
 
 # Make sure all targets are treated as commands, not files
 .DEFAULT_GOAL := help

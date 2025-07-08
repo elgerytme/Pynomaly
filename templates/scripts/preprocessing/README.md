@@ -66,7 +66,7 @@ preprocessor = IoTSensorPreprocessor(config={
 })
 
 processed_data, metadata = preprocessor.preprocess(
-    sensor_df, 
+    sensor_df,
     timestamp_column='timestamp',
     sensor_columns=['temp', 'humidity', 'pressure']
 )
@@ -107,7 +107,7 @@ preprocessor = TextDataPreprocessor(config={
 })
 
 processed_data, metadata = preprocessor.preprocess(
-    text_df, 
+    text_df,
     text_columns=['content', 'description'],
     metadata_columns=['id', 'category', 'timestamp']
 )
@@ -149,7 +149,7 @@ medical_columns = {
 }
 
 processed_data, metadata = preprocessor.preprocess(
-    healthcare_df, 
+    healthcare_df,
     patient_id_col='patient_id',
     medical_columns=medical_columns
 )
@@ -367,14 +367,14 @@ class CustomFinancialPreprocessor(FinancialDataPreprocessor):
         # Add custom risk calculations
         df['custom_risk_score'] = self._calculate_custom_risk(df)
         return df
-    
+
     def preprocess(self, data, **kwargs):
         # Call parent preprocessing
         df, metadata = super().preprocess(data, **kwargs)
-        
+
         # Add custom step
         df = self._custom_risk_features(df)
-        
+
         return df, metadata
 ```
 
@@ -405,10 +405,10 @@ from sklearn.ensemble import IsolationForest
 class PreprocessingTransformer:
     def __init__(self, preprocessor):
         self.preprocessor = preprocessor
-    
+
     def fit(self, X, y=None):
         return self
-    
+
     def transform(self, X):
         processed_data, _ = self.preprocessor.preprocess(X)
         return processed_data

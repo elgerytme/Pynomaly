@@ -7,7 +7,6 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import List, Optional
 
 import typer
 from rich.console import Console
@@ -47,16 +46,16 @@ app = typer.Typer(
 @require_feature("intelligent_selection")
 def recommend(
     dataset_path: Path = typer.Argument(..., help="Path to dataset file (CSV or Parquet)", exists=True),
-    max_training_time: Optional[float] = typer.Option(None, "--max-training-time", help="Maximum training time in seconds"),
-    max_memory: Optional[float] = typer.Option(None, "--max-memory", help="Maximum memory usage in MB"),
-    min_accuracy: Optional[float] = typer.Option(None, "--min-accuracy", help="Minimum required accuracy (0-1)"),
+    max_training_time: float | None = typer.Option(None, "--max-training-time", help="Maximum training time in seconds"),
+    max_memory: float | None = typer.Option(None, "--max-memory", help="Maximum memory usage in MB"),
+    min_accuracy: float | None = typer.Option(None, "--min-accuracy", help="Minimum required accuracy (0-1)"),
     require_interpretability: bool = typer.Option(
         False,
         "--require-interpretability/--no-interpretability",
         help="Require interpretable algorithms"
     ),
     gpu: bool = typer.Option(False, "--gpu/--no-gpu", help="GPU availability"),
-    output: Optional[Path] = typer.Option(None, "--output", help="Output file for recommendations"),
+    output: Path | None = typer.Option(None, "--output", help="Output file for recommendations"),
     top_k: int = typer.Option(5, "--top-k", help="Number of top recommendations to show"),
 ):
     """Recommend optimal algorithms for a dataset.
@@ -133,10 +132,10 @@ def recommend(
 @require_feature("intelligent_selection")
 def benchmark(
     dataset_path: Path = typer.Argument(..., help="Path to dataset file (CSV or Parquet)", exists=True),
-    algorithms: Optional[List[str]] = typer.Option(None, "-a", "--algorithms", help="Specific algorithms to benchmark"),
+    algorithms: list[str] | None = typer.Option(None, "-a", "--algorithms", help="Specific algorithms to benchmark"),
     cv_folds: int = typer.Option(3, "--cv-folds", help="Cross-validation folds"),
-    max_training_time: Optional[float] = typer.Option(None, "--max-training-time", help="Maximum training time per algorithm"),
-    output: Optional[Path] = typer.Option(None, "--output", help="Output file for benchmark results"),
+    max_training_time: float | None = typer.Option(None, "--max-training-time", help="Maximum training time per algorithm"),
+    output: Path | None = typer.Option(None, "--output", help="Output file for benchmark results"),
 ):
     """Benchmark algorithms on a dataset.
 
@@ -213,9 +212,9 @@ def learn(
     dataset_path: Path = typer.Argument(..., help="Path to dataset file used", exists=True),
     algorithm: str = typer.Argument(..., help="Algorithm that was used"),
     performance_score: float = typer.Option(..., "--performance-score", help="Achieved performance score (0-1)"),
-    training_time: Optional[float] = typer.Option(None, "--training-time", help="Training time in seconds"),
-    memory_usage: Optional[float] = typer.Option(None, "--memory-usage", help="Memory usage in MB"),
-    additional_metrics: Optional[str] = typer.Option(None, "--additional-metrics", help="Additional metrics as JSON string"),
+    training_time: float | None = typer.Option(None, "--training-time", help="Training time in seconds"),
+    memory_usage: float | None = typer.Option(None, "--memory-usage", help="Memory usage in MB"),
+    additional_metrics: str | None = typer.Option(None, "--additional-metrics", help="Additional metrics as JSON string"),
 ):
     """Learn from algorithm selection result.
 
@@ -276,7 +275,7 @@ def learn(
 @require_feature("intelligent_selection")
 def insights(
     min_samples: int = typer.Option(10, "--min-samples", help="Minimum samples required for reliable insights"),
-    output: Optional[Path] = typer.Option(None, "--output", help="Output file for insights"),
+    output: Path | None = typer.Option(None, "--output", help="Output file for insights"),
 ):
     """Get insights from algorithm selection history.
 

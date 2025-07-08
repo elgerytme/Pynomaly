@@ -46,9 +46,8 @@ def show_dashboard(
     duration: int = typer.Option(
         60, "--duration", "-d", help="Duration to display in seconds"
     ),
-    export_file: str | None = typer.Option(
-        None, "--export", help="Export data to file"
-    ),
+    export_file: str
+    | None = typer.Option(None, "--export", help="Export data to file"),
     format: str = typer.Option("json", "--format", help="Export format (json)"),
 ):
     """Display real-time enterprise dashboard.
@@ -201,7 +200,8 @@ def executive_summary():
 
 @app.command("alerts")
 def list_alerts(
-    priority: str | None = typer.Option(
+    priority: str
+    | None = typer.Option(
         None, "--priority", help="Filter by priority (low, medium, high, critical)"
     ),
     limit: int = typer.Option(20, "--limit", help="Maximum alerts to display"),

@@ -6,15 +6,15 @@ import asyncio
 import logging
 import time
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Union
-from uuid import UUID, uuid4
+from typing import Any
+from uuid import uuid4
 
 import numpy as np
 
-from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.exceptions import StreamingError, ValidationError
@@ -88,9 +88,9 @@ class StreamSample:
     id: str
     data: np.ndarray
     timestamp: datetime
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     source: str = "unknown"
-    sequence_number: Optional[int] = None
+    sequence_number: int | None = None
 
 
 @dataclass
@@ -98,10 +98,10 @@ class StreamBatch:
     """A batch of stream samples."""
 
     id: str
-    samples: List[StreamSample]
+    samples: list[StreamSample]
     created_at: datetime
     priority: int = 0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
     def size(self) -> int:
@@ -164,12 +164,12 @@ class StreamingResult:
     """Result of streaming detection for a batch."""
 
     batch_id: str
-    sample_results: List[DetectionResult]
+    sample_results: list[DetectionResult]
     processing_time_ms: float
     anomalies_detected: int
     batch_size: int
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class StreamingDetectionService:
@@ -178,9 +178,9 @@ class StreamingDetectionService:
     def __init__(
         self,
         detector: Detector,
-        config: Optional[StreamingConfig] = None,
-        result_handler: Optional[Callable[[StreamingResult], None]] = None,
-        anomaly_callback: Optional[Callable[[DetectionResult], None]] = None,
+        config: StreamingConfig | None = None,
+        result_handler: Callable[[StreamingResult], None] | None = None,
+        anomaly_callback: Callable[[DetectionResult], None] | None = None,
     ):
         """Initialize streaming detection service.
 
@@ -219,7 +219,7 @@ class StreamingDetectionService:
 
         # Drift detection
         self._drift_window = deque(maxlen=self.config.drift_window_size)
-        self._reference_distribution: Optional[np.ndarray] = None
+        self._reference_distribution: np.ndarray | None = None
 
         # Adaptive batching
         self._current_batch_size = self.config.batch_size
@@ -227,10 +227,13 @@ class StreamingDetectionService:
         self._throughput_samples = deque(maxlen=10)
 
         # Processing tasks
-        self._processing_tasks: List[asyncio.Task] = []
+        self._processing_tasks: list[asyncio.Task] = []
 
         # Sample sequence counter
         self._sequence_counter = 0
+
+        # Detection result callbacks
+        self._detection_callbacks: list[Callable[[StreamingResult], None]] = []
 
     async def start_stream(self) -> None:
         """Start the streaming detection service."""
@@ -316,9 +319,9 @@ class StreamingDetectionService:
 
     async def process_sample(
         self,
-        data: Union[np.ndarray, List[float], Dict[str, Any]],
-        sample_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        data: np.ndarray | list[float] | dict[str, Any],
+        sample_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
         source: str = "api",
     ) -> bool:
         """Process a single sample through the stream.
@@ -377,9 +380,9 @@ class StreamingDetectionService:
 
     async def process_batch(
         self,
-        samples: List[Dict[str, Any]],
-        batch_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        samples: list[dict[str, Any]],
+        batch_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> bool:
         """Process a batch of samples.
 
@@ -419,7 +422,7 @@ class StreamingDetectionService:
 
         return self.metrics
 
-    async def get_stream_health(self) -> Dict[str, Any]:
+    async def get_stream_health(self) -> dict[str, Any]:
         """Get stream health status."""
 
         metrics = await self.get_metrics()
@@ -459,6 +462,41 @@ class StreamingDetectionService:
                 datetime.utcnow() - metrics.stream_start_time
             ).total_seconds(),
         }
+
+    def register_detection_callback(self, callback: Callable[[StreamingResult], None]) -> None:
+        """Register a callback for detection results.
+
+        Args:
+            callback: Function to call when detection results are available
+        """
+        if callback not in self._detection_callbacks:
+            self._detection_callbacks.append(callback)
+            self.logger.info(f"Registered detection callback: {callback.__name__}")
+
+    def unregister_detection_callback(self, callback: Callable[[StreamingResult], None]) -> None:
+        """Unregister a detection result callback.
+
+        Args:
+            callback: Function to remove from callbacks
+        """
+        if callback in self._detection_callbacks:
+            self._detection_callbacks.remove(callback)
+            self.logger.info(f"Unregistered detection callback: {callback.__name__}")
+
+    async def _notify_detection_callbacks(self, result: StreamingResult) -> None:
+        """Notify all registered callbacks of detection results.
+
+        Args:
+            result: Detection result to send to callbacks
+        """
+        for callback in self._detection_callbacks:
+            try:
+                if asyncio.iscoroutinefunction(callback):
+                    await callback(result)
+                else:
+                    callback(result)
+            except Exception as e:
+                self.logger.error(f"Error in detection callback {callback.__name__}: {e}")
 
     async def _batch_creation_loop(self) -> None:
         """Main loop for creating batches from individual samples."""
@@ -542,7 +580,7 @@ class StreamingDetectionService:
                 # Get batch from queue
                 try:
                     batch = await asyncio.wait_for(self.batch_queue.get(), timeout=0.1)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     continue
 
                 # Skip processing if paused
@@ -600,7 +638,7 @@ class StreamingDetectionService:
                     result = await asyncio.wait_for(
                         self.result_queue.get(), timeout=0.1
                     )
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     continue
 
                 # Handle result
@@ -610,6 +648,9 @@ class StreamingDetectionService:
                         await asyncio.create_task(
                             self._safe_call_handler(self.result_handler, result)
                         )
+
+                    # Notify detection callbacks
+                    await self._notify_detection_callbacks(result)
 
                     # Handle individual anomalies
                     if self.anomaly_callback:
@@ -775,7 +816,7 @@ class StreamingDetectionService:
             anomalies_detected = 0
 
             for i, (sample, score, prediction) in enumerate(
-                zip(batch.samples, scores, predictions)
+                zip(batch.samples, scores, predictions, strict=False)
             ):
                 is_anomaly = bool(prediction)
                 if is_anomaly:
@@ -867,7 +908,7 @@ class StreamingDetectionService:
                 await self.input_queue.put(sample)
                 return True
 
-            except (asyncio.TimeoutError, asyncio.QueueFull):
+            except (TimeoutError, asyncio.QueueFull):
                 self.metrics.samples_dropped += 1
                 return False
 
@@ -879,7 +920,7 @@ class StreamingDetectionService:
 
         elif strategy == BackpressureStrategy.ALERT_ONLY:
             # Just log the backpressure but try to queue anyway
-            self.logger.warning(f"Backpressure detected but continuing processing")
+            self.logger.warning("Backpressure detected but continuing processing")
             try:
                 await self.input_queue.put(sample)
                 return True
@@ -970,7 +1011,7 @@ class StreamingDetectionService:
                     if self.result_handler:
                         await self._safe_call_handler(self.result_handler, result)
 
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     break
                 except Exception as e:
                     self.logger.warning(f"Error draining batch queue: {e}")
@@ -985,7 +1026,7 @@ class StreamingDetectionService:
                     if self.result_handler:
                         await self._safe_call_handler(self.result_handler, result)
 
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     break
                 except Exception as e:
                     self.logger.warning(f"Error draining result queue: {e}")
@@ -999,7 +1040,7 @@ class StreamingDetectionFactory:
 
     @staticmethod
     def create_service(
-        detector: Detector, config: Optional[StreamingConfig] = None, **kwargs
+        detector: Detector, config: StreamingConfig | None = None, **kwargs
     ) -> StreamingDetectionService:
         """Create a streaming detection service.
 

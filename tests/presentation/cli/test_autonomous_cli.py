@@ -10,9 +10,8 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
-from typer.testing import CliRunner
-
 from pynomaly.presentation.cli.autonomous import app
+from typer.testing import CliRunner
 
 
 class TestAutonomousCLI:

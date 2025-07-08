@@ -15,12 +15,10 @@ console = Console()
 
 @app.command("list")
 def list_detectors(
-    algorithm: str | None = typer.Option(
-        None, "--algorithm", "-a", help="Filter by algorithm"
-    ),
-    fitted: bool | None = typer.Option(
-        None, "--fitted", help="Filter by fitted status"
-    ),
+    algorithm: str
+    | None = typer.Option(None, "--algorithm", "-a", help="Filter by algorithm"),
+    fitted: bool
+    | None = typer.Option(None, "--fitted", help="Filter by fitted status"),
     limit: int = typer.Option(10, "--limit", "-l", help="Maximum results to show"),
 ):
     """List all detectors."""
@@ -69,9 +67,8 @@ def create_detector(
     algorithm: str = typer.Option(
         "IsolationForest", "--algorithm", "-a", help="Algorithm to use"
     ),
-    description: str | None = typer.Option(
-        None, "--description", "-d", help="Detector description"
-    ),
+    description: str
+    | None = typer.Option(None, "--description", "-d", help="Detector description"),
     contamination: float = typer.Option(
         0.1, "--contamination", "-c", help="Expected contamination rate"
     ),
@@ -219,9 +216,8 @@ def delete_detector(
 
 @app.command("algorithms")
 def list_algorithms(
-    category: str | None = typer.Option(
-        None, "--category", "-c", help="Filter by category"
-    ),
+    category: str
+    | None = typer.Option(None, "--category", "-c", help="Filter by category"),
 ):
     """List available algorithms."""
     get_cli_container()

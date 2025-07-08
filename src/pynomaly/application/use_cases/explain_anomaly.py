@@ -31,7 +31,7 @@ class ExplainAnomalyRequest:
 class ExplainAnomalyResponse:
     """Response with anomaly explanations."""
 
-    explanations: dict[int, "AnomalyExplanation"]
+    explanations: dict[int, AnomalyExplanation]
     global_importance: dict[str, float] | None = None
     method_used: str = "shap"
 

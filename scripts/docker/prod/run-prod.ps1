@@ -77,7 +77,7 @@ if ($Build) {
 # Start monitoring stack if requested
 if ($Monitoring) {
     Write-Host "Starting monitoring stack..."
-    
+
     # Start Prometheus
     docker run -d `
         --name "pynomaly-prometheus-prod" `
@@ -109,7 +109,7 @@ if ($Monitoring) {
 # Start logging stack if requested
 if ($Logging) {
     Write-Host "Starting logging stack..."
-    
+
     # Start Elasticsearch
     docker run -d `
         --name "pynomaly-elasticsearch-prod" `
@@ -174,7 +174,7 @@ Write-Host "Starting $Replicas application replicas..."
 for ($i = 1; $i -le $Replicas; $i++) {
     $AppPort = 8000 + $i - 1
     Write-Host "Starting replica $i on port $AppPort..."
-    
+
     $Args = @(
         "run", "-d",
         "--name", "${ContainerName}-${i}",
@@ -215,7 +215,7 @@ for ($i = 1; $i -le $Replicas; $i++) {
         "--error-logfile", "/app/logs/error.log",
         "--log-level", "info"
     )
-    
+
     & docker @Args
 }
 

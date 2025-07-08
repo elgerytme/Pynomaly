@@ -61,7 +61,7 @@ spec:
         - |
           set -e
           echo "Initializing Redis configuration..."
-          
+
           # Create Redis configuration
           cat > /opt/redis/redis.conf << 'EOF'
           # Redis Cluster Configuration
@@ -72,7 +72,7 @@ spec:
           cluster-announce-hostname $(hostname).pynomaly-redis-headless.pynomaly.svc.cluster.local
           cluster-announce-port 6379
           cluster-announce-bus-port 16379
-          
+
           # Persistence
           save 900 1
           save 300 10
@@ -82,7 +82,7 @@ spec:
           rdbchecksum yes
           dbfilename dump.rdb
           dir /data
-          
+
           # AOF
           appendonly yes
           appendfilename appendonly.aof
@@ -90,27 +90,27 @@ spec:
           no-appendfsync-on-rewrite no
           auto-aof-rewrite-percentage 100
           auto-aof-rewrite-min-size 64mb
-          
+
           # Memory Management
           maxmemory 2gb
           maxmemory-policy allkeys-lru
-          
+
           # Security
           protected-mode no
-          
+
           # Logging
           loglevel notice
           logfile /var/log/redis/redis.log
-          
+
           # Performance
           tcp-keepalive 300
           timeout 0
           tcp-backlog 511
-          
+
           # Monitoring
           latency-monitor-threshold 100
           EOF
-          
+
           # Set permissions
           chown -R 999:999 /opt/redis/
         volumeMounts:
@@ -354,7 +354,7 @@ spec:
         - |
           set -e
           echo "Waiting for Redis pods to be ready..."
-          
+
           # Wait for all Redis pods to be ready
           for i in {0..5}; do
             echo "Checking pod pynomaly-redis-cluster-$i..."
@@ -363,9 +363,9 @@ spec:
               sleep 5
             done
           done
-          
+
           echo "All Redis pods are ready. Initializing cluster..."
-          
+
           # Create cluster
           redis-cli --cluster create \
             pynomaly-redis-cluster-0.pynomaly-redis-headless.pynomaly.svc.cluster.local:6379 \
@@ -376,7 +376,7 @@ spec:
             pynomaly-redis-cluster-5.pynomaly-redis-headless.pynomaly.svc.cluster.local:6379 \
             --cluster-replicas 1 \
             --cluster-yes
-          
+
           echo "Redis cluster initialized successfully!"
         resources:
           requests:
@@ -566,21 +566,21 @@ data:
       prediction_cache_ttl_seconds: 60
       max_memory_mb: 1024
       eviction_policy: "lru"
-      
+
     compression:
       enabled: true
       algorithm: "lz4"
       min_size_bytes: 1024
-      
+
     clustering:
       enabled: true
       replication_factor: 1
       consistency_level: "eventual"
-      
+
     monitoring:
       enable_detailed_metrics: true
       metrics_interval_seconds: 30
-      
+
     performance:
       connection_pool_size: 20
       max_connections: 100

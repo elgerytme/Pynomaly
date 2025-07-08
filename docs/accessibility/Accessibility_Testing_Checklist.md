@@ -189,7 +189,7 @@ Testing Tool: Colour Contrast Analyser
 
 Pages to Test:
 - / (Homepage)
-- /dashboard 
+- /dashboard
 - /datasets
 - /datasets/upload
 - /models

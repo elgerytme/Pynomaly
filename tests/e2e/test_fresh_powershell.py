@@ -6,7 +6,6 @@ print("FRESH POWERSHELL Test")
 print("Python:", sys.version.split()[0])
 
 try:
-
     print("SUCCESS - Package import")
 
     from pynomaly.presentation.sdk.models import AnomalyScore

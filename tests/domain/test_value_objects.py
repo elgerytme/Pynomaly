@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import pytest
-
 from pynomaly.domain.exceptions import InvalidValueError
 from pynomaly.domain.value_objects import (
     AnomalyScore,

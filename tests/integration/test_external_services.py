@@ -9,11 +9,7 @@ from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 import pytest
-
-from pynomaly.infrastructure.external.cloud_storage import (
-    GCSClient,
-    S3Client,
-)
+from pynomaly.infrastructure.external.cloud_storage import GCSClient, S3Client
 from pynomaly.infrastructure.external.database_clients import (
     MongoDBClient,
     PostgreSQLClient,

@@ -1,12 +1,9 @@
 """Enhanced integration tests with improved isolation and comprehensive mocking."""
 
-import asyncio
-import os
 import tempfile
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -327,7 +324,6 @@ class TestEnhancedIntegrationIsolation:
 
         # Mock HTTP requests
         with patch("requests.get") as mock_get, patch("requests.post") as mock_post:
-
             mock_get.return_value = mocked_dependencies.api_mocks["response"]
             mock_post.return_value = mocked_dependencies.api_mocks["response"]
 
@@ -370,7 +366,6 @@ class TestEnhancedIntegrationIsolation:
                 "pynomaly.infrastructure.data_loaders.csv_loader.CSVLoader"
             ) as mock_loader,
         ):
-
             # Setup mocks
             mock_if.return_value = mocked_dependencies.pyod_mocks["IsolationForest"]
             mock_session.return_value = mocked_dependencies.database_mocks["session"]
@@ -650,7 +645,7 @@ class TestContainerIntegration:
             # Insert test data
             cursor.execute(
                 """
-                INSERT INTO test_detectors (name, algorithm) 
+                INSERT INTO test_detectors (name, algorithm)
                 VALUES (%s, %s)
             """,
                 ("Test Detector", "IsolationForest"),

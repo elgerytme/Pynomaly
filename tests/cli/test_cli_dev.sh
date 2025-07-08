@@ -46,23 +46,23 @@ run_test() {
     local test_name="$1"
     local test_command="$2"
     local expected_exit_code="${3:-0}"
-    
+
     ((TOTAL_TESTS++))
     log "Running test: $test_name"
-    
+
     local start_time=$(date +%s)
     local output
     local exit_code
-    
+
     if output=$(eval "$test_command" 2>&1); then
         exit_code=0
     else
         exit_code=$?
     fi
-    
+
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    
+
     if [ "$exit_code" -eq "$expected_exit_code" ]; then
         log_success "$test_name (${duration}s)"
     else
@@ -74,7 +74,7 @@ run_test() {
 # Generate simple test data
 generate_test_data() {
     log "Generating test data..."
-    
+
     # Small CSV file
     cat > "$TEST_DATA_DIR/small_data.csv" << 'EOF'
 id,value1,value2,value3,category
@@ -91,15 +91,15 @@ EOF
 # Test basic functionality that should work even without full installation
 test_basic_module_import() {
     log "Testing basic module imports..."
-    
+
     cd "$PROJECT_ROOT"
-    
+
     # Test Python path and basic imports
     run_test "Python Path Setup" "export PYTHONPATH='$PROJECT_ROOT/src:\$PYTHONPATH' && python3 -c 'import sys; print(\"Python path setup successful\")'"
-    
+
     # Test basic module import
     run_test "Basic Module Import" "export PYTHONPATH='$PROJECT_ROOT/src:\$PYTHONPATH' && python3 -c 'import pynomaly.domain.entities.anomaly'"
-    
+
     # Test CLI module import
     run_test "CLI Module Import" "export PYTHONPATH='$PROJECT_ROOT/src:\$PYTHONPATH' && python3 -c 'from pynomaly.presentation.cli.app import app'"
 }
@@ -107,13 +107,13 @@ test_basic_module_import() {
 # Test CLI app directly through Python
 test_cli_direct() {
     log "Testing CLI through direct Python execution..."
-    
+
     cd "$PROJECT_ROOT"
     export PYTHONPATH="$PROJECT_ROOT/src:$PYTHONPATH"
-    
+
     # Test CLI help
     run_test "CLI Help Direct" "python3 -m pynomaly.presentation.cli.app --help"
-    
+
     # Test CLI version if available
     run_test "CLI Version Direct" "python3 -c 'from pynomaly.presentation.cli.app import app; import typer; typer.main.get_command(app)([\"version\"])'" || true
 }
@@ -121,13 +121,13 @@ test_cli_direct() {
 # Test autonomous service
 test_autonomous_service() {
     log "Testing autonomous service functionality..."
-    
+
     cd "$PROJECT_ROOT"
     export PYTHONPATH="$PROJECT_ROOT/src:$PYTHONPATH"
-    
+
     # Test autonomous service import
     run_test "Autonomous Service Import" "python3 -c 'from pynomaly.application.services.autonomous_service import AutonomousDetectionService'"
-    
+
     # Test data loader imports
     run_test "CSV Loader Import" "python3 -c 'from pynomaly.infrastructure.data_loaders.csv_loader import CSVLoader'"
     run_test "JSON Loader Import" "python3 -c 'from pynomaly.infrastructure.data_loaders.json_loader import JSONLoader'"
@@ -136,13 +136,13 @@ test_autonomous_service() {
 # Test container and dependency injection
 test_container() {
     log "Testing container and dependency injection..."
-    
+
     cd "$PROJECT_ROOT"
     export PYTHONPATH="$PROJECT_ROOT/src:$PYTHONPATH"
-    
+
     # Test container import
     run_test "Container Import" "python3 -c 'from pynomaly.presentation.cli.container import get_cli_container'"
-    
+
     # Test container creation
     run_test "Container Creation" "python3 -c 'from pynomaly.presentation.cli.container import get_cli_container; container = get_cli_container(); print(\"Container created successfully\")'"
 }
@@ -150,16 +150,16 @@ test_container() {
 # Test with Poetry if available
 test_with_poetry() {
     log "Testing with Poetry..."
-    
+
     cd "$PROJECT_ROOT"
-    
+
     # Try to install in development mode
     if command -v poetry &> /dev/null; then
         log "Poetry detected, attempting development installation..."
-        
+
         # Install dependencies only (not the package itself due to pyproject.toml issues)
         run_test "Poetry Dependencies Install" "poetry install --only main" || true
-        
+
         # Test if we can run with poetry
         run_test "Poetry Python Path" "poetry run python -c 'import sys; print(sys.path[0])'" || true
     else
@@ -178,14 +178,14 @@ main() {
     log "Starting Pynomaly CLI development environment tests"
     log "Platform: $(uname -s) $(uname -r)"
     log "Python: $(python3 --version 2>&1)"
-    
+
     generate_test_data
     test_basic_module_import
     test_autonomous_service
     test_container
     test_cli_direct
     test_with_poetry
-    
+
     # Summary
     echo ""
     echo "=============================================="
@@ -199,7 +199,7 @@ main() {
     fi
     echo "=============================================="
     echo ""
-    
+
     if [ $FAILED_TESTS -eq 0 ]; then
         echo -e "${GREEN}🎉 All development tests passed!${NC}"
         echo "Log file: $LOG_FILE"

@@ -1,6 +1,5 @@
 """Integration tests for complete API workflows."""
 
-import os
 
 import pytest
 from httpx import AsyncClient

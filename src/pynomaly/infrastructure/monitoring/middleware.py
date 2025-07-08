@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 import time
 from contextlib import asynccontextmanager
-from typing import Any, Callable, Dict, Optional
+from typing import Optional
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.base import BaseHTTPMiddleware

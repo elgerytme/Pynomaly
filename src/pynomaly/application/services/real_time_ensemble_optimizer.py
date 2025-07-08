@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 import time
-from collections import defaultdict, deque
+from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -41,10 +40,10 @@ class ModelArm(BaseModel):
     algorithm_name: str
     total_rewards: float = 0.0
     total_pulls: int = 0
-    recent_rewards: List[float] = Field(default_factory=list)
+    recent_rewards: list[float] = Field(default_factory=list)
     last_selected: Optional[datetime] = None
-    confidence_intervals: Tuple[float, float] = (0.0, 1.0)
-    context_features: Dict[str, float] = Field(default_factory=dict)
+    confidence_intervals: tuple[float, float] = (0.0, 1.0)
+    context_features: dict[str, float] = Field(default_factory=dict)
 
     def get_average_reward(self) -> float:
         """Get average reward for this arm."""
@@ -87,7 +86,7 @@ class DataContext:
     sample_size: int = 0
     feature_count: int = 0
     anomaly_density: float = 0.0
-    temporal_patterns: Dict[str, float] = field(default_factory=dict)
+    temporal_patterns: dict[str, float] = field(default_factory=dict)
 
 
 class RealTimeEnsembleOptimizer:
@@ -123,12 +122,12 @@ class RealTimeEnsembleOptimizer:
         self.learning_rate = learning_rate
 
         # Model arms for bandit algorithms
-        self.model_arms: Dict[str, ModelArm] = {}
+        self.model_arms: dict[str, ModelArm] = {}
 
         # Performance tracking
         self.performance_history: deque = deque(maxlen=optimization_window)
-        self.current_ensemble: Optional[List[Detector]] = None
-        self.ensemble_weights: Dict[str, float] = {}
+        self.current_ensemble: Optional[list[Detector]] = None
+        self.ensemble_weights: dict[str, float] = {}
 
         # Optimization state
         self.total_predictions = 0
@@ -144,13 +143,13 @@ class RealTimeEnsembleOptimizer:
         self.last_drift_check = datetime.now()
 
         # Performance monitoring
-        self.performance_buffer: List[EnsemblePerformanceMetrics] = []
+        self.performance_buffer: list[EnsemblePerformanceMetrics] = []
 
         logger.info(
             f"Initialized real-time ensemble optimizer with strategy: {optimization_strategy}"
         )
 
-    async def initialize_ensemble(self, initial_dataset: Dataset) -> List[Detector]:
+    async def initialize_ensemble(self, initial_dataset: Dataset) -> list[Detector]:
         """Initialize the ensemble with base algorithms."""
         logger.info("Initializing base ensemble")
 
@@ -179,7 +178,7 @@ class RealTimeEnsembleOptimizer:
 
     async def predict_with_optimization(
         self, data: Dataset, feedback: Optional[np.ndarray] = None
-    ) -> Tuple[np.ndarray, Dict[str, Any]]:
+    ) -> tuple[np.ndarray, dict[str, Any]]:
         """Make predictions while optimizing ensemble in real-time.
 
         Args:
@@ -357,9 +356,10 @@ class RealTimeEnsembleOptimizer:
         logger.info("Reoptimizing ensemble due to drift detection")
 
         # Create new ensemble
-        new_ensemble, report = (
-            await self.base_ensemble_service.create_intelligent_ensemble(data)
-        )
+        (
+            new_ensemble,
+            report,
+        ) = await self.base_ensemble_service.create_intelligent_ensemble(data)
 
         # Update model arms with new models
         old_arms = self.model_arms.copy()
@@ -398,7 +398,7 @@ class RealTimeEnsembleOptimizer:
         weight = 1.0 / len(new_ensemble)
         self.ensemble_weights = {f"model_{i}": weight for i in range(len(new_ensemble))}
 
-    async def _select_optimal_models(self) -> List[ModelArm]:
+    async def _select_optimal_models(self) -> list[ModelArm]:
         """Select optimal models based on optimization strategy."""
         if not self.model_arms:
             return []
@@ -417,7 +417,7 @@ class RealTimeEnsembleOptimizer:
             # Default: select all models with equal weights
             return list(self.model_arms.values())
 
-    async def _select_with_multi_armed_bandit(self) -> List[ModelArm]:
+    async def _select_with_multi_armed_bandit(self) -> list[ModelArm]:
         """Select models using multi-armed bandit algorithm."""
         total_pulls = sum(arm.total_pulls for arm in self.model_arms.values())
 
@@ -440,11 +440,11 @@ class RealTimeEnsembleOptimizer:
 
         return selected_arms
 
-    async def _select_with_ucb(self) -> List[ModelArm]:
+    async def _select_with_ucb(self) -> list[ModelArm]:
         """Select models using Upper Confidence Bound."""
         return await self._select_with_multi_armed_bandit()  # Same implementation
 
-    async def _select_with_epsilon_greedy(self) -> List[ModelArm]:
+    async def _select_with_epsilon_greedy(self) -> list[ModelArm]:
         """Select models using epsilon-greedy strategy."""
         if np.random.random() < self.exploration_rate:
             # Exploration: random selection
@@ -459,7 +459,7 @@ class RealTimeEnsembleOptimizer:
             # Select top 3 models
             return sorted_arms[:3]
 
-    async def _select_with_thompson_sampling(self) -> List[ModelArm]:
+    async def _select_with_thompson_sampling(self) -> list[ModelArm]:
         """Select models using Thompson sampling."""
         # Sample from beta distribution for each arm
         arm_samples = []
@@ -487,7 +487,7 @@ class RealTimeEnsembleOptimizer:
 
         return selected_arms
 
-    async def _select_with_contextual_bandit(self) -> List[ModelArm]:
+    async def _select_with_contextual_bandit(self) -> list[ModelArm]:
         """Select models using contextual bandit with current context."""
         if not self.current_context:
             return await self._select_with_ucb()
@@ -545,7 +545,7 @@ class RealTimeEnsembleOptimizer:
         return np.array(features)
 
     async def _make_ensemble_prediction(
-        self, data: Dataset, selected_models: List[ModelArm]
+        self, data: Dataset, selected_models: list[ModelArm]
     ) -> np.ndarray:
         """Make ensemble prediction using selected models."""
         if not selected_models or not self.current_ensemble:
@@ -596,7 +596,7 @@ class RealTimeEnsembleOptimizer:
         self,
         predictions: np.ndarray,
         feedback: np.ndarray,
-        selected_models: List[ModelArm],
+        selected_models: list[ModelArm],
     ) -> None:
         """Update model arms with feedback."""
         if len(predictions) == 0 or len(feedback) == 0:
@@ -676,7 +676,7 @@ class RealTimeEnsembleOptimizer:
         except Exception as e:
             logger.error(f"Error updating contextual features for {arm.model_id}: {e}")
 
-    async def _trigger_optimization_if_needed(self) -> Dict[str, Any]:
+    async def _trigger_optimization_if_needed(self) -> dict[str, Any]:
         """Trigger optimization if conditions are met."""
         current_time = datetime.now()
         optimization_info = {
@@ -738,9 +738,9 @@ class RealTimeEnsembleOptimizer:
                 arm_performances[arm_id] = combined_performance
                 total_performance += combined_performance
             else:
-                arm_performances[arm_id] = (
-                    0.1  # Small default weight for unexplored arms
-                )
+                arm_performances[
+                    arm_id
+                ] = 0.1  # Small default weight for unexplored arms
                 total_performance += 0.1
 
         # Normalize weights
@@ -770,7 +770,7 @@ class RealTimeEnsembleOptimizer:
             for arm_id in self.ensemble_weights:
                 self.ensemble_weights[arm_id] /= total_weight
 
-    def _get_model_arm_statistics(self) -> Dict[str, Any]:
+    def _get_model_arm_statistics(self) -> dict[str, Any]:
         """Get statistics about model arms."""
         stats = {
             "total_arms": len(self.model_arms),
@@ -832,7 +832,7 @@ class RealTimeEnsembleOptimizer:
 
         return stats
 
-    async def get_optimization_report(self) -> Dict[str, Any]:
+    async def get_optimization_report(self) -> dict[str, Any]:
         """Get comprehensive optimization report."""
         current_time = datetime.now()
 
@@ -870,7 +870,7 @@ class RealTimeEnsembleOptimizer:
 
         return report
 
-    def _calculate_recent_performance(self) -> Dict[str, float]:
+    def _calculate_recent_performance(self) -> dict[str, float]:
         """Calculate recent performance metrics."""
         if not self.performance_buffer:
             return {"no_data": True}
@@ -889,7 +889,7 @@ class RealTimeEnsembleOptimizer:
         }
 
     def _calculate_performance_trend(
-        self, metrics: List[EnsemblePerformanceMetrics]
+        self, metrics: list[EnsemblePerformanceMetrics]
     ) -> str:
         """Calculate performance trend."""
         if len(metrics) < 5:
@@ -915,7 +915,7 @@ class RealTimeEnsembleOptimizer:
         else:
             return "stable"
 
-    def _calculate_optimization_effectiveness(self) -> Dict[str, float]:
+    def _calculate_optimization_effectiveness(self) -> dict[str, float]:
         """Calculate how effective the optimization has been."""
         if not self.model_arms:
             return {"no_data": True}
@@ -945,7 +945,7 @@ class RealTimeEnsembleOptimizer:
             ),
         }
 
-    def _analyze_context_trends(self) -> Dict[str, Any]:
+    def _analyze_context_trends(self) -> dict[str, Any]:
         """Analyze trends in context over time."""
         if len(self.context_history) < 5:
             return {"insufficient_data": True}
@@ -968,7 +968,9 @@ class RealTimeEnsembleOptimizer:
                     "trend": (
                         "increasing"
                         if trend > 0.01
-                        else "decreasing" if trend < -0.01 else "stable"
+                        else "decreasing"
+                        if trend < -0.01
+                        else "stable"
                     ),
                     "slope": trend,
                     "current_value": values[-1],
@@ -977,7 +979,7 @@ class RealTimeEnsembleOptimizer:
 
         return trends
 
-    def _generate_optimization_recommendations(self) -> List[str]:
+    def _generate_optimization_recommendations(self) -> list[str]:
         """Generate recommendations for optimization improvement."""
         recommendations = []
 

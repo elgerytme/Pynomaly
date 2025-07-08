@@ -83,15 +83,15 @@ stop_containers() {
     docker rm -f pynomaly-haproxy 2>/dev/null || true
     docker rm -f pynomaly-consul 2>/dev/null || true
     docker rm -f pynomaly-vault 2>/dev/null || true
-    
+
     for i in $(seq 1 $API_REPLICAS); do
         docker rm -f "pynomaly-api-${i}" 2>/dev/null || true
     done
-    
+
     for i in $(seq 1 $WORKERS); do
         docker rm -f "pynomaly-worker-${i}" 2>/dev/null || true
     done
-    
+
     # Storage containers
     docker rm -f pynomaly-postgres-master 2>/dev/null || true
     docker rm -f pynomaly-postgres-replica 2>/dev/null || true
@@ -101,7 +101,7 @@ stop_containers() {
     docker rm -f pynomaly-redis-master 2>/dev/null || true
     docker rm -f pynomaly-redis-replica1 2>/dev/null || true
     docker rm -f pynomaly-redis-replica2 2>/dev/null || true
-    
+
     echo "All distributed containers stopped."
     exit 0
 }
@@ -166,7 +166,7 @@ case "$STORAGE_TYPE" in
             -p 5432:5432 \
             -v postgres-master-data:/var/lib/postgresql/data \
             bitnami/postgresql:15
-        
+
         # Replica
         docker run -d \
             --name pynomaly-postgres-replica \
@@ -180,7 +180,7 @@ case "$STORAGE_TYPE" in
             -v postgres-replica-data:/var/lib/postgresql/data \
             bitnami/postgresql:15
         ;;
-    
+
     mongodb)
         echo "Starting MongoDB replica set..."
         # Primary
@@ -193,7 +193,7 @@ case "$STORAGE_TYPE" in
             -p 27017:27017 \
             -v mongodb-primary-data:/bitnami/mongodb \
             bitnami/mongodb:7.0
-        
+
         # Secondary nodes
         for i in 1 2; do
             docker run -d \
@@ -208,7 +208,7 @@ case "$STORAGE_TYPE" in
                 bitnami/mongodb:7.0
         done
         ;;
-    
+
     redis-cluster)
         echo "Starting Redis cluster..."
         # Master
@@ -218,7 +218,7 @@ case "$STORAGE_TYPE" in
             -p 6379:6379 \
             -v redis-master-data:/data \
             redis:7-alpine redis-server --appendonly yes
-        
+
         # Replicas
         for i in 1 2; do
             docker run -d \
@@ -240,7 +240,7 @@ echo "Starting $API_REPLICAS API replicas..."
 for i in $(seq 1 $API_REPLICAS); do
     API_PORT=$((8000 + i - 1))
     echo "Starting API replica $i on port $API_PORT..."
-    
+
     docker run -d \
         --name "pynomaly-api-${i}" \
         --network "$NETWORK_NAME" \
@@ -273,7 +273,7 @@ done
 echo "Starting $WORKERS worker nodes..."
 for i in $(seq 1 $WORKERS); do
     echo "Starting worker node $i..."
-    
+
     docker run -d \
         --name "pynomaly-worker-${i}" \
         --network "$NETWORK_NAME" \

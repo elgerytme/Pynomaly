@@ -11,11 +11,10 @@ from unittest.mock import AsyncMock, Mock, patch
 import numpy as np
 import pandas as pd
 import pytest
-
-from src.pynomaly.application.use_cases.drift_monitoring_use_case import (
+from pynomaly.application.use_cases.drift_monitoring_use_case import (
     DriftMonitoringUseCase,
 )
-from src.pynomaly.domain.entities.drift_detection import (
+from pynomaly.domain.entities.drift_detection import (
     DriftAlert,
     DriftDetectionMethod,
     DriftDetectionResult,

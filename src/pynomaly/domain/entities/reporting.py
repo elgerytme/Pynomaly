@@ -6,11 +6,11 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Any, Union
+from typing import Any, Optional, Union
 
-from pynomaly.shared.types import UserId, TenantId, DatasetId, DetectorId
+from pynomaly.shared.types import DatasetId, DetectorId, TenantId, UserId
 
 
 class ReportType(str, Enum):
@@ -63,8 +63,8 @@ class MetricValue:
     timestamp: datetime
     metric_type: MetricType
     unit: str = ""
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    metadata: dict[str, Any] = field(default_factory=dict)
+
     def format_value(self) -> str:
         """Format the value for display."""
         if self.metric_type == MetricType.CURRENCY:
@@ -92,31 +92,31 @@ class Metric:
     name: str
     description: str
     metric_type: MetricType
-    values: List[MetricValue] = field(default_factory=list)
-    tags: Dict[str, str] = field(default_factory=dict)
+    values: list[MetricValue] = field(default_factory=list)
+    tags: dict[str, str] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    
+
     @property
     def latest_value(self) -> Optional[MetricValue]:
         """Get the most recent metric value."""
         return max(self.values, key=lambda v: v.timestamp) if self.values else None
-    
+
     @property
     def current_value(self) -> Union[int, float, str, None]:
         """Get the current metric value."""
         latest = self.latest_value
         return latest.value if latest else None
-    
-    def get_values_in_range(self, start: datetime, end: datetime) -> List[MetricValue]:
+
+    def get_values_in_range(self, start: datetime, end: datetime) -> list[MetricValue]:
         """Get metric values within a time range."""
         return [v for v in self.values if start <= v.timestamp <= end]
-    
+
     def add_value(self, value: Union[int, float, str], timestamp: Optional[datetime] = None, **metadata):
         """Add a new metric value."""
         if timestamp is None:
             timestamp = datetime.utcnow()
-        
+
         metric_value = MetricValue(
             value=value,
             timestamp=timestamp,
@@ -140,14 +140,14 @@ class DetectionMetrics:
     precision: float = 0.0
     recall: float = 0.0
     f1_score: float = 0.0
-    
+
     @property
     def success_rate(self) -> float:
         """Calculate detection success rate."""
         if self.total_detections == 0:
             return 0.0
         return (self.successful_detections / self.total_detections) * 100
-    
+
     @property
     def anomaly_rate(self) -> float:
         """Calculate anomaly detection rate."""
@@ -167,7 +167,7 @@ class BusinessMetrics:
     revenue_impact: float = 0.0
     customer_satisfaction_score: float = 0.0
     time_to_insight: float = 0.0  # In hours
-    
+
     def calculate_roi(self, investment: float) -> float:
         """Calculate return on investment."""
         if investment == 0:
@@ -186,7 +186,7 @@ class UsageMetrics:
     bandwidth_used_gb: float = 0.0
     active_sessions: int = 0
     peak_concurrent_users: int = 0
-    
+
     def calculate_api_rate(self, time_window_hours: int = 24) -> float:
         """Calculate API calls per hour."""
         if time_window_hours == 0:
@@ -199,11 +199,11 @@ class ReportFilter:
     """Filters for report generation."""
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
-    tenant_ids: List[TenantId] = field(default_factory=list)
-    user_ids: List[UserId] = field(default_factory=list)
-    dataset_ids: List[DatasetId] = field(default_factory=list)
-    detector_ids: List[DetectorId] = field(default_factory=list)
-    tags: Dict[str, str] = field(default_factory=dict)
+    tenant_ids: list[TenantId] = field(default_factory=list)
+    user_ids: list[UserId] = field(default_factory=list)
+    dataset_ids: list[DatasetId] = field(default_factory=list)
+    detector_ids: list[DetectorId] = field(default_factory=list)
+    tags: dict[str, str] = field(default_factory=dict)
     granularity: TimeGranularity = TimeGranularity.DAY
 
 
@@ -213,10 +213,10 @@ class ReportSection:
     id: str
     title: str
     description: str
-    metrics: List[Metric] = field(default_factory=list)
-    charts: List[Dict[str, Any]] = field(default_factory=list)
-    tables: List[Dict[str, Any]] = field(default_factory=list)
-    insights: List[str] = field(default_factory=list)
+    metrics: list[Metric] = field(default_factory=list)
+    charts: list[dict[str, Any]] = field(default_factory=list)
+    tables: list[dict[str, Any]] = field(default_factory=list)
+    insights: list[str] = field(default_factory=list)
     order: int = 0
 
 
@@ -231,27 +231,27 @@ class Report:
     tenant_id: TenantId
     created_by: UserId
     filters: ReportFilter
-    sections: List[ReportSection] = field(default_factory=list)
+    sections: list[ReportSection] = field(default_factory=list)
     created_at: datetime = field(default_factory=datetime.utcnow)
     completed_at: Optional[datetime] = None
     expires_at: Optional[datetime] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    metadata: dict[str, Any] = field(default_factory=dict)
+
     def add_section(self, section: ReportSection) -> None:
         """Add a section to the report."""
         self.sections.append(section)
         self.sections.sort(key=lambda s: s.order)
-    
+
     def get_section_by_id(self, section_id: str) -> Optional[ReportSection]:
         """Get a specific section by ID."""
         return next((s for s in self.sections if s.id == section_id), None)
-    
-    def calculate_total_metrics(self) -> Dict[str, Any]:
+
+    def calculate_total_metrics(self) -> dict[str, Any]:
         """Calculate summary metrics across all sections."""
         all_metrics = []
         for section in self.sections:
             all_metrics.extend(section.metrics)
-        
+
         return {
             "total_metrics": len(all_metrics),
             "sections_count": len(self.sections),
@@ -271,21 +271,21 @@ class Dashboard:
     description: str
     tenant_id: TenantId
     created_by: UserId
-    widgets: List[Dict[str, Any]] = field(default_factory=list)
-    layout: Dict[str, Any] = field(default_factory=dict)
+    widgets: list[dict[str, Any]] = field(default_factory=list)
+    layout: dict[str, Any] = field(default_factory=dict)
     refresh_interval: int = 300  # seconds
     is_public: bool = False
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
     last_accessed: Optional[datetime] = None
-    
-    def add_widget(self, widget_config: Dict[str, Any]) -> None:
+
+    def add_widget(self, widget_config: dict[str, Any]) -> None:
         """Add a widget to the dashboard."""
         widget_config["id"] = str(uuid.uuid4())
         widget_config["created_at"] = datetime.utcnow().isoformat()
         self.widgets.append(widget_config)
         self.updated_at = datetime.utcnow()
-    
+
     def remove_widget(self, widget_id: str) -> bool:
         """Remove a widget from the dashboard."""
         initial_count = len(self.widgets)
@@ -294,8 +294,8 @@ class Dashboard:
             self.updated_at = datetime.utcnow()
             return True
         return False
-    
-    def update_widget(self, widget_id: str, updates: Dict[str, Any]) -> bool:
+
+    def update_widget(self, widget_id: str, updates: dict[str, Any]) -> bool:
         """Update a widget configuration."""
         for widget in self.widgets:
             if widget.get("id") == widget_id:
@@ -317,16 +317,16 @@ class Alert:
     condition: str  # e.g., "value > 100" or "change_percentage > 20"
     threshold: float
     is_active: bool = True
-    notification_channels: List[str] = field(default_factory=list)
+    notification_channels: list[str] = field(default_factory=list)
     last_triggered: Optional[datetime] = None
     trigger_count: int = 0
     created_at: datetime = field(default_factory=datetime.utcnow)
-    
+
     def should_trigger(self, current_value: float, previous_value: Optional[float] = None) -> bool:
         """Check if alert should trigger based on current value."""
         if not self.is_active:
             return False
-        
+
         # Parse condition and evaluate
         if ">" in self.condition:
             return current_value > self.threshold
@@ -337,7 +337,7 @@ class Alert:
                 return False
             change_pct = abs((current_value - previous_value) / previous_value) * 100
             return change_pct > self.threshold
-        
+
         return False
 
 
