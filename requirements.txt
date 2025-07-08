@@ -1,13 +1,13 @@
 # Core Required Dependencies (minimal set)
-pyod>=2.0.5
-numpy>=1.26.0,<2.2.0
-pandas>=2.2.3
-polars>=1.19.0
+pyod>=2.0.5,<3.0.0
+numpy>=1.26.0,<2.3.0
+pandas>=2.2.3,<3.0.0
+polars>=1.19.0,<2.0.0
 
 # Core Architecture Dependencies
-pydantic>=2.10.4
-structlog>=24.4.0
-dependency-injector>=4.42.0
+pydantic>=2.10.4,<3.0.0
+structlog>=24.4.0,<25.0.0
+dependency-injector>=4.42.0,<5.0.0
 
 # Note: For additional functionality, install with extras:
 # pip install pynomaly[api]     # Web API functionality
