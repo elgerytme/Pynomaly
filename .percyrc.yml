@@ -15,30 +15,30 @@ snapshot:
 
   # Animation handling
   animations: false
-  
+
   # Percy specific options
   percy-css: |
     /* Hide dynamic content that changes between snapshots */
     [data-percy-hide] {
       visibility: hidden !important;
     }
-    
+
     /* Hide time-based elements */
     .timestamp, .time-display, .loading-spinner {
       visibility: hidden !important;
     }
-    
+
     /* Ensure consistent state for charts */
     .chart-container {
       animation: none !important;
       transition: none !important;
     }
-    
+
     /* Hide scrollbars for consistent screenshots */
     ::-webkit-scrollbar {
       display: none;
     }
-    
+
     * {
       scrollbar-width: none;
     }
@@ -47,7 +47,7 @@ snapshot:
 discovery:
   # Network idle timeout
   network-idle-timeout: 750
-  
+
   # Allow list for external resources
   allowed-hostnames:
     - fonts.googleapis.com
@@ -71,6 +71,6 @@ defer-uploads: true
 # Parallel uploads
 upload:
   parallel: true
-  
+
 # Project configuration
 project-type: web
