@@ -8,9 +8,14 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 
 from pynomaly.application.dto import DataQualityReportDTO, DatasetDTO
 from pynomaly.domain.entities import Dataset
+from pynomaly.infrastructure.auth import (
+    UserModel,
+    require_viewer,
+    require_analyst,
+    require_data_scientist,
+    require_tenant_admin,
+)
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.auth_deps import get_container_simple
-from pynomaly.infrastructure.security.rbac_middleware import CommonPermissions, require_permissions
 
 router = APIRouter()
 
@@ -19,8 +24,8 @@ router = APIRouter()
 async def list_datasets(
     has_target: bool | None = Query(None, description="Filter by target presence"),
     limit: int = Query(100, ge=1, le=1000),
-    container: Container = Depends(get_container_simple),
-    _user = Depends(require_permissions(CommonPermissions.DATASET_READ)),
+    current_user: UserModel = Depends(require_viewer),
+    container: Container = Depends(lambda: Container()),
 ) -> list[DatasetDTO]:
     """List all datasets."""
     dataset_repo = container.dataset_repository()
@@ -60,8 +65,8 @@ async def list_datasets(
 @router.get("/{dataset_id}", response_model=DatasetDTO)
 async def get_dataset(
     dataset_id: UUID,
-    container: Container = Depends(get_container_simple),
-    _user = Depends(require_permissions(CommonPermissions.DATASET_READ)),
+    current_user: UserModel = Depends(require_viewer),
+    container: Container = Depends(lambda: Container()),
 ) -> DatasetDTO:
     """Get a specific dataset."""
     dataset_repo = container.dataset_repository()
@@ -94,8 +99,8 @@ async def upload_dataset(
     name: str | None = Form(None),
     description: str | None = Form(None),
     target_column: str | None = Form(None),
-    container: Container = Depends(get_container_simple),
-    _user = Depends(require_permissions(CommonPermissions.DATASET_WRITE)),
+    current_user: UserModel = Depends(require_data_scientist),
+    container: Container = Depends(lambda: Container()),
 ) -> DatasetDTO:
     """Upload a dataset from file."""
     settings = container.config()
@@ -179,8 +184,8 @@ async def upload_dataset(
 @router.get("/{dataset_id}/quality", response_model=DataQualityReportDTO)
 async def check_dataset_quality(
     dataset_id: UUID,
-    container: Container = Depends(get_container_simple),
-    _user = Depends(require_permissions(CommonPermissions.DATASET_READ)),
+    current_user: UserModel = Depends(require_viewer),
+    container: Container = Depends(lambda: Container()),
 ) -> DataQualityReportDTO:
     """Check dataset quality."""
     dataset_repo = container.dataset_repository()

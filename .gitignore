@@ -215,6 +215,10 @@ tests/enhanced-coverage-reports/
 tests/ui/ui_test_env/
 tests/ui_integration_results.json
 
+# Test artifacts (moved from tests/)
+reports/
+artifacts/
+
 # Profiling
 *.prof
 *.lprof

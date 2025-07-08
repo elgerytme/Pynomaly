@@ -15,6 +15,7 @@ from pynomaly.infrastructure.auth import (
     require_viewer,
     require_analyst,
     require_data_scientist,
+    require_tenant_admin,
 )
 from pynomaly.infrastructure.config import Container
 
@@ -228,11 +229,10 @@ async def update_detector(
 @router.delete("/{detector_id}")
 async def delete_detector(
     detector_id: UUID,
-    container: Container = Depends(get_container_simple),
-    current_user: str | None = Depends(get_current_user_simple),
-    _permissions: str = Depends(PermissionChecker(["detectors:delete"])),
+    current_user: UserModel = Depends(require_tenant_admin),
+    container: Container = Depends(lambda: Container()),
 ) -> dict:
-    """Delete a detector."""
+    """Delete a detector. Requires admin permissions."""
     detector_repo = container.detector_repository()
 
     if not detector_repo.exists(detector_id):
