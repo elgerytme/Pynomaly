@@ -864,6 +864,14 @@ class Container(containers.DeclarativeContainer):
     experiment_tracking_service = providers.Singleton(
         ExperimentTrackingService, tracking_path=config.provided.experiment_storage_path
     )
+    
+    # Performance monitoring service
+    performance_monitoring_service = providers.Singleton(
+        PerformanceMonitoringService,
+        model_performance_repository=model_performance_repository,
+        performance_baseline_repository=performance_baseline_repository,
+        auto_start_monitoring=True,
+    )
 
     # Use cases
     detect_anomalies_use_case = providers.Factory(

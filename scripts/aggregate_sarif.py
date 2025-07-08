@@ -6,16 +6,24 @@ This script aggregates multiple SARIF files by merging their 'runs' arrays
 into a single combined SARIF file. It's designed to be used by both GitHub
 Actions and local Makefile targets.
 
+Enhancements:
+- Distinguishes between host code and container findings
+- Parses container SARIF runs and lists findings by image/tool
+- Supports detailed reporting with source type classification
+
 Usage:
     python aggregate_sarif.py file1.sarif file2.sarif [...]
     python aggregate_sarif.py --output combined.sarif file1.sarif file2.sarif
+    python aggregate_sarif.py --generate-report --output combined.sarif file1.sarif file2.sarif
 """
 
 import json
 import sys
 import os
 import argparse
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple
+from pathlib import Path
+from collections import defaultdict
 
 
 def aggregate_sarif(files: List[str], output: str = 'combined.sarif') -> None:
@@ -44,6 +52,16 @@ def aggregate_sarif(files: List[str], output: str = 'combined.sarif') -> None:
                 sarif_data = json.load(f)
                 
                 # Validate basic SARIF structure
+source_type = 'host'
+                for run in sarif_data.get('runs', []):
+                    tool_name = run.get('tool', {}).get('driver', {}).get('name', 'Unknown')
+                    if 'trivy' in tool_name.lower() or 'clair' in tool_name.lower():
+                        source_type = 'container'
+                        break
+
+                # Store results for report
+                results_by_source[source_type].append({'tool': tool_name, 'file': file_path})
+
                 if not isinstance(sarif_data, dict):
                     print(f"Warning: {file_path} is not a valid JSON object")
                     continue

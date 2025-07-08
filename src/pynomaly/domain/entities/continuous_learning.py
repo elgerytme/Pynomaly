@@ -140,6 +140,88 @@ class ConvergenceCriteria:
 
 
 @dataclass
+class ContinuousLearning:
+    """Continuous learning entity for model adaptation."""
+    
+    name: str
+    model_id: UUID
+    learning_strategy: LearningStrategy = LearningStrategy.INCREMENTAL
+    is_active: bool = True
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+    
+    # Configuration
+    learning_rate: float = 0.01
+    batch_size: int = 32
+    adaptation_threshold: float = 0.05
+    
+    # State
+    current_session: LearningSession | None = None
+    adaptation_history: list[ModelAdaptation] = field(default_factory=list)
+    performance_baselines: list[PerformanceBaseline] = field(default_factory=list)
+    
+    # Metadata
+    metadata: dict[str, Any] = field(default_factory=dict)
+    
+    def __post_init__(self):
+        """Validate continuous learning configuration."""
+        if not self.name:
+            raise ValueError("Name cannot be empty")
+        if not (0.0 < self.learning_rate <= 1.0):
+            raise ValueError("Learning rate must be between 0.0 and 1.0")
+        if self.batch_size <= 0:
+            raise ValueError("Batch size must be positive")
+    
+    def start_learning_session(self, strategy: LearningStrategy | None = None) -> LearningSession:
+        """Start a new learning session."""
+        if self.current_session and self.current_session.is_active:
+            raise ValueError("A learning session is already active")
+        
+        self.current_session = LearningSession(
+            model_version_id=self.model_id,
+            learning_strategy=strategy or self.learning_strategy,
+            learning_rate=self.learning_rate
+        )
+        
+        return self.current_session
+    
+    def stop_learning_session(self) -> None:
+        """Stop the current learning session."""
+        if self.current_session:
+            self.current_session.is_active = False
+            self.current_session = None
+    
+    def adapt_model(self, trigger: EvolutionTrigger, adaptation_data: dict[str, Any]) -> ModelAdaptation:
+        """Adapt the model based on new data or performance feedback."""
+        adaptation = ModelAdaptation(
+            trigger=trigger,
+            adaptation_type=adaptation_data.get("type", "incremental_update"),
+            samples_processed=adaptation_data.get("samples", 0),
+            metadata=adaptation_data
+        )
+        
+        self.adaptation_history.append(adaptation)
+        self.updated_at = datetime.utcnow()
+        
+        return adaptation
+    
+    def get_adaptation_statistics(self) -> dict[str, Any]:
+        """Get statistics about model adaptations."""
+        if not self.adaptation_history:
+            return {"total_adaptations": 0, "success_rate": 0.0}
+        
+        total = len(self.adaptation_history)
+        successful = sum(1 for a in self.adaptation_history if a.success)
+        
+        return {
+            "total_adaptations": total,
+            "success_rate": successful / total,
+            "avg_adaptation_time": sum(a.adaptation_time_seconds for a in self.adaptation_history) / total,
+            "total_samples_processed": sum(a.samples_processed for a in self.adaptation_history)
+        }
+
+
+@dataclass
 class ModelAdaptation:
     """Represents a single model adaptation event."""
 

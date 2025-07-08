@@ -149,6 +149,8 @@ class TrainingJob:
     algorithm_results: List[AlgorithmResult] = field(default_factory=list)
     best_model_id: Optional[str] = None
     best_algorithm: Optional[str] = None
+    model_runs: List[str] = field(default_factory=list)
+    selected_model_id: Optional[str] = None
     final_metrics: Optional[TrainingMetrics] = None
 
     # Resource tracking

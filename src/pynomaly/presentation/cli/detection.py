@@ -266,11 +266,11 @@ def detect_anomalies(
 
 @app.command("batch")
 def batch_detect(
-    detectors: list[str] = typer.Argument(..., help="Detector IDs or names"),
-    dataset: str = typer.Argument(..., help="Dataset ID or name (can be partial)"),
-    save_results: bool = typer.Option(
-        True, "--save/--no-save", help="Save detection results"
-    ),
+    detectors: Annotated[list[str], typer.Argument(help="Detector IDs or names")],
+    dataset: Annotated[str, typer.Argument(help="Dataset ID or name (can be partial)")],
+    save_results: Annotated[bool, typer.Option(
+        "--save/--no-save", help="Save detection results"
+    )] = True,
 ):
     """Run multiple detectors on a dataset."""
     container = get_cli_container()
@@ -378,13 +378,13 @@ def batch_detect(
 
 @app.command("evaluate")
 def evaluate_detector(
-    detector: str = typer.Argument(..., help="Detector ID or name (can be partial)"),
-    dataset: str = typer.Argument(..., help="Dataset ID or name with labels"),
-    cv: bool = typer.Option(False, "--cv", help="Use cross-validation"),
-    folds: int = typer.Option(5, "--folds", "-k", help="Number of CV folds"),
-    metrics: list[str] | None = typer.Option(
-        None, "--metric", "-m", help="Metrics to compute"
-    ),
+    detector: Annotated[str, typer.Argument(help="Detector ID or name (can be partial)")],
+    dataset: Annotated[str, typer.Argument(help="Dataset ID or name with labels")],
+    cv: Annotated[bool, typer.Option("--cv", help="Use cross-validation")] = False,
+    folds: Annotated[int, typer.Option("--folds", "-k", help="Number of CV folds")] = 5,
+    metrics: Annotated[list[str] | None, typer.Option(
+        "--metric", "-m", help="Metrics to compute"
+    )] = None,
 ):
     """Evaluate detector performance on labeled data."""
     container = get_cli_container()
