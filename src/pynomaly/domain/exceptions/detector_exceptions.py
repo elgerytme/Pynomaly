@@ -54,25 +54,27 @@ class InvalidAlgorithmError(DetectorError):
 
     def __init__(
         self,
-        algorithm_name: str,
+        message_or_algorithm: str,
         available_algorithms: list[str] | None = None,
         **kwargs: Any,
     ) -> None:
         """Initialize invalid algorithm error.
 
         Args:
-            algorithm_name: Name of the invalid algorithm
-            available_algorithms: List of available algorithms
+            message_or_algorithm: Either a custom error message or the algorithm name
+            available_algorithms: List of available algorithms (used when message_or_algorithm is an algorithm name)
             **kwargs: Additional details
         """
-        message = f"Algorithm '{algorithm_name}' is not supported"
-
-        if available_algorithms:
+        # If available_algorithms is provided, treat message_or_algorithm as algorithm name
+        if available_algorithms is not None:
+            algorithm_name = message_or_algorithm
+            message = f"Algorithm '{algorithm_name}' is not supported"
             message += f". Available algorithms: {', '.join(available_algorithms)}"
-
-        details = {"algorithm_name": algorithm_name, **kwargs}
-        if available_algorithms:
-            details["available_algorithms"] = available_algorithms
+            details = {"algorithm_name": algorithm_name, "available_algorithms": available_algorithms, **kwargs}
+        else:
+            # Otherwise, treat message_or_algorithm as a custom message
+            message = message_or_algorithm
+            details = {**kwargs}
 
         super().__init__(message, details)
 

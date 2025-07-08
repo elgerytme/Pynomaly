@@ -124,9 +124,32 @@ class PyODAdapter(Detector):
 
             module = importlib.import_module(module_path)
             return getattr(module, class_name)
-        except (ImportError, AttributeError) as e:
+        except ImportError as e:
+            # Handle missing optional dependencies
+            error_msg = str(e)
+            if "combo" in error_msg:
+                raise InvalidAlgorithmError(
+                    f"Algorithm '{algorithm_name}' requires 'combo' package. Install with: pip install combo"
+                ) from e
+            elif "xgboost" in error_msg:
+                raise InvalidAlgorithmError(
+                    f"Algorithm '{algorithm_name}' requires 'xgboost' package. Install with: pip install xgboost"
+                ) from e
+            elif "suod" in error_msg:
+                raise InvalidAlgorithmError(
+                    f"Algorithm '{algorithm_name}' requires 'suod' package. Install with: pip install suod"
+                ) from e
+            elif "No module named" in error_msg:
+                raise InvalidAlgorithmError(
+                    f"Algorithm '{algorithm_name}' is not available in PyOD version {self._get_pyod_version()}. Module '{module_path}' does not exist."
+                ) from e
+            else:
+                raise InvalidAlgorithmError(
+                    f"Failed to import algorithm '{algorithm_name}': {error_msg}"
+                ) from e
+        except AttributeError as e:
             raise InvalidAlgorithmError(
-                algorithm_name, available_algorithms=list(self.ALGORITHM_MAPPING.keys())
+                f"Algorithm '{algorithm_name}' is not available in PyOD version {self._get_pyod_version()}. Class '{class_name}' not found in module '{module_path}'."
             ) from e
 
     def _set_algorithm_metadata(self, algorithm_name: str) -> None:

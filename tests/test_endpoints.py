@@ -1,112 +1,55 @@
 #!/usr/bin/env python3
-"""Simple test to check endpoint availability."""
+"""Simple endpoint testing script."""
 
+import requests
+import time
+import threading
 import sys
 import os
-sys.path.insert(0, 'src')
-sys.path.insert(0, '.')
 
-from fastapi.testclient import TestClient
+# Add src to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-def test_web_endpoints():
-    """Test if web endpoints are working."""
-    print("Testing web endpoints...")
+def test_endpoints():
+    """Test the main endpoints."""
+    endpoints = [
+        'http://127.0.0.1:8081/',
+        'http://127.0.0.1:8081/web/experiments',
+        'http://127.0.0.1:8081/experiments',
+        'http://127.0.0.1:8081/api/v1/docs',
+        'http://127.0.0.1:8081/api/v1/health'
+    ]
     
-    try:
-        # Import the necessary modules
-        from pynomaly.infrastructure.config import create_container
-        from pynomaly.presentation.web.app import create_web_app
-        
-        # Create container and app
-        container = create_container()
-        app = create_web_app(container)
-        client = TestClient(app)
-        
-        # Test endpoints from the test file
-        test_routes = [
-            "/",
-            "/dashboard", 
-            "/detectors",
-            "/datasets"
-        ]
-        
-        print("Testing web routes...")
-        for route in test_routes:
-            try:
-                response = client.get(route)
-                print(f"  {route}: {response.status_code}")
-                if response.status_code == 404:
-                    print(f"    ❌ Route {route} returns 404 - MISSING")
-                elif response.status_code in [200, 302, 401, 403]:
-                    print(f"    ✅ Route {route} returns {response.status_code} - OK")
-                else:
-                    print(f"    ⚠️  Route {route} returns {response.status_code} - UNEXPECTED")
-            except Exception as e:
-                print(f"    ❌ Route {route} failed: {e}")
-        
-        print("\nTesting static assets...")
-        static_routes = [
-            "/static/css/main.css",
-            "/static/css/app.css", 
-            "/static/js/app.js"
-        ]
-        
-        for route in static_routes:
-            try:
-                response = client.get(route)
-                print(f"  {route}: {response.status_code}")
-                if response.status_code == 404:
-                    print(f"    ❌ Static asset {route} returns 404 - MISSING")
-                elif response.status_code == 200:
-                    print(f"    ✅ Static asset {route} returns 200 - OK")
-                else:
-                    print(f"    ⚠️  Static asset {route} returns {response.status_code} - UNEXPECTED")
-            except Exception as e:
-                print(f"    ❌ Static asset {route} failed: {e}")
-        
-    except Exception as e:
-        print(f"Failed to create web app: {e}")
-
-def test_api_endpoints():
-    """Test if API endpoints are working."""
-    print("\nTesting API endpoints...")
+    results = []
+    for endpoint in endpoints:
+        try:
+            response = requests.get(endpoint, timeout=5)
+            results.append(f'✓ {endpoint} - Status: {response.status_code}')
+        except Exception as e:
+            results.append(f'✗ {endpoint} - Error: {e}')
     
-    try:
-        # Import the necessary modules
-        from pynomaly.infrastructure.config import create_container
-        from pynomaly.presentation.api.app import create_app
-        
-        # Create container and app
-        container = create_container()
-        app = create_app(container)
-        client = TestClient(app)
-        
-        # Test endpoints from the test file
-        test_routes = [
-            "/api/health/",
-            "/api/",
-            "/api/v1/health/",
-            "/api/v1/detectors/",
-            "/api/v1/datasets/"
-        ]
-        
-        print("Testing API routes...")
-        for route in test_routes:
-            try:
-                response = client.get(route)
-                print(f"  {route}: {response.status_code}")
-                if response.status_code == 404:
-                    print(f"    ❌ API route {route} returns 404 - MISSING")
-                elif response.status_code in [200, 401, 403, 422]:
-                    print(f"    ✅ API route {route} returns {response.status_code} - OK")
-                else:
-                    print(f"    ⚠️  API route {route} returns {response.status_code} - UNEXPECTED")
-            except Exception as e:
-                print(f"    ❌ API route {route} failed: {e}")
-        
-    except Exception as e:
-        print(f"Failed to create API app: {e}")
+    return results
 
-if __name__ == "__main__":
-    test_web_endpoints()
-    test_api_endpoints()
+if __name__ == '__main__':
+    from pynomaly.presentation.web.app import create_web_app
+    import uvicorn
+    
+    # Start the app in a separate thread
+    def start_app():
+        app = create_web_app()
+        uvicorn.run(app, host='127.0.0.1', port=8080, log_level='warning')
+    
+    # Start the app in background
+    t = threading.Thread(target=start_app)
+    t.daemon = True
+    t.start()
+    
+    # Wait a bit for server to start
+    time.sleep(8)
+    
+    # Test endpoints
+    results = test_endpoints()
+    for result in results:
+        print(result)
+    
+    print("\n=== TESTING COMPLETED ===")
