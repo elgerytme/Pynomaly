@@ -1,6 +1,8 @@
 """Tests for performance benchmarking service."""
 
 import asyncio
+import json
+from datetime import datetime
 from unittest.mock import AsyncMock, patch
 
 import numpy as np
@@ -12,6 +14,7 @@ from pynomaly.application.services.performance_benchmarking_service import (
     BenchmarkSuite,
     PerformanceBenchmarkingService,
     PerformanceMetrics,
+    SeverityThresholds,
     SystemMonitor,
 )
 
@@ -56,6 +59,132 @@ class TestPerformanceBenchmarkingService:
         assert isinstance(service.active_benchmarks, set)
         assert isinstance(service.performance_history, list)
         assert isinstance(service.baseline_metrics, dict)
+
+    @pytest.mark.asyncio
+    async def test_compare_to_baseline(self, service):
+        """Test comparing current results to baseline."""
+        baseline = {
+            "timestamp": "2025-06-25T00:00:00.000000",
+            "performance_metrics": {
+                "basic_workflow_time": 450.0,
+                "peak_memory_mb": 145.0
+            },
+            "git_ref": "main",
+            "git_commit": "baseline",
+            "description": "Initial baseline for performance monitoring"
+        }
+
+        current = BenchmarkSuite(
+            suite_name="Current Suite", 
+            individual_results=[
+                PerformanceMetrics(
+                    algorithm_name="TestAlgorithm",
+                    execution_time_seconds=0.5,
+                    peak_memory_mb=150.0,
+                    accuracy_score=0.88,
+                    training_throughput=120.0,
+                    dataset_size=1000,
+                    feature_dimension=10,
+                    contamination_rate=0.1
+                )
+            ],
+            start_time=datetime.utcnow()
+        )
+
+        thresholds = SeverityThresholds(minor_threshold=0.01, major_threshold=0.10, critical_threshold=0.20)
+
+        result = service.compare_to_baseline(baseline, current, thresholds)
+
+        assert "regressions" in result
+        assert "improvements" in result
+        assert "summary" in result
+
+        # Check that diff JSON file was created
+        diff_path = service.storage_path / f"benchmark_diff_{current.suite_id}.json"
+        assert diff_path.exists()
+        
+        # Verify JSON content
+        with open(diff_path, 'r') as f:
+            saved_data = json.load(f)
+        
+        assert saved_data == result
+        
+        # Test structure and content
+        assert result["summary"]["total_regressions"] >= 0
+        assert result["summary"]["total_improvements"] >= 0
+        assert result["summary"]["baseline_timestamp"] == "2025-06-25T00:00:00.000000"
+        assert "comparison_timestamp" in result["summary"]
+        
+        # Check that each regression/improvement has required fields
+        for regression in result["regressions"]:
+            assert "algorithm" in regression
+            assert "metric" in regression
+            assert "current_value" in regression
+            assert "baseline_value" in regression
+            assert "percent_change" in regression
+            assert "severity" in regression
+            assert "unit" in regression
+            assert regression["severity"] in ["minor", "major", "critical"]
+            
+        for improvement in result["improvements"]:
+            assert "algorithm" in improvement
+            assert "metric" in improvement
+            assert "current_value" in improvement
+            assert "baseline_value" in improvement
+            assert "percent_change" in improvement
+            assert "severity" in improvement
+            assert "unit" in improvement
+            assert improvement["severity"] in ["minor", "major", "critical"]
+
+    @pytest.mark.asyncio
+    async def test_compare_to_baseline_with_critical_regression(self, service):
+        """Test baseline comparison with critical regression."""
+        baseline = {
+            "timestamp": "2025-06-25T00:00:00.000000",
+            "performance_metrics": {
+                "basic_workflow_time": 450.0,
+                "peak_memory_mb": 100.0
+            }
+        }
+
+        current = BenchmarkSuite(
+            suite_name="Regression Suite", 
+            individual_results=[
+                PerformanceMetrics(
+                    algorithm_name="SlowAlgorithm",
+                    execution_time_seconds=1.0,  # 122% increase from baseline
+                    peak_memory_mb=150.0,  # 50% increase from baseline
+                    accuracy_score=0.80,
+                    training_throughput=80.0,
+                    dataset_size=1000,
+                    feature_dimension=10,
+                    contamination_rate=0.1
+                )
+            ],
+            start_time=datetime.utcnow()
+        )
+
+        thresholds = SeverityThresholds(minor_threshold=0.05, major_threshold=0.15, critical_threshold=0.30)
+
+        result = service.compare_to_baseline(baseline, current, thresholds)
+
+        assert result["summary"]["critical_regressions"] >= 1
+        assert result["summary"]["major_regressions"] >= 0
+        assert result["summary"]["minor_regressions"] >= 0
+        
+        # Check that we have critical severity regressions
+        critical_regressions = [r for r in result["regressions"] if r["severity"] == "critical"]
+        assert len(critical_regressions) >= 1
+        
+    @pytest.mark.asyncio
+    async def test_calculate_severity(self, service):
+        """Test severity calculation."""
+        thresholds = SeverityThresholds(minor_threshold=0.05, major_threshold=0.15, critical_threshold=0.30)
+        
+        assert service._calculate_severity(2.0, thresholds) == "negligible"
+        assert service._calculate_severity(6.0, thresholds) == "minor"
+        assert service._calculate_severity(18.0, thresholds) == "major"
+        assert service._calculate_severity(35.0, thresholds) == "critical"
 
     @pytest.mark.asyncio
     async def test_create_benchmark_suite(self, service, sample_config):
@@ -609,6 +738,30 @@ class TestPerformanceMetrics:
 
         assert not metrics.success
         assert metrics.error_message == "Algorithm failed"
+
+
+class TestSeverityThresholds:
+    """Test cases for severity thresholds."""
+
+    def test_severity_thresholds_defaults(self):
+        """Test severity thresholds with defaults."""
+        thresholds = SeverityThresholds()
+
+        assert thresholds.minor_threshold == 0.05
+        assert thresholds.major_threshold == 0.15
+        assert thresholds.critical_threshold == 0.30
+
+    def test_severity_thresholds_custom(self):
+        """Test severity thresholds with custom values."""
+        thresholds = SeverityThresholds(
+            minor_threshold=0.10,
+            major_threshold=0.25,
+            critical_threshold=0.50
+        )
+
+        assert thresholds.minor_threshold == 0.10
+        assert thresholds.major_threshold == 0.25
+        assert thresholds.critical_threshold == 0.50
 
 
 class TestBenchmarkSuite:

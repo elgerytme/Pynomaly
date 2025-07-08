@@ -140,7 +140,7 @@ class ContainerScanner:
             )
             
             if result.returncode == 0:
-                self.logger.info(f"✅ Successfully generated {format_type} report: {output_path}")
+                self.logger.info(f"Successfully generated {format_type} report: {output_path}")
                 return True, ""
             else:
                 error_msg = f"Trivy scan failed with exit code {result.returncode}"
@@ -148,32 +148,32 @@ class ContainerScanner:
                     error_msg += f":\n{result.stderr}"
                 
                 if self.soft_mode:
-                    self.logger.warning(f"⚠️  {error_msg} (continuing in soft mode)")
+                    self.logger.warning(f"Warning: {error_msg} (continuing in soft mode)")
                     # Create empty file to indicate scan was attempted
                     output_path.touch()
                     return True, error_msg
                 else:
-                    self.logger.error(f"❌ {error_msg}")
+                    self.logger.error(f"Error: {error_msg}")
                     return False, error_msg
         
         except subprocess.TimeoutExpired:
             error_msg = f"Trivy scan timed out after 5 minutes"
             if self.soft_mode:
-                self.logger.warning(f"⚠️  {error_msg} (continuing in soft mode)")
+                self.logger.warning(f"Warning: {error_msg} (continuing in soft mode)")
                 output_path.touch()
                 return True, error_msg
             else:
-                self.logger.error(f"❌ {error_msg}")
+                self.logger.error(f"Error: {error_msg}")
                 return False, error_msg
         
         except Exception as e:
             error_msg = f"Unexpected error during Trivy scan: {str(e)}"
             if self.soft_mode:
-                self.logger.warning(f"⚠️  {error_msg} (continuing in soft mode)")
+                self.logger.warning(f"Warning: {error_msg} (continuing in soft mode)")
                 output_path.touch()
                 return True, error_msg
             else:
-                self.logger.error(f"❌ {error_msg}")
+                self.logger.error(f"Error: {error_msg}")
                 return False, error_msg
     
     def generate_sarif_report(self) -> bool:
@@ -201,7 +201,7 @@ class ContainerScanner:
         Returns:
             Dictionary with scan results
         """
-        self.logger.info(f"🔍 Starting container security scan for: {self.image}")
+        self.logger.info(f"Starting container security scan for: {self.image}")
         
         if not self._check_prerequisites():
             return {"prerequisites": False}
@@ -209,7 +209,7 @@ class ContainerScanner:
         if not self._check_docker_image():
             error_msg = f"Docker image '{self.image}' not found locally"
             if self.soft_mode:
-                self.logger.warning(f"⚠️  {error_msg} (continuing in soft mode)")
+                self.logger.warning(f"Warning: {error_msg} (continuing in soft mode)")
                 # Create empty report files
                 (self.output_dir / "container-vulnerabilities.sarif").touch()
                 (self.output_dir / "container-sbom.json").touch()
@@ -222,7 +222,7 @@ class ContainerScanner:
                     "summary": True
                 }
             else:
-                self.logger.error(f"❌ {error_msg}")
+                self.logger.error(f"Error: {error_msg}")
                 return {"prerequisites": True, "image_found": False}
         
         # Run scans
@@ -236,14 +236,14 @@ class ContainerScanner:
         
         # Summary
         if all(results.values()):
-            self.logger.info("✅ All container scans completed successfully!")
-            self.logger.info(f"📄 Reports saved to: {self.output_dir}")
+            self.logger.info("All container scans completed successfully!")
+            self.logger.info(f"Reports saved to: {self.output_dir}")
         else:
             failed_scans = [k for k, v in results.items() if not v]
             if self.soft_mode:
-                self.logger.warning(f"⚠️  Some scans failed but continuing in soft mode: {failed_scans}")
+                self.logger.warning(f"Warning: Some scans failed but continuing in soft mode: {failed_scans}")
             else:
-                self.logger.error(f"❌ Failed scans: {failed_scans}")
+                self.logger.error(f"Error: Failed scans: {failed_scans}")
         
         return results
     
@@ -315,7 +315,7 @@ Examples:
     # Print report files
     report_files = scanner.list_report_files()
     if report_files:
-        print(f"\n📄 Generated report files:")
+        print(f"\nGenerated report files:")
         for file in report_files:
             print(f"  - {file}")
     
@@ -324,10 +324,10 @@ Examples:
         sys.exit(0)
     else:
         if args.soft:
-            print("\n⚠️  Some scans failed but exiting successfully due to soft mode")
+            print("\nWarning: Some scans failed but exiting successfully due to soft mode")
             sys.exit(0)
         else:
-            print("\n❌ Some scans failed")
+            print("\nError: Some scans failed")
             sys.exit(1)
 
 
