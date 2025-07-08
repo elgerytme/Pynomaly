@@ -1,0 +1,81 @@
+# Performance Configuration for CI/CD Pipeline
+# This file defines thresholds and settings for performance regression detection
+
+# Severity thresholds for performance regressions
+severity_thresholds:
+  minor_threshold: 0.05     # 5% change threshold
+  major_threshold: 0.15     # 15% change threshold 
+  critical_threshold: 0.30  # 30% change threshold
+
+# Performance thresholds for different metrics
+performance_thresholds:
+  execution_time:
+    max_execution_time_seconds: 300.0
+    critical_regression_threshold: 0.25  # 25% increase is critical
+    
+  memory_usage:
+    max_memory_usage_mb: 4096.0
+    critical_regression_threshold: 0.30  # 30% increase is critical
+    
+  throughput:
+    min_throughput_samples_per_second: 10.0
+    critical_regression_threshold: 0.20  # 20% decrease is critical
+    
+  accuracy:
+    min_accuracy_score: 0.75
+    critical_regression_threshold: 0.05  # 5% decrease is critical
+
+# Algorithm-specific thresholds
+algorithm_thresholds:
+  IsolationForest:
+    execution_time:
+      max_execution_time_seconds: 180.0
+    memory_usage:
+      max_memory_usage_mb: 2048.0
+      
+  LocalOutlierFactor:
+    execution_time:
+      max_execution_time_seconds: 120.0
+    memory_usage:
+      max_memory_usage_mb: 1024.0
+      
+  OneClassSVM:
+    execution_time:
+      max_execution_time_seconds: 600.0
+    memory_usage:
+      max_memory_usage_mb: 8192.0
+
+# Benchmark configuration
+benchmark_config:
+  iterations: 3
+  warmup_iterations: 1
+  timeout_seconds: 900.0
+  enable_memory_profiling: true
+  enable_cpu_profiling: true
+  
+  # Test data sizes
+  dataset_sizes: [1000, 5000, 10000]
+  feature_dimensions: [10, 50, 100]
+  contamination_rates: [0.01, 0.05, 0.1]
+
+# CI/CD integration settings
+ci_settings:
+  fail_on_critical_regression: true
+  fail_on_multiple_major_regressions: true
+  max_allowed_major_regressions: 2
+  
+  # Output settings
+  generate_markdown_summary: true
+  include_performance_plots: false
+  save_detailed_results: true
+  
+  # Reporting
+  report_formats: ["json", "markdown"]
+  baseline_comparison_enabled: true
+  
+# Markdown report configuration
+markdown_report:
+  include_summary_table: true
+  include_detailed_results: true
+  include_recommendations: true
+  max_results_per_algorithm: 10
