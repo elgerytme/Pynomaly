@@ -48,6 +48,11 @@ class ChartType(Enum):
     TREEMAP = "treemap"
     SANKEY = "sankey"
     RADAR = "radar"
+    CHOROPLETH = "choropleth"
+    CORRELATION_MATRIX = "correlation_matrix"
+    FINANCIAL_IMPACT = "financial_impact"
+    ROI_COST_SAVINGS = "roi_cost_savings"
+    LIVE_ALERT_STREAM = "live_alert_stream"
 
 
 class VisualizationEngine(Enum):

@@ -444,8 +444,8 @@ class PyTorchAdapter(DetectorProtocol):
                     avg_loss = total_loss / len(train_loader)
                     logger.info(f"Epoch [{epoch + 1}/{epochs}], Loss: {avg_loss:.4f}")
 
-            self.detector.is_fitted = True
-            logger.info(f"Successfully trained PyTorch {self.detector.algorithm}")
+            self.is_fitted = True
+            logger.info(f"Successfully trained PyTorch {self.algorithm_name}")
 
         except Exception as e:
             raise AdapterError(f"Failed to train PyTorch model: {e}")
