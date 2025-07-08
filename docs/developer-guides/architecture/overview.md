@@ -37,6 +37,8 @@ graph TB
         UC[Use Cases]
         AS[Application Services]
         DTO[DTOs]
+        Batch[BatchProcessingUseCases]
+        POS[PipelineOrchestrationService]
     end
     
     subgraph "Domain Layer"
@@ -45,6 +47,7 @@ graph TB
         DS[Domain Services]
         R[Repository Interfaces]
         EV[Domain Events]
+        PO[ProcessingOrchestrator]
     end
     
     subgraph "Infrastructure Layer"
@@ -54,6 +57,7 @@ graph TB
         FS[File System]
         EXT[External APIs]
         MON[Monitoring]
+        BP[BatchProcessor]
     end
     
     CLI --> UC
@@ -62,6 +66,9 @@ graph TB
     SDK --> UC
     
     UC --> DS
+    Batch --> POS
+    Batch --> PO
+    POS --> R
     AS --> DS
     UC --> R
     
@@ -69,6 +76,7 @@ graph TB
     ADP --> EXT
     REPO --> DB
     REPO --> FS
+    PO --> BP
     
     DS --> E
     DS --> VO
