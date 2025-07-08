@@ -1,3 +1,28 @@
+import pytest
+from unittest.mock import MagicMock
+from src.pynomaly.infrastructure.cache.redis_cache import RedisCache
+
+@pytest.fixture
+def cache_settings(mocker):
+    fake_settings = MagicMock()
+    fake_settings.cache_enabled = True
+    fake_settings.redis_url = "redis://fake"
+    return fake_settings
+
+
+def test_fake_redis_client(cache_settings):
+    """Test fake Redis client."""
+    redis_cache = RedisCache(cache_settings)
+    redis_cache._connect = MagicMock(return_value=None)  # Mock the connection
+    redis_cache._client = MagicMock()
+
+    key, value = "test", "value"
+    redis_cache.set(key, value)
+    assert redis_cache._client.set.called, "Client set not called"
+
+    redis_cache.get(key)
+    assert redis_cache._client.get.called, "Client get not called"
+
 """Comprehensive tests for infrastructure caching - Phase 2 Coverage."""
 
 from __future__ import annotations

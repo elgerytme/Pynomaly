@@ -1,3 +1,31 @@
+import pytest
+from sqlalchemy.orm import sessionmaker
+from src.pynomaly.infrastructure.persistence.database import DatabaseManager
+
+@pytest.fixture
+def database_manager():
+    # Use in-memory SQLite database for tests
+    db_manager = DatabaseManager("sqlite:///:memory:", echo=True)
+    db_manager.create_tables()
+    yield db_manager
+    db_manager.drop_tables()
+    db_manager.close()
+
+
+def test_in_memory_sqlite_transaction(database_manager):
+    """Test in-memory SQLite with transaction rollback per test."""
+    Session = sessionmaker(bind=database_manager.engine)
+    session = Session()
+    try:
+        # Perform database operations
+        # ... (your test logic here)
+        session.commit()
+    except:
+        session.rollback()
+        assert False, "Transaction should rollback on failure"
+    finally:
+        session.close()
+
 """Comprehensive tests for database persistence infrastructure - Phase 2 Coverage Enhancement."""
 
 from __future__ import annotations

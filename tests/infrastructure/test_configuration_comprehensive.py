@@ -1,3 +1,15 @@
+import pytest
+from src.pynomaly.infrastructure.config.settings import Settings
+
+
+def test_environment_variable_parsing(monkeypatch):
+    """Test environment variable parsing in Settings."""
+    # Set environment variable
+    monkeypatch.setenv("PYNOMALY_API_HOST", "127.0.0.1")
+
+    settings = Settings()
+    assert settings.api_host == "127.0.0.1", "Environment variable parsing failed"
+
 """Comprehensive tests for infrastructure configuration - Phase 2 Coverage."""
 
 from __future__ import annotations

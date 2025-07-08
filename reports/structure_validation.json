@@ -1,13 +1,19 @@
 {
   "is_valid": false,
   "violations": [
+    "Stray file in root: check_pyod_algorithms.py",
     "Stray file in root: env_matrix_test.log",
-    "Stray file in root: test_implementations.py",
+    "Stray file in root: IMPLEMENTATION_SUMMARY.md",
+    "Stray directory in root: temp_test/",
+    "Stray file in root: test_endpoints.py",
     "Stray directory in root: venv/"
   ],
   "suggestions": [
+    "Move check_pyod_algorithms.py to scripts/",
     "Move env_matrix_test.log to REVIEW (manual classification needed)",
-    "Move test_implementations.py to tests/",
+    "Move IMPLEMENTATION_SUMMARY.md to docs/",
+    "Move temp_test/ contents to tests/ or delete if obsolete",
+    "Move test_endpoints.py to tests/",
     "DELETE venv/ (temporary/environment directory)"
   ],
   "validation_type": "pre-commit",

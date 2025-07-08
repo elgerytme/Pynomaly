@@ -1,3 +1,19 @@
+import pytest
+from fastapi import FastAPI
+from src.pynomaly.infrastructure.auth.middleware import track_request_metrics
+from src.pynomaly.infrastructure.monitoring.middleware import MetricsMiddleware
+
+app = FastAPI()
+
+
+def test_middleware_registration():
+    """Test middleware registration without raising exceptions."""
+    try:
+        app.middleware("http")(track_request_metrics)
+        app.add_middleware(MetricsMiddleware, app=app)
+    except Exception as e:
+        pytest.fail(f"Middleware registration failed: {e}")
+
 """Comprehensive tests for middleware infrastructure - Phase 2 Coverage Enhancement."""
 
 from __future__ import annotations
