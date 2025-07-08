@@ -630,6 +630,9 @@ class BatchProcessor:
 
     async def _process_chunk(self, chunk: BatchChunk, config: BatchConfig) -> DetectionResult:
         """Process a single chunk for anomaly detection."""
+        start_time = time.time()
+        chunk_size_category = categorize_chunk_size(len(chunk.data))
+        
         try:
             # Convert chunk to dataset
             dataset = chunk.to_dataset()
@@ -652,9 +655,24 @@ class BatchProcessor:
                 "engine": config.engine.value
             })
 
+            # Record chunk processing time
+            duration = time.time() - start_time
+            self.metrics_collector.record_chunk_processing_time(
+                duration,
+                "batch",
+                config.detection_algorithm.value,
+                chunk_size_category
+            )
+
             return result
 
         except Exception as e:
+            # Record chunk processing error
+            self.metrics_collector.increment_error_count(
+                "batch",
+                type(e).__name__,
+                "chunk_processor"
+            )
             logger.error(f"Error processing chunk {chunk.chunk_id}: {e}")
             raise
 

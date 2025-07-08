@@ -261,7 +261,7 @@ class WebSocketGateway:
             "type": "metrics_update",
             "dashboard_id": metrics.dashboard_id,
             "session_id": metrics.session_id,
-            "metrics": metrics.metrics.dict(),
+            "metrics": metrics.metrics.model_dump(),
             "timestamp": metrics.timestamp.isoformat(),
             "uptime_seconds": metrics.uptime_seconds,
             "status": metrics.status,
@@ -389,7 +389,7 @@ class WebSocketGateway:
         """
         return {
             **self.stats,
-            "dashboard_count": len(self.dashboard_connections),
+            "dashboard_count": len(self.latest_metrics),
             "connections_per_dashboard": {
                 dashboard_id: len(connections)
                 for dashboard_id, connections in self.dashboard_connections.items()

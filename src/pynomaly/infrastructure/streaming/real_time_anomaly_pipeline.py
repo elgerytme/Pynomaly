@@ -818,7 +818,7 @@ class MetricsPublisher:
 
             # Serialize metrics
             metrics_data = {
-                "metrics": metrics.json(),
+                "metrics": metrics.model_dump_json(),
                 "timestamp": datetime.utcnow().isoformat(),
             }
 
@@ -841,7 +841,7 @@ class MetricsPublisher:
                 await self.producer.start()
 
             # Serialize metrics
-            metrics_json = metrics.json()
+            metrics_json = metrics.model_dump_json()
             metrics_bytes = metrics_json.encode("utf-8")
 
             # Send to Kafka topic

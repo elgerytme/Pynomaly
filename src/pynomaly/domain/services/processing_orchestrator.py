@@ -15,6 +15,7 @@ from ...infrastructure.batch.batch_processor import (
     create_batch_processor,
 )
 from ...infrastructure.monitoring.distributed_tracing import trace_operation
+from ...infrastructure.monitoring.prometheus_metrics_enhanced import get_metrics_collector
 from ...infrastructure.streaming.stream_processor import (
     StreamConfig,
     StreamProcessor,
@@ -76,6 +77,7 @@ class ProcessingOrchestrator:
     def __init__(self, config: Config | None = None):
         """Initialize processing orchestrator."""
         self.config = config or Config()
+        self.metrics_collector = get_metrics_collector()
 
         # Active sessions
         self.sessions: dict[str, ProcessingSession] = {}
@@ -146,6 +148,13 @@ class ProcessingOrchestrator:
             session.status = ProcessingStatus.RUNNING
             session.started_at = datetime.now()
 
+            # Record session metrics
+            self.metrics_collector.set_session_count(
+                len([s for s in self.sessions.values() if s.mode == ProcessingMode.STREAMING]),
+                "streaming",
+                "running"
+            )
+
             logger.info(f"Started streaming session {session_id} ({name})")
             return session_id
 
@@ -204,6 +213,13 @@ class ProcessingOrchestrator:
             session.job_ids.append(job_id)
             session.status = ProcessingStatus.RUNNING
             session.started_at = datetime.now()
+
+            # Record session metrics
+            self.metrics_collector.set_session_count(
+                len([s for s in self.sessions.values() if s.mode == ProcessingMode.BATCH]),
+                "batch",
+                "running"
+            )
 
             logger.info(
                 f"Started batch session {session_id} ({name}) with job {job_id}"
