@@ -747,7 +747,7 @@ class VisualizationDashboardService:
             }
 
             # Cache dashboard
-            self.dashboard_cache["real_time"] = dashboard_data
+            self.dashboard_cache[dashboard_data.dashboard_id] = dashboard_data
 
             logger.info("Real-time dashboard generated successfully")
             return dashboard_data

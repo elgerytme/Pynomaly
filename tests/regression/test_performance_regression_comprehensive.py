@@ -31,9 +31,14 @@ def load_performance_config():
         return {}
 
 
-def get_threshold(config, category, metric, default):
+def get_threshold(config, category, metric, default, algorithm='IsolationForest'):
     """Get threshold value from config or return default."""
-    return config.get('algorithm_thresholds', {}).get('IsolationForest', {}).get(category, {}).get(metric, default)
+    return config.get('algorithm_thresholds', {}).get(algorithm, {}).get(category, {}).get(metric, default)
+
+
+def get_performance_threshold(config, category, metric, default):
+    """Get performance threshold value from config or return default."""
+    return config.get('performance_thresholds', {}).get(category, {}).get(metric, default)
 
 
 class TestTrainingPerformanceRegression:
@@ -762,27 +767,20 @@ class TestIOPerformanceRegression:
             assert len(loaded_csv.columns) == 4
 
             # Performance thresholds based on size
-            if size <= 1000:
-                assert (
-                    csv_write_time < 2.0
-                ), f"CSV write too slow for {size} rows: {csv_write_time}s"
-                assert (
-                    csv_read_time < 1.0
-                ), f"CSV read too slow for {size} rows: {csv_read_time}s"
-            elif size <= 10000:
-                assert (
-                    csv_write_time < 5.0
-                ), f"CSV write too slow for {size} rows: {csv_write_time}s"
-                assert (
-                    csv_read_time < 3.0
-                ), f"CSV read too slow for {size} rows: {csv_read_time}s"
-            elif size <= 50000:
-                assert (
-                    csv_write_time < 15.0
-                ), f"CSV write too slow for {size} rows: {csv_write_time}s"
-                assert (
-                    csv_read_time < 10.0
-                ), f"CSV read too slow for {size} rows: {csv_read_time}s"
+            config = load_performance_config()
+            default_write_thresholds = {1000: 2.0, 10000: 5.0, 50000: 15.0}
+            default_read_thresholds = {1000: 1.0, 10000: 3.0, 50000: 10.0}
+            
+            size_key = min(default_write_thresholds.keys(), key=lambda x: abs(x - size))
+            write_threshold = config.get('performance_thresholds', {}).get('io', {}).get(f'csv_write_{size_key}_max_seconds', default_write_thresholds[size_key])
+            read_threshold = config.get('performance_thresholds', {}).get('io', {}).get(f'csv_read_{size_key}_max_seconds', default_read_thresholds[size_key])
+            
+            assert (
+                csv_write_time < write_threshold
+            ), f"CSV write too slow for {size} rows: {csv_write_time}s"
+            assert (
+                csv_read_time < read_threshold
+            ), f"CSV read too slow for {size} rows: {csv_read_time}s"
 
             # Clean up
             Path(csv_path).unlink()
