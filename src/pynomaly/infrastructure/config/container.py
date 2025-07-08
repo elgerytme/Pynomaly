@@ -144,6 +144,11 @@ class OptionalServiceManager:
         self._register_service(
             "health_service", "pynomaly.infrastructure.monitoring", "HealthService"
         )
+        self._register_service(
+            "external_monitoring_service",
+            "pynomaly.infrastructure.monitoring.external_monitoring_service",
+            "ExternalMonitoringService",
+        )
 
         # Logging and observability services
         self._register_service(
@@ -540,6 +545,11 @@ class Container(containers.DeclarativeContainer):
         if service_manager.is_available("health_service"):
             cls.health_service = service_manager.create_provider(
                 "health_service", "singleton", max_history=100
+            )
+            
+        if service_manager.is_available("external_monitoring_service"):
+            cls.external_monitoring_service = service_manager.create_provider(
+                "external_monitoring_service", "singleton"
             )
 
         # Observability services

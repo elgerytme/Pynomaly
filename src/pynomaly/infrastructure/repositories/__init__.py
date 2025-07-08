@@ -23,6 +23,10 @@ from .memory_repository import (
     MemoryDetectionResultRepository,
     MemoryDetectorRepository,
 )
+from .model_performance_repository import (
+    ModelPerformanceRepository,
+    PerformanceBaselineRepository,
+)
 from .repository_factory import RepositoryFactory
 from .repository_service import (
     RepositoryService,
@@ -51,6 +55,9 @@ __all__ = [
     # Service and factory
     "RepositoryService",
     "RepositoryFactory",
+    # Performance repositories
+    "ModelPerformanceRepository",
+    "PerformanceBaselineRepository",
     # Convenience functions
     "create_memory_repository_service",
     "create_filesystem_repository_service",

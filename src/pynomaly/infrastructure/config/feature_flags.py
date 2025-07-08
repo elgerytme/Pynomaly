@@ -241,11 +241,10 @@ class FeatureFlags(BaseSettings):
         default=False, description="Enable multi-tenant isolation"
     )
 
-    class Config:
-        """Pydantic configuration."""
-
-        env_prefix = "PYNOMALY_"
-        case_sensitive = False
+    model_config = ConfigDict(
+        env_prefix="PYNOMALY_",
+        case_sensitive=False
+    )
 
 
 class FeatureFlagManager:

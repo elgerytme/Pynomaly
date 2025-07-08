@@ -68,6 +68,22 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                 f"HTTP error: {request.method} {request.url.path} "
                 f"-> {http_error.status_code} ({duration:.3f}s): {http_error.detail}"
             )
+            
+            # Send system health alert for HTTP errors
+            try:
+                from pynomaly.infrastructure.monitoring.dual_metrics_service import get_dual_metrics_service
+                dual_metrics_service = get_dual_metrics_service()
+                if dual_metrics_service:
+                    await dual_metrics_service.record_error(
+                        error_type="HTTPException",
+                        component="API",
+                        severity="warning" if http_error.status_code < 500 else "error",
+                        exception=http_error,
+                        send_alert=http_error.status_code >= 500
+                    )
+            except Exception as e:
+                self.logger.error(f"Failed to record HTTP error metrics: {e}")
+            
             raise
 
         except Exception as error:
@@ -85,6 +101,21 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
 
             # Determine HTTP status code
             status_code = self._get_http_status_code(error)
+            
+            # Send system health alert for general exceptions
+            try:
+                from pynomaly.infrastructure.monitoring.dual_metrics_service import get_dual_metrics_service
+                dual_metrics_service = get_dual_metrics_service()
+                if dual_metrics_service:
+                    await dual_metrics_service.record_error(
+                        error_type=type(error).__name__,
+                        component="API",
+                        severity="critical" if status_code >= 500 else "error",
+                        exception=error,
+                        send_alert=True
+                    )
+            except Exception as e:
+                self.logger.error(f"Failed to record general error metrics: {e}")
 
             # Add debug information if enabled
             if self.include_debug_info:

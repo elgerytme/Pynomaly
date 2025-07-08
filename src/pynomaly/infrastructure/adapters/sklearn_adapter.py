@@ -116,7 +116,7 @@ class SklearnAdapter(Detector):
                 "LocalOutlierFactor",
                 "EllipticEnvelope",
             ]:
-                model_params["contamination"] = self.contamination_rate.value
+                model_params["contamination"] = self.contamination_rate
 
             # Special handling for LocalOutlierFactor
             if self.algorithm_name == "LocalOutlierFactor":
@@ -189,7 +189,7 @@ class SklearnAdapter(Detector):
         ]
 
         # Calculate threshold
-        threshold_idx = int(len(raw_scores) * (1 - self.contamination_rate.value))
+        threshold_idx = int(len(raw_scores) * (1 - self.contamination_rate))
         threshold = float(np.sort(normalized_scores)[threshold_idx])
 
         # Create Anomaly entities

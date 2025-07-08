@@ -81,7 +81,7 @@ class SecuritySettings(BaseModel):
         valid_levels = ["strict", "moderate", "permissive"]
         if v not in valid_levels:
             raise ValueError(f"Sanitization level must be one of: {valid_levels}")
-        return providers
+        return v
 
     def get_monitoring_config(self) -> dict[str, Any]:
         """Get monitoring configuration including buffer size and flush interval."""
