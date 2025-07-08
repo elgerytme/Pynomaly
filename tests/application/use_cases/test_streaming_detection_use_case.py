@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.pynomaly.application.dto.streaming_dto import (
+from pynomaly.application.dto.streaming_dto import (
     BackpressureConfigDTO,
     CheckpointConfigDTO,
     StreamConfigurationDTO,
@@ -26,7 +26,7 @@ from src.pynomaly.application.dto.streaming_dto import (
     StreamStatusDTO,
     WindowConfigDTO,
 )
-from src.pynomaly.application.use_cases.streaming_detection_use_case import (
+from pynomaly.application.use_cases.streaming_detection_use_case import (
     BackpressureError,
     DetectorNotFoundError,
     StreamingDetectionUseCase,
