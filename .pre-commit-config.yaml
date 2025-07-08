@@ -50,11 +50,13 @@ repos:
         args: [-r, src/, -ll, --skip, B101]
 
   # Dependency vulnerability scanning
-  - repo: https://github.com/pyupio/safety
-    rev: 2.3.5
+  - repo: local
     hooks:
       - id: safety
-        additional_dependencies: [safety]
+        name: Safety vulnerability check
+        entry: safety check
+        language: system
+        pass_filenames: false
 
 # Configuration
 default_install_hook_types: [pre-commit]
