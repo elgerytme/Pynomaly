@@ -1,0 +1,171 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Bandit",
+          "rules": [
+            {
+              "id": "B404",
+              "shortDescription": {
+                "text": "Consider possible security implications associated with the subprocess module."
+              },
+              "fullDescription": {
+                "text": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_imports.html#b404-import-subprocess"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              }
+            },
+            {
+              "id": "B105",
+              "shortDescription": {
+                "text": "Possible hardcoded password: 'hardcoded_password'"
+              },
+              "fullDescription": {
+                "text": "https://bandit.readthedocs.io/en/1.8.6/plugins/b105_hardcoded_password_string.html"
+              },
+              "defaultConfiguration": {
+                "level": "note"
+              }
+            },
+            {
+              "id": "B608",
+              "shortDescription": {
+                "text": "Possible SQL injection vector through string-based query construction."
+              },
+              "fullDescription": {
+                "text": "https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              }
+            },
+            {
+              "id": "B605",
+              "shortDescription": {
+                "text": "Starting a process with a shell, possible injection detected, security issue."
+              },
+              "fullDescription": {
+                "text": "https://bandit.readthedocs.io/en/1.8.6/plugins/b605_start_process_with_a_shell.html"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "B602",
+              "shortDescription": {
+                "text": "subprocess call with shell=True identified, security issue."
+              },
+              "fullDescription": {
+                "text": "https://bandit.readthedocs.io/en/1.8.6/plugins/b602_subprocess_popen_with_shell_equals_true.html"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "B404",
+          "message": {
+            "text": "Consider possible security implications associated with the subprocess module."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pynomaly\\test_file.py"
+                },
+                "region": {
+                  "startLine": 3,
+                  "endLine": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "B105",
+          "message": {
+            "text": "Possible hardcoded password: 'hardcoded_password'"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pynomaly\\test_file.py"
+                },
+                "region": {
+                  "startLine": 6,
+                  "endLine": 6
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "B608",
+          "message": {
+            "text": "Possible SQL injection vector through string-based query construction."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pynomaly\\test_file.py"
+                },
+                "region": {
+                  "startLine": 10,
+                  "endLine": 10
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "B605",
+          "message": {
+            "text": "Starting a process with a shell, possible injection detected, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pynomaly\\test_file.py"
+                },
+                "region": {
+                  "startLine": 11,
+                  "endLine": 11
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "B602",
+          "message": {
+            "text": "subprocess call with shell=True identified, security issue."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "pynomaly\\test_file.py"
+                },
+                "region": {
+                  "startLine": 12,
+                  "endLine": 12
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
