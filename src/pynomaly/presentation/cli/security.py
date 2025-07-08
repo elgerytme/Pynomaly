@@ -378,11 +378,21 @@ def detect_breach(access_logs: str, output_file: str | None, alert_threshold: in
     asyncio.run(run_breach_detection())
 
 
-@security_commands.command()
-@click.option("--data-file", required=True, help="Data file to anonymize")
-@click.option("--rules-file", required=True, help="JSON file with anonymization rules")
-@click.option("--output-file", help="File to save anonymized data")
-def anonymize_data(data_file: str, rules_file: str, output_file: str | None):
+@app.command()
+def anonymize_data(
+    data_file: Annotated[
+        str,
+        typer.Option("--data-file", help="Data file to anonymize")
+    ],
+    rules_file: Annotated[
+        str,
+        typer.Option("--rules-file", help="JSON file with anonymization rules")
+    ],
+    output_file: Annotated[
+        str | None,
+        typer.Option("--output-file", help="File to save anonymized data")
+    ] = None,
+):
     """Anonymize data for privacy compliance."""
 
     async def run_anonymization():

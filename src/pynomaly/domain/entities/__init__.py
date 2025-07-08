@@ -7,6 +7,8 @@ from .alert import (
     AlertSeverity,
     AlertStatus,
     AlertType,
+    MLNoiseFeatures,
+    NoiseClassification,
     NotificationChannel,
 )
 from .anomaly import Anomaly
@@ -51,5 +53,7 @@ __all__ = [
     "AlertSeverity",
     "AlertStatus",
     "AlertType",
+    "MLNoiseFeatures",
+    "NoiseClassification",
     "NotificationChannel",
 ]
