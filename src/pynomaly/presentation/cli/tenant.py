@@ -4,7 +4,8 @@ import asyncio
 import json
 from uuid import UUID
 
-import click
+import typer
+from typing import Annotated
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -20,33 +21,22 @@ from pynomaly.domain.entities.tenant import (
 console = Console()
 
 
-@click.group(name="tenant")
-def tenant_commands():
-    """Multi-tenant management commands."""
-    pass
+tenant_commands = typer.Typer(name="tenant", help="Multi-tenant management commands.")
 
 
 @tenant_commands.command()
-@click.option("--name", required=True, help="Unique tenant name")
-@click.option("--display-name", help="Display name for the tenant")
-@click.option("--email", required=True, help="Contact email for the tenant")
-@click.option(
-    "--tier",
-    type=click.Choice(["free", "basic", "professional", "enterprise"]),
-    default="free",
-    help="Subscription tier",
-)
-@click.option("--description", help="Description of the tenant")
-@click.option("--admin-user", help="Admin user ID (UUID)")
-@click.option("--auto-activate", is_flag=True, help="Automatically activate the tenant")
 def create(
-    name: str,
-    display_name: str | None,
-    email: str,
-    tier: str,
-    description: str | None,
-    admin_user: str | None,
-    auto_activate: bool,
+    name: Annotated[str, typer.Option(help="Unique tenant name")],
+    display_name: Annotated[str | None, typer.Option(help="Display name for the tenant")] = None,
+    email: Annotated[str, typer.Option(help="Contact email for the tenant")],
+    tier: Annotated[str, typer.Option(
+        "--tier",
+        help="Subscription tier",
+        choices=["free", "basic", "professional", "enterprise"]
+    )] = "free",
+    description: Annotated[str | None, typer.Option(help="Description of the tenant")] = None,
+    admin_user: Annotated[str | None, typer.Option(help="Admin user ID (UUID)")] = None,
+    auto_activate: Annotated[bool, typer.Option("--auto-activate", help="Automatically activate the tenant")] = False,
 ):
     """Create a new tenant."""
 
@@ -122,8 +112,9 @@ def create(
 
 
 @tenant_commands.command()
-@click.argument("tenant_id", type=str)
-def activate(tenant_id: str):
+def activate(
+    tenant_id: Annotated[str, typer.Argument(help="Tenant ID to activate")]
+):
     """Activate a tenant."""
 
     async def activate_tenant():
@@ -146,9 +137,10 @@ def activate(tenant_id: str):
 
 
 @tenant_commands.command()
-@click.argument("tenant_id", type=str)
-@click.option("--reason", help="Reason for suspension")
-def suspend(tenant_id: str, reason: str | None):
+def suspend(
+    tenant_id: Annotated[str, typer.Argument(help="Tenant ID to suspend")],
+    reason: Annotated[str | None, typer.Option(help="Reason for suspension")] = None,
+):
     """Suspend a tenant."""
 
     async def suspend_tenant():
@@ -178,8 +170,9 @@ def suspend(tenant_id: str, reason: str | None):
 
 
 @tenant_commands.command()
-@click.argument("tenant_id", type=str)
-def deactivate(tenant_id: str):
+def deactivate(
+    tenant_id: Annotated[str, typer.Argument(help="Tenant ID to deactivate")]
+):
     """Deactivate a tenant."""
 
     async def deactivate_tenant():
@@ -211,27 +204,27 @@ def deactivate(tenant_id: str):
 
 
 @tenant_commands.command()
-@click.option(
-    "--status",
-    type=click.Choice(["active", "suspended", "deactivated", "pending_activation"]),
-    help="Filter by tenant status",
-)
-@click.option(
-    "--tier",
-    type=click.Choice(["free", "basic", "professional", "enterprise"]),
-    help="Filter by subscription tier",
-)
-@click.option(
-    "--limit", type=int, default=50, help="Maximum number of tenants to display"
-)
-@click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["table", "json"]),
-    default="table",
-    help="Output format",
-)
-def list(status: str | None, tier: str | None, limit: int, output_format: str):
+def list(
+    status: Annotated[str | None, typer.Option(
+        "--status",
+        help="Filter by tenant status",
+        choices=["active", "suspended", "deactivated", "pending_activation"]
+    )] = None,
+    tier: Annotated[str | None, typer.Option(
+        "--tier",
+        help="Filter by subscription tier",
+        choices=["free", "basic", "professional", "enterprise"]
+    )] = None,
+    limit: Annotated[int, typer.Option(
+        "--limit",
+        help="Maximum number of tenants to display"
+    )] = 50,
+    output_format: Annotated[str, typer.Option(
+        "--format",
+        help="Output format",
+        choices=["table", "json"]
+    )] = "table",
+):
     """List tenants with optional filtering."""
 
     async def list_tenants():
@@ -259,8 +252,9 @@ def list(status: str | None, tier: str | None, limit: int, output_format: str):
 
 
 @tenant_commands.command()
-@click.argument("tenant_identifier", type=str)
-def show(tenant_identifier: str):
+def show(
+    tenant_identifier: Annotated[str, typer.Argument(help="Tenant ID or name to show")]
+):
     """Show detailed information about a tenant (by ID or name)."""
 
     async def show_tenant():
@@ -291,11 +285,13 @@ def show(tenant_identifier: str):
 
 
 @tenant_commands.command()
-@click.argument("tenant_identifier", type=str)
-@click.argument(
-    "new_tier", type=click.Choice(["free", "basic", "professional", "enterprise"])
-)
-def upgrade(tenant_identifier: str, new_tier: str):
+def upgrade(
+    tenant_identifier: Annotated[str, typer.Argument(help="Tenant ID or name to upgrade")],
+    new_tier: Annotated[str, typer.Argument(
+        help="New subscription tier",
+        choices=["free", "basic", "professional", "enterprise"]
+    )],
+):
     """Upgrade tenant subscription tier."""
 
     async def upgrade_tenant():
@@ -345,8 +341,9 @@ def upgrade(tenant_identifier: str, new_tier: str):
 
 
 @tenant_commands.command()
-@click.argument("tenant_identifier", type=str)
-def usage(tenant_identifier: str):
+def usage(
+    tenant_identifier: Annotated[str, typer.Argument(help="Tenant ID or name to show usage for")]
+):
     """Show detailed usage information for a tenant."""
 
     async def show_usage():
@@ -377,8 +374,9 @@ def usage(tenant_identifier: str):
 
 
 @tenant_commands.command()
-@click.argument("tenant_identifier", type=str)
-def reset_quotas(tenant_identifier: str):
+def reset_quotas(
+    tenant_identifier: Annotated[str, typer.Argument(help="Tenant ID or name to reset quotas for")]
+):
     """Reset resource quotas for a tenant (new billing period)."""
 
     async def reset_tenant_quotas():

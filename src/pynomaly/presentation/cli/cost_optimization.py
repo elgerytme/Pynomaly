@@ -4,7 +4,8 @@ import asyncio
 import json
 from uuid import UUID
 
-import click
+import typer
+from typing import Annotated
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -21,25 +22,19 @@ from pynomaly.domain.entities.cost_optimization import (
 console = Console()
 
 
-@click.group(name="cost")
-def cost_commands():
-    """Cost optimization and resource management commands."""
-    pass
+cost_commands = typer.Typer(name="cost", help="Cost optimization and resource management commands.")
 
 
 @cost_commands.command()
-@click.option("--tenant-id", help="Filter by tenant ID (UUID)")
-@click.option("--days", type=int, default=30, help="Analysis period in days")
-@click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["console", "json"]),
-    default="console",
-    help="Output format",
-)
-@click.option("--output-file", help="Output file for analysis results")
 def analyze(
-    tenant_id: str | None, days: int, output_format: str, output_file: str | None
+    tenant_id: Annotated[str | None, typer.Option(help="Filter by tenant ID (UUID)")] = None,
+    days: Annotated[int, typer.Option(help="Analysis period in days")] = 30,
+    output_format: Annotated[str, typer.Option(
+        "--format",
+        help="Output format",
+        choices=["console", "json"]
+    )] = "console",
+    output_file: Annotated[str | None, typer.Option(help="Output file for analysis results")] = None,
 ):
     """Analyze cost trends and identify optimization opportunities."""
 
@@ -87,28 +82,21 @@ def analyze(
 
 
 @cost_commands.command()
-@click.option(
-    "--strategy",
-    type=click.Choice(
-        ["aggressive", "balanced", "conservative", "performance_first", "cost_first"]
-    ),
-    default="balanced",
-    help="Optimization strategy",
-)
-@click.option("--tenant-id", help="Filter by tenant ID (UUID)")
-@click.option(
-    "--target-savings",
-    type=float,
-    default=0.2,
-    help="Target savings percentage (0.0-1.0)",
-)
-@click.option(
-    "--auto-implement",
-    is_flag=True,
-    help="Automatically implement low-risk recommendations",
-)
 def optimize(
-    strategy: str, tenant_id: str | None, target_savings: float, auto_implement: bool
+    strategy: Annotated[str, typer.Option(
+        "--strategy",
+        help="Optimization strategy",
+        choices=["aggressive", "balanced", "conservative", "performance_first", "cost_first"]
+    )] = "balanced",
+    tenant_id: Annotated[str | None, typer.Option(help="Filter by tenant ID (UUID)")] = None,
+    target_savings: Annotated[float, typer.Option(
+        "--target-savings",
+        help="Target savings percentage (0.0-1.0)"
+    )] = 0.2,
+    auto_implement: Annotated[bool, typer.Option(
+        "--auto-implement",
+        help="Automatically implement low-risk recommendations"
+    )] = False,
 ):
     """Generate and optionally implement cost optimization recommendations."""
 
@@ -178,16 +166,14 @@ def optimize(
 
 
 @cost_commands.command()
-@click.argument("plan_id", type=str)
-@click.option("--recommendation-id", help="Implement specific recommendation by ID")
-@click.option("--phase", type=int, help="Implement specific phase (1-4)")
-@click.option(
-    "--dry-run",
-    is_flag=True,
-    help="Show what would be implemented without actually doing it",
-)
 def implement(
-    plan_id: str, recommendation_id: str | None, phase: int | None, dry_run: bool
+    plan_id: Annotated[str, typer.Argument(help="Plan ID to implement")],
+    recommendation_id: Annotated[str | None, typer.Option(help="Implement specific recommendation by ID")] = None,
+    phase: Annotated[int | None, typer.Option(help="Implement specific phase (1-4)")] = None,
+    dry_run: Annotated[bool, typer.Option(
+        "--dry-run",
+        help="Show what would be implemented without actually doing it"
+    )] = False,
 ):
     """Implement recommendations from an optimization plan."""
 
@@ -287,7 +273,7 @@ def implement(
             return
 
         # Confirm implementation
-        if not click.confirm("Proceed with implementation?"):
+        if not typer.confirm("Proceed with implementation?"):
             console.print("Implementation cancelled")
             return
 
@@ -322,23 +308,14 @@ def implement(
 
 
 @cost_commands.command()
-@click.option("--name", required=True, help="Budget name")
-@click.option("--monthly-limit", type=float, required=True, help="Monthly budget limit")
-@click.option("--annual-limit", type=float, help="Annual budget limit")
-@click.option("--tenant-id", help="Tenant ID (UUID)")
-@click.option("--environments", multiple=True, help="Environments to include")
-@click.option(
-    "--alert-thresholds", multiple=True, type=float, help="Alert thresholds (0.0-1.0)"
-)
-@click.option("--alert-contacts", multiple=True, help="Alert contact emails")
 def create_budget(
-    name: str,
-    monthly_limit: float,
-    annual_limit: float | None,
-    tenant_id: str | None,
-    environments: list[str],
-    alert_thresholds: list[float],
-    alert_contacts: list[str],
+    name: Annotated[str, typer.Option(help="Budget name")],
+    monthly_limit: Annotated[float, typer.Option(help="Monthly budget limit")],
+    annual_limit: Annotated[float | None, typer.Option(help="Annual budget limit")] = None,
+    tenant_id: Annotated[str | None, typer.Option(help="Tenant ID (UUID)")] = None,
+    environments: Annotated[list[str], typer.Option("--environments", help="Environments to include", multiple=True)] = [],
+    alert_thresholds: Annotated[list[float], typer.Option("--alert-thresholds", help="Alert thresholds (0.0-1.0)", multiple=True)] = [],
+    alert_contacts: Annotated[list[str], typer.Option("--alert-contacts", help="Alert contact emails", multiple=True)] = [],
 ):
     """Create a cost budget with alerts."""
 
@@ -386,15 +363,14 @@ def create_budget(
 
 
 @cost_commands.command()
-@click.option("--tenant-id", help="Filter by tenant ID (UUID)")
-@click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["table", "json"]),
-    default="table",
-    help="Output format",
-)
-def list_budgets(tenant_id: str | None, output_format: str):
+def list_budgets(
+    tenant_id: Annotated[str | None, typer.Option(help="Filter by tenant ID (UUID)")] = None,
+    output_format: Annotated[str, typer.Option(
+        "--format",
+        help="Output format",
+        choices=["table", "json"]
+    )] = "table",
+):
     """List all cost budgets and their status."""
 
     async def list_all_budgets():

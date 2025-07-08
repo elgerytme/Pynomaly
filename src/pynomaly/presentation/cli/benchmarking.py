@@ -5,7 +5,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-import click
+import typer
+from typing import Annotated
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import (
@@ -27,46 +28,25 @@ from pynomaly.infrastructure.config.container import Container
 console = Console()
 
 
-@click.group(name="benchmark")
-def benchmark_commands():
-    """Performance testing and benchmarking commands."""
-    pass
+benchmark_commands = typer.Typer(name="benchmark", help="Performance testing and benchmarking commands.")
 
 
 @benchmark_commands.command()
-@click.option("--suite-name", required=True, help="Name for the benchmark suite")
-@click.option("--description", help="Description of the benchmark suite")
-@click.option("--algorithms", multiple=True, help="Algorithms to benchmark")
-@click.option("--dataset-sizes", multiple=True, type=int, help="Dataset sizes to test")
-@click.option(
-    "--feature-dimensions", multiple=True, type=int, help="Feature dimensions to test"
-)
-@click.option(
-    "--contamination-rates",
-    multiple=True,
-    type=float,
-    help="Contamination rates to test",
-)
-@click.option("--iterations", type=int, default=5, help="Number of iterations per test")
-@click.option("--timeout", type=int, default=600, help="Timeout in seconds")
-@click.option("--output-dir", help="Output directory for results")
-@click.option(
-    "--export-format",
-    type=click.Choice(["json", "csv", "html"]),
-    default="html",
-    help="Export format for results",
-)
 def comprehensive(
-    suite_name: str,
-    description: str | None,
-    algorithms: list[str],
-    dataset_sizes: list[int],
-    feature_dimensions: list[int],
-    contamination_rates: list[float],
-    iterations: int,
-    timeout: int,
-    output_dir: str | None,
-    export_format: str,
+    suite_name: Annotated[str, typer.Option(help="Name for the benchmark suite")],
+    description: Annotated[str | None, typer.Option(help="Description of the benchmark suite")] = None,
+    algorithms: Annotated[list[str], typer.Option("--algorithms", help="Algorithms to benchmark", multiple=True)] = [],
+    dataset_sizes: Annotated[list[int], typer.Option("--dataset-sizes", help="Dataset sizes to test", multiple=True)] = [],
+    feature_dimensions: Annotated[list[int], typer.Option("--feature-dimensions", help="Feature dimensions to test", multiple=True)] = [],
+    contamination_rates: Annotated[list[float], typer.Option("--contamination-rates", help="Contamination rates to test", multiple=True)] = [],
+    iterations: Annotated[int, typer.Option(help="Number of iterations per test")] = 5,
+    timeout: Annotated[int, typer.Option(help="Timeout in seconds")] = 600,
+    output_dir: Annotated[str | None, typer.Option(help="Output directory for results")] = None,
+    export_format: Annotated[str, typer.Option(
+        "--export-format",
+        help="Export format for results",
+        choices=["json", "csv", "html"]
+    )] = "html",
 ):
     """Run comprehensive performance benchmark suite."""
 
@@ -157,17 +137,12 @@ def comprehensive(
 
 
 @benchmark_commands.command()
-@click.option("--algorithm", required=True, help="Algorithm to test for scalability")
-@click.option("--base-size", type=int, default=1000, help="Base dataset size")
-@click.option("--scale-factors", multiple=True, type=int, help="Scale factors to test")
-@click.option("--feature-dimension", type=int, default=10, help="Number of features")
-@click.option("--output-file", help="Output file for results")
 def scalability(
-    algorithm: str,
-    base_size: int,
-    scale_factors: list[int],
-    feature_dimension: int,
-    output_file: str | None,
+    algorithm: Annotated[str, typer.Option(help="Algorithm to test for scalability")],
+    base_size: Annotated[int, typer.Option(help="Base dataset size")] = 1000,
+    scale_factors: Annotated[list[int], typer.Option("--scale-factors", help="Scale factors to test", multiple=True)] = [],
+    feature_dimension: Annotated[int, typer.Option(help="Number of features")] = 10,
+    output_file: Annotated[str | None, typer.Option(help="Output file for results")] = None,
 ):
     """Run scalability test for specific algorithm."""
 

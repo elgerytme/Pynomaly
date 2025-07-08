@@ -5,7 +5,8 @@ import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import click
+import typer
+from typing import Annotated
 from rich.console import Console
 from rich.layout import Layout
 from rich.panel import Panel
@@ -24,34 +25,22 @@ from pynomaly.infrastructure.config.container import Container
 console = Console()
 
 
-@click.group(name="governance")
-def governance_commands():
-    """Governance framework and audit management commands."""
-    pass
+governance_commands = typer.Typer(name="governance", help="Governance framework and audit management commands.")
 
 
 @governance_commands.command()
-@click.option("--start-date", help="Start date for audit report (YYYY-MM-DD)")
-@click.option("--end-date", help="End date for audit report (YYYY-MM-DD)")
-@click.option("--resource-types", multiple=True, help="Filter by resource types")
-@click.option("--users", multiple=True, help="Filter by specific users")
-@click.option("--actions", multiple=True, help="Filter by governance actions")
-@click.option("--output-file", help="Save audit report to file")
-@click.option(
-    "--format",
-    "report_format",
-    type=click.Choice(["json", "csv", "html", "pdf"]),
-    default="json",
-    help="Report output format",
-)
 def audit_report(
-    start_date: str | None,
-    end_date: str | None,
-    resource_types: list[str],
-    users: list[str],
-    actions: list[str],
-    output_file: str | None,
-    report_format: str,
+    start_date: Annotated[str | None, typer.Option(help="Start date for audit report (YYYY-MM-DD)")] = None,
+    end_date: Annotated[str | None, typer.Option(help="End date for audit report (YYYY-MM-DD)")] = None,
+    resource_types: Annotated[list[str], typer.Option("--resource-types", help="Filter by resource types", multiple=True)] = [],
+    users: Annotated[list[str], typer.Option("--users", help="Filter by specific users", multiple=True)] = [],
+    actions: Annotated[list[str], typer.Option("--actions", help="Filter by governance actions", multiple=True)] = [],
+    output_file: Annotated[str | None, typer.Option(help="Save audit report to file")] = None,
+    report_format: Annotated[str, typer.Option(
+        "--format", "report_format",
+        help="Report output format",
+        choices=["json", "csv", "html", "pdf"]
+    )] = "json",
 ):
     """Generate comprehensive audit trail report."""
 
@@ -133,11 +122,12 @@ def audit_report(
 
 
 @governance_commands.command()
-@click.option("--policy-name", required=True, help="Name of the governance policy")
-@click.option(
-    "--policy-type",
-    type=click.Choice(
-        [
+def create_policy(
+    policy_name: Annotated[str, typer.Option(help="Name of the governance policy")],
+    policy_type: Annotated[str, typer.Option(
+        "--policy-type",
+        help="Type of governance policy",
+        choices=[
             "data_governance",
             "access_control",
             "change_management",
@@ -147,30 +137,16 @@ def audit_report(
             "security",
             "privacy",
         ]
-    ),
-    required=True,
-    help="Type of governance policy",
-)
-@click.option("--description", required=True, help="Policy description")
-@click.option("--content-file", help="JSON file with detailed policy content")
-@click.option("--applicable-roles", multiple=True, help="Roles the policy applies to")
-@click.option(
-    "--compliance-frameworks", multiple=True, help="Applicable compliance frameworks"
-)
-@click.option(
-    "--enforcement-level",
-    type=click.Choice(["mandatory", "recommended", "optional"]),
-    default="mandatory",
-    help="Policy enforcement level",
-)
-def create_policy(
-    policy_name: str,
-    policy_type: str,
-    description: str,
-    content_file: str | None,
-    applicable_roles: list[str],
-    compliance_frameworks: list[str],
-    enforcement_level: str,
+    )],
+    description: Annotated[str, typer.Option(help="Policy description")],
+    content_file: Annotated[str | None, typer.Option(help="JSON file with detailed policy content")] = None,
+    applicable_roles: Annotated[list[str], typer.Option("--applicable-roles", help="Roles the policy applies to", multiple=True)] = [],
+    compliance_frameworks: Annotated[list[str], typer.Option("--compliance-frameworks", help="Applicable compliance frameworks", multiple=True)] = [],
+    enforcement_level: Annotated[str, typer.Option(
+        "--enforcement-level",
+        help="Policy enforcement level",
+        choices=["mandatory", "recommended", "optional"]
+    )] = "mandatory",
 ):
     """Create new governance policy."""
 
@@ -246,31 +222,22 @@ def create_policy(
 
 
 @governance_commands.command()
-@click.option("--risk-category", required=True, help="Category of risk being assessed")
-@click.option("--description", required=True, help="Detailed risk description")
-@click.option(
-    "--likelihood",
-    type=click.Choice(["very_low", "low", "medium", "high", "very_high", "critical"]),
-    required=True,
-    help="Probability of risk occurrence",
-)
-@click.option(
-    "--impact",
-    type=click.Choice(["very_low", "low", "medium", "high", "very_high", "critical"]),
-    required=True,
-    help="Potential impact if risk occurs",
-)
-@click.option("--affected-assets", multiple=True, help="Assets that could be affected")
-@click.option("--threat-sources", multiple=True, help="Sources of the threat")
-@click.option("--existing-controls", multiple=True, help="Existing risk controls")
 def assess_risk(
-    risk_category: str,
-    description: str,
-    likelihood: str,
-    impact: str,
-    affected_assets: list[str],
-    threat_sources: list[str],
-    existing_controls: list[str],
+    risk_category: Annotated[str, typer.Option(help="Category of risk being assessed")],
+    description: Annotated[str, typer.Option(help="Detailed risk description")],
+    likelihood: Annotated[str, typer.Option(
+        "--likelihood",
+        help="Probability of risk occurrence",
+        choices=["very_low", "low", "medium", "high", "very_high", "critical"]
+    )],
+    impact: Annotated[str, typer.Option(
+        "--impact",
+        help="Potential impact if risk occurs",
+        choices=["very_low", "low", "medium", "high", "very_high", "critical"]
+    )],
+    affected_assets: Annotated[list[str], typer.Option("--affected-assets", help="Assets that could be affected", multiple=True)] = [],
+    threat_sources: Annotated[list[str], typer.Option("--threat-sources", help="Sources of the threat", multiple=True)] = [],
+    existing_controls: Annotated[list[str], typer.Option("--existing-controls", help="Existing risk controls", multiple=True)] = [],
 ):
     """Conduct comprehensive risk assessment."""
 
@@ -338,38 +305,23 @@ def assess_risk(
 
 
 @governance_commands.command()
-@click.option("--title", required=True, help="Change request title")
-@click.option("--description", required=True, help="Detailed description of the change")
-@click.option(
-    "--change-type",
-    type=click.Choice(["configuration", "policy", "system", "data", "process"]),
-    required=True,
-    help="Type of change being requested",
-)
-@click.option(
-    "--approvers",
-    multiple=True,
-    required=True,
-    help="Required approvers for the change",
-)
-@click.option(
-    "--urgency",
-    type=click.Choice(["low", "normal", "high", "emergency"]),
-    default="normal",
-    help="Urgency level of the change",
-)
-@click.option("--impact-analysis", help="Analysis of potential impact")
-@click.option("--rollback-plan", help="Plan for rolling back if needed")
-@click.option("--affected-systems", multiple=True, help="Systems that will be affected")
 def submit_change(
-    title: str,
-    description: str,
-    change_type: str,
-    approvers: list[str],
-    urgency: str,
-    impact_analysis: str | None,
-    rollback_plan: str | None,
-    affected_systems: list[str],
+    title: Annotated[str, typer.Option(help="Change request title")],
+    description: Annotated[str, typer.Option(help="Detailed description of the change")],
+    change_type: Annotated[str, typer.Option(
+        "--change-type",
+        help="Type of change being requested",
+        choices=["configuration", "policy", "system", "data", "process"]
+    )],
+    approvers: Annotated[list[str], typer.Option("--approvers", help="Required approvers for the change", multiple=True)],
+    urgency: Annotated[str, typer.Option(
+        "--urgency",
+        help="Urgency level of the change",
+        choices=["low", "normal", "high", "emergency"]
+    )] = "normal",
+    impact_analysis: Annotated[str | None, typer.Option(help="Analysis of potential impact")] = None,
+    rollback_plan: Annotated[str | None, typer.Option(help="Plan for rolling back if needed")] = None,
+    affected_systems: Annotated[list[str], typer.Option("--affected-systems", help="Systems that will be affected", multiple=True)] = [],
 ):
     """Submit change management request."""
 
@@ -427,15 +379,15 @@ def submit_change(
 
 
 @governance_commands.command()
-@click.option("--request-id", required=True, help="Change request ID to approve/reject")
-@click.option(
-    "--decision",
-    type=click.Choice(["approved", "rejected"]),
-    required=True,
-    help="Approval decision",
-)
-@click.option("--comments", help="Comments for the approval decision")
-def approve_change(request_id: str, decision: str, comments: str | None):
+def approve_change(
+    request_id: Annotated[str, typer.Option(help="Change request ID to approve/reject")],
+    decision: Annotated[str, typer.Option(
+        "--decision",
+        help="Approval decision",
+        choices=["approved", "rejected"]
+    )],
+    comments: Annotated[str | None, typer.Option(help="Comments for the approval decision")] = None,
+):
     """Approve or reject change request."""
 
     async def run_approve_change():
@@ -489,28 +441,18 @@ def approve_change(request_id: str, decision: str, comments: str | None):
 
 
 @governance_commands.command()
-@click.option("--metric-name", required=True, help="Name of the compliance metric")
-@click.option(
-    "--framework",
-    type=click.Choice(["soc2", "gdpr", "hipaa", "pci_dss", "iso27001", "nist", "ccpa"]),
-    required=True,
-    help="Compliance framework",
-)
-@click.option("--control-id", required=True, help="Control identifier")
-@click.option("--current-value", type=float, required=True, help="Current metric value")
-@click.option("--target-value", type=float, default=100.0, help="Target metric value")
-@click.option(
-    "--responsible-party", required=True, help="Person responsible for the metric"
-)
-@click.option("--evidence", multiple=True, help="Supporting evidence for the metric")
 def track_compliance(
-    metric_name: str,
-    framework: str,
-    control_id: str,
-    current_value: float,
-    target_value: float,
-    responsible_party: str,
-    evidence: list[str],
+    metric_name: Annotated[str, typer.Option(help="Name of the compliance metric")],
+    framework: Annotated[str, typer.Option(
+        "--framework",
+        help="Compliance framework",
+        choices=["soc2", "gdpr", "hipaa", "pci_dss", "iso27001", "nist", "ccpa"]
+    )],
+    control_id: Annotated[str, typer.Option(help="Control identifier")],
+    current_value: Annotated[float, typer.Option(help="Current metric value")],
+    target_value: Annotated[float, typer.Option(help="Target metric value")] = 100.0,
+    responsible_party: Annotated[str, typer.Option(help="Person responsible for the metric")],
+    evidence: Annotated[list[str], typer.Option("--evidence", help="Supporting evidence for the metric", multiple=True)] = [],
 ):
     """Track compliance metric and performance."""
 
@@ -615,11 +557,12 @@ def dashboard():
 
 
 @governance_commands.command()
-@click.option("--user-id", required=True, help="User ID for the audit event")
-@click.option(
-    "--action",
-    type=click.Choice(
-        [
+def log_event(
+    user_id: Annotated[str, typer.Option(help="User ID for the audit event")],
+    action: Annotated[str, typer.Option(
+        "--action",
+        help="Governance action performed",
+        choices=[
             "create",
             "update",
             "delete",
@@ -631,29 +574,16 @@ def dashboard():
             "monitor",
             "report",
         ]
-    ),
-    required=True,
-    help="Governance action performed",
-)
-@click.option("--resource-type", required=True, help="Type of resource affected")
-@click.option("--resource-id", required=True, help="ID of the resource")
-@click.option("--details", required=True, help="Detailed description of the action")
-@click.option(
-    "--risk-level",
-    type=click.Choice(["very_low", "low", "medium", "high", "very_high", "critical"]),
-    help="Assessed risk level",
-)
-@click.option(
-    "--compliance-frameworks", multiple=True, help="Applicable compliance frameworks"
-)
-def log_event(
-    user_id: str,
-    action: str,
-    resource_type: str,
-    resource_id: str,
-    details: str,
-    risk_level: str | None,
-    compliance_frameworks: list[str],
+    )],
+    resource_type: Annotated[str, typer.Option(help="Type of resource affected")],
+    resource_id: Annotated[str, typer.Option(help="ID of the resource")],
+    details: Annotated[str, typer.Option(help="Detailed description of the action")],
+    risk_level: Annotated[str | None, typer.Option(
+        "--risk-level",
+        help="Assessed risk level",
+        choices=["very_low", "low", "medium", "high", "very_high", "critical"]
+    )] = None,
+    compliance_frameworks: Annotated[list[str], typer.Option("--compliance-frameworks", help="Applicable compliance frameworks", multiple=True)] = [],
 ):
     """Log governance audit event."""
 

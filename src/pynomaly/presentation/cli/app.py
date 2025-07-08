@@ -13,9 +13,11 @@ from pynomaly.presentation.cli import (
     automl,
     autonomous,
     deep_learning,
+    ensemble,
     explainability,
     selection,
 )
+from pynomaly.presentation.cli import explain
 from pynomaly.presentation.cli import config as config_cli
 from pynomaly.presentation.cli import (
     datasets,
@@ -85,6 +87,8 @@ app.add_typer(
     tdd.app, name="tdd", help="Test-Driven Development (TDD) management and enforcement"
 )
 app.add_typer(deep_learning.app, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")
+app.add_typer(ensemble.app, name="ensemble", help="🤖 Advanced ensemble methods and meta-learning")
+app.add_typer(explain.app, name="explain", help="🔍 Explain AI model predictions and analyze bias")
 app.add_typer(explainability.app, name="explainability", help="🔍 Explainable AI (model interpretability, bias analysis)")
 app.add_typer(selection.app, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")
 # app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Still uses Click - needs conversion

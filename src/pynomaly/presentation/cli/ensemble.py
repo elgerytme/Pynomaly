@@ -8,7 +8,7 @@ import sys
 import time
 from pathlib import Path
 
-import click
+import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -29,75 +29,52 @@ from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
 
 console = Console()
 
-
-@click.group()
-def ensemble():
-    """Advanced ensemble methods and meta-learning commands."""
-    pass
+# Create the Typer app for ensemble commands
+app = typer.Typer(help="Advanced ensemble methods and meta-learning commands")
 
 
-@ensemble.command()
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--algorithms", "-a", multiple=True, help="Algorithms to include in ensemble"
-)
-@click.option(
-    "--strategy",
-    "-s",
-    type=click.Choice(["voting", "weighted_voting", "stacking", "dynamic_selection"]),
-    default="voting",
-    help="Ensemble combination strategy",
-)
-@click.option("--max-size", "-n", type=int, default=5, help="Maximum ensemble size")
-@click.option(
-    "--diversity-threshold",
-    "-d",
-    type=float,
-    default=0.3,
-    help="Minimum diversity threshold",
-)
-@click.option(
-    "--diversity-weight",
-    "-w",
-    type=float,
-    default=0.3,
-    help="Diversity vs performance trade-off weight",
-)
-@click.option(
-    "--optimize-weights",
-    is_flag=True,
-    default=True,
-    help="Enable ensemble weight optimization",
-)
-@click.option(
-    "--disable-meta-learning",
-    is_flag=True,
-    help="Disable meta-learning for algorithm selection",
-)
-@click.option(
-    "--cv-folds", type=int, default=3, help="Cross-validation folds for optimization"
-)
-@click.option(
-    "--output", type=click.Path(path_type=Path), help="Output file for ensemble report"
-)
-@click.option(
-    "--save-ensemble",
-    type=click.Path(path_type=Path),
-    help="Save ensemble detectors to file",
-)
+@app.command()
 @require_feature("ensemble_optimization")
 def create(
-    dataset_path: Path,
-    algorithms: tuple,
-    strategy: str,
-    max_size: int,
-    diversity_threshold: float,
-    diversity_weight: float,
-    optimize_weights: bool,
-    disable_meta_learning: bool,
-    cv_folds: int,
-    output: Path | None,
-    save_ensemble: Path | None,
+    dataset_path: Path = typer.Argument(..., help="Path to the dataset file (CSV or Parquet)"),
+    algorithms: list[str] = typer.Option([], "--algorithms", "-a", help="Algorithms to include in ensemble"),
+    strategy: str = typer.Option(
+        "voting",
+        "--strategy",
+        "-s",
+        help="Ensemble combination strategy",
+        show_default=True,
+    ),
+    max_size: int = typer.Option(5, "--max-size", "-n", help="Maximum ensemble size"),
+    diversity_threshold: float = typer.Option(
+        0.3,
+        "--diversity-threshold",
+        "-d",
+        help="Minimum diversity threshold",
+    ),
+    diversity_weight: float = typer.Option(
+        0.3,
+        "--diversity-weight",
+        "-w",
+        help="Diversity vs performance trade-off weight",
+    ),
+    optimize_weights: bool = typer.Option(
+        True,
+        "--optimize-weights/--no-optimize-weights",
+        help="Enable ensemble weight optimization",
+    ),
+    disable_meta_learning: bool = typer.Option(
+        False,
+        "--disable-meta-learning/--enable-meta-learning",
+        help="Disable meta-learning for algorithm selection",
+    ),
+    cv_folds: int = typer.Option(3, "--cv-folds", help="Cross-validation folds for optimization"),
+    output: Path | None = typer.Option(None, "--output", help="Output file for ensemble report"),
+    save_ensemble: Path | None = typer.Option(
+        None,
+        "--save-ensemble",
+        help="Save ensemble detectors to file",
+    ),
 ):
     """Create an intelligent ensemble using meta-learning and optimization.
 
@@ -115,7 +92,7 @@ def create(
 
         # Configure ensemble
         config = EnsembleConfiguration(
-            base_algorithms=list(algorithms) if algorithms else [],
+            base_algorithms=algorithms if algorithms else [],
             ensemble_strategy=strategy,
             max_ensemble_size=max_size,
             min_diversity_threshold=diversity_threshold,
@@ -146,7 +123,7 @@ def create(
             # Run ensemble creation
             start_time = time.time()
 
-            algorithms_list = list(algorithms) if algorithms else None
+            algorithms_list = algorithms if algorithms else None
             ensemble_detectors, ensemble_report = asyncio.run(
                 ensemble_service.create_intelligent_ensemble(
                     dataset=dataset, algorithms=algorithms_list, config=config
@@ -175,33 +152,19 @@ def create(
         sys.exit(1)
 
 
-@ensemble.command()
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--algorithms", "-a", multiple=True, help="Algorithms to compare in ensembles"
-)
-@click.option(
-    "--strategies", "-s", multiple=True, help="Ensemble strategies to compare"
-)
-@click.option(
-    "--max-ensembles",
-    "-n",
-    type=int,
-    default=10,
-    help="Maximum number of ensemble configurations to test",
-)
-@click.option(
-    "--output",
-    type=click.Path(path_type=Path),
-    help="Output file for comparison results",
-)
+@app.command()
 @require_feature("ensemble_optimization")
 def compare(
-    dataset_path: Path,
-    algorithms: tuple,
-    strategies: tuple,
-    max_ensembles: int,
-    output: Path | None,
+    dataset_path: Path = typer.Argument(..., help="Path to the dataset file"),
+    algorithms: list[str] = typer.Option([], "--algorithms", "-a", help="Algorithms to compare in ensembles"),
+    strategies: list[str] = typer.Option([], "--strategies", "-s", help="Ensemble strategies to compare"),
+    max_ensembles: int = typer.Option(
+        10,
+        "--max-ensembles",
+        "-n",
+        help="Maximum number of ensemble configurations to test",
+    ),
+    output: Path | None = typer.Option(None, "--output", help="Output file for comparison results"),
 ):
     """Compare different ensemble configurations and strategies.
 
@@ -243,7 +206,7 @@ def compare(
 
             try:
                 config = EnsembleConfiguration(
-                    base_algorithms=list(algorithms),
+                    base_algorithms=algorithms,
                     ensemble_strategy=strategy,
                     max_ensemble_size=min(5, len(algorithms)),
                     meta_learning_enabled=True,
@@ -252,7 +215,7 @@ def compare(
                 start_time = time.time()
                 ensemble_detectors, ensemble_report = asyncio.run(
                     ensemble_service.create_intelligent_ensemble(
-                        dataset=dataset, algorithms=list(algorithms), config=config
+                        dataset=dataset, algorithms=algorithms, config=config
                     )
                 )
                 creation_time = time.time() - start_time
@@ -298,15 +261,15 @@ def compare(
         sys.exit(1)
 
 
-@ensemble.command()
-@click.option(
-    "--meta-knowledge-path",
-    type=click.Path(path_type=Path),
-    default=Path("./meta_knowledge"),
-    help="Meta-knowledge storage path",
-)
+@app.command()
 @require_feature("meta_learning")
-def insights():
+def insights(
+    meta_knowledge_path: Path = typer.Option(
+        Path("./meta_knowledge"),
+        "--meta-knowledge-path",
+        help="Meta-knowledge storage path",
+    ),
+):
     """Analyze meta-learning insights and knowledge base.
 
     Examples:
@@ -334,18 +297,16 @@ def insights():
         sys.exit(1)
 
 
-@ensemble.command()
-@click.argument("dataset_path", type=click.Path(exists=True, path_type=Path))
-@click.argument("algorithms", nargs=-1)
-@click.option(
-    "--meta-knowledge-path",
-    type=click.Path(path_type=Path),
-    default=Path("./meta_knowledge"),
-    help="Meta-knowledge storage path",
-)
+@app.command()
 @require_feature("meta_learning")
 def predict_performance(
-    dataset_path: Path, algorithms: tuple, meta_knowledge_path: Path
+    dataset_path: Path = typer.Argument(..., help="Path to the dataset file"),
+    algorithms: list[str] = typer.Argument(..., help="Algorithms to include in predicted ensemble"),
+    meta_knowledge_path: Path = typer.Option(
+        Path("./meta_knowledge"),
+        "--meta-knowledge-path",
+        help="Meta-knowledge storage path",
+    ),
 ):
     """Predict ensemble performance using meta-learning.
 
@@ -372,12 +333,12 @@ def predict_performance(
         # Predict performance
         prediction = asyncio.run(
             ensemble_service.predict_ensemble_performance(
-                dataset_chars, list(algorithms)
+                dataset_chars, algorithms
             )
         )
 
         # Display prediction
-        _display_performance_prediction(dataset_chars, list(algorithms), prediction)
+        _display_performance_prediction(dataset_chars, algorithms, prediction)
 
         console.print("✅ Performance prediction completed!", style="green")
 
@@ -386,10 +347,11 @@ def predict_performance(
         sys.exit(1)
 
 
-@ensemble.command()
-@click.argument("algorithms", nargs=-1)
+@app.command()
 @require_feature("ensemble_optimization")
-def diversity(algorithms: tuple):
+def diversity(
+    algorithms: list[str] = typer.Argument(..., help="Algorithms to analyze for diversity"),
+):
     """Analyze diversity potential between algorithms.
 
     ALGORITHMS: Algorithms to analyze for diversity
@@ -421,15 +383,15 @@ def diversity(algorithms: tuple):
         sys.exit(1)
 
 
-@ensemble.command()
-@click.option(
-    "--meta-knowledge-path",
-    type=click.Path(path_type=Path),
-    default=Path("./meta_knowledge"),
-    help="Meta-knowledge storage path",
-)
+@app.command()
 @require_feature("meta_learning")
-def strategies():
+def strategies(
+    meta_knowledge_path: Path = typer.Option(
+        Path("./meta_knowledge"),
+        "--meta-knowledge-path",
+        help="Meta-knowledge storage path",
+    ),
+):
     """List available ensemble strategies and their characteristics.
 
     Examples:
@@ -661,7 +623,7 @@ def _display_performance_prediction(
     console.print(f"\n📋 Proposed Algorithms: {', '.join(algorithms)}")
 
 
-def _display_algorithm_compatibility(algorithms: tuple, compatibility_matrix: dict):
+def _display_algorithm_compatibility(algorithms: list[str], compatibility_matrix: dict):
     """Display algorithm compatibility analysis."""
     console.print("\n📊 Algorithm Compatibility Matrix", style="bold")
 

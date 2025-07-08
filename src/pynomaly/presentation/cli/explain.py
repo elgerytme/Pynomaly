@@ -4,7 +4,7 @@ import asyncio
 import json
 from pathlib import Path
 
-import click
+import typer
 import numpy as np
 import pandas as pd
 from rich.console import Console
@@ -23,76 +23,50 @@ from pynomaly.infrastructure.config.container import Container
 
 console = Console()
 
-
-@click.group(name="explain")
-def explain_commands():
-    """Explainable AI commands for model interpretability."""
-    pass
+# Create the Typer app for explain commands
+app = typer.Typer(help="Explainable AI commands for model interpretability")
 
 
-@explain_commands.command()
-@click.option("--model-path", required=True, help="Path to trained model file")
-@click.option("--data-path", required=True, help="Path to data file for explanation")
-@click.option(
-    "--instance-index", type=int, help="Index of specific instance to explain"
-)
-@click.option(
-    "--method",
-    type=click.Choice(
-        [
-            "shap_tree",
-            "shap_kernel",
-            "lime",
-            "permutation_importance",
-            "feature_ablation",
-        ]
-    ),
-    default="shap_tree",
-    help="Explanation method to use",
-)
-@click.option(
-    "--num-features", type=int, default=10, help="Number of top features to show"
-)
-@click.option("--output-path", help="Path to save explanation results")
-@click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["json", "html", "csv"]),
-    default="json",
-    help="Output format",
-)
-@click.option(
-    "--audience",
-    type=click.Choice(["technical", "business", "regulatory", "end_user"]),
-    default="technical",
-    help="Target audience for explanation",
-)
-@click.option(
-    "--enable-bias-detection", is_flag=True, help="Enable bias detection analysis"
-)
-@click.option(
-    "--enable-counterfactuals",
-    is_flag=True,
-    help="Generate counterfactual explanations",
-)
-@click.option(
-    "--confidence-threshold",
-    type=float,
-    default=0.8,
-    help="Confidence threshold for explanations",
-)
+@app.command()
 def predict(
-    model_path: str,
-    data_path: str,
-    instance_index: int | None,
-    method: str,
-    num_features: int,
-    output_path: str | None,
-    output_format: str,
-    audience: str,
-    enable_bias_detection: bool,
-    enable_counterfactuals: bool,
-    confidence_threshold: float,
+    model_path: str = typer.Option(..., "--model-path", help="Path to trained model file"),
+    data_path: str = typer.Option(..., "--data-path", help="Path to data file for explanation"),
+    instance_index: int | None = typer.Option(
+        None, "--instance-index", help="Index of specific instance to explain"
+    ),
+    method: str = typer.Option(
+        "shap_tree",
+        "--method",
+        help="Explanation method to use",
+        show_default=True,
+    ),
+    num_features: int = typer.Option(10, "--num-features", help="Number of top features to show"),
+    output_path: str | None = typer.Option(None, "--output-path", help="Path to save explanation results"),
+    output_format: str = typer.Option(
+        "json",
+        "--format",
+        help="Output format",
+        show_default=True,
+    ),
+    audience: str = typer.Option(
+        "technical",
+        "--audience",
+        help="Target audience for explanation",
+        show_default=True,
+    ),
+    enable_bias_detection: bool = typer.Option(
+        False, "--enable-bias-detection", help="Enable bias detection analysis"
+    ),
+    enable_counterfactuals: bool = typer.Option(
+        False,
+        "--enable-counterfactuals",
+        help="Generate counterfactual explanations",
+    ),
+    confidence_threshold: float = typer.Option(
+        0.8,
+        "--confidence-threshold",
+        help="Confidence threshold for explanations",
+    ),
 ):
     """Explain a model's prediction for specific instance(s)."""
 
@@ -216,22 +190,17 @@ def predict(
     asyncio.run(run_explanation())
 
 
-@explain_commands.command()
-@click.option("--model-path", required=True, help="Path to trained model file")
-@click.option("--data-path", required=True, help="Path to training data")
-@click.option(
-    "--protected-attributes",
-    required=True,
-    help="Comma-separated list of protected attribute names",
-)
-@click.option("--output-path", help="Path to save bias analysis results")
-@click.option("--threshold", type=float, default=0.3, help="Bias detection threshold")
+@app.command()
 def analyze_bias(
-    model_path: str,
-    data_path: str,
-    protected_attributes: str,
-    output_path: str | None,
-    threshold: float,
+    model_path: str = typer.Option(..., "--model-path", help="Path to trained model file"),
+    data_path: str = typer.Option(..., "--data-path", help="Path to training data"),
+    protected_attributes: str = typer.Option(
+        ...,
+        "--protected-attributes",
+        help="Comma-separated list of protected attribute names",
+    ),
+    output_path: str | None = typer.Option(None, "--output-path", help="Path to save bias analysis results"),
+    threshold: float = typer.Option(0.3, "--threshold", help="Bias detection threshold"),
 ):
     """Analyze model for bias and fairness issues."""
 
@@ -299,33 +268,19 @@ def analyze_bias(
     asyncio.run(run_bias_analysis())
 
 
-@explain_commands.command()
-@click.option("--model-path", required=True, help="Path to trained model file")
-@click.option("--data-path", required=True, help="Path to data file")
-@click.option(
-    "--method",
-    type=click.Choice(
-        [
-            "shap_tree",
-            "shap_kernel",
-            "lime",
-            "permutation_importance",
-            "feature_ablation",
-        ]
-    ),
-    default="permutation_importance",
-    help="Feature importance method",
-)
-@click.option("--top-k", type=int, default=15, help="Number of top features to display")
-@click.option("--output-path", help="Path to save feature importance results")
-@click.option("--plot", is_flag=True, help="Generate feature importance plot")
+@app.command()
 def feature_importance(
-    model_path: str,
-    data_path: str,
-    method: str,
-    top_k: int,
-    output_path: str | None,
-    plot: bool,
+    model_path: str = typer.Option(..., "--model-path", help="Path to trained model file"),
+    data_path: str = typer.Option(..., "--data-path", help="Path to data file"),
+    method: str = typer.Option(
+        "permutation_importance",
+        "--method",
+        help="Feature importance method",
+        show_default=True,
+    ),
+    top_k: int = typer.Option(15, "--top-k", help="Number of top features to display"),
+    output_path: str | None = typer.Option(None, "--output-path", help="Path to save feature importance results"),
+    plot: bool = typer.Option(False, "--plot", help="Generate feature importance plot"),
 ):
     """Analyze feature importance for the model."""
 
@@ -393,25 +348,18 @@ def feature_importance(
     asyncio.run(run_feature_analysis())
 
 
-@explain_commands.command()
-@click.option("--model-path", required=True, help="Path to trained model file")
-@click.option("--data-path", required=True, help="Path to validation data")
-@click.option(
-    "--method",
-    type=click.Choice(["shap_tree", "shap_kernel", "lime"]),
-    default="shap_tree",
-    help="Explanation method to validate",
-)
-@click.option(
-    "--num-samples", type=int, default=100, help="Number of samples for validation"
-)
-@click.option("--output-path", help="Path to save validation results")
+@app.command()
 def validate_explanations(
-    model_path: str,
-    data_path: str,
-    method: str,
-    num_samples: int,
-    output_path: str | None,
+    model_path: str = typer.Option(..., "--model-path", help="Path to trained model file"),
+    data_path: str = typer.Option(..., "--data-path", help="Path to validation data"),
+    method: str = typer.Option(
+        "shap_tree",
+        "--method",
+        help="Explanation method to validate",
+        show_default=True,
+    ),
+    num_samples: int = typer.Option(100, "--num-samples", help="Number of samples for validation"),
+    output_path: str | None = typer.Option(None, "--output-path", help="Path to save validation results"),
 ):
     """Validate explanation quality and trustworthiness."""
 
@@ -501,11 +449,12 @@ def validate_explanations(
     asyncio.run(run_validation())
 
 
-@explain_commands.command()
-@click.option("--model-id", help="Model ID to get summary for")
-@click.option("--time-window", type=int, default=24, help="Time window in hours")
-@click.option("--output-path", help="Path to save summary")
-def summary(model_id: str | None, time_window: int, output_path: str | None):
+@app.command()
+def summary(
+    model_id: str | None = typer.Option(None, "--model-id", help="Model ID to get summary for"),
+    time_window: int = typer.Option(24, "--time-window", help="Time window in hours"),
+    output_path: str | None = typer.Option(None, "--output-path", help="Path to save summary"),
+):
     """Get explanation summary for a model."""
 
     async def run_summary():

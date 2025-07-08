@@ -3,7 +3,8 @@
 import json
 from pathlib import Path
 
-import click
+import typer
+from typing import Annotated
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -18,47 +19,37 @@ from ...infrastructure.quality.quality_gates import (
 console = Console()
 
 
-@click.group()
-def quality():
-    """Quality gates and code quality validation commands."""
-    pass
+quality = typer.Typer(help="Quality gates and code quality validation commands.")
 
 
 @quality.command()
-@click.argument("feature_path", type=click.Path(exists=True, path_type=Path))
-@click.option("--feature-name", "-n", help="Name of the feature being validated")
-@click.option(
-    "--output", "-o", type=click.Path(path_type=Path), help="Output file for report"
-)
-@click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["json", "html", "table"]),
-    default="table",
-    help="Output format",
-)
-@click.option(
-    "--threshold",
-    "-t",
-    type=float,
-    default=80.0,
-    help="Minimum success rate threshold for approval",
-)
-@click.option(
-    "--fail-on-critical",
-    is_flag=True,
-    default=True,
-    help="Fail if any critical quality gates fail",
-)
-@click.option("--verbose", "-v", is_flag=True, help="Show detailed gate results")
 def validate(
-    feature_path: Path,
-    feature_name: str | None,
-    output: Path | None,
-    output_format: str,
-    threshold: float,
-    fail_on_critical: bool,
-    verbose: bool,
+    feature_path: Annotated[Path, typer.Argument(help="Path to the feature file or directory to validate")],
+    feature_name: Annotated[str | None, typer.Option(
+        "--feature-name", "-n",
+        help="Name of the feature being validated"
+    )] = None,
+    output: Annotated[Path | None, typer.Option(
+        "--output", "-o",
+        help="Output file for report"
+    )] = None,
+    output_format: Annotated[str, typer.Option(
+        "--format",
+        help="Output format",
+        choices=["json", "html", "table"]
+    )] = "table",
+    threshold: Annotated[float, typer.Option(
+        "--threshold", "-t",
+        help="Minimum success rate threshold for approval"
+    )] = 80.0,
+    fail_on_critical: Annotated[bool, typer.Option(
+        "--fail-on-critical",
+        help="Fail if any critical quality gates fail"
+    )] = True,
+    verbose: Annotated[bool, typer.Option(
+        "--verbose", "-v",
+        help="Show detailed gate results"
+    )] = False,
 ):
     """Validate feature against quality gates.
 
@@ -84,7 +75,7 @@ def validate(
         except Exception as e:
             progress.stop()
             console.print(f"❌ Validation failed: {e}", style="red")
-            raise click.Abort()
+            raise typer.Abort()
 
     # Display results
     if output_format == "table":
@@ -129,38 +120,33 @@ def validate(
             )
     else:
         console.print("❌ Feature validation failed", style="red")
-        raise click.Abort()
+        raise typer.Abort()
 
 
 @quality.command()
-@click.argument(
-    "directory", type=click.Path(exists=True, file_okay=False, path_type=Path)
-)
-@click.option("--pattern", "-p", default="*.py", help="File pattern to match")
-@click.option(
-    "--output",
-    "-o",
-    type=click.Path(path_type=Path),
-    help="Output directory for reports",
-)
-@click.option(
-    "--format",
-    "output_format",
-    type=click.Choice(["json", "html", "summary"]),
-    default="summary",
-    help="Output format",
-)
-@click.option("--parallel", is_flag=True, help="Run validation in parallel")
-@click.option(
-    "--threshold", "-t", type=float, default=80.0, help="Minimum success rate threshold"
-)
 def batch(
-    directory: Path,
-    pattern: str,
-    output: Path | None,
-    output_format: str,
-    parallel: bool,
-    threshold: float,
+    directory: Annotated[Path, typer.Argument(help="Directory containing features to validate")],
+    pattern: Annotated[str, typer.Option(
+        "--pattern", "-p",
+        help="File pattern to match"
+    )] = "*.py",
+    output: Annotated[Path | None, typer.Option(
+        "--output", "-o",
+        help="Output directory for reports"
+    )] = None,
+    output_format: Annotated[str, typer.Option(
+        "--format",
+        help="Output format",
+        choices=["json", "html", "summary"]
+    )] = "summary",
+    parallel: Annotated[bool, typer.Option(
+        "--parallel",
+        help="Run validation in parallel"
+    )] = False,
+    threshold: Annotated[float, typer.Option(
+        "--threshold", "-t",
+        help="Minimum success rate threshold"
+    )] = 80.0,
 ):
     """Batch validate multiple features in a directory.
 
@@ -173,7 +159,7 @@ def batch(
     files = list(directory.rglob(pattern))
     if not files:
         console.print(f"❌ No files found matching pattern: {pattern}", style="red")
-        raise click.Abort()
+        raise typer.Abort()
 
     console.print(f"📊 Found {len(files)} files to validate")
 
@@ -223,19 +209,18 @@ def batch(
     # Exit with error code if validations failed
     if failed_validations:
         console.print(f"❌ {len(failed_validations)} validations failed", style="red")
-        raise click.Abort()
+        raise typer.Abort()
 
 
 @quality.command()
-@click.argument("report_file", type=click.Path(exists=True, path_type=Path))
-@click.option(
-    "--format",
-    "input_format",
-    type=click.Choice(["json"]),
-    default="json",
-    help="Input report format",
-)
-def show(report_file: Path, input_format: str):
+def show(
+    report_file: Annotated[Path, typer.Argument(help="Path to the quality gate report file")],
+    input_format: Annotated[str, typer.Option(
+        "--format",
+        help="Input report format",
+        choices=["json"]
+    )] = "json",
+):
     """Display a previously generated quality gate report.
 
     REPORT_FILE: Path to the quality gate report file
@@ -246,25 +231,26 @@ def show(report_file: Path, input_format: str):
             _display_report_from_dict(report_data)
         else:
             console.print(f"❌ Unsupported format: {input_format}", style="red")
-            raise click.Abort()
+            raise typer.Abort()
 
     except Exception as e:
         console.print(f"❌ Failed to load report: {e}", style="red")
-        raise click.Abort()
+        raise typer.Abort()
 
 
 @quality.command()
-@click.option(
-    "--gate-type",
-    type=click.Choice([t.value for t in QualityGateType]),
-    help="Filter by gate type",
-)
-@click.option(
-    "--quality-level",
-    type=click.Choice([l.value for l in QualityLevel]),
-    help="Filter by quality level",
-)
-def gates(gate_type: str | None, quality_level: str | None):
+def gates(
+    gate_type: Annotated[str | None, typer.Option(
+        "--gate-type",
+        help="Filter by gate type",
+        choices=[t.value for t in QualityGateType]
+    )] = None,
+    quality_level: Annotated[str | None, typer.Option(
+        "--quality-level",
+        help="Filter by quality level",
+        choices=[l.value for l in QualityLevel]
+    )] = None,
+):
     """List available quality gates and their descriptions."""
     console.print("🚪 Available Quality Gates")
 

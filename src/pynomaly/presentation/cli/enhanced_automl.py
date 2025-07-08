@@ -3,7 +3,8 @@
 import asyncio
 import json
 
-import click
+import typer
+from typing import Annotated
 from rich.console import Console
 from rich.json import JSON
 from rich.panel import Panel
@@ -16,60 +17,45 @@ from pynomaly.infrastructure.config.container import create_container
 console = Console()
 
 
-@click.group(name="enhanced-automl")
-def enhanced_automl_cli():
-    """Enhanced AutoML commands with advanced optimization techniques."""
-    pass
+enhanced_automl_cli = typer.Typer(name="enhanced-automl", help="Enhanced AutoML commands with advanced optimization techniques.")
 
 
 @enhanced_automl_cli.command()
-@click.argument("dataset_id")
-@click.argument("algorithm")
-@click.option(
-    "--objectives",
-    "-o",
-    multiple=True,
-    default=["auc"],
-    help="Optimization objectives (auc, precision, recall, training_time)",
-)
-@click.option(
-    "--strategy",
-    "-s",
-    default="bayesian",
-    type=click.Choice(
-        ["bayesian", "hyperband", "bohb", "multi_objective", "evolutionary"]
-    ),
-    help="Optimization strategy",
-)
-@click.option(
-    "--acquisition",
-    "-a",
-    default="expected_improvement",
-    type=click.Choice(
-        ["expected_improvement", "probability_improvement", "upper_confidence_bound"]
-    ),
-    help="Acquisition function for Bayesian optimization",
-)
-@click.option("--n-trials", "-n", default=100, help="Number of optimization trials")
-@click.option("--timeout", "-t", default=3600, help="Optimization timeout in seconds")
-@click.option(
-    "--enable-meta-learning", is_flag=True, default=True, help="Enable meta-learning"
-)
-@click.option(
-    "--enable-parallel", is_flag=True, default=True, help="Enable parallel optimization"
-)
-@click.option("--output", "-f", help="Output file for results (JSON)")
 def optimize(
-    dataset_id: str,
-    algorithm: str,
-    objectives: list[str],
-    strategy: str,
-    acquisition: str,
-    n_trials: int,
-    timeout: int,
-    enable_meta_learning: bool,
-    enable_parallel: bool,
-    output: str | None,
+    dataset_id: Annotated[str, typer.Argument(help="Dataset ID")],
+    algorithm: Annotated[str, typer.Argument(help="Algorithm name")],
+    objectives: Annotated[list[str], typer.Option(
+        "--objectives", "-o",
+        help="Optimization objectives (auc, precision, recall, training_time)"
+    )] = ["auc"],
+    strategy: Annotated[str, typer.Option(
+        "--strategy", "-s",
+        help="Optimization strategy"
+    )] = "bayesian",
+    acquisition: Annotated[str, typer.Option(
+        "--acquisition", "-a",
+        help="Acquisition function for Bayesian optimization"
+    )] = "expected_improvement",
+    n_trials: Annotated[int, typer.Option(
+        "--n-trials", "-n",
+        help="Number of optimization trials"
+    )] = 100,
+    timeout: Annotated[int, typer.Option(
+        "--timeout", "-t",
+        help="Optimization timeout in seconds"
+    )] = 3600,
+    enable_meta_learning: Annotated[bool, typer.Option(
+        "--enable-meta-learning",
+        help="Enable meta-learning"
+    )] = True,
+    enable_parallel: Annotated[bool, typer.Option(
+        "--enable-parallel",
+        help="Enable parallel optimization"
+    )] = True,
+    output: Annotated[str | None, typer.Option(
+        "--output", "-f",
+        help="Output file for results (JSON)"
+    )] = None,
 ):
     """Run advanced hyperparameter optimization for a specific algorithm."""
 
@@ -151,41 +137,40 @@ def optimize(
 
 
 @enhanced_automl_cli.command()
-@click.argument("dataset_id")
-@click.option(
-    "--objectives",
-    "-o",
-    multiple=True,
-    default=["auc", "training_time"],
-    help="Optimization objectives",
-)
-@click.option("--max-algorithms", "-m", default=3, help="Maximum algorithms to try")
-@click.option(
-    "--strategy",
-    "-s",
-    default="bayesian",
-    type=click.Choice(["bayesian", "hyperband", "bohb", "multi_objective"]),
-    help="Optimization strategy",
-)
-@click.option("--n-trials", "-n", default=100, help="Number of trials per algorithm")
-@click.option("--timeout", "-t", default=3600, help="Total optimization timeout")
-@click.option(
-    "--enable-ensemble", is_flag=True, default=True, help="Enable ensemble creation"
-)
-@click.option(
-    "--enable-meta-learning", is_flag=True, default=True, help="Enable meta-learning"
-)
-@click.option("--output", "-f", help="Output file for results (JSON)")
 def auto_optimize(
-    dataset_id: str,
-    objectives: list[str],
-    max_algorithms: int,
-    strategy: str,
-    n_trials: int,
-    timeout: int,
-    enable_ensemble: bool,
-    enable_meta_learning: bool,
-    output: str | None,
+    dataset_id: Annotated[str, typer.Argument(help="Dataset ID")],
+    objectives: Annotated[list[str], typer.Option(
+        "--objectives", "-o",
+        help="Optimization objectives"
+    )] = ["auc", "training_time"],
+    max_algorithms: Annotated[int, typer.Option(
+        "--max-algorithms", "-m",
+        help="Maximum algorithms to try"
+    )] = 3,
+    strategy: Annotated[str, typer.Option(
+        "--strategy", "-s",
+        help="Optimization strategy"
+    )] = "bayesian",
+    n_trials: Annotated[int, typer.Option(
+        "--n-trials", "-n",
+        help="Number of trials per algorithm"
+    )] = 100,
+    timeout: Annotated[int, typer.Option(
+        "--timeout", "-t",
+        help="Total optimization timeout"
+    )] = 3600,
+    enable_ensemble: Annotated[bool, typer.Option(
+        "--enable-ensemble",
+        help="Enable ensemble creation"
+    )] = True,
+    enable_meta_learning: Annotated[bool, typer.Option(
+        "--enable-meta-learning",
+        help="Enable meta-learning"
+    )] = True,
+    output: Annotated[str | None, typer.Option(
+        "--output", "-f",
+        help="Output file for results (JSON)"
+    )] = None,
 ):
     """Automatically select and optimize the best algorithms."""
 
@@ -261,33 +246,32 @@ def auto_optimize(
 
 
 @enhanced_automl_cli.command()
-@click.argument("dataset_id")
-@click.option(
-    "--objectives",
-    "-o",
-    multiple=True,
-    default=["auc", "precision", "training_time"],
-    help="Multiple objectives to optimize",
-)
-@click.option(
-    "--weights",
-    "-w",
-    help='Objective weights as JSON (e.g., \'{"auc": 0.5, "precision": 0.3, "training_time": 0.2}\')',
-)
-@click.option(
-    "--algorithms", "-a", multiple=True, help="Specific algorithms to include"
-)
-@click.option("--n-trials", "-n", default=150, help="Number of optimization trials")
-@click.option("--timeout", "-t", default=7200, help="Optimization timeout in seconds")
-@click.option("--output", "-f", help="Output file for Pareto front (JSON)")
 def multi_objective(
-    dataset_id: str,
-    objectives: list[str],
-    weights: str | None,
-    algorithms: list[str],
-    n_trials: int,
-    timeout: int,
-    output: str | None,
+    dataset_id: Annotated[str, typer.Argument(help="Dataset ID")],
+    objectives: Annotated[list[str], typer.Option(
+        "--objectives", "-o",
+        help="Multiple objectives to optimize"
+    )] = ["auc", "precision", "training_time"],
+    weights: Annotated[str | None, typer.Option(
+        "--weights", "-w",
+        help='Objective weights as JSON (e.g., \'{"auc": 0.5, "precision": 0.3, "training_time": 0.2}\')'
+    )] = None,
+    algorithms: Annotated[list[str], typer.Option(
+        "--algorithms", "-a",
+        help="Specific algorithms to include"
+    )] = [],
+    n_trials: Annotated[int, typer.Option(
+        "--n-trials", "-n",
+        help="Number of optimization trials"
+    )] = 150,
+    timeout: Annotated[int, typer.Option(
+        "--timeout", "-t",
+        help="Optimization timeout in seconds"
+    )] = 7200,
+    output: Annotated[str | None, typer.Option(
+        "--output", "-f",
+        help="Output file for Pareto front (JSON)"
+    )] = None,
 ):
     """Run multi-objective optimization to find Pareto optimal solutions."""
 
@@ -379,8 +363,9 @@ def multi_objective(
 
 
 @enhanced_automl_cli.command()
-@click.argument("result_file", type=click.Path(exists=True))
-def analyze(result_file: str):
+def analyze(
+    result_file: Annotated[str, typer.Argument(help="Path to result file")]
+):
     """Analyze optimization results and provide insights."""
 
     try:

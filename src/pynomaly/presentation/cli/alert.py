@@ -5,7 +5,8 @@ import json
 from datetime import datetime
 from uuid import UUID
 
-import click
+import typer
+from typing import Annotated
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -26,25 +27,22 @@ from pynomaly.domain.entities.alert import (
 console = Console()
 
 
-@click.group(name="alert")
-def alert_commands():
-    """Intelligent alert management commands."""
-    pass
+alert_commands = typer.Typer(name="alert", help="Intelligent alert management commands.")
 
 
 @alert_commands.command()
-@click.option("--title", required=True, help="Alert title")
-@click.option("--description", required=True, help="Alert description")
-@click.option(
-    "--severity",
-    type=click.Choice(["critical", "high", "medium", "low", "info"]),
-    default="medium",
-    help="Alert severity",
-)
-@click.option(
-    "--category",
-    type=click.Choice(
-        [
+def create(
+    title: Annotated[str, typer.Option(help="Alert title")],
+    description: Annotated[str, typer.Option(help="Alert description")],
+    severity: Annotated[str, typer.Option(
+        "--severity",
+        help="Alert severity",
+        choices=["critical", "high", "medium", "low", "info"]
+    )] = "medium",
+    category: Annotated[str, typer.Option(
+        "--category",
+        help="Alert category",
+        choices=[
             "anomaly_detection",
             "system_performance",
             "security",
@@ -56,14 +54,11 @@ def alert_commands():
             "authentication",
             "compliance",
         ]
-    ),
-    default="anomaly_detection",
-    help="Alert category",
-)
-@click.option(
-    "--source",
-    type=click.Choice(
-        [
+    )] = "anomaly_detection",
+    source: Annotated[str, typer.Option(
+        "--source",
+        help="Alert source",
+        choices=[
             "detector",
             "system_monitor",
             "tenant_service",
@@ -73,34 +68,18 @@ def alert_commands():
             "model_service",
             "external_webhook",
         ]
-    ),
-    default="detector",
-    help="Alert source",
-)
-@click.option("--tenant-id", help="Tenant ID (UUID)")
-@click.option("--detector-id", help="Detector ID (UUID)")
-@click.option("--anomaly-score", type=float, help="Anomaly score (0.0-1.0)")
-@click.option("--confidence", type=float, help="Confidence level (0.0-1.0)")
-@click.option("--affected-resources", multiple=True, help="Affected resources")
-@click.option(
-    "--business-impact",
-    type=click.Choice(["low", "medium", "high", "critical"]),
-    help="Business impact level",
-)
-@click.option("--message", help="Alert message")
-def create(
-    title: str,
-    description: str,
-    severity: str,
-    category: str,
-    source: str,
-    tenant_id: str | None,
-    detector_id: str | None,
-    anomaly_score: float | None,
-    confidence: float | None,
-    affected_resources: list[str],
-    business_impact: str | None,
-    message: str | None,
+    )] = "detector",
+    tenant_id: Annotated[str | None, typer.Option(help="Tenant ID (UUID)")] = None,
+    detector_id: Annotated[str | None, typer.Option(help="Detector ID (UUID)")] = None,
+    anomaly_score: Annotated[float | None, typer.Option(help="Anomaly score (0.0-1.0)")] = None,
+    confidence: Annotated[float | None, typer.Option(help="Confidence level (0.0-1.0)")] = None,
+    affected_resources: Annotated[list[str], typer.Option("--affected-resources", help="Affected resources", multiple=True)] = [],
+    business_impact: Annotated[str | None, typer.Option(
+        "--business-impact",
+        help="Business impact level",
+        choices=["low", "medium", "high", "critical"]
+    )] = None,
+    message: Annotated[str | None, typer.Option(help="Alert message")] = None,
 ):
     """Create a new alert with intelligent processing."""
 
