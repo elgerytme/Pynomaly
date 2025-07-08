@@ -17,6 +17,33 @@ A comprehensive security scanning script that runs multiple security tools and a
 
 ### Usage
 
+#### Using Hatch Environment (Recommended)
+
+```bash
+# Run comprehensive security scan
+hatch run security:scan
+
+# Run quick security check
+hatch run security:quick
+
+# Run individual scans
+hatch run security:bandit-scan
+hatch run security:safety-scan
+hatch run security:pip-audit-scan
+```
+
+#### Using Make Target
+
+```bash
+# Run comprehensive security scan via tox
+make security-scan
+
+# Run security scan with CI failure mode
+make security-ci
+```
+
+#### Direct Script Usage
+
 ```bash
 # Run all security scans
 python scripts/security/run_security_scans.py

@@ -207,13 +207,177 @@ pynomaly server start
 
 ---
 
+## 📊 Benchmarking Your Setup
+
+Once you have Pynomaly installed, you can benchmark your setup to ensure optimal performance:
+
+### Prerequisites for Benchmarking
+
+- **Python 3.11+** (confirmed working)
+- **Sufficient RAM**: At least 2GB for basic benchmarking, 8GB+ recommended for larger datasets
+- **Sample datasets**: Use included sample datasets or your own CSV files
+
+### Installing Benchmarking Extras
+
+For comprehensive benchmarking capabilities, install the performance monitoring extras:
+
+```bash
+# Install with performance monitoring and benchmarking features
+pip install "pynomaly[monitoring,test]"
+
+# Or install with all extras for full feature set
+pip install "pynomaly[all]"
+
+# For development/testing with benchmarking
+pip install "pynomaly[test,ui-test]"
+```
+
+### Obtaining Sample Datasets
+
+Pynomaly includes several sample datasets for testing and benchmarking:
+
+```bash
+# List available sample datasets
+pynomaly dataset list-samples
+
+# Download sample datasets (if not already included)
+pynomaly dataset download-samples
+
+# View sample dataset information
+pynomaly dataset info examples/sample_datasets/synthetic/financial_fraud.csv
+```
+
+**Available Sample Datasets:**
+- `examples/sample_datasets/synthetic/financial_fraud.csv` (10,000 samples, 9 features, 2% anomalies)
+- `examples/sample_datasets/synthetic/network_intrusion.csv` (8,000 samples, 11 features, 5% anomalies)
+- `examples/sample_datasets/synthetic/iot_sensors.csv` (12,000 samples, 10 features, 3% anomalies)
+- `examples/sample_datasets/real_world/kdd_cup_1999.csv` (10,000 samples, 41 features, 3.3% anomalies)
+
+You can also create a simple 1MB test dataset:
+
+```bash
+# Generate a 1MB test dataset
+pynomaly dataset generate --size 1MB --name test_1mb --format csv --output test_1mb.csv
+```
+
+### Minimal Benchmark CLI Example
+
+Here's a minimal example to benchmark anomaly detection on a 1MB CSV file:
+
+```bash
+# Step 1: Load your 1MB dataset
+pynomaly dataset load test_1mb.csv --name "Test 1MB Dataset"
+
+# Step 2: Run a simple benchmark with default algorithms
+pynomaly benchmark comprehensive \
+  --suite-name "Quick Benchmark" \
+  --description "Basic performance test on 1MB dataset" \
+  --algorithms IsolationForest LOF OneClassSVM \
+  --dataset-sizes 1000 5000 \
+  --iterations 3 \
+  --output-dir ./benchmark_results \
+  --export-format html
+
+# Step 3: View benchmark results
+pynomaly benchmark list-results
+
+# Step 4: View system information for context
+pynomaly benchmark system-info
+```
+
+**Expected Output:**
+```bash
+✓ Benchmark Suite Complete
+Suite: Quick Benchmark
+Duration: 45.32 seconds
+Total Tests: 6
+Algorithms: 3
+Performance Grade: B+
+
+┌─────────────────┬─────────────┬─────────────────┬─────────────────┬─────────────────┐
+│ Algorithm       │ Avg Time (s)│ Avg Memory (MB) │ Avg Throughput  │ Avg Accuracy    │
+├─────────────────┼─────────────┼─────────────────┼─────────────────┼─────────────────┤
+│ IsolationForest │ 0.123       │ 45.2            │ 8130.5          │ 0.867           │
+│ LOF             │ 0.456       │ 78.9            │ 2193.4          │ 0.834           │
+│ OneClassSVM     │ 1.234       │ 67.3            │ 810.7           │ 0.792           │
+└─────────────────┴─────────────┴─────────────────┴─────────────────┴─────────────────┘
+
+Benchmark report saved to: ./benchmark_results/benchmark_report_quick_benchmark.html
+```
+
+### Advanced Benchmarking Examples
+
+```bash
+# Memory stress test
+pynomaly benchmark memory-stress \
+  --algorithm IsolationForest \
+  --max-size 100000 \
+  --memory-limit 4096.0 \
+  --output-file memory_test.json
+
+# Scalability test
+pynomaly benchmark scalability \
+  --algorithm LOF \
+  --base-size 1000 \
+  --scale-factors 2 4 8 16 \
+  --output-file scalability_test.json
+
+# Throughput benchmark
+pynomaly benchmark throughput \
+  --algorithms IsolationForest LOF \
+  --dataset-sizes 1000 5000 10000 \
+  --duration 60 \
+  --output-file throughput_test.json
+```
+
+### Performance Optimization Tips
+
+1. **Start Small**: Begin with smaller datasets (1,000-10,000 samples) to establish baseline performance
+2. **Monitor Resources**: Use `pynomaly benchmark system-info` to check available resources
+3. **Choose Appropriate Algorithms**: IsolationForest is generally fastest for initial testing
+4. **Batch Processing**: For large datasets, use the `--dataset-sizes` parameter to test incremental sizes
+5. **Export Results**: Always export benchmark results with `--export-format html` for detailed analysis
+
+### Troubleshooting Benchmark Issues
+
+**Memory Issues:**
+```bash
+# Check system resources
+pynomaly benchmark system-info
+
+# Run with smaller dataset sizes
+pynomaly benchmark comprehensive --dataset-sizes 500 1000 2000
+```
+
+**Performance Issues:**
+```bash
+# Test single algorithm first
+pynomaly benchmark comprehensive --algorithms IsolationForest --iterations 1
+
+# Check for resource constraints
+htop  # or Task Manager on Windows
+```
+
+**Command Not Found:**
+```bash
+# Verify CLI installation
+pynomaly --version
+pynomaly --help
+
+# Check if benchmark commands are available
+pynomaly benchmark --help
+```
+
+---
+
 ## 🎯 Next Steps
 
 ### **After Installation**
 1. **[Complete the Quickstart](quickstart.md)** - Your first detection
-2. **[Explore Examples](../examples/)** - Real-world use cases  
-3. **[Read User Guides](../user-guides/)** - Feature documentation
-4. **[Check API Reference](../developer-guides/api-integration/)** - Programming interfaces
+2. **[Run Benchmarks](#-benchmarking-your-setup)** - Test your setup performance
+3. **[Explore Examples](../examples/)** - Real-world use cases  
+4. **[Read User Guides](../user-guides/)** - Feature documentation
+5. **[Check API Reference](../developer-guides/api-integration/)** - Programming interfaces
 
 ### **For Development**
 1. **[Development Setup](../developer-guides/contributing/)** - Contributor guide
