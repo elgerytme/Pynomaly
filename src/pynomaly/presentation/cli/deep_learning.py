@@ -7,7 +7,11 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import List, Optional, Literal
+from typing import List, Optional
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 import numpy as np
 import typer
@@ -44,12 +48,12 @@ app = typer.Typer(
 @require_feature("deep_learning")
 def train(
     dataset_path: Path = typer.Argument(..., help="Path to the dataset file (CSV or Parquet)", exists=True),
-    algorithm: Literal["autoencoder", "vae", "lstm", "gru", "transformer"] = typer.Option(
+    algorithm: str = typer.Option(
         "autoencoder",
         "-a", "--algorithm",
         help="Deep learning algorithm"
     ),
-    framework: Optional[Literal["pytorch", "tensorflow", "jax"]] = typer.Option(
+    framework: Optional[str] = typer.Option(
         None,
         "-f", "--framework",
         help="Deep learning framework (auto-select if not specified)"
@@ -173,7 +177,7 @@ def train(
 @require_feature("deep_learning")
 def benchmark(
     dataset_path: Path = typer.Argument(..., help="Path to the dataset file", exists=True),
-    algorithm: Literal["autoencoder", "vae", "lstm", "gru", "transformer"] = typer.Option(
+    algorithm: str = typer.Option(
         "autoencoder",
         "-a", "--algorithm",
         help="Deep learning algorithm"
@@ -345,11 +349,11 @@ def frameworks():
 @app.command()
 @require_feature("deep_learning")
 def info(
-    algorithm: str = typer.Argument(
-        ...,
-        help="Algorithm to get information about"
+    algorithm: str = typer.Option(
+        "autoencoder",
+        "-a", "--algorithm",
+        help="Deep learning algorithm (options: autoencoder, vae, lstm, gru, transformer)"
     ),
-):
     """Get detailed information about a deep learning algorithm.
 
     ALGORITHM: Algorithm to get information about

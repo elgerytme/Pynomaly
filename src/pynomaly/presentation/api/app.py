@@ -42,6 +42,7 @@ from pynomaly.presentation.api.endpoints import (
     streaming,
     version,
 )
+from pynomaly.presentation.api.routers import user_management
 # Enhanced AutoML endpoints
 try:
     from pynomaly.presentation.api import enhanced_automl
@@ -211,6 +212,8 @@ def create_app(container: Container | None = None) -> FastAPI:
     app.include_router(health.router, prefix="/api/v1", tags=["health"])
 
     app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
+
+    app.include_router(user_management.router, prefix="/api/v1", tags=["user_management"])
 
     app.include_router(admin.router, prefix="/api/v1/admin", tags=["administration"])
 

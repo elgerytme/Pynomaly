@@ -7,7 +7,11 @@ import json
 import sys
 import time
 from pathlib import Path
-from typing import List, Optional, Literal
+from typing import List, Optional
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 import typer
 from rich.console import Console

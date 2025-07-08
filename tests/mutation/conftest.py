@@ -1,18 +1,29 @@
-"""Configuration for mutation testing."""
+"""Mutation testing fixtures that extend the root conftest.py."""
 
+# Import all fixtures from root conftest
+from ..conftest import *
+
+# Mutation-specific fixtures
 import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters import PyODAdapter
-from pynomaly.infrastructure.repositories import InMemoryDatasetRepository
+try:
+    from pynomaly.domain.entities import Dataset, Detector
+    from pynomaly.domain.value_objects import ContaminationRate
+    from pynomaly.infrastructure.adapters import PyODAdapter
+    from pynomaly.infrastructure.repositories import InMemoryDatasetRepository
+    MUTATION_DEPENDENCIES_AVAILABLE = True
+except ImportError:
+    MUTATION_DEPENDENCIES_AVAILABLE = False
 
 
 @pytest.fixture
-def sample_dataset() -> Dataset:
+def mutation_sample_dataset() -> Dataset:
     """Create a sample dataset for mutation testing."""
+    if not MUTATION_DEPENDENCIES_AVAILABLE:
+        pytest.skip("Mutation testing dependencies not available")
+        
     # Generate synthetic data with known anomalies
     np.random.seed(42)
 
@@ -35,22 +46,12 @@ def sample_dataset() -> Dataset:
 @pytest.fixture
 def basic_detector() -> Detector:
     """Create a basic detector for mutation testing."""
+    if not MUTATION_DEPENDENCIES_AVAILABLE:
+        pytest.skip("Mutation testing dependencies not available")
+        
     return PyODAdapter(
         algorithm_name="IsolationForest",
         contamination_rate=ContaminationRate(0.2),
         n_estimators=10,
         random_state=42,
     )
-
-
-@pytest.fixture
-def dataset_repository() -> InMemoryDatasetRepository:
-    """Create an in-memory dataset repository."""
-    return InMemoryDatasetRepository()
-
-
-@pytest.fixture
-def fitted_detector(basic_detector: Detector, sample_dataset: Dataset) -> Detector:
-    """Create a fitted detector for testing."""
-    basic_detector.fit(sample_dataset)
-    return basic_detector

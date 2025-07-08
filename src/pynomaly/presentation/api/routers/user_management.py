@@ -506,10 +506,6 @@ async def toggle_user_status(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
 
 
 @router.put("/{user_id}", response_model=UserResponse)

@@ -1,15 +1,33 @@
 {
-  "timestamp": "2025-07-08T00:04:50.786Z",
+  "timestamp": "2025-07-08T00:06:37.930Z",
   "bundles": {
     "javascript": {
-      "files": [],
-      "totalSize": 0,
-      "fileCount": 0,
-      "largestFile": null,
+      "files": [
+        {
+          "name": "main.js",
+          "path": "src\\pynomaly\\presentation\\web\\static\\js\\dist\\main.js",
+          "size": 46894,
+          "sizeFormatted": "45.8 KB",
+          "extension": ".js",
+          "lastModified": "2025-07-08T00:06:31.668Z",
+          "gzipSize": 11552
+        }
+      ],
+      "totalSize": 46894,
+      "fileCount": 1,
+      "largestFile": {
+        "name": "main.js",
+        "path": "src\\pynomaly\\presentation\\web\\static\\js\\dist\\main.js",
+        "size": 46894,
+        "sizeFormatted": "45.8 KB",
+        "extension": ".js",
+        "lastModified": "2025-07-08T00:06:31.668Z",
+        "gzipSize": 11552
+      },
       "duplicates": [],
-      "compressionRatio": 0,
+      "compressionRatio": 75.36571842879685,
       "budget": 204800,
-      "budgetUtilization": 0
+      "budgetUtilization": 22.8974609375
     },
     "css": {
       "files": [
@@ -246,21 +264,13 @@
       "description": "styles.css is 54.5 KB. Consider splitting or optimizing this file.",
       "file": "styles.css",
       "savings": 16738.5
-    },
-    {
-      "type": "compression",
-      "priority": "low",
-      "category": "javascript",
-      "issue": "Poor compression ratio",
-      "description": "javascript files have 0.0% compression ratio. Enable gzip/brotli compression on the server.",
-      "savings": 0
     }
   ],
   "budgetStatus": {
     "javascript": {
       "budget": 204800,
-      "actual": 0,
-      "utilization": 0,
+      "actual": 46894,
+      "utilization": 22.8974609375,
       "status": "good"
     },
     "css": {
@@ -283,18 +293,18 @@
     },
     "total": {
       "budget": 1024000,
-      "actual": 219027,
-      "utilization": 21.389355468749997,
+      "actual": 265921,
+      "utilization": 25.96884765625,
       "status": "good"
     }
   },
   "summary": {
-    "totalSize": 219027,
-    "totalSizeFormatted": "213.9 KB",
-    "budgetUtilization": 21.389355468749997,
+    "totalSize": 265921,
+    "totalSizeFormatted": "259.7 KB",
+    "budgetUtilization": 25.96884765625,
     "budgetStatus": "good",
     "exceededBudgets": 1,
-    "totalRecommendations": 5,
+    "totalRecommendations": 4,
     "highPriorityRecommendations": 1,
     "potentialSavings": 312565.5,
     "healthScore": 50

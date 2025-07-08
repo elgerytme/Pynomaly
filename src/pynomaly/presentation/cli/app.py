@@ -28,9 +28,10 @@ from pynomaly.presentation.cli import (
 from pynomaly.presentation.cli.export import export_app
 from pynomaly.presentation.cli.performance import performance_app
 
-# from pynomaly.presentation.cli import deep_learning  # Fixed syntax errors but uses click, needs typer conversion
-# from pynomaly.presentation.cli import explainability  # Uses click, needs typer conversion
-# from pynomaly.presentation.cli import selection  # Uses click, needs typer conversion
+# These modules are now properly converted to Typer
+# from pynomaly.presentation.cli import deep_learning  # ✅ Now uses Typer - re-enabled below
+# from pynomaly.presentation.cli import explainability  # ✅ Now uses Typer - re-enabled below  
+# from pynomaly.presentation.cli import selection  # ✅ Now uses Typer - re-enabled below
 # from pynomaly.presentation.cli.security import security_commands  # Temporarily disabled
 # from pynomaly.presentation.cli.dashboard import dashboard_commands  # Temporarily disabled
 # from pynomaly.presentation.cli.governance import governance_commands  # Temporarily disabled
@@ -85,9 +86,9 @@ app.add_typer(
 app.add_typer(deep_learning.app, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")
 app.add_typer(explainability.app, name="explainability", help="🔍 Explainable AI (model interpretability, bias analysis)")
 app.add_typer(selection.app, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")
-# app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Temporarily disabled
-# app.add_typer(dashboard_commands, name="dashboard", help="📊 Advanced visualization dashboards (executive, operational, analytical)")  # Temporarily disabled
-# app.add_typer(governance_commands, name="governance", help="⚖️ Governance framework (audit trails, policies, risk management)")  # Temporarily disabled
+# app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Still uses Click - needs conversion
+# app.add_typer(dashboard_commands, name="dashboard", help="📊 Advanced visualization dashboards (executive, operational, analytical)")  # Still uses Click - needs conversion
+# app.add_typer(governance_commands, name="governance", help="⚖️ Governance framework (audit trails, policies, risk management)")  # Still uses Click - needs conversion
 app.add_typer(
     export_app, name="export", help="Export results to business intelligence platforms"
 )
