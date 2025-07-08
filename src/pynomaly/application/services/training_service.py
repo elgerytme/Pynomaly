@@ -756,6 +756,7 @@ class AutomatedTrainingService:
             return True
 
         return False
+
     async def get_training_metrics(self) -> dict[str, Any]:
         """Get training service metrics."""
         return {
@@ -773,4 +774,3 @@ class AutomatedTrainingService:
             # For now, just log the event
         except Exception as e:
             logger.error(f"Failed to trigger event {event_type} for job {job_id}: {e}")
-        }
