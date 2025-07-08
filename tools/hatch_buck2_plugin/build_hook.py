@@ -52,6 +52,12 @@ class Buck2BuildHook(BuildHookInterface):
         
     def finalize(self, version: str, build_data: Dict[str, Any], artifact_path: str) -> None:
         """Run Buck2 builds and copy artifacts."""
+        # TEMPORARY: Skip Buck2 builds for editable installs to prevent issues
+        # This is a temporary workaround to fix editable install problems
+        if True:  # Disabled Buck2 integration temporarily
+            self.app.display_info("Buck2 integration temporarily disabled for editable installs")
+            return
+            
         if not self._check_buck2_available():
             return
             
