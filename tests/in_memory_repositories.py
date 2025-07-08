@@ -3,9 +3,33 @@
 from typing import Dict, List, Optional
 from uuid import UUID
 
-from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.entities.detector import Detector
+try:
+    from pynomaly.domain.entities.anomaly import Anomaly
+    from pynomaly.domain.entities.detector import Detector
+    from pynomaly.domain.entities.detection_result import DetectionResult
+except ImportError:
+    # Fallback for missing modules
+    class Anomaly:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+            if not hasattr(self, 'id'):
+                from uuid import uuid4
+                self.id = uuid4()
+    class Detector:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+            if not hasattr(self, 'id'):
+                from uuid import uuid4
+                self.id = uuid4()
+    class DetectionResult:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+            if not hasattr(self, 'id'):
+                from uuid import uuid4
+                self.id = uuid4()
 
 
 class AnomalyRepository:

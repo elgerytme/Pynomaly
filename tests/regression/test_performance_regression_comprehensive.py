@@ -281,6 +281,7 @@ class TestInferencePerformanceRegression:
     def test_batch_inference_performance(self, trained_models, performance_datasets):
         """Test batch inference performance."""
         batch_sizes = [100, 1000, 5000]
+        config = load_performance_config()
 
         for model_name, model in trained_models.items():
             for batch_size in batch_sizes:
@@ -298,22 +299,16 @@ class TestInferencePerformanceRegression:
                     throughput = batch_size / inference_time
 
                     # Performance thresholds
-                    if batch_size == 100:
-                        assert (
-                            inference_time < 2.0
-                        ), f"{model_name} batch 100 inference too slow: {inference_time}s"
-                    elif batch_size == 1000:
-                        assert (
-                            inference_time < 10.0
-                        ), f"{model_name} batch 1000 inference too slow: {inference_time}s"
-                    elif batch_size == 5000:
-                        assert (
-                            inference_time < 30.0
-                        ), f"{model_name} batch 5000 inference too slow: {inference_time}s"
+                    default_thresholds = {100: 2.0, 1000: 10.0, 5000: 30.0}
+                    time_threshold = config.get('performance_thresholds', {}).get('execution_time', {}).get(f'batch_{batch_size}_max_seconds', default_thresholds[batch_size])
+                    assert (
+                        inference_time < time_threshold
+                    ), f"{model_name} batch {batch_size} inference too slow: {inference_time}s"
 
                     # Throughput should be reasonable
+                    min_throughput = config.get('performance_thresholds', {}).get('throughput', {}).get('min_throughput_samples_per_second', 50)
                     assert (
-                        throughput > 50
+                        throughput > min_throughput
                     ), f"{model_name} throughput too low: {throughput} samples/s"
 
                     # Verify results
@@ -426,26 +421,22 @@ class TestMemoryPerformanceRegression:
                 leak_mb = memory_leak / (1024 * 1024)
 
                 # Memory usage should be reasonable
-                if dataset_name == "small":
-                    assert (
-                        training_mb < 100
-                    ), f"Small dataset training uses too much memory: {training_mb} MB"
-                elif dataset_name == "medium":
-                    assert (
-                        training_mb < 500
-                    ), f"Medium dataset training uses too much memory: {training_mb} MB"
-                elif dataset_name == "wide":
-                    assert (
-                        training_mb < 200
-                    ), f"Wide dataset training uses too much memory: {training_mb} MB"
+                config = load_performance_config()
+                default_memory_thresholds = {'small': 100, 'medium': 500, 'wide': 200}
+                memory_threshold = config.get('performance_thresholds', {}).get('memory_usage', {}).get(f'{dataset_name}_max_memory_mb', default_memory_thresholds[dataset_name])
+                assert (
+                    training_mb < memory_threshold
+                ), f"{dataset_name.capitalize()} dataset training uses too much memory: {training_mb} MB"
 
                 # Scoring should not significantly increase memory
+                scoring_threshold = config.get('performance_thresholds', {}).get('memory_usage', {}).get('scoring_max_memory_mb', 50)
                 assert (
-                    scoring_mb < 50
+                    scoring_mb < scoring_threshold
                 ), f"Scoring increases memory too much: {scoring_mb} MB"
 
                 # Memory leak should be minimal
-                assert leak_mb < 20, f"Memory leak detected: {leak_mb} MB"
+                leak_threshold = config.get('performance_thresholds', {}).get('memory_usage', {}).get('leak_max_memory_mb', 20)
+                assert leak_mb < leak_threshold, f"Memory leak detected: {leak_mb} MB"
 
             except ImportError:
                 continue

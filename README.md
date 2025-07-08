@@ -44,7 +44,61 @@ Python anomaly detection package targeting Python 3.11+ with clean architecture 
 
 ## Installation
 
-### Quick Setup (Recommended)
+### Quick Setup (Recommended - Docker)
+
+#### Prerequisites
+```bash
+# Ensure Docker is installed and running
+docker --version  # Should show Docker version
+docker-compose --version  # Should show Docker Compose version
+
+# Optional: Make utility for streamlined commands
+make --version  # Should show Make version
+```
+
+#### Docker Development Setup
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/pynomaly.git
+cd pynomaly
+
+# 🚀 Start development environment (recommended)
+make dev
+
+# Alternative: Use Docker script directly
+./scripts/docker/dev/run-dev.sh
+
+# Windows PowerShell:
+.\scripts\docker\dev\run-dev.ps1
+
+# Verify installation - API will be available at http://localhost:8000
+curl http://localhost:8000/api/health
+```
+
+#### Docker Development Options
+```bash
+# 🎯 Basic development (hot-reload enabled)
+make dev                           # Uses Docker with live code reloading
+
+# 🧪 Development with storage services
+./scripts/docker/dev/run-dev-with-storage.sh --storage all
+
+# 🔧 Custom port and configuration
+./scripts/docker/dev/run-dev.sh --port 8001 --build
+
+# 🌿 Branch-isolated development
+./scripts/docker/dev/run-dev.sh --name pynomaly-dev-$(git branch --show-current)
+```
+
+**📚 Complete Docker Guide**: See [Docker Development Guide](scripts/docker/README.md) for detailed options and troubleshooting.
+
+### Legacy (venv) Workflow **[DEPRECATED]**
+
+> ⚠️ **DEPRECATED**: The traditional Python virtual environment setup is deprecated in favor of Docker.
+> This method may not receive future updates and is provided for backwards compatibility only.
+
+<details>
+<summary>Click to expand legacy venv installation (not recommended)</summary>
 
 #### Prerequisites
 ```bash
@@ -53,49 +107,6 @@ python --version  # Should show 3.11 or higher
 ```
 
 #### Installation
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/pynomaly.git
-cd pynomaly
-
-# Create virtual environment
-python -m venv environments/.venv
-
-# Activate environment
-# Linux/macOS:
-source environments/.venv/bin/activate
-# Windows:
-environments\.venv\Scripts\activate
-
-# Install with basic features
-pip install -e .
-
-# Verify installation
-python -c "import pynomaly; print('Installation successful')"
-```
-
-#### Feature Installation Options
-```bash
-# 🎯 Quick Start (recommended for most users)
-pip install -e ".[server]"       # Complete server (CLI + API + web)
-
-# 🧪 Research & ML  
-pip install -e ".[server,automl,explainability]"
-
-# 🚀 Production Deployment
-pip install -e ".[production]"   # Authentication + monitoring
-
-# 🛠️ Interactive Installer (recommended)
-python scripts/setup/install_features.py
-```
-
-**📚 Complete Guide**: See [Feature Installation Guide](docs/getting-started/FEATURE_INSTALLATION_GUIDE.md) for detailed options and troubleshooting.
-
-### Alternative Setup (Traditional pip/venv)
-
-If you prefer traditional Python environment management, Pynomaly uses a centralized environment structure:
-
-#### Quick Start
 ```bash
 # Create virtual environment in organized directory structure
 mkdir -p environments
@@ -110,9 +121,10 @@ environments\.venv\Scripts\activate
 # Install with desired features
 pip install -e ".[server]"          # API + CLI + basic features
 pip install -e ".[all]"             # All available features
-```
 
-**Environment Organization**: Pynomaly uses a centralized `environments/` directory with dot-prefix naming (`.venv`, `.test_env`) to keep the project root clean and organize all virtual environments in one location.
+# Verify installation
+python -c "import pynomaly; print('Installation successful')"
+```
 
 #### Feature-Specific Installation
 ```bash
@@ -142,6 +154,10 @@ pip install -e ".[ui-test]"         # UI testing with Playwright
 pip install -e ".[lint]"            # Code quality tools
 pip install -e ".[dev]"             # Development tools
 ```
+
+**Environment Organization**: Pynomaly uses a centralized `environments/` directory with dot-prefix naming (`.venv`, `.test_env`) to keep the project root clean and organize all virtual environments in one location.
+
+</details>
 
 ### Cross-Platform Compatibility
 
@@ -179,9 +195,63 @@ Pynomaly is designed to work seamlessly across different operating systems and e
 
 ## Quick Start
 
-### Verified Run Scripts
+### Docker Development (Recommended)
 
-All run scripts in `scripts/run/` are tested and working:
+#### Start Development Environment
+```bash
+# 🚀 One-command development setup
+make dev
+
+# Alternative: Direct Docker script
+./scripts/docker/dev/run-dev.sh
+
+# Windows PowerShell:
+.\scripts\docker\dev\run-dev.ps1
+
+# Access the application:
+# - API Documentation: http://localhost:8000/docs
+# - Web Interface: http://localhost:8000/app
+# - Health Check: http://localhost:8000/api/health
+```
+
+#### Branch-Isolated Development
+```bash
+# Create branch-specific container (prevents conflicts)
+./scripts/docker/dev/run-dev.sh --name pynomaly-dev-$(git branch --show-current)
+
+# Start with storage services for full development
+./scripts/docker/dev/run-dev-with-storage.sh --storage all
+
+# Custom port to avoid conflicts
+./scripts/docker/dev/run-dev.sh --port 8001 --build
+```
+
+#### Docker Development Scripts
+```bash
+# 🐳 Development Environment Scripts
+./scripts/docker/dev/run-dev.sh                    # Basic development with hot-reload
+./scripts/docker/dev/run-dev-with-storage.sh       # Development with PostgreSQL, Redis, MinIO
+./scripts/docker/dev/run-dev.ps1                   # Windows PowerShell version
+./scripts/docker/dev/run-dev-with-storage.ps1      # Windows with storage services
+
+# 🧪 Testing Scripts
+./scripts/docker/test/run-test.sh                  # Containerized testing
+./scripts/docker/test/run-benchmarks.sh            # Performance benchmarking
+
+# 🚀 Production Scripts
+./scripts/docker/prod/run-prod.sh                  # Production deployment
+./scripts/docker/prod/run-prod-distributed.sh     # Distributed production
+```
+
+**📚 Complete Docker Guide**: See [Docker Scripts Documentation](scripts/docker/README.md) for all available options.
+
+### Legacy Python Scripts **[DEPRECATED]**
+
+> ⚠️ **DEPRECATED**: Direct Python script execution is deprecated in favor of Docker.
+> Use these only if Docker is not available.
+
+<details>
+<summary>Click to expand legacy script commands (not recommended)</summary>
 
 ```bash
 # CLI Interface
@@ -209,6 +279,8 @@ python scripts/run/pynomaly_cli.py help            # Comprehensive CLI tools  �
 ```
 
 **Status**: All scripts tested and verified working in both current and fresh environments.
+
+</details>
 
 ### CLI Usage
 
@@ -434,13 +506,37 @@ Run `pynomaly detector algorithms` to see all available algorithms with their pa
 
 ## Development
 
-### Development Setup
+### Development Setup (Docker - Recommended)
 
 ```bash
 # Clone and setup development environment
 git clone https://github.com/yourusername/pynomaly.git
 cd pynomaly
 
+# 🚀 Start development environment with Docker
+make dev
+
+# Alternative: Direct Docker script
+./scripts/docker/dev/run-dev.sh --build
+
+# Windows PowerShell:
+.\scripts\docker\dev\run-dev.ps1 --build
+
+# Development with storage services
+./scripts/docker/dev/run-dev-with-storage.sh --storage all
+
+# Branch-isolated development (recommended for team collaboration)
+./scripts/docker/dev/run-dev.sh --name pynomaly-dev-$(git branch --show-current)
+```
+
+### Legacy Development Setup **[DEPRECATED]**
+
+> ⚠️ **DEPRECATED**: Direct Python development setup is deprecated in favor of Docker.
+
+<details>
+<summary>Click to expand legacy development setup (not recommended)</summary>
+
+```bash
 # Create development environment
 python -m venv environments/.venv
 source environments/.venv/bin/activate  # Linux/macOS
@@ -453,6 +549,8 @@ pip install -e ".[dev,test]"
 pip install pre-commit
 pre-commit install
 ```
+
+</details>
 
 #### Code Quality & Testing
 ```bash
