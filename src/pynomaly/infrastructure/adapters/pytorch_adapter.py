@@ -95,7 +95,7 @@ except ImportError:
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import AnomalyScore
+from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 from pynomaly.shared.protocols import DetectorProtocol
 
 logger = logging.getLogger(__name__)
@@ -457,7 +457,7 @@ class DAGMM(BaseAnomalyModel):
         return scores
 
 
-class PyTorchAdapter(DetectorProtocol):
+class PyTorchAdapter(Detector):
     """Adapter for PyTorch-based deep learning anomaly detection models."""
 
     _algorithm_map = {
@@ -467,14 +467,24 @@ class PyTorchAdapter(DetectorProtocol):
         "DAGMM": DAGMM,
     }
 
-    def __init__(self, detector: Detector):
-        """Initialize PyTorch adapter with detector configuration.
+    def __init__(self, algorithm_name: str, name: str | None = None, **kwargs):
+        """Initialize PyTorch adapter with algorithm configuration.
 
         Args:
-            detector: Detector entity with algorithm configuration
+            algorithm_name: Name of the PyTorch algorithm
+            name: Optional custom name for the detector
+            **kwargs: Algorithm-specific parameters
         """
         _check_torch_availability()
-        self.detector = detector
+        
+        # Initialize parent
+        super().__init__(
+            name=name or f"PyTorch_{algorithm_name}",
+            algorithm_name=algorithm_name,
+            contamination_rate=kwargs.get("contamination_rate", ContaminationRate.auto()),
+            parameters=kwargs,
+        )
+        
         self._model: BaseAnomalyModel | None = None
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._init_algorithm()
