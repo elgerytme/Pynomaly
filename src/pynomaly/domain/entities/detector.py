@@ -7,7 +7,7 @@ import time
 # Removed ABC and abstractmethod - Detector is a concrete domain entity
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, Union
 from uuid import UUID, uuid4
 
 import pandas as pd
@@ -57,9 +57,7 @@ class Detector:
 
     name: str
     algorithm_name: str
-    contamination_rate: ContaminationRate = field(
-        default_factory=ContaminationRate.auto
-    )
+    contamination_rate: Union[ContaminationRate, float] = 0.1
     id: UUID = field(default_factory=uuid4)
     parameters: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -75,10 +73,17 @@ class Detector:
         if not self.algorithm_name:
             raise ValueError("Algorithm name cannot be empty")
 
-        if not isinstance(self.contamination_rate, ContaminationRate):
+        if isinstance(self.contamination_rate, ContaminationRate):
+            self.contamination_rate = self.contamination_rate.value
+
+        if not isinstance(self.contamination_rate, (int, float)):
             raise TypeError(
-                f"Contamination rate must be ContaminationRate instance, "
-                f"got {type(self.contamination_rate)}"
+                f"Contamination rate must be numeric, got {type(self.contamination_rate)}"
+            )
+
+        if not (0.0 <= self.contamination_rate <= 1.0):
+            raise ValueError(
+                f"Contamination rate must be between 0 and 1, got {self.contamination_rate}"
             )
 
     # Note: fit, detect, and score methods are implemented by infrastructure adapters
@@ -127,7 +132,7 @@ class Detector:
             "id": str(self.id),
             "name": self.name,
             "algorithm": self.algorithm_name,
-            "contamination_rate": self.contamination_rate.value,
+            "contamination_rate": self.contamination_rate,
             "is_fitted": self.is_fitted,
             "created_at": self.created_at.isoformat(),
             "trained_at": self.trained_at.isoformat() if self.trained_at else None,
@@ -195,7 +200,7 @@ class Detector:
                 metrics=metrics,
                 training_duration=training_duration,
                 algorithm=self.algorithm_name,
-                contamination_rate=self.contamination_rate.value,
+                contamination_rate=self.contamination_rate,
             )
 
         except Exception as e:

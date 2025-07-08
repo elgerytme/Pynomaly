@@ -5,7 +5,7 @@ from .anomaly_score import AnomalyScore
 from .anomaly_type import AnomalyType
 from .confidence_interval import ConfidenceInterval
 from .contamination_rate import ContaminationRate
-from .hyperparameters import Hyperparameters, ParameterType, HyperparameterRange, HyperparameterSet, HyperparameterSpace
+from .hyperparameters import HyperparameterRange, HyperparameterSet, HyperparameterSpace
 from .model_storage_info import ModelStorageInfo, SerializationFormat, StorageBackend
 from .performance_metrics import PerformanceMetrics
 from .semantic_version import SemanticVersion
@@ -19,17 +19,12 @@ __all__ = [
     "AnomalyType",
     "ConfidenceInterval",
     "ContaminationRate",
-    "Hyperparameters",
-    "ParameterType",
-    "HyperparameterRange",
-    "HyperparameterSet",
-    "HyperparameterSpace",
-    "ThresholdConfig",
+    "ModelStorageInfo",
+    "PerformanceMetrics",
     "SemanticVersion",
+    "SerializationFormat",
     "SeverityLevel",
     "SeverityScore",
-    "ModelStorageInfo",
     "StorageBackend",
-    "SerializationFormat",
-    "PerformanceMetrics",
+    "ThresholdConfig",
 ]

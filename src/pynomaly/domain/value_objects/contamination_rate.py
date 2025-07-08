@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, Union
 
 from pynomaly.domain.exceptions import InvalidValueError
 
@@ -26,7 +26,7 @@ class ContaminationRate:
 
     def __post_init__(self) -> None:
         """Validate contamination rate after initialization."""
-        if not isinstance(self.value, int | float):
+        if not isinstance(self.value, (int, float)):
             raise InvalidValueError(
                 f"Contamination rate must be numeric, got {type(self.value)}"
             )
@@ -38,7 +38,7 @@ class ContaminationRate:
 
     def is_valid(self) -> bool:
         """Check if the contamination rate is valid."""
-        return isinstance(self.value, int | float) and 0.0 <= self.value <= 0.5
+        return isinstance(self.value, (int, float)) and 0.0 <= self.value <= 0.5
 
     def as_percentage(self) -> float:
         """Return contamination rate as a percentage (0-100)."""

@@ -65,6 +65,15 @@ class BenchmarkConfig:
 
 
 @dataclass
+class SeverityThresholds:
+    """Configurable thresholds for severity scoring."""
+
+    minor_threshold: float = 0.05
+    major_threshold: float = 0.15
+    critical_threshold: float = 0.30
+
+
+@dataclass
 class PerformanceMetrics:
     """Performance metrics for a single test run."""
 
@@ -146,6 +155,143 @@ class BenchmarkSuite:
 
 class PerformanceBenchmarkingService:
     """Comprehensive performance testing and benchmarking service."""
+
+    def compare_to_baseline(
+        self, baseline: dict, current: BenchmarkSuite, severity_thresholds: SeverityThresholds = None
+    ) -> dict:
+        """Compare current benchmark results to baseline.
+        
+        Args:
+            baseline: Baseline metrics dictionary
+            current: Current benchmark suite results
+            severity_thresholds: Optional custom severity thresholds
+            
+        Returns:
+            Dictionary with regressions, improvements, and summary
+        """
+        if severity_thresholds is None:
+            severity_thresholds = SeverityThresholds()
+            
+        regressions = []
+        improvements = []
+        
+        # Get baseline metrics
+        baseline_metrics = baseline.get('performance_metrics', {})
+        
+        # Process individual results
+        for current_metric in current.individual_results:
+            algorithm_name = current_metric.algorithm_name
+            
+            # Map current metrics to baseline equivalents
+            metric_comparisons = {
+                'execution_time': {
+                    'current': current_metric.execution_time_seconds,
+                    'baseline': baseline_metrics.get('basic_workflow_time', 0) / 1000,  # Convert ms to seconds
+                    'unit': 'seconds',
+                    'lower_is_better': True
+                },
+                'memory_usage': {
+                    'current': current_metric.peak_memory_mb,
+                    'baseline': baseline_metrics.get('peak_memory_mb', 0),
+                    'unit': 'MB',
+                    'lower_is_better': True
+                },
+                'accuracy': {
+                    'current': current_metric.accuracy_score,
+                    'baseline': 0.85,  # Default baseline accuracy
+                    'unit': 'score',
+                    'lower_is_better': False
+                },
+                'throughput': {
+                    'current': current_metric.training_throughput,
+                    'baseline': 100.0,  # Default baseline throughput
+                    'unit': 'samples/sec',
+                    'lower_is_better': False
+                }
+            }
+            
+            # Analyze each metric
+            for metric_name, metric_data in metric_comparisons.items():
+                current_value = metric_data['current']
+                baseline_value = metric_data['baseline']
+                
+                if baseline_value == 0:
+                    continue  # Skip if no baseline available
+                    
+                # Calculate percentage change
+                percent_change = ((current_value - baseline_value) / baseline_value) * 100
+                absolute_change = current_value - baseline_value
+                
+                # Determine if this is a regression or improvement
+                is_regression = (
+                    (metric_data['lower_is_better'] and percent_change > 0) or
+                    (not metric_data['lower_is_better'] and percent_change < 0)
+                )
+                
+                # Calculate severity based on absolute percentage change
+                abs_percent_change = abs(percent_change)
+                severity = self._calculate_severity(abs_percent_change, severity_thresholds)
+                
+                # Only record significant changes
+                if abs_percent_change >= severity_thresholds.minor_threshold * 100:
+                    change_data = {
+                        'algorithm': algorithm_name,
+                        'metric': metric_name,
+                        'current_value': current_value,
+                        'baseline_value': baseline_value,
+                        'absolute_change': absolute_change,
+                        'percent_change': percent_change,
+                        'severity': severity,
+                        'unit': metric_data['unit'],
+                        'dataset_size': current_metric.dataset_size,
+                        'feature_dimension': current_metric.feature_dimension,
+                        'contamination_rate': current_metric.contamination_rate
+                    }
+                    
+                    if is_regression:
+                        regressions.append(change_data)
+                    else:
+                        improvements.append(change_data)
+        
+        # Calculate summary statistics
+        summary = {
+            'total_regressions': len(regressions),
+            'total_improvements': len(improvements),
+            'critical_regressions': len([r for r in regressions if r['severity'] == 'critical']),
+            'major_regressions': len([r for r in regressions if r['severity'] == 'major']),
+            'minor_regressions': len([r for r in regressions if r['severity'] == 'minor']),
+            'critical_improvements': len([i for i in improvements if i['severity'] == 'critical']),
+            'major_improvements': len([i for i in improvements if i['severity'] == 'major']),
+            'minor_improvements': len([i for i in improvements if i['severity'] == 'minor']),
+            'baseline_timestamp': baseline.get('timestamp', 'unknown'),
+            'current_timestamp': current.start_time.isoformat(),
+            'comparison_timestamp': datetime.utcnow().isoformat()
+        }
+        
+        # Create diff data structure
+        diff_data = {
+            'regressions': regressions,
+            'improvements': improvements,
+            'summary': summary
+        }
+        
+        # Persist diff JSON next to benchmark output
+        diff_path = self.storage_path / f"benchmark_diff_{current.suite_id}.json"
+        with open(diff_path, 'w') as f:
+            json.dump(diff_data, f, indent=2, default=str)
+            
+        return diff_data
+    
+    def _calculate_severity(self, percent_change: float, thresholds: SeverityThresholds) -> str:
+        """Calculate severity based on percentage change."""
+        if percent_change >= thresholds.critical_threshold * 100:
+            return 'critical'
+        elif percent_change >= thresholds.major_threshold * 100:
+            return 'major'
+        elif percent_change >= thresholds.minor_threshold * 100:
+            return 'minor'
+        else:
+            return 'negligible'
 
     def __init__(self, storage_path: Path):
         """Initialize performance benchmarking service."""
