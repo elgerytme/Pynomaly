@@ -22,8 +22,15 @@ __license__ = "MIT"
 # Core imports for convenience
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.infrastructure.config import Settings, create_container
 
+# Deferred imports to avoid circular dependencies
+def get_settings():
+    from pynomaly.infrastructure.config import Settings
+    return Settings
+
+def get_container():
+    from pynomaly.infrastructure.config import create_container
+    return create_container()
 
 # High-level API
 def create_detector(
@@ -113,7 +120,7 @@ async def detect_anomalies(
         >>> print(f"Found {results.n_anomalies} anomalies")
     """
     if container is None:
-        container = create_container()
+        container = get_container()
 
     # Ensure detector is trained
     if not detector.is_fitted:
@@ -155,11 +162,10 @@ __all__ = [
     # Value Objects
     "AnomalyScore",
     "ContaminationRate",
-    # Infrastructure
-    "Settings",
-    "create_container",
     # High-level API
     "create_detector",
     "load_dataset",
     "detect_anomalies",
+    "get_settings",
+    "get_container",
 ]

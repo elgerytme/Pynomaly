@@ -107,6 +107,12 @@ class DatasetValidationError(DataError):
     pass
 
 
+class DataValidationError(DataError):
+    """Raised when data validation fails."""
+
+    pass
+
+
 class DataFormatError(DataError):
     """Raised when data format is invalid."""
 
@@ -138,11 +144,22 @@ class ModelPredictionError(ModelError):
     pass
 
 
+class ModelValidationError(ModelError):
+    """Raised when model validation fails."""
+
+    pass
+
+
+class TrainingError(ModelError):
+    """Raised when training fails."""
+
+    pass
+
+
 class UnsupportedAlgorithmError(ModelError):
     """Raised when an unsupported algorithm is requested."""
 
     pass
-
 
 # Detection-related exceptions
 class DetectionError(PynomaryError):
@@ -184,6 +201,12 @@ class CacheError(InfrastructureError):
 
 class StorageError(InfrastructureError):
     """Raised when storage operations fail."""
+
+    pass
+
+
+class RepositoryError(InfrastructureError):
+    """Raised when repository operations fail."""
 
     pass
 
