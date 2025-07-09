@@ -59,51 +59,51 @@ def estimate_row_size():
 def generate_synthetic_dataset(target_size_gb=10, output_file='data/synthetic_10gb.csv'):
     """Generate a synthetic dataset of approximately the target size."""
     target_size_bytes = target_size_gb * 1024 * 1024 * 1024  # Convert GB to bytes
-    
+
     # Estimate row size
     row_size = estimate_row_size()
     estimated_rows = target_size_bytes // row_size
-    
+
     print(f"Target size: {target_size_gb} GB ({target_size_bytes:,} bytes)")
     print(f"Estimated row size: {row_size} bytes")
     print(f"Estimated rows needed: {estimated_rows:,}")
-    
+
     # Create directory if it doesn't exist
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    
+
     # Generate the dataset
     with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = [
-            'id', 'timestamp', 'user_id', 'session_id', 'event_type', 
-            'category', 'value', 'quantity', 'status', 'metadata', 
+            'id', 'timestamp', 'user_id', 'session_id', 'event_type',
+            'category', 'value', 'quantity', 'status', 'metadata',
             'description', 'tags'
         ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        
+
         rows_written = 0
         bytes_written = 0
-        
+
         try:
             while bytes_written < target_size_bytes:
                 row = generate_row()
                 writer.writerow(row)
                 rows_written += 1
-                
+
                 # Update progress every 10,000 rows
                 if rows_written % 10000 == 0:
                     current_size = os.path.getsize(output_file)
                     progress = (current_size / target_size_bytes) * 100
                     print(f"Progress: {progress:.1f}% ({rows_written:,} rows, {current_size / (1024*1024*1024):.2f} GB)")
                     bytes_written = current_size
-                    
+
                     # Check if we've reached the target
                     if current_size >= target_size_bytes:
                         break
-                        
+
         except KeyboardInterrupt:
             print(f"\nInterrupted by user. Generated {rows_written:,} rows.")
-            
+
     final_size = os.path.getsize(output_file)
     print(f"\nDataset generation complete!")
     print(f"Final size: {final_size / (1024*1024*1024):.2f} GB")
@@ -115,10 +115,10 @@ if __name__ == "__main__":
     # Allow command line arguments for target size and output file
     target_size = 10
     output_file = 'data/synthetic_10gb.csv'
-    
+
     if len(sys.argv) > 1:
         target_size = int(sys.argv[1])
     if len(sys.argv) > 2:
         output_file = sys.argv[2]
-        
+
     generate_synthetic_dataset(target_size, output_file)

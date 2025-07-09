@@ -62,14 +62,14 @@ class TestModelSelector:
                     ]
                 }
             }
-            
+
             with patch.object(model_selector.pareto_optimizer, 'find_pareto_optimal') as mock_pareto:
                 mock_pareto.return_value = [
                     {'model_id': 'model_1'},
                     {'model_id': 'model_3'},
                     {'model_id': 'model_2'}
                 ]
-                
+
                 ranked_models = model_selector.rank_models(sample_models)
                 assert len(ranked_models) == 3
                 assert ranked_models[0]['model'] == "model_1"
@@ -79,10 +79,10 @@ class TestModelSelector:
         """Test ranking with empty model list."""
         with patch('src.pynomaly.domain.services.model_selector.MetricsCalculator.compare_models') as mock_compare:
             mock_compare.return_value = {'rankings': {'f1_score': []}}
-            
+
             with patch.object(model_selector.pareto_optimizer, 'find_pareto_optimal') as mock_pareto:
                 mock_pareto.return_value = []
-                
+
                 ranked_models = model_selector.rank_models([])
                 assert ranked_models == []
 
@@ -93,7 +93,7 @@ class TestModelSelector:
             mock_ttest.return_value = (2.5, 0.02)  # p-value < 0.05
             significant = model_selector.significant_difference(sample_models[0], sample_models[1])
             assert significant is True
-            
+
             # Mock non-significant difference
             mock_ttest.return_value = (1.0, 0.3)  # p-value > 0.05
             significant = model_selector.significant_difference(sample_models[0], sample_models[1])
@@ -107,10 +107,10 @@ class TestModelSelector:
                 {'model': 'model_3', 'value': 0.87, 'rank': 2},
                 {'model': 'model_2', 'value': 0.85, 'rank': 3}
             ]
-            
+
             with patch.object(model_selector, 'significant_difference') as mock_sig:
                 mock_sig.return_value = False
-                
+
                 best_model_selection = model_selector.select_best_model(sample_models)
                 assert best_model_selection['selected_model'] == "model_1"
                 assert "Selected model_1 based on primary ranking of f1_score" in best_model_selection['rationale']
@@ -120,7 +120,7 @@ class TestModelSelector:
         """Test model selection with no models."""
         with patch.object(model_selector, 'rank_models') as mock_rank:
             mock_rank.return_value = []
-            
+
             best_model_selection = model_selector.select_best_model([])
             assert best_model_selection['decision'] == 'No suitable models found'
             assert best_model_selection['rationale'] == []
@@ -134,7 +134,7 @@ class TestModelSelector:
                 {'model_id': 'high_recall'},
                 {'model_id': 'balanced'}
             ]
-            
+
             with patch('src.pynomaly.domain.services.model_selector.MetricsCalculator.compare_models') as mock_compare:
                 mock_compare.return_value = {
                     'rankings': {
@@ -146,9 +146,9 @@ class TestModelSelector:
                         ]
                     }
                 }
-                
+
                 ranked_models = model_selector.rank_models(diverse_models)
-                
+
                 # Should only return models in Pareto front
                 assert len(ranked_models) == 3
                 model_ids = [r['model'] for r in ranked_models]
@@ -164,7 +164,7 @@ class TestModelSelector:
             ModelPerformanceMetrics(model_id="model_b", metrics={"f1_score": 0.85, "precision": 0.85, "recall": 0.85}),
             ModelPerformanceMetrics(model_id="model_c", metrics={"f1_score": 0.85, "precision": 0.90, "recall": 0.80})
         ]
-        
+
         with patch('src.pynomaly.domain.services.model_selector.MetricsCalculator.compare_models') as mock_compare:
             mock_compare.return_value = {
                 'rankings': {
@@ -175,14 +175,14 @@ class TestModelSelector:
                     ]
                 }
             }
-            
+
             with patch.object(model_selector.pareto_optimizer, 'find_pareto_optimal') as mock_pareto:
                 mock_pareto.return_value = [
                     {'model_id': 'model_a'},
                     {'model_id': 'model_b'},
                     {'model_id': 'model_c'}
                 ]
-                
+
                 selection = model_selector.select_best_model(tied_models)
                 assert selection['selected_model'] == 'model_a'
                 assert 'Selected model_a based on primary ranking of f1_score' in selection['rationale']
@@ -191,14 +191,14 @@ class TestModelSelector:
         """Test statistical significance calculation with realistic metric values."""
         # Create models with similar but different performance
         model_a = ModelPerformanceMetrics(
-            model_id="model_a", 
+            model_id="model_a",
             metrics={"f1_score": 0.85, "precision": 0.80, "recall": 0.90}
         )
         model_b = ModelPerformanceMetrics(
-            model_id="model_b", 
+            model_id="model_b",
             metrics={"f1_score": 0.83, "precision": 0.78, "recall": 0.88}
         )
-        
+
         # The t-test should indicate no significant difference for such close values
         significant = model_selector.significant_difference(model_a, model_b)
         assert isinstance(significant, bool)
@@ -206,10 +206,10 @@ class TestModelSelector:
     def test_edge_case_single_model(self, model_selector):
         """Test model selection with only one model."""
         single_model = [ModelPerformanceMetrics(model_id="only_model", metrics={"f1_score": 0.8, "precision": 0.75, "recall": 0.85})]
-        
+
         with patch.object(model_selector, 'rank_models') as mock_rank:
             mock_rank.return_value = [{'model': 'only_model', 'value': 0.8, 'rank': 1}]
-            
+
             selection = model_selector.select_best_model(single_model)
             assert selection['selected_model'] == 'only_model'
             assert len(selection['rationale']) >= 2
@@ -219,11 +219,11 @@ class TestModelSelector:
         # Test with accuracy as primary metric
         accuracy_selector = ModelSelector(primary_metric="accuracy", secondary_metrics=["precision", "recall"])
         assert accuracy_selector.primary_metric == "accuracy"
-        
+
         # Test with precision as primary metric
         precision_selector = ModelSelector(primary_metric="precision", secondary_metrics=["f1_score", "recall"])
         assert precision_selector.primary_metric == "precision"
-        
+
         # Verify Pareto optimizer is configured correctly
         assert accuracy_selector.pareto_optimizer.objectives[0]['name'] == "accuracy"
         assert precision_selector.pareto_optimizer.objectives[0]['name'] == "precision"
@@ -231,17 +231,17 @@ class TestModelSelector:
     def test_error_handling_empty_metrics(self, model_selector):
         """Test error handling for models with empty metrics."""
         empty_metrics_model = ModelPerformanceMetrics(model_id="empty_model", metrics={})
-        
+
         with pytest.raises(KeyError):
             model_selector.significant_difference(empty_metrics_model, empty_metrics_model)
 
     def test_model_selector_with_resource_constraints(self):
         """Test ModelSelector considering resource usage as secondary metrics."""
         resource_selector = ModelSelector(
-            primary_metric="f1_score", 
+            primary_metric="f1_score",
             secondary_metrics=["training_time", "memory_usage"]
         )
-        
+
         assert resource_selector.primary_metric == "f1_score"
         assert "training_time" in resource_selector.secondary_metrics
         assert "memory_usage" in resource_selector.secondary_metrics
@@ -254,14 +254,14 @@ class TestModelSelector:
                 {'model': 'model_3', 'value': 0.87, 'rank': 2},
                 {'model': 'model_2', 'value': 0.85, 'rank': 3}
             ]
-            
+
             with patch.object(model_selector, 'significant_difference') as mock_sig:
                 # Mock that model_3 and model_2 are not significantly different from model_1
                 mock_sig.return_value = False
-                
+
                 selection = model_selector.select_best_model(sample_models)
                 rationale = selection['rationale']
-                
+
                 # Should contain primary ranking rationale
                 assert any("primary ranking" in r for r in rationale)
                 # Should contain Pareto front rationale

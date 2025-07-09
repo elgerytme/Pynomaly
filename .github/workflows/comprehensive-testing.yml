@@ -432,6 +432,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: combined-coverage-report
+        retention-days: 14
         path: |
           coverage-combined.xml
           htmlcov-combined/

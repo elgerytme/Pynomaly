@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class ThresholdSeverityClassifier:
     """Threshold-based severity classifier with extended threshold table.
-    
+
     This classifier uses predefined threshold ranges to classify anomalies
     into severity levels. It supports customizable threshold tables and
     provides a default configuration that maintains current behavior.
@@ -31,7 +31,7 @@ class ThresholdSeverityClassifier:
         default_severity: str = "medium"
     ):
         """Initialize the threshold severity classifier.
-        
+
         Args:
             threshold_table: Custom threshold table mapping severity levels to ranges
             default_severity: Default severity for scores that don't match any threshold
@@ -66,10 +66,10 @@ class ThresholdSeverityClassifier:
 
     def classify_single(self, score: float | AnomalyScore) -> str:
         """Classify a single anomaly score into severity level.
-        
+
         Args:
             score: Anomaly score to classify
-            
+
         Returns:
             Severity level as string
         """
@@ -101,10 +101,10 @@ class ThresholdSeverityClassifier:
 
     def classify_batch(self, scores: list[float | AnomalyScore]) -> list[str]:
         """Classify a batch of anomaly scores into severity levels.
-        
+
         Args:
             scores: List of anomaly scores to classify
-            
+
         Returns:
             List of severity levels
         """
@@ -115,10 +115,10 @@ class ThresholdSeverityClassifier:
 
     def get_severity_stats(self, scores: list[float | AnomalyScore]) -> dict[str, dict[str, int | float]]:
         """Get statistics about severity distribution.
-        
+
         Args:
             scores: List of anomaly scores
-            
+
         Returns:
             Dictionary with severity statistics
         """
@@ -140,7 +140,7 @@ class ThresholdSeverityClassifier:
 
     def update_threshold(self, severity: str, min_threshold: float, max_threshold: float) -> None:
         """Update threshold for a specific severity level.
-        
+
         Args:
             severity: Severity level to update
             min_threshold: New minimum threshold
@@ -160,7 +160,7 @@ class ThresholdSeverityClassifier:
 
     def add_severity_level(self, severity: str, min_threshold: float, max_threshold: float) -> None:
         """Add a new severity level to the threshold table.
-        
+
         Args:
             severity: New severity level name
             min_threshold: Minimum threshold for the new level
@@ -182,7 +182,7 @@ class ThresholdSeverityClassifier:
 
     def remove_severity_level(self, severity: str) -> None:
         """Remove a severity level from the threshold table.
-        
+
         Args:
             severity: Severity level to remove
         """
@@ -196,7 +196,7 @@ class ThresholdSeverityClassifier:
 
     def get_threshold_table(self) -> dict[str, dict[str, float]]:
         """Get a copy of the current threshold table.
-        
+
         Returns:
             Copy of the threshold table
         """
@@ -212,11 +212,11 @@ class ThresholdSeverityClassifier:
 
     def get_severity_for_threshold_range(self, min_val: float, max_val: float) -> str | None:
         """Get severity level that matches a specific threshold range.
-        
+
         Args:
             min_val: Minimum threshold value
             max_val: Maximum threshold value
-            
+
         Returns:
             Severity level name if found, None otherwise
         """

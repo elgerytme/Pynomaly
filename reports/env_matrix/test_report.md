@@ -17,4 +17,3 @@
 - **deep-cpu**: SUCCESS
 - **automl**: SUCCESS
 - **all**: FAILED
-

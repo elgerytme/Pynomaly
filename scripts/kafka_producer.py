@@ -33,7 +33,7 @@ class KafkaStreamProducer:
         self.producer = None
         self.running = False
         self.stats = {'sent': 0, 'failed': 0, 'start_time': None}
-        
+
     def connect(self):
         """Initialize Kafka producer connection."""
         try:
@@ -51,11 +51,11 @@ class KafkaStreamProducer:
         except Exception as e:
             print(f"❌ Failed to connect to Kafka: {e}")
             return False
-            
+
     def generate_random_string(self, length=10):
         """Generate a random string of specified length."""
         return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
-        
+
     def generate_event(self):
         """Generate a realistic event for the stream."""
         event_types = [
@@ -63,12 +63,12 @@ class KafkaStreamProducer:
             'purchase', 'cart_add', 'cart_remove', 'search',
             'api_call', 'error', 'warning', 'info'
         ]
-        
+
         categories = [
             'electronics', 'clothing', 'books', 'food', 'sports',
             'automotive', 'home', 'garden', 'toys', 'beauty'
         ]
-        
+
         return {
             'event_id': self.generate_random_string(16),
             'timestamp': datetime.now().isoformat(),
@@ -94,7 +94,7 @@ class KafkaStreamProducer:
                 'environment': 'production'
             }
         }
-        
+
     def send_callback(self, record_metadata=None, exception=None):
         """Callback for sent messages."""
         if exception:
@@ -102,107 +102,107 @@ class KafkaStreamProducer:
             print(f"❌ Failed to send message: {exception}")
         else:
             self.stats['sent'] += 1
-            
+
     def produce_stream(self, duration_seconds=60, events_per_second=1000):
         """Produce events at specified rate for given duration."""
         if not self.connect():
             return False
-            
+
         self.running = True
         self.stats['start_time'] = time.time()
-        
+
         print(f"🚀 Starting stream production:")
         print(f"   Topic: {self.topic}")
         print(f"   Duration: {duration_seconds} seconds")
         print(f"   Rate: {events_per_second} events/second")
         print(f"   Total events: {duration_seconds * events_per_second:,}")
         print(f"   Press Ctrl+C to stop\n")
-        
+
         events_sent = 0
         interval = 1.0 / events_per_second  # Time between events
-        
+
         try:
             start_time = time.time()
             next_event_time = start_time
-            
+
             while self.running and (time.time() - start_time) < duration_seconds:
                 current_time = time.time()
-                
+
                 if current_time >= next_event_time:
                     event = self.generate_event()
-                    
+
                     # Send event with partition key based on user_id for even distribution
                     key = str(event['user_id'])
                     future = self.producer.send(
-                        self.topic, 
-                        value=event, 
+                        self.topic,
+                        value=event,
                         key=key
                     )
                     future.add_callback(self.send_callback)
-                    
+
                     events_sent += 1
                     next_event_time += interval
-                    
+
                     # Print progress every 1000 events
                     if events_sent % 1000 == 0:
                         elapsed = time.time() - start_time
                         rate = events_sent / elapsed if elapsed > 0 else 0
                         print(f"📊 Progress: {events_sent:,} events sent, {rate:.1f} events/sec")
-                        
+
                 # Small sleep to prevent busy waiting
                 time.sleep(min(0.001, max(0, next_event_time - time.time())))
-                
+
         except KeyboardInterrupt:
             print(f"\n⏹️  Stream stopped by user")
         except Exception as e:
             print(f"\n❌ Error during streaming: {e}")
         finally:
             self.stop()
-            
+
     def stop(self):
         """Stop the producer and print final statistics."""
         self.running = False
-        
+
         if self.producer:
             print("🔄 Flushing remaining messages...")
             self.producer.flush(timeout=10)
             self.producer.close()
-            
+
         if self.stats['start_time']:
             duration = time.time() - self.stats['start_time']
             total_events = self.stats['sent'] + self.stats['failed']
             avg_rate = total_events / duration if duration > 0 else 0
-            
+
             print(f"\n📈 Final Statistics:")
             print(f"   Duration: {duration:.2f} seconds")
             print(f"   Events sent: {self.stats['sent']:,}")
             print(f"   Events failed: {self.stats['failed']:,}")
             print(f"   Average rate: {avg_rate:.1f} events/sec")
             print(f"   Success rate: {(self.stats['sent'] / total_events * 100):.1f}%" if total_events > 0 else "   Success rate: 0%")
-            
+
     def print_sample_event(self):
         """Print a sample event to show the data structure."""
         sample = self.generate_event()
         print(f"📋 Sample Event Structure:")
         print(json.dumps(sample, indent=2))
-        
+
 
 def main():
     # Parse command line arguments
     topic = sys.argv[1] if len(sys.argv) > 1 else 'pynomaly_events'
     duration = int(sys.argv[2]) if len(sys.argv) > 2 else 60
     eps = int(sys.argv[3]) if len(sys.argv) > 3 else 1000
-    
+
     # Create and start producer
     producer = KafkaStreamProducer(topic=topic)
-    
+
     # Show sample event structure
     producer.print_sample_event()
     print("\n" + "="*50 + "\n")
-    
+
     # Start streaming
     producer.produce_stream(duration_seconds=duration, events_per_second=eps)
-    
+
 
 if __name__ == "__main__":
     main()

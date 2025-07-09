@@ -37,12 +37,12 @@ graph TB
         A[Component A]
         B[Component B]
     end
-    
+
     subgraph "Proposed State"
         C[Component C]
         D[Component D]
     end
-    
+
     A --> C
     B --> D
 ```
@@ -53,7 +53,7 @@ sequenceDiagram
     participant U as User
     participant S as System
     participant D as Database
-    
+
     U->>S: Request
     S->>D: Query
     D->>S: Response

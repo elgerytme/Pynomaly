@@ -49,28 +49,28 @@ graph TB
         KIN[Kinesis Streams]
         WS[WebSocket Feeds]
     end
-    
+
     subgraph "Streaming Engine"
         SI[Stream Ingestion]
         SP[Stream Processor]
         SS[State Store]
         AD[Anomaly Detector]
     end
-    
+
     subgraph "Output Channels"
         AS[Alert Stream]
         RS[Result Stream]
         MS[Metrics Stream]
     end
-    
+
     K --> SI
     KIN --> SI
     WS --> SI
-    
+
     SI --> SP
     SP --> SS
     SP --> AD
-    
+
     AD --> AS
     AD --> RS
     AD --> MS
@@ -85,7 +85,7 @@ sequenceDiagram
     participant AD as Anomaly Detector
     participant SS as State Store
     participant AS as Alert Stream
-    
+
     DS->>SI: stream_data
     SI->>SP: validated_record
     SP->>SS: get_state(key)
