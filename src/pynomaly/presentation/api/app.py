@@ -45,6 +45,7 @@ from pynomaly.presentation.api.endpoints import (
     export,
     frontend_support,
     health,
+    mfa,
     model_lineage,
     performance,
     streaming,
@@ -233,6 +234,8 @@ def create_app(container: Container | None = None) -> FastAPI:
     app.include_router(health.router, prefix="/api/v1", tags=["health"])
 
     app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
+
+    app.include_router(mfa.router, prefix="/api/v1", tags=["mfa"])
 
     app.include_router(
         user_management.router, prefix="/api/v1", tags=["user_management"]
