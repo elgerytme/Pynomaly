@@ -1,0 +1,1 @@
+"""Protocol tests for pynomaly.shared.protocols."""
