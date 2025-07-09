@@ -1,0 +1,34 @@
+{
+  "violation_threshold": 50,
+  "notification_cooldown": 24,
+  "slack": {
+    "webhook_url": "${SLACK_WEBHOOK_URL}",
+    "channel": "#code-quality",
+    "username": "Pynomaly Quality Bot",
+    "icon_emoji": ":warning:"
+  },
+  "github": {
+    "token": "${GITHUB_TOKEN}",
+    "repository": "${GITHUB_REPOSITORY}",
+    "api_url": "https://api.github.com",
+    "labels": ["automated", "quality", "maintenance", "weekly-cleanup"]
+  },
+  "report_settings": {
+    "include_sample_violations": true,
+    "max_sample_violations": 10,
+    "group_by_tool": true,
+    "group_by_severity": true,
+    "include_metrics": true
+  },
+  "thresholds": {
+    "critical": 100,
+    "high": 50,
+    "medium": 25,
+    "low": 10
+  },
+  "escalation": {
+    "immediate_notify_above": 100,
+    "daily_summary": true,
+    "weekly_summary": true
+  }
+}

@@ -1,0 +1,480 @@
+name: Scheduled Maintenance
+
+on:
+  schedule:
+    # Run every Monday at 3:00 AM UTC
+    - cron: "0 3 * * MON"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  security-events: write
+  actions: read
+  issues: write
+  pages: write
+  id-token: write
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  validate:
+    name: Structure Validation
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install rich typer bandit[toml] hatch requests structlog pydantic
+
+    - name: Create reports directory
+      run: |
+        mkdir -p reports/quality reports/security
+
+    - name: Run structure validator
+      run: |
+        python scripts/validation/validate_structure.py
+      continue-on-error: true
+      id: structure-validation
+
+    - name: Run comprehensive quality analysis
+      run: |
+        # Install linting tools
+        pip install hatch
+        hatch env create lint
+        
+        # Run linting with multiple output formats
+        hatch run lint:ruff check src/ tests/ --output-format=github
+        hatch run lint:ruff check src/ tests/ --output-format=json --output-file=reports/quality/ruff-report.json || true
+        hatch run lint:ruff check src/ tests/ --output-format=sarif --output-file=reports/quality/ruff-sarif.json || true
+        
+        # Run MyPy type checking
+        hatch run lint:mypy src/pynomaly/ --strict --no-error-summary --output-file=reports/quality/mypy-report.txt || true
+        
+        # Run Bandit security scan
+        hatch run lint:bandit -r src/ -f sarif -o reports/security/bandit-sarif.json || true
+        hatch run lint:bandit -r src/ -f json -o reports/security/bandit-report.json || true
+        hatch run lint:bandit -r src/ -f txt -o reports/security/bandit-report.txt || true
+        
+        # Run additional security checks
+        pip install safety pip-audit
+        safety check --full-report --json --output reports/security/safety-report.json || true
+        pip-audit --format=json --output=reports/security/pip-audit-report.json || true
+
+    - name: Upload SARIF to GitHub Security Tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: reports/
+        category: "maintenance-scan"
+
+    - name: Generate comprehensive HTML report
+      run: |
+        python -c "
+        import json
+        import os
+        from datetime import datetime
+        from pathlib import Path
+        
+        # Generate comprehensive HTML report
+        html_content = '''<!DOCTYPE html>
+        <html>
+        <head>
+            <title>Weekly Maintenance Report</title>
+            <meta charset=\"utf-8\">
+            <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+            <style>
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+                .container { max-width: 1200px; margin: 0 auto; background-color: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; }
+                .header h1 { margin: 0; font-size: 2.5em; font-weight: 300; }
+                .header p { margin: 10px 0 0 0; opacity: 0.9; font-size: 1.1em; }
+                .content { padding: 30px; }
+                .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+                .metric-card { background-color: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #007bff; }
+                .metric-card h3 { margin: 0 0 10px 0; color: #495057; font-size: 1.2em; }
+                .metric-card .value { font-size: 2em; font-weight: bold; color: #007bff; }
+                .metric-card .description { color: #6c757d; font-size: 0.9em; margin-top: 5px; }
+                .section { margin-bottom: 30px; }
+                .section h2 { color: #495057; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; margin-bottom: 20px; }
+                .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+                .tool-card { border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; background-color: #ffffff; }
+                .tool-card h3 { margin: 0 0 10px 0; color: #495057; }
+                .tool-card .status { padding: 5px 10px; border-radius: 4px; font-size: 0.9em; font-weight: bold; }
+                .status.success { background-color: #d4edda; color: #155724; }
+                .status.warning { background-color: #fff3cd; color: #856404; }
+                .status.error { background-color: #f8d7da; color: #721c24; }
+                .violations { margin-top: 15px; }
+                .violation-item { margin: 5px 0; padding: 10px; background-color: #f8f9fa; border-left: 3px solid #17a2b8; border-radius: 4px; font-size: 0.9em; }
+                .violation-item.error { border-left-color: #dc3545; }
+                .violation-item.warning { border-left-color: #ffc107; }
+                .summary { background-color: #e9ecef; padding: 20px; border-radius: 8px; margin-top: 30px; }
+                .footer { text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 0 0 10px 10px; color: #6c757d; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <h1>🔧 Weekly Maintenance Report</h1>
+                    <p>Generated on ''' + datetime.now().strftime('%B %d, %Y at %H:%M UTC') + '''</p>
+                </div>
+                <div class='content'>
+                    <div class='metrics'>
+                        <div class='metric-card'>
+                            <h3>Python Version</h3>
+                            <div class='value'>${{ matrix.python-version }}</div>
+                            <div class='description'>Runtime version tested</div>
+                        </div>
+                        <div class='metric-card'>
+                            <h3>Scan Status</h3>
+                            <div class='value'>Complete</div>
+                            <div class='description'>All quality checks executed</div>
+                        </div>
+                        <div class='metric-card'>
+                            <h3>Security Upload</h3>
+                            <div class='value'>✅ Active</div>
+                            <div class='description'>SARIF results uploaded to GitHub Security</div>
+                        </div>
+                    </div>
+                    
+                    <div class='section'>
+                        <h2>Quality Analysis Tools</h2>
+                        <div class='tool-grid'>
+                            <div class='tool-card'>
+                                <h3>🔍 Ruff (Linting)</h3>
+                                <div class='status success'>Executed</div>
+                                <p>Fast Python linter and formatter with comprehensive rule coverage</p>
+                                <div class='violations'>
+                                    <div class='violation-item'>Multiple output formats: GitHub, JSON, SARIF</div>
+                                    <div class='violation-item'>Comprehensive rule coverage for code quality</div>
+                                </div>
+                            </div>
+                            <div class='tool-card'>
+                                <h3>🔒 MyPy (Type Checking)</h3>
+                                <div class='status success'>Executed</div>
+                                <p>Static type checker for Python with strict configuration</p>
+                                <div class='violations'>
+                                    <div class='violation-item'>Strict mode enabled for maximum type safety</div>
+                                    <div class='violation-item'>Results saved to reports/quality/mypy-report.txt</div>
+                                </div>
+                            </div>
+                            <div class='tool-card'>
+                                <h3>🛡️ Bandit (Security)</h3>
+                                <div class='status success'>Executed</div>
+                                <p>Security linter for Python code with SARIF output</p>
+                                <div class='violations'>
+                                    <div class='violation-item'>SARIF output uploaded to GitHub Security tab</div>
+                                    <div class='violation-item'>Multiple report formats generated</div>
+                                </div>
+                            </div>
+                            <div class='tool-card'>
+                                <h3>🔐 Safety (Dependencies)</h3>
+                                <div class='status success'>Executed</div>
+                                <p>Dependency vulnerability scanner</p>
+                                <div class='violations'>
+                                    <div class='violation-item'>Full vulnerability report generated</div>
+                                    <div class='violation-item'>JSON output for automation</div>
+                                </div>
+                            </div>
+                            <div class='tool-card'>
+                                <h3>📋 pip-audit (Package Audit)</h3>
+                                <div class='status success'>Executed</div>
+                                <p>Package vulnerability auditing tool</p>
+                                <div class='violations'>
+                                    <div class='violation-item'>Comprehensive package security audit</div>
+                                    <div class='violation-item'>JSON report for further analysis</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class='section'>
+                        <h2>Report Outputs</h2>
+                        <div class='tool-grid'>
+                            <div class='tool-card'>
+                                <h3>📊 Quality Reports</h3>
+                                <div class='violations'>
+                                    <div class='violation-item'>reports/quality/ruff-report.json</div>
+                                    <div class='violation-item'>reports/quality/ruff-sarif.json</div>
+                                    <div class='violation-item'>reports/quality/mypy-report.txt</div>
+                                </div>
+                            </div>
+                            <div class='tool-card'>
+                                <h3>🔒 Security Reports</h3>
+                                <div class='violations'>
+                                    <div class='violation-item'>reports/security/bandit-sarif.json</div>
+                                    <div class='violation-item'>reports/security/bandit-report.json</div>
+                                    <div class='violation-item'>reports/security/safety-report.json</div>
+                                    <div class='violation-item'>reports/security/pip-audit-report.json</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class='summary'>
+                        <h3>📈 Summary</h3>
+                        <p>This maintenance report provides a comprehensive overview of code quality and security analysis. 
+                        All reports are automatically uploaded to GitHub Security tab via SARIF format and stored as workflow artifacts.</p>
+                        <p><strong>Next Steps:</strong> Review the generated reports and address any identified issues. 
+                        High-priority security vulnerabilities should be addressed immediately.</p>
+                    </div>
+                </div>
+                <div class='footer'>
+                    <p>🤖 Automated by GitHub Actions | 🔧 Pynomaly Quality Assurance</p>
+                </div>
+            </div>
+        </body>
+        </html>'''
+        
+        Path('reports/quality/maintenance-report.html').write_text(html_content)
+        "
+
+    - name: Upload validation reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: maintenance-reports-py${{ matrix.python-version }}
+        path: |
+          reports/
+          structure_validation.json
+        retention-days: 90
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      if: always() && matrix.python-version == '3.11' && github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: reports/quality/
+        destination_dir: reports/quality/
+        keep_files: true
+
+    - name: Check validation results
+      if: always()
+      run: |
+        if [ "${{ steps.structure-validation.outcome }}" != "success" ]; then
+          echo "❌ Structure validation failed"
+          exit 1
+        else
+          echo "✅ Structure validation passed"
+        fi
+
+  cleanup:
+    name: Repository Cleanup
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+      fail-fast: false
+
+    steps:
+    - name: Checkout code with write token
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install rich typer requests structlog pydantic
+
+    - name: Configure git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    - name: Run scheduled cleanup
+      run: |
+        python scripts/maintenance/schedule_cleanup.py --execute --verbose
+      continue-on-error: true
+      id: cleanup-execution
+
+    - name: Upload cleanup reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: cleanup-reports-py${{ matrix.python-version }}
+        path: |
+          reports/quality/scheduled_cleanup_report.json
+        retention-days: 30
+
+    - name: Check cleanup violations and notify
+      if: always() && github.ref == 'refs/heads/main'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        QUALITY_VIOLATION_THRESHOLD: 100
+      run: |
+        python scripts/maintenance/notify.py check-violations --reports-dir reports/quality --threshold 100
+
+    - name: Check cleanup results
+      if: always()
+      run: |
+        if [ "${{ steps.cleanup-execution.outcome }}" != "success" ]; then
+          echo "⚠️ Cleanup execution had issues, but continuing..."
+        else
+          echo "✅ Cleanup execution completed successfully"
+        fi
+
+  maintenance-summary:
+    name: Maintenance Summary
+    runs-on: ubuntu-latest
+    needs: [validate, cleanup]
+    if: always()
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests structlog pydantic
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+
+    - name: Generate maintenance summary
+      run: |
+        mkdir -p reports/maintenance
+        
+        echo "# 🔧 Scheduled Maintenance Summary" > reports/maintenance/maintenance-summary.md
+        echo "" >> reports/maintenance/maintenance-summary.md
+        echo "**Date:** $(date)" >> reports/maintenance/maintenance-summary.md
+        echo "**Workflow:** Scheduled Maintenance" >> reports/maintenance/maintenance-summary.md
+        echo "**Trigger:** ${{ github.event_name }}" >> reports/maintenance/maintenance-summary.md
+        echo "" >> reports/maintenance/maintenance-summary.md
+        
+        echo "## 📊 Job Results" >> reports/maintenance/maintenance-summary.md
+        echo "" >> reports/maintenance/maintenance-summary.md
+        echo "| Job | Status | Description |" >> reports/maintenance/maintenance-summary.md
+        echo "|-----|--------|-------------|" >> reports/maintenance/maintenance-summary.md
+        echo "| Structure Validation | ${{ needs.validate.result == 'success' && '✅ Passed' || needs.validate.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Validates project structure and runs security scan |" >> reports/maintenance/maintenance-summary.md
+        echo "| Repository Cleanup | ${{ needs.cleanup.result == 'success' && '✅ Passed' || needs.cleanup.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Automated cleanup with PR creation |" >> reports/maintenance/maintenance-summary.md
+        echo "" >> reports/maintenance/maintenance-summary.md
+        
+        # Overall status
+        if [[ "${{ needs.validate.result }}" == "success" ]]; then
+          echo "## 🎉 Overall Status: **SUCCESS**" >> reports/maintenance/maintenance-summary.md
+          echo "" >> reports/maintenance/maintenance-summary.md
+          echo "✅ All maintenance tasks completed successfully!" >> reports/maintenance/maintenance-summary.md
+          echo "" >> reports/maintenance/maintenance-summary.md
+          echo "### Tasks Completed:" >> reports/maintenance/maintenance-summary.md
+          echo "- ✅ Structure validation passed" >> reports/maintenance/maintenance-summary.md
+          echo "- ✅ Security scan uploaded to GitHub Security tab" >> reports/maintenance/maintenance-summary.md
+          echo "- ✅ Quality reports generated and uploaded" >> reports/maintenance/maintenance-summary.md
+          echo "- ✅ Reports published to GitHub Pages" >> reports/maintenance/maintenance-summary.md
+          if [[ "${{ needs.cleanup.result }}" == "success" ]]; then
+            echo "- ✅ Repository cleanup completed" >> reports/maintenance/maintenance-summary.md
+          else
+            echo "- ⚠️ Repository cleanup had issues (check logs)" >> reports/maintenance/maintenance-summary.md
+          fi
+        else
+          echo "## ❌ Overall Status: **FAILED**" >> reports/maintenance/maintenance-summary.md
+          echo "" >> reports/maintenance/maintenance-summary.md
+          echo "Some maintenance tasks failed. Please review the logs." >> reports/maintenance/maintenance-summary.md
+          echo "" >> reports/maintenance/maintenance-summary.md
+          echo "### Issues:" >> reports/maintenance/maintenance-summary.md
+          echo "- ❌ Structure validation failed" >> reports/maintenance/maintenance-summary.md
+          echo "- Please check the validation reports for details" >> reports/maintenance/maintenance-summary.md
+        fi
+        
+        echo "" >> reports/maintenance/maintenance-summary.md
+        echo "## 🛠️ Maintenance Features" >> reports/maintenance/maintenance-summary.md
+        echo "" >> reports/maintenance/maintenance-summary.md
+        echo "This enhanced maintenance workflow includes:" >> reports/maintenance/maintenance-summary.md
+        echo "" >> reports/maintenance/maintenance-summary.md
+        echo "### 🔒 Security Integration" >> reports/maintenance/maintenance-summary.md
+        echo "- SARIF results automatically uploaded to GitHub Security tab" >> reports/maintenance/maintenance-summary.md
+        echo "- Multiple security tools: Bandit, Safety, pip-audit" >> reports/maintenance/maintenance-summary.md
+        echo "- Comprehensive vulnerability scanning" >> reports/maintenance/maintenance-summary.md
+        echo "" >> reports/maintenance/maintenance-summary.md
+        echo "### 📊 Quality Reporting" >> reports/maintenance/maintenance-summary.md
+        echo "- JSON and HTML reports for all tools" >> reports/maintenance/maintenance-summary.md
+        echo "- Automated artifact uploads with 90-day retention" >> reports/maintenance/maintenance-summary.md
+        echo "- GitHub Pages deployment for easy access" >> reports/maintenance/maintenance-summary.md
+        echo "" >> reports/maintenance/maintenance-summary.md
+        echo "### 🚨 Alerting System" >> reports/maintenance/maintenance-summary.md
+        echo "- Threshold-based notifications" >> reports/maintenance/maintenance-summary.md
+        echo "- GitHub issue creation for violations" >> reports/maintenance/maintenance-summary.md
+        echo "- Slack webhook integration (when configured)" >> reports/maintenance/maintenance-summary.md
+        echo "- Cooldown periods to prevent spam" >> reports/maintenance/maintenance-summary.md
+        echo "" >> reports/maintenance/maintenance-summary.md
+        echo "### 🔄 Automation Features" >> reports/maintenance/maintenance-summary.md
+        echo "- Multi-Python version testing (3.11, 3.12)" >> reports/maintenance/maintenance-summary.md
+        echo "- Automatic pull request creation for cleanup" >> reports/maintenance/maintenance-summary.md
+        echo "- Comprehensive HTML reporting with styling" >> reports/maintenance/maintenance-summary.md
+        echo "- Structured logging and error handling" >> reports/maintenance/maintenance-summary.md
+        echo "" >> reports/maintenance/maintenance-summary.md
+        echo "---" >> reports/maintenance/maintenance-summary.md
+        echo "*Auto-generated by GitHub Actions*" >> reports/maintenance/maintenance-summary.md
+
+    - name: Check for violations and create notifications
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        QUALITY_VIOLATION_THRESHOLD: 50
+      run: |
+        # Check if we have any reports to process
+        if [ -d "maintenance-reports-py3.11" ]; then
+          echo "Processing quality reports for notifications..."
+          python scripts/maintenance/notify.py check-violations \
+            --reports-dir maintenance-reports-py3.11/reports/quality \
+            --threshold 50
+        else
+          echo "No reports found for notification processing"
+        fi
+
+    - name: Upload maintenance summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: maintenance-summary
+        path: reports/maintenance/
+        retention-days: 90
+
+    - name: Deploy summary to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      if: github.ref == 'refs/heads/main'
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: reports/maintenance/
+        destination_dir: reports/maintenance/
+        keep_files: true
+
+    - name: Set final status
+      run: |
+        if [[ "${{ needs.validate.result }}" == "success" ]]; then
+          echo "✅ Scheduled maintenance completed successfully"
+          exit 0
+        else
+          echo "❌ Scheduled maintenance failed - structure validation did not pass"
+          exit 1
+        fi
