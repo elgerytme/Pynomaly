@@ -121,6 +121,7 @@ class TestAPIPerformance:
     def test_client(self):
         """Create test client for performance testing."""
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
 
         app = create_app(testing=True)
@@ -942,6 +943,7 @@ class TestSystemPerformance:
         """Test end-to-end system performance."""
 
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
 
         app = create_app(testing=True)
@@ -1047,6 +1049,7 @@ class TestSystemPerformance:
 
         # API response time
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
 
         app = create_app(testing=True)

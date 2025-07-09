@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 from hypothesis import strategies as st
 from hypothesis.extra import numpy as stnp
+
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
 from pynomaly.domain.value_objects import (
     AnomalyScore,

@@ -8,6 +8,7 @@ and other value objects throughout the domain layer.
 from datetime import datetime
 
 import pytest
+
 from pynomaly.domain.exceptions import InvalidValueError
 from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
 from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval

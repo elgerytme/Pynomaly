@@ -5,17 +5,18 @@ This module provides a comprehensive configuration loading system that supports
 the three main sub-tasks: data_ingestion, anomaly_detection, and alerting.
 """
 
-import os
 import json
-import yaml
-from typing import Dict, Any, Optional, List
-from pathlib import Path
+import logging
+import os
 from dataclasses import dataclass, field
 from enum import Enum
-import logging
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from pynomaly.shared.exceptions import ConfigurationError
+import yaml
+
 from pynomaly.domain.value_objects.semantic_version import SemanticVersion
+from pynomaly.shared.exceptions import ConfigurationError
 
 
 class ConfigurationEnvironment(Enum):

@@ -7,8 +7,9 @@ from unittest.mock import Mock, patch
 
 import pandas as pd
 import pytest
-from pynomaly.presentation.cli.automl import app
 from typer.testing import CliRunner
+
+from pynomaly.presentation.cli.automl import app
 
 
 class TestAutoMLCLI:

@@ -6,8 +6,8 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel, ValidationError
 
 from pynomaly.infrastructure.error_handling.problem_details_handler import (
-    add_exception_handlers,
     ProblemDetailsResponse,
+    add_exception_handlers,
     create_problem_details_response,
 )
 from pynomaly.infrastructure.middleware.correlation_id_middleware import (
@@ -186,9 +186,10 @@ def test_create_problem_details_response():
 
 def test_dto_extra_forbid():
     """Test that DTOs reject extra fields."""
-    from pynomaly.application.dto.detection_dto import DetectionRequestDTO
     from uuid import uuid4
-    
+
+    from pynomaly.application.dto.detection_dto import DetectionRequestDTO
+
     # Valid data should work
     valid_data = {
         "detector_id": str(uuid4()),

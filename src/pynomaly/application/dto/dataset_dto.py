@@ -12,8 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class DatasetDTO(BaseModel):
     """DTO for dataset information."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(
+    model_config = ConfigDict(
         from_attributes=True,
         extra="forbid",
         json_schema_extra={
@@ -56,8 +55,6 @@ class CreateDatasetDTO(BaseModel):
     """DTO for creating/uploading a dataset."""
     
     model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(extra="forbid")
-    """DTO for creating/uploading a dataset."""
 
     name: str = Field(min_length=1, max_length=100)
     description: str | None = Field(None, max_length=500)
@@ -79,8 +76,6 @@ class DataQualityReportDTO(BaseModel):
     """DTO for data quality report."""
     
     model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(extra="forbid")
-    """DTO for data quality report."""
 
     quality_score: float = Field(ge=0, le=1)
     n_missing_values: int

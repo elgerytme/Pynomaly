@@ -19,8 +19,12 @@ except ImportError:
 from pynomaly.infrastructure.auth import init_auth, track_request_metrics
 from pynomaly.infrastructure.cache import init_cache
 from pynomaly.infrastructure.config import Container
-from pynomaly.infrastructure.middleware.correlation_id_middleware import add_correlation_id
-from pynomaly.infrastructure.error_handling.problem_details_handler import add_exception_handlers
+from pynomaly.infrastructure.error_handling.problem_details_handler import (
+    add_exception_handlers,
+)
+from pynomaly.infrastructure.middleware.correlation_id_middleware import (
+    add_correlation_id,
+)
 
 # Temporarily disabled telemetry
 # from pynomaly.infrastructure.monitoring import init_telemetry

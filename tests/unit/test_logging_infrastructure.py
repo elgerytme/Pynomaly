@@ -6,6 +6,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import pytest
+
 from pynomaly.infrastructure.logging.log_aggregator import (
     LogAggregator,
     LogEntry,

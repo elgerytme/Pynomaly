@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from fastapi.testclient import TestClient
+
 from pynomaly.application.dto import (
     ConfidenceInterval,
     DatasetDTO,

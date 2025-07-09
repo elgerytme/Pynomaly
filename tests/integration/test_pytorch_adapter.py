@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 import pytest
+
 from pynomaly.infrastructure.adapters.algorithm_factory import AlgorithmFactory
 
 # Optional PyTorch imports with fallbacks

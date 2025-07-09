@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import pytest
+
 from pynomaly.application.services.drift_detection_service import DriftDetectionService
 from pynomaly.domain.entities.drift_detection import (
     DriftDetectionMethod,

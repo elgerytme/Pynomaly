@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.application.services.automl_service import (
     AlgorithmFamily,
     AutoMLResult,

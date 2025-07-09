@@ -6,6 +6,7 @@ from uuid import uuid4
 
 import pandas as pd
 import pytest
+
 from pynomaly.application.use_cases.detect_anomalies import (
     DetectAnomaliesRequest,
     DetectAnomaliesResponse,

@@ -10,7 +10,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple, Set
+from typing import Dict, List, Set, Tuple
 
 
 class TidyStructureChecker:

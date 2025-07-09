@@ -293,6 +293,7 @@ class TestMemoryPerformance:
             import os
 
             import psutil
+
             from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )

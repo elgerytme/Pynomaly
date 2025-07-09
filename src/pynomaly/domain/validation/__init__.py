@@ -1,18 +1,18 @@
 """Enhanced domain validation module with comprehensive error handling."""
 
 from .error_strategies import (
-    ValidationErrorStrategy,
-    StrictValidationStrategy,
-    LenientValidationStrategy,
     CustomValidationStrategy,
+    LenientValidationStrategy,
+    StrictValidationStrategy,
     ValidationErrorHandler,
+    ValidationErrorStrategy,
     ValidationResult,
     ValidationSeverity,
 )
 from .validators import (
-    DomainValidator,
     AnomalyValidator,
     DatasetValidator,
+    DomainValidator,
     ValueObjectValidator,
 )
 

@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 
 import pytest
+
 from pynomaly.domain.entities.anomaly_event import (
     AnomalyEvent,
     AnomalyEventData,

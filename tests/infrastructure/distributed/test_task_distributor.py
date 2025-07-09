@@ -5,6 +5,7 @@ from datetime import UTC
 from unittest.mock import patch
 
 import pytest
+
 from pynomaly.infrastructure.distributed.distributed_config import DistributedConfig
 from pynomaly.infrastructure.distributed.task_distributor import (
     DistributedTask,

@@ -20,7 +20,7 @@ from rich.table import Table
 
 # Import the existing cleanup functionality
 sys.path.insert(0, str(Path(__file__).parent))
-from cleanup_repository import cleanup_repository, CleanupMetrics
+from cleanup_repository import CleanupMetrics, cleanup_repository
 
 app = typer.Typer(
     help="Scheduled cleanup script for automated repository maintenance.",

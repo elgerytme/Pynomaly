@@ -19,14 +19,14 @@ from typing import List, Tuple
 
 # Import existing functionality from the validation and organization modules
 try:
-    from validation.validate_file_organization import validate_file_organization
     from analysis.organize_files import FileOrganizer
+    from validation.validate_file_organization import validate_file_organization
 except ImportError:
     # Fallback to relative imports if the modules are not in the path
     import sys
     sys.path.insert(0, str(Path(__file__).parent))
-    from validation.validate_file_organization import validate_file_organization
     from analysis.organize_files import FileOrganizer
+    from validation.validate_file_organization import validate_file_organization
 
 
 def validate_command() -> int:

@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """Unit tests for fix_package_issues maintenance script."""
 
-import pytest
-import sys
 import os
-from pathlib import Path
-from unittest.mock import patch, MagicMock, call
 import subprocess
+import sys
+from pathlib import Path
+from unittest.mock import MagicMock, call, patch
+
+import pytest
 
 from scripts.maintenance.fix_package_issues import (
-    run_command,
     main,
+    run_command,
 )
 
 

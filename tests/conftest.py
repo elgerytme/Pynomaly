@@ -22,15 +22,15 @@ import pandas as pd
 import pytest
 from dependency_injector import providers
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
 # Now import pynomaly modules
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.value_objects import AnomalyScore
 from pynomaly.infrastructure.auth.jwt_auth import init_auth
 from pynomaly.infrastructure.config import Container, Settings
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 # Optional imports for advanced features
 try:

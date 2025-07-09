@@ -6,6 +6,7 @@ import time
 from unittest.mock import Mock, patch
 
 import pytest
+
 from pynomaly.infrastructure.monitoring import (
     AlertManager,
     HealthCheckManager,

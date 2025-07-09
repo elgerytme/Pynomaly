@@ -6,6 +6,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
+
 from pynomaly.application.dto.configuration_dto import (
     AlgorithmConfigurationDTO,
     ConfigurationLevel,

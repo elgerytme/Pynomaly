@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import psutil
 import pytest
+
 from pynomaly.domain.entities import Detector
 from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
 from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter

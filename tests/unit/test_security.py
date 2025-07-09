@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import pytest
 from fastapi import HTTPException
+
 from pynomaly.domain.exceptions import AuthenticationError
 from pynomaly.infrastructure.auth.rate_limiting import RateLimiter
 from pynomaly.infrastructure.security.audit_logging import (

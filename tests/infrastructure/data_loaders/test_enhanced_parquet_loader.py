@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 
 import pandas as pd
 import pytest
+
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import DataValidationError
 from pynomaly.infrastructure.data_loaders.enhanced_parquet_loader import (

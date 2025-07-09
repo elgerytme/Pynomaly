@@ -2,6 +2,7 @@
 
 
 import pytest
+
 from pynomaly.infrastructure.auth.jwt_auth import (
     JWTAuthService,
     PasswordRotationStrategy,

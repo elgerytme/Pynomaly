@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, Mock
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.services.advanced_detection_service import DetectionAlgorithm
 from pynomaly.domain.services.automl_service import (

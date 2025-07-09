@@ -5,12 +5,11 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Optional, Union
 
-from fastapi import FastAPI, Request, HTTPException, status
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError as PydanticValidationError
-from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
 
 logger = logging.getLogger(__name__)
 

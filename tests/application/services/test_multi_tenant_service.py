@@ -3,6 +3,7 @@
 from uuid import uuid4
 
 import pytest
+
 from pynomaly.application.services.multi_tenant_service import (
     MultiTenantService,
     TenantIsolationService,

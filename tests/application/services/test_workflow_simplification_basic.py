@@ -1,6 +1,7 @@
 """Basic tests for workflow simplification service without feature flag mocking."""
 
 import numpy as np
+
 from pynomaly.application.services.workflow_simplification_service import (
     UserExperience,
     WorkflowComplexity,
