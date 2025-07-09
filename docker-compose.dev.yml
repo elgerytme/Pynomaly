@@ -1,0 +1,186 @@
+version: '3.8'
+
+services:
+  # Main development environment
+  pynomaly-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: pynomaly:dev
+    container_name: pynomaly-dev
+    volumes:
+      - .:/app
+      - pynomaly-cache:/app/.cache
+      - pynomaly-pytest-cache:/app/.pytest_cache
+      - pynomaly-tox-cache:/app/.tox
+      - pynomaly-poetry-cache:/app/.venv
+      - pynomaly-browsers:/app/browsers
+      - pynomaly-reports:/app/reports
+      - pynomaly-test-reports:/app/test_reports
+    ports:
+      - "8000:8000"  # API server
+      - "3000:3000"  # Web UI
+      - "5000:5000"  # Debug server
+      - "8080:8080"  # Docs server
+    environment:
+      - PYNOMALY_ENVIRONMENT=development
+      - PYNOMALY_LOG_LEVEL=INFO
+      - PYNOMALY_CACHE_ENABLED=true
+      - PYNOMALY_AUTH_ENABLED=false
+      - PYNOMALY_DOCS_ENABLED=true
+      - PYNOMALY_TESTING=false
+      - PYTHONPATH=/app/src
+      - COVERAGE_CORE=sysmon
+      - PLAYWRIGHT_BROWSERS_PATH=/app/browsers
+      - HEADLESS=true
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    command: bash
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - pynomaly-network
+
+  # PostgreSQL database for integration tests
+  postgres:
+    image: postgres:15-alpine
+    container_name: pynomaly-postgres
+    environment:
+      - POSTGRES_DB=pynomaly_test
+      - POSTGRES_USER=pynomaly
+      - POSTGRES_PASSWORD=pynomaly_test_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - pynomaly-network
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: pynomaly-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - pynomaly-network
+
+  # Test runner service for CI/CD
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: pynomaly:dev
+    container_name: pynomaly-test-runner
+    volumes:
+      - .:/app
+      - pynomaly-cache:/app/.cache
+      - pynomaly-pytest-cache:/app/.pytest_cache
+      - pynomaly-tox-cache:/app/.tox
+      - pynomaly-reports:/app/reports
+      - pynomaly-test-reports:/app/test_reports
+    environment:
+      - PYNOMALY_ENVIRONMENT=testing
+      - PYNOMALY_LOG_LEVEL=DEBUG
+      - PYNOMALY_CACHE_ENABLED=false
+      - PYNOMALY_AUTH_ENABLED=false
+      - PYNOMALY_TESTING=true
+      - PYTHONPATH=/app/src
+      - COVERAGE_CORE=sysmon
+      - PLAYWRIGHT_BROWSERS_PATH=/app/browsers
+      - HEADLESS=true
+      - CI=true
+    working_dir: /app
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - pynomaly-network
+    profiles:
+      - testing
+
+  # UI testing service with full browser support
+  ui-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: pynomaly:dev
+    container_name: pynomaly-ui-test
+    volumes:
+      - .:/app
+      - pynomaly-browsers:/app/browsers
+      - pynomaly-screenshots:/app/screenshots
+      - pynomaly-test-reports:/app/test_reports
+    environment:
+      - PYNOMALY_ENVIRONMENT=e2e
+      - PYNOMALY_LOG_LEVEL=DEBUG
+      - PYNOMALY_TESTING=true
+      - PYTHONPATH=/app/src
+      - PLAYWRIGHT_BROWSERS_PATH=/app/browsers
+      - HEADLESS=true
+      - DISPLAY=:99
+    working_dir: /app
+    depends_on:
+      - pynomaly-dev
+    networks:
+      - pynomaly-network
+    profiles:
+      - ui-testing
+
+volumes:
+  pynomaly-cache:
+    driver: local
+  pynomaly-pytest-cache:
+    driver: local
+  pynomaly-tox-cache:
+    driver: local
+  pynomaly-poetry-cache:
+    driver: local
+  pynomaly-browsers:
+    driver: local
+  pynomaly-reports:
+    driver: local
+  pynomaly-test-reports:
+    driver: local
+  pynomaly-screenshots:
+    driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  pynomaly-network:
+    driver: bridge
+
+# Development workflows
+# 
+# Start development environment:
+#   docker-compose -f docker-compose.dev.yml up -d
+#
+# Run linting:
+#   docker-compose -f docker-compose.dev.yml exec pynomaly-dev poetry run tox -e lint
+#
+# Run unit tests:
+#   docker-compose -f docker-compose.dev.yml exec pynomaly-dev poetry run tox -e unit
+#
+# Run integration tests:
+#   docker-compose -f docker-compose.dev.yml exec pynomaly-dev poetry run tox -e integration
+#
+# Run UI tests:
+#   docker-compose -f docker-compose.dev.yml --profile ui-testing up ui-test
+#   docker-compose -f docker-compose.dev.yml exec ui-test poetry run tox -e e2e-ui
+#
+# Run all tests:
+#   docker-compose -f docker-compose.dev.yml --profile testing up test-runner
+#   docker-compose -f docker-compose.dev.yml exec test-runner poetry run tox
+#
+# Interactive development:
+#   docker-compose -f docker-compose.dev.yml exec pynomaly-dev bash
+#
+# Clean up:
+#   docker-compose -f docker-compose.dev.yml down -v --remove-orphans
