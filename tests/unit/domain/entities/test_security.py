@@ -1,7 +1,13 @@
 import unittest
 from uuid import uuid4
-from pynomaly.domain.entities import AuditEvent, SecurityPolicy, AccessRequest, User
-from pynomaly.domain.entities.security import PermissionType, ActionType
+from pynomaly.domain.entities.security import (
+    SecurityPolicy,
+    User,
+    AuditEvent,
+    AccessRequest,
+    PermissionType,
+    ActionType,
+)
 
 class SecurityEntityTests(unittest.TestCase):
     def test_audit_event_creation(self):
