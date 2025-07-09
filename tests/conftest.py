@@ -538,6 +538,16 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "data_scientist: Data scientist workflow tests")
     config.addinivalue_line("markers", "critical: Critical path tests that must pass")
     config.addinivalue_line("markers", "smoke: Quick smoke test scenarios")
+    
+    # Additional testing markers
+    config.addinivalue_line("markers", "e2e: End-to-end tests")
+    config.addinivalue_line("markers", "contract: Contract testing")
+    config.addinivalue_line("markers", "property: Property-based tests")
+    config.addinivalue_line("markers", "mutation: Mutation testing")
+    config.addinivalue_line("markers", "ui: UI automation tests")
+    config.addinivalue_line("markers", "regression: Regression tests")
+    config.addinivalue_line("markers", "stress: Stress testing")
+    config.addinivalue_line("markers", "acceptance: Acceptance tests")
 
 
 def pytest_collection_modifyitems(config, items):
@@ -555,6 +565,55 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "integration" in item.keywords:
                 item.add_marker(skip_integration)
+    
+    # Skip performance tests unless requested
+    if not config.getoption("--performance"):
+        skip_performance = pytest.mark.skip(reason="need --performance option to run")
+        for item in items:
+            if "performance" in item.keywords:
+                item.add_marker(skip_performance)
+    
+    # Skip security tests unless requested
+    if not config.getoption("--security"):
+        skip_security = pytest.mark.skip(reason="need --security option to run")
+        for item in items:
+            if "security" in item.keywords:
+                item.add_marker(skip_security)
+    
+    # Skip mutation tests unless requested
+    if not config.getoption("--mutation"):
+        skip_mutation = pytest.mark.skip(reason="need --mutation option to run")
+        for item in items:
+            if "mutation" in item.keywords:
+                item.add_marker(skip_mutation)
+    
+    # Skip contract tests unless requested
+    if not config.getoption("--contract"):
+        skip_contract = pytest.mark.skip(reason="need --contract option to run")
+        for item in items:
+            if "contract" in item.keywords:
+                item.add_marker(skip_contract)
+    
+    # Skip property-based tests unless requested
+    if not config.getoption("--property"):
+        skip_property = pytest.mark.skip(reason="need --property option to run")
+        for item in items:
+            if "property" in item.keywords:
+                item.add_marker(skip_property)
+    
+    # Skip UI tests unless requested
+    if not config.getoption("--ui"):
+        skip_ui = pytest.mark.skip(reason="need --ui option to run")
+        for item in items:
+            if "ui" in item.keywords:
+                item.add_marker(skip_ui)
+    
+    # Skip e2e tests unless requested
+    if not config.getoption("--e2e"):
+        skip_e2e = pytest.mark.skip(reason="need --e2e option to run")
+        for item in items:
+            if "e2e" in item.keywords:
+                item.add_marker(skip_e2e)
 
 
 def pytest_addoption(parser):
@@ -573,4 +632,19 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         "--benchmark", action="store_true", default=False, help="run benchmark tests"
+    )
+    parser.addoption(
+        "--mutation", action="store_true", default=False, help="run mutation tests"
+    )
+    parser.addoption(
+        "--contract", action="store_true", default=False, help="run contract tests"
+    )
+    parser.addoption(
+        "--property", action="store_true", default=False, help="run property-based tests"
+    )
+    parser.addoption(
+        "--ui", action="store_true", default=False, help="run UI tests"
+    )
+    parser.addoption(
+        "--e2e", action="store_true", default=False, help="run end-to-end tests"
     )

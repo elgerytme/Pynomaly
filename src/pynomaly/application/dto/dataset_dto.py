@@ -14,6 +14,7 @@ class DatasetDTO(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
+        extra="forbid",
         json_schema_extra={
             "example": {
                 "id": "123e4567-e89b-12d3-a456-426614174000",
@@ -52,6 +53,9 @@ class DatasetDTO(BaseModel):
 
 class CreateDatasetDTO(BaseModel):
     """DTO for creating/uploading a dataset."""
+    
+    model_config = ConfigDict(extra="forbid")
+    """DTO for creating/uploading a dataset."""
 
     name: str = Field(min_length=1, max_length=100)
     description: str | None = Field(None, max_length=500)
@@ -70,6 +74,9 @@ class CreateDatasetDTO(BaseModel):
 
 
 class DataQualityReportDTO(BaseModel):
+    """DTO for data quality report."""
+    
+    model_config = ConfigDict(extra="forbid")
     """DTO for data quality report."""
 
     quality_score: float = Field(ge=0, le=1)

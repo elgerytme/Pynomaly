@@ -135,6 +135,42 @@ If security issues are found:
 
 **Note**: Security scans are run automatically on every push and PR. Manual local testing is recommended but not required.
 
+### Pre-Push Quality Checklist
+
+**Before pushing any changes, run these maintenance checks locally:**
+
+```bash
+# ✅ 1. Run structure validation
+python scripts/validation/validate_structure.py
+
+# ✅ 2. Run linting and formatting
+ruff check src/ tests/
+ruff format src/ tests/
+
+# ✅ 3. Run type checking
+mypy src/pynomaly/
+
+# ✅ 4. Run security scans
+bandit -r src/
+safety check --full-report
+pip-audit
+
+# ✅ 5. Run full test suite with coverage
+hatch run test:run-cov
+
+# ✅ 6. Verify all CI checks would pass
+hatch run lint:all
+```
+
+**Quality Gates:**
+- All linting checks must pass
+- Type checking must pass with no errors
+- Security scans must show no vulnerabilities
+- Test coverage must be ≥95%
+- All tests must pass
+
+This checklist ensures your changes meet the same quality standards as our automated maintenance workflow that runs weekly.
+
 ## Development Process
 
 ### 1. Setting Up Development Environment

@@ -7,12 +7,39 @@
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![CI](https://github.com/yourusername/pynomaly/workflows/CI/badge.svg)](https://github.com/yourusername/pynomaly/actions)
 [![Security](https://github.com/yourusername/pynomaly/workflows/Security%20Scanning/badge.svg)](https://github.com/yourusername/pynomaly/actions)
+[![Maintenance Status](https://github.com/yourusername/pynomaly/workflows/Scheduled%20Maintenance/badge.svg)](https://github.com/yourusername/pynomaly/actions)
 [![Bandit](https://img.shields.io/badge/security-bandit-yellow)](https://bandit.readthedocs.io/)
 [![Safety](https://img.shields.io/badge/safety-checked-green)](https://github.com/pyupio/safety)
 
 Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified interface.
 
 **Built with**: Hatch for build system and environment management, Ruff for linting and formatting, CI/CD pipeline with automated testing and deployment.
+
+## Automation and Maintenance
+
+This project includes a robust scheduled maintenance workflow that automatically runs weekly checks to ensure code quality and security. To run maintenance tasks locally, use the following commands:
+
+```bash
+# Run structure validation
+python scripts/validation/validate_structure.py
+
+# Run linting with ruff
+ruff check src/ tests/
+
+# Run type checking with MyPy
+mypy src/pynomaly/
+
+# Run Bandit security scan
+bandit -r src/
+
+# Run Safety vulnerability check
+safety check --full-report
+
+# Run pip-audit for package vulnerabilities
+pip-audit
+```
+
+These tools ensure that the code meets the quality standards and is free from vulnerabilities.
 
 ## Features
 

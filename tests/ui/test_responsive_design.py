@@ -310,7 +310,7 @@ class TestResponsiveDesign:
                 """, container)
 
                 # Check if layout adapts appropriately
-                if grid_info["display"] === "grid" and grid_info["totalChildren"] > 0:
+                if grid_info["display"] == "grid" and grid_info["totalChildren"] > 0:
                     columns_in_row = grid_info["columnsInFirstRow"]
 
                     # Should adapt to viewport

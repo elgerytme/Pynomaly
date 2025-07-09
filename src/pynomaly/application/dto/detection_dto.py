@@ -13,6 +13,7 @@ class DetectionRequestDTO(BaseModel):
     """DTO for anomaly detection requests."""
 
     model_config = ConfigDict(
+        extra="forbid",
         json_schema_extra={
             "example": {
                 "detector_id": "123e4567-e89b-12d3-a456-426614174000",
@@ -25,7 +26,6 @@ class DetectionRequestDTO(BaseModel):
             }
         }
     )
-
     detector_id: UUID
     dataset_id: UUID | None = None
     data: list[dict[str, Any]] | None = None  # Inline data alternative to dataset_id
@@ -47,6 +47,7 @@ class TrainingRequestDTO(BaseModel):
     """DTO for detector training requests."""
 
     model_config = ConfigDict(
+        extra="forbid",
         json_schema_extra={
             "example": {
                 "detector_id": "123e4567-e89b-12d3-a456-426614174000",
@@ -70,7 +71,7 @@ class TrainingRequestDTO(BaseModel):
 class AnomalyDTO(BaseModel):
     """DTO for individual anomaly information."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID
     score: float = Field(ge=0, le=1)
@@ -89,6 +90,7 @@ class DetectionResultDTO(BaseModel):
 
     model_config = ConfigDict(
         from_attributes=True,
+        extra="forbid",
         json_schema_extra={
             "example": {
                 "id": "789e1234-e89b-12d3-a456-426614174000",
@@ -137,7 +139,7 @@ class DetectionResultDTO(BaseModel):
 class TrainingResultDTO(BaseModel):
     """DTO for training results."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: UUID
     dataset_id: UUID
@@ -166,7 +168,7 @@ class ExplanationRequestDTO(BaseModel):
 class ExplanationResultDTO(BaseModel):
     """DTO for anomaly explanation results."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     method_used: str
     prediction: float
