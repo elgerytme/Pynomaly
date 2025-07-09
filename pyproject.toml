@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [tool.poetry]
 name = "pynomaly"
-version = "0.1.0"
+version = "0.2.0"
 description = "State-of-the-art Python anomaly detection package with clean architecture"
 authors = ["Pynomaly Team <team@pynomaly.io>"]
 readme = "README.md"
@@ -43,6 +43,11 @@ safety = "^3.0.0"
 pre-commit = "^4.0.0"
 tox = "^4.0.0"
 pip-tools = "^7.4.0"
+pyjwt = "^2.10.1"
+passlib = "^1.7.4"
+bcrypt = "^4.3.0"
+redis = "^6.2.0"
+sqlalchemy = "^2.0.41"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
@@ -200,6 +205,7 @@ test = [
     "pytest-cov>=6.0.0",
     "pytest-asyncio>=0.24.0",
     "pytest-xdist>=3.6.0",
+    "pytest-rerunfailures>=14.0",
     "hypothesis>=6.115.0",
     "factory-boy>=3.3.1",
     "faker>=33.1.0"
@@ -415,6 +421,7 @@ dependencies = [
     "pytest-cov>=6.0.0",
     "pytest-asyncio>=0.24.0",
     "pytest-xdist>=3.6.0",
+    "pytest-rerunfailures>=14.0",
     "hypothesis>=6.115.0",
     "factory-boy>=3.3.1",
     "faker>=33.1.0",
