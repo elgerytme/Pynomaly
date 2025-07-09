@@ -146,13 +146,13 @@ Automated processes support ADR management:
 
 ### Development Process
 - **[Contributing Guidelines](../../contributing/CONTRIBUTING.md)** - Development process
-- **[API Integration](../../api-integration/README.md)** - API integration guide
-- **[Troubleshooting](../../troubleshooting/README.md)** - Troubleshooting guide
+- **[API Integration](../../api-integration/python-sdk.md)** - Python SDK guide
+- **[REST API Reference](../../api-integration/rest-api.md)** - REST API documentation
 
 ### Quality Assurance
-- **[Security Guidelines](../../security/README.md)** - Security requirements
-- **[Security Best Practices](../../security/security-best-practices.md)** - Security practices
-- **[Security Validation](../../security/validation.md)** - Security validation
+- **[Security Guidelines](../../../security/README.md)** - Security requirements
+- **[Security Best Practices](../../../security/security-best-practices.md)** - Security practices
+- **[Container Security](../../../security/C-004-container-security.md)** - Container security guide
 
 ---
 
