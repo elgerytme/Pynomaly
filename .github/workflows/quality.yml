@@ -32,28 +32,51 @@ jobs:
 
     - name: Run ruff linting
       run: |
+        echo "::group::Ruff Linting"
         hatch run lint:ruff check src/ tests/ --output-format=github
         hatch run lint:ruff check src/ tests/ --output-format=json --output-file=reports/quality/ruff-report.json || true
         hatch run lint:ruff check src/ tests/ --output-format=sarif --output-file=reports/quality/ruff-sarif.json || true
+        echo "::endgroup::"
+      continue-on-error: false
 
     - name: Run ruff formatting check
       run: |
+        echo "::group::Ruff Format Check"
         hatch run lint:ruff format --check src/ tests/
+        echo "::endgroup::"
+      continue-on-error: false
+
+    - name: Run black formatting check
+      run: |
+        echo "::group::Black Format Check"
+        hatch run lint:black --check --diff src/ tests/
+        echo "::endgroup::"
+      continue-on-error: false
 
     - name: Run mypy type checking
       run: |
+        echo "::group::MyPy Type Checking"
         hatch run lint:mypy src/pynomaly/ --strict --no-error-summary
         hatch run lint:mypy src/pynomaly/ --strict --no-error-summary --output-file=reports/quality/mypy-report.txt || true
+        echo "::endgroup::"
+      continue-on-error: false
 
     - name: Run isort import sorting check
       run: |
+        echo "::group::Import Sorting Check"
         hatch run lint:isort --check-only --diff src/ tests/
+        echo "::endgroup::"
+      continue-on-error: false
 
     - name: Run bandit security analysis
       run: |
+        echo "::group::Bandit Security Analysis"
         hatch run lint:bandit -r src/ -f sarif -o reports/quality/bandit-sarif.json || true
         hatch run lint:bandit -r src/ -f json -o reports/quality/bandit-report.json || true
         hatch run lint:bandit -r src/ -f txt -o reports/quality/bandit-report.txt || true
+        hatch run lint:bandit -r src/ -ll --severity-level medium
+        echo "::endgroup::"
+      continue-on-error: false
 
     - name: Upload SARIF to GitHub Security Tab
       uses: github/codeql-action/upload-sarif@v3

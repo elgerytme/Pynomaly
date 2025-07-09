@@ -12,6 +12,21 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-commit]
+      
+      - id: structure-validate
+        name: Project structure – no stray files
+        entry: pyno-org validate
+        language: system
+        pass_filenames: false
+        stages: [commit, push]
+      
+      - id: structure-autofix
+        name: Project structure – autofix (dry run)
+        entry: pyno-org organize --dry
+        language: system
+        pass_filenames: false
+        stages: [manual]
+        verbose: true
 
   # Standard Pre-commit Hooks for File Hygiene
   - repo: https://github.com/pre-commit/pre-commit-hooks
