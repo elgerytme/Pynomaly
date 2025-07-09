@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 from pynomaly.domain.entities.dataset import Dataset
+from pynomaly.domain.value_objects.contamination_rate import ContaminationRate
 
 
 def generate_sample_data():
@@ -53,7 +54,7 @@ def basic_anomaly_detection():
     
     # Create detector
     print("\n🤖 Creating anomaly detector...")
-    detector = SklearnAdapter('IsolationForest', contamination_rate=0.2)
+    detector = SklearnAdapter('IsolationForest', contamination_rate=ContaminationRate(0.2))
     print(f"   Detector: {detector.name}")
     print(f"   Algorithm: {detector.algorithm_name}")
     
@@ -114,7 +115,7 @@ def compare_algorithms():
         
         try:
             # Create and train detector
-            detector = SklearnAdapter(algorithm, contamination_rate=0.2)
+            detector = SklearnAdapter(algorithm, contamination_rate=ContaminationRate(0.2))
             detector.fit(dataset)
             
             # Detect anomalies
@@ -170,7 +171,7 @@ def advanced_usage():
     print("🔧 Custom Parameters:")
     detector = SklearnAdapter(
         'IsolationForest',
-        contamination_rate=0.15,
+        contamination_rate=ContaminationRate(0.15),
         n_estimators=200,
         max_samples='auto',
         max_features=1.0,
@@ -194,7 +195,7 @@ def advanced_usage():
     
     # Parameter modification
     print("\n🔄 Parameter Modification:")
-    detector.set_params(contamination_rate=0.25, n_estimators=100)
+    detector.set_params(contamination=0.25, n_estimators=100)
     detector.fit(dataset)
     result2 = detector.detect(dataset)
     

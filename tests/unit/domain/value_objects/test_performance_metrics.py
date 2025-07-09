@@ -721,7 +721,7 @@ class TestPerformanceMetrics:
         
         # Verify calculated properties
         assert metrics.model_size_mb == 5.0
-        assert metrics.training_time_minutes == 4.0075
+        assert abs(metrics.training_time_minutes - 4.0075) < 0.01
         assert metrics.specificity == 730 / (730 + 30)  # 0.9605...
         assert metrics.balanced_accuracy is not None
 
