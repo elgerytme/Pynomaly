@@ -10,7 +10,7 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.services.autonomous_service import AutonomousService
+from pynomaly.application.services.autonomous_service import AutonomousDetectionService as AutonomousService
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.entities.experiment import Experiment

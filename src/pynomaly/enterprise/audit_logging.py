@@ -120,9 +120,9 @@ class AuditEvent(Base):
 
     __tablename__ = "audit_events"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), nullable=False)
-    user_id = Column(UUID(as_uuid=True), nullable=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    tenant_id = Column(String(36), nullable=False)
+    user_id = Column(String(36), nullable=True)
     session_id = Column(String(255), nullable=True)
     request_id = Column(String(255), nullable=True)
 
@@ -175,8 +175,8 @@ class AuditConfiguration(Base):
 
     __tablename__ = "audit_configurations"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    tenant_id = Column(String(36), nullable=False)
 
     # Configuration
     enabled = Column(Boolean, default=True)
@@ -201,8 +201,8 @@ class AuditAlert(Base):
 
     __tablename__ = "audit_alerts"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tenant_id = Column(UUID(as_uuid=True), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    tenant_id = Column(String(36), nullable=False)
 
     # Alert details
     alert_type = Column(String(100), nullable=False)
@@ -211,7 +211,7 @@ class AuditAlert(Base):
     description = Column(Text, nullable=False)
 
     # Trigger
-    trigger_event_id = Column(UUID(as_uuid=True), nullable=True)
+    trigger_event_id = Column(String(36), nullable=True)
     trigger_conditions = Column(JSON, nullable=False)
 
     # Status

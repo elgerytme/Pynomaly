@@ -10,7 +10,7 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.services.training_service import TrainingService
+from pynomaly.application.services.training_service import AutomatedTrainingService as TrainingService
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.entities.training_job import TrainingJob
