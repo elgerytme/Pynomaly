@@ -338,7 +338,7 @@ class DAGMM(BaseAnomalyModel):
         return scores
 
 
-class PyTorchAdapter(DetectorProtocol):
+class PyTorchAdapter(Detector):
     """Adapter for PyTorch-based deep learning anomaly detection models."""
 
     _algorithm_map = {
@@ -348,49 +348,51 @@ class PyTorchAdapter(DetectorProtocol):
         "DAGMM": DAGMM,
     }
 
-    def __init__(self, detector: Detector):
-        """Initialize PyTorch adapter with detector configuration.
+    def __init__(
+        self,
+        algorithm_name: str,
+        name: str | None = None,
+        contamination_rate: ContaminationRate | None = None,
+        **kwargs: Any,
+    ):
+        """Initialize PyTorch adapter.
 
         Args:
-            detector: Detector entity with algorithm configuration
+            algorithm_name: Name of the PyTorch algorithm
+            name: Optional custom name for the detector  
+            contamination_rate: Expected contamination rate
+            **kwargs: Algorithm-specific parameters
         """
-        self.detector = detector
-        self._model: BaseAnomalyModel | None = None
-        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self._init_algorithm()
-    
-    @property
-    def name(self) -> str:
-        """Get the name of the detector."""
-        return f"PyTorch_{self.detector.algorithm}"
-    
-    @property
-    def contamination_rate(self) -> ContaminationRate:
-        """Get the contamination rate."""
-        rate = self.detector.parameters.get("contamination", 0.1)
-        return ContaminationRate(rate)
-    
-    @property
-    def is_fitted(self) -> bool:
-        """Check if the detector has been fitted."""
-        return self.detector.is_fitted and self._model is not None
-    
-    @property
-    def parameters(self) -> dict[str, Any]:
-        """Get the current parameters of the detector."""
-        return self.detector.parameters.copy()
-
-    def _init_algorithm(self) -> None:
-        """Initialize the PyTorch model."""
-        if self.detector.algorithm not in self._algorithm_map:
+        # Validate algorithm
+        if algorithm_name not in self._algorithm_map:
             available = ", ".join(self._algorithm_map.keys())
             raise AlgorithmNotFoundError(
-                f"Algorithm '{self.detector.algorithm}' not found. "
+                f"Algorithm '{algorithm_name}' not found. "
                 f"Available algorithms: {available}"
             )
 
-        # Model will be created when we know input dimensions
-        self._model_class = self._algorithm_map[self.detector.algorithm]
+        # Initialize parent Detector
+        super().__init__(
+            algorithm_name=algorithm_name,
+            name=name or f"PyTorch_{algorithm_name}",
+            contamination_rate=contamination_rate or ContaminationRate(0.1),
+            parameters=kwargs,
+        )
+        
+        self._model: BaseAnomalyModel | None = None
+        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self._model_class = self._algorithm_map[algorithm_name]
+
+    @property
+    def supports_streaming(self) -> bool:
+        """Whether this detector supports streaming detection."""
+        return False
+    
+    @property 
+    def requires_fitting(self) -> bool:
+        """Whether this detector requires fitting before detection."""
+        return True
+
 
     def fit(self, dataset: Dataset) -> None:
         """Train the deep learning model on the dataset.
@@ -404,11 +406,11 @@ class PyTorchAdapter(DetectorProtocol):
             input_dim = X_train.shape[1]
 
             # Create model with known input dimension
-            params = self.detector.parameters.copy()
+            params = self.parameters.copy()
             hidden_dims = params.get("hidden_dims", [128, 64, 32])
             latent_dim = params.get("latent_dim", 16)
 
-            if self.detector.algorithm == "DAGMM":
+            if self.algorithm_name == "DAGMM":
                 n_gmm = params.get("n_gmm", 4)
                 self._model = self._model_class(
                     input_dim, hidden_dims, latent_dim, n_gmm
@@ -474,8 +476,8 @@ class PyTorchAdapter(DetectorProtocol):
                     avg_loss = total_loss / len(train_loader)
                     logger.info(f"Epoch [{epoch + 1}/{epochs}], Loss: {avg_loss:.4f}")
 
-            self.detector.is_fitted = True
-            logger.info(f"Successfully trained PyTorch {self.detector.algorithm}")
+            self.is_fitted = True
+            logger.info(f"Successfully trained PyTorch {self.algorithm_name}")
 
         except Exception as e:
             raise AdapterError(f"Failed to train PyTorch model: {e}")
@@ -524,7 +526,7 @@ class PyTorchAdapter(DetectorProtocol):
                 normalized_scores = np.zeros_like(scores)
 
             # Calculate threshold for confidence
-            contamination = self.detector.parameters.get("contamination", 0.1)
+            contamination = self.parameters.get("contamination", 0.1)
             threshold = np.percentile(normalized_scores, (1 - contamination) * 100)
 
             # Create anomaly scores
@@ -565,11 +567,17 @@ class PyTorchAdapter(DetectorProtocol):
         Args:
             **params: Parameters to set
         """
-        self.detector.parameters.update(params)
+        self.parameters.update(params)
         # Re-initialize if algorithm changed
-        if "algorithm" in params:
-            self.detector.algorithm = params["algorithm"]
-            self._init_algorithm()
+        if "algorithm_name" in params:
+            self.algorithm_name = params["algorithm_name"]
+            if params["algorithm_name"] not in self._algorithm_map:
+                available = ", ".join(self._algorithm_map.keys())
+                raise AlgorithmNotFoundError(
+                    f"Algorithm '{params['algorithm_name']}' not found. "
+                    f"Available algorithms: {available}"
+                )
+            self._model_class = self._algorithm_map[params["algorithm_name"]]
     
     def predict(self, dataset: Dataset) -> DetectionResult:
         """Detect anomalies using the trained model.
@@ -580,7 +588,7 @@ class PyTorchAdapter(DetectorProtocol):
         Returns:
             Detection results with anomaly scores and labels
         """
-        if not self.detector.is_fitted or self._model is None:
+        if not self.is_fitted or self._model is None:
             raise AdapterError("Model must be fitted before prediction")
 
         try:
@@ -604,7 +612,7 @@ class PyTorchAdapter(DetectorProtocol):
                 normalized_scores = np.zeros_like(scores)
 
             # Calculate threshold
-            contamination = self.detector.parameters.get("contamination", 0.1)
+            contamination = self.parameters.get("contamination", 0.1)
             threshold = np.percentile(normalized_scores, (1 - contamination) * 100)
 
             # Create labels
@@ -620,12 +628,15 @@ class PyTorchAdapter(DetectorProtocol):
             ]
 
             return DetectionResult(
-                detector_id=self.detector.id,
-                dataset_id=dataset.id,
+                detector_id=self.id,
+                dataset_name=dataset.name,
                 scores=anomaly_scores,
-                labels=labels.tolist(),
+                labels=labels,
+                threshold=float(threshold),
+                execution_time_ms=0.0,  # Could add timing if needed
+                anomalies=[],  # Could create Anomaly objects for detected points
                 metadata={
-                    "algorithm": self.detector.algorithm,
+                    "algorithm": self.algorithm_name,
                     "threshold": float(threshold),
                     "n_anomalies": int(np.sum(labels)),
                     "contamination_rate": float(np.sum(labels) / len(labels)),
