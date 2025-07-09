@@ -467,18 +467,18 @@ jobs:
           // Generate summary comment
           const summary = `## 🚀 CI Pipeline Results
 
-` + `Status Summary:
-- Documentation: ${{ needs.docs-lint.result == 'success' && '✅ Passed' || needs.docs-lint.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
-- Code Quality: ${{ needs.code-quality.result == 'success' && '✅ Passed' || needs.code-quality.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
-- Build & Package: ${{ needs.build.result == 'success' && '✅ Passed' || needs.build.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
-- Test Suite: ${{ needs.test.result == 'success' && '✅ Passed' || needs.test.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
-- API & CLI: ${{ needs.api-cli-test.result == 'success' && '✅ Passed' || needs.api-cli-test.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
-- Security: ${{ needs.security.result == 'success' && '✅ Passed' || needs.security.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
-- Docker: ${{ needs.docker.result == 'success' && '✅ Passed' || needs.docker.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
+Status Summary:
+- Documentation: ${{ needs.docs-lint.result == 'success'  '✅ Passed' || needs.docs-lint.result == 'failure'  '❌ Failed' || '⚠️ Skipped' }}
+- Code Quality: ${{ needs.code-quality.result == 'success'  '✅ Passed' || needs.code-quality.result == 'failure'  '❌ Failed' || '⚠️ Skipped' }}
+- Build  Package: ${{ needs.build.result == 'success'  '✅ Passed' || needs.build.result == 'failure'  '❌ Failed' || '⚠️ Skipped' }}
+- Test Suite: ${{ needs.test.result == 'success'  '✅ Passed' || needs.test.result == 'failure'  '❌ Failed' || '⚠️ Skipped' }}
+- API  CLI: ${{ needs.api-cli-test.result == 'success'  '✅ Passed' || needs.api-cli-test.result == 'failure'  '❌ Failed' || '⚠️ Skipped' }}
+- Security: ${{ needs.security.result == 'success'  '✅ Passed' || needs.security.result == 'failure'  '❌ Failed' || '⚠️ Skipped' }}
+- Docker: ${{ needs.docker.result == 'success'  '✅ Passed' || needs.docker.result == 'failure'  '❌ Failed' || '⚠️ Skipped' }}
 
-` + `Hatch Migration: ✅ Successfully using Hatch for build system and environment management
+Hatch Migration: ✅ Successfully using Hatch for build system and environment management
 
-` + `Artifacts Generated:
+Artifacts Generated:
 - Build artifacts (wheel and source distribution)
 - Test coverage reports
 - Code quality analysis

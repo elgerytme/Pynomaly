@@ -285,13 +285,10 @@ class AutoMLService:
         )
         
         return configs
-            adapter_type="pyod",
-            default_params={"contamination": 0.1},
-            param_space={"contamination": {"type": "float", "low": 0.01, "high": 0.5}},
-            complexity_score=0.3,
-            training_time_factor=0.4,
-            memory_factor=0.3,
-        )
+
+    def _get_algorithm_configs(self) -> dict[str, AlgorithmConfig]:
+        """Get algorithm configurations for optimization."""
+        configs = {}
 
         # Distance-based algorithms
         configs["KNN"] = AlgorithmConfig(

@@ -121,12 +121,76 @@
   --shadow-xl:
     0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
+  /* Glassmorphism Design Tokens */
+  --blur-glass-xs: blur(2px);
+  --blur-glass-sm: blur(4px);
+  --blur-glass-md: blur(8px);
+  --blur-glass-lg: blur(16px);
+  --blur-glass-xl: blur(32px);
+  
+  --glass-backdrop-light: rgba(255, 255, 255, 0.25);
+  --glass-backdrop-medium: rgba(255, 255, 255, 0.15);
+  --glass-backdrop-dark: rgba(255, 255, 255, 0.1);
+  
+  --glass-border-light: rgba(255, 255, 255, 0.2);
+  --glass-border-medium: rgba(255, 255, 255, 0.1);
+  --glass-border-dark: rgba(255, 255, 255, 0.05);
+  
+  /* Depth Shadow System */
+  --shadow-depth-1: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-depth-2: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-depth-3: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-depth-4: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-depth-5: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  --shadow-colored-primary: 0 4px 14px 0 rgba(14, 165, 233, 0.15);
+  --shadow-colored-secondary: 0 4px 14px 0 rgba(34, 197, 94, 0.15);
+  --shadow-colored-accent: 0 4px 14px 0 rgba(239, 68, 68, 0.15);
+  
+  /* Gradient Ramp System */
+  --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  --gradient-secondary: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  --gradient-accent: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --gradient-neutral: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  
+  --gradient-glass-light: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  --gradient-glass-medium: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+  --gradient-glass-dark: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+  
+  --gradient-mesh-1: radial-gradient(circle at 25% 25%, #0ea5e9 0%, transparent 50%), radial-gradient(circle at 75% 75%, #22c55e 0%, transparent 50%);
+  --gradient-mesh-2: radial-gradient(circle at 50% 0%, #8b5cf6 0%, transparent 50%), radial-gradient(circle at 0% 100%, #f59e0b 0%, transparent 50%);
+  
+  /* Motion Duration System */
+  --motion-duration-instant: 0ms;
+  --motion-duration-fast: 150ms;
+  --motion-duration-normal: 250ms;
+  --motion-duration-slow: 350ms;
+  --motion-duration-slower: 500ms;
+  --motion-duration-slowest: 750ms;
+  
+  /* Motion Easing Functions */
+  --motion-ease-linear: linear;
+  --motion-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --motion-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --motion-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --motion-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Micro-interaction Durations */
+  --micro-duration-button-hover: var(--motion-duration-fast);
+  --micro-duration-button-press: var(--motion-duration-instant);
+  --micro-duration-card-lift: var(--motion-duration-normal);
+  --micro-duration-ripple: var(--motion-duration-slow);
+  --micro-duration-modal-enter: var(--motion-duration-normal);
+  --micro-duration-modal-exit: var(--motion-duration-fast);
+  
   /* Transitions */
-  --transition-all: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-all: all var(--motion-duration-fast) var(--motion-ease-out);
   --transition-colors:
     color, background-color, border-color, text-decoration-color, fill,
-    stroke 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-transform: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    stroke var(--motion-duration-fast) var(--motion-ease-out);
+  --transition-transform: transform var(--motion-duration-fast) var(--motion-ease-out);
 
   /* Z-Index Scale */
   --z-dropdown: 1000;

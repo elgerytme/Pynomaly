@@ -272,7 +272,7 @@ class StakingConfigurationDTO(BaseModel):
     """DTO for stacking ensemble configuration."""
     
     model_config = ConfigDict(extra="forbid")
-     meta_learner_algorithm: str = Field(
+    meta_learner_algorithm: str = Field(
         default="LogisticRegression", description="Meta-learner algorithm"
     )
     base_level_cv_folds: int = Field(default=3, description="CV folds for base level")
