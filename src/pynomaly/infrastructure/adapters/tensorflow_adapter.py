@@ -11,6 +11,7 @@ import structlog
 
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import (
+    AdapterError,
     DetectorNotFittedError,
     FittingError,
     InvalidAlgorithmError,
@@ -19,19 +20,81 @@ from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 
 logger = structlog.get_logger(__name__)
 
-# Check for TensorFlow availability early and raise ImportError if not available
-# This ensures the module import fails gracefully when TensorFlow is missing
+# Check for TensorFlow availability with graceful fallback
 try:
     import tensorflow as tf
     from tensorflow import keras
     from tensorflow.keras import Model, layers
     from tensorflow.keras.callbacks import EarlyStopping
-
     HAS_TENSORFLOW = True
 except ImportError:
-    raise ImportError(
-        "TensorFlow is not available. Install with: pip install tensorflow"
-    )
+    HAS_TENSORFLOW = False
+    # Create dummy classes to avoid import errors
+    class tf:
+        @staticmethod
+        def constant(data, dtype=None):
+            return data
+        @staticmethod
+        def reduce_mean(x, axis=None):
+            return 0
+        @staticmethod
+        def reduce_sum(x, axis=None):
+            return 0
+        @staticmethod
+        def square(x):
+            return x
+        @staticmethod
+        def exp(x):
+            return x
+        @staticmethod
+        def shape(x):
+            return x.shape if hasattr(x, 'shape') else (1,)
+        class random:
+            @staticmethod
+            def normal(shape):
+                return 0
+        class config:
+            @staticmethod
+            def list_physical_devices(device_type):
+                return []
+    
+    class Model:
+        def __init__(self):
+            pass
+        def compile(self, *args, **kwargs):
+            pass
+        def fit(self, *args, **kwargs):
+            return MockHistory()
+        def count_params(self):
+            return 0
+        @property
+        def trainable_weights(self):
+            return []
+    
+    class MockHistory:
+        def __init__(self):
+            self.history = {"loss": [1.0, 0.5, 0.3]}
+    
+    class layers:
+        @staticmethod
+        def Dense(*args, **kwargs):
+            return None
+        @staticmethod
+        def Dropout(*args, **kwargs):
+            return None
+    
+    class keras:
+        @staticmethod
+        def Sequential(*args):
+            return Model()
+        class optimizers:
+            @staticmethod
+            def Adam(*args, **kwargs):
+                return None
+    
+    class EarlyStopping:
+        def __init__(self, *args, **kwargs):
+            pass
 
 
 class AutoEncoder(Model):
@@ -248,8 +311,8 @@ class TensorFlowAdapter(Detector):
             **kwargs: Algorithm-specific parameters
         """
         if not HAS_TENSORFLOW:
-            raise ImportError(
-                "TensorFlow is not installed. Please install with: "
+            raise AdapterError(
+                "TensorFlow is not available. Please install with: "
                 "pip install tensorflow>=2.0.0"
             )
 
@@ -425,7 +488,7 @@ class TensorFlowAdapter(Detector):
             self._calculate_threshold(X)
 
             # Mark as fitted
-            self._is_fitted = True
+            self.is_fitted = True
 
             training_time = time.time() - start_time
 
@@ -503,7 +566,7 @@ class TensorFlowAdapter(Detector):
         Raises:
             DetectorNotFittedError: If model is not fitted
         """
-        if not self._is_fitted or self.model is None:
+        if not self.is_fitted or self.model is None:
             raise DetectorNotFittedError("Model must be fitted before prediction")
 
         try:
@@ -571,6 +634,136 @@ class TensorFlowAdapter(Detector):
             )
             raise
 
+    def detect(self, dataset: Dataset) -> DetectionResult:
+        """Detect anomalies in the dataset.
+
+        Args:
+            dataset: Dataset to analyze
+
+        Returns:
+            Detection result containing anomalies, scores, and labels
+        """
+        return self.predict(dataset)
+
+    def score(self, dataset: Dataset) -> list[AnomalyScore]:
+        """Calculate anomaly scores for the dataset.
+
+        Args:
+            dataset: Dataset to score
+
+        Returns:
+            List of anomaly scores
+        """
+        if not self.is_fitted or self.model is None:
+            raise DetectorNotFittedError("Model must be fitted before scoring")
+
+        try:
+            # Prepare data
+            X = self._prepare_data(dataset)
+
+            # Calculate anomaly scores
+            scores = self._calculate_anomaly_scores(X)
+
+            # Create AnomalyScore objects
+            return [
+                AnomalyScore(
+                    value=float(score),
+                    confidence=self._calculate_confidence(score),
+                )
+                for score in scores
+            ]
+
+        except Exception as e:
+            raise AdapterError(f"Failed to score with TensorFlow model: {e}")
+
+    def fit_detect(self, dataset: Dataset) -> DetectionResult:
+        """Fit the detector and detect anomalies in one step.
+
+        Args:
+            dataset: Dataset to fit and analyze
+
+        Returns:
+            Detection result
+        """
+        self.fit(dataset)
+        return self.detect(dataset)
+
+    def get_params(self) -> dict[str, Any]:
+        """Get parameters of the detector.
+
+        Returns:
+            Dictionary of parameters
+        """
+        return {
+            "algorithm_name": self.algorithm_name,
+            "contamination_rate": self.contamination_rate.value,
+            "epochs": self.epochs,
+            "batch_size": self.batch_size,
+            "learning_rate": self.learning_rate,
+            "validation_split": self.validation_split,
+            "early_stopping_patience": self.early_stopping_patience,
+            **self.algorithm_params,
+        }
+
+    def set_params(self, **params: Any) -> None:
+        """Set parameters of the detector.
+
+        Args:
+            **params: Parameters to set
+        """
+        # Update training parameters
+        if "epochs" in params:
+            self.epochs = params["epochs"]
+        if "batch_size" in params:
+            self.batch_size = params["batch_size"]
+        if "learning_rate" in params:
+            self.learning_rate = params["learning_rate"]
+        if "validation_split" in params:
+            self.validation_split = params["validation_split"]
+        if "early_stopping_patience" in params:
+            self.early_stopping_patience = params["early_stopping_patience"]
+        
+        # Update contamination rate
+        if "contamination_rate" in params:
+            self.contamination_rate = ContaminationRate(params["contamination_rate"])
+        
+        # Update algorithm parameters
+        algorithm_param_keys = [
+            "encoding_dim", "hidden_layers", "activation", "dropout_rate",
+            "latent_dim", "beta", "output_dim"
+        ]
+        for key in algorithm_param_keys:
+            if key in params:
+                self.algorithm_params[key] = params[key]
+
+    def _calculate_confidence(self, score: float) -> float:
+        """Calculate confidence score for anomaly.
+
+        Args:
+            score: Anomaly score
+
+        Returns:
+            Confidence value between 0 and 1
+        """
+        if self.threshold_value is None:
+            return 0.5
+        
+        # Simple confidence calculation based on distance from threshold
+        if score <= self.threshold_value:
+            return 1.0 - (score / self.threshold_value) * 0.5
+        else:
+            return 0.5 + min((score - self.threshold_value) / self.threshold_value * 0.5, 0.5)
+
+    @property
+    def supports_streaming(self) -> bool:
+        """Whether this detector supports streaming detection."""
+        return False
+
+    @property
+    def requires_fitting(self) -> bool:
+        """Whether this detector requires fitting before detection."""
+        return True
+
     def get_feature_importance(self) -> dict[str, float] | None:
         """Get feature importance (not directly available for neural networks)."""
         # Neural networks don't have direct feature importance
@@ -581,7 +774,7 @@ class TensorFlowAdapter(Detector):
         """Get information about the trained model."""
         info = {
             "algorithm": self.algorithm_name,
-            "is_fitted": self._is_fitted,
+            "is_fitted": self.is_fitted,
             "device": self.device_type,
             "has_tensorflow": HAS_TENSORFLOW,
             "threshold": self.threshold_value,
