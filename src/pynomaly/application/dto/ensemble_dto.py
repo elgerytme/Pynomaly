@@ -6,6 +6,10 @@ from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
+try:
+    from pydantic import ConfigDict
+except ImportError:
+    from pydantic.config import ConfigDict
 
 
 class EnsembleStrategyDTO(BaseModel):
@@ -272,7 +276,7 @@ class StakingConfigurationDTO(BaseModel):
     """DTO for stacking ensemble configuration."""
     
     model_config = ConfigDict(extra="forbid")
-     meta_learner_algorithm: str = Field(
+    meta_learner_algorithm: str = Field(
         default="LogisticRegression", description="Meta-learner algorithm"
     )
     base_level_cv_folds: int = Field(default=3, description="CV folds for base level")
@@ -287,7 +291,7 @@ class EnsembleMonitoringDTO(BaseModel):
     """DTO for real-time ensemble monitoring."""
     
     model_config = ConfigDict(extra="forbid")
-     monitoring_enabled: bool = Field(
+    monitoring_enabled: bool = Field(
         default=True, description="Enable real-time monitoring"
     )
     performance_tracking: bool = Field(

@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class OptimizationObjectiveDTO(BaseModel):
@@ -25,7 +25,7 @@ class ResourceConstraintsDTO(BaseModel):
     """DTO for optimization resource constraints."""
     
     model_config = ConfigDict(extra="forbid")
-     max_time_seconds: int = Field(
+    max_time_seconds: int = Field(
         default=3600, ge=60, description="Maximum optimization time"
     )
     max_trials: int = Field(default=100, ge=10, description="Maximum number of trials")

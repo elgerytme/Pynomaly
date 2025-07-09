@@ -330,6 +330,15 @@ class AuditEvent:
             return 2190  # 6 years for compliance events
         else:
             return 365  # 1 year for regular audit events
+    
+    def validate(self) -> bool:
+        """Validate the audit event."""
+        return bool(
+            self.event_id and
+            self.action and
+            self.resource_type and
+            self.success is not None
+        )
 
 
 @dataclass
@@ -407,6 +416,17 @@ class SecurityPolicy:
             raise ValueError("Max failed login attempts must be at least 1")
         if self.session_timeout < 60:
             raise ValueError("Session timeout must be at least 60 seconds")
+    
+    def validate(self) -> bool:
+        """Validate the security policy."""
+        return bool(
+            self.policy_id and
+            self.policy_name and
+            self.description and
+            self.password_min_length >= 8 and
+            self.max_failed_login_attempts >= 1 and
+            self.session_timeout >= 60
+        )
 
 
 @dataclass
@@ -469,6 +489,18 @@ class AccessRequest:
             return False
         
         return True
+    
+    def validate(self) -> bool:
+        """Validate the access request."""
+        return bool(
+            self.request_id and
+            self.requester_id and
+            self.requester_username and
+            self.requested_permission and
+            self.resource_type and
+            self.justification and
+            self.justification.strip()
+        )
 
 
 @dataclass

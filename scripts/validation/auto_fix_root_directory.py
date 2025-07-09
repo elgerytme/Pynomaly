@@ -41,6 +41,7 @@ class RootDirectoryFixer:
             success &= self._fix_configuration_files()
             success &= self._fix_script_files()
             success &= self._fix_build_artifacts()
+            success &= self._fix_directories()
             success &= self._delete_version_artifacts()
 
             # Report results
@@ -63,9 +64,12 @@ class RootDirectoryFixer:
             "scripts/maintenance",
             "scripts/testing",
             "scripts/setup",
+            "scripts/deployment",
             "tests/scripts",
             "reports/builds",
             "storage",
+            "baseline_outputs",
+            "developer-guides",
         ]
 
         for directory in directories:
@@ -92,6 +96,8 @@ class RootDirectoryFixer:
             "TESTING_*.md": "docs/testing",
             "IMPLEMENTATION_*.md": "docs/project",
             "*_PLAN.md": "docs/project/plans",
+            "*_README.md": "docs/project",
+            "*_ROADMAP.md": "docs/project/plans",
         }
 
         success = True
@@ -111,9 +117,13 @@ class RootDirectoryFixer:
             "settings_*.py": "config",
             "tox.ini": "config",
             "pytest*.ini": "config",
+            "pytest.ini": "config",
             "lighthouse*.js": "config/web",
+            "lighthouserc.js": "config/web",
             "tailwind.config.js": "config/web",
             "playwright.config.*": "config",
+            "coverage.xml": "config",
+            "poetry.lock": "config",
         }
 
         success = True
@@ -131,10 +141,13 @@ class RootDirectoryFixer:
             "install_*.py": "scripts/setup",
             "fix_*.py": "scripts/maintenance",
             "update_*.py": "scripts/maintenance",
-            "deploy_*.py": "scripts/deploy",
+            "deploy_*.py": "scripts/deployment",
             "*.sh": "scripts/testing",
             "*.ps1": "scripts/testing",
+            "tasks.ps1": "scripts/testing",
             "*.bat": "scripts/setup",
+            "Dockerfile": "scripts/deployment",
+            "Dockerfile.*": "scripts/deployment",
         }
 
         success = True
@@ -142,6 +155,41 @@ class RootDirectoryFixer:
             success &= self._move_files_by_pattern(
                 [pattern], target, f"script files ({pattern})"
             )
+
+        return success
+
+    def _fix_directories(self) -> bool:
+        """Move specific directories to appropriate locations."""
+        directory_moves = {
+            "baseline_outputs": "baseline_outputs",
+            "developer-guides": "developer-guides",
+        }
+
+        success = True
+        for dir_name, target_dir in directory_moves.items():
+            source_path = self.project_root / dir_name
+            target_path = self.project_root / target_dir
+            
+            # Skip if source doesn't exist or is already in correct location
+            if not source_path.exists() or source_path == target_path:
+                continue
+                
+            if source_path.is_dir():
+                if self.dry_run:
+                    print(f"[DRY RUN] Would move directory: {dir_name} → {target_dir}/")
+                else:
+                    try:
+                        # Ensure target parent directory exists
+                        target_path.parent.mkdir(parents=True, exist_ok=True)
+                        
+                        # Move the directory
+                        shutil.move(str(source_path), str(target_path))
+                        
+                        self.moves_made.append(f"{dir_name}/ → {target_dir}/")
+                        print(f"📁 Moved directory: {dir_name} → {target_dir}/")
+                    except Exception as e:
+                        print(f"❌ Failed to move directory {dir_name}: {e}")
+                        success = False
 
         return success
 

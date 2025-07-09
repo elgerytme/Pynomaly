@@ -81,18 +81,16 @@ class TestDetectAnomaliesUseCase:
             detector_repository=detector_repository, feature_validator=feature_validator
         )
 
-        # Mock the detector's detect method to return a result
-        with patch.object(sample_detector, "detect") as mock_detect:
-            # Create mock detection result
-            mock_result = DetectionResult(
-                detector_id=sample_detector.id,
-                dataset_id=sample_dataset.id,
-                anomalies=[],
-                scores=[AnomalyScore(0.5) for _ in range(len(sample_dataset.data))],
-                labels=np.array([0 for _ in range(len(sample_dataset.data))]),
-                threshold=0.5,
-            )
-            mock_detect.return_value = mock_result
+        # Mock the adapter registry to simulate a fitted detector
+        with patch.object(use_case.adapter_registry, "score_with_detector") as mock_score, \
+             patch.object(use_case.adapter_registry, "predict_with_detector") as mock_predict:
+            
+            # Mock scores and predictions
+            mock_scores = [AnomalyScore(0.5) for _ in range(len(sample_dataset.data))]
+            mock_predictions = [0 for _ in range(len(sample_dataset.data))]
+            
+            mock_score.return_value = mock_scores
+            mock_predict.return_value = mock_predictions
 
             # Mock feature validator
             feature_validator.check_data_quality = Mock(
@@ -112,7 +110,8 @@ class TestDetectAnomaliesUseCase:
             assert response.result.detector_id == sample_detector.id
             assert response.result.dataset_id == sample_dataset.id
             assert len(response.result.scores) == len(sample_dataset.data)
-            mock_detect.assert_called_once_with(sample_dataset)
+            mock_score.assert_called_once_with(sample_detector, sample_dataset)
+            mock_predict.assert_called_once_with(sample_detector, sample_dataset)
 
     @pytest.mark.asyncio
     async def test_execute_detector_not_found(
@@ -146,6 +145,7 @@ class TestDetectAnomaliesUseCase:
         from pynomaly.application.use_cases.detect_anomalies import (
             DetectAnomaliesRequest,
         )
+        from pynomaly.domain.exceptions import DatasetError
 
         # Repository methods are synchronous
         detector_repository.save(sample_detector)
@@ -184,11 +184,11 @@ class TestDetectAnomaliesUseCase:
             detector_id=sample_detector.id, dataset=invalid_dataset
         )
 
-        # Mock detector to raise error for invalid features
-        with patch.object(sample_detector, "detect") as mock_detect:
-            mock_detect.side_effect = ValueError("Invalid features detected")
+        # Mock adapter registry to raise error for invalid features
+        with patch.object(use_case.adapter_registry, "score_with_detector") as mock_score:
+            mock_score.side_effect = ValueError("Invalid features detected")
 
-            with pytest.raises(ValueError, match="Invalid features"):
+            with pytest.raises(DatasetError, match="Detection failed"):
                 await use_case.execute(request)
 
     @pytest.mark.asyncio

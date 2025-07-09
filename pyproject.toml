@@ -163,7 +163,7 @@ data-formats = [
     "xlsxwriter>=3.2.0",
     "h5py>=3.12.1"
 ]
-database = ["sqlalchemy>=2.0.36", "psycopg2-binary>=2.9.10"]
+database = ["sqlalchemy\u003e=2.0.36", "psycopg2-binary\u003e=2.9.10", "alembic\u003e=1.13"]
 spark = ["pyspark>=3.5.4"]
 
 # ML backend extras

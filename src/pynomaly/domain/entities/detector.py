@@ -206,7 +206,6 @@ class Detector:
                 dataset_id=dataset.id,
                 error_message=str(e),
                 training_duration=training_duration,
-                algorithm=self.algorithm_name,
             )
 
     def detect(

@@ -492,8 +492,6 @@
   "domain/test_comprehensive_domain.py::TestDomainSpecifications::test_trained_detector_specification": true,
   "domain/test_comprehensive_domain.py::TestDomainSpecifications::test_high_quality_dataset_specification": true,
   "domain/test_comprehensive_domain.py::TestDomainSpecifications::test_specification_composition": true,
-  "application/test_use_cases.py::TestDetectAnomaliesUseCase::test_execute_success": true,
-  "application/test_use_cases.py::TestDetectAnomaliesUseCase::test_execute_invalid_features": true,
   "application/test_use_cases.py::TestDetectAnomaliesUseCase::test_execute_with_preprocessing": true,
   "application/test_use_cases.py::TestDetectAnomaliesUseCase::test_execute_batch_processing": true,
   "application/test_use_cases.py::TestTrainDetectorUseCase::test_execute_success": true,
@@ -2290,5 +2288,8 @@
   "unit/test_security.py::TestAuditLogging": true,
   "unit/test_security.py::TestAPISecurityHeaders": true,
   "unit/test_security.py::TestSecurityIntegration": true,
-  "benchmarks": true
+  "benchmarks": true,
+  "test_final_validation.py::test_enhanced_settings_core": true,
+  "test_final_validation.py::test_environment_files": true,
+  "application/dto/test_streaming_dto.py": true
 }
