@@ -2290,5 +2290,21 @@
   "unit/test_security.py::TestAuditLogging": true,
   "unit/test_security.py::TestAPISecurityHeaders": true,
   "unit/test_security.py::TestSecurityIntegration": true,
-  "benchmarks": true
+  "benchmarks": true,
+  "unit/application/services/test_onnx_model_persistence.py::TestONNXModelPersistence::test_load_onnx_stub_model": true,
+  "unit/application/services/test_onnx_model_persistence.py::TestONNXModelPersistence::test_onnx_model_with_pytorch_model": true,
+  "unit/application/services/test_onnx_model_persistence.py::TestONNXModelPersistence::test_load_onnx_model_with_runtime": true,
+  "unit/application/services/test_onnx_model_persistence.py::TestONNXModelPersistence::test_onnx_export_without_pytorch": true,
+  "unit/application/services/test_onnx_model_persistence.py::TestONNXModelPersistence::test_create_dummy_input": true,
+  "unit/application/services/test_onnx_model_persistence.py::TestONNXModelPersistence::test_create_dummy_input_default_shape": true,
+  "unit/shared/protocols/test_detector_protocol.py::TestStreamingDetectorProtocol::test_protocol_runtime_checkable": true,
+  "unit/shared/protocols/test_detector_protocol.py::TestExplainableDetectorProtocol::test_protocol_runtime_checkable": true,
+  "unit/shared/protocols/test_detector_protocol.py::TestEnsembleDetectorProtocol::test_protocol_runtime_checkable": true,
+  "unit/shared/protocols/test_detector_protocol.py::TestProtocolInteractions::test_multiple_protocol_implementation": true,
+  "unit/shared/protocols/test_import_protocol.py::TestImportProtocol::test_protocol_runtime_checkable": true,
+  "unit/shared/protocols/test_import_protocol.py::TestImportProtocol::test_protocol_type_hints": true,
+  "unit/shared/protocols/test_import_protocol.py::TestProtocolInteractions::test_multiple_importers_same_protocol": true,
+  "unit/shared/protocols/test_import_protocol.py::TestProtocolInteractions::test_protocol_method_signatures_detailed": true,
+  "unit/shared/protocols/test_import_protocol.py::TestProtocolInteractions::test_protocol_validation_comprehensive": true,
+  "unit/shared/protocols/test_import_protocol.py::TestProtocolInteractions::test_protocol_error_scenarios": true
 }
