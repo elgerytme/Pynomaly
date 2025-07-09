@@ -31,9 +31,8 @@ class AlgorithmRecommendationRequestDTO(BaseModel):
 
 class DatasetProfileDTO(BaseModel):
     """DTO for dataset profiling information."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     n_samples: int = Field(..., description="Number of samples in the dataset")
     n_features: int = Field(..., description="Number of features in the dataset")
     contamination_estimate: float = Field(
@@ -66,9 +65,8 @@ class DatasetProfileDTO(BaseModel):
 
 class AlgorithmRecommendationDTO(BaseModel):
     """DTO for algorithm recommendation."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     algorithm_name: str = Field(..., description="Name of the recommended algorithm")
     score: float = Field(..., description="Suitability score for the algorithm")
     family: str = Field(..., description="Algorithm family")
@@ -83,9 +81,8 @@ class AlgorithmRecommendationDTO(BaseModel):
 
 class AutoMLRequestDTO(BaseModel):
     """DTO for AutoML optimization request."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     dataset_id: str = Field(..., description="ID of the dataset to optimize on")
     objective: str = Field(default="auc", description="Optimization objective")
     max_algorithms: int = Field(
