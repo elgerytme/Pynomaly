@@ -9,6 +9,9 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
     - uses: actions/checkout@v4
 
@@ -23,9 +26,15 @@ jobs:
         pip install hatch
         hatch env create lint
 
+    - name: Create reports directory
+      run: |
+        mkdir -p reports/quality
+
     - name: Run ruff linting
       run: |
         hatch run lint:ruff check src/ tests/ --output-format=github
+        hatch run lint:ruff check src/ tests/ --output-format=json --output-file=reports/quality/ruff-report.json || true
+        hatch run lint:ruff check src/ tests/ --output-format=sarif --output-file=reports/quality/ruff-sarif.json || true
 
     - name: Run ruff formatting check
       run: |
@@ -34,10 +43,103 @@ jobs:
     - name: Run mypy type checking
       run: |
         hatch run lint:mypy src/pynomaly/ --strict --no-error-summary
+        hatch run lint:mypy src/pynomaly/ --strict --no-error-summary --output-file=reports/quality/mypy-report.txt || true
 
     - name: Run isort import sorting check
       run: |
         hatch run lint:isort --check-only --diff src/ tests/
+
+    - name: Run bandit security analysis
+      run: |
+        hatch run lint:bandit -r src/ -f sarif -o reports/quality/bandit-sarif.json || true
+        hatch run lint:bandit -r src/ -f json -o reports/quality/bandit-report.json || true
+        hatch run lint:bandit -r src/ -f txt -o reports/quality/bandit-report.txt || true
+
+    - name: Upload SARIF to GitHub Security Tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: reports/quality/
+        category: "code-quality"
+
+    - name: Generate quality summary HTML
+      run: |
+        python -c "
+        import json
+        import os
+        from datetime import datetime
+        from pathlib import Path
+        
+        # Create HTML report
+        html_content = '''<!DOCTYPE html>
+        <html>
+        <head>
+            <title>Code Quality Report</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+                .metric { display: inline-block; margin: 10px; padding: 15px; background-color: #e9ecef; border-radius: 5px; }
+                .violations { margin-top: 20px; }
+                .tool-section { margin-bottom: 20px; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; }
+                .violation-item { margin: 5px 0; padding: 5px; background-color: #f8f9fa; border-left: 3px solid #007bff; }
+                .error { border-left-color: #dc3545; }
+                .warning { border-left-color: #ffc107; }
+                .info { border-left-color: #17a2b8; }
+            </style>
+        </head>
+        <body>
+            <div class='header'>
+                <h1>Code Quality Report</h1>
+                <p>Generated: ''' + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + '''</p>
+            </div>
+            <div class='metrics'>
+                <div class='metric'>
+                    <h3>Quality Status</h3>
+                    <p>Reports generated for linting, formatting, and security analysis</p>
+                </div>
+            </div>
+            <div class='violations'>
+                <h2>Tools Executed</h2>
+                <div class='tool-section'>
+                    <h3>Ruff (Linting)</h3>
+                    <p>Fast Python linter and formatter</p>
+                </div>
+                <div class='tool-section'>
+                    <h3>MyPy (Type Checking)</h3>
+                    <p>Static type checker for Python</p>
+                </div>
+                <div class='tool-section'>
+                    <h3>Bandit (Security)</h3>
+                    <p>Security linter for Python code</p>
+                </div>
+                <div class='tool-section'>
+                    <h3>isort (Import Sorting)</h3>
+                    <p>Python import statement organizer</p>
+                </div>
+            </div>
+        </body>
+        </html>'''
+        
+        Path('reports/quality/quality-report.html').write_text(html_content)
+        "
+
+    - name: Upload quality reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: quality-reports
+        path: |
+          reports/quality/
+        retention-days: 30
+
+    - name: Check violations and notify
+      if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        QUALITY_VIOLATION_THRESHOLD: 50
+      run: |
+        python scripts/maintenance/notify.py check-violations --reports-dir reports/quality --threshold 50
 
   complexity:
     runs-on: ubuntu-latest

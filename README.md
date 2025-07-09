@@ -94,6 +94,28 @@ python scripts/setup/install_features.py
 
 **📚 Complete Guide**: See [Feature Installation Guide](docs/getting-started/FEATURE_INSTALLATION_GUIDE.md) for detailed options and troubleshooting.
 
+## Documentation
+
+### Quick Access
+- **🚀 [Getting Started](docs/getting-started/README.md)** - Installation, quickstart, and setup
+- **📖 [User Guide](docs/user-guides/README.md)** - Using Pynomaly effectively
+- **🧮 [Algorithms](docs/algorithms/README.md)** - 100+ anomaly detection algorithms
+- **🔧 [API Reference](docs/api/README.md)** - Complete API documentation
+- **👩‍💻 [Developer Guide](docs/developer-guides/README.md)** - Contributing and development
+
+### Core Documentation
+- **[Usage Examples](docs/usage/README.md)** - Real-world use cases and examples
+- **[Architecture](docs/architecture/README.md)** - System design and architecture
+- **[Meta Information](docs/meta/README.md)** - Changelog, contributing guidelines, license
+
+### Algorithm Documentation
+- **[Core Algorithms](docs/algorithms/core-algorithms.md)** - Essential algorithms for most use cases
+- **[Statistical Methods](docs/algorithms/statistical-methods.md)** - Traditional statistical approaches
+- **[Deep Learning Methods](docs/algorithms/deep-learning-methods.md)** - Neural network approaches
+- **[Specialized Methods](docs/algorithms/specialized-methods.md)** - Time series, graph, text algorithms
+
+**Full Documentation Site**: [https://pynomaly.readthedocs.io](https://pynomaly.readthedocs.io)
+
 ### Alternative Setup (Traditional pip/venv)
 
 If you prefer traditional Python environment management, Pynomaly uses a centralized environment structure:

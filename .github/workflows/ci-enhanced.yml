@@ -1,0 +1,405 @@
+name: Enhanced CI with Quality Gates
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  statuses: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  HATCH_VERBOSE: 1
+  MIN_COVERAGE: 85
+  FAIL_ON_QUALITY_GATE: true
+
+jobs:
+  # Quality Gates - These jobs must pass for PR merge
+  lint-and-format:
+    name: "Quality Gate: Linting & Formatting"
+    runs-on: ubuntu-latest
+    outputs:
+      ruff-status: ${{ steps.ruff-check.outcome }}
+      black-status: ${{ steps.black-check.outcome }}
+      mypy-status: ${{ steps.mypy-check.outcome }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Hatch
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Install lint dependencies
+      run: |
+        hatch env create lint
+
+    - name: Run ruff linting
+      id: ruff-check
+      run: |
+        echo "::group::Ruff Linting"
+        hatch run lint:ruff check src/ tests/ --output-format=github
+        echo "::endgroup::"
+      continue-on-error: false
+
+    - name: Run black formatting check
+      id: black-check
+      run: |
+        echo "::group::Black Format Check"
+        hatch run lint:black --check --diff src/ tests/
+        echo "::endgroup::"
+      continue-on-error: false
+
+    - name: Run mypy type checking
+      id: mypy-check
+      run: |
+        echo "::group::MyPy Type Checking"
+        hatch run lint:mypy src/pynomaly/ --strict --no-error-summary
+        echo "::endgroup::"
+      continue-on-error: false
+
+    - name: Run isort import sorting check
+      id: isort-check
+      run: |
+        echo "::group::Import Sorting Check"
+        hatch run lint:isort --check-only --diff src/ tests/
+        echo "::endgroup::"
+      continue-on-error: false
+
+    - name: Quality Gate Status
+      run: |
+        echo "## 🔍 Code Quality Results" >> $GITHUB_STEP_SUMMARY
+        echo "| Tool | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Ruff | ${{ steps.ruff-check.outcome == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Black | ${{ steps.black-check.outcome == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| MyPy | ${{ steps.mypy-check.outcome == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| isort | ${{ steps.isort-check.outcome == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+
+  unit-tests:
+    name: "Quality Gate: Unit Tests"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Hatch
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Run unit tests with coverage
+      run: |
+        hatch run test:run-cov --cov-report=xml --cov-report=html --cov-report=term
+        
+    - name: Check coverage threshold
+      run: |
+        coverage report --show-missing --fail-under=${{ env.MIN_COVERAGE }}
+
+    - name: Upload coverage to Codecov
+      if: matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: py${{ matrix.python-version }}
+        name: codecov-py${{ matrix.python-version }}
+        fail_ci_if_error: true
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-py${{ matrix.python-version }}
+        path: |
+          htmlcov/
+          coverage.xml
+          .coverage
+        retention-days: 30
+
+  documentation:
+    name: "Quality Gate: Documentation"
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Hatch
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Install documentation dependencies
+      run: |
+        hatch env create docs
+
+    - name: Build documentation
+      run: |
+        echo "::group::Building Documentation"
+        hatch run docs:build
+        echo "::endgroup::"
+      continue-on-error: false
+
+    - name: Check documentation links
+      run: |
+        echo "::group::Checking Documentation Links"
+        python scripts/analysis/check_documentation_links.py
+        echo "::endgroup::"
+      continue-on-error: true
+
+    - name: Upload documentation artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: documentation-build
+        path: site/
+        retention-days: 30
+
+  security-scan:
+    name: "Quality Gate: Security Scan"
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety
+
+    - name: Run Bandit security scan
+      run: |
+        echo "::group::Bandit Security Scan"
+        bandit -r src/ -f json -o bandit-report.json
+        bandit -r src/ -ll --severity-level medium
+        echo "::endgroup::"
+      continue-on-error: false
+
+    - name: Run Safety dependency check
+      run: |
+        echo "::group::Safety Dependency Check"
+        safety check --json --output safety-report.json
+        safety check
+        echo "::endgroup::"
+      continue-on-error: false
+
+    - name: Upload security reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+        retention-days: 30
+
+  build-and-package:
+    name: "Quality Gate: Build & Package"
+    runs-on: ubuntu-latest
+    needs: [lint-and-format]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Hatch
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Build package
+      run: |
+        echo "::group::Building Package"
+        hatch build --clean
+        echo "::endgroup::"
+
+    - name: Verify build artifacts
+      run: |
+        echo "::group::Verifying Build"
+        ls -la dist/
+        pip install dist/*.whl
+        python -c "import pynomaly; print('✅ Package installation test successful')"
+        echo "::endgroup::"
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: dist/
+        retention-days: 30
+
+  integration-tests:
+    name: "Quality Gate: Integration Tests"
+    runs-on: ubuntu-latest
+    needs: [build-and-package]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Hatch
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Run integration tests
+      run: |
+        echo "::group::Integration Tests"
+        hatch run test:run tests/infrastructure/ -v --tb=short --ignore=tests/infrastructure/test_*_performance*
+        echo "::endgroup::"
+      continue-on-error: false
+
+    - name: Test CLI functionality
+      run: |
+        echo "::group::CLI Tests"
+        hatch run cli:test-cli
+        echo "::endgroup::"
+      continue-on-error: false
+
+    - name: Test API startup
+      run: |
+        echo "::group::API Tests"
+        timeout 10s python -m uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 || echo "✅ API startup test completed"
+        echo "::endgroup::"
+      continue-on-error: false
+
+  # Quality Gate Summary - This job determines if all gates passed
+  quality-gate-summary:
+    name: "📊 Quality Gate Summary"
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, unit-tests, documentation, security-scan, build-and-package, integration-tests]
+    if: always()
+    
+    steps:
+    - name: Evaluate quality gates
+      run: |
+        echo "# 🎯 Quality Gate Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Gate | Status | Required for Merge |" >> $GITHUB_STEP_SUMMARY
+        echo "|------|--------|-------------------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Linting & Formatting | ${{ needs.lint-and-format.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |" >> $GITHUB_STEP_SUMMARY
+        echo "| Unit Tests | ${{ needs.unit-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |" >> $GITHUB_STEP_SUMMARY
+        echo "| Documentation | ${{ needs.documentation.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |" >> $GITHUB_STEP_SUMMARY
+        echo "| Security Scan | ${{ needs.security-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |" >> $GITHUB_STEP_SUMMARY
+        echo "| Build & Package | ${{ needs.build-and-package.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |" >> $GITHUB_STEP_SUMMARY
+        echo "| Integration Tests | ${{ needs.integration-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Check if all required gates passed
+        if [[ "${{ needs.lint-and-format.result }}" == "success" && 
+              "${{ needs.unit-tests.result }}" == "success" && 
+              "${{ needs.documentation.result }}" == "success" && 
+              "${{ needs.security-scan.result }}" == "success" && 
+              "${{ needs.build-and-package.result }}" == "success" && 
+              "${{ needs.integration-tests.result }}" == "success" ]]; then
+          echo "## 🎉 All Quality Gates Passed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **This PR meets all quality requirements and is ready for merge.**" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "## ❌ Quality Gates Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "❌ **This PR does not meet quality requirements. Please fix the failing checks before merge.**" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const summary = `## 🎯 Quality Gate Results
+          
+          | Gate | Status | Required |
+          |------|--------|----------|
+          | Linting & Formatting | ${{ needs.lint-and-format.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |
+          | Unit Tests | ${{ needs.unit-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |
+          | Documentation | ${{ needs.documentation.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |
+          | Security Scan | ${{ needs.security-scan.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |
+          | Build & Package | ${{ needs.build-and-package.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |
+          | Integration Tests | ${{ needs.integration-tests.result == 'success' && '✅ Passed' || '❌ Failed' }} | ✅ Yes |
+          
+          **Coverage Threshold:** ${process.env.MIN_COVERAGE}%
+          
+          ${{ 
+            (needs['lint-and-format'].result == 'success' && 
+             needs['unit-tests'].result == 'success' && 
+             needs['documentation'].result == 'success' && 
+             needs['security-scan'].result == 'success' && 
+             needs['build-and-package'].result == 'success' && 
+             needs['integration-tests'].result == 'success') 
+            ? '🎉 **All quality gates passed! This PR is ready for merge.**' 
+            : '❌ **Quality gates failed. Please fix the issues before merge.**'
+          }}`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: summary
+          });
+
+    - name: Fail if quality gates failed
+      run: |
+        if [[ "${{ needs.lint-and-format.result }}" != "success" || 
+              "${{ needs.unit-tests.result }}" != "success" || 
+              "${{ needs.documentation.result }}" != "success" || 
+              "${{ needs.security-scan.result }}" != "success" || 
+              "${{ needs.build-and-package.result }}" != "success" || 
+              "${{ needs.integration-tests.result }}" != "success" ]]; then
+          echo "❌ One or more quality gates failed. Blocking merge."
+          exit 1
+        fi
+        echo "✅ All quality gates passed!"

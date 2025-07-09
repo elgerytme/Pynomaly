@@ -1,0 +1,193 @@
+name: Documentation CI
+
+on:
+  push:
+    branches: [ main, feat/docs-reorg ]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/ci-docs.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/ci-docs.yml'
+
+jobs:
+  docs-validation:
+    runs-on: ubuntu-latest
+    name: Validate Documentation
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install mkdocs mkdocs-material
+        pip install linkchecker
+    
+    - name: Validate MkDocs configuration
+      run: |
+        mkdocs build --strict
+      
+    - name: Check for broken internal links
+      run: |
+        mkdocs build --site-dir temp_site
+        linkchecker temp_site --check-extern --ignore-url="^mailto:" --ignore-url="^tel:" --ignore-url="^ftp:" --no-warnings
+      continue-on-error: true
+      
+    - name: Check markdown files exist for mkdocs.yml entries
+      run: |
+        python -c "
+        import yaml
+        import os
+        import sys
+        
+        # Load mkdocs.yml
+        with open('mkdocs.yml', 'r') as f:
+            config = yaml.safe_load(f)
+        
+        def check_nav_files(nav_item, path_prefix='docs/'):
+            missing_files = []
+            if isinstance(nav_item, dict):
+                for key, value in nav_item.items():
+                    if isinstance(value, str):
+                        # This is a file reference
+                        file_path = os.path.join(path_prefix, value)
+                        if not os.path.exists(file_path):
+                            missing_files.append(file_path)
+                    elif isinstance(value, list):
+                        # This is a nested navigation
+                        for item in value:
+                            missing_files.extend(check_nav_files(item, path_prefix))
+            elif isinstance(nav_item, list):
+                for item in nav_item:
+                    missing_files.extend(check_nav_files(item, path_prefix))
+            return missing_files
+        
+        missing_files = []
+        if 'nav' in config:
+            missing_files = check_nav_files(config['nav'])
+        
+        if missing_files:
+            print('Missing documentation files referenced in mkdocs.yml:')
+            for file in missing_files:
+                print(f'  - {file}')
+            sys.exit(1)
+        else:
+            print('All documentation files referenced in mkdocs.yml exist.')
+        "
+    
+    - name: Check for orphaned documentation files
+      run: |
+        python -c "
+        import yaml
+        import os
+        import sys
+        from pathlib import Path
+        
+        # Load mkdocs.yml
+        with open('mkdocs.yml', 'r') as f:
+            config = yaml.safe_load(f)
+        
+        def get_nav_files(nav_item):
+            files = set()
+            if isinstance(nav_item, dict):
+                for key, value in nav_item.items():
+                    if isinstance(value, str):
+                        files.add(value)
+                    elif isinstance(value, list):
+                        for item in value:
+                            files.update(get_nav_files(item))
+            elif isinstance(nav_item, list):
+                for item in nav_item:
+                    files.update(get_nav_files(item))
+            return files
+        
+        # Get all files referenced in navigation
+        nav_files = set()
+        if 'nav' in config:
+            nav_files = get_nav_files(config['nav'])
+        
+        # Get all markdown files in docs directory
+        docs_dir = Path('docs')
+        all_md_files = set()
+        for md_file in docs_dir.rglob('*.md'):
+            # Convert to relative path from docs directory
+            rel_path = md_file.relative_to(docs_dir)
+            all_md_files.add(str(rel_path).replace(os.sep, '/'))
+        
+        # Find orphaned files
+        orphaned_files = all_md_files - nav_files
+        
+        if orphaned_files:
+            print('Orphaned documentation files (not referenced in mkdocs.yml):')
+            for file in sorted(orphaned_files):
+                print(f'  - docs/{file}')
+            print(f'\\nTotal orphaned files: {len(orphaned_files)}')
+            if len(orphaned_files) > 10:  # Only fail if there are many orphaned files
+                print('Too many orphaned files. Please add them to mkdocs.yml navigation.')
+                sys.exit(1)
+        else:
+            print('No orphaned documentation files found.')
+        "
+        
+    - name: Check documentation warnings
+      run: |
+        mkdocs build --strict 2>&1 | tee build.log
+        if grep -i "warning" build.log; then
+          echo "Documentation build contains warnings"
+          exit 1
+        fi
+        
+    - name: Verify required documentation sections
+      run: |
+        python -c "
+        import os
+        required_files = [
+            'docs/index.md',
+            'docs/getting-started/installation.md',
+            'docs/getting-started/quickstart.md',
+            'docs/api/README.md',
+            'docs/algorithms/README.md',
+            'docs/user-guides/README.md',
+            'docs/developer-guides/README.md',
+            'docs/meta/CHANGELOG.md',
+            'docs/meta/CONTRIBUTING.md'
+        ]
+        
+        missing = []
+        for file in required_files:
+            if not os.path.exists(file):
+                missing.append(file)
+        
+        if missing:
+            print('Missing required documentation files:')
+            for file in missing:
+                print(f'  - {file}')
+            exit(1)
+        else:
+            print('All required documentation files present.')
+        "
+        
+    - name: Check for TODO and FIXME comments
+      run: |
+        if grep -r "TODO\|FIXME\|XXX" docs/ --include="*.md"; then
+          echo "Documentation contains TODO/FIXME comments that should be resolved"
+          exit 1
+        fi
+        
+    - name: Upload documentation artifacts
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: docs-build
+        path: temp_site/
+        retention-days: 7
