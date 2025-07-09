@@ -1,58 +1,157 @@
-# Pre-commit configuration for Pynomaly
+# Pre-commit Configuration for Pynomaly
+# See https://pre-commit.com for more information
 # Install: pre-commit install
 # Run manually: pre-commit run --all-files
 
+default_stages: [commit, push]
+fail_fast: false
+
 repos:
-  # File Organization and Project Structure
+  # Code formatting and linting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      # Linter
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        types_or: [python, pyi, jupyter]
+      # Formatter
+      - id: ruff-format
+        types_or: [python, pyi, jupyter]
+
+  # Python-specific hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(.*\.md|.*\.txt|.*\.yml|.*\.yaml)$
+      - id: end-of-file-fixer
+        exclude: ^(.*\.md|.*\.txt)$
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+      - id: debug-statements
+      - id: name-tests-test
+        args: [--pytest-test-first]
+
+  # Security scanning
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.0
+    hooks:
+      - id: bandit
+        args: [-r, src/, -f, json, -o, bandit-report.json]
+        pass_filenames: false
+        stages: [manual]
+
+  # Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        args: [--strict, --show-error-codes]
+        files: ^src/
+        additional_dependencies:
+          - pydantic>=2.0.0
+          - structlog
+          - dependency-injector
+          - types-requests
+
+  # Documentation and markdown
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.42.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+        exclude: ^(CHANGELOG\.md|.*\.generated\.md)$
+
+  # Python import sorting
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile, black, --line-length, "88"]
+
+  # Local hooks for project-specific validations
   - repo: local
     hooks:
-      - id: file-organization-check
-        name: File Organization Validation
+      # Project structure validation
+      - id: validate-structure
+        name: Validate Project Structure
         entry: python scripts/validation/validate_structure.py
         language: system
         pass_filenames: false
-        stages: [pre-commit]
-        
-      - id: enhanced-validation
-        name: Enhanced Validation with Rich Output
-        entry: python -m pynomaly.presentation.cli.app validate run --format rich
-        language: python
-        pass_filenames: false
-        always_run: true
-        stages: [pre-commit]
-        verbose: true
+        stages: [push]
 
-  # Standard Pre-commit Hooks for File Hygiene
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
-    hooks:
-      # File formatting and cleanup
-      - id: trailing-whitespace
-        args: [--markdown-linebreak-ext=md]
-      - id: end-of-file-fixer
-      - id: mixed-line-ending
-        args: [--fix=lf]
+      # Ensure no secrets in code
+      - id: check-secrets
+        name: Check for secrets
+        entry: python -c "
+import re
+import sys
 
-      # File validation
-      - id: check-json
-      - id: check-yaml
-        args: [--allow-multiple-documents]
-      - id: check-toml
+patterns = [
+    r'(?i)(password|passwd|secret|token|key)\s*[=:]\s*['\''\"]\w+['\''\"']',
+    r'(?i)api[_-]?key\s*[=:]\s*['\''\"]\w+['\''\"']',
+    r'(?i)secret[_-]?key\s*[=:]\s*['\''\"]\w+['\''\"']',
+    r'(?i)(aws|azure|gcp)[_-]?(access[_-]?key|secret)\s*[=:]\s*['\''\"]\w+['\''\"']'
+]
 
-      # Security and conflict checks
-      - id: check-merge-conflict
-      - id: detect-private-key
-      - id: check-added-large-files
-        args: [--maxkb=5000]
+for filepath in sys.argv[1:]:
+    if not filepath.endswith('.py'):
+        continue
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            content = f.read()
+            for pattern in patterns:
+                if re.search(pattern, content):
+                    print(f'Potential secret detected in {filepath}')
+                    sys.exit(1)
+    except Exception:
+        pass
+        "
+        language: system
+        files: \.py$
 
-      # Python specific
-      - id: check-ast
-      - id: check-builtin-literals
-      - id: check-docstring-first
-      - id: debug-statements
+      # Check for critical TODOs
+      - id: check-critical-todos
+        name: Check for critical TODOs
+        entry: python -c "
+import sys
+import re
 
-# Configuration
-default_install_hook_types: [pre-commit]
-default_stages: [pre-commit]
-fail_fast: false
-minimum_pre_commit_version: 3.0.0
+critical_patterns = [r'TODO.*CRITICAL', r'FIXME.*URGENT', r'XXX.*SECURITY']
+
+for filepath in sys.argv[1:]:
+    if 'src/pynomaly/domain' in filepath or 'src/pynomaly/application' in filepath:
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                for i, line in enumerate(f, 1):
+                    for pattern in critical_patterns:
+                        if re.search(pattern, line, re.IGNORECASE):
+                            print(f'{filepath}:{i}: Critical TODO/FIXME found: {line.strip()}')
+                            sys.exit(1)
+        except Exception:
+            pass
+        "
+        language: system
+        files: \.py$
+
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: [bandit, validate-structure]

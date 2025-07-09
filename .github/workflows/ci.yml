@@ -1,20 +1,23 @@
-name: Continuous Integration
+name: CI/CD Pipeline
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly maintenance run
   workflow_dispatch:
 
 permissions:
   contents: read
   pull-requests: write
   checks: write
+  security-events: write
 
 env:
   PYTHON_VERSION: "3.11"
-  HATCH_VERBOSE: 1
+  CACHE_VERSION: v1
 
 jobs:
 

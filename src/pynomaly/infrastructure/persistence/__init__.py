@@ -18,6 +18,13 @@ from .database_repositories import (
     DetectionResultModel,
     DetectorModel,
 )
+from .production_database import (
+    ProductionDatabaseManager,
+    get_production_database_manager,
+)
+from .connection_pool_integration import (
+    DatabaseConnectionIntegration,
+)
 
 __all__ = [
     # Database management
@@ -28,6 +35,10 @@ __all__ = [
     "SQLITE_MEMORY_URL",
     "SQLITE_FILE_URL",
     "POSTGRESQL_LOCAL_URL",
+    # Production database
+    "ProductionDatabaseManager",
+    "get_production_database_manager",
+    "DatabaseConnectionIntegration",
     # Repositories
     "DatabaseDetectorRepository",
     "DatabaseDatasetRepository",

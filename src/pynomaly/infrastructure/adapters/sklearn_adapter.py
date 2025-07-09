@@ -225,6 +225,10 @@ class SklearnAdapter(Detector):
 
         return result
 
+    def predict(self, dataset: Dataset) -> DetectionResult:
+        """Predict anomalies in a dataset (alias for detect)."""
+        return self.detect(dataset)
+
     def score(self, dataset: Dataset) -> list[AnomalyScore]:
         """Calculate anomaly scores for a dataset."""
         if not self.is_fitted or self._model is None:

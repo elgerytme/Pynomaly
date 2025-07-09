@@ -45,19 +45,16 @@ ENV PYTHONUNBUFFERED=1 \
 WORKDIR /build
 
 # Copy dependency files
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml ./
 COPY requirements*.txt ./
 
-# Install Poetry and export requirements
+# Install Hatch and export requirements
 RUN pip install --upgrade pip setuptools wheel && \
-    pip install poetry==1.7.1 && \
-    poetry config virtualenvs.create false && \
-    poetry export -f requirements.txt --output requirements-production.txt --without-hashes --only=main && \
-    poetry export -f requirements.txt --output requirements-monitoring.txt --without-hashes --with=monitoring
+    pip install hatch>=1.12.0 && \
+    hatch dep show requirements --all > requirements-production.txt
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements-production.txt && \
-    pip install --no-cache-dir -r requirements-monitoring.txt
+RUN pip install --no-cache-dir -r requirements-production.txt
 
 #=============================================================================
 # Frontend Build Stage - Tailwind CSS and Static Assets

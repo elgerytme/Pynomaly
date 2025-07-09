@@ -581,28 +581,37 @@ class TensorFlowAdapter(Detector):
             # Determine anomalies based on threshold
             is_anomaly = scores > self.threshold_value
 
-            # Create anomaly objects
+            # Create anomaly scores
+            anomaly_scores = [
+                AnomalyScore(
+                    value=float(score),
+                    confidence=self._calculate_confidence(score),
+                )
+                for score in scores
+            ]
+
+            # Create labels
+            labels = is_anomaly.astype(int) if hasattr(is_anomaly, 'astype') else [int(x) for x in is_anomaly]
+
+            # Create anomaly objects for detected anomalies
             anomalies = []
             for idx, (score, anomaly_flag) in enumerate(
                 zip(scores, is_anomaly, strict=False)
             ):
                 if anomaly_flag:
                     anomaly = Anomaly(
-                        index=int(idx),
+                        id=uuid4(),
+                        data_point_index=int(idx),
                         score=AnomalyScore(float(score)),
-                        timestamp=(
-                            dataset.data.index[idx]
-                            if hasattr(dataset.data.index, "__getitem__")
-                            else None
-                        ),
-                        feature_names=list(dataset.data.columns),
+                        features=dataset.data.iloc[idx].to_dict(),
+                        timestamp=None,
+                        explanation=f"TensorFlow {self.algorithm_name} detected anomaly with score {score:.3f}"
                     )
                     anomalies.append(anomaly)
 
             # Calculate metrics
             n_anomalies = len(anomalies)
             n_samples = len(dataset.data)
-            anomaly_rate = n_anomalies / n_samples if n_samples > 0 else 0.0
 
             prediction_time = time.time() - start_time
 
@@ -611,19 +620,25 @@ class TensorFlowAdapter(Detector):
                 algorithm=self.algorithm_name,
                 n_samples=n_samples,
                 n_anomalies=n_anomalies,
-                anomaly_rate=anomaly_rate,
                 prediction_time=prediction_time,
             )
 
             return DetectionResult(
-                id=str(uuid4()),
                 detector_id=self.id,
-                dataset_id=dataset.id,
+                dataset_name=dataset.name,
+                scores=anomaly_scores,
+                labels=labels,
                 anomalies=anomalies,
-                n_anomalies=n_anomalies,
-                anomaly_rate=anomaly_rate,
                 threshold=self.threshold_value or 0.0,
-                execution_time=prediction_time,
+                execution_time_ms=prediction_time * 1000,
+                metadata={
+                    "algorithm": self.algorithm_name,
+                    "device": self.device_type,
+                    "n_samples": n_samples,
+                    "n_anomalies": n_anomalies,
+                    "model_type": "deep_learning",
+                    "framework": "tensorflow",
+                }
             )
 
         except Exception as e:
@@ -827,6 +842,7 @@ class TensorFlowAdapter(Detector):
                 "type": "Neural Network",
                 "unsupervised": True,
                 "gpu_support": True,
+                "distributed_training": True,
                 "parameters": {
                     "encoding_dim": "Dimension of the encoding layer",
                     "hidden_layers": "List of hidden layer dimensions",
@@ -836,12 +852,16 @@ class TensorFlowAdapter(Detector):
                     "batch_size": "Training batch size",
                     "learning_rate": "Learning rate for optimizer",
                 },
+                "suitable_for": ["tabular_data", "high_dimensional", "reconstruction_based"],
+                "pros": ["Fast training", "Good for tabular data", "Interpretable"],
+                "cons": ["May overfit", "Requires parameter tuning"]
             },
             "VAE": {
                 "description": "Variational Autoencoder for anomaly detection",
                 "type": "Neural Network",
                 "unsupervised": True,
                 "gpu_support": True,
+                "distributed_training": True,
                 "parameters": {
                     "latent_dim": "Dimension of the latent space",
                     "hidden_layers": "List of hidden layer dimensions",
@@ -851,12 +871,16 @@ class TensorFlowAdapter(Detector):
                     "batch_size": "Training batch size",
                     "learning_rate": "Learning rate for optimizer",
                 },
+                "suitable_for": ["probabilistic_modeling", "generative_tasks"],
+                "pros": ["Principled probabilistic approach", "Can generate samples"],
+                "cons": ["More complex", "Requires careful hyperparameter tuning"]
             },
             "DeepSVDD": {
                 "description": "Deep Support Vector Data Description for anomaly detection",
                 "type": "Neural Network",
                 "unsupervised": True,
                 "gpu_support": True,
+                "distributed_training": True,
                 "parameters": {
                     "output_dim": "Dimension of the output representation",
                     "hidden_layers": "List of hidden layer dimensions",
@@ -865,7 +889,19 @@ class TensorFlowAdapter(Detector):
                     "batch_size": "Training batch size",
                     "learning_rate": "Learning rate for optimizer",
                 },
+                "suitable_for": ["one_class_classification", "compact_representations"],
+                "pros": ["Theoretically motivated", "Good for one-class problems"],
+                "cons": ["Sensitive to initialization", "May require large datasets"]
             },
         }
 
         return algorithm_info.get(algorithm_name, {})
+
+    @classmethod
+    def get_supported_algorithms(cls) -> list[str]:
+        """Get list of supported TensorFlow algorithms.
+
+        Returns:
+            List of algorithm names
+        """
+        return cls.list_available_algorithms()
