@@ -15,361 +15,318 @@ class TestExportProtocol:
     """Test suite for ExportProtocol."""
 
     def test_protocol_definition(self):
-        """Test protocol has required methods."""
+        """Test protocol has required abstract methods."""
         assert hasattr(ExportProtocol, 'export_results')
         assert hasattr(ExportProtocol, 'get_supported_formats')
         assert hasattr(ExportProtocol, 'validate_file')
 
+    def test_abstract_base_class(self):
+        """Test ExportProtocol is an abstract base class."""
+        # Should not be able to instantiate abstract class
+        with pytest.raises(TypeError):
+            ExportProtocol()
+
     def test_export_results_method_signature(self):
         """Test export_results method has correct signature."""
-        mock_exporter = Mock(spec=ExportProtocol)
-        mock_result = Mock(spec=DetectionResult)
-        mock_options = Mock(spec=ExportOptions)
-        mock_metadata = {"exported_records": 100, "file_size": 1024}
-        mock_exporter.export_results.return_value = mock_metadata
-        
-        # Test with string file path
-        result = mock_exporter.export_results(mock_result, "output.csv", mock_options)
-        assert result == mock_metadata
-        assert isinstance(result, dict)
-        
-        # Test with Path object
-        result = mock_exporter.export_results(mock_result, Path("output.csv"), mock_options)
-        assert result == mock_metadata
-        
-        # Test with None options
-        result = mock_exporter.export_results(mock_result, "output.csv", None)
-        assert result == mock_metadata
-
-    def test_get_supported_formats_method_signature(self):
-        """Test get_supported_formats method has correct signature."""
-        mock_exporter = Mock(spec=ExportProtocol)
-        mock_formats = ['.csv', '.xlsx', '.json']
-        mock_exporter.get_supported_formats.return_value = mock_formats
-        
-        result = mock_exporter.get_supported_formats()
-        assert result == mock_formats
-        assert isinstance(result, list)
-        assert all(isinstance(fmt, str) for fmt in result)
-
-    def test_validate_file_method_signature(self):
-        """Test validate_file method has correct signature."""
-        mock_exporter = Mock(spec=ExportProtocol)
-        mock_exporter.validate_file.return_value = True
-        
-        # Test with string file path
-        result = mock_exporter.validate_file("output.csv")
-        assert result is True
-        assert isinstance(result, bool)
-        
-        # Test with Path object
-        result = mock_exporter.validate_file(Path("output.csv"))
-        assert result is True
-
-    def test_protocol_runtime_checkable(self):
-        """Test protocol is runtime checkable."""
-        class ConcreteExporter:
+        class ConcreteExporter(ExportProtocol):
             def export_results(
                 self,
                 results: DetectionResult,
                 file_path: str | Path,
                 options: ExportOptions = None,
             ) -> dict[str, Any]:
-                return {"exported_records": 100, "file_size": 1024}
+                return {"status": "success", "exported_rows": 100}
             
             def get_supported_formats(self) -> list[str]:
-                return ['.csv', '.xlsx']
+                return [".csv"]
             
             def validate_file(self, file_path: str | Path) -> bool:
                 return True
         
         exporter = ConcreteExporter()
-        assert isinstance(exporter, ExportProtocol)
-
-    def test_protocol_with_missing_methods(self):
-        """Test protocol check fails with missing methods."""
-        class IncompleteExporter:
-            def export_results(
-                self,
-                results: DetectionResult,
-                file_path: str | Path,
-                options: ExportOptions = None,
-            ) -> dict[str, Any]:
-                return {"exported_records": 100}
-            # Missing get_supported_formats and validate_file
+        mock_results = Mock(spec=DetectionResult)
+        mock_options = Mock(spec=ExportOptions)
         
-        exporter = IncompleteExporter()
-        assert not isinstance(exporter, ExportProtocol)
-
-    def test_export_results_with_various_options(self):
-        """Test export_results accepts various option types."""
-        mock_exporter = Mock(spec=ExportProtocol)
-        mock_result = Mock(spec=DetectionResult)
-        mock_metadata = {"exported_records": 100}
-        mock_exporter.export_results.return_value = mock_metadata
-        
-        # Test with different ExportOptions configurations
-        options = Mock(spec=ExportOptions)
-        options.format = "csv"
-        options.include_metadata = True
-        
-        result = mock_exporter.export_results(mock_result, "output.csv", options)
-        assert result == mock_metadata
-        
-        mock_exporter.export_results.assert_called_with(mock_result, "output.csv", options)
-
-    def test_validate_file_edge_cases(self):
-        """Test validate_file handles edge cases."""
-        mock_exporter = Mock(spec=ExportProtocol)
-        
-        # Test with empty path
-        mock_exporter.validate_file.return_value = False
-        result = mock_exporter.validate_file("")
-        assert result is False
-        
-        # Test with non-existent directory
-        mock_exporter.validate_file.return_value = False
-        result = mock_exporter.validate_file("/non/existent/path/file.csv")
-        assert result is False
-        
-        # Test with unsupported extension
-        mock_exporter.validate_file.return_value = False
-        result = mock_exporter.validate_file("file.unsupported")
-        assert result is False
-
-    def test_export_results_return_types(self):
-        """Test export_results returns proper metadata types."""
-        mock_exporter = Mock(spec=ExportProtocol)
-        mock_result = Mock(spec=DetectionResult)
-        
-        # Test typical metadata structure
-        expected_metadata = {
-            "exported_records": 100,
-            "file_size": 1024,
-            "format": "csv",
-            "timestamp": "2023-01-01T00:00:00Z",
-            "compression": None,
-            "encoding": "utf-8"
-        }
-        mock_exporter.export_results.return_value = expected_metadata
-        
-        result = mock_exporter.export_results(mock_result, "output.csv")
+        # Test with string file path
+        result = exporter.export_results(mock_results, "output.csv", mock_options)
         assert isinstance(result, dict)
-        assert "exported_records" in result
-        assert isinstance(result["exported_records"], int)
+        
+        # Test with Path object
+        result = exporter.export_results(mock_results, Path("output.csv"), mock_options)
+        assert isinstance(result, dict)
+        
+        # Test with None options
+        result = exporter.export_results(mock_results, "output.csv", None)
+        assert isinstance(result, dict)
 
-    def test_get_supported_formats_return_types(self):
-        """Test get_supported_formats returns proper format types."""
-        mock_exporter = Mock(spec=ExportProtocol)
-        
-        # Test with various format strings
-        formats = ['.csv', '.xlsx', '.json', '.parquet', '.feather']
-        mock_exporter.get_supported_formats.return_value = formats
-        
-        result = mock_exporter.get_supported_formats()
-        assert isinstance(result, list)
-        assert len(result) == 5
-        assert all(fmt.startswith('.') for fmt in result)
-
-    def test_protocol_error_handling(self):
-        """Test protocol methods can raise exceptions."""
-        mock_exporter = Mock(spec=ExportProtocol)
-        mock_result = Mock(spec=DetectionResult)
-        
-        # Configure mock to raise exception on export
-        mock_exporter.export_results.side_effect = ValueError("Invalid file path")
-        
-        with pytest.raises(ValueError, match="Invalid file path"):
-            mock_exporter.export_results(mock_result, "invalid_path.csv")
-
-    def test_protocol_with_none_values(self):
-        """Test protocol handles None values appropriately."""
-        mock_exporter = Mock(spec=ExportProtocol)
-        mock_result = Mock(spec=DetectionResult)
-        
-        # Test export_results with None options
-        mock_metadata = {"exported_records": 0}
-        mock_exporter.export_results.return_value = mock_metadata
-        
-        result = mock_exporter.export_results(mock_result, "output.csv", None)
-        assert result == mock_metadata
-
-    def test_protocol_type_hints(self):
-        """Test protocol type hints are properly defined."""
-        class TypedExporter:
+    def test_get_supported_formats_method_signature(self):
+        """Test get_supported_formats method has correct signature."""
+        class ConcreteExporter(ExportProtocol):
             def export_results(
                 self,
                 results: DetectionResult,
                 file_path: str | Path,
                 options: ExportOptions = None,
             ) -> dict[str, Any]:
-                return {"exported_records": 100}
+                return {}
             
             def get_supported_formats(self) -> list[str]:
-                return ['.csv']
+                return [".csv", ".xlsx", ".json"]
             
             def validate_file(self, file_path: str | Path) -> bool:
                 return True
         
-        exporter = TypedExporter()
-        assert isinstance(exporter, ExportProtocol)
-        
-        # Test return types
-        mock_result = Mock(spec=DetectionResult)
-        metadata = exporter.export_results(mock_result, "test.csv")
-        assert isinstance(metadata, dict)
-        
+        exporter = ConcreteExporter()
         formats = exporter.get_supported_formats()
-        assert isinstance(formats, list)
         
-        is_valid = exporter.validate_file("test.csv")
-        assert isinstance(is_valid, bool)
+        assert isinstance(formats, list)
+        assert all(isinstance(fmt, str) for fmt in formats)
+        assert all(fmt.startswith('.') for fmt in formats)
 
-
-class TestProtocolInteractions:
-    """Test protocol interactions and edge cases."""
-
-    def test_multiple_exporters_same_protocol(self):
-        """Test multiple implementations of same protocol."""
-        class CSVExporter:
+    def test_validate_file_method_signature(self):
+        """Test validate_file method has correct signature."""
+        class ConcreteExporter(ExportProtocol):
             def export_results(
                 self,
                 results: DetectionResult,
                 file_path: str | Path,
                 options: ExportOptions = None,
             ) -> dict[str, Any]:
-                return {"exported_records": 100, "format": "csv"}
+                return {}
             
             def get_supported_formats(self) -> list[str]:
-                return ['.csv']
+                return [".csv"]
+            
+            def validate_file(self, file_path: str | Path) -> bool:
+                if isinstance(file_path, (str, Path)):
+                    return str(file_path).endswith('.csv')
+                return False
+        
+        exporter = ConcreteExporter()
+        
+        # Test with string path
+        assert exporter.validate_file("data.csv") is True
+        assert exporter.validate_file("data.txt") is False
+        
+        # Test with Path object
+        assert exporter.validate_file(Path("data.csv")) is True
+        assert exporter.validate_file(Path("data.txt")) is False
+
+    def test_concrete_implementation(self):
+        """Test concrete implementation works correctly."""
+        class CSVExporter(ExportProtocol):
+            def export_results(
+                self,
+                results: DetectionResult,
+                file_path: str | Path,
+                options: ExportOptions = None,
+            ) -> dict[str, Any]:
+                # Simulate exporting CSV
+                return {
+                    "format": "csv",
+                    "file_path": str(file_path),
+                    "exported_rows": 100,
+                    "exported_columns": 5,
+                    "status": "success",
+                }
+            
+            def get_supported_formats(self) -> list[str]:
+                return [".csv"]
+            
+            def validate_file(self, file_path: str | Path) -> bool:
+                return str(file_path).lower().endswith('.csv')
+        
+        exporter = CSVExporter()
+        mock_results = Mock(spec=DetectionResult)
+        
+        # Test export
+        result = exporter.export_results(mock_results, "output.csv")
+        assert result["format"] == "csv"
+        assert result["status"] == "success"
+        assert result["exported_rows"] == 100
+        
+        # Test format support
+        formats = exporter.get_supported_formats()
+        assert ".csv" in formats
+        
+        # Test validation
+        assert exporter.validate_file("data.csv") is True
+        assert exporter.validate_file("data.CSV") is True
+        assert exporter.validate_file("data.xlsx") is False
+
+    def test_multiple_format_exporter(self):
+        """Test exporter supporting multiple formats."""
+        class MultiFormatExporter(ExportProtocol):
+            def export_results(
+                self,
+                results: DetectionResult,
+                file_path: str | Path,
+                options: ExportOptions = None,
+            ) -> dict[str, Any]:
+                file_str = str(file_path)
+                if file_str.lower().endswith('.csv'):
+                    format_type = "csv"
+                elif file_str.lower().endswith('.xlsx'):
+                    format_type = "excel"
+                elif file_str.lower().endswith('.json'):
+                    format_type = "json"
+                else:
+                    format_type = "unknown"
+                
+                return {
+                    "format": format_type,
+                    "file_path": file_str,
+                    "status": "success" if format_type != "unknown" else "error",
+                }
+            
+            def get_supported_formats(self) -> list[str]:
+                return [".csv", ".xlsx", ".json"]
+            
+            def validate_file(self, file_path: str | Path) -> bool:
+                file_str = str(file_path).lower()
+                return any(file_str.endswith(fmt.lower()) for fmt in self.get_supported_formats())
+        
+        exporter = MultiFormatExporter()
+        mock_results = Mock(spec=DetectionResult)
+        
+        # Test different formats
+        csv_result = exporter.export_results(mock_results, "output.csv")
+        assert csv_result["format"] == "csv"
+        
+        excel_result = exporter.export_results(mock_results, "output.xlsx")
+        assert excel_result["format"] == "excel"
+        
+        json_result = exporter.export_results(mock_results, "output.json")
+        assert json_result["format"] == "json"
+        
+        # Test validation
+        assert exporter.validate_file("data.csv") is True
+        assert exporter.validate_file("data.xlsx") is True
+        assert exporter.validate_file("data.json") is True
+        assert exporter.validate_file("data.txt") is False
+
+    def test_exporter_with_options(self):
+        """Test exporter that uses export options."""
+        class ConfigurableExporter(ExportProtocol):
+            def export_results(
+                self,
+                results: DetectionResult,
+                file_path: str | Path,
+                options: ExportOptions = None,
+            ) -> dict[str, Any]:
+                result = {
+                    "file_path": str(file_path),
+                    "status": "success",
+                }
+                
+                if options:
+                    # Mock accessing options (would normally use actual options attributes)
+                    result["used_options"] = True
+                    result["options_type"] = type(options).__name__
+                else:
+                    result["used_options"] = False
+                
+                return result
+            
+            def get_supported_formats(self) -> list[str]:
+                return [".csv"]
+            
+            def validate_file(self, file_path: str | Path) -> bool:
+                return True
+        
+        exporter = ConfigurableExporter()
+        mock_results = Mock(spec=DetectionResult)
+        mock_options = Mock(spec=ExportOptions)
+        
+        # Test with options
+        result_with_options = exporter.export_results(mock_results, "output.csv", mock_options)
+        assert result_with_options["used_options"] is True
+        
+        # Test without options
+        result_without_options = exporter.export_results(mock_results, "output.csv", None)
+        assert result_without_options["used_options"] is False
+
+    def test_exporter_error_handling(self):
+        """Test exporter error handling."""
+        class ErrorHandlingExporter(ExportProtocol):
+            def export_results(
+                self,
+                results: DetectionResult,
+                file_path: str | Path,
+                options: ExportOptions = None,
+            ) -> dict[str, Any]:
+                if str(file_path) == "invalid.txt":
+                    raise ValueError("Unsupported file format")
+                
+                return {
+                    "file_path": str(file_path),
+                    "status": "success",
+                }
+            
+            def get_supported_formats(self) -> list[str]:
+                return [".csv"]
             
             def validate_file(self, file_path: str | Path) -> bool:
                 return str(file_path).endswith('.csv')
         
-        class ExcelExporter:
-            def export_results(
-                self,
-                results: DetectionResult,
-                file_path: str | Path,
-                options: ExportOptions = None,
-            ) -> dict[str, Any]:
-                return {"exported_records": 100, "format": "excel"}
-            
-            def get_supported_formats(self) -> list[str]:
-                return ['.xlsx', '.xls']
-            
-            def validate_file(self, file_path: str | Path) -> bool:
-                return str(file_path).endswith(('.xlsx', '.xls'))
+        exporter = ErrorHandlingExporter()
+        mock_results = Mock(spec=DetectionResult)
         
-        csv_exporter = CSVExporter()
-        excel_exporter = ExcelExporter()
+        # Test successful export
+        result = exporter.export_results(mock_results, "output.csv")
+        assert result["status"] == "success"
         
-        assert isinstance(csv_exporter, ExportProtocol)
-        assert isinstance(excel_exporter, ExportProtocol)
-        
-        # Test different behavior
-        assert csv_exporter.get_supported_formats() == ['.csv']
-        assert excel_exporter.get_supported_formats() == ['.xlsx', '.xls']
+        # Test error case
+        with pytest.raises(ValueError, match="Unsupported file format"):
+            exporter.export_results(mock_results, "invalid.txt")
 
-    def test_protocol_with_advanced_options(self):
-        """Test protocol with complex export options."""
-        mock_exporter = Mock(spec=ExportProtocol)
-        mock_result = Mock(spec=DetectionResult)
-        
-        # Create detailed export options
-        options = Mock(spec=ExportOptions)
-        options.format = "csv"
-        options.include_metadata = True
-        options.compression = "gzip"
-        options.encoding = "utf-8"
-        options.delimiter = ","
-        options.quote_char = '"'
-        
-        mock_metadata = {
-            "exported_records": 1000,
-            "file_size": 2048,
-            "format": "csv",
-            "compression": "gzip",
-            "encoding": "utf-8"
-        }
-        mock_exporter.export_results.return_value = mock_metadata
-        
-        result = mock_exporter.export_results(mock_result, "output.csv.gz", options)
-        assert result == mock_metadata
-        assert result["compression"] == "gzip"
-
-    def test_protocol_with_path_objects(self):
-        """Test protocol works with Path objects."""
-        mock_exporter = Mock(spec=ExportProtocol)
-        mock_result = Mock(spec=DetectionResult)
-        
-        # Test with various Path objects
-        paths = [
-            Path("output.csv"),
-            Path("/tmp/data/output.xlsx"),
-            Path("../data/results.json")
-        ]
-        
-        mock_exporter.export_results.return_value = {"exported_records": 100}
-        mock_exporter.validate_file.return_value = True
-        
-        for path in paths:
-            result = mock_exporter.export_results(mock_result, path)
-            assert isinstance(result, dict)
-            
-            is_valid = mock_exporter.validate_file(path)
-            assert isinstance(is_valid, bool)
-
-    def test_protocol_abstract_base_class(self):
-        """Test protocol is properly defined as ABC."""
-        # ExportProtocol should be abstract
+    def test_inheritance_behavior(self):
+        """Test that subclasses must implement all abstract methods."""
+        # Test incomplete implementation
         with pytest.raises(TypeError):
-            # This should fail because ExportProtocol is abstract
-            ExportProtocol()
+            class IncompleteExporter(ExportProtocol):
+                def export_results(
+                    self,
+                    results: DetectionResult,
+                    file_path: str | Path,
+                    options: ExportOptions = None,
+                ) -> dict[str, Any]:
+                    return {}
+                # Missing get_supported_formats and validate_file
+            
+            IncompleteExporter()
 
-    def test_protocol_method_signatures_detailed(self):
-        """Test detailed method signatures match protocol."""
-        class DetailedExporter:
+    def test_method_contracts(self):
+        """Test method contracts and return types."""
+        class ContractTestExporter(ExportProtocol):
             def export_results(
                 self,
                 results: DetectionResult,
                 file_path: str | Path,
                 options: ExportOptions = None,
             ) -> dict[str, Any]:
-                """Export results with detailed metadata."""
-                return {
-                    "exported_records": 100,
-                    "file_size": 1024,
-                    "format": "csv",
-                    "timestamp": "2023-01-01T00:00:00Z",
-                    "success": True,
-                    "errors": [],
-                    "warnings": []
-                }
+                # Must return dict[str, Any]
+                return {"key": "value", "number": 42, "boolean": True}
             
             def get_supported_formats(self) -> list[str]:
-                """Return supported file formats."""
-                return ['.csv', '.xlsx', '.json', '.parquet']
+                # Must return list[str]
+                return [".csv", ".xlsx"]
             
             def validate_file(self, file_path: str | Path) -> bool:
-                """Validate file path for export."""
-                if isinstance(file_path, str):
-                    file_path = Path(file_path)
-                
-                # Check if directory exists and is writable
-                if not file_path.parent.exists():
-                    return False
-                
-                # Check file extension
-                supported_formats = self.get_supported_formats()
-                return file_path.suffix in supported_formats
+                # Must return bool
+                return True
         
-        exporter = DetailedExporter()
-        assert isinstance(exporter, ExportProtocol)
+        exporter = ContractTestExporter()
+        mock_results = Mock(spec=DetectionResult)
         
-        # Test detailed functionality
-        mock_result = Mock(spec=DetectionResult)
-        metadata = exporter.export_results(mock_result, "test.csv")
-        assert "exported_records" in metadata
-        assert "success" in metadata
-        assert metadata["success"] is True
+        # Test return types
+        export_result = exporter.export_results(mock_results, "test.csv")
+        assert isinstance(export_result, dict)
+        assert all(isinstance(key, str) for key in export_result.keys())
+        
+        formats = exporter.get_supported_formats()
+        assert isinstance(formats, list)
+        assert all(isinstance(fmt, str) for fmt in formats)
+        
+        is_valid = exporter.validate_file("test.csv")
+        assert isinstance(is_valid, bool)

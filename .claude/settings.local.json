@@ -610,7 +610,10 @@
       "Bash(gh issue create:*)",
       "Bash(gh issue create:*)",
       "Bash(gh repo sync:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(gh issue comment:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr checks:*)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",
