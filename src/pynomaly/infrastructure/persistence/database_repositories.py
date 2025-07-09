@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
+from pynomaly.domain.common import VersionedMixin
 from typing import Any
 from uuid import UUID
 
@@ -69,7 +70,7 @@ class UUIDType(TypeDecorator):
         return value
 
 
-class DatasetModel(Base):
+class DatasetModel(Base, VersionedMixin):
     """SQLAlchemy model for Dataset entity."""
 
     __tablename__ = "datasets"
@@ -85,7 +86,7 @@ class DatasetModel(Base):
     updated_at = Column(DateTime, nullable=False)
 
 
-class DetectorModel(Base):
+class DetectorModel(Base, VersionedMixin):
     """SQLAlchemy model for Detector entity."""
 
     __tablename__ = "detectors"
@@ -100,7 +101,7 @@ class DetectorModel(Base):
     updated_at = Column(DateTime, nullable=False)
 
 
-class DetectionResultModel(Base):
+class DetectionResultModel(Base, VersionedMixin):
     """SQLAlchemy model for DetectionResult entity."""
 
     __tablename__ = "detection_results"
@@ -563,7 +564,7 @@ class DatabaseDetectionResultRepository(DetectionResultRepositoryProtocol):
 from sqlalchemy import Float, ForeignKey
 
 
-class UserModel(Base):
+class UserModel(Base, VersionedMixin):
     """SQLAlchemy model for User entity."""
 
     __tablename__ = "users"
@@ -582,7 +583,7 @@ class UserModel(Base):
     email_verified_at = Column(DateTime)
 
 
-class TenantModel(Base):
+class TenantModel(Base, VersionedMixin):
     """SQLAlchemy model for Tenant entity."""
 
     __tablename__ = "tenants"
@@ -602,7 +603,7 @@ class TenantModel(Base):
     settings = Column(JSONType)
 
 
-class RoleModel(Base):
+class RoleModel(Base, VersionedMixin):
     """SQLAlchemy model for Role entity."""
 
     __tablename__ = "roles"
@@ -629,7 +630,7 @@ class UserRoleModel(Base):
     expires_at = Column(DateTime)
 
 
-class MetricModel(Base):
+class MetricModel(Base, VersionedMixin):
     """SQLAlchemy model for storing metrics."""
 
     __tablename__ = "metrics"

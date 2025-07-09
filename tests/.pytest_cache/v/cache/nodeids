@@ -4367,6 +4367,7 @@
   "test_preprocessing_cli.py::TestPreprocessingIntegration::test_dataset_not_found",
   "test_preprocessing_cli.py::TestPreprocessingIntegration::test_save_as_new_dataset",
   "test_preprocessing_cli.py::TestPreprocessingWorkflow::test_complete_preprocessing_workflow",
+  "test_pytest_config.py::test_random_seed_fixture",
   "test_rfc7807_error_handling.py::test_correlation_id_middleware",
   "test_rfc7807_error_handling.py::test_create_problem_details_response",
   "test_rfc7807_error_handling.py::test_dto_extra_forbid",

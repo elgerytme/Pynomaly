@@ -24,6 +24,14 @@ from .pipeline import (
     PipelineType,
     StepType,
 )
+from .security import (
+    ActionType,
+    AuditEvent,
+    PermissionType,
+    SecurityPolicy,
+    AccessRequest,
+    User,
+)
 
 __all__ = [
     "Anomaly",
@@ -52,4 +60,10 @@ __all__ = [
     "AlertStatus",
     "AlertType",
     "NotificationChannel",
+    "ActionType",
+    "AuditEvent",
+    "PermissionType",
+    "SecurityPolicy",
+    "AccessRequest",
+    "User",
 ]

@@ -1,6 +1,6 @@
 import unittest
-from src.pynomaly.domain.security.permission_matrix import PermissionMatrix
-from src.pynomaly.domain.entities.user import UserRole
+from pynomaly.domain.security.permission_matrix import PermissionMatrix
+from pynomaly.domain.entities.user import UserRole
 
 class TestPermissionMatrix(unittest.TestCase):
 
