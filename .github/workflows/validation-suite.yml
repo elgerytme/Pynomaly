@@ -79,6 +79,10 @@ jobs:
         echo "::endgroup::"
       continue-on-error: true
 
+    - name: Check duplicate configs
+      run: python scripts/validation/assert_no_duplicate_configs.py
+      continue-on-error: false
+
     - name: Quality summary
       id: quality-summary
       run: |
@@ -200,7 +204,7 @@ jobs:
       run: |
         echo "::group::Unit Tests"
         hatch run test:run tests/domain/ tests/application/ -v --tb=short \
-          --cov=src/pynomaly --cov-report=xml --cov-report=term \
+      --cov=src/pynomaly --cov-report=json:coverage.json --cov-report=term \
           --cov-report=html --cov-fail-under=${{ env.COVERAGE_THRESHOLD }}
         echo "::endgroup::"
       continue-on-error: true
@@ -211,7 +215,7 @@ jobs:
       run: |
         echo "::group::Integration Tests"
         hatch run test:run tests/infrastructure/ tests/presentation/ -v --tb=short \
-          --cov=src/pynomaly --cov-report=xml --cov-report=term \
+          --cov=src/pynomaly --cov-report=json:coverage.json --cov-report=term \
           --cov-append
         echo "::endgroup::"
       continue-on-error: true
@@ -221,33 +225,80 @@ jobs:
       run: |
         echo "::group::Coverage Analysis"
         
-        # Extract coverage information
-        if [ -f coverage.xml ]; then
+        # Extract coverage information from JSON
+        if [ -f coverage.json ]; then
           # Parse overall coverage
-          OVERALL_COVERAGE=$(python -c "
-          import xml.etree.ElementTree as ET
-          tree = ET.parse('coverage.xml')
-          root = tree.getroot()
-          line_rate = float(root.get('line-rate', 0))
-          print(f'{line_rate * 100:.1f}')
-          ")
-          
+          OVERALL_COVERAGE=$(jq -r '.totals.percent_covered' coverage.json)
           echo "Overall coverage: ${OVERALL_COVERAGE}%"
           
-          # Check if meets threshold
+          # Initialize failure flag
+          COVERAGE_FAILED=0
+          
+          # Check main threshold
           if (( $(echo "$OVERALL_COVERAGE >= ${{ env.COVERAGE_THRESHOLD }}" | bc -l) )); then
-            echo "status=success" >> $GITHUB_OUTPUT
-            echo "✅ Coverage threshold met: ${OVERALL_COVERAGE}% >= ${{ env.COVERAGE_THRESHOLD }}%"
+            echo "✅ Overall coverage meets threshold: ${OVERALL_COVERAGE}% >= ${{ env.COVERAGE_THRESHOLD }}%"
           else
-            echo "status=failure" >> $GITHUB_OUTPUT
-            echo "❌ Coverage threshold not met: ${OVERALL_COVERAGE}% < ${{ env.COVERAGE_THRESHOLD }}%"
+            echo "❌ Overall coverage below threshold: ${OVERALL_COVERAGE}% < ${{ env.COVERAGE_THRESHOLD }}%"
+            COVERAGE_FAILED=1
           fi
+
+          # Extract and check per-package coverage
+          DOMAIN_COVERAGE=$(jq -r '.files | to_entries | map(select(.key | startswith("src/pynomaly/domain"))) | map(.value.summary.percent_covered) | add / length' coverage.json)
+          echo "Domain coverage: ${DOMAIN_COVERAGE}%"
+          if (( $(echo "$DOMAIN_COVERAGE >= ${{ env.COVERAGE_THRESHOLD_DOMAIN }}" | bc -l) )); then
+            echo "✅ Domain coverage meets threshold: ${DOMAIN_COVERAGE}% >= ${{ env.COVERAGE_THRESHOLD_DOMAIN }}%"
+          else
+            echo "❌ Domain coverage below threshold: ${DOMAIN_COVERAGE}% < ${{ env.COVERAGE_THRESHOLD_DOMAIN }}%"
+            COVERAGE_FAILED=1
+          fi
+
+          # Application layer
+          APPLICATION_COVERAGE=$(jq -r '.files | to_entries | map(select(.key | startswith("src/pynomaly/application"))) | map(.value.summary.percent_covered) | add / length' coverage.json)
+          echo "Application coverage: ${APPLICATION_COVERAGE}%"
+          if (( $(echo "$APPLICATION_COVERAGE >= ${{ env.COVERAGE_THRESHOLD_APPLICATION }}" | bc -l) )); then
+            echo "✅ Application coverage meets threshold: ${APPLICATION_COVERAGE}% >= ${{ env.COVERAGE_THRESHOLD_APPLICATION }}%"
+          else
+            echo "❌ Application coverage below threshold: ${APPLICATION_COVERAGE}% < ${{ env.COVERAGE_THRESHOLD_APPLICATION }}%"
+            COVERAGE_FAILED=1
+          fi
+
+          # Infrastructure layer
+          INFRA_COVERAGE=$(jq -r '.files | to_entries | map(select(.key | startswith("src/pynomaly/infrastructure"))) | map(.value.summary.percent_covered) | add / length' coverage.json)
+          echo "Infrastructure coverage: ${INFRA_COVERAGE}%"
+          if (( $(echo "$INFRA_COVERAGE >= ${{ env.COVERAGE_THRESHOLD_INFRASTRUCTURE }}" | bc -l) )); then
+            echo "✅ Infrastructure coverage meets threshold: ${INFRA_COVERAGE}% >= ${{ env.COVERAGE_THRESHOLD_INFRASTRUCTURE }}%"
+          else
+            echo "❌ Infrastructure coverage below threshold: ${INFRA_COVERAGE}% < ${{ env.COVERAGE_THRESHOLD_INFRASTRUCTURE }}%"
+            COVERAGE_FAILED=1
+          fi
+
+          # Presentation layer
+          PRESENTATION_COVERAGE=$(jq -r '.files | to_entries | map(select(.key | startswith("src/pynomaly/presentation"))) | map(.value.summary.percent_covered) | add / length' coverage.json)
+          echo "Presentation coverage: ${PRESENTATION_COVERAGE}%"
+          if (( $(echo "$PRESENTATION_COVERAGE >= ${{ env.COVERAGE_THRESHOLD_PRESENTATION }}" | bc -l) )); then
+            echo "✅ Presentation coverage meets threshold: ${PRESENTATION_COVERAGE}% >= ${{ env.COVERAGE_THRESHOLD_PRESENTATION }}%"
+          else
+            echo "❌ Presentation coverage below threshold: ${PRESENTATION_COVERAGE}% < ${{ env.COVERAGE_THRESHOLD_PRESENTATION }}%"
+            COVERAGE_FAILED=1
+          fi
+
+          # Check final status
+          if [ $COVERAGE_FAILED -eq 1 ]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "❌ Some coverage thresholds not met"
+            exit 1
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "✅ All coverage thresholds met"
+          fi
+
         else
           echo "status=failure" >> $GITHUB_OUTPUT
           echo "❌ No coverage report found"
+          exit 1
         fi
         echo "::endgroup::"
-      continue-on-error: true
+      continue-on-error: false
 
     - name: Test summary
       id: test-summary
@@ -270,6 +321,7 @@ jobs:
         name: test-results-${{ matrix.test-type }}
         path: |
           htmlcov/
+          coverage.json
           coverage.xml
           .coverage
         retention-days: 7
@@ -539,10 +591,12 @@ jobs:
         ## 🎯 Coverage Requirements
         
         - **Overall Project**: ≥95% (Required for merge)
-        - **Domain Layer**: ≥98%
-        - **Application Layer**: ≥95%
-        - **Infrastructure Layer**: ≥90%
-        - **Presentation Layer**: ≥85%
+        - **Domain Layer**: ≥98% (Business logic - highest standard)
+        - **Application Layer**: ≥95% (Use cases - high standard)
+        - **Infrastructure Layer**: ≥90% (Adapters - moderate standard)
+        - **Presentation Layer**: ≥85% (UI/API - flexible standard)
+        
+        **Note**: All thresholds are strictly enforced by CI/CD pipeline
         
         ## 🚀 Merge Status
         

@@ -51,6 +51,10 @@ jobs:
         python scripts/validation/validate_file_organization.py
         python scripts/validation/validate_quality_gates.py
 
+    - name: Check duplicate configs
+      run: python scripts/validation/assert_no_duplicate_configs.py
+      continue-on-error: false
+
   docs-lint:
     name: Documentation Lint
     runs-on: ubuntu-latest

@@ -33,6 +33,8 @@ class RBACService:
         self.logger = logging.getLogger(__name__)
 
         # In-memory storage (would be replaced with persistent storage in production)
+        # TODO: Replace with persistent storage (Redis for sessions, database for users)
+        # TODO: Implement proper session clustering for horizontal scaling
         self.users: dict[UUID, User] = {}
         self.users_by_username: dict[str, UUID] = {}
         self.users_by_email: dict[str, UUID] = {}
@@ -63,6 +65,8 @@ class RBACService:
             raise ValueError(f"Email '{email}' already exists")
 
         # Validate password against policy
+        # TODO: Consider implementing password strength estimation (e.g., zxcvbn)
+        # TODO: Add password breach checking against known compromised passwords
         self._validate_password(password)
 
         # Generate secure password hash
@@ -81,6 +85,8 @@ class RBACService:
         )
 
         # Store user
+        # TODO: Consider using a proper ORM or database abstraction layer
+        # instead of in-memory dictionaries for production deployment
         self.users[user.user_id] = user
         self.users_by_username[username] = user.user_id
         self.users_by_email[email] = user.user_id
@@ -165,6 +171,9 @@ class RBACService:
             user.must_change_password = True
 
         # Generate JWT token
+        # TODO: Consider implementing JWT refresh tokens for better security
+        # TODO: Add token blacklisting mechanism for immediate session invalidation
+        # TODO: Consider using asymmetric keys (RS256) for better security in distributed systems
         session_id = secrets.token_urlsafe(32)
         token_payload = {
             "user_id": str(user.user_id),
@@ -572,6 +581,9 @@ class RBACService:
     def _hash_password(self, password: str, salt: str) -> str:
         """Hash password using PBKDF2."""
 
+        # TODO: Consider migrating to Argon2 for better resistance to GPU attacks
+        # TODO: Make iteration count configurable based on security requirements
+        # TODO: Add memory-hard function support for enhanced security
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
@@ -592,6 +604,9 @@ class RBACService:
         """Check if IP address is in allowed ranges."""
 
         # Simple implementation - would use proper CIDR matching in production
+        # TODO: Implement proper CIDR matching using ipaddress module
+        # TODO: Add support for IPv6 addresses
+        # TODO: Consider implementing geo-IP blocking
         for allowed_range in self.security_policy.allowed_ip_ranges:
             if ip_address.startswith(allowed_range):
                 return True
@@ -669,6 +684,9 @@ class RBACService:
         )
 
         # In production, this would be sent to a centralized audit log system
+        # TODO: Implement centralized audit logging (e.g., ELK stack, Splunk)
+        # TODO: Add audit event validation and integrity checks
+        # TODO: Implement audit log encryption and tamper detection
         self.logger.info(f"Audit: {action.value} - {resource_type} - Success: {success}")
 
     def get_user_sessions(self, user_id: UUID) -> list[str]:
@@ -682,6 +700,10 @@ class RBACService:
     def get_security_metrics(self) -> dict[str, Any]:
         """Get security metrics for monitoring."""
 
+        # TODO: Implement real-time security metrics collection
+        # TODO: Add anomaly detection for unusual access patterns
+        # TODO: Integrate with monitoring systems (Prometheus, Grafana)
+        # TODO: Add security alerting for critical metrics
         total_users = len(self.users)
         active_users = sum(1 for user in self.users.values() if user.is_active)
         locked_users = sum(1 for user in self.users.values() if user.is_locked)

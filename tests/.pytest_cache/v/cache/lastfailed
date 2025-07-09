@@ -2291,5 +2291,7 @@
   "benchmarks": true,
   "test_final_validation.py::test_enhanced_settings_core": true,
   "test_final_validation.py::test_environment_files": true,
-  "application/dto/test_streaming_dto.py": true
+  "application/dto/test_streaming_dto.py": true,
+  "scripts/test_assert_no_duplicate_configs.py::TestAssertNoDuplicateConfigs::test_no_duplicates": true,
+  "scripts/test_assert_no_duplicate_configs.py::TestAssertNoDuplicateConfigs::test_with_duplicates": true
 }

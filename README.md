@@ -5,6 +5,7 @@
 [![Build System: Hatch](https://img.shields.io/badge/build%20system-hatch-4051b5.svg)](https://hatch.pypa.io/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
+[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen.svg)](https://github.com/yourusername/pynomaly/actions)
 [![CI](https://github.com/yourusername/pynomaly/workflows/CI/badge.svg)](https://github.com/yourusername/pynomaly/actions)
 [![Security](https://github.com/yourusername/pynomaly/workflows/Security%20Scanning/badge.svg)](https://github.com/yourusername/pynomaly/actions)
 [![Maintenance Status](https://github.com/yourusername/pynomaly/workflows/Scheduled%20Maintenance/badge.svg)](https://github.com/yourusername/pynomaly/actions)
@@ -59,7 +60,13 @@ These tools ensure that the code meets the quality standards and is free from vu
 - 💾 **Data Export**: CSV/JSON/Excel export functionality
 - 🎯 **Ensemble Methods**: Advanced voting strategies and model combination
 - ⚡ **Performance Optimizations**: Batch cache operations, optimized data loading, memory management
-- 🧪 **Testing Infrastructure**: 85%+ coverage with property-based testing, benchmarking, and mutation testing
+- 🧪 **Testing Infrastructure**: High coverage with strict thresholds:
+  - **Overall Project**: ≥95% coverage (enforced in CI)
+  - **Domain Layer**: ≥98% coverage (business logic)
+  - **Application Layer**: ≥95% coverage (use cases)
+  - **Infrastructure Layer**: ≥90% coverage (adapters)
+  - **Presentation Layer**: ≥85% coverage (UI/API)
+  - Property-based testing, benchmarking, and mutation testing
 
 ### Experimental Features (Limited Support)
 
