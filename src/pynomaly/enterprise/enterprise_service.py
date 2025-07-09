@@ -228,7 +228,7 @@ class EnterpriseService:
 
             # Get audit summary
             audit_query = AuditQuery(
-                tenant_id=tenant.id,
+                tenant_id=str(tenant.id),
                 start_time=datetime.utcnow() - timedelta(days=7),
                 limit=1000,
             )
@@ -308,7 +308,7 @@ class EnterpriseService:
 
             # Query audit events for the period
             audit_query = AuditQuery(
-                tenant_id=tenant.id,
+                tenant_id=str(tenant.id),
                 start_time=request.start_date,
                 end_time=request.end_date,
                 limit=10000,

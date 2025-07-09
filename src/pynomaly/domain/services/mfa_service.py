@@ -96,6 +96,8 @@ class MFAService:
         issuer: str = "Pynomaly Security"
     ) -> TOTPSetupResponse:
         """Create TOTP setup response with QR code and backup codes."""
+        if not PYOTP_AVAILABLE:
+            raise RuntimeError("TOTP functionality requires pyotp library")
         
         # Create TOTP URI
         totp_uri = pyotp.totp.TOTP(secret).provisioning_uri(
@@ -103,17 +105,24 @@ class MFAService:
             issuer_name=issuer
         )
         
-        # Generate QR code
-        qr = qrcode.QRCode(version=1, box_size=10, border=5)
-        qr.add_data(totp_uri)
-        qr.make(fit=True)
+        # Generate QR code if available
+        qr_code_url = totp_uri  # Fallback to URI if QR code generation fails
         
-        # Convert QR code to base64 image
-        img = qr.make_image(fill_color="black", back_color="white")
-        buffered = BytesIO()
-        img.save(buffered, format="PNG")
-        qr_code_base64 = base64.b64encode(buffered.getvalue()).decode()
-        qr_code_url = f"data:image/png;base64,{qr_code_base64}"
+        if QRCODE_AVAILABLE:
+            try:
+                qr = qrcode.QRCode(version=1, box_size=10, border=5)
+                qr.add_data(totp_uri)
+                qr.make(fit=True)
+                
+                # Convert QR code to base64 image
+                img = qr.make_image(fill_color="black", back_color="white")
+                buffered = BytesIO()
+                img.save(buffered, format="PNG")
+                qr_code_base64 = base64.b64encode(buffered.getvalue()).decode()
+                qr_code_url = f"data:image/png;base64,{qr_code_base64}"
+            except Exception:
+                # Fallback to URI if QR code generation fails
+                qr_code_url = totp_uri
         
         # Generate backup codes
         backup_codes = self.generate_backup_codes(user_id)
@@ -127,6 +136,9 @@ class MFAService:
     
     def verify_totp_code(self, user_id: str, totp_code: str, secret: str = None) -> bool:
         """Verify TOTP code for the user."""
+        if not PYOTP_AVAILABLE:
+            raise RuntimeError("TOTP functionality requires pyotp library")
+        
         try:
             # Get secret from setup or storage
             if not secret:

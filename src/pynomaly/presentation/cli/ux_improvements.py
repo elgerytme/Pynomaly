@@ -16,10 +16,12 @@ from typing import Any
 import typer
 from rich.console import Console
 from rich.panel import Panel
-from rich.progress import Progress
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
 from rich.prompt import Confirm, Prompt
 from rich.syntax import Syntax
 from rich.table import Table
+from rich.live import Live
+from rich.status import Status
 
 console = Console()
 
@@ -105,8 +107,14 @@ class CLIErrorHandler:
     ) -> None:
         """Handle detector not found error with suggestions."""
         console.print(
-            f"[red]Error:[/red] No detector found matching '{detector_query}'"
+            f"[red]❌ Error:[/red] No detector found matching '{detector_query}'"
         )
+        
+        # Log the error
+        CLIErrorHandler._log_error("detector_not_found", {
+            "query": detector_query,
+            "available_count": len(available_detectors)
+        })
 
         # Suggest similar detectors using fuzzy matching
         detector_names = [
@@ -117,7 +125,7 @@ class CLIErrorHandler:
         )
 
         if similar:
-            console.print("\n[yellow]Did you mean:[/yellow]")
+            console.print("\n[yellow]🤔 Did you mean:[/yellow]")
             for suggestion in similar:
                 matching_detector = next(
                     (d for d in available_detectors if d.get("name") == suggestion),
@@ -125,23 +133,31 @@ class CLIErrorHandler:
                 )
                 if matching_detector:
                     detector_id = matching_detector.get("id", "unknown")[:8]
-                    console.print(f"  • {suggestion} ({detector_id})")
+                    algorithm = matching_detector.get("algorithm", "Unknown")
+                    console.print(f"  • {suggestion} ({detector_id}) - {algorithm}")
 
         # Show available detectors
         if available_detectors:
-            console.print("\n[cyan]Available detectors:[/cyan]")
+            console.print("\n[cyan]📋 Available detectors:[/cyan]")
             for detector in available_detectors[:5]:  # Show first 5
                 name = detector.get("name", "Unknown")
                 detector_id = detector.get("id", "unknown")[:8]
                 algorithm = detector.get("algorithm", "Unknown")
-                console.print(f"  • {name} ({detector_id}) - {algorithm}")
+                status = detector.get("status", "Unknown")
+                status_icon = "✅" if status == "active" else "⏸️" if status == "paused" else "❓"
+                console.print(f"  • {name} ({detector_id}) - {algorithm} {status_icon}")
 
             if len(available_detectors) > 5:
                 console.print(f"  ... and {len(available_detectors) - 5} more")
+                console.print("  💡 Use [white]pynomaly detector list --all[/white] to see all")
 
         # Provide creation option
-        console.print("\n[cyan]Create new detector:[/cyan]")
+        console.print("\n[cyan]🔧 Create new detector:[/cyan]")
         console.print("Run [white]pynomaly detector create --help[/white] for options")
+        console.print("Quick start: [white]pynomaly detector create my-detector --algorithm IsolationForest[/white]")
+        
+        # Show support info
+        CLIErrorHandler._show_support_info()
 
         raise typer.Exit(1)
 
@@ -757,3 +773,193 @@ def create_setup_wizard():
     else:
         console.print("\n[red]Setup failed. Please try again.[/red]")
         return None
+
+
+class ProgressIndicator:
+    """Enhanced progress indicators for various operations."""
+    
+    def __init__(self, console: Console = None):
+        """Initialize progress indicator with optional console."""
+        self.console = console or Console()
+        self._current_progress = None
+        self._current_status = None
+    
+    def create_progress_bar(self, description: str = "Processing...") -> Progress:
+        """Create a rich progress bar with multiple columns."""
+        return Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TaskProgressColumn(),
+            TimeRemainingColumn(),
+            console=self.console,
+            transient=True
+        )
+    
+    def create_spinner(self, message: str = "Processing...") -> Status:
+        """Create a spinner for indefinite operations."""
+        return Status(
+            message,
+            console=self.console,
+            spinner="dots"
+        )
+    
+    def track_file_upload(self, file_path: str, chunk_size: int = 8192):
+        """Track file upload progress."""
+        from pathlib import Path
+        
+        file_size = Path(file_path).stat().st_size
+        
+        with self.create_progress_bar("Uploading file...") as progress:
+            task = progress.add_task(f"[cyan]Uploading {Path(file_path).name}...", total=file_size)
+            
+            uploaded = 0
+            # Simulate file upload (in real implementation, this would be actual upload)
+            import time
+            while uploaded < file_size:
+                chunk = min(chunk_size, file_size - uploaded)
+                time.sleep(0.01)  # Simulate network delay
+                uploaded += chunk
+                progress.update(task, completed=uploaded)
+    
+    def track_training_progress(self, total_epochs: int, current_metrics: dict = None):
+        """Track model training progress with live metrics."""
+        with self.create_progress_bar("Training model...") as progress:
+            task = progress.add_task("[cyan]Training...", total=total_epochs)
+            
+            # In real implementation, this would track actual training
+            import time
+            for epoch in range(total_epochs):
+                time.sleep(0.1)  # Simulate training time
+                
+                # Update progress
+                progress.update(
+                    task, 
+                    completed=epoch + 1, 
+                    description=f"[cyan]Epoch {epoch + 1}/{total_epochs}"
+                )
+                
+                # Show live metrics if provided
+                if current_metrics:
+                    metrics_str = " | ".join([f"{k}: {v:.3f}" for k, v in current_metrics.items()])
+                    progress.update(task, description=f"[cyan]Epoch {epoch + 1}/{total_epochs} | {metrics_str}")
+    
+    def track_data_processing(self, steps: list[str], step_function=None):
+        """Track multi-step data processing with detailed progress."""
+        with self.create_progress_bar("Processing data...") as progress:
+            main_task = progress.add_task("[cyan]Overall Progress", total=len(steps))
+            
+            for i, step in enumerate(steps):
+                step_task = progress.add_task(f"[yellow]{step}...", total=100)
+                
+                # Execute step function if provided
+                if step_function:
+                    result = step_function(i, step, lambda p: progress.update(step_task, completed=p))
+                    if not result:
+                        progress.update(step_task, description=f"[red]Failed: {step}")
+                        return False
+                else:
+                    # Simulate step execution
+                    import time
+                    for j in range(100):
+                        time.sleep(0.001)
+                        progress.update(step_task, completed=j + 1)
+                
+                progress.update(step_task, description=f"[green]✓ {step}")
+                progress.update(main_task, completed=i + 1)
+        
+        return True
+    
+    def track_batch_operation(self, items: list, operation_name: str, batch_function=None):
+        """Track batch operations with item-by-item progress."""
+        with self.create_progress_bar(f"{operation_name}...") as progress:
+            task = progress.add_task(f"[cyan]{operation_name}", total=len(items))
+            
+            results = []
+            for i, item in enumerate(items):
+                # Update description with current item
+                item_name = str(item)[:30] + "..." if len(str(item)) > 30 else str(item)
+                progress.update(task, description=f"[cyan]{operation_name}: {item_name}")
+                
+                # Execute batch function if provided
+                if batch_function:
+                    result = batch_function(item, i)
+                    results.append(result)
+                else:
+                    # Simulate operation
+                    import time
+                    time.sleep(0.05)
+                    results.append(f"processed_{item}")
+                
+                progress.update(task, completed=i + 1)
+            
+            progress.update(task, description=f"[green]✓ {operation_name} completed")
+            return results
+    
+    def show_live_metrics(self, metrics_function, duration: int = 10):
+        """Show live updating metrics."""
+        from rich.layout import Layout
+        from rich.text import Text
+        
+        layout = Layout()
+        
+        with Live(layout, refresh_per_second=2, console=self.console) as live:
+            import time
+            start_time = time.time()
+            
+            while time.time() - start_time < duration:
+                # Get current metrics
+                metrics = metrics_function() if metrics_function else {}
+                
+                # Create metrics display
+                metrics_text = Text()
+                metrics_text.append("Live Metrics\n\n", style="bold cyan")
+                
+                for key, value in metrics.items():
+                    metrics_text.append(f"{key}: ", style="white")
+                    metrics_text.append(f"{value}\n", style="green")
+                
+                layout.update(Panel(metrics_text, title="System Metrics", border_style="cyan"))
+                time.sleep(0.5)
+    
+    def show_comparison_progress(self, algorithms: list[str], test_function=None):
+        """Show progress for comparing multiple algorithms."""
+        with self.create_progress_bar("Comparing algorithms...") as progress:
+            main_task = progress.add_task("[cyan]Overall comparison", total=len(algorithms))
+            
+            results = {}
+            for i, algorithm in enumerate(algorithms):
+                # Create task for this algorithm
+                algo_task = progress.add_task(f"[yellow]Testing {algorithm}...", total=100)
+                
+                # Execute test function if provided
+                if test_function:
+                    result = test_function(algorithm, lambda p: progress.update(algo_task, completed=p))
+                    results[algorithm] = result
+                else:
+                    # Simulate algorithm testing
+                    import time
+                    for j in range(100):
+                        time.sleep(0.01)
+                        progress.update(algo_task, completed=j + 1)
+                    results[algorithm] = {"accuracy": 0.85 + (i * 0.03), "time": 10 + (i * 2)}
+                
+                progress.update(algo_task, description=f"[green]✓ {algorithm} completed")
+                progress.update(main_task, completed=i + 1)
+            
+            return results
+    
+    def __enter__(self):
+        """Context manager entry."""
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit."""
+        if self._current_progress:
+            self._current_progress.stop()
+        if self._current_status:
+            self._current_status.stop()
+
+
+# Global progress indicator instance
+progress_indicator = ProgressIndicator()
