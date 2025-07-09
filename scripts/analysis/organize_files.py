@@ -58,8 +58,13 @@ except ImportError:
 class FileOrganizer:
     """Automated file organization system."""
 
-    def __init__(self, project_root: Path = None, dry_run: bool = True):
-        self.project_root = project_root or Path.cwd()
+    def __init__(self, project_root = None, dry_run: bool = True):
+        if project_root is None:
+            self.project_root = Path.cwd()
+        elif isinstance(project_root, str):
+            self.project_root = Path(project_root)
+        else:
+            self.project_root = project_root
         self.dry_run = dry_run
         self.operations = []
         self.errors = []

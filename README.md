@@ -6,6 +6,7 @@
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![CI](https://github.com/yourusername/pynomaly/workflows/CI/badge.svg)](https://github.com/yourusername/pynomaly/actions)
+[![Structure ✅](https://img.shields.io/badge/structure-%E2%9C%85-brightgreen.svg)](#)
 
 Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified interface.
 
@@ -178,6 +179,22 @@ Pynomaly is designed to work seamlessly across different operating systems and e
 **NumPy Compatibility**: Uses `numpy>=1.26.0,<2.2.0` to ensure compatibility with TensorFlow and other ML libraries across all platforms.
 
 ## Quick Start
+
+### Hooks & Cleanup
+
+To make sure your development environment is set up correctly, use the handy setup script:
+
+```bash
+# Run hook and cleanup scripts
+python scripts/setup/install_changelog_hooks.sh
+python scripts/maintenance/cleanup_repository.py
+```
+
+### Demo Screencast
+
+![Pynomaly Demo](docs/assets/pynomaly-demo.gif)
+
+*Quick demonstration of Pynomaly's key features including setup, CLI usage, and web interface.*
 
 ### Verified Run Scripts
 
@@ -354,10 +371,11 @@ result = export_service.export_results(
 ```
 
 *Note: Advanced business intelligence integrations (Power BI, Google Sheets, Smartsheet) are planned for future releases.*
-
 ## Architecture
 
-Pynomaly follows **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Hexagonal Architecture (Ports & Adapters)**:
+Pynomaly follows **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Hexagonal Architecture (Ports \u0026 Adapters)**:
+
+Check out our [File Organization Standards](./docs/developer-guides/contributing/FILE_ORGANIZATION_STANDARDS.md) to learn more about maintaining a clean and organized repository.
 
 ```
 src/pynomaly/

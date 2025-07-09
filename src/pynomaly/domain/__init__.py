@@ -25,4 +25,12 @@ __all__ = [
     "AnomalyScore",
     "ConfidenceInterval",
     "ContaminationRate",
+    "ValidationSeverity",
+    "ValidationError",
+    "ValidationResult",
+    "DomainValidator",
+    "ValidationStrategy",
+    "validate_anomaly",
+    "validate_dataset",
+    "set_validation_strategy",
 ]

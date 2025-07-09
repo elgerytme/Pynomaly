@@ -99,8 +99,8 @@ def test_imports() -> bool:
     """Test that all required imports work."""
     try:
         # Test core module imports
-        from src.file_organizer import FileOrganizer
-        from src.detectors.stray_files_detector import StrayFilesDetector
+        from scripts.analysis.organize_files import FileOrganizer
+        from scripts.analysis.detect_stray_files import detect_stray_files
         
         # Test pytest imports
         import pytest
@@ -122,7 +122,7 @@ def run_specific_tests() -> bool:
         ['python', '-m', 'pytest', 'tests/integration/test_file_organization.py::test_file_organizer_dry_run', '-v'],
         
         # Test file organizer fix mode
-        ['python', '-m', 'pytest', 'tests/integration/test_file_organization.py::test_file_organizer_fix_mode', '-v']
+        ['python', '-m', 'pytest', 'tests/integration/test_file_organization.py::test_file_organizer_fix', '-v']
     ]
     
     all_passed = True

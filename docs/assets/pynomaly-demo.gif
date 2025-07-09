@@ -1,0 +1,21 @@
+GIF89a placeholder for Pynomaly demo screencast
+
+This is a placeholder file for a screencast GIF that would demonstrate:
+- Setting up Pynomaly environment
+- Running basic anomaly detection
+- Viewing results in the web interface
+- Using CLI commands for dataset management
+
+To create an actual screencast GIF, you can use tools like:
+- LICEcap (Windows/Mac)
+- ScreenToGif (Windows)
+- peek (Linux)
+- OBS Studio with gif export plugin
+
+The screencast should show:
+1. Quick installation process
+2. Basic CLI usage
+3. Web interface demonstration
+4. Key features in action
+
+File should be optimized for web display (< 5MB recommended).
