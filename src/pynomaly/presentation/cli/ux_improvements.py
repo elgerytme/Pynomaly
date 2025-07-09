@@ -25,7 +25,79 @@ console = Console()
 
 
 class CLIErrorHandler:
-    """Centralized error handling with helpful suggestions."""
+    """Centralized error handling with helpful suggestions and logging."""
+    
+    _session_id: str = "unknown"
+
+    @staticmethod
+    def _log_error(error_type: str, details: dict[str, Any]) -> None:
+        """Log error details for debugging and monitoring."""
+        error_log = {
+            "timestamp": datetime.now().isoformat(),
+            "error_type": error_type,
+            "details": details,
+            "session_id": getattr(CLIErrorHandler, "_session_id", "unknown")
+        }
+        
+        # In production, this would log to a proper logging system
+        # For now, we'll append to a local error log file
+        try:
+            log_path = Path.home() / ".pynomaly" / "error.log"
+            log_path.parent.mkdir(exist_ok=True)
+            
+            with open(log_path, "a") as f:
+                f.write(json.dumps(error_log) + "\n")
+        except Exception:
+            # Silently fail if logging fails
+            pass
+
+    @staticmethod
+    def _show_support_info() -> None:
+        """Show support and troubleshooting information."""
+        console.print("\n[bold blue]Need Help?[/bold blue]")
+        console.print("• Documentation: [cyan]https://docs.pynomaly.com[/cyan]")
+        console.print("• GitHub Issues: [cyan]https://github.com/pynomaly/pynomaly/issues[/cyan]")
+        console.print("• Community: [cyan]https://discord.gg/pynomaly[/cyan]")
+        console.print("• Check logs: [cyan]~/.pynomaly/error.log[/cyan]")
+
+    @classmethod
+    def set_session_id(cls, session_id: str) -> None:
+        """Set session ID for error tracking."""
+        cls._session_id = session_id
+    
+    @classmethod
+    def get_error_summary(cls) -> dict[str, Any]:
+        """Get summary of recent errors for diagnostics."""
+        try:
+            log_path = Path.home() / ".pynomaly" / "error.log"
+            if not log_path.exists():
+                return {"total_errors": 0, "recent_errors": []}
+            
+            recent_errors = []
+            with open(log_path, "r") as f:
+                for line in f:
+                    try:
+                        error_data = json.loads(line.strip())
+                        recent_errors.append(error_data)
+                    except json.JSONDecodeError:
+                        continue
+            
+            # Get last 10 errors
+            recent_errors = recent_errors[-10:]
+            
+            # Count error types
+            error_counts = {}
+            for error in recent_errors:
+                error_type = error.get("error_type", "unknown")
+                error_counts[error_type] = error_counts.get(error_type, 0) + 1
+            
+            return {
+                "total_errors": len(recent_errors),
+                "recent_errors": recent_errors,
+                "error_counts": error_counts
+            }
+        except Exception:
+            return {"total_errors": 0, "recent_errors": [], "error": "Failed to read error log"}
 
     @staticmethod
     def detector_not_found(

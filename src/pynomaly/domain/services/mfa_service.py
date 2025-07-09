@@ -11,11 +11,23 @@ import time
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import quote
-
-import pyotp
-import qrcode
 from io import BytesIO
 import base64
+
+# Optional dependencies for MFA
+try:
+    import pyotp
+    PYOTP_AVAILABLE = True
+except ImportError:
+    PYOTP_AVAILABLE = False
+    pyotp = None
+
+try:
+    import qrcode
+    QRCODE_AVAILABLE = True
+except ImportError:
+    QRCODE_AVAILABLE = False
+    qrcode = None
 
 from pynomaly.application.dto.mfa_dto import (
     MFAMethodType,
@@ -52,6 +64,9 @@ class MFAService:
         
     def generate_totp_secret(self, user_id: str) -> str:
         """Generate a new TOTP secret for the user."""
+        if not PYOTP_AVAILABLE:
+            raise RuntimeError("TOTP functionality requires pyotp library")
+        
         secret = pyotp.random_base32()
         
         # Store secret temporarily (will be confirmed when verified)
