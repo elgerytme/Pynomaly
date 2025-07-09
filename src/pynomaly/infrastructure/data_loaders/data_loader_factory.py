@@ -20,6 +20,7 @@ from .parquet_loader import ParquetLoader
 # Optional imports with graceful fallbacks
 try:
     from .dvc_loader import DVCLoader
+
     DVC_AVAILABLE = True
 except ImportError:
     DVCLoader = None  # type: ignore

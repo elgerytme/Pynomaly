@@ -17,5 +17,5 @@ __all__ = [
     "StreamFormat",
     "StreamRecord",
     "StreamBatch",
-    "create_stream_processor"
+    "create_stream_processor",
 ]

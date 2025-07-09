@@ -738,9 +738,9 @@ class RealTimeEnsembleOptimizer:
                 arm_performances[arm_id] = combined_performance
                 total_performance += combined_performance
             else:
-                arm_performances[
-                    arm_id
-                ] = 0.1  # Small default weight for unexplored arms
+                arm_performances[arm_id] = (
+                    0.1  # Small default weight for unexplored arms
+                )
                 total_performance += 0.1
 
         # Normalize weights

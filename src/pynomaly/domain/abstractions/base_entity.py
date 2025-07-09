@@ -21,6 +21,7 @@ class BaseEntity(BaseModel, Generic[T], ABC):
 
     class Config:
         """Pydantic configuration."""
+
         allow_mutation = True
         json_encoders = {
             datetime: lambda v: v.isoformat(),

@@ -26,72 +26,87 @@ try:
     from tensorflow import keras
     from tensorflow.keras import Model, layers
     from tensorflow.keras.callbacks import EarlyStopping
+
     HAS_TENSORFLOW = True
 except ImportError:
     HAS_TENSORFLOW = False
+
     # Create dummy classes to avoid import errors
     class tf:
         @staticmethod
         def constant(data, dtype=None):
             return data
+
         @staticmethod
         def reduce_mean(x, axis=None):
             return 0
+
         @staticmethod
         def reduce_sum(x, axis=None):
             return 0
+
         @staticmethod
         def square(x):
             return x
+
         @staticmethod
         def exp(x):
             return x
+
         @staticmethod
         def shape(x):
-            return x.shape if hasattr(x, 'shape') else (1,)
+            return x.shape if hasattr(x, "shape") else (1,)
+
         class random:
             @staticmethod
             def normal(shape):
                 return 0
+
         class config:
             @staticmethod
             def list_physical_devices(device_type):
                 return []
-    
+
     class Model:
         def __init__(self):
             pass
+
         def compile(self, *args, **kwargs):
             pass
+
         def fit(self, *args, **kwargs):
             return MockHistory()
+
         def count_params(self):
             return 0
+
         @property
         def trainable_weights(self):
             return []
-    
+
     class MockHistory:
         def __init__(self):
             self.history = {"loss": [1.0, 0.5, 0.3]}
-    
+
     class layers:
         @staticmethod
         def Dense(*args, **kwargs):
             return None
+
         @staticmethod
         def Dropout(*args, **kwargs):
             return None
-    
+
     class keras:
         @staticmethod
         def Sequential(*args):
             return Model()
+
         class optimizers:
             @staticmethod
             def Adam(*args, **kwargs):
                 return None
-    
+
     class EarlyStopping:
         def __init__(self, *args, **kwargs):
             pass
@@ -380,30 +395,30 @@ class TensorFlowAdapter(Detector):
     def _prepare_data(self, dataset: Dataset) -> tf.Tensor:
         """Prepare data for TensorFlow training."""
         df = dataset.data
-        
+
         # Select numeric columns
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        
+
         # Remove target column if present
         if dataset.target_column and dataset.target_column in numeric_cols:
             numeric_cols.remove(dataset.target_column)
-        
+
         if not numeric_cols:
             raise AdapterError("No numeric features found in dataset")
-        
+
         # Extract features and handle missing values
         X = df[numeric_cols].values
-        
+
         # Simple imputation - replace NaN with column mean
         col_means = np.nanmean(X, axis=0)
         nan_indices = np.where(np.isnan(X))
         X[nan_indices] = np.take(col_means, nan_indices[1])
-        
+
         # Standardize features
         mean = np.mean(X, axis=0)
         std = np.std(X, axis=0) + 1e-6  # Add small constant to avoid division by zero
         X = (X - mean) / std
-        
+
         # Convert to TensorFlow tensor
         return tf.constant(X, dtype=tf.float32)
 
@@ -591,7 +606,11 @@ class TensorFlowAdapter(Detector):
             ]
 
             # Create labels
-            labels = is_anomaly.astype(int) if hasattr(is_anomaly, 'astype') else [int(x) for x in is_anomaly]
+            labels = (
+                is_anomaly.astype(int)
+                if hasattr(is_anomaly, "astype")
+                else [int(x) for x in is_anomaly]
+            )
 
             # Create anomaly objects for detected anomalies
             anomalies = []
@@ -605,7 +624,7 @@ class TensorFlowAdapter(Detector):
                         score=AnomalyScore(float(score)),
                         features=dataset.data.iloc[idx].to_dict(),
                         timestamp=None,
-                        explanation=f"TensorFlow {self.algorithm_name} detected anomaly with score {score:.3f}"
+                        explanation=f"TensorFlow {self.algorithm_name} detected anomaly with score {score:.3f}",
                     )
                     anomalies.append(anomaly)
 
@@ -638,7 +657,7 @@ class TensorFlowAdapter(Detector):
                     "n_anomalies": n_anomalies,
                     "model_type": "deep_learning",
                     "framework": "tensorflow",
-                }
+                },
             )
 
         except Exception as e:
@@ -737,15 +756,20 @@ class TensorFlowAdapter(Detector):
             self.validation_split = params["validation_split"]
         if "early_stopping_patience" in params:
             self.early_stopping_patience = params["early_stopping_patience"]
-        
+
         # Update contamination rate
         if "contamination_rate" in params:
             self.contamination_rate = ContaminationRate(params["contamination_rate"])
-        
+
         # Update algorithm parameters
         algorithm_param_keys = [
-            "encoding_dim", "hidden_layers", "activation", "dropout_rate",
-            "latent_dim", "beta", "output_dim"
+            "encoding_dim",
+            "hidden_layers",
+            "activation",
+            "dropout_rate",
+            "latent_dim",
+            "beta",
+            "output_dim",
         ]
         for key in algorithm_param_keys:
             if key in params:
@@ -762,12 +786,14 @@ class TensorFlowAdapter(Detector):
         """
         if self.threshold_value is None:
             return 0.5
-        
+
         # Simple confidence calculation based on distance from threshold
         if score <= self.threshold_value:
             return 1.0 - (score / self.threshold_value) * 0.5
         else:
-            return 0.5 + min((score - self.threshold_value) / self.threshold_value * 0.5, 0.5)
+            return 0.5 + min(
+                (score - self.threshold_value) / self.threshold_value * 0.5, 0.5
+            )
 
     @property
     def supports_streaming(self) -> bool:
@@ -852,9 +878,13 @@ class TensorFlowAdapter(Detector):
                     "batch_size": "Training batch size",
                     "learning_rate": "Learning rate for optimizer",
                 },
-                "suitable_for": ["tabular_data", "high_dimensional", "reconstruction_based"],
+                "suitable_for": [
+                    "tabular_data",
+                    "high_dimensional",
+                    "reconstruction_based",
+                ],
                 "pros": ["Fast training", "Good for tabular data", "Interpretable"],
-                "cons": ["May overfit", "Requires parameter tuning"]
+                "cons": ["May overfit", "Requires parameter tuning"],
             },
             "VAE": {
                 "description": "Variational Autoencoder for anomaly detection",
@@ -873,7 +903,7 @@ class TensorFlowAdapter(Detector):
                 },
                 "suitable_for": ["probabilistic_modeling", "generative_tasks"],
                 "pros": ["Principled probabilistic approach", "Can generate samples"],
-                "cons": ["More complex", "Requires careful hyperparameter tuning"]
+                "cons": ["More complex", "Requires careful hyperparameter tuning"],
             },
             "DeepSVDD": {
                 "description": "Deep Support Vector Data Description for anomaly detection",
@@ -891,7 +921,7 @@ class TensorFlowAdapter(Detector):
                 },
                 "suitable_for": ["one_class_classification", "compact_representations"],
                 "pros": ["Theoretically motivated", "Good for one-class problems"],
-                "cons": ["Sensitive to initialization", "May require large datasets"]
+                "cons": ["Sensitive to initialization", "May require large datasets"],
             },
         }
 

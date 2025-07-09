@@ -105,18 +105,21 @@ class ONNXAdapter(DetectorProtocol):
         """
         # Get anomaly scores
         scores = self.score(dataset)
-        
+
         # Calculate threshold (simple percentile-based approach)
         score_values = [s.value for s in scores]
-        threshold = np.percentile(score_values, (1 - self._contamination_rate.value) * 100)
-        
+        threshold = np.percentile(
+            score_values, (1 - self._contamination_rate.value) * 100
+        )
+
         # Create labels
         labels = [1 if score.value > threshold else 0 for score in scores]
-        
+
         # Create anomaly objects
         from pynomaly.domain.entities import Anomaly
+
         anomalies = []
-        for i, (score, label) in enumerate(zip(scores, labels)):
+        for i, (score, label) in enumerate(zip(scores, labels, strict=False)):
             if label == 1:
                 anomaly = Anomaly(
                     id=uuid4(),
@@ -124,10 +127,10 @@ class ONNXAdapter(DetectorProtocol):
                     score=score,
                     features=dataset.data.iloc[i].to_dict(),
                     timestamp=None,
-                    explanation=f"ONNX model detected anomaly with score {score.value:.3f}"
+                    explanation=f"ONNX model detected anomaly with score {score.value:.3f}",
                 )
                 anomalies.append(anomaly)
-        
+
         return DetectionResult(
             detector_id=self.id,
             dataset_name=dataset.name,
@@ -136,7 +139,7 @@ class ONNXAdapter(DetectorProtocol):
             anomalies=anomalies,
             threshold=threshold,
             execution_time_ms=0.0,  # Would need timing implementation
-            metadata={"model_type": "ONNX", "model_path": str(self.model_path)}
+            metadata={"model_type": "ONNX", "model_path": str(self.model_path)},
         )
 
     def score(self, dataset: Dataset) -> list[AnomalyScore]:
@@ -151,29 +154,34 @@ class ONNXAdapter(DetectorProtocol):
         try:
             # Prepare input data
             input_data = self._prepare_input_data(dataset.data)
-            
+
             # Run inference
             input_name = self.session.get_inputs()[0].name
             output_name = self.session.get_outputs()[0].name
-            
+
             result = self.session.run([output_name], {input_name: input_data})
             raw_scores = result[0].flatten()
-            
+
             # Convert to AnomalyScore objects
             scores = []
             for score in raw_scores:
-                scores.append(AnomalyScore(
-                    value=float(score),
-                    confidence=0.8,  # Default confidence
-                    metadata={"source": "ONNX_inference"}
-                ))
-            
+                scores.append(
+                    AnomalyScore(
+                        value=float(score),
+                        confidence=0.8,  # Default confidence
+                        metadata={"source": "ONNX_inference"},
+                    )
+                )
+
             return scores
-            
+
         except Exception as e:
             logger.error(f"Error during ONNX inference: {e}")
             # Return default scores if inference fails
-            return [AnomalyScore(value=0.0, confidence=0.0) for _ in range(len(dataset.data))]
+            return [
+                AnomalyScore(value=0.0, confidence=0.0)
+                for _ in range(len(dataset.data))
+            ]
 
     def _prepare_input_data(self, data: pd.DataFrame) -> np.ndarray:
         """Prepare input data for ONNX model.
@@ -186,16 +194,16 @@ class ONNXAdapter(DetectorProtocol):
         """
         # Convert to numpy array
         input_array = data.select_dtypes(include=[np.number]).values
-        
+
         # Ensure correct data type
         input_array = input_array.astype(np.float32)
-        
+
         # Check if we need to reshape for model input
         expected_shape = self.session.get_inputs()[0].shape
         if len(expected_shape) > 2:
             # Reshape for models expecting different input dimensions
             input_array = input_array.reshape(input_array.shape[0], -1)
-        
+
         return input_array
 
     def predict(self, dataset: Dataset) -> np.ndarray:

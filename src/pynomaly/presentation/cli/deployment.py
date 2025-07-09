@@ -44,8 +44,9 @@ def get_deployment_service() -> DeploymentOrchestrationService:
 
 @app.command("list")
 def list_deployments(
-    environment: str
-    | None = typer.Option(None, "--env", "-e", help="Filter by environment"),
+    environment: str | None = typer.Option(
+        None, "--env", "-e", help="Filter by environment"
+    ),
     status: str | None = typer.Option(None, "--status", "-s", help="Filter by status"),
     limit: int = typer.Option(20, "--limit", "-l", help="Maximum number of results"),
     json_output: bool = typer.Option(False, "--json", help="Output in JSON format"),

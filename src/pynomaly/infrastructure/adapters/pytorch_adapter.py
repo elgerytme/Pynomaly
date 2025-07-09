@@ -17,99 +17,125 @@ try:
     import torch.nn.functional as F
     import torch.optim as optim
     from torch.utils.data import DataLoader, TensorDataset
+
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
+
     # Create dummy classes to avoid import errors
     class F:
         @staticmethod
         def mse_loss(*args, **kwargs):
             return 0
+
         @staticmethod
         def cosine_similarity(*args, **kwargs):
             return 0
-    
+
     class nn:
         class Module:
             def __init__(self):
                 pass
+
             def to(self, device):
                 return self
+
             def train(self):
                 pass
+
             def eval(self):
                 pass
+
             def parameters(self):
                 return []
-        
+
         @staticmethod
         def Linear(*args, **kwargs):
             return nn.Module()
+
         @staticmethod
         def ReLU(*args, **kwargs):
             return nn.Module()
+
         @staticmethod
         def Tanh(*args, **kwargs):
             return nn.Module()
+
         @staticmethod
         def BatchNorm1d(*args, **kwargs):
             return nn.Module()
+
         @staticmethod
         def Dropout(*args, **kwargs):
             return nn.Module()
+
         @staticmethod
         def Softmax(*args, **kwargs):
             return nn.Module()
+
         @staticmethod
         def Sequential(*args, **kwargs):
             return nn.Module()
-        
+
         class functional:
             @staticmethod
             def mse_loss(*args, **kwargs):
                 return 0
+
             @staticmethod
             def cosine_similarity(*args, **kwargs):
                 return 0
-    
+
     class torch:
         @staticmethod
         def device(device_str):
             return "cpu"
+
         @staticmethod
         def cuda():
             class CUDA:
                 @staticmethod
                 def is_available():
                     return False
+
             return CUDA()
+
         @staticmethod
         def FloatTensor(*args):
             return None
+
         @staticmethod
         def zeros(*args):
             return None
+
         @staticmethod
         def eye(*args):
             return None
+
         @staticmethod
         def randn_like(*args):
             return None
+
         @staticmethod
         def exp(*args):
             return None
+
         @staticmethod
         def sum(*args, **kwargs):
             return None
+
         @staticmethod
         def mean(*args, **kwargs):
             return None
+
         @staticmethod
         def inverse(*args):
             return None
+
         @staticmethod
         def logdet(*args):
             return None
+
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
@@ -122,6 +148,7 @@ if TORCH_AVAILABLE:
     BaseAnomalyModelBase = nn.Module
 else:
     BaseAnomalyModelBase = object
+
 
 class BaseAnomalyModel(BaseAnomalyModelBase):
     """Base class for PyTorch anomaly detection models."""
@@ -459,7 +486,7 @@ class PyTorchAdapter(Detector):
 
         Args:
             algorithm_name: Name of the PyTorch algorithm
-            name: Optional custom name for the detector  
+            name: Optional custom name for the detector
             contamination_rate: Expected contamination rate
             **kwargs: Algorithm-specific parameters
         """
@@ -468,7 +495,7 @@ class PyTorchAdapter(Detector):
             raise AdapterError(
                 "PyTorch is not available. Please install PyTorch to use deep learning models."
             )
-            
+
         # Validate algorithm
         if algorithm_name not in self._algorithm_map:
             available = ", ".join(self._algorithm_map.keys())
@@ -484,7 +511,7 @@ class PyTorchAdapter(Detector):
             contamination_rate=contamination_rate or ContaminationRate(0.1),
             parameters=kwargs,
         )
-        
+
         self._model: BaseAnomalyModel | None = None
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._model_class = self._algorithm_map[algorithm_name]
@@ -493,12 +520,11 @@ class PyTorchAdapter(Detector):
     def supports_streaming(self) -> bool:
         """Whether this detector supports streaming detection."""
         return False
-    
-    @property 
+
+    @property
     def requires_fitting(self) -> bool:
         """Whether this detector requires fitting before detection."""
         return True
-
 
     def fit(self, dataset: Dataset) -> None:
         """Train the deep learning model on the dataset.
@@ -598,7 +624,7 @@ class PyTorchAdapter(Detector):
             Detection result containing anomalies, scores, and labels
         """
         return self.predict(dataset)
-    
+
     def score(self, dataset: Dataset) -> list[AnomalyScore]:
         """Calculate anomaly scores for the dataset.
 
@@ -610,7 +636,7 @@ class PyTorchAdapter(Detector):
         """
         if not self.is_fitted:
             raise AdapterError("Model must be fitted before scoring")
-        
+
         try:
             # Prepare data
             X_test = self._prepare_data(dataset)
@@ -646,7 +672,7 @@ class PyTorchAdapter(Detector):
 
         except Exception as e:
             raise AdapterError(f"Failed to score with PyTorch model: {e}")
-    
+
     def fit_detect(self, dataset: Dataset) -> DetectionResult:
         """Fit the detector and detect anomalies in one step.
 
@@ -658,7 +684,7 @@ class PyTorchAdapter(Detector):
         """
         self.fit(dataset)
         return self.detect(dataset)
-    
+
     def get_params(self) -> dict[str, Any]:
         """Get parameters of the detector.
 
@@ -666,7 +692,7 @@ class PyTorchAdapter(Detector):
             Dictionary of parameters
         """
         return self.parameters
-    
+
     def set_params(self, **params: Any) -> None:
         """Set parameters of the detector.
 
@@ -684,7 +710,7 @@ class PyTorchAdapter(Detector):
                     f"Available algorithms: {available}"
                 )
             self._model_class = self._algorithm_map[params["algorithm_name"]]
-    
+
     def predict(self, dataset: Dataset) -> DetectionResult:
         """Detect anomalies using the trained model.
 

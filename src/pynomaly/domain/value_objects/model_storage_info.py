@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 
-class StorageBackend(Enum):
+class StorageBackend(str, Enum):
     """Supported storage backends for model persistence."""
 
     LOCAL_FILESYSTEM = "local_filesystem"
@@ -19,8 +19,12 @@ class StorageBackend(Enum):
     DATABASE = "database"
     REDIS = "redis"
 
+    def __str__(self) -> str:
+        """Return the string value of the enum."""
+        return self.value
 
-class SerializationFormat(Enum):
+
+class SerializationFormat(str, Enum):
     """Supported model serialization formats."""
 
     PICKLE = "pickle"
@@ -32,6 +36,10 @@ class SerializationFormat(Enum):
     MLFLOW_MODEL = "mlflow_model"
     SCIKIT_LEARN_PICKLE = "scikit_learn_pickle"
     JAX_PARAMS = "jax_params"
+
+    def __str__(self) -> str:
+        """Return the string value of the enum."""
+        return self.value
 
 
 @dataclass(frozen=True)

@@ -74,6 +74,7 @@ class AuditEventType(str, Enum):
 
 class AuditSeverity(str, Enum):
     """Severity levels for audit events."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -111,7 +112,7 @@ class AuditEvent:
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         data = asdict(self)
-        data['timestamp'] = self.timestamp.isoformat()
+        data["timestamp"] = self.timestamp.isoformat()
         return data
 
     def to_json(self) -> str:
@@ -146,7 +147,7 @@ class AuditLogger:
         # or send to a centralized audit system
         audit_handler = logging.StreamHandler()
         audit_formatter = logging.Formatter(
-            '%(asctime)s - AUDIT - %(levelname)s - %(message)s'
+            "%(asctime)s - AUDIT - %(levelname)s - %(message)s"
         )
         audit_handler.setFormatter(audit_formatter)
 
@@ -170,14 +171,12 @@ class AuditLogger:
             AuditEventType.SUSPICIOUS_ACTIVITY: 70,
             AuditEventType.THREAT_DETECTED: 80,
             AuditEventType.RATE_LIMIT_EXCEEDED: 40,
-
             # Medium risk events
             AuditEventType.PASSWORD_CHANGED: 20,
             AuditEventType.API_KEY_CREATED: 15,
             AuditEventType.DATA_DELETED: 25,
             AuditEventType.CONFIG_CHANGED: 30,
             AuditEventType.ADMIN_ACTION: 35,
-
             # Low risk events
             AuditEventType.LOGIN_SUCCESS: 5,
             AuditEventType.DATA_ACCESSED: 5,
@@ -193,12 +192,14 @@ class AuditLogger:
         """
         self._event_processors.append(processor)
 
-    def log_event(self,
-                  event_type: AuditEventType,
-                  user_id: str | None = None,
-                  outcome: str = "success",
-                  severity: AuditSeverity = AuditSeverity.LOW,
-                  details: dict[str, Any] | None = None) -> None:
+    def log_event(
+        self,
+        event_type: AuditEventType,
+        user_id: str | None = None,
+        outcome: str = "success",
+        severity: AuditSeverity = AuditSeverity.LOW,
+        details: dict[str, Any] | None = None,
+    ) -> None:
         """Log an audit event.
 
         Args:
@@ -214,7 +215,7 @@ class AuditLogger:
             user_id=user_id,
             outcome=outcome,
             severity=severity,
-            details=details or {}
+            details=details or {},
         )
         # Process event through enrichment processors
         for processor in self._event_processors:
@@ -249,10 +250,7 @@ class AuditLogger:
             f"Audit event: {event.event_type} - {event.outcome} - "
             f"User: {event.user_id} - IP: {event.ip_address} - "
             f"Risk: {event.risk_score}",
-            extra={
-                'audit_event': log_data,
-                'correlation_id': event.correlation_id
-            }
+            extra={"audit_event": log_data, "correlation_id": event.correlation_id},
         )
 
     def _calculate_risk_score(self, event: AuditEvent) -> int:
@@ -283,7 +281,10 @@ class AuditLogger:
                 base_score += 40
 
             # Admin actions
-            if event.event_type in [AuditEventType.ADMIN_ACTION, AuditEventType.CONFIG_CHANGED]:
+            if event.event_type in [
+                AuditEventType.ADMIN_ACTION,
+                AuditEventType.CONFIG_CHANGED,
+            ]:
                 if "bulk" in str(event.details).lower():
                     base_score += 20
 
@@ -309,14 +310,16 @@ class AuditLogger:
 
     # Convenience methods for common events
 
-    def log_authentication(self,
-                          event_type: AuditEventType,
-                          user_id: str | None = None,
-                          outcome: str = "success",
-                          ip_address: str | None = None,
-                          user_agent: str | None = None,
-                          details: dict[str, Any] | None = None,
-                          correlation_id: str | None = None):
+    def log_authentication(
+        self,
+        event_type: AuditEventType,
+        user_id: str | None = None,
+        outcome: str = "success",
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        details: dict[str, Any] | None = None,
+        correlation_id: str | None = None,
+    ):
         """Log authentication event."""
         event = AuditEvent(
             event_type=event_type,
@@ -326,18 +329,20 @@ class AuditLogger:
             user_agent=user_agent,
             outcome=outcome,
             details=details or {},
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         self.log_event(event)
 
-    def log_authorization(self,
-                         event_type: AuditEventType,
-                         user_id: str,
-                         resource: str,
-                         action: str,
-                         outcome: str = "granted",
-                         details: dict[str, Any] | None = None,
-                         correlation_id: str | None = None):
+    def log_authorization(
+        self,
+        event_type: AuditEventType,
+        user_id: str,
+        resource: str,
+        action: str,
+        outcome: str = "granted",
+        details: dict[str, Any] | None = None,
+        correlation_id: str | None = None,
+    ):
         """Log authorization event."""
         event = AuditEvent(
             event_type=event_type,
@@ -347,18 +352,20 @@ class AuditLogger:
             action=action,
             outcome=outcome,
             details=details or {},
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         self.log_event(event)
 
-    def log_data_access(self,
-                       event_type: AuditEventType,
-                       user_id: str,
-                       resource: str,
-                       action: str,
-                       outcome: str = "success",
-                       details: dict[str, Any] | None = None,
-                       correlation_id: str | None = None):
+    def log_data_access(
+        self,
+        event_type: AuditEventType,
+        user_id: str,
+        resource: str,
+        action: str,
+        outcome: str = "success",
+        details: dict[str, Any] | None = None,
+        correlation_id: str | None = None,
+    ):
         """Log data access event."""
         event = AuditEvent(
             event_type=event_type,
@@ -368,18 +375,20 @@ class AuditLogger:
             action=action,
             outcome=outcome,
             details=details or {},
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         self.log_event(event)
 
-    def log_security_alert(self,
-                          alert_type: str,
-                          message: str,
-                          user_id: str | None = None,
-                          ip_address: str | None = None,
-                          severity: AuditSeverity = AuditSeverity.HIGH,
-                          details: dict[str, Any] | None = None,
-                          correlation_id: str | None = None):
+    def log_security_alert(
+        self,
+        alert_type: str,
+        message: str,
+        user_id: str | None = None,
+        ip_address: str | None = None,
+        severity: AuditSeverity = AuditSeverity.HIGH,
+        details: dict[str, Any] | None = None,
+        correlation_id: str | None = None,
+    ):
         """Log security alert."""
         event = AuditEvent(
             event_type=AuditEventType.SECURITY_ALERT,
@@ -390,18 +399,20 @@ class AuditLogger:
             severity=severity,
             outcome="alert",
             details={"alert_type": alert_type, **(details or {})},
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         self.log_event(event)
 
 
 # Context manager for audit logging
 @asynccontextmanager
-async def audit_context(audit_logger: AuditLogger,
-                       user_id: str,
-                       action: str,
-                       resource: str,
-                       correlation_id: str | None = None):
+async def audit_context(
+    audit_logger: AuditLogger,
+    user_id: str,
+    action: str,
+    resource: str,
+    correlation_id: str | None = None,
+):
     """Context manager for auditing operations.
 
     Args:
@@ -428,10 +439,12 @@ async def audit_context(audit_logger: AuditLogger,
             action=action,
             outcome="success",
             details={
-                "duration_ms": int((datetime.now(UTC) - start_time).total_seconds() * 1000),
-                **audit_details
+                "duration_ms": int(
+                    (datetime.now(UTC) - start_time).total_seconds() * 1000
+                ),
+                **audit_details,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
 
     except Exception as e:
@@ -444,10 +457,12 @@ async def audit_context(audit_logger: AuditLogger,
             outcome="failure",
             details={
                 "error": str(e),
-                "duration_ms": int((datetime.now(UTC) - start_time).total_seconds() * 1000),
-                **audit_details
+                "duration_ms": int(
+                    (datetime.now(UTC) - start_time).total_seconds() * 1000
+                ),
+                **audit_details,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         raise
 

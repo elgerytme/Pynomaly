@@ -14,6 +14,7 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+
 class ResourceType(str, Enum):
     CPU = "cpu"
     MEMORY = "memory"
@@ -22,6 +23,7 @@ class ResourceType(str, Enum):
     NETWORK = "network"
     POWER = "power"
 
+
 class OptimizationObjective(str, Enum):
     COST = "cost"
     PERFORMANCE = "performance"
@@ -29,11 +31,13 @@ class OptimizationObjective(str, Enum):
     CARBON_FOOTPRINT = "carbon_footprint"
     BALANCED = "balanced"
 
+
 class ScalingPolicy(str, Enum):
     REACTIVE = "reactive"
     PREDICTIVE = "predictive"
     PROACTIVE = "proactive"
     INTELLIGENT = "intelligent"
+
 
 class ResourceProvider(str, Enum):
     AWS = "aws"
@@ -42,9 +46,11 @@ class ResourceProvider(str, Enum):
     ON_PREMISE = "on_premise"
     HYBRID = "hybrid"
 
+
 @dataclass
 class ResourceSpec:
     """Specification for a resource requirement."""
+
     resource_type: ResourceType
     amount: float
     unit: str
@@ -55,8 +61,8 @@ class ResourceSpec:
     max_startup_time_minutes: float = 5.0
 
     # Cost constraints
-    max_cost_per_hour: float = float('inf')
-    budget_limit: float = float('inf')
+    max_cost_per_hour: float = float("inf")
+    budget_limit: float = float("inf")
 
     # Performance constraints
     min_performance_score: float = 0.7
@@ -67,9 +73,11 @@ class ResourceSpec:
     allow_preemption: bool = False
     carbon_aware: bool = False
 
+
 @dataclass
 class ResourceInstance:
     """Represents an allocated resource instance."""
+
     instance_id: str
     provider: ResourceProvider
     resource_type: ResourceType
@@ -113,9 +121,11 @@ class ResourceInstance:
         energy_kwh = (self.power_consumption_watts * usage_hours) / 1000
         return energy_kwh * self.carbon_intensity_g_co2_per_kwh
 
+
 @dataclass
 class OptimizationResult:
     """Result of resource optimization."""
+
     optimization_id: UUID
     objective: OptimizationObjective
     timestamp: datetime
@@ -143,9 +153,11 @@ class OptimizationResult:
     def get_total_capacity(self, resource_type: ResourceType) -> float:
         """Get total capacity for a resource type."""
         return sum(
-            instance.capacity for instance in self.allocated_instances
+            instance.capacity
+            for instance in self.allocated_instances
             if instance.resource_type == resource_type
         )
+
 
 class DynamicResourceAllocator:
     """Dynamically allocates and deallocates resources based on demand."""
@@ -164,7 +176,9 @@ class DynamicResourceAllocator:
 
         # Optimization components
         self.cost_optimizer = CostOptimizer(config.get("cost_optimization", {}))
-        self.performance_optimizer = PerformanceOptimizer(config.get("performance_optimization", {}))
+        self.performance_optimizer = PerformanceOptimizer(
+            config.get("performance_optimization", {})
+        )
 
         # Statistics
         self.allocation_history: list[dict[str, Any]] = []
@@ -201,10 +215,26 @@ class DynamicResourceAllocator:
         """Initialize available resource pools."""
         # Simulate available resources from different providers
         providers_config = {
-            ResourceProvider.AWS: {"cpu_instances": 100, "gpu_instances": 20, "cost_multiplier": 1.0},
-            ResourceProvider.AZURE: {"cpu_instances": 80, "gpu_instances": 15, "cost_multiplier": 0.95},
-            ResourceProvider.GCP: {"cpu_instances": 90, "gpu_instances": 18, "cost_multiplier": 0.98},
-            ResourceProvider.ON_PREMISE: {"cpu_instances": 50, "gpu_instances": 10, "cost_multiplier": 0.7},
+            ResourceProvider.AWS: {
+                "cpu_instances": 100,
+                "gpu_instances": 20,
+                "cost_multiplier": 1.0,
+            },
+            ResourceProvider.AZURE: {
+                "cpu_instances": 80,
+                "gpu_instances": 15,
+                "cost_multiplier": 0.95,
+            },
+            ResourceProvider.GCP: {
+                "cpu_instances": 90,
+                "gpu_instances": 18,
+                "cost_multiplier": 0.98,
+            },
+            ResourceProvider.ON_PREMISE: {
+                "cpu_instances": 50,
+                "gpu_instances": 10,
+                "cost_multiplier": 0.7,
+            },
         }
 
         for provider, config in providers_config.items():
@@ -218,7 +248,8 @@ class DynamicResourceAllocator:
                     resource_type=ResourceType.CPU,
                     capacity=np.random.uniform(4, 32),  # 4-32 cores
                     allocated=0.0,
-                    cost_per_hour=np.random.uniform(0.1, 2.0) * config["cost_multiplier"],
+                    cost_per_hour=np.random.uniform(0.1, 2.0)
+                    * config["cost_multiplier"],
                     performance_score=np.random.uniform(0.7, 1.0),
                     power_consumption_watts=np.random.uniform(100, 400),
                     carbon_intensity_g_co2_per_kwh=np.random.uniform(200, 600),
@@ -233,23 +264,30 @@ class DynamicResourceAllocator:
                     resource_type=ResourceType.GPU,
                     capacity=np.random.uniform(1, 8),  # 1-8 GPUs
                     allocated=0.0,
-                    cost_per_hour=np.random.uniform(2.0, 10.0) * config["cost_multiplier"],
+                    cost_per_hour=np.random.uniform(2.0, 10.0)
+                    * config["cost_multiplier"],
                     performance_score=np.random.uniform(0.8, 1.0),
                     power_consumption_watts=np.random.uniform(250, 400),
                     carbon_intensity_g_co2_per_kwh=np.random.uniform(200, 600),
                 )
                 self.available_instances[provider].append(instance)
 
-    async def allocate_resources(self, requirements: list[ResourceSpec], objective: OptimizationObjective) -> OptimizationResult:
+    async def allocate_resources(
+        self, requirements: list[ResourceSpec], objective: OptimizationObjective
+    ) -> OptimizationResult:
         """Allocate resources based on requirements and optimization objective."""
         try:
             start_time = datetime.utcnow()
 
             # Find optimal allocation
             if objective == OptimizationObjective.COST:
-                allocation = await self.cost_optimizer.optimize_for_cost(requirements, self.available_instances)
+                allocation = await self.cost_optimizer.optimize_for_cost(
+                    requirements, self.available_instances
+                )
             elif objective == OptimizationObjective.PERFORMANCE:
-                allocation = await self.performance_optimizer.optimize_for_performance(requirements, self.available_instances)
+                allocation = await self.performance_optimizer.optimize_for_performance(
+                    requirements, self.available_instances
+                )
             elif objective == OptimizationObjective.ENERGY_EFFICIENCY:
                 allocation = await self._optimize_for_energy_efficiency(requirements)
             elif objective == OptimizationObjective.CARBON_FOOTPRINT:
@@ -278,13 +316,15 @@ class DynamicResourceAllocator:
             self.optimization_metrics["successful_allocations"] += 1
 
             # Log allocation event
-            self.allocation_history.append({
-                "timestamp": start_time,
-                "objective": objective.value,
-                "requirements": len(requirements),
-                "allocated_instances": len(result.allocated_instances),
-                "total_cost": result.total_cost,
-            })
+            self.allocation_history.append(
+                {
+                    "timestamp": start_time,
+                    "objective": objective.value,
+                    "requirements": len(requirements),
+                    "allocated_instances": len(result.allocated_instances),
+                    "total_cost": result.total_cost,
+                }
+            )
 
             return result
 
@@ -293,9 +333,16 @@ class DynamicResourceAllocator:
             self.optimization_metrics["total_allocations"] += 1
             raise
 
-    async def _optimize_for_energy_efficiency(self, requirements: list[ResourceSpec]) -> dict[str, Any]:
+    async def _optimize_for_energy_efficiency(
+        self, requirements: list[ResourceSpec]
+    ) -> dict[str, Any]:
         """Optimize allocation for energy efficiency."""
-        best_allocation = {"instances": [], "total_cost": 0, "total_performance": 0, "total_carbon": 0}
+        best_allocation = {
+            "instances": [],
+            "total_cost": 0,
+            "total_performance": 0,
+            "total_carbon": 0,
+        }
         best_efficiency = 0
 
         # Try different combinations of instances
@@ -304,7 +351,9 @@ class DynamicResourceAllocator:
 
             if allocation:
                 # Calculate energy efficiency (performance per watt)
-                total_power = sum(inst.power_consumption_watts for inst in allocation["instances"])
+                total_power = sum(
+                    inst.power_consumption_watts for inst in allocation["instances"]
+                )
                 efficiency = allocation["total_performance"] / max(total_power, 1)
 
                 if efficiency > best_efficiency:
@@ -313,22 +362,39 @@ class DynamicResourceAllocator:
 
         return best_allocation
 
-    async def _optimize_for_carbon_footprint(self, requirements: list[ResourceSpec]) -> dict[str, Any]:
+    async def _optimize_for_carbon_footprint(
+        self, requirements: list[ResourceSpec]
+    ) -> dict[str, Any]:
         """Optimize allocation for minimal carbon footprint."""
-        best_allocation = {"instances": [], "total_cost": 0, "total_performance": 0, "total_carbon": float('inf')}
+        best_allocation = {
+            "instances": [],
+            "total_cost": 0,
+            "total_performance": 0,
+            "total_carbon": float("inf"),
+        }
 
         # Try different combinations of instances
         for provider in self.available_instances:
             allocation = await self._try_provider_allocation(requirements, provider)
 
-            if allocation and allocation["total_carbon"] < best_allocation["total_carbon"]:
+            if (
+                allocation
+                and allocation["total_carbon"] < best_allocation["total_carbon"]
+            ):
                 best_allocation = allocation
 
         return best_allocation
 
-    async def _optimize_balanced(self, requirements: list[ResourceSpec]) -> dict[str, Any]:
+    async def _optimize_balanced(
+        self, requirements: list[ResourceSpec]
+    ) -> dict[str, Any]:
         """Optimize allocation with balanced objectives."""
-        best_allocation = {"instances": [], "total_cost": 0, "total_performance": 0, "total_carbon": 0}
+        best_allocation = {
+            "instances": [],
+            "total_cost": 0,
+            "total_performance": 0,
+            "total_carbon": 0,
+        }
         best_score = -1
 
         # Try different combinations of instances
@@ -337,15 +403,19 @@ class DynamicResourceAllocator:
 
             if allocation:
                 # Calculate balanced score (normalize and weight different factors)
-                cost_score = 1.0 / (1.0 + allocation["total_cost"] / 100)  # Lower cost is better
-                performance_score = allocation["total_performance"]  # Higher performance is better
-                carbon_score = 1.0 / (1.0 + allocation["total_carbon"] / 1000)  # Lower carbon is better
+                cost_score = 1.0 / (
+                    1.0 + allocation["total_cost"] / 100
+                )  # Lower cost is better
+                performance_score = allocation[
+                    "total_performance"
+                ]  # Higher performance is better
+                carbon_score = 1.0 / (
+                    1.0 + allocation["total_carbon"] / 1000
+                )  # Lower carbon is better
 
                 # Weighted combination
                 balanced_score = (
-                    cost_score * 0.4 +
-                    performance_score * 0.4 +
-                    carbon_score * 0.2
+                    cost_score * 0.4 + performance_score * 0.4 + carbon_score * 0.2
                 )
 
                 if balanced_score > best_score:
@@ -354,7 +424,9 @@ class DynamicResourceAllocator:
 
         return best_allocation
 
-    async def _try_provider_allocation(self, requirements: list[ResourceSpec], provider: ResourceProvider) -> dict[str, Any] | None:
+    async def _try_provider_allocation(
+        self, requirements: list[ResourceSpec], provider: ResourceProvider
+    ) -> dict[str, Any] | None:
         """Try to allocate resources from a specific provider."""
         try:
             available = self.available_instances[provider]
@@ -366,33 +438,43 @@ class DynamicResourceAllocator:
             for req in requirements:
                 # Find best matching instance
                 suitable_instances = [
-                    inst for inst in available
-                    if (inst.resource_type == req.resource_type and
-                        inst.get_available_capacity() >= req.amount and
-                        inst.cost_per_hour <= req.max_cost_per_hour and
-                        inst.performance_score >= req.min_performance_score)
+                    inst
+                    for inst in available
+                    if (
+                        inst.resource_type == req.resource_type
+                        and inst.get_available_capacity() >= req.amount
+                        and inst.cost_per_hour <= req.max_cost_per_hour
+                        and inst.performance_score >= req.min_performance_score
+                    )
                 ]
 
                 if not suitable_instances:
                     return None  # Cannot satisfy requirement
 
                 # Select best instance (lowest cost per unit)
-                best_instance = min(suitable_instances, key=lambda x: x.get_cost_per_unit_hour())
+                best_instance = min(
+                    suitable_instances, key=lambda x: x.get_cost_per_unit_hour()
+                )
 
                 # Allocate capacity
                 best_instance.allocated += req.amount
                 allocated_instances.append(best_instance)
 
                 # Calculate costs and metrics
-                instance_cost = best_instance.cost_per_hour * req.required_duration_hours
+                instance_cost = (
+                    best_instance.cost_per_hour * req.required_duration_hours
+                )
                 total_cost += instance_cost
                 total_performance += best_instance.performance_score * req.amount
-                total_carbon += best_instance.calculate_carbon_footprint(req.required_duration_hours)
+                total_carbon += best_instance.calculate_carbon_footprint(
+                    req.required_duration_hours
+                )
 
             return {
                 "instances": allocated_instances,
                 "total_cost": total_cost,
-                "total_performance": total_performance / len(requirements),  # Average performance
+                "total_performance": total_performance
+                / len(requirements),  # Average performance
                 "total_carbon": total_carbon,
                 "confidence": 0.8,
             }
@@ -407,10 +489,14 @@ class DynamicResourceAllocator:
             try:
                 # Check for scaling opportunities
                 current_load = await self.load_monitor.get_current_load()
-                predicted_demand = await self.demand_predictor.predict_demand(horizon_minutes=30)
+                predicted_demand = await self.demand_predictor.predict_demand(
+                    horizon_minutes=30
+                )
 
                 # Determine if scaling is needed
-                scaling_decision = await self._evaluate_scaling_decision(current_load, predicted_demand)
+                scaling_decision = await self._evaluate_scaling_decision(
+                    current_load, predicted_demand
+                )
 
                 if scaling_decision["action"] != "none":
                     await self._execute_scaling_action(scaling_decision)
@@ -422,7 +508,9 @@ class DynamicResourceAllocator:
                 logger.error(f"Allocation loop error: {e}")
                 await asyncio.sleep(60)
 
-    async def _evaluate_scaling_decision(self, current_load: dict[str, float], predicted_demand: dict[str, float]) -> dict[str, Any]:
+    async def _evaluate_scaling_decision(
+        self, current_load: dict[str, float], predicted_demand: dict[str, float]
+    ) -> dict[str, Any]:
         """Evaluate whether scaling action is needed."""
         if self.scaling_policy == ScalingPolicy.REACTIVE:
             # React to current load
@@ -433,22 +521,31 @@ class DynamicResourceAllocator:
 
         elif self.scaling_policy == ScalingPolicy.PREDICTIVE:
             # React to predicted demand
-            if predicted_demand.get("cpu_demand", 0) > current_load.get("cpu_capacity", 0) * 0.8:
+            if (
+                predicted_demand.get("cpu_demand", 0)
+                > current_load.get("cpu_capacity", 0) * 0.8
+            ):
                 return {"action": "scale_up", "resource_type": "cpu", "factor": 1.3}
 
         elif self.scaling_policy == ScalingPolicy.INTELLIGENT:
             # Use ML-based decision making
-            decision = await self._intelligent_scaling_decision(current_load, predicted_demand)
+            decision = await self._intelligent_scaling_decision(
+                current_load, predicted_demand
+            )
             return decision
 
         return {"action": "none"}
 
-    async def _intelligent_scaling_decision(self, current_load: dict[str, float], predicted_demand: dict[str, float]) -> dict[str, Any]:
+    async def _intelligent_scaling_decision(
+        self, current_load: dict[str, float], predicted_demand: dict[str, float]
+    ) -> dict[str, Any]:
         """Make intelligent scaling decision using ML."""
         # Simplified intelligent decision making
         # In practice, this would use sophisticated ML models
 
-        load_trend = predicted_demand.get("cpu_demand", 0) - current_load.get("cpu_utilization", 0)
+        load_trend = predicted_demand.get("cpu_demand", 0) - current_load.get(
+            "cpu_utilization", 0
+        )
         cost_sensitivity = self.config.get("cost_sensitivity", 0.5)
         performance_sensitivity = self.config.get("performance_sensitivity", 0.5)
 
@@ -466,7 +563,9 @@ class DynamicResourceAllocator:
             resource_type = scaling_decision.get("resource_type", "cpu")
             factor = scaling_decision.get("factor", 1.0)
 
-            logger.info(f"Executing scaling action: {action} for {resource_type} with factor {factor}")
+            logger.info(
+                f"Executing scaling action: {action} for {resource_type} with factor {factor}"
+            )
 
             if action == "scale_up":
                 await self._scale_up_resources(resource_type, factor)
@@ -488,28 +587,38 @@ class DynamicResourceAllocator:
 
     async def get_allocation_status(self) -> dict[str, Any]:
         """Get current allocation status."""
-        total_instances = sum(len(instances) for instances in self.available_instances.values())
+        total_instances = sum(
+            len(instances) for instances in self.available_instances.values()
+        )
         allocated_instances_count = len(self.allocated_instances)
 
-        total_cost = sum(inst.cost_per_hour for inst in self.allocated_instances.values())
+        total_cost = sum(
+            inst.cost_per_hour for inst in self.allocated_instances.values()
+        )
         total_capacity = {}
         total_allocated = {}
 
         for instance in self.allocated_instances.values():
             resource_type = instance.resource_type.value
-            total_capacity[resource_type] = total_capacity.get(resource_type, 0) + instance.capacity
-            total_allocated[resource_type] = total_allocated.get(resource_type, 0) + instance.allocated
+            total_capacity[resource_type] = (
+                total_capacity.get(resource_type, 0) + instance.capacity
+            )
+            total_allocated[resource_type] = (
+                total_allocated.get(resource_type, 0) + instance.allocated
+            )
 
         return {
             "total_available_instances": total_instances,
             "allocated_instances": allocated_instances_count,
-            "utilization_percent": (allocated_instances_count / max(total_instances, 1)) * 100,
+            "utilization_percent": (allocated_instances_count / max(total_instances, 1))
+            * 100,
             "total_cost_per_hour": total_cost,
             "capacity_by_type": total_capacity,
             "allocated_by_type": total_allocated,
             "optimization_metrics": self.optimization_metrics,
             "recent_allocations": self.allocation_history[-10:],
         }
+
 
 class DemandPredictor:
     """Predicts future resource demand."""
@@ -565,9 +674,7 @@ class DemandPredictor:
 
         # Calculate trends
         cpu_trend = np.polyfit(
-            range(len(recent_data)),
-            [d["cpu_utilization"] for d in recent_data],
-            1
+            range(len(recent_data)), [d["cpu_utilization"] for d in recent_data], 1
         )[0]
 
         # Project trend forward
@@ -575,7 +682,9 @@ class DemandPredictor:
         predicted_cpu = current_cpu + (cpu_trend * horizon_minutes)
 
         # Similar for other resources
-        predicted_memory = recent_data[-1]["memory_utilization"] + np.random.uniform(-5, 5)
+        predicted_memory = recent_data[-1]["memory_utilization"] + np.random.uniform(
+            -5, 5
+        )
         predicted_gpu = recent_data[-1]["gpu_utilization"] + np.random.uniform(-10, 10)
 
         return {
@@ -583,6 +692,7 @@ class DemandPredictor:
             "memory_demand": max(0, min(100, predicted_memory)),
             "gpu_demand": max(0, min(100, predicted_gpu)),
         }
+
 
 class LoadMonitor:
     """Monitors current system load."""
@@ -625,32 +735,53 @@ class LoadMonitor:
         """Get current system load."""
         return self.current_load
 
+
 class CostOptimizer:
     """Optimizes resource allocation for cost efficiency."""
 
     def __init__(self, config: dict[str, Any]):
         self.config = config
         self.spot_instance_preference = config.get("spot_instance_preference", 0.8)
-        self.reserved_instance_utilization = config.get("reserved_instance_utilization", 0.9)
+        self.reserved_instance_utilization = config.get(
+            "reserved_instance_utilization", 0.9
+        )
 
-    async def optimize_for_cost(self, requirements: list[ResourceSpec], available_instances: dict[ResourceProvider, list[ResourceInstance]]) -> dict[str, Any]:
+    async def optimize_for_cost(
+        self,
+        requirements: list[ResourceSpec],
+        available_instances: dict[ResourceProvider, list[ResourceInstance]],
+    ) -> dict[str, Any]:
         """Optimize allocation for minimum cost."""
-        best_allocation = {"instances": [], "total_cost": float('inf'), "total_performance": 0, "total_carbon": 0}
+        best_allocation = {
+            "instances": [],
+            "total_cost": float("inf"),
+            "total_performance": 0,
+            "total_carbon": 0,
+        }
 
         # Try different provider combinations
         for provider in available_instances:
-            allocation = await self._try_cost_optimized_allocation(requirements, provider, available_instances[provider])
+            allocation = await self._try_cost_optimized_allocation(
+                requirements, provider, available_instances[provider]
+            )
 
             if allocation and allocation["total_cost"] < best_allocation["total_cost"]:
                 best_allocation = allocation
 
         return best_allocation
 
-    async def _try_cost_optimized_allocation(self, requirements: list[ResourceSpec], provider: ResourceProvider, instances: list[ResourceInstance]) -> dict[str, Any] | None:
+    async def _try_cost_optimized_allocation(
+        self,
+        requirements: list[ResourceSpec],
+        provider: ResourceProvider,
+        instances: list[ResourceInstance],
+    ) -> dict[str, Any] | None:
         """Try cost-optimized allocation for a provider."""
         try:
             # Sort instances by cost per unit (ascending)
-            sorted_instances = sorted(instances, key=lambda x: x.get_cost_per_unit_hour())
+            sorted_instances = sorted(
+                instances, key=lambda x: x.get_cost_per_unit_hour()
+            )
 
             allocated_instances = []
             total_cost = 0
@@ -660,10 +791,13 @@ class CostOptimizer:
             for req in requirements:
                 # Find cheapest suitable instance
                 suitable_instances = [
-                    inst for inst in sorted_instances
-                    if (inst.resource_type == req.resource_type and
-                        inst.get_available_capacity() >= req.amount and
-                        inst.cost_per_hour <= req.max_cost_per_hour)
+                    inst
+                    for inst in sorted_instances
+                    if (
+                        inst.resource_type == req.resource_type
+                        and inst.get_available_capacity() >= req.amount
+                        and inst.cost_per_hour <= req.max_cost_per_hour
+                    )
                 ]
 
                 if not suitable_instances:
@@ -686,7 +820,9 @@ class CostOptimizer:
                 instance_cost = actual_cost * req.required_duration_hours
                 total_cost += instance_cost
                 total_performance += cheapest_instance.performance_score * req.amount
-                total_carbon += cheapest_instance.calculate_carbon_footprint(req.required_duration_hours)
+                total_carbon += cheapest_instance.calculate_carbon_footprint(
+                    req.required_duration_hours
+                )
 
             return {
                 "instances": allocated_instances,
@@ -700,6 +836,7 @@ class CostOptimizer:
             logger.error(f"Cost optimization failed for {provider}: {e}")
             return None
 
+
 class PerformanceOptimizer:
     """Optimizes resource allocation for maximum performance."""
 
@@ -708,24 +845,46 @@ class PerformanceOptimizer:
         self.performance_weight = config.get("performance_weight", 1.0)
         self.latency_weight = config.get("latency_weight", 0.5)
 
-    async def optimize_for_performance(self, requirements: list[ResourceSpec], available_instances: dict[ResourceProvider, list[ResourceInstance]]) -> dict[str, Any]:
+    async def optimize_for_performance(
+        self,
+        requirements: list[ResourceSpec],
+        available_instances: dict[ResourceProvider, list[ResourceInstance]],
+    ) -> dict[str, Any]:
         """Optimize allocation for maximum performance."""
-        best_allocation = {"instances": [], "total_cost": 0, "total_performance": -1, "total_carbon": 0}
+        best_allocation = {
+            "instances": [],
+            "total_cost": 0,
+            "total_performance": -1,
+            "total_carbon": 0,
+        }
 
         # Try different provider combinations
         for provider in available_instances:
-            allocation = await self._try_performance_optimized_allocation(requirements, provider, available_instances[provider])
+            allocation = await self._try_performance_optimized_allocation(
+                requirements, provider, available_instances[provider]
+            )
 
-            if allocation and allocation["total_performance"] > best_allocation["total_performance"]:
+            if (
+                allocation
+                and allocation["total_performance"]
+                > best_allocation["total_performance"]
+            ):
                 best_allocation = allocation
 
         return best_allocation
 
-    async def _try_performance_optimized_allocation(self, requirements: list[ResourceSpec], provider: ResourceProvider, instances: list[ResourceInstance]) -> dict[str, Any] | None:
+    async def _try_performance_optimized_allocation(
+        self,
+        requirements: list[ResourceSpec],
+        provider: ResourceProvider,
+        instances: list[ResourceInstance],
+    ) -> dict[str, Any] | None:
         """Try performance-optimized allocation for a provider."""
         try:
             # Sort instances by performance score (descending)
-            sorted_instances = sorted(instances, key=lambda x: x.performance_score, reverse=True)
+            sorted_instances = sorted(
+                instances, key=lambda x: x.performance_score, reverse=True
+            )
 
             allocated_instances = []
             total_cost = 0
@@ -735,11 +894,14 @@ class PerformanceOptimizer:
             for req in requirements:
                 # Find highest performance suitable instance
                 suitable_instances = [
-                    inst for inst in sorted_instances
-                    if (inst.resource_type == req.resource_type and
-                        inst.get_available_capacity() >= req.amount and
-                        inst.performance_score >= req.min_performance_score and
-                        inst.latency_ms <= req.max_latency_ms)
+                    inst
+                    for inst in sorted_instances
+                    if (
+                        inst.resource_type == req.resource_type
+                        and inst.get_available_capacity() >= req.amount
+                        and inst.performance_score >= req.min_performance_score
+                        and inst.latency_ms <= req.max_latency_ms
+                    )
                 ]
 
                 if not suitable_instances:
@@ -753,10 +915,14 @@ class PerformanceOptimizer:
                 allocated_instances.append(best_instance)
 
                 # Calculate totals
-                instance_cost = best_instance.cost_per_hour * req.required_duration_hours
+                instance_cost = (
+                    best_instance.cost_per_hour * req.required_duration_hours
+                )
                 total_cost += instance_cost
                 total_performance += best_instance.performance_score * req.amount
-                total_carbon += best_instance.calculate_carbon_footprint(req.required_duration_hours)
+                total_carbon += best_instance.calculate_carbon_footprint(
+                    req.required_duration_hours
+                )
 
             return {
                 "instances": allocated_instances,
@@ -770,13 +936,16 @@ class PerformanceOptimizer:
             logger.error(f"Performance optimization failed for {provider}: {e}")
             return None
 
+
 class ResourceOptimizationOrchestrator:
     """Main orchestrator for resource optimization."""
 
     def __init__(self, config: dict[str, Any]):
         self.config = config
         self.allocator = DynamicResourceAllocator(config.get("allocator", {}))
-        self.carbon_monitor = CarbonFootprintMonitor(config.get("carbon_monitoring", {}))
+        self.carbon_monitor = CarbonFootprintMonitor(
+            config.get("carbon_monitoring", {})
+        )
         self.cost_tracker = CostTracker(config.get("cost_tracking", {}))
 
     async def initialize(self) -> bool:
@@ -796,7 +965,9 @@ class ResourceOptimizationOrchestrator:
             logger.error(f"Failed to initialize resource optimization system: {e}")
             return False
 
-    async def optimize_resources(self, requirements: list[ResourceSpec], objective: OptimizationObjective) -> OptimizationResult:
+    async def optimize_resources(
+        self, requirements: list[ResourceSpec], objective: OptimizationObjective
+    ) -> OptimizationResult:
         """Optimize resource allocation."""
         try:
             # Get optimization result
@@ -825,9 +996,12 @@ class ResourceOptimizationOrchestrator:
             "overall_efficiency": {
                 "cost_efficiency": cost_metrics.get("cost_per_unit", 0),
                 "carbon_efficiency": carbon_metrics.get("carbon_per_unit", 0),
-                "performance_efficiency": allocation_status.get("utilization_percent", 0),
+                "performance_efficiency": allocation_status.get(
+                    "utilization_percent", 0
+                ),
             },
         }
+
 
 class CarbonFootprintMonitor:
     """Monitors and tracks carbon footprint."""
@@ -843,7 +1017,9 @@ class CarbonFootprintMonitor:
 
     async def track_allocation(self, allocation_result: OptimizationResult) -> None:
         """Track carbon footprint for an allocation."""
-        self.carbon_tracking[str(allocation_result.optimization_id)] = allocation_result.total_carbon_footprint_g
+        self.carbon_tracking[str(allocation_result.optimization_id)] = (
+            allocation_result.total_carbon_footprint_g
+        )
 
     async def get_carbon_metrics(self) -> dict[str, Any]:
         """Get carbon footprint metrics."""
@@ -853,6 +1029,7 @@ class CarbonFootprintMonitor:
             "carbon_per_unit": total_carbon / max(len(self.carbon_tracking), 1),
             "tracked_allocations": len(self.carbon_tracking),
         }
+
 
 class CostTracker:
     """Tracks and analyzes costs."""
@@ -868,7 +1045,9 @@ class CostTracker:
 
     async def track_allocation(self, allocation_result: OptimizationResult) -> None:
         """Track costs for an allocation."""
-        self.cost_tracking[str(allocation_result.optimization_id)] = allocation_result.total_cost
+        self.cost_tracking[str(allocation_result.optimization_id)] = (
+            allocation_result.total_cost
+        )
 
     async def get_cost_metrics(self) -> dict[str, Any]:
         """Get cost metrics."""
@@ -878,6 +1057,7 @@ class CostTracker:
             "cost_per_unit": total_cost / max(len(self.cost_tracking), 1),
             "tracked_allocations": len(self.cost_tracking),
         }
+
 
 # Example usage and testing
 async def create_sample_resource_requirements() -> list[ResourceSpec]:

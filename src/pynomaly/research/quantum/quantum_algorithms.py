@@ -11,13 +11,16 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+
 class QuantumBackend(str, Enum):
     QISKIT_SIMULATOR = "qiskit_simulator"
     MOCK = "mock"
 
+
 class QuantumCircuitType(str, Enum):
     VARIATIONAL_CLASSIFIER = "variational_classifier"
     QUANTUM_KERNEL = "quantum_kernel"
+
 
 @dataclass
 class QuantumConfig:
@@ -25,6 +28,7 @@ class QuantumConfig:
     num_qubits: int = 4
     num_layers: int = 3
     shots: int = 1024
+
 
 @dataclass
 class QuantumResult:
@@ -34,6 +38,7 @@ class QuantumResult:
     quantum_cost: float = 0.0
     backend_used: str = ""
     results: dict[str, Any] = None
+
 
 class QuantumAnomalyDetector:
     """Streamlined quantum anomaly detector"""
@@ -47,7 +52,9 @@ class QuantumAnomalyDetector:
     async def fit(self, X: np.ndarray) -> None:
         """Fit quantum detector"""
         self.training_data = X
-        self.optimal_params = np.random.random(self.config.num_qubits * self.config.num_layers)
+        self.optimal_params = np.random.random(
+            self.config.num_qubits * self.config.num_layers
+        )
         self.is_trained = True
         logger.info("Quantum detector fitted")
 
@@ -60,7 +67,7 @@ class QuantumAnomalyDetector:
         scores = np.zeros(len(X))
         for i, sample in enumerate(X):
             # Simulate quantum interference
-            phase = np.sum(sample * self.optimal_params[:len(sample)]) % (2 * np.pi)
+            phase = np.sum(sample * self.optimal_params[: len(sample)]) % (2 * np.pi)
             scores[i] = abs(np.cos(phase) + 0.1 * np.random.normal())
 
         threshold = np.percentile(scores, 90)
@@ -70,18 +77,24 @@ class QuantumAnomalyDetector:
         """Get anomaly scores"""
         scores = np.zeros(len(X))
         for i, sample in enumerate(X):
-            phase = np.sum(sample * self.optimal_params[:len(sample)]) % (2 * np.pi)
+            phase = np.sum(sample * self.optimal_params[: len(sample)]) % (2 * np.pi)
             scores[i] = abs(np.cos(phase))
         return scores
 
-def create_quantum_detector(algorithm_type: QuantumCircuitType, config: QuantumConfig) -> QuantumAnomalyDetector:
+
+def create_quantum_detector(
+    algorithm_type: QuantumCircuitType, config: QuantumConfig
+) -> QuantumAnomalyDetector:
     """Factory function for quantum detectors"""
     return QuantumAnomalyDetector(config)
 
-async def assess_quantum_advantage(X: np.ndarray, config: QuantumConfig) -> dict[str, Any]:
+
+async def assess_quantum_advantage(
+    X: np.ndarray, config: QuantumConfig
+) -> dict[str, Any]:
     """Assess quantum advantage potential"""
     return {
         "quantum_advantage_detected": True,
         "quantum_metrics": {"complexity": np.var(X), "entanglement_potential": 0.8},
-        "recommendation": "quantum"
+        "recommendation": "quantum",
     }

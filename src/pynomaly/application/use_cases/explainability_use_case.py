@@ -680,9 +680,9 @@ class ExplainabilityUseCase:
 
             # Adjust feature value (simplified approach)
             if feature.contribution > 0:
-                counterfactual_instance[
-                    0, feature_idx
-                ] *= 0.5  # Reduce positive contribution
+                counterfactual_instance[0, feature_idx] *= (
+                    0.5  # Reduce positive contribution
+                )
             else:
                 counterfactual_instance[
                     0, feature_idx

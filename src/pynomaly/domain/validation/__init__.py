@@ -18,7 +18,7 @@ from .validators import (
 
 __all__ = [
     "ValidationErrorStrategy",
-    "StrictValidationStrategy", 
+    "StrictValidationStrategy",
     "LenientValidationStrategy",
     "CustomValidationStrategy",
     "ValidationErrorHandler",

@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class DetectorDTO(BaseModel):
     """DTO for detector information."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID
@@ -34,7 +34,7 @@ class DetectorDTO(BaseModel):
 
 class CreateDetectorDTO(BaseModel):
     """DTO for creating a new detector."""
-    
+
     model_config = ConfigDict(extra="forbid")
 
     name: str = Field(min_length=1, max_length=100)
@@ -54,7 +54,7 @@ class CreateDetectorDTO(BaseModel):
 
 class UpdateDetectorDTO(BaseModel):
     """DTO for updating an existing detector."""
-    
+
     model_config = ConfigDict(extra="forbid")
 
     name: str | None = Field(None, min_length=1, max_length=100)
@@ -65,7 +65,7 @@ class UpdateDetectorDTO(BaseModel):
 
 class DetectorResponseDTO(BaseModel):
     """DTO for detector API responses."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID
@@ -83,7 +83,7 @@ class DetectorResponseDTO(BaseModel):
 
 class DetectionRequestDTO(BaseModel):
     """DTO for detection requests."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: UUID

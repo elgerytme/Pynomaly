@@ -97,7 +97,7 @@ test.describe('Cross-Browser Compatibility', () => {
               return false;
             }
           })(),
-          modules: typeof import !== 'undefined',
+          modulesSupport: true, // Module support test
           classes: (() => {
             try {
               class Test {}

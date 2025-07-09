@@ -50,11 +50,11 @@ def test_cli_module_structure():
 
         print("✅ Export CLI import successful")
 
-        return True
+        assert True
 
     except ImportError as e:
         print(f"❌ Import failed: {e}")
-        return False
+        assert False
 
 
 def test_typer_cli_structure():
@@ -69,18 +69,21 @@ def test_typer_cli_structure():
             print("✅ Main app is a valid Typer application")
         else:
             print(f"❌ Main app is not a Typer application: {type(app)}")
-            return False
+            assert False
 
         # Check if commands are registered
         if hasattr(app, "registered_commands"):
-            commands = list(app.registered_commands.keys())
+            commands = [
+                getattr(cmd.callback, "__name__", "unknown")
+                for cmd in app.registered_commands
+            ]
             print(f"✅ Registered commands: {commands}")
 
-        return True
+        assert True
 
     except Exception as e:
         print(f"❌ Typer structure test failed: {e}")
-        return False
+        assert False
 
 
 def test_cli_help_generation():
@@ -103,16 +106,16 @@ def test_cli_help_generation():
             if "Commands:" in result.stdout:
                 print("✅ Help contains commands section")
 
-            return True
+            assert True
         else:
             print(f"❌ CLI help failed with exit code: {result.exit_code}")
             print(f"   Output: {result.stdout}")
             print(f"   Error: {result.stderr}")
-            return False
+            assert False
 
     except Exception as e:
         print(f"❌ Help generation test failed: {e}")
-        return False
+        assert False
 
 
 def test_data_loaders():
@@ -133,11 +136,11 @@ def test_data_loaders():
         JSONLoader()
         print("✅ JSON loader instantiation successful")
 
-        return True
+        assert True
 
     except Exception as e:
         print(f"❌ Data loader test failed: {e}")
-        return False
+        assert False
 
 
 def test_autonomous_service():
@@ -149,11 +152,11 @@ def test_autonomous_service():
 
         print("✅ Autonomous config import successful")
 
-        return True
+        assert True
 
     except Exception as e:
         print(f"❌ Autonomous service test failed: {e}")
-        return False
+        assert False
 
 
 def main():

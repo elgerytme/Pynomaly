@@ -1555,7 +1555,9 @@ async def collaboration_page(
 
 
 @router.get("/explorer", response_class=HTMLResponse)
-async def explorer_page(request: Request, container: Container = Depends(get_container)):
+async def explorer_page(
+    request: Request, container: Container = Depends(get_container)
+):
     """API Explorer Page."""
     return templates.TemplateResponse("explorer.html", {"request": request})
 
@@ -1579,7 +1581,7 @@ async def explorer_logs_websocket(websocket):
                 "method": "GET",
                 "path": "/api/v1/health",
                 "status": 200,
-                "duration": "45ms"
+                "duration": "45ms",
             }
 
             await websocket.send_text(json.dumps(log_message))
@@ -1587,6 +1589,7 @@ async def explorer_logs_websocket(websocket):
 
     except Exception as e:
         print(f"WebSocket connection closed: {e}")
+
 
 @router.get("/advanced-visualizations", response_class=HTMLResponse)
 async def advanced_visualizations_page(

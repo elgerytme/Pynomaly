@@ -2,7 +2,6 @@
 
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, List, Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -55,8 +54,7 @@ def get_current_active_user(
     """
     if not current_user.is_active:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Inactive user"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
         )
     return current_user
 
@@ -75,6 +73,7 @@ def require_permissions(*permissions: str) -> Callable:
         async def get_detectors(user = Depends(require_permissions('detectors:read'))):
             return {"message": "Detector access granted"}
     """
+
     def dependency(
         current_user: UserModel = Depends(get_current_active_user),
         auth_service: EnhancedJWTAuthService = Depends(get_auth),
@@ -106,6 +105,7 @@ def require_roles(*roles: str) -> Callable:
         async def admin_endpoint(user = Depends(require_roles('admin'))):
             return {"message": "Admin access granted"}
     """
+
     def dependency(
         current_user: UserModel = Depends(get_current_active_user),
     ) -> UserModel:
@@ -140,8 +140,7 @@ def require_superuser(
     """
     if not current_user.is_superuser:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Superuser access required"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Superuser access required"
         )
     return current_user
 
@@ -188,6 +187,7 @@ def require_role_or_api_key(*roles: str) -> Callable:
     Returns:
         FastAPI dependency function that accepts either auth method
     """
+
     def dependency(
         credentials: HTTPAuthorizationCredentials = Depends(security),
         auth_service: EnhancedJWTAuthService = Depends(get_auth),
@@ -206,7 +206,7 @@ def require_role_or_api_key(*roles: str) -> Callable:
             else:
                 # JWT token - check roles
                 user = auth_service.get_current_user(credentials.credentials)
-                
+
                 if not user.is_active:
                     raise HTTPException(
                         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -245,6 +245,7 @@ def require_permissions_or_api_key(*permissions: str) -> Callable:
     Returns:
         FastAPI dependency function that accepts either auth method
     """
+
     def dependency(
         credentials: HTTPAuthorizationCredentials = Depends(security),
         auth_service: EnhancedJWTAuthService = Depends(get_auth),
@@ -263,7 +264,7 @@ def require_permissions_or_api_key(*permissions: str) -> Callable:
             else:
                 # JWT token - check permissions
                 user = auth_service.get_current_user(credentials.credentials)
-                
+
                 if not user.is_active:
                     raise HTTPException(
                         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -304,6 +305,7 @@ def cli_require_permissions(*permissions: str) -> Callable:
         def list_detectors():
             pass
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -314,23 +316,27 @@ def cli_require_permissions(*permissions: str) -> Callable:
 
             # Check for API key in environment or config
             import os
+
             api_key = os.getenv("PYNOMALY_API_KEY")
             if not api_key:
-                raise RuntimeError("API key required for CLI operations. Set PYNOMALY_API_KEY environment variable.")
+                raise RuntimeError(
+                    "API key required for CLI operations. Set PYNOMALY_API_KEY environment variable."
+                )
 
             try:
                 # Authenticate with API key
                 user = auth_service.authenticate_api_key(api_key)
-                
+
                 # Check permissions
                 auth_service.require_permissions(user, list(permissions))
-                
+
                 # Execute the function
                 return func(*args, **kwargs)
             except Exception as e:
                 raise RuntimeError(f"Authentication failed: {e}")
 
         return wrapper
+
     return decorator
 
 
@@ -348,6 +354,7 @@ def cli_require_roles(*roles: str) -> Callable:
         def admin_command():
             pass
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -358,27 +365,33 @@ def cli_require_roles(*roles: str) -> Callable:
 
             # Check for API key in environment or config
             import os
+
             api_key = os.getenv("PYNOMALY_API_KEY")
             if not api_key:
-                raise RuntimeError("API key required for CLI operations. Set PYNOMALY_API_KEY environment variable.")
+                raise RuntimeError(
+                    "API key required for CLI operations. Set PYNOMALY_API_KEY environment variable."
+                )
 
             try:
                 # Authenticate with API key
                 user = auth_service.authenticate_api_key(api_key)
-                
+
                 # Check roles
                 user_roles = set(user.roles or [])
                 required_roles = set(roles)
 
                 if not user_roles.intersection(required_roles):
-                    raise RuntimeError(f"Insufficient roles. Required: {', '.join(roles)}")
-                
+                    raise RuntimeError(
+                        f"Insufficient roles. Required: {', '.join(roles)}"
+                    )
+
                 # Execute the function
                 return func(*args, **kwargs)
             except Exception as e:
                 raise RuntimeError(f"Authentication failed: {e}")
 
         return wrapper
+
     return decorator
 
 
@@ -396,6 +409,7 @@ def cli_require_superuser(func: Callable) -> Callable:
         def superuser_command():
             pass
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         # Get auth service
@@ -405,18 +419,21 @@ def cli_require_superuser(func: Callable) -> Callable:
 
         # Check for API key in environment or config
         import os
+
         api_key = os.getenv("PYNOMALY_API_KEY")
         if not api_key:
-            raise RuntimeError("API key required for CLI operations. Set PYNOMALY_API_KEY environment variable.")
+            raise RuntimeError(
+                "API key required for CLI operations. Set PYNOMALY_API_KEY environment variable."
+            )
 
         try:
             # Authenticate with API key
             user = auth_service.authenticate_api_key(api_key)
-            
+
             # Check superuser status
             if not user.is_superuser:
                 raise RuntimeError("Superuser access required")
-            
+
             # Execute the function
             return func(*args, **kwargs)
         except Exception as e:

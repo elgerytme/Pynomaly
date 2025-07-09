@@ -15,6 +15,7 @@ from pynomaly.shared.types import DatasetId, DetectorId, TenantId, UserId
 
 class ReportType(str, Enum):
     """Types of reports available."""
+
     DETECTION_SUMMARY = "detection_summary"
     BUSINESS_METRICS = "business_metrics"
     PERFORMANCE_ANALYSIS = "performance_analysis"
@@ -27,6 +28,7 @@ class ReportType(str, Enum):
 
 class MetricType(str, Enum):
     """Types of metrics."""
+
     COUNTER = "counter"
     GAUGE = "gauge"
     HISTOGRAM = "histogram"
@@ -38,6 +40,7 @@ class MetricType(str, Enum):
 
 class ReportStatus(str, Enum):
     """Report generation status."""
+
     PENDING = "pending"
     GENERATING = "generating"
     COMPLETED = "completed"
@@ -47,6 +50,7 @@ class ReportStatus(str, Enum):
 
 class TimeGranularity(str, Enum):
     """Time granularity for metrics."""
+
     MINUTE = "minute"
     HOUR = "hour"
     DAY = "day"
@@ -59,6 +63,7 @@ class TimeGranularity(str, Enum):
 @dataclass
 class MetricValue:
     """A single metric value with metadata."""
+
     value: int | float | str
     timestamp: datetime
     metric_type: MetricType
@@ -76,9 +81,9 @@ class MetricValue:
             if self.value < 60:
                 return f"{self.value:.1f}s"
             elif self.value < 3600:
-                return f"{self.value/60:.1f}m"
+                return f"{self.value / 60:.1f}m"
             else:
-                return f"{self.value/3600:.1f}h"
+                return f"{self.value / 3600:.1f}h"
         elif self.metric_type == MetricType.COUNTER:
             return f"{int(self.value):,}"
         else:
@@ -88,6 +93,7 @@ class MetricValue:
 @dataclass
 class Metric:
     """A business metric with time series data."""
+
     id: str
     name: str
     description: str
@@ -112,7 +118,9 @@ class Metric:
         """Get metric values within a time range."""
         return [v for v in self.values if start <= v.timestamp <= end]
 
-    def add_value(self, value: int | float | str, timestamp: datetime | None = None, **metadata):
+    def add_value(
+        self, value: int | float | str, timestamp: datetime | None = None, **metadata
+    ):
         """Add a new metric value."""
         if timestamp is None:
             timestamp = datetime.utcnow()
@@ -121,7 +129,7 @@ class Metric:
             value=value,
             timestamp=timestamp,
             metric_type=self.metric_type,
-            metadata=metadata
+            metadata=metadata,
         )
         self.values.append(metric_value)
         self.updated_at = datetime.utcnow()
@@ -130,6 +138,7 @@ class Metric:
 @dataclass
 class DetectionMetrics:
     """Metrics specific to anomaly detection operations."""
+
     total_detections: int = 0
     successful_detections: int = 0
     failed_detections: int = 0
@@ -159,6 +168,7 @@ class DetectionMetrics:
 @dataclass
 class BusinessMetrics:
     """High-level business metrics."""
+
     active_users: int = 0
     total_datasets: int = 0
     total_models: int = 0
@@ -179,6 +189,7 @@ class BusinessMetrics:
 @dataclass
 class UsageMetrics:
     """System usage metrics."""
+
     api_calls_today: int = 0
     api_calls_this_month: int = 0
     storage_used_gb: float = 0.0
@@ -197,6 +208,7 @@ class UsageMetrics:
 @dataclass
 class ReportFilter:
     """Filters for report generation."""
+
     start_date: datetime | None = None
     end_date: datetime | None = None
     tenant_ids: list[TenantId] = field(default_factory=list)
@@ -210,6 +222,7 @@ class ReportFilter:
 @dataclass
 class ReportSection:
     """A section within a report."""
+
     id: str
     title: str
     description: str
@@ -223,6 +236,7 @@ class ReportSection:
 @dataclass
 class Report:
     """Complete business report."""
+
     id: str
     title: str
     description: str
@@ -257,15 +271,17 @@ class Report:
             "sections_count": len(self.sections),
             "generation_time": (
                 (self.completed_at - self.created_at).total_seconds()
-                if self.completed_at else None
+                if self.completed_at
+                else None
             ),
-            "status": self.status.value
+            "status": self.status.value,
         }
 
 
 @dataclass
 class Dashboard:
     """Business metrics dashboard."""
+
     id: str
     name: str
     description: str
@@ -309,6 +325,7 @@ class Dashboard:
 @dataclass
 class Alert:
     """Business metric alert."""
+
     id: str
     name: str
     description: str
@@ -322,7 +339,9 @@ class Alert:
     trigger_count: int = 0
     created_at: datetime = field(default_factory=datetime.utcnow)
 
-    def should_trigger(self, current_value: float, previous_value: float | None = None) -> bool:
+    def should_trigger(
+        self, current_value: float, previous_value: float | None = None
+    ) -> bool:
         """Check if alert should trigger based on current value."""
         if not self.is_active:
             return False
@@ -347,36 +366,36 @@ STANDARD_METRICS = {
         "name": "Detection Success Rate",
         "description": "Percentage of successful anomaly detections",
         "metric_type": MetricType.PERCENTAGE,
-        "tags": {"category": "detection", "importance": "high"}
+        "tags": {"category": "detection", "importance": "high"},
     },
     "anomaly_detection_rate": {
         "name": "Anomaly Detection Rate",
         "description": "Percentage of data points flagged as anomalies",
         "metric_type": MetricType.PERCENTAGE,
-        "tags": {"category": "detection", "importance": "medium"}
+        "tags": {"category": "detection", "importance": "medium"},
     },
     "average_detection_time": {
         "name": "Average Detection Time",
         "description": "Average time to complete anomaly detection",
         "metric_type": MetricType.DURATION,
-        "tags": {"category": "performance", "importance": "medium"}
+        "tags": {"category": "performance", "importance": "medium"},
     },
     "monthly_cost_savings": {
         "name": "Monthly Cost Savings",
         "description": "Estimated cost savings from anomaly detection",
         "metric_type": MetricType.CURRENCY,
-        "tags": {"category": "business", "importance": "high"}
+        "tags": {"category": "business", "importance": "high"},
     },
     "active_users": {
         "name": "Active Users",
         "description": "Number of active users in the system",
         "metric_type": MetricType.COUNTER,
-        "tags": {"category": "usage", "importance": "medium"}
+        "tags": {"category": "usage", "importance": "medium"},
     },
     "api_usage_rate": {
         "name": "API Usage Rate",
         "description": "API calls per hour",
         "metric_type": MetricType.RATE,
-        "tags": {"category": "usage", "importance": "low"}
-    }
+        "tags": {"category": "usage", "importance": "low"},
+    },
 }

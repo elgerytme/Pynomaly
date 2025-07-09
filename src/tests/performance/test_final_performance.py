@@ -51,7 +51,7 @@ class TestPerformanceMonitoring:
                 self.id_counter = 0
 
             def save(self, entity):
-                if not hasattr(entity, 'id') or entity.id is None:
+                if not hasattr(entity, "id") or entity.id is None:
                     entity.id = self.id_counter
                     self.id_counter += 1
                 self.storage[entity.id] = entity
@@ -117,9 +117,9 @@ class TestPerformanceMonitoring:
 
             def record_metric(self, operation, value):
                 metric = {
-                    'operation': operation,
-                    'value': value,
-                    'timestamp': datetime.utcnow()
+                    "operation": operation,
+                    "value": value,
+                    "timestamp": datetime.utcnow(),
                 }
                 self.metrics.append(metric)
 
@@ -131,25 +131,27 @@ class TestPerformanceMonitoring:
                     return
 
                 baseline = self.baselines[operation]
-                recent_metrics = [m for m in self.metrics if m['operation'] == operation]
+                recent_metrics = [
+                    m for m in self.metrics if m["operation"] == operation
+                ]
 
                 if not recent_metrics:
                     return
 
                 # Use last 5 metrics for recent performance
-                recent_values = [m['value'] for m in recent_metrics[-5:]]
+                recent_values = [m["value"] for m in recent_metrics[-5:]]
                 avg_recent = sum(recent_values) / len(recent_values)
 
                 # Check if degraded
-                if 'execution_time' in baseline:
-                    baseline_time = baseline['execution_time']
+                if "execution_time" in baseline:
+                    baseline_time = baseline["execution_time"]
                     if avg_recent > baseline_time * 1.2:  # 20% degradation threshold
                         alert = {
-                            'operation': operation,
-                            'current_avg': avg_recent,
-                            'baseline': baseline_time,
-                            'degradation_factor': avg_recent / baseline_time,
-                            'timestamp': datetime.utcnow()
+                            "operation": operation,
+                            "current_avg": avg_recent,
+                            "baseline": baseline_time,
+                            "degradation_factor": avg_recent / baseline_time,
+                            "timestamp": datetime.utcnow(),
                         }
                         self.alerts.append(alert)
 
@@ -168,16 +170,20 @@ class TestPerformanceMonitoring:
 
             def check_regression(self, operation):
                 if operation not in self.baselines:
-                    return {'error': 'No baseline found'}
+                    return {"error": "No baseline found"}
 
-                recent_metrics = [m for m in self.metrics if m['operation'] == operation]
+                recent_metrics = [
+                    m for m in self.metrics if m["operation"] == operation
+                ]
                 if not recent_metrics:
-                    return {'error': 'No recent metrics'}
+                    return {"error": "No recent metrics"}
 
                 return {
-                    'operation': operation,
-                    'recent_count': len(recent_metrics),
-                    'alerts_count': len([a for a in self.alerts if a['operation'] == operation])
+                    "operation": operation,
+                    "recent_count": len(recent_metrics),
+                    "alerts_count": len(
+                        [a for a in self.alerts if a["operation"] == operation]
+                    ),
                 }
 
         # Test the service flow
@@ -185,36 +191,37 @@ class TestPerformanceMonitoring:
 
         # Set up alert callback
         alert_received = []
+
         def test_callback(alert):
             alert_received.append(alert)
 
         service.add_alert_callback(test_callback)
 
         # Set baseline
-        service.set_baseline('detection', {'execution_time': 10.0})
+        service.set_baseline("detection", {"execution_time": 10.0})
 
         # Record normal metrics
-        service.record_metric('detection', 9.0)
-        service.record_metric('detection', 10.0)
-        service.record_metric('detection', 11.0)
+        service.record_metric("detection", 9.0)
+        service.record_metric("detection", 10.0)
+        service.record_metric("detection", 11.0)
 
         # No alerts should be generated
         assert len(service.get_alerts()) == 0
         assert len(alert_received) == 0
 
         # Record degraded metrics
-        service.record_metric('detection', 16.0)  # 60% above baseline
-        service.record_metric('detection', 17.0)  # 70% above baseline
+        service.record_metric("detection", 16.0)  # 60% above baseline
+        service.record_metric("detection", 17.0)  # 70% above baseline
 
         # Alert should be generated
         assert len(service.get_alerts()) == 1
         assert len(alert_received) == 1
 
         # Check regression
-        regression_result = service.check_regression('detection')
-        assert 'error' not in regression_result
-        assert regression_result['recent_count'] == 5
-        assert regression_result['alerts_count'] == 1
+        regression_result = service.check_regression("detection")
+        assert "error" not in regression_result
+        assert regression_result["recent_count"] == 5
+        assert regression_result["alerts_count"] == 1
 
     def test_api_endpoint_simulation(self):
         """API endpoint tests simulation."""
@@ -222,47 +229,47 @@ class TestPerformanceMonitoring:
         class MockAPIClient:
             def __init__(self):
                 self.performance_data = {
-                    'pools': [],
-                    'metrics': {
-                        'total_operations': 150,
-                        'average_execution_time': 12.5,
-                        'alert_count': 3
-                    }
+                    "pools": [],
+                    "metrics": {
+                        "total_operations": 150,
+                        "average_execution_time": 12.5,
+                        "alert_count": 3,
+                    },
                 }
 
             def get(self, endpoint):
                 """Simulate GET request."""
-                if endpoint == '/performance/pools':
+                if endpoint == "/performance/pools":
                     return {
-                        'status_code': 200,
-                        'json': lambda: self.performance_data['pools']
+                        "status_code": 200,
+                        "json": lambda: self.performance_data["pools"],
                     }
-                elif endpoint == '/performance/metrics':
+                elif endpoint == "/performance/metrics":
                     return {
-                        'status_code': 200,
-                        'json': lambda: self.performance_data['metrics']
+                        "status_code": 200,
+                        "json": lambda: self.performance_data["metrics"],
                     }
                 else:
-                    return {'status_code': 404}
+                    return {"status_code": 404}
 
         client = MockAPIClient()
 
         # Test pools endpoint
-        response = client.get('/performance/pools')
-        assert response['status_code'] == 200
-        assert isinstance(response['json'](), list)
+        response = client.get("/performance/pools")
+        assert response["status_code"] == 200
+        assert isinstance(response["json"](), list)
 
         # Test metrics endpoint
-        response = client.get('/performance/metrics')
-        assert response['status_code'] == 200
-        metrics = response['json']()
-        assert 'total_operations' in metrics
-        assert metrics['total_operations'] == 150
-        assert metrics['average_execution_time'] == 12.5
+        response = client.get("/performance/metrics")
+        assert response["status_code"] == 200
+        metrics = response["json"]()
+        assert "total_operations" in metrics
+        assert metrics["total_operations"] == 150
+        assert metrics["average_execution_time"] == 12.5
 
         # Test 404
-        response = client.get('/nonexistent')
-        assert response['status_code'] == 404
+        response = client.get("/nonexistent")
+        assert response["status_code"] == 404
 
     @given(st.floats(min_value=0.1, max_value=100.0))
     def test_hypothesis_degradation_detection(self, baseline_value):
@@ -296,55 +303,57 @@ class TestPerformanceMonitoring:
                 if timestamp is None:
                     timestamp = datetime.utcnow()
 
-                self.metrics.append({
-                    'operation': operation,
-                    'value': value,
-                    'timestamp': timestamp
-                })
+                self.metrics.append(
+                    {"operation": operation, "value": value, "timestamp": timestamp}
+                )
 
             def get_statistics(self, operation, time_window=None):
-                filtered_metrics = [m for m in self.metrics if m['operation'] == operation]
+                filtered_metrics = [
+                    m for m in self.metrics if m["operation"] == operation
+                ]
 
                 if time_window:
                     cutoff = datetime.utcnow() - time_window
-                    filtered_metrics = [m for m in filtered_metrics if m['timestamp'] >= cutoff]
+                    filtered_metrics = [
+                        m for m in filtered_metrics if m["timestamp"] >= cutoff
+                    ]
 
                 if not filtered_metrics:
                     return None
 
-                values = [m['value'] for m in filtered_metrics]
+                values = [m["value"] for m in filtered_metrics]
                 return {
-                    'count': len(values),
-                    'mean': sum(values) / len(values),
-                    'min': min(values),
-                    'max': max(values),
-                    'operation': operation
+                    "count": len(values),
+                    "mean": sum(values) / len(values),
+                    "min": min(values),
+                    "max": max(values),
+                    "operation": operation,
                 }
 
         aggregator = MetricsAggregator()
 
         # Add some metrics
         base_time = datetime.utcnow()
-        aggregator.add_metric('detection', 10.0, base_time)
-        aggregator.add_metric('detection', 12.0, base_time + timedelta(seconds=1))
-        aggregator.add_metric('detection', 8.0, base_time + timedelta(seconds=2))
-        aggregator.add_metric('training', 100.0, base_time)
+        aggregator.add_metric("detection", 10.0, base_time)
+        aggregator.add_metric("detection", 12.0, base_time + timedelta(seconds=1))
+        aggregator.add_metric("detection", 8.0, base_time + timedelta(seconds=2))
+        aggregator.add_metric("training", 100.0, base_time)
 
         # Test statistics
-        detection_stats = aggregator.get_statistics('detection')
+        detection_stats = aggregator.get_statistics("detection")
         assert detection_stats is not None
-        assert detection_stats['count'] == 3
-        assert detection_stats['mean'] == 10.0  # (10 + 12 + 8) / 3
-        assert detection_stats['min'] == 8.0
-        assert detection_stats['max'] == 12.0
+        assert detection_stats["count"] == 3
+        assert detection_stats["mean"] == 10.0  # (10 + 12 + 8) / 3
+        assert detection_stats["min"] == 8.0
+        assert detection_stats["max"] == 12.0
 
-        training_stats = aggregator.get_statistics('training')
-        assert training_stats['count'] == 1
-        assert training_stats['mean'] == 100.0
+        training_stats = aggregator.get_statistics("training")
+        assert training_stats["count"] == 1
+        assert training_stats["mean"] == 100.0
 
         # Test time window filtering
-        recent_stats = aggregator.get_statistics('detection', timedelta(seconds=1))
-        assert recent_stats['count'] <= 3  # Should be filtered by time
+        recent_stats = aggregator.get_statistics("detection", timedelta(seconds=1))
+        assert recent_stats["count"] <= 3  # Should be filtered by time
 
 
 if __name__ == "__main__":

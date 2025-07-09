@@ -25,7 +25,7 @@ rbac_examples_router = APIRouter()
 
 @rbac_examples_router.get("/viewer-only")
 async def viewer_only_endpoint(
-    user: Annotated[UserModel, Depends(require_viewer)]
+    user: Annotated[UserModel, Depends(require_viewer)],
 ) -> dict:
     """
     Endpoint accessible only to users with 'viewer' role.
@@ -45,7 +45,7 @@ async def viewer_only_endpoint(
 
 @rbac_examples_router.get("/analyst-dashboard")
 async def analyst_dashboard(
-    user: Annotated[UserModel, Depends(require_analyst)]
+    user: Annotated[UserModel, Depends(require_analyst)],
 ) -> dict:
     """
     Analyst-only dashboard endpoint.
@@ -65,7 +65,7 @@ async def analyst_dashboard(
 
 @rbac_examples_router.post("/data-science/models")
 async def create_model(
-    user: Annotated[UserModel, Depends(require_data_scientist)]
+    user: Annotated[UserModel, Depends(require_data_scientist)],
 ) -> dict:
     """
     Model creation endpoint for data scientists.
@@ -95,7 +95,7 @@ async def list_users(user: Annotated[UserModel, Depends(require_tenant_admin)]) 
 
 @rbac_examples_router.post("/platform/tenants")
 async def create_tenant(
-    user: Annotated[UserModel, Depends(require_super_admin)]
+    user: Annotated[UserModel, Depends(require_super_admin)],
 ) -> dict:
     """
     Platform-level tenant creation for super administrators.
@@ -111,7 +111,7 @@ async def create_tenant(
 
 @rbac_examples_router.get("/custom-role-example")
 async def custom_role_example(
-    user: Annotated[UserModel, Depends(require_role("custom_analyst"))]
+    user: Annotated[UserModel, Depends(require_role("custom_analyst"))],
 ) -> dict:
     """
     Example of using a custom role with the require_role function.
@@ -130,7 +130,7 @@ async def custom_role_example(
 async def multiple_roles_allowed(
     # Note: This is an example of how you might handle multiple allowed roles
     # For now, we check for one role but you could extend this pattern
-    user: Annotated[UserModel, Depends(require_data_scientist)]
+    user: Annotated[UserModel, Depends(require_data_scientist)],
 ) -> dict:
     """
     Example endpoint that could be extended to allow multiple roles.

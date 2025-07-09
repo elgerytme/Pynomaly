@@ -45,6 +45,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 class DriftType(Enum):
     """Types of drift that can be detected."""
+
     NO_DRIFT = "no_drift"
     GRADUAL_DRIFT = "gradual_drift"
     ABRUPT_DRIFT = "abrupt_drift"
@@ -55,6 +56,7 @@ class DriftType(Enum):
 
 class DriftSeverity(Enum):
     """Severity levels for detected drift."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -64,6 +66,7 @@ class DriftSeverity(Enum):
 @dataclass
 class DriftDetectionResult:
     """Result of drift detection analysis."""
+
     drift_detected: bool
     drift_type: DriftType
     drift_severity: DriftSeverity
@@ -83,7 +86,9 @@ class StatisticalDriftDetector:
         self.significance_level = significance_level
         self._reference_distributions = {}
 
-    def fit_reference(self, X_reference: np.ndarray, feature_names: list[str] = None) -> None:
+    def fit_reference(
+        self, X_reference: np.ndarray, feature_names: list[str] = None
+    ) -> None:
         """Fit reference distributions for drift detection.
 
         Args:
@@ -100,29 +105,31 @@ class StatisticalDriftDetector:
 
             # Store reference statistics
             self._reference_distributions[feature_name] = {
-                'mean': np.mean(feature_data),
-                'std': np.std(feature_data),
-                'median': np.median(feature_data),
-                'q25': np.percentile(feature_data, 25),
-                'q75': np.percentile(feature_data, 75),
-                'data': feature_data.copy(),
-                'distribution_type': self._detect_distribution_type(feature_data)
+                "mean": np.mean(feature_data),
+                "std": np.std(feature_data),
+                "median": np.median(feature_data),
+                "q25": np.percentile(feature_data, 25),
+                "q75": np.percentile(feature_data, 75),
+                "data": feature_data.copy(),
+                "distribution_type": self._detect_distribution_type(feature_data),
             }
 
     def _detect_distribution_type(self, data: np.ndarray) -> str:
         """Detect the most likely distribution type."""
         # Simple distribution detection using statistical tests
         _, normal_p = stats.normaltest(data)
-        _, uniform_p = stats.kstest(data, 'uniform')
+        _, uniform_p = stats.kstest(data, "uniform")
 
         if normal_p > 0.05:
-            return 'normal'
+            return "normal"
         elif uniform_p > 0.05:
-            return 'uniform'
+            return "uniform"
         else:
-            return 'unknown'
+            return "unknown"
 
-    def detect_drift_ks_test(self, X_current: np.ndarray, feature_names: list[str] = None) -> DriftDetectionResult:
+    def detect_drift_ks_test(
+        self, X_current: np.ndarray, feature_names: list[str] = None
+    ) -> DriftDetectionResult:
         """Detect drift using Kolmogorov-Smirnov test.
 
         Args:
@@ -144,7 +151,7 @@ class StatisticalDriftDetector:
                 continue
 
             current_data = X_current[:, i]
-            reference_data = self._reference_distributions[feature_name]['data']
+            reference_data = self._reference_distributions[feature_name]["data"]
 
             # Perform KS test
             ks_stat, p_value = stats.ks_2samp(reference_data, current_data)
@@ -172,14 +179,22 @@ class StatisticalDriftDetector:
             detection_method="kolmogorov_smirnov",
             timestamp=datetime.utcnow(),
             details={
-                'per_feature_scores': dict(zip(feature_names[:len(drift_scores)], drift_scores, strict=False)),
-                'per_feature_p_values': dict(zip(feature_names[:len(p_values)], p_values, strict=False)),
-                'significance_level': self.significance_level
+                "per_feature_scores": dict(
+                    zip(feature_names[: len(drift_scores)], drift_scores, strict=False)
+                ),
+                "per_feature_p_values": dict(
+                    zip(feature_names[: len(p_values)], p_values, strict=False)
+                ),
+                "significance_level": self.significance_level,
             },
-            recommendations=self._generate_recommendations(drift_detected, affected_features)
+            recommendations=self._generate_recommendations(
+                drift_detected, affected_features
+            ),
         )
 
-    def detect_drift_chi_square(self, X_current: np.ndarray, feature_names: list[str] = None, n_bins: int = 10) -> DriftDetectionResult:
+    def detect_drift_chi_square(
+        self, X_current: np.ndarray, feature_names: list[str] = None, n_bins: int = 10
+    ) -> DriftDetectionResult:
         """Detect drift using Chi-square test for categorical/binned features.
 
         Args:
@@ -202,7 +217,7 @@ class StatisticalDriftDetector:
                 continue
 
             current_data = X_current[:, i]
-            reference_data = self._reference_distributions[feature_name]['data']
+            reference_data = self._reference_distributions[feature_name]["data"]
 
             # Create bins
             combined_data = np.concatenate([reference_data, current_data])
@@ -242,12 +257,18 @@ class StatisticalDriftDetector:
             detection_method="chi_square",
             timestamp=datetime.utcnow(),
             details={
-                'per_feature_scores': dict(zip(feature_names[:len(drift_scores)], drift_scores, strict=False)),
-                'per_feature_p_values': dict(zip(feature_names[:len(p_values)], p_values, strict=False)),
-                'n_bins': n_bins,
-                'significance_level': self.significance_level
+                "per_feature_scores": dict(
+                    zip(feature_names[: len(drift_scores)], drift_scores, strict=False)
+                ),
+                "per_feature_p_values": dict(
+                    zip(feature_names[: len(p_values)], p_values, strict=False)
+                ),
+                "n_bins": n_bins,
+                "significance_level": self.significance_level,
             },
-            recommendations=self._generate_recommendations(drift_detected, affected_features)
+            recommendations=self._generate_recommendations(
+                drift_detected, affected_features
+            ),
         )
 
     def _calculate_severity(self, drift_score: float, p_value: float) -> DriftSeverity:
@@ -261,22 +282,34 @@ class StatisticalDriftDetector:
         else:
             return DriftSeverity.MEDIUM
 
-    def _generate_recommendations(self, drift_detected: bool, affected_features: list[str]) -> list[str]:
+    def _generate_recommendations(
+        self, drift_detected: bool, affected_features: list[str]
+    ) -> list[str]:
         """Generate recommendations based on drift detection results."""
         recommendations = []
 
         if not drift_detected:
-            recommendations.append("No significant drift detected. Continue monitoring.")
+            recommendations.append(
+                "No significant drift detected. Continue monitoring."
+            )
         else:
-            recommendations.append("Drift detected. Consider retraining the anomaly detection model.")
+            recommendations.append(
+                "Drift detected. Consider retraining the anomaly detection model."
+            )
 
             if len(affected_features) > 0:
-                recommendations.append(f"Focus on features: {', '.join(affected_features[:5])}")
+                recommendations.append(
+                    f"Focus on features: {', '.join(affected_features[:5])}"
+                )
 
             if len(affected_features) > len(self._reference_distributions) * 0.5:
-                recommendations.append("Many features affected. Consider comprehensive model retraining.")
+                recommendations.append(
+                    "Many features affected. Consider comprehensive model retraining."
+                )
             else:
-                recommendations.append("Limited features affected. Consider feature-specific adjustments.")
+                recommendations.append(
+                    "Limited features affected. Consider feature-specific adjustments."
+                )
 
         return recommendations
 
@@ -284,7 +317,7 @@ class StatisticalDriftDetector:
 class DistanceBasedDriftDetector:
     """Distance-based drift detection using Maximum Mean Discrepancy (MMD)."""
 
-    def __init__(self, kernel: str = 'rbf', gamma: float = 1.0):
+    def __init__(self, kernel: str = "rbf", gamma: float = 1.0):
         self.kernel = kernel
         self.gamma = gamma
         self._reference_embeddings = None
@@ -299,7 +332,7 @@ class DistanceBasedDriftDetector:
 
     def _compute_embeddings(self, X: np.ndarray) -> np.ndarray:
         """Compute kernel embeddings for data."""
-        if self.kernel == 'rbf':
+        if self.kernel == "rbf":
             # RBF kernel embeddings
             n_samples = min(X.shape[0], 1000)  # Limit for computational efficiency
             if X.shape[0] > n_samples:
@@ -312,7 +345,9 @@ class DistanceBasedDriftDetector:
         else:
             return X
 
-    def detect_drift_mmd(self, X_current: np.ndarray, bootstrap_samples: int = 1000) -> DriftDetectionResult:
+    def detect_drift_mmd(
+        self, X_current: np.ndarray, bootstrap_samples: int = 1000
+    ) -> DriftDetectionResult:
         """Detect drift using Maximum Mean Discrepancy.
 
         Args:
@@ -348,18 +383,20 @@ class DistanceBasedDriftDetector:
             detection_method="maximum_mean_discrepancy",
             timestamp=datetime.utcnow(),
             details={
-                'kernel': self.kernel,
-                'gamma': self.gamma,
-                'bootstrap_samples': bootstrap_samples,
-                'reference_size': len(self._reference_embeddings),
-                'current_size': len(current_embeddings)
+                "kernel": self.kernel,
+                "gamma": self.gamma,
+                "bootstrap_samples": bootstrap_samples,
+                "reference_size": len(self._reference_embeddings),
+                "current_size": len(current_embeddings),
             },
-            recommendations=self._generate_recommendations_mmd(drift_detected, mmd_score)
+            recommendations=self._generate_recommendations_mmd(
+                drift_detected, mmd_score
+            ),
         )
 
     def _calculate_mmd(self, X: np.ndarray, Y: np.ndarray) -> float:
         """Calculate Maximum Mean Discrepancy between two samples."""
-        if self.kernel == 'rbf':
+        if self.kernel == "rbf":
             # RBF kernel MMD
             XX = self._rbf_kernel(X, X)
             YY = self._rbf_kernel(Y, Y)
@@ -384,7 +421,9 @@ class DistanceBasedDriftDetector:
         # RBF kernel
         return np.exp(-self.gamma * distances)
 
-    def _bootstrap_test(self, X: np.ndarray, Y: np.ndarray, observed_mmd: float, n_bootstrap: int) -> float:
+    def _bootstrap_test(
+        self, X: np.ndarray, Y: np.ndarray, observed_mmd: float, n_bootstrap: int
+    ) -> float:
         """Bootstrap test for MMD significance."""
         combined = np.vstack([X, Y])
         n_X, n_Y = len(X), len(Y)
@@ -395,7 +434,7 @@ class DistanceBasedDriftDetector:
             # Permute combined data
             indices = np.random.permutation(len(combined))
             perm_X = combined[indices[:n_X]]
-            perm_Y = combined[indices[n_X:n_X + n_Y]]
+            perm_Y = combined[indices[n_X : n_X + n_Y]]
 
             # Calculate MMD for permuted data
             bootstrap_mmd = self._calculate_mmd(perm_X, perm_Y)
@@ -405,7 +444,9 @@ class DistanceBasedDriftDetector:
         p_value = np.mean(np.array(bootstrap_mmds) >= observed_mmd)
         return p_value
 
-    def _calculate_severity_mmd(self, mmd_score: float, p_value: float) -> DriftSeverity:
+    def _calculate_severity_mmd(
+        self, mmd_score: float, p_value: float
+    ) -> DriftSeverity:
         """Calculate drift severity for MMD."""
         if p_value >= 0.05:
             return DriftSeverity.LOW
@@ -416,7 +457,9 @@ class DistanceBasedDriftDetector:
         else:
             return DriftSeverity.MEDIUM
 
-    def _generate_recommendations_mmd(self, drift_detected: bool, mmd_score: float) -> list[str]:
+    def _generate_recommendations_mmd(
+        self, drift_detected: bool, mmd_score: float
+    ) -> list[str]:
         """Generate recommendations for MMD-based drift detection."""
         recommendations = []
 
@@ -426,11 +469,17 @@ class DistanceBasedDriftDetector:
             recommendations.append("Multivariate drift detected in data distribution.")
 
             if mmd_score > 0.5:
-                recommendations.append("Strong drift signal. Immediate model retraining recommended.")
+                recommendations.append(
+                    "Strong drift signal. Immediate model retraining recommended."
+                )
             else:
-                recommendations.append("Moderate drift signal. Monitor closely and consider retraining.")
+                recommendations.append(
+                    "Moderate drift signal. Monitor closely and consider retraining."
+                )
 
-            recommendations.append("Consider feature-wise analysis to identify specific drift sources.")
+            recommendations.append(
+                "Consider feature-wise analysis to identify specific drift sources."
+            )
 
         return recommendations
 
@@ -443,7 +492,9 @@ class PerformanceBasedDriftDetector:
         self.performance_threshold = performance_threshold
         self._reference_performance = None
 
-    def fit_reference(self, X_reference: np.ndarray, y_reference: np.ndarray = None) -> None:
+    def fit_reference(
+        self, X_reference: np.ndarray, y_reference: np.ndarray = None
+    ) -> None:
         """Establish reference performance baseline.
 
         Args:
@@ -463,21 +514,25 @@ class PerformanceBasedDriftDetector:
             predictions = np.where(predictions == -1, 1, 0)  # Convert to anomaly labels
 
             self._reference_performance = {
-                'accuracy': accuracy_score(y_reference, predictions),
-                'precision': precision_score(y_reference, predictions, zero_division=0),
-                'recall': recall_score(y_reference, predictions, zero_division=0),
-                'f1': f1_score(y_reference, predictions, zero_division=0)
+                "accuracy": accuracy_score(y_reference, predictions),
+                "precision": precision_score(y_reference, predictions, zero_division=0),
+                "recall": recall_score(y_reference, predictions, zero_division=0),
+                "f1": f1_score(y_reference, predictions, zero_division=0),
             }
 
             # Calculate anomaly scores for AUC
-            if hasattr(self.baseline_model, 'decision_function'):
+            if hasattr(self.baseline_model, "decision_function"):
                 scores = -self.baseline_model.decision_function(X_reference)
                 try:
-                    self._reference_performance['auc'] = roc_auc_score(y_reference, scores)
+                    self._reference_performance["auc"] = roc_auc_score(
+                        y_reference, scores
+                    )
                 except ValueError:
-                    self._reference_performance['auc'] = 0.5
+                    self._reference_performance["auc"] = 0.5
 
-    def detect_drift_performance(self, X_current: np.ndarray, y_current: np.ndarray = None) -> DriftDetectionResult:
+    def detect_drift_performance(
+        self, X_current: np.ndarray, y_current: np.ndarray = None
+    ) -> DriftDetectionResult:
         """Detect drift based on performance degradation.
 
         Args:
@@ -500,28 +555,33 @@ class PerformanceBasedDriftDetector:
         if y_current is not None and self._reference_performance is not None:
             # Calculate current performance
             current_performance = {
-                'accuracy': accuracy_score(y_current, predictions),
-                'precision': precision_score(y_current, predictions, zero_division=0),
-                'recall': recall_score(y_current, predictions, zero_division=0),
-                'f1': f1_score(y_current, predictions, zero_division=0)
+                "accuracy": accuracy_score(y_current, predictions),
+                "precision": precision_score(y_current, predictions, zero_division=0),
+                "recall": recall_score(y_current, predictions, zero_division=0),
+                "f1": f1_score(y_current, predictions, zero_division=0),
             }
 
             # Calculate AUC if possible
-            if hasattr(self.baseline_model, 'decision_function'):
+            if hasattr(self.baseline_model, "decision_function"):
                 scores = -self.baseline_model.decision_function(X_current)
                 try:
-                    current_performance['auc'] = roc_auc_score(y_current, scores)
+                    current_performance["auc"] = roc_auc_score(y_current, scores)
                 except ValueError:
-                    current_performance['auc'] = 0.5
+                    current_performance["auc"] = 0.5
 
             # Calculate performance degradation
             for metric in current_performance:
                 if metric in self._reference_performance:
-                    degradation = self._reference_performance[metric] - current_performance[metric]
+                    degradation = (
+                        self._reference_performance[metric]
+                        - current_performance[metric]
+                    )
                     performance_degradation[metric] = degradation
 
         # Determine drift based on performance degradation
-        max_degradation = max(performance_degradation.values()) if performance_degradation else 0
+        max_degradation = (
+            max(performance_degradation.values()) if performance_degradation else 0
+        )
         drift_detected = max_degradation > self.performance_threshold
 
         # Calculate overall drift score
@@ -534,7 +594,9 @@ class PerformanceBasedDriftDetector:
 
         return DriftDetectionResult(
             drift_detected=drift_detected,
-            drift_type=DriftType.GRADUAL_DRIFT if drift_detected else DriftType.NO_DRIFT,
+            drift_type=DriftType.GRADUAL_DRIFT
+            if drift_detected
+            else DriftType.NO_DRIFT,
             drift_severity=drift_severity,
             drift_score=drift_score,
             p_value=p_value,
@@ -542,12 +604,14 @@ class PerformanceBasedDriftDetector:
             detection_method="performance_based",
             timestamp=datetime.utcnow(),
             details={
-                'reference_performance': self._reference_performance,
-                'current_performance': current_performance,
-                'performance_degradation': performance_degradation,
-                'threshold': self.performance_threshold
+                "reference_performance": self._reference_performance,
+                "current_performance": current_performance,
+                "performance_degradation": performance_degradation,
+                "threshold": self.performance_threshold,
             },
-            recommendations=self._generate_recommendations_performance(drift_detected, performance_degradation)
+            recommendations=self._generate_recommendations_performance(
+                drift_detected, performance_degradation
+            ),
         )
 
     def _calculate_severity_performance(self, drift_score: float) -> DriftSeverity:
@@ -561,20 +625,28 @@ class PerformanceBasedDriftDetector:
         else:
             return DriftSeverity.MEDIUM
 
-    def _generate_recommendations_performance(self, drift_detected: bool, degradation: dict[str, float]) -> list[str]:
+    def _generate_recommendations_performance(
+        self, drift_detected: bool, degradation: dict[str, float]
+    ) -> list[str]:
         """Generate recommendations based on performance degradation."""
         recommendations = []
 
         if not drift_detected:
             recommendations.append("No significant performance degradation detected.")
         else:
-            recommendations.append("Performance degradation detected. Model retraining recommended.")
+            recommendations.append(
+                "Performance degradation detected. Model retraining recommended."
+            )
 
             if degradation:
                 worst_metric = max(degradation.items(), key=lambda x: x[1])
-                recommendations.append(f"Worst affected metric: {worst_metric[0]} (degraded by {worst_metric[1]:.3f})")
+                recommendations.append(
+                    f"Worst affected metric: {worst_metric[0]} (degraded by {worst_metric[1]:.3f})"
+                )
 
-            recommendations.append("Consider collecting more recent labeled data for retraining.")
+            recommendations.append(
+                "Consider collecting more recent labeled data for retraining."
+            )
 
         return recommendations
 
@@ -603,7 +675,7 @@ class StreamingDriftDetector:
 
         # Maintain window size
         if len(self._current_window) > self.window_size:
-            self._current_window = self._current_window[-self.window_size:]
+            self._current_window = self._current_window[-self.window_size :]
 
         # Initialize reference if empty
         if not self._reference_window:
@@ -647,9 +719,15 @@ class StreamingDriftDetector:
         drift_detected = overall_drift_score > drift_threshold
 
         # Estimate p-value
-        p_value = max(0.001, 1 - (overall_drift_score / drift_threshold)) if drift_threshold > 0 else 1.0
+        p_value = (
+            max(0.001, 1 - (overall_drift_score / drift_threshold))
+            if drift_threshold > 0
+            else 1.0
+        )
 
-        drift_severity = self._calculate_severity_streaming(overall_drift_score, drift_threshold)
+        drift_severity = self._calculate_severity_streaming(
+            overall_drift_score, drift_threshold
+        )
 
         return DriftDetectionResult(
             drift_detected=drift_detected,
@@ -657,16 +735,20 @@ class StreamingDriftDetector:
             drift_severity=drift_severity,
             drift_score=overall_drift_score,
             p_value=p_value,
-            features_affected=[f"feature_{i}" for i, score in enumerate(drift_scores) if score > drift_threshold],
+            features_affected=[
+                f"feature_{i}"
+                for i, score in enumerate(drift_scores)
+                if score > drift_threshold
+            ],
             detection_method="streaming_wasserstein",
             timestamp=datetime.utcnow(),
             details={
-                'per_feature_distances': dict(enumerate(drift_scores)),
-                'drift_threshold': drift_threshold,
-                'window_size': self.window_size,
-                'adaptation_rate': self.adaptation_rate
+                "per_feature_distances": dict(enumerate(drift_scores)),
+                "drift_threshold": drift_threshold,
+                "window_size": self.window_size,
+                "adaptation_rate": self.adaptation_rate,
             },
-            recommendations=self._generate_recommendations_streaming(drift_detected)
+            recommendations=self._generate_recommendations_streaming(drift_detected),
         )
 
     def _adapt_reference_window(self) -> None:
@@ -678,10 +760,14 @@ class StreamingDriftDetector:
         curr_data = np.array(self._current_window)
 
         # Exponential moving average adaptation
-        adapted_data = (1 - self.adaptation_rate) * ref_data + self.adaptation_rate * curr_data
+        adapted_data = (
+            1 - self.adaptation_rate
+        ) * ref_data + self.adaptation_rate * curr_data
         self._reference_window = adapted_data.tolist()
 
-    def _calculate_severity_streaming(self, drift_score: float, threshold: float) -> DriftSeverity:
+    def _calculate_severity_streaming(
+        self, drift_score: float, threshold: float
+    ) -> DriftSeverity:
         """Calculate severity for streaming drift."""
         if drift_score <= threshold:
             return DriftSeverity.LOW
@@ -703,7 +789,9 @@ class StreamingDriftDetector:
             recommendations.append("Consider adaptive model updates or retraining.")
 
             if len(self._drift_history) > 1:
-                recommendations.append("Multiple drift events detected. Monitor for recurring patterns.")
+                recommendations.append(
+                    "Multiple drift events detected. Monitor for recurring patterns."
+                )
 
         return recommendations
 
@@ -715,7 +803,7 @@ class DriftDetectionAdapter(DetectorProtocol):
         "StatisticalDrift": StatisticalDriftDetector,
         "DistanceBasedDrift": DistanceBasedDriftDetector,
         "PerformanceBasedDrift": PerformanceBasedDriftDetector,
-        "StreamingDrift": StreamingDriftDetector
+        "StreamingDrift": StreamingDriftDetector,
     }
 
     def __init__(self, detector: Detector):
@@ -806,14 +894,13 @@ class DriftDetectionAdapter(DetectorProtocol):
 
             # Get labels if available
             y_reference = None
-            if (dataset.target_column and
-                dataset.target_column in dataset.data.columns):
+            if dataset.target_column and dataset.target_column in dataset.data.columns:
                 y_reference = dataset.data[dataset.target_column].values
 
             # Fit drift detector
             feature_names = self._get_feature_names(dataset)
 
-            if hasattr(self._drift_detector, 'fit_reference'):
+            if hasattr(self._drift_detector, "fit_reference"):
                 if y_reference is not None:
                     self._drift_detector.fit_reference(X_scaled, y_reference)
                 else:
@@ -822,7 +909,9 @@ class DriftDetectionAdapter(DetectorProtocol):
             self.detector.is_fitted = True
             self._is_fitted = True
 
-            logger.info(f"Successfully fitted drift detector: {self.detector.algorithm_name}")
+            logger.info(
+                f"Successfully fitted drift detector: {self.detector.algorithm_name}"
+            )
 
         except Exception as e:
             raise AdapterError(f"Failed to fit drift detection model: {e}")
@@ -857,8 +946,7 @@ class DriftDetectionAdapter(DetectorProtocol):
 
             # Get labels if available
             y_current = None
-            if (dataset.target_column and
-                dataset.target_column in dataset.data.columns):
+            if dataset.target_column and dataset.target_column in dataset.data.columns:
                 y_current = dataset.data[dataset.target_column].values
 
             # Detect drift
@@ -871,16 +959,24 @@ class DriftDetectionAdapter(DetectorProtocol):
         except Exception as e:
             raise AdapterError(f"Failed to detect drift: {e}")
 
-    def _detect_drift(self, X_current: np.ndarray, y_current: np.ndarray = None,
-                     feature_names: list[str] = None) -> DriftDetectionResult:
+    def _detect_drift(
+        self,
+        X_current: np.ndarray,
+        y_current: np.ndarray = None,
+        feature_names: list[str] = None,
+    ) -> DriftDetectionResult:
         """Detect drift using the configured algorithm."""
 
         if self.detector.algorithm_name == "StatisticalDrift":
             # Try KS test first, fallback to Chi-square
             try:
-                return self._drift_detector.detect_drift_ks_test(X_current, feature_names)
+                return self._drift_detector.detect_drift_ks_test(
+                    X_current, feature_names
+                )
             except Exception:
-                return self._drift_detector.detect_drift_chi_square(X_current, feature_names)
+                return self._drift_detector.detect_drift_chi_square(
+                    X_current, feature_names
+                )
 
         elif self.detector.algorithm_name == "DistanceBasedDrift":
             return self._drift_detector.detect_drift_mmd(X_current)
@@ -901,15 +997,19 @@ class DriftDetectionAdapter(DetectorProtocol):
                     features_affected=[],
                     detection_method="streaming_wasserstein",
                     timestamp=datetime.utcnow(),
-                    details={'status': 'accumulating_data'},
-                    recommendations=["Accumulating data for drift detection."]
+                    details={"status": "accumulating_data"},
+                    recommendations=["Accumulating data for drift detection."],
                 )
             return result
 
         else:
-            raise AdapterError(f"Unknown drift detection algorithm: {self.detector.algorithm_name}")
+            raise AdapterError(
+                f"Unknown drift detection algorithm: {self.detector.algorithm_name}"
+            )
 
-    def _convert_to_detection_result(self, drift_result: DriftDetectionResult, dataset: Dataset) -> DetectionResult:
+    def _convert_to_detection_result(
+        self, drift_result: DriftDetectionResult, dataset: Dataset
+    ) -> DetectionResult:
         """Convert drift detection result to standard detection result format."""
 
         # Create anomaly scores (drift score for each sample)
@@ -933,7 +1033,9 @@ class DriftDetectionAdapter(DetectorProtocol):
 
             # Create representative anomaly (not per-sample for drift)
             anomaly = Anomaly(
-                score=AnomalyScore(value=drift_result.drift_score, method=self.detector.algorithm_name),
+                score=AnomalyScore(
+                    value=drift_result.drift_score, method=self.detector.algorithm_name
+                ),
                 data_point={"drift_type": drift_result.drift_type.value},
                 detector_name=self.detector.algorithm_name,
                 metadata={
@@ -943,8 +1045,8 @@ class DriftDetectionAdapter(DetectorProtocol):
                     "features_affected": drift_result.features_affected,
                     "detection_method": drift_result.detection_method,
                     "p_value": drift_result.p_value,
-                    "recommendations": drift_result.recommendations
-                }
+                    "recommendations": drift_result.recommendations,
+                },
             )
             anomalies.append(anomaly)
 
@@ -961,7 +1063,7 @@ class DriftDetectionAdapter(DetectorProtocol):
             "timestamp": drift_result.timestamp.isoformat(),
             "recommendations": drift_result.recommendations,
             "details": drift_result.details,
-            "model_type": "drift_detection"
+            "model_type": "drift_detection",
         }
 
         return DetectionResult(
@@ -971,7 +1073,7 @@ class DriftDetectionAdapter(DetectorProtocol):
             scores=anomaly_scores,
             labels=labels,
             threshold=0.5,  # Not meaningful for drift detection
-            metadata=metadata
+            metadata=metadata,
         )
 
     def score(self, dataset: Dataset) -> list[AnomalyScore]:
@@ -1047,49 +1149,129 @@ class DriftDetectionAdapter(DetectorProtocol):
                 "type": "Statistical Test",
                 "description": "Detects drift using statistical tests (KS test, Chi-square)",
                 "parameters": {
-                    "significance_level": {"type": "float", "default": 0.05, "description": "Statistical significance level"},
-                    "method": {"type": "str", "default": "ks_test", "description": "Statistical test method"}
+                    "significance_level": {
+                        "type": "float",
+                        "default": 0.05,
+                        "description": "Statistical significance level",
+                    },
+                    "method": {
+                        "type": "str",
+                        "default": "ks_test",
+                        "description": "Statistical test method",
+                    },
                 },
-                "suitable_for": ["univariate_drift", "distribution_changes", "feature_level_analysis"],
-                "pros": ["Statistical rigor", "Interpretable results", "Well-established theory"],
-                "cons": ["Requires sufficient data", "May miss subtle drift", "Assumes independence"]
+                "suitable_for": [
+                    "univariate_drift",
+                    "distribution_changes",
+                    "feature_level_analysis",
+                ],
+                "pros": [
+                    "Statistical rigor",
+                    "Interpretable results",
+                    "Well-established theory",
+                ],
+                "cons": [
+                    "Requires sufficient data",
+                    "May miss subtle drift",
+                    "Assumes independence",
+                ],
             },
             "DistanceBasedDrift": {
                 "name": "Distance-Based Drift Detection",
                 "type": "Distance Metric",
                 "description": "Uses Maximum Mean Discrepancy (MMD) to detect multivariate drift",
                 "parameters": {
-                    "kernel": {"type": "str", "default": "rbf", "description": "Kernel type for MMD"},
-                    "gamma": {"type": "float", "default": 1.0, "description": "Kernel parameter"}
+                    "kernel": {
+                        "type": "str",
+                        "default": "rbf",
+                        "description": "Kernel type for MMD",
+                    },
+                    "gamma": {
+                        "type": "float",
+                        "default": 1.0,
+                        "description": "Kernel parameter",
+                    },
                 },
-                "suitable_for": ["multivariate_drift", "complex_dependencies", "high_dimensional_data"],
-                "pros": ["Multivariate detection", "Kernel flexibility", "Captures complex patterns"],
-                "cons": ["Computational complexity", "Parameter tuning needed", "Less interpretable"]
+                "suitable_for": [
+                    "multivariate_drift",
+                    "complex_dependencies",
+                    "high_dimensional_data",
+                ],
+                "pros": [
+                    "Multivariate detection",
+                    "Kernel flexibility",
+                    "Captures complex patterns",
+                ],
+                "cons": [
+                    "Computational complexity",
+                    "Parameter tuning needed",
+                    "Less interpretable",
+                ],
             },
             "PerformanceBasedDrift": {
                 "name": "Performance-Based Drift Detection",
                 "type": "Model Performance",
                 "description": "Detects drift based on model performance degradation",
                 "parameters": {
-                    "performance_threshold": {"type": "float", "default": 0.1, "description": "Performance degradation threshold"},
-                    "metrics": {"type": "list", "default": ["accuracy", "f1"], "description": "Performance metrics to monitor"}
+                    "performance_threshold": {
+                        "type": "float",
+                        "default": 0.1,
+                        "description": "Performance degradation threshold",
+                    },
+                    "metrics": {
+                        "type": "list",
+                        "default": ["accuracy", "f1"],
+                        "description": "Performance metrics to monitor",
+                    },
                 },
-                "suitable_for": ["concept_drift", "model_monitoring", "supervised_learning"],
-                "pros": ["Direct business impact", "Model-agnostic", "Actionable insights"],
-                "cons": ["Requires labeled data", "Delayed detection", "Model-dependent"]
+                "suitable_for": [
+                    "concept_drift",
+                    "model_monitoring",
+                    "supervised_learning",
+                ],
+                "pros": [
+                    "Direct business impact",
+                    "Model-agnostic",
+                    "Actionable insights",
+                ],
+                "cons": [
+                    "Requires labeled data",
+                    "Delayed detection",
+                    "Model-dependent",
+                ],
             },
             "StreamingDrift": {
                 "name": "Streaming Drift Detection",
                 "type": "Online Detection",
                 "description": "Online drift detection for streaming data with adaptive windows",
                 "parameters": {
-                    "window_size": {"type": "int", "default": 1000, "description": "Size of sliding window"},
-                    "adaptation_rate": {"type": "float", "default": 0.01, "description": "Rate of adaptation to new data"}
+                    "window_size": {
+                        "type": "int",
+                        "default": 1000,
+                        "description": "Size of sliding window",
+                    },
+                    "adaptation_rate": {
+                        "type": "float",
+                        "default": 0.01,
+                        "description": "Rate of adaptation to new data",
+                    },
                 },
-                "suitable_for": ["streaming_data", "real_time_monitoring", "continuous_adaptation"],
-                "pros": ["Real-time detection", "Adaptive to changes", "Memory efficient"],
-                "cons": ["Parameter sensitive", "Limited history", "May miss long-term trends"]
-            }
+                "suitable_for": [
+                    "streaming_data",
+                    "real_time_monitoring",
+                    "continuous_adaptation",
+                ],
+                "pros": [
+                    "Real-time detection",
+                    "Adaptive to changes",
+                    "Memory efficient",
+                ],
+                "cons": [
+                    "Parameter sensitive",
+                    "Limited history",
+                    "May miss long-term trends",
+                ],
+            },
         }
 
         return info.get(algorithm, {})

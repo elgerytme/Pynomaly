@@ -43,21 +43,22 @@ Base = declarative_base()
 
 # Association table for user-tenant-roles
 user_tenant_roles = Table(
-    'user_tenant_roles',
+    "user_tenant_roles",
     Base.metadata,
-    Column('user_id', UUID(as_uuid=True), ForeignKey('users.id'), primary_key=True),
-    Column('tenant_id', UUID(as_uuid=True), ForeignKey('tenants.id'), primary_key=True),
-    Column('role', String(50), nullable=False),
-    Column('permissions', JSONB),
-    Column('granted_at', DateTime, default=datetime.utcnow),
-    Column('granted_by', UUID(as_uuid=True)),
-    Column('expires_at', DateTime)
+    Column("user_id", UUID(as_uuid=True), ForeignKey("users.id"), primary_key=True),
+    Column("tenant_id", UUID(as_uuid=True), ForeignKey("tenants.id"), primary_key=True),
+    Column("role", String(50), nullable=False),
+    Column("permissions", JSONB),
+    Column("granted_at", DateTime, default=datetime.utcnow),
+    Column("granted_by", UUID(as_uuid=True)),
+    Column("expires_at", DateTime),
 )
 
 
 class UserModel(Base):
     """SQLAlchemy model for User entity."""
-    __tablename__ = 'users'
+
+    __tablename__ = "users"
 
     id = Column(UUID(as_uuid=True), primary_key=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
@@ -73,13 +74,16 @@ class UserModel(Base):
     settings = Column(JSONB, default=dict)
 
     # Relationships
-    tenants = relationship("TenantModel", secondary=user_tenant_roles, back_populates="users")
+    tenants = relationship(
+        "TenantModel", secondary=user_tenant_roles, back_populates="users"
+    )
     sessions = relationship("UserSessionModel", back_populates="user")
 
 
 class TenantModel(Base):
     """SQLAlchemy model for Tenant entity."""
-    __tablename__ = 'tenants'
+
+    __tablename__ = "tenants"
 
     id = Column(UUID(as_uuid=True), primary_key=True)
     name = Column(String(255), nullable=False)
@@ -89,8 +93,8 @@ class TenantModel(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     expires_at = Column(DateTime)
-    contact_email = Column(String(255), default='')
-    billing_email = Column(String(255), default='')
+    contact_email = Column(String(255), default="")
+    billing_email = Column(String(255), default="")
     settings = Column(JSONB, default=dict)
 
     # Limits
@@ -113,20 +117,23 @@ class TenantModel(Base):
     usage_last_updated = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    users = relationship("UserModel", secondary=user_tenant_roles, back_populates="tenants")
+    users = relationship(
+        "UserModel", secondary=user_tenant_roles, back_populates="tenants"
+    )
 
 
 class UserSessionModel(Base):
     """SQLAlchemy model for UserSession entity."""
-    __tablename__ = 'user_sessions'
+
+    __tablename__ = "user_sessions"
 
     id = Column(String(255), primary_key=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
-    tenant_id = Column(UUID(as_uuid=True), ForeignKey('tenants.id'))
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    tenant_id = Column(UUID(as_uuid=True), ForeignKey("tenants.id"))
     created_at = Column(DateTime, default=datetime.utcnow)
     expires_at = Column(DateTime, nullable=False)
-    ip_address = Column(String(45), default='')
-    user_agent = Column(Text, default='')
+    ip_address = Column(String(45), default="")
+    user_agent = Column(Text, default="")
     is_active = Column(Boolean, default=True)
     last_activity = Column(DateTime, default=datetime.utcnow)
 
@@ -146,7 +153,9 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
         tenant_roles = []
         with self._session_factory() as session:
             result = session.execute(
-                user_tenant_roles.select().where(user_tenant_roles.c.user_id == user_model.id)
+                user_tenant_roles.select().where(
+                    user_tenant_roles.c.user_id == user_model.id
+                )
             )
             for row in result:
                 permissions = set()
@@ -154,15 +163,19 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
                     for perm_data in row.permissions:
                         permissions.add(Permission(**perm_data))
 
-                tenant_roles.append(UserTenantRole(
-                    user_id=UserId(str(user_model.id)),
-                    tenant_id=TenantId(str(row.tenant_id)),
-                    role=UserRole(row.role),
-                    permissions=permissions,
-                    granted_at=row.granted_at,
-                    granted_by=UserId(str(row.granted_by)) if row.granted_by else None,
-                    expires_at=row.expires_at
-                ))
+                tenant_roles.append(
+                    UserTenantRole(
+                        user_id=UserId(str(user_model.id)),
+                        tenant_id=TenantId(str(row.tenant_id)),
+                        role=UserRole(row.role),
+                        permissions=permissions,
+                        granted_at=row.granted_at,
+                        granted_by=UserId(str(row.granted_by))
+                        if row.granted_by
+                        else None,
+                        expires_at=row.expires_at,
+                    )
+                )
 
         return User(
             id=UserId(str(user_model.id)),
@@ -177,7 +190,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             last_login_at=user_model.last_login_at,
             email_verified_at=user_model.email_verified_at,
             password_hash=user_model.password_hash,
-            settings=user_model.settings or {}
+            settings=user_model.settings or {},
         )
 
     def _to_model_user(self, user: User) -> UserModel:
@@ -194,7 +207,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             updated_at=user.updated_at,
             last_login_at=user.last_login_at,
             email_verified_at=user.email_verified_at,
-            settings=user.settings
+            settings=user.settings,
         )
 
     async def create_user(self, user: User) -> User:
@@ -210,7 +223,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
                         "name": p.name,
                         "resource": p.resource,
                         "action": p.action,
-                        "description": p.description
+                        "description": p.description,
                     }
                     for p in tenant_role.permissions
                 ]
@@ -223,7 +236,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
                         permissions=permissions_data,
                         granted_at=tenant_role.granted_at,
                         granted_by=tenant_role.granted_by,
-                        expires_at=tenant_role.expires_at
+                        expires_at=tenant_role.expires_at,
                     )
                 )
 
@@ -234,25 +247,33 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
     async def get_user_by_id(self, user_id: UserId) -> User | None:
         """Get user by ID."""
         with self._session_factory() as session:
-            user_model = session.query(UserModel).filter(UserModel.id == user_id).first()
+            user_model = (
+                session.query(UserModel).filter(UserModel.id == user_id).first()
+            )
             return self._to_domain_user(user_model) if user_model else None
 
     async def get_user_by_email(self, email: str) -> User | None:
         """Get user by email."""
         with self._session_factory() as session:
-            user_model = session.query(UserModel).filter(UserModel.email == email).first()
+            user_model = (
+                session.query(UserModel).filter(UserModel.email == email).first()
+            )
             return self._to_domain_user(user_model) if user_model else None
 
     async def get_user_by_username(self, username: str) -> User | None:
         """Get user by username."""
         with self._session_factory() as session:
-            user_model = session.query(UserModel).filter(UserModel.username == username).first()
+            user_model = (
+                session.query(UserModel).filter(UserModel.username == username).first()
+            )
             return self._to_domain_user(user_model) if user_model else None
 
     async def update_user(self, user: User) -> User:
         """Update existing user."""
         with self._session_factory() as session:
-            user_model = session.query(UserModel).filter(UserModel.id == user.id).first()
+            user_model = (
+                session.query(UserModel).filter(UserModel.id == user.id).first()
+            )
             if not user_model:
                 raise ValueError("User not found")
 
@@ -289,14 +310,20 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
         """Get all users for a tenant."""
         with self._session_factory() as session:
             result = session.execute(
-                user_tenant_roles.select().where(user_tenant_roles.c.tenant_id == tenant_id)
+                user_tenant_roles.select().where(
+                    user_tenant_roles.c.tenant_id == tenant_id
+                )
             )
             user_ids = [row.user_id for row in result]
 
-            user_models = session.query(UserModel).filter(UserModel.id.in_(user_ids)).all()
+            user_models = (
+                session.query(UserModel).filter(UserModel.id.in_(user_ids)).all()
+            )
             return [self._to_domain_user(model) for model in user_models]
 
-    async def add_user_to_tenant(self, user_id: UserId, tenant_id: TenantId, role: UserRole) -> UserTenantRole:
+    async def add_user_to_tenant(
+        self, user_id: UserId, tenant_id: TenantId, role: UserRole
+    ) -> UserTenantRole:
         """Add user to tenant with role."""
         with self._session_factory() as session:
             from pynomaly.domain.entities.user import get_default_permissions
@@ -306,7 +333,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
                     "name": p.name,
                     "resource": p.resource,
                     "action": p.action,
-                    "description": p.description
+                    "description": p.description,
                 }
                 for p in get_default_permissions(role)
             ]
@@ -317,7 +344,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
                     tenant_id=tenant_id,
                     role=role.value,
                     permissions=permissions_data,
-                    granted_at=datetime.utcnow()
+                    granted_at=datetime.utcnow(),
                 )
             )
             session.commit()
@@ -327,22 +354,26 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
                 tenant_id=tenant_id,
                 role=role,
                 permissions=get_default_permissions(role),
-                granted_at=datetime.utcnow()
+                granted_at=datetime.utcnow(),
             )
 
-    async def remove_user_from_tenant(self, user_id: UserId, tenant_id: TenantId) -> bool:
+    async def remove_user_from_tenant(
+        self, user_id: UserId, tenant_id: TenantId
+    ) -> bool:
         """Remove user from tenant."""
         with self._session_factory() as session:
             deleted = session.execute(
                 user_tenant_roles.delete().where(
-                    (user_tenant_roles.c.user_id == user_id) &
-                    (user_tenant_roles.c.tenant_id == tenant_id)
+                    (user_tenant_roles.c.user_id == user_id)
+                    & (user_tenant_roles.c.tenant_id == tenant_id)
                 )
             )
             session.commit()
             return deleted.rowcount > 0
 
-    async def update_user_role_in_tenant(self, user_id: UserId, tenant_id: TenantId, role: UserRole) -> UserTenantRole:
+    async def update_user_role_in_tenant(
+        self, user_id: UserId, tenant_id: TenantId, role: UserRole
+    ) -> UserTenantRole:
         """Update user's role in tenant."""
         with self._session_factory() as session:
             from pynomaly.domain.entities.user import get_default_permissions
@@ -352,19 +383,18 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
                     "name": p.name,
                     "resource": p.resource,
                     "action": p.action,
-                    "description": p.description
+                    "description": p.description,
                 }
                 for p in get_default_permissions(role)
             ]
 
             session.execute(
-                user_tenant_roles.update().where(
-                    (user_tenant_roles.c.user_id == user_id) &
-                    (user_tenant_roles.c.tenant_id == tenant_id)
-                ).values(
-                    role=role.value,
-                    permissions=permissions_data
+                user_tenant_roles.update()
+                .where(
+                    (user_tenant_roles.c.user_id == user_id)
+                    & (user_tenant_roles.c.tenant_id == tenant_id)
                 )
+                .values(role=role.value, permissions=permissions_data)
             )
             session.commit()
 
@@ -373,7 +403,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
                 tenant_id=tenant_id,
                 role=role,
                 permissions=get_default_permissions(role),
-                granted_at=datetime.utcnow()
+                granted_at=datetime.utcnow(),
             )
 
 
@@ -392,7 +422,7 @@ class SQLAlchemyTenantRepository(TenantRepositoryProtocol):
             max_detections_per_month=tenant_model.max_detections_per_month,
             max_storage_gb=tenant_model.max_storage_gb,
             max_api_calls_per_minute=tenant_model.max_api_calls_per_minute,
-            max_concurrent_detections=tenant_model.max_concurrent_detections
+            max_concurrent_detections=tenant_model.max_concurrent_detections,
         )
 
         usage = TenantUsage(
@@ -403,7 +433,7 @@ class SQLAlchemyTenantRepository(TenantRepositoryProtocol):
             storage_used_gb=tenant_model.storage_used_gb,
             api_calls_this_minute=tenant_model.api_calls_this_minute,
             concurrent_detections=tenant_model.concurrent_detections,
-            last_updated=tenant_model.usage_last_updated
+            last_updated=tenant_model.usage_last_updated,
         )
 
         return Tenant(
@@ -419,7 +449,7 @@ class SQLAlchemyTenantRepository(TenantRepositoryProtocol):
             expires_at=tenant_model.expires_at,
             contact_email=tenant_model.contact_email,
             billing_email=tenant_model.billing_email,
-            settings=tenant_model.settings or {}
+            settings=tenant_model.settings or {},
         )
 
     async def create_tenant(self, tenant: Tenant) -> Tenant:
@@ -453,7 +483,7 @@ class SQLAlchemyTenantRepository(TenantRepositoryProtocol):
                 storage_used_gb=tenant.usage.storage_used_gb,
                 api_calls_this_minute=tenant.usage.api_calls_this_minute,
                 concurrent_detections=tenant.usage.concurrent_detections,
-                usage_last_updated=tenant.usage.last_updated
+                usage_last_updated=tenant.usage.last_updated,
             )
 
             session.add(tenant_model)
@@ -464,19 +494,25 @@ class SQLAlchemyTenantRepository(TenantRepositoryProtocol):
     async def get_tenant_by_id(self, tenant_id: TenantId) -> Tenant | None:
         """Get tenant by ID."""
         with self._session_factory() as session:
-            tenant_model = session.query(TenantModel).filter(TenantModel.id == tenant_id).first()
+            tenant_model = (
+                session.query(TenantModel).filter(TenantModel.id == tenant_id).first()
+            )
             return self._to_domain_tenant(tenant_model) if tenant_model else None
 
     async def get_tenant_by_domain(self, domain: str) -> Tenant | None:
         """Get tenant by domain."""
         with self._session_factory() as session:
-            tenant_model = session.query(TenantModel).filter(TenantModel.domain == domain).first()
+            tenant_model = (
+                session.query(TenantModel).filter(TenantModel.domain == domain).first()
+            )
             return self._to_domain_tenant(tenant_model) if tenant_model else None
 
     async def update_tenant(self, tenant: Tenant) -> Tenant:
         """Update existing tenant."""
         with self._session_factory() as session:
-            tenant_model = session.query(TenantModel).filter(TenantModel.id == tenant.id).first()
+            tenant_model = (
+                session.query(TenantModel).filter(TenantModel.id == tenant.id).first()
+            )
             if not tenant_model:
                 raise ValueError("Tenant not found")
 
@@ -498,7 +534,9 @@ class SQLAlchemyTenantRepository(TenantRepositoryProtocol):
     async def delete_tenant(self, tenant_id: TenantId) -> bool:
         """Delete tenant."""
         with self._session_factory() as session:
-            deleted = session.query(TenantModel).filter(TenantModel.id == tenant_id).delete()
+            deleted = (
+                session.query(TenantModel).filter(TenantModel.id == tenant_id).delete()
+            )
             session.commit()
             return deleted > 0
 
@@ -508,17 +546,21 @@ class SQLAlchemyTenantRepository(TenantRepositoryProtocol):
             tenant_models = session.query(TenantModel).offset(offset).limit(limit).all()
             return [self._to_domain_tenant(model) for model in tenant_models]
 
-    async def update_tenant_usage(self, tenant_id: TenantId, usage_updates: dict) -> bool:
+    async def update_tenant_usage(
+        self, tenant_id: TenantId, usage_updates: dict
+    ) -> bool:
         """Update tenant usage statistics."""
         with self._session_factory() as session:
-            tenant_model = session.query(TenantModel).filter(TenantModel.id == tenant_id).first()
+            tenant_model = (
+                session.query(TenantModel).filter(TenantModel.id == tenant_id).first()
+            )
             if not tenant_model:
                 return False
 
             # Apply updates
             for field, value in usage_updates.items():
                 if hasattr(tenant_model, field):
-                    if isinstance(value, str) and value.startswith('+'):
+                    if isinstance(value, str) and value.startswith("+"):
                         # Increment operation
                         increment = int(value[1:])
                         current = getattr(tenant_model, field)
@@ -542,13 +584,15 @@ class SQLAlchemySessionRepository(SessionRepositoryProtocol):
         return UserSession(
             id=session_model.id,
             user_id=UserId(str(session_model.user_id)),
-            tenant_id=TenantId(str(session_model.tenant_id)) if session_model.tenant_id else None,
+            tenant_id=TenantId(str(session_model.tenant_id))
+            if session_model.tenant_id
+            else None,
             created_at=session_model.created_at,
             expires_at=session_model.expires_at,
             ip_address=session_model.ip_address,
             user_agent=session_model.user_agent,
             is_active=session_model.is_active,
-            last_activity=session_model.last_activity
+            last_activity=session_model.last_activity,
         )
 
     async def create_session(self, session: UserSession) -> UserSession:
@@ -563,7 +607,7 @@ class SQLAlchemySessionRepository(SessionRepositoryProtocol):
                 ip_address=session.ip_address,
                 user_agent=session.user_agent,
                 is_active=session.is_active,
-                last_activity=session.last_activity
+                last_activity=session.last_activity,
             )
 
             db_session.add(session_model)
@@ -574,17 +618,21 @@ class SQLAlchemySessionRepository(SessionRepositoryProtocol):
     async def get_session_by_id(self, session_id: str) -> UserSession | None:
         """Get session by ID."""
         with self._session_factory() as db_session:
-            session_model = db_session.query(UserSessionModel).filter(
-                UserSessionModel.id == session_id
-            ).first()
+            session_model = (
+                db_session.query(UserSessionModel)
+                .filter(UserSessionModel.id == session_id)
+                .first()
+            )
             return self._to_domain_session(session_model) if session_model else None
 
     async def update_session(self, session: UserSession) -> UserSession:
         """Update existing session."""
         with self._session_factory() as db_session:
-            session_model = db_session.query(UserSessionModel).filter(
-                UserSessionModel.id == session.id
-            ).first()
+            session_model = (
+                db_session.query(UserSessionModel)
+                .filter(UserSessionModel.id == session.id)
+                .first()
+            )
             if not session_model:
                 raise ValueError("Session not found")
 
@@ -601,27 +649,35 @@ class SQLAlchemySessionRepository(SessionRepositoryProtocol):
     async def delete_session(self, session_id: str) -> bool:
         """Delete session."""
         with self._session_factory() as db_session:
-            deleted = db_session.query(UserSessionModel).filter(
-                UserSessionModel.id == session_id
-            ).delete()
+            deleted = (
+                db_session.query(UserSessionModel)
+                .filter(UserSessionModel.id == session_id)
+                .delete()
+            )
             db_session.commit()
             return deleted > 0
 
     async def get_active_sessions_for_user(self, user_id: UserId) -> list[UserSession]:
         """Get all active sessions for a user."""
         with self._session_factory() as db_session:
-            session_models = db_session.query(UserSessionModel).filter(
-                UserSessionModel.user_id == user_id,
-                UserSessionModel.is_active == True,
-                UserSessionModel.expires_at > datetime.utcnow()
-            ).all()
+            session_models = (
+                db_session.query(UserSessionModel)
+                .filter(
+                    UserSessionModel.user_id == user_id,
+                    UserSessionModel.is_active == True,
+                    UserSessionModel.expires_at > datetime.utcnow(),
+                )
+                .all()
+            )
             return [self._to_domain_session(model) for model in session_models]
 
     async def delete_all_sessions_for_user(self, user_id: UserId) -> bool:
         """Delete all sessions for a user."""
         with self._session_factory() as db_session:
-            deleted = db_session.query(UserSessionModel).filter(
-                UserSessionModel.user_id == user_id
-            ).delete()
+            deleted = (
+                db_session.query(UserSessionModel)
+                .filter(UserSessionModel.user_id == user_id)
+                .delete()
+            )
             db_session.commit()
             return deleted > 0

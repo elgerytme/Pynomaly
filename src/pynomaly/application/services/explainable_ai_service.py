@@ -181,18 +181,18 @@ class ExplainableAIService:
         """Initialize available explanation methods."""
         try:
             if SHAP_AVAILABLE:
-                self.explanation_generators[
-                    ExplanationMethod.SHAP_TREE
-                ] = SHAPExplainer()
-                self.explanation_generators[
-                    ExplanationMethod.SHAP_KERNEL
-                ] = SHAPKernelExplainer()
-                self.explanation_generators[
-                    ExplanationMethod.SHAP_DEEP
-                ] = SHAPDeepExplainer()
-                self.explanation_generators[
-                    ExplanationMethod.SHAP_LINEAR
-                ] = SHAPLinearExplainer()
+                self.explanation_generators[ExplanationMethod.SHAP_TREE] = (
+                    SHAPExplainer()
+                )
+                self.explanation_generators[ExplanationMethod.SHAP_KERNEL] = (
+                    SHAPKernelExplainer()
+                )
+                self.explanation_generators[ExplanationMethod.SHAP_DEEP] = (
+                    SHAPDeepExplainer()
+                )
+                self.explanation_generators[ExplanationMethod.SHAP_LINEAR] = (
+                    SHAPLinearExplainer()
+                )
                 logger.info("SHAP explainers initialized successfully")
             else:
                 logger.warning("SHAP not available - install with: pip install shap")
@@ -204,12 +204,12 @@ class ExplainableAIService:
                 logger.warning("LIME not available - install with: pip install lime")
 
             # Always available methods
-            self.explanation_generators[
-                ExplanationMethod.PERMUTATION_IMPORTANCE
-            ] = PermutationImportanceExplainer()
-            self.explanation_generators[
-                ExplanationMethod.FEATURE_ABLATION
-            ] = FeatureAblationExplainer()
+            self.explanation_generators[ExplanationMethod.PERMUTATION_IMPORTANCE] = (
+                PermutationImportanceExplainer()
+            )
+            self.explanation_generators[ExplanationMethod.FEATURE_ABLATION] = (
+                FeatureAblationExplainer()
+            )
 
         except Exception as e:
             logger.error(f"Failed to initialize explanation methods: {e}")
@@ -635,9 +635,9 @@ class ExplainableAIService:
             if model_id in self.explanation_cache:
                 cache = self.explanation_cache[model_id]
                 if cache.creation_timestamp >= cutoff_time:
-                    summary["explanation_stats"][
-                        "total_explanations"
-                    ] = cache.access_count
+                    summary["explanation_stats"]["total_explanations"] = (
+                        cache.access_count
+                    )
                     summary["explanation_stats"]["cache_hit_rate"] = min(
                         1.0, cache.access_count / 100
                     )

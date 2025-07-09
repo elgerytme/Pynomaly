@@ -55,72 +55,74 @@ class MetricsService:
         self.monitoring_tasks: set[asyncio.Task] = set()
         self.is_monitoring = False
 
-        self.logger.info(f"Metrics service initialized for {service_name} v{service_version}")
+        self.logger.info(
+            f"Metrics service initialized for {service_name} v{service_version}"
+        )
 
     def _initialize_prometheus_metrics(self) -> None:
         """Initialize Prometheus metrics."""
 
         # Application metrics
         self.prom_request_count = Counter(
-            'pynomaly_requests_total',
-            'Total number of requests',
-            ['method', 'endpoint', 'status'],
-            registry=self.prometheus_registry
+            "pynomaly_requests_total",
+            "Total number of requests",
+            ["method", "endpoint", "status"],
+            registry=self.prometheus_registry,
         )
 
         self.prom_request_duration = Histogram(
-            'pynomaly_request_duration_seconds',
-            'Request duration in seconds',
-            ['method', 'endpoint'],
-            registry=self.prometheus_registry
+            "pynomaly_request_duration_seconds",
+            "Request duration in seconds",
+            ["method", "endpoint"],
+            registry=self.prometheus_registry,
         )
 
         self.prom_error_count = Counter(
-            'pynomaly_errors_total',
-            'Total number of errors',
-            ['error_type', 'component'],
-            registry=self.prometheus_registry
+            "pynomaly_errors_total",
+            "Total number of errors",
+            ["error_type", "component"],
+            registry=self.prometheus_registry,
         )
 
         # ML model metrics
         self.prom_model_predictions = Counter(
-            'pynomaly_model_predictions_total',
-            'Total number of model predictions',
-            ['model_name', 'model_version'],
-            registry=self.prometheus_registry
+            "pynomaly_model_predictions_total",
+            "Total number of model predictions",
+            ["model_name", "model_version"],
+            registry=self.prometheus_registry,
         )
 
         self.prom_model_accuracy = Gauge(
-            'pynomaly_model_accuracy',
-            'Current model accuracy',
-            ['model_name', 'model_version'],
-            registry=self.prometheus_registry
+            "pynomaly_model_accuracy",
+            "Current model accuracy",
+            ["model_name", "model_version"],
+            registry=self.prometheus_registry,
         )
 
         self.prom_anomaly_detection_rate = Gauge(
-            'pynomaly_anomaly_detection_rate',
-            'Rate of anomalies detected',
-            ['detector_type'],
-            registry=self.prometheus_registry
+            "pynomaly_anomaly_detection_rate",
+            "Rate of anomalies detected",
+            ["detector_type"],
+            registry=self.prometheus_registry,
         )
 
         # System metrics
         self.prom_cpu_usage = Gauge(
-            'pynomaly_cpu_usage_percent',
-            'CPU usage percentage',
-            registry=self.prometheus_registry
+            "pynomaly_cpu_usage_percent",
+            "CPU usage percentage",
+            registry=self.prometheus_registry,
         )
 
         self.prom_memory_usage = Gauge(
-            'pynomaly_memory_usage_bytes',
-            'Memory usage in bytes',
-            registry=self.prometheus_registry
+            "pynomaly_memory_usage_bytes",
+            "Memory usage in bytes",
+            registry=self.prometheus_registry,
         )
 
         self.prom_disk_usage = Gauge(
-            'pynomaly_disk_usage_percent',
-            'Disk usage percentage',
-            registry=self.prometheus_registry
+            "pynomaly_disk_usage_percent",
+            "Disk usage percentage",
+            registry=self.prometheus_registry,
         )
 
     async def start_monitoring(self) -> None:
@@ -193,7 +195,11 @@ class MetricsService:
 
         if name not in self.metrics:
             # Auto-create metric if it doesn't exist
-            metric_type = MetricType.GAUGE if isinstance(value, (int, float)) else MetricType.COUNTER
+            metric_type = (
+                MetricType.GAUGE
+                if isinstance(value, (int, float))
+                else MetricType.COUNTER
+            )
             self.create_metric(name, metric_type, f"Auto-created metric: {name}")
 
         metric = self.metrics[name]
@@ -213,38 +219,44 @@ class MetricsService:
 
         # Prometheus metrics
         self.prom_request_count.labels(
-            method=method,
-            endpoint=endpoint,
-            status=str(status_code)
+            method=method, endpoint=endpoint, status=str(status_code)
         ).inc()
 
-        self.prom_request_duration.labels(
-            method=method,
-            endpoint=endpoint
-        ).observe(duration)
+        self.prom_request_duration.labels(method=method, endpoint=endpoint).observe(
+            duration
+        )
 
         # Internal metrics
-        self.record_metric("http_requests_total", 1, {
-            "method": method,
-            "endpoint": endpoint,
-            "status": str(status_code),
-        })
+        self.record_metric(
+            "http_requests_total",
+            1,
+            {
+                "method": method,
+                "endpoint": endpoint,
+                "status": str(status_code),
+            },
+        )
 
-        self.record_metric("http_request_duration_seconds", duration, {
-            "method": method,
-            "endpoint": endpoint,
-        })
+        self.record_metric(
+            "http_request_duration_seconds",
+            duration,
+            {
+                "method": method,
+                "endpoint": endpoint,
+            },
+        )
 
         if status_code >= 400:
-            self.prom_error_count.labels(
-                error_type="http_error",
-                component="api"
-            ).inc()
+            self.prom_error_count.labels(error_type="http_error", component="api").inc()
 
-            self.record_metric("http_errors_total", 1, {
-                "status": str(status_code),
-                "endpoint": endpoint,
-            })
+            self.record_metric(
+                "http_errors_total",
+                1,
+                {
+                    "status": str(status_code),
+                    "endpoint": endpoint,
+                },
+            )
 
     def record_model_metrics(
         self,
@@ -258,33 +270,43 @@ class MetricsService:
 
         # Prometheus metrics
         self.prom_model_predictions.labels(
-            model_name=model_name,
-            model_version=model_version
+            model_name=model_name, model_version=model_version
         ).inc(prediction_count)
 
         if accuracy is not None:
             self.prom_model_accuracy.labels(
-                model_name=model_name,
-                model_version=model_version
+                model_name=model_name, model_version=model_version
             ).set(accuracy)
 
         # Internal metrics
-        self.record_metric("model_predictions_total", prediction_count, {
-            "model_name": model_name,
-            "model_version": model_version,
-        })
+        self.record_metric(
+            "model_predictions_total",
+            prediction_count,
+            {
+                "model_name": model_name,
+                "model_version": model_version,
+            },
+        )
 
         if accuracy is not None:
-            self.record_metric("model_accuracy", accuracy, {
-                "model_name": model_name,
-                "model_version": model_version,
-            })
+            self.record_metric(
+                "model_accuracy",
+                accuracy,
+                {
+                    "model_name": model_name,
+                    "model_version": model_version,
+                },
+            )
 
         if inference_time is not None:
-            self.record_metric("model_inference_duration_seconds", inference_time, {
-                "model_name": model_name,
-                "model_version": model_version,
-            })
+            self.record_metric(
+                "model_inference_duration_seconds",
+                inference_time,
+                {
+                    "model_name": model_name,
+                    "model_version": model_version,
+                },
+            )
 
     def record_anomaly_detection_metrics(
         self,
@@ -298,23 +320,35 @@ class MetricsService:
         detection_rate = anomalies_detected / max(total_samples, 1) * 100
 
         # Prometheus metrics
-        self.prom_anomaly_detection_rate.labels(
-            detector_type=detector_type
-        ).set(detection_rate)
+        self.prom_anomaly_detection_rate.labels(detector_type=detector_type).set(
+            detection_rate
+        )
 
         # Internal metrics
-        self.record_metric("anomalies_detected_total", anomalies_detected, {
-            "detector_type": detector_type,
-        })
+        self.record_metric(
+            "anomalies_detected_total",
+            anomalies_detected,
+            {
+                "detector_type": detector_type,
+            },
+        )
 
-        self.record_metric("anomaly_detection_rate", detection_rate, {
-            "detector_type": detector_type,
-        })
+        self.record_metric(
+            "anomaly_detection_rate",
+            detection_rate,
+            {
+                "detector_type": detector_type,
+            },
+        )
 
         if detection_accuracy is not None:
-            self.record_metric("anomaly_detection_accuracy", detection_accuracy, {
-                "detector_type": detector_type,
-            })
+            self.record_metric(
+                "anomaly_detection_accuracy",
+                detection_accuracy,
+                {
+                    "detector_type": detector_type,
+                },
+            )
 
     def create_alert_rule(
         self,
@@ -394,7 +428,9 @@ class MetricsService:
         elif aggregation == "sum" and time_range:
             start_time = datetime.utcnow() - time_range
             points = metric.get_values_in_range(start_time, datetime.utcnow())
-            numeric_values = [p.value for p in points if isinstance(p.value, (int, float))]
+            numeric_values = [
+                p.value for p in points if isinstance(p.value, (int, float))
+            ]
             return sum(numeric_values) if numeric_values else None
 
         return metric.get_latest_value()
@@ -408,8 +444,7 @@ class MetricsService:
         return self.service_status.get_status_summary()
 
     async def get_metrics_summary(
-        self,
-        time_range: timedelta = timedelta(hours=1)
+        self, time_range: timedelta = timedelta(hours=1)
     ) -> dict[str, Any]:
         """Get metrics summary for dashboard."""
 
@@ -420,16 +455,38 @@ class MetricsService:
             "time_range_hours": time_range.total_seconds() / 3600,
             "metrics": {},
             "alerts": {
-                "active": len([a for a in self.active_alerts.values() if a.status == AlertStatus.ACTIVE]),
-                "critical": len([a for a in self.active_alerts.values()
-                               if a.status == AlertStatus.ACTIVE and a.severity == AlertSeverity.CRITICAL]),
-                "warning": len([a for a in self.active_alerts.values()
-                              if a.status == AlertStatus.ACTIVE and a.severity == AlertSeverity.WARNING]),
+                "active": len(
+                    [
+                        a
+                        for a in self.active_alerts.values()
+                        if a.status == AlertStatus.ACTIVE
+                    ]
+                ),
+                "critical": len(
+                    [
+                        a
+                        for a in self.active_alerts.values()
+                        if a.status == AlertStatus.ACTIVE
+                        and a.severity == AlertSeverity.CRITICAL
+                    ]
+                ),
+                "warning": len(
+                    [
+                        a
+                        for a in self.active_alerts.values()
+                        if a.status == AlertStatus.ACTIVE
+                        and a.severity == AlertSeverity.WARNING
+                    ]
+                ),
             },
             "health_checks": {
                 "total": len(self.health_checks),
-                "healthy": sum(1 for hc in self.health_checks.values() if hc.is_healthy),
-                "unhealthy": sum(1 for hc in self.health_checks.values() if not hc.is_healthy),
+                "healthy": sum(
+                    1 for hc in self.health_checks.values() if hc.is_healthy
+                ),
+                "unhealthy": sum(
+                    1 for hc in self.health_checks.values() if not hc.is_healthy
+                ),
             },
         }
 
@@ -478,7 +535,7 @@ class MetricsService:
                 self.service_status.memory_usage = memory.percent
 
                 # Disk usage
-                disk = psutil.disk_usage('/')
+                disk = psutil.disk_usage("/")
                 disk_percent = (disk.used / disk.total) * 100
                 self.prom_disk_usage.set(disk_percent)
                 self.record_metric("disk_usage_percent", disk_percent)
@@ -510,8 +567,11 @@ class MetricsService:
                         continue
 
                     # Check if it's time to run this health check
-                    if (health_check.last_check_at and
-                        datetime.utcnow() - health_check.last_check_at < timedelta(seconds=health_check.interval)):
+                    if (
+                        health_check.last_check_at
+                        and datetime.utcnow() - health_check.last_check_at
+                        < timedelta(seconds=health_check.interval)
+                    ):
                         continue
 
                     await self._run_health_check(health_check)
@@ -529,8 +589,7 @@ class MetricsService:
         try:
             if health_check.check_type == "http":
                 response = requests.get(
-                    health_check.target,
-                    timeout=health_check.timeout
+                    health_check.target, timeout=health_check.timeout
                 )
                 response.raise_for_status()
 
@@ -558,7 +617,9 @@ class MetricsService:
                     health_check.record_success(response_time)
                     health_check.last_result = {"tcp_connect": "success"}
                 else:
-                    health_check.record_failure(f"TCP connection failed to {health_check.target}")
+                    health_check.record_failure(
+                        f"TCP connection failed to {health_check.target}"
+                    )
 
             elif health_check.check_type == "database":
                 # Database health check would be implemented here
@@ -639,7 +700,9 @@ class MetricsService:
         else:
             if existing_alert:
                 # Resolve alert
-                existing_alert.resolve(resolved_by=uuid4(), resolution_note="Condition no longer met")
+                existing_alert.resolve(
+                    resolved_by=uuid4(), resolution_note="Condition no longer met"
+                )
 
                 # Update service status
                 self.service_status.active_alerts -= 1
@@ -666,34 +729,43 @@ class MetricsService:
 
         while self.is_monitoring:
             try:
-                cutoff_time = datetime.utcnow() - timedelta(days=7)  # Keep 7 days of detailed data
+                cutoff_time = datetime.utcnow() - timedelta(
+                    days=7
+                )  # Keep 7 days of detailed data
 
                 for metric in self.metrics.values():
                     initial_count = len(metric.data_points)
                     metric.data_points = [
-                        point for point in metric.data_points
+                        point
+                        for point in metric.data_points
                         if point.timestamp > cutoff_time
                     ]
 
                     removed_count = initial_count - len(metric.data_points)
                     if removed_count > 0:
-                        self.logger.debug(f"Cleaned up {removed_count} old data points for metric {metric.name}")
+                        self.logger.debug(
+                            f"Cleaned up {removed_count} old data points for metric {metric.name}"
+                        )
 
                 # Clean up resolved alerts older than 30 days
                 alert_cutoff = datetime.utcnow() - timedelta(days=30)
                 alerts_to_remove = []
 
                 for alert_id, alert in self.active_alerts.items():
-                    if (alert.status == AlertStatus.RESOLVED and
-                        alert.resolved_at and
-                        alert.resolved_at < alert_cutoff):
+                    if (
+                        alert.status == AlertStatus.RESOLVED
+                        and alert.resolved_at
+                        and alert.resolved_at < alert_cutoff
+                    ):
                         alerts_to_remove.append(alert_id)
 
                 for alert_id in alerts_to_remove:
                     del self.active_alerts[alert_id]
 
                 if alerts_to_remove:
-                    self.logger.info(f"Cleaned up {len(alerts_to_remove)} old resolved alerts")
+                    self.logger.info(
+                        f"Cleaned up {len(alerts_to_remove)} old resolved alerts"
+                    )
 
             except Exception as e:
                 self.logger.error(f"Error during metrics cleanup: {e}")
@@ -707,10 +779,14 @@ class MetricsService:
         if "http_request_duration_seconds" in self.metrics:
             duration_metric = self.metrics["http_request_duration_seconds"]
             recent_time = datetime.utcnow() - timedelta(minutes=5)
-            recent_points = duration_metric.get_values_in_range(recent_time, datetime.utcnow())
+            recent_points = duration_metric.get_values_in_range(
+                recent_time, datetime.utcnow()
+            )
 
             if recent_points:
-                durations = [p.value for p in recent_points if isinstance(p.value, (int, float))]
+                durations = [
+                    p.value for p in recent_points if isinstance(p.value, (int, float))
+                ]
                 if durations:
                     durations.sort()
                     n = len(durations)
@@ -720,34 +796,53 @@ class MetricsService:
                     self.service_status.response_time_p99 = durations[int(n * 0.99)]
 
         # Calculate error rate
-        if "http_requests_total" in self.metrics and "http_errors_total" in self.metrics:
+        if (
+            "http_requests_total" in self.metrics
+            and "http_errors_total" in self.metrics
+        ):
             requests_metric = self.metrics["http_requests_total"]
             errors_metric = self.metrics["http_errors_total"]
 
             recent_time = datetime.utcnow() - timedelta(minutes=5)
 
-            recent_requests = requests_metric.get_values_in_range(recent_time, datetime.utcnow())
-            recent_errors = errors_metric.get_values_in_range(recent_time, datetime.utcnow())
+            recent_requests = requests_metric.get_values_in_range(
+                recent_time, datetime.utcnow()
+            )
+            recent_errors = errors_metric.get_values_in_range(
+                recent_time, datetime.utcnow()
+            )
 
-            total_requests = sum(p.value for p in recent_requests if isinstance(p.value, (int, float)))
-            total_errors = sum(p.value for p in recent_errors if isinstance(p.value, (int, float)))
+            total_requests = sum(
+                p.value for p in recent_requests if isinstance(p.value, (int, float))
+            )
+            total_errors = sum(
+                p.value for p in recent_errors if isinstance(p.value, (int, float))
+            )
 
             if total_requests > 0:
                 self.service_status.error_rate = (total_errors / total_requests) * 100
-                self.service_status.throughput = total_requests / 300  # requests per second
+                self.service_status.throughput = (
+                    total_requests / 300
+                )  # requests per second
 
         # Update component statuses
         for health_check in self.health_checks.values():
-            self.service_status.update_component_status(health_check.name, health_check.is_healthy)
+            self.service_status.update_component_status(
+                health_check.name, health_check.is_healthy
+            )
 
         # Update alert counts
-        self.service_status.active_alerts = len([
-            a for a in self.active_alerts.values() if a.status == AlertStatus.ACTIVE
-        ])
-        self.service_status.critical_alerts = len([
-            a for a in self.active_alerts.values()
-            if a.status == AlertStatus.ACTIVE and a.severity == AlertSeverity.CRITICAL
-        ])
+        self.service_status.active_alerts = len(
+            [a for a in self.active_alerts.values() if a.status == AlertStatus.ACTIVE]
+        )
+        self.service_status.critical_alerts = len(
+            [
+                a
+                for a in self.active_alerts.values()
+                if a.status == AlertStatus.ACTIVE
+                and a.severity == AlertSeverity.CRITICAL
+            ]
+        )
 
     def _update_prometheus_metric(
         self,
@@ -765,13 +860,15 @@ class MetricsService:
         """Get Prometheus formatted metrics."""
 
         from prometheus_client import generate_latest
-        return generate_latest(self.prometheus_registry).decode('utf-8')
+
+        return generate_latest(self.prometheus_registry).decode("utf-8")
 
     def get_active_alerts(self) -> list[Alert]:
         """Get list of active alerts."""
 
         return [
-            alert for alert in self.active_alerts.values()
+            alert
+            for alert in self.active_alerts.values()
             if alert.status == AlertStatus.ACTIVE
         ]
 
@@ -787,7 +884,9 @@ class MetricsService:
         self.logger.info(f"Alert acknowledged: {alert.message}")
         return True
 
-    def resolve_alert(self, alert_id: UUID, resolved_by: UUID, resolution_note: str | None = None) -> bool:
+    def resolve_alert(
+        self, alert_id: UUID, resolved_by: UUID, resolution_note: str | None = None
+    ) -> bool:
         """Resolve an alert."""
 
         if alert_id not in self.active_alerts:

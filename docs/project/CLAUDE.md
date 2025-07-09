@@ -1,21 +1,30 @@
-# CLAUDE.md
+# CLAUDE.md - AI Assistant Configuration
 
 ## Project Overview
-Pynomaly: Python 3.11+ anomaly detection package integrating PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX through clean architecture.
+Pynomaly: Python 3.11+ anomaly detection package with clean architecture, following comprehensive software engineering best practices defined in RULES.md.
 
-## Architecture
-**Clean Architecture + DDD + Hexagonal Architecture**
+## Best Practices Implementation
+**Reference**: See `RULES.md` and `PROJECT_REQUIREMENTS.md` for complete guidelines.
+
+### Software Architecture (Clean + Hexagonal + DDD)
 - **Domain**: Pure business logic (`Anomaly`, `Detector`, `Dataset`, `Score`)
 - **Application**: Use cases (`DetectAnomalies`, `TrainDetector`, `EvaluateModel`)
 - **Infrastructure**: External integrations (adapters, data sources, persistence)
 - **Presentation**: FastAPI, CLI, SDK, PWA (HTMX, Tailwind, D3.js, ECharts)
 
-## Standards
+### Code Quality Standards
 - **Type Hints**: 100% with `mypy --strict`
-- **Async/Await**: All I/O operations
-- **Patterns**: Repository, Factory, Strategy, Observer
-- **Testing**: >90% coverage, pytest, Hypothesis, performance tests
-- **Production**: OpenTelemetry, Prometheus, K8s health checks, circuit breakers
+- **Linting**: Ruff for fast, comprehensive code analysis
+- **Formatting**: Ruff format for consistent code style
+- **Testing**: >90% coverage with unit/integration/e2e tests
+- **Security**: Bandit security scanning, no hardcoded secrets
+
+### CI/CD Pipeline (GitHub Actions)
+- **Quality Gates**: Linting, type checking, security scanning
+- **Testing**: Matrix testing across Python 3.11/3.12
+- **Build**: Hatch-based package building
+- **Deployment**: Blue-green deployment strategy
+- **Monitoring**: Prometheus metrics, comprehensive alerting
 
 ## Key Features
 - **Algorithm Integration**: Adapter pattern with `DetectorProtocol`, batch/streaming modes
@@ -36,6 +45,12 @@ tests/ docs/ examples/ benchmarks/ deploy/docker/ deploy/kubernetes/
 **MANDATORY**: All virtual environments in `environments/` with dot-prefix naming:
 - ✅ `environments/.venv/` ❌ `.venv/`
 - Python 3.11+, Poetry dependency management
+
+## Dependency Installation
+For common installation issues and comprehensive guidance:
+- **Quick Solutions**: `docs/QUICK_INSTALL_REFERENCE.md`
+- **Comprehensive Guide**: `docs/DEPENDENCY_INSTALLATION_GUIDE.md`
+- **Common Errors**: Missing PyTorch, SHAP, LIME, Optuna, JAX - see guides above
 
 ## Commands
 ```bash

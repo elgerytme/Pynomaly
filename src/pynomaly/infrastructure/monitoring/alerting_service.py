@@ -146,7 +146,7 @@ class EmailNotifier(AlertNotifier):
             <div style="background-color: {color}; color: white; padding: 10px; border-radius: 5px;">
                 <h2>{alert.title}</h2>
                 <p><strong>Severity:</strong> {alert.severity.value.upper()}</p>
-                <p><strong>Time:</strong> {alert.created_at.strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
+                <p><strong>Time:</strong> {alert.created_at.strftime("%Y-%m-%d %H:%M:%S UTC")}</p>
             </div>
 
             <div style="margin: 20px 0;">

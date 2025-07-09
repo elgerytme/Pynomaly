@@ -102,13 +102,13 @@ class SemanticVersion:
         return SemanticVersion(major=self.major, minor=self.minor, patch=self.patch + 1)
 
     def is_compatible_with(self, other: SemanticVersion) -> bool:
-        """Check if this version is backwards compatible with another.
+        """Check if this version can be used as a drop-in replacement for another.
 
         Args:
             other: Version to check compatibility with
 
         Returns:
-            True if this version is backwards compatible with other
+            True if this version can replace other without breaking compatibility
         """
         if not isinstance(other, SemanticVersion):
             raise TypeError(f"Can only compare with SemanticVersion, got {type(other)}")
@@ -117,13 +117,12 @@ class SemanticVersion:
         if self.major != other.major:
             return False
 
-        # Same major version, check minor
-        if self.minor > other.minor:
-            return True
-        elif self.minor == other.minor:
-            # Same minor, check patch
+        # Same major version - check if this version can be safely downgraded to other
+        if self.minor == other.minor:
+            # Same minor version - can downgrade if this patch is newer or equal
             return self.patch >= other.patch
         else:
+            # Different minor versions are not compatible
             return False
 
     def is_newer_than(self, other: SemanticVersion) -> bool:

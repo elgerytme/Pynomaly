@@ -13,8 +13,14 @@ from .automl_dto import (
     HyperparameterOptimizationResponseDTO,
     OptimizationTrialDTO,
 )
-from .dataset_dto import CreateDatasetDTO, DataQualityReportDTO, DatasetDTO
+from .dataset_dto import (
+    CreateDatasetDTO,
+    DataQualityReportDTO,
+    DatasetDTO,
+    DatasetResponseDTO,
+)
 from .detection_dto import (
+    ConfidenceInterval,
     DetectionRequestDTO,
     DetectionSummaryDTO,
     ExplanationResultDTO,
@@ -62,6 +68,7 @@ __all__ = [
     "CreateDetectorDTO",
     "UpdateDetectorDTO",
     "DetectorResponseDTO",
+    "ConfidenceInterval",
     "DetectionRequestDTO",
     "DetectionSummaryDTO",
     "ExplanationResultDTO",
@@ -71,6 +78,7 @@ __all__ = [
     "DatasetDTO",
     "CreateDatasetDTO",
     "DataQualityReportDTO",
+    "DatasetResponseDTO",
     # Result DTOs
     "DetectionResultDTO",
     "AnomalyDTO",

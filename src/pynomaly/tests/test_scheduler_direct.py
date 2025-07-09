@@ -3,7 +3,7 @@
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../.."))
 
 from datetime import datetime
 
@@ -14,6 +14,7 @@ from pynomaly.infrastructure.scheduler.resource_manager import ResourceManager
 from pynomaly.infrastructure.scheduler.trigger_manager import TriggerManager
 
 # Example test case
+
 
 def test_scheduler_components():
     # Initialize components
@@ -43,6 +44,7 @@ def test_scheduler_components():
     assert isinstance(next_execution, datetime)
 
     print("All scheduler components imported and tested successfully.")
+
 
 if __name__ == "__main__":
     test_scheduler_components()

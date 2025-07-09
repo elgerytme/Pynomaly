@@ -22,8 +22,9 @@ from pynomaly.domain.exceptions import AutoMLError
 # Optional optimization libraries
 try:
     import optuna
-    from optuna.samplers import TPESampler, CmaEsSampler
     from optuna.pruners import MedianPruner
+    from optuna.samplers import CmaEsSampler, TPESampler
+
     OPTUNA_AVAILABLE = True
 except ImportError:
     optuna = None
@@ -33,8 +34,9 @@ except ImportError:
     OPTUNA_AVAILABLE = False
 
 try:
-    from sklearn.metrics import roc_auc_score, precision_score, recall_score, f1_score
-    from sklearn.model_selection import cross_val_score, StratifiedKFold
+    from sklearn.metrics import f1_score, precision_score, recall_score, roc_auc_score
+    from sklearn.model_selection import StratifiedKFold, cross_val_score
+
     SKLEARN_AVAILABLE = True
 except ImportError:
     roc_auc_score = None
@@ -47,7 +49,8 @@ except ImportError:
 
 try:
     import hyperopt
-    from hyperopt import hp, fmin, tpe, Trials
+    from hyperopt import Trials, fmin, hp, tpe
+
     HYPEROPT_AVAILABLE = True
 except ImportError:
     hyperopt = None
@@ -200,7 +203,7 @@ class AutoMLService:
             logger.warning(
                 "Scikit-learn not available. Limited evaluation capabilities."
             )
-            
+
         if not HYPEROPT_AVAILABLE:
             logger.info("Hyperopt not available. Using only Optuna for optimization.")
 
@@ -232,7 +235,7 @@ class AutoMLService:
             memory_factor=0.3,
             recommended_max_samples=100000,
         )
-        
+
         # Distance-based algorithms
         configs["LOF"] = AlgorithmConfig(
             name="LOF",
@@ -241,14 +244,14 @@ class AutoMLService:
             default_params={"n_neighbors": 20, "contamination": 0.1},
             param_space={
                 "n_neighbors": {"type": "int", "low": 5, "high": 50},
-                "contamination": {"type": "float", "low": 0.01, "high": 0.5}
+                "contamination": {"type": "float", "low": 0.01, "high": 0.5},
             },
             complexity_score=0.7,
             training_time_factor=0.8,
             memory_factor=0.9,
             recommended_max_samples=10000,
         )
-        
+
         # Isolation-based algorithms
         configs["IsolationForest"] = AlgorithmConfig(
             name="IsolationForest",
@@ -257,8 +260,11 @@ class AutoMLService:
             default_params={"n_estimators": 100, "contamination": 0.1},
             param_space={
                 "n_estimators": {"type": "int", "low": 50, "high": 500},
-                "max_samples": {"type": "categorical", "choices": ["auto", 256, 512, 1024]},
-                "contamination": {"type": "float", "low": 0.01, "high": 0.5}
+                "max_samples": {
+                    "type": "categorical",
+                    "choices": ["auto", 256, 512, 1024],
+                },
+                "contamination": {"type": "float", "low": 0.01, "high": 0.5},
             },
             complexity_score=0.4,
             training_time_factor=0.3,
@@ -266,7 +272,7 @@ class AutoMLService:
             recommended_max_samples=1000000,
             supports_streaming=True,
         )
-        
+
         # SVM-based algorithms
         configs["OneClassSVM"] = AlgorithmConfig(
             name="OneClassSVM",
@@ -276,14 +282,17 @@ class AutoMLService:
             param_space={
                 "gamma": {"type": "categorical", "choices": ["scale", "auto"]},
                 "nu": {"type": "float", "low": 0.01, "high": 0.5},
-                "kernel": {"type": "categorical", "choices": ["rbf", "linear", "poly", "sigmoid"]}
+                "kernel": {
+                    "type": "categorical",
+                    "choices": ["rbf", "linear", "poly", "sigmoid"],
+                },
             },
             complexity_score=0.8,
             training_time_factor=0.9,
             memory_factor=0.8,
             recommended_max_samples=5000,
         )
-        
+
         return configs
 
     async def profile_dataset(self, dataset_id: str) -> DatasetProfile:

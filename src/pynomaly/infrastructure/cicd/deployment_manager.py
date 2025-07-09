@@ -233,21 +233,31 @@ class DeploymentManager:
                     # Update metrics
                     await self._update_deployment_metrics(deployment)
 
-                    self.logger.info(f"Deployment successful: {version} to {environment.value}")
+                    self.logger.info(
+                        f"Deployment successful: {version} to {environment.value}"
+                    )
                 else:
-                    deployment.complete_deployment(PipelineStatus.FAILED, "Health checks failed")
+                    deployment.complete_deployment(
+                        PipelineStatus.FAILED, "Health checks failed"
+                    )
 
                     if rollback_on_failure:
                         await self._rollback_deployment(deployment)
 
-                    self.logger.error(f"Deployment failed health checks: {version} to {environment.value}")
+                    self.logger.error(
+                        f"Deployment failed health checks: {version} to {environment.value}"
+                    )
             else:
-                deployment.complete_deployment(PipelineStatus.FAILED, "Deployment strategy failed")
+                deployment.complete_deployment(
+                    PipelineStatus.FAILED, "Deployment strategy failed"
+                )
 
                 if rollback_on_failure:
                     await self._rollback_deployment(deployment)
 
-                self.logger.error(f"Deployment strategy failed: {version} to {environment.value}")
+                self.logger.error(
+                    f"Deployment strategy failed: {version} to {environment.value}"
+                )
 
         except Exception as e:
             deployment.complete_deployment(PipelineStatus.FAILED, str(e))
@@ -272,12 +282,16 @@ class DeploymentManager:
 
         # Find target deployment
         if target_version:
-            target_deployment = self._find_deployment_by_version(environment, target_version)
+            target_deployment = self._find_deployment_by_version(
+                environment, target_version
+            )
         else:
             target_deployment = self._find_previous_successful_deployment(environment)
 
         if not target_deployment:
-            self.logger.error(f"No target deployment found for rollback in {environment.value}")
+            self.logger.error(
+                f"No target deployment found for rollback in {environment.value}"
+            )
             return None
 
         # Create rollback deployment
@@ -307,12 +321,20 @@ class DeploymentManager:
 
                 if health_ok:
                     rollback_deployment.complete_deployment(PipelineStatus.SUCCESS)
-                    self.logger.info(f"Rollback successful: {target_deployment.version} in {environment.value}")
+                    self.logger.info(
+                        f"Rollback successful: {target_deployment.version} in {environment.value}"
+                    )
                 else:
-                    rollback_deployment.complete_deployment(PipelineStatus.FAILED, "Health checks failed")
-                    self.logger.error(f"Rollback health checks failed in {environment.value}")
+                    rollback_deployment.complete_deployment(
+                        PipelineStatus.FAILED, "Health checks failed"
+                    )
+                    self.logger.error(
+                        f"Rollback health checks failed in {environment.value}"
+                    )
             else:
-                rollback_deployment.complete_deployment(PipelineStatus.FAILED, "Rollback deployment failed")
+                rollback_deployment.complete_deployment(
+                    PipelineStatus.FAILED, "Rollback deployment failed"
+                )
                 self.logger.error(f"Rollback deployment failed in {environment.value}")
 
         except Exception as e:
@@ -351,7 +373,8 @@ class DeploymentManager:
             return {
                 "current_deployment": self._get_deployment_summary(current_deployment),
                 "environment": environment.value,
-                "is_active": current_deployment.deployment_id in self.active_deployments,
+                "is_active": current_deployment.deployment_id
+                in self.active_deployments,
                 "deployment_history": [
                     self._get_deployment_summary(d)
                     for d in self._get_deployment_history(environment, limit=10)
@@ -364,10 +387,9 @@ class DeploymentManager:
                 "active_deployments": len(self.active_deployments),
                 "total_deployments": len(self.deployments),
                 "by_environment": {
-                    env.value: len([
-                        d for d in self.deployments.values()
-                        if d.environment == env
-                    ])
+                    env.value: len(
+                        [d for d in self.deployments.values() if d.environment == env]
+                    )
                     for env in DeploymentEnvironment
                 },
             }
@@ -495,8 +517,7 @@ class DeploymentManager:
             return True
 
         config = self.health_check_configs.get(
-            deployment.environment,
-            {"timeout": 60, "retries": 5}
+            deployment.environment, {"timeout": 60, "retries": 5}
         )
 
         for attempt in range(config["retries"]):
@@ -505,7 +526,9 @@ class DeploymentManager:
                 await asyncio.sleep(2)  # Simulate network delay
 
                 # In production, would make actual HTTP request
-                health_status = await self._check_health_endpoint(deployment.health_check_url)
+                health_status = await self._check_health_endpoint(
+                    deployment.health_check_url
+                )
 
                 if health_status:
                     deployment.success_rate = 100.0
@@ -575,8 +598,12 @@ class DeploymentManager:
             }.get(deployment.environment, 30)
 
             if elapsed.total_seconds() > timeout_minutes * 60:
-                self.logger.warning(f"Deployment timeout: {deployment.version} in {deployment.environment.value}")
-                deployment.complete_deployment(PipelineStatus.TIMEOUT, "Deployment timeout")
+                self.logger.warning(
+                    f"Deployment timeout: {deployment.version} in {deployment.environment.value}"
+                )
+                deployment.complete_deployment(
+                    PipelineStatus.TIMEOUT, "Deployment timeout"
+                )
                 self.active_deployments.discard(deployment.deployment_id)
 
     async def _health_check_loop(self) -> None:
@@ -585,8 +612,7 @@ class DeploymentManager:
         while self.is_running:
             try:
                 current_deployments = [
-                    self._get_current_deployment(env)
-                    for env in DeploymentEnvironment
+                    self._get_current_deployment(env) for env in DeploymentEnvironment
                 ]
 
                 for deployment in current_deployments:
@@ -616,22 +642,29 @@ class DeploymentManager:
 
         deployments_to_remove = []
         for deployment_id, deployment in self.deployments.items():
-            if (deployment.start_time and
-                deployment.start_time < cutoff_time and
-                deployment_id not in self.active_deployments):
+            if (
+                deployment.start_time
+                and deployment.start_time < cutoff_time
+                and deployment_id not in self.active_deployments
+            ):
                 deployments_to_remove.append(deployment_id)
 
         for deployment_id in deployments_to_remove:
             del self.deployments[deployment_id]
 
         if deployments_to_remove:
-            self.logger.info(f"Cleaned up {len(deployments_to_remove)} old deployment records")
+            self.logger.info(
+                f"Cleaned up {len(deployments_to_remove)} old deployment records"
+            )
 
-    def _get_current_deployment(self, environment: DeploymentEnvironment) -> Deployment | None:
+    def _get_current_deployment(
+        self, environment: DeploymentEnvironment
+    ) -> Deployment | None:
         """Get current successful deployment for environment."""
 
         env_deployments = [
-            d for d in self.deployments.values()
+            d
+            for d in self.deployments.values()
             if d.environment == environment and d.status == PipelineStatus.SUCCESS
         ]
 
@@ -640,21 +673,28 @@ class DeploymentManager:
 
         return max(env_deployments, key=lambda d: d.start_time or datetime.min)
 
-    def _find_previous_successful_deployment(self, environment: DeploymentEnvironment) -> Deployment | None:
+    def _find_previous_successful_deployment(
+        self, environment: DeploymentEnvironment
+    ) -> Deployment | None:
         """Find previous successful deployment for rollback."""
 
         env_deployments = [
-            d for d in self.deployments.values()
-            if (d.environment == environment and
-                d.status == PipelineStatus.SUCCESS and
-                d.deployment_id not in self.active_deployments)
+            d
+            for d in self.deployments.values()
+            if (
+                d.environment == environment
+                and d.status == PipelineStatus.SUCCESS
+                and d.deployment_id not in self.active_deployments
+            )
         ]
 
         if len(env_deployments) < 2:
             return None
 
         # Return second most recent
-        sorted_deployments = sorted(env_deployments, key=lambda d: d.start_time or datetime.min, reverse=True)
+        sorted_deployments = sorted(
+            env_deployments, key=lambda d: d.start_time or datetime.min, reverse=True
+        )
         return sorted_deployments[1] if len(sorted_deployments) > 1 else None
 
     def _get_deployment_summary(self, deployment: Deployment) -> dict[str, Any]:
@@ -668,8 +708,12 @@ class DeploymentManager:
             "commit_sha": deployment.commit_sha,
             "branch": deployment.branch,
             "status": deployment.status.value,
-            "start_time": deployment.start_time.isoformat() if deployment.start_time else None,
-            "end_time": deployment.end_time.isoformat() if deployment.end_time else None,
+            "start_time": deployment.start_time.isoformat()
+            if deployment.start_time
+            else None,
+            "end_time": deployment.end_time.isoformat()
+            if deployment.end_time
+            else None,
             "duration_seconds": deployment.duration_seconds,
             "success_rate": deployment.success_rate,
             "error_rate": deployment.error_rate,
@@ -686,15 +730,12 @@ class DeploymentManager:
         """Get deployment history for environment."""
 
         env_deployments = [
-            d for d in self.deployments.values()
-            if d.environment == environment
+            d for d in self.deployments.values() if d.environment == environment
         ]
 
         # Sort by start time (newest first)
         sorted_deployments = sorted(
-            env_deployments,
-            key=lambda d: d.start_time or datetime.min,
-            reverse=True
+            env_deployments, key=lambda d: d.start_time or datetime.min, reverse=True
         )
 
         return sorted_deployments[:limit]
@@ -763,7 +804,9 @@ class DeploymentManager:
     async def _rollback_deployment(self, deployment: Deployment) -> None:
         """Perform automatic rollback on failure."""
 
-        self.logger.info(f"Initiating rollback for failed deployment: {deployment.version}")
+        self.logger.info(
+            f"Initiating rollback for failed deployment: {deployment.version}"
+        )
 
         # Find previous successful deployment
         previous = self._find_previous_successful_deployment(deployment.environment)
@@ -775,7 +818,9 @@ class DeploymentManager:
                 rolled_back_by=deployment.deployed_by,
             )
         else:
-            self.logger.warning(f"No previous deployment found for rollback in {deployment.environment.value}")
+            self.logger.warning(
+                f"No previous deployment found for rollback in {deployment.environment.value}"
+            )
 
     async def _update_deployment_metrics(self, deployment: Deployment) -> None:
         """Update deployment metrics."""
@@ -797,9 +842,11 @@ class DeploymentManager:
         """Find deployment by version in environment."""
 
         for deployment in self.deployments.values():
-            if (deployment.environment == environment and
-                deployment.version == version and
-                deployment.status == PipelineStatus.SUCCESS):
+            if (
+                deployment.environment == environment
+                and deployment.version == version
+                and deployment.status == PipelineStatus.SUCCESS
+            ):
                 return deployment
 
         return None

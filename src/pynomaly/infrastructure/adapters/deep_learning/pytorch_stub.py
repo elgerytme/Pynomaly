@@ -30,8 +30,7 @@ class VAE:
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         raise ImportError(
-            "PyTorch is required for VAE. "
-            "Install with: pip install torch torchvision"
+            "PyTorch is required for VAE. Install with: pip install torch torchvision"
         )
 
 

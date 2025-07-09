@@ -16,7 +16,6 @@
   "test_database_integration.py": true,
   "test_end_to_end_comprehensive.py": true,
   "test_end_to_end_scenarios.py": true,
-  "test_enhanced_validation.py": true,
   "test_external_services.py": true,
   "test_federated_learning.py": true,
   "test_jwt_auth.py": true,
@@ -26,5 +25,13 @@
   "test_production_enhancement_comprehensive.py": true,
   "test_property_based.py": true,
   "test_regression_suite.py": true,
-  "test_security_integration.py": true
+  "test_security_integration.py": true,
+  "test_enhanced_validation.py::TestEnhancedValidator": true,
+  "test_enhanced_validation.py::TestValidationResult": true,
+  "test_enhanced_validation.py::TestRichOutputFormatter": true,
+  "test_enhanced_validation.py::TestGitHubCommentGenerator": true,
+  "test_enhanced_validation.py::TestValidationViolation": true,
+  "test_enhanced_validation.py::TestFullValidationWorkflow": true,
+  "test_enhanced_validation.py::TestEnhancedValidator::test_structure_validation": true,
+  "test_enhanced_validation.py::TestEnhancedValidator::test_code_quality_validation": true
 }

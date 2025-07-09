@@ -93,54 +93,14 @@ repos:
       # Ensure no secrets in code
       - id: check-secrets
         name: Check for secrets
-        entry: python -c "
-import re
-import sys
-
-patterns = [
-    r'(?i)(password|passwd|secret|token|key)\s*[=:]\s*['\''\"]\w+['\''\"']',
-    r'(?i)api[_-]?key\s*[=:]\s*['\''\"]\w+['\''\"']',
-    r'(?i)secret[_-]?key\s*[=:]\s*['\''\"]\w+['\''\"']',
-    r'(?i)(aws|azure|gcp)[_-]?(access[_-]?key|secret)\s*[=:]\s*['\''\"]\w+['\''\"']'
-]
-
-for filepath in sys.argv[1:]:
-    if not filepath.endswith('.py'):
-        continue
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-            for pattern in patterns:
-                if re.search(pattern, content):
-                    print(f'Potential secret detected in {filepath}')
-                    sys.exit(1)
-    except Exception:
-        pass
-        "
+        entry: bash -c 'grep -r "password\|secret\|key.*=" src/ --include="*.py" && exit 1 || exit 0'
         language: system
         files: \.py$
 
       # Check for critical TODOs
       - id: check-critical-todos
         name: Check for critical TODOs
-        entry: python -c "
-import sys
-import re
-
-critical_patterns = [r'TODO.*CRITICAL', r'FIXME.*URGENT', r'XXX.*SECURITY']
-
-for filepath in sys.argv[1:]:
-    if 'src/pynomaly/domain' in filepath or 'src/pynomaly/application' in filepath:
-        try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                for i, line in enumerate(f, 1):
-                    for pattern in critical_patterns:
-                        if re.search(pattern, line, re.IGNORECASE):
-                            print(f'{filepath}:{i}: Critical TODO/FIXME found: {line.strip()}')
-                            sys.exit(1)
-        except Exception:
-            pass
-        "
+        entry: bash -c 'grep -r "TODO.*CRITICAL\|FIXME.*URGENT\|XXX.*SECURITY" src/pynomaly/domain/ src/pynomaly/application/ --include="*.py" && exit 1 || exit 0'
         language: system
         files: \.py$
 

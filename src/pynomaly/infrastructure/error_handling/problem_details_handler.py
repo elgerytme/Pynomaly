@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -21,14 +21,14 @@ class ProblemDetailsResponse(JSONResponse):
         self,
         status_code: int,
         title: str,
-        detail: Optional[str] = None,
+        detail: str | None = None,
         type_: str = "about:blank",
-        instance: Optional[str] = None,
-        extensions: Optional[Dict[str, Any]] = None,
-        correlation_id: Optional[str] = None,
+        instance: str | None = None,
+        extensions: dict[str, Any] | None = None,
+        correlation_id: str | None = None,
     ) -> None:
         """Initialize problem details response.
-        
+
         Args:
             status_code: HTTP status code
             title: Short, human-readable summary of the problem
@@ -43,18 +43,18 @@ class ProblemDetailsResponse(JSONResponse):
             "title": title,
             "status": status_code,
         }
-        
+
         if detail:
             content["detail"] = detail
         if instance:
             content["instance"] = instance
         if extensions:
             content.update(extensions)
-        
+
         headers = {}
         if correlation_id:
             headers["X-Correlation-ID"] = correlation_id
-            
+
         super().__init__(content=content, status_code=status_code, headers=headers)
 
 
@@ -97,7 +97,7 @@ def add_exception_handlers(app: FastAPI) -> None:
         for error in exc.errors():
             loc = " -> ".join(str(x) for x in error["loc"])
             errors.append(f"{loc}: {error['msg']}")
-        
+
         return ProblemDetailsResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             title="Validation Error",
@@ -118,7 +118,7 @@ def add_exception_handlers(app: FastAPI) -> None:
         for error in exc.errors():
             loc = " -> ".join(str(x) for x in error["loc"])
             errors.append(f"{loc}: {error['msg']}")
-        
+
         return ProblemDetailsResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             title="Validation Error",
@@ -139,7 +139,7 @@ def add_exception_handlers(app: FastAPI) -> None:
             exc_info=True,
             extra={"correlation_id": getattr(request.state, "correlation_id", None)},
         )
-        
+
         return ProblemDetailsResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             title="Internal Server Error",
@@ -175,12 +175,12 @@ def create_problem_details_response(
     request: Request,
     status_code: int,
     title: str,
-    detail: Optional[str] = None,
+    detail: str | None = None,
     type_: str = "about:blank",
-    extensions: Optional[Dict[str, Any]] = None,
+    extensions: dict[str, Any] | None = None,
 ) -> ProblemDetailsResponse:
     """Create a problem details response.
-    
+
     Args:
         request: The FastAPI request object
         status_code: HTTP status code
@@ -188,7 +188,7 @@ def create_problem_details_response(
         detail: Human-readable explanation specific to this occurrence
         type_: URI reference that identifies the problem type
         extensions: Additional problem-specific information
-        
+
     Returns:
         ProblemDetailsResponse instance
     """

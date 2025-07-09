@@ -16,6 +16,7 @@ try:
     import kafka
     from kafka import KafkaConsumer, KafkaProducer
     from kafka.errors import KafkaError
+
     KAFKA_AVAILABLE = True
 except ImportError:
     KAFKA_AVAILABLE = False
@@ -23,6 +24,7 @@ except ImportError:
 try:
     import redis
     from redis.asyncio import Redis
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
@@ -40,6 +42,7 @@ logger = logging.getLogger(__name__)
 
 class StreamSource(Enum):
     """Available stream sources."""
+
     KAFKA = "kafka"
     REDIS = "redis"
     WEBSOCKET = "websocket"
@@ -50,6 +53,7 @@ class StreamSource(Enum):
 
 class StreamFormat(Enum):
     """Stream data formats."""
+
     JSON = "json"
     CSV = "csv"
     AVRO = "avro"
@@ -138,8 +142,8 @@ class StreamBatch:
                 "batch_timestamp": self.batch_timestamp.isoformat(),
                 "batch_size": self.size,
                 "source": "stream_processor",
-                **self.metadata
-            }
+                **self.metadata,
+            },
         )
 
         return dataset
@@ -196,7 +200,9 @@ class StreamProcessor:
         self.last_batch_time = None
         self.processing_times = []
 
-        logger.info(f"Stream processor initialized with source: {config.source_type.value}")
+        logger.info(
+            f"Stream processor initialized with source: {config.source_type.value}"
+        )
 
     async def start(self) -> None:
         """Start stream processing."""
@@ -233,7 +239,12 @@ class StreamProcessor:
         self.is_running = False
 
         # Cancel background tasks
-        tasks = [self.ingestion_task, self.processing_task, self.output_task, self.monitoring_task]
+        tasks = [
+            self.ingestion_task,
+            self.processing_task,
+            self.output_task,
+            self.monitoring_task,
+        ]
         for task in tasks:
             if task and not task.done():
                 task.cancel()
@@ -277,13 +288,13 @@ class StreamProcessor:
         kafka_config = self.config.source_config
 
         consumer = KafkaConsumer(
-            kafka_config.get('topic', 'anomaly-detection-input'),
-            bootstrap_servers=kafka_config.get('bootstrap_servers', ['localhost:9092']),
-            group_id=kafka_config.get('group_id', 'pynomaly-stream-processor'),
-            value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-            enable_auto_commit=kafka_config.get('enable_auto_commit', False),
+            kafka_config.get("topic", "anomaly-detection-input"),
+            bootstrap_servers=kafka_config.get("bootstrap_servers", ["localhost:9092"]),
+            group_id=kafka_config.get("group_id", "pynomaly-stream-processor"),
+            value_deserializer=lambda m: json.loads(m.decode("utf-8")),
+            enable_auto_commit=kafka_config.get("enable_auto_commit", False),
             max_poll_records=self.config.batch_size,
-            consumer_timeout_ms=int(self.config.batch_timeout_seconds * 1000)
+            consumer_timeout_ms=int(self.config.batch_timeout_seconds * 1000),
         )
 
         return consumer
@@ -293,11 +304,11 @@ class StreamProcessor:
         redis_config = self.config.source_config
 
         redis_client = Redis(
-            host=redis_config.get('host', 'localhost'),
-            port=redis_config.get('port', 6379),
-            db=redis_config.get('db', 0),
-            password=redis_config.get('password'),
-            decode_responses=True
+            host=redis_config.get("host", "localhost"),
+            port=redis_config.get("port", 6379),
+            db=redis_config.get("db", 0),
+            password=redis_config.get("password"),
+            decode_responses=True,
         )
 
         return redis_client
@@ -308,8 +319,10 @@ class StreamProcessor:
             if self.config.source_type == StreamSource.KAFKA:
                 kafka_config = self.config.source_config
                 self.sink_connector = KafkaProducer(
-                    bootstrap_servers=kafka_config.get('bootstrap_servers', ['localhost:9092']),
-                    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+                    bootstrap_servers=kafka_config.get(
+                        "bootstrap_servers", ["localhost:9092"]
+                    ),
+                    value_serializer=lambda v: json.dumps(v).encode("utf-8"),
                 )
 
     @trace_operation("stream_ingestion")
@@ -343,7 +356,7 @@ class StreamProcessor:
             try:
                 message_pack = self.source_connector.poll(
                     timeout_ms=int(self.config.batch_timeout_seconds * 1000),
-                    max_records=self.config.batch_size
+                    max_records=self.config.batch_size,
                 )
 
                 for topic_partition, messages in message_pack.items():
@@ -354,7 +367,7 @@ class StreamProcessor:
                             data=message.value,
                             source=message.topic,
                             partition=message.partition,
-                            offset=message.offset
+                            offset=message.offset,
                         )
                         records.append(record)
 
@@ -364,16 +377,20 @@ class StreamProcessor:
         elif self.config.source_type == StreamSource.REDIS:
             try:
                 # Use Redis Streams for consumption
-                stream_name = self.config.source_config.get('stream', 'anomaly-stream')
-                consumer_group = self.config.source_config.get('consumer_group', 'processors')
-                consumer_name = self.config.source_config.get('consumer_name', 'processor-1')
+                stream_name = self.config.source_config.get("stream", "anomaly-stream")
+                consumer_group = self.config.source_config.get(
+                    "consumer_group", "processors"
+                )
+                consumer_name = self.config.source_config.get(
+                    "consumer_name", "processor-1"
+                )
 
                 messages = await self.source_connector.xreadgroup(
                     consumer_group,
                     consumer_name,
-                    {stream_name: '>'},
+                    {stream_name: ">"},
                     count=self.config.batch_size,
-                    block=int(self.config.batch_timeout_seconds * 1000)
+                    block=int(self.config.batch_timeout_seconds * 1000),
                 )
 
                 for stream, stream_messages in messages:
@@ -382,7 +399,7 @@ class StreamProcessor:
                             id=message_id,
                             timestamp=datetime.now(),
                             data=fields,
-                            source=stream
+                            source=stream,
                         )
                         records.append(record)
 
@@ -391,7 +408,7 @@ class StreamProcessor:
 
         elif self.config.source_type == StreamSource.MEMORY:
             # For testing - generate synthetic data
-            if not hasattr(self, '_synthetic_counter'):
+            if not hasattr(self, "_synthetic_counter"):
                 self._synthetic_counter = 0
 
             for i in range(min(self.config.batch_size, 10)):
@@ -403,9 +420,9 @@ class StreamProcessor:
                         "feature_1": np.random.normal(0, 1),
                         "feature_2": np.random.normal(0, 1),
                         "feature_3": np.random.normal(0, 1),
-                        "is_anomaly": np.random.random() < 0.1  # 10% anomaly rate
+                        "is_anomaly": np.random.random() < 0.1,  # 10% anomaly rate
                     },
-                    source="synthetic"
+                    source="synthetic",
                 )
                 records.append(record)
 
@@ -437,7 +454,9 @@ class StreamProcessor:
                 # Send to output queue
                 await self.output_queue.put(result)
 
-                logger.debug(f"Processed batch {batch.batch_id} with {len(batch.records)} records in {processing_time:.2f}s")
+                logger.debug(
+                    f"Processed batch {batch.batch_id} with {len(batch.records)} records in {processing_time:.2f}s"
+                )
 
             except Exception as e:
                 self.error_count += 1
@@ -450,13 +469,13 @@ class StreamProcessor:
         batch_start = time.time()
 
         # Collect records until batch size or timeout
-        while (len(records) < self.config.batch_size and
-               time.time() - batch_start < self.config.batch_timeout_seconds):
-
+        while (
+            len(records) < self.config.batch_size
+            and time.time() - batch_start < self.config.batch_timeout_seconds
+        ):
             try:
                 record = await asyncio.wait_for(
-                    self.input_queue.get(),
-                    timeout=self.config.batch_timeout_seconds
+                    self.input_queue.get(), timeout=self.config.batch_timeout_seconds
                 )
                 records.append(record)
 
@@ -468,7 +487,7 @@ class StreamProcessor:
             batch_id=f"batch_{self.batch_count}_{int(time.time())}",
             records=records,
             batch_timestamp=datetime.now(),
-            size=len(records)
+            size=len(records),
         )
 
         return batch
@@ -483,16 +502,18 @@ class StreamProcessor:
             result = await self.detection_service.detect_anomalies(
                 dataset=dataset,
                 algorithm=self.config.detection_algorithm,
-                config=self.config.detection_config
+                config=self.config.detection_config,
             )
 
             # Enhance result with stream metadata
-            result.metadata.update({
-                "batch_id": batch.batch_id,
-                "batch_timestamp": batch.batch_timestamp.isoformat(),
-                "stream_source": self.config.source_type.value,
-                "processing_mode": "streaming"
-            })
+            result.metadata.update(
+                {
+                    "batch_id": batch.batch_id,
+                    "batch_timestamp": batch.batch_timestamp.isoformat(),
+                    "stream_source": self.config.source_type.value,
+                    "processing_mode": "streaming",
+                }
+            )
 
             return result
 
@@ -519,9 +540,13 @@ class StreamProcessor:
                 output_data = self._format_result(result)
 
                 if self.config.source_type == StreamSource.KAFKA:
-                    future = self.sink_connector.send(self.config.output_topic, output_data)
+                    future = self.sink_connector.send(
+                        self.config.output_topic, output_data
+                    )
                     record_metadata = future.get(timeout=10)
-                    logger.debug(f"Sent result to Kafka topic {self.config.output_topic}")
+                    logger.debug(
+                        f"Sent result to Kafka topic {self.config.output_topic}"
+                    )
 
             except Exception as e:
                 logger.error(f"Error sending result: {e}")
@@ -542,11 +567,11 @@ class StreamProcessor:
                     "score": anomaly.score.value,
                     "confidence_lower": anomaly.confidence.lower,
                     "confidence_upper": anomaly.confidence.upper,
-                    "explanation": anomaly.explanation
+                    "explanation": anomaly.explanation,
                 }
                 for anomaly in result.anomalies[:100]  # Limit for output size
             ],
-            "metadata": result.metadata
+            "metadata": result.metadata,
         }
 
     async def _monitoring_loop(self) -> None:
@@ -571,8 +596,12 @@ class StreamProcessor:
         error_rate = self.error_count / max(1, self.batch_count)
 
         # Calculate latency metrics
-        avg_processing_time = np.mean(self.processing_times) if self.processing_times else 0
-        p95_processing_time = np.percentile(self.processing_times, 95) if self.processing_times else 0
+        avg_processing_time = (
+            np.mean(self.processing_times) if self.processing_times else 0
+        )
+        p95_processing_time = (
+            np.percentile(self.processing_times, 95) if self.processing_times else 0
+        )
 
         metrics = {
             "uptime_seconds": uptime,
@@ -584,7 +613,7 @@ class StreamProcessor:
             "avg_processing_time": avg_processing_time,
             "p95_processing_time": p95_processing_time,
             "input_queue_size": self.input_queue.qsize(),
-            "output_queue_size": self.output_queue.qsize()
+            "output_queue_size": self.output_queue.qsize(),
         }
 
         logger.debug(f"Stream processor metrics: {metrics}")
@@ -594,8 +623,11 @@ class StreamProcessor:
         current_time = time.time()
 
         # Check if processing is stalled
-        if (self.last_batch_time and
-            current_time - self.last_batch_time > self.config.batch_timeout_seconds * 2):
+        if (
+            self.last_batch_time
+            and current_time - self.last_batch_time
+            > self.config.batch_timeout_seconds * 2
+        ):
             logger.warning("Stream processing appears to be stalled")
 
         # Check queue sizes
@@ -623,13 +655,15 @@ class StreamProcessor:
                 batch_id=f"final_batch_{int(time.time())}",
                 records=remaining_records,
                 batch_timestamp=datetime.now(),
-                size=len(remaining_records)
+                size=len(remaining_records),
             )
 
             try:
                 result = await self._process_batch(final_batch)
                 await self._send_result(result)
-                logger.info(f"Processed final batch with {len(remaining_records)} records")
+                logger.info(
+                    f"Processed final batch with {len(remaining_records)} records"
+                )
             except Exception as e:
                 logger.error(f"Error processing final batch: {e}")
 
@@ -656,7 +690,7 @@ class StreamProcessor:
                 id=f"test_{int(time.time())}",
                 timestamp=datetime.now(),
                 data=data,
-                source="test"
+                source="test",
             )
             await self.input_queue.put(record)
 
@@ -678,8 +712,8 @@ class StreamProcessor:
                 "source_type": self.config.source_type.value,
                 "batch_size": self.config.batch_size,
                 "batch_timeout": self.config.batch_timeout_seconds,
-                "detection_algorithm": self.config.detection_algorithm.value
-            }
+                "detection_algorithm": self.config.detection_algorithm.value,
+            },
         }
 
 

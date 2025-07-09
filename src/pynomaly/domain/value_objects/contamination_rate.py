@@ -53,6 +53,38 @@ class ContaminationRate:
         else:
             return f"{percentage:.1f}%"
 
+    def __lt__(self, other) -> bool:
+        """Less than comparison."""
+        if isinstance(other, ContaminationRate):
+            return self.value < other.value
+        if isinstance(other, (int, float)):
+            return self.value < other
+        return NotImplemented
+
+    def __le__(self, other) -> bool:
+        """Less than or equal comparison."""
+        if isinstance(other, ContaminationRate):
+            return self.value <= other.value
+        if isinstance(other, (int, float)):
+            return self.value <= other
+        return NotImplemented
+
+    def __gt__(self, other) -> bool:
+        """Greater than comparison."""
+        if isinstance(other, ContaminationRate):
+            return self.value > other.value
+        if isinstance(other, (int, float)):
+            return self.value > other
+        return NotImplemented
+
+    def __ge__(self, other) -> bool:
+        """Greater than or equal comparison."""
+        if isinstance(other, ContaminationRate):
+            return self.value >= other.value
+        if isinstance(other, (int, float)):
+            return self.value >= other
+        return NotImplemented
+
     @classmethod
     def auto(cls) -> ContaminationRate:
         """Create auto contamination rate (typically 0.1)."""

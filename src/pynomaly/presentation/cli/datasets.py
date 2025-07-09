@@ -17,8 +17,9 @@ console = Console()
 
 @app.command("list")
 def list_datasets(
-    has_target: bool
-    | None = typer.Option(None, "--has-target", help="Filter by target presence"),
+    has_target: bool | None = typer.Option(
+        None, "--has-target", help="Filter by target presence"
+    ),
     limit: int = typer.Option(10, "--limit", "-l", help="Maximum results to show"),
 ):
     """List all datasets."""
@@ -65,12 +66,15 @@ def list_datasets(
 def load_dataset(
     file_path: Path = typer.Argument(..., help="Path to dataset file"),
     name: str | None = typer.Option(None, "--name", "-n", help="Dataset name"),
-    target_column: str
-    | None = typer.Option(None, "--target", "-t", help="Target column name"),
-    description: str
-    | None = typer.Option(None, "--description", "-d", help="Dataset description"),
-    sample_size: int
-    | None = typer.Option(None, "--sample", "-s", help="Load only N rows"),
+    target_column: str | None = typer.Option(
+        None, "--target", "-t", help="Target column name"
+    ),
+    description: str | None = typer.Option(
+        None, "--description", "-d", help="Dataset description"
+    ),
+    sample_size: int | None = typer.Option(
+        None, "--sample", "-s", help="Load only N rows"
+    ),
 ):
     """Load a dataset from file."""
     container = get_cli_container()

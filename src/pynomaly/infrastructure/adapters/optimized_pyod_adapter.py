@@ -326,7 +326,9 @@ class OptimizedPyODAdapter(PyODAdapter):
             samples_per_cluster = (sample_size * cluster_counts / len(X)).astype(int)
 
             sample_indices = []
-            for cluster_id, n_samples in zip(unique_clusters, samples_per_cluster, strict=False):
+            for cluster_id, n_samples in zip(
+                unique_clusters, samples_per_cluster, strict=False
+            ):
                 cluster_indices = np.where(cluster_labels == cluster_id)[0]
                 if len(cluster_indices) > 0:
                     selected = np.random.choice(
@@ -369,9 +371,9 @@ class OptimizedPyODAdapter(PyODAdapter):
         )
 
         if self._selected_features is not None:
-            detector.metadata[
-                "selected_features_mask"
-            ] = self._selected_features.tolist()
+            detector.metadata["selected_features_mask"] = (
+                self._selected_features.tolist()
+            )
 
         return detector
 

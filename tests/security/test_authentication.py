@@ -11,7 +11,7 @@ import jwt
 import pytest
 
 from pynomaly.domain.exceptions import AuthenticationError, SecurityError
-from pynomaly.infrastructure.auth.jwt_auth import JWTAuthHandler
+from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
 
 
 class TestJWTAuthentication:
@@ -20,7 +20,7 @@ class TestJWTAuthentication:
     @pytest.fixture
     def jwt_handler(self):
         """Create JWT authentication handler."""
-        return JWTAuthHandler(
+        return JWTAuthService(
             secret_key="test-secret-key-256-bits-long",
             algorithm="HS256",
             access_token_expire_minutes=30,
@@ -100,7 +100,7 @@ class TestJWTAuthentication:
         token = jwt_handler.create_access_token(valid_user_data)
 
         # Try to verify with different secret
-        different_handler = JWTAuthHandler(
+        different_handler = JWTAuthService(
             secret_key="different-secret-key", algorithm="HS256"
         )
 

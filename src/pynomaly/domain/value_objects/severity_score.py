@@ -24,10 +24,14 @@ class SeverityScore:
     def __post_init__(self):
         """Validate severity score."""
         if not 0.0 <= self.value <= 1.0:
-            raise ValueError(f"Severity score must be between 0.0 and 1.0, got {self.value}")
+            raise ValueError(
+                f"Severity score must be between 0.0 and 1.0, got {self.value}"
+            )
 
         if self.confidence is not None and not 0.0 <= self.confidence <= 1.0:
-            raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
+            raise ValueError(
+                f"Confidence must be between 0.0 and 1.0, got {self.confidence}"
+            )
 
     @classmethod
     def create_minimal(cls) -> "SeverityScore":

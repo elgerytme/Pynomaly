@@ -19,9 +19,7 @@ class ModelPerformanceRepository:
         """Save a model performance record."""
         self._performances[performance.id] = performance
 
-    async def get_by_id(
-        self, performance_id: UUID
-    ) -> ModelPerformanceMetrics | None:
+    async def get_by_id(self, performance_id: UUID) -> ModelPerformanceMetrics | None:
         """Get a model performance record by ID."""
         return self._performances.get(performance_id)
 

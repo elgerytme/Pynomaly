@@ -100,13 +100,9 @@ class LogModelRequest(BaseModel):
     """Request model for logging a model."""
 
     model_name: str = Field(..., description="Model name")
-    model_signature: dict[str, Any] | None = Field(
-        None, description="Model signature"
-    )
+    model_signature: dict[str, Any] | None = Field(None, description="Model signature")
     input_example: Any | None = Field(None, description="Input example")
-    registered_model_name: str | None = Field(
-        None, description="Registered model name"
-    )
+    registered_model_name: str | None = Field(None, description="Registered model name")
 
 
 class LogModelResponse(BaseModel):
@@ -169,9 +165,7 @@ class SearchModelsRequest(BaseModel):
 
     query: str = Field(..., description="Search query")
     max_results: int = Field(50, description="Maximum results")
-    filter_dict: dict[str, Any] | None = Field(
-        None, description="Additional filters"
-    )
+    filter_dict: dict[str, Any] | None = Field(None, description="Additional filters")
     order_by: list[str] | None = Field(None, description="Ordering criteria")
 
 

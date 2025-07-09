@@ -100,7 +100,9 @@ class DataIsolationService:
         # Configure encryption
         await self._configure_encryption(tenant, isolation)
 
-        self.logger.info(f"Configured {isolation.value} isolation for tenant {tenant.name}")
+        self.logger.info(
+            f"Configured {isolation.value} isolation for tenant {tenant.name}"
+        )
 
     async def validate_data_access(
         self,
@@ -119,22 +121,34 @@ class DataIsolationService:
             return False
 
         # Check resource ownership
-        if not await self._verify_resource_ownership(tenant_id, resource_type, resource_id):
-            self.logger.warning(f"Tenant {tenant_id} attempted unauthorized access to {resource_type}:{resource_id}")
+        if not await self._verify_resource_ownership(
+            tenant_id, resource_type, resource_id
+        ):
+            self.logger.warning(
+                f"Tenant {tenant_id} attempted unauthorized access to {resource_type}:{resource_id}"
+            )
             return False
 
         # Check operation permissions
         if not await self._verify_operation_permission(tenant_context, operation):
-            self.logger.warning(f"Tenant {tenant_id} lacks permission for operation: {operation}")
+            self.logger.warning(
+                f"Tenant {tenant_id} lacks permission for operation: {operation}"
+            )
             return False
 
         # Isolation-specific validations
         if isolation == IsolationLevel.ISOLATED:
-            return await self._validate_isolated_access(tenant_context, resource_type, resource_id)
+            return await self._validate_isolated_access(
+                tenant_context, resource_type, resource_id
+            )
         elif isolation == IsolationLevel.DEDICATED:
-            return await self._validate_dedicated_access(tenant_context, resource_type, resource_id)
+            return await self._validate_dedicated_access(
+                tenant_context, resource_type, resource_id
+            )
         elif isolation == IsolationLevel.SHARED:
-            return await self._validate_shared_access(tenant_context, resource_type, resource_id)
+            return await self._validate_shared_access(
+                tenant_context, resource_type, resource_id
+            )
 
         return True
 
@@ -146,7 +160,9 @@ class DataIsolationService:
         if isolation == IsolationLevel.ISOLATED:
             # Completely separate database
             return {
-                "database": self.tenant_databases.get(tenant_id, f"pynomaly_tenant_{tenant_id}"),
+                "database": self.tenant_databases.get(
+                    tenant_id, f"pynomaly_tenant_{tenant_id}"
+                ),
                 "schema": "public",
                 "connection_pool": f"tenant_{tenant_id}_pool",
             }
@@ -176,7 +192,9 @@ class DataIsolationService:
         if isolation == IsolationLevel.ISOLATED:
             # Completely separate storage bucket
             return {
-                "bucket": self.tenant_storage_buckets.get(tenant_id, f"pynomaly-tenant-{tenant_id}"),
+                "bucket": self.tenant_storage_buckets.get(
+                    tenant_id, f"pynomaly-tenant-{tenant_id}"
+                ),
                 "prefix": "",
                 "encryption_key": self.tenant_encryption_keys.get(tenant_id),
             }
@@ -185,7 +203,9 @@ class DataIsolationService:
             # Dedicated prefix in shared bucket
             return {
                 "bucket": "pynomaly-shared-storage",
-                "prefix": self.tenant_storage_prefixes.get(tenant_id, f"tenant-{tenant_id}/"),
+                "prefix": self.tenant_storage_prefixes.get(
+                    tenant_id, f"tenant-{tenant_id}/"
+                ),
                 "encryption_key": self.tenant_encryption_keys.get(tenant_id),
             }
 
@@ -205,7 +225,9 @@ class DataIsolationService:
         if isolation == IsolationLevel.ISOLATED:
             # Completely separate namespace and network policies
             return {
-                "namespace": self.tenant_namespaces.get(tenant_id, f"tenant-{tenant_id}"),
+                "namespace": self.tenant_namespaces.get(
+                    tenant_id, f"tenant-{tenant_id}"
+                ),
                 "network_policies": self.tenant_network_policies.get(tenant_id, {}),
                 "service_mesh_config": {
                     "istio_enabled": True,
@@ -217,7 +239,9 @@ class DataIsolationService:
         elif isolation == IsolationLevel.DEDICATED:
             # Dedicated namespace with shared network
             return {
-                "namespace": self.tenant_namespaces.get(tenant_id, f"tenant-{tenant_id}"),
+                "namespace": self.tenant_namespaces.get(
+                    tenant_id, f"tenant-{tenant_id}"
+                ),
                 "network_policies": {
                     "allow_within_namespace": True,
                     "deny_cross_tenant": True,
@@ -254,7 +278,7 @@ class DataIsolationService:
         # In production, this would use proper encryption libraries
         # For now, simulate encryption
         if isinstance(data, str):
-            data = data.encode('utf-8')
+            data = data.encode("utf-8")
 
         # Placeholder encryption (would use actual encryption in production)
         encrypted_data = f"ENCRYPTED_{tenant_id}_{len(data)}_".encode() + data
@@ -322,8 +346,10 @@ class DataIsolationService:
         target_isolation = self.isolation_strategies.get(target_tenant_id)
 
         # Isolated tenants cannot perform cross-tenant operations
-        if (source_isolation == IsolationLevel.ISOLATED or
-            target_isolation == IsolationLevel.ISOLATED):
+        if (
+            source_isolation == IsolationLevel.ISOLATED
+            or target_isolation == IsolationLevel.ISOLATED
+        ):
             return False
 
         # For now, deny all cross-tenant operations
@@ -461,6 +487,7 @@ class DataIsolationService:
 
         # In production, this would use proper key management service
         import secrets
+
         return secrets.token_urlsafe(32)
 
     # Validation methods
@@ -626,7 +653,9 @@ class DataIsolationService:
 
         isolation_counts = {}
         for isolation in self.isolation_strategies.values():
-            isolation_counts[isolation.value] = isolation_counts.get(isolation.value, 0) + 1
+            isolation_counts[isolation.value] = (
+                isolation_counts.get(isolation.value, 0) + 1
+            )
 
         return {
             "total_tenants": len(self.isolation_strategies),

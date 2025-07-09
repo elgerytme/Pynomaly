@@ -14,6 +14,10 @@ class AnomalyCategory(str, Enum):
     NEURAL = "neural"
     ENSEMBLE = "ensemble"
 
+    def __str__(self) -> str:
+        """Return the string value of the enum."""
+        return self.value
+
     @classmethod
     def get_default(cls) -> "AnomalyCategory":
         """Get default anomaly category."""

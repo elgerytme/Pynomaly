@@ -138,7 +138,7 @@ class RateLimitMiddleware:
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 content={
                     "error": "Rate limit exceeded",
-                    "message": f'Too many requests. Try again in {rate_info["retry_after"]} seconds.',
+                    "message": f"Too many requests. Try again in {rate_info['retry_after']} seconds.",
                     "rate_limit": rate_info,
                 },
                 headers={

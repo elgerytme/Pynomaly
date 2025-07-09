@@ -12,7 +12,7 @@ from pynomaly.application.services.algorithm_adapter_registry import (
 )
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.presentation.api.app import app
+from pynomaly.presentation.api.app import create_app
 
 
 class TestDetectorEndpointsIntegration:
@@ -21,7 +21,7 @@ class TestDetectorEndpointsIntegration:
     @pytest.fixture
     def client(self):
         """Test client."""
-        return TestClient(app)
+        return TestClient(create_app())
 
     @pytest.fixture
     def test_dataset(self):

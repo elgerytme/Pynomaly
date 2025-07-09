@@ -262,7 +262,6 @@ class AdaptiveMemoryManager:
                     and time.time() - self._last_optimization_time
                     > self.optimization_interval_seconds
                 ):
-
                     await self.optimize_memory_usage()
 
                 # Sleep until next check

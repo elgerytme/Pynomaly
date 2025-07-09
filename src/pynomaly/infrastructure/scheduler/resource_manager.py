@@ -10,6 +10,7 @@ from .entities import JobDefinition, ResourceRequirement
 @dataclass
 class ResourceUsage:
     """Current resource usage."""
+
     cpu_cores: float = 0.0
     memory_gb: float = 0.0
     workers: int = 0
@@ -19,6 +20,7 @@ class ResourceUsage:
 @dataclass
 class ResourceQuota:
     """Resource quota/limits."""
+
     max_cpu_cores: float = 8.0
     max_memory_gb: float = 16.0
     max_workers: int = 10
@@ -91,7 +93,7 @@ class ResourceManager:
             cpu_cores=self.quota.max_cpu_cores - self.current_usage.cpu_cores,
             memory_gb=self.quota.max_memory_gb - self.current_usage.memory_gb,
             workers=self.quota.max_workers - self.current_usage.workers,
-            gpu_count=self.quota.max_gpu_count - self.current_usage.gpu_count
+            gpu_count=self.quota.max_gpu_count - self.current_usage.gpu_count,
         )
 
     def get_allocatable_jobs(self, jobs: dict[str, JobDefinition]) -> list[str]:
@@ -105,10 +107,18 @@ class ResourceManager:
     def get_resource_utilization(self) -> dict[str, float]:
         """Get current resource utilization as percentages."""
         return {
-            "cpu": (self.current_usage.cpu_cores / self.quota.max_cpu_cores) * 100 if self.quota.max_cpu_cores > 0 else 0,
-            "memory": (self.current_usage.memory_gb / self.quota.max_memory_gb) * 100 if self.quota.max_memory_gb > 0 else 0,
-            "workers": (self.current_usage.workers / self.quota.max_workers) * 100 if self.quota.max_workers > 0 else 0,
-            "gpu": (self.current_usage.gpu_count / self.quota.max_gpu_count) * 100 if self.quota.max_gpu_count > 0 else 0
+            "cpu": (self.current_usage.cpu_cores / self.quota.max_cpu_cores) * 100
+            if self.quota.max_cpu_cores > 0
+            else 0,
+            "memory": (self.current_usage.memory_gb / self.quota.max_memory_gb) * 100
+            if self.quota.max_memory_gb > 0
+            else 0,
+            "workers": (self.current_usage.workers / self.quota.max_workers) * 100
+            if self.quota.max_workers > 0
+            else 0,
+            "gpu": (self.current_usage.gpu_count / self.quota.max_gpu_count) * 100
+            if self.quota.max_gpu_count > 0
+            else 0,
         }
 
     def reset(self) -> None:

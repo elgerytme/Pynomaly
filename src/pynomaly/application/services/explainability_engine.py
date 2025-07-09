@@ -1348,7 +1348,7 @@ class ExplainabilityEngine:
 
             for i, fi in enumerate(feature_importances[:5]):
                 summary_parts.append(
-                    f"{i+1}. {fi.feature_name}: {fi.importance_score:.3f} "
+                    f"{i + 1}. {fi.feature_name}: {fi.importance_score:.3f} "
                     f"({'positive' if fi.contribution > 0 else 'negative'} contribution)"
                 )
             summary_parts.append("")

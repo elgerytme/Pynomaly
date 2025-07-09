@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Optional prometheus dependency
 try:
     from prometheus_fastapi_instrumentator import Instrumentator
+
     PROMETHEUS_AVAILABLE = True
 except ImportError:
     PROMETHEUS_AVAILABLE = False
@@ -19,12 +20,6 @@ except ImportError:
 from pynomaly.infrastructure.auth import init_auth, track_request_metrics
 from pynomaly.infrastructure.cache import init_cache
 from pynomaly.infrastructure.config import Container
-from pynomaly.infrastructure.error_handling.problem_details_handler import (
-    add_exception_handlers,
-)
-from pynomaly.infrastructure.middleware.correlation_id_middleware import (
-    add_correlation_id,
-)
 
 # Temporarily disabled telemetry
 # from pynomaly.infrastructure.monitoring import init_telemetry
@@ -211,7 +206,9 @@ def create_app(container: Container | None = None) -> FastAPI:
         instrumentator = Instrumentator()
         instrumentator.instrument(app).expose(app, endpoint="/metrics")
     elif settings.monitoring.prometheus_enabled and not PROMETHEUS_AVAILABLE:
-        print("Warning: Prometheus metrics requested but prometheus-fastapi-instrumentator not available")
+        print(
+            "Warning: Prometheus metrics requested but prometheus-fastapi-instrumentator not available"
+        )
 
     # Include documentation router (before API routers for proper URL handling)
     app.include_router(api_docs.router, tags=["documentation"])
@@ -221,11 +218,15 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
 
-    app.include_router(user_management.router, prefix="/api/v1", tags=["user_management"])
+    app.include_router(
+        user_management.router, prefix="/api/v1", tags=["user_management"]
+    )
 
     app.include_router(admin.router, prefix="/api/v1/admin", tags=["administration"])
 
-    app.include_router(autonomous.router, prefix="/api/v1/autonomous", tags=["autonomous"])
+    app.include_router(
+        autonomous.router, prefix="/api/v1/autonomous", tags=["autonomous"]
+    )
 
     app.include_router(detectors.router, prefix="/api/v1/detectors", tags=["detectors"])
 
@@ -237,7 +238,9 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     # Include enhanced AutoML router if available
     if ENHANCED_AUTOML_AVAILABLE:
-        app.include_router(enhanced_automl.router, prefix="/api/v1", tags=["enhanced_automl"])
+        app.include_router(
+            enhanced_automl.router, prefix="/api/v1", tags=["enhanced_automl"]
+        )
 
     app.include_router(ensemble.router, prefix="/api/v1/ensemble", tags=["ensemble"])
 
@@ -285,5 +288,5 @@ def create_app(container: Container | None = None) -> FastAPI:
     return app
 
 
-# Create default app instance for uvicorn - commented out to avoid import issues
-# app = create_app()
+# Create default app instance for uvicorn
+app = create_app()

@@ -37,8 +37,9 @@ def autonomous_detect(
     data_source: str = typer.Argument(
         ..., help="Path to data file or connection string"
     ),
-    output: Path
-    | None = typer.Option(None, "--output", "-o", help="Export results to file"),
+    output: Path | None = typer.Option(
+        None, "--output", "-o", help="Export results to file"
+    ),
     max_algorithms: int = typer.Option(
         5, "--max-algorithms", "-a", help="Maximum algorithms to try"
     ),
@@ -240,12 +241,15 @@ def profile_data(
 @app.command("quick")
 def quick_detect(
     data_source: str = typer.Argument(..., help="Path to data file"),
-    algorithm: str
-    | None = typer.Option(None, "--algorithm", "-a", help="Force specific algorithm"),
-    contamination: float
-    | None = typer.Option(None, "--contamination", "-c", help="Contamination rate"),
-    output: Path
-    | None = typer.Option(None, "--output", "-o", help="Export results to file"),
+    algorithm: str | None = typer.Option(
+        None, "--algorithm", "-a", help="Force specific algorithm"
+    ),
+    contamination: float | None = typer.Option(
+        None, "--contamination", "-c", help="Contamination rate"
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", "-o", help="Export results to file"
+    ),
 ):
     """Quick anomaly detection with minimal configuration.
 
@@ -567,9 +571,7 @@ def _display_profile(profile, recommendations, verbose: bool) -> None:
             and profile.quality_report
             and profile.quality_report.issues
         ):
-            console.print(
-                "\n[bold yellow]⚠️ Data Quality Issues Detected[/bold yellow]"
-            )
+            console.print("\n[bold yellow]⚠️ Data Quality Issues Detected[/bold yellow]")
 
             for issue in profile.quality_report.issues[:5]:  # Show top 5 issues
                 severity_color = (

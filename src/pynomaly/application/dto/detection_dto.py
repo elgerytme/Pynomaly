@@ -9,9 +9,34 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class ConfidenceInterval(BaseModel):
+    """DTO for confidence intervals."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "example": {
+                "lower": 0.05,
+                "upper": 0.95,
+                "confidence_level": 0.95,
+                "method": "bootstrap",
+            }
+        },
+    )
+
+    lower: float = Field(description="Lower bound of confidence interval")
+    upper: float = Field(description="Upper bound of confidence interval")
+    confidence_level: float = Field(
+        default=0.95, ge=0, le=1, description="Confidence level"
+    )
+    method: str = Field(
+        default="bootstrap", description="Method used to calculate interval"
+    )
+
+
 class DetectionRequestDTO(BaseModel):
     """DTO for anomaly detection requests."""
-    
+
     model_config = ConfigDict(
         extra="forbid",
         json_schema_extra={
@@ -24,7 +49,7 @@ class DetectionRequestDTO(BaseModel):
                 "validate_features": True,
                 "save_results": True,
             }
-        }
+        },
     )
     detector_id: UUID
     dataset_id: UUID | None = None
@@ -45,7 +70,7 @@ class DetectionRequestDTO(BaseModel):
 
 class TrainingRequestDTO(BaseModel):
     """DTO for detector training requests."""
-    
+
     model_config = ConfigDict(
         extra="forbid",
         json_schema_extra={
@@ -57,7 +82,7 @@ class TrainingRequestDTO(BaseModel):
                 "save_model": True,
                 "parameters": {"n_estimators": 100, "max_samples": "auto"},
             }
-        }
+        },
     )
 
     detector_id: UUID
@@ -70,7 +95,7 @@ class TrainingRequestDTO(BaseModel):
 
 class AnomalyDTO(BaseModel):
     """DTO for individual anomaly information."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID
@@ -87,7 +112,7 @@ class AnomalyDTO(BaseModel):
 
 class DetectionResultDTO(BaseModel):
     """DTO for detection results."""
-    
+
     model_config = ConfigDict(
         from_attributes=True,
         extra="forbid",
@@ -138,7 +163,7 @@ class DetectionResultDTO(BaseModel):
 
 class TrainingResultDTO(BaseModel):
     """DTO for training results."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: UUID
@@ -157,9 +182,9 @@ class TrainingResultDTO(BaseModel):
 
 class ExplanationRequestDTO(BaseModel):
     """DTO for anomaly explanation requests."""
-    
+
     model_config = ConfigDict(extra="forbid")
-    
+
     detector_id: UUID
     instance: dict[str, Any]  # Single data point to explain
     method: str = Field(default="shap", pattern="^(shap|lime)$")
@@ -169,7 +194,7 @@ class ExplanationRequestDTO(BaseModel):
 
 class ExplanationResultDTO(BaseModel):
     """DTO for anomaly explanation results."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     method_used: str
@@ -182,7 +207,7 @@ class ExplanationResultDTO(BaseModel):
 
 class DetectionSummaryDTO(BaseModel):
     """DTO for detection summary statistics."""
-    
+
     model_config = ConfigDict(extra="forbid")
     total_detections: int
     recent_detections: int  # Last 24 hours

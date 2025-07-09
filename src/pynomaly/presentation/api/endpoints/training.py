@@ -113,9 +113,7 @@ class UpdatePerformanceRequest(BaseModel):
     detector_id: UUID = Field(description="ID of detector")
     score: float = Field(ge=0.0, le=1.0, description="Performance score (0-1)")
     metric_name: str = Field("auc", description="Name of the performance metric")
-    timestamp: datetime | None = Field(
-        None, description="Timestamp of the measurement"
-    )
+    timestamp: datetime | None = Field(None, description="Timestamp of the measurement")
 
 
 class TrainingProgressResponse(BaseModel):

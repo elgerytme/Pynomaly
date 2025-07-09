@@ -9,7 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class AlgorithmRecommendationRequestDTO(BaseModel):
     """DTO for algorithm recommendation request."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
     dataset_id: str = Field(..., description="ID of the dataset for recommendation")
     max_recommendations: int = Field(
@@ -31,7 +31,7 @@ class AlgorithmRecommendationRequestDTO(BaseModel):
 
 class DatasetProfileDTO(BaseModel):
     """DTO for dataset profiling information."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
     n_samples: int = Field(..., description="Number of samples in the dataset")
     n_features: int = Field(..., description="Number of features in the dataset")
@@ -65,7 +65,7 @@ class DatasetProfileDTO(BaseModel):
 
 class AlgorithmRecommendationDTO(BaseModel):
     """DTO for algorithm recommendation."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
     algorithm_name: str = Field(..., description="Name of the recommended algorithm")
     score: float = Field(..., description="Suitability score for the algorithm")
@@ -81,7 +81,7 @@ class AlgorithmRecommendationDTO(BaseModel):
 
 class AutoMLRequestDTO(BaseModel):
     """DTO for AutoML optimization request."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
     dataset_id: str = Field(..., description="ID of the dataset to optimize on")
     objective: str = Field(default="auc", description="Optimization objective")
@@ -113,7 +113,7 @@ class AutoMLRequestDTO(BaseModel):
 
 class HyperparameterSpaceDTO(BaseModel):
     """DTO for hyperparameter search space."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
     parameter_name: str = Field(..., description="Name of the hyperparameter")
     parameter_type: str = Field(
@@ -134,7 +134,7 @@ class HyperparameterSpaceDTO(BaseModel):
 
 class OptimizationTrialDTO(BaseModel):
     """DTO for individual optimization trial."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
     trial_number: int = Field(..., description="Trial number")
     parameters: dict[str, Any] = Field(..., description="Trial parameters")
@@ -146,7 +146,7 @@ class OptimizationTrialDTO(BaseModel):
 
 class EnsembleConfigDTO(BaseModel):
     """DTO for ensemble configuration."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
     method: str = Field(..., description="Ensemble method")
     algorithms: list[dict[str, Any]] = Field(
@@ -161,7 +161,7 @@ class EnsembleConfigDTO(BaseModel):
 
 class AutoMLResultDTO(BaseModel):
     """DTO for AutoML optimization result."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
     best_algorithm: str = Field(..., description="Best performing algorithm")
     best_params: dict[str, Any] = Field(..., description="Best hyperparameters")
@@ -182,6 +182,21 @@ class AutoMLResultDTO(BaseModel):
     )
     optimization_history: list[OptimizationTrialDTO] | None = Field(
         default=None, description="Optimization trial history"
+    )
+
+
+class AlgorithmRecommendationResponseDTO(BaseModel):
+    """DTO for algorithm recommendation response."""
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    request_id: str = Field(..., description="Request ID for tracking")
+    dataset_profile: DatasetProfileDTO = Field(..., description="Dataset profile")
+    recommendations: list[AlgorithmRecommendationDTO] = Field(
+        ..., description="List of algorithm recommendations"
+    )
+    execution_time: float = Field(..., description="Execution time in seconds")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Additional metadata"
     )
 
 
@@ -286,5 +301,32 @@ class HyperparameterOptimizationResponseDTO(BaseModel):
     )
     algorithm: str = Field(..., description="Algorithm that was optimized")
     objective: str = Field(..., description="Optimization objective used")
+    message: str = Field(..., description="Response message")
+    error: str | None = Field(default=None, description="Error message if failed")
+
+
+class ExperimentTrackingRequestDTO(BaseModel):
+    """DTO for experiment tracking request."""
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    experiment_name: str = Field(..., description="Name of the experiment")
+    algorithm: str = Field(..., description="Algorithm being tracked")
+    parameters: dict[str, Any] = Field(..., description="Algorithm parameters")
+    dataset_id: str = Field(..., description="Dataset ID")
+    tags: list[str] = Field(default_factory=list, description="Experiment tags")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Additional metadata"
+    )
+
+
+class ExperimentTrackingResponseDTO(BaseModel):
+    """DTO for experiment tracking response."""
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    experiment_id: str = Field(..., description="Unique experiment ID")
+    tracking_url: str | None = Field(
+        default=None, description="URL for tracking dashboard"
+    )
+    status: str = Field(..., description="Tracking status")
     message: str = Field(..., description="Response message")
     error: str | None = Field(default=None, description="Error message if failed")

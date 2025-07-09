@@ -94,7 +94,7 @@ class DomainAdapter:
         self,
         source_domain: DomainType,
         target_domain: DomainType,
-        adaptation_strategy: TransferStrategy
+        adaptation_strategy: TransferStrategy,
     ):
         self.source_domain = source_domain
         self.target_domain = target_domain
@@ -103,7 +103,9 @@ class DomainAdapter:
         self.domain_classifier = None
         self.adaptation_loss_weight = 0.1
 
-    async def adapt_features(self, source_data: np.ndarray, target_data: np.ndarray) -> np.ndarray:
+    async def adapt_features(
+        self, source_data: np.ndarray, target_data: np.ndarray
+    ) -> np.ndarray:
         """Adapt features from source domain to target domain."""
         if self.adaptation_strategy == TransferStrategy.FEATURE_ADAPTATION:
             return await self._statistical_feature_adaptation(source_data, target_data)
@@ -151,7 +153,7 @@ class DomainAdapter:
         confused_data = combined_data + confusion_noise
 
         # Return adapted source data
-        return confused_data[:len(source_data)]
+        return confused_data[: len(source_data)]
 
     async def _representation_adaptation(
         self, source_data: np.ndarray, target_data: np.ndarray
@@ -169,7 +171,7 @@ class DomainAdapter:
             combined_reduced = pca.fit_transform(combined_data)
 
             # Split back to source and target
-            source_reduced = combined_reduced[:len(source_data)]
+            source_reduced = combined_reduced[: len(source_data)]
 
             return source_reduced
 
@@ -218,7 +220,9 @@ class CrossDomainTransferLearning:
         # Domain knowledge storage
         self.domain_characteristics: dict[DomainType, DomainCharacteristics] = {}
         self.transfer_knowledge: list[TransferLearningKnowledge] = []
-        self.domain_similarities: dict[tuple[DomainType, DomainType], DomainSimilarity] = {}
+        self.domain_similarities: dict[
+            tuple[DomainType, DomainType], DomainSimilarity
+        ] = {}
 
         # Domain adapters cache
         self.domain_adapters: dict[tuple[DomainType, DomainType], DomainAdapter] = {}
@@ -258,14 +262,14 @@ class CrossDomainTransferLearning:
                     feature_similarity=similarity * 1.1,
                     semantic_similarity=similarity * 0.8,
                     task_similarity=similarity,
-                    confidence=0.7
+                    confidence=0.7,
                 )
 
     async def analyze_domain(
         self,
         domain_type: DomainType,
         dataset: Dataset,
-        existing_detectors: list[Detector] | None = None
+        existing_detectors: list[Detector] | None = None,
     ) -> DomainCharacteristics:
         """Analyze characteristics of a domain from data and models.
 
@@ -306,7 +310,7 @@ class CrossDomainTransferLearning:
             data_distribution=data_distribution,
             temporal_patterns=temporal_patterns,
             complexity_metrics=complexity_metrics,
-            performance_baselines=performance_baselines
+            performance_baselines=performance_baselines,
         )
 
         # Store characteristics
@@ -317,11 +321,15 @@ class CrossDomainTransferLearning:
 
         return characteristics
 
-    def _analyze_feature_types(self, data: np.ndarray, feature_names: list[str]) -> list[str]:
+    def _analyze_feature_types(
+        self, data: np.ndarray, feature_names: list[str]
+    ) -> list[str]:
         """Analyze types of features in the data."""
         feature_types = []
 
-        for i, feature_name in enumerate(feature_names or [f"feature_{i}" for i in range(data.shape[1])]):
+        for i, feature_name in enumerate(
+            feature_names or [f"feature_{i}" for i in range(data.shape[1])]
+        ):
             if i < data.shape[1]:
                 feature_data = data[:, i]
 
@@ -390,15 +398,23 @@ class CrossDomainTransferLearning:
             if data.shape[1] > 1:
                 cov_matrix = np.cov(data.T)
                 eigenvalues = np.linalg.eigvals(cov_matrix)
-                eigenvalues = eigenvalues[eigenvalues > 1e-8]  # Remove near-zero eigenvalues
+                eigenvalues = eigenvalues[
+                    eigenvalues > 1e-8
+                ]  # Remove near-zero eigenvalues
 
                 # Effective rank
                 total_var = np.sum(eigenvalues)
                 normalized_eigenvals = eigenvalues / total_var
-                effective_rank = np.exp(-np.sum(normalized_eigenvals * np.log(normalized_eigenvals + 1e-8)))
+                effective_rank = np.exp(
+                    -np.sum(normalized_eigenvals * np.log(normalized_eigenvals + 1e-8))
+                )
 
                 metrics["intrinsic_dimensionality"] = effective_rank / data.shape[1]
-                metrics["condition_number"] = float(np.max(eigenvalues) / np.min(eigenvalues)) if len(eigenvalues) > 1 else 1.0
+                metrics["condition_number"] = (
+                    float(np.max(eigenvalues) / np.min(eigenvalues))
+                    if len(eigenvalues) > 1
+                    else 1.0
+                )
             else:
                 metrics["intrinsic_dimensionality"] = 1.0
                 metrics["condition_number"] = 1.0
@@ -427,14 +443,16 @@ class CrossDomainTransferLearning:
             logger.error(f"Error calculating complexity metrics: {e}")
             return {"intrinsic_dimensionality": 0.5, "condition_number": 1.0}
 
-    def _analyze_temporal_patterns(self, data: np.ndarray, dataset: Dataset) -> dict[str, Any]:
+    def _analyze_temporal_patterns(
+        self, data: np.ndarray, dataset: Dataset
+    ) -> dict[str, Any]:
         """Analyze temporal patterns in the data."""
         # Simplified temporal analysis
         patterns = {
             "has_temporal_structure": False,
             "seasonality": 0.0,
             "trend": 0.0,
-            "volatility": float(np.std(data))
+            "volatility": float(np.std(data)),
         }
 
         # Check if dataset has temporal information
@@ -464,7 +482,9 @@ class CrossDomainTransferLearning:
     def _extract_anomaly_patterns(self, data: np.ndarray) -> dict[str, Any]:
         """Extract anomaly patterns (simplified - normally requires labeled data)."""
         # Identify potential anomalies using statistical methods
-        z_scores = np.abs((data - np.mean(data, axis=0)) / (np.std(data, axis=0) + 1e-8))
+        z_scores = np.abs(
+            (data - np.mean(data, axis=0)) / (np.std(data, axis=0) + 1e-8)
+        )
         max_z_scores = np.max(z_scores, axis=1)
 
         # Consider points with high z-scores as potential anomalies
@@ -478,13 +498,13 @@ class CrossDomainTransferLearning:
                 "anomaly_characteristics": {
                     "mean": potential_anomalies.mean(axis=0).tolist(),
                     "std": potential_anomalies.std(axis=0).tolist(),
-                }
+                },
             }
         else:
             return {
                 "anomaly_count": 0,
                 "anomaly_ratio": 0.0,
-                "anomaly_characteristics": {}
+                "anomaly_characteristics": {},
             }
 
     def _calculate_feature_correlations(self, data: np.ndarray) -> list[list[float]]:
@@ -499,7 +519,9 @@ class CrossDomainTransferLearning:
             size = data.shape[1]
             return np.eye(size).tolist()
 
-    def _calculate_typical_ranges(self, data: np.ndarray) -> dict[str, tuple[float, float]]:
+    def _calculate_typical_ranges(
+        self, data: np.ndarray
+    ) -> dict[str, tuple[float, float]]:
         """Calculate typical ranges for each feature."""
         ranges = {}
         for i in range(data.shape[1]):
@@ -563,16 +585,20 @@ class CrossDomainTransferLearning:
                 )
 
                 # Store bidirectional similarities
-                self.domain_similarities[(new_domain, existing_domain)] = DomainSimilarity(
-                    source_domain=new_domain,
-                    target_domain=existing_domain,
-                    **similarity
+                self.domain_similarities[(new_domain, existing_domain)] = (
+                    DomainSimilarity(
+                        source_domain=new_domain,
+                        target_domain=existing_domain,
+                        **similarity,
+                    )
                 )
 
-                self.domain_similarities[(existing_domain, new_domain)] = DomainSimilarity(
-                    source_domain=existing_domain,
-                    target_domain=new_domain,
-                    **similarity
+                self.domain_similarities[(existing_domain, new_domain)] = (
+                    DomainSimilarity(
+                        source_domain=existing_domain,
+                        target_domain=new_domain,
+                        **similarity,
+                    )
                 )
 
     async def _calculate_domain_similarity(
@@ -599,10 +625,7 @@ class CrossDomainTransferLearning:
 
         # Overall similarity (weighted combination)
         overall_sim = (
-            0.3 * stat_sim +
-            0.25 * feature_sim +
-            0.2 * semantic_sim +
-            0.25 * task_sim
+            0.3 * stat_sim + 0.25 * feature_sim + 0.2 * semantic_sim + 0.25 * task_sim
         )
 
         return {
@@ -611,7 +634,7 @@ class CrossDomainTransferLearning:
             "semantic_similarity": semantic_sim,
             "task_similarity": task_sim,
             "overall_similarity": overall_sim,
-            "confidence": 0.8  # Adjust based on data quality and amount
+            "confidence": 0.8,  # Adjust based on data quality and amount
         }
 
     def _calculate_statistical_similarity(
@@ -705,7 +728,9 @@ class CrossDomainTransferLearning:
         # Check domain similarity
         similarity = self.domain_similarities.get((source_domain, target_domain))
         if not similarity or similarity.overall_similarity < self.similarity_threshold:
-            logger.warning(f"Low similarity ({similarity.overall_similarity if similarity else 0}) between domains")
+            logger.warning(
+                f"Low similarity ({similarity.overall_similarity if similarity else 0}) between domains"
+            )
 
         # Get or create domain adapter
         adapter_key = (source_domain, target_domain)
@@ -745,19 +770,21 @@ class CrossDomainTransferLearning:
             target_domain=target_domain,
             adaptation_parameters=report.get("adaptation_parameters", {}),
             performance_metrics=report.get("performance_metrics", {}),
-            transfer_success_rate=report.get("transfer_success_rate", 0.0)
+            transfer_success_rate=report.get("transfer_success_rate", 0.0),
         )
 
         self.transfer_knowledge.append(transfer_knowledge)
 
         # Update transfer history
-        self.transfer_success_history.append({
-            "source_domain": source_domain.value,
-            "target_domain": target_domain.value,
-            "strategy": transfer_strategy.value,
-            "success_rate": report.get("transfer_success_rate", 0.0),
-            "timestamp": datetime.now().isoformat()
-        })
+        self.transfer_success_history.append(
+            {
+                "source_domain": source_domain.value,
+                "target_domain": target_domain.value,
+                "strategy": transfer_strategy.value,
+                "success_rate": report.get("transfer_success_rate", 0.0),
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
         # Save knowledge base
         self._save_knowledge_base()
@@ -784,13 +811,13 @@ class CrossDomainTransferLearning:
                 "adaptation_parameters": {
                     "adaptation_strength": self.adaptation_strength,
                     "source_domain": adapter.source_domain.value,
-                    "target_domain": adapter.target_domain.value
+                    "target_domain": adapter.target_domain.value,
                 },
                 "performance_metrics": {
                     "adaptation_success": True,
-                    "feature_alignment_score": 0.8
+                    "feature_alignment_score": 0.8,
                 },
-                "transfer_success_rate": 0.75
+                "transfer_success_rate": 0.75,
             }
 
             return adapted_detector, report
@@ -820,13 +847,13 @@ class CrossDomainTransferLearning:
                 "adaptation_parameters": {
                     "learning_rate": 0.001,
                     "fine_tuning_epochs": 10,
-                    "frozen_layers": 0.5
+                    "frozen_layers": 0.5,
                 },
                 "performance_metrics": {
                     "convergence_achieved": True,
-                    "performance_improvement": 0.15
+                    "performance_improvement": 0.15,
                 },
-                "transfer_success_rate": 0.85
+                "transfer_success_rate": 0.85,
             }
 
             return adapted_detector, report
@@ -853,14 +880,14 @@ class CrossDomainTransferLearning:
                 "adaptation_parameters": {
                     "temperature": 3.0,
                     "alpha": 0.7,
-                    "student_complexity": "reduced"
+                    "student_complexity": "reduced",
                 },
                 "performance_metrics": {
                     "distillation_loss": 0.25,
                     "student_performance": 0.82,
-                    "teacher_performance": 0.88
+                    "teacher_performance": 0.88,
                 },
-                "transfer_success_rate": 0.80
+                "transfer_success_rate": 0.80,
             }
 
             return adapted_detector, report
@@ -887,14 +914,14 @@ class CrossDomainTransferLearning:
                 "adaptation_parameters": {
                     "inner_learning_rate": 0.01,
                     "outer_learning_rate": 0.001,
-                    "adaptation_steps": 5
+                    "adaptation_steps": 5,
                 },
                 "performance_metrics": {
                     "adaptation_speed": "fast",
                     "few_shot_performance": 0.78,
-                    "generalization_score": 0.85
+                    "generalization_score": 0.85,
                 },
-                "transfer_success_rate": 0.88
+                "transfer_success_rate": 0.88,
             }
 
             return adapted_detector, report
@@ -916,12 +943,10 @@ class CrossDomainTransferLearning:
                 "strategy": "simple_adaptation",
                 "adaptation_parameters": {
                     "retraining": True,
-                    "preserve_weights": False
+                    "preserve_weights": False,
                 },
-                "performance_metrics": {
-                    "training_success": True
-                },
-                "transfer_success_rate": 0.60
+                "performance_metrics": {"training_success": True},
+                "transfer_success_rate": 0.60,
             }
 
             return adapted_detector, report
@@ -936,7 +961,10 @@ class CrossDomainTransferLearning:
         best_similarity = 0.0
 
         for (source, target), similarity in self.domain_similarities.items():
-            if target == target_domain and similarity.overall_similarity > best_similarity:
+            if (
+                target == target_domain
+                and similarity.overall_similarity > best_similarity
+            ):
                 best_similarity = similarity.overall_similarity
                 best_domain = source
 
@@ -947,17 +975,17 @@ class CrossDomainTransferLearning:
         try:
             # Save domain characteristics
             chars_file = self.knowledge_base_path / "domain_characteristics.pkl"
-            with open(chars_file, 'wb') as f:
+            with open(chars_file, "wb") as f:
                 pickle.dump(self.domain_characteristics, f)
 
             # Save transfer knowledge
             transfer_file = self.knowledge_base_path / "transfer_knowledge.pkl"
-            with open(transfer_file, 'wb') as f:
+            with open(transfer_file, "wb") as f:
                 pickle.dump(self.transfer_knowledge, f)
 
             # Save domain similarities
             similarities_file = self.knowledge_base_path / "domain_similarities.pkl"
-            with open(similarities_file, 'wb') as f:
+            with open(similarities_file, "wb") as f:
                 pickle.dump(self.domain_similarities, f)
 
         except Exception as e:
@@ -969,19 +997,19 @@ class CrossDomainTransferLearning:
             # Load domain characteristics
             chars_file = self.knowledge_base_path / "domain_characteristics.pkl"
             if chars_file.exists():
-                with open(chars_file, 'rb') as f:
+                with open(chars_file, "rb") as f:
                     self.domain_characteristics = pickle.load(f)
 
             # Load transfer knowledge
             transfer_file = self.knowledge_base_path / "transfer_knowledge.pkl"
             if transfer_file.exists():
-                with open(transfer_file, 'rb') as f:
+                with open(transfer_file, "rb") as f:
                     self.transfer_knowledge = pickle.load(f)
 
             # Load domain similarities
             similarities_file = self.knowledge_base_path / "domain_similarities.pkl"
             if similarities_file.exists():
-                with open(similarities_file, 'rb') as f:
+                with open(similarities_file, "rb") as f:
                     self.domain_similarities = pickle.load(f)
 
         except Exception as e:
@@ -994,27 +1022,34 @@ class CrossDomainTransferLearning:
                 "domains_analyzed": len(self.domain_characteristics),
                 "transfer_attempts": len(self.transfer_success_history),
                 "domain_similarities_computed": len(self.domain_similarities),
-                "knowledge_base_size": len(self.transfer_knowledge)
+                "knowledge_base_size": len(self.transfer_knowledge),
             },
             "domain_coverage": {
                 domain.value: True for domain in self.domain_characteristics.keys()
             },
             "transfer_performance": {
-                "overall_success_rate": np.mean([
-                    t["success_rate"] for t in self.transfer_success_history
-                ]) if self.transfer_success_history else 0.0,
-                "successful_transfers": len([
-                    t for t in self.transfer_success_history
-                    if t["success_rate"] > self.similarity_threshold
-                ]),
-                "recent_performance": self.transfer_success_history[-10:] if self.transfer_success_history else []
+                "overall_success_rate": np.mean(
+                    [t["success_rate"] for t in self.transfer_success_history]
+                )
+                if self.transfer_success_history
+                else 0.0,
+                "successful_transfers": len(
+                    [
+                        t
+                        for t in self.transfer_success_history
+                        if t["success_rate"] > self.similarity_threshold
+                    ]
+                ),
+                "recent_performance": self.transfer_success_history[-10:]
+                if self.transfer_success_history
+                else [],
             },
             "domain_relationships": {
                 f"{sim.source_domain.value}->{sim.target_domain.value}": sim.overall_similarity
                 for sim in self.domain_similarities.values()
                 if sim.overall_similarity > self.similarity_threshold
             },
-            "recommendations": self._generate_transfer_recommendations()
+            "recommendations": self._generate_transfer_recommendations(),
         }
 
     def _generate_transfer_recommendations(self) -> list[str]:
@@ -1024,24 +1059,35 @@ class CrossDomainTransferLearning:
         # Check domain coverage
         analyzed_domains = len(self.domain_characteristics)
         if analyzed_domains < 3:
-            recommendations.append("Analyze more domains to improve transfer learning opportunities")
+            recommendations.append(
+                "Analyze more domains to improve transfer learning opportunities"
+            )
 
         # Check transfer success rate
         if self.transfer_success_history:
-            success_rate = np.mean([t["success_rate"] for t in self.transfer_success_history])
+            success_rate = np.mean(
+                [t["success_rate"] for t in self.transfer_success_history]
+            )
             if success_rate < 0.6:
-                recommendations.append("Consider improving domain adaptation techniques or data preprocessing")
+                recommendations.append(
+                    "Consider improving domain adaptation techniques or data preprocessing"
+                )
 
         # Check domain similarities
         high_similarity_pairs = [
-            sim for sim in self.domain_similarities.values()
+            sim
+            for sim in self.domain_similarities.values()
             if sim.overall_similarity > 0.8
         ]
 
         if len(high_similarity_pairs) > 5:
-            recommendations.append("High domain similarity detected - consider automated transfer learning")
+            recommendations.append(
+                "High domain similarity detected - consider automated transfer learning"
+            )
         elif len(high_similarity_pairs) == 0:
-            recommendations.append("Low domain similarities - focus on feature adaptation and meta-learning")
+            recommendations.append(
+                "Low domain similarities - focus on feature adaptation and meta-learning"
+            )
 
         if not recommendations:
             recommendations.append("Transfer learning system is performing well")

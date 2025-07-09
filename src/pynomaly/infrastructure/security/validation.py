@@ -5,7 +5,13 @@ import re
 import urllib.parse
 from typing import Any
 
-import bleach
+try:
+    import bleach
+
+    BLEACH_AVAILABLE = True
+except ImportError:
+    BLEACH_AVAILABLE = False
+    bleach = None
 from fastapi import HTTPException, status
 from pydantic import BaseModel, validator
 
@@ -21,13 +27,13 @@ class SecurityConfig:
     MAX_FILENAME_LENGTH = 255
 
     # Allowed HTML tags for rich text (very restrictive)
-    ALLOWED_HTML_TAGS = ['b', 'i', 'u', 'em', 'strong', 'p', 'br']
+    ALLOWED_HTML_TAGS = ["b", "i", "u", "em", "strong", "p", "br"]
     ALLOWED_HTML_ATTRS = {}
 
     # Regex patterns
-    USERNAME_PATTERN = re.compile(r'^[a-zA-Z0-9_.-]+$')
-    EMAIL_PATTERN = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-    FILENAME_PATTERN = re.compile(r'^[a-zA-Z0-9._-]+$')
+    USERNAME_PATTERN = re.compile(r"^[a-zA-Z0-9_.-]+$")
+    EMAIL_PATTERN = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+    FILENAME_PATTERN = re.compile(r"^[a-zA-Z0-9._-]+$")
 
     # Dangerous patterns to detect
     SQL_INJECTION_PATTERNS = [
@@ -57,6 +63,7 @@ class SecurityConfig:
 
 class ValidationError(Exception):
     """Custom validation error."""
+
     pass
 
 
@@ -81,10 +88,10 @@ class InputSanitizer:
             raise ValidationError("Input must be a string")
 
         # Remove null bytes
-        value = value.replace('\x00', '')
+        value = value.replace("\x00", "")
 
         # Normalize whitespace
-        value = ' '.join(value.split())
+        value = " ".join(value.split())
 
         # HTML escape
         value = html.escape(value)
@@ -112,17 +119,23 @@ class InputSanitizer:
 
         tags = allowed_tags or SecurityConfig.ALLOWED_HTML_TAGS
 
-        # Use bleach to sanitize HTML
-        sanitized = bleach.clean(
-            value,
-            tags=tags,
-            attributes=SecurityConfig.ALLOWED_HTML_ATTRS,
-            strip=True
-        )
+        # Use bleach to sanitize HTML if available
+        if BLEACH_AVAILABLE:
+            sanitized = bleach.clean(
+                value,
+                tags=tags,
+                attributes=SecurityConfig.ALLOWED_HTML_ATTRS,
+                strip=True,
+            )
+        else:
+            # Fallback to basic HTML escape
+            sanitized = html.escape(value)
 
         # Check length after sanitization
         if len(sanitized) > SecurityConfig.MAX_TEXT_LENGTH:
-            raise ValidationError(f"Text too long (max {SecurityConfig.MAX_TEXT_LENGTH} characters)")
+            raise ValidationError(
+                f"Text too long (max {SecurityConfig.MAX_TEXT_LENGTH} characters)"
+            )
 
         return sanitized
 
@@ -143,19 +156,21 @@ class InputSanitizer:
             raise ValidationError("Filename must be a string")
 
         # Remove path components
-        filename = filename.split('/')[-1]
-        filename = filename.split('\\')[-1]
+        filename = filename.split("/")[-1]
+        filename = filename.split("\\")[-1]
 
         # Remove dangerous characters
-        filename = re.sub(r'[^a-zA-Z0-9._-]', '_', filename)
+        filename = re.sub(r"[^a-zA-Z0-9._-]", "_", filename)
 
         # Ensure it's not empty or just dots
-        if not filename or filename.strip('.') == '':
+        if not filename or filename.strip(".") == "":
             raise ValidationError("Invalid filename")
 
         # Check length
         if len(filename) > SecurityConfig.MAX_FILENAME_LENGTH:
-            raise ValidationError(f"Filename too long (max {SecurityConfig.MAX_FILENAME_LENGTH} characters)")
+            raise ValidationError(
+                f"Filename too long (max {SecurityConfig.MAX_FILENAME_LENGTH} characters)"
+            )
 
         return filename
 
@@ -182,7 +197,7 @@ class InputSanitizer:
             raise ValidationError("Invalid URL format")
 
         # Check scheme
-        if parsed.scheme not in ['http', 'https']:
+        if parsed.scheme not in ["http", "https"]:
             raise ValidationError("Only HTTP and HTTPS URLs are allowed")
 
         # Reconstruct URL to normalize it
@@ -258,7 +273,7 @@ class ThreatDetector:
         Returns:
             True if potential command injection detected
         """
-        dangerous_chars = ['|', '&', ';', '$', '`', '>', '<', '\n', '\r']
+        dangerous_chars = ["|", "&", ";", "$", "`", ">", "<", "\n", "\r"]
 
         return any(char in value for char in dangerous_chars)
 
@@ -276,11 +291,13 @@ class InputValidator:
         self.sanitizer = InputSanitizer()
         self.threat_detector = ThreatDetector()
 
-    def validate_and_sanitize(self,
-                             value: Any,
-                             field_type: str,
-                             allow_html: bool = False,
-                             max_length: int | None = None) -> Any:
+    def validate_and_sanitize(
+        self,
+        value: Any,
+        field_type: str,
+        allow_html: bool = False,
+        max_length: int | None = None,
+    ) -> Any:
         """Validate and sanitize input value.
 
         Args:
@@ -300,38 +317,40 @@ class InputValidator:
             return None
 
         if not isinstance(value, str):
-            if field_type in ['string', 'text', 'email', 'username', 'filename', 'url']:
-                raise ValidationError(f"Expected string for {field_type}, got {type(value)}")
+            if field_type in ["string", "text", "email", "username", "filename", "url"]:
+                raise ValidationError(
+                    f"Expected string for {field_type}, got {type(value)}"
+                )
             return value
 
         # Threat detection
         threats = []
         if self.threat_detector.detect_sql_injection(value):
-            threats.append('SQL injection')
+            threats.append("SQL injection")
         if self.threat_detector.detect_xss(value):
-            threats.append('XSS')
+            threats.append("XSS")
         if self.threat_detector.detect_path_traversal(value):
-            threats.append('Path traversal')
+            threats.append("Path traversal")
         if self.threat_detector.detect_command_injection(value):
-            threats.append('Command injection')
+            threats.append("Command injection")
 
         if threats and self.strict_mode:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Security threat detected: {', '.join(threats)}"
+                detail=f"Security threat detected: {', '.join(threats)}",
             )
 
         # Field-specific validation and sanitization
         try:
-            if field_type == 'email':
+            if field_type == "email":
                 return self._validate_email(value)
-            elif field_type == 'username':
+            elif field_type == "username":
                 return self._validate_username(value)
-            elif field_type == 'filename':
+            elif field_type == "filename":
                 return self.sanitizer.sanitize_filename(value)
-            elif field_type == 'url':
+            elif field_type == "url":
                 return self.sanitizer.sanitize_url(value)
-            elif field_type == 'text' and allow_html:
+            elif field_type == "text" and allow_html:
                 return self.sanitizer.sanitize_html(value)
             else:
                 return self.sanitizer.sanitize_string(value, max_length)
@@ -339,8 +358,7 @@ class InputValidator:
         except ValidationError as e:
             if self.strict_mode:
                 raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=str(e)
+                    status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
                 )
             raise
 
@@ -359,7 +377,9 @@ class InputValidator:
         email = email.strip().lower()
 
         if len(email) > SecurityConfig.MAX_EMAIL_LENGTH:
-            raise ValidationError(f"Email too long (max {SecurityConfig.MAX_EMAIL_LENGTH} characters)")
+            raise ValidationError(
+                f"Email too long (max {SecurityConfig.MAX_EMAIL_LENGTH} characters)"
+            )
 
         if not SecurityConfig.EMAIL_PATTERN.match(email):
             raise ValidationError("Invalid email format")
@@ -381,13 +401,17 @@ class InputValidator:
         username = username.strip()
 
         if len(username) > SecurityConfig.MAX_USERNAME_LENGTH:
-            raise ValidationError(f"Username too long (max {SecurityConfig.MAX_USERNAME_LENGTH} characters)")
+            raise ValidationError(
+                f"Username too long (max {SecurityConfig.MAX_USERNAME_LENGTH} characters)"
+            )
 
         if len(username) < 3:
             raise ValidationError("Username must be at least 3 characters")
 
         if not SecurityConfig.USERNAME_PATTERN.match(username):
-            raise ValidationError("Username can only contain letters, numbers, dots, hyphens, and underscores")
+            raise ValidationError(
+                "Username can only contain letters, numbers, dots, hyphens, and underscores"
+            )
 
         return username
 
@@ -397,6 +421,7 @@ class SecureBaseModel(BaseModel):
 
     class Config:
         """Pydantic configuration."""
+
         validate_assignment = True
         str_strip_whitespace = True
 
@@ -410,26 +435,27 @@ class SecureBaseModel(BaseModel):
                 field_info = self.__fields__.get(field_name)
                 if field_info:
                     # Determine field type from field info
-                    field_type = 'string'
-                    if 'email' in field_name.lower():
-                        field_type = 'email'
-                    elif 'username' in field_name.lower():
-                        field_type = 'username'
-                    elif 'filename' in field_name.lower() or 'file_name' in field_name.lower():
-                        field_type = 'filename'
-                    elif 'url' in field_name.lower():
-                        field_type = 'url'
+                    field_type = "string"
+                    if "email" in field_name.lower():
+                        field_type = "email"
+                    elif "username" in field_name.lower():
+                        field_type = "username"
+                    elif (
+                        "filename" in field_name.lower()
+                        or "file_name" in field_name.lower()
+                    ):
+                        field_type = "filename"
+                    elif "url" in field_name.lower():
+                        field_type = "url"
 
                     # Get max length from field constraints
                     max_length = None
-                    if hasattr(field_info, 'constraints'):
-                        max_length = getattr(field_info.constraints, 'max_length', None)
+                    if hasattr(field_info, "constraints"):
+                        max_length = getattr(field_info.constraints, "max_length", None)
 
                     # Validate and sanitize
                     data[field_name] = validator.validate_and_sanitize(
-                        field_value,
-                        field_type,
-                        max_length=max_length
+                        field_value, field_type, max_length=max_length
                     )
 
         super().__init__(**data)
@@ -439,7 +465,7 @@ class SecureBaseModel(BaseModel):
 validator = InputValidator(strict_mode=True)
 
 
-def validate_input(value: Any, field_type: str = 'string', **kwargs) -> Any:
+def validate_input(value: Any, field_type: str = "string", **kwargs) -> Any:
     """Convenience function for input validation.
 
     Args:

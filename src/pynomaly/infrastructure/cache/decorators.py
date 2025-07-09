@@ -6,56 +6,49 @@ import asyncio
 import functools
 import hashlib
 import inspect
-import json
-import time
-from typing import Any, Callable, Dict, Optional, TypeVar, Union, List, Tuple
-from dataclasses import dataclass
 import logging
+from collections.abc import Callable
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from typing import Any, TypeVar
 
-from pynomaly.shared.error_handling import (
-    PynamolyError,
-    InfrastructureError,
-    ErrorCodes,
-    create_infrastructure_error,
-)
-from .intelligent_cache import IntelligentCacheManager, CacheStrategy
-from .redis_cache import RedisCache
+from .intelligent_cache import CacheStrategy, IntelligentCacheManager
 
 logger = logging.getLogger(__name__)
 
-F = TypeVar('F', bound=Callable[..., Any])
+F = TypeVar("F", bound=Callable[..., Any])
 
 
 @dataclass
 class CacheConfig:
     """Configuration for cache decorators."""
-    ttl: Optional[int] = None
+
+    ttl: int | None = None
     key_prefix: str = ""
     strategy: CacheStrategy = CacheStrategy.WRITE_THROUGH
-    ignore_args: List[str] = None
-    ignore_kwargs: List[str] = None
+    ignore_args: list[str] = None
+    ignore_kwargs: list[str] = None
     serialize_complex_args: bool = True
     cache_none_values: bool = False
     error_fallback: bool = True
-    conditional_cache: Optional[Callable] = None
+    conditional_cache: Callable | None = None
 
 
 class CacheKeyGenerator:
     """Generates cache keys for functions and methods."""
-    
+
     @staticmethod
     def generate_key(
         func: Callable,
-        args: Tuple,
-        kwargs: Dict[str, Any],
+        args: tuple,
+        kwargs: dict[str, Any],
         prefix: str = "",
-        ignore_args: List[str] = None,
-        ignore_kwargs: List[str] = None,
+        ignore_args: list[str] = None,
+        ignore_kwargs: list[str] = None,
         serialize_complex_args: bool = True,
     ) -> str:
         """Generate cache key for function call.
-        
+
         Args:
             func: Function being cached
             args: Positional arguments
@@ -64,7 +57,7 @@ class CacheKeyGenerator:
             ignore_args: Arguments to ignore in key generation
             ignore_kwargs: Keyword arguments to ignore
             serialize_complex_args: Whether to serialize complex arguments
-            
+
         Returns:
             Cache key string
         """
@@ -72,37 +65,37 @@ class CacheKeyGenerator:
         sig = inspect.signature(func)
         bound_args = sig.bind(*args, **kwargs)
         bound_args.apply_defaults()
-        
+
         # Build key components
         key_parts = [
             prefix if prefix else "",
             f"{func.__module__}.{func.__qualname__}",
         ]
-        
+
         # Process arguments
         ignore_args = ignore_args or []
         ignore_kwargs = ignore_kwargs or []
-        
+
         # Add positional arguments
         for i, (param_name, value) in enumerate(bound_args.arguments.items()):
             if param_name in ignore_args or param_name in ignore_kwargs:
                 continue
-                
+
             serialized_value = CacheKeyGenerator._serialize_value(
                 value, serialize_complex_args
             )
             key_parts.append(f"{param_name}={serialized_value}")
-        
+
         # Create final key
         key = ":".join(key_parts)
-        
+
         # Hash if too long
         if len(key) > 200:
             key_hash = hashlib.md5(key.encode()).hexdigest()
             return f"{prefix}:hashed:{key_hash}"
-        
+
         return key
-    
+
     @staticmethod
     def _serialize_value(value: Any, serialize_complex: bool) -> str:
         """Serialize value for key generation."""
@@ -121,7 +114,7 @@ class CacheKeyGenerator:
                 return f"{{{','.join(f'{k}:{CacheKeyGenerator._serialize_value(v, serialize_complex)}' for k, v in sorted_items)}}}"
             else:
                 return f"dict_len_{len(value)}"
-        elif hasattr(value, '__dict__'):
+        elif hasattr(value, "__dict__"):
             # Object with attributes
             if serialize_complex:
                 return f"obj_{value.__class__.__name__}_{id(value)}"
@@ -134,14 +127,14 @@ class CacheKeyGenerator:
 
 class CacheDecorator:
     """Base class for cache decorators."""
-    
+
     def __init__(
         self,
         cache_manager: IntelligentCacheManager,
         config: CacheConfig,
     ):
         """Initialize cache decorator.
-        
+
         Args:
             cache_manager: Cache manager instance
             config: Cache configuration
@@ -149,24 +142,24 @@ class CacheDecorator:
         self.cache_manager = cache_manager
         self.config = config
         self.key_generator = CacheKeyGenerator()
-    
+
     def should_cache(self, result: Any) -> bool:
         """Check if result should be cached."""
         # Don't cache None values unless explicitly configured
         if result is None and not self.config.cache_none_values:
             return False
-        
+
         # Check conditional cache function
         if self.config.conditional_cache:
             return self.config.conditional_cache(result)
-        
+
         return True
-    
+
     def generate_cache_key(
         self,
         func: Callable,
-        args: Tuple,
-        kwargs: Dict[str, Any],
+        args: tuple,
+        kwargs: dict[str, Any],
     ) -> str:
         """Generate cache key for function call."""
         return self.key_generator.generate_key(
@@ -182,14 +175,15 @@ class CacheDecorator:
 
 class AsyncCacheDecorator(CacheDecorator):
     """Async function cache decorator."""
-    
+
     def __call__(self, func: Callable) -> Callable:
         """Decorate async function with caching."""
+
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
             # Generate cache key
             cache_key = self.generate_cache_key(func, args, kwargs)
-            
+
             # Try to get from cache
             try:
                 cached_result = await self.cache_manager.get(cache_key)
@@ -200,11 +194,11 @@ class AsyncCacheDecorator(CacheDecorator):
                 if not self.config.error_fallback:
                     raise
                 logger.warning(f"Cache get failed for key {cache_key}: {e}")
-            
+
             # Execute function
             try:
                 result = await func(*args, **kwargs)
-                
+
                 # Cache result if appropriate
                 if self.should_cache(result):
                     try:
@@ -218,26 +212,27 @@ class AsyncCacheDecorator(CacheDecorator):
                         if not self.config.error_fallback:
                             raise
                         logger.warning(f"Cache set failed for key {cache_key}: {e}")
-                
+
                 return result
-                
+
             except Exception as e:
                 logger.error(f"Function execution failed: {e}")
                 raise
-        
+
         return wrapper
 
 
 class SyncCacheDecorator(CacheDecorator):
     """Sync function cache decorator."""
-    
+
     def __call__(self, func: Callable) -> Callable:
         """Decorate sync function with caching."""
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             # Generate cache key
             cache_key = self.generate_cache_key(func, args, kwargs)
-            
+
             # Try to get from cache (sync version)
             try:
                 cached_result = self.cache_manager.redis_cache.get(cache_key)
@@ -248,11 +243,11 @@ class SyncCacheDecorator(CacheDecorator):
                 if not self.config.error_fallback:
                     raise
                 logger.warning(f"Cache get failed for key {cache_key}: {e}")
-            
+
             # Execute function
             try:
                 result = func(*args, **kwargs)
-                
+
                 # Cache result if appropriate
                 if self.should_cache(result):
                     try:
@@ -265,47 +260,47 @@ class SyncCacheDecorator(CacheDecorator):
                         if not self.config.error_fallback:
                             raise
                         logger.warning(f"Cache set failed for key {cache_key}: {e}")
-                
+
                 return result
-                
+
             except Exception as e:
                 logger.error(f"Function execution failed: {e}")
                 raise
-        
+
         return wrapper
 
 
 class CacheInvalidator:
     """Handles cache invalidation for cached functions."""
-    
+
     def __init__(self, cache_manager: IntelligentCacheManager):
         """Initialize cache invalidator.
-        
+
         Args:
             cache_manager: Cache manager instance
         """
         self.cache_manager = cache_manager
-    
+
     async def invalidate_function(
         self,
         func: Callable,
-        args: Tuple = (),
-        kwargs: Dict[str, Any] = None,
+        args: tuple = (),
+        kwargs: dict[str, Any] = None,
         prefix: str = "",
     ) -> bool:
         """Invalidate cache for specific function call.
-        
+
         Args:
             func: Function to invalidate
             args: Function arguments
             kwargs: Function keyword arguments
             prefix: Cache key prefix
-            
+
         Returns:
             Success status
         """
         kwargs = kwargs or {}
-        
+
         # Generate cache key
         key_generator = CacheKeyGenerator()
         cache_key = key_generator.generate_key(
@@ -314,26 +309,26 @@ class CacheInvalidator:
             kwargs=kwargs,
             prefix=prefix,
         )
-        
+
         return await self.cache_manager.delete(cache_key)
-    
+
     async def invalidate_pattern(self, pattern: str) -> int:
         """Invalidate all cache entries matching pattern.
-        
+
         Args:
             pattern: Cache key pattern
-            
+
         Returns:
             Number of keys invalidated
         """
         return await self.cache_manager.delete_pattern(pattern)
-    
+
     async def invalidate_prefix(self, prefix: str) -> int:
         """Invalidate all cache entries with prefix.
-        
+
         Args:
             prefix: Cache key prefix
-            
+
         Returns:
             Number of keys invalidated
         """
@@ -342,8 +337,8 @@ class CacheInvalidator:
 
 
 # Global cache manager and invalidator
-_cache_manager: Optional[IntelligentCacheManager] = None
-_cache_invalidator: Optional[CacheInvalidator] = None
+_cache_manager: IntelligentCacheManager | None = None
+_cache_invalidator: CacheInvalidator | None = None
 
 
 def set_cache_manager(manager: IntelligentCacheManager) -> None:
@@ -353,30 +348,30 @@ def set_cache_manager(manager: IntelligentCacheManager) -> None:
     _cache_invalidator = CacheInvalidator(manager)
 
 
-def get_cache_manager() -> Optional[IntelligentCacheManager]:
+def get_cache_manager() -> IntelligentCacheManager | None:
     """Get global cache manager."""
     return _cache_manager
 
 
-def get_cache_invalidator() -> Optional[CacheInvalidator]:
+def get_cache_invalidator() -> CacheInvalidator | None:
     """Get global cache invalidator."""
     return _cache_invalidator
 
 
 # Decorator factory functions
 def cached(
-    ttl: Optional[int] = None,
+    ttl: int | None = None,
     key_prefix: str = "",
     strategy: CacheStrategy = CacheStrategy.WRITE_THROUGH,
-    ignore_args: List[str] = None,
-    ignore_kwargs: List[str] = None,
+    ignore_args: list[str] = None,
+    ignore_kwargs: list[str] = None,
     serialize_complex_args: bool = True,
     cache_none_values: bool = False,
     error_fallback: bool = True,
-    conditional_cache: Optional[Callable] = None,
+    conditional_cache: Callable | None = None,
 ) -> Callable[[F], F]:
     """Decorator for caching function results.
-    
+
     Args:
         ttl: Cache TTL in seconds
         key_prefix: Cache key prefix
@@ -387,15 +382,16 @@ def cached(
         cache_none_values: Whether to cache None values
         error_fallback: Whether to continue on cache errors
         conditional_cache: Function to determine if result should be cached
-        
+
     Returns:
         Decorator function
     """
+
     def decorator(func: F) -> F:
         if _cache_manager is None:
             logger.warning("No cache manager configured, caching disabled")
             return func
-        
+
         config = CacheConfig(
             ttl=ttl,
             key_prefix=key_prefix,
@@ -407,13 +403,13 @@ def cached(
             error_fallback=error_fallback,
             conditional_cache=conditional_cache,
         )
-        
+
         # Choose decorator based on function type
         if asyncio.iscoroutinefunction(func):
             return AsyncCacheDecorator(_cache_manager, config)(func)
         else:
             return SyncCacheDecorator(_cache_manager, config)(func)
-    
+
     return decorator
 
 
@@ -422,11 +418,11 @@ def cache_result(
     key_prefix: str = "",
 ) -> Callable[[F], F]:
     """Simple decorator for caching function results.
-    
+
     Args:
         ttl: Cache TTL in seconds (default 1 hour)
         key_prefix: Cache key prefix
-        
+
     Returns:
         Decorator function
     """
@@ -442,11 +438,11 @@ def cache_expensive(
     key_prefix: str = "expensive",
 ) -> Callable[[F], F]:
     """Decorator for caching expensive computations.
-    
+
     Args:
         ttl: Cache TTL in seconds (default 2 hours)
         key_prefix: Cache key prefix
-        
+
     Returns:
         Decorator function
     """
@@ -464,11 +460,11 @@ def cache_model_prediction(
     key_prefix: str = "prediction",
 ) -> Callable[[F], F]:
     """Decorator for caching model predictions.
-    
+
     Args:
         ttl: Cache TTL in seconds (default 30 minutes)
         key_prefix: Cache key prefix
-        
+
     Returns:
         Decorator function
     """
@@ -486,11 +482,11 @@ def cache_database_query(
     key_prefix: str = "db_query",
 ) -> Callable[[F], F]:
     """Decorator for caching database queries.
-    
+
     Args:
         ttl: Cache TTL in seconds (default 15 minutes)
         key_prefix: Cache key prefix
-        
+
     Returns:
         Decorator function
     """
@@ -508,10 +504,10 @@ def cache_database_query(
 async def cache_context(
     cache_manager: IntelligentCacheManager,
     auto_invalidate: bool = True,
-    invalidation_patterns: List[str] = None,
+    invalidation_patterns: list[str] = None,
 ):
     """Context manager for cache operations.
-    
+
     Args:
         cache_manager: Cache manager instance
         auto_invalidate: Whether to auto-invalidate on exit
@@ -519,7 +515,7 @@ async def cache_context(
     """
     # Set global cache manager
     set_cache_manager(cache_manager)
-    
+
     try:
         yield cache_manager
     finally:
@@ -534,18 +530,18 @@ async def cache_context(
 # Utility functions
 async def invalidate_cache(
     func: Callable,
-    args: Tuple = (),
-    kwargs: Dict[str, Any] = None,
+    args: tuple = (),
+    kwargs: dict[str, Any] = None,
     prefix: str = "",
 ) -> bool:
     """Invalidate cache for specific function call.
-    
+
     Args:
         func: Function to invalidate
         args: Function arguments
         kwargs: Function keyword arguments
         prefix: Cache key prefix
-        
+
     Returns:
         Success status
     """
@@ -557,10 +553,10 @@ async def invalidate_cache(
 
 async def invalidate_cache_pattern(pattern: str) -> int:
     """Invalidate all cache entries matching pattern.
-    
+
     Args:
         pattern: Cache key pattern
-        
+
     Returns:
         Number of keys invalidated
     """
@@ -570,12 +566,12 @@ async def invalidate_cache_pattern(pattern: str) -> int:
     return 0
 
 
-async def warm_cache(keys_and_loaders: List[Tuple[str, Callable]]) -> int:
+async def warm_cache(keys_and_loaders: list[tuple[str, Callable]]) -> int:
     """Warm cache with preloaded data.
-    
+
     Args:
         keys_and_loaders: List of (key, loader_function) tuples
-        
+
     Returns:
         Number of keys warmed
     """
@@ -585,9 +581,9 @@ async def warm_cache(keys_and_loaders: List[Tuple[str, Callable]]) -> int:
     return 0
 
 
-async def get_cache_stats() -> Dict[str, Any]:
+async def get_cache_stats() -> dict[str, Any]:
     """Get cache statistics.
-    
+
     Returns:
         Cache statistics
     """

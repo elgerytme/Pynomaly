@@ -25,5 +25,5 @@ __all__ = [
     "ImputationMethod",
     "ScalingMethod",
     "EncodingMethod",
-    "create_advanced_preprocessor"
+    "create_advanced_preprocessor",
 ]

@@ -1,99 +1,87 @@
 """Comprehensive error handling system for Pynomaly."""
 
-from .unified_exceptions import (
-    # Base exceptions
-    PynamolyError,
-    DomainError,
-    ValidationError,
-    InfrastructureError,
-    ExternalServiceError,
-    AuthenticationError,
-    AuthorizationError,
-    ConfigurationError,
-    PerformanceError,
-    TimeoutError,
-    ResourceExhaustionError,
-    NetworkError,
-    DataIntegrityError,
-    
-    # Enums
-    ErrorSeverity,
-    ErrorCategory,
-    
-    # Data classes
-    ErrorContext,
-    ErrorDetails,
-    
-    # Error codes
-    ErrorCodes,
-    
-    # Factory functions
-    create_validation_error,
-    create_business_error,
-    create_infrastructure_error,
-    create_external_service_error,
-    create_timeout_error,
+from .cli_errors import (  # CLI Error Handling
+    create_user_friendly_message,
+    format_cli_error,
+    handle_cli_errors,
+    print_info,
+    print_success,
+    print_warning,
+    safe_import,
+    validate_algorithm_name,
+    validate_contamination_rate,
+    validate_data_format,
+    validate_data_shape,
+    validate_dataset_name,
+    validate_file_exists,
+    validate_output_path,
+    validate_positive_integer,
 )
-
-from .resilience import (
-    # Circuit breaker
-    CircuitBreaker,
-    CircuitBreakerConfig,
-    CircuitBreakerState,
-    
-    # Retry
-    RetryHandler,
-    RetryConfig,
-    
-    # Bulkhead
-    Bulkhead,
-    BulkheadConfig,
-    
-    # Manager
-    ResilienceManager,
-    get_resilience_manager,
-    
-    # Decorators
-    circuit_breaker,
-    retry,
-    bulkhead,
-)
-
-from .monitoring import (
-    # Monitoring
-    ErrorMonitor,
-    ErrorMetrics,
+from .monitoring import (  # Monitoring; Functions
     Alert,
     AlertLevel,
     AlertRule,
-    
-    # Functions
+    ErrorMetrics,
+    ErrorMonitor,
     get_error_monitor,
-    track_error,
     start_error_monitoring,
     stop_error_monitoring,
+    track_error,
 )
-
-from .recovery import (
-    # Recovery
-    RecoveryManager,
-    RecoveryHandler,
-    RecoveryConfig,
-    RecoveryStrategy,
-    RecoveryStatus,
-    RecoveryAttempt,
-    
-    # Handlers
+from .recovery import (  # Handlers; Recovery; Functions
     CacheRecoveryHandler,
-    FallbackRecoveryHandler,
-    DegradeRecoveryHandler,
     DefaultRecoveryHandler,
-    
-    # Functions
-    get_recovery_manager,
+    DegradeRecoveryHandler,
+    FallbackRecoveryHandler,
+    RecoveryAttempt,
+    RecoveryConfig,
+    RecoveryHandler,
+    RecoveryManager,
+    RecoveryStatus,
+    RecoveryStrategy,
     attempt_recovery,
+    get_recovery_manager,
     recovery_context,
     recovery_decorator,
+)
+from .resilience import (  # Bulkhead; Circuit breaker; Manager; Retry; Decorators
+    Bulkhead,
+    BulkheadConfig,
+    CircuitBreaker,
+    CircuitBreakerConfig,
+    CircuitBreakerState,
+    ResilienceManager,
+    RetryConfig,
+    RetryHandler,
+    bulkhead,
+    circuit_breaker,
+    get_resilience_manager,
+    retry,
+)
+from .unified_exceptions import (  # Error codes; Data classes; Enums; Base exceptions; Factory functions
+    AuthenticationError,
+    AuthorizationError,
+    ConfigurationError,
+    DataIntegrityError,
+    DomainError,
+    ErrorCategory,
+    ErrorCodes,
+    ErrorContext,
+    ErrorDetails,
+    ErrorSeverity,
+    ExternalServiceError,
+    InfrastructureError,
+    NetworkError,
+    PerformanceError,
+    PynamolyError,
+    ResourceExhaustionError,
+    TimeoutError,
+    ValidationError,
+    create_business_error,
+    create_external_service_error,
+    create_infrastructure_error,
+    create_timeout_error,
+    create_validation_error,
 )
 
 __all__ = [
@@ -121,7 +109,6 @@ __all__ = [
     "create_infrastructure_error",
     "create_external_service_error",
     "create_timeout_error",
-    
     # Resilience
     "CircuitBreaker",
     "CircuitBreakerConfig",
@@ -135,7 +122,6 @@ __all__ = [
     "circuit_breaker",
     "retry",
     "bulkhead",
-    
     # Monitoring
     "ErrorMonitor",
     "ErrorMetrics",
@@ -146,7 +132,6 @@ __all__ = [
     "track_error",
     "start_error_monitoring",
     "stop_error_monitoring",
-    
     # Recovery
     "RecoveryManager",
     "RecoveryHandler",
@@ -162,4 +147,20 @@ __all__ = [
     "attempt_recovery",
     "recovery_context",
     "recovery_decorator",
+    # CLI Error Handling
+    "handle_cli_errors",
+    "validate_algorithm_name",
+    "validate_contamination_rate",
+    "validate_data_format",
+    "validate_data_shape",
+    "validate_dataset_name",
+    "validate_file_exists",
+    "validate_output_path",
+    "validate_positive_integer",
+    "format_cli_error",
+    "print_success",
+    "print_warning",
+    "print_info",
+    "safe_import",
+    "create_user_friendly_message",
 ]

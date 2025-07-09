@@ -127,10 +127,7 @@ class FederatedCoordinator:
             self.logger.error(f"Failed to register participant: {e}")
             return False
 
-    async def start_training_round(
-        self,
-        federation_id: UUID
-    ) -> FederatedRound | None:
+    async def start_training_round(self, federation_id: UUID) -> FederatedRound | None:
         """Start new federated training round."""
 
         if federation_id not in self.federations:
@@ -251,10 +248,9 @@ class FederatedCoordinator:
 
             # Auto-start next round if not converged
             if (
-                convergence_metric is None or
-                convergence_metric > federation.convergence_threshold
+                convergence_metric is None
+                or convergence_metric > federation.convergence_threshold
             ) and len(federation.training_rounds) < federation.max_rounds:
-
                 # Wait a bit before starting next round
                 await asyncio.sleep(5)
                 await self.start_training_round(federation.federation_id)
@@ -280,16 +276,14 @@ class FederatedCoordinator:
 
         # Filter weights for participants with updates
         filtered_weights = {
-            pid: weight for pid, weight in participant_weights.items()
-            if pid in updates
+            pid: weight for pid, weight in participant_weights.items() if pid in updates
         }
 
         # Normalize weights
         total_weight = sum(filtered_weights.values())
         if total_weight > 0:
             filtered_weights = {
-                pid: weight / total_weight
-                for pid, weight in filtered_weights.items()
+                pid: weight / total_weight for pid, weight in filtered_weights.items()
             }
 
         return await aggregation_func(updates, filtered_weights)
@@ -518,8 +512,8 @@ class FederatedCoordinator:
 
             # Check round number
             if (
-                federation.current_round and
-                model_update.round_number != federation.current_round.round_number
+                federation.current_round
+                and model_update.round_number != federation.current_round.round_number
             ):
                 self.logger.warning("Update for wrong round number")
                 return False
@@ -591,12 +585,11 @@ class FederatedCoordinator:
         # Check if round is still active
         federation = self.federations.get(federation_id)
         if (
-            federation and
-            federation.current_round and
-            federation.current_round.round_id == training_round.round_id and
-            not federation.current_round.is_completed
+            federation
+            and federation.current_round
+            and federation.current_round.round_id == training_round.round_id
+            and not federation.current_round.is_completed
         ):
-
             self.logger.warning(
                 f"Training round {training_round.round_number} timed out "
                 f"for federation {federation_id}"
@@ -613,8 +606,9 @@ class FederatedCoordinator:
         """Check if training round has sufficient participation."""
 
         return (
-            training_round.participation_rate >= 0.7 or  # 70% participation
-            len(training_round.received_updates) >= training_round.federation.min_participants
+            training_round.participation_rate >= 0.7  # 70% participation
+            or len(training_round.received_updates)
+            >= training_round.federation.min_participants
         )
 
     async def _update_participant_trust_scores(
@@ -630,20 +624,24 @@ class FederatedCoordinator:
                 participant.trust_score = min(1.0, participant.trust_score + 0.01)
 
                 # Update contribution history
-                participant.contribution_history.append({
-                    "round_number": completed_round.round_number,
-                    "contributed": True,
-                    "timestamp": datetime.utcnow(),
-                })
+                participant.contribution_history.append(
+                    {
+                        "round_number": completed_round.round_number,
+                        "contributed": True,
+                        "timestamp": datetime.utcnow(),
+                    }
+                )
             else:
                 # Decrease trust for participants who didn't contribute
                 participant.trust_score = max(0.0, participant.trust_score - 0.05)
 
-                participant.contribution_history.append({
-                    "round_number": completed_round.round_number,
-                    "contributed": False,
-                    "timestamp": datetime.utcnow(),
-                })
+                participant.contribution_history.append(
+                    {
+                        "round_number": completed_round.round_number,
+                        "contributed": False,
+                        "timestamp": datetime.utcnow(),
+                    }
+                )
 
     async def get_federation_status(self, federation_id: UUID) -> dict[str, Any]:
         """Get comprehensive federation status."""
@@ -666,17 +664,23 @@ class FederatedCoordinator:
             "total_rounds": len(federation.training_rounds),
             "current_round": None,
             "convergence_metric": federation.calculate_convergence_metric(),
-            "last_training": federation.last_training.isoformat() if federation.last_training else None,
+            "last_training": federation.last_training.isoformat()
+            if federation.last_training
+            else None,
         }
 
         if federation.current_round:
             status["current_round"] = {
                 "round_number": federation.current_round.round_number,
                 "started_at": federation.current_round.started_at.isoformat(),
-                "deadline": federation.current_round.deadline.isoformat() if federation.current_round.deadline else None,
+                "deadline": federation.current_round.deadline.isoformat()
+                if federation.current_round.deadline
+                else None,
                 "participation_rate": federation.current_round.participation_rate,
                 "received_updates": len(federation.current_round.received_updates),
-                "target_participants": len(federation.current_round.target_participants),
+                "target_participants": len(
+                    federation.current_round.target_participants
+                ),
             }
 
         return status

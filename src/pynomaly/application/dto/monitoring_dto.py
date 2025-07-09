@@ -64,14 +64,21 @@ class MetricSeries:
     unit: str = ""
     data_points: list[MetricDataPoint] = field(default_factory=list)
 
-    def add_data_point(self, value: float, timestamp: datetime | None = None, labels: dict[str, str] | None = None) -> None:
+    def add_data_point(
+        self,
+        value: float,
+        timestamp: datetime | None = None,
+        labels: dict[str, str] | None = None,
+    ) -> None:
         """Add a new data point to the series."""
         if timestamp is None:
             timestamp = datetime.utcnow()
         if labels is None:
             labels = {}
 
-        self.data_points.append(MetricDataPoint(timestamp=timestamp, value=value, labels=labels))
+        self.data_points.append(
+            MetricDataPoint(timestamp=timestamp, value=value, labels=labels)
+        )
 
         # Keep only last 1000 points to prevent memory issues
         if len(self.data_points) > 1000:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -81,7 +82,7 @@ class SecuritySettings(BaseModel):
         valid_levels = ["strict", "moderate", "permissive"]
         if v not in valid_levels:
             raise ValueError(f"Sanitization level must be one of: {valid_levels}")
-        return providers
+        return v
 
     def get_monitoring_config(self) -> dict[str, Any]:
         """Get monitoring configuration including buffer size and flush interval."""
@@ -198,7 +199,7 @@ class Settings(BaseSettings):
     cache_timeout: float = 5.0
     file_timeout: float = 10.0
     ml_timeout: float = 300.0
-    
+
     # Retry settings
     default_max_attempts: int = 3
     database_max_attempts: int = 3
@@ -206,7 +207,7 @@ class Settings(BaseSettings):
     cache_max_attempts: int = 2
     file_max_attempts: int = 3
     ml_max_attempts: int = 2
-    
+
     # Retry backoff settings
     default_base_delay: float = 1.0
     default_max_delay: float = 60.0
@@ -222,7 +223,7 @@ class Settings(BaseSettings):
     file_max_delay: float = 5.0
     ml_base_delay: float = 5.0
     ml_max_delay: float = 30.0
-    
+
     # Circuit breaker settings
     default_failure_threshold: int = 5
     default_recovery_timeout: float = 60.0

@@ -8,4 +8,5 @@ def get_app():
     """Get app instance with lazy initialization."""
     return create_app()
 
+
 __all__ = ["create_app", "get_app"]

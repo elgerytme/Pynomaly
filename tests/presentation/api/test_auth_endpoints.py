@@ -26,7 +26,7 @@ class TestAuthEndpoints:
     @pytest.fixture
     def mock_auth_handler(self):
         """Mock JWT authentication handler."""
-        with patch("pynomaly.infrastructure.auth.jwt_auth.JWTAuthHandler") as mock:
+        with patch("pynomaly.infrastructure.auth.jwt_auth.JWTAuthService") as mock:
             handler = Mock()
             handler.create_access_token.return_value = "test-jwt-token"
             handler.verify_token.return_value = {

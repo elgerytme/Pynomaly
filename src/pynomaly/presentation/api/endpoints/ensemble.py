@@ -1,6 +1,5 @@
 """API endpoints for ensemble-based anomaly detection."""
 
-
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 

@@ -4,7 +4,7 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
-import percySnapshot from '@percy/playwright';
+// import percySnapshot from '@percy/playwright'; // Commented out until Percy is configured
 
 class VisualTestHelper {
   constructor(private page: Page) {}
@@ -101,12 +101,10 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     await helper.simulateDataLoading();
 
     // Take baseline snapshot
-    if (process.env.PERCY_TOKEN) {
-      await percySnapshot(page, 'Dashboard - Main View', {
-        widths: [1280],
-        minHeight: 720
-      });
-    }
+    await expect(page).toHaveScreenshot('dashboard-main-view.png', {
+      fullPage: true,
+      threshold: 0.2
+    });
 
     // Verify key visual elements
     await expect(page.locator('header')).toBeVisible();
@@ -138,24 +136,20 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
       timeout: 10000
     });
 
-    if (process.env.PERCY_TOKEN) {
-      await percySnapshot(page, 'Detection Interface - Main', {
-        widths: [1280],
-        minHeight: 720
-      });
-    }
+    await expect(page).toHaveScreenshot('detection-interface-main.png', {
+      fullPage: true,
+      threshold: 0.2
+    });
 
     // Test form states
     const uploadArea = page.locator('[data-testid="file-upload"], .upload-area').first();
     if (await uploadArea.count() > 0) {
       await uploadArea.hover();
 
-      if (process.env.PERCY_TOKEN) {
-        await percySnapshot(page, 'Detection Interface - Upload Hover', {
-          widths: [1280],
-          minHeight: 720
-        });
-      }
+      await expect(page).toHaveScreenshot('detection-interface-upload-hover.png', {
+        fullPage: true,
+        threshold: 0.2
+      });
     }
   });
 
@@ -169,12 +163,10 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
       timeout: 10000
     });
 
-    if (process.env.PERCY_TOKEN) {
-      await percySnapshot(page, 'Detectors Page - List View', {
-        widths: [1280],
-        minHeight: 720
-      });
-    }
+    await expect(page).toHaveScreenshot('detectors-page-list-view.png', {
+      fullPage: true,
+      threshold: 0.2
+    });
 
     // Test detector card states
     const detectorCards = page.locator('[data-testid="detector-card"], .detector-item');
@@ -183,12 +175,10 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     if (cardCount > 0) {
       await detectorCards.first().hover();
 
-      if (process.env.PERCY_TOKEN) {
-        await percySnapshot(page, 'Detectors Page - Card Hover', {
-          widths: [1280],
-          minHeight: 720
-        });
-      }
+      await expect(page).toHaveScreenshot('detectors-page-card-hover.png', {
+        fullPage: true,
+        threshold: 0.2
+      });
     }
   });
 
@@ -202,12 +192,10 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
       timeout: 10000
     });
 
-    if (process.env.PERCY_TOKEN) {
-      await percySnapshot(page, 'Datasets Page - Main View', {
-        widths: [1280],
-        minHeight: 720
-      });
-    }
+    await expect(page).toHaveScreenshot('datasets-page-main-view.png', {
+      fullPage: true,
+      threshold: 0.2
+    });
 
     // Test table/list interactions
     const datasetRows = page.locator('[data-testid="dataset-row"], .dataset-item, tbody tr');
@@ -217,7 +205,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
       await datasetRows.first().hover();
 
       if (process.env.PERCY_TOKEN) {
-        await percySnapshot(page, 'Datasets Page - Row Hover', {
+        await expect(page).toHaveScreenshot('Datasets Page - Row Hover', {
           widths: [1280],
           minHeight: 720
         });
@@ -239,7 +227,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     await page.waitForTimeout(1000);
 
     if (process.env.PERCY_TOKEN) {
-      await percySnapshot(page, 'Visualizations Page - Main View', {
+      await expect(page).toHaveScreenshot('Visualizations Page - Main View', {
         widths: [1280],
         minHeight: 720
       });
@@ -254,7 +242,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
       await page.waitForTimeout(500);
 
       if (process.env.PERCY_TOKEN) {
-        await percySnapshot(page, 'Visualizations Page - Chart Interaction', {
+        await expect(page).toHaveScreenshot('Visualizations Page - Chart Interaction', {
           widths: [1280],
           minHeight: 720
         });
@@ -276,7 +264,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
       await helper.preparePageForSnapshot();
 
       if (process.env.PERCY_TOKEN) {
-        await percySnapshot(page, `Dashboard - ${viewport.name}`, {
+        await expect(page).toHaveScreenshot(`Dashboard - ${viewport.name}`, {
           widths: [viewport.width],
           minHeight: viewport.height
         });
@@ -305,7 +293,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
 
     // Test light mode first
     if (process.env.PERCY_TOKEN) {
-      await percySnapshot(page, 'Dashboard - Light Mode', {
+      await expect(page).toHaveScreenshot('Dashboard - Light Mode', {
         widths: [1280],
         minHeight: 720
       });
@@ -318,7 +306,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
       await page.waitForTimeout(500); // Allow theme transition
 
       if (process.env.PERCY_TOKEN) {
-        await percySnapshot(page, 'Dashboard - Dark Mode', {
+        await expect(page).toHaveScreenshot('Dashboard - Dark Mode', {
           widths: [1280],
           minHeight: 720
         });
@@ -335,7 +323,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     if (await buttons.count() > 0) {
       // Normal state
       if (process.env.PERCY_TOKEN) {
-        await percySnapshot(page, 'Components - Button Normal', {
+        await expect(page).toHaveScreenshot('Components - Button Normal', {
           widths: [1280],
           minHeight: 720
         });
@@ -346,7 +334,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
       await page.waitForTimeout(200);
 
       if (process.env.PERCY_TOKEN) {
-        await percySnapshot(page, 'Components - Button Hover', {
+        await expect(page).toHaveScreenshot('Components - Button Hover', {
           widths: [1280],
           minHeight: 720
         });
@@ -357,7 +345,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
       await page.waitForTimeout(200);
 
       if (process.env.PERCY_TOKEN) {
-        await percySnapshot(page, 'Components - Button Focus', {
+        await expect(page).toHaveScreenshot('Components - Button Focus', {
           widths: [1280],
           minHeight: 720
         });
@@ -371,7 +359,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     await helper.preparePageForSnapshot();
 
     if (process.env.PERCY_TOKEN) {
-      await percySnapshot(page, 'Error Pages - 404 Not Found', {
+      await expect(page).toHaveScreenshot('Error Pages - 404 Not Found', {
         widths: [1280],
         minHeight: 720
       });
@@ -406,7 +394,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     const loadingElements = page.locator('.loading, .spinner, [data-testid="loading"]');
     if (await loadingElements.count() > 0) {
       if (process.env.PERCY_TOKEN) {
-        await percySnapshot(page, 'Loading States - Detection Page', {
+        await expect(page).toHaveScreenshot('Loading States - Detection Page', {
           widths: [1280],
           minHeight: 720
         });
@@ -418,7 +406,7 @@ test.describe('Visual Regression Testing - Pynomaly Web Interface', () => {
     await helper.preparePageForSnapshot();
 
     if (process.env.PERCY_TOKEN) {
-      await percySnapshot(page, 'Loaded States - Detection Page', {
+      await expect(page).toHaveScreenshot('Loaded States - Detection Page', {
         widths: [1280],
         minHeight: 720
       });

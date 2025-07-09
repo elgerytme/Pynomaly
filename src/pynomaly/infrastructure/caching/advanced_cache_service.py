@@ -230,9 +230,7 @@ class CacheBackend(ABC):
         pass
 
     @abstractmethod
-    async def set(
-        self, key: str, value: bytes, ttl_seconds: int | None = None
-    ) -> bool:
+    async def set(self, key: str, value: bytes, ttl_seconds: int | None = None) -> bool:
         """Set value in cache."""
         pass
 
@@ -284,9 +282,7 @@ class MemoryCache(CacheBackend):
 
             return None
 
-    async def set(
-        self, key: str, value: bytes, ttl_seconds: int | None = None
-    ) -> bool:
+    async def set(self, key: str, value: bytes, ttl_seconds: int | None = None) -> bool:
         """Set value in memory cache."""
         async with self._lock:
             value_size = len(value)
@@ -419,9 +415,7 @@ class RedisCache(CacheBackend):
         value = await client.get(key)
         return value if value else None
 
-    async def set(
-        self, key: str, value: bytes, ttl_seconds: int | None = None
-    ) -> bool:
+    async def set(self, key: str, value: bytes, ttl_seconds: int | None = None) -> bool:
         """Set value in Redis cache."""
         client = await self._get_client()
 

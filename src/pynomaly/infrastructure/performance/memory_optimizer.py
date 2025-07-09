@@ -35,9 +35,12 @@ class MemorySnapshot:
 class MemoryMonitor:
     """Advanced memory usage monitoring and optimization."""
 
-    def __init__(self, enable_tracemalloc: bool = True,
-                 warning_threshold_mb: float = 1000.0,
-                 critical_threshold_mb: float = 2000.0):
+    def __init__(
+        self,
+        enable_tracemalloc: bool = True,
+        warning_threshold_mb: float = 1000.0,
+        critical_threshold_mb: float = 2000.0,
+    ):
         """Initialize memory monitor."""
         self.enable_tracemalloc = enable_tracemalloc
         self.warning_threshold_mb = warning_threshold_mb
@@ -76,7 +79,7 @@ class MemoryMonitor:
             memory_percent=system_memory.percent,
             tracemalloc_current_mb=tracemalloc_current,
             tracemalloc_peak_mb=tracemalloc_peak,
-            gc_counts=gc.get_count()
+            gc_counts=gc.get_count(),
         )
 
         self._snapshots.append(snapshot)
@@ -116,25 +119,28 @@ class MemoryMonitor:
         if len(self._snapshots) >= 2:
             first = self._snapshots[0]
             trend_data = {
-                'memory_trend_mb': latest.process_memory_mb - first.process_memory_mb,
-                'time_span_seconds': latest.timestamp - first.timestamp,
-                'average_memory_mb': sum(s.process_memory_mb for s in self._snapshots) / len(self._snapshots)
+                "memory_trend_mb": latest.process_memory_mb - first.process_memory_mb,
+                "time_span_seconds": latest.timestamp - first.timestamp,
+                "average_memory_mb": sum(s.process_memory_mb for s in self._snapshots)
+                / len(self._snapshots),
             }
 
         stats = {
-            'current_memory_mb': latest.process_memory_mb,
-            'available_memory_mb': latest.available_memory_mb,
-            'memory_percent': latest.memory_percent,
-            'gc_counts': latest.gc_counts,
-            'snapshot_count': len(self._snapshots),
-            'tracked_objects': len(self._tracked_objects),
+            "current_memory_mb": latest.process_memory_mb,
+            "available_memory_mb": latest.available_memory_mb,
+            "memory_percent": latest.memory_percent,
+            "gc_counts": latest.gc_counts,
+            "snapshot_count": len(self._snapshots),
+            "tracked_objects": len(self._tracked_objects),
         }
 
         if latest.tracemalloc_current_mb is not None:
-            stats.update({
-                'tracemalloc_current_mb': latest.tracemalloc_current_mb,
-                'tracemalloc_peak_mb': latest.tracemalloc_peak_mb,
-            })
+            stats.update(
+                {
+                    "tracemalloc_current_mb": latest.tracemalloc_current_mb,
+                    "tracemalloc_peak_mb": latest.tracemalloc_peak_mb,
+                }
+            )
 
         stats.update(trend_data)
         return stats
@@ -146,16 +152,20 @@ class MemoryMonitor:
 
         try:
             snapshot = tracemalloc.take_snapshot()
-            top_stats = snapshot.statistics('lineno')
+            top_stats = snapshot.statistics("lineno")
 
             consumers = []
             for index, stat in enumerate(top_stats[:limit]):
-                consumers.append({
-                    'rank': index + 1,
-                    'size_mb': stat.size / 1024 / 1024,
-                    'count': stat.count,
-                    'filename': stat.traceback.format()[0] if stat.traceback else 'unknown',
-                })
+                consumers.append(
+                    {
+                        "rank": index + 1,
+                        "size_mb": stat.size / 1024 / 1024,
+                        "count": stat.count,
+                        "filename": stat.traceback.format()[0]
+                        if stat.traceback
+                        else "unknown",
+                    }
+                )
 
             return consumers
         except Exception as e:
@@ -167,30 +177,31 @@ class MemoryMonitor:
         logger.warning("Performing emergency memory cleanup")
 
         cleanup_stats = {
-            'gc_collected': 0,
-            'objects_before': len(gc.get_objects()),
-            'cache_cleared': 0,
+            "gc_collected": 0,
+            "objects_before": len(gc.get_objects()),
+            "cache_cleared": 0,
         }
 
         # Force garbage collection
-        cleanup_stats['gc_collected'] = gc.collect()
+        cleanup_stats["gc_collected"] = gc.collect()
 
         # Clear tracked objects
         self._tracked_objects.clear()
 
         # Clear function caches (if any)
         try:
-
             # Clear lru_cache decorated functions
             for obj in gc.get_objects():
-                if hasattr(obj, 'cache_clear'):
+                if hasattr(obj, "cache_clear"):
                     obj.cache_clear()
-                    cleanup_stats['cache_cleared'] += 1
+                    cleanup_stats["cache_cleared"] += 1
         except Exception as e:
             logger.error(f"Error clearing caches: {e}")
 
-        cleanup_stats['objects_after'] = len(gc.get_objects())
-        cleanup_stats['objects_freed'] = cleanup_stats['objects_before'] - cleanup_stats['objects_after']
+        cleanup_stats["objects_after"] = len(gc.get_objects())
+        cleanup_stats["objects_freed"] = (
+            cleanup_stats["objects_before"] - cleanup_stats["objects_after"]
+        )
 
         logger.info(f"Emergency cleanup completed: {cleanup_stats}")
         return cleanup_stats
@@ -216,7 +227,9 @@ class MemoryMonitor:
         finally:
             end_snapshot = self.take_snapshot()
 
-            memory_delta = end_snapshot.process_memory_mb - start_snapshot.process_memory_mb
+            memory_delta = (
+                end_snapshot.process_memory_mb - start_snapshot.process_memory_mb
+            )
             time_delta = end_snapshot.timestamp - start_time
 
             logger.info(
@@ -237,32 +250,34 @@ class DataFrameOptimizer:
         original_memory = df.memory_usage(deep=True).sum()
 
         # Optimize numeric columns
-        for col in df.select_dtypes(include=['int64']).columns:
-            df[col] = pd.to_numeric(df[col], downcast='integer')
+        for col in df.select_dtypes(include=["int64"]).columns:
+            df[col] = pd.to_numeric(df[col], downcast="integer")
 
-        for col in df.select_dtypes(include=['float64']).columns:
-            df[col] = pd.to_numeric(df[col], downcast='float')
+        for col in df.select_dtypes(include=["float64"]).columns:
+            df[col] = pd.to_numeric(df[col], downcast="float")
 
         # Optimize object columns
-        for col in df.select_dtypes(include=['object']).columns:
+        for col in df.select_dtypes(include=["object"]).columns:
             # Try to convert to category if it's beneficial
             unique_ratio = df[col].nunique() / len(df)
             if unique_ratio < 0.5:  # Less than 50% unique values
-                df[col] = df[col].astype('category')
+                df[col] = df[col].astype("category")
 
         optimized_memory = df.memory_usage(deep=True).sum()
         reduction = (original_memory - optimized_memory) / original_memory * 100
 
         if verbose:
             logger.info(
-                f"DataFrame memory optimized: {original_memory/1024/1024:.2f}MB → "
-                f"{optimized_memory/1024/1024:.2f}MB ({reduction:.1f}% reduction)"
+                f"DataFrame memory optimized: {original_memory / 1024 / 1024:.2f}MB → "
+                f"{optimized_memory / 1024 / 1024:.2f}MB ({reduction:.1f}% reduction)"
             )
 
         return df
 
     @staticmethod
-    def chunk_dataframe(df: pd.DataFrame, max_memory_mb: float = 100.0) -> Generator[pd.DataFrame, None, None]:
+    def chunk_dataframe(
+        df: pd.DataFrame, max_memory_mb: float = 100.0
+    ) -> Generator[pd.DataFrame, None, None]:
         """Yield DataFrame chunks based on memory limit."""
         if df.empty:
             yield df
@@ -287,7 +302,7 @@ class DataFrameOptimizer:
     def get_memory_usage(df: pd.DataFrame) -> dict[str, Any]:
         """Get detailed memory usage information for DataFrame."""
         if df.empty:
-            return {'total_mb': 0, 'columns': {}}
+            return {"total_mb": 0, "columns": {}}
 
         memory_usage = df.memory_usage(deep=True)
         total_memory = memory_usage.sum()
@@ -296,28 +311,30 @@ class DataFrameOptimizer:
         for col in df.columns:
             col_memory = memory_usage[col]
             col_info = {
-                'memory_mb': col_memory / 1024 / 1024,
-                'dtype': str(df[col].dtype),
-                'non_null_count': df[col].count(),
-                'null_count': df[col].isnull().sum(),
-                'unique_count': df[col].nunique() if df[col].dtype != 'object' else None
+                "memory_mb": col_memory / 1024 / 1024,
+                "dtype": str(df[col].dtype),
+                "non_null_count": df[col].count(),
+                "null_count": df[col].isnull().sum(),
+                "unique_count": df[col].nunique()
+                if df[col].dtype != "object"
+                else None,
             }
 
             # Add additional info for object columns
-            if df[col].dtype == 'object':
+            if df[col].dtype == "object":
                 try:
-                    col_info['avg_string_length'] = df[col].astype(str).str.len().mean()
-                    col_info['max_string_length'] = df[col].astype(str).str.len().max()
+                    col_info["avg_string_length"] = df[col].astype(str).str.len().mean()
+                    col_info["max_string_length"] = df[col].astype(str).str.len().max()
                 except:
                     pass
 
             column_info[col] = col_info
 
         return {
-            'total_mb': total_memory / 1024 / 1024,
-            'shape': df.shape,
-            'columns': column_info,
-            'index_memory_mb': memory_usage['Index'] / 1024 / 1024,
+            "total_mb": total_memory / 1024 / 1024,
+            "shape": df.shape,
+            "columns": column_info,
+            "index_memory_mb": memory_usage["Index"] / 1024 / 1024,
         }
 
 
@@ -325,7 +342,9 @@ class ArrayOptimizer:
     """NumPy array memory optimization utilities."""
 
     @staticmethod
-    def optimize_array_dtype(arr: np.ndarray, preserve_precision: bool = True) -> np.ndarray:
+    def optimize_array_dtype(
+        arr: np.ndarray, preserve_precision: bool = True
+    ) -> np.ndarray:
         """Optimize NumPy array dtype to reduce memory usage."""
         if arr.size == 0:
             return arr
@@ -341,7 +360,9 @@ class ArrayOptimizer:
                 info = np.iinfo(dtype)
                 if min_val >= info.min and max_val <= info.max:
                     if arr.dtype != dtype:
-                        logger.debug(f"Optimizing array dtype: {original_dtype} → {dtype}")
+                        logger.debug(
+                            f"Optimizing array dtype: {original_dtype} → {dtype}"
+                        )
                     return arr.astype(dtype)
 
         # For floating point arrays
@@ -351,7 +372,9 @@ class ArrayOptimizer:
                 if arr.dtype == np.float64:
                     arr_f32 = arr.astype(np.float32)
                     if np.allclose(arr, arr_f32, equal_nan=True):
-                        logger.debug(f"Optimizing array dtype: {original_dtype} → float32")
+                        logger.debug(
+                            f"Optimizing array dtype: {original_dtype} → float32"
+                        )
                         return arr_f32
 
         return arr
@@ -360,20 +383,22 @@ class ArrayOptimizer:
     def get_array_memory_info(arr: np.ndarray) -> dict[str, Any]:
         """Get memory information for NumPy array."""
         return {
-            'shape': arr.shape,
-            'dtype': str(arr.dtype),
-            'size_mb': arr.nbytes / 1024 / 1024,
-            'elements': arr.size,
-            'c_contiguous': arr.flags['C_CONTIGUOUS'],
-            'f_contiguous': arr.flags['F_CONTIGUOUS'],
-            'writable': arr.flags['WRITEABLE'],
+            "shape": arr.shape,
+            "dtype": str(arr.dtype),
+            "size_mb": arr.nbytes / 1024 / 1024,
+            "elements": arr.size,
+            "c_contiguous": arr.flags["C_CONTIGUOUS"],
+            "f_contiguous": arr.flags["F_CONTIGUOUS"],
+            "writable": arr.flags["WRITEABLE"],
         }
 
 
 # Memory optimization decorators
 
+
 def memory_limit(max_memory_mb: float):
     """Decorator to limit function memory usage."""
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -386,7 +411,10 @@ def memory_limit(max_memory_mb: float):
                     result = func(*args, **kwargs)
 
                     end_snapshot = monitor.take_snapshot()
-                    memory_used = end_snapshot.process_memory_mb - start_snapshot.process_memory_mb
+                    memory_used = (
+                        end_snapshot.process_memory_mb
+                        - start_snapshot.process_memory_mb
+                    )
 
                     if memory_used > max_memory_mb:
                         logger.warning(
@@ -402,11 +430,13 @@ def memory_limit(max_memory_mb: float):
                     raise
 
         return wrapper
+
     return decorator
 
 
 def optimize_dataframe_memory(func):
     """Decorator to automatically optimize DataFrame memory usage."""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         result = func(*args, **kwargs)
@@ -417,14 +447,18 @@ def optimize_dataframe_memory(func):
             # Optimize any DataFrames in the result dictionary
             for key, value in result.items():
                 if isinstance(value, pd.DataFrame):
-                    result[key] = DataFrameOptimizer.optimize_dtypes(value, verbose=False)
+                    result[key] = DataFrameOptimizer.optimize_dtypes(
+                        value, verbose=False
+                    )
 
         return result
+
     return wrapper
 
 
 def gc_after_function(func):
     """Decorator to run garbage collection after function execution."""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -433,7 +467,10 @@ def gc_after_function(func):
         finally:
             collected = gc.collect()
             if collected > 0:
-                logger.debug(f"Garbage collected {collected} objects after {func.__name__}")
+                logger.debug(
+                    f"Garbage collected {collected} objects after {func.__name__}"
+                )
+
     return wrapper
 
 
@@ -464,7 +501,7 @@ class MemoryPool:
         """Release an object back to the pool."""
         if obj in self._in_use and len(self._pool) < self.max_size:
             # Reset object state if it has a reset method
-            if hasattr(obj, 'reset'):
+            if hasattr(obj, "reset"):
                 obj.reset()
 
             self._pool.append(obj)
@@ -483,9 +520,9 @@ class MemoryPool:
     def get_stats(self) -> dict[str, int]:
         """Get pool statistics."""
         return {
-            'pool_size': len(self._pool),
-            'in_use': len(self._in_use),
-            'max_size': self.max_size,
+            "pool_size": len(self._pool),
+            "in_use": len(self._in_use),
+            "max_size": self.max_size,
         }
 
 
@@ -501,15 +538,17 @@ def get_memory_monitor() -> MemoryMonitor:
     return _global_memory_monitor
 
 
-def configure_memory_monitoring(enable_tracemalloc: bool = True,
-                              warning_threshold_mb: float = 1000.0,
-                              critical_threshold_mb: float = 2000.0) -> MemoryMonitor:
+def configure_memory_monitoring(
+    enable_tracemalloc: bool = True,
+    warning_threshold_mb: float = 1000.0,
+    critical_threshold_mb: float = 2000.0,
+) -> MemoryMonitor:
     """Configure global memory monitoring."""
     global _global_memory_monitor
     _global_memory_monitor = MemoryMonitor(
         enable_tracemalloc=enable_tracemalloc,
         warning_threshold_mb=warning_threshold_mb,
-        critical_threshold_mb=critical_threshold_mb
+        critical_threshold_mb=critical_threshold_mb,
     )
     logger.info("Configured memory monitoring")
     return _global_memory_monitor

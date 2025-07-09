@@ -640,12 +640,12 @@ class AdvancedAlertingService:
         self.alert_correlation_rules: list[dict[str, Any]] = []
 
         # Metrics for threshold adjustment
-        self.metric_history: dict[str, list[tuple]] = (
-            {}
-        )  # metric_name -> [(timestamp, value)]
-        self.dynamic_thresholds: dict[str, dict[str, float]] = (
-            {}
-        )  # metric_name -> {mean, std, threshold}
+        self.metric_history: dict[
+            str, list[tuple]
+        ] = {}  # metric_name -> [(timestamp, value)]
+        self.dynamic_thresholds: dict[
+            str, dict[str, float]
+        ] = {}  # metric_name -> {mean, std, threshold}
 
         # Background tasks
         self._evaluation_task: asyncio.Task | None = None
@@ -1226,7 +1226,7 @@ async def create_anomaly_detection_alert_rule(
 
     rule = AlertRule(
         name=f"High Anomaly Rate - {detector_name}",
-        description=f"Anomaly rate exceeds {threshold_rate*100}% for detector {detector_name}",
+        description=f"Anomaly rate exceeds {threshold_rate * 100}% for detector {detector_name}",
         conditions=[
             ThresholdCondition(
                 metric_name="anomaly.rate.percent",
@@ -1287,7 +1287,7 @@ async def create_system_health_alert_rule(
 
     rule = AlertRule(
         name=f"System Health - {component}",
-        description=f"Health score below {health_threshold*100}% for {component}",
+        description=f"Health score below {health_threshold * 100}% for {component}",
         conditions=[
             ThresholdCondition(
                 metric_name=f"system.health.{component}",

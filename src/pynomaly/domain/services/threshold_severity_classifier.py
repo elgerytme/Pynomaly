@@ -22,13 +22,13 @@ class ThresholdSeverityClassifier:
         "low": {"min": 0.0, "max": 0.3},
         "medium": {"min": 0.3, "max": 0.7},
         "high": {"min": 0.7, "max": 0.9},
-        "critical": {"min": 0.9, "max": 1.0}
+        "critical": {"min": 0.9, "max": 1.0},
     }
 
     def __init__(
         self,
         threshold_table: dict[str, dict[str, float]] | None = None,
-        default_severity: str = "medium"
+        default_severity: str = "medium",
     ):
         """Initialize the threshold severity classifier.
 
@@ -50,19 +50,27 @@ class ThresholdSeverityClassifier:
                 raise ValueError(f"Thresholds for {severity} must be a dictionary")
 
             if "min" not in thresholds or "max" not in thresholds:
-                raise ValueError(f"Thresholds for {severity} must have 'min' and 'max' keys")
+                raise ValueError(
+                    f"Thresholds for {severity} must have 'min' and 'max' keys"
+                )
 
             min_val = thresholds["min"]
             max_val = thresholds["max"]
 
-            if not isinstance(min_val, (int, float)) or not isinstance(max_val, (int, float)):
+            if not isinstance(min_val, (int, float)) or not isinstance(
+                max_val, (int, float)
+            ):
                 raise ValueError(f"Threshold values for {severity} must be numeric")
 
             if min_val >= max_val:
-                raise ValueError(f"Min threshold must be less than max threshold for {severity}")
+                raise ValueError(
+                    f"Min threshold must be less than max threshold for {severity}"
+                )
 
             if min_val < 0 or max_val > 1:
-                raise ValueError(f"Threshold values for {severity} must be in range [0, 1]")
+                raise ValueError(
+                    f"Threshold values for {severity} must be in range [0, 1]"
+                )
 
     def classify_single(self, score: float | AnomalyScore) -> str:
         """Classify a single anomaly score into severity level.
@@ -87,7 +95,10 @@ class ThresholdSeverityClassifier:
             max_threshold = thresholds["max"]
 
             # Use inclusive lower bound, exclusive upper bound (except for the highest level)
-            if severity == max(self.threshold_table.keys(), key=lambda x: self.threshold_table[x]["max"]):
+            if severity == max(
+                self.threshold_table.keys(),
+                key=lambda x: self.threshold_table[x]["max"],
+            ):
                 # For the highest severity level, include the upper bound
                 if min_threshold <= score_value <= max_threshold:
                     return severity
@@ -96,7 +107,9 @@ class ThresholdSeverityClassifier:
                     return severity
 
         # Fallback to default severity if no match found
-        logger.warning(f"Score {score_value} did not match any threshold, using default: {self.default_severity}")
+        logger.warning(
+            f"Score {score_value} did not match any threshold, using default: {self.default_severity}"
+        )
         return self.default_severity
 
     def classify_batch(self, scores: list[float | AnomalyScore]) -> list[str]:
@@ -113,7 +126,9 @@ class ThresholdSeverityClassifier:
 
         return [self.classify_single(score) for score in scores]
 
-    def get_severity_stats(self, scores: list[float | AnomalyScore]) -> dict[str, dict[str, int | float]]:
+    def get_severity_stats(
+        self, scores: list[float | AnomalyScore]
+    ) -> dict[str, dict[str, int | float]]:
         """Get statistics about severity distribution.
 
         Args:
@@ -133,12 +148,14 @@ class ThresholdSeverityClassifier:
             count = classifications.count(severity)
             stats[severity] = {
                 "count": count,
-                "percentage": (count / total_count) * 100 if total_count > 0 else 0.0
+                "percentage": (count / total_count) * 100 if total_count > 0 else 0.0,
             }
 
         return stats
 
-    def update_threshold(self, severity: str, min_threshold: float, max_threshold: float) -> None:
+    def update_threshold(
+        self, severity: str, min_threshold: float, max_threshold: float
+    ) -> None:
         """Update threshold for a specific severity level.
 
         Args:
@@ -147,7 +164,9 @@ class ThresholdSeverityClassifier:
             max_threshold: New maximum threshold
         """
         if severity not in self.threshold_table:
-            raise ValueError(f"Severity level '{severity}' not found in threshold table")
+            raise ValueError(
+                f"Severity level '{severity}' not found in threshold table"
+            )
 
         if min_threshold >= max_threshold:
             raise ValueError("Min threshold must be less than max threshold")
@@ -158,7 +177,9 @@ class ThresholdSeverityClassifier:
         self.threshold_table[severity]["min"] = min_threshold
         self.threshold_table[severity]["max"] = max_threshold
 
-    def add_severity_level(self, severity: str, min_threshold: float, max_threshold: float) -> None:
+    def add_severity_level(
+        self, severity: str, min_threshold: float, max_threshold: float
+    ) -> None:
         """Add a new severity level to the threshold table.
 
         Args:
@@ -175,10 +196,7 @@ class ThresholdSeverityClassifier:
         if min_threshold < 0 or max_threshold > 1:
             raise ValueError("Threshold values must be in range [0, 1]")
 
-        self.threshold_table[severity] = {
-            "min": min_threshold,
-            "max": max_threshold
-        }
+        self.threshold_table[severity] = {"min": min_threshold, "max": max_threshold}
 
     def remove_severity_level(self, severity: str) -> None:
         """Remove a severity level from the threshold table.
@@ -187,7 +205,9 @@ class ThresholdSeverityClassifier:
             severity: Severity level to remove
         """
         if severity not in self.threshold_table:
-            raise ValueError(f"Severity level '{severity}' not found in threshold table")
+            raise ValueError(
+                f"Severity level '{severity}' not found in threshold table"
+            )
 
         if len(self.threshold_table) <= 1:
             raise ValueError("Cannot remove the last severity level")
@@ -210,7 +230,9 @@ class ThresholdSeverityClassifier:
         self.threshold_table = self.DEFAULT_THRESHOLDS.copy()
         self._validate_threshold_table()
 
-    def get_severity_for_threshold_range(self, min_val: float, max_val: float) -> str | None:
+    def get_severity_for_threshold_range(
+        self, min_val: float, max_val: float
+    ) -> str | None:
         """Get severity level that matches a specific threshold range.
 
         Args:
@@ -221,8 +243,10 @@ class ThresholdSeverityClassifier:
             Severity level name if found, None otherwise
         """
         for severity, thresholds in self.threshold_table.items():
-            if (abs(thresholds["min"] - min_val) < 1e-6 and
-                abs(thresholds["max"] - max_val) < 1e-6):
+            if (
+                abs(thresholds["min"] - min_val) < 1e-6
+                and abs(thresholds["max"] - max_val) < 1e-6
+            ):
                 return severity
         return None
 

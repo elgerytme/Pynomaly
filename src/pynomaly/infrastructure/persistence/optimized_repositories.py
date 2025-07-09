@@ -36,18 +36,19 @@ logger = logging.getLogger(__name__)
 
 # Enhanced Models with Indexes
 
+
 class OptimizedDatasetModel(DatasetModel):
     """Enhanced Dataset model with performance indexes."""
 
     __table_args__ = (
-        Index('idx_datasets_name', 'name'),
-        Index('idx_datasets_created_at', 'created_at'),
-        Index('idx_datasets_updated_at', 'updated_at'),
-        Index('idx_datasets_target_column', 'target_column'),
+        Index("idx_datasets_name", "name"),
+        Index("idx_datasets_created_at", "created_at"),
+        Index("idx_datasets_updated_at", "updated_at"),
+        Index("idx_datasets_target_column", "target_column"),
         # Composite indexes for common query patterns
-        Index('idx_datasets_name_created', 'name', 'created_at'),
+        Index("idx_datasets_name_created", "name", "created_at"),
         # PostgreSQL-specific JSON indexes
-        Index('idx_datasets_metadata_gin', 'metadata', postgresql_using='gin'),
+        Index("idx_datasets_metadata_gin", "metadata", postgresql_using="gin"),
     )
 
 
@@ -55,16 +56,16 @@ class OptimizedDetectorModel(DetectorModel):
     """Enhanced Detector model with performance indexes."""
 
     __table_args__ = (
-        Index('idx_detectors_algorithm', 'algorithm'),
-        Index('idx_detectors_is_fitted', 'is_fitted'),
-        Index('idx_detectors_created_at', 'created_at'),
-        Index('idx_detectors_updated_at', 'updated_at'),
+        Index("idx_detectors_algorithm", "algorithm"),
+        Index("idx_detectors_is_fitted", "is_fitted"),
+        Index("idx_detectors_created_at", "created_at"),
+        Index("idx_detectors_updated_at", "updated_at"),
         # Composite indexes for common query patterns
-        Index('idx_detectors_algorithm_fitted', 'algorithm', 'is_fitted'),
-        Index('idx_detectors_fitted_created', 'is_fitted', 'created_at'),
+        Index("idx_detectors_algorithm_fitted", "algorithm", "is_fitted"),
+        Index("idx_detectors_fitted_created", "is_fitted", "created_at"),
         # PostgreSQL-specific JSON indexes
-        Index('idx_detectors_metadata_gin', 'metadata', postgresql_using='gin'),
-        Index('idx_detectors_parameters_gin', 'parameters', postgresql_using='gin'),
+        Index("idx_detectors_metadata_gin", "metadata", postgresql_using="gin"),
+        Index("idx_detectors_parameters_gin", "parameters", postgresql_using="gin"),
     )
 
 
@@ -72,16 +73,16 @@ class OptimizedDetectionResultModel(DetectionResultModel):
     """Enhanced DetectionResult model with performance indexes."""
 
     __table_args__ = (
-        Index('idx_results_detector_id', 'detector_id'),
-        Index('idx_results_dataset_id', 'dataset_id'),
-        Index('idx_results_created_at', 'created_at'),
+        Index("idx_results_detector_id", "detector_id"),
+        Index("idx_results_dataset_id", "dataset_id"),
+        Index("idx_results_created_at", "created_at"),
         # Composite indexes for common query patterns
-        Index('idx_results_detector_created', 'detector_id', 'created_at'),
-        Index('idx_results_dataset_created', 'dataset_id', 'created_at'),
-        Index('idx_results_detector_dataset', 'detector_id', 'dataset_id'),
+        Index("idx_results_detector_created", "detector_id", "created_at"),
+        Index("idx_results_dataset_created", "dataset_id", "created_at"),
+        Index("idx_results_detector_dataset", "detector_id", "dataset_id"),
         # PostgreSQL-specific JSON indexes
-        Index('idx_results_metadata_gin', 'metadata', postgresql_using='gin'),
-        Index('idx_results_scores_gin', 'scores', postgresql_using='gin'),
+        Index("idx_results_metadata_gin", "metadata", postgresql_using="gin"),
+        Index("idx_results_scores_gin", "scores", postgresql_using="gin"),
     )
 
 
@@ -89,42 +90,48 @@ class QueryOptimizer:
     """Query optimization utilities."""
 
     @staticmethod
-    def add_pagination(query: Select, page: int = 1, page_size: int = 50) -> tuple[Select, dict[str, Any]]:
+    def add_pagination(
+        query: Select, page: int = 1, page_size: int = 50
+    ) -> tuple[Select, dict[str, Any]]:
         """Add pagination to query with metadata."""
         offset = (page - 1) * page_size
         paginated_query = query.offset(offset).limit(page_size)
 
         pagination_info = {
-            'page': page,
-            'page_size': page_size,
-            'offset': offset,
-            'has_next': None,  # Will be determined after execution
-            'has_prev': page > 1,
-            'total_pages': None,  # Requires count query
+            "page": page,
+            "page_size": page_size,
+            "offset": offset,
+            "has_next": None,  # Will be determined after execution
+            "has_prev": page > 1,
+            "total_pages": None,  # Requires count query
         }
 
         return paginated_query, pagination_info
 
     @staticmethod
-    def build_metadata_filter(model_class, key: str, value: Any, operator: str = 'eq'):
+    def build_metadata_filter(model_class, key: str, value: Any, operator: str = "eq"):
         """Build efficient metadata filter based on database dialect."""
-        metadata_column = getattr(model_class, 'metadata', None) or getattr(model_class, 'entity_metadata', None)
+        metadata_column = getattr(model_class, "metadata", None) or getattr(
+            model_class, "entity_metadata", None
+        )
 
         if not metadata_column:
             return None
 
         # PostgreSQL JSONB operators
-        if operator == 'eq':
-            return metadata_column.op('->>')('key') == str(value)
-        elif operator == 'contains':
-            return metadata_column.op('@>')({key: value})
-        elif operator == 'exists':
-            return metadata_column.op('?')(key)
-        elif operator == 'in':
-            return metadata_column.op('->>')('key').in_([str(v) for v in value])
+        if operator == "eq":
+            return metadata_column.op("->>")("key") == str(value)
+        elif operator == "contains":
+            return metadata_column.op("@>")({key: value})
+        elif operator == "exists":
+            return metadata_column.op("?")(key)
+        elif operator == "in":
+            return metadata_column.op("->>")("key").in_([str(v) for v in value])
         else:
             # Fallback for SQLite or other databases
-            return text(f"JSON_EXTRACT(metadata, '$.{key}') = :value").params(value=str(value))
+            return text(f"JSON_EXTRACT(metadata, '$.{key}') = :value").params(
+                value=str(value)
+            )
 
 
 class OptimizedDetectorRepository(DetectorRepositoryProtocol):
@@ -147,7 +154,7 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
                 algorithm=detector.algorithm_name,
                 parameters=detector.parameters,
                 is_fitted=detector.is_fitted,
-                model_data=getattr(detector, 'model_data', None),
+                model_data=getattr(detector, "model_data", None),
                 entity_metadata=detector.metadata,
                 created_at=detector.created_at,
                 updated_at=detector.updated_at,
@@ -169,7 +176,9 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
             return self._cache[cache_key]
 
         with self.session_factory() as session:
-            model = session.query(OptimizedDetectorModel).filter_by(id=detector_id).first()
+            model = (
+                session.query(OptimizedDetectorModel).filter_by(id=detector_id).first()
+            )
             if not model:
                 return None
 
@@ -187,11 +196,13 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
         algorithm_name: str,
         fitted_only: bool = False,
         page: int = 1,
-        page_size: int = 50
+        page_size: int = 50,
     ) -> tuple[list[Detector], dict[str, Any]]:
         """Find detectors by algorithm with pagination and filtering."""
         with self.session_factory() as session:
-            query = session.query(OptimizedDetectorModel).filter_by(algorithm=algorithm_name)
+            query = session.query(OptimizedDetectorModel).filter_by(
+                algorithm=algorithm_name
+            )
 
             if fitted_only:
                 query = query.filter_by(is_fitted=True)
@@ -203,18 +214,22 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
             total_count = query.count()
 
             # Apply pagination
-            paginated_query, pagination_info = QueryOptimizer.add_pagination(query, page, page_size)
+            paginated_query, pagination_info = QueryOptimizer.add_pagination(
+                query, page, page_size
+            )
             models = paginated_query.all()
 
             # Calculate pagination metadata
-            pagination_info['total_count'] = total_count
-            pagination_info['total_pages'] = (total_count + page_size - 1) // page_size
-            pagination_info['has_next'] = page < pagination_info['total_pages']
+            pagination_info["total_count"] = total_count
+            pagination_info["total_pages"] = (total_count + page_size - 1) // page_size
+            pagination_info["has_next"] = page < pagination_info["total_pages"]
 
             entities = [self._model_to_entity(model) for model in models]
             return entities, pagination_info
 
-    def find_fitted_by_algorithm_batch(self, algorithm_names: list[str]) -> dict[str, list[Detector]]:
+    def find_fitted_by_algorithm_batch(
+        self, algorithm_names: list[str]
+    ) -> dict[str, list[Detector]]:
         """Efficiently find fitted detectors for multiple algorithms."""
         with self.session_factory() as session:
             # Single query for all algorithms
@@ -223,10 +238,13 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
                 .filter(
                     and_(
                         OptimizedDetectorModel.algorithm.in_(algorithm_names),
-                        OptimizedDetectorModel.is_fitted == True
+                        OptimizedDetectorModel.is_fitted == True,
                     )
                 )
-                .order_by(OptimizedDetectorModel.algorithm, OptimizedDetectorModel.created_at.desc())
+                .order_by(
+                    OptimizedDetectorModel.algorithm,
+                    OptimizedDetectorModel.created_at.desc(),
+                )
                 .all()
             )
 
@@ -239,10 +257,7 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
             return result
 
     def find_by_metadata_optimized(
-        self,
-        filters: dict[str, Any],
-        page: int = 1,
-        page_size: int = 50
+        self, filters: dict[str, Any], page: int = 1, page_size: int = 50
     ) -> tuple[list[Detector], dict[str, Any]]:
         """Optimized metadata search using database-specific features."""
         with self.session_factory() as session:
@@ -252,11 +267,11 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
             for key, value in filters.items():
                 if isinstance(value, list):
                     filter_condition = QueryOptimizer.build_metadata_filter(
-                        OptimizedDetectorModel, key, value, 'in'
+                        OptimizedDetectorModel, key, value, "in"
                     )
                 else:
                     filter_condition = QueryOptimizer.build_metadata_filter(
-                        OptimizedDetectorModel, key, value, 'eq'
+                        OptimizedDetectorModel, key, value, "eq"
                     )
 
                 if filter_condition is not None:
@@ -269,13 +284,15 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
             total_count = query.count()
 
             # Apply pagination
-            paginated_query, pagination_info = QueryOptimizer.add_pagination(query, page, page_size)
+            paginated_query, pagination_info = QueryOptimizer.add_pagination(
+                query, page, page_size
+            )
             models = paginated_query.all()
 
             # Calculate pagination metadata
-            pagination_info['total_count'] = total_count
-            pagination_info['total_pages'] = (total_count + page_size - 1) // page_size
-            pagination_info['has_next'] = page < pagination_info['total_pages']
+            pagination_info["total_count"] = total_count
+            pagination_info["total_pages"] = (total_count + page_size - 1) // page_size
+            pagination_info["has_next"] = page < pagination_info["total_pages"]
 
             entities = [self._model_to_entity(model) for model in models]
             return entities, pagination_info
@@ -287,10 +304,14 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
             results = (
                 session.query(
                     OptimizedDetectorModel.algorithm,
-                    func.count().label('total_count'),
-                    func.sum(OptimizedDetectorModel.is_fitted.cast(Boolean)).label('fitted_count'),
-                    func.max(OptimizedDetectorModel.created_at).label('latest_created'),
-                    func.min(OptimizedDetectorModel.created_at).label('earliest_created'),
+                    func.count().label("total_count"),
+                    func.sum(OptimizedDetectorModel.is_fitted.cast(Boolean)).label(
+                        "fitted_count"
+                    ),
+                    func.max(OptimizedDetectorModel.created_at).label("latest_created"),
+                    func.min(OptimizedDetectorModel.created_at).label(
+                        "earliest_created"
+                    ),
                 )
                 .group_by(OptimizedDetectorModel.algorithm)
                 .order_by(func.count().desc())
@@ -301,17 +322,26 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
             for result in results:
                 algorithm = result.algorithm
                 summary[algorithm] = {
-                    'total_detectors': result.total_count,
-                    'fitted_detectors': result.fitted_count or 0,
-                    'unfitted_detectors': result.total_count - (result.fitted_count or 0),
-                    'fitted_percentage': (result.fitted_count or 0) / result.total_count * 100,
-                    'latest_created': result.latest_created.isoformat() if result.latest_created else None,
-                    'earliest_created': result.earliest_created.isoformat() if result.earliest_created else None,
+                    "total_detectors": result.total_count,
+                    "fitted_detectors": result.fitted_count or 0,
+                    "unfitted_detectors": result.total_count
+                    - (result.fitted_count or 0),
+                    "fitted_percentage": (result.fitted_count or 0)
+                    / result.total_count
+                    * 100,
+                    "latest_created": result.latest_created.isoformat()
+                    if result.latest_created
+                    else None,
+                    "earliest_created": result.earliest_created.isoformat()
+                    if result.earliest_created
+                    else None,
                 }
 
             return summary
 
-    def bulk_update_fitted_status(self, detector_ids: list[UUID], is_fitted: bool) -> int:
+    def bulk_update_fitted_status(
+        self, detector_ids: list[UUID], is_fitted: bool
+    ) -> int:
         """Bulk update fitted status for multiple detectors."""
         with self.session_factory() as session:
             updated_count = (
@@ -320,9 +350,9 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
                 .update(
                     {
                         OptimizedDetectorModel.is_fitted: is_fitted,
-                        OptimizedDetectorModel.updated_at: datetime.utcnow()
+                        OptimizedDetectorModel.updated_at: datetime.utcnow(),
                     },
-                    synchronize_session=False
+                    synchronize_session=False,
                 )
             )
             session.commit()
@@ -344,7 +374,7 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
                 .filter(
                     and_(
                         OptimizedDetectorModel.is_fitted == False,
-                        OptimizedDetectorModel.created_at < cutoff_date
+                        OptimizedDetectorModel.created_at < cutoff_date,
                     )
                 )
                 .delete(synchronize_session=False)
@@ -421,10 +451,7 @@ class OptimizedDatasetRepository(DatasetRepositoryProtocol):
                 self._invalidate_cache(dataset.id)
 
     def find_by_name_pattern(
-        self,
-        pattern: str,
-        page: int = 1,
-        page_size: int = 50
+        self, pattern: str, page: int = 1, page_size: int = 50
     ) -> tuple[list[Dataset], dict[str, Any]]:
         """Find datasets by name pattern with pagination."""
         with self.session_factory() as session:
@@ -438,21 +465,21 @@ class OptimizedDatasetRepository(DatasetRepositoryProtocol):
             total_count = query.count()
 
             # Apply pagination
-            paginated_query, pagination_info = QueryOptimizer.add_pagination(query, page, page_size)
+            paginated_query, pagination_info = QueryOptimizer.add_pagination(
+                query, page, page_size
+            )
             models = paginated_query.all()
 
             # Calculate pagination metadata
-            pagination_info['total_count'] = total_count
-            pagination_info['total_pages'] = (total_count + page_size - 1) // page_size
-            pagination_info['has_next'] = page < pagination_info['total_pages']
+            pagination_info["total_count"] = total_count
+            pagination_info["total_pages"] = (total_count + page_size - 1) // page_size
+            pagination_info["has_next"] = page < pagination_info["total_pages"]
 
             entities = [self._model_to_entity(model) for model in models]
             return entities, pagination_info
 
     def find_by_features(
-        self,
-        features: list[str],
-        match_all: bool = True
+        self, features: list[str], match_all: bool = True
     ) -> list[Dataset]:
         """Find datasets that contain specific features."""
         with self.session_factory() as session:
@@ -461,12 +488,12 @@ class OptimizedDatasetRepository(DatasetRepositoryProtocol):
                 query = session.query(OptimizedDatasetModel)
                 for feature in features:
                     query = query.filter(
-                        OptimizedDatasetModel.features.op('@>')([feature])
+                        OptimizedDatasetModel.features.op("@>")([feature])
                     )
             else:
                 # Dataset must contain at least one specified feature
                 conditions = [
-                    OptimizedDatasetModel.features.op('@>')([feature])
+                    OptimizedDatasetModel.features.op("@>")([feature])
                     for feature in features
                 ]
                 query = session.query(OptimizedDatasetModel).filter(or_(*conditions))
@@ -489,13 +516,14 @@ class OptimizedDatasetRepository(DatasetRepositoryProtocol):
                         feature_usage[feature] = feature_usage.get(feature, 0) + 1
 
             # Most common features
-            top_features = sorted(feature_usage.items(), key=lambda x: x[1], reverse=True)[:10]
+            top_features = sorted(
+                feature_usage.items(), key=lambda x: x[1], reverse=True
+            )[:10]
 
             # Target column statistics
             target_columns = (
                 session.query(
-                    OptimizedDatasetModel.target_column,
-                    func.count().label('count')
+                    OptimizedDatasetModel.target_column, func.count().label("count")
                 )
                 .filter(OptimizedDatasetModel.target_column.isnot(None))
                 .group_by(OptimizedDatasetModel.target_column)
@@ -513,26 +541,29 @@ class OptimizedDatasetRepository(DatasetRepositoryProtocol):
             )
 
             return {
-                'total_datasets': total_datasets,
-                'feature_statistics': {
-                    'unique_features': len(feature_usage),
-                    'total_feature_usage': sum(feature_usage.values()),
-                    'average_features_per_dataset': sum(feature_usage.values()) / max(total_datasets, 1),
-                    'top_features': [{'feature': f, 'usage_count': c} for f, c in top_features]
+                "total_datasets": total_datasets,
+                "feature_statistics": {
+                    "unique_features": len(feature_usage),
+                    "total_feature_usage": sum(feature_usage.values()),
+                    "average_features_per_dataset": sum(feature_usage.values())
+                    / max(total_datasets, 1),
+                    "top_features": [
+                        {"feature": f, "usage_count": c} for f, c in top_features
+                    ],
                 },
-                'target_column_distribution': [
-                    {'target_column': tc.target_column, 'count': tc.count}
+                "target_column_distribution": [
+                    {"target_column": tc.target_column, "count": tc.count}
                     for tc in target_columns
                 ],
-                'recent_datasets': [
+                "recent_datasets": [
                     {
-                        'id': str(d.id),
-                        'name': d.name,
-                        'created_at': d.created_at.isoformat(),
-                        'feature_count': len(d.features) if d.features else 0
+                        "id": str(d.id),
+                        "name": d.name,
+                        "created_at": d.created_at.isoformat(),
+                        "feature_count": len(d.features) if d.features else 0,
                     }
                     for d in recent_datasets
-                ]
+                ],
             }
 
     def _model_to_entity(self, model: OptimizedDatasetModel) -> Dataset:
@@ -573,20 +604,23 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
         page: int = 1,
         page_size: int = 50,
         start_date: datetime | None = None,
-        end_date: datetime | None = None
+        end_date: datetime | None = None,
     ) -> tuple[list[DetectionResult], dict[str, Any]]:
         """Find detection results by detector with pagination and date filtering."""
         with self.session_factory() as session:
-            query = (
-                session.query(OptimizedDetectionResultModel)
-                .filter_by(detector_id=detector_id)
+            query = session.query(OptimizedDetectionResultModel).filter_by(
+                detector_id=detector_id
             )
 
             # Add date filtering
             if start_date:
-                query = query.filter(OptimizedDetectionResultModel.created_at >= start_date)
+                query = query.filter(
+                    OptimizedDetectionResultModel.created_at >= start_date
+                )
             if end_date:
-                query = query.filter(OptimizedDetectionResultModel.created_at <= end_date)
+                query = query.filter(
+                    OptimizedDetectionResultModel.created_at <= end_date
+                )
 
             # Order by creation date (newest first)
             query = query.order_by(OptimizedDetectionResultModel.created_at.desc())
@@ -595,13 +629,15 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
             total_count = query.count()
 
             # Apply pagination
-            paginated_query, pagination_info = QueryOptimizer.add_pagination(query, page, page_size)
+            paginated_query, pagination_info = QueryOptimizer.add_pagination(
+                query, page, page_size
+            )
             models = paginated_query.all()
 
             # Calculate pagination metadata
-            pagination_info['total_count'] = total_count
-            pagination_info['total_pages'] = (total_count + page_size - 1) // page_size
-            pagination_info['has_next'] = page < pagination_info['total_pages']
+            pagination_info["total_count"] = total_count
+            pagination_info["total_pages"] = (total_count + page_size - 1) // page_size
+            pagination_info["has_next"] = page < pagination_info["total_pages"]
 
             entities = [self._model_to_entity(model) for model in models]
             return entities, pagination_info
@@ -610,15 +646,14 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
         self,
         detector_id: UUID | None = None,
         dataset_id: UUID | None = None,
-        days_back: int = 30
+        days_back: int = 30,
     ) -> dict[str, Any]:
         """Get comprehensive detection statistics."""
         start_date = datetime.utcnow() - timedelta(days=days_back)
 
         with self.session_factory() as session:
-            query = (
-                session.query(OptimizedDetectionResultModel)
-                .filter(OptimizedDetectionResultModel.created_at >= start_date)
+            query = session.query(OptimizedDetectionResultModel).filter(
+                OptimizedDetectionResultModel.created_at >= start_date
             )
 
             if detector_id:
@@ -632,8 +667,8 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
             # Results by day
             daily_results = (
                 query.with_entities(
-                    func.date(OptimizedDetectionResultModel.created_at).label('date'),
-                    func.count().label('count')
+                    func.date(OptimizedDetectionResultModel.created_at).label("date"),
+                    func.count().label("count"),
                 )
                 .group_by(func.date(OptimizedDetectionResultModel.created_at))
                 .order_by(func.date(OptimizedDetectionResultModel.created_at))
@@ -644,7 +679,7 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
             detector_usage = (
                 query.with_entities(
                     OptimizedDetectionResultModel.detector_id,
-                    func.count().label('usage_count')
+                    func.count().label("usage_count"),
                 )
                 .group_by(OptimizedDetectionResultModel.detector_id)
                 .order_by(func.count().desc())
@@ -656,7 +691,7 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
             dataset_usage = (
                 query.with_entities(
                     OptimizedDetectionResultModel.dataset_id,
-                    func.count().label('analysis_count')
+                    func.count().label("analysis_count"),
                 )
                 .group_by(OptimizedDetectionResultModel.dataset_id)
                 .order_by(func.count().desc())
@@ -665,34 +700,28 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
             )
 
             return {
-                'period': {
-                    'start_date': start_date.isoformat(),
-                    'end_date': datetime.utcnow().isoformat(),
-                    'days': days_back
+                "period": {
+                    "start_date": start_date.isoformat(),
+                    "end_date": datetime.utcnow().isoformat(),
+                    "days": days_back,
                 },
-                'total_results': total_results,
-                'daily_breakdown': [
-                    {
-                        'date': r.date.isoformat(),
-                        'count': r.count
-                    }
+                "total_results": total_results,
+                "daily_breakdown": [
+                    {"date": r.date.isoformat(), "count": r.count}
                     for r in daily_results
                 ],
-                'top_detectors': [
-                    {
-                        'detector_id': str(r.detector_id),
-                        'usage_count': r.usage_count
-                    }
+                "top_detectors": [
+                    {"detector_id": str(r.detector_id), "usage_count": r.usage_count}
                     for r in detector_usage
                 ],
-                'top_datasets': [
+                "top_datasets": [
                     {
-                        'dataset_id': str(r.dataset_id),
-                        'analysis_count': r.analysis_count
+                        "dataset_id": str(r.dataset_id),
+                        "analysis_count": r.analysis_count,
                     }
                     for r in dataset_usage
                 ],
-                'average_per_day': total_results / max(days_back, 1)
+                "average_per_day": total_results / max(days_back, 1),
             }
 
     def cleanup_old_results(self, days_to_keep: int = 90) -> int:
@@ -716,10 +745,10 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
         scores = []
         if model.scores:
             from pynomaly.domain.value_objects import AnomalyScore
+
             scores = [
                 AnomalyScore(
-                    value=score_data["value"],
-                    confidence=score_data.get("confidence")
+                    value=score_data["value"], confidence=score_data.get("confidence")
                 )
                 for score_data in model.scores
             ]
@@ -748,11 +777,13 @@ class DatabaseConnectionPool:
             pool_size=pool_size,
             max_overflow=max_overflow,
             pool_pre_ping=True,  # Validate connections before use
-            pool_recycle=3600,   # Recycle connections every hour
+            pool_recycle=3600,  # Recycle connections every hour
             connect_args={
                 "connect_timeout": 30,
                 "application_name": "pynomaly-optimized",
-            } if 'postgresql' in database_url else {}
+            }
+            if "postgresql" in database_url
+            else {},
         )
 
         self.session_factory = sessionmaker(bind=self.engine)
@@ -782,10 +813,10 @@ class QueryPerformanceMonitor:
         """Log query execution time."""
         if duration > self.threshold:
             slow_query = {
-                'query': query,
-                'duration': duration,
-                'params': params,
-                'timestamp': datetime.utcnow().isoformat()
+                "query": query,
+                "duration": duration,
+                "params": params,
+                "timestamp": datetime.utcnow().isoformat(),
             }
             self.slow_queries.append(slow_query)
             logger.warning(f"Slow query detected: {duration:.2f}s - {query[:100]}...")

@@ -335,7 +335,9 @@ class AdvancedDataPipeline:
                     mask = selector.get_support()
                     selected_columns = [
                         col
-                        for col, selected in zip(transformed_data.columns, mask, strict=False)
+                        for col, selected in zip(
+                            transformed_data.columns, mask, strict=False
+                        )
                         if selected
                     ]
                     transformed_data = pd.DataFrame(
@@ -505,7 +507,7 @@ class AdvancedDataPipeline:
         if cols_to_drop:
             data = data.drop(columns=cols_to_drop)
             self.logger.info(
-                f"Dropped columns with >{self.config.missing_threshold*100}% missing: {cols_to_drop}"
+                f"Dropped columns with >{self.config.missing_threshold * 100}% missing: {cols_to_drop}"
             )
             report.warnings.append(f"Dropped high-missing columns: {cols_to_drop}")
 

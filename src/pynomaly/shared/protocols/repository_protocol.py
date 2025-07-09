@@ -30,7 +30,7 @@ class RepositoryProtocol(Protocol[T]):
     on domain entities.
     """
 
-    def save(self, entity: T) -> None:
+    async def save(self, entity: T) -> None:
         """Save an entity to the repository.
 
         Args:
@@ -38,7 +38,7 @@ class RepositoryProtocol(Protocol[T]):
         """
         ...
 
-    def find_by_id(self, entity_id: UUID) -> T | None:
+    async def find_by_id(self, entity_id: UUID) -> T | None:
         """Find an entity by its ID.
 
         Args:
@@ -49,7 +49,7 @@ class RepositoryProtocol(Protocol[T]):
         """
         ...
 
-    def find_all(self) -> list[T]:
+    async def find_all(self) -> list[T]:
         """Find all entities in the repository.
 
         Returns:
@@ -57,7 +57,7 @@ class RepositoryProtocol(Protocol[T]):
         """
         ...
 
-    def delete(self, entity_id: UUID) -> bool:
+    async def delete(self, entity_id: UUID) -> bool:
         """Delete an entity by its ID.
 
         Args:
@@ -68,7 +68,7 @@ class RepositoryProtocol(Protocol[T]):
         """
         ...
 
-    def exists(self, entity_id: UUID) -> bool:
+    async def exists(self, entity_id: UUID) -> bool:
         """Check if an entity exists.
 
         Args:
@@ -79,7 +79,7 @@ class RepositoryProtocol(Protocol[T]):
         """
         ...
 
-    def count(self) -> int:
+    async def count(self) -> int:
         """Count total number of entities.
 
         Returns:
@@ -92,7 +92,7 @@ class RepositoryProtocol(Protocol[T]):
 class DetectorRepositoryProtocol(RepositoryProtocol[Detector], Protocol):
     """Protocol for detector repository implementations."""
 
-    def find_by_name(self, name: str) -> Detector | None:
+    async def find_by_name(self, name: str) -> Detector | None:
         """Find a detector by name.
 
         Args:
@@ -103,7 +103,7 @@ class DetectorRepositoryProtocol(RepositoryProtocol[Detector], Protocol):
         """
         ...
 
-    def find_by_algorithm(self, algorithm_name: str) -> list[Detector]:
+    async def find_by_algorithm(self, algorithm_name: str) -> list[Detector]:
         """Find all detectors using a specific algorithm.
 
         Args:
@@ -114,7 +114,7 @@ class DetectorRepositoryProtocol(RepositoryProtocol[Detector], Protocol):
         """
         ...
 
-    def find_fitted(self) -> list[Detector]:
+    async def find_fitted(self) -> list[Detector]:
         """Find all fitted detectors.
 
         Returns:
@@ -122,7 +122,7 @@ class DetectorRepositoryProtocol(RepositoryProtocol[Detector], Protocol):
         """
         ...
 
-    def save_model_artifact(self, detector_id: UUID, artifact: bytes) -> None:
+    async def save_model_artifact(self, detector_id: UUID, artifact: bytes) -> None:
         """Save the trained model artifact.
 
         Args:
@@ -131,7 +131,7 @@ class DetectorRepositoryProtocol(RepositoryProtocol[Detector], Protocol):
         """
         ...
 
-    def load_model_artifact(self, detector_id: UUID) -> bytes | None:
+    async def load_model_artifact(self, detector_id: UUID) -> bytes | None:
         """Load the trained model artifact.
 
         Args:
@@ -147,7 +147,7 @@ class DetectorRepositoryProtocol(RepositoryProtocol[Detector], Protocol):
 class DatasetRepositoryProtocol(RepositoryProtocol[Dataset], Protocol):
     """Protocol for dataset repository implementations."""
 
-    def find_by_name(self, name: str) -> Dataset | None:
+    async def find_by_name(self, name: str) -> Dataset | None:
         """Find a dataset by name.
 
         Args:
@@ -158,7 +158,7 @@ class DatasetRepositoryProtocol(RepositoryProtocol[Dataset], Protocol):
         """
         ...
 
-    def find_by_metadata(self, key: str, value: Any) -> list[Dataset]:
+    async def find_by_metadata(self, key: str, value: Any) -> list[Dataset]:
         """Find datasets by metadata key-value pair.
 
         Args:
@@ -170,7 +170,7 @@ class DatasetRepositoryProtocol(RepositoryProtocol[Dataset], Protocol):
         """
         ...
 
-    def save_data(self, dataset_id: UUID, format: str = "parquet") -> str:
+    async def save_data(self, dataset_id: UUID, format: str = "parquet") -> str:
         """Save dataset data to persistent storage.
 
         Args:
@@ -182,7 +182,7 @@ class DatasetRepositoryProtocol(RepositoryProtocol[Dataset], Protocol):
         """
         ...
 
-    def load_data(self, dataset_id: UUID) -> Dataset | None:
+    async def load_data(self, dataset_id: UUID) -> Dataset | None:
         """Load dataset with its data from storage.
 
         Args:
@@ -198,7 +198,7 @@ class DatasetRepositoryProtocol(RepositoryProtocol[Dataset], Protocol):
 class DetectionResultRepositoryProtocol(RepositoryProtocol[DetectionResult], Protocol):
     """Protocol for detection result repository implementations."""
 
-    def find_by_detector(self, detector_id: UUID) -> list[DetectionResult]:
+    async def find_by_detector(self, detector_id: UUID) -> list[DetectionResult]:
         """Find all results from a specific detector.
 
         Args:
@@ -209,7 +209,7 @@ class DetectionResultRepositoryProtocol(RepositoryProtocol[DetectionResult], Pro
         """
         ...
 
-    def find_by_dataset(self, dataset_id: UUID) -> list[DetectionResult]:
+    async def find_by_dataset(self, dataset_id: UUID) -> list[DetectionResult]:
         """Find all results for a specific dataset.
 
         Args:
@@ -220,7 +220,7 @@ class DetectionResultRepositoryProtocol(RepositoryProtocol[DetectionResult], Pro
         """
         ...
 
-    def find_recent(self, limit: int = 10) -> list[DetectionResult]:
+    async def find_recent(self, limit: int = 10) -> list[DetectionResult]:
         """Find most recent detection results.
 
         Args:
@@ -231,7 +231,7 @@ class DetectionResultRepositoryProtocol(RepositoryProtocol[DetectionResult], Pro
         """
         ...
 
-    def get_summary_stats(self, result_id: UUID) -> dict[str, Any]:
+    async def get_summary_stats(self, result_id: UUID) -> dict[str, Any]:
         """Get summary statistics for a result.
 
         Args:
@@ -247,7 +247,7 @@ class DetectionResultRepositoryProtocol(RepositoryProtocol[DetectionResult], Pro
 class ModelRepositoryProtocol(RepositoryProtocol[Model], Protocol):
     """Protocol for model repository implementations."""
 
-    def find_by_name(self, name: str) -> list[Model]:
+    async def find_by_name(self, name: str) -> list[Model]:
         """Find models by name.
 
         Args:
@@ -258,7 +258,7 @@ class ModelRepositoryProtocol(RepositoryProtocol[Model], Protocol):
         """
         ...
 
-    def find_by_stage(self, stage) -> list[Model]:
+    async def find_by_stage(self, stage) -> list[Model]:
         """Find models by stage.
 
         Args:
@@ -269,7 +269,7 @@ class ModelRepositoryProtocol(RepositoryProtocol[Model], Protocol):
         """
         ...
 
-    def find_by_type(self, model_type) -> list[Model]:
+    async def find_by_type(self, model_type) -> list[Model]:
         """Find models by type.
 
         Args:
@@ -285,7 +285,7 @@ class ModelRepositoryProtocol(RepositoryProtocol[Model], Protocol):
 class ModelVersionRepositoryProtocol(RepositoryProtocol[ModelVersion], Protocol):
     """Protocol for model version repository implementations."""
 
-    def find_by_model_id(self, model_id: UUID) -> list[ModelVersion]:
+    async def find_by_model_id(self, model_id: UUID) -> list[ModelVersion]:
         """Find all versions for a model.
 
         Args:
@@ -296,7 +296,7 @@ class ModelVersionRepositoryProtocol(RepositoryProtocol[ModelVersion], Protocol)
         """
         ...
 
-    def find_by_model_and_version(self, model_id: UUID, version) -> ModelVersion | None:
+    async def find_by_model_and_version(self, model_id: UUID, version) -> ModelVersion | None:
         """Find a specific version of a model.
 
         Args:
@@ -313,7 +313,7 @@ class ModelVersionRepositoryProtocol(RepositoryProtocol[ModelVersion], Protocol)
 class ExperimentRepositoryProtocol(RepositoryProtocol[Experiment], Protocol):
     """Protocol for experiment repository implementations."""
 
-    def find_by_name(self, name: str) -> list[Experiment]:
+    async def find_by_name(self, name: str) -> list[Experiment]:
         """Find experiments by name.
 
         Args:
@@ -324,7 +324,7 @@ class ExperimentRepositoryProtocol(RepositoryProtocol[Experiment], Protocol):
         """
         ...
 
-    def find_by_status(self, status) -> list[Experiment]:
+    async def find_by_status(self, status) -> list[Experiment]:
         """Find experiments by status.
 
         Args:
@@ -335,7 +335,7 @@ class ExperimentRepositoryProtocol(RepositoryProtocol[Experiment], Protocol):
         """
         ...
 
-    def find_by_type(self, experiment_type) -> list[Experiment]:
+    async def find_by_type(self, experiment_type) -> list[Experiment]:
         """Find experiments by type.
 
         Args:
@@ -351,7 +351,7 @@ class ExperimentRepositoryProtocol(RepositoryProtocol[Experiment], Protocol):
 class ExperimentRunRepositoryProtocol(RepositoryProtocol[ExperimentRun], Protocol):
     """Protocol for experiment run repository implementations."""
 
-    def find_by_experiment_id(self, experiment_id: UUID) -> list[ExperimentRun]:
+    async def find_by_experiment_id(self, experiment_id: UUID) -> list[ExperimentRun]:
         """Find all runs for an experiment.
 
         Args:
@@ -362,7 +362,7 @@ class ExperimentRunRepositoryProtocol(RepositoryProtocol[ExperimentRun], Protoco
         """
         ...
 
-    def find_by_status(self, status: str) -> list[ExperimentRun]:
+    async def find_by_status(self, status: str) -> list[ExperimentRun]:
         """Find runs by status.
 
         Args:

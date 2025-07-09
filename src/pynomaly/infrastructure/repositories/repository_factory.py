@@ -50,7 +50,8 @@ class RepositoryFactory:
             storage_type = "memory"  # Fallback to safe default
 
         return RepositoryFactory.create_repository_service(
-            storage_type=storage_type, base_path=base_path  # type: ignore
+            storage_type=storage_type,
+            base_path=base_path,  # type: ignore
         )
 
     @staticmethod

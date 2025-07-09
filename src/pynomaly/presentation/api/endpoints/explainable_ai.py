@@ -187,9 +187,7 @@ class InstanceExplanationResponse(BaseModel):
     """Response model for instance explanation."""
 
     instance_id: str = Field(..., description="Instance identifier")
-    prediction_value: float | int | str = Field(
-        ..., description="Model prediction"
-    )
+    prediction_value: float | int | str = Field(..., description="Model prediction")
     prediction_confidence: float = Field(..., description="Prediction confidence")
     base_value: float = Field(..., description="Base value for additive explanations")
     feature_importances: list[FeatureImportanceResponse] = Field(
@@ -292,9 +290,7 @@ class ExplainPredictionResponse(BaseModel):
     instance_explanation: InstanceExplanationResponse = Field(
         ..., description="Instance explanation details"
     )
-    trust_score: TrustScoreResponse | None = Field(
-        None, description="Trust assessment"
-    )
+    trust_score: TrustScoreResponse | None = Field(None, description="Trust assessment")
     counterfactuals: list[CounterfactualResponse] = Field(
         default_factory=list, description="Counterfactual explanations"
     )

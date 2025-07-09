@@ -49,6 +49,55 @@ class AlertCategory(Enum):
     """Category classification for alerts."""
 
     OPERATIONAL = "operational"
+    BUSINESS = "business"
+    SECURITY = "security"
+    PERFORMANCE = "performance"
+    QUALITY = "quality"
+
+
+@dataclass
+class MLNoiseFeatures:
+    """Features for ML-based noise detection in alerts."""
+
+    alert_frequency: float = 0.0
+    alert_duration: float = 0.0
+    time_between_alerts: float = 0.0
+    correlation_with_other_alerts: float = 0.0
+    system_load: float = 0.0
+    data_quality_score: float = 0.0
+    false_positive_rate: float = 0.0
+    user_feedback_score: float = 0.0
+    alert_resolution_time: float = 0.0
+    seasonal_factor: float = 0.0
+
+    def to_dict(self) -> dict[str, float]:
+        """Convert features to dictionary."""
+        return {
+            "alert_frequency": self.alert_frequency,
+            "alert_duration": self.alert_duration,
+            "time_between_alerts": self.time_between_alerts,
+            "correlation_with_other_alerts": self.correlation_with_other_alerts,
+            "system_load": self.system_load,
+            "data_quality_score": self.data_quality_score,
+            "false_positive_rate": self.false_positive_rate,
+            "user_feedback_score": self.user_feedback_score,
+            "alert_resolution_time": self.alert_resolution_time,
+            "seasonal_factor": self.seasonal_factor,
+        }
+
+
+class NoiseClassification(Enum):
+    """Classification for noise level in alerts."""
+
+    SIGNAL = "signal"  # Important alert
+    NOISE = "noise"  # Likely false positive
+    UNKNOWN = "unknown"  # Needs further analysis
+
+
+class AlertCategory(Enum):
+    """Category classification for alerts."""
+
+    OPERATIONAL = "operational"
     TECHNICAL = "technical"
     BUSINESS = "business"
     SECURITY = "security"

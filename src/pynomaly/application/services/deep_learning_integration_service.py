@@ -455,9 +455,9 @@ class DeepLearningIntegrationService:
                 recommendations["configuration_tips"].append(
                     "Consider batch processing for large datasets"
                 )
-                recommendations[
-                    "primary_framework"
-                ] = "tensorflow"  # Good for large scale
+                recommendations["primary_framework"] = (
+                    "tensorflow"  # Good for large scale
+                )
 
             # High-dimensional data
             if n_features > 1000:
@@ -472,9 +472,9 @@ class DeepLearningIntegrationService:
                 recommendations["configuration_tips"].append(
                     "Small dataset: consider data augmentation or simpler models"
                 )
-                recommendations[
-                    "primary_framework"
-                ] = "pytorch"  # Good for experimentation
+                recommendations["primary_framework"] = (
+                    "pytorch"  # Good for experimentation
+                )
 
         # Algorithm-specific recommendations
         recommendations["algorithm_suggestions"] = {

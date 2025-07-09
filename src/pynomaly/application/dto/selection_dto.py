@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class DatasetCharacteristicsDTO(BaseModel):
     """Dataset characteristics for algorithm selection."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Basic dimensions
@@ -57,7 +57,7 @@ class DatasetCharacteristicsDTO(BaseModel):
 
 class AlgorithmPerformanceDTO(BaseModel):
     """Algorithm performance metrics."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Primary metrics
@@ -98,7 +98,7 @@ class AlgorithmPerformanceDTO(BaseModel):
 
 class OptimizationConstraintsDTO(BaseModel):
     """Constraints for algorithm optimization."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Resource constraints
@@ -146,7 +146,7 @@ class OptimizationConstraintsDTO(BaseModel):
 
 class MetaLearningConfigDTO(BaseModel):
     """Configuration for meta-learning."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Meta-learning settings
@@ -185,7 +185,7 @@ class MetaLearningConfigDTO(BaseModel):
 
 class SelectionRecommendationDTO(BaseModel):
     """Algorithm selection recommendation."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Recommendations
@@ -224,7 +224,7 @@ class SelectionRecommendationDTO(BaseModel):
 
 class AlgorithmBenchmarkDTO(BaseModel):
     """Algorithm benchmark results."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Algorithm identification
@@ -260,7 +260,7 @@ class AlgorithmBenchmarkDTO(BaseModel):
 
 class SelectionHistoryDTO(BaseModel):
     """Historical algorithm selection entry."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Selection details
@@ -298,7 +298,7 @@ class SelectionHistoryDTO(BaseModel):
 
 class LearningInsightsDTO(BaseModel):
     """Insights from learning history."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Summary statistics
@@ -343,7 +343,7 @@ class LearningInsightsDTO(BaseModel):
 
 class AlgorithmComparisonDTO(BaseModel):
     """Comparison between algorithms."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Algorithms being compared
@@ -383,7 +383,7 @@ class AlgorithmComparisonDTO(BaseModel):
 
 class PerformancePredictionDTO(BaseModel):
     """Performance prediction for algorithm-dataset combination."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Prediction details
@@ -422,7 +422,7 @@ class PerformancePredictionDTO(BaseModel):
 
 class SelectionExplanationDTO(BaseModel):
     """Explanation for algorithm selection decision."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Main explanation
@@ -459,7 +459,7 @@ class SelectionExplanationDTO(BaseModel):
 
 class SelectionRequestDTO(BaseModel):
     """Request for algorithm selection."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Dataset information

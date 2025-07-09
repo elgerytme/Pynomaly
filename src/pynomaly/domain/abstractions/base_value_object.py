@@ -11,6 +11,7 @@ class BaseValueObject(BaseModel, ABC):
 
     class Config:
         """Pydantic configuration."""
+
         allow_mutation = False
 
     def __hash__(self) -> int:

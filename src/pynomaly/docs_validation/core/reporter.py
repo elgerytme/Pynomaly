@@ -78,9 +78,11 @@ class ValidationReporter:
                 "duration_seconds": result.duration_seconds,
                 "errors": result.errors,
                 "warnings": result.warnings,
-                "metrics": result.metrics
+                "metrics": result.metrics,
             },
-            "configuration": self.config.to_dict() if hasattr(self.config, 'to_dict') else {}
+            "configuration": self.config.to_dict()
+            if hasattr(self.config, "to_dict")
+            else {},
         }
 
         return json.dumps(report_data, indent=2, ensure_ascii=False)
@@ -112,7 +114,7 @@ class ValidationReporter:
         <p><strong>Status:</strong> <span class="status">{status_text}</span></p>
         <p><strong>Files checked:</strong> {result.file_count}</p>
         <p><strong>Duration:</strong> {result.duration_seconds:.2f}s</p>
-        <p><strong>Generated:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+        <p><strong>Generated:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
     </div>
 """
 
@@ -166,7 +168,7 @@ class ValidationReporter:
 - **Duration:** {result.duration_seconds:.2f}s
 - **Errors:** {len(result.errors)}
 - **Warnings:** {len(result.warnings)}
-- **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+- **Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 """
 
@@ -190,7 +192,9 @@ class ValidationReporter:
 
         return md
 
-    def save_report(self, result, output_format: str = "json", filename: str | None = None) -> str:
+    def save_report(
+        self, result, output_format: str = "json", filename: str | None = None
+    ) -> str:
         """Save report to file and return the filename."""
         if filename is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -203,7 +207,7 @@ class ValidationReporter:
             output_path = Path(filename)
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
-            with open(output_path, 'w', encoding='utf-8') as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 f.write(report_content)
 
             print(f"Report saved to: {output_path}")

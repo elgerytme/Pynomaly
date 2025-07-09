@@ -35,7 +35,9 @@ from pynomaly.shared.types import TenantId, UserId
 class IntegrationService:
     """Service for managing integrations and sending notifications."""
 
-    def __init__(self, integration_repository, notification_repository, encryption_key: str):
+    def __init__(
+        self, integration_repository, notification_repository, encryption_key: str
+    ):
         self._integration_repo = integration_repository
         self._notification_repo = notification_repository
         self._fernet = Fernet(encryption_key.encode())
@@ -59,7 +61,7 @@ class IntegrationService:
         tenant_id: TenantId,
         user_id: UserId,
         config: IntegrationConfig,
-        credentials: dict[str, Any] | None = None
+        credentials: dict[str, Any] | None = None,
     ) -> Integration:
         """Create a new integration."""
         # Validate configuration
@@ -77,9 +79,11 @@ class IntegrationService:
             integration_type=integration_type,
             tenant_id=tenant_id,
             created_by=user_id,
-            status=IntegrationStatus.PENDING_AUTH if credentials else IntegrationStatus.INACTIVE,
+            status=IntegrationStatus.PENDING_AUTH
+            if credentials
+            else IntegrationStatus.INACTIVE,
             config=config,
-            credentials=encrypted_credentials
+            credentials=encrypted_credentials,
         )
 
         # Test connection if credentials provided
@@ -95,10 +99,7 @@ class IntegrationService:
         return await self._integration_repo.create_integration(integration)
 
     async def update_integration_credentials(
-        self,
-        integration_id: str,
-        user_id: UserId,
-        credentials: dict[str, Any]
+        self, integration_id: str, user_id: UserId, credentials: dict[str, Any]
     ) -> Integration:
         """Update integration credentials."""
         integration = await self._integration_repo.get_integration_by_id(integration_id)
@@ -106,7 +107,10 @@ class IntegrationService:
             raise IntegrationError("Integration not found")
 
         # Check permissions
-        if not (integration.created_by == user_id or await self._has_integration_permission(user_id, integration.tenant_id)):
+        if not (
+            integration.created_by == user_id
+            or await self._has_integration_permission(user_id, integration.tenant_id)
+        ):
             raise AuthenticationError("Insufficient permissions")
 
         # Test connection with new credentials
@@ -125,7 +129,9 @@ class IntegrationService:
 
         return await self._integration_repo.update_integration(integration)
 
-    async def get_integrations_for_tenant(self, tenant_id: TenantId) -> list[Integration]:
+    async def get_integrations_for_tenant(
+        self, tenant_id: TenantId
+    ) -> list[Integration]:
         """Get all integrations for a tenant."""
         return await self._integration_repo.get_integrations_by_tenant(tenant_id)
 
@@ -136,7 +142,10 @@ class IntegrationService:
             return False
 
         # Check permissions
-        if not (integration.created_by == user_id or await self._has_integration_permission(user_id, integration.tenant_id)):
+        if not (
+            integration.created_by == user_id
+            or await self._has_integration_permission(user_id, integration.tenant_id)
+        ):
             raise AuthenticationError("Insufficient permissions")
 
         return await self._integration_repo.delete_integration(integration_id)
@@ -146,21 +155,27 @@ class IntegrationService:
         self,
         tenant_id: TenantId,
         payload: NotificationPayload,
-        integration_types: list[IntegrationType] | None = None
+        integration_types: list[IntegrationType] | None = None,
     ) -> dict[str, bool]:
         """Send notification to all matching integrations."""
         # Get active integrations for tenant
-        integrations = await self._integration_repo.get_active_integrations_by_tenant(tenant_id)
+        integrations = await self._integration_repo.get_active_integrations_by_tenant(
+            tenant_id
+        )
 
         # Filter by integration types if specified
         if integration_types:
-            integrations = [i for i in integrations if i.integration_type in integration_types]
+            integrations = [
+                i for i in integrations if i.integration_type in integration_types
+            ]
 
         # Filter by triggers and notification levels
         filtered_integrations = []
         for integration in integrations:
-            if (payload.trigger_type in integration.config.triggers and
-                payload.level in integration.config.notification_levels):
+            if (
+                payload.trigger_type in integration.config.triggers
+                and payload.level in integration.config.notification_levels
+            ):
                 filtered_integrations.append(integration)
 
         # Send notifications concurrently
@@ -180,14 +195,14 @@ class IntegrationService:
             except Exception as e:
                 results[integration_id] = False
                 # Log error
-                print(f"Failed to send notification to integration {integration_id}: {e}")
+                print(
+                    f"Failed to send notification to integration {integration_id}: {e}"
+                )
 
         return results
 
     async def _send_notification_to_integration(
-        self,
-        integration: Integration,
-        payload: NotificationPayload
+        self, integration: Integration, payload: NotificationPayload
     ) -> bool:
         """Send notification to a specific integration."""
         start_time = datetime.utcnow()
@@ -196,7 +211,7 @@ class IntegrationService:
             integration_id=integration.id,
             payload=payload,
             response_status=0,
-            response_body=""
+            response_body="",
         )
 
         try:
@@ -209,17 +224,29 @@ class IntegrationService:
 
             # Send notification based on integration type
             if integration.integration_type == IntegrationType.SLACK:
-                success = await self._send_slack_notification(integration, rendered_payload, history_record)
+                success = await self._send_slack_notification(
+                    integration, rendered_payload, history_record
+                )
             elif integration.integration_type == IntegrationType.PAGERDUTY:
-                success = await self._send_pagerduty_notification(integration, rendered_payload, history_record)
+                success = await self._send_pagerduty_notification(
+                    integration, rendered_payload, history_record
+                )
             elif integration.integration_type == IntegrationType.TEAMS:
-                success = await self._send_teams_notification(integration, rendered_payload, history_record)
+                success = await self._send_teams_notification(
+                    integration, rendered_payload, history_record
+                )
             elif integration.integration_type == IntegrationType.WEBHOOK:
-                success = await self._send_webhook_notification(integration, rendered_payload, history_record)
+                success = await self._send_webhook_notification(
+                    integration, rendered_payload, history_record
+                )
             elif integration.integration_type == IntegrationType.EMAIL:
-                success = await self._send_email_notification(integration, rendered_payload, history_record)
+                success = await self._send_email_notification(
+                    integration, rendered_payload, history_record
+                )
             else:
-                raise NotificationError(f"Unsupported integration type: {integration.integration_type}")
+                raise NotificationError(
+                    f"Unsupported integration type: {integration.integration_type}"
+                )
 
             # Update integration metrics
             await self._update_integration_metrics(integration.id, success)
@@ -244,7 +271,7 @@ class IntegrationService:
         self,
         integration: Integration,
         payload: NotificationPayload,
-        history_record: NotificationHistory
+        history_record: NotificationHistory,
     ) -> bool:
         """Send notification to Slack."""
         if not integration.credentials:
@@ -261,17 +288,15 @@ class IntegrationService:
 
         # Add custom fields from integration config
         if integration.config.settings.get("include_tenant_info"):
-            slack_message["attachments"][0]["fields"].append({
-                "title": "Tenant",
-                "value": str(payload.tenant_id),
-                "short": True
-            })
+            slack_message["attachments"][0]["fields"].append(
+                {"title": "Tenant", "value": str(payload.tenant_id), "short": True}
+            )
 
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 webhook_url,
                 json=slack_message,
-                timeout=aiohttp.ClientTimeout(total=integration.config.timeout_seconds)
+                timeout=aiohttp.ClientTimeout(total=integration.config.timeout_seconds),
             ) as response:
                 history_record.response_status = response.status
                 history_record.response_body = await response.text()
@@ -282,7 +307,7 @@ class IntegrationService:
         self,
         integration: Integration,
         payload: NotificationPayload,
-        history_record: NotificationHistory
+        history_record: NotificationHistory,
     ) -> bool:
         """Send notification to PagerDuty."""
         if not integration.credentials:
@@ -299,13 +324,15 @@ class IntegrationService:
         pagerduty_event["routing_key"] = routing_key
 
         # Add dedup_key to prevent duplicate incidents
-        pagerduty_event["dedup_key"] = f"pynomaly-{payload.trigger_type.value}-{payload.timestamp.isoformat()}"
+        pagerduty_event["dedup_key"] = (
+            f"pynomaly-{payload.trigger_type.value}-{payload.timestamp.isoformat()}"
+        )
 
         async with aiohttp.ClientSession() as session:
             async with session.post(
                 "https://events.pagerduty.com/v2/enqueue",
                 json=pagerduty_event,
-                timeout=aiohttp.ClientTimeout(total=integration.config.timeout_seconds)
+                timeout=aiohttp.ClientTimeout(total=integration.config.timeout_seconds),
             ) as response:
                 history_record.response_status = response.status
                 history_record.response_body = await response.text()
@@ -316,7 +343,7 @@ class IntegrationService:
         self,
         integration: Integration,
         payload: NotificationPayload,
-        history_record: NotificationHistory
+        history_record: NotificationHistory,
     ) -> bool:
         """Send notification to Microsoft Teams."""
         if not integration.credentials:
@@ -335,7 +362,7 @@ class IntegrationService:
             async with session.post(
                 webhook_url,
                 json=teams_message,
-                timeout=aiohttp.ClientTimeout(total=integration.config.timeout_seconds)
+                timeout=aiohttp.ClientTimeout(total=integration.config.timeout_seconds),
             ) as response:
                 history_record.response_status = response.status
                 history_record.response_body = await response.text()
@@ -346,7 +373,7 @@ class IntegrationService:
         self,
         integration: Integration,
         payload: NotificationPayload,
-        history_record: NotificationHistory
+        history_record: NotificationHistory,
     ) -> bool:
         """Send notification to generic webhook."""
         if not integration.credentials:
@@ -371,7 +398,7 @@ class IntegrationService:
                 webhook_url,
                 json=webhook_payload,
                 headers=headers,
-                timeout=aiohttp.ClientTimeout(total=integration.config.timeout_seconds)
+                timeout=aiohttp.ClientTimeout(total=integration.config.timeout_seconds),
             ) as response:
                 history_record.response_status = response.status
                 history_record.response_body = await response.text()
@@ -382,7 +409,7 @@ class IntegrationService:
         self,
         integration: Integration,
         payload: NotificationPayload,
-        history_record: NotificationHistory
+        history_record: NotificationHistory,
     ) -> bool:
         """Send email notification."""
         # TODO: Implement email sending using SMTP or email service
@@ -393,33 +420,33 @@ class IntegrationService:
 
     # Template Management
     async def create_notification_template(
-        self,
-        template: NotificationTemplate
+        self, template: NotificationTemplate
     ) -> NotificationTemplate:
         """Create a new notification template."""
         template.id = str(uuid.uuid4())
         return await self._notification_repo.create_template(template)
 
     async def get_templates_for_integration(
-        self,
-        integration_type: IntegrationType,
-        tenant_id: TenantId
+        self, integration_type: IntegrationType, tenant_id: TenantId
     ) -> list[NotificationTemplate]:
         """Get all templates for an integration type and tenant."""
         return await self._notification_repo.get_templates(integration_type, tenant_id)
 
     async def _apply_template(
-        self,
-        integration: Integration,
-        payload: NotificationPayload
+        self, integration: Integration, payload: NotificationPayload
     ) -> NotificationPayload:
         """Apply notification template to payload."""
-        if not integration.config.template_id and not integration.config.custom_template:
+        if (
+            not integration.config.template_id
+            and not integration.config.custom_template
+        ):
             return payload  # No template configured
 
         template = None
         if integration.config.template_id:
-            template = await self._notification_repo.get_template_by_id(integration.config.template_id)
+            template = await self._notification_repo.get_template_by_id(
+                integration.config.template_id
+            )
 
         if not template and integration.config.custom_template:
             # Use custom template from config
@@ -428,10 +455,14 @@ class IntegrationService:
                 name="Custom Template",
                 integration_type=integration.integration_type,
                 trigger_types=[payload.trigger_type],
-                title_template=integration.config.custom_template.get("title", payload.title),
-                message_template=integration.config.custom_template.get("message", payload.message),
+                title_template=integration.config.custom_template.get(
+                    "title", payload.title
+                ),
+                message_template=integration.config.custom_template.get(
+                    "message", payload.message
+                ),
                 tenant_id=integration.tenant_id,
-                created_by=integration.created_by
+                created_by=integration.created_by,
             )
 
         if template and payload.trigger_type in template.trigger_types:
@@ -442,7 +473,7 @@ class IntegrationService:
                 "level": payload.level.value,
                 "trigger_type": payload.trigger_type.value,
                 "timestamp": payload.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC"),
-                **payload.data
+                **payload.data,
             }
 
             # Render template
@@ -452,7 +483,9 @@ class IntegrationService:
 
         return payload
 
-    async def _passes_filters(self, integration: Integration, payload: NotificationPayload) -> bool:
+    async def _passes_filters(
+        self, integration: Integration, payload: NotificationPayload
+    ) -> bool:
         """Check if payload passes integration filters."""
         filters = integration.config.filters
 
@@ -462,15 +495,19 @@ class IntegrationService:
                 NotificationLevel.INFO: 0,
                 NotificationLevel.WARNING: 1,
                 NotificationLevel.ERROR: 2,
-                NotificationLevel.CRITICAL: 3
+                NotificationLevel.CRITICAL: 3,
             }
-            if level_order.get(payload.level, 0) < level_order.get(filters["min_level"], 0):
+            if level_order.get(payload.level, 0) < level_order.get(
+                filters["min_level"], 0
+            ):
                 return False
 
         # Keyword filters
         if "keywords" in filters:
             keywords = filters["keywords"]
-            if keywords and not any(keyword.lower() in payload.message.lower() for keyword in keywords):
+            if keywords and not any(
+                keyword.lower() in payload.message.lower() for keyword in keywords
+            ):
                 return False
 
         # Time-based filters
@@ -485,7 +522,9 @@ class IntegrationService:
         return True
 
     # Utility Methods
-    def _encrypt_credentials(self, credentials: dict[str, Any]) -> IntegrationCredentials:
+    def _encrypt_credentials(
+        self, credentials: dict[str, Any]
+    ) -> IntegrationCredentials:
         """Encrypt credentials for secure storage."""
         credentials_json = json.dumps(credentials)
         encrypted_data = self._fernet.encrypt(credentials_json.encode()).decode()
@@ -493,21 +532,23 @@ class IntegrationService:
         return IntegrationCredentials(
             encrypted_data=encrypted_data,
             encryption_key_id="default",  # Could use key rotation in the future
-            expires_at=datetime.utcnow() + timedelta(days=365)  # 1 year expiry
+            expires_at=datetime.utcnow() + timedelta(days=365),  # 1 year expiry
         )
 
-    def _decrypt_credentials(self, credentials: IntegrationCredentials) -> dict[str, Any]:
+    def _decrypt_credentials(
+        self, credentials: IntegrationCredentials
+    ) -> dict[str, Any]:
         """Decrypt credentials for use."""
         try:
-            decrypted_data = self._fernet.decrypt(credentials.encrypted_data.encode()).decode()
+            decrypted_data = self._fernet.decrypt(
+                credentials.encrypted_data.encode()
+            ).decode()
             return json.loads(decrypted_data)
         except Exception as e:
             raise AuthenticationError(f"Failed to decrypt credentials: {e}")
 
     async def _test_integration_connection(
-        self,
-        integration: Integration,
-        credentials: dict[str, Any]
+        self, integration: Integration, credentials: dict[str, Any]
     ) -> bool:
         """Test integration connection."""
         if integration.integration_type == IntegrationType.SLACK:
@@ -533,13 +574,12 @@ class IntegrationService:
                 "payload": {
                     "summary": "Pynomaly integration test",
                     "source": "pynomaly-test",
-                    "severity": "info"
-                }
+                    "severity": "info",
+                },
             }
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    "https://events.pagerduty.com/v2/enqueue",
-                    json=test_event
+                    "https://events.pagerduty.com/v2/enqueue", json=test_event
                 ) as response:
                     return response.status == 202
 
@@ -547,9 +587,7 @@ class IntegrationService:
         return True
 
     async def _validate_integration_config(
-        self,
-        integration_type: IntegrationType,
-        config: IntegrationConfig
+        self, integration_type: IntegrationType, config: IntegrationConfig
     ) -> None:
         """Validate integration configuration."""
         if not config.notification_levels:
@@ -564,12 +602,16 @@ class IntegrationService:
         if config.timeout_seconds < 5 or config.timeout_seconds > 300:
             raise ValidationError("Timeout must be between 5 and 300 seconds")
 
-    async def _has_integration_permission(self, user_id: UserId, tenant_id: TenantId) -> bool:
+    async def _has_integration_permission(
+        self, user_id: UserId, tenant_id: TenantId
+    ) -> bool:
         """Check if user has permission to manage integrations for tenant."""
         # TODO: Implement proper permission checking
         return True
 
-    async def _update_integration_metrics(self, integration_id: str, success: bool) -> None:
+    async def _update_integration_metrics(
+        self, integration_id: str, success: bool
+    ) -> None:
         """Update integration performance metrics."""
         metrics = await self._integration_repo.get_integration_metrics(integration_id)
         if not metrics:
@@ -586,15 +628,14 @@ class IntegrationService:
         await self._integration_repo.update_integration_metrics(metrics)
 
     # Public API Methods
-    async def get_integration_metrics(self, integration_id: str) -> IntegrationMetrics | None:
+    async def get_integration_metrics(
+        self, integration_id: str
+    ) -> IntegrationMetrics | None:
         """Get performance metrics for an integration."""
         return await self._integration_repo.get_integration_metrics(integration_id)
 
     async def get_notification_history(
-        self,
-        integration_id: str,
-        limit: int = 100,
-        offset: int = 0
+        self, integration_id: str, limit: int = 100, offset: int = 0
     ) -> list[NotificationHistory]:
         """Get notification history for an integration."""
         return await self._notification_repo.get_notification_history(
@@ -603,14 +644,20 @@ class IntegrationService:
 
     async def retry_failed_notification(self, history_id: str) -> bool:
         """Retry a failed notification."""
-        history = await self._notification_repo.get_notification_history_by_id(history_id)
+        history = await self._notification_repo.get_notification_history_by_id(
+            history_id
+        )
         if not history:
             return False
 
-        integration = await self._integration_repo.get_integration_by_id(history.integration_id)
+        integration = await self._integration_repo.get_integration_by_id(
+            history.integration_id
+        )
         if not integration:
             return False
 
         # Create new history record for retry
         history.retry_count += 1
-        return await self._send_notification_to_integration(integration, history.payload)
+        return await self._send_notification_to_integration(
+            integration, history.payload
+        )

@@ -15,11 +15,13 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+
 class ProcessingMode(str, Enum):
     BATCH = "batch"
     STREAMING = "streaming"
     MICRO_BATCH = "micro_batch"
     REAL_TIME = "real_time"
+
 
 class PartitioningStrategy(str, Enum):
     HASH = "hash"
@@ -28,12 +30,14 @@ class PartitioningStrategy(str, Enum):
     SIZE_BASED = "size_based"
     ADAPTIVE = "adaptive"
 
+
 class ComputeBackend(str, Enum):
     SPARK = "spark"
     DASK = "dask"
     RAY = "ray"
     KUBERNETES = "kubernetes"
     CUSTOM = "custom"
+
 
 class StorageType(str, Enum):
     HDFS = "hdfs"
@@ -43,9 +47,11 @@ class StorageType(str, Enum):
     DELTA_LAKE = "delta_lake"
     ICEBERG = "iceberg"
 
+
 @dataclass
 class DatasetMetadata:
     """Metadata for massive datasets."""
+
     dataset_id: UUID
     name: str
     total_size_bytes: int
@@ -72,19 +78,21 @@ class DatasetMetadata:
 
     def get_size_gb(self) -> float:
         """Get dataset size in gigabytes."""
-        return self.total_size_bytes / (1024 ** 3)
+        return self.total_size_bytes / (1024**3)
 
     def get_size_tb(self) -> float:
         """Get dataset size in terabytes."""
-        return self.total_size_bytes / (1024 ** 4)
+        return self.total_size_bytes / (1024**4)
 
     def get_size_pb(self) -> float:
         """Get dataset size in petabytes."""
-        return self.total_size_bytes / (1024 ** 5)
+        return self.total_size_bytes / (1024**5)
+
 
 @dataclass
 class ProcessingConfig:
     """Configuration for massive dataset processing."""
+
     processing_mode: ProcessingMode = ProcessingMode.BATCH
     compute_backend: ComputeBackend = ComputeBackend.SPARK
     partitioning_strategy: PartitioningStrategy = PartitioningStrategy.ADAPTIVE
@@ -122,9 +130,11 @@ class ProcessingConfig:
     enable_checkpointing: bool = True
     checkpoint_interval_ms: int = 30000
 
+
 @dataclass
 class ProcessingJob:
     """Represents a massive dataset processing job."""
+
     job_id: UUID
     name: str
     dataset_id: UUID
@@ -163,8 +173,9 @@ class ProcessingJob:
         """Get processing rate in MB/s."""
         duration = self.get_duration_seconds()
         if duration > 0:
-            return (self.processed_bytes / (1024 ** 2)) / duration
+            return (self.processed_bytes / (1024**2)) / duration
         return 0.0
+
 
 class DistributedComputeCluster:
     """Manages distributed compute cluster for massive processing."""
@@ -180,7 +191,9 @@ class DistributedComputeCluster:
     async def initialize_cluster(self) -> bool:
         """Initialize the distributed compute cluster."""
         try:
-            logger.info(f"Initializing {self.backend.value} cluster with {self.max_workers} workers")
+            logger.info(
+                f"Initializing {self.backend.value} cluster with {self.max_workers} workers"
+            )
 
             # Initialize worker pool
             for i in range(self.max_workers):
@@ -244,10 +257,14 @@ class DistributedComputeCluster:
     async def _validate_job_requirements(self, job: ProcessingJob) -> bool:
         """Validate job requirements against cluster capacity."""
         required_workers = min(job.config.max_workers, self.max_workers)
-        available_workers = len([w for w in self.worker_pool if w["status"] == "available"])
+        available_workers = len(
+            [w for w in self.worker_pool if w["status"] == "available"]
+        )
 
         if required_workers > available_workers:
-            logger.warning(f"Not enough workers available: need {required_workers}, have {available_workers}")
+            logger.warning(
+                f"Not enough workers available: need {required_workers}, have {available_workers}"
+            )
             return False
 
         return True
@@ -270,7 +287,9 @@ class DistributedComputeCluster:
 
         return selected_workers
 
-    async def _execute_job(self, job: ProcessingJob, workers: list[dict[str, Any]]) -> None:
+    async def _execute_job(
+        self, job: ProcessingJob, workers: list[dict[str, Any]]
+    ) -> None:
         """Execute a processing job."""
         try:
             # Simulate job execution
@@ -314,7 +333,9 @@ class DistributedComputeCluster:
 
     async def get_cluster_status(self) -> dict[str, Any]:
         """Get cluster status."""
-        available_workers = len([w for w in self.worker_pool if w["status"] == "available"])
+        available_workers = len(
+            [w for w in self.worker_pool if w["status"] == "available"]
+        )
         busy_workers = len([w for w in self.worker_pool if w["status"] == "busy"])
 
         return {
@@ -325,6 +346,7 @@ class DistributedComputeCluster:
             "active_jobs": len(self.active_jobs),
             "resource_utilization": await self.resource_monitor.get_utilization(),
         }
+
 
 class StreamingProcessor:
     """Handles streaming data processing for massive datasets."""
@@ -339,7 +361,9 @@ class StreamingProcessor:
         self.processing_callbacks: dict[str, Callable] = {}
         self.metrics: dict[str, Any] = {"processed_events": 0, "anomalies_detected": 0}
 
-    async def create_stream(self, stream_id: str, processing_callback: Callable) -> bool:
+    async def create_stream(
+        self, stream_id: str, processing_callback: Callable
+    ) -> bool:
         """Create a new data stream."""
         try:
             self.stream_buffers[stream_id] = []
@@ -421,9 +445,12 @@ class StreamingProcessor:
         """Get streaming metrics."""
         return {
             "active_streams": len(self.stream_buffers),
-            "total_buffer_size": sum(len(buffer) for buffer in self.stream_buffers.values()),
+            "total_buffer_size": sum(
+                len(buffer) for buffer in self.stream_buffers.values()
+            ),
             **self.metrics,
         }
+
 
 class ResourceMonitor:
     """Monitors resource usage across the cluster."""
@@ -485,6 +512,7 @@ class ResourceMonitor:
         """Stop resource monitoring."""
         self.running = False
 
+
 class DataPartitionManager:
     """Manages data partitioning for massive datasets."""
 
@@ -510,7 +538,9 @@ class DataPartitionManager:
                     "dataset_id": dataset.dataset_id,
                     "start_row": i * (dataset.row_count // optimal_partitions),
                     "end_row": (i + 1) * (dataset.row_count // optimal_partitions),
-                    "estimated_size_mb": dataset.get_size_gb() * 1024 / optimal_partitions,
+                    "estimated_size_mb": dataset.get_size_gb()
+                    * 1024
+                    / optimal_partitions,
                     "storage_path": f"{dataset.storage_path}/partition_{i}",
                     "created_at": datetime.utcnow(),
                 }
@@ -520,11 +550,15 @@ class DataPartitionManager:
             if optimal_partitions > 0:
                 partitions[-1]["end_row"] = dataset.row_count
 
-            logger.info(f"Created {len(partitions)} partitions for dataset {dataset.dataset_id}")
+            logger.info(
+                f"Created {len(partitions)} partitions for dataset {dataset.dataset_id}"
+            )
             return partitions
 
         except Exception as e:
-            logger.error(f"Failed to create partitions for dataset {dataset.dataset_id}: {e}")
+            logger.error(
+                f"Failed to create partitions for dataset {dataset.dataset_id}: {e}"
+            )
             return []
 
     async def _calculate_optimal_partitions(self, dataset: DatasetMetadata) -> int:
@@ -532,11 +566,15 @@ class DataPartitionManager:
         if self.strategy == PartitioningStrategy.SIZE_BASED:
             return min(
                 self.max_partitions,
-                max(1, int(dataset.get_size_gb() * 1024 / self.target_partition_size_mb))
+                max(
+                    1, int(dataset.get_size_gb() * 1024 / self.target_partition_size_mb)
+                ),
             )
         elif self.strategy == PartitioningStrategy.ADAPTIVE:
             # Adaptive strategy based on data size and characteristics
-            base_partitions = int(dataset.get_size_gb() * 1024 / self.target_partition_size_mb)
+            base_partitions = int(
+                dataset.get_size_gb() * 1024 / self.target_partition_size_mb
+            )
 
             # Adjust based on data characteristics
             if dataset.column_count > 100:
@@ -546,6 +584,7 @@ class DataPartitionManager:
         else:
             # Default partitioning
             return min(self.max_partitions, max(1, dataset.row_count // 1000000))
+
 
 class MassiveDatasetProcessor:
     """Main processor for massive datasets."""
@@ -574,7 +613,9 @@ class MassiveDatasetProcessor:
             logger.error(f"Failed to initialize massive dataset processor: {e}")
             return False
 
-    async def process_dataset(self, dataset: DatasetMetadata, config: ProcessingConfig) -> ProcessingJob:
+    async def process_dataset(
+        self, dataset: DatasetMetadata, config: ProcessingConfig
+    ) -> ProcessingJob:
         """Process a massive dataset."""
         try:
             # Create processing job
@@ -582,7 +623,7 @@ class MassiveDatasetProcessor:
                 job_id=uuid4(),
                 name=f"process_{dataset.name}",
                 dataset_id=dataset.dataset_id,
-                config=config
+                config=config,
             )
 
             logger.info(f"Processing dataset {dataset.name} with job {job.job_id}")
@@ -620,10 +661,20 @@ class MassiveDatasetProcessor:
                 "completed": len(self.completed_jobs),
             },
             "performance": {
-                "total_processed_gb": sum(job.processed_bytes / (1024**3) for job in self.completed_jobs),
-                "avg_processing_rate_mb_per_sec": np.mean([job.get_processing_rate_mb_per_sec() for job in self.completed_jobs]) if self.completed_jobs else 0,
+                "total_processed_gb": sum(
+                    job.processed_bytes / (1024**3) for job in self.completed_jobs
+                ),
+                "avg_processing_rate_mb_per_sec": np.mean(
+                    [
+                        job.get_processing_rate_mb_per_sec()
+                        for job in self.completed_jobs
+                    ]
+                )
+                if self.completed_jobs
+                else 0,
             },
         }
+
 
 # Example usage and testing functions
 async def create_sample_dataset() -> DatasetMetadata:
@@ -640,7 +691,10 @@ async def create_sample_dataset() -> DatasetMetadata:
         data_types={"timestamp": "datetime", "value": "float64", "category": "string"},
     )
 
-async def example_streaming_callback(data_batch: list[dict[str, Any]]) -> dict[str, Any]:
+
+async def example_streaming_callback(
+    data_batch: list[dict[str, Any]],
+) -> dict[str, Any]:
     """Example callback for streaming data processing."""
     # Simulate anomaly detection on streaming data
     anomalies = []

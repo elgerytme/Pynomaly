@@ -55,6 +55,7 @@ ExplainabilityError = DomainError
 InvalidParameterError = ValidationError
 ProcessingError = DomainError
 EntityNotFoundError = DomainError
+PynomaliError = PynamolyError  # Common typo alias
 
 __all__ = [
     # Base exceptions
@@ -104,4 +105,5 @@ __all__ = [
     "ExplainabilityError",
     "InvalidParameterError",
     "ProcessingError",
+    "PynomaliError",
 ]

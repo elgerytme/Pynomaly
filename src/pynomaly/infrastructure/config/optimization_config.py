@@ -460,7 +460,8 @@ def get_quick_optimization_config(n_trials: int = 50) -> OptimizationConfig:
         strategy=OptimizationStrategy.RANDOM_SEARCH,
         n_trials=n_trials,
         resource_constraints=ResourceConstraints(
-            max_time_seconds=300, n_jobs=2  # 5 minutes
+            max_time_seconds=300,
+            n_jobs=2,  # 5 minutes
         ),
         enable_early_stopping=True,
         early_stopping_patience=10,
@@ -477,7 +478,8 @@ def get_thorough_optimization_config(n_trials: int = 500) -> OptimizationConfig:
             pruner_type=PrunerType.HYPERBAND, n_startup_trials=10
         ),
         resource_constraints=ResourceConstraints(
-            max_time_seconds=7200, n_jobs=4  # 2 hours
+            max_time_seconds=7200,
+            n_jobs=4,  # 2 hours
         ),
         enable_early_stopping=True,
         early_stopping_patience=50,
@@ -494,7 +496,9 @@ def get_production_optimization_config(n_trials: int = 200) -> OptimizationConfi
         ),
         pruner_config=PrunerConfig(pruner_type=PrunerType.MEDIAN, n_startup_trials=10),
         resource_constraints=ResourceConstraints(
-            max_time_seconds=3600, max_memory_mb=8192, n_jobs=3  # 1 hour
+            max_time_seconds=3600,
+            max_memory_mb=8192,
+            n_jobs=3,  # 1 hour
         ),
         logging_config=LoggingConfig(
             enable_logging=True, log_trial_details=True, log_memory_usage=True

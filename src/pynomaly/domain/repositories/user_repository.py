@@ -53,17 +53,23 @@ class UserRepositoryProtocol(ABC):
         pass
 
     @abstractmethod
-    async def add_user_to_tenant(self, user_id: UserId, tenant_id: TenantId, role: UserRole) -> UserTenantRole:
+    async def add_user_to_tenant(
+        self, user_id: UserId, tenant_id: TenantId, role: UserRole
+    ) -> UserTenantRole:
         """Add user to tenant with role."""
         pass
 
     @abstractmethod
-    async def remove_user_from_tenant(self, user_id: UserId, tenant_id: TenantId) -> bool:
+    async def remove_user_from_tenant(
+        self, user_id: UserId, tenant_id: TenantId
+    ) -> bool:
         """Remove user from tenant."""
         pass
 
     @abstractmethod
-    async def update_user_role_in_tenant(self, user_id: UserId, tenant_id: TenantId, role: UserRole) -> UserTenantRole:
+    async def update_user_role_in_tenant(
+        self, user_id: UserId, tenant_id: TenantId, role: UserRole
+    ) -> UserTenantRole:
         """Update user's role in tenant."""
         pass
 
@@ -102,7 +108,9 @@ class TenantRepositoryProtocol(ABC):
         pass
 
     @abstractmethod
-    async def update_tenant_usage(self, tenant_id: TenantId, usage_updates: dict) -> bool:
+    async def update_tenant_usage(
+        self, tenant_id: TenantId, usage_updates: dict
+    ) -> bool:
         """Update tenant usage statistics."""
         pass
 

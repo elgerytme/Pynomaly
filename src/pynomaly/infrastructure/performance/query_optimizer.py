@@ -100,7 +100,10 @@ class DataFrameOptimizer:
         ]
 
     def optimize_dataframe_operation(
-        self, df: Any, operation: str, **kwargs  # pandas.DataFrame
+        self,
+        df: Any,
+        operation: str,
+        **kwargs,  # pandas.DataFrame
     ) -> tuple[Any, list[str]]:
         """Optimize DataFrame operation.
 

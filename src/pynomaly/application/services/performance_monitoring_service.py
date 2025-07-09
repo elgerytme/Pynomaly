@@ -486,9 +486,7 @@ class PerformanceMonitoringService:
                 / len(memory_usages)
             )
             ** 0.5
-        ) / (
-            sum(memory_usages) / len(memory_usages) + 1e-8
-        )  # Avoid division by zero
+        ) / (sum(memory_usages) / len(memory_usages) + 1e-8)  # Avoid division by zero
 
         # Convert to reliability score (0-1, higher is better)
         avg_cv = (exec_time_cv + memory_cv) / 2

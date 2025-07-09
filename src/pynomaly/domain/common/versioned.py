@@ -1,5 +1,6 @@
-from sqlalchemy import Integer, Column
+from sqlalchemy import Column, Integer
 from sqlalchemy.orm import declared_attr
+
 
 class VersionedMixin:
     @declared_attr

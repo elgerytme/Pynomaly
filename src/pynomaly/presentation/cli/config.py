@@ -45,8 +45,7 @@ def capture_configuration(
     parameters_file: Path = typer.Option(
         ..., "--params", "-p", help="JSON file with raw parameters"
     ),
-    output_file: Path
-    | None = typer.Option(
+    output_file: Path | None = typer.Option(
         None, "--output", "-o", help="Output file for captured configuration"
     ),
     auto_save: bool = typer.Option(
@@ -57,11 +56,11 @@ def capture_configuration(
         "--generate-name/--no-generate-name",
         help="Auto-generate configuration name",
     ),
-    tags: list[str]
-    | None = typer.Option(None, "--tag", "-t", help="Tags for configuration"),
+    tags: list[str] | None = typer.Option(
+        None, "--tag", "-t", help="Tags for configuration"
+    ),
     user_id: str | None = typer.Option(None, "--user", "-u", help="User identifier"),
-    description: str
-    | None = typer.Option(
+    description: str | None = typer.Option(
         None, "--description", "-d", help="Configuration description"
     ),
 ):
@@ -149,8 +148,7 @@ def export_configurations(
     include_lineage: bool = typer.Option(
         False, "--lineage/--no-lineage", help="Include lineage information"
     ),
-    template_name: str
-    | None = typer.Option(
+    template_name: str | None = typer.Option(
         None, "--template", help="Export as template with given name"
     ),
     compress: bool = typer.Option(
@@ -212,8 +210,9 @@ def export_configurations(
 @app.command("import")
 def import_configurations(
     import_file: Path = typer.Argument(..., help="File to import configurations from"),
-    storage_path: Path
-    | None = typer.Option(None, "--storage", "-s", help="Configuration storage path"),
+    storage_path: Path | None = typer.Option(
+        None, "--storage", "-s", help="Configuration storage path"
+    ),
     overwrite: bool = typer.Option(
         False, "--overwrite/--no-overwrite", help="Overwrite existing configurations"
     ),
@@ -276,11 +275,13 @@ def import_configurations(
 
 @app.command("list")
 def list_configurations(
-    storage_path: Path
-    | None = typer.Option(None, "--storage", "-s", help="Configuration storage path"),
+    storage_path: Path | None = typer.Option(
+        None, "--storage", "-s", help="Configuration storage path"
+    ),
     source: str | None = typer.Option(None, "--source", help="Filter by source"),
-    algorithm: str
-    | None = typer.Option(None, "--algorithm", help="Filter by algorithm"),
+    algorithm: str | None = typer.Option(
+        None, "--algorithm", help="Filter by algorithm"
+    ),
     limit: int = typer.Option(
         20, "--limit", "-l", help="Maximum number of configurations to show"
     ),
@@ -368,14 +369,17 @@ def list_configurations(
 @app.command("search")
 def search_configurations(
     query: str = typer.Argument(..., help="Search query"),
-    storage_path: Path
-    | None = typer.Option(None, "--storage", "-s", help="Configuration storage path"),
+    storage_path: Path | None = typer.Option(
+        None, "--storage", "-s", help="Configuration storage path"
+    ),
     tags: list[str] | None = typer.Option(None, "--tag", "-t", help="Filter by tags"),
     source: str | None = typer.Option(None, "--source", help="Filter by source"),
-    algorithm: str
-    | None = typer.Option(None, "--algorithm", help="Filter by algorithm"),
-    min_accuracy: float
-    | None = typer.Option(None, "--min-accuracy", help="Minimum accuracy filter"),
+    algorithm: str | None = typer.Option(
+        None, "--algorithm", help="Filter by algorithm"
+    ),
+    min_accuracy: float | None = typer.Option(
+        None, "--min-accuracy", help="Minimum accuracy filter"
+    ),
     limit: int = typer.Option(20, "--limit", "-l", help="Maximum results to return"),
     sort_by: str = typer.Option(
         "created_at",
@@ -454,8 +458,9 @@ def search_configurations(
 @app.command("show")
 def show_configuration(
     config_id: str = typer.Argument(..., help="Configuration ID to show"),
-    storage_path: Path
-    | None = typer.Option(None, "--storage", "-s", help="Configuration storage path"),
+    storage_path: Path | None = typer.Option(
+        None, "--storage", "-s", help="Configuration storage path"
+    ),
     include_performance: bool = typer.Option(
         True, "--performance/--no-performance", help="Include performance details"
     ),
@@ -589,8 +594,9 @@ def show_configuration(
 
 @app.command("stats")
 def show_statistics(
-    storage_path: Path
-    | None = typer.Option(None, "--storage", "-s", help="Configuration storage path"),
+    storage_path: Path | None = typer.Option(
+        None, "--storage", "-s", help="Configuration storage path"
+    ),
 ):
     """Show repository statistics."""
     try:

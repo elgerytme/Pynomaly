@@ -11,7 +11,7 @@ from enum import Enum
 from typing import Any
 
 
-class ParameterType(Enum):
+class ParameterType(str, Enum):
     """Types of hyperparameters."""
 
     CATEGORICAL = "categorical"
@@ -20,8 +20,12 @@ class ParameterType(Enum):
     DISCRETE = "discrete"
     BOOLEAN = "boolean"
 
+    def __str__(self) -> str:
+        """Return the string value of the enum."""
+        return self.value
 
-class DistributionType(Enum):
+
+class DistributionType(str, Enum):
     """Parameter value distributions."""
 
     UNIFORM = "uniform"
@@ -29,6 +33,10 @@ class DistributionType(Enum):
     NORMAL = "normal"
     LOG_NORMAL = "log_normal"
     DISCRETE_UNIFORM = "discrete_uniform"
+
+    def __str__(self) -> str:
+        """Return the string value of the enum."""
+        return self.value
 
 
 @dataclass(frozen=True)

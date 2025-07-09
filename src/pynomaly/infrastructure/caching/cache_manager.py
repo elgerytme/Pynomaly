@@ -72,7 +72,7 @@ class MemoryCache(CacheBackend):
         entry = self._cache[key]
 
         # Check expiration
-        if entry['expires_at'] and time.time() > entry['expires_at']:
+        if entry["expires_at"] and time.time() > entry["expires_at"]:
             await self.delete(key)
             self._misses += 1
             return None
@@ -81,7 +81,7 @@ class MemoryCache(CacheBackend):
         self._access_times[key] = time.time()
         self._hits += 1
 
-        return entry['value']
+        return entry["value"]
 
     async def set(self, key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in memory cache."""
@@ -93,9 +93,9 @@ class MemoryCache(CacheBackend):
             await self._evict_lru()
 
         self._cache[key] = {
-            'value': value,
-            'expires_at': expires_at,
-            'created_at': time.time()
+            "value": value,
+            "expires_at": expires_at,
+            "created_at": time.time(),
         }
         self._access_times[key] = time.time()
 
@@ -134,14 +134,14 @@ class MemoryCache(CacheBackend):
         hit_rate = (self._hits / total_requests * 100) if total_requests > 0 else 0
 
         return {
-            'backend': 'memory',
-            'size': len(self._cache),
-            'max_size': self.max_size,
-            'hits': self._hits,
-            'misses': self._misses,
-            'hit_rate_percent': round(hit_rate, 2),
-            'evictions': self._evictions,
-            'utilization_percent': round(len(self._cache) / self.max_size * 100, 2)
+            "backend": "memory",
+            "size": len(self._cache),
+            "max_size": self.max_size,
+            "hits": self._hits,
+            "misses": self._misses,
+            "hit_rate_percent": round(hit_rate, 2),
+            "evictions": self._evictions,
+            "utilization_percent": round(len(self._cache) / self.max_size * 100, 2),
         }
 
     async def _evict_lru(self):
@@ -157,9 +157,15 @@ class MemoryCache(CacheBackend):
 class RedisCache(CacheBackend):
     """Redis cache implementation (requires redis-py)."""
 
-    def __init__(self, host: str = 'localhost', port: int = 6379,
-                 db: int = 0, password: str | None = None,
-                 default_ttl: int = 3600, key_prefix: str = 'pynomaly:'):
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 6379,
+        db: int = 0,
+        password: str | None = None,
+        default_ttl: int = 3600,
+        key_prefix: str = "pynomaly:",
+    ):
         """Initialize Redis cache."""
         self.host = host
         self.port = port
@@ -176,12 +182,13 @@ class RedisCache(CacheBackend):
         if self._redis is None:
             try:
                 import redis.asyncio as redis
+
                 self._redis = redis.Redis(
                     host=self.host,
                     port=self.port,
                     db=self.db,
                     password=self.password,
-                    decode_responses=False  # We handle serialization manually
+                    decode_responses=False,  # We handle serialization manually
                 )
                 await self._redis.ping()
                 logger.info("Connected to Redis cache")
@@ -297,14 +304,14 @@ class RedisCache(CacheBackend):
         hit_rate = (self._hits / total_requests * 100) if total_requests > 0 else 0
 
         return {
-            'backend': 'redis',
-            'host': self.host,
-            'port': self.port,
-            'db': self.db,
-            'hits': self._hits,
-            'misses': self._misses,
-            'hit_rate_percent': round(hit_rate, 2),
-            'connected': self._redis is not None
+            "backend": "redis",
+            "host": self.host,
+            "port": self.port,
+            "db": self.db,
+            "hits": self._hits,
+            "misses": self._misses,
+            "hit_rate_percent": round(hit_rate, 2),
+            "connected": self._redis is not None,
         }
 
 
@@ -355,7 +362,9 @@ class CacheManager:
             logger.error(f"Cache set error: {e}")
             return False
 
-    async def get_or_set(self, key: str, factory: Callable, ttl: int | None = None) -> Any:
+    async def get_or_set(
+        self, key: str, factory: Callable, ttl: int | None = None
+    ) -> Any:
         """Get value from cache or set it using factory function."""
         # Try to get from cache first
         cached_value = await self.get(key)
@@ -404,12 +413,14 @@ class CacheManager:
         else:
             avg_time = max_time = min_time = 0.0
 
-        backend_stats.update({
-            'avg_operation_time_ms': round(avg_time * 1000, 3),
-            'max_operation_time_ms': round(max_time * 1000, 3),
-            'min_operation_time_ms': round(min_time * 1000, 3),
-            'total_operations': len(self._operation_times)
-        })
+        backend_stats.update(
+            {
+                "avg_operation_time_ms": round(avg_time * 1000, 3),
+                "max_operation_time_ms": round(max_time * 1000, 3),
+                "min_operation_time_ms": round(min_time * 1000, 3),
+                "total_operations": len(self._operation_times),
+            }
+        )
 
         return backend_stats
 
@@ -422,9 +433,9 @@ class CacheKey:
         """Generate a cache key from namespace and arguments."""
         # Create deterministic string from args and kwargs
         key_data = {
-            'namespace': namespace,
-            'args': [str(arg) for arg in args],
-            'kwargs': {k: str(v) for k, v in sorted(kwargs.items())}
+            "namespace": namespace,
+            "args": [str(arg) for arg in args],
+            "kwargs": {k: str(v) for k, v in sorted(kwargs.items())},
         }
 
         # Serialize and hash for consistent keys
@@ -444,11 +455,13 @@ class CacheKey:
         return CacheKey.generate("dataset", str(dataset_id), operation)
 
     @staticmethod
-    def for_detection_result(detector_id: str | UUID,
-                           dataset_id: str | UUID,
-                           operation: str = "result") -> str:
+    def for_detection_result(
+        detector_id: str | UUID, dataset_id: str | UUID, operation: str = "result"
+    ) -> str:
         """Generate cache key for detection results."""
-        return CacheKey.generate("detection", str(detector_id), str(dataset_id), operation)
+        return CacheKey.generate(
+            "detection", str(detector_id), str(dataset_id), operation
+        )
 
     @staticmethod
     def for_user(user_id: str | UUID, operation: str = "profile") -> str:
@@ -463,9 +476,12 @@ class CacheKey:
 
 # Cache decorators
 
-def cached(ttl: int = 3600, key_prefix: str = "func",
-          cache_manager: CacheManager | None = None):
+
+def cached(
+    ttl: int = 3600, key_prefix: str = "func", cache_manager: CacheManager | None = None
+):
     """Decorator to cache function results."""
+
     def decorator(func):
         async def async_wrapper(*args, **kwargs):
             nonlocal cache_manager
@@ -474,7 +490,9 @@ def cached(ttl: int = 3600, key_prefix: str = "func",
                 cache_manager = CacheManager(MemoryCache())
 
             # Generate cache key
-            cache_key = CacheKey.generate(f"{key_prefix}:{func.__name__}", *args, **kwargs)
+            cache_key = CacheKey.generate(
+                f"{key_prefix}:{func.__name__}", *args, **kwargs
+            )
 
             # Try to get from cache
             cached_result = await cache_manager.get(cache_key)
@@ -508,6 +526,7 @@ def cached(ttl: int = 3600, key_prefix: str = "func",
 
 def cache_invalidate(pattern: str, cache_manager: CacheManager | None = None):
     """Decorator to invalidate cache entries after function execution."""
+
     def decorator(func):
         async def async_wrapper(*args, **kwargs):
             nonlocal cache_manager
@@ -522,7 +541,9 @@ def cache_invalidate(pattern: str, cache_manager: CacheManager | None = None):
 
             # Invalidate cache pattern
             invalidated_count = await cache_manager.clear(pattern)
-            logger.debug(f"Invalidated {invalidated_count} cache entries with pattern: {pattern}")
+            logger.debug(
+                f"Invalidated {invalidated_count} cache entries with pattern: {pattern}"
+            )
 
             return result
 
@@ -557,22 +578,24 @@ def configure_cache(cache_type: str = "memory", **kwargs) -> CacheManager:
 
     if cache_type == "memory":
         backend = MemoryCache(
-            max_size=kwargs.get('max_size', 5000),
-            default_ttl=kwargs.get('default_ttl', 3600)
+            max_size=kwargs.get("max_size", 5000),
+            default_ttl=kwargs.get("default_ttl", 3600),
         )
     elif cache_type == "redis":
         backend = RedisCache(
-            host=kwargs.get('host', 'localhost'),
-            port=kwargs.get('port', 6379),
-            db=kwargs.get('db', 0),
-            password=kwargs.get('password'),
-            default_ttl=kwargs.get('default_ttl', 3600),
-            key_prefix=kwargs.get('key_prefix', 'pynomaly:')
+            host=kwargs.get("host", "localhost"),
+            port=kwargs.get("port", 6379),
+            db=kwargs.get("db", 0),
+            password=kwargs.get("password"),
+            default_ttl=kwargs.get("default_ttl", 3600),
+            key_prefix=kwargs.get("key_prefix", "pynomaly:"),
         )
     else:
         raise ValueError(f"Unsupported cache type: {cache_type}")
 
-    _global_cache_manager = CacheManager(backend, enable_metrics=kwargs.get('enable_metrics', True))
+    _global_cache_manager = CacheManager(
+        backend, enable_metrics=kwargs.get("enable_metrics", True)
+    )
     logger.info(f"Configured {cache_type} cache manager")
 
     return _global_cache_manager

@@ -1,62 +1,77 @@
 """Comprehensive caching system for Pynomaly."""
 
-from .redis_cache import (
-    RedisCache,
-    CacheKeys,
-    CachedRepository,
-    DetectorCacheDecorator,
-    init_cache,
-    get_cache,
-)
-
-from .intelligent_cache import (
-    IntelligentCacheManager,
-    CacheStrategy,
-    CompressionType,
-    SerializationFormat,
-    CacheEntry,
-    CacheStats,
-    AccessPattern,
-    get_intelligent_cache_manager,
-    close_intelligent_cache_manager,
-)
-
-from .decorators import (
-    CacheConfig,
-    CacheKeyGenerator,
+from .cache_core import (
     CacheDecorator,
-    AsyncCacheDecorator,
-    SyncCacheDecorator,
-    CacheInvalidator,
-    set_cache_manager,
-    get_cache_manager,
-    get_cache_invalidator,
-    cached,
-    cache_result,
-    cache_expensive,
-    cache_model_prediction,
-    cache_database_query,
-    cache_context,
-    invalidate_cache,
-    invalidate_cache_pattern,
-    warm_cache,
-    get_cache_stats,
+    CacheEvictionPolicy,
+    CacheInterface,
+    CacheKeyBuilder,
+    CacheSerializer,
+    InMemoryCache,
 )
-
 from .cache_integration import (
     CacheConfiguration,
     CacheHealthMonitor,
     CacheIntegrationManager,
-    get_cache_integration_manager,
-    close_cache_integration_manager,
     cache_system_context,
+    close_cache_integration_manager,
     get_cache_health,
+    get_cache_integration_manager,
     get_cache_statistics,
     perform_cache_maintenance,
     warm_cache_with_critical_data,
 )
+from .cache_manager import CacheManager, DistributedCache
+from .decorators import (
+    AsyncCacheDecorator,
+    CacheConfig,
+    CacheDecorator,
+    CacheInvalidator,
+    CacheKeyGenerator,
+    SyncCacheDecorator,
+    cache_context,
+    cache_database_query,
+    cache_expensive,
+    cache_model_prediction,
+    cache_result,
+    cached,
+    get_cache_invalidator,
+    get_cache_manager,
+    get_cache_stats,
+    invalidate_cache,
+    invalidate_cache_pattern,
+    set_cache_manager,
+    warm_cache,
+)
+from .intelligent_cache import (
+    AccessPattern,
+    CacheEntry,
+    CacheStats,
+    CacheStrategy,
+    CompressionType,
+    IntelligentCacheManager,
+    SerializationFormat,
+    close_intelligent_cache_manager,
+    get_intelligent_cache_manager,
+)
+from .redis_cache import (
+    CachedRepository,
+    CacheKeys,
+    DetectorCacheDecorator,
+    RedisCache,
+    get_cache,
+    init_cache,
+)
 
 __all__ = [
+    # Core cache classes
+    "CacheInterface",
+    "InMemoryCache",
+    "CacheKeyBuilder",
+    "CacheSerializer",
+    "CacheDecorator",
+    "CacheEvictionPolicy",
+    "CacheManager",
+    "DistributedCache",
     # Redis cache
     "RedisCache",
     "CacheKeys",
@@ -64,7 +79,6 @@ __all__ = [
     "DetectorCacheDecorator",
     "init_cache",
     "get_cache",
-    
     # Intelligent cache
     "IntelligentCacheManager",
     "CacheStrategy",
@@ -75,7 +89,6 @@ __all__ = [
     "AccessPattern",
     "get_intelligent_cache_manager",
     "close_intelligent_cache_manager",
-    
     # Decorators
     "CacheConfig",
     "CacheKeyGenerator",
@@ -96,7 +109,6 @@ __all__ = [
     "invalidate_cache_pattern",
     "warm_cache",
     "get_cache_stats",
-    
     # Integration
     "CacheConfiguration",
     "CacheHealthMonitor",

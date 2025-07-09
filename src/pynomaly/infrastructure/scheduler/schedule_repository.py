@@ -46,7 +46,9 @@ class ScheduleRepository(ABC):
         pass
 
     @abstractmethod
-    def list_executions(self, schedule_id: str | None = None) -> list[ScheduleExecution]:
+    def list_executions(
+        self, schedule_id: str | None = None
+    ) -> list[ScheduleExecution]:
         """List schedule executions, optionally filtered by schedule ID."""
         pass
 
@@ -94,7 +96,9 @@ class InMemoryScheduleRepository(ScheduleRepository):
         """Get a schedule execution by ID."""
         return self.executions.get(execution_id)
 
-    def list_executions(self, schedule_id: str | None = None) -> list[ScheduleExecution]:
+    def list_executions(
+        self, schedule_id: str | None = None
+    ) -> list[ScheduleExecution]:
         """List schedule executions, optionally filtered by schedule ID."""
         executions = list(self.executions.values())
         if schedule_id:
@@ -141,7 +145,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
         """Save a schedule."""
         file_path = self._schedule_file_path(schedule.schedule_id)
         try:
-            with open(file_path, 'w') as f:
+            with open(file_path, "w") as f:
                 json.dump(schedule.to_dict(), f, indent=2)
             logger.debug(f"Saved schedule {schedule.schedule_id} to {file_path}")
         except Exception as e:
@@ -191,7 +195,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
         """Save a schedule execution."""
         file_path = self._execution_file_path(execution.execution_id)
         try:
-            with open(file_path, 'w') as f:
+            with open(file_path, "w") as f:
                 json.dump(execution.to_dict(), f, indent=2)
             logger.debug(f"Saved execution {execution.execution_id} to {file_path}")
         except Exception as e:
@@ -214,7 +218,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
                 schedule_id=data["schedule_id"],
                 trigger_type=data["trigger_type"],
                 trigger_info=data.get("trigger_info", {}),
-                created_at=data["created_at"]
+                created_at=data["created_at"],
             )
 
             # Add result if present
@@ -234,7 +238,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
                     trigger_type=result_data.get("trigger_type", "manual"),
                     trigger_info=result_data.get("trigger_info", {}),
                     metadata=result_data.get("metadata", {}),
-                    created_at=result_data["created_at"]
+                    created_at=result_data["created_at"],
                 )
                 execution.result = result
 
@@ -243,7 +247,9 @@ class FileSystemScheduleRepository(ScheduleRepository):
             logger.error(f"Failed to load execution {execution_id}: {e}")
             return None
 
-    def list_executions(self, schedule_id: str | None = None) -> list[ScheduleExecution]:
+    def list_executions(
+        self, schedule_id: str | None = None
+    ) -> list[ScheduleExecution]:
         """List schedule executions, optionally filtered by schedule ID."""
         executions = []
         for file_path in self.executions_path.glob("*.json"):
@@ -260,7 +266,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
                     schedule_id=data["schedule_id"],
                     trigger_type=data["trigger_type"],
                     trigger_info=data.get("trigger_info", {}),
-                    created_at=data["created_at"]
+                    created_at=data["created_at"],
                 )
                 executions.append(execution)
             except Exception as e:
@@ -282,6 +288,7 @@ class FileSystemScheduleRepository(ScheduleRepository):
     def clear_all(self) -> None:
         """Clear all data (for testing)."""
         import shutil
+
         if self.base_path.exists():
             shutil.rmtree(self.base_path)
         self.schedules_path.mkdir(parents=True, exist_ok=True)

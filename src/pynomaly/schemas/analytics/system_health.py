@@ -23,6 +23,7 @@ from .base import RealTimeMetricFrame
 
 class SystemStatus(str, Enum):
     """System health status levels."""
+
     HEALTHY = "healthy"
     WARNING = "warning"
     CRITICAL = "critical"
@@ -32,6 +33,7 @@ class SystemStatus(str, Enum):
 
 class ServiceStatus(str, Enum):
     """Service status levels."""
+
     RUNNING = "running"
     STOPPED = "stopped"
     STARTING = "starting"
@@ -43,45 +45,61 @@ class SystemResourceMetrics(BaseModel):
     """System resource utilization metrics."""
 
     # CPU metrics
-    cpu_usage_percent: float = Field(ge=0.0, le=100.0, description="CPU usage percentage")
+    cpu_usage_percent: float = Field(
+        ge=0.0, le=100.0, description="CPU usage percentage"
+    )
     cpu_load_average: float = Field(ge=0.0, description="CPU load average")
     cpu_cores: int = Field(gt=0, description="Number of CPU cores")
-    cpu_frequency: float | None = Field(None, ge=0.0, description="CPU frequency in GHz")
+    cpu_frequency: float | None = Field(
+        None, ge=0.0, description="CPU frequency in GHz"
+    )
 
     # Memory metrics
-    memory_usage_percent: float = Field(ge=0.0, le=100.0, description="Memory usage percentage")
+    memory_usage_percent: float = Field(
+        ge=0.0, le=100.0, description="Memory usage percentage"
+    )
     memory_used_mb: float = Field(ge=0.0, description="Memory used in MB")
     memory_total_mb: float = Field(gt=0.0, description="Total memory in MB")
     memory_available_mb: float = Field(ge=0.0, description="Available memory in MB")
 
     # Disk metrics
-    disk_usage_percent: float = Field(ge=0.0, le=100.0, description="Disk usage percentage")
+    disk_usage_percent: float = Field(
+        ge=0.0, le=100.0, description="Disk usage percentage"
+    )
     disk_used_gb: float = Field(ge=0.0, description="Disk used in GB")
     disk_total_gb: float = Field(gt=0.0, description="Total disk space in GB")
     disk_io_read_rate: float = Field(ge=0.0, description="Disk read rate in MB/s")
     disk_io_write_rate: float = Field(ge=0.0, description="Disk write rate in MB/s")
 
     # Network metrics
-    network_bytes_sent_rate: float = Field(ge=0.0, description="Network bytes sent rate in MB/s")
-    network_bytes_recv_rate: float = Field(ge=0.0, description="Network bytes received rate in MB/s")
-    network_packets_sent_rate: float = Field(ge=0.0, description="Network packets sent rate per second")
-    network_packets_recv_rate: float = Field(ge=0.0, description="Network packets received rate per second")
+    network_bytes_sent_rate: float = Field(
+        ge=0.0, description="Network bytes sent rate in MB/s"
+    )
+    network_bytes_recv_rate: float = Field(
+        ge=0.0, description="Network bytes received rate in MB/s"
+    )
+    network_packets_sent_rate: float = Field(
+        ge=0.0, description="Network packets sent rate per second"
+    )
+    network_packets_recv_rate: float = Field(
+        ge=0.0, description="Network packets received rate per second"
+    )
 
     # Process metrics
     process_count: int = Field(ge=0, description="Number of running processes")
     thread_count: int = Field(ge=0, description="Number of active threads")
 
-    @validator('memory_used_mb')
+    @validator("memory_used_mb")
     def validate_memory_used(cls, v: float, values: dict[str, Any]) -> float:
         """Validate memory used doesn't exceed total."""
-        if 'memory_total_mb' in values and v > values['memory_total_mb']:
+        if "memory_total_mb" in values and v > values["memory_total_mb"]:
             raise ValueError("Memory used cannot exceed total memory")
         return v
 
-    @validator('disk_used_gb')
+    @validator("disk_used_gb")
     def validate_disk_used(cls, v: float, values: dict[str, Any]) -> float:
         """Validate disk used doesn't exceed total."""
-        if 'disk_total_gb' in values and v > values['disk_total_gb']:
+        if "disk_total_gb" in values and v > values["disk_total_gb"]:
             raise ValueError("Disk used cannot exceed total disk space")
         return v
 
@@ -90,13 +108,21 @@ class SystemPerformanceMetrics(BaseModel):
     """System performance metrics."""
 
     # Response times
-    avg_response_time_ms: float = Field(ge=0.0, description="Average response time in milliseconds")
-    p95_response_time_ms: float = Field(ge=0.0, description="95th percentile response time in milliseconds")
-    p99_response_time_ms: float = Field(ge=0.0, description="99th percentile response time in milliseconds")
+    avg_response_time_ms: float = Field(
+        ge=0.0, description="Average response time in milliseconds"
+    )
+    p95_response_time_ms: float = Field(
+        ge=0.0, description="95th percentile response time in milliseconds"
+    )
+    p99_response_time_ms: float = Field(
+        ge=0.0, description="99th percentile response time in milliseconds"
+    )
 
     # Throughput metrics
     requests_per_second: float = Field(ge=0.0, description="Requests per second")
-    transactions_per_second: float = Field(ge=0.0, description="Transactions per second")
+    transactions_per_second: float = Field(
+        ge=0.0, description="Transactions per second"
+    )
 
     # Error metrics
     error_rate: float = Field(ge=0.0, le=1.0, description="Error rate (0-1)")
@@ -104,8 +130,12 @@ class SystemPerformanceMetrics(BaseModel):
     retry_rate: float = Field(ge=0.0, le=1.0, description="Retry rate (0-1)")
 
     # Database metrics
-    database_connections: int = Field(ge=0, description="Number of database connections")
-    database_query_time_ms: float = Field(ge=0.0, description="Average database query time in milliseconds")
+    database_connections: int = Field(
+        ge=0, description="Number of database connections"
+    )
+    database_query_time_ms: float = Field(
+        ge=0.0, description="Average database query time in milliseconds"
+    )
     database_deadlocks: int = Field(ge=0, description="Number of database deadlocks")
 
     # Cache metrics
@@ -114,19 +144,23 @@ class SystemPerformanceMetrics(BaseModel):
 
     # Queue metrics
     queue_depth: int = Field(ge=0, description="Queue depth")
-    queue_processing_time_ms: float = Field(ge=0.0, description="Queue processing time in milliseconds")
+    queue_processing_time_ms: float = Field(
+        ge=0.0, description="Queue processing time in milliseconds"
+    )
 
-    @validator('p95_response_time_ms')
+    @validator("p95_response_time_ms")
     def validate_p95_response_time(cls, v: float, values: dict[str, Any]) -> float:
         """Validate P95 response time is >= average."""
-        if 'avg_response_time_ms' in values and v < values['avg_response_time_ms']:
-            raise ValueError("P95 response time cannot be less than average response time")
+        if "avg_response_time_ms" in values and v < values["avg_response_time_ms"]:
+            raise ValueError(
+                "P95 response time cannot be less than average response time"
+            )
         return v
 
-    @validator('p99_response_time_ms')
+    @validator("p99_response_time_ms")
     def validate_p99_response_time(cls, v: float, values: dict[str, Any]) -> float:
         """Validate P99 response time is >= P95."""
-        if 'p95_response_time_ms' in values and v < values['p95_response_time_ms']:
+        if "p95_response_time_ms" in values and v < values["p95_response_time_ms"]:
             raise ValueError("P99 response time cannot be less than P95 response time")
         return v
 
@@ -150,28 +184,38 @@ class SystemStatusMetrics(BaseModel):
     warning_alerts: int = Field(ge=0, description="Number of warning alerts")
 
     # Maintenance and deployment
-    maintenance_mode: bool = Field(default=False, description="Whether system is in maintenance mode")
-    deployment_in_progress: bool = Field(default=False, description="Whether deployment is in progress")
+    maintenance_mode: bool = Field(
+        default=False, description="Whether system is in maintenance mode"
+    )
+    deployment_in_progress: bool = Field(
+        default=False, description="Whether deployment is in progress"
+    )
 
     # Security status
-    security_scan_passed: bool = Field(default=True, description="Whether security scan passed")
-    vulnerability_count: int = Field(ge=0, description="Number of known vulnerabilities")
+    security_scan_passed: bool = Field(
+        default=True, description="Whether security scan passed"
+    )
+    vulnerability_count: int = Field(
+        ge=0, description="Number of known vulnerabilities"
+    )
 
     # Backup status
-    last_backup_timestamp: datetime | None = Field(None, description="Last backup timestamp")
+    last_backup_timestamp: datetime | None = Field(
+        None, description="Last backup timestamp"
+    )
     backup_status: str | None = Field(None, description="Backup status")
 
-    @validator('services_healthy')
+    @validator("services_healthy")
     def validate_services_healthy(cls, v: int, values: dict[str, Any]) -> int:
         """Validate healthy services don't exceed total."""
-        if 'services_total' in values and v > values['services_total']:
+        if "services_total" in values and v > values["services_total"]:
             raise ValueError("Healthy services cannot exceed total services")
         return v
 
-    @validator('critical_alerts')
+    @validator("critical_alerts")
     def validate_critical_alerts(cls, v: int, values: dict[str, Any]) -> int:
         """Validate critical alerts don't exceed active alerts."""
-        if 'active_alerts' in values and v > values['active_alerts']:
+        if "active_alerts" in values and v > values["active_alerts"]:
             raise ValueError("Critical alerts cannot exceed active alerts")
         return v
 
@@ -190,16 +234,28 @@ class SystemHealthFrame(RealTimeMetricFrame):
     region: str | None = Field(None, description="Deployment region")
 
     # Health scores
-    overall_health_score: float = Field(ge=0.0, le=1.0, description="Overall health score (0-1)")
-    availability_score: float = Field(ge=0.0, le=1.0, description="Availability score (0-1)")
-    reliability_score: float = Field(ge=0.0, le=1.0, description="Reliability score (0-1)")
+    overall_health_score: float = Field(
+        ge=0.0, le=1.0, description="Overall health score (0-1)"
+    )
+    availability_score: float = Field(
+        ge=0.0, le=1.0, description="Availability score (0-1)"
+    )
+    reliability_score: float = Field(
+        ge=0.0, le=1.0, description="Reliability score (0-1)"
+    )
 
     # Capacity planning
-    capacity_utilization: float = Field(ge=0.0, le=1.0, description="Capacity utilization (0-1)")
-    estimated_capacity_exhaustion: datetime | None = Field(None, description="Estimated capacity exhaustion time")
+    capacity_utilization: float = Field(
+        ge=0.0, le=1.0, description="Capacity utilization (0-1)"
+    )
+    estimated_capacity_exhaustion: datetime | None = Field(
+        None, description="Estimated capacity exhaustion time"
+    )
 
     # Trend indicators
-    cpu_trend: str | None = Field(None, description="CPU usage trend (increasing, decreasing, stable)")
+    cpu_trend: str | None = Field(
+        None, description="CPU usage trend (increasing, decreasing, stable)"
+    )
     memory_trend: str | None = Field(None, description="Memory usage trend")
     disk_trend: str | None = Field(None, description="Disk usage trend")
 
@@ -209,6 +265,7 @@ class SystemHealthFrame(RealTimeMetricFrame):
 
     class Config:
         """Pydantic configuration."""
+
         use_enum_values = True
         validate_assignment = True
         extra = "forbid"
@@ -216,7 +273,9 @@ class SystemHealthFrame(RealTimeMetricFrame):
     def get_resource_health_score(self) -> float:
         """Calculate resource health score based on utilization."""
         cpu_score = max(0.0, 1.0 - (self.resource_metrics.cpu_usage_percent / 100.0))
-        memory_score = max(0.0, 1.0 - (self.resource_metrics.memory_usage_percent / 100.0))
+        memory_score = max(
+            0.0, 1.0 - (self.resource_metrics.memory_usage_percent / 100.0)
+        )
         disk_score = max(0.0, 1.0 - (self.resource_metrics.disk_usage_percent / 100.0))
 
         return (cpu_score + memory_score + disk_score) / 3.0
@@ -224,7 +283,9 @@ class SystemHealthFrame(RealTimeMetricFrame):
     def get_performance_health_score(self) -> float:
         """Calculate performance health score."""
         # Lower response times are better
-        response_score = max(0.0, 1.0 - min(1.0, self.performance_metrics.avg_response_time_ms / 1000.0))
+        response_score = max(
+            0.0, 1.0 - min(1.0, self.performance_metrics.avg_response_time_ms / 1000.0)
+        )
 
         # Lower error rates are better
         error_score = max(0.0, 1.0 - self.performance_metrics.error_rate)
@@ -239,7 +300,9 @@ class SystemHealthFrame(RealTimeMetricFrame):
         if self.status_metrics.services_total == 0:
             return 1.0
 
-        service_health_ratio = self.status_metrics.services_healthy / self.status_metrics.services_total
+        service_health_ratio = (
+            self.status_metrics.services_healthy / self.status_metrics.services_total
+        )
 
         # Penalize for critical alerts
         alert_penalty = min(1.0, self.status_metrics.critical_alerts * 0.1)
@@ -251,27 +314,33 @@ class SystemHealthFrame(RealTimeMetricFrame):
 
     def is_healthy(self) -> bool:
         """Check if the system is healthy."""
-        return all([
-            self.overall_health_score >= 0.8,
-            self.status_metrics.system_status in [SystemStatus.HEALTHY, SystemStatus.WARNING],
-            self.resource_metrics.cpu_usage_percent <= 80.0,
-            self.resource_metrics.memory_usage_percent <= 80.0,
-            self.resource_metrics.disk_usage_percent <= 80.0,
-            self.performance_metrics.error_rate <= 0.05,
-            self.status_metrics.critical_alerts == 0,
-        ])
+        return all(
+            [
+                self.overall_health_score >= 0.8,
+                self.status_metrics.system_status
+                in [SystemStatus.HEALTHY, SystemStatus.WARNING],
+                self.resource_metrics.cpu_usage_percent <= 80.0,
+                self.resource_metrics.memory_usage_percent <= 80.0,
+                self.resource_metrics.disk_usage_percent <= 80.0,
+                self.performance_metrics.error_rate <= 0.05,
+                self.status_metrics.critical_alerts == 0,
+            ]
+        )
 
     def needs_attention(self) -> bool:
         """Check if the system needs attention."""
-        return any([
-            self.overall_health_score < 0.8,
-            self.status_metrics.system_status in [SystemStatus.CRITICAL, SystemStatus.DEGRADED],
-            self.resource_metrics.cpu_usage_percent > 80.0,
-            self.resource_metrics.memory_usage_percent > 80.0,
-            self.resource_metrics.disk_usage_percent > 80.0,
-            self.performance_metrics.error_rate > 0.05,
-            self.status_metrics.critical_alerts > 0,
-        ])
+        return any(
+            [
+                self.overall_health_score < 0.8,
+                self.status_metrics.system_status
+                in [SystemStatus.CRITICAL, SystemStatus.DEGRADED],
+                self.resource_metrics.cpu_usage_percent > 80.0,
+                self.resource_metrics.memory_usage_percent > 80.0,
+                self.resource_metrics.disk_usage_percent > 80.0,
+                self.performance_metrics.error_rate > 0.05,
+                self.status_metrics.critical_alerts > 0,
+            ]
+        )
 
     def get_health_summary(self) -> dict[str, Any]:
         """Get a summary of system health."""

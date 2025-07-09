@@ -10,7 +10,7 @@ class JAXAdapter:
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         raise ImportError(
-            "JAX is required for JAXAdapter. " "Install with: pip install jax jaxlib"
+            "JAX is required for JAXAdapter. Install with: pip install jax jaxlib"
         )
 
 
@@ -19,5 +19,5 @@ class AutoEncoder:
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         raise ImportError(
-            "JAX is required for AutoEncoder. " "Install with: pip install jax jaxlib"
+            "JAX is required for AutoEncoder. Install with: pip install jax jaxlib"
         )

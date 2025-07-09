@@ -3,12 +3,12 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class StreamDataPointDTO(BaseModel):
     """DTO for individual stream data point."""
-    
+
     model_config = ConfigDict(extra="forbid")
     timestamp: datetime | None = Field(default=None, description="Data point timestamp")
     features: dict[str, float] = Field(description="Feature values for the data point")
@@ -71,7 +71,7 @@ class StreamDataPointDTO(BaseModel):
 
 class StreamDataBatchDTO(BaseModel):
     """DTO for batch of stream data points."""
-    
+
     model_config = ConfigDict(extra="forbid")
     batch_id: str | None = Field(default=None, description="Batch identifier")
     data_points: list[StreamDataPointDTO] = Field(
@@ -126,7 +126,7 @@ class StreamDataBatchDTO(BaseModel):
 
 class StreamDetectionRequestDTO(BaseModel):
     """DTO for stream detection request."""
-    
+
     model_config = ConfigDict(extra="forbid")
     detector_id: str = Field(description="Detector identifier")
     data_batch: StreamDataBatchDTO = Field(description="Data batch to process")
@@ -137,7 +137,7 @@ class StreamDetectionRequestDTO(BaseModel):
 
 class StreamDetectionResponseDTO(BaseModel):
     """DTO for stream detection response."""
-    
+
     model_config = ConfigDict(extra="forbid")
     request_id: str = Field(description="Request identifier")
     predictions: list[int] = Field(description="Anomaly predictions")
@@ -148,7 +148,7 @@ class StreamDetectionResponseDTO(BaseModel):
 
 class StreamConfigurationDTO(BaseModel):
     """DTO for stream configuration."""
-    
+
     model_config = ConfigDict(extra="forbid")
     buffer_size: int = Field(default=1000, description="Buffer size")
     batch_size: int = Field(default=100, description="Batch size")
@@ -157,7 +157,7 @@ class StreamConfigurationDTO(BaseModel):
 
 class StreamMetricsDTO(BaseModel):
     """DTO for stream metrics."""
-    
+
     model_config = ConfigDict(extra="forbid")
     stream_id: str = Field(description="Stream identifier")
     throughput: float = Field(description="Throughput in samples/second")
@@ -168,7 +168,7 @@ class StreamMetricsDTO(BaseModel):
 
 class StreamStatusDTO(BaseModel):
     """DTO for stream status."""
-    
+
     model_config = ConfigDict(extra="forbid")
     stream_id: str = Field(description="Stream identifier")
     status: str = Field(description="Current status")
@@ -178,7 +178,7 @@ class StreamStatusDTO(BaseModel):
 
 class StreamErrorDTO(BaseModel):
     """DTO for stream errors."""
-    
+
     model_config = ConfigDict(extra="forbid")
     stream_id: str = Field(description="Stream identifier")
     error_code: str = Field(description="Error code")
@@ -189,7 +189,7 @@ class StreamErrorDTO(BaseModel):
 
 class BackpressureConfigDTO(BaseModel):
     """DTO for backpressure configuration."""
-    
+
     model_config = ConfigDict(extra="forbid")
     enabled: bool = Field(default=True, description="Enable backpressure")
     high_watermark: float = Field(default=0.8, description="High watermark threshold")
@@ -199,7 +199,7 @@ class BackpressureConfigDTO(BaseModel):
 
 class WindowConfigDTO(BaseModel):
     """DTO for window configuration."""
-    
+
     model_config = ConfigDict(extra="forbid")
     window_type: str = Field(description="Window type (sliding, tumbling, session)")
     size_ms: int = Field(description="Window size in milliseconds")
@@ -213,7 +213,7 @@ class WindowConfigDTO(BaseModel):
 
 class CheckpointConfigDTO(BaseModel):
     """DTO for checkpoint configuration."""
-    
+
     model_config = ConfigDict(extra="forbid")
     enabled: bool = Field(default=True, description="Enable checkpointing")
     interval_ms: int = Field(
@@ -227,7 +227,7 @@ class CheckpointConfigDTO(BaseModel):
 
 class StreamingConfigurationDTO(BaseModel):
     """DTO for streaming detection configuration."""
-    
+
     model_config = ConfigDict(extra="forbid")
     strategy: str = Field(
         default="adaptive_batch",
@@ -379,7 +379,7 @@ class StreamingConfigurationDTO(BaseModel):
 
 class StreamingSampleDTO(BaseModel):
     """DTO for streaming sample data."""
-    
+
     model_config = ConfigDict(extra="forbid")
     id: str | None = Field(
         default=None, description="Sample ID (auto-generated if not provided)"
@@ -420,7 +420,7 @@ class StreamingSampleDTO(BaseModel):
 
 class StreamingRequestDTO(BaseModel):
     """DTO for streaming detection request."""
-    
+
     model_config = ConfigDict(extra="forbid")
     detector_id: str = Field(description="ID of detector to use for streaming")
     configuration: StreamingConfigurationDTO = Field(
@@ -449,7 +449,7 @@ class StreamingRequestDTO(BaseModel):
 
 class StreamingResponseDTO(BaseModel):
     """DTO for streaming detection response."""
-    
+
     model_config = ConfigDict(extra="forbid")
     success: bool = Field(description="Whether streaming setup was successful")
     stream_id: str = Field(
@@ -474,7 +474,7 @@ class StreamingResponseDTO(BaseModel):
 
 class StreamingResultDTO(BaseModel):
     """DTO for streaming detection result."""
-    
+
     model_config = ConfigDict(extra="forbid")
     sample_id: str = Field(description="ID of processed sample")
     prediction: int = Field(
@@ -499,7 +499,7 @@ class StreamingResultDTO(BaseModel):
 
 class StreamingMetricsDTO(BaseModel):
     """DTO for streaming performance metrics."""
-    
+
     model_config = ConfigDict(extra="forbid")
     stream_id: str = Field(description="Stream identifier")
     samples_processed: int = Field(ge=0, description="Total samples processed")
@@ -541,7 +541,7 @@ class StreamingMetricsDTO(BaseModel):
 
 class StreamingStatusDTO(BaseModel):
     """DTO for streaming system status."""
-    
+
     model_config = ConfigDict(extra="forbid")
     active_streams: list[str] = Field(description="List of active stream IDs")
     total_streams_created: int = Field(
@@ -564,7 +564,7 @@ class StreamingStatusDTO(BaseModel):
 
 class StreamingBatchResultDTO(BaseModel):
     """DTO for batch streaming results."""
-    
+
     model_config = ConfigDict(extra="forbid")
     stream_id: str = Field(description="Stream identifier")
     batch_id: str = Field(description="Batch identifier")
@@ -586,7 +586,7 @@ class StreamingBatchResultDTO(BaseModel):
 
 class StreamingControlDTO(BaseModel):
     """DTO for streaming control operations."""
-    
+
     model_config = ConfigDict(extra="forbid")
     action: str = Field(
         description="Control action (start, stop, pause, resume, configure)"
@@ -622,7 +622,7 @@ class StreamingControlDTO(BaseModel):
 
 class StreamingHealthCheckDTO(BaseModel):
     """DTO for streaming health check response."""
-    
+
     model_config = ConfigDict(extra="forbid")
     status: str = Field(description="Health status (healthy, degraded, unhealthy)")
     timestamp: datetime = Field(

@@ -12,9 +12,6 @@ from rich.table import Table
 from pynomaly.presentation.cli import (
     automl,
     autonomous,
-)
-from pynomaly.presentation.cli import config as config_cli
-from pynomaly.presentation.cli import (
     datasets,
     deep_learning,
     detection,
@@ -26,6 +23,7 @@ from pynomaly.presentation.cli import (
     tdd,
     validation,
 )
+from pynomaly.presentation.cli import config as config_cli
 from pynomaly.presentation.cli.export import export_app
 from pynomaly.presentation.cli.performance import performance_app
 
@@ -84,9 +82,21 @@ app.add_typer(detection.app, name="detect", help="Run anomaly detection")
 app.add_typer(
     tdd.app, name="tdd", help="Test-Driven Development (TDD) management and enforcement"
 )
-app.add_typer(deep_learning.app, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")
-app.add_typer(explainability.app, name="explainability", help="🔍 Explainable AI (model interpretability, bias analysis)")
-app.add_typer(selection.app, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")
+app.add_typer(
+    deep_learning.app,
+    name="deep-learning",
+    help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)",
+)
+app.add_typer(
+    explainability.app,
+    name="explainability",
+    help="🔍 Explainable AI (model interpretability, bias analysis)",
+)
+app.add_typer(
+    selection.app,
+    name="selection",
+    help="🧠 Intelligent algorithm selection with learning capabilities",
+)
 # app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Still uses Click - needs conversion
 # app.add_typer(dashboard_commands, name="dashboard", help="📊 Advanced visualization dashboards (executive, operational, analytical)")  # Still uses Click - needs conversion
 # app.add_typer(governance_commands, name="governance", help="⚖️ Governance framework (audit trails, policies, risk management)")  # Still uses Click - needs conversion
@@ -98,7 +108,9 @@ app.add_typer(
     performance_app, name="perf", help="Performance monitoring and optimization"
 )
 app.add_typer(
-    validation.app, name="validate", help="🔍 Enhanced validation with rich output and GitHub integration"
+    validation.app,
+    name="validate",
+    help="🔍 Enhanced validation with rich output and GitHub integration",
 )
 
 # Configuration recommendation commands

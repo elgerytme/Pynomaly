@@ -107,7 +107,9 @@ class ResourceQuotaService:
 
         quota = self.tenant_quotas[tenant_id].get(resource_type)
         if not quota:
-            self.logger.warning(f"No quota defined for {resource_type.value} for tenant {tenant_id}")
+            self.logger.warning(
+                f"No quota defined for {resource_type.value} for tenant {tenant_id}"
+            )
             return False
 
         # Check if allocation would exceed quota
@@ -134,13 +136,15 @@ class ResourceQuotaService:
                 "allocate",
                 amount,
                 quota.used_amount,
-                duration_seconds
+                duration_seconds,
             )
 
             # Check for warnings
             await self._check_usage_thresholds(tenant_context, resource_type, quota)
 
-            self.logger.debug(f"Allocated {amount} {resource_type.value} to tenant {tenant_id}")
+            self.logger.debug(
+                f"Allocated {amount} {resource_type.value} to tenant {tenant_id}"
+            )
 
         return success
 
@@ -169,7 +173,9 @@ class ResourceQuotaService:
                 quota.used_amount,
             )
 
-            self.logger.debug(f"Released {amount} {resource_type.value} from tenant {tenant_id}")
+            self.logger.debug(
+                f"Released {amount} {resource_type.value} from tenant {tenant_id}"
+            )
 
     async def update_tenant_quota(
         self,
@@ -185,7 +191,9 @@ class ResourceQuotaService:
         # Preserve current usage
         old_quota = self.tenant_quotas[tenant_id].get(resource_type)
         if old_quota:
-            new_quota.used_amount = min(old_quota.used_amount, new_quota.allocated_amount)
+            new_quota.used_amount = min(
+                old_quota.used_amount, new_quota.allocated_amount
+            )
 
         self.tenant_quotas[tenant_id][resource_type] = new_quota
         self.current_usage[tenant_id][resource_type] = new_quota.used_amount
@@ -255,7 +263,10 @@ class ResourceQuotaService:
         for event in history:
             event_time = datetime.fromisoformat(event["timestamp"])
             if event_time >= cutoff_time:
-                if resource_type is None or event["resource_type"] == resource_type.value:
+                if (
+                    resource_type is None
+                    or event["resource_type"] == resource_type.value
+                ):
                     filtered_history.append(event)
 
         return sorted(filtered_history, key=lambda x: x["timestamp"])
@@ -268,7 +279,9 @@ class ResourceQuotaService:
         """Predict when a resource will be exhausted based on usage trends."""
 
         # Get recent usage history
-        history = await self.get_resource_usage_history(tenant_id, resource_type, hours=24)
+        history = await self.get_resource_usage_history(
+            tenant_id, resource_type, hours=24
+        )
 
         if len(history) < 2:
             return None
@@ -294,7 +307,9 @@ class ResourceQuotaService:
         x_mean = sum(times) / len(times)
         y_mean = sum(usage_levels) / len(usage_levels)
 
-        numerator = sum((times[i] - x_mean) * (usage_levels[i] - y_mean) for i in range(len(times)))
+        numerator = sum(
+            (times[i] - x_mean) * (usage_levels[i] - y_mean) for i in range(len(times))
+        )
         denominator = sum((times[i] - x_mean) ** 2 for i in range(len(times)))
 
         if denominator == 0:
@@ -347,37 +362,53 @@ class ResourceQuotaService:
             if utilization > 95:
                 # Very high utilization - suggest increase
                 suggested_increase = quota.allocated_amount * 0.5  # 50% increase
-                suggestion.update({
-                    "suggestion": "increase",
-                    "recommended_quota": quota.allocated_amount + suggested_increase,
-                    "reason": "High utilization indicates need for more resources",
-                })
+                suggestion.update(
+                    {
+                        "suggestion": "increase",
+                        "recommended_quota": quota.allocated_amount
+                        + suggested_increase,
+                        "reason": "High utilization indicates need for more resources",
+                    }
+                )
 
             elif utilization < 10:
                 # Very low utilization - suggest decrease
                 suggested_decrease = quota.allocated_amount * 0.3  # 30% decrease
-                suggestion.update({
-                    "suggestion": "decrease",
-                    "recommended_quota": max(quota.used_amount * 1.2, quota.allocated_amount - suggested_decrease),
-                    "reason": "Low utilization indicates over-allocation",
-                })
+                suggestion.update(
+                    {
+                        "suggestion": "decrease",
+                        "recommended_quota": max(
+                            quota.used_amount * 1.2,
+                            quota.allocated_amount - suggested_decrease,
+                        ),
+                        "reason": "Low utilization indicates over-allocation",
+                    }
+                )
 
             elif quota.is_soft_limit_exceeded():
-                suggestion.update({
-                    "suggestion": "increase",
-                    "recommended_quota": quota.allocated_amount * 1.2,
-                    "reason": "Soft limit exceeded frequently",
-                })
+                suggestion.update(
+                    {
+                        "suggestion": "increase",
+                        "recommended_quota": quota.allocated_amount * 1.2,
+                        "reason": "Soft limit exceeded frequently",
+                    }
+                )
 
             # Check for predicted exhaustion
-            exhaustion_time = await self.predict_resource_exhaustion(tenant_id, resource_type)
-            if exhaustion_time and exhaustion_time < datetime.utcnow() + timedelta(days=7):
-                suggestion.update({
-                    "suggestion": "increase",
-                    "recommended_quota": quota.allocated_amount * 1.5,
-                    "reason": f"Resource exhaustion predicted by {exhaustion_time.isoformat()}",
-                    "urgency": "high",
-                })
+            exhaustion_time = await self.predict_resource_exhaustion(
+                tenant_id, resource_type
+            )
+            if exhaustion_time and exhaustion_time < datetime.utcnow() + timedelta(
+                days=7
+            ):
+                suggestion.update(
+                    {
+                        "suggestion": "increase",
+                        "recommended_quota": quota.allocated_amount * 1.5,
+                        "reason": f"Resource exhaustion predicted by {exhaustion_time.isoformat()}",
+                        "urgency": "high",
+                    }
+                )
 
             suggestions[resource_type.value] = suggestion
 
@@ -494,7 +525,9 @@ class ResourceQuotaService:
 
         # Limit history size
         if len(self.resource_usage_history[tenant_id]) > 10000:
-            self.resource_usage_history[tenant_id] = self.resource_usage_history[tenant_id][-5000:]
+            self.resource_usage_history[tenant_id] = self.resource_usage_history[
+                tenant_id
+            ][-5000:]
 
     def _calculate_overall_utilization(
         self,
@@ -505,7 +538,9 @@ class ResourceQuotaService:
         if not quotas:
             return 0.0
 
-        total_utilization = sum(quota.get_utilization_percentage() for quota in quotas.values())
+        total_utilization = sum(
+            quota.get_utilization_percentage() for quota in quotas.values()
+        )
         return total_utilization / len(quotas)
 
     # Background monitoring tasks
@@ -519,7 +554,9 @@ class ResourceQuotaService:
                     for tenant_id, quotas in self.tenant_quotas.items():
                         for resource_type, quota in quotas.items():
                             if quota.is_hard_limit_exceeded():
-                                await self._enforce_hard_limit(tenant_id, resource_type, quota)
+                                await self._enforce_hard_limit(
+                                    tenant_id, resource_type, quota
+                                )
 
             except Exception as e:
                 self.logger.error(f"Quota enforcement error: {e}")
@@ -554,11 +591,16 @@ class ResourceQuotaService:
                         # Update average usage
                         if quota.data_points:
                             recent_usage = [
-                                p.value for p in quota.data_points[-100:]  # Last 100 data points
+                                p.value
+                                for p in quota.data_points[
+                                    -100:
+                                ]  # Last 100 data points
                                 if isinstance(p.value, (int, float))
                             ]
                             if recent_usage:
-                                quota.average_usage = sum(recent_usage) / len(recent_usage)
+                                quota.average_usage = sum(recent_usage) / len(
+                                    recent_usage
+                                )
 
             except Exception as e:
                 self.logger.error(f"Usage monitoring error: {e}")
@@ -634,7 +676,9 @@ class ResourceQuotaService:
                     suggestions = await self.suggest_quota_adjustments(tenant_id)
 
                     # Log significant suggestions
-                    for resource_type, suggestion in suggestions.get("suggestions", {}).items():
+                    for resource_type, suggestion in suggestions.get(
+                        "suggestions", {}
+                    ).items():
                         if suggestion["suggestion"] != "no_change":
                             self.logger.info(
                                 f"Quota suggestion for tenant {tenant_id} "
@@ -656,14 +700,16 @@ class ResourceQuotaService:
                 cutoff_time = datetime.utcnow() - timedelta(days=30)
 
                 self.usage_events = [
-                    event for event in self.usage_events
+                    event
+                    for event in self.usage_events
                     if datetime.fromisoformat(event["timestamp"]) > cutoff_time
                 ]
 
                 # Clean up tenant usage history
                 for tenant_id, history in self.resource_usage_history.items():
                     self.resource_usage_history[tenant_id] = [
-                        event for event in history
+                        event
+                        for event in history
                         if datetime.fromisoformat(event["timestamp"]) > cutoff_time
                     ]
 
@@ -684,7 +730,9 @@ class ResourceQuotaService:
             for quota in quotas.values():
                 all_utilizations.append(quota.get_utilization_percentage())
 
-        avg_utilization = sum(all_utilizations) / len(all_utilizations) if all_utilizations else 0
+        avg_utilization = (
+            sum(all_utilizations) / len(all_utilizations) if all_utilizations else 0
+        )
 
         # Count quota violations
         soft_limit_violations = 0

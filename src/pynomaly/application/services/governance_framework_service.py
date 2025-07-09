@@ -437,7 +437,12 @@ class GovernanceFrameworkService:
     - Change management with approval workflows
     """
 
-    def __init__(self, storage_path: Path, retention_years: int = 7, enable_real_time_monitoring: bool = True):
+    def __init__(
+        self,
+        storage_path: Path,
+        retention_years: int = 7,
+        enable_real_time_monitoring: bool = True,
+    ):
         """Initialize governance framework service.
 
         Args:

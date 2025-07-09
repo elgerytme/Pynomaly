@@ -627,7 +627,6 @@ class ResourceMonitor:
                         last_alert is None
                         or (current_time - last_alert).total_seconds() > 60
                     ):  # 1 minute cooldown
-
                         self._trigger_alert(metric_name, value, threshold)
                         self._alert_cooldowns[cooldown_key] = current_time
 
@@ -730,7 +729,7 @@ class PerformanceOptimizer:
                 if std_time / mean_time > 0.5:  # High variability
                     recommendations.append(
                         f"Function {func_name} shows high execution time variability "
-                        f"(CV: {std_time/mean_time:.2f}). Consider input-dependent optimization."
+                        f"(CV: {std_time / mean_time:.2f}). Consider input-dependent optimization."
                     )
 
         return recommendations

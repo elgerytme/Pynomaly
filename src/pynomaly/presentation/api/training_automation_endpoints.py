@@ -167,9 +167,7 @@ class QuickOptimizeRequest(BaseModel):
     """Request model for quick optimization."""
 
     dataset_id: str = Field(..., description="Dataset ID")
-    algorithms: list[str] | None = Field(
-        default=None, description="Target algorithms"
-    )
+    algorithms: list[str] | None = Field(default=None, description="Target algorithms")
     max_trials: int = Field(default=50, ge=10, le=200, description="Maximum trials")
     timeout_minutes: int = Field(
         default=30, ge=5, le=120, description="Timeout in minutes"

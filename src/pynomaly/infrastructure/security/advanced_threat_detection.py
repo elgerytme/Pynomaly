@@ -317,9 +317,9 @@ class ThreatIntelligenceDetector(ThreatDetector):
 
     def __init__(self):
         super().__init__("threat_intelligence")
-        self.threat_feeds: dict[
-            ThreatIntelligenceSource, list[ThreatIntelligence]
-        ] = defaultdict(list)
+        self.threat_feeds: dict[ThreatIntelligenceSource, list[ThreatIntelligence]] = (
+            defaultdict(list)
+        )
         self.last_update: dict[ThreatIntelligenceSource, datetime] = {}
 
         # Load configuration from manager

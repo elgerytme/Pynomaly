@@ -295,7 +295,9 @@ class AdvancedDetectionService:
 
             # Create anomalies
             anomalies = []
-            for i, (is_anomaly, score) in enumerate(zip(predictions, scores, strict=False)):
+            for i, (is_anomaly, score) in enumerate(
+                zip(predictions, scores, strict=False)
+            ):
                 if is_anomaly:
                     anomaly = Anomaly(
                         index=i,

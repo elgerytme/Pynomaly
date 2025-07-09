@@ -12,7 +12,6 @@ from fastapi.testclient import TestClient
 
 from pynomaly.application.dto.dataset_dto import (
     DatasetResponseDTO,
-    DatasetUploadResponseDTO,
 )
 from pynomaly.presentation.api.app import create_app
 
@@ -29,7 +28,7 @@ class TestDatasetEndpoints:
     @pytest.fixture
     def mock_auth(self):
         """Mock authentication."""
-        with patch("pynomaly.infrastructure.auth.jwt_auth.JWTAuthHandler") as mock:
+        with patch("pynomaly.infrastructure.auth.jwt_auth.JWTAuthService") as mock:
             handler = Mock()
             handler.get_current_user.return_value = {
                 "id": "user123",
@@ -617,7 +616,7 @@ class TestDatasetEndpointsIntegration:
     @pytest.fixture
     def authenticated_client(self, client):
         """Client with authentication setup."""
-        with patch("pynomaly.infrastructure.auth.jwt_auth.JWTAuthHandler") as mock:
+        with patch("pynomaly.infrastructure.auth.jwt_auth.JWTAuthService") as mock:
             handler = Mock()
             handler.get_current_user.return_value = {
                 "id": "user123",

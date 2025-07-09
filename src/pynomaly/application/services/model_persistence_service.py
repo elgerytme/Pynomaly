@@ -366,7 +366,9 @@ if __name__ == "__main__":
     print("Results saved to anomalies.csv")
 '''
 
-    async def _save_onnx_model(self, detector: DetectorProtocol, model_path: Path) -> None:
+    async def _save_onnx_model(
+        self, detector: DetectorProtocol, model_path: Path
+    ) -> None:
         """Save model in ONNX format.
 
         Args:
@@ -377,11 +379,13 @@ if __name__ == "__main__":
 
         # Check if deep learning is enabled
         if not feature_flags.is_enabled("deep_learning"):
-            raise RuntimeError("Deep learning features are disabled. Enable with PYNOMALY_DEEP_LEARNING=true")
+            raise RuntimeError(
+                "Deep learning features are disabled. Enable with PYNOMALY_DEEP_LEARNING=true"
+            )
 
         try:
             # Try to get PyTorch model from detector
-            if hasattr(detector, '_model') and detector._model is not None:
+            if hasattr(detector, "_model") and detector._model is not None:
                 try:
                     import torch
                     import torch.onnx
@@ -400,9 +404,12 @@ if __name__ == "__main__":
                         export_params=True,
                         opset_version=11,
                         do_constant_folding=True,
-                        input_names=['input'],
-                        output_names=['output'],
-                        dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
+                        input_names=["input"],
+                        output_names=["output"],
+                        dynamic_axes={
+                            "input": {0: "batch_size"},
+                            "output": {0: "batch_size"},
+                        },
                     )
                 except ImportError:
                     # If PyTorch not available, create stub
@@ -429,14 +436,17 @@ if __name__ == "__main__":
         """
         try:
             import torch
+
             # Default input shape - can be overridden by detector
-            input_shape = getattr(detector, '_input_shape', (1, 10))
+            input_shape = getattr(detector, "_input_shape", (1, 10))
             return torch.randn(input_shape)
         except ImportError:
             # If torch is not available, return None
             return None
 
-    async def _create_stub_onnx_model(self, detector: DetectorProtocol, model_path: Path) -> None:
+    async def _create_stub_onnx_model(
+        self, detector: DetectorProtocol, model_path: Path
+    ) -> None:
         """Create a stub ONNX model for non-PyTorch detectors.
 
         Args:
@@ -452,11 +462,11 @@ if __name__ == "__main__":
             "detector_name": detector.name,
             "algorithm": detector.algorithm_name,
             "parameters": detector.parameters,
-            "message": "This is a stub ONNX model. Full ONNX export requires PyTorch-based models."
+            "message": "This is a stub ONNX model. Full ONNX export requires PyTorch-based models.",
         }
 
         # Save as JSON stub with .onnx extension
-        with open(model_path, 'w') as f:
+        with open(model_path, "w") as f:
             json.dump(stub_data, f, indent=2)
 
     async def _load_onnx_model(self, model_path: Path) -> DetectorProtocol:
@@ -471,7 +481,7 @@ if __name__ == "__main__":
         try:
             # Try to load as actual ONNX model
             import onnxruntime as ort
-            
+
             # Check if it's a real ONNX model
             try:
                 session = ort.InferenceSession(str(model_path))
@@ -480,7 +490,7 @@ if __name__ == "__main__":
             except:
                 # If it fails, try to load as stub
                 return await self._load_onnx_stub(model_path)
-                
+
         except ImportError:
             # If ONNX runtime not available, try to load as stub
             return await self._load_onnx_stub(model_path)
@@ -495,24 +505,26 @@ if __name__ == "__main__":
             Detector instance
         """
         # Load the stub data
-        with open(model_path, 'r') as f:
+        with open(model_path) as f:
             stub_data = json.load(f)
-        
+
         # Create a basic detector from the stub data
-        from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
         from pynomaly.domain.value_objects import ContaminationRate
-        
+        from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+
         # Create a simple sklearn adapter as a fallback
         detector = SklearnAdapter(
             algorithm_name=stub_data["algorithm"],
             name=stub_data["detector_name"],
             contamination_rate=ContaminationRate(0.1),
-            **stub_data["parameters"]
+            **stub_data["parameters"],
         )
-        
+
         return detector
 
-    async def _create_onnx_detector_wrapper(self, session, model_path: Path) -> DetectorProtocol:
+    async def _create_onnx_detector_wrapper(
+        self, session, model_path: Path
+    ) -> DetectorProtocol:
         """Create a detector wrapper for ONNX model.
 
         Args:
@@ -523,7 +535,7 @@ if __name__ == "__main__":
             Detector wrapper
         """
         from pynomaly.infrastructure.adapters.onnx_adapter import ONNXAdapter
-        
+
         # Create ONNX adapter (this would need to be implemented)
         adapter = ONNXAdapter(session, model_path)
         return adapter

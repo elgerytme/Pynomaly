@@ -1,5 +1,8 @@
 """Persistence layer implementations."""
 
+from .connection_pool_integration import (
+    DatabaseConnectionIntegration,
+)
 from .database import (
     POSTGRESQL_LOCAL_URL,
     SQLITE_FILE_URL,
@@ -21,9 +24,6 @@ from .database_repositories import (
 from .production_database import (
     ProductionDatabaseManager,
     get_production_database_manager,
-)
-from .connection_pool_integration import (
-    DatabaseConnectionIntegration,
 )
 
 __all__ = [

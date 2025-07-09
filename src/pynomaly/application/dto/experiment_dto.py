@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class RunDTO(BaseModel):
     """DTO for experiment run."""
-    
+
     model_config = ConfigDict(extra="forbid")
     id: str
     detector_name: str
@@ -23,7 +23,7 @@ class RunDTO(BaseModel):
 
 class ExperimentDTO(BaseModel):
     """DTO for experiment."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: str
@@ -37,7 +37,7 @@ class ExperimentDTO(BaseModel):
 
 class CreateExperimentDTO(BaseModel):
     """DTO for creating experiments."""
-    
+
     model_config = ConfigDict(extra="forbid")
     name: str = Field(min_length=1, max_length=100)
     description: str | None = Field(None, max_length=500)
@@ -46,7 +46,7 @@ class CreateExperimentDTO(BaseModel):
 
 class LeaderboardEntryDTO(BaseModel):
     """DTO for leaderboard entries."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     rank: int
@@ -62,7 +62,7 @@ class LeaderboardEntryDTO(BaseModel):
 
 class ExperimentResponseDTO(BaseModel):
     """DTO for experiment API responses."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: str

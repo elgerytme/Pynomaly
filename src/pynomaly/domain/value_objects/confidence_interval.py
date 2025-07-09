@@ -91,9 +91,7 @@ class ConfidenceInterval:
         """Check if this interval overlaps with another confidence interval."""
         return not (self.upper < other.lower or self.lower > other.upper)
 
-    def intersection(
-        self, other: ConfidenceInterval
-    ) -> ConfidenceInterval | None:
+    def intersection(self, other: ConfidenceInterval) -> ConfidenceInterval | None:
         """
         Calculate the intersection of two confidence intervals.
 

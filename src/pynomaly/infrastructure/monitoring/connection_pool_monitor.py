@@ -4,18 +4,19 @@ from __future__ import annotations
 
 import asyncio
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 import structlog
 
-from pynomaly.infrastructure.persistence.connection_pool_integration import (
-    get_database_integration,
-)
 from pynomaly.infrastructure.performance.connection_pooling import (
     ConnectionPoolManager,
     PoolStats,
     get_connection_pool_manager,
+)
+from pynomaly.infrastructure.persistence.connection_pool_integration import (
+    get_database_integration,
 )
 
 logger = structlog.get_logger(__name__)
@@ -24,7 +25,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class PoolAlert:
     """Connection pool alert."""
-    
+
     pool_name: str
     alert_type: str
     severity: str  # low, medium, high, critical
@@ -36,19 +37,19 @@ class PoolAlert:
 @dataclass
 class PoolThresholds:
     """Connection pool alert thresholds."""
-    
+
     # Connection utilization thresholds
     high_utilization_threshold: float = 0.8  # 80% of max connections
     critical_utilization_threshold: float = 0.95  # 95% of max connections
-    
+
     # Error rate thresholds
     high_error_rate_threshold: float = 0.1  # 10% error rate
     critical_error_rate_threshold: float = 0.25  # 25% error rate
-    
+
     # Response time thresholds (seconds)
     slow_response_threshold: float = 1.0  # 1 second
     critical_response_threshold: float = 5.0  # 5 seconds
-    
+
     # Connection health thresholds
     min_healthy_connections: int = 2
     max_failed_health_checks: int = 5
@@ -65,7 +66,7 @@ class ConnectionPoolMonitor:
         enable_auto_recovery: bool = True,
     ):
         """Initialize connection pool monitor.
-        
+
         Args:
             pool_manager: Connection pool manager to monitor
             check_interval: Monitoring interval in seconds
@@ -76,17 +77,17 @@ class ConnectionPoolMonitor:
         self.check_interval = check_interval
         self.alert_callback = alert_callback
         self.enable_auto_recovery = enable_auto_recovery
-        
+
         # Monitoring state
         self.thresholds = PoolThresholds()
         self.monitoring_task: asyncio.Task | None = None
         self.alerts_history: list[PoolAlert] = []
         self.max_alerts_history = 1000
-        
+
         # Pool health tracking
         self.pool_health_history: dict[str, list[dict[str, Any]]] = {}
         self.max_health_history = 100
-        
+
         # Recovery tracking
         self.recovery_attempts: dict[str, int] = {}
         self.last_recovery_time: dict[str, float] = {}
@@ -127,7 +128,7 @@ class ConnectionPoolMonitor:
     async def _check_all_pools(self) -> None:
         """Check all connection pools."""
         pool_names = self.pool_manager.list_pools()
-        
+
         for pool_name in pool_names:
             try:
                 await self._check_pool(pool_name)
@@ -144,27 +145,27 @@ class ConnectionPoolMonitor:
             pool_info = self.pool_manager.get_pool_info(pool_name)
             stats = pool_info["stats"]
             pool_details = pool_info["pool_info"]
-            
+
             # Track health history
             health_data = {
                 "timestamp": time.time(),
                 "stats": stats,
                 "pool_info": pool_details,
             }
-            
+
             if pool_name not in self.pool_health_history:
                 self.pool_health_history[pool_name] = []
-                
+
             self.pool_health_history[pool_name].append(health_data)
             if len(self.pool_health_history[pool_name]) > self.max_health_history:
                 self.pool_health_history[pool_name].pop(0)
-            
+
             # Check various metrics
             await self._check_connection_utilization(pool_name, stats, pool_details)
             await self._check_error_rates(pool_name, stats)
             await self._check_response_times(pool_name, stats)
             await self._check_connection_health(pool_name, stats, pool_details)
-            
+
         except Exception as e:
             logger.error(
                 "Failed to check pool",
@@ -189,10 +190,10 @@ class ConnectionPoolMonitor:
                 # Other pool types
                 total_connections = stats.total_connections
                 active_connections = stats.active_connections
-                
+
             if total_connections > 0:
                 utilization = active_connections / total_connections
-                
+
                 if utilization >= self.thresholds.critical_utilization_threshold:
                     await self._create_alert(
                         pool_name=pool_name,
@@ -205,11 +206,11 @@ class ConnectionPoolMonitor:
                             "total_connections": total_connections,
                         },
                     )
-                    
+
                     # Trigger auto-recovery if enabled
                     if self.enable_auto_recovery:
                         await self._attempt_recovery(pool_name, "high_utilization")
-                        
+
                 elif utilization >= self.thresholds.high_utilization_threshold:
                     await self._create_alert(
                         pool_name=pool_name,
@@ -222,7 +223,7 @@ class ConnectionPoolMonitor:
                             "total_connections": total_connections,
                         },
                     )
-                    
+
         except Exception as e:
             logger.error(
                 "Failed to check connection utilization",
@@ -235,7 +236,7 @@ class ConnectionPoolMonitor:
         try:
             if stats.total_requests > 0:
                 error_rate = stats.failed_requests / stats.total_requests
-                
+
                 if error_rate >= self.thresholds.critical_error_rate_threshold:
                     await self._create_alert(
                         pool_name=pool_name,
@@ -248,11 +249,11 @@ class ConnectionPoolMonitor:
                             "total_requests": stats.total_requests,
                         },
                     )
-                    
+
                     # Trigger auto-recovery if enabled
                     if self.enable_auto_recovery:
                         await self._attempt_recovery(pool_name, "high_error_rate")
-                        
+
                 elif error_rate >= self.thresholds.high_error_rate_threshold:
                     await self._create_alert(
                         pool_name=pool_name,
@@ -265,7 +266,7 @@ class ConnectionPoolMonitor:
                             "total_requests": stats.total_requests,
                         },
                     )
-                    
+
         except Exception as e:
             logger.error(
                 "Failed to check error rates",
@@ -277,7 +278,7 @@ class ConnectionPoolMonitor:
         """Check response times."""
         try:
             avg_response_time = stats.avg_response_time
-            
+
             if avg_response_time >= self.thresholds.critical_response_threshold:
                 await self._create_alert(
                     pool_name=pool_name,
@@ -289,7 +290,7 @@ class ConnectionPoolMonitor:
                         "successful_requests": stats.successful_requests,
                     },
                 )
-                
+
             elif avg_response_time >= self.thresholds.slow_response_threshold:
                 await self._create_alert(
                     pool_name=pool_name,
@@ -301,7 +302,7 @@ class ConnectionPoolMonitor:
                         "successful_requests": stats.successful_requests,
                     },
                 )
-                
+
         except Exception as e:
             logger.error(
                 "Failed to check response times",
@@ -329,7 +330,7 @@ class ConnectionPoolMonitor:
                         "total_connections": stats.total_connections,
                     },
                 )
-                
+
             # Check for insufficient healthy connections
             healthy_connections = stats.total_connections - stats.connection_errors
             if healthy_connections < self.thresholds.min_healthy_connections:
@@ -343,7 +344,7 @@ class ConnectionPoolMonitor:
                         "min_required": self.thresholds.min_healthy_connections,
                     },
                 )
-                
+
         except Exception as e:
             logger.error(
                 "Failed to check connection health",
@@ -368,12 +369,12 @@ class ConnectionPoolMonitor:
             timestamp=time.time(),
             metrics=metrics,
         )
-        
+
         # Add to history
         self.alerts_history.append(alert)
         if len(self.alerts_history) > self.max_alerts_history:
             self.alerts_history.pop(0)
-        
+
         # Log alert
         logger.warning(
             "Connection pool alert",
@@ -383,7 +384,7 @@ class ConnectionPoolMonitor:
             message=message,
             metrics=metrics,
         )
-        
+
         # Call alert callback if provided
         if self.alert_callback:
             try:
@@ -394,11 +395,12 @@ class ConnectionPoolMonitor:
     async def _attempt_recovery(self, pool_name: str, reason: str) -> None:
         """Attempt automatic recovery."""
         current_time = time.time()
-        
+
         # Check recovery cooldown
         if (
             pool_name in self.last_recovery_time
-            and current_time - self.last_recovery_time[pool_name] < self.recovery_cooldown
+            and current_time - self.last_recovery_time[pool_name]
+            < self.recovery_cooldown
         ):
             logger.info(
                 "Recovery attempt skipped - cooldown active",
@@ -406,11 +408,11 @@ class ConnectionPoolMonitor:
                 reason=reason,
             )
             return
-            
+
         # Track recovery attempts
         self.recovery_attempts[pool_name] = self.recovery_attempts.get(pool_name, 0) + 1
         self.last_recovery_time[pool_name] = current_time
-        
+
         try:
             logger.info(
                 "Attempting pool recovery",
@@ -418,11 +420,11 @@ class ConnectionPoolMonitor:
                 reason=reason,
                 attempt=self.recovery_attempts[pool_name],
             )
-            
+
             # Get database integration and perform recovery
             db_integration = get_database_integration()
             recovery_result = await db_integration.emergency_recovery()
-            
+
             if recovery_result.get("status") == "success":
                 logger.info(
                     "Pool recovery successful",
@@ -430,10 +432,10 @@ class ConnectionPoolMonitor:
                     reason=reason,
                     result=recovery_result,
                 )
-                
+
                 # Reset recovery counter on success
                 self.recovery_attempts[pool_name] = 0
-                
+
             else:
                 logger.error(
                     "Pool recovery failed",
@@ -441,7 +443,7 @@ class ConnectionPoolMonitor:
                     reason=reason,
                     result=recovery_result,
                 )
-                
+
         except Exception as e:
             logger.error(
                 "Pool recovery error",
@@ -453,16 +455,17 @@ class ConnectionPoolMonitor:
     def get_monitoring_dashboard(self) -> dict[str, Any]:
         """Get comprehensive monitoring dashboard data."""
         current_time = time.time()
-        
+
         # Get current pool stats
         pool_stats = self.pool_manager.get_all_stats()
-        
+
         # Recent alerts (last hour)
         recent_alerts = [
-            alert for alert in self.alerts_history
+            alert
+            for alert in self.alerts_history
             if current_time - alert.timestamp < 3600
         ]
-        
+
         # Alert summary by severity
         alert_summary = {
             "critical": len([a for a in recent_alerts if a.severity == "critical"]),
@@ -470,7 +473,7 @@ class ConnectionPoolMonitor:
             "medium": len([a for a in recent_alerts if a.severity == "medium"]),
             "low": len([a for a in recent_alerts if a.severity == "low"]),
         }
-        
+
         # Pool health summary
         pool_health = {}
         for pool_name, stats in pool_stats.items():
@@ -478,7 +481,7 @@ class ConnectionPoolMonitor:
                 error_rate = stats.failed_requests / stats.total_requests
             else:
                 error_rate = 0.0
-                
+
             pool_health[pool_name] = {
                 "status": "healthy" if error_rate < 0.1 else "unhealthy",
                 "error_rate": error_rate,
@@ -487,7 +490,7 @@ class ConnectionPoolMonitor:
                 "total_connections": stats.total_connections,
                 "last_check": current_time,
             }
-        
+
         return {
             "monitoring_status": {
                 "running": self.monitoring_task is not None,
@@ -542,24 +545,24 @@ def get_connection_pool_monitor(
     enable_auto_recovery: bool = True,
 ) -> ConnectionPoolMonitor:
     """Get or create global connection pool monitor.
-    
+
     Args:
         check_interval: Monitoring interval in seconds
         alert_callback: Callback function for alerts
         enable_auto_recovery: Whether to enable automatic recovery
-        
+
     Returns:
         Connection pool monitor instance
     """
     global _pool_monitor
-    
+
     if _pool_monitor is None:
         _pool_monitor = ConnectionPoolMonitor(
             check_interval=check_interval,
             alert_callback=alert_callback,
             enable_auto_recovery=enable_auto_recovery,
         )
-    
+
     return _pool_monitor
 
 
@@ -572,7 +575,7 @@ async def start_connection_pool_monitoring() -> None:
 async def stop_connection_pool_monitoring() -> None:
     """Stop global connection pool monitoring."""
     global _pool_monitor
-    
+
     if _pool_monitor:
         await _pool_monitor.stop_monitoring()
         _pool_monitor = None

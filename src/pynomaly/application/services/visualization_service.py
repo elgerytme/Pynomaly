@@ -960,7 +960,7 @@ class VisualizationService:
                 len(d.data) if hasattr(d, "data") and d.data is not None else 0
                 for d in datasets
             ]
-            dataset_names = [f"Dataset {i+1}" for i in range(len(datasets))]
+            dataset_names = [f"Dataset {i + 1}" for i in range(len(datasets))]
 
             if dataset_sizes:
                 fig.add_trace(
@@ -1160,7 +1160,8 @@ class VisualizationService:
             f"Score: {score:.3f}<br>Label: {label if labels is not None else 'Unknown'}"
             for score, label in zip(
                 anomaly_scores,
-                labels if labels is not None else [None] * len(anomaly_scores), strict=False,
+                labels if labels is not None else [None] * len(anomaly_scores),
+                strict=False,
             )
         ]
 

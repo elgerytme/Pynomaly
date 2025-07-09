@@ -12,13 +12,10 @@ This module provides JWT-based authentication with:
 from __future__ import annotations
 
 import base64
-import json
 import logging
 from datetime import UTC, datetime, timedelta
-from typing import Any, Dict, List, Optional
 
 import jwt
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from passlib.context import CryptContext
 from pydantic import BaseModel, Field
@@ -90,7 +87,7 @@ class JWKSKey(BaseModel):
 class JWKSResponse(BaseModel):
     """JWKS response model."""
 
-    keys: List[JWKSKey]
+    keys: list[JWKSKey]
 
 
 class EnhancedJWTAuthService:
@@ -109,9 +106,9 @@ class EnhancedJWTAuthService:
 
         # Key storage for rotation
         self.current_key_id = "1"
-        self.private_keys: Dict[str, rsa.RSAPrivateKey] = {}
-        self.public_keys: Dict[str, rsa.RSAPublicKey] = {}
-        self.jwks_keys: List[JWKSKey] = []
+        self.private_keys: dict[str, rsa.RSAPrivateKey] = {}
+        self.public_keys: dict[str, rsa.RSAPublicKey] = {}
+        self.jwks_keys: list[JWKSKey] = []
 
         # Initialize keys
         self._initialize_keys()
@@ -160,21 +157,21 @@ class EnhancedJWTAuthService:
     def _update_jwks(self) -> None:
         """Update JWKS keys from current public keys."""
         self.jwks_keys = []
-        
+
         for key_id, public_key in self.public_keys.items():
             # Get public key numbers
             public_numbers = public_key.public_numbers()
-            
+
             # Convert to base64url format
             n_bytes = public_numbers.n.to_bytes(
-                (public_numbers.n.bit_length() + 7) // 8, 'big'
+                (public_numbers.n.bit_length() + 7) // 8, "big"
             )
             e_bytes = public_numbers.e.to_bytes(
-                (public_numbers.e.bit_length() + 7) // 8, 'big'
+                (public_numbers.e.bit_length() + 7) // 8, "big"
             )
-            
-            n_b64 = base64.urlsafe_b64encode(n_bytes).decode('utf-8').rstrip('=')
-            e_b64 = base64.urlsafe_b64encode(e_bytes).decode('utf-8').rstrip('=')
+
+            n_b64 = base64.urlsafe_b64encode(n_bytes).decode("utf-8").rstrip("=")
+            e_b64 = base64.urlsafe_b64encode(e_bytes).decode("utf-8").rstrip("=")
 
             jwks_key = JWKSKey(
                 kid=key_id,
@@ -199,7 +196,7 @@ class EnhancedJWTAuthService:
         """
         # Generate new key ID
         new_key_id = str(int(self.current_key_id) + 1)
-        
+
         # Generate new key pair
         private_key = rsa.generate_private_key(
             public_exponent=65537,
@@ -307,12 +304,12 @@ class EnhancedJWTAuthService:
 
         # Use current private key for signing
         private_key = self.private_keys[self.current_key_id]
-        
+
         access_token = jwt.encode(
-            payload.model_dump(), 
-            private_key, 
+            payload.model_dump(),
+            private_key,
             algorithm=self.algorithm,
-            headers={"kid": self.current_key_id}
+            headers={"kid": self.current_key_id},
         )
 
         # Create refresh token
@@ -322,10 +319,10 @@ class EnhancedJWTAuthService:
         )
 
         refresh_token = jwt.encode(
-            refresh_payload.model_dump(), 
-            private_key, 
+            refresh_payload.model_dump(),
+            private_key,
             algorithm=self.algorithm,
-            headers={"kid": self.current_key_id}
+            headers={"kid": self.current_key_id},
         )
 
         return TokenResponse(
@@ -354,18 +351,14 @@ class EnhancedJWTAuthService:
             # Decode header to get key ID
             header = jwt.get_unverified_header(token)
             kid = header.get("kid")
-            
+
             if not kid or kid not in self.public_keys:
                 raise AuthenticationError("Invalid key ID")
 
             # Use the correct public key for verification
             public_key = self.public_keys[kid]
-            
-            payload = jwt.decode(
-                token, 
-                public_key, 
-                algorithms=[self.algorithm]
-            )
+
+            payload = jwt.decode(token, public_key, algorithms=[self.algorithm])
             return TokenPayload(**payload)
 
         except jwt.ExpiredSignatureError:

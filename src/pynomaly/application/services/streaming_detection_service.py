@@ -454,7 +454,9 @@ class StreamingDetectionService:
             "health_status": (
                 "healthy"
                 if health_score > 0.8
-                else "degraded" if health_score > 0.5 else "unhealthy"
+                else "degraded"
+                if health_score > 0.5
+                else "unhealthy"
             ),
             "issues": health_issues,
             "metrics": metrics,
@@ -463,7 +465,9 @@ class StreamingDetectionService:
             ).total_seconds(),
         }
 
-    def register_detection_callback(self, callback: Callable[[StreamingResult], None]) -> None:
+    def register_detection_callback(
+        self, callback: Callable[[StreamingResult], None]
+    ) -> None:
         """Register a callback for detection results.
 
         Args:
@@ -473,7 +477,9 @@ class StreamingDetectionService:
             self._detection_callbacks.append(callback)
             self.logger.info(f"Registered detection callback: {callback.__name__}")
 
-    def unregister_detection_callback(self, callback: Callable[[StreamingResult], None]) -> None:
+    def unregister_detection_callback(
+        self, callback: Callable[[StreamingResult], None]
+    ) -> None:
         """Unregister a detection result callback.
 
         Args:
@@ -496,7 +502,9 @@ class StreamingDetectionService:
                 else:
                     callback(result)
             except Exception as e:
-                self.logger.error(f"Error in detection callback {callback.__name__}: {e}")
+                self.logger.error(
+                    f"Error in detection callback {callback.__name__}: {e}"
+                )
 
     async def _batch_creation_loop(self) -> None:
         """Main loop for creating batches from individual samples."""

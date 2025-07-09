@@ -1,19 +1,27 @@
-# Pynomaly Makefile with Buck2 + Hatch integration
-# Production-ready build and development workflow
+# Pynomaly Makefile - Best Practices Implementation
+# Following software engineering standards from RULES.md
 #
 # Prerequisites:
 #   - Hatch installed (pip install hatch)
-#   - Buck2 installed (optional, for accelerated builds)
-#   - Node.js 18+ and npm (for web assets)
+#   - Python 3.11+
 #   - Git repository initialized
+#   - Pre-commit hooks (optional)
+#
+# Best Practices Implemented:
+#   - Comprehensive CI/CD pipeline
+#   - Code quality enforcement (ruff, mypy, bandit)
+#   - Testing strategy (unit/integration/e2e)
+#   - Security scanning and validation
+#   - Documentation generation
+#   - Performance monitoring
 #
 # Quick start:
-#   make deps     - Install all dependencies
-#   make build    - Build entire project (Buck2 + Hatch + npm)
-#   make test     - Run all tests with Buck2 acceleration
-#   make dev      - Start development environment
-#   make build    - Build package
-#   make clean    - Clean up artifacts
+#   make setup        - Initial setup and environment creation
+#   make install-dev  - Install in development mode
+#   make test-all     - Run comprehensive test suite
+#   make quality      - Run all quality checks
+#   make build        - Build package
+#   make deploy       - Deploy to staging/production
 
 .PHONY: help setup install dev-install lint format test test-cov build clean docker pre-commit ci status release docs
 

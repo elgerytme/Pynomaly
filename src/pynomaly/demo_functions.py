@@ -2,7 +2,6 @@
 Demo functions for testing the advanced testing framework.
 """
 
-
 import numpy as np
 
 

@@ -33,7 +33,7 @@ class PrivilegeEscalationPrevention:
         granter_id: UUID,
         target_user_id: UUID,
         new_role: UserRole,
-        tenant_id: UUID | None = None
+        tenant_id: UUID | None = None,
     ) -> bool:
         """Validate that a role assignment is legitimate and not a privilege escalation.
 
@@ -55,7 +55,9 @@ class PrivilegeEscalationPrevention:
         if not granter or not target_user:
             await self._log_security_event(
                 "Invalid user in role assignment attempt",
-                granter_id, target_user_id, new_role
+                granter_id,
+                target_user_id,
+                new_role,
             )
             return False
 
@@ -63,15 +65,16 @@ class PrivilegeEscalationPrevention:
         if granter_id == target_user_id:
             await self._log_security_event(
                 "Self-role assignment attempt blocked",
-                granter_id, target_user_id, new_role
+                granter_id,
+                target_user_id,
+                new_role,
             )
             return False
 
         # Rule 2: Can only grant roles you have permission to grant
         if not await self._can_grant_role(granter, new_role, tenant_id):
             await self._log_security_event(
-                "Unauthorized role grant attempt",
-                granter_id, target_user_id, new_role
+                "Unauthorized role grant attempt", granter_id, target_user_id, new_role
             )
             return False
 
@@ -79,7 +82,9 @@ class PrivilegeEscalationPrevention:
         if not await self._has_sufficient_privileges(granter, new_role, tenant_id):
             await self._log_security_event(
                 "Privilege escalation attempt blocked",
-                granter_id, target_user_id, new_role
+                granter_id,
+                target_user_id,
+                new_role,
             )
             return False
 
@@ -87,7 +92,9 @@ class PrivilegeEscalationPrevention:
         if not await self._check_role_assignment_rate_limit(granter_id):
             await self._log_security_event(
                 "Role assignment rate limit exceeded",
-                granter_id, target_user_id, new_role
+                granter_id,
+                target_user_id,
+                new_role,
             )
             return False
 
@@ -95,12 +102,16 @@ class PrivilegeEscalationPrevention:
         if new_role == UserRole.SUPER_ADMIN and not granter.is_super_admin():
             await self._log_security_event(
                 "Unauthorized super admin creation attempt",
-                granter_id, target_user_id, new_role
+                granter_id,
+                target_user_id,
+                new_role,
             )
             return False
 
         # Log legitimate role assignment
-        await self._record_role_assignment(granter_id, target_user_id, new_role, tenant_id)
+        await self._record_role_assignment(
+            granter_id, target_user_id, new_role, tenant_id
+        )
 
         return True
 
@@ -109,7 +120,7 @@ class PrivilegeEscalationPrevention:
         granter_id: UUID,
         target_user_id: UUID,
         permission: Permission,
-        tenant_id: UUID | None = None
+        tenant_id: UUID | None = None,
     ) -> bool:
         """Validate that a permission grant is legitimate.
 
@@ -132,7 +143,9 @@ class PrivilegeEscalationPrevention:
         if permission not in granter_permissions:
             await self._log_security_event(
                 f"Attempted to grant permission '{permission.name}' without having it",
-                granter_id, target_user_id, permission.name
+                granter_id,
+                target_user_id,
+                permission.name,
             )
             return False
 
@@ -142,11 +155,13 @@ class PrivilegeEscalationPrevention:
 
         if tenant_id and await self._is_tenant_admin(granter, tenant_id):
             # Tenant admins cannot grant platform-level permissions
-            platform_permissions = {'platform.manage', 'tenant.create', 'tenant.delete'}
+            platform_permissions = {"platform.manage", "tenant.create", "tenant.delete"}
             if permission.name in platform_permissions:
                 await self._log_security_event(
                     f"Tenant admin attempted to grant platform permission '{permission.name}'",
-                    granter_id, target_user_id, permission.name
+                    granter_id,
+                    target_user_id,
+                    permission.name,
                 )
                 return False
             return True
@@ -154,10 +169,7 @@ class PrivilegeEscalationPrevention:
         return False
 
     async def detect_privilege_escalation_patterns(
-        self,
-        user_id: UUID,
-        action: str,
-        target_resource: str | None = None
+        self, user_id: UUID, action: str, target_resource: str | None = None
     ) -> bool:
         """Detect patterns that might indicate privilege escalation attempts.
 
@@ -170,7 +182,7 @@ class PrivilegeEscalationPrevention:
             True if suspicious pattern detected
         """
         # Pattern 1: Repeated failed privilege attempts
-        if action in ['role_assignment', 'permission_grant', 'admin_action']:
+        if action in ["role_assignment", "permission_grant", "admin_action"]:
             recent_failures = self.failed_privilege_attempts.get(user_id, [])
             cutoff = datetime.utcnow() - timedelta(hours=1)
             recent_failures = [ts for ts in recent_failures if ts > cutoff]
@@ -178,22 +190,24 @@ class PrivilegeEscalationPrevention:
             if len(recent_failures) >= 5:  # 5 failed attempts in 1 hour
                 await self._log_security_event(
                     "Repeated privilege escalation attempts detected",
-                    user_id, None, action
+                    user_id,
+                    None,
+                    action,
                 )
                 return True
 
         # Pattern 2: Rapid role assignments (potential account takeover)
-        if action == 'role_assignment':
+        if action == "role_assignment":
             assignments = self.role_assignment_history.get(user_id, [])
             recent_assignments = [
-                a for a in assignments
-                if a['timestamp'] > datetime.utcnow() - timedelta(minutes=5)
+                a
+                for a in assignments
+                if a["timestamp"] > datetime.utcnow() - timedelta(minutes=5)
             ]
 
             if len(recent_assignments) >= 3:  # 3 assignments in 5 minutes
                 await self._log_security_event(
-                    "Rapid role assignment pattern detected",
-                    user_id, None, action
+                    "Rapid role assignment pattern detected", user_id, None, action
                 )
                 return True
 
@@ -203,7 +217,7 @@ class PrivilegeEscalationPrevention:
         self,
         user_id: UUID,
         requested_permissions: list[Permission],
-        justification: str | None = None
+        justification: str | None = None,
     ) -> list[Permission]:
         """Enforce principle of least privilege by filtering excessive permissions.
 
@@ -226,8 +240,7 @@ class PrivilegeEscalationPrevention:
 
         # Filter out permissions that are already granted via roles
         additional_needed = [
-            perm for perm in requested_permissions
-            if perm not in current_permissions
+            perm for perm in requested_permissions if perm not in current_permissions
         ]
 
         # Apply least privilege filtering
@@ -236,15 +249,20 @@ class PrivilegeEscalationPrevention:
         for permission in additional_needed:
             # High-risk permissions require explicit approval
             high_risk_permissions = {
-                'user.delete', 'tenant.delete', 'platform.manage',
-                'billing.manage', 'security.manage'
+                "user.delete",
+                "tenant.delete",
+                "platform.manage",
+                "billing.manage",
+                "security.manage",
             }
 
             if permission.name in high_risk_permissions:
                 await self._log_security_event(
                     f"High-risk permission '{permission.name}' requested",
-                    user_id, None, permission.name,
-                    additional_data={'justification': justification}
+                    user_id,
+                    None,
+                    permission.name,
+                    additional_data={"justification": justification},
                 )
                 # Require manual approval for high-risk permissions
                 continue
@@ -255,7 +273,9 @@ class PrivilegeEscalationPrevention:
         if len(filtered_permissions) < len(additional_needed):
             await self._log_security_event(
                 f"Filtered {len(additional_needed) - len(filtered_permissions)} excessive permissions",
-                user_id, None, "permission_filtering"
+                user_id,
+                None,
+                "permission_filtering",
             )
 
         return filtered_permissions
@@ -270,22 +290,23 @@ class PrivilegeEscalationPrevention:
             return None
 
     async def _can_grant_role(
-        self,
-        granter: User,
-        role: UserRole,
-        tenant_id: UUID | None
+        self, granter: User, role: UserRole, tenant_id: UUID | None
     ) -> bool:
         """Check if user can grant a specific role."""
         return PermissionMatrix.can_role_grant_permission(
-            granter.get_tenant_role(tenant_id).role if tenant_id else UserRole.SUPER_ADMIN,
-            Permission(name=f"role.{role.value}", resource="role", action="grant", description="")
+            granter.get_tenant_role(tenant_id).role
+            if tenant_id
+            else UserRole.SUPER_ADMIN,
+            Permission(
+                name=f"role.{role.value}",
+                resource="role",
+                action="grant",
+                description="",
+            ),
         )
 
     async def _has_sufficient_privileges(
-        self,
-        granter: User,
-        role: UserRole,
-        tenant_id: UUID | None
+        self, granter: User, role: UserRole, tenant_id: UUID | None
     ) -> bool:
         """Check if granter has sufficient privileges to grant role."""
         hierarchy = PermissionMatrix.get_permission_hierarchy()
@@ -310,7 +331,7 @@ class PrivilegeEscalationPrevention:
         """Check rate limiting for role assignments."""
         assignments = self.role_assignment_history.get(granter_id, [])
         cutoff = datetime.utcnow() - timedelta(minutes=10)
-        recent_assignments = [a for a in assignments if a['timestamp'] > cutoff]
+        recent_assignments = [a for a in assignments if a["timestamp"] > cutoff]
 
         # Allow max 5 role assignments per 10 minutes
         return len(recent_assignments) < 5
@@ -320,28 +341,28 @@ class PrivilegeEscalationPrevention:
         granter_id: UUID,
         target_user_id: UUID,
         role: UserRole,
-        tenant_id: UUID | None
+        tenant_id: UUID | None,
     ) -> None:
         """Record a role assignment for audit and rate limiting."""
         if granter_id not in self.role_assignment_history:
             self.role_assignment_history[granter_id] = []
 
-        self.role_assignment_history[granter_id].append({
-            'timestamp': datetime.utcnow(),
-            'target_user': target_user_id,
-            'role': role.value,
-            'tenant_id': tenant_id
-        })
-
-        # Keep only last 50 assignments
-        self.role_assignment_history[granter_id] = (
-            self.role_assignment_history[granter_id][-50:]
+        self.role_assignment_history[granter_id].append(
+            {
+                "timestamp": datetime.utcnow(),
+                "target_user": target_user_id,
+                "role": role.value,
+                "tenant_id": tenant_id,
+            }
         )
 
+        # Keep only last 50 assignments
+        self.role_assignment_history[granter_id] = self.role_assignment_history[
+            granter_id
+        ][-50:]
+
     async def _get_user_permissions(
-        self,
-        user: User,
-        tenant_id: UUID | None
+        self, user: User, tenant_id: UUID | None
     ) -> set[Permission]:
         """Get effective permissions for user in tenant context."""
         if user.is_super_admin():
@@ -362,10 +383,10 @@ class PrivilegeEscalationPrevention:
     async def _is_tenant_admin(self, user: User, tenant_id: UUID) -> bool:
         """Check if user is admin in specific tenant."""
         tenant_role = user.get_tenant_role(tenant_id)
-        return (
-            tenant_role and
-            tenant_role.role in [UserRole.TENANT_ADMIN, UserRole.SUPER_ADMIN]
-        )
+        return tenant_role and tenant_role.role in [
+            UserRole.TENANT_ADMIN,
+            UserRole.SUPER_ADMIN,
+        ]
 
     async def _log_security_event(
         self,
@@ -373,7 +394,7 @@ class PrivilegeEscalationPrevention:
         user_id: UUID,
         target_user_id: UUID | None,
         action_details: str,
-        additional_data: dict | None = None
+        additional_data: dict | None = None,
     ) -> None:
         """Log security events for monitoring and compliance."""
         self.logger.warning(
@@ -383,7 +404,10 @@ class PrivilegeEscalationPrevention:
         )
 
         # Record failed attempts for pattern detection
-        if 'attempt' in event_description.lower() or 'blocked' in event_description.lower():
+        if (
+            "attempt" in event_description.lower()
+            or "blocked" in event_description.lower()
+        ):
             if user_id not in self.failed_privilege_attempts:
                 self.failed_privilege_attempts[user_id] = []
 
@@ -392,8 +416,7 @@ class PrivilegeEscalationPrevention:
             # Keep only last 24 hours of attempts
             cutoff = datetime.utcnow() - timedelta(hours=24)
             self.failed_privilege_attempts[user_id] = [
-                ts for ts in self.failed_privilege_attempts[user_id]
-                if ts > cutoff
+                ts for ts in self.failed_privilege_attempts[user_id] if ts > cutoff
             ]
 
 
@@ -407,20 +430,19 @@ class SecurityResponseHandler:
             "error": "authentication_required",
             "message": "Valid authentication credentials are required",
             "details": reason,
-            "status_code": 401
+            "status_code": 401,
         }
 
     @staticmethod
     def format_authorization_error(
-        required_permission: str,
-        user_roles: list[str]
+        required_permission: str, user_roles: list[str]
     ) -> dict[str, str]:
         """Format authorization error response (403)."""
         return {
             "error": "insufficient_permissions",
             "message": f"Access denied. Required permission: {required_permission}",
             "user_roles": user_roles,
-            "status_code": 403
+            "status_code": 403,
         }
 
     @staticmethod
@@ -429,7 +451,7 @@ class SecurityResponseHandler:
         return {
             "error": "privilege_escalation_blocked",
             "message": "Privilege escalation attempt detected and blocked",
-            "status_code": 403
+            "status_code": 403,
         }
 
     @staticmethod
@@ -439,5 +461,5 @@ class SecurityResponseHandler:
             "error": "rate_limit_exceeded",
             "message": "Too many requests. Please try again later.",
             "retry_after": retry_after,
-            "status_code": 429
+            "status_code": 429,
         }

@@ -194,7 +194,6 @@ class SimpleAverageCombiner(EnsembleCombiner):
         member_weights: dict[str, float],
         features: np.ndarray | None = None,
     ) -> tuple[float, int, float]:
-
         if not member_scores:
             return 0.0, 0, 0.0
 
@@ -223,7 +222,6 @@ class WeightedAverageCombiner(EnsembleCombiner):
         member_weights: dict[str, float],
         features: np.ndarray | None = None,
     ) -> tuple[float, int, float]:
-
         if not member_scores:
             return 0.0, 0, 0.0
 
@@ -322,7 +320,6 @@ class StackingCombiner(EnsembleCombiner):
         member_weights: dict[str, float],
         features: np.ndarray | None = None,
     ) -> tuple[float, int, float]:
-
         if not self.is_trained:
             # Fallback to weighted average if not trained
             combiner = WeightedAverageCombiner()
@@ -394,7 +391,6 @@ class DynamicSelectionCombiner(EnsembleCombiner):
         member_weights: dict[str, float],
         features: np.ndarray | None = None,
     ) -> tuple[float, int, float]:
-
         if not member_scores:
             return 0.0, 0, 0.0
 
@@ -585,10 +581,12 @@ class EnsembleDetectionService:
             raise ValidationError("No successful predictions from ensemble members")
 
         # Combine predictions
-        final_score, final_prediction, confidence = (
-            await self._current_combiner.combine_predictions(
-                member_scores, member_predictions, member_weights, data
-            )
+        (
+            final_score,
+            final_prediction,
+            confidence,
+        ) = await self._current_combiner.combine_predictions(
+            member_scores, member_predictions, member_weights, data
         )
 
         # Calculate uncertainty if enabled
@@ -984,7 +982,6 @@ class EnsembleDetectionService:
                 and len([m for m in self.members if m.enabled])
                 > self.config.min_members
             ):
-
                 member.enabled = False
                 removed_members.append(str(member.detector.id))
                 self.logger.info(f"Pruned weak member: {member.detector.name}")

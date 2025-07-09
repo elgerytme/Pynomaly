@@ -45,13 +45,12 @@ class RealTimeMetricFrame(MetricFrame):
     """Enhanced metric frame with real-time properties."""
 
     delay: float | None = Field(
-        None,
-        description="Time delay in seconds for metric collection"
+        None, description="Time delay in seconds for metric collection"
     )
 
-    @validator('value')
+    @validator("value")
     def validate_value(cls, v: float) -> float:
         """Ensure the metric value is non-negative."""
         if v < 0:
-            raise ValueError('Metric value must be non-negative')
+            raise ValueError("Metric value must be non-negative")
         return v

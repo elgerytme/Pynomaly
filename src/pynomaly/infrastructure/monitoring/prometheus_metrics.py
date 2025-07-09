@@ -437,7 +437,9 @@ class PrometheusMetricsService:
             confidence_level = (
                 "high"
                 if anomalies_found > 10
-                else "medium" if anomalies_found > 1 else "low"
+                else "medium"
+                if anomalies_found > 1
+                else "low"
             )
             self.metrics["anomalies_found"].labels(
                 algorithm=algorithm, confidence_level=confidence_level

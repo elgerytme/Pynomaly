@@ -13,28 +13,6 @@ from .alerting_service import (
     create_alerting_service,
 )
 
-# Health checks
-from .health_checks import (
-    HealthChecker,
-    HealthCheckResult,
-    HealthStatus as HealthCheckStatus,
-    ComponentType,
-    SystemHealth,
-    get_health_checker,
-    register_health_check,
-    liveness_probe,
-    readiness_probe,
-    ProbeResponse,
-)
-from .comprehensive_health_manager import (
-    ComprehensiveHealthManager,
-    HealthCheckCategory,
-    HealthCheckSchedule,
-    ComponentHealthConfig,
-    get_comprehensive_health_manager,
-    close_comprehensive_health_manager,
-)
-
 # Legacy monitoring services
 from .complexity_monitor import (
     ComplexityMetrics,
@@ -42,7 +20,29 @@ from .complexity_monitor import (
     print_complexity_report,
     run_complexity_check,
 )
+from .comprehensive_health_manager import (
+    ComponentHealthConfig,
+    ComprehensiveHealthManager,
+    HealthCheckCategory,
+    HealthCheckSchedule,
+    close_comprehensive_health_manager,
+    get_comprehensive_health_manager,
+)
 from .dashboard_service import DashboardMetrics, MonitoringDashboardService
+
+# Health checks
+from .health_checks import (
+    ComponentType,
+    HealthChecker,
+    HealthCheckResult,
+    ProbeResponse,
+    SystemHealth,
+    get_health_checker,
+    liveness_probe,
+    readiness_probe,
+    register_health_check,
+)
+from .health_checks import HealthStatus as HealthCheckStatus
 from .health_service import HealthCheck, HealthService, HealthStatus, SystemMetrics
 from .performance_monitor import (
     PerformanceAlert,

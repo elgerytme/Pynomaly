@@ -57,7 +57,7 @@ class ExportFormat(str, Enum):
 
 class AlgorithmConfigurationDTO(BaseModel):
     """DTO for algorithm configuration."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     algorithm_name: str = Field(..., description="Name of the algorithm")
@@ -99,9 +99,65 @@ class ConfigurationLevel(str, Enum):
 # ============================================================================
 
 
+class DatasetCharacteristicsDTO(BaseModel):
+    """DTO for dataset characteristics and profile."""
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+    # Basic dataset properties
+    num_samples: int = Field(..., description="Number of samples in dataset")
+    num_features: int = Field(..., description="Number of features in dataset")
+    feature_names: list[str] = Field(default_factory=list, description="Feature names")
+
+    # Data types and characteristics
+    numerical_features: list[str] = Field(
+        default_factory=list, description="Numerical feature names"
+    )
+    categorical_features: list[str] = Field(
+        default_factory=list, description="Categorical feature names"
+    )
+    datetime_features: list[str] = Field(
+        default_factory=list, description="Datetime feature names"
+    )
+
+    # Data quality metrics
+    missing_values_ratio: float = Field(
+        default=0.0, description="Ratio of missing values"
+    )
+    duplicate_rows_ratio: float = Field(
+        default=0.0, description="Ratio of duplicate rows"
+    )
+    outlier_ratio: float = Field(default=0.0, description="Estimated outlier ratio")
+
+    # Statistical properties
+    feature_correlations: dict[str, float] = Field(
+        default_factory=dict, description="Feature correlations"
+    )
+    data_variance: float = Field(default=0.0, description="Overall data variance")
+    sparsity_ratio: float = Field(default=0.0, description="Data sparsity ratio")
+
+    # Dataset complexity
+    dimensionality_ratio: float = Field(
+        default=0.0, description="Features to samples ratio"
+    )
+    complexity_score: float = Field(default=0.0, description="Dataset complexity score")
+
+    # Temporal characteristics
+    has_temporal_structure: bool = Field(
+        default=False, description="Has temporal structure"
+    )
+    temporal_frequency: str | None = Field(
+        default=None, description="Temporal frequency"
+    )
+
+    # Size information
+    dataset_size_bytes: int = Field(default=0, description="Dataset size in bytes")
+    memory_usage_mb: float = Field(default=0.0, description="Memory usage in MB")
+
+
 class DatasetConfigDTO(BaseModel):
     """Configuration for dataset handling."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Dataset identification
@@ -154,7 +210,7 @@ class DatasetConfigDTO(BaseModel):
 
 class AlgorithmConfigDTO(BaseModel):
     """Configuration for anomaly detection algorithms."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Algorithm selection
@@ -206,7 +262,7 @@ class AlgorithmConfigDTO(BaseModel):
 
 class PreprocessingConfigDTO(BaseModel):
     """Configuration for data preprocessing."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Missing value handling
@@ -266,7 +322,7 @@ class PreprocessingConfigDTO(BaseModel):
 
 class EvaluationConfigDTO(BaseModel):
     """Configuration for model evaluation."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Evaluation metrics
@@ -318,7 +374,7 @@ class EvaluationConfigDTO(BaseModel):
 
 class EnvironmentConfigDTO(BaseModel):
     """Configuration for execution environment."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Python environment
@@ -359,7 +415,7 @@ class EnvironmentConfigDTO(BaseModel):
 
 class ConfigurationMetadataDTO(BaseModel):
     """Metadata for configuration tracking."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Origin information
@@ -405,7 +461,7 @@ class ConfigurationMetadataDTO(BaseModel):
 
 class PerformanceResultsDTO(BaseModel):
     """Performance results for configuration."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Primary metrics
@@ -468,7 +524,7 @@ class PerformanceResultsDTO(BaseModel):
 
 class ConfigurationLineageDTO(BaseModel):
     """Configuration lineage and relationships."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Relationship tracking
@@ -511,7 +567,7 @@ class ConfigurationLineageDTO(BaseModel):
 
 class ExperimentConfigurationDTO(BaseModel):
     """Complete experiment configuration."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Identification
@@ -593,7 +649,7 @@ EvaluationConfigurationDTO = EvaluationConfigDTO
 
 class ConfigurationCollectionDTO(BaseModel):
     """Collection of related configurations."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Collection identification
@@ -635,7 +691,7 @@ class ConfigurationCollectionDTO(BaseModel):
 
 class ConfigurationTemplateDTO(BaseModel):
     """Template for creating configurations."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Template identification
@@ -689,7 +745,7 @@ class ConfigurationTemplateDTO(BaseModel):
 
 class ConfigurationCaptureRequestDTO(BaseModel):
     """Request to capture configuration from execution."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Source information
@@ -723,7 +779,7 @@ class ConfigurationCaptureRequestDTO(BaseModel):
 
 class ConfigurationExportRequestDTO(BaseModel):
     """Request to export configuration."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Configuration selection
@@ -758,7 +814,7 @@ class ConfigurationExportRequestDTO(BaseModel):
 
 class ConfigurationSearchRequestDTO(BaseModel):
     """Request to search configurations."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Search criteria
@@ -798,7 +854,7 @@ class ConfigurationSearchRequestDTO(BaseModel):
 
 class ConfigurationResponseDTO(BaseModel):
     """Response containing configuration data."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Status
@@ -841,7 +897,7 @@ class ConfigurationResponseDTO(BaseModel):
 
 class ConfigurationValidationResultDTO(BaseModel):
     """Results of configuration validation."""
-    
+
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Validation status

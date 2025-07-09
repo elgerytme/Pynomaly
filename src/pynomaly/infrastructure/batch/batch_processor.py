@@ -20,18 +20,21 @@ try:
     import dask
     import dask.dataframe as dd
     from dask.distributed import Client, as_completed
+
     DASK_AVAILABLE = True
 except ImportError:
     DASK_AVAILABLE = False
 
 try:
     import ray
+
     RAY_AVAILABLE = True
 except ImportError:
     RAY_AVAILABLE = False
 
 try:
     from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+
     MULTIPROCESSING_AVAILABLE = True
 except ImportError:
     MULTIPROCESSING_AVAILABLE = False
@@ -49,6 +52,7 @@ logger = logging.getLogger(__name__)
 
 class BatchEngine(Enum):
     """Available batch processing engines."""
+
     SEQUENTIAL = "sequential"
     MULTIPROCESSING = "multiprocessing"
     THREADING = "threading"
@@ -58,6 +62,7 @@ class BatchEngine(Enum):
 
 class BatchStatus(Enum):
     """Batch job status."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -68,6 +73,7 @@ class BatchStatus(Enum):
 
 class DataFormat(Enum):
     """Supported data formats for batch processing."""
+
     CSV = "csv"
     PARQUET = "parquet"
     JSON = "json"
@@ -139,8 +145,8 @@ class BatchChunk:
                 "chunk_index": self.chunk_index,
                 "chunk_size": len(self.data),
                 "chunk_size_mb": self.size_mb(),
-                **self.metadata
-            }
+                **self.metadata,
+            },
         )
 
 
@@ -187,12 +193,14 @@ class BatchJob:
 
     def add_error(self, error: Exception, chunk_id: str | None = None) -> None:
         """Add error to job."""
-        self.errors.append({
-            "timestamp": datetime.now().isoformat(),
-            "error_type": type(error).__name__,
-            "error_message": str(error),
-            "chunk_id": chunk_id
-        })
+        self.errors.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "error_type": type(error).__name__,
+                "error_message": str(error),
+                "chunk_id": chunk_id,
+            }
+        )
 
 
 class BatchProcessor:
@@ -235,7 +243,7 @@ class BatchProcessor:
             self.engine_client = Client(
                 n_workers=self.config.max_workers,
                 threads_per_worker=2,
-                memory_limit=f"{self.config.max_memory_mb // self.config.max_workers}MB"
+                memory_limit=f"{self.config.max_memory_mb // self.config.max_workers}MB",
             )
             logger.info(f"Dask client initialized: {self.engine_client}")
 
@@ -246,20 +254,26 @@ class BatchProcessor:
             # Initialize Ray
             ray.init(
                 num_cpus=self.config.max_workers,
-                object_store_memory=self.config.max_memory_mb * 1024 * 1024
+                object_store_memory=self.config.max_memory_mb * 1024 * 1024,
             )
             logger.info("Ray initialized")
 
         elif self.config.engine == BatchEngine.MULTIPROCESSING:
             if not MULTIPROCESSING_AVAILABLE:
-                raise ImportError("Multiprocessing is required for multiprocessing engine")
+                raise ImportError(
+                    "Multiprocessing is required for multiprocessing engine"
+                )
 
             self.executor = ProcessPoolExecutor(max_workers=self.config.max_workers)
-            logger.info(f"ProcessPoolExecutor initialized with {self.config.max_workers} workers")
+            logger.info(
+                f"ProcessPoolExecutor initialized with {self.config.max_workers} workers"
+            )
 
         elif self.config.engine == BatchEngine.THREADING:
             self.executor = ThreadPoolExecutor(max_workers=self.config.max_workers)
-            logger.info(f"ThreadPoolExecutor initialized with {self.config.max_workers} workers")
+            logger.info(
+                f"ThreadPoolExecutor initialized with {self.config.max_workers} workers"
+            )
 
     async def shutdown_engine(self) -> None:
         """Shutdown the processing engine."""
@@ -279,7 +293,7 @@ class BatchProcessor:
         description: str,
         input_path: str,
         output_path: str,
-        config: BatchConfig | None = None
+        config: BatchConfig | None = None,
     ) -> str:
         """Submit a batch processing job."""
 
@@ -293,7 +307,7 @@ class BatchProcessor:
             description=description,
             config=job_config,
             input_path=input_path,
-            output_path=output_path
+            output_path=output_path,
         )
 
         self.jobs[job_id] = job
@@ -324,7 +338,10 @@ class BatchProcessor:
             results = []
             if job.config.engine == BatchEngine.SEQUENTIAL:
                 results = await self._process_sequential(job, chunks)
-            elif job.config.engine in [BatchEngine.MULTIPROCESSING, BatchEngine.THREADING]:
+            elif job.config.engine in [
+                BatchEngine.MULTIPROCESSING,
+                BatchEngine.THREADING,
+            ]:
                 results = await self._process_executor(job, chunks)
             elif job.config.engine == BatchEngine.DASK:
                 results = await self._process_dask(job, chunks)
@@ -373,35 +390,32 @@ class BatchProcessor:
         file_extension = input_path.suffix.lower()
 
         try:
-            if file_extension == '.csv':
+            if file_extension == ".csv":
                 # Read CSV in chunks
-                chunk_iter = pd.read_csv(
-                    input_path,
-                    chunksize=job.config.chunk_size
-                )
+                chunk_iter = pd.read_csv(input_path, chunksize=job.config.chunk_size)
 
                 for i, chunk_df in enumerate(chunk_iter):
                     chunk = BatchChunk(
                         chunk_id=f"{job.job_id}_chunk_{i}",
                         chunk_index=i,
                         data=chunk_df,
-                        source_info={"file": str(input_path), "format": "csv"}
+                        source_info={"file": str(input_path), "format": "csv"},
                     )
                     chunks.append(chunk)
 
-            elif file_extension == '.parquet':
+            elif file_extension == ".parquet":
                 # Read Parquet
                 df = pd.read_parquet(input_path)
                 chunks = self._split_dataframe_to_chunks(job, df)
 
-            elif file_extension == '.json':
+            elif file_extension == ".json":
                 # Read JSON
                 df = pd.read_json(input_path)
                 chunks = self._split_dataframe_to_chunks(job, df)
 
-            elif file_extension == '.pkl' or file_extension == '.pickle':
+            elif file_extension == ".pkl" or file_extension == ".pickle":
                 # Read Pickle
-                with open(input_path, 'rb') as f:
+                with open(input_path, "rb") as f:
                     df = pickle.load(f)
                 if isinstance(df, pd.DataFrame):
                     chunks = self._split_dataframe_to_chunks(job, df)
@@ -418,24 +432,28 @@ class BatchProcessor:
             logger.error(f"Error loading data: {e}")
             raise
 
-    def _split_dataframe_to_chunks(self, job: BatchJob, df: pd.DataFrame) -> list[BatchChunk]:
+    def _split_dataframe_to_chunks(
+        self, job: BatchJob, df: pd.DataFrame
+    ) -> list[BatchChunk]:
         """Split DataFrame into chunks."""
         chunks = []
         chunk_size = job.config.chunk_size
 
         for i in range(0, len(df), chunk_size):
-            chunk_df = df.iloc[i:i + chunk_size].copy()
+            chunk_df = df.iloc[i : i + chunk_size].copy()
             chunk = BatchChunk(
                 chunk_id=f"{job.job_id}_chunk_{i // chunk_size}",
                 chunk_index=i // chunk_size,
                 data=chunk_df,
-                source_info={"total_rows": len(df), "chunk_start": i}
+                source_info={"total_rows": len(df), "chunk_start": i},
             )
             chunks.append(chunk)
 
         return chunks
 
-    async def _process_sequential(self, job: BatchJob, chunks: list[BatchChunk]) -> list[DetectionResult]:
+    async def _process_sequential(
+        self, job: BatchJob, chunks: list[BatchChunk]
+    ) -> list[DetectionResult]:
         """Process chunks sequentially."""
         results = []
 
@@ -460,7 +478,9 @@ class BatchProcessor:
 
         return results
 
-    async def _process_executor(self, job: BatchJob, chunks: list[BatchChunk]) -> list[DetectionResult]:
+    async def _process_executor(
+        self, job: BatchJob, chunks: list[BatchChunk]
+    ) -> list[DetectionResult]:
         """Process chunks using ThreadPoolExecutor or ProcessPoolExecutor."""
         results = []
         loop = asyncio.get_event_loop()
@@ -469,10 +489,7 @@ class BatchProcessor:
         futures = []
         for chunk in chunks:
             future = loop.run_in_executor(
-                self.executor,
-                self._process_chunk_sync,
-                chunk,
-                job.config
+                self.executor, self._process_chunk_sync, chunk, job.config
             )
             futures.append((chunk, future))
 
@@ -494,7 +511,9 @@ class BatchProcessor:
 
         return results
 
-    async def _process_dask(self, job: BatchJob, chunks: list[BatchChunk]) -> list[DetectionResult]:
+    async def _process_dask(
+        self, job: BatchJob, chunks: list[BatchChunk]
+    ) -> list[DetectionResult]:
         """Process chunks using Dask."""
         if not DASK_AVAILABLE or not self.engine_client:
             raise RuntimeError("Dask is not available")
@@ -505,9 +524,7 @@ class BatchProcessor:
         futures = []
         for chunk in chunks:
             future = self.engine_client.submit(
-                self._process_chunk_sync,
-                chunk,
-                job.config
+                self._process_chunk_sync, chunk, job.config
             )
             futures.append((chunk, future))
 
@@ -529,14 +546,18 @@ class BatchProcessor:
 
         return results
 
-    async def _process_ray(self, job: BatchJob, chunks: list[BatchChunk]) -> list[DetectionResult]:
+    async def _process_ray(
+        self, job: BatchJob, chunks: list[BatchChunk]
+    ) -> list[DetectionResult]:
         """Process chunks using Ray."""
         if not RAY_AVAILABLE:
             raise RuntimeError("Ray is not available")
 
         # Define Ray remote function
         @ray.remote
-        def process_chunk_ray(chunk: BatchChunk, config: BatchConfig) -> DetectionResult:
+        def process_chunk_ray(
+            chunk: BatchChunk, config: BatchConfig
+        ) -> DetectionResult:
             return self._process_chunk_sync(chunk, config)
 
         results = []
@@ -565,7 +586,9 @@ class BatchProcessor:
 
         return results
 
-    def _process_chunk_sync(self, chunk: BatchChunk, config: BatchConfig) -> DetectionResult:
+    def _process_chunk_sync(
+        self, chunk: BatchChunk, config: BatchConfig
+    ) -> DetectionResult:
         """Synchronous chunk processing (for use with executors)."""
         # Create event loop if not in async context
         try:
@@ -576,7 +599,9 @@ class BatchProcessor:
 
         return loop.run_until_complete(self._process_chunk(chunk, config))
 
-    async def _process_chunk(self, chunk: BatchChunk, config: BatchConfig) -> DetectionResult:
+    async def _process_chunk(
+        self, chunk: BatchChunk, config: BatchConfig
+    ) -> DetectionResult:
         """Process a single chunk for anomaly detection."""
         try:
             # Convert chunk to dataset
@@ -589,16 +614,18 @@ class BatchProcessor:
             result = await detection_service.detect_anomalies(
                 dataset=dataset,
                 algorithm=config.detection_algorithm,
-                config=config.detection_config
+                config=config.detection_config,
             )
 
             # Add batch processing metadata
-            result.metadata.update({
-                "batch_processing": True,
-                "chunk_id": chunk.chunk_id,
-                "chunk_index": chunk.chunk_index,
-                "engine": config.engine.value
-            })
+            result.metadata.update(
+                {
+                    "batch_processing": True,
+                    "chunk_id": chunk.chunk_id,
+                    "chunk_index": chunk.chunk_index,
+                    "engine": config.engine.value,
+                }
+            )
 
             return result
 
@@ -606,7 +633,9 @@ class BatchProcessor:
             logger.error(f"Error processing chunk {chunk.chunk_id}: {e}")
             raise
 
-    async def _combine_results(self, job: BatchJob, results: list[DetectionResult]) -> DetectionResult:
+    async def _combine_results(
+        self, job: BatchJob, results: list[DetectionResult]
+    ) -> DetectionResult:
         """Combine results from multiple chunks."""
         if not results:
             raise ValueError("No results to combine")
@@ -642,8 +671,8 @@ class BatchProcessor:
                 "batch_job_id": job.job_id,
                 "total_chunks": len(results),
                 "processing_engine": job.config.engine.value,
-                "combined_at": datetime.now().isoformat()
-            }
+                "combined_at": datetime.now().isoformat(),
+            },
         )
 
         return combined_result
@@ -669,56 +698,62 @@ class BatchProcessor:
                     "confidence_lower": anomaly.confidence.lower,
                     "confidence_upper": anomaly.confidence.upper,
                     "explanation": anomaly.explanation,
-                    "features": anomaly.features
+                    "features": anomaly.features,
                 }
                 for anomaly in result.anomalies
             ],
-            "metadata": result.metadata
+            "metadata": result.metadata,
         }
 
         # Save based on output format
         if job.config.output_format == DataFormat.JSON:
-            with open(output_path, 'w') as f:
+            with open(output_path, "w") as f:
                 json.dump(result_data, f, indent=2, default=str)
 
         elif job.config.output_format == DataFormat.PICKLE:
-            with open(output_path, 'wb') as f:
+            with open(output_path, "wb") as f:
                 pickle.dump(result_data, f)
 
         elif job.config.output_format == DataFormat.PARQUET:
             # Convert to DataFrame and save
-            anomalies_df = pd.DataFrame([
-                {
-                    "index": anomaly.index,
-                    "score": anomaly.score.value,
-                    "confidence_lower": anomaly.confidence.lower,
-                    "confidence_upper": anomaly.confidence.upper,
-                    "explanation": anomaly.explanation
-                }
-                for anomaly in result.anomalies
-            ])
+            anomalies_df = pd.DataFrame(
+                [
+                    {
+                        "index": anomaly.index,
+                        "score": anomaly.score.value,
+                        "confidence_lower": anomaly.confidence.lower,
+                        "confidence_upper": anomaly.confidence.upper,
+                        "explanation": anomaly.explanation,
+                    }
+                    for anomaly in result.anomalies
+                ]
+            )
             anomalies_df.to_parquet(output_path, index=False)
 
         else:
             # Default to JSON
-            with open(output_path, 'w') as f:
+            with open(output_path, "w") as f:
                 json.dump(result_data, f, indent=2, default=str)
 
         logger.info(f"Saved batch result to {output_path}")
 
-    async def _save_checkpoint(self, job: BatchJob, partial_results: list[DetectionResult]) -> None:
+    async def _save_checkpoint(
+        self, job: BatchJob, partial_results: list[DetectionResult]
+    ) -> None:
         """Save intermediate checkpoint."""
         if job.config.save_intermediate_results:
-            checkpoint_path = self.temp_dir / f"checkpoint_{job.job_id}_{job.processed_chunks}.pkl"
+            checkpoint_path = (
+                self.temp_dir / f"checkpoint_{job.job_id}_{job.processed_chunks}.pkl"
+            )
 
             checkpoint_data = {
                 "job_id": job.job_id,
                 "processed_chunks": job.processed_chunks,
                 "timestamp": datetime.now().isoformat(),
-                "partial_results": partial_results
+                "partial_results": partial_results,
             }
 
-            with open(checkpoint_path, 'wb') as f:
+            with open(checkpoint_path, "wb") as f:
                 pickle.dump(checkpoint_data, f)
 
             logger.debug(f"Saved checkpoint for job {job.job_id}")
@@ -750,8 +785,8 @@ class BatchProcessor:
                 "engine": job.config.engine.value,
                 "chunk_size": job.config.chunk_size,
                 "max_workers": job.config.max_workers,
-                "detection_algorithm": job.config.detection_algorithm.value
-            }
+                "detection_algorithm": job.config.detection_algorithm.value,
+            },
         }
 
     async def cancel_job(self, job_id: str) -> bool:
@@ -774,7 +809,9 @@ class BatchProcessor:
 
         return False
 
-    async def list_jobs(self, status: BatchStatus | None = None) -> list[dict[str, Any]]:
+    async def list_jobs(
+        self, status: BatchStatus | None = None
+    ) -> list[dict[str, Any]]:
         """List all batch jobs."""
         jobs = list(self.jobs.values())
 
@@ -789,7 +826,7 @@ class BatchProcessor:
                 "created_at": job.created_at.isoformat(),
                 "progress_percentage": job.progress_percentage(),
                 "total_samples": job.total_samples,
-                "total_anomalies": job.total_anomalies
+                "total_anomalies": job.total_anomalies,
             }
             for job in sorted(jobs, key=lambda j: j.created_at, reverse=True)
         ]
@@ -800,9 +837,12 @@ class BatchProcessor:
         cleaned_count = 0
 
         for job_id, job in list(self.jobs.items()):
-            if (job.status in [BatchStatus.COMPLETED, BatchStatus.FAILED, BatchStatus.CANCELLED] and
-                job.completed_at and job.completed_at < cutoff_date):
-
+            if (
+                job.status
+                in [BatchStatus.COMPLETED, BatchStatus.FAILED, BatchStatus.CANCELLED]
+                and job.completed_at
+                and job.completed_at < cutoff_date
+            ):
                 del self.jobs[job_id]
                 cleaned_count += 1
 
@@ -811,17 +851,28 @@ class BatchProcessor:
 
     async def get_system_metrics(self) -> dict[str, Any]:
         """Get batch processor system metrics."""
-        running_jobs = [job for job in self.jobs.values() if job.status == BatchStatus.RUNNING]
+        running_jobs = [
+            job for job in self.jobs.values() if job.status == BatchStatus.RUNNING
+        ]
 
         return {
             "total_jobs": len(self.jobs),
             "running_jobs": len(running_jobs),
-            "completed_jobs": len([job for job in self.jobs.values() if job.status == BatchStatus.COMPLETED]),
-            "failed_jobs": len([job for job in self.jobs.values() if job.status == BatchStatus.FAILED]),
+            "completed_jobs": len(
+                [
+                    job
+                    for job in self.jobs.values()
+                    if job.status == BatchStatus.COMPLETED
+                ]
+            ),
+            "failed_jobs": len(
+                [job for job in self.jobs.values() if job.status == BatchStatus.FAILED]
+            ),
             "engine": self.config.engine.value,
             "max_workers": self.config.max_workers,
             "temp_dir": str(self.temp_dir),
-            "engine_active": self.engine_client is not None or self.executor is not None
+            "engine_active": self.engine_client is not None
+            or self.executor is not None,
         }
 
     async def shutdown(self) -> None:

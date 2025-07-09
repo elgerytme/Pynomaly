@@ -16,7 +16,7 @@ from pynomaly.domain.exceptions import (
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 
 
-class PyODAdapter(Detector):
+class PyODAdapter:
     """Adapter for PyOD anomaly detection algorithms."""
 
     # Mapping of algorithm names to PyOD classes
@@ -100,8 +100,8 @@ class PyODAdapter(Detector):
                 algorithm_name, available_algorithms=list(self.ALGORITHM_MAPPING.keys())
             )
 
-        # Initialize parent
-        super().__init__(
+        # Compose with Detector entity (domain object)
+        self._detector = Detector(
             name=name or f"PyOD_{algorithm_name}",
             algorithm_name=algorithm_name,
             contamination_rate=contamination_rate or ContaminationRate.auto(),
