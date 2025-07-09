@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Any
 from uuid import UUID
 
 from pynomaly.domain.models.multitenancy import (
@@ -81,7 +81,7 @@ class DataIsolationService:
     async def configure_tenant_isolation(
         self,
         tenant: Tenant,
-        isolation_level: Optional[IsolationLevel] = None,
+        isolation_level: IsolationLevel | None = None,
     ) -> None:
         """Configure isolation for a tenant based on their requirements."""
 
@@ -243,7 +243,7 @@ class DataIsolationService:
     async def encrypt_tenant_data(
         self,
         tenant_id: UUID,
-        data: Union[str, bytes],
+        data: str | bytes,
     ) -> bytes:
         """Encrypt data using tenant-specific encryption key."""
 

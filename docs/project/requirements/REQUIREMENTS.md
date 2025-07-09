@@ -1,6 +1,6 @@
 # Pynomaly Requirements
 
-🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 📁 Project
+🍞 **Breadcrumb:** 🏠 [Home](../../docs/index.md) > 📁 [Project](../README.md) > 📄 Requirements
 
 ---
 

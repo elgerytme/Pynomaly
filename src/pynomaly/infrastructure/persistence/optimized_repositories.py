@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import (
@@ -572,8 +572,8 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
         detector_id: UUID,
         page: int = 1,
         page_size: int = 50,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None
+        start_date: datetime | None = None,
+        end_date: datetime | None = None
     ) -> tuple[list[DetectionResult], dict[str, Any]]:
         """Find detection results by detector with pagination and date filtering."""
         with self.session_factory() as session:
@@ -608,8 +608,8 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
 
     def get_detection_statistics(
         self,
-        detector_id: Optional[UUID] = None,
-        dataset_id: Optional[UUID] = None,
+        detector_id: UUID | None = None,
+        dataset_id: UUID | None = None,
         days_back: int = 30
     ) -> dict[str, Any]:
         """Get comprehensive detection statistics."""
@@ -778,7 +778,7 @@ class QueryPerformanceMonitor:
         self.threshold = slow_query_threshold
         self.slow_queries = []
 
-    def log_query(self, query: str, duration: float, params: Optional[dict] = None):
+    def log_query(self, query: str, duration: float, params: dict | None = None):
         """Log query execution time."""
         if duration > self.threshold:
             slow_query = {

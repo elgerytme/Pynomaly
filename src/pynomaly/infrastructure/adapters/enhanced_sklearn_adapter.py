@@ -6,7 +6,7 @@ import importlib
 import time
 import warnings
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from sklearn.base import BaseEstimator
@@ -115,9 +115,9 @@ class EnhancedSklearnAdapter(DetectorProtocol):
     def __init__(
         self,
         algorithm_name: str,
-        name: Optional[str] = None,
-        contamination_rate: Optional[ContaminationRate] = None,
-        use_scaling: Optional[bool] = None,
+        name: str | None = None,
+        contamination_rate: ContaminationRate | None = None,
+        use_scaling: bool | None = None,
         **kwargs: Any,
     ):
         """Initialize enhanced sklearn adapter.
@@ -150,12 +150,12 @@ class EnhancedSklearnAdapter(DetectorProtocol):
         self._use_scaling = (
             use_scaling if use_scaling is not None else info.requires_scaling
         )
-        self._scaler: Optional[StandardScaler] = None
+        self._scaler: StandardScaler | None = None
 
         # State
-        self._model: Optional[BaseEstimator] = None
+        self._model: BaseEstimator | None = None
         self._is_fitted = False
-        self._feature_names: Optional[list[str]] = None
+        self._feature_names: list[str] | None = None
         self._training_metadata: dict[str, Any] = {}
 
         # Suppress sklearn warnings
@@ -515,7 +515,7 @@ class EnhancedSklearnAdapter(DetectorProtocol):
         return list(cls.ALGORITHM_MAPPING.keys())
 
     @classmethod
-    def get_algorithm_info(cls, algorithm_name: str) -> Optional[SklearnAlgorithmInfo]:
+    def get_algorithm_info(cls, algorithm_name: str) -> SklearnAlgorithmInfo | None:
         """Get information for a specific algorithm."""
         if algorithm_name in cls.ALGORITHM_MAPPING:
             return cls.ALGORITHM_MAPPING[algorithm_name][2]

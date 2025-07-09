@@ -6,7 +6,7 @@ import asyncio
 import logging
 import time
 from datetime import datetime, timedelta
-from typing import Any, Optional, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 import psutil
@@ -162,7 +162,7 @@ class MetricsService:
         metric_type: MetricType,
         description: str,
         unit: str = "",
-        labels: Optional[dict[str, str]] = None,
+        labels: dict[str, str] | None = None,
     ) -> Metric:
         """Create a new metric."""
 
@@ -186,8 +186,8 @@ class MetricsService:
     def record_metric(
         self,
         name: str,
-        value: Union[float, int, str],
-        labels: Optional[dict[str, str]] = None,
+        value: float | int | str,
+        labels: dict[str, str] | None = None,
     ) -> None:
         """Record a metric value."""
 
@@ -251,8 +251,8 @@ class MetricsService:
         model_name: str,
         model_version: str,
         prediction_count: int = 1,
-        accuracy: Optional[float] = None,
-        inference_time: Optional[float] = None,
+        accuracy: float | None = None,
+        inference_time: float | None = None,
     ) -> None:
         """Record ML model metrics."""
 
@@ -291,7 +291,7 @@ class MetricsService:
         detector_type: str,
         anomalies_detected: int,
         total_samples: int,
-        detection_accuracy: Optional[float] = None,
+        detection_accuracy: float | None = None,
     ) -> None:
         """Record anomaly detection specific metrics."""
 
@@ -321,7 +321,7 @@ class MetricsService:
         name: str,
         metric_name: str,
         condition: str,
-        threshold: Union[float, int, str],
+        threshold: float | int | str,
         severity: AlertSeverity = AlertSeverity.WARNING,
         evaluation_window: timedelta = timedelta(minutes=5),
     ) -> AlertRule:
@@ -373,8 +373,8 @@ class MetricsService:
         self,
         name: str,
         aggregation: str = "latest",
-        time_range: Optional[timedelta] = None,
-    ) -> Optional[Union[float, int, str]]:
+        time_range: timedelta | None = None,
+    ) -> float | int | str | None:
         """Get metric value with optional aggregation."""
 
         if name not in self.metrics:
@@ -752,8 +752,8 @@ class MetricsService:
     def _update_prometheus_metric(
         self,
         name: str,
-        value: Union[float, int, str],
-        labels: Optional[dict[str, str]] = None,
+        value: float | int | str,
+        labels: dict[str, str] | None = None,
     ) -> None:
         """Update corresponding Prometheus metric if it exists."""
 
@@ -787,7 +787,7 @@ class MetricsService:
         self.logger.info(f"Alert acknowledged: {alert.message}")
         return True
 
-    def resolve_alert(self, alert_id: UUID, resolved_by: UUID, resolution_note: Optional[str] = None) -> bool:
+    def resolve_alert(self, alert_id: UUID, resolved_by: UUID, resolution_note: str | None = None) -> bool:
         """Resolve an alert."""
 
         if alert_id not in self.active_alerts:

@@ -1,16 +1,17 @@
 # Test direct imports of advanced scheduler components
 
-import sys
 import os
+import sys
+
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../..'))
 
 from datetime import datetime
-from pynomaly.infrastructure.scheduler.entities import Schedule, JobDefinition
+
 from pynomaly.infrastructure.scheduler.dag_parser import DAGParser
 from pynomaly.infrastructure.scheduler.dependency_resolver import DependencyResolver
+from pynomaly.infrastructure.scheduler.entities import JobDefinition
 from pynomaly.infrastructure.scheduler.resource_manager import ResourceManager
 from pynomaly.infrastructure.scheduler.trigger_manager import TriggerManager
-from pynomaly.infrastructure.scheduler.schedule_repository import InMemoryScheduleRepository
 
 # Example test case
 
@@ -40,7 +41,7 @@ def test_scheduler_components():
     # Compute trigger
     next_execution = TriggerManager.compute_next_execution(cron_expression="* * * * *")
     assert isinstance(next_execution, datetime)
-    
+
     print("All scheduler components imported and tested successfully.")
 
 if __name__ == "__main__":

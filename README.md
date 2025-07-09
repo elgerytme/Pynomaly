@@ -6,6 +6,9 @@
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 [![CI](https://github.com/yourusername/pynomaly/workflows/CI/badge.svg)](https://github.com/yourusername/pynomaly/actions)
+[![Security](https://github.com/yourusername/pynomaly/workflows/Security%20Scanning/badge.svg)](https://github.com/yourusername/pynomaly/actions)
+[![Bandit](https://img.shields.io/badge/security-bandit-yellow)](https://bandit.readthedocs.io/)
+[![Safety](https://img.shields.io/badge/safety-checked-green)](https://github.com/pyupio/safety)
 
 Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified interface.
 

@@ -13,7 +13,7 @@ Schemas:
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field, validator
 
@@ -47,8 +47,8 @@ class AnomalyDetectionMetrics(BaseModel):
     f1_score: float = Field(ge=0.0, le=1.0, description="F1 score")
     false_positive_rate: float = Field(ge=0.0, le=1.0, description="False positive rate")
     false_negative_rate: float = Field(ge=0.0, le=1.0, description="False negative rate")
-    roc_auc: Optional[float] = Field(None, ge=0.0, le=1.0, description="ROC AUC score")
-    pr_auc: Optional[float] = Field(None, ge=0.0, le=1.0, description="PR AUC score")
+    roc_auc: float | None = Field(None, ge=0.0, le=1.0, description="ROC AUC score")
+    pr_auc: float | None = Field(None, ge=0.0, le=1.0, description="PR AUC score")
 
     @validator('f1_score')
     def validate_f1_score(cls, v: float, values: dict[str, Any]) -> float:
@@ -108,7 +108,7 @@ class AnomalyTimeSeriesMetrics(BaseModel):
     point_anomalies: int = Field(ge=0, description="Point anomalies")
 
     drift_detected: bool = Field(default=False, description="Concept drift detected")
-    seasonality_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="Seasonality score")
+    seasonality_score: float | None = Field(None, ge=0.0, le=1.0, description="Seasonality score")
 
     @validator('sample_rate')
     def validate_sample_rate(cls, v: float) -> float:
@@ -124,7 +124,7 @@ class AnomalyKPIFrame(RealTimeMetricFrame):
     # Core detection metrics
     detection_metrics: AnomalyDetectionMetrics
     classification_metrics: AnomalyClassificationMetrics
-    time_series_metrics: Optional[AnomalyTimeSeriesMetrics] = None
+    time_series_metrics: AnomalyTimeSeriesMetrics | None = None
 
     # Operational metrics
     model_name: str = Field(description="Name of the anomaly detection model")
@@ -139,14 +139,14 @@ class AnomalyKPIFrame(RealTimeMetricFrame):
     # Alert information
     active_alerts: int = Field(ge=0, description="Number of active alerts")
     critical_alerts: int = Field(ge=0, description="Number of critical alerts")
-    alert_resolution_time: Optional[float] = Field(None, ge=0.0, description="Average alert resolution time")
+    alert_resolution_time: float | None = Field(None, ge=0.0, description="Average alert resolution time")
 
     # Quality metrics
     confidence_score: float = Field(ge=0.0, le=1.0, description="Overall confidence score")
     data_quality_score: float = Field(ge=0.0, le=1.0, description="Data quality score")
 
     # Additional context
-    business_context: Optional[dict[str, Any]] = Field(None, description="Business context metadata")
+    business_context: dict[str, Any] | None = Field(None, description="Business context metadata")
 
     class Config:
         """Pydantic configuration."""

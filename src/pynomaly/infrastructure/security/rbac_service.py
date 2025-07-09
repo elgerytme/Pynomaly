@@ -6,7 +6,7 @@ import hmac
 import logging
 import secrets
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import jwt
@@ -50,8 +50,8 @@ class RBACService:
         username: str,
         email: str,
         password: str,
-        roles: Optional[set[UserRole]] = None,
-        created_by: Optional[UUID] = None,
+        roles: set[UserRole] | None = None,
+        created_by: UUID | None = None,
     ) -> User:
         """Create a new user with secure password hashing."""
 
@@ -103,9 +103,9 @@ class RBACService:
         self,
         username: str,
         password: str,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-    ) -> Optional[str]:
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+    ) -> str | None:
         """Authenticate user and return JWT token if successful."""
 
         user_id = self.users_by_username.get(username)
@@ -195,7 +195,7 @@ class RBACService:
         self.logger.info(f"User authenticated successfully: {username}")
         return token
 
-    async def validate_token(self, token: str) -> Optional[User]:
+    async def validate_token(self, token: str) -> User | None:
         """Validate JWT token and return user if valid."""
 
         try:
@@ -263,8 +263,8 @@ class RBACService:
         self,
         user_id: UUID,
         permission: PermissionType,
-        resource_type: Optional[str] = None,
-        resource_id: Optional[str] = None,
+        resource_type: str | None = None,
+        resource_id: str | None = None,
     ) -> bool:
         """Check if user has specific permission."""
 
@@ -376,7 +376,7 @@ class RBACService:
         user_id: UUID,
         permission: PermissionType,
         granted_by: UUID,
-        expiry: Optional[datetime] = None,
+        expiry: datetime | None = None,
     ) -> bool:
         """Grant custom permission to user."""
 
@@ -446,9 +446,9 @@ class RBACService:
         requester_id: UUID,
         permission: PermissionType,
         resource_type: str,
-        resource_id: Optional[str],
+        resource_id: str | None,
         justification: str,
-        requested_duration: Optional[timedelta] = None,
+        requested_duration: timedelta | None = None,
     ) -> AccessRequest:
         """Create access request for elevated permissions."""
 
@@ -492,8 +492,8 @@ class RBACService:
         self,
         request_id: UUID,
         approver_id: UUID,
-        approval_comments: Optional[str] = None,
-        custom_duration: Optional[timedelta] = None,
+        approval_comments: str | None = None,
+        custom_duration: timedelta | None = None,
     ) -> bool:
         """Approve access request."""
 
@@ -601,7 +601,7 @@ class RBACService:
     async def _handle_failed_login(
         self,
         username: str,
-        ip_address: Optional[str],
+        ip_address: str | None,
         reason: str,
     ) -> None:
         """Handle failed login attempt."""
@@ -639,14 +639,14 @@ class RBACService:
         action: ActionType,
         resource_type: str,
         success: bool,
-        user_id: Optional[UUID] = None,
-        username: Optional[str] = None,
-        resource_id: Optional[str] = None,
-        resource_name: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        session_id: Optional[str] = None,
-        additional_data: Optional[dict[str, Any]] = None,
+        user_id: UUID | None = None,
+        username: str | None = None,
+        resource_id: str | None = None,
+        resource_name: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        session_id: str | None = None,
+        additional_data: dict[str, Any] | None = None,
         security_level: str = "INFO",
     ) -> None:
         """Log audit event."""

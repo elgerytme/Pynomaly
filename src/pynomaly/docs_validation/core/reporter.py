@@ -3,7 +3,6 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 
 class ValidationReporter:
@@ -13,7 +12,7 @@ class ValidationReporter:
         """Initialize reporter with configuration."""
         self.config = config
 
-    def generate_report(self, result, output_format: str = "console") -> Optional[str]:
+    def generate_report(self, result, output_format: str = "console") -> str | None:
         """Generate validation report in specified format.
 
         Args:
@@ -191,7 +190,7 @@ class ValidationReporter:
 
         return md
 
-    def save_report(self, result, output_format: str = "json", filename: Optional[str] = None) -> str:
+    def save_report(self, result, output_format: str = "json", filename: str | None = None) -> str:
         """Save report to file and return the filename."""
         if filename is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

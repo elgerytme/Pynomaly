@@ -9,7 +9,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, Optional
+from typing import Any
 from weakref import WeakSet
 
 import numpy as np
@@ -27,9 +27,9 @@ class MemorySnapshot:
     process_memory_mb: float
     available_memory_mb: float
     memory_percent: float
-    tracemalloc_current_mb: Optional[float] = None
-    tracemalloc_peak_mb: Optional[float] = None
-    gc_counts: Optional[tuple[int, int, int]] = None
+    tracemalloc_current_mb: float | None = None
+    tracemalloc_peak_mb: float | None = None
+    gc_counts: tuple[int, int, int] | None = None
 
 
 class MemoryMonitor:
@@ -490,7 +490,7 @@ class MemoryPool:
 
 
 # Global memory monitor instance
-_global_memory_monitor: Optional[MemoryMonitor] = None
+_global_memory_monitor: MemoryMonitor | None = None
 
 
 def get_memory_monitor() -> MemoryMonitor:

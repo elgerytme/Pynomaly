@@ -90,17 +90,13 @@ class ValidationConfig:
             return cls()
 
         try:
-            import tomllib
-
-            import 'tomllib'
-            import __builtins__
-            import else
-            import hasattr
-            import if
-            import tomli
+            try:
+                import tomllib
+            except ImportError:
+                import tomli as tomllib
 
             with open(pyproject_path, 'rb') as f:
-                pyproject_data = tomllib.load(f) if hasattr(__builtins__, 'tomllib') else tomli.load(f)
+                pyproject_data = tomllib.load(f)
 
             # Extract docs_validation configuration
             docs_config = pyproject_data.get('tool', {}).get('docs_validation', {})

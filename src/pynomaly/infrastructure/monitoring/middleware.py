@@ -9,7 +9,6 @@ from __future__ import annotations
 import logging
 import time
 from contextlib import asynccontextmanager
-from typing import Optional
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.base import BaseHTTPMiddleware
@@ -30,8 +29,8 @@ class MetricsMiddleware(BaseHTTPMiddleware):
     def __init__(
         self,
         app: FastAPI,
-        metrics_service: Optional[PrometheusMetricsService] = None,
-        exclude_paths: Optional[list[str]] = None,
+        metrics_service: PrometheusMetricsService | None = None,
+        exclude_paths: list[str] | None = None,
     ):
         """Initialize metrics middleware.
 
@@ -191,7 +190,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 class DatabaseMetricsMiddleware:
     """Middleware for collecting database operation metrics."""
 
-    def __init__(self, metrics_service: Optional[PrometheusMetricsService] = None):
+    def __init__(self, metrics_service: PrometheusMetricsService | None = None):
         """Initialize database metrics middleware.
 
         Args:
@@ -235,7 +234,7 @@ class DatabaseMetricsMiddleware:
 class CacheMetricsMiddleware:
     """Middleware for collecting cache operation metrics."""
 
-    def __init__(self, metrics_service: Optional[PrometheusMetricsService] = None):
+    def __init__(self, metrics_service: PrometheusMetricsService | None = None):
         """Initialize cache metrics middleware.
 
         Args:
@@ -249,7 +248,7 @@ class CacheMetricsMiddleware:
         operation: str,
         hit: bool,
         cache_size: int,
-        key: Optional[str] = None,
+        key: str | None = None,
     ):
         """Record cache operation metrics.
 
@@ -278,7 +277,7 @@ class CacheMetricsMiddleware:
 class DetectionMetricsMiddleware:
     """Middleware for collecting anomaly detection metrics."""
 
-    def __init__(self, metrics_service: Optional[PrometheusMetricsService] = None):
+    def __init__(self, metrics_service: PrometheusMetricsService | None = None):
         """Initialize detection metrics middleware.
 
         Args:
@@ -294,8 +293,8 @@ class DetectionMetricsMiddleware:
         duration: float,
         anomalies_found: int,
         success: bool,
-        accuracy: Optional[float] = None,
-        confidence: Optional[float] = None,
+        accuracy: float | None = None,
+        confidence: float | None = None,
     ):
         """Record anomaly detection metrics.
 
@@ -342,7 +341,7 @@ class DetectionMetricsMiddleware:
         duration: float,
         model_size_bytes: int,
         success: bool,
-        validation_score: Optional[float] = None,
+        validation_score: float | None = None,
     ):
         """Record model training metrics.
 
@@ -382,7 +381,7 @@ class DetectionMetricsMiddleware:
 async def monitor_operation(
     operation_name: str,
     component: str,
-    metrics_service: Optional[PrometheusMetricsService] = None,
+    metrics_service: PrometheusMetricsService | None = None,
     **attributes,
 ):
     """Context manager for monitoring operations with metrics and tracing.
@@ -447,36 +446,36 @@ async def monitor_operation(
 
 
 # Global middleware instances
-_metrics_middleware: Optional[MetricsMiddleware] = None
-_db_middleware: Optional[DatabaseMetricsMiddleware] = None
-_cache_middleware: Optional[CacheMetricsMiddleware] = None
-_detection_middleware: Optional[DetectionMetricsMiddleware] = None
+_metrics_middleware: MetricsMiddleware | None = None
+_db_middleware: DatabaseMetricsMiddleware | None = None
+_cache_middleware: CacheMetricsMiddleware | None = None
+_detection_middleware: DetectionMetricsMiddleware | None = None
 
 
-def get_metrics_middleware() -> Optional[MetricsMiddleware]:
+def get_metrics_middleware() -> MetricsMiddleware | None:
     """Get global metrics middleware instance."""
     return _metrics_middleware
 
 
-def get_db_middleware() -> Optional[DatabaseMetricsMiddleware]:
+def get_db_middleware() -> DatabaseMetricsMiddleware | None:
     """Get global database middleware instance."""
     return _db_middleware
 
 
-def get_cache_middleware() -> Optional[CacheMetricsMiddleware]:
+def get_cache_middleware() -> CacheMetricsMiddleware | None:
     """Get global cache middleware instance."""
     return _cache_middleware
 
 
-def get_detection_middleware() -> Optional[DetectionMetricsMiddleware]:
+def get_detection_middleware() -> DetectionMetricsMiddleware | None:
     """Get global detection middleware instance."""
     return _detection_middleware
 
 
 def setup_monitoring_middleware(
     app: FastAPI,
-    metrics_service: Optional[PrometheusMetricsService] = None,
-    exclude_paths: Optional[list[str]] = None,
+    metrics_service: PrometheusMetricsService | None = None,
+    exclude_paths: list[str] | None = None,
 ):
     """Set up monitoring middleware for the application.
 

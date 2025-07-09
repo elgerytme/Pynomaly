@@ -8,7 +8,7 @@ tracking of progress, results, and metadata for anomaly detection models.
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pynomaly.application.dto.training_dto import TrainingConfigDTO
 from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet
@@ -59,13 +59,13 @@ class ResourceUsage:
 class TrainingMetrics:
     """Training metrics and performance indicators."""
 
-    best_score: Optional[float] = None
-    final_score: Optional[float] = None
+    best_score: float | None = None
+    final_score: float | None = None
     validation_scores: list[float] = field(default_factory=list)
     training_loss: list[float] = field(default_factory=list)
     validation_loss: list[float] = field(default_factory=list)
     epochs_completed: int = 0
-    early_stopping_epoch: Optional[int] = None
+    early_stopping_epoch: int | None = None
     convergence_metrics: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -87,13 +87,13 @@ class AlgorithmResult:
     """Result for a single algorithm in the training job."""
 
     algorithm_name: str
-    model_id: Optional[str] = None
-    hyperparameters: Optional[HyperparameterSet] = None
-    metrics: Optional[TrainingMetrics] = None
+    model_id: str | None = None
+    hyperparameters: HyperparameterSet | None = None
+    metrics: TrainingMetrics | None = None
     training_time: float = 0.0
     optimization_history: list[dict[str, Any]] = field(default_factory=list)
     status: TrainingStatus = TrainingStatus.PENDING
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -124,53 +124,53 @@ class TrainingJob:
     # Core identification
     id: str
     dataset_id: str
-    name: Optional[str] = None
-    description: Optional[str] = None
+    name: str | None = None
+    description: str | None = None
 
     # Configuration
     algorithms: list[str] = field(default_factory=list)
-    config: Optional[TrainingConfigDTO] = None
+    config: TrainingConfigDTO | None = None
     priority: TrainingPriority = TrainingPriority.NORMAL
 
     # Status tracking
     status: TrainingStatus = TrainingStatus.PENDING
     progress: float = 0.0  # 0.0 to 100.0
-    current_algorithm: Optional[str] = None
-    current_trial: Optional[int] = None
+    current_algorithm: str | None = None
+    current_trial: int | None = None
 
     # Timing
     created_at: datetime = field(default_factory=datetime.utcnow)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-    estimated_completion: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    updated_at: datetime | None = None
+    estimated_completion: datetime | None = None
 
     # Results
     algorithm_results: list[AlgorithmResult] = field(default_factory=list)
-    best_model_id: Optional[str] = None
-    best_algorithm: Optional[str] = None
-    final_metrics: Optional[TrainingMetrics] = None
+    best_model_id: str | None = None
+    best_algorithm: str | None = None
+    final_metrics: TrainingMetrics | None = None
 
     # Resource tracking
     resource_usage: ResourceUsage = field(default_factory=ResourceUsage)
-    worker_id: Optional[str] = None
+    worker_id: str | None = None
     gpu_ids: list[int] = field(default_factory=list)
 
     # Error handling
-    error_message: Optional[str] = None
+    error_message: str | None = None
     error_details: dict[str, Any] = field(default_factory=dict)
     retry_count: int = 0
     max_retries: int = 3
 
     # Metadata
     tags: list[str] = field(default_factory=list)
-    user_id: Optional[str] = None
-    experiment_id: Optional[str] = None
-    parent_job_id: Optional[str] = None
+    user_id: str | None = None
+    experiment_id: str | None = None
+    parent_job_id: str | None = None
     child_job_ids: list[str] = field(default_factory=list)
 
     # Legacy compatibility (for backward compatibility with existing code)
-    results: Optional[list[dict[str, Any]]] = None
+    results: list[dict[str, Any]] | None = None
 
     def __post_init__(self):
         """Post-initialization processing."""
@@ -191,7 +191,7 @@ class TrainingJob:
             ]
 
     @property
-    def duration(self) -> Optional[float]:
+    def duration(self) -> float | None:
         """Get job duration in seconds."""
         if self.started_at:
             end_time = self.completed_at or datetime.utcnow()
@@ -244,7 +244,7 @@ class TrainingJob:
         self.progress = 100.0
 
     def fail(
-        self, error_message: str, error_details: Optional[dict[str, Any]] = None
+        self, error_message: str, error_details: dict[str, Any] | None = None
     ) -> None:
         """Mark job as failed."""
         self.status = TrainingStatus.FAILED
@@ -273,7 +273,7 @@ class TrainingJob:
             self.updated_at = datetime.utcnow()
 
     def update_progress(
-        self, progress: float, current_algorithm: Optional[str] = None
+        self, progress: float, current_algorithm: str | None = None
     ) -> None:
         """Update job progress."""
         self.progress = max(0.0, min(100.0, progress))
@@ -309,7 +309,7 @@ class TrainingJob:
                 self.best_algorithm = result.algorithm_name
                 self.final_metrics = result.metrics
 
-    def get_algorithm_result(self, algorithm_name: str) -> Optional[AlgorithmResult]:
+    def get_algorithm_result(self, algorithm_name: str) -> AlgorithmResult | None:
         """Get result for a specific algorithm."""
         for result in self.algorithm_results:
             if result.algorithm_name == algorithm_name:
@@ -359,7 +359,7 @@ class TrainingJob:
             self.error_details = {}
             self.updated_at = datetime.utcnow()
 
-    def estimate_completion_time(self) -> Optional[datetime]:
+    def estimate_completion_time(self) -> datetime | None:
         """Estimate job completion time based on current progress."""
         if not self.started_at or self.progress <= 0:
             return None

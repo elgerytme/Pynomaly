@@ -9,7 +9,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 
@@ -105,9 +105,9 @@ class DriftMonitoringUseCase:
     async def perform_drift_check(
         self,
         detector_id: str,
-        reference_data: Optional[np.ndarray] = None,
-        current_data: Optional[np.ndarray] = None,
-        feature_names: Optional[list[str]] = None,
+        reference_data: np.ndarray | None = None,
+        current_data: np.ndarray | None = None,
+        feature_names: list[str] | None = None,
     ) -> DriftDetectionResult:
         """Perform immediate drift check for a detector.
 
@@ -228,7 +228,7 @@ class DriftMonitoringUseCase:
 
     async def get_monitoring_status(
         self, detector_id: str
-    ) -> Optional[DriftMonitoringStatus]:
+    ) -> DriftMonitoringStatus | None:
         """Get current monitoring status for a detector.
 
         Args:
@@ -333,8 +333,8 @@ class DriftMonitoringUseCase:
 
     async def get_drift_alerts(
         self,
-        detector_id: Optional[str] = None,
-        severity: Optional[DriftSeverity] = None,
+        detector_id: str | None = None,
+        severity: DriftSeverity | None = None,
         active_only: bool = True,
         limit: int = 100,
     ) -> list[DriftAlert]:
@@ -387,7 +387,7 @@ class DriftMonitoringUseCase:
             return False
 
     async def resolve_alert(
-        self, alert_id: str, user: str, action: Optional[str] = None
+        self, alert_id: str, user: str, action: str | None = None
     ) -> bool:
         """Resolve a drift alert.
 

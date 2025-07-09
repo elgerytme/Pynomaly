@@ -3,7 +3,6 @@ SQLAlchemy implementation of user management repositories.
 """
 
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import (
     Boolean,
@@ -232,19 +231,19 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             session.refresh(user_model)
             return self._to_domain_user(user_model)
 
-    async def get_user_by_id(self, user_id: UserId) -> Optional[User]:
+    async def get_user_by_id(self, user_id: UserId) -> User | None:
         """Get user by ID."""
         with self._session_factory() as session:
             user_model = session.query(UserModel).filter(UserModel.id == user_id).first()
             return self._to_domain_user(user_model) if user_model else None
 
-    async def get_user_by_email(self, email: str) -> Optional[User]:
+    async def get_user_by_email(self, email: str) -> User | None:
         """Get user by email."""
         with self._session_factory() as session:
             user_model = session.query(UserModel).filter(UserModel.email == email).first()
             return self._to_domain_user(user_model) if user_model else None
 
-    async def get_user_by_username(self, username: str) -> Optional[User]:
+    async def get_user_by_username(self, username: str) -> User | None:
         """Get user by username."""
         with self._session_factory() as session:
             user_model = session.query(UserModel).filter(UserModel.username == username).first()
@@ -462,13 +461,13 @@ class SQLAlchemyTenantRepository(TenantRepositoryProtocol):
             session.refresh(tenant_model)
             return self._to_domain_tenant(tenant_model)
 
-    async def get_tenant_by_id(self, tenant_id: TenantId) -> Optional[Tenant]:
+    async def get_tenant_by_id(self, tenant_id: TenantId) -> Tenant | None:
         """Get tenant by ID."""
         with self._session_factory() as session:
             tenant_model = session.query(TenantModel).filter(TenantModel.id == tenant_id).first()
             return self._to_domain_tenant(tenant_model) if tenant_model else None
 
-    async def get_tenant_by_domain(self, domain: str) -> Optional[Tenant]:
+    async def get_tenant_by_domain(self, domain: str) -> Tenant | None:
         """Get tenant by domain."""
         with self._session_factory() as session:
             tenant_model = session.query(TenantModel).filter(TenantModel.domain == domain).first()
@@ -572,7 +571,7 @@ class SQLAlchemySessionRepository(SessionRepositoryProtocol):
             db_session.refresh(session_model)
             return self._to_domain_session(session_model)
 
-    async def get_session_by_id(self, session_id: str) -> Optional[UserSession]:
+    async def get_session_by_id(self, session_id: str) -> UserSession | None:
         """Get session by ID."""
         with self._session_factory() as db_session:
             session_model = db_session.query(UserSessionModel).filter(

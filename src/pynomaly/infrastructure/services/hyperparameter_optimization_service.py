@@ -16,6 +16,7 @@ from datetime import datetime
 from typing import Any
 
 import numpy as np
+
 from pynomaly.domain.entities.optimization_trial import OptimizationTrial, TrialStatus
 from pynomaly.domain.value_objects.hyperparameters import (
     HyperparameterRange,

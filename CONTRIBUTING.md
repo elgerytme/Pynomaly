@@ -65,7 +65,10 @@ Before any PR can be merged to `main`, the following checks must pass:
 2. **✅ Test Suite** - All unit and integration tests pass (100% pass rate required)
 3. **✅ Code Coverage** - Minimum 95% code coverage across all modules
 4. **✅ Code Quality** - Linting, formatting, and type checking pass
-5. **✅ Security Scan** - No high-severity security issues found
+5. **✅ Security Scan** - **MANDATORY**: No high or medium severity security issues found
+   - **Bandit**: Static security analysis must pass with no high/medium issues
+   - **Safety**: Dependency vulnerability scan must pass with no known vulnerabilities
+   - All PRs require security-clean status before merge
 6. **✅ Documentation** - All documentation builds successfully
 
 #### Coverage Requirements by Module
@@ -89,6 +92,48 @@ The pipeline includes:
 - Performance benchmarking
 - Security scanning
 - Documentation validation
+
+### Security Requirements
+
+**All pull requests must pass security scanning before merge.** This is a mandatory requirement enforced by our CI pipeline.
+
+#### Security Scanning Tools
+
+1. **Bandit** - Static security analysis for Python code
+   - Scans for common security issues (SQL injection, hardcoded passwords, etc.)
+   - Configuration: `-r src -ll -iii` (low severity and low confidence minimum)
+   - **Failure threshold**: Any HIGH or MEDIUM severity issues will block merge
+
+2. **Safety** - Dependency vulnerability scanning
+   - Checks all dependencies for known CVEs
+   - Provides full vulnerability reports
+   - **Failure threshold**: Any known vulnerabilities will block merge
+
+#### Running Security Scans Locally
+
+Before submitting a PR, run security scans locally:
+
+```bash
+# Install security tools
+pip install bandit safety
+
+# Run Bandit security scan
+bandit -r src -ll -iii
+
+# Run Safety dependency scan
+safety check --full-report
+```
+
+#### Security Issue Resolution
+
+If security issues are found:
+
+1. **Fix the issue** in your code or dependencies
+2. **Re-run the scans** to verify the fix
+3. **Document the fix** in your PR description if it's a significant change
+4. **Consider adding tests** to prevent regression
+
+**Note**: Security scans are run automatically on every push and PR. Manual local testing is recommended but not required.
 
 ## Development Process
 

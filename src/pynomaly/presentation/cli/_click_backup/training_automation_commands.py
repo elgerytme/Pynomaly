@@ -15,6 +15,12 @@ import logging
 from datetime import datetime
 
 import typer
+from rich import print as rprint
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
+
 from pynomaly.application.services.training_automation_service import (
     OptimizationStrategy,
     PruningStrategy,
@@ -28,11 +34,6 @@ from pynomaly.infrastructure.adapters.model_trainer_adapter import (
 from pynomaly.infrastructure.persistence.training_job_repository import (
     create_training_job_repository,
 )
-from rich import print as rprint
-from rich.console import Console
-from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.table import Table
 
 # Create CLI app
 app = typer.Typer(name="training", help="Training automation and optimization commands")

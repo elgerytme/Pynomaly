@@ -8,6 +8,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
+
 from pynomaly.application.services.user_management_service import UserManagementService
 from pynomaly.domain.entities.user import TenantPlan, TenantStatus, UserRole, UserStatus
 from pynomaly.infrastructure.security.audit_logging import (
@@ -122,12 +123,13 @@ async def get_user_management_service() -> UserManagementService:
     """Get user management service instance."""
     # TODO: Implement proper dependency injection
     # For now, this is a placeholder
+    from sqlalchemy.orm import sessionmaker
+
     from pynomaly.infrastructure.repositories.sqlalchemy_user_repository import (
         SQLAlchemySessionRepository,
         SQLAlchemyTenantRepository,
         SQLAlchemyUserRepository,
     )
-    from sqlalchemy.orm import sessionmaker
 
     # This should be injected via container
     session_factory = sessionmaker()  # Configure with actual database

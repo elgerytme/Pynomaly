@@ -7,7 +7,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import joblib
@@ -92,8 +92,8 @@ class AdvancedMLLifecycleService:
         auto_log_parameters: bool = True,
         auto_log_metrics: bool = True,
         auto_log_artifacts: bool = True,
-        tags: Optional[list[str]] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """Start a new ML experiment with advanced tracking.
 
@@ -159,8 +159,8 @@ class AdvancedMLLifecycleService:
         dataset_id: UUID,
         parameters: dict[str, Any],
         created_by: str,
-        parent_run_id: Optional[str] = None,
-        tags: Optional[list[str]] = None,
+        parent_run_id: str | None = None,
+        tags: list[str] | None = None,
         description: str = "",
     ) -> str:
         """Start a new experiment run with comprehensive tracking.
@@ -252,8 +252,8 @@ class AdvancedMLLifecycleService:
         run_id: str,
         key: str,
         value: float,
-        step: Optional[int] = None,
-        timestamp: Optional[datetime] = None,
+        step: int | None = None,
+        timestamp: datetime | None = None,
     ) -> None:
         """Log a metric for the current run.
 
@@ -289,7 +289,7 @@ class AdvancedMLLifecycleService:
         artifact_name: str,
         artifact_data: Any,
         artifact_type: str = "pickle",
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """Log an artifact for the current run.
 
@@ -354,9 +354,9 @@ class AdvancedMLLifecycleService:
         run_id: str,
         model: Any,
         model_name: str,
-        model_signature: Optional[dict[str, Any]] = None,
-        input_example: Optional[Any] = None,
-        registered_model_name: Optional[str] = None,
+        model_signature: dict[str, Any] | None = None,
+        input_example: Any | None = None,
+        registered_model_name: str | None = None,
         await_registration_for: int = 300,
     ) -> str:
         """Log a trained model with the run.
@@ -412,7 +412,7 @@ class AdvancedMLLifecycleService:
         self,
         run_id: str,
         status: str = "FINISHED",
-        end_time: Optional[datetime] = None,
+        end_time: datetime | None = None,
     ) -> ExperimentRun:
         """End an experiment run.
 
@@ -480,7 +480,7 @@ class AdvancedMLLifecycleService:
         model_path: str,
         performance_metrics: dict[str, float],
         description: str = "",
-        tags: Optional[list[str]] = None,
+        tags: list[str] | None = None,
         auto_version: bool = True,
     ) -> str:
         """Create a new model version with intelligent versioning.
@@ -584,7 +584,7 @@ class AdvancedMLLifecycleService:
         stage: str,
         promoted_by: str,
         approval_workflow: bool = True,
-        validation_tests: Optional[list[str]] = None,
+        validation_tests: list[str] | None = None,
     ) -> dict[str, Any]:
         """Promote a model version to a specific stage.
 
@@ -661,8 +661,8 @@ class AdvancedMLLifecycleService:
         self,
         query: str,
         max_results: int = 50,
-        filter_dict: Optional[dict[str, Any]] = None,
-        order_by: Optional[list[str]] = None,
+        filter_dict: dict[str, Any] | None = None,
+        order_by: list[str] | None = None,
     ) -> list[dict[str, Any]]:
         """Search models in the registry.
 
@@ -800,7 +800,7 @@ class AdvancedMLLifecycleService:
         model: Any,
         model_name: str,
         model_path: str,
-        model_signature: Optional[dict[str, Any]] = None,
+        model_signature: dict[str, Any] | None = None,
     ) -> str:
         """Register a model version from a run."""
         # Calculate performance metrics from the run

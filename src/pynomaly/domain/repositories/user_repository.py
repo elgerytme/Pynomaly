@@ -3,7 +3,6 @@ Repository interface for user management operations.
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from pynomaly.domain.entities.user import (
     Tenant,
@@ -24,17 +23,17 @@ class UserRepositoryProtocol(ABC):
         pass
 
     @abstractmethod
-    async def get_user_by_id(self, user_id: UserId) -> Optional[User]:
+    async def get_user_by_id(self, user_id: UserId) -> User | None:
         """Get user by ID."""
         pass
 
     @abstractmethod
-    async def get_user_by_email(self, email: str) -> Optional[User]:
+    async def get_user_by_email(self, email: str) -> User | None:
         """Get user by email."""
         pass
 
     @abstractmethod
-    async def get_user_by_username(self, username: str) -> Optional[User]:
+    async def get_user_by_username(self, username: str) -> User | None:
         """Get user by username."""
         pass
 
@@ -78,12 +77,12 @@ class TenantRepositoryProtocol(ABC):
         pass
 
     @abstractmethod
-    async def get_tenant_by_id(self, tenant_id: TenantId) -> Optional[Tenant]:
+    async def get_tenant_by_id(self, tenant_id: TenantId) -> Tenant | None:
         """Get tenant by ID."""
         pass
 
     @abstractmethod
-    async def get_tenant_by_domain(self, domain: str) -> Optional[Tenant]:
+    async def get_tenant_by_domain(self, domain: str) -> Tenant | None:
         """Get tenant by domain."""
         pass
 
@@ -117,7 +116,7 @@ class SessionRepositoryProtocol(ABC):
         pass
 
     @abstractmethod
-    async def get_session_by_id(self, session_id: str) -> Optional[UserSession]:
+    async def get_session_by_id(self, session_id: str) -> UserSession | None:
         """Get session by ID."""
         pass
 

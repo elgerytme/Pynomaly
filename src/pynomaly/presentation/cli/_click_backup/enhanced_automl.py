@@ -4,13 +4,14 @@ import asyncio
 import json
 
 import click
-from pynomaly.application.services.enhanced_automl_service import EnhancedAutoMLConfig
-from pynomaly.infrastructure.config.container import create_container
 from rich.console import Console
 from rich.json import JSON
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.application.services.enhanced_automl_service import EnhancedAutoMLConfig
+from pynomaly.infrastructure.config.container import create_container
 
 console = Console()
 

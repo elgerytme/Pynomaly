@@ -254,7 +254,7 @@ class FileAuditStorage(AuditStorage):
         for file_path in relevant_files:
             try:
                 if AIOFILES_AVAILABLE:
-                    async with aiofiles.open(file_path, 'r') as f:
+                    async with aiofiles.open(file_path) as f:
                         async for line in f:
                             if line.strip():
                                 event_data = json.loads(line)

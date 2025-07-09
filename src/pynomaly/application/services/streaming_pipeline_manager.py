@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import (
@@ -160,8 +160,8 @@ class StreamingPipelineManager:
     async def create_pipeline_from_template(
         self,
         template_name: str,
-        pipeline_id: Optional[str] = None,
-        override_config: Optional[dict[str, Any]] = None,
+        pipeline_id: str | None = None,
+        override_config: dict[str, Any] | None = None,
     ) -> str:
         """Create a pipeline from a template.
 
@@ -418,8 +418,8 @@ class StreamingPipelineManager:
     def get_recent_alerts(
         self,
         limit: int = 100,
-        severity: Optional[AlertSeverity] = None,
-        pipeline_id: Optional[str] = None,
+        severity: AlertSeverity | None = None,
+        pipeline_id: str | None = None,
     ) -> list[StreamingAlert]:
         """Get recent alerts with optional filtering.
 

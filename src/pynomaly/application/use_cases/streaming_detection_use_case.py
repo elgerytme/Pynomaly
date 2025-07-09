@@ -13,7 +13,7 @@ from collections import deque
 from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any
 from uuid import uuid4
 
 import numpy as np
@@ -73,7 +73,7 @@ class StreamingSample:
     """Individual sample in streaming pipeline."""
 
     id: str = field(default_factory=lambda: str(uuid4()))
-    data: Union[np.ndarray, dict[str, Any]] = None
+    data: np.ndarray | dict[str, Any] = None
     timestamp: float = field(default_factory=time.time)
     metadata: dict[str, Any] = field(default_factory=dict)
     priority: int = 0  # Higher priority = processed first
@@ -144,8 +144,8 @@ class StreamingResponse:
 
     success: bool
     stream_id: str = ""
-    configuration: Optional[StreamingConfiguration] = None
-    error_message: Optional[str] = None
+    configuration: StreamingConfiguration | None = None
+    error_message: str | None = None
     performance_metrics: dict[str, Any] = field(default_factory=dict)
 
 
@@ -171,8 +171,8 @@ class StreamingMetrics:
     messages_failed: int = 0
     success_rate: float = 1.0
     average_processing_time_ms: float = 0.0
-    window_start: Optional[float] = None
-    window_end: Optional[float] = None
+    window_start: float | None = None
+    window_end: float | None = None
 
     def __post_init__(self):
         """Initialize computed fields."""
@@ -452,7 +452,7 @@ class StreamingDetectionUseCase:
             logger.error(f"Error getting results from stream {stream_id}: {str(e)}")
             return []
 
-    async def get_stream_metrics(self, stream_id: str) -> Optional[StreamingMetrics]:
+    async def get_stream_metrics(self, stream_id: str) -> StreamingMetrics | None:
         """Get real-time metrics for a stream.
 
         Args:
@@ -900,7 +900,7 @@ class StreamingDetectionUseCase:
         except Exception as e:
             logger.error(f"Error saving checkpoint: {str(e)}")
 
-    async def _load_checkpoint(self, stream_id: str) -> Optional[dict[str, Any]]:
+    async def _load_checkpoint(self, stream_id: str) -> dict[str, Any] | None:
         """Load checkpoint for a stream.
 
         Args:

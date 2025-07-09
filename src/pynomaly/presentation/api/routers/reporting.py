@@ -8,6 +8,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
+
 from pynomaly.application.services.reporting_service import ReportingService
 from pynomaly.domain.entities.reporting import MetricType, ReportType, TimeGranularity
 from pynomaly.domain.entities.user import User

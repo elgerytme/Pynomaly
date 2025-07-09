@@ -1,6 +1,5 @@
 """Simplified authentication dependencies for OpenAPI compatibility."""
 
-from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -12,8 +11,8 @@ security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user_safe(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-) -> Optional[UserModel]:
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+) -> UserModel | None:
     """Get current authenticated user.
 
     Args:

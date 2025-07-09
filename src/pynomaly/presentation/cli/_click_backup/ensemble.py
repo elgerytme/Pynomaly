@@ -9,6 +9,10 @@ import time
 from pathlib import Path
 
 import click
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 # Application imports
 from pynomaly.application.services.advanced_ensemble_service import (
@@ -22,10 +26,6 @@ from pynomaly.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
 from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
-from rich.console import Console
-from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.table import Table
 
 console = Console()
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pynomaly.shared.types import TenantId, UserId
 
@@ -62,7 +62,7 @@ class IntegrationCredentials:
     """Secure storage for integration credentials."""
     encrypted_data: str
     encryption_key_id: str
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     scopes: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -82,8 +82,8 @@ class IntegrationConfig:
     rate_limit_per_minute: int = 60
 
     # Content settings
-    template_id: Optional[str] = None
-    custom_template: Optional[str] = None
+    template_id: str | None = None
+    custom_template: str | None = None
     include_charts: bool = False
     include_raw_data: bool = False
 
@@ -104,11 +104,11 @@ class Integration:
     created_by: UserId
     status: IntegrationStatus
     config: IntegrationConfig
-    credentials: Optional[IntegrationCredentials] = None
+    credentials: IntegrationCredentials | None = None
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    last_triggered: Optional[datetime] = None
-    last_error: Optional[str] = None
+    last_triggered: datetime | None = None
+    last_error: str | None = None
     trigger_count: int = 0
     success_count: int = 0
     error_count: int = 0
@@ -137,8 +137,8 @@ class NotificationPayload:
     title: str
     message: str
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    tenant_id: Optional[TenantId] = None
-    user_id: Optional[UserId] = None
+    tenant_id: TenantId | None = None
+    user_id: UserId | None = None
     data: dict[str, Any] = field(default_factory=dict)
     attachments: list[dict[str, Any]] = field(default_factory=list)
 
@@ -289,9 +289,9 @@ class NotificationHistory:
     response_status: int
     response_body: str
     sent_at: datetime = field(default_factory=datetime.utcnow)
-    delivery_time_ms: Optional[int] = None
+    delivery_time_ms: int | None = None
     retry_count: int = 0
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
     @property
     def was_successful(self) -> bool:
@@ -366,8 +366,8 @@ class IntegrationMetrics:
     successful_notifications: int = 0
     failed_notifications: int = 0
     average_delivery_time_ms: float = 0.0
-    last_success: Optional[datetime] = None
-    last_failure: Optional[datetime] = None
+    last_success: datetime | None = None
+    last_failure: datetime | None = None
     uptime_percentage: float = 100.0
     rate_limit_hits: int = 0
 

@@ -8,7 +8,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, Union
+from typing import Any
 
 from pynomaly.shared.types import DatasetId, DetectorId, TenantId, UserId
 
@@ -59,7 +59,7 @@ class TimeGranularity(str, Enum):
 @dataclass
 class MetricValue:
     """A single metric value with metadata."""
-    value: Union[int, float, str]
+    value: int | float | str
     timestamp: datetime
     metric_type: MetricType
     unit: str = ""
@@ -98,12 +98,12 @@ class Metric:
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
     @property
-    def latest_value(self) -> Optional[MetricValue]:
+    def latest_value(self) -> MetricValue | None:
         """Get the most recent metric value."""
         return max(self.values, key=lambda v: v.timestamp) if self.values else None
 
     @property
-    def current_value(self) -> Union[int, float, str, None]:
+    def current_value(self) -> int | float | str | None:
         """Get the current metric value."""
         latest = self.latest_value
         return latest.value if latest else None
@@ -112,7 +112,7 @@ class Metric:
         """Get metric values within a time range."""
         return [v for v in self.values if start <= v.timestamp <= end]
 
-    def add_value(self, value: Union[int, float, str], timestamp: Optional[datetime] = None, **metadata):
+    def add_value(self, value: int | float | str, timestamp: datetime | None = None, **metadata):
         """Add a new metric value."""
         if timestamp is None:
             timestamp = datetime.utcnow()
@@ -197,8 +197,8 @@ class UsageMetrics:
 @dataclass
 class ReportFilter:
     """Filters for report generation."""
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
     tenant_ids: list[TenantId] = field(default_factory=list)
     user_ids: list[UserId] = field(default_factory=list)
     dataset_ids: list[DatasetId] = field(default_factory=list)
@@ -233,8 +233,8 @@ class Report:
     filters: ReportFilter
     sections: list[ReportSection] = field(default_factory=list)
     created_at: datetime = field(default_factory=datetime.utcnow)
-    completed_at: Optional[datetime] = None
-    expires_at: Optional[datetime] = None
+    completed_at: datetime | None = None
+    expires_at: datetime | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def add_section(self, section: ReportSection) -> None:
@@ -242,7 +242,7 @@ class Report:
         self.sections.append(section)
         self.sections.sort(key=lambda s: s.order)
 
-    def get_section_by_id(self, section_id: str) -> Optional[ReportSection]:
+    def get_section_by_id(self, section_id: str) -> ReportSection | None:
         """Get a specific section by ID."""
         return next((s for s in self.sections if s.id == section_id), None)
 
@@ -277,7 +277,7 @@ class Dashboard:
     is_public: bool = False
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    last_accessed: Optional[datetime] = None
+    last_accessed: datetime | None = None
 
     def add_widget(self, widget_config: dict[str, Any]) -> None:
         """Add a widget to the dashboard."""
@@ -318,11 +318,11 @@ class Alert:
     threshold: float
     is_active: bool = True
     notification_channels: list[str] = field(default_factory=list)
-    last_triggered: Optional[datetime] = None
+    last_triggered: datetime | None = None
     trigger_count: int = 0
     created_at: datetime = field(default_factory=datetime.utcnow)
 
-    def should_trigger(self, current_value: float, previous_value: Optional[float] = None) -> bool:
+    def should_trigger(self, current_value: float, previous_value: float | None = None) -> bool:
         """Check if alert should trigger based on current value."""
         if not self.is_active:
             return False

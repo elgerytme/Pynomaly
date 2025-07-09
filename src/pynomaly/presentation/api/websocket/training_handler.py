@@ -17,6 +17,7 @@ from uuid import UUID
 
 from fastapi import WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ValidationError
+
 from pynomaly.application.services.automated_training_service import (
     AutomatedTrainingService,
     TrainingConfig,

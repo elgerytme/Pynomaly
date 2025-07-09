@@ -9,7 +9,7 @@ import time
 from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -38,7 +38,7 @@ class MemoryMonitor:
         self.warning_threshold = warning_threshold
         self.critical_threshold = critical_threshold
         self._monitoring = False
-        self._monitor_thread: Optional[threading.Thread] = None
+        self._monitor_thread: threading.Thread | None = None
         self._memory_history: list[MemoryStats] = []
 
     def start_monitoring(self, interval_seconds: int = 5):

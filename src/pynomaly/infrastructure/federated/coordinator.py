@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -29,7 +29,7 @@ class FederatedCoordinator:
     def __init__(
         self,
         security_service: SecurityService,
-        coordinator_id: Optional[UUID] = None,
+        coordinator_id: UUID | None = None,
     ):
         """Initialize federated coordinator."""
         self.coordinator_id = coordinator_id or uuid4()
@@ -63,7 +63,7 @@ class FederatedCoordinator:
         privacy_mechanism: PrivacyMechanism = PrivacyMechanism.DIFFERENTIAL_PRIVACY,
         min_participants: int = 3,
         max_participants: int = 100,
-        differential_privacy_budget: Optional[PrivacyBudget] = None,
+        differential_privacy_budget: PrivacyBudget | None = None,
     ) -> FederatedDetector:
         """Create new federated learning network."""
 
@@ -130,7 +130,7 @@ class FederatedCoordinator:
     async def start_training_round(
         self,
         federation_id: UUID
-    ) -> Optional[FederatedRound]:
+    ) -> FederatedRound | None:
         """Start new federated training round."""
 
         if federation_id not in self.federations:
@@ -439,7 +439,7 @@ class FederatedCoordinator:
     def _apply_differential_privacy(
         self,
         parameters: dict[str, np.ndarray],
-        privacy_budget: Optional[PrivacyBudget],
+        privacy_budget: PrivacyBudget | None,
     ) -> dict[str, np.ndarray]:
         """Apply differential privacy to aggregated parameters."""
 

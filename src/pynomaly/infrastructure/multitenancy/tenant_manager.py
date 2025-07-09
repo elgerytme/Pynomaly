@@ -7,7 +7,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pynomaly.shared.config import Config
 
@@ -92,13 +92,13 @@ class Tenant:
     contact_email: str
 
     # Billing and subscription
-    subscription_id: Optional[str] = None
-    billing_address: Optional[dict[str, str]] = None
-    payment_method_id: Optional[str] = None
+    subscription_id: str | None = None
+    billing_address: dict[str, str] | None = None
+    payment_method_id: str | None = None
 
     # Security
-    api_key: Optional[str] = None
-    webhook_secret: Optional[str] = None
+    api_key: str | None = None
+    webhook_secret: str | None = None
     allowed_ip_ranges: set[str] = field(default_factory=set)
 
     # Metadata
@@ -106,7 +106,7 @@ class Tenant:
     custom_attributes: dict[str, Any] = field(default_factory=dict)
 
     # Usage metrics
-    last_activity: Optional[datetime] = None
+    last_activity: datetime | None = None
     total_requests: int = 0
     total_data_processed_gb: float = 0.0
 
@@ -140,7 +140,7 @@ class Tenant:
 class TenantManager:
     """Enterprise multi-tenant management system."""
 
-    def __init__(self, config: Optional[Config] = None):
+    def __init__(self, config: Config | None = None):
         """Initialize tenant manager."""
         self.config = config or Config()
         self.telemetry = get_telemetry_service()
@@ -158,7 +158,7 @@ class TenantManager:
         self.enable_resource_monitoring = self.config.get("multitenancy.resource_monitoring", True)
 
         # Background tasks
-        self._monitoring_task: Optional[asyncio.Task] = None
+        self._monitoring_task: asyncio.Task | None = None
         self._monitoring_active = False
 
         logger.info("Tenant manager initialized")
@@ -246,7 +246,7 @@ class TenantManager:
         tier: TenantTier,
         owner_user_id: str,
         contact_email: str,
-        custom_config: Optional[TenantConfiguration] = None
+        custom_config: TenantConfiguration | None = None
     ) -> Tenant:
         """Create a new tenant."""
         try:
@@ -307,11 +307,11 @@ class TenantManager:
             logger.error(f"Failed to create tenant: {e}")
             raise
 
-    async def get_tenant(self, tenant_id: str) -> Optional[Tenant]:
+    async def get_tenant(self, tenant_id: str) -> Tenant | None:
         """Get tenant by ID."""
         return self.tenants.get(tenant_id)
 
-    async def get_tenant_by_api_key(self, api_key: str) -> Optional[Tenant]:
+    async def get_tenant_by_api_key(self, api_key: str) -> Tenant | None:
         """Get tenant by API key."""
         tenant_id = self.tenant_by_api_key.get(api_key)
         if tenant_id:
@@ -446,7 +446,7 @@ class TenantManager:
         self,
         tenant_id: str,
         activity_type: str,
-        details: Optional[dict[str, Any]] = None
+        details: dict[str, Any] | None = None
     ) -> None:
         """Record tenant activity."""
         tenant = await self.get_tenant(tenant_id)
@@ -486,8 +486,8 @@ class TenantManager:
 
     async def list_tenants(
         self,
-        status: Optional[TenantStatus] = None,
-        tier: Optional[TenantTier] = None
+        status: TenantStatus | None = None,
+        tier: TenantTier | None = None
     ) -> list[Tenant]:
         """List tenants with optional filters."""
         tenants = list(self.tenants.values())
@@ -656,10 +656,10 @@ class TenantManager:
 
 
 # Global tenant manager instance
-_tenant_manager: Optional[TenantManager] = None
+_tenant_manager: TenantManager | None = None
 
 
-def get_tenant_manager(config: Optional[Config] = None) -> TenantManager:
+def get_tenant_manager(config: Config | None = None) -> TenantManager:
     """Get the global tenant manager instance."""
     global _tenant_manager
     if _tenant_manager is None:

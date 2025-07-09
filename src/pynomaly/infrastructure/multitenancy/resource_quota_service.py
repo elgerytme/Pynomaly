@@ -84,9 +84,7 @@ class ResourceQuotaService:
 
         tenant_id = tenant.tenant_id
         self.tenant_quotas[tenant_id] = tenant.resource_quotas.copy()
-        self.current_usage[tenant_id] = {
-            resource_type: 0.0 for resource_type in ResourceType
-        }
+        self.current_usage[tenant_id] = dict.fromkeys(ResourceType, 0.0)
         self.resource_usage_history[tenant_id] = []
         self.burst_allowances[tenant_id] = {}
 

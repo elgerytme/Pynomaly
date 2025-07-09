@@ -5,6 +5,11 @@ import json
 from pathlib import Path
 
 import click
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
+
 from pynomaly.application.services.security_compliance_service import (
     EncryptionContext,
     SecurityComplianceService,
@@ -15,10 +20,6 @@ from pynomaly.domain.entities.security_compliance import (
     DataClassification,
 )
 from pynomaly.infrastructure.config.container import Container
-from rich.console import Console
-from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.table import Table
 
 console = Console()
 

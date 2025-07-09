@@ -8,7 +8,7 @@ import hashlib
 import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from sklearn.feature_selection import VarianceThreshold
@@ -24,7 +24,7 @@ class OptimizedPyODAdapter(PyODAdapter):
     def __init__(
         self,
         algorithm: str,
-        parameters: Optional[dict[str, Any]] = None,
+        parameters: dict[str, Any] | None = None,
         feature_importance_threshold: float = 0.01,
         enable_feature_selection: bool = True,
         enable_batch_processing: bool = True,
@@ -57,9 +57,9 @@ class OptimizedPyODAdapter(PyODAdapter):
         self.max_workers = max_workers
 
         # Feature selection state
-        self._selected_features: Optional[np.ndarray] = None
-        self._feature_selector: Optional[VarianceThreshold] = None
-        self._scaler: Optional[StandardScaler] = None
+        self._selected_features: np.ndarray | None = None
+        self._feature_selector: VarianceThreshold | None = None
+        self._scaler: StandardScaler | None = None
 
         # Performance tracking
         self._prediction_cache: dict[str, tuple[np.ndarray, np.ndarray]] = {}
@@ -453,7 +453,7 @@ class OptimizedPyODAdapter(PyODAdapter):
 class AsyncAlgorithmExecutor:
     """Asynchronous executor for running multiple algorithms in parallel."""
 
-    def __init__(self, max_concurrent: int = 4, timeout: Optional[float] = None):
+    def __init__(self, max_concurrent: int = 4, timeout: float | None = None):
         """Initialize async algorithm executor.
 
         Args:
@@ -470,8 +470,8 @@ class AsyncAlgorithmExecutor:
         self,
         algorithms: list[str],
         dataset: Dataset,
-        algorithm_params: Optional[dict[str, dict[str, Any]]] = None,
-    ) -> list[tuple[str, Optional[DetectionResult]]]:
+        algorithm_params: dict[str, dict[str, Any]] | None = None,
+    ) -> list[tuple[str, DetectionResult | None]]:
         """Execute multiple algorithms in parallel.
 
         Args:
@@ -549,7 +549,7 @@ class AsyncAlgorithmExecutor:
                 self.logger.info(f"Training completed for {algo_name}")
                 return detector
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 self.logger.error(f"Training timeout for {algo_name}")
                 raise
             except Exception as e:
@@ -572,7 +572,7 @@ class AsyncAlgorithmExecutor:
                 self.logger.info(f"Detection completed for {algo_name}")
                 return result
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 self.logger.error(f"Detection timeout for {algo_name}")
                 raise
             except Exception as e:

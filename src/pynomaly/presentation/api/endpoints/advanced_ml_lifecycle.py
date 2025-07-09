@@ -1,7 +1,7 @@
 """REST API endpoints for advanced ML lifecycle management."""
 
 from datetime import UTC, datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -33,8 +33,8 @@ class StartExperimentRequest(BaseModel):
     auto_log_parameters: bool = Field(True, description="Auto-log parameters")
     auto_log_metrics: bool = Field(True, description="Auto-log metrics")
     auto_log_artifacts: bool = Field(True, description="Auto-log artifacts")
-    tags: Optional[list[str]] = Field(None, description="Experiment tags")
-    metadata: Optional[dict[str, Any]] = Field(None, description="Additional metadata")
+    tags: list[str] | None = Field(None, description="Experiment tags")
+    metadata: dict[str, Any] | None = Field(None, description="Additional metadata")
 
 
 class StartExperimentResponse(BaseModel):
@@ -51,8 +51,8 @@ class StartRunRequest(BaseModel):
     detector_id: UUID = Field(..., description="Detector ID")
     dataset_id: UUID = Field(..., description="Dataset ID")
     parameters: dict[str, Any] = Field(..., description="Run parameters")
-    parent_run_id: Optional[str] = Field(None, description="Parent run ID")
-    tags: Optional[list[str]] = Field(None, description="Run tags")
+    parent_run_id: str | None = Field(None, description="Parent run ID")
+    tags: list[str] | None = Field(None, description="Run tags")
     description: str = Field("", description="Run description")
 
 
@@ -76,8 +76,8 @@ class LogMetricRequest(BaseModel):
 
     key: str = Field(..., description="Metric name")
     value: float = Field(..., description="Metric value")
-    step: Optional[int] = Field(None, description="Step number")
-    timestamp: Optional[datetime] = Field(None, description="Metric timestamp")
+    step: int | None = Field(None, description="Step number")
+    timestamp: datetime | None = Field(None, description="Metric timestamp")
 
 
 class LogArtifactRequest(BaseModel):
@@ -86,7 +86,7 @@ class LogArtifactRequest(BaseModel):
     artifact_name: str = Field(..., description="Artifact name")
     artifact_data: Any = Field(..., description="Artifact data")
     artifact_type: str = Field("pickle", description="Artifact type")
-    metadata: Optional[dict[str, Any]] = Field(None, description="Artifact metadata")
+    metadata: dict[str, Any] | None = Field(None, description="Artifact metadata")
 
 
 class LogArtifactResponse(BaseModel):
@@ -100,11 +100,11 @@ class LogModelRequest(BaseModel):
     """Request model for logging a model."""
 
     model_name: str = Field(..., description="Model name")
-    model_signature: Optional[dict[str, Any]] = Field(
+    model_signature: dict[str, Any] | None = Field(
         None, description="Model signature"
     )
-    input_example: Optional[Any] = Field(None, description="Input example")
-    registered_model_name: Optional[str] = Field(
+    input_example: Any | None = Field(None, description="Input example")
+    registered_model_name: str | None = Field(
         None, description="Registered model name"
     )
 
@@ -120,7 +120,7 @@ class EndRunRequest(BaseModel):
     """Request model for ending a run."""
 
     status: str = Field("FINISHED", description="Run status")
-    end_time: Optional[datetime] = Field(None, description="End time")
+    end_time: datetime | None = Field(None, description="End time")
 
 
 class CreateModelVersionRequest(BaseModel):
@@ -133,7 +133,7 @@ class CreateModelVersionRequest(BaseModel):
         ..., description="Performance metrics"
     )
     description: str = Field("", description="Version description")
-    tags: Optional[list[str]] = Field(None, description="Version tags")
+    tags: list[str] | None = Field(None, description="Version tags")
     auto_version: bool = Field(True, description="Auto-determine version")
 
 
@@ -149,7 +149,7 @@ class PromoteModelRequest(BaseModel):
 
     stage: str = Field(..., description="Target stage")
     approval_workflow: bool = Field(True, description="Use approval workflow")
-    validation_tests: Optional[list[str]] = Field(None, description="Validation tests")
+    validation_tests: list[str] | None = Field(None, description="Validation tests")
 
 
 class PromoteModelResponse(BaseModel):
@@ -169,10 +169,10 @@ class SearchModelsRequest(BaseModel):
 
     query: str = Field(..., description="Search query")
     max_results: int = Field(50, description="Maximum results")
-    filter_dict: Optional[dict[str, Any]] = Field(
+    filter_dict: dict[str, Any] | None = Field(
         None, description="Additional filters"
     )
-    order_by: Optional[list[str]] = Field(None, description="Ordering criteria")
+    order_by: list[str] | None = Field(None, description="Ordering criteria")
 
 
 class ModelRegistryStatsResponse(BaseModel):

@@ -18,6 +18,19 @@ env:
 
 jobs:
 
+  project-tidy-check:
+    name: Project Tidy Check
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    - name: Run Tidy Check
+      run: python scripts/validation/check-tidy-structure.py
+
   validate-structure:
     name: Validate Structure
     runs-on: ubuntu-latest
@@ -383,7 +396,7 @@ jobs:
   ci-summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [docs-lint, code-quality, build, test, api-cli-test, security, docker]
+    needs: [project-tidy-check, docs-lint, code-quality, build, test, api-cli-test, security, docker]
     if: always()
 
     steps:
@@ -403,6 +416,7 @@ jobs:
         echo "" >> ci-reports/ci-summary.md
         echo "| Job | Status | Description |" >> ci-reports/ci-summary.md
         echo "|-----|--------|-------------|" >> ci-reports/ci-summary.md
+        echo "| Project Tidy Check | ${{ needs.project-tidy-check.result == 'success' && '✅ Passed' || needs.project-tidy-check.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Project structure and tidiness validation |" >> ci-reports/ci-summary.md
         echo "| Documentation | ${{ needs.docs-lint.result == 'success' && '✅ Passed' || needs.docs-lint.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | MkDocs build, link checking, NotImplementedError validation |" >> ci-reports/ci-summary.md
         echo "| Code Quality | ${{ needs.code-quality.result == 'success' && '✅ Passed' || needs.code-quality.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Linting, formatting, type checking |" >> ci-reports/ci-summary.md
         echo "| Build & Package | ${{ needs.build.result == 'success' && '✅ Passed' || needs.build.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }} | Hatch build, wheel/sdist creation |" >> ci-reports/ci-summary.md
@@ -413,7 +427,8 @@ jobs:
         echo "" >> ci-reports/ci-summary.md
 
         # Overall status
-        if [[ "${{ needs.build.result }}" == "success" &&
+        if [[ "${{ needs.project-tidy-check.result }}" == "success" &&
+              "${{ needs.build.result }}" == "success" &&
               "${{ needs.test.result }}" == "success" ]]; then
           echo "## 🎉 Overall Status: **PASSED**" >> ci-reports/ci-summary.md
           echo "" >> ci-reports/ci-summary.md
@@ -429,6 +444,7 @@ jobs:
           echo "Some critical CI checks have failed. Please review and fix issues before merging." >> ci-reports/ci-summary.md
           echo "" >> ci-reports/ci-summary.md
           echo "**Required for merge:**" >> ci-reports/ci-summary.md
+          echo "- Project Tidy Check must pass" >> ci-reports/ci-summary.md
           echo "- Build & Package must pass" >> ci-reports/ci-summary.md
           echo "- Test Suite must pass" >> ci-reports/ci-summary.md
         fi
@@ -490,7 +506,8 @@ View detailed reports in the Actions artifacts.`;
 
     - name: Set final exit code
       run: |
-        if [[ "${{ needs.build.result }}" == "success" &&
+        if [[ "${{ needs.project-tidy-check.result }}" == "success" &&
+              "${{ needs.build.result }}" == "success" &&
               "${{ needs.test.result }}" == "success" ]]; then
           echo "✅ CI Pipeline completed successfully"
           exit 0

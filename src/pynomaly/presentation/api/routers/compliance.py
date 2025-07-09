@@ -3,11 +3,12 @@ FastAPI router for compliance and audit logging.
 """
 
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, EmailStr
+
 from pynomaly.application.services.compliance_service import ComplianceService
 from pynomaly.domain.entities.compliance import (
     AuditAction,
@@ -32,11 +33,11 @@ class AuditEventResponse(BaseModel):
     action: AuditAction
     severity: AuditSeverity
     timestamp: datetime
-    user_id: Optional[str]
-    resource_type: Optional[str]
-    resource_id: Optional[str]
+    user_id: str | None
+    resource_type: str | None
+    resource_id: str | None
     details: dict[str, Any]
-    ip_address: Optional[str]
+    ip_address: str | None
     outcome: str
     risk_score: int
     compliance_frameworks: list[ComplianceFramework]
@@ -84,15 +85,15 @@ class GDPRRequestResponse(BaseModel):
     request_details: str
     submitted_at: datetime
     status: str
-    assigned_to: Optional[str]
-    completion_deadline: Optional[datetime]
-    processed_at: Optional[datetime]
+    assigned_to: str | None
+    completion_deadline: datetime | None
+    processed_at: datetime | None
     is_overdue: bool
     notes: str
 
 
 class ProcessGDPRRequestRequest(BaseModel):
-    response_data: Optional[dict[str, Any]] = None
+    response_data: dict[str, Any] | None = None
     notes: str = ""
 
 
@@ -105,7 +106,7 @@ class ComplianceCheckResponse(BaseModel):
     check_timestamp: datetime
     details: dict[str, Any]
     recommendations: list[str]
-    next_check_due: Optional[datetime]
+    next_check_due: datetime | None
     is_compliant: bool
     needs_attention: bool
 
@@ -136,7 +137,7 @@ class EncryptionKeyResponse(BaseModel):
     key_size: int
     purpose: str
     created_at: datetime
-    expires_at: Optional[datetime]
+    expires_at: datetime | None
     status: str
     needs_rotation: bool
 
@@ -154,12 +155,12 @@ class BackupRecordResponse(BaseModel):
     data_types: list[str]
     backup_location: str
     started_at: datetime
-    completed_at: Optional[datetime]
+    completed_at: datetime | None
     status: str
     size_bytes: int
     compressed_size_bytes: int
     compression_ratio: float
-    retention_until: Optional[datetime]
+    retention_until: datetime | None
     is_expired: bool
 
 
@@ -202,11 +203,11 @@ async def require_compliance_access(
 @router.get("/tenants/{tenant_id}/audit-trail", response_model=list[AuditEventResponse])
 async def get_audit_trail(
     tenant_id: UUID,
-    start_date: Optional[datetime] = Query(None),
-    end_date: Optional[datetime] = Query(None),
-    actions: Optional[list[AuditAction]] = Query(None),
-    user_id: Optional[UUID] = Query(None),
-    resource_type: Optional[str] = Query(None),
+    start_date: datetime | None = Query(None),
+    end_date: datetime | None = Query(None),
+    actions: list[AuditAction] | None = Query(None),
+    user_id: UUID | None = Query(None),
+    resource_type: str | None = Query(None),
     limit: int = Query(100, ge=1, le=1000),
     offset: int = Query(0, ge=0),
     current_user: User = Depends(require_compliance_access),

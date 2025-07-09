@@ -8,7 +8,7 @@ import math
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -224,7 +224,7 @@ class GPUClusterManager:
                     )
                     self.compute_streams.append(stream)
 
-    async def allocate_compute_resources(self, requirements: dict[str, Any]) -> Optional[dict[str, Any]]:
+    async def allocate_compute_resources(self, requirements: dict[str, Any]) -> dict[str, Any] | None:
         """Allocate compute resources for a task."""
         try:
             required_gpus = requirements.get("gpu_count", 1)
@@ -294,7 +294,7 @@ class MemoryPool:
         self.allocations: dict[str, dict[str, Any]] = {}
         self.fragmentation_ratio = 0.0
 
-    async def allocate(self, size_mb: int, alignment: int = 64) -> Optional[str]:
+    async def allocate(self, size_mb: int, alignment: int = 64) -> str | None:
         """Allocate memory from the pool."""
         try:
             # Align size to specified boundary
@@ -474,7 +474,7 @@ class CustomKernelManager:
             logger.error(f"Failed to compile kernel {kernel_name}: {e}")
             return False
 
-    async def execute_kernel(self, kernel_name: str, data: np.ndarray, parameters: dict[str, Any]) -> Optional[np.ndarray]:
+    async def execute_kernel(self, kernel_name: str, data: np.ndarray, parameters: dict[str, Any]) -> np.ndarray | None:
         """Execute a compiled kernel."""
         try:
             if kernel_name not in self.compiled_kernels:

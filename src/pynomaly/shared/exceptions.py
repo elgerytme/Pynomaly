@@ -2,13 +2,13 @@
 Shared exception classes for the Pynomaly application.
 """
 
-from typing import Any, Optional
+from typing import Any
 
 
 class PynomaryError(Exception):
     """Base exception class for all Pynomaly errors."""
 
-    def __init__(self, message: str, details: Optional[dict[str, Any]] = None):
+    def __init__(self, message: str, details: dict[str, Any] | None = None):
         self.message = message
         self.details = details or {}
         super().__init__(self.message)

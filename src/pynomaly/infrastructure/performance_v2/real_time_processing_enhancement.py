@@ -9,7 +9,7 @@ from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Deque, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
@@ -47,7 +47,7 @@ class LatencyProfile:
     jitter_us: float = 0.0    # Latency jitter
 
     # Measurements
-    measured_latencies: Deque[float] = field(default_factory=lambda: deque(maxlen=1000))
+    measured_latencies: deque[float] = field(default_factory=lambda: deque(maxlen=1000))
 
     def add_measurement(self, latency_us: float) -> None:
         """Add a latency measurement."""
@@ -84,15 +84,15 @@ class ProcessingTask:
     deadline_us: float  # Deadline in microseconds from now
 
     created_at: float = field(default_factory=time.time)
-    started_at: Optional[float] = None
-    completed_at: Optional[float] = None
+    started_at: float | None = None
+    completed_at: float | None = None
 
     # Processing metadata
     algorithm: str = "default"
     parameters: dict[str, Any] = field(default_factory=dict)
 
     # Results
-    anomaly_scores: Optional[np.ndarray] = None
+    anomaly_scores: np.ndarray | None = None
     anomalies_detected: int = 0
     processing_time_us: float = 0.0
 
@@ -161,7 +161,7 @@ class StreamingBuffer:
 
         return True
 
-    def read(self, count: int) -> Optional[np.ndarray]:
+    def read(self, count: int) -> np.ndarray | None:
         """Read data from buffer with zero-copy semantics."""
         if count > self.size():
             return None
@@ -226,7 +226,7 @@ class UltraLowLatencyProcessor:
         # Performance tracking
         self.processed_tasks = 0
         self.expired_tasks = 0
-        self.processing_times: Deque[float] = deque(maxlen=1000)
+        self.processing_times: deque[float] = deque(maxlen=1000)
 
         # Pre-compiled algorithms for speed
         self.compiled_algorithms: dict[str, Callable] = {}
@@ -551,7 +551,7 @@ class BackpressureHandler:
         self.adaptive_mode = config.get("adaptive_mode", True)
 
         # Backpressure statistics
-        self.backpressure_history: Deque[tuple[float, float]] = deque(maxlen=100)  # (timestamp, utilization)
+        self.backpressure_history: deque[tuple[float, float]] = deque(maxlen=100)  # (timestamp, utilization)
 
     async def handle_backpressure(self, buffer_utilization: float, incoming_data_size: int) -> str:
         """Handle backpressure situation."""

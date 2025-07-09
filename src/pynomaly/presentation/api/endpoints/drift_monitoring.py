@@ -1,6 +1,6 @@
 """API endpoints for data drift detection and model degradation monitoring."""
 
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
@@ -45,8 +45,8 @@ class DriftCheckRequest(BaseModel):
     current_data: list[list[float]] = Field(
         ..., description="Current dataset to compare"
     )
-    feature_names: Optional[list[str]] = Field(None, description="Feature names")
-    detection_methods: Optional[list[str]] = Field(
+    feature_names: list[str] | None = Field(None, description="Feature names")
+    detection_methods: list[str] | None = Field(
         default=["kolmogorov_smirnov", "jensen_shannon", "population_stability_index"],
         description="Detection methods to use",
     )
@@ -607,8 +607,8 @@ async def list_active_monitors(
     """,
 )
 async def get_drift_alerts(
-    detector_id: Optional[str] = Query(None, description="Filter by detector ID"),
-    severity: Optional[str] = Query(None, description="Filter by severity"),
+    detector_id: str | None = Query(None, description="Filter by detector ID"),
+    severity: str | None = Query(None, description="Filter by severity"),
     active_only: bool = Query(True, description="Only return active alerts"),
     limit: int = Query(100, description="Maximum number of alerts"),
     use_case: DriftMonitoringUseCase = Depends(get_drift_monitoring_use_case),

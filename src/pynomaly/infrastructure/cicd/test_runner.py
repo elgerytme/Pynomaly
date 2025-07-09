@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pynomaly.domain.models.cicd import PipelineStatus, TestResult, TestSuite, TestType
@@ -78,7 +78,7 @@ class TestRunner:
         self,
         test_suite: TestSuite,
         workspace_path: Path,
-        environment: Optional[dict[str, str]] = None,
+        environment: dict[str, str] | None = None,
     ) -> bool:
         """Execute a test suite and update results."""
 
@@ -128,7 +128,7 @@ class TestRunner:
         self,
         test_type: TestType,
         workspace_path: Path,
-        test_patterns: Optional[list[str]] = None,
+        test_patterns: list[str] | None = None,
     ) -> list[str]:
         """Discover test files based on type and patterns."""
 
@@ -172,7 +172,7 @@ class TestRunner:
         self,
         test_type: TestType,
         workspace_path: Path,
-        environment: Optional[dict[str, str]] = None,
+        environment: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """Validate test environment requirements."""
 
@@ -227,7 +227,7 @@ class TestRunner:
         self,
         test_suite: TestSuite,
         workspace_path: Path,
-        environment: Optional[dict[str, str]],
+        environment: dict[str, str] | None,
         config: dict[str, Any],
     ) -> bool:
         """Execute tests for a test suite."""

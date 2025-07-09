@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class SeverityLevel(str, Enum):
@@ -20,7 +19,7 @@ class SeverityScore:
 
     value: float
     severity_level: SeverityLevel
-    confidence: Optional[float] = None
+    confidence: float | None = None
 
     def __post_init__(self):
         """Validate severity score."""
