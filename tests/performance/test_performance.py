@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
 from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
 from pynomaly.domain.entities import Dataset, Detector

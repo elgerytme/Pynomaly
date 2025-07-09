@@ -10,7 +10,8 @@ from pydantic import BaseModel, Field, field_validator
 
 class EnsembleStrategyDTO(BaseModel):
     """DTO for ensemble strategy configuration."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     name: str = Field(description="Strategy name")
     description: str = Field(description="Strategy description")
     requires_training: bool = Field(
@@ -27,7 +28,8 @@ class EnsembleStrategyDTO(BaseModel):
 
 class DiversityMetricsDTO(BaseModel):
     """DTO for diversity analysis metrics."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     disagreement_measure: float = Field(
         description="Average disagreement between classifiers"
     )
@@ -41,7 +43,8 @@ class DiversityMetricsDTO(BaseModel):
 
 class MetaLearningKnowledgeDTO(BaseModel):
     """DTO for meta-learning knowledge representation."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     dataset_characteristics: dict[str, Any] = Field(
         description="Dataset characteristics"
     )
@@ -62,7 +65,8 @@ class MetaLearningKnowledgeDTO(BaseModel):
 
 class EnsembleConfigurationDTO(BaseModel):
     """DTO for ensemble creation and optimization configuration."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     base_algorithms: list[str] = Field(description="Base algorithms for ensemble")
     ensemble_strategy: str = Field(
         default="voting", description="Ensemble combination strategy"
@@ -89,7 +93,8 @@ class EnsembleConfigurationDTO(BaseModel):
 
 class EnsemblePerformanceDTO(BaseModel):
     """DTO for ensemble performance metrics."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     weighted_individual_performance: float = Field(
         description="Weighted average individual performance"
     )
@@ -105,7 +110,8 @@ class EnsemblePerformanceDTO(BaseModel):
 
 class EnsembleReportDTO(BaseModel):
     """DTO for comprehensive ensemble report."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     ensemble_summary: dict[str, Any] = Field(description="Ensemble summary information")
     dataset_characteristics: dict[str, Any] = Field(
         description="Dataset characteristics"
@@ -129,7 +135,8 @@ class EnsembleReportDTO(BaseModel):
 
 class AlgorithmCompatibilityDTO(BaseModel):
     """DTO for algorithm compatibility matrix."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     algorithm_name: str = Field(description="Primary algorithm name")
     compatibility_scores: dict[str, float] = Field(
         description="Compatibility scores with other algorithms"
@@ -144,7 +151,8 @@ class AlgorithmCompatibilityDTO(BaseModel):
 
 class EnsembleOptimizationRequestDTO(BaseModel):
     """DTO for ensemble optimization request."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     dataset_name: str = Field(description="Dataset name")
     algorithms: list[str] | None = Field(
         None, description="Algorithms to consider (None for auto-selection)"
@@ -162,7 +170,8 @@ class EnsembleOptimizationRequestDTO(BaseModel):
 
 class EnsembleOptimizationResponseDTO(BaseModel):
     """DTO for ensemble optimization response."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     request_id: str = Field(description="Request identifier")
     status: str = Field(description="Optimization status")
     ensemble_detectors: list[str] = Field(description="Selected ensemble detectors")
@@ -180,7 +189,8 @@ class EnsembleOptimizationResponseDTO(BaseModel):
 
 class MetaLearningInsightsDTO(BaseModel):
     """DTO for meta-learning insights and analytics."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     knowledge_base_size: int = Field(description="Size of meta-learning knowledge base")
     most_popular_algorithms: list[tuple] = Field(
         description="Most popular algorithms with usage counts"
@@ -202,7 +212,8 @@ class MetaLearningInsightsDTO(BaseModel):
 
 class EnsembleValidationDTO(BaseModel):
     """DTO for ensemble validation results."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     validation_method: str = Field(description="Validation method used")
     cross_validation_scores: list[float] = Field(description="Cross-validation scores")
     diversity_validation: DiversityMetricsDTO = Field(
@@ -218,7 +229,8 @@ class EnsembleValidationDTO(BaseModel):
 
 class DynamicEnsembleDTO(BaseModel):
     """DTO for dynamic ensemble selection configuration."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     selection_strategy: str = Field(
         default="competence_based", description="Dynamic selection strategy"
     )
@@ -238,7 +250,8 @@ class DynamicEnsembleDTO(BaseModel):
 
 class EnsembleEvolutionDTO(BaseModel):
     """DTO for ensemble evolution and adaptation."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     evolution_strategy: str = Field(
         description="Evolution strategy (genetic, gradient, etc.)"
     )
@@ -257,8 +270,9 @@ class EnsembleEvolutionDTO(BaseModel):
 
 class StakingConfigurationDTO(BaseModel):
     """DTO for stacking ensemble configuration."""
-
-    meta_learner_algorithm: str = Field(
+    
+    model_config = ConfigDict(extra="forbid")
+     meta_learner_algorithm: str = Field(
         default="LogisticRegression", description="Meta-learner algorithm"
     )
     base_level_cv_folds: int = Field(default=3, description="CV folds for base level")
@@ -271,8 +285,9 @@ class StakingConfigurationDTO(BaseModel):
 
 class EnsembleMonitoringDTO(BaseModel):
     """DTO for real-time ensemble monitoring."""
-
-    monitoring_enabled: bool = Field(
+    
+    model_config = ConfigDict(extra="forbid")
+     monitoring_enabled: bool = Field(
         default=True, description="Enable real-time monitoring"
     )
     performance_tracking: bool = Field(
@@ -292,7 +307,8 @@ class EnsembleMonitoringDTO(BaseModel):
 
 class EnsembleBenchmarkDTO(BaseModel):
     """DTO for ensemble benchmarking results."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     benchmark_name: str = Field(description="Benchmark name")
     dataset_characteristics: dict[str, Any] = Field(
         description="Benchmark dataset characteristics"
@@ -313,7 +329,8 @@ class EnsembleBenchmarkDTO(BaseModel):
 
 class MetaFeatureDTO(BaseModel):
     """DTO for meta-features used in meta-learning."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     statistical_features: dict[str, float] = Field(
         description="Statistical meta-features"
     )
@@ -333,7 +350,8 @@ class MetaFeatureDTO(BaseModel):
 
 class EnsembleExplanationDTO(BaseModel):
     """DTO for ensemble decision explanation."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     ensemble_decision: str = Field(description="Final ensemble decision")
     individual_contributions: dict[str, float] = Field(
         description="Individual detector contributions"
@@ -398,7 +416,8 @@ def create_ensemble_performance_from_dict(
 
 class EnsembleDetectionRequestDTO(BaseModel):
     """Request DTO for ensemble detection."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     detector_ids: list[str] = Field(
         min_items=2,
         max_items=20,
@@ -507,7 +526,8 @@ class EnsembleDetectionRequestDTO(BaseModel):
 
 class EnsembleDetectionResponseDTO(BaseModel):
     """Response DTO for ensemble detection."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     success: bool = Field(description="Whether the detection was successful")
     predictions: list[int] = Field(
         default_factory=list,
@@ -551,7 +571,8 @@ class EnsembleDetectionResponseDTO(BaseModel):
 
 class EnsembleOptimizationRequestDTO(BaseModel):
     """Request DTO for ensemble optimization."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     detector_ids: list[str] = Field(
         min_items=2, description="Candidate detector IDs for ensemble"
     )
@@ -634,7 +655,8 @@ class EnsembleOptimizationRequestDTO(BaseModel):
 
 class EnsembleOptimizationResponseDTO(BaseModel):
     """Response DTO for ensemble optimization."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     success: bool = Field(description="Whether optimization was successful")
     optimized_detector_ids: list[str] = Field(
         default_factory=list, description="Optimized detector combination"
@@ -667,7 +689,8 @@ class EnsembleOptimizationResponseDTO(BaseModel):
 
 class EnsembleStatusResponseDTO(BaseModel):
     """Response DTO for ensemble system status."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     available_voting_strategies: list[dict[str, Any]] = Field(
         description="Available voting strategies with descriptions"
     )
@@ -682,7 +705,8 @@ class EnsembleStatusResponseDTO(BaseModel):
 
 class EnsembleMetricsResponseDTO(BaseModel):
     """Response DTO for ensemble performance metrics."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     detector_performance_metrics: dict[str, dict[str, Any]] = Field(
         description="Individual detector performance metrics"
     )

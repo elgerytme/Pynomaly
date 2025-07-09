@@ -3,6 +3,7 @@
 from unittest.mock import patch
 
 import numpy as np
+
 from pynomaly.application.services.workflow_simplification_service import (
     UserExperience,
     WorkflowComplexity,

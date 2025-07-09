@@ -5,7 +5,7 @@ from collections.abc import Callable
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from .jwt_auth import JWTAuthService, get_auth
+from .jwt_auth_enhanced import EnhancedJWTAuthService, get_auth
 
 security = HTTPBearer()
 
@@ -27,13 +27,13 @@ def require_role(*roles: str) -> Callable:
 
     def dependency(
         credentials: HTTPAuthorizationCredentials = Depends(security),
-        auth_service: JWTAuthService = Depends(get_auth),
+        auth_service: EnhancedJWTAuthService = Depends(get_auth),
     ):
         """Dependency function that validates user has required roles."""
         try:
             # Decode and validate token
             token_payload = auth_service.decode_token(credentials.credentials)
-            user = auth_service.get_user(token_payload.sub)
+            user = auth_service.get_current_user(credentials.credentials)
 
             if not user:
                 raise HTTPException(
@@ -71,13 +71,13 @@ def require_role(*roles: str) -> Callable:
 
 def require_api_key(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    auth_service: JWTAuthService = Depends(get_auth),
+    auth_service: EnhancedJWTAuthService = Depends(get_auth),
 ):
     """Dependency for API key authentication.
 
     Args:
         credentials: HTTP Bearer credentials
-        auth_service: JWT auth service
+        auth_service: Enhanced JWT auth service
 
     Returns:
         Authenticated user
@@ -96,8 +96,7 @@ def require_api_key(
             return user
         else:
             # Fall back to JWT token validation
-            token_payload = auth_service.decode_token(credentials.credentials)
-            user = auth_service.get_user(token_payload.sub)
+            user = auth_service.get_current_user(credentials.credentials)
 
             if not user:
                 raise HTTPException(
@@ -127,7 +126,7 @@ def require_role_or_api_key(*roles: str) -> Callable:
 
     def dependency(
         credentials: HTTPAuthorizationCredentials = Depends(security),
-        auth_service: JWTAuthService = Depends(get_auth),
+        auth_service: EnhancedJWTAuthService = Depends(get_auth),
     ):
         """Dependency function that validates either API key or JWT with roles."""
         try:
@@ -142,8 +141,7 @@ def require_role_or_api_key(*roles: str) -> Callable:
                 return user
             else:
                 # JWT token - check roles
-                token_payload = auth_service.decode_token(credentials.credentials)
-                user = auth_service.get_user(token_payload.sub)
+                user = auth_service.get_current_user(credentials.credentials)
 
                 if not user:
                     raise HTTPException(

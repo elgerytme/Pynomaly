@@ -8,6 +8,7 @@ including bootstrap, Bayesian, and normal confidence intervals.
 
 import numpy as np
 import pytest
+
 from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.services.uncertainty_service import (
     UncertaintyQuantificationService,

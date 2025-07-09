@@ -11,8 +11,9 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
-from pynomaly.presentation.cli.export import export_app
 from typer.testing import CliRunner
+
+from pynomaly.presentation.cli.export import export_app
 
 
 class TestExportCLI:

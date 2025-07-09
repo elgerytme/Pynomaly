@@ -13,8 +13,8 @@ from pynomaly.application.dto.detection_dto import AnomalyDTO
 
 class DetectionResultDTO(BaseModel):
     """DTO for detection result."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID
     detector_id: UUID
@@ -42,8 +42,8 @@ class DetectionResultDTO(BaseModel):
 
 class AnomalyDTO(BaseModel):
     """DTO for individual anomaly."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID
     score: float = Field(ge=0, le=1)

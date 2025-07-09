@@ -75,6 +75,7 @@ def test_auth_integration_with_endpoints():
     try:
         print("🔗 Testing auth integration with endpoints...")
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
 
         app = create_app()

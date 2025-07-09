@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import numpy as np
 import pytest
+
 from pynomaly.domain.exceptions import GPUError, MemoryError
 from pynomaly.infrastructure.gpu.cuda_utils import CUDAUtils
 from pynomaly.infrastructure.gpu.device_manager import DeviceManager

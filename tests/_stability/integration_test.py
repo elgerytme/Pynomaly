@@ -22,8 +22,12 @@ def main():
     print("1️⃣ Testing Basic Framework Import...")
     try:
         from test_flaky_test_elimination import (
-            TestStabilizer, TestIsolationManager, RetryManager,
-            ResourceManager, TimingManager, MockManager
+            MockManager,
+            ResourceManager,
+            RetryManager,
+            TestIsolationManager,
+            TestStabilizer,
+            TimingManager,
         )
         print("   ✅ All stability components imported successfully")
     except ImportError as e:

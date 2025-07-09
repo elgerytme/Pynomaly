@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from unittest.mock import Mock
 
 import pytest
+
 from pynomaly.application.services.visualization_dashboard_service import (
     ChartConfig,
     ChartType,

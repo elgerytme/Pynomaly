@@ -11,8 +11,9 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
-from pynomaly.presentation.cli.app import app
 from typer.testing import CliRunner
+
+from pynomaly.presentation.cli.app import app
 
 
 class TestConvertedCommands:

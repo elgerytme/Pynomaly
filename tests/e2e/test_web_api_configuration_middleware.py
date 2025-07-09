@@ -10,6 +10,7 @@ from uuid import uuid4
 import pytest
 from fastapi import FastAPI, Request, Response
 from fastapi.testclient import TestClient
+
 from pynomaly.application.dto.configuration_dto import (
     RequestConfigurationDTO,
     ResponseConfigurationDTO,

@@ -12,6 +12,7 @@ from unittest.mock import Mock
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.domain.entities import Dataset, DetectionResult
 from pynomaly.domain.services.anomaly_scorer import AnomalyScorer
 from pynomaly.domain.services.ensemble_aggregator import EnsembleAggregator

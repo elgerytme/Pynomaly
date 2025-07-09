@@ -5,6 +5,7 @@ from __future__ import annotations
 from uuid import uuid4
 
 import numpy as np
+
 from pynomaly.application.use_cases.detect_anomalies import (
     DetectAnomaliesRequest,
     DetectAnomaliesResponse,

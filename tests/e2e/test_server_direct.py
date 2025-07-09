@@ -6,6 +6,7 @@ sys.path.insert(0, "src")
 # Test direct server startup
 try:
     import uvicorn
+
     from pynomaly.presentation.api import create_app
 
     print("✅ Imports successful")

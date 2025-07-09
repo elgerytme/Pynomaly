@@ -14,13 +14,14 @@ Example:
     python kafka_producer.py user_events 60 1000
 """
 
-import sys
 import json
-import time
 import random
 import string
+import sys
 import threading
+import time
 from datetime import datetime
+
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 

@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [tool.poetry]
 name = "pynomaly"
-version = "0.2.0"
+version = "0.3.0"
 description = "State-of-the-art Python anomaly detection package with clean architecture"
 authors = ["Pynomaly Team <team@pynomaly.io>"]
 readme = "README.md"
@@ -206,9 +206,17 @@ test = [
     "pytest-asyncio>=0.24.0",
     "pytest-xdist>=3.6.0",
     "pytest-rerunfailures>=14.0",
+    "pytest-mock>=3.12.0",
+    "pytest-timeout>=2.3.0",
+    "pytest-benchmark>=4.0.0",
     "hypothesis>=6.115.0",
     "factory-boy>=3.3.1",
-    "faker>=33.1.0"
+    "faker>=33.1.0",
+    "mutmut>=2.4.4",
+    "cosmic-ray>=8.3.7",
+    "responses>=0.24.0",
+    "httpx>=0.28.1",
+    "requests-mock>=1.11.0"
 ]
 ui-test = [
     "playwright>=1.40.0",
@@ -422,15 +430,56 @@ dependencies = [
     "pytest-asyncio>=0.24.0",
     "pytest-xdist>=3.6.0",
     "pytest-rerunfailures>=14.0",
+    "pytest-mock>=3.12.0",
+    "pytest-timeout>=2.3.0",
+    "pytest-benchmark>=4.0.0",
     "hypothesis>=6.115.0",
     "factory-boy>=3.3.1",
     "faker>=33.1.0",
+    "mutmut>=2.4.4",
+    "cosmic-ray>=8.3.7",
+    "responses>=0.24.0",
+    "httpx>=0.28.1",
+    "requests-mock>=1.11.0",
 ]
 
 [tool.hatch.envs.test.scripts]
+# Core test runs
 run = "pytest {args:tests}"
-run-cov = "pytest --cov=pynomaly --cov-report=html --cov-report=xml {args:tests}"
+run-unit = "pytest tests/unit/ -m unit {args}"
+run-integration = "pytest tests/integration/ -m integration {args}"
+run-e2e = "pytest tests/e2e/ -m e2e {args}"
+run-contract = "pytest tests/contract/ -m contract {args}"
+
+# Coverage testing
+run-cov = "pytest --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 {args:tests}"
+run-cov-unit = "pytest tests/unit/ --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
+run-cov-integration = "pytest tests/integration/ --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
+
+# Parallel testing
 run-parallel = "pytest -n auto {args:tests}"
+run-parallel-unit = "pytest tests/unit/ -n auto -m unit {args}"
+run-parallel-integration = "pytest tests/integration/ -n auto -m integration {args}"
+
+# Property-based testing
+run-property = "pytest -m property --hypothesis-show-statistics {args:tests}"
+run-property-extensive = "pytest -m property --hypothesis-show-statistics --hypothesis-max-examples=1000 {args:tests}"
+
+# Performance testing
+run-performance = "pytest -m performance --benchmark-only {args:tests}"
+run-stress = "pytest -m stress {args:tests}"
+
+# Mutation testing
+run-mutation-mutmut = "mutmut run"
+run-mutation-cosmic = "cosmic-ray run"
+check-mutation = "mutmut show"
+
+# Quality gates
+run-quality = "pytest --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 -n auto {args:tests}"
+run-ci = "pytest --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 -n auto --tb=short {args:tests}"
+
+# Test reporting
+run-report = "pytest --cov=pynomaly --cov-report=html --cov-report=xml --html=test_reports/test_report.html --self-contained-html {args:tests}"
 
 # Matrix testing for different Python versions
 [[tool.hatch.envs.test.matrix]]
@@ -568,7 +617,7 @@ exclude = [
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = "-ra -q --strict-markers --strict-config"
+addopts = "-ra -q --strict-markers --strict-config --tb=short"
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
@@ -583,20 +632,55 @@ markers = [
     "e2e: marks tests as end-to-end tests",
     "security: marks tests as security tests",
     "ui: marks tests as UI tests",
+    "contract: marks tests as contract tests",
+    "property: marks tests as property-based tests",
+    "mutation: marks tests for mutation testing",
+    "smoke: marks tests as smoke tests",
+    "regression: marks tests as regression tests",
+    "acceptance: marks tests as acceptance tests",
 ]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+timeout = 300
+maxfail = 5
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(name)s: %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 
 [tool.coverage.run]
 source = ["src"]
 branch = true
+parallel = true
+data_file = ".coverage"
 omit = [
     "environments/*",
     ".env*/*",
     ".venv*/*",
     "test_env*/*",
-    "venv*/*"
+    "venv*/*",
+    "*/tests/*",
+    "*/test_*.py",
+    "*/*_test.py",
+    "*/conftest.py",
+    "*/__init__.py",
+    "*/migrations/*",
+    "*/settings/*",
+    "*/venv/*",
+    "*/virtualenv/*",
+    ".tox/*",
+    "setup.py",
+    "*/site-packages/*",
 ]
 
 [tool.coverage.report]
+show_missing = true
+ship_to_report = true
+fail_under = 90
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",
@@ -608,7 +692,36 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "class .*\\\\(.*Protocol\\\\):",
     "@(abc\\\\.)?abstractmethod",
+    "# pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:",
+    "def __repr__",
+    "def __str__",
+    "def __unicode__",
+    "\\.\\.\\.",
+    "pass",
 ]
+ignore_errors = true
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+# Mutation testing configuration
+[tool.mutmut]
+paths_to_mutate = "src/"
+backup = false
+show_diffs = true
+test_command = "python -m pytest tests/"
+run_tests_in_parallel = true
+
+[tool.cosmic-ray]
+module-path = "src/pynomaly"
+timeout = 10.0
+test-command = "python -m pytest tests/"
 
 # Additional tool configurations for environment exclusion
 [tool.bandit]

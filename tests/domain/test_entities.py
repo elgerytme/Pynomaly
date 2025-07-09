@@ -8,6 +8,7 @@ from uuid import UUID
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import InvalidDataError
 from pynomaly.domain.value_objects import AnomalyScore
@@ -165,7 +166,7 @@ class TestAnomaly:
         # Test invalid score type
         with pytest.raises(TypeError):
             Anomaly(
-                score=0.5,  # Should be AnomalyScore
+                score="invalid",  # Should be AnomalyScore or number
                 data_point={"feature1": 1.0},
                 detector_name="test",
             )

@@ -61,6 +61,7 @@ def test_typer_cli_structure():
     """Test Typer CLI structure."""
     try:
         import typer
+
         from pynomaly.presentation.cli.app import app
 
         # Verify it's a Typer app
@@ -86,6 +87,7 @@ def test_cli_help_generation():
     """Test that CLI help can be generated without errors."""
     try:
         import typer.testing
+
         from pynomaly.presentation.cli.app import app
 
         runner = typer.testing.CliRunner()

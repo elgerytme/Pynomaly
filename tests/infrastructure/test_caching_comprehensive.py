@@ -7,6 +7,7 @@ import time
 from unittest.mock import Mock, patch
 
 import pytest
+
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.exceptions import CacheError, SerializationError
 from pynomaly.domain.value_objects import ContaminationRate

@@ -8,6 +8,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from fastapi.testclient import TestClient
+
 from pynomaly.presentation.api.app import create_app
 
 

@@ -11,8 +11,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class DatasetCharacteristicsDTO(BaseModel):
     """Dataset characteristics for algorithm selection."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Basic dimensions
     n_samples: int = Field(..., ge=0, description="Number of samples")
@@ -57,8 +57,8 @@ class DatasetCharacteristicsDTO(BaseModel):
 
 class AlgorithmPerformanceDTO(BaseModel):
     """Algorithm performance metrics."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Primary metrics
     primary_metric: float = Field(
@@ -98,8 +98,8 @@ class AlgorithmPerformanceDTO(BaseModel):
 
 class OptimizationConstraintsDTO(BaseModel):
     """Constraints for algorithm optimization."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Resource constraints
     max_training_time_seconds: float | None = Field(
@@ -146,8 +146,8 @@ class OptimizationConstraintsDTO(BaseModel):
 
 class MetaLearningConfigDTO(BaseModel):
     """Configuration for meta-learning."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Meta-learning settings
     enable_transfer_learning: bool = Field(
@@ -185,8 +185,8 @@ class MetaLearningConfigDTO(BaseModel):
 
 class SelectionRecommendationDTO(BaseModel):
     """Algorithm selection recommendation."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Recommendations
     recommended_algorithms: list[str] = Field(
@@ -224,8 +224,8 @@ class SelectionRecommendationDTO(BaseModel):
 
 class AlgorithmBenchmarkDTO(BaseModel):
     """Algorithm benchmark results."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Algorithm identification
     algorithm_name: str = Field(..., description="Algorithm name")
@@ -260,8 +260,8 @@ class AlgorithmBenchmarkDTO(BaseModel):
 
 class SelectionHistoryDTO(BaseModel):
     """Historical algorithm selection entry."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Selection details
     dataset_characteristics: DatasetCharacteristicsDTO = Field(
@@ -298,8 +298,8 @@ class SelectionHistoryDTO(BaseModel):
 
 class LearningInsightsDTO(BaseModel):
     """Insights from learning history."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Summary statistics
     total_selections: int = Field(..., ge=0, description="Total number of selections")
@@ -343,8 +343,8 @@ class LearningInsightsDTO(BaseModel):
 
 class AlgorithmComparisonDTO(BaseModel):
     """Comparison between algorithms."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Algorithms being compared
     algorithm_a: str = Field(..., description="First algorithm")
@@ -383,8 +383,8 @@ class AlgorithmComparisonDTO(BaseModel):
 
 class PerformancePredictionDTO(BaseModel):
     """Performance prediction for algorithm-dataset combination."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Prediction details
     algorithm: str = Field(..., description="Algorithm name")
@@ -422,8 +422,8 @@ class PerformancePredictionDTO(BaseModel):
 
 class SelectionExplanationDTO(BaseModel):
     """Explanation for algorithm selection decision."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Main explanation
     primary_reason: str = Field(..., description="Primary reason for selection")
@@ -459,8 +459,8 @@ class SelectionExplanationDTO(BaseModel):
 
 class SelectionRequestDTO(BaseModel):
     """Request for algorithm selection."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Dataset information
     dataset_id: UUID | None = Field(default=None, description="Dataset identifier")

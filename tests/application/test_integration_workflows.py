@@ -5,6 +5,7 @@ from datetime import datetime
 from unittest.mock import Mock, patch
 
 import pytest
+
 from pynomaly.application.services.automl_service import AutoMLService
 from pynomaly.application.services.detection_service import DetectionService
 from pynomaly.application.services.ensemble_service import EnsembleService

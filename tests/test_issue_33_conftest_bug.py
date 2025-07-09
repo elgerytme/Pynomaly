@@ -62,6 +62,7 @@ def test_conftest_can_be_imported():
     try:
         # Try to import conftest module
         import tests.conftest  # noqa: F401
+
         # If we get here, the import was successful
         assert True
     except SyntaxError as e:

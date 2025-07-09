@@ -19,14 +19,14 @@ from typing import List, Tuple
 
 # Import existing functionality from the validation and organization modules
 try:
-    from validation.validate_file_organization import validate_file_organization
     from analysis.organize_files import FileOrganizer
+    from validation.validate_file_organization import validate_file_organization
 except ImportError:
     # Fallback to relative imports if the modules are not in the path
     import sys
     sys.path.insert(0, str(Path(__file__).parent))
-    from validation.validate_file_organization import validate_file_organization
     from analysis.organize_files import FileOrganizer
+    from validation.validate_file_organization import validate_file_organization
 
 
 def validate_command() -> int:
@@ -58,12 +58,13 @@ def validate_command() -> int:
         return 1
 
 
-def organize_command(dry_run: bool = True) -> int:
+def organize_command(dry_run: bool = True, output_file: str = None) -> int:
     """
     Execute file organization operations.
     
     Args:
         dry_run: If True, only show what would be done without making changes
+        output_file: If provided, save detailed report to this file
         
     Returns:
         0 on success, 1 on failure
@@ -101,6 +102,35 @@ def organize_command(dry_run: bool = True) -> int:
         
         # Execute operations
         results = organizer.execute_operations(operations)
+        
+        # Save detailed report if requested
+        if output_file:
+            import os
+            print(f"[*] Attempting to save report to: {output_file}")
+            output_dir = os.path.dirname(output_file)
+            if output_dir:
+                print(f"[*] Creating directory: {output_dir}")
+                os.makedirs(output_dir, exist_ok=True)
+            
+            report_data = {
+                "analysis": analysis,
+                "operations": operations,
+                "results": results,
+                "summary": {
+                    "dry_run": dry_run,
+                    "total_operations": len(operations),
+                    "violations_count": len(analysis.get("stray_files", [])) + len(analysis.get("stray_directories", []))
+                }
+            }
+            
+            try:
+                with open(output_file, 'w') as f:
+                    json.dump(report_data, f, indent=2)
+                print(f"[*] Detailed report saved to: {output_file}")
+            except Exception as e:
+                print(f"[-] Failed to save report: {e}")
+                import traceback
+                traceback.print_exc()
         
         # Print summary
         summary = results["summary"]
@@ -203,7 +233,7 @@ Examples:
                 print("[-] Operation cancelled")
                 return 1
         
-        return organize_command(dry_run=dry_run)
+        return organize_command(dry_run=dry_run, output_file=args.output)
     
     else:
         parser.print_help()

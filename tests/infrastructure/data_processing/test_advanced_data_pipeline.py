@@ -5,6 +5,8 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pandas as pd
 import pytest
+from sklearn.impute import KNNImputer
+
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import DataValidationError
 from pynomaly.infrastructure.data_processing.advanced_data_pipeline import (
@@ -16,7 +18,6 @@ from pynomaly.infrastructure.data_processing.advanced_data_pipeline import (
     ScalingMethod,
     ValidationRule,
 )
-from sklearn.impute import KNNImputer
 
 
 class TestProcessingConfig:

@@ -52,6 +52,7 @@ def test_basic_functionality():
     try:
         import numpy as np
         import pandas as pd
+
         from pynomaly.domain.entities import Dataset
         from pynomaly.domain.value_objects import ContaminationRate
         from pynomaly.infrastructure.adapters import SklearnAdapter

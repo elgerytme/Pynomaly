@@ -7,6 +7,7 @@ import time
 from unittest.mock import patch
 
 import pytest
+
 from pynomaly.domain.exceptions import (
     BulkheadRejectionError,
     CircuitBreakerOpenError,

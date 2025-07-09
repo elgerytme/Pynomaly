@@ -2,11 +2,13 @@
 
 import asyncio
 import json
-from datetime import datetime, timedelta
-from typing import Dict, Any
-from pydantic import BaseModel, Field
-from collections import defaultdict
 import time
+from collections import defaultdict
+from datetime import datetime, timedelta
+from typing import Any, Dict
+
+from pydantic import BaseModel, Field
+
 
 # Define minimal StreamingMetrics for testing
 class StreamingMetrics(BaseModel):

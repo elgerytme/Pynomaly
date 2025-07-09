@@ -3,11 +3,12 @@
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 import pandas as pd
 import pytest
-from hypothesis import assume, given, settings, strategies as st
+from hypothesis import assume, given, settings
+from hypothesis import strategies as st
 from hypothesis.extra import pandas as st_pandas
 from pydantic import ValidationError
 

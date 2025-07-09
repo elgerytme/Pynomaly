@@ -12,6 +12,15 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-commit]
+        
+      - id: enhanced-validation
+        name: Enhanced Validation with Rich Output
+        entry: python -m pynomaly.presentation.cli.app validate run --format rich
+        language: python
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+        verbose: true
 
   # Standard Pre-commit Hooks for File Hygiene
   - repo: https://github.com/pre-commit/pre-commit-hooks

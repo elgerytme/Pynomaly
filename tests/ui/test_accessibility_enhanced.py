@@ -5,7 +5,6 @@ import json
 
 import pytest
 from playwright.async_api import Page
-
 from tests.ui.conftest import ACCESSIBILITY_REPORTS_DIR, TEST_CONFIG, UITestHelper
 
 

@@ -13,6 +13,8 @@ Tests cover:
 import numpy as np
 import pandas as pd
 import pytest
+from sklearn.datasets import make_classification
+
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
 from pynomaly.infrastructure.adapters.drift_detection_adapter import (
@@ -25,7 +27,6 @@ from pynomaly.infrastructure.adapters.drift_detection_adapter import (
     StatisticalDriftDetector,
     StreamingDriftDetector,
 )
-from sklearn.datasets import make_classification
 
 
 @pytest.fixture

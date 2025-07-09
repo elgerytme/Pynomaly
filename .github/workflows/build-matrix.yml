@@ -1,0 +1,393 @@
+name: Build Matrix
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+env:
+  UV_CACHE_DIR: /tmp/.uv-cache
+  PYTEST_TIMEOUT: 600
+
+concurrency:
+  group: build-matrix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Build matrix for different OS and Python versions
+  build-matrix:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11", "3.12", "3.13"]
+        include:
+          # Test different feature combinations
+          - os: ubuntu-latest
+            python-version: "3.11"
+            extras: "minimal"
+            label: "minimal"
+          - os: ubuntu-latest
+            python-version: "3.11"
+            extras: "server"
+            label: "server"
+          - os: ubuntu-latest
+            python-version: "3.11"
+            extras: "ml-all"
+            label: "ml-all"
+          - os: ubuntu-latest
+            python-version: "3.11"
+            extras: "all"
+            label: "all"
+          # Windows-specific configurations
+          - os: windows-latest
+            python-version: "3.11"
+            extras: "minimal"
+            label: "windows-minimal"
+          - os: windows-latest
+            python-version: "3.12"
+            extras: "server"
+            label: "windows-server"
+          # macOS-specific configurations
+          - os: macos-latest
+            python-version: "3.11"
+            extras: "minimal"
+            label: "macos-minimal"
+          - os: macos-latest
+            python-version: "3.12"
+            extras: "server"
+            label: "macos-server"
+        exclude:
+          # Exclude some combinations to reduce CI time
+          - os: macos-latest
+            python-version: "3.13"
+          - os: windows-latest
+            python-version: "3.13"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv (Linux/macOS)
+        if: runner.os != 'Windows'
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-suffix: ${{ matrix.os }}-${{ matrix.python-version }}
+
+      - name: Install uv (Windows)
+        if: runner.os == 'Windows'
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-suffix: ${{ matrix.os }}-${{ matrix.python-version }}
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install dependencies (minimal)
+        if: matrix.extras == 'minimal' || matrix.extras == ''
+        run: |
+          uv pip install -e ".[test,minimal]"
+
+      - name: Install dependencies (server)
+        if: matrix.extras == 'server'
+        run: |
+          uv pip install -e ".[test,server]"
+
+      - name: Install dependencies (ml-all)
+        if: matrix.extras == 'ml-all'
+        run: |
+          uv pip install -e ".[test,ml-all]"
+
+      - name: Install dependencies (all)
+        if: matrix.extras == 'all'
+        run: |
+          uv pip install -e ".[test,all]"
+
+      - name: Install dependencies (default)
+        if: matrix.extras == ''
+        run: |
+          uv pip install -e ".[test]"
+
+      - name: Display environment info
+        run: |
+          uv run python --version
+          uv run python -c "import sys; print(f'Python executable: {sys.executable}')"
+          uv run python -c "import platform; print(f'Platform: {platform.platform()}')"
+          uv run python -c "import pynomaly; print(f'Pynomaly version: {pynomaly.__version__}')"
+
+      - name: Run basic smoke tests
+        run: |
+          uv run python -c "import pynomaly; print('Basic import successful')"
+          uv run python -c "from pynomaly.presentation.cli.app import app; print('CLI import successful')"
+
+      - name: Run unit tests
+        run: |
+          uv run pytest tests/ -m "not integration and not e2e" \
+            --tb=short \
+            --maxfail=10 \
+            --timeout=300 \
+            -x \
+            --junitxml=test-results-${{ matrix.os }}-${{ matrix.python-version }}.xml
+
+      - name: Run integration tests (Linux/macOS only)
+        if: runner.os != 'Windows'
+        run: |
+          uv run pytest tests/ -m "integration" \
+            --tb=short \
+            --maxfail=5 \
+            --timeout=600 \
+            -x \
+            --junitxml=integration-test-results-${{ matrix.os }}-${{ matrix.python-version }}.xml
+
+      - name: Run Windows-compatible integration tests
+        if: runner.os == 'Windows'
+        run: |
+          uv run pytest tests/ -m "integration" -k "not redis and not docker" \
+            --tb=short \
+            --maxfail=5 \
+            --timeout=600 \
+            -x \
+            --junitxml=integration-test-results-${{ matrix.os }}-${{ matrix.python-version }}.xml
+
+      - name: Test CLI functionality
+        run: |
+          uv run pynomaly --help
+          uv run pynomaly --version
+
+      - name: Test package installation
+        run: |
+          uv pip install --no-deps .
+          uv run python -c "import pynomaly; print('Package installation successful')"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.label || 'default' }}
+          path: |
+            test-results-*.xml
+            integration-test-results-*.xml
+
+  # Build distribution packages
+  build-distribution:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build-matrix
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install build dependencies
+        run: |
+          uv pip install build hatchling hatch-vcs
+
+      - name: Build source distribution
+        run: |
+          uv run python -m build --sdist
+
+      - name: Build wheel distribution
+        run: |
+          uv run python -m build --wheel
+
+      - name: Verify distributions
+        run: |
+          ls -la dist/
+          uv run python -m pip install dist/*.whl
+          uv run python -c "import pynomaly; print(f'Installed version: {pynomaly.__version__}')"
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/*
+
+  # Container build test
+  container-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: build-matrix
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build container image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: pynomaly:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            PYTHON_VERSION=3.11
+
+      - name: Test container
+        run: |
+          docker run --rm pynomaly:test python -c "import pynomaly; print('Container test successful')"
+          docker run --rm pynomaly:test pynomaly --help
+          docker run --rm pynomaly:test pynomaly --version
+
+  # Performance comparison across platforms
+  performance-comparison:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    needs: build-matrix
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[test,ml]"
+
+      - name: Run performance benchmarks
+        run: |
+          uv run pytest tests/ -m "performance" \
+            --benchmark-only \
+            --benchmark-json=benchmark-${{ matrix.os }}.json \
+            --tb=short
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-${{ matrix.os }}
+          path: benchmark-${{ matrix.os }}.json
+
+  # Cross-platform compatibility summary
+  compatibility-summary:
+    runs-on: ubuntu-latest
+    needs: [build-matrix, build-distribution, container-build, performance-comparison]
+    if: always()
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Generate compatibility report
+        run: |
+          echo "# Cross-Platform Compatibility Report" > compatibility-report.md
+          echo "" >> compatibility-report.md
+          echo "## Build Matrix Results" >> compatibility-report.md
+          echo "" >> compatibility-report.md
+          
+          # Check build matrix results
+          if [[ "${{ needs.build-matrix.result }}" == "success" ]]; then
+            echo "✅ Build matrix completed successfully" >> compatibility-report.md
+          else
+            echo "❌ Build matrix failed" >> compatibility-report.md
+          fi
+          
+          echo "" >> compatibility-report.md
+          echo "## Distribution Build" >> compatibility-report.md
+          if [[ "${{ needs.build-distribution.result }}" == "success" ]]; then
+            echo "✅ Distribution packages built successfully" >> compatibility-report.md
+          else
+            echo "❌ Distribution build failed" >> compatibility-report.md
+          fi
+          
+          echo "" >> compatibility-report.md
+          echo "## Container Build" >> compatibility-report.md
+          if [[ "${{ needs.container-build.result }}" == "success" ]]; then
+            echo "✅ Container build completed successfully" >> compatibility-report.md
+          else
+            echo "❌ Container build failed" >> compatibility-report.md
+          fi
+          
+          echo "" >> compatibility-report.md
+          echo "## Performance Comparison" >> compatibility-report.md
+          if [[ "${{ needs.performance-comparison.result }}" == "success" ]]; then
+            echo "✅ Performance benchmarks completed" >> compatibility-report.md
+          elif [[ "${{ needs.performance-comparison.result }}" == "skipped" ]]; then
+            echo "⏭️ Performance benchmarks skipped" >> compatibility-report.md
+          else
+            echo "❌ Performance benchmarks failed" >> compatibility-report.md
+          fi
+          
+          echo "" >> compatibility-report.md
+          echo "## Test Results Summary" >> compatibility-report.md
+          echo "" >> compatibility-report.md
+          
+          # List all test result files
+          find . -name "test-results-*.xml" -o -name "integration-test-results-*.xml" | while read file; do
+            echo "- $file" >> compatibility-report.md
+          done
+
+      - name: Upload compatibility report
+        uses: actions/upload-artifact@v4
+        with:
+          name: compatibility-report
+          path: compatibility-report.md
+
+  # Final status check
+  build-status:
+    runs-on: ubuntu-latest
+    needs: [build-matrix, build-distribution, container-build]
+    if: always()
+    
+    steps:
+      - name: Check build status
+        run: |
+          echo "Build Matrix: ${{ needs.build-matrix.result }}"
+          echo "Distribution Build: ${{ needs.build-distribution.result }}"
+          echo "Container Build: ${{ needs.container-build.result }}"
+          
+          # Check if all required jobs passed
+          if [[ "${{ needs.build-matrix.result }}" == "success" && \
+                "${{ needs.build-distribution.result }}" == "success" && \
+                "${{ needs.container-build.result }}" == "success" ]]; then
+            echo "✅ All build matrix checks passed"
+            exit 0
+          else
+            echo "❌ Some build matrix checks failed"
+            exit 1
+          fi

@@ -6,10 +6,11 @@ including primary metric ranking, Pareto front filtering,
 and statistical significance.
 """
 
-from unittest.mock import Mock, patch
-import pytest
-import numpy as np
 from typing import Dict
+from unittest.mock import Mock, patch
+
+import numpy as np
+import pytest
 
 from src.pynomaly.domain.entities.model_performance import ModelPerformanceMetrics
 from src.pynomaly.domain.services.model_selector import ModelSelector

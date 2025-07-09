@@ -13,15 +13,21 @@ import json
 import logging
 import time
 from datetime import datetime, timedelta
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Mock streaming components (in production, these would import from the real modules)
-from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import StreamingMetrics
-from pynomaly.infrastructure.streaming.websocket_gateway import WebSocketGateway, RealTimeMetrics
+from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import (
+    StreamingMetrics,
+)
+from pynomaly.infrastructure.streaming.websocket_gateway import (
+    RealTimeMetrics,
+    WebSocketGateway,
+)
+
 
 # Mock metrics publisher
 class MetricsPublisher:

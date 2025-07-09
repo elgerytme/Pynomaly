@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
+
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.exceptions import AdapterError, InvalidAlgorithmError
 from pynomaly.domain.value_objects import ContaminationRate

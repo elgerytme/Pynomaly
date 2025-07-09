@@ -9,6 +9,8 @@ from uuid import uuid4
 
 import numpy as np
 import pytest
+from sqlalchemy import text
+
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import RepositoryError
 from pynomaly.domain.value_objects import (
@@ -30,7 +32,6 @@ from pynomaly.infrastructure.persistence.database_repositories import (
     DatabaseDetectionResultRepository,
     DatabaseDetectorRepository,
 )
-from sqlalchemy import text
 
 
 class TestDatabaseConnection:

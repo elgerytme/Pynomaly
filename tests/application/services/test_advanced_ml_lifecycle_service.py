@@ -9,6 +9,8 @@ from uuid import UUID, uuid4
 
 import numpy as np
 import pytest
+from sklearn.ensemble import IsolationForest
+
 from pynomaly.application.services.advanced_ml_lifecycle_service import (
     AdvancedMLLifecycleService,
 )
@@ -24,7 +26,6 @@ from pynomaly.domain.value_objects import (
     PerformanceMetrics,
     SemanticVersion,
 )
-from sklearn.ensemble import IsolationForest
 
 
 @pytest.fixture

@@ -1,13 +1,14 @@
 """Tests for MongoDB adapter implementation."""
 
-import pytest
 import asyncio
 from datetime import datetime
 from uuid import uuid4
 
-from pynomaly.infrastructure.persistence.mongodb_adapter import MongoDBAdapter
+import pytest
+
+from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.infrastructure.config.database_config import DatabaseConfig, DatabaseType
-from pynomaly.domain.entities import Dataset, Detector, DetectionResult
+from pynomaly.infrastructure.persistence.mongodb_adapter import MongoDBAdapter
 
 
 class TestMongoDBAdapter:

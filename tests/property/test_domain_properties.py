@@ -6,6 +6,7 @@ import numpy as np
 from hypothesis import given, settings
 from hypothesis import strategies as st
 from hypothesis.extra import numpy as stnp
+
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
 from pynomaly.domain.services import (
     AnomalyScorer,

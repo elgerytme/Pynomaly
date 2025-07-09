@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, Mock
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.application.use_cases.ensemble_detection_use_case import (
     DetectorPerformanceMetrics,
     EnsembleDetectionRequest,

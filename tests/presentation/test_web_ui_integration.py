@@ -5,6 +5,7 @@ Tests for main HTML page and static asset accessibility.
 
 import pytest
 from fastapi.testclient import TestClient
+
 from pynomaly.infrastructure.config import create_container
 from pynomaly.presentation.web.app import create_web_app
 

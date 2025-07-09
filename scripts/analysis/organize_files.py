@@ -13,10 +13,15 @@ try:
         categorize_stray_directory,
         categorize_stray_file,
         get_recommended_location,
+        load_config,
     )
 except ImportError:
     # Fallback implementations if import fails
-    def categorize_stray_file(file_path):
+    def load_config(config_path=None):
+        """Fallback config loader."""
+        return None
+    
+    def categorize_stray_file(file_path, config=None):
         """Fallback categorization function."""
         name = file_path.name.lower()
         if any(x in name for x in ["test_", "testing", "_test"]):
@@ -33,7 +38,7 @@ except ImportError:
             return "temporary"
         return "miscellaneous"
 
-    def categorize_stray_directory(dir_path):
+    def categorize_stray_directory(dir_path, config=None):
         """Fallback directory categorization."""
         name = dir_path.name.lower()
         if any(x in name for x in ["test_", "testing", "_test"]):
@@ -50,6 +55,7 @@ except ImportError:
             "reports": "reports/",
             "temporary": "DELETE",
             "version_artifacts": "DELETE",
+            "artifacts_for_deletion": "DELETE",
             "miscellaneous": "REVIEW",
         }
         return location_map.get(category, "REVIEW")
@@ -58,11 +64,12 @@ except ImportError:
 class FileOrganizer:
     """Automated file organization system."""
 
-    def __init__(self, project_root: Path = None, dry_run: bool = True):
+    def __init__(self, project_root: Path = None, dry_run: bool = True, config_path: str = None):
         self.project_root = project_root or Path.cwd()
         self.dry_run = dry_run
         self.operations = []
         self.errors = []
+        self.config = load_config(config_path)
 
     def analyze_repository(self) -> dict:
         """Analyze the current repository structure."""
@@ -88,7 +95,7 @@ class FileOrganizer:
 
             if item.is_file():
                 if not self._is_allowed_root_file(item.name):
-                    category = categorize_stray_file(item)
+                    category = categorize_stray_file(item, self.config)
                     target = get_recommended_location(item.name, category)
 
                     stray_info = {
@@ -102,7 +109,7 @@ class FileOrganizer:
 
             elif item.is_dir():
                 if not self._is_allowed_root_directory(item.name):
-                    category = categorize_stray_directory(item)
+                    category = categorize_stray_directory(item, self.config)
                     target = get_recommended_location(item.name, category)
 
                     stray_info = {
@@ -201,7 +208,13 @@ class FileOrganizer:
             ".gitignore",
             ".gitattributes",
             ".pre-commit-config.yaml",
+            ".pyno-org.yaml",
         }
+        
+        # Update with configuration if available
+        if self.config and 'allowed_root_files' in self.config:
+            allowed_files.update(self.config['allowed_root_files'])
+        
         return filename in allowed_files
 
     def _is_allowed_root_directory(self, dirname: str) -> bool:
@@ -219,10 +232,18 @@ class FileOrganizer:
             "templates",
             "analytics",
             "screenshots",
+            "environments",
+            "baseline_outputs",
+            "test_reports",
             ".github",
             ".git",
             "node_modules",
         }
+        
+        # Update with configuration if available
+        if self.config and 'allowed_root_directories' in self.config:
+            allowed_dirs.update(self.config['allowed_root_directories'])
+        
         return dirname in allowed_dirs
 
     def _plan_file_operation(self, file_info: dict) -> dict | None:

@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock
 
 import numpy as np
 import pytest
+
 from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import (
     AlertSeverity,
     DataPoint,

@@ -4,13 +4,13 @@ Generate a 10 GB synthetic dataset for testing purposes.
 This script creates a large dataset with various data types and patterns.
 """
 
-import os
 import csv
+import json
+import os
 import random
 import string
-import json
-from datetime import datetime, timedelta
 import sys
+from datetime import datetime, timedelta
 
 
 def generate_random_string(length=10):

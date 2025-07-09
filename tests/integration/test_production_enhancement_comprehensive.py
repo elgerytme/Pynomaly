@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+
 from pynomaly.infrastructure.caching.advanced_cache_service import (
     AdvancedCacheService,
     CompressionAlgorithm,

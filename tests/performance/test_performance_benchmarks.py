@@ -12,6 +12,7 @@ from unittest.mock import MagicMock, Mock, patch
 import numpy as np
 import psutil
 import pytest
+
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 

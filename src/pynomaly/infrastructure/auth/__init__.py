@@ -9,6 +9,24 @@ from .jwt_auth import (
     get_auth,
     init_auth,
 )
+from .jwt_auth_enhanced import (
+    EnhancedJWTAuthService,
+    JWKSResponse,
+    UserModel as EnhancedUserModel,
+    get_auth as get_enhanced_auth,
+    init_auth as init_enhanced_auth,
+)
+from .enhanced_dependencies import (
+    get_current_user as get_current_user_enhanced,
+    get_current_active_user as get_current_active_user_enhanced,
+    require_permissions,
+    require_roles,
+    require_superuser,
+    require_permissions_or_api_key,
+    cli_require_permissions,
+    cli_require_roles,
+    cli_require_superuser,
+)
 from .middleware import (
     PermissionChecker,
     RateLimiter,

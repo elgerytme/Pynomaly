@@ -4,12 +4,13 @@ Container security scanning automation script for C-004 implementation.
 Integrates multiple security tools for comprehensive container analysis.
 """
 
-import subprocess
 import json
 import logging
+import subprocess
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
 
 class ContainerSecurityScanner:
     """Comprehensive container security scanner for C-004."""

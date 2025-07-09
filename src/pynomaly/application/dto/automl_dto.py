@@ -9,9 +9,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class AlgorithmRecommendationRequestDTO(BaseModel):
     """DTO for algorithm recommendation request."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     dataset_id: str = Field(..., description="ID of the dataset for recommendation")
     max_recommendations: int = Field(
         default=5, ge=1, le=20, description="Maximum number of recommendations"
@@ -32,9 +31,8 @@ class AlgorithmRecommendationRequestDTO(BaseModel):
 
 class DatasetProfileDTO(BaseModel):
     """DTO for dataset profiling information."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     n_samples: int = Field(..., description="Number of samples in the dataset")
     n_features: int = Field(..., description="Number of features in the dataset")
     contamination_estimate: float = Field(
@@ -67,9 +65,8 @@ class DatasetProfileDTO(BaseModel):
 
 class AlgorithmRecommendationDTO(BaseModel):
     """DTO for algorithm recommendation."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     algorithm_name: str = Field(..., description="Name of the recommended algorithm")
     score: float = Field(..., description="Suitability score for the algorithm")
     family: str = Field(..., description="Algorithm family")
@@ -84,9 +81,8 @@ class AlgorithmRecommendationDTO(BaseModel):
 
 class AutoMLRequestDTO(BaseModel):
     """DTO for AutoML optimization request."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     dataset_id: str = Field(..., description="ID of the dataset to optimize on")
     objective: str = Field(default="auc", description="Optimization objective")
     max_algorithms: int = Field(
@@ -117,9 +113,8 @@ class AutoMLRequestDTO(BaseModel):
 
 class HyperparameterSpaceDTO(BaseModel):
     """DTO for hyperparameter search space."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     parameter_name: str = Field(..., description="Name of the hyperparameter")
     parameter_type: str = Field(
         ..., description="Type of parameter (float, int, categorical)"
@@ -139,9 +134,8 @@ class HyperparameterSpaceDTO(BaseModel):
 
 class OptimizationTrialDTO(BaseModel):
     """DTO for individual optimization trial."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     trial_number: int = Field(..., description="Trial number")
     parameters: dict[str, Any] = Field(..., description="Trial parameters")
     score: float = Field(..., description="Trial score")
@@ -152,9 +146,8 @@ class OptimizationTrialDTO(BaseModel):
 
 class EnsembleConfigDTO(BaseModel):
     """DTO for ensemble configuration."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     method: str = Field(..., description="Ensemble method")
     algorithms: list[dict[str, Any]] = Field(
         ..., description="List of algorithms in ensemble"
@@ -168,9 +161,8 @@ class EnsembleConfigDTO(BaseModel):
 
 class AutoMLResultDTO(BaseModel):
     """DTO for AutoML optimization result."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     best_algorithm: str = Field(..., description="Best performing algorithm")
     best_params: dict[str, Any] = Field(..., description="Best hyperparameters")
     best_score: float = Field(..., description="Best achieved score")

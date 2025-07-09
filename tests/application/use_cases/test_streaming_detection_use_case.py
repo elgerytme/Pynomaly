@@ -11,6 +11,7 @@ from unittest.mock import AsyncMock, Mock
 
 import numpy as np
 import pytest
+
 from pynomaly.application.dto.streaming_dto import (
     BackpressureConfigDTO,
     CheckpointConfigDTO,

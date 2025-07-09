@@ -16,6 +16,9 @@ jobs:
   file-organization:
     name: Validate File Organization
     runs-on: ubuntu-latest
+    outputs:
+      violations_count: ${{ steps.validate.outputs.violations_count }}
+      validation_passed: ${{ steps.validate.outputs.validation_passed }}
 
     steps:
     - name: Checkout code
@@ -43,21 +46,23 @@ jobs:
     - name: Validate File Organization
       id: validate
       run: |
-        python scripts/validate_file_organization.py
-        echo "validation_passed=$?" >> $GITHUB_OUTPUT
-      continue-on-error: true
-
-    - name: Detect Stray Files
-      id: detect
-      run: |
-        python scripts/detect_stray_files.py
-        echo "stray_files_found=$?" >> $GITHUB_OUTPUT
+        # Use pyno-org validate for consistency with pre-commit hooks
+        if python scripts/pyno_org.py validate; then
+          echo "validation_passed=true" >> $GITHUB_OUTPUT
+          echo "violations_count=0" >> $GITHUB_OUTPUT
+        else
+          echo "validation_passed=false" >> $GITHUB_OUTPUT
+          # Count violations from output
+          violations_count=$(python scripts/pyno_org.py validate 2>&1 | grep -c "^  •" || echo "0")
+          echo "violations_count=$violations_count" >> $GITHUB_OUTPUT
+        fi
       continue-on-error: true
 
     - name: Generate Organization Plan
-      if: steps.validate.outputs.validation_passed != '0' || steps.detect.outputs.stray_files_found != '0'
+      if: steps.validate.outputs.validation_passed != 'true'
       run: |
-        python scripts/organize_files.py --output reports/organization_plan.json
+        mkdir -p reports
+        python scripts/pyno_org.py organize --dry --output reports/organization_plan.json
         echo "Organization plan generated"
 
     - name: Upload Organization Reports
@@ -73,95 +78,80 @@ jobs:
         retention-days: 30
 
     - name: Comment on PR (Organization Issues)
-      if: github.event_name == 'pull_request' && (steps.validate.outputs.validation_passed != '0' || steps.detect.outputs.stray_files_found != '0')
+      if: github.event_name == 'pull_request' && steps.validate.outputs.validation_passed != 'true'
       uses: actions/github-script@v7
       with:
         script: |
           const fs = require('fs');
+          const { execSync } = require('child_process');
 
-          // Read validation results
-          let validationReport = {};
-          let strayFilesReport = {};
-
+          // Get validation results using pyno-org
+          let validationOutput = '';
           try {
-            validationReport = JSON.parse(fs.readFileSync('reports/file_organization_validation.json', 'utf8'));
-          } catch (e) {
-            console.log('No validation report found');
+            execSync('python scripts/pyno_org.py validate', { stdio: 'pipe' });
+            validationOutput = 'Validation passed';
+          } catch (error) {
+            validationOutput = error.stdout.toString();
           }
 
-          try {
-            strayFilesReport = JSON.parse(fs.readFileSync('reports/stray_files_detection.json', 'utf8'));
-          } catch (e) {
-            console.log('No stray files report found');
+          // Extract violations and suggestions from output
+          const violations = [];
+          const suggestions = [];
+          
+          const lines = validationOutput.split('\n');
+          let inViolations = false;
+          let inSuggestions = false;
+          
+          for (const line of lines) {
+            if (line.includes('violations:')) {
+              inViolations = true;
+              inSuggestions = false;
+            } else if (line.includes('Suggested fixes:')) {
+              inViolations = false;
+              inSuggestions = true;
+            } else if (line.startsWith('  • ')) {
+              if (inViolations) {
+                violations.push(line.substring(4));
+              } else if (inSuggestions) {
+                suggestions.push(line.substring(4));
+              }
+            }
           }
 
           // Generate comment
           let comment = '## 🚨 File Organization Issues Detected\n\n';
-
-          if (!validationReport.is_valid) {
-            comment += '### ❌ Organization Validation Failed\n\n';
-            if (validationReport.violations) {
-              comment += '**Violations found:**\n';
-              validationReport.violations.forEach(violation => {
-                comment += `- ${violation}\n`;
-              });
-              comment += '\n';
+          comment += `### ❌ Organization Validation Failed (${violations.length} violations)\n\n`;
+          
+          if (violations.length > 0) {
+            comment += '**Violations found:**\n';
+            violations.slice(0, 15).forEach(violation => {
+              comment += `- ${violation}\n`;
+            });
+            if (violations.length > 15) {
+              comment += `- ... and ${violations.length - 15} more violations\n`;
             }
-
-            if (validationReport.suggestions) {
-              comment += '**Recommended actions:**\n';
-              validationReport.suggestions.slice(0, 10).forEach(suggestion => {
-                comment += `- ${suggestion}\n`;
-              });
-              if (validationReport.suggestions.length > 10) {
-                comment += `- ... and ${validationReport.suggestions.length - 10} more actions\n`;
-              }
-              comment += '\n';
-            }
+            comment += '\n';
           }
 
-          if (strayFilesReport.total_stray > 0) {
-            comment += `### ⚠️ ${strayFilesReport.total_stray} Stray Files Detected\n\n`;
-
-            if (strayFilesReport.stray_files) {
-              const byCategory = {};
-              strayFilesReport.stray_files.forEach(file => {
-                if (!byCategory[file.category]) byCategory[file.category] = [];
-                byCategory[file.category].push(file);
-              });
-
-              Object.entries(byCategory).forEach(([category, files]) => {
-                comment += `**${category}**: ${files.length} files\n`;
-                files.slice(0, 3).forEach(file => {
-                  comment += `- \`${file.file}\` → ${file.expected_location}\n`;
-                });
-                if (files.length > 3) {
-                  comment += `- ... and ${files.length - 3} more\n`;
-                }
-                comment += '\n';
-              });
+          if (suggestions.length > 0) {
+            comment += '**Recommended actions:**\n';
+            suggestions.slice(0, 10).forEach(suggestion => {
+              comment += `- ${suggestion}\n`;
+            });
+            if (suggestions.length > 10) {
+              comment += `- ... and ${suggestions.length - 10} more actions\n`;
             }
-
-            if (strayFilesReport.suggestions) {
-              comment += '**Quick fixes:**\n';
-              strayFilesReport.suggestions.slice(0, 8).forEach(suggestion => {
-                comment += `- ${suggestion}\n`;
-              });
-              if (strayFilesReport.suggestions.length > 8) {
-                comment += `- ... and ${strayFilesReport.suggestions.length - 8} more\n`;
-              }
-              comment += '\n';
-            }
+            comment += '\n';
           }
 
           comment += '### 🔧 How to Fix\n\n';
           comment += '1. **Automated organization:**\n';
           comment += '   ```bash\n';
           comment += '   # Dry run (preview changes)\n';
-          comment += '   python scripts/organize_files.py\n';
+          comment += '   python scripts/pyno_org.py organize --dry\n';
           comment += '   \n';
           comment += '   # Execute organization\n';
-          comment += '   python scripts/organize_files.py --execute\n';
+          comment += '   python scripts/pyno_org.py organize --fix\n';
           comment += '   ```\n\n';
           comment += '2. **Manual organization:** See [File Organization Standards](docs/development/FILE_ORGANIZATION_STANDARDS.md)\n\n';
           comment += '3. **Install pre-commit hooks:**\n';
@@ -181,7 +171,7 @@ jobs:
           });
 
     - name: Comment on PR (Success)
-      if: github.event_name == 'pull_request' && steps.validate.outputs.validation_passed == '0' && steps.detect.outputs.stray_files_found == '0'
+      if: github.event_name == 'pull_request' && steps.validate.outputs.validation_passed == 'true'
       uses: actions/github-script@v7
       with:
         script: |
@@ -205,8 +195,8 @@ jobs:
     - name: Set Job Status
       if: always()
       run: |
-        if [[ "${{ steps.validate.outputs.validation_passed }}" != "0" ]] || [[ "${{ steps.detect.outputs.stray_files_found }}" != "0" ]]; then
-          echo "❌ File organization validation failed"
+        if [[ "${{ steps.validate.outputs.validation_passed }}" != "true" ]]; then
+          echo "❌ File organization validation failed (${{ steps.validate.outputs.violations_count }} violations)"
           exit 1
         else
           echo "✅ File organization validation passed"

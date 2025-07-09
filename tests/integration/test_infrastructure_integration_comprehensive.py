@@ -12,6 +12,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
+
 from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 from pynomaly.infrastructure.config import create_container
 

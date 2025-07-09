@@ -15,6 +15,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 import psutil
+
 from pynomaly.application.services.autonomous_service import (
     AutonomousConfig,
     AutonomousDetectionService,

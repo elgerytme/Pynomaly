@@ -29,6 +29,7 @@ def test_router_prefix():
     """Test that the router prefix has been updated."""
     try:
         from fastapi import FastAPI
+
         from pynomaly.presentation.web.app import mount_web_ui
 
         # Create a test FastAPI app

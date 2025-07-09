@@ -1,21 +1,22 @@
 """Tests for monitoring DTOs."""
 
-import pytest
 from datetime import datetime, timedelta
 from uuid import uuid4
 
+import pytest
+
 from pynomaly.application.dto.monitoring_dto import (
+    AlertLevel,
+    AlertMessage,
+    DetectionMetrics,
     MetricDataPoint,
     MetricSeries,
     MetricType,
-    SystemMetrics,
-    DetectionMetrics,
-    AlertMessage,
-    AlertLevel,
-    SystemHealth,
     MonitoringDashboardRequest,
     MonitoringDashboardResponse,
     RealTimeUpdate,
+    SystemHealth,
+    SystemMetrics,
 )
 
 

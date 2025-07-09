@@ -57,8 +57,8 @@ class ExportFormat(str, Enum):
 
 class AlgorithmConfigurationDTO(BaseModel):
     """DTO for algorithm configuration."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     algorithm_name: str = Field(..., description="Name of the algorithm")
     algorithm_family: str = Field(..., description="Algorithm family")
@@ -101,8 +101,8 @@ class ConfigurationLevel(str, Enum):
 
 class DatasetConfigDTO(BaseModel):
     """Configuration for dataset handling."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Dataset identification
     dataset_path: str | None = Field(default=None, description="Path to dataset file")
@@ -154,8 +154,8 @@ class DatasetConfigDTO(BaseModel):
 
 class AlgorithmConfigDTO(BaseModel):
     """Configuration for anomaly detection algorithms."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Algorithm selection
     algorithm_name: str = Field(..., description="Algorithm name")
@@ -206,8 +206,8 @@ class AlgorithmConfigDTO(BaseModel):
 
 class PreprocessingConfigDTO(BaseModel):
     """Configuration for data preprocessing."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Missing value handling
     missing_value_strategy: str | None = Field(
@@ -266,8 +266,8 @@ class PreprocessingConfigDTO(BaseModel):
 
 class EvaluationConfigDTO(BaseModel):
     """Configuration for model evaluation."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Evaluation metrics
     primary_metric: str = Field(
@@ -318,8 +318,8 @@ class EvaluationConfigDTO(BaseModel):
 
 class EnvironmentConfigDTO(BaseModel):
     """Configuration for execution environment."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Python environment
     python_version: str | None = Field(default=None, description="Python version")
@@ -359,8 +359,8 @@ class EnvironmentConfigDTO(BaseModel):
 
 class ConfigurationMetadataDTO(BaseModel):
     """Metadata for configuration tracking."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Origin information
     created_by: str | None = Field(
@@ -405,8 +405,8 @@ class ConfigurationMetadataDTO(BaseModel):
 
 class PerformanceResultsDTO(BaseModel):
     """Performance results for configuration."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Primary metrics
     accuracy: float | None = Field(default=None, description="Model accuracy")
@@ -468,8 +468,8 @@ class PerformanceResultsDTO(BaseModel):
 
 class ConfigurationLineageDTO(BaseModel):
     """Configuration lineage and relationships."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Relationship tracking
     parent_configurations: list[UUID] = Field(
@@ -511,8 +511,8 @@ class ConfigurationLineageDTO(BaseModel):
 
 class ExperimentConfigurationDTO(BaseModel):
     """Complete experiment configuration."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Identification
     id: UUID = Field(default_factory=uuid4, description="Configuration ID")
@@ -593,8 +593,8 @@ EvaluationConfigurationDTO = EvaluationConfigDTO
 
 class ConfigurationCollectionDTO(BaseModel):
     """Collection of related configurations."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Collection identification
     id: UUID = Field(default_factory=uuid4, description="Collection ID")
@@ -635,8 +635,8 @@ class ConfigurationCollectionDTO(BaseModel):
 
 class ConfigurationTemplateDTO(BaseModel):
     """Template for creating configurations."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Template identification
     id: UUID = Field(default_factory=uuid4, description="Template ID")
@@ -689,8 +689,8 @@ class ConfigurationTemplateDTO(BaseModel):
 
 class ConfigurationCaptureRequestDTO(BaseModel):
     """Request to capture configuration from execution."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Source information
     source: ConfigurationSource = Field(..., description="Configuration source")
@@ -723,8 +723,8 @@ class ConfigurationCaptureRequestDTO(BaseModel):
 
 class ConfigurationExportRequestDTO(BaseModel):
     """Request to export configuration."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Configuration selection
     configuration_ids: list[UUID] = Field(
@@ -758,8 +758,8 @@ class ConfigurationExportRequestDTO(BaseModel):
 
 class ConfigurationSearchRequestDTO(BaseModel):
     """Request to search configurations."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Search criteria
     query: str | None = Field(default=None, description="Search query")
@@ -798,8 +798,8 @@ class ConfigurationSearchRequestDTO(BaseModel):
 
 class ConfigurationResponseDTO(BaseModel):
     """Response containing configuration data."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Status
     success: bool = Field(..., description="Whether operation was successful")
@@ -841,8 +841,8 @@ class ConfigurationResponseDTO(BaseModel):
 
 class ConfigurationValidationResultDTO(BaseModel):
     """Results of configuration validation."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Validation status
     is_valid: bool = Field(..., description="Whether configuration is valid")

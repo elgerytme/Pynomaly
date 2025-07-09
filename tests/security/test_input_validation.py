@@ -6,6 +6,7 @@ Comprehensive security tests for input validation and sanitization.
 from unittest.mock import patch
 
 import pytest
+
 from pynomaly.domain.exceptions import SecurityError, ValidationError
 from pynomaly.infrastructure.security.input_sanitizer import InputSanitizer
 from pynomaly.infrastructure.security.sql_protection import SQLProtection

@@ -22,15 +22,15 @@ import pandas as pd
 import pytest
 from dependency_injector import providers
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
 # Now import pynomaly modules
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.value_objects import AnomalyScore
 from pynomaly.infrastructure.auth.jwt_auth import init_auth
 from pynomaly.infrastructure.config import Container, Settings
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
 
 # Optional imports for advanced features
 try:
@@ -494,6 +494,132 @@ def cleanup_environment():
     # Clean up any global state, reset singletons, clear caches, etc.
 
 
+# Contract testing fixtures
+@pytest.fixture
+def contract_schemas():
+    """Provide contract schemas for testing."""
+    return {
+        "dataset_creation_request": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "minLength": 1},
+                "data": {
+                    "type": "array",
+                    "items": {"type": "object"},
+                    "minItems": 1
+                },
+                "description": {"type": "string"}
+            },
+            "required": ["name", "data"]
+        },
+        "dataset_creation_response": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string"},
+                "name": {"type": "string"},
+                "description": {"type": "string"},
+                "created_at": {"type": "string", "format": "date-time"}
+            },
+            "required": ["id", "name"]
+        },
+        "detector_creation_request": {
+            "type": "object",
+            "properties": {
+                "algorithm_name": {"type": "string", "minLength": 1},
+                "parameters": {"type": "object"},
+                "metadata": {"type": "object"}
+            },
+            "required": ["algorithm_name", "parameters"]
+        },
+        "detector_creation_response": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string"},
+                "algorithm_name": {"type": "string"},
+                "parameters": {"type": "object"},
+                "is_fitted": {"type": "boolean"},
+                "created_at": {"type": "string", "format": "date-time"}
+            },
+            "required": ["id", "algorithm_name", "parameters", "is_fitted"]
+        },
+        "anomaly_detection_request": {
+            "type": "object",
+            "properties": {
+                "dataset_id": {"type": "string", "minLength": 1},
+                "detector_id": {"type": "string", "minLength": 1},
+                "parameters": {"type": "object"}
+            },
+            "required": ["dataset_id", "detector_id"]
+        },
+        "anomaly_detection_response": {
+            "type": "object",
+            "properties": {
+                "scores": {"type": "array", "items": {"type": "number"}},
+                "metadata": {"type": "object"},
+                "detector_id": {"type": "string"},
+                "dataset_id": {"type": "string"}
+            },
+            "required": ["scores", "metadata"]
+        },
+        "batch_detection_request": {
+            "type": "object",
+            "properties": {
+                "dataset_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "minItems": 1
+                },
+                "detector_id": {"type": "string", "minLength": 1},
+                "parameters": {"type": "object"}
+            },
+            "required": ["dataset_ids", "detector_id"]
+        },
+        "batch_detection_response": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "scores": {"type": "array", "items": {"type": "number"}},
+                    "metadata": {"type": "object"},
+                    "dataset_id": {"type": "string"}
+                },
+                "required": ["scores", "metadata", "dataset_id"]
+            }
+        },
+        "error_response": {
+            "type": "object",
+            "properties": {
+                "error": {"type": "string"},
+                "message": {"type": "string"},
+                "code": {"type": "integer"},
+                "details": {"type": "object"}
+            },
+            "required": ["error", "message"]
+        },
+        "paginated_response": {
+            "type": "object",
+            "properties": {
+                "items": {"type": "array"},
+                "total": {"type": "integer", "minimum": 0},
+                "page": {"type": "integer", "minimum": 1},
+                "limit": {"type": "integer", "minimum": 1},
+                "has_next": {"type": "boolean"},
+                "has_previous": {"type": "boolean"}
+            },
+            "required": ["items", "total", "page", "limit", "has_next", "has_previous"]
+        },
+        "authentication_error": {
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "enum": ["unauthorized"]},
+                "message": {"type": "string"},
+                "code": {"type": "integer", "enum": [401]}
+            },
+            "required": ["error", "message", "code"]
+        }
+    }
+
+
 # Pytest configuration and custom markers
 def pytest_configure(config):
     """Configure pytest with custom markers."""
@@ -538,6 +664,16 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "data_scientist: Data scientist workflow tests")
     config.addinivalue_line("markers", "critical: Critical path tests that must pass")
     config.addinivalue_line("markers", "smoke: Quick smoke test scenarios")
+    
+    # Additional testing markers
+    config.addinivalue_line("markers", "e2e: End-to-end tests")
+    config.addinivalue_line("markers", "contract: Contract testing")
+    config.addinivalue_line("markers", "property: Property-based tests")
+    config.addinivalue_line("markers", "mutation: Mutation testing")
+    config.addinivalue_line("markers", "ui: UI automation tests")
+    config.addinivalue_line("markers", "regression: Regression tests")
+    config.addinivalue_line("markers", "stress: Stress testing")
+    config.addinivalue_line("markers", "acceptance: Acceptance tests")
 
 
 def pytest_collection_modifyitems(config, items):
@@ -555,6 +691,55 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "integration" in item.keywords:
                 item.add_marker(skip_integration)
+    
+    # Skip performance tests unless requested
+    if not config.getoption("--performance"):
+        skip_performance = pytest.mark.skip(reason="need --performance option to run")
+        for item in items:
+            if "performance" in item.keywords:
+                item.add_marker(skip_performance)
+    
+    # Skip security tests unless requested
+    if not config.getoption("--security"):
+        skip_security = pytest.mark.skip(reason="need --security option to run")
+        for item in items:
+            if "security" in item.keywords:
+                item.add_marker(skip_security)
+    
+    # Skip mutation tests unless requested
+    if not config.getoption("--mutation"):
+        skip_mutation = pytest.mark.skip(reason="need --mutation option to run")
+        for item in items:
+            if "mutation" in item.keywords:
+                item.add_marker(skip_mutation)
+    
+    # Skip contract tests unless requested
+    if not config.getoption("--contract"):
+        skip_contract = pytest.mark.skip(reason="need --contract option to run")
+        for item in items:
+            if "contract" in item.keywords:
+                item.add_marker(skip_contract)
+    
+    # Skip property-based tests unless requested
+    if not config.getoption("--property"):
+        skip_property = pytest.mark.skip(reason="need --property option to run")
+        for item in items:
+            if "property" in item.keywords:
+                item.add_marker(skip_property)
+    
+    # Skip UI tests unless requested
+    if not config.getoption("--ui"):
+        skip_ui = pytest.mark.skip(reason="need --ui option to run")
+        for item in items:
+            if "ui" in item.keywords:
+                item.add_marker(skip_ui)
+    
+    # Skip e2e tests unless requested
+    if not config.getoption("--e2e"):
+        skip_e2e = pytest.mark.skip(reason="need --e2e option to run")
+        for item in items:
+            if "e2e" in item.keywords:
+                item.add_marker(skip_e2e)
 
 
 def pytest_addoption(parser):
@@ -573,4 +758,19 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         "--benchmark", action="store_true", default=False, help="run benchmark tests"
+    )
+    parser.addoption(
+        "--mutation", action="store_true", default=False, help="run mutation tests"
+    )
+    parser.addoption(
+        "--contract", action="store_true", default=False, help="run contract tests"
+    )
+    parser.addoption(
+        "--property", action="store_true", default=False, help="run property-based tests"
+    )
+    parser.addoption(
+        "--ui", action="store_true", default=False, help="run UI tests"
+    )
+    parser.addoption(
+        "--e2e", action="store_true", default=False, help="run end-to-end tests"
     )

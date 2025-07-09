@@ -12,6 +12,9 @@ from rich.table import Table
 from pynomaly.presentation.cli import (
     automl,
     autonomous,
+)
+from pynomaly.presentation.cli import config as config_cli
+from pynomaly.presentation.cli import (
     datasets,
     deep_learning,
     detection,
@@ -21,8 +24,8 @@ from pynomaly.presentation.cli import (
     selection,
     server,
     tdd,
+    validation,
 )
-from pynomaly.presentation.cli import config as config_cli
 from pynomaly.presentation.cli.export import export_app
 from pynomaly.presentation.cli.performance import performance_app
 
@@ -93,6 +96,9 @@ app.add_typer(
 app.add_typer(server.app, name="server", help="Manage API server")
 app.add_typer(
     performance_app, name="perf", help="Performance monitoring and optimization"
+)
+app.add_typer(
+    validation.app, name="validate", help="🔍 Enhanced validation with rich output and GitHub integration"
 )
 
 # Configuration recommendation commands

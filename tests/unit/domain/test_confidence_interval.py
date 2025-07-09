@@ -16,7 +16,7 @@ from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
 
 @given(st.floats(min_value=0.0, max_value=1.0), st.floats(min_value=0.0, max_value=1.0))
 def test_confidence_interval_random(lower, upper):
-    assume(lower c= upper)
+    assume(lower <= upper)
     ci = ConfidenceInterval(lower=lower, upper=upper, confidence_level=0.95)
     assert ci.is_valid()
 
