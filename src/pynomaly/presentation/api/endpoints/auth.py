@@ -1,6 +1,6 @@
 """Authentication endpoints for API."""
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -14,6 +14,7 @@ from pynomaly.infrastructure.auth import (
     UserModel,
     get_auth,
 )
+from pynomaly.infrastructure.auth.middleware import get_current_user
 from pynomaly.infrastructure.security.rbac_middleware import require_auth
 
 router = APIRouter()
@@ -211,7 +212,7 @@ async def get_current_user_profile(
 )
 async def create_api_key(
     request: APIKeyRequest,
-    current_user: Annotated[Any | None, Depends(get_current_user_model)],
+    current_user: Annotated[UserModel | None, Depends(get_current_user)],
     auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
 ) -> APIKeyResponse:
     """Create a new API key for the current user.
