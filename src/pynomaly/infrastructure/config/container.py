@@ -523,7 +523,7 @@ class Container(containers.DeclarativeContainer):
             cls.redis_cache = service_manager.create_provider(
                 "redis_cache",
                 "singleton",
-                redis_url=cls.config.provided.redis_url,
+                redis_url=providers.Callable(lambda: cls.config().get_redis_url()),
                 default_ttl=cls.config.provided.cache_ttl,
             )
 

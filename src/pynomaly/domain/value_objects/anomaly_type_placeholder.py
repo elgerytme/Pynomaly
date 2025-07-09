@@ -20,4 +20,3 @@ class SeverityScore:
 
 class SeverityLevel:
     """Placeholder for SeverityLevel."""
-

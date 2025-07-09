@@ -40,7 +40,7 @@ def test_scheduler_components():
     # Compute trigger
     next_execution = TriggerManager.compute_next_execution(cron_expression="* * * * *")
     assert isinstance(next_execution, datetime)
-    
+
     print("All scheduler components imported and tested successfully.")
 
 if __name__ == "__main__":

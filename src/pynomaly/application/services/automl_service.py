@@ -22,17 +22,40 @@ from pynomaly.domain.exceptions import AutoMLError
 # Optional optimization libraries
 try:
     import optuna
-
+    from optuna.samplers import TPESampler, CmaEsSampler
+    from optuna.pruners import MedianPruner
     OPTUNA_AVAILABLE = True
 except ImportError:
+    optuna = None
+    TPESampler = None
+    CmaEsSampler = None
+    MedianPruner = None
     OPTUNA_AVAILABLE = False
 
 try:
-    from sklearn.metrics import roc_auc_score
-
+    from sklearn.metrics import roc_auc_score, precision_score, recall_score, f1_score
+    from sklearn.model_selection import cross_val_score, StratifiedKFold
     SKLEARN_AVAILABLE = True
 except ImportError:
+    roc_auc_score = None
+    precision_score = None
+    recall_score = None
+    f1_score = None
+    cross_val_score = None
+    StratifiedKFold = None
     SKLEARN_AVAILABLE = False
+
+try:
+    import hyperopt
+    from hyperopt import hp, fmin, tpe, Trials
+    HYPEROPT_AVAILABLE = True
+except ImportError:
+    hyperopt = None
+    hp = None
+    fmin = None
+    tpe = None
+    Trials = None
+    HYPEROPT_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -177,6 +200,9 @@ class AutoMLService:
             logger.warning(
                 "Scikit-learn not available. Limited evaluation capabilities."
             )
+            
+        if not HYPEROPT_AVAILABLE:
+            logger.info("Hyperopt not available. Using only Optuna for optimization.")
 
     def _initialize_algorithm_configs(self) -> dict[str, AlgorithmConfig]:
         """Initialize algorithm configurations."""
@@ -198,6 +224,67 @@ class AutoMLService:
         configs["COPOD"] = AlgorithmConfig(
             name="COPOD",
             family=AlgorithmFamily.STATISTICAL,
+            adapter_type="pyod",
+            default_params={"contamination": 0.1},
+            param_space={"contamination": {"type": "float", "low": 0.01, "high": 0.5}},
+            complexity_score=0.25,
+            training_time_factor=0.4,
+            memory_factor=0.3,
+            recommended_max_samples=100000,
+        )
+        
+        # Distance-based algorithms
+        configs["LOF"] = AlgorithmConfig(
+            name="LOF",
+            family=AlgorithmFamily.DISTANCE_BASED,
+            adapter_type="sklearn",
+            default_params={"n_neighbors": 20, "contamination": 0.1},
+            param_space={
+                "n_neighbors": {"type": "int", "low": 5, "high": 50},
+                "contamination": {"type": "float", "low": 0.01, "high": 0.5}
+            },
+            complexity_score=0.7,
+            training_time_factor=0.8,
+            memory_factor=0.9,
+            recommended_max_samples=10000,
+        )
+        
+        # Isolation-based algorithms
+        configs["IsolationForest"] = AlgorithmConfig(
+            name="IsolationForest",
+            family=AlgorithmFamily.ISOLATION_BASED,
+            adapter_type="sklearn",
+            default_params={"n_estimators": 100, "contamination": 0.1},
+            param_space={
+                "n_estimators": {"type": "int", "low": 50, "high": 500},
+                "max_samples": {"type": "categorical", "choices": ["auto", 256, 512, 1024]},
+                "contamination": {"type": "float", "low": 0.01, "high": 0.5}
+            },
+            complexity_score=0.4,
+            training_time_factor=0.3,
+            memory_factor=0.4,
+            recommended_max_samples=1000000,
+            supports_streaming=True,
+        )
+        
+        # SVM-based algorithms
+        configs["OneClassSVM"] = AlgorithmConfig(
+            name="OneClassSVM",
+            family=AlgorithmFamily.DISTANCE_BASED,
+            adapter_type="sklearn",
+            default_params={"gamma": "scale", "nu": 0.1},
+            param_space={
+                "gamma": {"type": "categorical", "choices": ["scale", "auto"]},
+                "nu": {"type": "float", "low": 0.01, "high": 0.5},
+                "kernel": {"type": "categorical", "choices": ["rbf", "linear", "poly", "sigmoid"]}
+            },
+            complexity_score=0.8,
+            training_time_factor=0.9,
+            memory_factor=0.8,
+            recommended_max_samples=5000,
+        )
+        
+        return configs
             adapter_type="pyod",
             default_params={"contamination": 0.1},
             param_space={"contamination": {"type": "float", "low": 0.01, "high": 0.5}},

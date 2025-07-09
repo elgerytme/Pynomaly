@@ -17,6 +17,14 @@ from .excel_loader import ExcelLoader
 from .json_loader import JSONLoader
 from .parquet_loader import ParquetLoader
 
+# Optional imports with graceful fallbacks
+try:
+    from .dvc_loader import DVCLoader
+    DVC_AVAILABLE = True
+except ImportError:
+    DVCLoader = None  # type: ignore
+    DVC_AVAILABLE = False
+
 
 class DataLoaderFactory:
     """Factory for creating appropriate data loaders based on source type."""
@@ -39,6 +47,10 @@ class DataLoaderFactory:
             "xls": ExcelLoader,
         }
 
+        # Add DVC loader if available
+        if DVC_AVAILABLE and DVCLoader:
+            self._loaders["dvc"] = DVCLoader
+
         # Default configurations for loaders
         self._default_configs: dict[str, dict[str, Any]] = {
             "csv": {"delimiter": ",", "encoding": "utf-8"},
@@ -47,6 +59,7 @@ class DataLoaderFactory:
             "parquet": {"engine": "pyarrow"},
             "json": {"orient": "records"},
             "excel": {"engine": "openpyxl"},
+            "dvc": {"auto_stage": True},
         }
 
     def create_loader(
@@ -204,35 +217,55 @@ class DataLoaderFactory:
         """
         source_path = Path(source)
 
-        # Check if it's a URL
-        if isinstance(source, str) and ("://" in source):
-            parsed = urlparse(source)
-            # Try to extract extension from URL path
-            url_path = Path(parsed.path)
-            if url_path.suffix:
+        # Check if this is a DVC-tracked file
+        if DVC_AVAILABLE and self._is_dvc_tracked(source_path):
+            return "dvc"
+
+        # Get file extension for standard detection
+        extension = source_path.suffix.lower().lstrip(".")
+
+        # Handle URLs and database connections
+        if isinstance(source, str):
+            parsed_url = urlparse(source)
+            if parsed_url.scheme in ["http", "https", "ftp"]:
+                # Extract extension from URL path
+                url_path = Path(parsed_url.path)
                 extension = url_path.suffix.lower().lstrip(".")
-            else:
-                raise DataValidationError(
-                    f"Cannot detect file type from URL: {source}",
-                    hint="Specify loader_type explicitly",
-                )
-        else:
-            # Local file - use extension
-            extension = source_path.suffix.lower().lstrip(".")
+            elif parsed_url.scheme in ["postgresql", "mysql", "sqlite"]:
+                return "database"
 
-        if not extension:
-            raise DataValidationError(
-                f"Cannot detect file type: no extension found in {source}",
-                hint="Specify loader_type explicitly",
-            )
+        # Map extension to loader type
+        if extension in self._loaders:
+            return extension
 
-        if extension not in self._loaders:
-            raise DataValidationError(
-                f"Unsupported file extension: .{extension}",
-                supported_formats=list(self._loaders.keys()),
-            )
+        # Default fallbacks
+        if extension in ["dat", "data"]:
+            return "csv"  # Assume CSV for generic data files
 
-        return extension
+        raise DataValidationError(
+            f"Cannot determine loader type for: {source}",
+            supported_formats=self.get_supported_formats(),
+        )
+
+    def _is_dvc_tracked(self, file_path: Path) -> bool:
+        """Check if a file is tracked by DVC.
+
+        Args:
+            file_path: Path to check
+
+        Returns:
+            True if file has corresponding .dvc file
+        """
+        # Check for .dvc file
+        dvc_file = file_path.with_suffix(file_path.suffix + ".dvc")
+        if dvc_file.exists():
+            return True
+
+        # Check if the path itself is a .dvc file
+        if file_path.suffix == ".dvc":
+            return True
+
+        return False
 
 
 class SmartDataLoader:

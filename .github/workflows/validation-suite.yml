@@ -1,11 +1,13 @@
-name: Validation Suite
+name: Nightly Full Test Suite Validation
 
 on:
+  schedule:
+    - cron: '0 3 * * *' # Every day at 3 AM UTC
+  workflow_dispatch: # Allow manual runs
   push:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -30,7 +32,7 @@ jobs:
     outputs:
       quality-status: ${{ steps.quality-summary.outputs.status }}
       quality-report: ${{ steps.quality-summary.outputs.report }}
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -85,7 +87,7 @@ jobs:
         STYLE_STATUS="${{ steps.style-check.outcome }}"
         TYPE_STATUS="${{ steps.type-check.outcome }}"
         FORMAT_STATUS="${{ steps.format-check.outcome }}"
-        
+
         if [[ "$STYLE_STATUS" == "success" && "$TYPE_STATUS" == "success" && "$FORMAT_STATUS" == "success" ]]; then
           echo "status=success" >> $GITHUB_OUTPUT
           echo "report=✅ All quality checks passed" >> $GITHUB_OUTPUT
@@ -140,7 +142,7 @@ jobs:
       run: |
         BUILD_STATUS="${{ steps.build-package.outcome }}"
         INSTALL_STATUS="${{ steps.test-install.outcome }}"
-        
+
         if [[ "$BUILD_STATUS" == "success" && "$INSTALL_STATUS" == "success" ]]; then
           echo "status=success" >> $GITHUB_OUTPUT
           echo "report=✅ Build and installation successful" >> $GITHUB_OUTPUT
@@ -220,7 +222,7 @@ jobs:
       id: coverage-check
       run: |
         echo "::group::Coverage Analysis"
-        
+
         # Extract coverage information
         if [ -f coverage.xml ]; then
           # Parse overall coverage
@@ -231,9 +233,9 @@ jobs:
           line_rate = float(root.get('line-rate', 0))
           print(f'{line_rate * 100:.1f}')
           ")
-          
+
           echo "Overall coverage: ${OVERALL_COVERAGE}%"
-          
+
           # Check if meets threshold
           if (( $(echo "$OVERALL_COVERAGE >= ${{ env.COVERAGE_THRESHOLD }}" | bc -l) )); then
             echo "status=success" >> $GITHUB_OUTPUT
@@ -254,7 +256,7 @@ jobs:
       run: |
         TEST_STATUS="${{ matrix.test-type == 'unit' && steps.unit-tests.outcome || steps.integration-tests.outcome }}"
         COVERAGE_STATUS="${{ steps.coverage-check.outcome }}"
-        
+
         if [[ "$TEST_STATUS" == "success" && "$COVERAGE_STATUS" == "success" ]]; then
           echo "status=success" >> $GITHUB_OUTPUT
           echo "report=✅ ${{ matrix.test-type }} tests passed with adequate coverage" >> $GITHUB_OUTPUT
@@ -321,7 +323,7 @@ jobs:
       run: |
         BANDIT_STATUS="${{ steps.bandit-scan.outcome }}"
         SAFETY_STATUS="${{ steps.safety-check.outcome }}"
-        
+
         if [[ "$BANDIT_STATUS" == "success" && "$SAFETY_STATUS" == "success" ]]; then
           echo "status=success" >> $GITHUB_OUTPUT
           echo "report=✅ Security scans passed" >> $GITHUB_OUTPUT
@@ -389,7 +391,7 @@ jobs:
       run: |
         BUILD_STATUS="${{ steps.build-docs.outcome }}"
         LINK_STATUS="${{ steps.link-check.outcome }}"
-        
+
         if [[ "$BUILD_STATUS" == "success" ]]; then
           echo "status=success" >> $GITHUB_OUTPUT
           echo "report=✅ Documentation builds successfully" >> $GITHUB_OUTPUT
@@ -418,16 +420,16 @@ jobs:
       id: generate-summary
       run: |
         echo "::group::Generating Validation Summary"
-        
+
         # Collect all job statuses
         QUALITY_STATUS="${{ needs.quality-checks.outputs.quality-status }}"
         BUILD_STATUS="${{ needs.build-validation.outputs.build-status }}"
         SECURITY_STATUS="${{ needs.security-validation.outputs.security-status }}"
         DOCS_STATUS="${{ needs.documentation-validation.outputs.docs-status }}"
-        
+
         # Check test results (matrix job)
         TEST_RESULTS="${{ needs.test-validation.result }}"
-        
+
         # Determine overall status
         if [[ "$QUALITY_STATUS" == "success" && "$BUILD_STATUS" == "success" && "$TEST_RESULTS" == "success" && "$SECURITY_STATUS" == "success" && "$DOCS_STATUS" == "success" ]]; then
           OVERALL_STATUS="✅ PASSED"
@@ -436,19 +438,19 @@ jobs:
           OVERALL_STATUS="❌ FAILED"
           MERGE_READY="false"
         fi
-        
+
         # Create summary report
         cat > validation-summary.md << 'EOF'
         # 🔍 Validation Suite Results
-        
+
         **Overall Status: $OVERALL_STATUS**
-        
+
         **Commit:** ${{ github.sha }}
         **Branch:** ${{ github.ref_name }}
         **Run Date:** $(date)
-        
+
         ## 📊 Detailed Results
-        
+
         | Component | Status | Details |
         |-----------|--------|---------|
         | Quality Checks | ${{ needs.quality-checks.outputs.quality-status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ needs.quality-checks.outputs.quality-report }} |
@@ -456,21 +458,21 @@ jobs:
         | Test Suite | ${{ needs.test-validation.result == 'success' && '✅ Passed' || '❌ Failed' }} | Unit & Integration tests with coverage |
         | Security Scan | ${{ needs.security-validation.outputs.security-status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ needs.security-validation.outputs.security-report }} |
         | Documentation | ${{ needs.documentation-validation.outputs.docs-status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ needs.documentation-validation.outputs.docs-report }} |
-        
+
         ## 🎯 Coverage Requirements
-        
+
         - **Overall Project**: ≥95% (Required for merge)
         - **Domain Layer**: ≥98%
         - **Application Layer**: ≥95%
         - **Infrastructure Layer**: ≥90%
         - **Presentation Layer**: ≥85%
-        
+
         ## 🚀 Merge Status
-        
+
         **Ready for merge:** $MERGE_READY
-        
+
         EOF
-        
+
         if [[ "$MERGE_READY" == "true" ]]; then
           cat >> validation-summary.md << 'EOF'
         ✅ **All validation checks passed!** This PR meets all quality gates:
@@ -479,13 +481,13 @@ jobs:
         - No security vulnerabilities
         - Clean code quality
         - Documentation builds successfully
-        
+
         The PR is ready to be merged to the main branch.
         EOF
         else
           cat >> validation-summary.md << 'EOF'
         ❌ **Some validation checks failed.** Please address the issues above before merging.
-        
+
         **Required for merge:**
         - All tests must pass (100% pass rate)
         - Code coverage must be ≥95%
@@ -494,7 +496,7 @@ jobs:
         - Documentation must build successfully
         EOF
         fi
-        
+
         echo "merge-ready=$MERGE_READY" >> $GITHUB_OUTPUT
         echo "::endgroup::"
 
@@ -504,10 +506,10 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          
+
           // Read the validation summary
           const summary = fs.readFileSync('validation-summary.md', 'utf8');
-          
+
           // Post the comment
           github.rest.issues.createComment({
             issue_number: context.issue.number,
