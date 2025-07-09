@@ -1,6 +1,8 @@
 [
   "api/test_api_versioning.py::test_api_versioning",
   "test_auth_flows.py::test_pydantic_forward_reference_fix",
+  "test_onnx_integration.py::test_onnx_export_functionality",
+  "test_onnx_integration.py::test_onnx_model_persistence_integration",
   "test_performance_optimization.py::TestPerformanceOptimization::test_anomaly_detection_optimization",
   "test_performance_optimization.py::TestPerformanceOptimization::test_batch_processing_optimization",
   "test_performance_optimization.py::TestPerformanceOptimization::test_cache_optimization",
@@ -22,5 +24,11 @@
   "test_pytorch_adapter.py::TestPyTorchAdapter::test_pytorch_adapter_creation",
   "test_pytorch_adapter.py::TestPyTorchAdapter::test_save_load_functionality",
   "test_pytorch_adapter.py::TestPyTorchAdapter::test_vae_algorithm",
-  "test_pytorch_adapter.py::TestPyTorchAdapterWithoutPyTorch::test_factory_without_pytorch"
+  "test_pytorch_adapter.py::TestPyTorchAdapterWithoutPyTorch::test_factory_without_pytorch",
+  "test_pytorch_integration.py::TestPyTorchIntegration::test_all_algorithms_basic_functionality",
+  "test_pytorch_integration.py::TestPyTorchIntegration::test_complete_anomaly_detection_workflow",
+  "test_pytorch_integration.py::TestPyTorchIntegration::test_error_handling",
+  "test_pytorch_integration.py::TestPyTorchIntegration::test_gpu_detection",
+  "test_pytorch_integration.py::TestPyTorchIntegration::test_parameter_validation_and_info",
+  "test_pytorch_integration.py::test_pytorch_unavailable_error"
 ]

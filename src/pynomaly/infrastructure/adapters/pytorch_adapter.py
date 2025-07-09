@@ -10,20 +10,120 @@ import logging
 from typing import Any
 
 import numpy as np
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
+
+try:
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+    import torch.optim as optim
+    from torch.utils.data import DataLoader, TensorDataset
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    # Create dummy classes to avoid import errors
+    class F:
+        @staticmethod
+        def mse_loss(*args, **kwargs):
+            return 0
+        @staticmethod
+        def cosine_similarity(*args, **kwargs):
+            return 0
+    
+    class nn:
+        class Module:
+            def __init__(self):
+                pass
+            def to(self, device):
+                return self
+            def train(self):
+                pass
+            def eval(self):
+                pass
+            def parameters(self):
+                return []
+        
+        @staticmethod
+        def Linear(*args, **kwargs):
+            return nn.Module()
+        @staticmethod
+        def ReLU(*args, **kwargs):
+            return nn.Module()
+        @staticmethod
+        def Tanh(*args, **kwargs):
+            return nn.Module()
+        @staticmethod
+        def BatchNorm1d(*args, **kwargs):
+            return nn.Module()
+        @staticmethod
+        def Dropout(*args, **kwargs):
+            return nn.Module()
+        @staticmethod
+        def Softmax(*args, **kwargs):
+            return nn.Module()
+        @staticmethod
+        def Sequential(*args, **kwargs):
+            return nn.Module()
+        
+        class functional:
+            @staticmethod
+            def mse_loss(*args, **kwargs):
+                return 0
+            @staticmethod
+            def cosine_similarity(*args, **kwargs):
+                return 0
+    
+    class torch:
+        @staticmethod
+        def device(device_str):
+            return "cpu"
+        @staticmethod
+        def cuda():
+            class CUDA:
+                @staticmethod
+                def is_available():
+                    return False
+            return CUDA()
+        @staticmethod
+        def FloatTensor(*args):
+            return None
+        @staticmethod
+        def zeros(*args):
+            return None
+        @staticmethod
+        def eye(*args):
+            return None
+        @staticmethod
+        def randn_like(*args):
+            return None
+        @staticmethod
+        def exp(*args):
+            return None
+        @staticmethod
+        def sum(*args, **kwargs):
+            return None
+        @staticmethod
+        def mean(*args, **kwargs):
+            return None
+        @staticmethod
+        def inverse(*args):
+            return None
+        @staticmethod
+        def logdet(*args):
+            return None
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 
 
-class BaseAnomalyModel(nn.Module):
+if TORCH_AVAILABLE:
+    BaseAnomalyModelBase = nn.Module
+else:
+    BaseAnomalyModelBase = object
+
+class BaseAnomalyModel(BaseAnomalyModelBase):
     """Base class for PyTorch anomaly detection models."""
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -83,7 +183,7 @@ class AutoEncoder(BaseAnomalyModel):
     def loss_function(
         self, x: torch.Tensor, recon: torch.Tensor, **kwargs
     ) -> torch.Tensor:
-        return nn.functional.mse_loss(recon, x, reduction="mean")
+        return F.mse_loss(recon, x, reduction="mean")
 
     def anomaly_score(self, x: torch.Tensor) -> torch.Tensor:
         with torch.no_grad():
@@ -148,7 +248,7 @@ class VariationalAutoEncoder(BaseAnomalyModel):
         beta: float = 1.0,
     ) -> torch.Tensor:
         # Reconstruction loss
-        recon_loss = nn.functional.mse_loss(recon, x, reduction="sum") / x.size(0)
+        recon_loss = F.mse_loss(recon, x, reduction="sum") / x.size(0)
 
         # KL divergence
         kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()) / x.size(0)
@@ -262,7 +362,7 @@ class DAGMM(BaseAnomalyModel):
 
         # Reconstruction error features
         recon_error = torch.sum((x - x_recon) ** 2, dim=1, keepdim=True)
-        recon_cosine = nn.functional.cosine_similarity(x, x_recon, dim=1).unsqueeze(1)
+        recon_cosine = F.cosine_similarity(x, x_recon, dim=1).unsqueeze(1)
 
         # Concatenate z with error features
         z_error = torch.cat([z, recon_error, recon_cosine], dim=1)
@@ -363,6 +463,12 @@ class PyTorchAdapter(Detector):
             contamination_rate: Expected contamination rate
             **kwargs: Algorithm-specific parameters
         """
+        # Check PyTorch availability
+        if not TORCH_AVAILABLE:
+            raise AdapterError(
+                "PyTorch is not available. Please install PyTorch to use deep learning models."
+            )
+            
         # Validate algorithm
         if algorithm_name not in self._algorithm_map:
             available = ", ".join(self._algorithm_map.keys())

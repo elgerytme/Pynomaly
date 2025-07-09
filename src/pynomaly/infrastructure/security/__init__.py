@@ -67,6 +67,30 @@ from .user_tracking import (
     UserActionTracker,
     UserTrackingMiddleware,
 )
+from .rate_limiting import (
+    RateLimitAlgorithm,
+    RateLimitConfig,
+    RateLimitScope,
+    RateLimitStatus,
+    RateLimitViolation,
+    RateLimiter,
+    RateLimitManager,
+    check_rate_limit,
+    get_rate_limit_manager,
+    close_rate_limit_manager,
+    get_rate_limit_stats,
+    rate_limit_context,
+)
+from .rate_limiting_decorators import (
+    RateLimitDecoratorConfig,
+    rate_limited,
+    user_rate_limited,
+    api_rate_limited,
+    endpoint_rate_limited,
+    rate_limit_context as rate_limit_decorator_context,
+    check_rate_limit_status,
+    create_rate_limit_middleware,
+)
 
 __all__ = [
     # Input Sanitization
@@ -122,4 +146,25 @@ __all__ = [
     "ThreatIntelligence",
     "BehaviorProfile",
     "create_advanced_threat_detectors",
+    # Rate Limiting
+    "RateLimitAlgorithm",
+    "RateLimitConfig",
+    "RateLimitScope",
+    "RateLimitStatus",
+    "RateLimitViolation",
+    "RateLimiter",
+    "RateLimitManager",
+    "check_rate_limit",
+    "get_rate_limit_manager",
+    "close_rate_limit_manager",
+    "get_rate_limit_stats",
+    "rate_limit_context",
+    "RateLimitDecoratorConfig",
+    "rate_limited",
+    "user_rate_limited",
+    "api_rate_limited",
+    "endpoint_rate_limited",
+    "rate_limit_decorator_context",
+    "check_rate_limit_status",
+    "create_rate_limit_middleware",
 ]
