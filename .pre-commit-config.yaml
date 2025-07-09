@@ -12,6 +12,52 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-commit]
+      
+      - id: check-tidy-structure
+        name: Project Tidy Structure Check
+        entry: python scripts/validation/check-tidy-structure.py
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+
+  # Code Quality and Linting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Secret Detection
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+            .*\.lock$|
+            .*\.log$|
+            .*\.pyc$|
+            .*/__pycache__/.*|
+            .*/\.venv/.*|
+            .*/venv/.*|
+            .*/node_modules/.*|
+            .*\.min\.(js|css)$|
+            .*/dist/.*|
+            .*/build/.*|
+            .*/coverage/.*|
+            .*/htmlcov/.*|
+            .*/\.pytest_cache/.*|
+            .*/\.mypy_cache/.*|
+            .*/\.ruff_cache/.*|
+            .*/\.tox/.*|
+            .*/artifacts/.*|
+            .*/reports/.*|
+            .*/storage/.*|
+            .*/baseline_outputs/.*|
+            .*/test_reports/.*
+          )$
 
   # Standard Pre-commit Hooks for File Hygiene
   - repo: https://github.com/pre-commit/pre-commit-hooks

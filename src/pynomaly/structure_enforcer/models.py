@@ -51,9 +51,9 @@ class FileNode:
     is_script: bool
     is_config: bool
     is_docs: bool
-    created_at: Optional[datetime] = None
-    modified_at: Optional[datetime] = None
-    
+    created_at: datetime | None = None
+    modified_at: datetime | None = None
+
     def __post_init__(self):
         """Post-initialization processing."""
         if self.created_at is None:
@@ -67,23 +67,23 @@ class DirectoryNode:
     """Represents a directory in the repository model."""
     path: Path
     name: str
-    files: List[FileNode]
-    subdirectories: List['DirectoryNode']
+    files: list[FileNode]
+    subdirectories: list['DirectoryNode']
     is_package: bool
     is_layer: bool
-    layer_name: Optional[str] = None
-    
-    def get_python_files(self) -> List[FileNode]:
+    layer_name: str | None = None
+
+    def get_python_files(self) -> list[FileNode]:
         """Get all Python files in this directory."""
         return [f for f in self.files if f.is_python]
-    
+
     def get_file_count(self) -> int:
         """Get total file count including subdirectories."""
         count = len(self.files)
         for subdir in self.subdirectories:
             count += subdir.get_file_count()
         return count
-    
+
     def has_init_file(self) -> bool:
         """Check if directory has __init__.py file."""
         return any(f.name == "__init__.py" for f in self.files)
@@ -97,11 +97,11 @@ class Model:
     total_files: int
     total_directories: int
     max_depth: int
-    layers: Dict[str, DirectoryNode]
-    dependencies: Dict[str, Set[str]]
+    layers: dict[str, DirectoryNode]
+    dependencies: dict[str, set[str]]
     scan_timestamp: datetime
-    
-    def get_layer_metrics(self) -> Dict[str, Dict[str, int]]:
+
+    def get_layer_metrics(self) -> dict[str, dict[str, int]]:
         """Get metrics for each layer."""
         metrics = {}
         for layer_name, layer_dir in self.layers.items():
@@ -111,12 +111,12 @@ class Model:
                 "python_files": len(layer_dir.get_python_files()),
             }
         return metrics
-    
-    def get_file_by_path(self, path: Union[str, Path]) -> Optional[FileNode]:
+
+    def get_file_by_path(self, path: str | Path) -> FileNode | None:
         """Find a file by its path."""
         target_path = Path(path)
-        
-        def search_directory(directory: DirectoryNode) -> Optional[FileNode]:
+
+        def search_directory(directory: DirectoryNode) -> FileNode | None:
             for file in directory.files:
                 if file.path == target_path:
                     return file
@@ -125,7 +125,7 @@ class Model:
                 if result:
                     return result
             return None
-        
+
         return search_directory(self.root_directory)
 
 
@@ -135,20 +135,20 @@ class Violation:
     type: ViolationType
     severity: Severity
     message: str
-    file_path: Optional[Path] = None
-    directory_path: Optional[Path] = None
-    line_number: Optional[int] = None
-    column_number: Optional[int] = None
-    rule_id: Optional[str] = None
-    help_url: Optional[str] = None
-    
+    file_path: Path | None = None
+    directory_path: Path | None = None
+    line_number: int | None = None
+    column_number: int | None = None
+    rule_id: str | None = None
+    help_url: str | None = None
+
     def __post_init__(self):
         """Post-initialization processing."""
         if self.rule_id is None:
             self.rule_id = f"structure-{self.type.value}"
         if self.help_url is None:
             self.help_url = "https://github.com/pynomaly/pynomaly/blob/main/docs/development/FILE_ORGANIZATION_STANDARDS.md"
-    
+
     def get_location(self) -> str:
         """Get human-readable location string."""
         if self.file_path:
@@ -164,19 +164,19 @@ class Fix:
     """Represents a fix for a violation."""
     type: FixType
     description: str
-    source_path: Optional[Path] = None
-    target_path: Optional[Path] = None
-    content: Optional[str] = None
+    source_path: Path | None = None
+    target_path: Path | None = None
+    content: str | None = None
     backup_required: bool = True
     risk_level: str = "low"  # low, medium, high
-    
+
     def __post_init__(self):
         """Post-initialization processing."""
         if self.type in [FixType.DELETE_FILE, FixType.DELETE_DIRECTORY]:
             self.risk_level = "high"
         elif self.type in [FixType.MOVE_FILE, FixType.MOVE_DIRECTORY]:
             self.risk_level = "medium"
-    
+
     def get_preview(self) -> str:
         """Get a preview of what this fix will do."""
         if self.type == FixType.MOVE_FILE:
@@ -201,12 +201,12 @@ class Fix:
 class ValidationResult:
     """Results of validation process."""
     is_valid: bool
-    violations: List[Violation]
+    violations: list[Violation]
     model: Model
     timestamp: datetime
     duration_seconds: float
-    
-    def get_summary(self) -> Dict[str, Union[int, str]]:
+
+    def get_summary(self) -> dict[str, int | str]:
         """Get validation summary."""
         return {
             "is_valid": self.is_valid,
@@ -222,12 +222,12 @@ class ValidationResult:
 @dataclass
 class FixResult:
     """Results of applying fixes."""
-    applied_fixes: List[Fix]
-    failed_fixes: List[tuple[Fix, str]]  # Fix and error message
+    applied_fixes: list[Fix]
+    failed_fixes: list[tuple[Fix, str]]  # Fix and error message
     dry_run: bool
     timestamp: datetime
-    
-    def get_summary(self) -> Dict[str, Union[int, str]]:
+
+    def get_summary(self) -> dict[str, int | str]:
         """Get fix application summary."""
         return {
             "applied_count": len(self.applied_fixes),
