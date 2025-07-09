@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\services\ml_severity_classifier.py
+# hypothesis_version: 6.135.26
+
+[0.0, 1.0, '.json', '0', 'lightgbm', 'score', 'seasonality', 'volatility', 'xgboost']

@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\auth\websocket_auth.py
+# hypothesis_version: 6.135.26
+
+[4001, 'Bearer ', 'HX-Trigger', 'api_key', 'authRequired', 'authenticated', 'authorization', 'hx-request', 'message', 'pyn_', 'session_token', 'token', 'true', 'user']

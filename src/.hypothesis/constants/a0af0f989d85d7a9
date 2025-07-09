@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\application\use_cases\explain_anomaly.py
+# hypothesis_version: 6.135.26
+
+[0.0, 3.0, 100, '; ', 'Anomalous because: ', 'AnomalyExplanation', 'above', 'below', 'decreases', 'explanation', 'feature_importance', 'increases', 'lime', 'regression', 'score', 'shap', 'statistical', 'temp']

@@ -1,0 +1,22 @@
+{
+  "total_samples": 2847,
+  "anomalies_detected": 142,
+  "anomaly_rate": 0.05,
+  "model_accuracy": 0.952,
+  "processing_time_ms": 245.7,
+  "false_positive_rate": 0.025,
+  "false_negative_rate": 0.018,
+  "precision": 0.885,
+  "recall": 0.912,
+  "f1_score": 0.898,
+  "roc_auc": 0.943,
+  "active_detectors": 8,
+  "datasets_processed": 23,
+  "models_trained": 156,
+  "real_time_alerts": 3,
+  "system_cpu_usage": 0.42,
+  "system_memory_usage": 0.68,
+  "disk_usage": 0.23,
+  "network_throughput": 1250.0,
+  "last_updated": "2025-07-08T14:03:15.358346"
+}

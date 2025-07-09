@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\security\rbac_middleware.py
+# hypothesis_version: 6.135.26
+
+[3600, 'Bearer', 'Invalid token', 'WWW-Authenticate', 'active', 'billing.view', 'dataset.create', 'dataset.delete', 'dataset.edit', 'dataset.view', 'detection.delete', 'detection.edit', 'detection.run', 'detection.view', 'model.create', 'model.delete', 'model.edit', 'model.view', 'platform.manage', 'report.delete', 'report.edit', 'tenant.delete', 'tenant.manage', 'tenant.view', 'user-agent', 'user.create', 'user.delete', 'user.edit', 'user.invite', 'user.manage', 'user.view']

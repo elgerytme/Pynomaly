@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\repositories\repository_factory.py
+# hypothesis_version: 6.135.26
+
+['PYNOMALY_DATA_PATH', 'data', 'filesystem', 'memory']

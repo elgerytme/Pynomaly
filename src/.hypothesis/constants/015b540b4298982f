@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\value_objects\severity_level.py
+# hypothesis_version: 6.135.26
+
+[0.5, 0.7, 0.9, 'SeverityLevel', 'critical', 'high', 'low', 'medium']

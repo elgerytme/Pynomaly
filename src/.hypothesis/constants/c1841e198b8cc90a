@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\repositories\memory_repository.py
+# hypothesis_version: 6.135.26
+
+['*.pkl', 'anomaly_rate', 'csv', 'data/datasets', 'data/detectors', 'dataset_id', 'detector_id', 'execution_time_ms', 'id', 'metadata', 'models', 'parquet', 'rb', 'threshold', 'timestamp', 'total_anomalies', 'total_samples', 'wb']

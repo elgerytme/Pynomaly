@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\__init__.py
+# hypothesis_version: 6.135.26
+
+['admin', 'auth', 'autonomous', 'datasets', 'detection', 'detectors', 'experiments', 'export', 'health', 'performance']

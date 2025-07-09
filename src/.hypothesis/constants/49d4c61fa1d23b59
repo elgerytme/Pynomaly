@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\experiments.py
+# hypothesis_version: 6.135.26
+
+[0.5, 100, 400, 404, 1000, '/', '/leaderboard', '/{experiment_id}', 'Average Value', 'Best Value', 'Experiment not found', 'Filter by tag', 'Metric to optimize', 'Metric to rank by', 'Metric to sort by', 'application/zip', 'average_value', 'bar', 'best_value', 'charts', 'compared_runs', 'comparison', 'comparison_results', 'created_at', 'data', 'dataset', 'datasets', 'datasets_used', 'description', 'detector', 'detectors_used', 'experiment', 'experiment_id', 'f1', 'label', 'labels', 'line', 'metric', 'metric_name', 'metrics_analyzed', 'metrics_comparison', 'name', 'param_', 'rank', 'records', 'run_count', 'run_id', 'run_timeline', 'runs', 'std_deviation', 'success', 'summary', 'tags', 'timestamp', 'total_runs', 'type', 'worst_value', 'zip']

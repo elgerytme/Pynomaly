@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\monitoring\performance_monitor.py
+# hypothesis_version: 6.135.26
+
+[0.0, 0.1, 1.0, 5.0, 30.0, 80.0, 100.0, 1000.0, 1000, 1024, 'accuracy', 'active_alerts', 'active_operations', 'alert_type', 'algorithm_name', 'cleanup_time', 'cpu_usage', 'csv', 'current_value', 'dataset_size', 'end', 'execution_time', 'export_timestamp', 'f1_score', 'failed_operations', 'high', 'inf', 'json', 'max', 'mean', 'median', 'medium', 'memory_peak', 'memory_percent', 'memory_usage', 'memory_usage_mb', 'message', 'metadata', 'metric_name', 'metrics', 'min', 'operation_count', 'operation_name', 'p95', 'p99', 'peak_memory', 'precision', 'recall', 'samples_per_second', 'samples_processed', 'setup_time', 'severity', 'start', 'start_memory', 'start_time', 'start_timestamp', 'std', 'threshold_exceeded', 'threshold_value', 'throughput', 'time_range', 'timestamp', 'total_metrics', 'total_operations']

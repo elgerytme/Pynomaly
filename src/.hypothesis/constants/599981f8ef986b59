@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\value_objects\confidence_interval.py
+# hypothesis_version: 6.135.26
+
+[0.0, 0.95, 1.0, 100, 'confidence_level', 'lower', 'manual', 'margin_of_error', 'method', 'midpoint', 'percentile', 'unknown', 'upper', 'width']

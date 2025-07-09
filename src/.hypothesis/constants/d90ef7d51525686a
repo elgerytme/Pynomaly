@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\dependencies\__init__.py
+# hypothesis_version: 6.135.26
+
+['SimpleAuthContext', 'get_container_safe', 'get_container_simple', 'require_auth_safe', 'require_role_safe']

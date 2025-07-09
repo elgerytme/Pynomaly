@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\application\dto\dataset_dto.py
+# hypothesis_version: 6.135.26
+
+[2.4, 100, 500, 10000, ',', '...', '2024-01-01T00:00:00', 'amount', 'categorical_features', 'created_at', 'example', 'feature_names', 'has_target', 'id', 'is_fraud', 'memory_usage_mb', 'merchant_id', 'n_features', 'n_samples', 'name', 'numeric_features', 'shape', 'target_column', 'time', 'utf-8']

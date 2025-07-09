@@ -1,0 +1,18 @@
+{
+  "generated_at": "2025-07-08T14:03:15.365346",
+  "files_created": [
+    "storage\\demo_data.csv",
+    "storage\\detector_results.json",
+    "storage\\dashboard_metrics.json",
+    "storage\\time_series_data.json"
+  ],
+  "sample_data_stats": {
+    "total_samples": 2000,
+    "anomalies": 100,
+    "features": 15,
+    "time_span_hours": 24
+  },
+  "detector_results_count": 8,
+  "time_series_points": 288,
+  "ready_for_demo": true
+}

@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\value_objects\__init__.py
+# hypothesis_version: 6.135.26
+
+['AnomalyCategory', 'AnomalyScore', 'AnomalyType', 'ConfidenceInterval', 'ContaminationRate', 'HyperparameterRange', 'HyperparameterSet', 'HyperparameterSpace', 'Hyperparameters', 'ModelStorageInfo', 'ParameterType', 'PerformanceMetrics', 'SemanticVersion', 'SerializationFormat', 'SeverityLevel', 'SeverityScore', 'StorageBackend', 'ThresholdConfig']

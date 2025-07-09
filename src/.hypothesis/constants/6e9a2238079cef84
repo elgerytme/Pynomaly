@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\persistence\database_repositories.py
+# hypothesis_version: 6.135.26
+
+[0.0, 100, 255, 500, 'anomaly_rate', 'confidence', 'data_format', 'data_saved', 'data_saved_at', 'dataset_id', 'datasets', 'detection_results', 'detector_id', 'detectors', 'execution_time_ms', 'id', 'labels', 'metadata', 'metrics', 'model_data', 'n_anomalies', 'n_samples', 'name', 'parquet', 'postgresql', 'roles', 'roles.id', 'score_statistics', 'scores', 'tenants', 'tenants.id', 'threshold', 'timestamp', 'user_roles', 'users', 'users.id', 'utf-8', 'value']

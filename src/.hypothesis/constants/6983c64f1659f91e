@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\application\services\model_persistence_service.py
+# hypothesis_version: 6.135.26
+
+['IsolationForest', 'LocalOutlierFactor', 'OneClassSVM', 'PyGOD', 'PyOD', 'algorithm', 'config', 'config.json', 'contamination_rate', 'deploy.py', 'deploy_script', 'detector_id', 'detector_name', 'exported_at', 'find_by_id', 'format', 'is_fitted', 'joblib', 'metadata.json', 'model', 'model.joblib', 'model.pkl', 'numpy>=1.26.0', 'onnx', 'pandas>=2.2.0', 'parameters', 'pickle', 'pygod>=1.0.0', 'pynomaly>=0.1.0', 'pyod>=2.0.5', 'rb', 'requirements', 'requirements.txt', 'requires_fitting', 'save', 'saved_at', 'scikit-learn>=1.5.0', 'supports_streaming', 'w', 'wb']

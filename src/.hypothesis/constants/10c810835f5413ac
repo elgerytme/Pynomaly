@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\performance\performance_service.py
+# hypothesis_version: 6.135.26
+
+[0.05, 0.1, 0.5, 0.7, 1.0, 2.0, 300.0, 100, 288, 3600, 'action', 'active_alerts', 'active_connections', 'alerts', 'avg_response_time', 'avg_time', 'cache_hit_rate', 'cache_optimization', 'cache_performance', 'connection_errors', 'connection_pools', 'data', 'error', 'error_rate', 'failed_requests', 'high_pool_error_rate', 'hit_rate', 'increase_pool_size', 'low_cache_hit_rate', 'message', 'monitoring_duration', 'no_data', 'pool_error_rate', 'pool_name', 'pool_optimization', 'pool_performance', 'pool_reliability', 'query_avg_time', 'query_optimization', 'query_performance', 'recommendations', 'resolved', 'resolved_at', 'response_time', 'review_slow_queries', 'slow_pool_response', 'slow_queries', 'slow_query_count', 'status', 'successful_requests', 'timestamp', 'total_requests', 'trends', 'tune_cache_settings', 'type']

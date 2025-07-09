@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\explainers\lime_explainer.py
+# hypothesis_version: 6.135.26
+
+[0.0, 0.5, 100, 'anomaly', 'decision_function', 'max_samples', 'normal', 'num_features', 'predict', 'predict_proba', 'regression', 'score', 'threshold', 'training_data']

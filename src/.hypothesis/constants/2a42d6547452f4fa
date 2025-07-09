@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\shared\types.py
+# hypothesis_version: 6.135.26
+
+['CacheKey', 'Confidence', 'ConfigKey', 'DatasetId', 'DetectorId', 'FeatureName', 'FeatureValue', 'ModelId', 'RoleId', 'Score', 'SessionId', 'StoragePath', 'TenantId', 'Threshold', 'UserId']

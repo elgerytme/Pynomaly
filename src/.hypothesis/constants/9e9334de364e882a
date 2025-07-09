@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\services\model_selector.py
+# hypothesis_version: 6.135.26
+
+[0.0, 'Use model1', 'accuracy', 'algorithm', 'better_model', 'f1_score', 'metrics', 'metrics_comparison', 'model_id', 'precision', 'primary_metric_value', 'recall', 'recommendation', 'selected_model', 'unknown']

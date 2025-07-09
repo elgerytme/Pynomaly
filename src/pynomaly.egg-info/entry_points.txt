@@ -1,0 +1,2 @@
+[console_scripts]
+pynomaly = pynomaly.presentation.cli.app:app

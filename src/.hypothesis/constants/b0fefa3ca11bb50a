@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\security\middleware_integration.py
+# hypothesis_version: 6.135.26
+
+['/api/security/alerts', '/api/security/status', 'Alert acknowledged', 'Alert not found', 'activity', 'alert_id', 'alert_type', 'alerts', 'description', 'disabled', 'indicators', 'message', 'recommended_actions', 'shutdown', 'source_ip', 'startup', 'status', 'success', 'threat_level', 'timestamp', 'title', 'total', 'user_id']

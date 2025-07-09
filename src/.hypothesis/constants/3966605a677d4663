@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\value_objects\hyperparameters.py
+# hypothesis_version: 6.135.26
+
+['Hyperparameters', 'boolean', 'categorical', 'discrete', 'float', 'int', 'parameters']

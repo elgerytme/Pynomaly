@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\explainers\shap_explainer.py
+# hypothesis_version: 6.135.26
+
+[0.5, 100, 1000, 'anomaly', 'auto', 'base_values', 'decision_function', 'kernel', 'linear', 'max_samples', 'normal', 'permutation', 'predict', 'predict_proba', 'score', 'threshold', 'tree', 'values']

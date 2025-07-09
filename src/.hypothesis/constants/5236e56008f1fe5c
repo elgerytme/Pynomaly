@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\distributed\load_balancer.py
+# hypothesis_version: 6.135.26
+
+[0.0, 'No workers available', 'least_loaded', 'round_robin', 'weighted']

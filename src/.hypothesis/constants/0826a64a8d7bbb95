@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\performance.py
+# hypothesis_version: 6.135.26
+
+[0.0, 0.1, 1.0, 100, 404, 500, 503, '/cache/clear', '/cache/stats', '/optimization/report', '/performance', '/pools', '/pools/reset-all', '/pools/{pool_name}', '/queries/frequent', '/queries/slow', '/queries/summary', '/system/metrics', 'Clear query cache', 'Get cache statistics', 'Get slow queries', 'Optimize database', 'avg_time', 'cache_stats', 'error', 'execution_count', 'index_usage', 'indexes_created', 'message', 'performance', 'performance_summary', 'query_hash', 'query_types', 'recommendations', 'select', 'slow_queries', 'slowest_query', 'system', 'time', 'timestamp', 'total_queries', 'total_time', 'unique_queries']

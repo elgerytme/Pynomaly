@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\services\explainability_service.py
+# hypothesis_version: 6.135.26
+
+['cohort', 'contributions', 'count', 'counterfactual', 'feature_importance', 'global', 'importances', 'lime', 'local', 'mean_contribution', 'mean_importance', 'mean_value', 'partial_dependence', 'shap', 'std_contribution', 'std_importance', 'std_value', 'values']

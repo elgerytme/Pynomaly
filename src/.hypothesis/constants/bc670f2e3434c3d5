@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\repositories\in_memory_repositories.py
+# hypothesis_version: 6.135.26
+
+['anomaly_rate', 'data', 'dataset_id', 'detector_id', 'execution_time_ms', 'format', 'id', 'n_anomalies', 'n_samples', 'parquet', 'saved_at', 'score_statistics', 'threshold', 'timestamp']

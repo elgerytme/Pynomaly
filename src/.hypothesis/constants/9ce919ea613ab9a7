@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\application\dto\export_options.py
+# hypothesis_version: 6.135.26
+
+[480, 640, 1000, 'Charts', 'ExportOptions', 'Metadata', 'Results', 'Summary', 'api_endpoint', 'bar', 'brotli', 'cloud_storage', 'csv', 'default', 'destination', 'email', 'excel', 'format', 'gzip', 'histogram', 'json', 'line', 'local_file', 'lz4', 'parquet', 'pie', 'scatter', 'snappy', 'zstd']

@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\adapters\optimized_adapter.py
+# hypothesis_version: 6.135.26
+
+[1.0, 'abod', 'auto_optimize', 'balanced', 'base_adapter_class', 'cblof', 'combination_weights', 'ellipticenvelope', 'ensemble_results', 'ensemble_strategy', 'ensemble_weights', 'feature_bagging', 'hbos', 'histogram', 'iforest', 'is_fitted', 'is_optimized', 'isolationforest', 'knn', 'lmdd', 'localoutlierfactor', 'mcd', 'n_detectors', 'ocsvm', 'oneclasssvm', 'optimization_level', 'optimization_results', 'optimized_parameters', 'pca', 'stacking', 'svm', 'voting', 'weighted', 'weights']

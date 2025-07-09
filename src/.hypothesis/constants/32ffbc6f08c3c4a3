@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\admin.py
+# hypothesis_version: 6.135.26
+
+[100, 400, 404, 503, 1000, '/api-keys/{api_key}', '/permissions', '/roles', '/users', '/users/{user_id}', 'API key not found', 'API key revoked', 'Email already taken', 'Filter by role', 'User not found', 'admin', 'datasets', 'datasets:delete', 'datasets:read', 'datasets:write', 'detectors', 'detectors:delete', 'detectors:read', 'detectors:write', 'experiments', 'experiments:delete', 'experiments:read', 'experiments:write', 'is_superuser', 'message', 'permissions', 'roles', 'settings', 'settings:read', 'settings:write', 'success', 'user', 'user_id', 'username', 'users', 'users:delete', 'users:read', 'users:write', 'viewer']

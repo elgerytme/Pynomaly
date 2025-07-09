@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\adapters\sklearn_adapter.py
+# hypothesis_version: 6.135.26
+
+[0.5, 1000, 'EllipticEnvelope', 'IsolationForest', 'LocalOutlierFactor', 'O(d)', 'O(d²)', 'O(n log n)', 'O(n × d)', 'O(n × d²)', 'O(n)', 'O(n² × d)', 'O(n²)', 'OneClassSVM', 'SGDOneClassSVM', 'algorithm', 'contamination', 'decision_function', 'detect', 'is_online', 'novelty', 'raw_score', 'requires_neighbors', 'score', 'score_samples', 'sklearn', 'sklearn.covariance', 'sklearn.ensemble', 'sklearn.linear_model', 'sklearn.neighbors', 'sklearn.svm', 'sklearn_version', 'space_complexity', 'supports_novelty', 'supports_streaming', 'time_complexity', 'training_features', 'training_samples', 'training_time_ms', 'unknown']

@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\monitoring\service_initialization.py
+# hypothesis_version: 6.135.26
+
+['api_key', 'buffer_size', 'enabled', 'endpoint', 'flush_interval', 'provider', 'providers']

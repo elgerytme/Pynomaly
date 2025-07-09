@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\routers\user_management.py
+# hypothesis_version: 6.135.26
+
+[100, '-1', '/', '/api/users', '/auth/login', '/auth/logout', '/auth/me', '/tenants', '/tenants/{tenant_id}', '/{user_id}', '/{user_id}/status', 'Access denied', 'Tenant not found', 'User Management', 'User not found', 'action', 'email', 'expires_at', 'filters', 'granted_at', 'limit', 'list_users', 'message', 'new_role', 'new_status', 'offset', 'previous_status', 'result_count', 'role', 'status', 'success', 'target_user_id', 'tenant_id', 'unknown', 'user_id', 'users_count', 'view_own_profile', 'view_user']

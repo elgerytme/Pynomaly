@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\repositories\file_repositories.py
+# hypothesis_version: 6.135.26
+
+['algorithm_name', 'anomalies', 'contamination_rate', 'created_at', 'dataset_id', 'datasets.json', 'detector_id', 'detectors.json', 'explanation', 'feature_names', 'id', 'index', 'is_fitted', 'labels', 'metadata', 'models', 'n_features', 'n_samples', 'name', 'parameters', 'results.json', 'score', 'scores', 'source', 'storage', 'threshold', 'timestamp', 'tolist', 'trained_at', 'value', 'w']

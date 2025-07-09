@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\config\config_validator.py
+# hypothesis_version: 6.135.26
+
+[5.0, 5432, 6379, 65535, '.db_test', '.write_test', '127.0.0.1', ':memory:', 'CRITICAL', 'Cache disabled', 'DEBUG', 'ERROR', 'INFO', 'PYNOMALY_SECRET_KEY', 'WARNING', 'development', 'errors', 'info', 'json', 'log_path', 'model_storage_path', 'mysql', 'oracle', 'postgresql', 'production', 'redis', 'sqlite', 'storage_path', 'temp_path', 'test', 'text', 'valid', 'warnings']

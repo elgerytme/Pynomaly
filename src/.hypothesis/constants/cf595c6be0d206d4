@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\services\statistical_tester.py
+# hypothesis_version: 6.135.26
+
+[0.0, 0.01, 0.05, 1.0, 'Independent t-test', 'Mann-Whitney U test', 'Paired t-test', 'accuracy', 'bonferroni', 'correction_method', 'effect_sizes', 'f1_score', 'fdr', 'holm', 'mannwhitney', 'mean', 'metrics_analyzed', 'models_compared', 'paired_ttest', 'pairwise_comparisons', 'precision', 'recall', 'significance_level', 'significance_matrix', 'summary', 'total_comparisons', 'ttest', 'two-sided', 'value', 'values', 'wilcoxon']

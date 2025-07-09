@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\logging\structured_logger.py
+# hypothesis_version: 6.135.26
+
+[100, 1000, 1024, '***REDACTED***', '...', '1.0.0', 'ISO', 'X-Correlation-ID', 'action', 'api_key', 'audit_log', 'auth', 'business_event', 'business_log', 'credential', 'credit_card', 'custom_fields', 'development', 'duration_ms', 'error', 'error_message', 'error_type', 'errors_logged', 'high', 'key', 'level', 'log_context', 'log_level', 'logger_name', 'logs_written', 'medium', 'message', 'metric_value', 'operation', 'output_path', 'passwd', 'password', 'performance_log', 'performance_logs', 'pin', 'private_key', 'pwd', 'pynomaly', 'pynomaly.log', 'resource', 'sanitized_fields', 'secret', 'security_event', 'security_log', 'severity', 'ssn', 'stack_trace', 'timestamp', 'token', 'user_id', 'warnings_logged']

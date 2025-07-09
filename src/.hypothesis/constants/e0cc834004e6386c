@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\application\services\algorithm_adapter_registry.py
+# hypothesis_version: 6.135.26
+
+[0.0, 0.5, 1.0, 'ABOD', 'CBLOF', 'COPOD', 'Detector not fitted', 'EllipticEnvelope', 'HBOS', 'IForest', 'IsolationForest', 'KNN', 'LOF', 'LocalOutlierFactor', 'MCD', 'OCSVM', 'OneClassSVM', 'PCA', 'PyOD', 'contamination', 'decision_function', 'description', 'name', 'pyod', 'pyod.models.abod', 'pyod.models.cblof', 'pyod.models.copod', 'pyod.models.hbos', 'pyod.models.iforest', 'pyod.models.knn', 'pyod.models.lof', 'pyod.models.mcd', 'pyod.models.ocsvm', 'pyod.models.pca', 'score_samples', 'sklearn', 'sklearn.covariance', 'sklearn.ensemble', 'sklearn.neighbors', 'sklearn.svm', 'supported_algorithms', 'supports_streaming', 'type', 'unsupervised']

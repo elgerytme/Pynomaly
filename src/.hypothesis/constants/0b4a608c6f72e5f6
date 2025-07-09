@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\services\anomaly_classifiers.py
+# hypothesis_version: 6.135.26
+
+[0.0, 0.5, 0.7, 0.9, 'Context Anomaly', 'Pattern Anomaly', 'Point Anomaly', 'collective', 'contextual', 'critical', 'high', 'low', 'medium', 'point', 'score', 'seasonality', 'temporal_context', 'value', 'volatility']

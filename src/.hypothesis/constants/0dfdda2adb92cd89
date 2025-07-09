@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\auth\middleware.py
+# hypothesis_version: 6.135.26
+
+[100, ',', 'Bearer', 'WWW-Authenticate', 'X-API-Key', 'X-Forwarded-For', 'analyst', 'authenticated', 'data_scientist', 'datasets:read', 'datasets:write', 'detectors:read', 'detectors:write', 'is_superuser', 'permissions', 'roles', 'settings:write', 'super_admin', 'tenant_admin', 'unknown', 'user_id', 'username', 'users:write', 'viewer']

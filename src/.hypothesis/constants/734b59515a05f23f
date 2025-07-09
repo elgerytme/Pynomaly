@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\models\monitoring.py
+# hypothesis_version: 6.135.26
+
+[0.0, 100.0, -100, 100, 1000, '!=', '1h', '<', '<=', '==', '>', '>=', 'UTC', 'acknowledged', 'active', 'alerts', 'avg', 'business_kpi', 'business_metrics', 'components', 'count', 'counter', 'cpu_usage', 'critical', 'custom', 'dark', 'degraded', 'disk_usage', 'emergency', 'error_rate', 'gauge', 'health_checks', 'health_score', 'healthy', 'height', 'histogram', 'info', 'infrastructure', 'last_updated', 'line', 'max', 'memory_usage', 'min', 'ml_model_performance', 'model_accuracy', 'name', 'network_io', 'performance', 'pynomaly', 'request_duration', 'request_rate', 'resolution_note', 'resolved', 'resources', 'response_time_p50', 'response_time_p95', 'response_time_p99', 'security_monitoring', 'service', 'silenced', 'status', 'sum', 'summary', 'system_overview', 'throughput', 'total', 'unhealthy', 'uptime', 'version', 'warning', 'width', 'x', 'y']

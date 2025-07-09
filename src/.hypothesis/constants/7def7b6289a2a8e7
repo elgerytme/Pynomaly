@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\value_objects\semantic_version.py
+# hypothesis_version: 6.135.26
+
+[1000, 1000000, 'is_prerelease', 'is_stable', 'major', 'minor', 'patch', 'v', 'version_string']

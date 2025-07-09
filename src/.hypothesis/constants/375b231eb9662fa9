@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\detectors.py
+# hypothesis_version: 6.135.26
+
+[100, 400, 404, 1000, '/', '/algorithms', '/{detector_id}', 'Detector deleted', 'Detector not found', 'Filter by algorithm', 'all_supported', 'message', 'pyod', 'sklearn', 'sklearn_', 'success', 'total_count']

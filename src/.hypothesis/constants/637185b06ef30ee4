@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\distributed\distributed_detector.py
+# hypothesis_version: 6.135.26
+
+[0.0, 0.1, 0.5, 0.8, 1.0, 100, 'Anomaly scores', 'Detected anomalies', 'Detection start time', 'Processing errors', 'Processing warnings', 'Task timed out', 'algorithm', 'anomalies_detected', 'anomaly_detection', 'anomaly_scores', 'average_efficiency', 'average_speedup', 'average_throughput', 'average_workers_used', 'chunk_id', 'chunks_completed', 'chunks_total', 'data', 'detection_id', 'detector_config', 'elapsed_time', 'errors', 'parameters', 'partition_id', 'progress_percentage', 'started_at', 'success_rate', 'total_detections', 'total_samples', 'unknown', 'workers_used']

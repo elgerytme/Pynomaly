@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\model_lineage.py
+# hypothesis_version: 6.135.26
+
+[200, 201, 400, 401, 403, 404, 500, '/bulk-import', '/lineage', '/query', '/records', '/records/{record_id}', '/statistics', '/track-derivation', '/track-ensemble', 'Additional metadata', 'Algorithm used', 'Associated run ID', 'Child model ID', 'Component model IDs', 'Ensemble algorithm', 'Ensemble model ID', 'Filter by creator', 'Filter by tags', 'Find Lineage Path', 'Get Model Ancestors', 'Invalid lineage data', 'Lineage tags', 'Model Lineage', 'Parent model ID', 'Resource usage', 'Type of relationship', 'ensemble']

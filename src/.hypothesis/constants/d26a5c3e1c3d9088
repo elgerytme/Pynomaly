@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\application\dto\detection_dto.py
+# hypothesis_version: 6.135.26
+
+[0.0, 0.045, 0.2, 0.22, 0.28, 0.3, 0.5, 0.6, 1.0, 1500.0, 100, 1000, '2024-01-01T12:00:00', '^(shap|lime)$', 'anomalies', 'anomaly_rate', 'auto', 'cross_validation', 'dataset_id', 'detector_id', 'example', 'execution_time_ms', 'id', 'max', 'max_samples', 'mean', 'median', 'medium', 'min', 'n_anomalies', 'n_estimators', 'n_samples', 'parameters', 'return_explanations', 'return_scores', 'save_model', 'save_results', 'score_statistics', 'shap', 'std', 'threshold', 'timestamp', 'validate_features', 'validation_split']

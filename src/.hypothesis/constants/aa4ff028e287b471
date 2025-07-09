@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\exceptions\result_exceptions.py
+# hypothesis_version: 6.135.26
+
+['contamination_rate', 'dataset_name', 'detector_name', 'n_anomalies_actual', 'n_anomalies_expected', 'n_labels', 'n_samples', 'n_scores', 'threshold_value']

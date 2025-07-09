@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\data_loaders\__init__.py
+# hypothesis_version: 6.135.26
+
+[1000, 1024, '.arrow', '.csv', '.feather', '.json', '.parquet', '.pq', '.xlsx', 'ArrowLoader', 'CSVLoader', 'ExcelLoader', 'JSONLoader', 'ParquetLoader', 'PolarsLoader', 'SparkAnomalyDetector', 'SparkLoader', 'arrow', 'available', 'csv', 'description', 'formats', 'load_auto', 'load_with_polars', 'load_with_spark', 'pandas_based', 'parquet', 'polars', 'spark', 'stream_with_arrow']

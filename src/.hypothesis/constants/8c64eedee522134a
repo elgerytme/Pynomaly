@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\entities\anomaly.py
+# hypothesis_version: 6.135.26
+
+[0.5, 0.7, 0.9, 'critical', 'data_point', 'detector_name', 'explanation', 'high', 'id', 'low', 'medium', 'metadata', 'score', 'severity', 'timestamp', 'value']

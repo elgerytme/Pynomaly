@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\entities\optimization_trial.py
+# hypothesis_version: 6.135.26
+
+[0.0, 0.001, 'OptimizationTrial', 'Pruned by optimizer', 'algorithm_name', 'cancelled', 'completed', 'cpu_time', 'created', 'cv_mean', 'cv_scores', 'cv_std', 'duration', 'end_time', 'error', 'error_message', 'error_traceback', 'evaluating', 'evaluation_time', 'experiment_id', 'failed', 'finished', 'gpu_memory_peak', 'intermediate_steps', 'intermediate_values', 'memory_peak', 'metadata', 'number', 'objective_values', 'parameter_count', 'parameters', 'pending', 'pruned', 'pruned_at_step', 'pruner_name', 'pruning_reason', 'resource_usage', 'running', 'sampler_name', 'score', 'start_time', 'started', 'state', 'status', 'study_id', 'study_name', 'system_attrs', 'trial_id', 'user_attrs', 'user_id', 'validation_max', 'validation_mean', 'validation_min', 'validation_scores', 'validation_std', 'worker_id']

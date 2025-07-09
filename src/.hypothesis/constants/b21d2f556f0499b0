@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\dependencies\auth.py
+# hypothesis_version: 6.135.26
+
+['Access denied', 'Bearer', 'WWW-Authenticate']

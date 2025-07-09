@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\logging\log_formatter.py
+# hypothesis_version: 6.135.26
+
+[100, 120, '\x1b[0m', '\x1b[1m', '\x1b[31m', '\x1b[32m', '\x1b[33m', '\x1b[35m', '\x1b[36m', '\x1b[90m', '\x1b[91m', '\x1b[93m', '\x1b[94m', '\x1b[96m', '\x1b[97m', '%H:%M:%S.%f', '%Y-%m-%d %H:%M:%S', ',', '...', ':', 'CRITICAL', 'DEBUG', 'ERROR', 'INFO', 'ISO', 'RESET', 'WARNING', '_', 'args', 'caller', 'console', 'created', 'epoch', 'error', 'exc_info', 'exc_text', 'exception', 'file', 'filename', 'funcName', 'function', 'getMessage', 'json', 'key', 'labels', 'level', 'levelname', 'levelno', 'line', 'lineno', 'logger', 'message', 'metric_name', 'metrics', 'module', 'msecs', 'msg', 'name', 'pathname', 'process', 'processName', 'process_id', 'process_name', 'relativeCreated', 'reset', 'stack_info', 'structured', 'thread', 'threadName', 'thread_id', 'thread_name', 'timestamp', 'traceback', 'type', 'value']

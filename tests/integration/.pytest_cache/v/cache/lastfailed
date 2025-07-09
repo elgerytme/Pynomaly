@@ -1,0 +1,10 @@
+{
+  "test_performance_benchmarks.py": true,
+  "test_performance_optimization.py::TestPerformanceOptimization::test_memory_efficiency_large_dataset": true,
+  "test_auth_flows.py::test_pydantic_forward_reference_fix": true,
+  "test_pytorch_adapter.py::TestPyTorchAdapter": true,
+  "test_pytorch_adapter.py::TestPyTorchAdapterWithoutPyTorch": true,
+  "test_pytorch_adapter.py::TestPyTorchAdapter::test_autoencoder_training_cpu": true,
+  "test_pytorch_adapter.py": true,
+  "test_fastapi_app.py": true
+}

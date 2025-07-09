@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\detection.py
+# hypothesis_version: 6.135.26
+
+[100, 400, 404, '/compare', '/detect', '/detect/batch', '/evaluate', '/results', '/train', 'Dataset not found', 'Detector not found', 'anomaly_rate', 'confusion_matrix', 'dataset_summary', 'detector_id', 'execution_time_ms', 'metrics', 'n_anomalies', 'n_detectors', 'parameters_used', 'results', 'success', 'threshold', 'training_time_ms', 'validation_results']

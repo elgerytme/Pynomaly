@@ -1,0 +1,4 @@
+# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\explainability.py
+# hypothesis_version: 6.135.26
+
+[0.15, 0.2, 0.245, 0.3, 0.78, 0.81, 0.85, 0.92, 0.97, 24.5, 100, 1000, '/cache', '/explain/cohort', '/explain/compare', '/explain/model', '/explain/prediction', '/health', '/methods', '2024-01-01T00:00:00Z', 'available_methods', 'average_confidence', 'average_importance', 'cache_enabled', 'cohort', 'comparison', 'computation_stats', 'consistency_score', 'coverage_score', 'dataset_id', 'detector_id', 'error', 'explainability', 'explanation_quality', 'feature_1', 'feature_2', 'feature_3', 'global', 'healthy', 'local', 'method', 'methods', 'sample_size', 'service', 'shap', 'stability_score', 'status', 'success_rate', 'timestamp', 'top_features', 'total_time', 'unhealthy']
