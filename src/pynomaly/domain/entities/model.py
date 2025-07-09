@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import UUID
+
+from pydantic import Field
+
+from pynomaly.domain.abstractions.base_entity import BaseEntity
 
 
 class ModelType(Enum):
@@ -29,8 +32,7 @@ class ModelStage(Enum):
     ARCHIVED = "archived"
 
 
-@dataclass
-class Model:
+class Model(BaseEntity):
     """Represents an ML model in the system.
 
     A Model is the conceptual representation of a machine learning solution
@@ -60,19 +62,18 @@ class Model:
     model_type: ModelType
     algorithm_family: str
     created_by: str
-    id: UUID = field(default_factory=uuid4)
-    created_at: datetime = field(default_factory=datetime.utcnow)
     team: str = ""
-    tags: list[str] = field(default_factory=list)
+    tags: list[str] = Field(default_factory=list)
     stage: ModelStage = ModelStage.DEVELOPMENT
     current_version_id: UUID | None = None
     latest_version_id: UUID | None = None
-    metadata: dict[str, Any] = field(default_factory=dict)
-    use_cases: list[str] = field(default_factory=list)
-    data_requirements: dict[str, Any] = field(default_factory=dict)
+    use_cases: list[str] = Field(default_factory=list)
+    data_requirements: dict[str, Any] = Field(default_factory=dict)
 
-    def __post_init__(self) -> None:
-        """Validate model after initialization."""
+    def __init__(self, **data: Any) -> None:
+        """Initialize and validate model."""
+        super().__init__(**data)
+        
         if not self.name:
             raise ValueError("Model name cannot be empty")
 

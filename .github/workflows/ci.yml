@@ -214,11 +214,11 @@ jobs:
   # Job 3: Test Suite (Matrix)
   test:
     name: Test Suite
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: ["ubuntu-latest", "windows-latest"]
         python-version: ["3.11", "3.12"]
-        test-type: ["unit", "integration"]
       fail-fast: false
 
     steps:
@@ -237,28 +237,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install hatch
 
-    - name: Run unit tests
-      if: matrix.test-type == 'unit'
-      run: |
-        hatch env run test:run tests/domain/ tests/application/ -v --tb=short
-      continue-on-error: true
-
-    - name: Run integration tests
-      if: matrix.test-type == 'integration'
-      run: |
-        hatch env run test:run tests/infrastructure/ -v --tb=short --ignore=tests/infrastructure/test_*_performance*
-      continue-on-error: true
-
     - name: Run tests with coverage
       run: |
-        hatch env run test:run-cov --cov-report=xml --cov-report=html
-      continue-on-error: true
+        hatch env run test:run-cov
+      continue-on-error: false
 
     - name: Upload coverage to Codecov
-      if: matrix.test-type == 'unit'
+      if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
       uses: codecov/codecov-action@v4
       with:
-        file: ./coverage.xml
+        file: ./reports/coverage.xml
         flags: py${{ matrix.python-version }}
         name: codecov-py${{ matrix.python-version }}
 
@@ -266,13 +254,13 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results-${{ matrix.test-type }}-py${{ matrix.python-version }}
+        name: test-results-py${{ matrix.python-version }}-${{ matrix.os }}
         path: |
           htmlcov/
           coverage-reports/
           .coverage
           coverage-combined.xml
-        retention-days: 30
+          reports/coverage.xml
 
   # Job 4: API & CLI Testing
   api-cli-test:
@@ -479,7 +467,7 @@ jobs:
           // Generate summary comment
           const summary = `## 🚀 CI Pipeline Results
 
-**Status Summary:**
+` + `Status Summary:
 - Documentation: ${{ needs.docs-lint.result == 'success' && '✅ Passed' || needs.docs-lint.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
 - Code Quality: ${{ needs.code-quality.result == 'success' && '✅ Passed' || needs.code-quality.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
 - Build & Package: ${{ needs.build.result == 'success' && '✅ Passed' || needs.build.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
@@ -488,9 +476,9 @@ jobs:
 - Security: ${{ needs.security.result == 'success' && '✅ Passed' || needs.security.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
 - Docker: ${{ needs.docker.result == 'success' && '✅ Passed' || needs.docker.result == 'failure' && '❌ Failed' || '⚠️ Skipped' }}
 
-**Hatch Migration:** ✅ Successfully using Hatch for build system and environment management
+` + `Hatch Migration: ✅ Successfully using Hatch for build system and environment management
 
-**Artifacts Generated:**
+` + `Artifacts Generated:
 - Build artifacts (wheel and source distribution)
 - Test coverage reports
 - Code quality analysis
