@@ -11,8 +11,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class DetectionRequestDTO(BaseModel):
     """DTO for anomaly detection requests."""
-
-    model_config = ConfigDict(
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(
         extra="forbid",
         json_schema_extra={
             "example": {
@@ -45,8 +46,9 @@ class DetectionRequestDTO(BaseModel):
 
 class TrainingRequestDTO(BaseModel):
     """DTO for detector training requests."""
-
-    model_config = ConfigDict(
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(
         extra="forbid",
         json_schema_extra={
             "example": {
@@ -70,8 +72,9 @@ class TrainingRequestDTO(BaseModel):
 
 class AnomalyDTO(BaseModel):
     """DTO for individual anomaly information."""
-
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID
     score: float = Field(ge=0, le=1)
@@ -87,8 +90,9 @@ class AnomalyDTO(BaseModel):
 
 class DetectionResultDTO(BaseModel):
     """DTO for detection results."""
-
-    model_config = ConfigDict(
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(
         from_attributes=True,
         extra="forbid",
         json_schema_extra={
@@ -138,8 +142,9 @@ class DetectionResultDTO(BaseModel):
 
 class TrainingResultDTO(BaseModel):
     """DTO for training results."""
-
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: UUID
     dataset_id: UUID
@@ -157,7 +162,8 @@ class TrainingResultDTO(BaseModel):
 
 class ExplanationRequestDTO(BaseModel):
     """DTO for anomaly explanation requests."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     detector_id: UUID
     instance: dict[str, Any]  # Single data point to explain
     method: str = Field(default="shap", pattern="^(shap|lime)$")
@@ -167,8 +173,9 @@ class ExplanationRequestDTO(BaseModel):
 
 class ExplanationResultDTO(BaseModel):
     """DTO for anomaly explanation results."""
-
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     method_used: str
     prediction: float
@@ -180,7 +187,8 @@ class ExplanationResultDTO(BaseModel):
 
 class DetectionSummaryDTO(BaseModel):
     """DTO for detection summary statistics."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     total_detections: int
     recent_detections: int  # Last 24 hours
     average_anomaly_rate: float

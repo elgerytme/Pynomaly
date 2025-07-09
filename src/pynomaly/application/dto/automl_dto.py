@@ -9,8 +9,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class AlgorithmRecommendationRequestDTO(BaseModel):
     """DTO for algorithm recommendation request."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     dataset_id: str = Field(..., description="ID of the dataset for recommendation")
     max_recommendations: int = Field(
@@ -32,8 +33,9 @@ class AlgorithmRecommendationRequestDTO(BaseModel):
 
 class DatasetProfileDTO(BaseModel):
     """DTO for dataset profiling information."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     n_samples: int = Field(..., description="Number of samples in the dataset")
     n_features: int = Field(..., description="Number of features in the dataset")
@@ -67,8 +69,9 @@ class DatasetProfileDTO(BaseModel):
 
 class AlgorithmRecommendationDTO(BaseModel):
     """DTO for algorithm recommendation."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     algorithm_name: str = Field(..., description="Name of the recommended algorithm")
     score: float = Field(..., description="Suitability score for the algorithm")
@@ -84,8 +87,9 @@ class AlgorithmRecommendationDTO(BaseModel):
 
 class AutoMLRequestDTO(BaseModel):
     """DTO for AutoML optimization request."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     dataset_id: str = Field(..., description="ID of the dataset to optimize on")
     objective: str = Field(default="auc", description="Optimization objective")
@@ -117,8 +121,9 @@ class AutoMLRequestDTO(BaseModel):
 
 class HyperparameterSpaceDTO(BaseModel):
     """DTO for hyperparameter search space."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     parameter_name: str = Field(..., description="Name of the hyperparameter")
     parameter_type: str = Field(
@@ -139,8 +144,9 @@ class HyperparameterSpaceDTO(BaseModel):
 
 class OptimizationTrialDTO(BaseModel):
     """DTO for individual optimization trial."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     trial_number: int = Field(..., description="Trial number")
     parameters: dict[str, Any] = Field(..., description="Trial parameters")
@@ -152,8 +158,9 @@ class OptimizationTrialDTO(BaseModel):
 
 class EnsembleConfigDTO(BaseModel):
     """DTO for ensemble configuration."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     method: str = Field(..., description="Ensemble method")
     algorithms: list[dict[str, Any]] = Field(
@@ -168,8 +175,9 @@ class EnsembleConfigDTO(BaseModel):
 
 class AutoMLResultDTO(BaseModel):
     """DTO for AutoML optimization result."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     best_algorithm: str = Field(..., description="Best performing algorithm")
     best_params: dict[str, Any] = Field(..., description="Best hyperparameters")
@@ -195,8 +203,9 @@ class AutoMLResultDTO(BaseModel):
 
 class AutoMLResponseDTO(BaseModel):
     """DTO for AutoML operation response."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     success: bool = Field(..., description="Whether the operation was successful")
     detector_id: str | None = Field(
@@ -221,8 +230,9 @@ class AutoMLResponseDTO(BaseModel):
 
 class AutoMLProfileRequestDTO(BaseModel):
     """DTO for dataset profiling request."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     dataset_id: str = Field(..., description="ID of the dataset to profile")
     include_recommendations: bool = Field(
@@ -238,8 +248,9 @@ class AutoMLProfileRequestDTO(BaseModel):
 
 class AutoMLProfileResponseDTO(BaseModel):
     """DTO for dataset profiling response."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     success: bool = Field(..., description="Whether the profiling was successful")
     dataset_profile: DatasetProfileDTO | None = Field(
@@ -255,8 +266,9 @@ class AutoMLProfileResponseDTO(BaseModel):
 
 class HyperparameterOptimizationRequestDTO(BaseModel):
     """DTO for hyperparameter optimization request."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     dataset_id: str = Field(..., description="ID of the dataset")
     algorithm: str = Field(..., description="Algorithm to optimize")
@@ -279,8 +291,9 @@ class HyperparameterOptimizationRequestDTO(BaseModel):
 
 class HyperparameterOptimizationResponseDTO(BaseModel):
     """DTO for hyperparameter optimization response."""
-
-    model_config = ConfigDict(from_attributes=True)
+    
+    model_config = ConfigDict(extra="forbid")
+     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     success: bool = Field(..., description="Whether optimization was successful")
     best_params: dict[str, Any] | None = Field(

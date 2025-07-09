@@ -2,8 +2,15 @@
 """Analyze project structure and identify stray files."""
 
 import json
+import fnmatch
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, List, Optional, Set
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
 
 
 def analyze_project_structure() -> dict:

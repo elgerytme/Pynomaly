@@ -10,7 +10,8 @@ from pydantic import BaseModel, Field
 
 class OptimizationObjectiveDTO(BaseModel):
     """DTO for optimization objective configuration."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     name: str = Field(description="Objective name (e.g., 'accuracy', 'speed')")
     weight: float = Field(gt=0.0, le=1.0, description="Objective weight (0-1)")
     direction: str = Field(
@@ -22,8 +23,9 @@ class OptimizationObjectiveDTO(BaseModel):
 
 class ResourceConstraintsDTO(BaseModel):
     """DTO for optimization resource constraints."""
-
-    max_time_seconds: int = Field(
+    
+    model_config = ConfigDict(extra="forbid")
+     max_time_seconds: int = Field(
         default=3600, ge=60, description="Maximum optimization time"
     )
     max_trials: int = Field(default=100, ge=10, description="Maximum number of trials")
@@ -35,7 +37,8 @@ class ResourceConstraintsDTO(BaseModel):
 
 class OptimizationConfigDTO(BaseModel):
     """DTO for complete optimization configuration."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     algorithm_name: str = Field(description="Algorithm to optimize")
     objectives: list[OptimizationObjectiveDTO] = Field(
         description="Optimization objectives"
@@ -52,7 +55,8 @@ class OptimizationConfigDTO(BaseModel):
 
 class DatasetCharacteristicsDTO(BaseModel):
     """DTO for dataset characteristics analysis."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     n_samples: int = Field(description="Number of samples")
     n_features: int = Field(description="Number of features")
     size_category: str = Field(description="Dataset size category")
@@ -65,7 +69,8 @@ class DatasetCharacteristicsDTO(BaseModel):
 
 class OptimizationResultDTO(BaseModel):
     """DTO for optimization results."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     best_parameters: dict[str, Any] = Field(description="Best parameters found")
     best_metrics: dict[str, float] = Field(description="Best metric values")
     optimization_time: float = Field(description="Total optimization time")
@@ -78,7 +83,8 @@ class OptimizationResultDTO(BaseModel):
 
 class OptimizationHistoryDTO(BaseModel):
     """DTO for optimization history entry."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     algorithm_name: str = Field(description="Algorithm name")
     dataset_characteristics: DatasetCharacteristicsDTO = Field(
         description="Dataset characteristics"
@@ -95,7 +101,8 @@ class OptimizationHistoryDTO(BaseModel):
 
 class LearningInsightsDTO(BaseModel):
     """DTO for learning insights from optimization history."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     algorithm_trends: dict[str, dict[str, Any]] = Field(
         description="Algorithm performance trends"
     )
@@ -111,7 +118,8 @@ class LearningInsightsDTO(BaseModel):
 
 class AutoMLRequestDTO(BaseModel):
     """DTO for AutoML optimization request."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     dataset_name: str = Field(description="Dataset name")
     algorithm_names: list[str] = Field(description="Algorithms to optimize")
     optimization_config: OptimizationConfigDTO = Field(
@@ -125,7 +133,8 @@ class AutoMLRequestDTO(BaseModel):
 
 class AutoMLResponseDTO(BaseModel):
     """DTO for AutoML optimization response."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     request_id: str = Field(description="Request identifier")
     status: str = Field(description="Optimization status")
     results: list[OptimizationResultDTO] = Field(
@@ -141,7 +150,8 @@ class AutoMLResponseDTO(BaseModel):
 
 class EnsembleOptimizationDTO(BaseModel):
     """DTO for ensemble optimization configuration."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     base_algorithms: list[str] = Field(description="Base algorithms for ensemble")
     ensemble_method: str = Field(
         default="voting", description="Ensemble combination method"
@@ -157,7 +167,8 @@ class EnsembleOptimizationDTO(BaseModel):
 
 class MetaLearningConfigDTO(BaseModel):
     """DTO for meta-learning configuration."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     enable_meta_learning: bool = Field(default=True, description="Enable meta-learning")
     similarity_threshold: float = Field(
         default=0.7, description="Dataset similarity threshold"
@@ -171,7 +182,8 @@ class MetaLearningConfigDTO(BaseModel):
 
 class PerformancePredictionDTO(BaseModel):
     """DTO for performance prediction."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     algorithm_name: str = Field(description="Algorithm name")
     dataset_characteristics: DatasetCharacteristicsDTO = Field(
         description="Dataset characteristics"
@@ -188,7 +200,8 @@ class PerformancePredictionDTO(BaseModel):
 
 class OptimizationMonitoringDTO(BaseModel):
     """DTO for real-time optimization monitoring."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     optimization_id: str = Field(description="Optimization identifier")
     current_trial: int = Field(description="Current trial number")
     total_trials: int = Field(description="Total planned trials")
@@ -202,7 +215,8 @@ class OptimizationMonitoringDTO(BaseModel):
 
 class HyperparameterSpaceDTO(BaseModel):
     """DTO for hyperparameter search space definition."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     algorithm_name: str = Field(description="Algorithm name")
     parameter_definitions: dict[str, dict[str, Any]] = Field(
         description="Parameter definitions"
@@ -218,7 +232,8 @@ class HyperparameterSpaceDTO(BaseModel):
 
 class OptimizationProfileDTO(BaseModel):
     """DTO for optimization profile and preferences."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     user_id: str = Field(description="User identifier")
     optimization_preferences: dict[str, Any] = Field(
         description="User optimization preferences"
@@ -237,7 +252,8 @@ class OptimizationProfileDTO(BaseModel):
 
 class BatchOptimizationDTO(BaseModel):
     """DTO for batch optimization across multiple datasets."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     datasets: list[str] = Field(description="Dataset names for batch optimization")
     algorithms: list[str] = Field(description="Algorithms to optimize")
     shared_config: OptimizationConfigDTO = Field(
@@ -256,7 +272,8 @@ class BatchOptimizationDTO(BaseModel):
 
 class OptimizationReportDTO(BaseModel):
     """DTO for comprehensive optimization report."""
-
+    
+    model_config = ConfigDict(extra="forbid")
     executive_summary: dict[str, Any] = Field(description="Executive summary")
     detailed_results: list[OptimizationResultDTO] = Field(
         description="Detailed results"
