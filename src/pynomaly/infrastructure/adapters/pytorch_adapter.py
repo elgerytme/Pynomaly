@@ -17,7 +17,7 @@ from torch.utils.data import DataLoader, TensorDataset
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import AnomalyScore
+from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 from pynomaly.shared.protocols import DetectorProtocol
 
 logger = logging.getLogger(__name__)
@@ -358,6 +358,27 @@ class PyTorchAdapter(DetectorProtocol):
         self._model: BaseAnomalyModel | None = None
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._init_algorithm()
+    
+    @property
+    def name(self) -> str:
+        """Get the name of the detector."""
+        return f"PyTorch_{self.detector.algorithm}"
+    
+    @property
+    def contamination_rate(self) -> ContaminationRate:
+        """Get the contamination rate."""
+        rate = self.detector.parameters.get("contamination", 0.1)
+        return ContaminationRate(rate)
+    
+    @property
+    def is_fitted(self) -> bool:
+        """Check if the detector has been fitted."""
+        return self.detector.is_fitted and self._model is not None
+    
+    @property
+    def parameters(self) -> dict[str, Any]:
+        """Get the current parameters of the detector."""
+        return self.detector.parameters.copy()
 
     def _init_algorithm(self) -> None:
         """Initialize the PyTorch model."""
@@ -459,6 +480,97 @@ class PyTorchAdapter(DetectorProtocol):
         except Exception as e:
             raise AdapterError(f"Failed to train PyTorch model: {e}")
 
+    def detect(self, dataset: Dataset) -> DetectionResult:
+        """Detect anomalies in the dataset.
+
+        Args:
+            dataset: The dataset to analyze
+
+        Returns:
+            Detection result containing anomalies, scores, and labels
+        """
+        return self.predict(dataset)
+    
+    def score(self, dataset: Dataset) -> list[AnomalyScore]:
+        """Calculate anomaly scores for the dataset.
+
+        Args:
+            dataset: The dataset to score
+
+        Returns:
+            List of anomaly scores
+        """
+        if not self.is_fitted:
+            raise AdapterError("Model must be fitted before scoring")
+        
+        try:
+            # Prepare data
+            X_test = self._prepare_data(dataset)
+            tensor_x = torch.FloatTensor(X_test).to(self._device)
+
+            # Get anomaly scores
+            self._model.eval()
+            with torch.no_grad():
+                scores = self._model.anomaly_score(tensor_x)
+                scores = scores.cpu().numpy()
+
+            # Normalize scores
+            min_score = np.min(scores)
+            max_score = np.max(scores)
+
+            if max_score > min_score:
+                normalized_scores = (scores - min_score) / (max_score - min_score)
+            else:
+                normalized_scores = np.zeros_like(scores)
+
+            # Calculate threshold for confidence
+            contamination = self.detector.parameters.get("contamination", 0.1)
+            threshold = np.percentile(normalized_scores, (1 - contamination) * 100)
+
+            # Create anomaly scores
+            return [
+                AnomalyScore(
+                    value=float(score),
+                    confidence=self._calculate_confidence(score, threshold),
+                )
+                for score in normalized_scores
+            ]
+
+        except Exception as e:
+            raise AdapterError(f"Failed to score with PyTorch model: {e}")
+    
+    def fit_detect(self, dataset: Dataset) -> DetectionResult:
+        """Fit the detector and detect anomalies in one step.
+
+        Args:
+            dataset: The dataset to fit and analyze
+
+        Returns:
+            Detection result
+        """
+        self.fit(dataset)
+        return self.detect(dataset)
+    
+    def get_params(self) -> dict[str, Any]:
+        """Get parameters of the detector.
+
+        Returns:
+            Dictionary of parameters
+        """
+        return self.parameters
+    
+    def set_params(self, **params: Any) -> None:
+        """Set parameters of the detector.
+
+        Args:
+            **params: Parameters to set
+        """
+        self.detector.parameters.update(params)
+        # Re-initialize if algorithm changed
+        if "algorithm" in params:
+            self.detector.algorithm = params["algorithm"]
+            self._init_algorithm()
+    
     def predict(self, dataset: Dataset) -> DetectionResult:
         """Detect anomalies using the trained model.
 

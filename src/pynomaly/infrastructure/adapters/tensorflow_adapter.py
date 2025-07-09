@@ -316,16 +316,33 @@ class TensorFlowAdapter(Detector):
 
     def _prepare_data(self, dataset: Dataset) -> tf.Tensor:
         """Prepare data for TensorFlow training."""
-        if dataset.features is None:
-            raise ValueError("Dataset features cannot be None")
-
+        df = dataset.data
+        
+        # Select numeric columns
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        
+        # Remove target column if present
+        if dataset.target_column and dataset.target_column in numeric_cols:
+            numeric_cols.remove(dataset.target_column)
+        
+        if not numeric_cols:
+            raise AdapterError("No numeric features found in dataset")
+        
+        # Extract features and handle missing values
+        X = df[numeric_cols].values
+        
+        # Simple imputation - replace NaN with column mean
+        col_means = np.nanmean(X, axis=0)
+        nan_indices = np.where(np.isnan(X))
+        X[nan_indices] = np.take(col_means, nan_indices[1])
+        
+        # Standardize features
+        mean = np.mean(X, axis=0)
+        std = np.std(X, axis=0) + 1e-6  # Add small constant to avoid division by zero
+        X = (X - mean) / std
+        
         # Convert to TensorFlow tensor
-        X = tf.constant(dataset.features.values, dtype=tf.float32)
-
-        # Normalize data
-        X = tf.nn.l2_normalize(X, axis=1)
-
-        return X
+        return tf.constant(X, dtype=tf.float32)
 
     def fit(self, dataset: Dataset) -> None:
         """Fit the TensorFlow model on the dataset.
@@ -511,21 +528,17 @@ class TensorFlowAdapter(Detector):
                         index=int(idx),
                         score=AnomalyScore(float(score)),
                         timestamp=(
-                            dataset.features.index[idx]
-                            if hasattr(dataset.features.index, "__getitem__")
+                            dataset.data.index[idx]
+                            if hasattr(dataset.data.index, "__getitem__")
                             else None
                         ),
-                        feature_names=(
-                            list(dataset.features.columns)
-                            if dataset.features is not None
-                            else None
-                        ),
+                        feature_names=list(dataset.data.columns),
                     )
                     anomalies.append(anomaly)
 
             # Calculate metrics
             n_anomalies = len(anomalies)
-            n_samples = len(dataset.features) if dataset.features is not None else 0
+            n_samples = len(dataset.data)
             anomaly_rate = n_anomalies / n_samples if n_samples > 0 else 0.0
 
             prediction_time = time.time() - start_time

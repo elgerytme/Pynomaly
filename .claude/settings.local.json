@@ -613,7 +613,8 @@
       "Bash(git checkout:*)",
       "Bash(gh issue comment:*)",
       "Bash(gh pr merge:*)",
-      "Bash(gh pr checks:*)"
+      "Bash(gh pr checks:*)",
+      "Bash(gh api:*)"
     ],
     "deny": [],
     "//": "This sets the default policy to 'allow' for any action that doesn't have a more specific rule below. This is the top-level 'allow all actions' setting.",

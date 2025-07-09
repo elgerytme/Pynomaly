@@ -1,0 +1,20 @@
+# Core testing requirements
+pytest>=8.0.0
+pytest-cov>=6.0.0
+pytest-asyncio>=0.24.0
+pytest-timeout>=2.3.0
+pytest-xdist>=3.6.0
+pytest-mock>=3.12.0
+
+# Test data and fixtures
+factory-boy>=3.3.1
+faker>=33.1.0
+hypothesis>=6.115.0
+
+# Async testing
+asyncio-mqtt>=0.11.0
+
+# Optional dependencies for testing
+responses>=0.24.0
+requests-mock>=1.11.0
+httpx>=0.28.1
