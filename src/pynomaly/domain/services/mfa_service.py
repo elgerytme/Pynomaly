@@ -8,7 +8,7 @@ import hashlib
 import hmac
 import secrets
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, List, Optional, Tuple
 from urllib.parse import quote
 from io import BytesIO
@@ -487,8 +487,8 @@ class MFAService:
                 "device_type": device_info.get("device_type", "Unknown"),
                 "user_agent": device_info.get("user_agent", ""),
                 "ip_address": device_info.get("ip_address", ""),
-                "created_at": datetime.utcnow().isoformat(),
-                "last_used": datetime.utcnow().isoformat()
+                "created_at": datetime.now(UTC).isoformat(),
+                "last_used": datetime.now(UTC).isoformat()
             }
             
             self.redis_client.setex(
@@ -529,7 +529,7 @@ class MFAService:
             return False
         
         # Update last used time
-        device_info["last_used"] = datetime.utcnow().isoformat()
+        device_info["last_used"] = datetime.now(UTC).isoformat()
         updated_data = "|".join(f"{k}:{v}" for k, v in device_info.items())
         self.redis_client.setex(
             f"mfa_trusted_device:{device_id}",
@@ -607,7 +607,7 @@ class MFAService:
                 method_type=MFAMethodType.TOTP,
                 status=MFAMethodStatus.ACTIVE,
                 display_name="Authenticator App",
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(UTC),
                 is_primary=True
             ))
         
@@ -619,7 +619,7 @@ class MFAService:
                 method_type=MFAMethodType.BACKUP_CODES,
                 status=MFAMethodStatus.ACTIVE,
                 display_name="Backup Codes",
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(UTC),
                 backup_codes_remaining=backup_count
             ))
         

@@ -7,17 +7,15 @@ This script performs comprehensive disaster recovery testing and validation
 import argparse
 import json
 import logging
-import os
 import subprocess
 import time
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-import yaml
-import psutil
-import requests
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from pathlib import Path
+
+import requests
+import yaml
 
 # Configure logging
 logging.basicConfig(
@@ -52,7 +50,7 @@ class TestCase:
     test_type: TestType
     description: str
     duration_estimate: int  # seconds
-    prerequisites: List[str]
+    prerequisites: list[str]
     cleanup_required: bool = True
     critical: bool = False
 
@@ -63,24 +61,24 @@ class TestExecution:
     test_case: TestCase
     result: TestResult
     start_time: datetime
-    end_time: Optional[datetime] = None
+    end_time: datetime | None = None
     duration: float = 0.0
-    error_message: Optional[str] = None
-    logs: List[str] = None
-    metrics: Dict = None
+    error_message: str | None = None
+    logs: list[str] = None
+    metrics: dict = None
 
 
 class DisasterRecoveryTester:
     """Disaster recovery testing framework"""
-    
+
     def __init__(self, config_file: str = None):
         self.config = self._load_config(config_file)
         self.test_results = []
         self.system_state = {}
         self.backup_created = False
         self.recovery_point = None
-        
-    def _load_config(self, config_file: str) -> Dict:
+
+    def _load_config(self, config_file: str) -> dict:
         """Load configuration from YAML file"""
         default_config = {
             'environment': 'staging',
@@ -111,16 +109,16 @@ class DisasterRecoveryTester:
                 'grafana_url': 'http://grafana:3000'
             }
         }
-        
+
         if config_file and Path(config_file).exists():
-            with open(config_file, 'r') as f:
+            with open(config_file) as f:
                 user_config = yaml.safe_load(f)
                 if user_config:
                     default_config.update(user_config)
-        
+
         return default_config
-    
-    def _execute_command(self, command: str, timeout: int = 60) -> Tuple[int, str, str]:
+
+    def _execute_command(self, command: str, timeout: int = 60) -> tuple[int, str, str]:
         """Execute shell command with timeout"""
         try:
             result = subprocess.run(
@@ -135,8 +133,8 @@ class DisasterRecoveryTester:
             return -1, "", f"Command timed out after {timeout} seconds"
         except Exception as e:
             return -1, "", str(e)
-    
-    def _check_system_health(self) -> Dict:
+
+    def _check_system_health(self) -> dict:
         """Check overall system health"""
         health_status = {
             'timestamp': datetime.now().isoformat(),
@@ -146,14 +144,14 @@ class DisasterRecoveryTester:
             'monitoring': self._check_monitoring_health()
         }
         return health_status
-    
-    def _check_kubernetes_health(self) -> Dict:
+
+    def _check_kubernetes_health(self) -> dict:
         """Check Kubernetes cluster health"""
         try:
             # Check cluster info
             returncode, stdout, stderr = self._execute_command("kubectl cluster-info")
             cluster_healthy = returncode == 0
-            
+
             # Check node status
             returncode, stdout, stderr = self._execute_command("kubectl get nodes -o json")
             if returncode == 0:
@@ -166,7 +164,7 @@ class DisasterRecoveryTester:
                     ready_nodes.append({'name': node_name, 'ready': ready})
             else:
                 ready_nodes = []
-            
+
             # Check pod status
             namespace = self.config['namespace']
             returncode, stdout, stderr = self._execute_command(f"kubectl get pods -n {namespace} -o json")
@@ -179,7 +177,7 @@ class DisasterRecoveryTester:
                     running_pods.append({'name': pod_name, 'phase': phase})
             else:
                 running_pods = []
-            
+
             return {
                 'cluster_healthy': cluster_healthy,
                 'nodes': ready_nodes,
@@ -188,22 +186,22 @@ class DisasterRecoveryTester:
         except Exception as e:
             logger.error(f"Error checking Kubernetes health: {e}")
             return {'error': str(e)}
-    
-    def _check_application_health(self) -> Dict:
+
+    def _check_application_health(self) -> dict:
         """Check application health"""
         try:
             app_url = self.config['application']['url']
             health_endpoint = self.config['application']['health_endpoint']
-            
+
             # Health check
             response = requests.get(f"{app_url}{health_endpoint}", timeout=10)
             health_status = response.status_code == 200
-            
+
             # API check
             api_endpoint = self.config['application']['api_endpoint']
             response = requests.get(f"{app_url}{api_endpoint}/health", timeout=10)
             api_status = response.status_code == 200
-            
+
             return {
                 'health_check': health_status,
                 'api_available': api_status,
@@ -212,24 +210,24 @@ class DisasterRecoveryTester:
         except Exception as e:
             logger.error(f"Error checking application health: {e}")
             return {'error': str(e)}
-    
-    def _check_database_health(self) -> Dict:
+
+    def _check_database_health(self) -> dict:
         """Check database health"""
         try:
             namespace = self.config['namespace']
-            
+
             # Check database pod
             returncode, stdout, stderr = self._execute_command(
                 f"kubectl exec -n {namespace} postgres-0 -- pg_isready"
             )
             db_ready = returncode == 0
-            
+
             # Check database connectivity
             returncode, stdout, stderr = self._execute_command(
                 f"kubectl exec -n {namespace} postgres-0 -- psql -U postgres -c 'SELECT version();'"
             )
             db_accessible = returncode == 0
-            
+
             return {
                 'ready': db_ready,
                 'accessible': db_accessible,
@@ -238,27 +236,27 @@ class DisasterRecoveryTester:
         except Exception as e:
             logger.error(f"Error checking database health: {e}")
             return {'error': str(e)}
-    
-    def _check_monitoring_health(self) -> Dict:
+
+    def _check_monitoring_health(self) -> dict:
         """Check monitoring system health"""
         try:
             prometheus_url = self.config['monitoring']['prometheus_url']
             grafana_url = self.config['monitoring']['grafana_url']
-            
+
             # Check Prometheus
             try:
                 response = requests.get(f"{prometheus_url}/api/v1/query?query=up", timeout=10)
                 prometheus_healthy = response.status_code == 200
             except:
                 prometheus_healthy = False
-            
+
             # Check Grafana
             try:
                 response = requests.get(f"{grafana_url}/api/health", timeout=10)
                 grafana_healthy = response.status_code == 200
             except:
                 grafana_healthy = False
-            
+
             return {
                 'prometheus': prometheus_healthy,
                 'grafana': grafana_healthy
@@ -266,65 +264,65 @@ class DisasterRecoveryTester:
         except Exception as e:
             logger.error(f"Error checking monitoring health: {e}")
             return {'error': str(e)}
-    
+
     def _create_backup(self) -> bool:
         """Create system backup"""
         try:
             logger.info("Creating system backup...")
-            
+
             # Create backup directory
             backup_dir = Path(self.config['backup']['storage_path'])
             backup_dir.mkdir(parents=True, exist_ok=True)
-            
+
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             backup_path = backup_dir / f"pynomaly_backup_{timestamp}"
-            
+
             # Database backup
             namespace = self.config['namespace']
             db_backup_file = backup_path / "database.sql"
-            
+
             backup_path.mkdir(parents=True, exist_ok=True)
-            
+
             returncode, stdout, stderr = self._execute_command(
                 f"kubectl exec -n {namespace} postgres-0 -- pg_dump -U postgres pynomaly_staging > {db_backup_file}"
             )
-            
+
             if returncode != 0:
                 logger.error(f"Database backup failed: {stderr}")
                 return False
-            
+
             # Kubernetes configuration backup
             k8s_backup_file = backup_path / "kubernetes.yaml"
             returncode, stdout, stderr = self._execute_command(
                 f"kubectl get all -n {namespace} -o yaml > {k8s_backup_file}"
             )
-            
+
             if returncode != 0:
                 logger.error(f"Kubernetes backup failed: {stderr}")
                 return False
-            
+
             # Application data backup (if any)
             # This would backup persistent volumes, logs, etc.
-            
+
             self.backup_created = True
             self.recovery_point = timestamp
-            
+
             logger.info(f"Backup created successfully: {backup_path}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Error creating backup: {e}")
             return False
-    
+
     def _simulate_failure(self, failure_type: TestType) -> bool:
         """Simulate different types of failures"""
         try:
             namespace = self.config['namespace']
-            
+
             if failure_type == TestType.BACKUP_RESTORE:
                 # No actual failure simulation for backup/restore test
                 return True
-                
+
             elif failure_type == TestType.FAILOVER:
                 # Simulate database failover
                 logger.info("Simulating database failover...")
@@ -332,7 +330,7 @@ class DisasterRecoveryTester:
                     f"kubectl delete pod postgres-0 -n {namespace}"
                 )
                 return returncode == 0
-                
+
             elif failure_type == TestType.NETWORK_PARTITION:
                 # Simulate network partition
                 logger.info("Simulating network partition...")
@@ -340,7 +338,7 @@ class DisasterRecoveryTester:
                     f"kubectl apply -f - <<EOF\napiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\nmetadata:\n  name: deny-all\n  namespace: {namespace}\nspec:\n  podSelector: {{}}\n  policyTypes:\n  - Ingress\n  - Egress\nEOF"
                 )
                 return returncode == 0
-                
+
             elif failure_type == TestType.DATA_CENTER_FAILURE:
                 # Simulate data center failure by cordoning nodes
                 logger.info("Simulating data center failure...")
@@ -348,7 +346,7 @@ class DisasterRecoveryTester:
                     "kubectl get nodes -o name | head -1 | xargs kubectl cordon"
                 )
                 return returncode == 0
-                
+
             elif failure_type == TestType.FULL_SYSTEM_RECOVERY:
                 # Simulate full system failure
                 logger.info("Simulating full system failure...")
@@ -356,123 +354,123 @@ class DisasterRecoveryTester:
                     f"kubectl delete deployment --all -n {namespace}"
                 )
                 return returncode == 0
-                
+
             else:
                 logger.error(f"Unknown failure type: {failure_type}")
                 return False
-                
+
         except Exception as e:
             logger.error(f"Error simulating failure: {e}")
             return False
-    
+
     def _restore_from_backup(self) -> bool:
         """Restore system from backup"""
         try:
             if not self.backup_created or not self.recovery_point:
                 logger.error("No backup available for restoration")
                 return False
-            
+
             logger.info(f"Restoring from backup: {self.recovery_point}")
-            
+
             namespace = self.config['namespace']
             backup_path = Path(self.config['backup']['storage_path']) / f"pynomaly_backup_{self.recovery_point}"
-            
+
             # Restore database
             db_backup_file = backup_path / "database.sql"
             if db_backup_file.exists():
                 returncode, stdout, stderr = self._execute_command(
                     f"kubectl exec -i -n {namespace} postgres-0 -- psql -U postgres pynomaly_staging < {db_backup_file}"
                 )
-                
+
                 if returncode != 0:
                     logger.error(f"Database restore failed: {stderr}")
                     return False
-            
+
             # Restore Kubernetes configuration
             k8s_backup_file = backup_path / "kubernetes.yaml"
             if k8s_backup_file.exists():
                 returncode, stdout, stderr = self._execute_command(
                     f"kubectl apply -f {k8s_backup_file}"
                 )
-                
+
                 if returncode != 0:
                     logger.error(f"Kubernetes restore failed: {stderr}")
                     return False
-            
+
             # Wait for restoration to complete
             time.sleep(self.config['recovery']['verification_delay'])
-            
+
             logger.info("Restoration completed successfully")
             return True
-            
+
         except Exception as e:
             logger.error(f"Error restoring from backup: {e}")
             return False
-    
+
     def _cleanup_failure_simulation(self, failure_type: TestType) -> bool:
         """Clean up after failure simulation"""
         try:
             namespace = self.config['namespace']
-            
+
             if failure_type == TestType.NETWORK_PARTITION:
                 # Remove network policy
                 returncode, stdout, stderr = self._execute_command(
                     f"kubectl delete networkpolicy deny-all -n {namespace}"
                 )
-                
+
             elif failure_type == TestType.DATA_CENTER_FAILURE:
                 # Uncordon nodes
                 returncode, stdout, stderr = self._execute_command(
                     "kubectl get nodes -o name | xargs kubectl uncordon"
                 )
-                
+
             elif failure_type == TestType.FULL_SYSTEM_RECOVERY:
                 # Restore application deployment
                 returncode, stdout, stderr = self._execute_command(
-                    f"kubectl apply -f k8s/staging/"
+                    "kubectl apply -f k8s/staging/"
                 )
-                
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Error cleaning up failure simulation: {e}")
             return False
-    
+
     def _wait_for_recovery(self, timeout: int = 600) -> bool:
         """Wait for system to recover"""
         start_time = time.time()
-        
+
         while time.time() - start_time < timeout:
             health_status = self._check_system_health()
-            
+
             # Check if system is healthy
             if (health_status.get('kubernetes', {}).get('cluster_healthy', False) and
                 health_status.get('application', {}).get('health_check', False) and
                 health_status.get('database', {}).get('ready', False)):
-                
+
                 logger.info("System recovery completed successfully")
                 return True
-            
+
             logger.info("Waiting for system recovery...")
             time.sleep(10)
-        
+
         logger.error("System recovery timed out")
         return False
-    
+
     def _verify_data_integrity(self) -> bool:
         """Verify data integrity after recovery"""
         try:
             namespace = self.config['namespace']
-            
+
             # Check database integrity
             returncode, stdout, stderr = self._execute_command(
                 f"kubectl exec -n {namespace} postgres-0 -- psql -U postgres -d pynomaly_staging -c 'SELECT COUNT(*) FROM information_schema.tables;'"
             )
-            
+
             if returncode != 0:
                 logger.error(f"Database integrity check failed: {stderr}")
                 return False
-            
+
             # Check application data
             try:
                 app_url = self.config['application']['url']
@@ -483,25 +481,25 @@ class DisasterRecoveryTester:
             except Exception as e:
                 logger.error(f"Application integrity check failed: {e}")
                 return False
-            
+
             logger.info("Data integrity verification passed")
             return True
-            
+
         except Exception as e:
             logger.error(f"Error verifying data integrity: {e}")
             return False
-    
+
     def run_test(self, test_case: TestCase) -> TestExecution:
         """Run a single disaster recovery test"""
         logger.info(f"Running test: {test_case.name}")
-        
+
         execution = TestExecution(
             test_case=test_case,
             result=TestResult.FAILED,
             start_time=datetime.now(),
             logs=[]
         )
-        
+
         try:
             # Check prerequisites
             for prereq in test_case.prerequisites:
@@ -509,17 +507,17 @@ class DisasterRecoveryTester:
                     execution.result = TestResult.SKIPPED
                     execution.error_message = f"Prerequisite not met: {prereq}"
                     return execution
-            
+
             # Record initial system state
             execution.logs.append("Recording initial system state...")
             self.system_state = self._check_system_health()
-            
+
             # Create backup if needed
             if test_case.test_type != TestType.BACKUP_RESTORE:
                 if not self._create_backup():
                     execution.error_message = "Failed to create backup"
                     return execution
-            
+
             # Run the specific test
             if test_case.test_type == TestType.BACKUP_RESTORE:
                 success = self._test_backup_restore()
@@ -536,168 +534,168 @@ class DisasterRecoveryTester:
             else:
                 execution.error_message = f"Unknown test type: {test_case.test_type}"
                 return execution
-            
+
             if success:
                 execution.result = TestResult.PASSED
                 execution.logs.append("Test completed successfully")
             else:
                 execution.result = TestResult.FAILED
                 execution.logs.append("Test failed")
-            
+
             # Cleanup if required
             if test_case.cleanup_required:
                 self._cleanup_failure_simulation(test_case.test_type)
-            
+
         except Exception as e:
             execution.result = TestResult.ERROR
             execution.error_message = str(e)
             execution.logs.append(f"Test error: {e}")
-            
+
         finally:
             execution.end_time = datetime.now()
             execution.duration = (execution.end_time - execution.start_time).total_seconds()
-            
+
         return execution
-    
+
     def _check_prerequisite(self, prereq: str) -> bool:
         """Check if prerequisite is met"""
         # Implementation depends on specific prerequisites
         # This is a placeholder implementation
         return True
-    
+
     def _test_backup_restore(self) -> bool:
         """Test backup and restore functionality"""
         try:
             # Create backup
             if not self._create_backup():
                 return False
-            
+
             # Simulate data modification
             namespace = self.config['namespace']
             returncode, stdout, stderr = self._execute_command(
                 f"kubectl exec -n {namespace} postgres-0 -- psql -U postgres -d pynomaly_staging -c 'CREATE TABLE test_table (id INTEGER);'"
             )
-            
+
             # Restore from backup
             if not self._restore_from_backup():
                 return False
-            
+
             # Verify restoration
             returncode, stdout, stderr = self._execute_command(
                 f"kubectl exec -n {namespace} postgres-0 -- psql -U postgres -d pynomaly_staging -c 'SELECT * FROM test_table;'"
             )
-            
+
             # Test table should not exist after restore
             return returncode != 0
-            
+
         except Exception as e:
             logger.error(f"Backup/restore test failed: {e}")
             return False
-    
+
     def _test_failover(self) -> bool:
         """Test database failover"""
         try:
             # Simulate database failure
             if not self._simulate_failure(TestType.FAILOVER):
                 return False
-            
+
             # Wait for failover
             if not self._wait_for_recovery():
                 return False
-            
+
             # Verify data integrity
             return self._verify_data_integrity()
-            
+
         except Exception as e:
             logger.error(f"Failover test failed: {e}")
             return False
-    
+
     def _test_network_partition(self) -> bool:
         """Test network partition recovery"""
         try:
             # Simulate network partition
             if not self._simulate_failure(TestType.NETWORK_PARTITION):
                 return False
-            
+
             # Wait for network to be restored
             time.sleep(30)
-            
+
             # Clean up network policy
             if not self._cleanup_failure_simulation(TestType.NETWORK_PARTITION):
                 return False
-            
+
             # Wait for recovery
             if not self._wait_for_recovery():
                 return False
-            
+
             # Verify system health
             health_status = self._check_system_health()
             return health_status.get('application', {}).get('health_check', False)
-            
+
         except Exception as e:
             logger.error(f"Network partition test failed: {e}")
             return False
-    
+
     def _test_data_center_failure(self) -> bool:
         """Test data center failure recovery"""
         try:
             # Simulate data center failure
             if not self._simulate_failure(TestType.DATA_CENTER_FAILURE):
                 return False
-            
+
             # Wait for pods to be rescheduled
             time.sleep(60)
-            
+
             # Clean up
             if not self._cleanup_failure_simulation(TestType.DATA_CENTER_FAILURE):
                 return False
-            
+
             # Wait for recovery
             if not self._wait_for_recovery():
                 return False
-            
+
             # Verify system health
             health_status = self._check_system_health()
             return health_status.get('application', {}).get('health_check', False)
-            
+
         except Exception as e:
             logger.error(f"Data center failure test failed: {e}")
             return False
-    
+
     def _test_full_system_recovery(self) -> bool:
         """Test full system recovery"""
         try:
             # Simulate full system failure
             if not self._simulate_failure(TestType.FULL_SYSTEM_RECOVERY):
                 return False
-            
+
             # Restore from backup
             if not self._restore_from_backup():
                 return False
-            
+
             # Wait for recovery
             if not self._wait_for_recovery():
                 return False
-            
+
             # Verify data integrity
             return self._verify_data_integrity()
-            
+
         except Exception as e:
             logger.error(f"Full system recovery test failed: {e}")
             return False
-    
+
     def _test_point_in_time_recovery(self) -> bool:
         """Test point-in-time recovery"""
         try:
             # This would implement point-in-time recovery testing
             # For now, we'll use the backup/restore mechanism
             return self._test_backup_restore()
-            
+
         except Exception as e:
             logger.error(f"Point-in-time recovery test failed: {e}")
             return False
-    
-    def run_comprehensive_test(self) -> List[TestExecution]:
+
+    def run_comprehensive_test(self) -> list[TestExecution]:
         """Run comprehensive disaster recovery tests"""
         test_cases = [
             TestCase(
@@ -741,13 +739,13 @@ class DisasterRecoveryTester:
                 critical=True
             )
         ]
-        
+
         results = []
         for test_case in test_cases:
             execution = self.run_test(test_case)
             results.append(execution)
             self.test_results.append(execution)
-            
+
             # Log test result
             if execution.result == TestResult.PASSED:
                 logger.info(f"✓ {test_case.name} - PASSED ({execution.duration:.1f}s)")
@@ -755,22 +753,22 @@ class DisasterRecoveryTester:
                 logger.error(f"✗ {test_case.name} - {execution.result.value.upper()} ({execution.duration:.1f}s)")
                 if execution.error_message:
                     logger.error(f"  Error: {execution.error_message}")
-        
+
         return results
-    
-    def generate_report(self) -> Dict:
+
+    def generate_report(self) -> dict:
         """Generate comprehensive test report"""
         total_tests = len(self.test_results)
         passed_tests = sum(1 for r in self.test_results if r.result == TestResult.PASSED)
         failed_tests = sum(1 for r in self.test_results if r.result == TestResult.FAILED)
         error_tests = sum(1 for r in self.test_results if r.result == TestResult.ERROR)
         skipped_tests = sum(1 for r in self.test_results if r.result == TestResult.SKIPPED)
-        
+
         critical_tests = [r for r in self.test_results if r.test_case.critical]
         critical_passed = sum(1 for r in critical_tests if r.result == TestResult.PASSED)
-        
+
         total_duration = sum(r.duration for r in self.test_results)
-        
+
         report = {
             'summary': {
                 'total_tests': total_tests,
@@ -801,26 +799,26 @@ class DisasterRecoveryTester:
             'recommendations': self._generate_recommendations(),
             'timestamp': datetime.now().isoformat()
         }
-        
+
         return report
-    
-    def _generate_recommendations(self) -> List[str]:
+
+    def _generate_recommendations(self) -> list[str]:
         """Generate recommendations based on test results"""
         recommendations = []
-        
+
         failed_tests = [r for r in self.test_results if r.result == TestResult.FAILED]
         critical_failed = [r for r in failed_tests if r.test_case.critical]
-        
+
         if critical_failed:
             recommendations.append("CRITICAL: Address failed critical disaster recovery tests immediately")
             for test in critical_failed:
                 recommendations.append(f"- Fix {test.test_case.name}: {test.error_message}")
-        
+
         if failed_tests:
             recommendations.append("Address failed disaster recovery tests")
             recommendations.append("Review and improve backup procedures")
             recommendations.append("Enhance monitoring and alerting for failures")
-        
+
         # General recommendations
         recommendations.extend([
             "Schedule regular disaster recovery testing",
@@ -829,22 +827,22 @@ class DisasterRecoveryTester:
             "Review and update RTO/RPO objectives",
             "Implement automated disaster recovery testing"
         ])
-        
+
         return recommendations
-    
-    def save_report(self, report: Dict, filename: str = None):
+
+    def save_report(self, report: dict, filename: str = None):
         """Save test report to file"""
         if not filename:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             filename = f"disaster_recovery_report_{timestamp}.json"
-        
+
         reports_dir = Path("./reports/disaster_recovery")
         reports_dir.mkdir(parents=True, exist_ok=True)
-        
+
         filepath = reports_dir / filename
         with open(filepath, 'w') as f:
             json.dump(report, f, indent=2)
-        
+
         logger.info(f"Report saved to: {filepath}")
         return filepath
 
@@ -858,15 +856,15 @@ def main():
     parser.add_argument('--dry-run', action='store_true', help='Show what would be done without executing')
     parser.add_argument('--verbose', action='store_true', help='Verbose output')
     parser.add_argument('--output', help='Output file path')
-    
+
     args = parser.parse_args()
-    
+
     if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
-    
+
     # Initialize tester
     tester = DisasterRecoveryTester(args.config)
-    
+
     try:
         if args.test_type:
             # Run specific test
@@ -883,11 +881,11 @@ def main():
         else:
             # Run comprehensive tests
             results = tester.run_comprehensive_test()
-        
+
         # Generate and save report
         report = tester.generate_report()
         tester.save_report(report, args.output)
-        
+
         # Print summary
         print("\n" + "="*60)
         print("DISASTER RECOVERY TEST RESULTS")
@@ -900,14 +898,14 @@ def main():
         print(f"Success Rate: {report['summary']['success_rate']:.1f}%")
         print(f"Critical Success Rate: {report['summary']['critical_success_rate']:.1f}%")
         print(f"Total Duration: {report['summary']['total_duration']:.1f}s")
-        
+
         if report['summary']['failed'] > 0 or report['summary']['errors'] > 0:
             print("\nRecommendations:")
             for rec in report['recommendations']:
                 print(f"  - {rec}")
-        
+
         print("\n" + "="*60)
-        
+
         # Exit with appropriate code
         if report['summary']['critical_passed'] < report['summary']['critical_tests']:
             exit(1)  # Critical tests failed
@@ -915,7 +913,7 @@ def main():
             exit(2)  # Some tests failed
         else:
             exit(0)  # All tests passed
-            
+
     except Exception as e:
         logger.error(f"Disaster recovery testing failed: {e}")
         exit(1)

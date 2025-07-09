@@ -3,20 +3,19 @@ Comprehensive tests for detection endpoints.
 Tests anomaly detection, training, and model management API endpoints.
 """
 
-import json
-import pytest
 from datetime import datetime
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
-from fastapi.testclient import TestClient
+import pytest
 from fastapi import status
+from fastapi.testclient import TestClient
 
-from pynomaly.presentation.web_api.app import app
-from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.exceptions import DetectorError, DatasetError
+from pynomaly.domain.entities.detector import Detector
+from pynomaly.domain.exceptions import DatasetError, DetectorError
+from pynomaly.presentation.web_api.app import app
 
 
 class TestDetectionEndpointsComprehensive:
@@ -159,7 +158,7 @@ class TestDetectionEndpointsComprehensive:
     ):
         """Test detection with invalid detector ID."""
         mock_detection_service.detect_anomalies.side_effect = DetectorError("Detector not found")
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/detect",
@@ -177,7 +176,7 @@ class TestDetectionEndpointsComprehensive:
     ):
         """Test detection with invalid dataset ID."""
         mock_detection_service.detect_anomalies.side_effect = DatasetError("Dataset not found")
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/detect",
@@ -299,7 +298,7 @@ class TestDetectionEndpointsComprehensive:
     ):
         """Test training with invalid detector ID."""
         mock_detection_service.train_detector.side_effect = DetectorError("Detector not found")
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/train",
@@ -400,7 +399,7 @@ class TestDetectionEndpointsComprehensive:
     ):
         """Test successful detector retrieval."""
         detector_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_detection_service):
             response = client.get(
                 f"/api/v1/detectors/{detector_id}",
@@ -421,7 +420,7 @@ class TestDetectionEndpointsComprehensive:
         """Test detector retrieval with non-existent ID."""
         mock_detection_service.get_detector.side_effect = DetectorError("Detector not found")
         detector_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_detection_service):
             response = client.get(
                 f"/api/v1/detectors/{detector_id}",
@@ -433,7 +432,7 @@ class TestDetectionEndpointsComprehensive:
     def test_get_detector_invalid_id(self, client, auth_headers):
         """Test detector retrieval with invalid ID format."""
         invalid_id = "invalid-uuid"
-        
+
         response = client.get(
             f"/api/v1/detectors/{invalid_id}",
             headers=auth_headers,
@@ -744,10 +743,9 @@ class TestDetectionEndpointsComprehensive:
     ):
         """Test handling concurrent detection requests."""
         import threading
-        import time
 
         results = []
-        
+
         def make_detection_request():
             with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_detection_service):
                 response = client.post(
@@ -813,7 +811,7 @@ class TestDetectionEndpointsComprehensive:
         """Test error handling in detection endpoints."""
         # Test service unavailable
         mock_detection_service.detect_anomalies.side_effect = Exception("Service unavailable")
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/detect",

@@ -6,14 +6,11 @@ This script runs comprehensive code quality checks including linting, formatting
 
 import argparse
 import json
-import logging
-import os
 import subprocess
 import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import structlog
 
@@ -41,7 +38,7 @@ logger = structlog.get_logger(__name__)
 
 class QualityCheck:
     """Quality check result container."""
-    
+
     def __init__(self, name: str, passed: bool, duration: float, output: str = "", error: str = ""):
         self.name = name
         self.passed = passed
@@ -53,13 +50,13 @@ class QualityCheck:
 
 class QualityChecker:
     """Comprehensive quality checker for Pynomaly."""
-    
+
     def __init__(self, project_root: Path):
         self.project_root = project_root
-        self.results: List[QualityCheck] = []
+        self.results: list[QualityCheck] = []
         self.src_path = project_root / "src"
         self.tests_path = project_root / "tests"
-        
+
         # Quality check configurations
         self.checks = {
             "ruff_lint": {
@@ -123,14 +120,14 @@ class QualityChecker:
                 "required": True,
             },
         }
-        
+
         logger.info("Quality checker initialized", project_root=str(project_root))
-    
+
     def install_dependencies(self) -> bool:
         """Install required quality check dependencies."""
         try:
             logger.info("Installing quality check dependencies...")
-            
+
             dependencies = [
                 "ruff>=0.1.0",
                 "mypy>=1.0.0",
@@ -142,30 +139,30 @@ class QualityChecker:
                 "pydocstyle>=6.0.0",
                 "black>=22.0.0",
             ]
-            
+
             for dep in dependencies:
                 subprocess.run([
                     sys.executable, "-m", "pip", "install", dep
                 ], check=True, capture_output=True)
-            
+
             logger.info("Dependencies installed successfully")
             return True
-            
+
         except subprocess.CalledProcessError as e:
             logger.error("Failed to install dependencies", error=str(e))
             return False
-    
+
     def run_quality_check(self, check_name: str) -> QualityCheck:
         """Run a specific quality check."""
         if check_name not in self.checks:
             raise ValueError(f"Unknown quality check: {check_name}")
-        
+
         check_config = self.checks[check_name]
-        
+
         logger.info(f"Running quality check: {check_name}")
-        
+
         start_time = time.time()
-        
+
         try:
             # Run the check
             result = subprocess.run(
@@ -175,12 +172,12 @@ class QualityChecker:
                 timeout=check_config["timeout"],
                 cwd=self.project_root
             )
-            
+
             duration = time.time() - start_time
-            
+
             # Determine if check passed
             passed = self._evaluate_check_result(check_name, result)
-            
+
             quality_check = QualityCheck(
                 name=check_name,
                 passed=passed,
@@ -188,48 +185,48 @@ class QualityChecker:
                 output=result.stdout,
                 error=result.stderr if not passed else ""
             )
-            
+
             logger.info(
                 f"Quality check completed: {check_name}",
                 passed=passed,
                 duration=duration,
                 returncode=result.returncode
             )
-            
+
             return quality_check
-            
+
         except subprocess.TimeoutExpired:
             duration = time.time() - start_time
             error_msg = f"Quality check {check_name} timed out after {check_config['timeout']} seconds"
-            
+
             logger.error(error_msg)
-            
+
             return QualityCheck(
                 name=check_name,
                 passed=False,
                 duration=duration,
                 error=error_msg
             )
-        
+
         except Exception as e:
             duration = time.time() - start_time
             error_msg = f"Quality check {check_name} failed with error: {str(e)}"
-            
+
             logger.error(error_msg)
-            
+
             return QualityCheck(
                 name=check_name,
                 passed=False,
                 duration=duration,
                 error=error_msg
             )
-    
+
     def _evaluate_check_result(self, check_name: str, result: subprocess.CompletedProcess) -> bool:
         """Evaluate if a quality check passed based on its result."""
         # Most quality checks pass if return code is 0
         if result.returncode == 0:
             return True
-        
+
         # Special handling for specific checks
         if check_name == "bandit":
             # Bandit may have findings but still be acceptable
@@ -240,14 +237,14 @@ class QualityChecker:
                     if report_file.exists():
                         with open(report_file) as f:
                             bandit_data = json.load(f)
-                        
+
                         # Only fail on high severity issues
-                        high_severity = sum(1 for r in bandit_data.get("results", []) 
+                        high_severity = sum(1 for r in bandit_data.get("results", [])
                                           if r.get("issue_severity") == "HIGH")
                         return high_severity == 0
                 except:
                     pass
-        
+
         elif check_name == "safety":
             # Safety may have vulnerabilities but still be acceptable
             if result.returncode == 255:  # Safety found vulnerabilities
@@ -257,57 +254,57 @@ class QualityChecker:
                     if report_file.exists():
                         with open(report_file) as f:
                             safety_data = json.load(f)
-                        
+
                         # Only fail on high severity vulnerabilities
                         high_severity = sum(1 for v in safety_data.get("vulnerabilities", [])
                                           if v.get("severity") == "high")
                         return high_severity == 0
                 except:
                     pass
-        
+
         elif check_name == "complexity":
             # Complexity check is informational, always pass
             return True
-        
+
         elif check_name == "duplication":
             # Duplication check is informational, always pass
             return True
-        
+
         return False
-    
-    def run_all_checks(self, checks: Optional[List[str]] = None, fail_fast: bool = False) -> Dict[str, QualityCheck]:
+
+    def run_all_checks(self, checks: list[str] | None = None, fail_fast: bool = False) -> dict[str, QualityCheck]:
         """Run all quality checks or specified checks."""
         if checks is None:
             checks = list(self.checks.keys())
-        
+
         logger.info(f"Running quality checks: {checks}")
-        
+
         results = {}
         total_start_time = time.time()
-        
+
         for check_name in checks:
             if check_name not in self.checks:
                 logger.warning(f"Unknown quality check: {check_name}")
                 continue
-            
+
             result = self.run_quality_check(check_name)
             results[check_name] = result
             self.results.append(result)
-            
+
             # Fail fast if requested and this is a required check
             if fail_fast and not result.passed and self.checks[check_name]["required"]:
                 logger.error(f"Required quality check failed: {check_name}")
                 break
-        
+
         total_duration = time.time() - total_start_time
-        
+
         # Generate summary
         passed_count = sum(1 for r in results.values() if r.passed)
-        required_count = sum(1 for name, r in results.items() 
+        required_count = sum(1 for name, r in results.items()
                            if r.passed and self.checks[name]["required"])
-        total_required = sum(1 for name in results.keys() 
+        total_required = sum(1 for name in results.keys()
                            if self.checks[name]["required"])
-        
+
         logger.info(
             "Quality checks completed",
             passed=passed_count,
@@ -316,26 +313,26 @@ class QualityChecker:
             required_total=total_required,
             duration=total_duration
         )
-        
+
         return results
-    
-    def generate_report(self, results: Dict[str, QualityCheck], output_path: Path):
+
+    def generate_report(self, results: dict[str, QualityCheck], output_path: Path):
         """Generate comprehensive quality report."""
         try:
             # Create reports directory
             reports_dir = output_path / "reports"
             reports_dir.mkdir(parents=True, exist_ok=True)
-            
+
             # Calculate overall quality score
             total_checks = len(results)
             passed_checks = sum(1 for r in results.values() if r.passed)
             required_checks = sum(1 for name in results.keys() if self.checks[name]["required"])
-            required_passed = sum(1 for name, r in results.items() 
+            required_passed = sum(1 for name, r in results.items()
                                 if r.passed and self.checks[name]["required"])
-            
+
             quality_score = (passed_checks / total_checks) * 100 if total_checks > 0 else 0
             required_score = (required_passed / required_checks) * 100 if required_checks > 0 else 0
-            
+
             # Generate JSON report
             json_report = {
                 "timestamp": datetime.now().isoformat(),
@@ -363,29 +360,29 @@ class QualityChecker:
                     for name, result in results.items()
                 }
             }
-            
+
             with open(reports_dir / "quality_report.json", "w") as f:
                 json.dump(json_report, f, indent=2)
-            
+
             # Generate HTML report
             html_report = self._generate_html_report(json_report)
             with open(reports_dir / "quality_report.html", "w") as f:
                 f.write(html_report)
-            
+
             # Generate markdown summary
             md_report = self._generate_markdown_report(json_report)
             with open(reports_dir / "quality_summary.md", "w") as f:
                 f.write(md_report)
-            
+
             logger.info("Quality reports generated", output_dir=str(reports_dir))
-            
+
         except Exception as e:
             logger.error("Failed to generate quality report", error=str(e))
-    
-    def _generate_html_report(self, json_report: Dict) -> str:
+
+    def _generate_html_report(self, json_report: dict) -> str:
         """Generate HTML quality report."""
         status_color = "#28a745" if json_report["summary"]["overall_status"] == "PASS" else "#dc3545"
-        
+
         html = f"""
         <!DOCTYPE html>
         <html>
@@ -412,7 +409,7 @@ class QualityChecker:
                 <p class="status">Overall Status: {json_report['summary']['overall_status']}</p>
                 <p>Generated: {json_report['timestamp']}</p>
             </div>
-            
+
             <div class="summary">
                 <div class="metric">
                     <h3>Quality Score</h3>
@@ -435,15 +432,15 @@ class QualityChecker:
                     <p>{json_report['summary']['total_duration']:.2f}s</p>
                 </div>
             </div>
-            
+
             <h2>Quality Checks</h2>
         """
-        
+
         for check_name, check_data in json_report['checks'].items():
             status_class = "passed" if check_data['passed'] else "failed"
             status_text = "✅ PASSED" if check_data['passed'] else "❌ FAILED"
             required_text = " (REQUIRED)" if check_data['required'] else ""
-            
+
             html += f"""
             <div class="check">
                 <div class="check-header">
@@ -457,18 +454,18 @@ class QualityChecker:
                 </div>
             </div>
             """
-        
+
         html += """
         </body>
         </html>
         """
-        
+
         return html
-    
-    def _generate_markdown_report(self, json_report: Dict) -> str:
+
+    def _generate_markdown_report(self, json_report: dict) -> str:
         """Generate markdown quality report."""
         status_emoji = "✅" if json_report["summary"]["overall_status"] == "PASS" else "❌"
-        
+
         md = f"""# 🔍 Pynomaly Quality Report
 
 {status_emoji} **Overall Status:** {json_report['summary']['overall_status']}
@@ -490,20 +487,20 @@ class QualityChecker:
 ## 🔍 Quality Checks
 
 """
-        
+
         for check_name, check_data in json_report['checks'].items():
             status_emoji = "✅" if check_data['passed'] else "❌"
             status_text = "PASSED" if check_data['passed'] else "FAILED"
             required_text = " (REQUIRED)" if check_data['required'] else ""
-            
+
             md += f"""### {status_emoji} {check_name}{required_text} - {status_text}
 
-**Description:** {check_data['description']}  
-**Duration:** {check_data['duration']:.2f}s  
+**Description:** {check_data['description']}
+**Duration:** {check_data['duration']:.2f}s
 **Timestamp:** {check_data['timestamp']}
 
 """
-            
+
             if check_data['error']:
                 md += f"""**Error:**
 ```
@@ -511,7 +508,7 @@ class QualityChecker:
 ```
 
 """
-        
+
         return md
 
 
@@ -546,31 +543,31 @@ def main():
         action="store_true",
         help="Install required dependencies"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Initialize quality checker
     checker = QualityChecker(args.project_root)
-    
+
     # Install dependencies if requested
     if args.install_deps:
         if not checker.install_dependencies():
             logger.error("Failed to install dependencies")
             sys.exit(1)
-    
+
     # Run quality checks
     results = checker.run_all_checks(
         checks=args.checks,
         fail_fast=args.fail_fast
     )
-    
+
     # Generate report
     checker.generate_report(results, args.output_dir)
-    
+
     # Calculate exit code
-    required_failed = sum(1 for name, r in results.items() 
+    required_failed = sum(1 for name, r in results.items()
                          if not r.passed and checker.checks[name]["required"])
-    
+
     if required_failed > 0:
         logger.error(f"Required quality checks failed: {required_failed}")
         sys.exit(1)

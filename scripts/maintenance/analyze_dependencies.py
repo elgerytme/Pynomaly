@@ -5,20 +5,17 @@ Analyzes dependency complexity and provides optimization recommendations.
 """
 
 import json
-import re
 import os
+import re
+from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
-from collections import defaultdict, Counter
-import subprocess
-import sys
 
 
-def find_requirement_files() -> List[Path]:
+def find_requirement_files() -> list[Path]:
     """Find all requirement files in the project."""
     project_root = Path(".")
     requirement_files = []
-    
+
     patterns = [
         "requirements*.txt",
         "pyproject.toml",
@@ -27,11 +24,11 @@ def find_requirement_files() -> List[Path]:
         "Pipfile",
         "poetry.lock"
     ]
-    
+
     for pattern in patterns:
         requirement_files.extend(project_root.glob(pattern))
         requirement_files.extend(project_root.glob(f"**/{pattern}"))
-    
+
     # Filter out virtual environments and build directories
     filtered_files = []
     exclude_patterns = [
@@ -39,20 +36,20 @@ def find_requirement_files() -> List[Path]:
         "build", "dist", "site-packages", "node_modules",
         ".tox", ".pytest_cache", "__pycache__"
     ]
-    
+
     for file in requirement_files:
         if not any(pattern in str(file) for pattern in exclude_patterns):
             filtered_files.append(file)
-    
+
     return filtered_files
 
 
-def parse_requirements_txt(file_path: Path) -> Dict[str, str]:
+def parse_requirements_txt(file_path: Path) -> dict[str, str]:
     """Parse requirements.txt file and extract dependencies."""
     dependencies = {}
-    
+
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path) as f:
             for line in f:
                 line = line.strip()
                 if line and not line.startswith('#') and not line.startswith('-'):
@@ -74,22 +71,22 @@ def parse_requirements_txt(file_path: Path) -> Dict[str, str]:
                         dependencies[line.strip()] = "*"
     except Exception as e:
         print(f"Error parsing {file_path}: {e}")
-    
+
     return dependencies
 
 
-def parse_pyproject_toml(file_path: Path) -> Dict[str, Dict[str, str]]:
+def parse_pyproject_toml(file_path: Path) -> dict[str, dict[str, str]]:
     """Parse pyproject.toml file and extract dependencies."""
     dependencies = {
         "main": {},
         "optional": {},
         "dev": {}
     }
-    
+
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path) as f:
             content = f.read()
-            
+
         # Extract main dependencies
         main_deps_match = re.search(r'dependencies\s*=\s*\[(.*?)\]', content, re.DOTALL)
         if main_deps_match:
@@ -105,13 +102,13 @@ def parse_pyproject_toml(file_path: Path) -> Dict[str, Dict[str, str]]:
                         dependencies["main"][name.strip()] = version.strip().rstrip(',')
                     else:
                         dependencies["main"][line.strip()] = "*"
-        
+
         # Extract optional dependencies
         optional_deps_match = re.search(r'\[project\.optional-dependencies\](.*?)(?=\n\[|\Z)', content, re.DOTALL)
         if optional_deps_match:
             optional_content = optional_deps_match.group(1)
             current_group = None
-            
+
             for line in optional_content.split('\n'):
                 line = line.strip()
                 if line.endswith('= ['):
@@ -125,19 +122,19 @@ def parse_pyproject_toml(file_path: Path) -> Dict[str, Dict[str, str]]:
                     elif '==' in line:
                         name, version = line.split('==', 1)
                         dependencies["optional"][current_group][name.strip()] = version.strip().rstrip(',')
-                    elif line and not line in [']', '[']:
+                    elif line and line not in [']', '[']:
                         dependencies["optional"][current_group][line.strip()] = "*"
-    
+
     except Exception as e:
         print(f"Error parsing {file_path}: {e}")
-    
+
     return dependencies
 
 
-def analyze_dependency_overlap(files_data: Dict[str, Dict]) -> Dict[str, List[str]]:
+def analyze_dependency_overlap(files_data: dict[str, dict]) -> dict[str, list[str]]:
     """Analyze overlapping dependencies across files."""
     package_to_files = defaultdict(set)
-    
+
     for file_path, data in files_data.items():
         if isinstance(data, dict):
             if "main" in data:
@@ -146,16 +143,16 @@ def analyze_dependency_overlap(files_data: Dict[str, Dict]) -> Dict[str, List[st
             else:
                 for package in data.keys():
                     package_to_files[package].add(file_path)
-    
+
     overlapping_packages = {}
     for package, files in package_to_files.items():
         if len(files) > 1:
             overlapping_packages[package] = list(files)
-    
+
     return overlapping_packages
 
 
-def identify_heavy_dependencies() -> List[str]:
+def identify_heavy_dependencies() -> list[str]:
     """Identify dependencies that are typically large or heavy."""
     heavy_deps = [
         "tensorflow", "torch", "pytorch", "transformers", "datasets",
@@ -171,11 +168,11 @@ def identify_heavy_dependencies() -> List[str]:
     return heavy_deps
 
 
-def analyze_version_conflicts(files_data: Dict[str, Dict]) -> List[Dict]:
+def analyze_version_conflicts(files_data: dict[str, dict]) -> list[dict]:
     """Analyze version conflicts between different requirement files."""
     conflicts = []
     package_versions = defaultdict(dict)
-    
+
     for file_path, data in files_data.items():
         if isinstance(data, dict):
             if "main" in data:
@@ -184,7 +181,7 @@ def analyze_version_conflicts(files_data: Dict[str, Dict]) -> List[Dict]:
             else:
                 for package, version in data.items():
                     package_versions[package][file_path] = version
-    
+
     for package, file_versions in package_versions.items():
         if len(file_versions) > 1:
             unique_versions = set(file_versions.values())
@@ -194,19 +191,19 @@ def analyze_version_conflicts(files_data: Dict[str, Dict]) -> List[Dict]:
                     "versions": dict(file_versions),
                     "conflict_count": len(unique_versions)
                 })
-    
+
     return conflicts
 
 
 def generate_optimization_recommendations(
-    files_data: Dict[str, Dict],
-    overlapping_packages: Dict[str, List[str]],
-    version_conflicts: List[Dict],
-    heavy_deps: List[str]
-) -> List[str]:
+    files_data: dict[str, dict],
+    overlapping_packages: dict[str, list[str]],
+    version_conflicts: list[dict],
+    heavy_deps: list[str]
+) -> list[str]:
     """Generate optimization recommendations."""
     recommendations = []
-    
+
     # Recommendation 1: Consolidate overlapping packages
     if overlapping_packages:
         recommendations.append(
@@ -214,14 +211,14 @@ def generate_optimization_recommendations(
             f"are duplicated across multiple files. Consider consolidating into "
             f"pyproject.toml optional dependencies."
         )
-    
+
     # Recommendation 2: Address version conflicts
     if version_conflicts:
         recommendations.append(
             f"⚠️ **Resolve Version Conflicts**: {len(version_conflicts)} packages "
             f"have conflicting versions across files. This can cause installation issues."
         )
-    
+
     # Recommendation 3: Optimize heavy dependencies
     total_deps = sum(len(data.get("main", data)) for data in files_data.values() if isinstance(data, dict))
     heavy_found = []
@@ -229,20 +226,20 @@ def generate_optimization_recommendations(
         if isinstance(data, dict):
             deps = data.get("main", data)
             heavy_found.extend([dep for dep in deps.keys() if dep in heavy_deps])
-    
+
     if heavy_found:
         recommendations.append(
             f"🔧 **Optimize Heavy Dependencies**: {len(set(heavy_found))} heavy dependencies "
             f"found. Consider making them optional or grouping them appropriately."
         )
-    
+
     # Recommendation 4: Reduce total dependency count
     if total_deps > 100:
         recommendations.append(
             f"📉 **Reduce Dependency Count**: {total_deps} total dependencies found. "
             f"Consider removing unused dependencies and using lighter alternatives."
         )
-    
+
     # Recommendation 5: Use dependency groups
     req_txt_files = [f for f in files_data.keys() if f.endswith('.txt')]
     if len(req_txt_files) > 3:
@@ -250,7 +247,7 @@ def generate_optimization_recommendations(
             f"📋 **Simplify File Structure**: {len(req_txt_files)} requirements.txt files "
             f"found. Consider consolidating into pyproject.toml with optional dependencies."
         )
-    
+
     return recommendations
 
 
@@ -359,13 +356,13 @@ all = [
 def main():
     """Main function to analyze dependencies."""
     print("🔍 Analyzing Pynomaly dependency structure...")
-    
+
     # Find all requirement files
     requirement_files = find_requirement_files()
     print(f"📁 Found {len(requirement_files)} dependency files:")
     for file in requirement_files:
         print(f"  - {file}")
-    
+
     # Parse all dependency files
     files_data = {}
     for file in requirement_files:
@@ -373,34 +370,34 @@ def main():
             files_data[str(file)] = parse_requirements_txt(file)
         elif file.name == 'pyproject.toml':
             files_data[str(file)] = parse_pyproject_toml(file)
-    
+
     # Analyze overlapping dependencies
     overlapping_packages = analyze_dependency_overlap(files_data)
-    
+
     # Identify heavy dependencies
     heavy_deps = identify_heavy_dependencies()
-    
+
     # Analyze version conflicts
     version_conflicts = analyze_version_conflicts(files_data)
-    
+
     # Generate recommendations
     recommendations = generate_optimization_recommendations(
         files_data, overlapping_packages, version_conflicts, heavy_deps
     )
-    
+
     # Create analysis report
     report = {
         "analysis_date": "2025-07-09",
         "total_files": len(requirement_files),
         "total_unique_packages": len(set(
-            pkg for data in files_data.values() 
+            pkg for data in files_data.values()
             if isinstance(data, dict)
             for pkg in (data.get("main", data).keys() if "main" in data else data.keys())
         )),
         "overlapping_packages": len(overlapping_packages),
         "version_conflicts": len(version_conflicts),
         "heavy_dependencies_found": len([
-            pkg for data in files_data.values() 
+            pkg for data in files_data.values()
             if isinstance(data, dict)
             for pkg in (data.get("main", data).keys() if "main" in data else data.keys())
             if pkg in heavy_deps
@@ -411,12 +408,12 @@ def main():
         "version_conflicts_detail": version_conflicts[:5],
         "consolidated_structure": create_consolidated_pyproject()
     }
-    
+
     # Save analysis report
     os.makedirs("reports", exist_ok=True)
     with open("reports/dependency_analysis_report.json", "w") as f:
         json.dump(report, f, indent=2)
-    
+
     # Generate markdown report
     markdown_report = f"""# Dependency Analysis Report
 
@@ -433,39 +430,39 @@ def main():
 ## Key Findings
 
 """
-    
+
     for i, rec in enumerate(recommendations, 1):
         markdown_report += f"{i}. {rec}\n"
-    
-    markdown_report += f"""
+
+    markdown_report += """
 
 ## Files Analyzed
 
 """
-    
+
     for file in report['files_analyzed']:
         markdown_report += f"- `{file}`\n"
-    
-    markdown_report += f"""
+
+    markdown_report += """
 
 ## Top Overlapping Packages
 
 """
-    
+
     for pkg, files in report['top_overlapping_packages'].items():
         markdown_report += f"- **{pkg}**: {len(files)} files ({', '.join(files)})\n"
-    
-    markdown_report += f"""
+
+    markdown_report += """
 
 ## Version Conflicts
 
 """
-    
+
     for conflict in report['version_conflicts_detail']:
         markdown_report += f"- **{conflict['package']}**: {conflict['conflict_count']} different versions\n"
         for file, version in conflict['versions'].items():
             markdown_report += f"  - `{file}`: {version}\n"
-    
+
     markdown_report += f"""
 
 ## Recommendations
@@ -516,25 +513,25 @@ pip install pynomaly[analytics,ml-heavy]
 4. **Update Documentation**: Update installation instructions
 5. **CI/CD Updates**: Update workflows to use new structure
 """
-    
+
     with open("reports/dependency_analysis_report.md", "w") as f:
         f.write(markdown_report)
-    
+
     # Print summary
-    print(f"\n📊 **Dependency Analysis Complete**")
+    print("\n📊 **Dependency Analysis Complete**")
     print(f"  - Total files analyzed: {report['total_files']}")
     print(f"  - Total unique packages: {report['total_unique_packages']}")
     print(f"  - Overlapping packages: {report['overlapping_packages']}")
     print(f"  - Version conflicts: {report['version_conflicts']}")
     print(f"  - Heavy dependencies: {report['heavy_dependencies_found']}")
-    print(f"\n📋 **Key Recommendations:**")
+    print("\n📋 **Key Recommendations:**")
     for i, rec in enumerate(recommendations[:3], 1):
         print(f"  {i}. {rec}")
-    
-    print(f"\n📄 **Reports Generated:**")
-    print(f"  - JSON: reports/dependency_analysis_report.json")
-    print(f"  - Markdown: reports/dependency_analysis_report.md")
-    
+
+    print("\n📄 **Reports Generated:**")
+    print("  - JSON: reports/dependency_analysis_report.json")
+    print("  - Markdown: reports/dependency_analysis_report.md")
+
     return report
 
 

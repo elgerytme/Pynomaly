@@ -3,13 +3,14 @@ Integration tests for application services.
 Tests basic service functionality and integration patterns.
 """
 
-import pytest
-from unittest.mock import Mock, AsyncMock, MagicMock
+from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
+
 import numpy as np
+import pytest
 
 from pynomaly.application.services import DetectionService, EnsembleService
-from pynomaly.domain.entities import Detector, Dataset
+from pynomaly.domain.entities import Dataset, Detector
 
 
 class TestApplicationServicesIntegration:
@@ -118,7 +119,7 @@ class TestApplicationServicesIntegration:
         except AttributeError:
             # Method might not exist or have different signature
             pytest.skip("detect_anomalies method not available with expected signature")
-        except Exception as e:
+        except Exception:
             # Other exceptions are expected due to mocking
             assert True
 
@@ -142,7 +143,7 @@ class TestApplicationServicesIntegration:
         except AttributeError:
             # Method might not exist or have different signature
             pytest.skip("create_ensemble method not available with expected signature")
-        except Exception as e:
+        except Exception:
             # Other exceptions are expected due to mocking
             assert True
 
@@ -153,12 +154,12 @@ class TestApplicationServicesIntegration:
             'detect_anomalies',
             'get_detection_results',
         ]
-        
+
         available_methods = []
         for method_name in expected_methods:
             if hasattr(detection_service, method_name):
                 available_methods.append(method_name)
-        
+
         # At least one method should be available
         assert len(available_methods) > 0, "No expected methods found on DetectionService"
 
@@ -169,12 +170,12 @@ class TestApplicationServicesIntegration:
             'create_ensemble',
             'detect_with_ensemble',
         ]
-        
+
         available_methods = []
         for method_name in expected_methods:
             if hasattr(ensemble_service, method_name):
                 available_methods.append(method_name)
-        
+
         # At least one method should be available
         assert len(available_methods) > 0, "No expected methods found on EnsembleService"
 
@@ -189,7 +190,7 @@ class TestApplicationServicesIntegration:
         """Test algorithm registry integration."""
         # Check that algorithm registry is properly injected
         assert detection_service.algorithm_registry == mock_algorithm_registry
-        
+
         # Test that registry methods are available
         algorithms = mock_algorithm_registry.list_algorithms()
         assert isinstance(algorithms, list)
@@ -199,13 +200,13 @@ class TestApplicationServicesIntegration:
         """Test that mock algorithm adapter works correctly."""
         # Get adapter from registry
         adapter = mock_algorithm_registry.get_adapter('IsolationForest')
-        
+
         # Test basic adapter functionality
         assert adapter is not None
         assert hasattr(adapter, 'fit')
         assert hasattr(adapter, 'predict')
         assert hasattr(adapter, 'is_fitted')
-        
+
         # Test prediction
         test_data = np.random.randn(5, 2)
         predictions = adapter.predict(test_data)
@@ -215,13 +216,13 @@ class TestApplicationServicesIntegration:
     def test_service_async_methods(self, detection_service):
         """Test that services have async methods."""
         import inspect
-        
+
         # Check for async methods
-        methods = [getattr(detection_service, method) for method in dir(detection_service) 
+        methods = [getattr(detection_service, method) for method in dir(detection_service)
                   if not method.startswith('_') and callable(getattr(detection_service, method))]
-        
+
         async_methods = [method for method in methods if inspect.iscoroutinefunction(method)]
-        
+
         # Should have at least one async method
         assert len(async_methods) > 0, "No async methods found on DetectionService"
 
@@ -259,14 +260,14 @@ class TestApplicationServicesIntegration:
             result_repository=mock_repositories['result_repository'],
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         service2 = DetectionService(
             detector_repository=mock_repositories['detector_repository'],
             dataset_repository=mock_repositories['dataset_repository'],
             result_repository=mock_repositories['result_repository'],
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         # Verify services are different instances
         assert service1 is not service2
         assert id(service1) != id(service2)
@@ -276,11 +277,11 @@ class TestApplicationServicesIntegration:
         # Setup mock behavior
         mock_repositories['detector_repository'].find_by_id.return_value = sample_detector
         mock_repositories['detector_repository'].save.return_value = None
-        
+
         # Test mock behavior
         result = mock_repositories['detector_repository'].find_by_id(sample_detector.id)
         assert result == sample_detector
-        
+
         mock_repositories['detector_repository'].save(sample_detector)
         mock_repositories['detector_repository'].save.assert_called_once_with(sample_detector)
 
@@ -289,7 +290,7 @@ class TestApplicationServicesIntegration:
         # Test that services can be used together
         assert detection_service is not None
         assert ensemble_service is not None
-        
+
         # Test that ensemble service depends on detection service
         assert hasattr(ensemble_service, 'detection_service')
         assert ensemble_service.detection_service is not None
@@ -299,7 +300,7 @@ class TestApplicationServicesIntegration:
         # Test that services handle large data conceptually
         large_data = np.random.randn(10000, 10)
         assert large_data.shape == (10000, 10)
-        
+
         # Service should be able to handle large data shapes
         # (actual processing would depend on implementation)
         assert detection_service is not None
@@ -309,7 +310,7 @@ class TestApplicationServicesIntegration:
         # Test that services are designed for performance
         # (actual performance would depend on implementation)
         assert hasattr(detection_service, 'algorithm_registry')
-        
+
         # Algorithm registry should provide efficient access
         registry = detection_service.algorithm_registry
         assert callable(registry.get_adapter)

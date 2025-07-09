@@ -3,8 +3,9 @@ Fixed unit tests for domain value objects.
 Tests that demonstrate improved test coverage for domain components.
 """
 
-import pytest
 from dataclasses import FrozenInstanceError
+
+import pytest
 
 from pynomaly.domain.value_objects.model_metrics import ModelMetrics
 
@@ -21,7 +22,7 @@ class TestModelMetricsFixed:
             f1_score=0.90,
             auc_score=0.93
         )
-        
+
         assert metrics.accuracy == 0.95
         assert metrics.precision == 0.92
         assert metrics.recall == 0.88
@@ -39,7 +40,7 @@ class TestModelMetricsFixed:
             f1_score=0.81,
             metadata=metadata
         )
-        
+
         assert metrics.metadata == metadata
 
     def test_model_metrics_default_auc_score(self):
@@ -50,7 +51,7 @@ class TestModelMetricsFixed:
             recall=0.88,
             f1_score=0.90
         )
-        
+
         assert metrics.auc_score == 0.0
 
     def test_model_metrics_validation_accuracy_too_high(self):
@@ -125,7 +126,7 @@ class TestModelMetricsFixed:
             auc_score=0.93,
             metadata=metadata
         )
-        
+
         result = metrics.to_dict()
         expected = {
             "accuracy": 0.95,
@@ -135,7 +136,7 @@ class TestModelMetricsFixed:
             "auc_score": 0.93,
             "metadata": metadata
         }
-        
+
         assert result == expected
 
     def test_model_metrics_from_dict(self):
@@ -148,9 +149,9 @@ class TestModelMetricsFixed:
             "auc_score": 0.93,
             "metadata": {"test": "value"}
         }
-        
+
         metrics = ModelMetrics.from_dict(data)
-        
+
         assert metrics.accuracy == 0.95
         assert metrics.precision == 0.92
         assert metrics.recall == 0.88
@@ -167,9 +168,9 @@ class TestModelMetricsFixed:
             "f1_score": 0.90
             # Missing auc_score and metadata
         }
-        
+
         metrics = ModelMetrics.from_dict(data)
-        
+
         assert metrics.accuracy == 0.95
         assert metrics.precision == 0.92
         assert metrics.recall == 0.88
@@ -185,7 +186,7 @@ class TestModelMetricsFixed:
             recall=0.88,
             f1_score=0.90
         )
-        
+
         # Should not be able to modify frozen dataclass
         with pytest.raises(FrozenInstanceError):
             metrics.accuracy = 0.90  # type: ignore
@@ -198,21 +199,21 @@ class TestModelMetricsFixed:
             recall=0.88,
             f1_score=0.90
         )
-        
+
         metrics2 = ModelMetrics(
             accuracy=0.95,
             precision=0.92,
             recall=0.88,
             f1_score=0.90
         )
-        
+
         metrics3 = ModelMetrics(
             accuracy=0.90,  # Different value
             precision=0.92,
             recall=0.88,
             f1_score=0.90
         )
-        
+
         assert metrics1 == metrics2
         assert metrics1 != metrics3
 
@@ -224,7 +225,7 @@ class TestModelMetricsFixed:
             recall=0.88,
             f1_score=0.90
         )
-        
+
         str_repr = str(metrics)
         assert "ModelMetrics" in str_repr
         assert "accuracy=0.95" in str_repr

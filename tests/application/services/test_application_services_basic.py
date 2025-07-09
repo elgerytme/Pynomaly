@@ -3,8 +3,9 @@ Basic tests for core application services.
 Tests service instantiation and basic method signatures.
 """
 
+from unittest.mock import Mock
+
 import pytest
-from unittest.mock import Mock, AsyncMock
 
 from pynomaly.application.services import DetectionService, EnsembleService
 from pynomaly.application.services.autonomous_service import AutonomousDetectionService
@@ -21,7 +22,7 @@ class TestApplicationServicesBasic:
         mock_dataset_repo = Mock()
         mock_result_repo = Mock()
         mock_algorithm_registry = Mock()
-        
+
         # Instantiate service
         service = DetectionService(
             detector_repository=mock_detector_repo,
@@ -29,7 +30,7 @@ class TestApplicationServicesBasic:
             result_repository=mock_result_repo,
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         # Verify
         assert service is not None
         assert hasattr(service, 'detect_anomalies')
@@ -42,7 +43,7 @@ class TestApplicationServicesBasic:
         mock_ensemble_repo = Mock()
         mock_detection_service = Mock()
         mock_algorithm_registry = Mock()
-        
+
         # Instantiate service
         service = EnsembleService(
             detector_repository=mock_detector_repo,
@@ -50,7 +51,7 @@ class TestApplicationServicesBasic:
             detection_service=mock_detection_service,
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         # Verify
         assert service is not None
         assert hasattr(service, 'create_ensemble')
@@ -63,7 +64,7 @@ class TestApplicationServicesBasic:
         mock_dataset_repo = Mock()
         mock_experiment_repo = Mock()
         mock_algorithm_registry = Mock()
-        
+
         # Instantiate service
         service = AutonomousDetectionService(
             detector_repository=mock_detector_repo,
@@ -71,7 +72,7 @@ class TestApplicationServicesBasic:
             experiment_repository=mock_experiment_repo,
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         # Verify
         assert service is not None
         assert hasattr(service, 'create_autonomous_detector')
@@ -84,7 +85,7 @@ class TestApplicationServicesBasic:
         mock_dataset_repo = Mock()
         mock_training_job_repo = Mock()
         mock_algorithm_registry = Mock()
-        
+
         # Instantiate service
         service = AutomatedTrainingService(
             detector_repository=mock_detector_repo,
@@ -92,7 +93,7 @@ class TestApplicationServicesBasic:
             training_job_repository=mock_training_job_repo,
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         # Verify
         assert service is not None
         assert hasattr(service, 'train_detector')
@@ -105,7 +106,7 @@ class TestApplicationServicesBasic:
         mock_dataset_repo = Mock()
         mock_result_repo = Mock()
         mock_algorithm_registry = Mock()
-        
+
         # Instantiate service
         service = DetectionService(
             detector_repository=mock_detector_repo,
@@ -113,13 +114,13 @@ class TestApplicationServicesBasic:
             result_repository=mock_result_repo,
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         # Check method signatures
         assert callable(getattr(service, 'detect_anomalies', None))
         assert callable(getattr(service, 'get_detection_results', None))
-        
+
         # Check if methods are async
-        method = getattr(service, 'detect_anomalies')
+        method = service.detect_anomalies
         import inspect
         assert inspect.iscoroutinefunction(method)
 
@@ -130,7 +131,7 @@ class TestApplicationServicesBasic:
         mock_ensemble_repo = Mock()
         mock_detection_service = Mock()
         mock_algorithm_registry = Mock()
-        
+
         # Instantiate service
         service = EnsembleService(
             detector_repository=mock_detector_repo,
@@ -138,7 +139,7 @@ class TestApplicationServicesBasic:
             detection_service=mock_detection_service,
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         # Check method signatures
         assert callable(getattr(service, 'create_ensemble', None))
         assert callable(getattr(service, 'detect_with_ensemble', None))
@@ -150,7 +151,7 @@ class TestApplicationServicesBasic:
         mock_dataset_repo = Mock()
         mock_experiment_repo = Mock()
         mock_algorithm_registry = Mock()
-        
+
         # Instantiate service
         service = AutonomousDetectionService(
             detector_repository=mock_detector_repo,
@@ -158,7 +159,7 @@ class TestApplicationServicesBasic:
             experiment_repository=mock_experiment_repo,
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         # Check method signatures
         assert callable(getattr(service, 'create_autonomous_detector', None))
         assert callable(getattr(service, 'run_autonomous_detection', None))
@@ -170,7 +171,7 @@ class TestApplicationServicesBasic:
         mock_dataset_repo = Mock()
         mock_training_job_repo = Mock()
         mock_algorithm_registry = Mock()
-        
+
         # Instantiate service
         service = AutomatedTrainingService(
             detector_repository=mock_detector_repo,
@@ -178,7 +179,7 @@ class TestApplicationServicesBasic:
             training_job_repository=mock_training_job_repo,
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         # Check method signatures
         assert callable(getattr(service, 'train_detector', None))
         assert callable(getattr(service, 'create_training_job', None))
@@ -190,7 +191,7 @@ class TestApplicationServicesBasic:
         mock_dataset_repo = Mock()
         mock_result_repo = Mock()
         mock_algorithm_registry = Mock()
-        
+
         # Instantiate service
         service = DetectionService(
             detector_repository=mock_detector_repo,
@@ -198,7 +199,7 @@ class TestApplicationServicesBasic:
             result_repository=mock_result_repo,
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         # Verify dependencies are injected
         assert service.detector_repository == mock_detector_repo
         assert service.dataset_repository == mock_dataset_repo
@@ -210,7 +211,7 @@ class TestApplicationServicesBasic:
         # Test DetectionService with missing dependencies
         with pytest.raises(TypeError):
             DetectionService()
-            
+
         # Test with None dependencies
         with pytest.raises((TypeError, AttributeError)):
             DetectionService(
@@ -227,7 +228,7 @@ class TestApplicationServicesBasic:
         mock_dataset_repo = Mock()
         mock_result_repo = Mock()
         mock_algorithm_registry = Mock()
-        
+
         # Test DetectionService
         detection_service = DetectionService(
             detector_repository=mock_detector_repo,
@@ -235,12 +236,12 @@ class TestApplicationServicesBasic:
             result_repository=mock_result_repo,
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         expected_methods = [
             'detect_anomalies',
             'get_detection_results',
         ]
-        
+
         for method_name in expected_methods:
             assert hasattr(detection_service, method_name), f"Missing method: {method_name}"
             method = getattr(detection_service, method_name)
@@ -253,7 +254,7 @@ class TestApplicationServicesBasic:
         mock_dataset_repo = Mock()
         mock_result_repo = Mock()
         mock_algorithm_registry = Mock()
-        
+
         # Test service with configuration
         service = DetectionService(
             detector_repository=mock_detector_repo,
@@ -261,7 +262,7 @@ class TestApplicationServicesBasic:
             result_repository=mock_result_repo,
             algorithm_registry=mock_algorithm_registry,
         )
-        
+
         # Verify service is properly configured
         assert service is not None
         assert hasattr(service, 'detector_repository')
@@ -280,7 +281,7 @@ class TestApplicationServicesBasic:
         mock_result_repo2 = Mock()
         mock_algorithm_registry1 = Mock()
         mock_algorithm_registry2 = Mock()
-        
+
         # Create two service instances
         service1 = DetectionService(
             detector_repository=mock_detector_repo1,
@@ -288,14 +289,14 @@ class TestApplicationServicesBasic:
             result_repository=mock_result_repo1,
             algorithm_registry=mock_algorithm_registry1,
         )
-        
+
         service2 = DetectionService(
             detector_repository=mock_detector_repo2,
             dataset_repository=mock_dataset_repo2,
             result_repository=mock_result_repo2,
             algorithm_registry=mock_algorithm_registry2,
         )
-        
+
         # Verify services are isolated
         assert service1 is not service2
         assert service1.detector_repository is not service2.detector_repository

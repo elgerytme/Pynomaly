@@ -5,8 +5,6 @@ Security Configuration for Pynomaly Production Environment
 from __future__ import annotations
 
 import os
-from pathlib import Path
-from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -16,67 +14,67 @@ from pynomaly.infrastructure.security.encryption import EncryptionConfig
 
 class SecuritySettings(BaseModel):
     """Comprehensive security settings for production deployment."""
-    
+
     # Environment
     environment: str = Field(default="production", description="Environment type")
     debug_mode: bool = Field(default=False, description="Enable debug mode")
-    
+
     # API Security
     api_key_required: bool = Field(default=True, description="Require API key for all requests")
     rate_limiting_enabled: bool = Field(default=True, description="Enable rate limiting")
     cors_enabled: bool = Field(default=True, description="Enable CORS")
-    cors_allowed_origins: List[str] = Field(default_factory=lambda: ["https://app.pynomaly.com"])
-    
+    cors_allowed_origins: list[str] = Field(default_factory=lambda: ["https://app.pynomaly.com"])
+
     # Authentication
     jwt_required: bool = Field(default=True, description="Require JWT for authenticated endpoints")
     session_management: bool = Field(default=True, description="Enable session management")
     two_factor_auth: bool = Field(default=True, description="Enable 2FA")
-    
+
     # Authorization
     rbac_enabled: bool = Field(default=True, description="Enable role-based access control")
     permission_checks: bool = Field(default=True, description="Enable permission checks")
-    
+
     # Data Protection
     encryption_at_rest: bool = Field(default=True, description="Enable encryption at rest")
     encryption_in_transit: bool = Field(default=True, description="Enable encryption in transit")
     field_level_encryption: bool = Field(default=True, description="Enable field-level encryption")
-    
+
     # Monitoring
     security_monitoring: bool = Field(default=True, description="Enable security monitoring")
     audit_logging: bool = Field(default=True, description="Enable audit logging")
     threat_detection: bool = Field(default=True, description="Enable threat detection")
-    
+
     # Compliance
     gdpr_compliance: bool = Field(default=True, description="Enable GDPR compliance features")
     data_retention_days: int = Field(default=365, description="Data retention period in days")
-    
+
     # SSL/TLS
     ssl_required: bool = Field(default=True, description="Require SSL/TLS")
-    ssl_cert_path: Optional[str] = Field(default=None, description="SSL certificate path")
-    ssl_key_path: Optional[str] = Field(default=None, description="SSL private key path")
-    
+    ssl_cert_path: str | None = Field(default=None, description="SSL certificate path")
+    ssl_key_path: str | None = Field(default=None, description="SSL private key path")
+
     # Database Security
     database_ssl: bool = Field(default=True, description="Enable database SSL")
     database_encryption: bool = Field(default=True, description="Enable database encryption")
-    
+
     # File Security
     file_upload_restrictions: bool = Field(default=True, description="Enable file upload restrictions")
     max_file_size_mb: int = Field(default=100, description="Maximum file size in MB")
-    allowed_file_types: List[str] = Field(default_factory=lambda: [".csv", ".json", ".parquet"])
-    
+    allowed_file_types: list[str] = Field(default_factory=lambda: [".csv", ".json", ".parquet"])
+
     # Network Security
     ip_whitelist_enabled: bool = Field(default=False, description="Enable IP whitelist")
-    ip_whitelist: List[str] = Field(default_factory=list, description="Allowed IP addresses")
-    
+    ip_whitelist: list[str] = Field(default_factory=list, description="Allowed IP addresses")
+
     # Password Policy
     password_policy_enabled: bool = Field(default=True, description="Enable password policy")
     password_min_length: int = Field(default=12, description="Minimum password length")
     password_complexity: bool = Field(default=True, description="Require password complexity")
-    
+
     # Session Security
     session_timeout_minutes: int = Field(default=30, description="Session timeout in minutes")
     max_concurrent_sessions: int = Field(default=3, description="Maximum concurrent sessions")
-    
+
     # Security Headers
     security_headers_enabled: bool = Field(default=True, description="Enable security headers")
     content_security_policy: str = Field(
@@ -87,66 +85,66 @@ class SecuritySettings(BaseModel):
 
 class ProductionSecurityConfig:
     """Production security configuration manager."""
-    
-    def __init__(self, config_path: Optional[str] = None):
+
+    def __init__(self, config_path: str | None = None):
         self.config_path = config_path or os.getenv("SECURITY_CONFIG_PATH", "config/security")
         self.settings = SecuritySettings()
         self._load_from_environment()
-    
+
     def _load_from_environment(self) -> None:
         """Load security settings from environment variables."""
         # API Security
         if os.getenv("API_KEY_REQUIRED"):
             self.settings.api_key_required = os.getenv("API_KEY_REQUIRED").lower() == "true"
-        
+
         if os.getenv("RATE_LIMITING_ENABLED"):
             self.settings.rate_limiting_enabled = os.getenv("RATE_LIMITING_ENABLED").lower() == "true"
-        
+
         # CORS
         if os.getenv("CORS_ALLOWED_ORIGINS"):
             self.settings.cors_allowed_origins = os.getenv("CORS_ALLOWED_ORIGINS").split(",")
-        
+
         # Authentication
         if os.getenv("JWT_REQUIRED"):
             self.settings.jwt_required = os.getenv("JWT_REQUIRED").lower() == "true"
-        
+
         if os.getenv("TWO_FACTOR_AUTH"):
             self.settings.two_factor_auth = os.getenv("TWO_FACTOR_AUTH").lower() == "true"
-        
+
         # SSL/TLS
         if os.getenv("SSL_CERT_PATH"):
             self.settings.ssl_cert_path = os.getenv("SSL_CERT_PATH")
-        
+
         if os.getenv("SSL_KEY_PATH"):
             self.settings.ssl_key_path = os.getenv("SSL_KEY_PATH")
-        
+
         # Database
         if os.getenv("DATABASE_SSL"):
             self.settings.database_ssl = os.getenv("DATABASE_SSL").lower() == "true"
-        
+
         # File Security
         if os.getenv("MAX_FILE_SIZE_MB"):
             self.settings.max_file_size_mb = int(os.getenv("MAX_FILE_SIZE_MB"))
-        
+
         if os.getenv("ALLOWED_FILE_TYPES"):
             self.settings.allowed_file_types = os.getenv("ALLOWED_FILE_TYPES").split(",")
-        
+
         # Network Security
         if os.getenv("IP_WHITELIST"):
             self.settings.ip_whitelist = os.getenv("IP_WHITELIST").split(",")
             self.settings.ip_whitelist_enabled = True
-        
+
         # Password Policy
         if os.getenv("PASSWORD_MIN_LENGTH"):
             self.settings.password_min_length = int(os.getenv("PASSWORD_MIN_LENGTH"))
-        
+
         # Session Security
         if os.getenv("SESSION_TIMEOUT_MINUTES"):
             self.settings.session_timeout_minutes = int(os.getenv("SESSION_TIMEOUT_MINUTES"))
-        
+
         if os.getenv("MAX_CONCURRENT_SESSIONS"):
             self.settings.max_concurrent_sessions = int(os.getenv("MAX_CONCURRENT_SESSIONS"))
-    
+
     def get_security_config(self) -> SecurityConfig:
         """Get authentication security configuration."""
         return SecurityConfig(
@@ -169,7 +167,7 @@ class ProductionSecurityConfig:
             audit_log_enabled=self.settings.audit_logging,
             audit_log_retention_days=90
         )
-    
+
     def get_encryption_config(self) -> EncryptionConfig:
         """Get encryption configuration."""
         return EncryptionConfig(
@@ -184,11 +182,11 @@ class ProductionSecurityConfig:
             pii_encryption_key=os.getenv("PII_ENCRYPTION_KEY"),
             sensitive_data_key=os.getenv("SENSITIVE_DATA_KEY")
         )
-    
-    def get_security_headers(self) -> Dict[str, str]:
+
+    def get_security_headers(self) -> dict[str, str]:
         """Get security headers configuration."""
         headers = {}
-        
+
         if self.settings.security_headers_enabled:
             headers.update({
                 "X-Frame-Options": "DENY",
@@ -199,47 +197,47 @@ class ProductionSecurityConfig:
                 "Referrer-Policy": "strict-origin-when-cross-origin",
                 "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
             })
-        
+
         return headers
-    
-    def validate_configuration(self) -> List[str]:
+
+    def validate_configuration(self) -> list[str]:
         """Validate security configuration and return warnings."""
         warnings = []
-        
+
         # Check for required environment variables
         required_vars = [
             "JWT_SECRET_KEY",
             "ENCRYPTION_KEY",
             "HMAC_KEY"
         ]
-        
+
         for var in required_vars:
             if not os.getenv(var):
                 warnings.append(f"Missing required environment variable: {var}")
-        
+
         # Check SSL configuration
         if self.settings.ssl_required:
             if not self.settings.ssl_cert_path or not self.settings.ssl_key_path:
                 warnings.append("SSL is required but certificate paths are not configured")
-        
+
         # Check password policy
         if self.settings.password_min_length < 8:
             warnings.append("Password minimum length should be at least 8 characters")
-        
+
         # Check session timeout
         if self.settings.session_timeout_minutes > 60:
             warnings.append("Session timeout is set to more than 60 minutes")
-        
+
         # Check CORS configuration
         if self.settings.cors_enabled and not self.settings.cors_allowed_origins:
             warnings.append("CORS is enabled but no allowed origins are configured")
-        
+
         return warnings
-    
-    def generate_security_report(self) -> Dict[str, any]:
+
+    def generate_security_report(self) -> dict[str, any]:
         """Generate a comprehensive security report."""
         warnings = self.validate_configuration()
-        
+
         return {
             "configuration_status": "valid" if not warnings else "warnings",
             "warnings": warnings,
@@ -276,18 +274,18 @@ class ProductionSecurityConfig:
                 "ip_whitelist": self.settings.ip_whitelist if self.settings.ip_whitelist_enabled else []
             }
         }
-    
+
     def export_security_config(self, output_path: str) -> None:
         """Export security configuration to a file."""
         config_data = {
             "security_settings": self.settings.dict(),
             "security_report": self.generate_security_report()
         }
-        
+
         import json
         with open(output_path, 'w') as f:
             json.dump(config_data, f, indent=2, default=str)
-    
+
     def create_environment_template(self, output_path: str) -> None:
         """Create a template .env file with security variables."""
         template = """# Pynomaly Security Configuration
@@ -347,7 +345,7 @@ MAX_CONCURRENT_SESSIONS=3
 ENVIRONMENT=production
 DEBUG_MODE=false
 """
-        
+
         with open(output_path, 'w') as f:
             f.write(template)
 

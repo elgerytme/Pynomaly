@@ -722,7 +722,7 @@ def generate_swagger_ui():
 <html>
 <head>
     <title>Pynomaly API Documentation</title>
-    <link rel="stylesheet" type="text/css" 
+    <link rel="stylesheet" type="text/css"
           href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
     <style>
         html {
@@ -749,7 +749,7 @@ def generate_swagger_ui():
     <div id="swagger-ui"></div>
     <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js">
     </script>
-    <script 
+    <script
         src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-standalone-preset.js">
     </script>
     <script>
@@ -947,7 +947,7 @@ async function listDetectors() {
         return detectors;
     } catch (error) {
         console.error(
-            'Failed to list detectors:', 
+            'Failed to list detectors:',
             error.response?.data || error.message
         );
     }
@@ -977,7 +977,7 @@ async function createDetector() {
         return detector.data.id;
     } catch (error) {
         console.error(
-            'Failed to create detector:', 
+            'Failed to create detector:',
             error.response?.data || error.message
         );
     }
@@ -1391,7 +1391,7 @@ def generate_readme():
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     readme_content = f"""# Pynomaly API Documentation
 
-Welcome to the Pynomaly API documentation! This directory contains comprehensive 
+Welcome to the Pynomaly API documentation! This directory contains comprehensive
 documentation for the Pynomaly anomaly detection platform.
 
 ## 📁 Documentation Structure
@@ -1415,7 +1415,7 @@ docs/api/
 
 ### 1. Interactive Documentation
 
-Open `generated/index.html` in your browser to explore the API interactively 
+Open `generated/index.html` in your browser to explore the API interactively
 with Swagger UI.
 
 ### 2. API Specification
@@ -1433,7 +1433,7 @@ Choose your preferred language:
 
 ### 4. Postman Collection
 
-Import `generated/pynomaly_api.postman_collection.json` into Postman for easy 
+Import `generated/pynomaly_api.postman_collection.json` into Postman for easy
 API testing.
 
 ## 📖 API Overview

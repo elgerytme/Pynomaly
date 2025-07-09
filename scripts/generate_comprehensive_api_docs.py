@@ -12,35 +12,34 @@ This script generates complete API documentation including:
 """
 
 import json
-import os
 import sys
-import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
+
 import yaml
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 try:
-    from pynomaly.presentation.api.app import create_app
     from pynomaly.infrastructure.config import create_container
+    from pynomaly.presentation.api.app import create_app
 except ImportError as e:
     print(f"Warning: Could not import Pynomaly modules: {e}")
     print("API documentation will be generated from static analysis")
 
 class APIDocumentationGenerator:
     """Generate comprehensive API documentation."""
-    
+
     def __init__(self, output_dir: str = "docs/api/generated"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # API endpoints discovered from the codebase
         self.endpoints = self._discover_endpoints()
-        
-    def _discover_endpoints(self) -> Dict[str, Any]:
+
+    def _discover_endpoints(self) -> dict[str, Any]:
         """Discover API endpoints from the codebase."""
         endpoints = {
             "authentication": {
@@ -321,10 +320,10 @@ class APIDocumentationGenerator:
                 ]
             }
         }
-        
+
         return endpoints
-    
-    def generate_openapi_spec(self) -> Dict[str, Any]:
+
+    def generate_openapi_spec(self) -> dict[str, Any]:
         """Generate OpenAPI 3.0 specification."""
         spec = {
             "openapi": "3.0.3",
@@ -374,10 +373,10 @@ class APIDocumentationGenerator:
             ],
             "paths": self._generate_paths()
         }
-        
+
         return spec
-    
-    def _generate_schemas(self) -> Dict[str, Any]:
+
+    def _generate_schemas(self) -> dict[str, Any]:
         """Generate OpenAPI schemas."""
         return {
             "AuthResponse": {
@@ -446,8 +445,8 @@ class APIDocumentationGenerator:
                 }
             }
         }
-    
-    def _generate_common_responses(self) -> Dict[str, Any]:
+
+    def _generate_common_responses(self) -> dict[str, Any]:
         """Generate common OpenAPI responses."""
         return {
             "BadRequest": {
@@ -491,19 +490,19 @@ class APIDocumentationGenerator:
                 }
             }
         }
-    
-    def _generate_paths(self) -> Dict[str, Any]:
+
+    def _generate_paths(self) -> dict[str, Any]:
         """Generate OpenAPI paths."""
         paths = {}
-        
+
         for category, info in self.endpoints.items():
             for endpoint in info["endpoints"]:
                 path = info["prefix"] + endpoint["path"]
                 method = endpoint["method"].lower()
-                
+
                 if path not in paths:
                     paths[path] = {}
-                
+
                 paths[path][method] = {
                     "summary": endpoint["description"],
                     "description": endpoint["description"],
@@ -516,7 +515,7 @@ class APIDocumentationGenerator:
                         "500": {"$ref": "#/components/responses/InternalServerError"}
                     }
                 }
-                
+
                 # Add specific responses
                 if "responses" in endpoint:
                     for status, response in endpoint["responses"].items():
@@ -528,7 +527,7 @@ class APIDocumentationGenerator:
                                 }
                             }
                         }
-                
+
                 # Add request body
                 if "request_body" in endpoint:
                     paths[path][method]["requestBody"] = {
@@ -542,10 +541,10 @@ class APIDocumentationGenerator:
                             }
                         }
                     }
-        
+
         return paths
-    
-    def generate_postman_collection(self) -> Dict[str, Any]:
+
+    def generate_postman_collection(self) -> dict[str, Any]:
         """Generate Postman collection."""
         collection = {
             "info": {
@@ -578,20 +577,20 @@ class APIDocumentationGenerator:
             ],
             "item": self._generate_postman_items()
         }
-        
+
         return collection
-    
-    def _generate_postman_items(self) -> List[Dict[str, Any]]:
+
+    def _generate_postman_items(self) -> list[dict[str, Any]]:
         """Generate Postman collection items."""
         items = []
-        
+
         for category, info in self.endpoints.items():
             folder = {
                 "name": category.title(),
                 "description": f"{category.title()} endpoints",
                 "item": []
             }
-            
+
             for endpoint in info["endpoints"]:
                 request_item = {
                     "name": endpoint["description"],
@@ -611,20 +610,20 @@ class APIDocumentationGenerator:
                     },
                     "response": []
                 }
-                
+
                 # Add request body example
                 if "request_body" in endpoint:
                     request_item["request"]["body"] = {
                         "mode": "raw",
                         "raw": json.dumps(endpoint["request_body"], indent=2)
                     }
-                
+
                 folder["item"].append(request_item)
-            
+
             items.append(folder)
-        
+
         return items
-    
+
     def generate_developer_guide(self) -> str:
         """Generate developer integration guide."""
         guide = """# Pynomaly API Developer Guide
@@ -798,7 +797,7 @@ class PynomaliAPI:
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json"
         }
-    
+
     def detect_anomalies(self, data: List[float], algorithm: str = "isolation_forest") -> Dict[str, Any]:
         response = requests.post(
             f"{self.base_url}/api/v1/detection/detect",
@@ -809,7 +808,7 @@ class PynomaliAPI:
             }
         )
         return response.json()
-    
+
     def get_health(self) -> Dict[str, Any]:
         response = requests.get(f"{self.base_url}/api/v1/health", headers=self.headers)
         return response.json()
@@ -831,7 +830,7 @@ class PynomaliAPI {
             'Content-Type': 'application/json'
         };
     }
-    
+
     async detectAnomalies(data, algorithm = 'isolation_forest') {
         const response = await fetch(`${this.baseUrl}/api/v1/detection/detect`, {
             method: 'POST',
@@ -843,7 +842,7 @@ class PynomaliAPI {
         });
         return await response.json();
     }
-    
+
     async getHealth() {
         const response = await fetch(`${this.baseUrl}/api/v1/health`, {
             headers: this.headers
@@ -875,9 +874,9 @@ For support and questions:
 - Email: support@pynomaly.com
 - Documentation: https://docs.pynomaly.com
 """
-        
+
         return guide
-    
+
     def generate_authentication_guide(self) -> str:
         """Generate authentication documentation."""
         guide = """# Authentication Guide
@@ -911,13 +910,13 @@ class AuthManager:
         self.access_token = None
         self.refresh_token = None
         self.token_expires_at = None
-    
+
     def login(self, username: str, password: str) -> bool:
         response = requests.post(
             f"{self.base_url}/api/v1/auth/login",
             json={"username": username, "password": password}
         )
-        
+
         if response.status_code == 200:
             data = response.json()
             self.access_token = data["access_token"]
@@ -925,28 +924,28 @@ class AuthManager:
             self.token_expires_at = datetime.now() + timedelta(seconds=data["expires_in"])
             return True
         return False
-    
+
     def refresh_access_token(self) -> bool:
         if not self.refresh_token:
             return False
-        
+
         response = requests.post(
             f"{self.base_url}/api/v1/auth/refresh",
             json={"refresh_token": self.refresh_token}
         )
-        
+
         if response.status_code == 200:
             data = response.json()
             self.access_token = data["access_token"]
             self.token_expires_at = datetime.now() + timedelta(seconds=data["expires_in"])
             return True
         return False
-    
+
     def get_auth_headers(self) -> dict:
         # Auto-refresh if token is expired
         if self.token_expires_at and datetime.now() >= self.token_expires_at:
             self.refresh_access_token()
-        
+
         return {"Authorization": f"Bearer {self.access_token}"}
 ```
 
@@ -978,7 +977,7 @@ class APIKeyClient:
             "X-API-Key": api_key,
             "Content-Type": "application/json"
         }
-    
+
     def make_request(self, method: str, endpoint: str, data: dict = None):
         url = f"{self.base_url}{endpoint}"
         response = requests.request(method, url, headers=self.headers, json=data)
@@ -998,25 +997,25 @@ import base64
 class TOTPManager:
     def __init__(self, api_client):
         self.api_client = api_client
-    
+
     def setup_totp(self, app_name: str = "Pynomaly") -> dict:
         response = self.api_client.post("/api/v1/mfa/totp/setup", {
             "app_name": app_name,
             "issuer": "Pynomaly Security"
         })
         return response.json()
-    
+
     def verify_totp(self, totp_code: str) -> bool:
         response = self.api_client.post("/api/v1/mfa/totp/verify", {
             "totp_code": totp_code
         })
         return response.status_code == 200
-    
+
     def generate_qr_code(self, totp_uri: str) -> str:
         qr = qrcode.QRCode(version=1, box_size=10, border=5)
         qr.add_data(totp_uri)
         qr.make(fit=True)
-        
+
         img = qr.make_image(fill_color="black", back_color="white")
         buffer = BytesIO()
         img.save(buffer, format='PNG')
@@ -1029,13 +1028,13 @@ class TOTPManager:
 class SMSAuth:
     def __init__(self, api_client):
         self.api_client = api_client
-    
+
     def setup_sms(self, phone_number: str) -> bool:
         response = self.api_client.post("/api/v1/mfa/sms/setup", {
             "phone_number": phone_number
         })
         return response.status_code == 200
-    
+
     def verify_sms(self, sms_code: str) -> bool:
         response = self.api_client.post("/api/v1/mfa/sms/verify", {
             "sms_code": sms_code
@@ -1078,9 +1077,9 @@ headers = {
 }
 ```
 """
-        
+
         return guide
-    
+
     def generate_api_versioning_strategy(self) -> str:
         """Generate API versioning strategy documentation."""
         strategy = """# API Versioning Strategy
@@ -1106,7 +1105,7 @@ Accept: application/vnd.pynomaly.v1+json
 - **Status**: Stable
 - **Support**: Full support
 - **Deprecation**: TBD
-- **Features**: 
+- **Features**:
   - JWT Authentication
   - MFA Support
   - Anomaly Detection
@@ -1146,10 +1145,10 @@ class VersionedClient:
     def __init__(self, base_url: str, version: str = "v1"):
         self.base_url = base_url
         self.version = version
-    
+
     def get_endpoint(self, path: str) -> str:
         return f"{self.base_url}/api/{self.version}{path}"
-    
+
     def get_headers(self) -> dict:
         return {
             "Accept": f"application/vnd.pynomaly.{self.version}+json",
@@ -1172,10 +1171,10 @@ class FeatureManager:
     def __init__(self, version: str):
         self.version = version
         self.features = self._load_features()
-    
+
     def is_enabled(self, feature: str) -> bool:
         return self.features.get(feature, False)
-    
+
     def _load_features(self) -> dict:
         return {
             "v1": {
@@ -1212,53 +1211,53 @@ def test_health_endpoint(version):
 | Streaming | ✗ | ✗ | ✓ |
 | GraphQL | ✗ | ✗ | ✓ |
 """
-        
+
         return strategy
-    
+
     def generate_all_documentation(self):
         """Generate all API documentation."""
         print("🚀 Starting comprehensive API documentation generation...")
-        
+
         # Generate OpenAPI specification
         print("📋 Generating OpenAPI specification...")
         openapi_spec = self.generate_openapi_spec()
-        
+
         # Save OpenAPI spec as JSON
         with open(self.output_dir / "openapi.json", "w") as f:
             json.dump(openapi_spec, f, indent=2)
-        
+
         # Save OpenAPI spec as YAML
         with open(self.output_dir / "openapi.yaml", "w") as f:
             yaml.dump(openapi_spec, f, default_flow_style=False)
-        
+
         # Generate Postman collection
         print("📮 Generating Postman collection...")
         postman_collection = self.generate_postman_collection()
-        
+
         with open(self.output_dir / "pynomaly_api.postman_collection.json", "w") as f:
             json.dump(postman_collection, f, indent=2)
-        
+
         # Generate documentation files
         print("📚 Generating documentation guides...")
-        
+
         # Developer guide
         with open(self.output_dir / "developer_guide.md", "w") as f:
             f.write(self.generate_developer_guide())
-        
+
         # Authentication guide
         with open(self.output_dir / "authentication_guide.md", "w") as f:
             f.write(self.generate_authentication_guide())
-        
+
         # API versioning strategy
         with open(self.output_dir / "versioning_strategy.md", "w") as f:
             f.write(self.generate_api_versioning_strategy())
-        
+
         # Generate main documentation index
         self._generate_documentation_index()
-        
+
         print("✅ API documentation generation completed!")
         print(f"📁 Documentation saved to: {self.output_dir}")
-    
+
     def _generate_documentation_index(self):
         """Generate main documentation index."""
         index_content = f"""# Pynomaly API Documentation
@@ -1362,7 +1361,7 @@ openapi-generator-cli generate -i openapi.json -g javascript -o javascript-sdk/
 - Follow rate limiting guidelines
 - Keep API keys secure
 """
-        
+
         with open(self.output_dir / "index.md", "w") as f:
             f.write(index_content)
 

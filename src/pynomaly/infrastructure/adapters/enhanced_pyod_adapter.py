@@ -17,7 +17,9 @@ from pynomaly.domain.exceptions import (
     InvalidAlgorithmError,
 )
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols.detector_protocol import DetectorProtocol, ExplainableDetectorProtocol
+from pynomaly.shared.protocols.detector_protocol import (
+    ExplainableDetectorProtocol,
+)
 
 
 @dataclass

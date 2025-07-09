@@ -4,29 +4,23 @@ import asyncio
 import json
 import tempfile
 import time
-from datetime import datetime
 from pathlib import Path
-from unittest.mock import AsyncMock, Mock, patch
-from uuid import UUID, uuid4
+from unittest.mock import patch
+from uuid import uuid4
 
 import pytest
-from pydantic import ValidationError
 
 from pynomaly.application.dto.configuration_dto import (
     AlgorithmConfigDTO,
     ConfigurationCaptureRequestDTO,
     ConfigurationExportRequestDTO,
-    ConfigurationLineageDTO,
     ConfigurationMetadataDTO,
-    ConfigurationResponseDTO,
     ConfigurationSearchRequestDTO,
     ConfigurationSource,
-    ConfigurationValidationResultDTO,
     DatasetConfigDTO,
     EvaluationConfigDTO,
     ExperimentConfigurationDTO,
     ExportFormat,
-    PerformanceResultsDTO,
     PreprocessingConfigDTO,
 )
 from pynomaly.application.services.configuration_capture_service import (
@@ -250,7 +244,7 @@ class TestConfigurationCaptureService:
             # Mock validation to raise an error
             with patch.object(service, 'validate_configuration') as mock_validate:
                 mock_validate.side_effect = Exception("Validation error")
-                
+
                 response = await service.capture_configuration(request)
 
                 assert response.success is False
@@ -297,7 +291,7 @@ class TestConfigurationCaptureService:
             # Verify file content
             with open(storage_path / f"{config.id}.json") as f:
                 saved_data = json.load(f)
-            
+
             assert saved_data["name"] == "test_config"
             assert saved_data["algorithm_config"]["algorithm_name"] == "isolation_forest"
 
@@ -1451,7 +1445,7 @@ class TestConfigurationCaptureService:
 
             # Create configuration with large data
             large_hyperparameters = {f"param_{i}": f"value_{i}" for i in range(1000)}
-            
+
             config = ExperimentConfigurationDTO(
                 id=uuid4(),
                 name="large_config",

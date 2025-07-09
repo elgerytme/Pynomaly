@@ -3,19 +3,18 @@ Comprehensive tests for streaming endpoints.
 Tests real-time streaming and WebSocket API endpoints.
 """
 
-import json
-import pytest
 from datetime import datetime
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
-from fastapi.testclient import TestClient
+import pytest
 from fastapi import status
+from fastapi.testclient import TestClient
 
-from pynomaly.presentation.web_api.app import app
-from pynomaly.domain.entities.streaming_session import StreamingSession
 from pynomaly.domain.entities.streaming_anomaly import StreamingAnomaly
-from pynomaly.domain.exceptions import StreamingError, DetectorError
+from pynomaly.domain.entities.streaming_session import StreamingSession
+from pynomaly.domain.exceptions import DetectorError, StreamingError
+from pynomaly.presentation.web_api.app import app
 
 
 class TestStreamingEndpointsComprehensive:
@@ -43,7 +42,7 @@ class TestStreamingEndpointsComprehensive:
             status="active",
             created_at=datetime.utcnow(),
         )
-        
+
         service.get_streaming_session.return_value = StreamingSession(
             id=uuid4(),
             detector_id=uuid4(),
@@ -52,7 +51,7 @@ class TestStreamingEndpointsComprehensive:
             status="active",
             created_at=datetime.utcnow(),
         )
-        
+
         service.process_streaming_data.return_value = {
             "batch_id": str(uuid4()),
             "session_id": str(uuid4()),
@@ -82,7 +81,7 @@ class TestStreamingEndpointsComprehensive:
             },
             "processing_time": 0.125,
         }
-        
+
         service.get_streaming_metrics.return_value = {
             "session_id": str(uuid4()),
             "total_samples": 10000,
@@ -100,7 +99,7 @@ class TestStreamingEndpointsComprehensive:
             },
             "uptime_seconds": 3600,
         }
-        
+
         service.get_streaming_anomalies.return_value = [
             StreamingAnomaly(
                 id=uuid4(),
@@ -121,7 +120,7 @@ class TestStreamingEndpointsComprehensive:
                 raw_data=[2.1, 1.7, 1.3],
             ),
         ]
-        
+
         return service
 
     @pytest.fixture
@@ -219,7 +218,7 @@ class TestStreamingEndpointsComprehensive:
     ):
         """Test streaming session creation with invalid detector."""
         mock_streaming_service.create_streaming_session.side_effect = DetectorError("Detector not found")
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_streaming_service):
             response = client.post(
                 "/api/v1/streaming/sessions",
@@ -261,7 +260,7 @@ class TestStreamingEndpointsComprehensive:
     ):
         """Test successful streaming session retrieval."""
         session_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_streaming_service):
             response = client.get(
                 f"/api/v1/streaming/sessions/{session_id}",
@@ -282,7 +281,7 @@ class TestStreamingEndpointsComprehensive:
         """Test streaming session retrieval with non-existent ID."""
         mock_streaming_service.get_streaming_session.side_effect = StreamingError("Session not found")
         session_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_streaming_service):
             response = client.get(
                 f"/api/v1/streaming/sessions/{session_id}",
@@ -375,7 +374,7 @@ class TestStreamingEndpointsComprehensive:
     ):
         """Test streaming data processing with invalid session."""
         mock_streaming_service.process_streaming_data.side_effect = StreamingError("Session not found")
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_streaming_service):
             response = client.post(
                 "/api/v1/streaming/process",
@@ -407,7 +406,7 @@ class TestStreamingEndpointsComprehensive:
     ):
         """Test successful streaming metrics retrieval."""
         session_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_streaming_service):
             response = client.get(
                 f"/api/v1/streaming/sessions/{session_id}/metrics",
@@ -430,7 +429,7 @@ class TestStreamingEndpointsComprehensive:
     ):
         """Test streaming metrics with time range filter."""
         session_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_streaming_service):
             response = client.get(
                 f"/api/v1/streaming/sessions/{session_id}/metrics?start_time=2024-01-01T00:00:00Z&end_time=2024-01-02T00:00:00Z",
@@ -446,7 +445,7 @@ class TestStreamingEndpointsComprehensive:
     ):
         """Test successful streaming anomalies retrieval."""
         session_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_streaming_service):
             response = client.get(
                 f"/api/v1/streaming/sessions/{session_id}/anomalies",
@@ -471,7 +470,7 @@ class TestStreamingEndpointsComprehensive:
     ):
         """Test streaming anomalies with filters."""
         session_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_streaming_service):
             response = client.get(
                 f"/api/v1/streaming/sessions/{session_id}/anomalies?min_score=0.8&limit=10",
@@ -573,9 +572,9 @@ class TestStreamingEndpointsComprehensive:
     ):
         """Test handling concurrent streaming data processing."""
         import threading
-        
+
         results = []
-        
+
         def process_streaming_data():
             with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_streaming_service):
                 response = client.post(
@@ -628,7 +627,7 @@ class TestStreamingEndpointsComprehensive:
         """Test error handling in streaming endpoints."""
         # Test service unavailable
         mock_streaming_service.process_streaming_data.side_effect = Exception("Service unavailable")
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_streaming_service):
             response = client.post(
                 "/api/v1/streaming/process",

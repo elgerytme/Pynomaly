@@ -9,7 +9,6 @@ import statistics
 import time
 from collections import deque
 from collections.abc import Callable
-from functools import lru_cache
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -22,11 +21,11 @@ class OptimizedCacheKeyGenerator:
     _signature_cache: dict[Callable, inspect.Signature] = {}
     _func_name_cache: dict[Callable, str] = {}
     _max_cache_size = 1000
-    
+
     # Performance monitoring
     _key_generation_times = deque(maxlen=1000)
     _key_size_distribution = {"small": 0, "medium": 0, "large": 0, "xlarge": 0}
-    
+
     @classmethod
     def generate_key(
         cls,
@@ -53,39 +52,39 @@ class OptimizedCacheKeyGenerator:
             Cache key string
         """
         start_time = time.perf_counter()
-        
+
         try:
             # Manage cache size to prevent memory leaks
             if len(cls._signature_cache) > cls._max_cache_size:
                 cls._clear_oldest_cache_entries()
-            
+
             # Use cached signature if available
             if func not in cls._signature_cache:
                 cls._signature_cache[func] = inspect.signature(func)
             sig = cls._signature_cache[func]
-            
+
             # Use cached function name if available
             if func not in cls._func_name_cache:
                 cls._func_name_cache[func] = f"{func.__module__}.{func.__qualname__}"
             func_name = cls._func_name_cache[func]
-            
+
             # Fast path for simple cases (no kwargs, no ignored args)
             if not kwargs and not ignore_args and not ignore_kwargs:
                 key = cls._generate_simple_key(func_name, args, prefix, serialize_complex_args)
             else:
                 # Complex path with full signature binding
                 key = cls._generate_complex_key(
-                    sig, func_name, args, kwargs, prefix, 
+                    sig, func_name, args, kwargs, prefix,
                     ignore_args, ignore_kwargs, serialize_complex_args
                 )
-            
+
             # Record performance metrics
             end_time = time.perf_counter()
             time_ms = (end_time - start_time) * 1000
             cls._record_performance(time_ms, len(key))
-            
+
             return key
-            
+
         except Exception as e:
             logger.error(f"Cache key generation failed for {func.__name__}: {e}")
             # Fallback to simple key generation
@@ -97,12 +96,12 @@ class OptimizedCacheKeyGenerator:
     ) -> str:
         """Generate key for simple case without kwargs or ignored args."""
         key_parts = [prefix, func_name] if prefix else [func_name]
-        
+
         # Process args directly with optimized serialization
         for i, value in enumerate(args):
             serialized_value = cls._serialize_value_fast(value, serialize_complex)
             key_parts.append(f"arg{i}={serialized_value}")
-        
+
         key = ":".join(key_parts)
         return cls._hash_if_long(key, prefix)
 
@@ -140,14 +139,14 @@ class OptimizedCacheKeyGenerator:
         # Handle None
         if value is None:
             return "None"
-        
+
         # Get type once for efficiency
         value_type = type(value)
-        
+
         # Fast path for primitive types
         if value_type in (str, int, float, bool):
             return str(value)
-        
+
         # Handle collections with size limits for performance
         if value_type in (list, tuple):
             if not serialize_complex:
@@ -159,7 +158,7 @@ class OptimizedCacheKeyGenerator:
                 sample_str = cls._serialize_value_fast(value[0], False)
                 return f"{value_type.__name__}_{len(value)}_sample_{sample_str}"
             return f"[{','.join(cls._serialize_value_fast(v, serialize_complex) for v in value)}]"
-        
+
         if value_type is dict:
             if not serialize_complex:
                 return f"dict_{len(value)}"
@@ -170,18 +169,18 @@ class OptimizedCacheKeyGenerator:
                 first_key = next(iter(value))
                 sample_str = cls._serialize_value_fast(value[first_key], False)
                 return f"dict_{len(value)}_sample_{first_key}:{sample_str}"
-            
+
             # Sort items for consistent keys
             sorted_items = sorted(value.items())
             return f"{{{','.join(f'{k}:{cls._serialize_value_fast(v, serialize_complex)}' for k, v in sorted_items)}}}"
-        
+
         # Handle objects with __dict__
         if hasattr(value, "__dict__"):
             if serialize_complex:
                 return f"obj_{value_type.__name__}_{id(value)}"
             else:
                 return f"obj_{value_type.__name__}"
-        
+
         # Handle other types
         return f"type_{value_type.__name__}"
 
@@ -190,9 +189,9 @@ class OptimizedCacheKeyGenerator:
         """Hash key if it's too long, using fastest available algorithm."""
         if len(key) <= 250:  # Slightly higher threshold for better performance
             return key
-        
+
         key_bytes = key.encode('utf-8')
-        
+
         # Try xxhash first (fastest available)
         try:
             import xxhash
@@ -200,14 +199,14 @@ class OptimizedCacheKeyGenerator:
             return f"{prefix}:xxh64:{key_hash}"
         except ImportError:
             pass
-        
+
         # Fall back to blake2b (faster than md5 for larger inputs)
         try:
             key_hash = hashlib.blake2b(key_bytes, digest_size=16).hexdigest()
             return f"{prefix}:blake2b:{key_hash}"
         except (AttributeError, TypeError):
             pass
-        
+
         # Final fallback to md5
         key_hash = hashlib.md5(key_bytes).hexdigest()
         return f"{prefix}:md5:{key_hash}"
@@ -231,7 +230,7 @@ class OptimizedCacheKeyGenerator:
     def _record_performance(cls, time_ms: float, key_size: int) -> None:
         """Record performance metrics."""
         cls._key_generation_times.append(time_ms)
-        
+
         # Track key size distribution
         if key_size < 50:
             cls._key_size_distribution["small"] += 1
@@ -247,7 +246,7 @@ class OptimizedCacheKeyGenerator:
         """Clear oldest cache entries to prevent memory leaks."""
         # Remove 25% of entries
         remove_count = max(1, len(cls._signature_cache) // 4)
-        
+
         # Remove from both caches
         for _ in range(remove_count):
             if cls._signature_cache:
@@ -260,11 +259,11 @@ class OptimizedCacheKeyGenerator:
         """Get performance statistics."""
         if not cls._key_generation_times:
             return {"status": "no_data"}
-        
+
         times = list(cls._key_generation_times)
         avg_time = statistics.mean(times)
         p95_time = statistics.quantiles(times, n=20)[18] if len(times) >= 20 else avg_time
-        
+
         return {
             "average_generation_time_ms": avg_time,
             "p95_generation_time_ms": p95_time,
@@ -281,19 +280,19 @@ class OptimizedCacheKeyGenerator:
     def _get_recommendations(cls, avg_time: float, p95_time: float) -> list[str]:
         """Generate performance recommendations."""
         recommendations = []
-        
+
         if avg_time > 1.0:
             recommendations.append("Consider reducing complex argument serialization")
         if p95_time > 5.0:
             recommendations.append("P95 key generation time is high - consider caching more aggressively")
-        
+
         # Check key size distribution
         total_keys = sum(cls._key_size_distribution.values())
         if total_keys > 0:
             large_ratio = (cls._key_size_distribution["large"] + cls._key_size_distribution["xlarge"]) / total_keys
             if large_ratio > 0.3:
                 recommendations.append("High percentage of large keys - consider optimizing argument serialization")
-        
+
         return recommendations
 
     @classmethod

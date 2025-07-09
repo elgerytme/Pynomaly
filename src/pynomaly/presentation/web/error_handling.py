@@ -4,21 +4,19 @@ Provides centralized error management, logging, and user-friendly error response
 """
 
 import logging
-import traceback
 import sys
-from datetime import datetime
-from typing import Dict, Any, Optional, List
-from pathlib import Path
-import json
+import traceback
 import uuid
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
-from fastapi import Request, HTTPException
+import structlog
+from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
-import structlog
 
 from ...infrastructure.config.settings import get_settings
 
@@ -40,31 +38,31 @@ class ErrorCode(Enum):
     AUTHENTICATION_ERROR = "AUTHENTICATION_ERROR"
     AUTHORIZATION_ERROR = "AUTHORIZATION_ERROR"
     NOT_FOUND_ERROR = "NOT_FOUND_ERROR"
-    
+
     # Web UI specific errors
     TEMPLATE_RENDER_ERROR = "TEMPLATE_RENDER_ERROR"
     STATIC_FILE_ERROR = "STATIC_FILE_ERROR"
     CSRF_TOKEN_ERROR = "CSRF_TOKEN_ERROR"
     SESSION_ERROR = "SESSION_ERROR"
-    
+
     # API errors
     API_ENDPOINT_ERROR = "API_ENDPOINT_ERROR"
     API_RATE_LIMIT_ERROR = "API_RATE_LIMIT_ERROR"
     API_TIMEOUT_ERROR = "API_TIMEOUT_ERROR"
-    
+
     # Performance errors
     PERFORMANCE_THRESHOLD_ERROR = "PERFORMANCE_THRESHOLD_ERROR"
     MEMORY_LIMIT_ERROR = "MEMORY_LIMIT_ERROR"
-    
+
     # Security errors
     SECURITY_VIOLATION_ERROR = "SECURITY_VIOLATION_ERROR"
     XSS_ATTEMPT_ERROR = "XSS_ATTEMPT_ERROR"
     SQL_INJECTION_ERROR = "SQL_INJECTION_ERROR"
-    
+
     # Database errors
     DATABASE_CONNECTION_ERROR = "DATABASE_CONNECTION_ERROR"
     DATABASE_QUERY_ERROR = "DATABASE_QUERY_ERROR"
-    
+
     # External service errors
     EXTERNAL_SERVICE_ERROR = "EXTERNAL_SERVICE_ERROR"
     CACHE_ERROR = "CACHE_ERROR"
@@ -72,16 +70,16 @@ class ErrorCode(Enum):
 
 class WebUIError(Exception):
     """Base exception for web UI errors"""
-    
+
     def __init__(
         self,
         message: str,
         error_code: ErrorCode,
         error_level: ErrorLevel = ErrorLevel.ERROR,
-        details: Optional[Dict[str, Any]] = None,
-        user_message: Optional[str] = None,
-        suggestion: Optional[str] = None,
-        error_id: Optional[str] = None
+        details: dict[str, Any] | None = None,
+        user_message: str | None = None,
+        suggestion: str | None = None,
+        error_id: str | None = None
     ):
         self.message = message
         self.error_code = error_code
@@ -91,9 +89,9 @@ class WebUIError(Exception):
         self.suggestion = suggestion
         self.error_id = error_id or str(uuid.uuid4())
         self.timestamp = datetime.utcnow()
-        
+
         super().__init__(self.message)
-    
+
     def _get_default_user_message(self) -> str:
         """Get default user-friendly message based on error code"""
         user_messages = {
@@ -113,8 +111,8 @@ class WebUIError(Exception):
             ErrorCode.EXTERNAL_SERVICE_ERROR: "External service temporarily unavailable.",
         }
         return user_messages.get(self.error_code, "An error occurred. Please try again.")
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert error to dictionary for logging/serialization"""
         return {
             "error_id": self.error_id,
@@ -131,13 +129,13 @@ class WebUIError(Exception):
 
 class WebUILogger:
     """Production-ready logger for web UI with structured logging"""
-    
+
     def __init__(self):
         self.settings = get_settings()
         self.logger = self._setup_logger()
-        self.error_buffer: List[Dict[str, Any]] = []
+        self.error_buffer: list[dict[str, Any]] = []
         self.max_buffer_size = 1000
-        
+
     def _setup_logger(self) -> structlog.stdlib.BoundLogger:
         """Setup structured logger with appropriate configuration"""
         # Configure structlog
@@ -158,7 +156,7 @@ class WebUILogger:
             wrapper_class=structlog.stdlib.BoundLogger,
             cache_logger_on_first_use=True,
         )
-        
+
         # Setup logging configuration
         logging.basicConfig(
             level=getattr(logging, self.settings.monitoring.log_level),
@@ -168,15 +166,15 @@ class WebUILogger:
                 logging.FileHandler(self.settings.log_path / "web_ui.log")
             ]
         )
-        
+
         return structlog.get_logger("pynomaly.web_ui")
-    
+
     def log_error(
         self,
         error: WebUIError,
-        request: Optional[Request] = None,
-        user_id: Optional[str] = None,
-        additional_context: Optional[Dict[str, Any]] = None
+        request: Request | None = None,
+        user_id: str | None = None,
+        additional_context: dict[str, Any] | None = None
     ):
         """Log error with comprehensive context"""
         context = {
@@ -188,7 +186,7 @@ class WebUILogger:
             "details": error.details,
             "timestamp": error.timestamp.isoformat()
         }
-        
+
         # Add request context if available
         if request:
             context.update({
@@ -199,15 +197,15 @@ class WebUILogger:
                 "ip_address": request.client.host if request.client else None,
                 "referer": request.headers.get("referer")
             })
-        
+
         # Add user context
         if user_id:
             context["user_id"] = user_id
-        
+
         # Add additional context
         if additional_context:
             context.update(additional_context)
-        
+
         # Log based on error level
         if error.error_level == ErrorLevel.CRITICAL:
             self.logger.critical("Critical web UI error", **context)
@@ -219,24 +217,24 @@ class WebUILogger:
             self.logger.info("Web UI info", **context)
         else:
             self.logger.debug("Web UI debug", **context)
-        
+
         # Buffer error for analysis
         self._buffer_error(error.to_dict())
-    
-    def _buffer_error(self, error_dict: Dict[str, Any]):
+
+    def _buffer_error(self, error_dict: dict[str, Any]):
         """Buffer error for batch processing and analysis"""
         self.error_buffer.append(error_dict)
-        
+
         # Maintain buffer size
         if len(self.error_buffer) > self.max_buffer_size:
             self.error_buffer.pop(0)
-    
+
     def log_performance_issue(
         self,
         metric_name: str,
         value: float,
         threshold: float,
-        request: Optional[Request] = None
+        request: Request | None = None
     ):
         """Log performance issue"""
         error = WebUIError(
@@ -251,15 +249,15 @@ class WebUILogger:
             user_message="The page is loading slowly. Please be patient.",
             suggestion="Consider optimizing the page or checking your internet connection."
         )
-        
+
         self.log_error(error, request)
-    
+
     def log_security_event(
         self,
         event_type: str,
         severity: str,
-        details: Dict[str, Any],
-        request: Optional[Request] = None
+        details: dict[str, Any],
+        request: Request | None = None
     ):
         """Log security event"""
         error_level = ErrorLevel.CRITICAL if severity == "critical" else ErrorLevel.ERROR
@@ -271,24 +269,24 @@ class WebUILogger:
             user_message="A security issue was detected and has been logged.",
             suggestion="Please ensure you're using the application securely."
         )
-        
+
         self.log_error(error, request)
-    
-    def get_error_stats(self) -> Dict[str, Any]:
+
+    def get_error_stats(self) -> dict[str, Any]:
         """Get error statistics for monitoring"""
         if not self.error_buffer:
             return {"total_errors": 0, "error_types": {}, "error_levels": {}}
-        
+
         error_types = {}
         error_levels = {}
-        
+
         for error in self.error_buffer:
             error_code = error.get("error_code")
             error_level = error.get("error_level")
-            
+
             error_types[error_code] = error_types.get(error_code, 0) + 1
             error_levels[error_level] = error_levels.get(error_level, 0) + 1
-        
+
         return {
             "total_errors": len(self.error_buffer),
             "error_types": error_types,
@@ -299,22 +297,22 @@ class WebUILogger:
 
 class ErrorHandlingMiddleware(BaseHTTPMiddleware):
     """Middleware for centralized error handling"""
-    
+
     def __init__(self, app, logger: WebUILogger):
         super().__init__(app)
         self.logger = logger
         self.settings = get_settings()
-    
+
     async def dispatch(self, request: Request, call_next) -> Response:
         """Handle request with comprehensive error handling"""
         # Generate request ID for tracking
         request_id = str(uuid.uuid4())
         request.state.request_id = request_id
-        
+
         try:
             # Process request
             response = await call_next(request)
-            
+
             # Log successful requests in debug mode
             if self.settings.app.debug:
                 self.logger.logger.debug(
@@ -324,14 +322,14 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                     url=str(request.url),
                     status_code=response.status_code
                 )
-            
+
             return response
-            
+
         except WebUIError as e:
             # Handle custom web UI errors
             self.logger.log_error(e, request)
             return await self._create_error_response(e, request)
-            
+
         except HTTPException as e:
             # Handle FastAPI HTTP exceptions
             web_error = WebUIError(
@@ -340,10 +338,10 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                 error_level=ErrorLevel.ERROR,
                 details={"status_code": e.status_code, "detail": e.detail}
             )
-            
+
             self.logger.log_error(web_error, request)
             return await self._create_error_response(web_error, request)
-            
+
         except StarletteHTTPException as e:
             # Handle Starlette HTTP exceptions
             web_error = WebUIError(
@@ -352,10 +350,10 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                 error_level=ErrorLevel.ERROR,
                 details={"status_code": e.status_code, "detail": e.detail}
             )
-            
+
             self.logger.log_error(web_error, request)
             return await self._create_error_response(web_error, request)
-            
+
         except Exception as e:
             # Handle unexpected errors
             web_error = WebUIError(
@@ -364,10 +362,10 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                 error_level=ErrorLevel.CRITICAL,
                 details={"exception_type": type(e).__name__, "exception_message": str(e)}
             )
-            
+
             self.logger.log_error(web_error, request)
             return await self._create_error_response(web_error, request)
-    
+
     def _get_error_code_from_status(self, status_code: int) -> ErrorCode:
         """Map HTTP status codes to error codes"""
         status_map = {
@@ -382,7 +380,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
             504: ErrorCode.API_TIMEOUT_ERROR
         }
         return status_map.get(status_code, ErrorCode.INTERNAL_SERVER_ERROR)
-    
+
     async def _create_error_response(self, error: WebUIError, request: Request) -> Response:
         """Create appropriate error response based on request type"""
         # Determine if request expects JSON or HTML
@@ -392,12 +390,12 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
             "application/json" in accept_header or
             request.headers.get("content-type") == "application/json"
         )
-        
+
         if is_api_request:
             return await self._create_json_error_response(error, request)
         else:
             return await self._create_html_error_response(error, request)
-    
+
     async def _create_json_error_response(self, error: WebUIError, request: Request) -> JSONResponse:
         """Create JSON error response for API requests"""
         error_data = {
@@ -409,34 +407,34 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                 "timestamp": error.timestamp.isoformat()
             }
         }
-        
+
         # Add details in debug mode
         if self.settings.app.debug:
             error_data["error"]["details"] = error.details
             error_data["error"]["technical_message"] = error.message
-        
+
         # Determine status code
         status_code = self._get_status_code_from_error_code(error.error_code)
-        
+
         return JSONResponse(
             status_code=status_code,
             content=error_data,
             headers={"X-Error-ID": error.error_id}
         )
-    
+
     async def _create_html_error_response(self, error: WebUIError, request: Request) -> HTMLResponse:
         """Create HTML error response for web requests"""
         status_code = self._get_status_code_from_error_code(error.error_code)
-        
+
         # Create user-friendly HTML error page
         html_content = self._generate_error_html(error, request, status_code)
-        
+
         return HTMLResponse(
             content=html_content,
             status_code=status_code,
             headers={"X-Error-ID": error.error_id}
         )
-    
+
     def _get_status_code_from_error_code(self, error_code: ErrorCode) -> int:
         """Map error codes to HTTP status codes"""
         status_map = {
@@ -463,7 +461,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
             ErrorCode.CACHE_ERROR: 500
         }
         return status_map.get(error_code, 500)
-    
+
     def _generate_error_html(self, error: WebUIError, request: Request, status_code: int) -> str:
         """Generate user-friendly HTML error page"""
         return f"""
@@ -493,22 +491,22 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
                         <p class="text-gray-600 mb-4">{error.user_message}</p>
                         {f'<p class="text-sm text-blue-600">{error.suggestion}</p>' if error.suggestion else ''}
                     </div>
-                    
+
                     <div class="space-y-4">
-                        <button onclick="history.back()" 
+                        <button onclick="history.back()"
                                 class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
                             Go Back
                         </button>
-                        <a href="/" 
+                        <a href="/"
                            class="w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors inline-block">
                             Return to Home
                         </a>
-                        <button onclick="window.location.reload()" 
+                        <button onclick="window.location.reload()"
                                 class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors">
                             Retry
                         </button>
                     </div>
-                    
+
                     <div class="mt-6 text-xs text-gray-500">
                         <p>Error ID: {error.error_id}</p>
                         <p>Time: {error.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
@@ -521,7 +519,7 @@ class ErrorHandlingMiddleware(BaseHTTPMiddleware):
 
 
 # Global logger instance
-_web_ui_logger: Optional[WebUILogger] = None
+_web_ui_logger: WebUILogger | None = None
 
 
 def get_web_ui_logger() -> WebUILogger:
@@ -534,9 +532,9 @@ def get_web_ui_logger() -> WebUILogger:
 
 def log_web_ui_error(
     error: WebUIError,
-    request: Optional[Request] = None,
-    user_id: Optional[str] = None,
-    additional_context: Optional[Dict[str, Any]] = None
+    request: Request | None = None,
+    user_id: str | None = None,
+    additional_context: dict[str, Any] | None = None
 ):
     """Convenience function to log web UI errors"""
     logger = get_web_ui_logger()
@@ -547,9 +545,9 @@ def create_web_ui_error(
     message: str,
     error_code: ErrorCode,
     error_level: ErrorLevel = ErrorLevel.ERROR,
-    details: Optional[Dict[str, Any]] = None,
-    user_message: Optional[str] = None,
-    suggestion: Optional[str] = None
+    details: dict[str, Any] | None = None,
+    user_message: str | None = None,
+    suggestion: str | None = None
 ) -> WebUIError:
     """Convenience function to create web UI errors"""
     return WebUIError(

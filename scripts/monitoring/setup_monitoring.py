@@ -6,40 +6,44 @@ This script sets up the complete monitoring infrastructure for Pynomaly,
 including Prometheus, Grafana, alerting, and dashboard components.
 """
 
-import asyncio
 import json
 import logging
 import os
-import subprocess
 import sys
-import time
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+
 import yaml
-import requests
+
 # import docker  # Optional dependency
-from jinja2 import Template
 
 # Add the src directory to Python path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from pynomaly.infrastructure.monitoring.alerts import AlertManager, HealthChecker
-from pynomaly.infrastructure.monitoring.dashboard import DashboardWebServer, create_dashboard_templates
+# Import monitoring components (optional)
+try:
+    from pynomaly.infrastructure.monitoring.alerts import AlertManager, HealthChecker
+    from pynomaly.infrastructure.monitoring.dashboard import (
+        DashboardWebServer,
+        create_dashboard_templates,
+    )
+    MONITORING_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Some monitoring dependencies not available: {e}")
+    MONITORING_AVAILABLE = False
 
 
 class MonitoringSetup:
     """Setup and configure monitoring infrastructure."""
-    
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.project_root = Path(__file__).parent.parent.parent
         self.config_dir = self.project_root / "config" / "monitoring"
         self.docker_client = None
-        
+
         # Ensure config directory exists
         self.config_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Initialize Docker client
         try:
             import docker
@@ -50,11 +54,11 @@ class MonitoringSetup:
         except Exception as e:
             self.logger.warning(f"Docker not available: {e}")
             self.docker_client = None
-    
+
     def setup_prometheus(self):
         """Setup Prometheus configuration."""
         self.logger.info("Setting up Prometheus configuration...")
-        
+
         prometheus_config = {
             "global": {
                 "scrape_interval": "15s",
@@ -121,17 +125,17 @@ class MonitoringSetup:
                 }
             ]
         }
-        
+
         # Write Prometheus config
         with open(self.config_dir / "prometheus.yml", "w") as f:
             yaml.dump(prometheus_config, f, default_flow_style=False, sort_keys=False)
-        
+
         self.logger.info("Prometheus configuration created")
-    
+
     def setup_grafana(self):
         """Setup Grafana dashboards and datasources."""
         self.logger.info("Setting up Grafana configuration...")
-        
+
         # Grafana datasource configuration
         datasource_config = {
             "apiVersion": 1,
@@ -146,7 +150,7 @@ class MonitoringSetup:
                 }
             ]
         }
-        
+
         # Grafana dashboard configuration
         dashboard_config = {
             "apiVersion": 1,
@@ -164,25 +168,25 @@ class MonitoringSetup:
                 }
             ]
         }
-        
+
         # Create Grafana directories
         grafana_dir = self.config_dir / "grafana"
         grafana_dir.mkdir(exist_ok=True)
         (grafana_dir / "provisioning" / "datasources").mkdir(parents=True, exist_ok=True)
         (grafana_dir / "provisioning" / "dashboards").mkdir(parents=True, exist_ok=True)
-        
+
         # Write Grafana configs
         with open(grafana_dir / "provisioning" / "datasources" / "datasource.yml", "w") as f:
             yaml.dump(datasource_config, f, default_flow_style=False)
-        
+
         with open(grafana_dir / "provisioning" / "dashboards" / "dashboard.yml", "w") as f:
             yaml.dump(dashboard_config, f, default_flow_style=False)
-        
+
         # Create main dashboard
         self._create_grafana_dashboard()
-        
+
         self.logger.info("Grafana configuration created")
-    
+
     def _create_grafana_dashboard(self):
         """Create main Grafana dashboard."""
         dashboard = {
@@ -279,15 +283,15 @@ class MonitoringSetup:
                 "refresh": "30s"
             }
         }
-        
+
         # Write dashboard
         with open(self.config_dir / "grafana" / "provisioning" / "dashboards" / "pynomaly-dashboard.json", "w") as f:
             json.dump(dashboard, f, indent=2)
-    
+
     def setup_alertmanager(self):
         """Setup Alertmanager configuration."""
         self.logger.info("Setting up Alertmanager configuration...")
-        
+
         alertmanager_config = {
             "global": {
                 "smtp_smarthost": "localhost:587",
@@ -321,17 +325,17 @@ class MonitoringSetup:
                 }
             ]
         }
-        
+
         # Write Alertmanager config
         with open(self.config_dir / "alertmanager.yml", "w") as f:
             yaml.dump(alertmanager_config, f, default_flow_style=False)
-        
+
         self.logger.info("Alertmanager configuration created")
-    
+
     def create_docker_compose(self):
         """Create Docker Compose file for monitoring stack."""
         self.logger.info("Creating Docker Compose configuration...")
-        
+
         docker_compose = {
             "version": "3.8",
             "services": {
@@ -416,17 +420,17 @@ class MonitoringSetup:
                 }
             }
         }
-        
+
         # Write Docker Compose file
         with open(self.project_root / "docker-compose.monitoring.yml", "w") as f:
             yaml.dump(docker_compose, f, default_flow_style=False, sort_keys=False)
-        
+
         self.logger.info("Docker Compose configuration created")
-    
+
     def setup_monitoring_scripts(self):
         """Create monitoring management scripts."""
         self.logger.info("Creating monitoring management scripts...")
-        
+
         # Start monitoring script
         start_script = """#!/bin/bash
 # Start Pynomaly Monitoring Stack
@@ -458,7 +462,7 @@ echo "  - Prometheus: http://localhost:9090"
 echo "  - Alertmanager: http://localhost:9093"
 echo "  - Dashboard: http://localhost:8080"
 """
-        
+
         # Stop monitoring script
         stop_script = """#!/bin/bash
 # Stop Pynomaly Monitoring Stack
@@ -473,7 +477,7 @@ docker-compose -f docker-compose.monitoring.yml down
 
 echo "✅ Monitoring stack stopped!"
 """
-        
+
         # Status script
         status_script = """#!/bin/bash
 # Check Pynomaly Monitoring Stack Status
@@ -499,32 +503,32 @@ echo "  - Grafana: $(curl -s http://localhost:3000/api/health 2>/dev/null | grep
 echo "  - Alertmanager: $(curl -s http://localhost:9093/-/healthy 2>/dev/null || echo 'DOWN')"
 echo "  - Dashboard: $(curl -s http://localhost:8080/health 2>/dev/null | grep -o '"status":"healthy"' || echo 'DOWN')"
 """
-        
+
         # Create scripts directory
         scripts_dir = self.project_root / "scripts" / "monitoring"
         scripts_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Write scripts
         scripts = [
             ("start-monitoring.sh", start_script),
             ("stop-monitoring.sh", stop_script),
             ("monitoring-status.sh", status_script)
         ]
-        
+
         for script_name, script_content in scripts:
             script_path = scripts_dir / script_name
             with open(script_path, "w") as f:
                 f.write(script_content)
-            
+
             # Make script executable
             os.chmod(script_path, 0o755)
-        
+
         self.logger.info("Monitoring management scripts created")
-    
+
     def setup_systemd_services(self):
         """Create systemd service files for monitoring components."""
         self.logger.info("Creating systemd service files...")
-        
+
         # Alert manager service
         alert_service = f"""[Unit]
 Description=Pynomaly Alert Manager
@@ -546,7 +550,7 @@ StandardError=journal
 [Install]
 WantedBy=multi-user.target
 """
-        
+
         # Dashboard service
         dashboard_service = f"""[Unit]
 Description=Pynomaly Monitoring Dashboard
@@ -568,51 +572,54 @@ StandardError=journal
 [Install]
 WantedBy=multi-user.target
 """
-        
+
         # Create systemd directory
         systemd_dir = self.project_root / "config" / "systemd"
         systemd_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Write service files
         with open(systemd_dir / "pynomaly-alerts.service", "w") as f:
             f.write(alert_service)
-        
+
         with open(systemd_dir / "pynomaly-dashboard.service", "w") as f:
             f.write(dashboard_service)
-        
+
         self.logger.info("Systemd service files created")
-    
+
     def run_setup(self):
         """Run the complete monitoring setup."""
         self.logger.info("🔄 Starting Pynomaly monitoring setup...")
-        
+
         try:
             # Setup configurations
             self.setup_prometheus()
             self.setup_grafana()
             self.setup_alertmanager()
-            
+
             # Create Docker Compose
             self.create_docker_compose()
-            
+
             # Create management scripts
             self.setup_monitoring_scripts()
-            
+
             # Create systemd services
             self.setup_systemd_services()
-            
+
             # Create dashboard templates
-            create_dashboard_templates()
-            
+            if MONITORING_AVAILABLE:
+                create_dashboard_templates()
+            else:
+                self.logger.warning("Skipping dashboard template creation due to missing dependencies")
+
             self.logger.info("✅ Monitoring setup completed successfully!")
-            
+
             # Print next steps
             self._print_next_steps()
-            
+
         except Exception as e:
             self.logger.error(f"❌ Setup failed: {e}")
             raise
-    
+
     def _print_next_steps(self):
         """Print next steps for user."""
         print("\n" + "="*60)
@@ -656,14 +663,14 @@ def main():
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    
+
     logger = logging.getLogger(__name__)
     logger.info("Starting Pynomaly monitoring setup")
-    
+
     try:
         setup = MonitoringSetup()
         setup.run_setup()
-        
+
     except Exception as e:
         logger.error(f"Setup failed: {e}")
         sys.exit(1)

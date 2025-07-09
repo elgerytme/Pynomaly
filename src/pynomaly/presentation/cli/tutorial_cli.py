@@ -32,9 +32,9 @@ def run(
     if not skip_intro:
         console.print("🎓 [bold blue]Welcome to Pynomaly Tutorials![/bold blue]")
         console.print("Interactive learning experience to master anomaly detection.\n")
-    
+
     success = tutorial_manager.run_tutorial(tutorial_id)
-    
+
     if success:
         console.print("\n🎉 [bold green]Tutorial completed successfully![/bold green]")
         console.print("Keep learning with more tutorials: [cyan]pynomaly tutorial list[/cyan]")
@@ -67,15 +67,15 @@ def search(
 ):
     """Search tutorials by topic or keyword."""
     console.print(f"[cyan]Searching tutorials for: '{query}'[/cyan]")
-    
+
     # Simple search implementation
     results = []
     for tutorial_id, tutorial in tutorial_manager.tutorials.items():
-        if (query.lower() in tutorial.name.lower() or 
+        if (query.lower() in tutorial.name.lower() or
             query.lower() in tutorial.description.lower() or
             query.lower() in tutorial.difficulty.lower()):
             results.append((tutorial_id, tutorial))
-    
+
     if results:
         console.print(f"\n[green]Found {len(results)} matching tutorial(s):[/green]")
         for tutorial_id, tutorial in results:
@@ -92,9 +92,9 @@ def quickstart():
     """Quick start guide - automatically run the basic tutorial."""
     console.print("🚀 [bold blue]Quick Start Guide[/bold blue]")
     console.print("Starting the basic tutorial to get you up and running quickly!\n")
-    
+
     success = tutorial_manager.run_tutorial("basic")
-    
+
     if success:
         console.print("\n✅ [bold green]Quick start completed![/bold green]")
         console.print("You're now ready to use Pynomaly effectively!")

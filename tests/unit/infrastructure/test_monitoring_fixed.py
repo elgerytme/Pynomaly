@@ -3,15 +3,15 @@ Fixed unit tests for monitoring infrastructure.
 Tests that demonstrate fixed code quality issues and improved coverage.
 """
 
+
 import pytest
-from unittest.mock import Mock, patch
 
 from pynomaly.infrastructure.monitoring.distributed_tracing import (
-    trace_operation,
-    start_span,
-    end_span,
     add_span_attribute,
+    end_span,
     set_span_error,
+    start_span,
+    trace_operation,
 )
 
 
@@ -86,7 +86,7 @@ class TestDistributedTracingFixed:
             return f"async_{value}"
 
         import asyncio
-        
+
         result = asyncio.run(async_function("test"))
         assert result == "async_test"
 

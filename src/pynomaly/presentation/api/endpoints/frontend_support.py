@@ -8,7 +8,6 @@ from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
 from pynomaly.presentation.api.middleware import CSPViolationReporter
-from ...web.performance_alerts import performance_monitor, PerformanceMetric as AlertMetric, MetricType
 
 router = APIRouter(prefix="/api", tags=["Frontend Support"])
 

@@ -6,17 +6,17 @@ including base classes, test environment management, and data generation.
 """
 
 from .integration_test_base import (
-    IntegrationTestEnvironment,
-    IntegrationTestBase,
-    ServiceIntegrationTest,
     CrossLayerIntegrationTest,
+    IntegrationTestBase,
+    IntegrationTestEnvironment,
     IntegrationTestRunner,
+    ServiceIntegrationTest,
 )
 from .test_data_manager import IntegrationTestDataManager
 
 __all__ = [
     "IntegrationTestEnvironment",
-    "IntegrationTestBase", 
+    "IntegrationTestBase",
     "ServiceIntegrationTest",
     "CrossLayerIntegrationTest",
     "IntegrationTestRunner",

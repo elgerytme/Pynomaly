@@ -5,15 +5,13 @@ Advanced Security Hardening Script for Pynomaly Production Environment
 This script implements comprehensive security hardening measures for production deployment.
 """
 
-import os
-import subprocess
-import sys
-from pathlib import Path
-from typing import List, Dict, Any, Optional
 import json
-import secrets
 import logging
+import os
+import secrets
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -29,18 +27,18 @@ logger = logging.getLogger(__name__)
 
 class SecurityHardeningManager:
     """Comprehensive security hardening manager."""
-    
+
     def __init__(self, project_root: str = "/mnt/c/Users/andre/Pynomaly"):
         self.project_root = Path(project_root)
         self.config_dir = self.project_root / "config" / "security"
         self.scripts_dir = self.project_root / "scripts"
         self.docker_dir = self.project_root / "docker"
-        
+
         # Ensure directories exist
         self.config_dir.mkdir(parents=True, exist_ok=True)
         self.scripts_dir.mkdir(parents=True, exist_ok=True)
         self.docker_dir.mkdir(parents=True, exist_ok=True)
-    
+
     def log_action(self, action: str, status: str = "INFO", details: str = "") -> None:
         """Log security hardening actions."""
         timestamp = datetime.now().isoformat()
@@ -50,20 +48,20 @@ class SecurityHardeningManager:
             "status": status,
             "details": details
         }
-        
+
         if status == "ERROR":
             logger.error(f"{action}: {details}")
         elif status == "WARNING":
             logger.warning(f"{action}: {details}")
         else:
             logger.info(f"{action}: {details}")
-    
-    def generate_secure_keys(self) -> Dict[str, str]:
+
+    def generate_secure_keys(self) -> dict[str, str]:
         """Generate secure cryptographic keys."""
         self.log_action("Generating cryptographic keys", "INFO")
-        
+
         from cryptography.fernet import Fernet
-        
+
         keys = {
             "JWT_SECRET_KEY": secrets.token_urlsafe(64),
             "ENCRYPTION_KEY": Fernet.generate_key().decode(),
@@ -77,22 +75,22 @@ class SecurityHardeningManager:
             "SESSION_SECRET": secrets.token_urlsafe(32),
             "CSRF_SECRET": secrets.token_urlsafe(32)
         }
-        
+
         # Save keys to secure file
         keys_file = self.config_dir / "keys.json"
         with open(keys_file, 'w') as f:
             json.dump(keys, f, indent=2)
-        
+
         # Set secure permissions
         os.chmod(keys_file, 0o600)
-        
+
         self.log_action("Generated and saved cryptographic keys", "SUCCESS", f"Keys saved to {keys_file}")
         return keys
-    
-    def create_security_env_file(self, keys: Dict[str, str]) -> None:
+
+    def create_security_env_file(self, keys: dict[str, str]) -> None:
         """Create secure environment file."""
         self.log_action("Creating security environment file", "INFO")
-        
+
         env_content = f"""# Pynomaly Security Environment Variables
 # Generated on {datetime.now().isoformat()}
 # WARNING: Keep this file secure and never commit to version control
@@ -157,20 +155,20 @@ THREAT_DETECTION=true
 ENVIRONMENT=production
 DEBUG_MODE=false
 """
-        
+
         env_file = self.config_dir / ".env.security"
         with open(env_file, 'w') as f:
             f.write(env_content)
-        
+
         # Set secure permissions
         os.chmod(env_file, 0o600)
-        
+
         self.log_action("Created security environment file", "SUCCESS", f"File saved to {env_file}")
-    
+
     def create_security_checklist(self) -> None:
         """Create security checklist."""
         self.log_action("Creating security checklist", "INFO")
-        
+
         checklist = f"""# Pynomaly Security Checklist
 Generated on {datetime.now().isoformat()}
 
@@ -233,29 +231,29 @@ Generated on {datetime.now().isoformat()}
 - Regular security updates and patches are critical
 - Keep security documentation up to date
 """
-        
+
         checklist_file = self.config_dir / "security_checklist.md"
         with open(checklist_file, 'w') as f:
             f.write(checklist)
-        
+
         self.log_action("Created security checklist", "SUCCESS", f"Checklist saved to {checklist_file}")
-    
+
     def run_security_hardening(self) -> None:
         """Run complete security hardening process."""
         self.log_action("Starting comprehensive security hardening", "INFO")
-        
+
         try:
             # Generate secure keys
             keys = self.generate_secure_keys()
-            
+
             # Create security environment file
             self.create_security_env_file(keys)
-            
+
             # Create security checklist
             self.create_security_checklist()
-            
+
             self.log_action("Security hardening completed successfully", "SUCCESS")
-            
+
             # Print summary
             print("\n" + "="*50)
             print("🔒 Advanced Security Hardening Complete!")
@@ -278,7 +276,7 @@ Generated on {datetime.now().isoformat()}
             print("- Regularly update security configurations")
             print("- Monitor security logs daily")
             print("="*50)
-            
+
         except Exception as e:
             self.log_action("Security hardening failed", "ERROR", str(e))
             raise

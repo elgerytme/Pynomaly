@@ -3,19 +3,17 @@ Comprehensive tests for AutoML endpoints.
 Tests automated machine learning and hyperparameter optimization API endpoints.
 """
 
-import json
-import pytest
 from datetime import datetime
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
-from fastapi.testclient import TestClient
+import pytest
 from fastapi import status
+from fastapi.testclient import TestClient
 
-from pynomaly.presentation.web_api.app import app
-from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.entities.experiment import Experiment
 from pynomaly.domain.exceptions import AutoMLError, DatasetError
+from pynomaly.presentation.web_api.app import app
 
 
 class TestAutoMLEndpointsComprehensive:
@@ -57,7 +55,7 @@ class TestAutoMLEndpointsComprehensive:
                 },
             ],
         }
-        
+
         service.get_automl_experiment.return_value = Experiment(
             id=uuid4(),
             name="test-automl-experiment",
@@ -69,7 +67,7 @@ class TestAutoMLEndpointsComprehensive:
             status="completed",
             created_at=datetime.utcnow(),
         )
-        
+
         service.optimize_hyperparameters.return_value = {
             "optimization_id": str(uuid4()),
             "best_hyperparameters": {"n_estimators": 150, "contamination": 0.08},
@@ -80,7 +78,7 @@ class TestAutoMLEndpointsComprehensive:
                 {"trial": 3, "score": 0.87, "hyperparameters": {"n_estimators": 150}},
             ],
         }
-        
+
         service.get_algorithm_recommendations.return_value = {
             "recommendations": [
                 {
@@ -103,7 +101,7 @@ class TestAutoMLEndpointsComprehensive:
                 "noise_level": "low",
             },
         }
-        
+
         return service
 
     @pytest.fixture
@@ -189,7 +187,7 @@ class TestAutoMLEndpointsComprehensive:
         assert "best_detector" in data
         assert "optimization_results" in data
         assert "model_comparison" in data
-        
+
         # Verify best detector structure
         best_detector = data["best_detector"]
         assert "id" in best_detector
@@ -202,7 +200,7 @@ class TestAutoMLEndpointsComprehensive:
     ):
         """Test AutoML with invalid dataset ID."""
         mock_automl_service.run_automl.side_effect = DatasetError("Dataset not found")
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_automl_service", return_value=mock_automl_service):
             response = client.post(
                 "/api/v1/automl/run",
@@ -259,7 +257,7 @@ class TestAutoMLEndpointsComprehensive:
     ):
         """Test successful AutoML experiment retrieval."""
         experiment_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_automl_service", return_value=mock_automl_service):
             response = client.get(
                 f"/api/v1/automl/experiments/{experiment_id}",
@@ -280,7 +278,7 @@ class TestAutoMLEndpointsComprehensive:
         """Test AutoML experiment retrieval with non-existent ID."""
         mock_automl_service.get_automl_experiment.side_effect = AutoMLError("Experiment not found")
         experiment_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_automl_service", return_value=mock_automl_service):
             response = client.get(
                 f"/api/v1/automl/experiments/{experiment_id}",
@@ -312,7 +310,7 @@ class TestAutoMLEndpointsComprehensive:
     ):
         """Test hyperparameter optimization with invalid detector."""
         mock_automl_service.optimize_hyperparameters.side_effect = AutoMLError("Detector not found")
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_automl_service", return_value=mock_automl_service):
             response = client.post(
                 "/api/v1/automl/optimize",
@@ -327,7 +325,7 @@ class TestAutoMLEndpointsComprehensive:
     ):
         """Test successful algorithm recommendations."""
         dataset_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_automl_service", return_value=mock_automl_service):
             response = client.get(
                 f"/api/v1/automl/recommendations/{dataset_id}",
@@ -339,7 +337,7 @@ class TestAutoMLEndpointsComprehensive:
         assert "recommendations" in data
         assert "dataset_characteristics" in data
         assert len(data["recommendations"]) > 0
-        
+
         # Verify recommendation structure
         recommendation = data["recommendations"][0]
         assert "algorithm" in recommendation
@@ -353,7 +351,7 @@ class TestAutoMLEndpointsComprehensive:
         """Test algorithm recommendations with invalid dataset."""
         mock_automl_service.get_algorithm_recommendations.side_effect = DatasetError("Dataset not found")
         dataset_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_automl_service", return_value=mock_automl_service):
             response = client.get(
                 f"/api/v1/automl/recommendations/{dataset_id}",
@@ -470,9 +468,9 @@ class TestAutoMLEndpointsComprehensive:
     ):
         """Test handling concurrent AutoML requests."""
         import threading
-        
+
         results = []
-        
+
         def make_automl_request():
             with patch("pynomaly.presentation.web_api.dependencies.get_automl_service", return_value=mock_automl_service):
                 response = client.post(
@@ -537,7 +535,7 @@ class TestAutoMLEndpointsComprehensive:
         """Test error handling in AutoML endpoints."""
         # Test service unavailable
         mock_automl_service.run_automl.side_effect = Exception("Service unavailable")
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_automl_service", return_value=mock_automl_service):
             response = client.post(
                 "/api/v1/automl/run",

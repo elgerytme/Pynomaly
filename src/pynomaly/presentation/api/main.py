@@ -6,19 +6,18 @@ This module creates the main FastAPI application with all endpoints and document
 
 import logging
 from contextlib import asynccontextmanager
-from typing import Dict, Any
+from typing import Any
 
-from fastapi import FastAPI, HTTPException, Depends, Security, status
+import uvicorn
+from fastapi import Depends, FastAPI, HTTPException, Security, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import JSONResponse
-import uvicorn
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from .docs import configure_api_docs, COMMON_RESPONSES, ENDPOINT_METADATA
 from ...enterprise.enterprise_service import router as enterprise_router
-from ...enterprise.multi_tenancy import get_current_tenant, get_current_user
 from ...mlops.mlops_service import router as mlops_router
+from .docs import COMMON_RESPONSES, ENDPOINT_METADATA, configure_api_docs
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -32,29 +31,29 @@ security = HTTPBearer()
 async def lifespan(app: FastAPI):
     """Application lifespan management."""
     logger.info("🚀 Starting Pynomaly API server...")
-    
+
     # Startup
     try:
         # Initialize services
         logger.info("✅ Initializing services...")
-        
+
         # Initialize database connections
         logger.info("✅ Database connections initialized")
-        
+
         # Initialize model registry
         logger.info("✅ Model registry initialized")
-        
+
         # Initialize monitoring
         logger.info("✅ Monitoring systems initialized")
-        
+
         logger.info("🎉 Pynomaly API server started successfully!")
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to start server: {e}")
         raise
-    
+
     yield
-    
+
     # Shutdown
     logger.info("⏹️ Shutting down Pynomaly API server...")
     logger.info("✅ Pynomaly API server stopped")
@@ -112,7 +111,7 @@ async def get_current_user_token(credentials: HTTPAuthorizationCredentials = Sec
             "tenant_id": "demo_tenant",
             "role": "admin"
         }
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication token"
@@ -226,8 +225,8 @@ async def root():
     }
 )
 async def detect_anomalies(
-    request: Dict[str, Any],
-    current_user: Dict[str, Any] = Depends(get_current_user_token)
+    request: dict[str, Any],
+    current_user: dict[str, Any] = Depends(get_current_user_token)
 ):
     """Detect anomalies in the provided data."""
     try:
@@ -282,8 +281,8 @@ async def detect_anomalies(
     }
 )
 async def train_model(
-    request: Dict[str, Any],
-    current_user: Dict[str, Any] = Depends(get_current_user_token)
+    request: dict[str, Any],
+    current_user: dict[str, Any] = Depends(get_current_user_token)
 ):
     """Train a new anomaly detection model."""
     try:
@@ -347,7 +346,7 @@ async def train_model(
 )
 async def get_model_info(
     model_id: str,
-    current_user: Dict[str, Any] = Depends(get_current_user_token)
+    current_user: dict[str, Any] = Depends(get_current_user_token)
 ):
     """Get detailed information about a specific model."""
     try:

@@ -1,27 +1,24 @@
 """
 Interactive CLI Tutorials for Pynomaly
 
-This module provides comprehensive tutorials to help users learn 
+This module provides comprehensive tutorials to help users learn
 how to use Pynomaly effectively through interactive lessons.
 """
 
 from __future__ import annotations
 
-import json
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any
 
-import typer
 from rich.console import Console
 from rich.panel import Panel
-from rich.progress import Progress
-from rich.prompt import Confirm, Prompt
+from rich.prompt import Confirm
 from rich.syntax import Syntax
 from rich.table import Table
-from rich.text import Text
 
-from pynomaly.presentation.cli.ux_improvements import WorkflowHelper, ProgressIndicator
+from pynomaly.presentation.cli.ux_improvements import ProgressIndicator
 
 console = Console()
 progress_indicator = ProgressIndicator()
@@ -29,16 +26,16 @@ progress_indicator = ProgressIndicator()
 
 class TutorialStep:
     """Represents a single tutorial step."""
-    
+
     def __init__(
         self,
         title: str,
         description: str,
-        code_example: Optional[str] = None,
-        explanation: Optional[str] = None,
-        interactive_action: Optional[Callable] = None,
-        validation_function: Optional[Callable] = None,
-        tips: Optional[List[str]] = None
+        code_example: str | None = None,
+        explanation: str | None = None,
+        interactive_action: Callable | None = None,
+        validation_function: Callable | None = None,
+        tips: list[str] | None = None
     ):
         self.title = title
         self.description = description
@@ -47,8 +44,8 @@ class TutorialStep:
         self.interactive_action = interactive_action
         self.validation_function = validation_function
         self.tips = tips or []
-    
-    def execute(self, context: Dict[str, Any]) -> bool:
+
+    def execute(self, context: dict[str, Any]) -> bool:
         """Execute this tutorial step."""
         # Display step title
         console.print(Panel.fit(
@@ -56,29 +53,29 @@ class TutorialStep:
             title=f"Step {context.get('step_number', 1)}",
             border_style="blue"
         ))
-        
+
         # Show description
         console.print(f"\n{self.description}\n")
-        
+
         # Show code example if provided
         if self.code_example:
             console.print("[bold cyan]Example:[/bold cyan]")
             syntax = Syntax(self.code_example, "bash", theme="monokai", line_numbers=True)
             console.print(syntax)
             console.print()
-        
+
         # Show explanation if provided
         if self.explanation:
-            console.print(f"[bold yellow]Explanation:[/bold yellow]")
+            console.print("[bold yellow]Explanation:[/bold yellow]")
             console.print(f"{self.explanation}\n")
-        
+
         # Show tips if provided
         if self.tips:
             console.print("[bold green]💡 Tips:[/bold green]")
             for tip in self.tips:
                 console.print(f"  • {tip}")
             console.print()
-        
+
         # Execute interactive action if provided
         if self.interactive_action:
             try:
@@ -91,7 +88,7 @@ class TutorialStep:
             except Exception as e:
                 console.print(f"[red]❌ Error in interactive action: {str(e)}[/red]")
                 return False
-        
+
         # Validate if validation function provided
         if self.validation_function:
             try:
@@ -101,26 +98,26 @@ class TutorialStep:
             except Exception as e:
                 console.print(f"[red]❌ Validation error: {str(e)}[/red]")
                 return False
-        
+
         # Ask user to continue
         if not Confirm.ask("\n[cyan]Ready to continue to the next step?[/cyan]", default=True):
             console.print("[yellow]⏸️ Tutorial paused. Run again to continue.[/yellow]")
             return False
-        
+
         return True
 
 
 class Tutorial:
     """Represents a complete tutorial with multiple steps."""
-    
+
     def __init__(
         self,
         name: str,
         description: str,
         difficulty: str,
         estimated_time: int,
-        prerequisites: Optional[List[str]] = None,
-        steps: Optional[List[TutorialStep]] = None
+        prerequisites: list[str] | None = None,
+        steps: list[TutorialStep] | None = None
     ):
         self.name = name
         self.description = description
@@ -128,11 +125,11 @@ class Tutorial:
         self.estimated_time = estimated_time
         self.prerequisites = prerequisites or []
         self.steps = steps or []
-    
+
     def add_step(self, step: TutorialStep) -> None:
         """Add a step to the tutorial."""
         self.steps.append(step)
-    
+
     def execute(self) -> bool:
         """Execute the complete tutorial."""
         # Show tutorial introduction
@@ -144,37 +141,37 @@ class Tutorial:
             title="🎓 Tutorial",
             border_style="blue"
         ))
-        
+
         # Show prerequisites if any
         if self.prerequisites:
             console.print("\n[bold cyan]📋 Prerequisites:[/bold cyan]")
             for prereq in self.prerequisites:
                 console.print(f"  • {prereq}")
             console.print()
-        
+
         # Ask user if they want to continue
         if not Confirm.ask("Ready to start the tutorial?", default=True):
             console.print("Tutorial cancelled.")
             return False
-        
+
         # Execute steps with progress tracking
         context = {"tutorial_name": self.name}
-        
+
         with progress_indicator.create_progress_bar("Tutorial Progress") as progress:
             task = progress.add_task("[cyan]Learning...", total=len(self.steps))
-            
+
             for i, step in enumerate(self.steps):
                 context["step_number"] = i + 1
                 context["total_steps"] = len(self.steps)
-                
+
                 progress.update(task, description=f"[cyan]Step {i + 1}: {step.title}")
-                
+
                 if not step.execute(context):
                     console.print(f"[red]❌ Tutorial stopped at step {i + 1}.[/red]")
                     return False
-                
+
                 progress.update(task, completed=i + 1)
-        
+
         # Show completion message
         console.print(Panel.fit(
             f"[bold green]🎉 Congratulations![/bold green]\n\n"
@@ -190,31 +187,31 @@ class Tutorial:
             title="✅ Tutorial Complete",
             border_style="green"
         ))
-        
+
         return True
 
 
 class TutorialManager:
     """Manages all available tutorials."""
-    
+
     def __init__(self):
-        self.tutorials: Dict[str, Tutorial] = {}
+        self.tutorials: dict[str, Tutorial] = {}
         self._initialize_tutorials()
-    
+
     def _initialize_tutorials(self) -> None:
         """Initialize all available tutorials."""
         # Basic tutorial
         self._create_basic_tutorial()
-        
+
         # Advanced tutorial
         self._create_advanced_tutorial()
-        
+
         # API integration tutorial
         self._create_api_tutorial()
-        
+
         # Performance optimization tutorial
         self._create_performance_tutorial()
-    
+
     def _create_basic_tutorial(self) -> None:
         """Create the basic Pynomaly tutorial."""
         tutorial = Tutorial(
@@ -224,14 +221,14 @@ class TutorialManager:
             estimated_time=15,
             prerequisites=["Python 3.8+", "Basic command line knowledge"]
         )
-        
+
         # Step 1: Check installation
         def check_installation(context):
             console.print("Let's verify that Pynomaly is properly installed...")
             # In real implementation, would check actual installation
             console.print("[green]✅ Pynomaly is installed and ready to use![/green]")
             return True
-        
+
         tutorial.add_step(TutorialStep(
             title="Verify Installation",
             description="First, let's make sure Pynomaly is properly installed on your system.",
@@ -240,7 +237,7 @@ class TutorialManager:
             interactive_action=check_installation,
             tips=["If you see any errors, try reinstalling Pynomaly with pip install pynomaly"]
         ))
-        
+
         # Step 2: Create sample data
         def create_sample_data(context):
             console.print("Creating sample dataset for the tutorial...")
@@ -248,7 +245,7 @@ class TutorialManager:
             sample_data_path = Path("tutorial_data.csv")
             console.print(f"[green]✅ Sample data created at {sample_data_path}[/green]")
             return {"sample_data_path": str(sample_data_path)}
-        
+
         tutorial.add_step(TutorialStep(
             title="Create Sample Data",
             description="Let's create some sample data to work with throughout this tutorial.",
@@ -257,7 +254,7 @@ class TutorialManager:
             interactive_action=create_sample_data,
             tips=["Real datasets can be loaded from CSV, JSON, or Parquet files"]
         ))
-        
+
         # Step 3: Load dataset
         def load_dataset(context):
             data_path = context.get("sample_data_path", "tutorial_data.csv")
@@ -267,7 +264,7 @@ class TutorialManager:
             console.print("[green]✅ Dataset loaded successfully![/green]")
             console.print("📊 Dataset info: 1000 samples, 5 features, ~5% anomalies")
             return {"dataset_id": "tutorial_dataset"}
-        
+
         tutorial.add_step(TutorialStep(
             title="Load Dataset",
             description="Now let's load the dataset into Pynomaly for processing.",
@@ -280,7 +277,7 @@ class TutorialManager:
                 "Pynomaly supports CSV, JSON, and Parquet formats"
             ]
         ))
-        
+
         # Step 4: Create detector
         def create_detector(context):
             console.print("Creating an anomaly detector...")
@@ -289,7 +286,7 @@ class TutorialManager:
             console.print("[green]✅ Detector created successfully![/green]")
             console.print("🔍 Using IsolationForest algorithm (recommended for beginners)")
             return {"detector_id": "tutorial_detector"}
-        
+
         tutorial.add_step(TutorialStep(
             title="Create Detector",
             description="Let's create our first anomaly detector using the IsolationForest algorithm.",
@@ -302,7 +299,7 @@ class TutorialManager:
                 "Lower contamination = fewer anomalies detected"
             ]
         ))
-        
+
         # Step 5: Train detector
         def train_detector(context):
             console.print("Training the detector on your data...")
@@ -314,7 +311,7 @@ class TutorialManager:
             console.print("[green]✅ Training completed![/green]")
             console.print("📈 Model performance: 95% accuracy, 87% precision, 92% recall")
             return {"training_complete": True}
-        
+
         tutorial.add_step(TutorialStep(
             title="Train the Detector",
             description="Now we'll train our detector on the sample data.",
@@ -327,20 +324,20 @@ class TutorialManager:
                 "Use cross-validation for better model evaluation"
             ]
         ))
-        
+
         # Step 6: Run detection
         def run_detection(context):
             console.print("Running anomaly detection...")
             # Simulate detection with progress
             items = [f"sample_{i}" for i in range(100)]
             results = progress_indicator.track_batch_operation(
-                items, "Detecting anomalies", 
+                items, "Detecting anomalies",
                 lambda item, i: f"processed_{item}"
             )
             console.print("[green]✅ Detection completed![/green]")
             console.print("🎯 Found 47 anomalies out of 1000 samples (4.7%)")
             return {"detection_results": results}
-        
+
         tutorial.add_step(TutorialStep(
             title="Run Detection",
             description="Let's run our trained detector on the data to find anomalies.",
@@ -353,26 +350,26 @@ class TutorialManager:
                 "Review results carefully and validate findings"
             ]
         ))
-        
+
         # Step 7: Analyze results
         def analyze_results(context):
             console.print("Analyzing detection results...")
-            
+
             # Create sample results table
             table = Table(title="Detection Results Summary")
             table.add_column("Metric", style="cyan")
             table.add_column("Value", style="green")
-            
+
             table.add_row("Total Samples", "1,000")
             table.add_row("Anomalies Found", "47")
             table.add_row("Anomaly Rate", "4.7%")
             table.add_row("Average Score", "0.23")
             table.add_row("Max Score", "0.89")
-            
+
             console.print(table)
             console.print("\n[green]✅ Analysis complete![/green]")
             return {"analysis_complete": True}
-        
+
         tutorial.add_step(TutorialStep(
             title="Analyze Results",
             description="Finally, let's analyze the detection results to understand what we found.",
@@ -385,9 +382,9 @@ class TutorialManager:
                 "Adjust detector parameters if needed"
             ]
         ))
-        
+
         self.tutorials["basic"] = tutorial
-    
+
     def _create_advanced_tutorial(self) -> None:
         """Create the advanced Pynomaly tutorial."""
         tutorial = Tutorial(
@@ -397,7 +394,7 @@ class TutorialManager:
             estimated_time=30,
             prerequisites=["Completed basic tutorial", "Understanding of machine learning concepts"]
         )
-        
+
         # Add advanced steps...
         tutorial.add_step(TutorialStep(
             title="Hyperparameter Optimization",
@@ -406,7 +403,7 @@ class TutorialManager:
             explanation="AutoML automatically finds the best parameters for your specific dataset.",
             tips=["More trials = better results but longer time", "Use cross-validation for robust evaluation"]
         ))
-        
+
         tutorial.add_step(TutorialStep(
             title="Ensemble Methods",
             description="Combine multiple detectors for improved accuracy.",
@@ -414,9 +411,9 @@ class TutorialManager:
             explanation="Ensemble methods combine predictions from multiple models to reduce errors.",
             tips=["Use diverse algorithms for better ensemble performance", "Weight models based on their individual performance"]
         ))
-        
+
         self.tutorials["advanced"] = tutorial
-    
+
     def _create_api_tutorial(self) -> None:
         """Create the API integration tutorial."""
         tutorial = Tutorial(
@@ -426,7 +423,7 @@ class TutorialManager:
             estimated_time=20,
             prerequisites=["Basic HTTP/REST knowledge", "API key setup"]
         )
-        
+
         # Add API-focused steps...
         tutorial.add_step(TutorialStep(
             title="API Authentication",
@@ -435,9 +432,9 @@ class TutorialManager:
             explanation="All API calls require authentication using your API key.",
             tips=["Keep your API key secure", "Use environment variables for keys", "Monitor API usage"]
         ))
-        
+
         self.tutorials["api"] = tutorial
-    
+
     def _create_performance_tutorial(self) -> None:
         """Create the performance optimization tutorial."""
         tutorial = Tutorial(
@@ -447,7 +444,7 @@ class TutorialManager:
             estimated_time=25,
             prerequisites=["System administration knowledge", "Understanding of performance concepts"]
         )
-        
+
         # Add performance-focused steps...
         tutorial.add_step(TutorialStep(
             title="Batch Processing",
@@ -456,9 +453,9 @@ class TutorialManager:
             explanation="Batch processing improves performance for large datasets.",
             tips=["Adjust batch size based on memory", "Use parallel processing when possible"]
         ))
-        
+
         self.tutorials["performance"] = tutorial
-    
+
     def list_tutorials(self) -> None:
         """Display all available tutorials."""
         console.print(Panel.fit(
@@ -466,14 +463,14 @@ class TutorialManager:
             title="Pynomaly Learning Center",
             border_style="blue"
         ))
-        
+
         table = Table(show_header=True, header_style="bold cyan")
         table.add_column("ID", style="cyan")
         table.add_column("Name", style="white")
         table.add_column("Difficulty", style="yellow")
         table.add_column("Time", style="green")
         table.add_column("Prerequisites", style="dim")
-        
+
         for tutorial_id, tutorial in self.tutorials.items():
             prereqs = ", ".join(tutorial.prerequisites) if tutorial.prerequisites else "None"
             table.add_row(
@@ -483,30 +480,30 @@ class TutorialManager:
                 f"{tutorial.estimated_time} min",
                 prereqs
             )
-        
+
         console.print(table)
-        
+
         console.print("\n[bold cyan]💡 Getting Started:[/bold cyan]")
         console.print("• New users: Start with the 'basic' tutorial")
         console.print("• Experienced users: Try 'advanced' or 'performance' tutorials")
         console.print("• Developers: Check out the 'api' tutorial")
         console.print("\n[bold yellow]Usage:[/bold yellow] pynomaly tutorial run <tutorial_id>")
-    
+
     def run_tutorial(self, tutorial_id: str) -> bool:
         """Run a specific tutorial."""
         if tutorial_id not in self.tutorials:
             console.print(f"[red]❌ Tutorial '{tutorial_id}' not found.[/red]")
             self.list_tutorials()
             return False
-        
+
         tutorial = self.tutorials[tutorial_id]
         return tutorial.execute()
-    
-    def get_tutorial_info(self, tutorial_id: str) -> Optional[Dict[str, Any]]:
+
+    def get_tutorial_info(self, tutorial_id: str) -> dict[str, Any] | None:
         """Get information about a specific tutorial."""
         if tutorial_id not in self.tutorials:
             return None
-        
+
         tutorial = self.tutorials[tutorial_id]
         return {
             "name": tutorial.name,
@@ -539,7 +536,7 @@ def tutorial_info_command(tutorial_id: str) -> None:
     if not info:
         console.print(f"[red]❌ Tutorial '{tutorial_id}' not found.[/red]")
         return
-    
+
     console.print(Panel.fit(
         f"[bold blue]{info['name']}[/bold blue]\n\n"
         f"{info['description']}\n\n"

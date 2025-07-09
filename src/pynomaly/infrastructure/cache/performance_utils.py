@@ -5,7 +5,8 @@ from __future__ import annotations
 import logging
 import time
 from collections import deque
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from .optimized_key_generator import OptimizedCacheKeyGenerator
 
@@ -29,7 +30,7 @@ class CachePerformanceOptimizer:
         # Store original method
         if hasattr(cache_decorator_class, 'generate_cache_key'):
             self.original_generate_key = cache_decorator_class.generate_cache_key
-            
+
             # Replace with optimized version
             cache_decorator_class.generate_cache_key = self._optimized_generate_cache_key
             self.optimization_applied = True
@@ -38,7 +39,7 @@ class CachePerformanceOptimizer:
             logger.error("Cache decorator class doesn't have generate_cache_key method")
 
     def _optimized_generate_cache_key(
-        self, 
+        self,
         cache_decorator_instance: Any,
         func: Callable,
         args: tuple,
@@ -46,7 +47,7 @@ class CachePerformanceOptimizer:
     ) -> str:
         """Optimized cache key generation method."""
         start_time = time.perf_counter()
-        
+
         try:
             key = OptimizedCacheKeyGenerator.generate_key(
                 func=func,
@@ -57,7 +58,7 @@ class CachePerformanceOptimizer:
                 ignore_kwargs=cache_decorator_instance.config.ignore_kwargs,
                 serialize_complex_args=cache_decorator_instance.config.serialize_complex_args,
             )
-            
+
             # Record performance metrics
             end_time = time.perf_counter()
             time_ms = (end_time - start_time) * 1000
@@ -67,9 +68,9 @@ class CachePerformanceOptimizer:
                 'function': func.__name__,
                 'timestamp': time.time()
             })
-            
+
             return key
-            
+
         except Exception as e:
             logger.error(f"Optimized key generation failed: {e}")
             # Fallback to original method
@@ -94,19 +95,19 @@ class CachePerformanceOptimizer:
             return {"status": "no_data"}
 
         metrics = list(self.performance_metrics)
-        
+
         # Calculate statistics
         times = [m['time_ms'] for m in metrics]
         key_lengths = [m['key_length'] for m in metrics]
         functions = [m['function'] for m in metrics]
-        
+
         avg_time = sum(times) / len(times)
         max_time = max(times)
         min_time = min(times)
-        
+
         avg_key_length = sum(key_lengths) / len(key_lengths)
         max_key_length = max(key_lengths)
-        
+
         # Function-specific stats
         function_stats = {}
         for func_name in set(functions):
@@ -117,10 +118,10 @@ class CachePerformanceOptimizer:
                 'avg_time_ms': sum(func_times) / len(func_times),
                 'max_time_ms': max(func_times),
             }
-        
+
         # Get optimization-specific stats
         optimizer_stats = OptimizedCacheKeyGenerator.get_performance_stats()
-        
+
         return {
             "optimization_enabled": self.optimization_applied,
             "total_measurements": len(metrics),
@@ -142,16 +143,16 @@ class CachePerformanceOptimizer:
     def _generate_recommendations(self, avg_time: float, max_time: float, optimizer_stats: dict) -> list[str]:
         """Generate performance recommendations."""
         recommendations = []
-        
+
         if avg_time > 2.0:
             recommendations.append("Average key generation time is high - consider reducing argument complexity")
-        
+
         if max_time > 10.0:
             recommendations.append("Maximum key generation time is very high - investigate worst-case scenarios")
-        
+
         if optimizer_stats.get("status") != "no_data":
             recommendations.extend(optimizer_stats.get("performance_recommendations", []))
-        
+
         return recommendations
 
     def warm_up_function_cache(self, functions: list[Callable]) -> None:
@@ -176,19 +177,19 @@ class CacheHealthMonitor:
     def check_health(self) -> dict[str, Any]:
         """Check cache system health."""
         current_time = time.time()
-        
+
         # Skip if too frequent
         if current_time - self.last_check < self.check_interval:
             return {"status": "skipped", "reason": "too_frequent"}
-        
+
         self.last_check = current_time
-        
+
         # Get performance stats
         optimizer_stats = OptimizedCacheKeyGenerator.get_performance_stats()
-        
+
         # Analyze health
         health_status = self._analyze_health(optimizer_stats)
-        
+
         # Record in history
         health_record = {
             "timestamp": current_time,
@@ -196,10 +197,10 @@ class CacheHealthMonitor:
             "stats": optimizer_stats,
         }
         self.health_history.append(health_record)
-        
+
         # Generate alerts if needed
         self._check_for_alerts(health_status, optimizer_stats)
-        
+
         return {
             "status": health_status,
             "timestamp": current_time,
@@ -212,10 +213,10 @@ class CacheHealthMonitor:
         """Analyze cache health based on statistics."""
         if stats.get("status") == "no_data":
             return "unknown"
-        
+
         avg_time = stats.get("average_generation_time_ms", 0)
         p95_time = stats.get("p95_generation_time_ms", 0)
-        
+
         if avg_time > 5.0 or p95_time > 20.0:
             return "unhealthy"
         elif avg_time > 2.0 or p95_time > 10.0:
@@ -226,7 +227,7 @@ class CacheHealthMonitor:
     def _check_for_alerts(self, health_status: str, stats: dict) -> None:
         """Check for conditions that require alerts."""
         current_time = time.time()
-        
+
         if health_status == "unhealthy":
             alert = {
                 "timestamp": current_time,
@@ -248,9 +249,9 @@ class CacheHealthMonitor:
         """Get health trend over time."""
         if len(self.health_history) < 3:
             return "insufficient_data"
-        
+
         recent_statuses = [h["status"] for h in list(self.health_history)[-3:]]
-        
+
         if all(status == "healthy" for status in recent_statuses):
             return "stable_healthy"
         elif all(status == "unhealthy" for status in recent_statuses):
@@ -283,7 +284,7 @@ def enable_cache_optimizations() -> None:
     try:
         # Import here to avoid circular imports
         from .decorators import CacheDecorator
-        
+
         _performance_optimizer.enable_optimized_key_generation(CacheDecorator)
         logger.info("Cache performance optimizations enabled")
     except Exception as e:

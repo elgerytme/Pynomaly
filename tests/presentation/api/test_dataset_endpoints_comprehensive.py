@@ -4,18 +4,18 @@ Tests dataset upload, management, and validation API endpoints.
 """
 
 import json
-import pytest
 from datetime import datetime
 from io import BytesIO
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
-from fastapi.testclient import TestClient
+import pytest
 from fastapi import status
+from fastapi.testclient import TestClient
 
-from pynomaly.presentation.web_api.app import app
 from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.exceptions import DatasetError, ValidationError
+from pynomaly.domain.exceptions import DatasetError
+from pynomaly.presentation.web_api.app import app
 
 
 class TestDatasetEndpointsComprehensive:
@@ -269,7 +269,7 @@ class TestDatasetEndpointsComprehensive:
         """Test upload of large dataset file."""
         # Create large CSV data (simulated)
         large_csv_data = "feature1,feature2\n" + "\n".join(["1.0,2.0"] * 10000)
-        
+
         files = {
             "file": ("large.csv", BytesIO(large_csv_data.encode()), "text/csv")
         }
@@ -292,7 +292,7 @@ class TestDatasetEndpointsComprehensive:
     ):
         """Test successful dataset retrieval."""
         dataset_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}",
@@ -313,7 +313,7 @@ class TestDatasetEndpointsComprehensive:
         """Test dataset retrieval with non-existent ID."""
         mock_dataset_service.get_dataset.side_effect = DatasetError("Dataset not found")
         dataset_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}",
@@ -325,7 +325,7 @@ class TestDatasetEndpointsComprehensive:
     def test_get_dataset_invalid_id(self, client, auth_headers):
         """Test dataset retrieval with invalid ID format."""
         invalid_id = "invalid-uuid"
-        
+
         response = client.get(
             f"/api/v1/datasets/{invalid_id}",
             headers=auth_headers,
@@ -403,7 +403,7 @@ class TestDatasetEndpointsComprehensive:
     ):
         """Test successful dataset validation."""
         dataset_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_dataset_service):
             response = client.post(
                 f"/api/v1/datasets/{dataset_id}/validate",
@@ -423,7 +423,7 @@ class TestDatasetEndpointsComprehensive:
     ):
         """Test dataset validation with errors."""
         dataset_id = str(uuid4())
-        
+
         # Mock validation with errors
         mock_dataset_service.validate_dataset.return_value = {
             "is_valid": False,
@@ -460,7 +460,7 @@ class TestDatasetEndpointsComprehensive:
         """Test dataset validation with non-existent ID."""
         mock_dataset_service.validate_dataset.side_effect = DatasetError("Dataset not found")
         dataset_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_dataset_service):
             response = client.post(
                 f"/api/v1/datasets/{dataset_id}/validate",
@@ -474,7 +474,7 @@ class TestDatasetEndpointsComprehensive:
     ):
         """Test successful dataset preview retrieval."""
         dataset_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}/preview",
@@ -495,7 +495,7 @@ class TestDatasetEndpointsComprehensive:
     ):
         """Test dataset preview with custom limit."""
         dataset_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}/preview?limit=10",
@@ -511,7 +511,7 @@ class TestDatasetEndpointsComprehensive:
     ):
         """Test successful dataset statistics retrieval."""
         dataset_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}/statistics",
@@ -763,7 +763,7 @@ class TestDatasetEndpointsComprehensive:
         # Test service unavailable
         mock_dataset_service.get_dataset.side_effect = Exception("Service unavailable")
         dataset_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}",
@@ -777,9 +777,9 @@ class TestDatasetEndpointsComprehensive:
     ):
         """Test handling concurrent dataset uploads."""
         import threading
-        
+
         results = []
-        
+
         def upload_dataset():
             files = {
                 "file": ("test.csv", BytesIO(sample_csv_data.encode()), "text/csv")
@@ -787,7 +787,7 @@ class TestDatasetEndpointsComprehensive:
             data = {
                 "metadata": json.dumps(valid_dataset_metadata)
             }
-            
+
             with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_dataset_service):
                 response = client.post(
                     "/api/v1/datasets/upload",
@@ -817,7 +817,7 @@ class TestDatasetEndpointsComprehensive:
     ):
         """Test security headers in dataset responses."""
         dataset_id = str(uuid4())
-        
+
         with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}",

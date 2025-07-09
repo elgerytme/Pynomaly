@@ -1,15 +1,15 @@
 """Performance tests for cache key generation optimizations."""
 
 import time
-import pytest
-from unittest.mock import MagicMock
 
 from pynomaly.infrastructure.cache.decorators import CacheKeyGenerator
-from pynomaly.infrastructure.cache.optimized_key_generator import OptimizedCacheKeyGenerator
+from pynomaly.infrastructure.cache.optimized_key_generator import (
+    OptimizedCacheKeyGenerator,
+)
 from pynomaly.infrastructure.cache.performance_utils import (
-    get_performance_optimizer,
-    get_cache_performance_report,
     enable_cache_optimizations,
+    get_cache_performance_report,
+    get_performance_optimizer,
 )
 
 
@@ -49,11 +49,11 @@ class TestCacheKeyGenerationPerformance:
         # Compare performance
         original_avg = sum(original_times) / len(original_times)
         optimized_avg = sum(optimized_times) / len(optimized_times)
-        
+
         print(f"Original average: {original_avg:.3f}ms")
         print(f"Optimized average: {optimized_avg:.3f}ms")
         print(f"Performance improvement: {((original_avg - optimized_avg) / original_avg * 100):.1f}%")
-        
+
         # Optimized should be faster (allowing some variation)
         assert optimized_avg < original_avg * 1.1, "Optimized version should be faster or similar"
 
@@ -86,7 +86,7 @@ class TestCacheKeyGenerationPerformance:
         for _ in range(50):
             start_time = time.perf_counter()
             OptimizedCacheKeyGenerator.generate_key(
-                complex_function, test_args, test_kwargs, 
+                complex_function, test_args, test_kwargs,
                 "test_prefix", serialize_complex_args=False
             )
             end_time = time.perf_counter()
@@ -97,7 +97,7 @@ class TestCacheKeyGenerationPerformance:
         for _ in range(50):
             start_time = time.perf_counter()
             OptimizedCacheKeyGenerator.generate_key(
-                complex_function, test_args, test_kwargs, 
+                complex_function, test_args, test_kwargs,
                 "test_prefix", serialize_complex_args=True
             )
             end_time = time.perf_counter()
@@ -105,10 +105,10 @@ class TestCacheKeyGenerationPerformance:
 
         simple_avg = sum(optimized_times_simple) / len(optimized_times_simple)
         complex_avg = sum(optimized_times_complex) / len(optimized_times_complex)
-        
+
         print(f"Simple serialization average: {simple_avg:.3f}ms")
         print(f"Complex serialization average: {complex_avg:.3f}ms")
-        
+
         # Simple should be faster than complex
         assert simple_avg < complex_avg, "Simple serialization should be faster"
 
@@ -136,7 +136,7 @@ class TestCacheKeyGenerationPerformance:
 
         print(f"First call (cache miss): {first_call_time:.3f}ms")
         print(f"Second call (cache hit): {second_call_time:.3f}ms")
-        
+
         # Second call should be faster due to caching
         assert second_call_time <= first_call_time, "Cached call should be faster or equal"
 
@@ -146,7 +146,7 @@ class TestCacheKeyGenerationPerformance:
             return "result"
 
         # Create arguments that will result in a long key
-        long_kwargs = {f"very_long_argument_name_{i}": f"very_long_value_string_{i}" * 10 
+        long_kwargs = {f"very_long_argument_name_{i}": f"very_long_value_string_{i}" * 10
                       for i in range(50)}
 
         # Test key generation with long arguments
@@ -158,7 +158,7 @@ class TestCacheKeyGenerationPerformance:
 
         print(f"Long key generation time: {generation_time:.3f}ms")
         print(f"Generated key length: {len(key)}")
-        
+
         # Should handle long keys efficiently
         assert generation_time < 50, "Long key generation should be reasonably fast"
         assert len(key) < 500, "Long keys should be hashed to reasonable length"
@@ -179,7 +179,7 @@ class TestCacheKeyGenerationPerformance:
 
         # Get performance stats
         stats = OptimizedCacheKeyGenerator.get_performance_stats()
-        
+
         assert stats["status"] != "no_data", "Should have performance data"
         assert stats["total_generated_keys"] == 10, "Should track correct number of keys"
         assert "average_generation_time_ms" in stats, "Should have average time"
@@ -188,16 +188,16 @@ class TestCacheKeyGenerationPerformance:
     def test_performance_optimizer_integration(self):
         """Test performance optimizer integration."""
         optimizer = get_performance_optimizer()
-        
+
         # Check initial state
         assert not optimizer.optimization_applied, "Should not be optimized initially"
-        
+
         # Test enabling optimizations
         enable_cache_optimizations()
-        
+
         # Get performance report
         report = get_cache_performance_report()
-        
+
         assert "optimizer_report" in report, "Should have optimizer report"
         assert "health_report" in report, "Should have health report"
         assert "key_generator_stats" in report, "Should have key generator stats"
@@ -218,7 +218,7 @@ class TestCacheKeyGenerationPerformance:
 
         # Get cache stats
         stats = OptimizedCacheKeyGenerator.get_performance_stats()
-        
+
         # Cache should not grow indefinitely
         assert stats["cache_sizes"]["signature_cache"] <= 1000, "Signature cache should be limited"
         assert stats["cache_sizes"]["func_name_cache"] <= 1000, "Function name cache should be limited"
@@ -256,7 +256,7 @@ class TestCacheKeyGenerationPerformance:
                 self.value = value
 
         custom_obj = CustomObject("test")
-        
+
         # Test with edge cases
         start_time = time.perf_counter()
         key = OptimizedCacheKeyGenerator.generate_key(
@@ -269,7 +269,7 @@ class TestCacheKeyGenerationPerformance:
 
         print(f"Edge case generation time: {generation_time:.3f}ms")
         print(f"Generated key: {key}")
-        
+
         # Should handle edge cases efficiently
         assert generation_time < 10, "Edge case handling should be fast"
         assert len(key) > 0, "Should generate valid key"
@@ -277,12 +277,12 @@ class TestCacheKeyGenerationPerformance:
     def test_concurrent_access_performance(self):
         """Test performance under concurrent access."""
         import threading
-        
+
         def concurrent_function(thread_id: int, value: str) -> str:
             return f"{thread_id}_{value}"
 
         results = []
-        
+
         def generate_keys(thread_id: int):
             """Generate keys in a thread."""
             times = []
@@ -308,9 +308,9 @@ class TestCacheKeyGenerationPerformance:
         # Analyze results
         all_times = [time for thread_times in results for time in thread_times]
         avg_time = sum(all_times) / len(all_times)
-        
+
         print(f"Concurrent access average time: {avg_time:.3f}ms")
         print(f"Total operations: {len(all_times)}")
-        
+
         # Should handle concurrent access efficiently
         assert avg_time < 5, "Concurrent access should be reasonably fast"
