@@ -12,7 +12,7 @@ import numpy as np
 from typing import Dict
 
 from src.pynomaly.domain.entities.model_performance import ModelPerformanceMetrics
-from src.pynomaly.domain.services.model_selector import ModelSelector
+from pynomaly.domain.services.model_selector import ModelSelector
 
 
 class TestModelSelector:
@@ -51,7 +51,7 @@ class TestModelSelector:
 
     def test_rank_models(self, model_selector, sample_models):
         """Test model ranking with Pareto front filtering."""
-        with patch('src.pynomaly.domain.services.model_selector.MetricsCalculator.compare_models') as mock_compare:
+        with patch('pynomaly.domain.services.model_selector.MetricsCalculator.compare_models') as mock_compare:
             mock_compare.return_value = {
                 'rankings': {
                     'f1_score': [
@@ -76,7 +76,7 @@ class TestModelSelector:
 
     def test_rank_models_empty_list(self, model_selector):
         """Test ranking with empty model list."""
-        with patch('src.pynomaly.domain.services.model_selector.MetricsCalculator.compare_models') as mock_compare:
+        with patch('pynomaly.domain.services.model_selector.MetricsCalculator.compare_models') as mock_compare:
             mock_compare.return_value = {'rankings': {'f1_score': []}}
             
             with patch.object(model_selector.pareto_optimizer, 'find_pareto_optimal') as mock_pareto:
@@ -87,7 +87,7 @@ class TestModelSelector:
 
     def test_significant_difference_mock_ttest(self, model_selector, sample_models):
         """Test statistical significance between models with mocked t-test."""
-        with patch('src.pynomaly.domain.services.model_selector.ttest_ind') as mock_ttest:
+        with patch('pynomaly.domain.services.model_selector.ttest_ind') as mock_ttest:
             # Mock significant difference
             mock_ttest.return_value = (2.5, 0.02)  # p-value < 0.05
             significant = model_selector.significant_difference(sample_models[0], sample_models[1])
@@ -134,7 +134,7 @@ class TestModelSelector:
                 {'model_id': 'balanced'}
             ]
             
-            with patch('src.pynomaly.domain.services.model_selector.MetricsCalculator.compare_models') as mock_compare:
+            with patch('pynomaly.domain.services.model_selector.MetricsCalculator.compare_models') as mock_compare:
                 mock_compare.return_value = {
                     'rankings': {
                         'f1_score': [
@@ -164,7 +164,7 @@ class TestModelSelector:
             ModelPerformanceMetrics(model_id="model_c", metrics={"f1_score": 0.85, "precision": 0.90, "recall": 0.80})
         ]
         
-        with patch('src.pynomaly.domain.services.model_selector.MetricsCalculator.compare_models') as mock_compare:
+        with patch('pynomaly.domain.services.model_selector.MetricsCalculator.compare_models') as mock_compare:
             mock_compare.return_value = {
                 'rankings': {
                     'f1_score': [
