@@ -1,0 +1,128 @@
+[
+  {
+    "test_name": "Basic detect command",
+    "command": "detect --input C:\\Users\\andre\\AppData\\Local\\Temp\\tmpcv1jo138.csv --algorithm isolation_forest",
+    "stdout": "{\n  \"algorithm\": \"isolation_forest\",\n  \"contamination\": 0.1,\n  \"anomalies_detected\": 5,\n  \"total_samples\": 100,\n  \"score\": 0.95\n}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.479421"
+  },
+  {
+    "test_name": "Detect with verbose flag",
+    "command": "detect --input C:\\Users\\andre\\AppData\\Local\\Temp\\tmpcv1jo138.csv --verbose",
+    "stdout": "Running isolation_forest on C:\\Users\\andre\\AppData\\Local\\Temp\\tmpcv1jo138.csv\nContamination rate: 0.1\nOutput format: json\n{\n  \"algorithm\": \"isolation_forest\",\n  \"contamination\": 0.1,\n  \"anomalies_detected\": 5,\n  \"total_samples\": 100,\n  \"score\": 0.95\n}\n",
+    "stderr": "",
+    "exit_code": 0,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.481423"
+  },
+  {
+    "test_name": "Detect with all options",
+    "command": "detect --input C:\\Users\\andre\\AppData\\Local\\Temp\\tmpcv1jo138.csv --algorithm lof --format text --verbose --contamination 0.2",
+    "stdout": "Running lof on C:\\Users\\andre\\AppData\\Local\\Temp\\tmpcv1jo138.csv\nContamination rate: 0.2\nOutput format: text\nDetected 5 anomalies out of 100 samples\n",
+    "stderr": "",
+    "exit_code": 0,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.482929"
+  },
+  {
+    "test_name": "Train command",
+    "command": "train --data C:\\Users\\andre\\AppData\\Local\\Temp\\tmpcv1jo138.csv --model test_model --epochs 50",
+    "stdout": "Training model test_model on C:\\Users\\andre\\AppData\\Local\\Temp\\tmpcv1jo138.csv\nEpochs: 50\nSave path: ./models\nTraining completed successfully\nModel saved to ./models/test_model.pkl\n",
+    "stderr": "",
+    "exit_code": 0,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.484934"
+  },
+  {
+    "test_name": "Interactive command",
+    "command": "interactive",
+    "stdout": "Welcome to PyNomaly Interactive Mode\nEnter data file path: C:\\Users\\andre\\AppData\\Local\\Temp\\tmpcv1jo138.csv\\nisolation_forest\\n0.15\\n\nSelect algorithm [isolation_forest]: \nContamination rate [0.1]: \nRunning isolation_forest on C:\\Users\\andre\\AppData\\Local\\Temp\\tmpcv1jo138.csv\\nisolation_forest\\n0.15\\n with contamination=0.1\nDetection completed!\nFound 3 anomalies out of 50 samples\n",
+    "stderr": "",
+    "exit_code": 0,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.485934"
+  },
+  {
+    "test_name": "Config set command",
+    "command": "config --set algorithm=lof",
+    "stdout": "Configuration set: algorithm = lof\n",
+    "stderr": "",
+    "exit_code": 0,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.486934"
+  },
+  {
+    "test_name": "Config get command",
+    "command": "config --get algorithm",
+    "stdout": "Configuration value for algorithm: default_value\n",
+    "stderr": "",
+    "exit_code": 0,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.488934"
+  },
+  {
+    "test_name": "Config list command",
+    "command": "config --list",
+    "stdout": "Current configuration:\n  algorithm: isolation_forest\n  contamination: 0.1\n  output_format: json\n",
+    "stderr": "",
+    "exit_code": 0,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.489934"
+  },
+  {
+    "test_name": "Failing command",
+    "command": "failing_command",
+    "stdout": "",
+    "stderr": "Usage: root [OPTIONS] COMMAND \n[ARGS]...\nTry 'root --help' for help.\n\u256d\u2500 Error \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 No such command                 \u2502\n\u2502 'failing_command'.              \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n",
+    "exit_code": 2,
+    "success": false,
+    "timestamp": "2025-07-09T10:14:00.494954"
+  },
+  {
+    "test_name": "Missing required argument",
+    "command": "detect",
+    "stdout": "",
+    "stderr": "Usage: root detect [OPTIONS]\nTry 'root detect --help' for help.\n\u256d\u2500 Error \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 Missing option '--input' /      \u2502\n\u2502 '-i'.                           \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n",
+    "exit_code": 2,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.497542"
+  },
+  {
+    "test_name": "Invalid option value",
+    "command": "detect --input C:\\Users\\andre\\AppData\\Local\\Temp\\tmpcv1jo138.csv --contamination invalid",
+    "stdout": "",
+    "stderr": "Usage: root detect [OPTIONS]\nTry 'root detect --help' for help.\n\u256d\u2500 Error \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 Invalid value for               \u2502\n\u2502 '--contamination' / '-c':       \u2502\n\u2502 'invalid' is not a valid float. \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n",
+    "exit_code": 2,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.499554"
+  },
+  {
+    "test_name": "Non-existent file",
+    "command": "detect --input non_existent_file.csv",
+    "stdout": "",
+    "stderr": "Error: Input file non_existent_file.csv not found\n",
+    "exit_code": 1,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.499554"
+  },
+  {
+    "test_name": "Unknown command",
+    "command": "unknown_command",
+    "stdout": "",
+    "stderr": "Usage: root [OPTIONS] COMMAND \n[ARGS]...\nTry 'root --help' for help.\n\u256d\u2500 Error \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 No such command                 \u2502\n\u2502 'unknown_command'.              \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n",
+    "exit_code": 2,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.502611"
+  },
+  {
+    "test_name": "Unknown option",
+    "command": "detect --input C:\\Users\\andre\\AppData\\Local\\Temp\\tmpcv1jo138.csv --unknown-option",
+    "stdout": "",
+    "stderr": "Usage: root detect [OPTIONS]\nTry 'root detect --help' for help.\n\u256d\u2500 Error \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e\n\u2502 No such option:                 \u2502\n\u2502 --unknown-option                \u2502\n\u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f\n",
+    "exit_code": 2,
+    "success": true,
+    "timestamp": "2025-07-09T10:14:00.505119"
+  }
+]

@@ -21,10 +21,17 @@ import numpy as np
 import pandas as pd
 import pytest
 from dependency_injector import providers
-from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+
+# Optional FastAPI imports
+try:
+    from fastapi.testclient import TestClient
+    FASTAPI_AVAILABLE = True
+except ImportError:
+    FASTAPI_AVAILABLE = False
+    TestClient = None
 
 # Now import pynomaly modules
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
@@ -204,6 +211,8 @@ def app(container):
 @pytest.fixture(scope="function")
 def client(app) -> TestClient:
     """Create test client."""
+    if not FASTAPI_AVAILABLE:
+        pytest.skip("FastAPI TestClient not available")
     return TestClient(app)
 
 

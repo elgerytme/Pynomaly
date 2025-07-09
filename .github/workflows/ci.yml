@@ -218,11 +218,11 @@ jobs:
   # Job 3: Test Suite (Matrix)
   test:
     name: Test Suite
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: ["ubuntu-latest", "windows-latest"]
         python-version: ["3.11", "3.12"]
-        test-type: ["unit", "integration"]
       fail-fast: false
 
     steps:
@@ -241,22 +241,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install hatch
 
-    - name: Run unit tests
-      if: matrix.test-type == 'unit'
-      run: |
-        hatch env run test:run tests/domain/ tests/application/ -v --tb=short
-      continue-on-error: true
-
-    - name: Run integration tests
-      if: matrix.test-type == 'integration'
-      run: |
-        hatch env run test:run tests/infrastructure/ -v --tb=short --ignore=tests/infrastructure/test_*_performance*
-      continue-on-error: true
-
     - name: Run tests with coverage
       run: |
-        hatch env run test:run-cov --cov-report=xml --cov-report=html
-      continue-on-error: true
+        hatch env run test:run-cov
+      continue-on-error: false
 
     - name: Upload coverage to Codecov
       if: matrix.test-type == 'unit'
