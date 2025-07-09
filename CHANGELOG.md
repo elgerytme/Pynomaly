@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+<<<<<<< HEAD
 ## [0.3.0] - 2025-01-25
 
 ### Added
@@ -42,13 +43,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Security Compliance**: All security scanning requirements implemented and operational
 - **Branch Protection**: Updated main branch protection with security requirements
 - **Documentation Alignment**: Synchronized documentation with current implementation status
+=======
+## [0.3.1] - 2025-01-08
+>>>>>>> integration/2024-Q2-bulk-merge
 
 ### Fixed
+- **Post-v0.3.0 Code Quality Issues** (2025-01-09): Addressed linting and test infrastructure issues following release
+  - Fixed numerous E501 line length violations in web presentation layer
+  - Resolved B008 flake8 issues with function call defaults in FastAPI endpoints
+  - Fixed UP045 issues related to Optional type annotations (migrated to X | None syntax)
+  - Addressed F841 unused variable warnings in WebSocket routes
+  - Fixed import errors and missing dependencies in test infrastructure
+  - Resolved port conflicts in end-to-end tests
+  - Updated syntax errors in confidence interval tests
 - **Critical Bug Fix - Issue #33** (2025-01-08): Fixed syntax error in tests/conftest.py preventing pytest from running
   - Moved `from __future__ import annotations` to the beginning of the file as required by Python
   - Fixed git merge conflict artifacts in src/pynomaly/domain/entities/anomaly.py
   - Added comprehensive regression tests to prevent future occurrences
   - Verified pytest can now load conftest.py and run test fixtures without syntax errors
+- **Real-time Monitoring Dashboard - Issue #28** (2025-01-08): Implemented comprehensive real-time monitoring dashboard with production-ready capabilities
+  - Advanced dashboard with system metrics, anomaly detection status, and performance monitoring
+  - Real-time data updates with WebSocket integration for live system visibility
+  - Enhanced alerting system with configurable thresholds and notification channels
+  - Integration with Prometheus and Grafana for comprehensive observability
+  - Mobile-responsive design with dark mode support and accessibility compliance
+- **Security Scanning Integration - Issues #22, #25** (2025-01-08): Comprehensive security scanning implementation with automated CI/CD integration
+  - Bandit static code analysis with configurable severity thresholds (-r src -ll -iii parameters)
+  - Safety dependency vulnerability scanning with comprehensive reporting
+  - Updated GitHub Actions workflow with security scanning and artifact upload
+  - Security badges integration (Security, Bandit, Safety) in README.md
+  - Mandatory security requirements added to CONTRIBUTING.md with PR requirements
+  - Failure thresholds for HIGH/MEDIUM severity issues with deployment blocking
+- **Production Readiness Enhancement - Issue #5** (2025-01-08): Complete production readiness assessment and optimization
+  - Comprehensive production readiness report with deployment guidelines
+  - Enhanced build system with Buck2 + Hatch integration for performance optimization
+  - Production-ready configuration management with environment-specific settings
+  - Container security hardening with multi-stage builds and security scanning
+  - Performance optimization with caching, monitoring, and resource management
 - **Pydantic V2 Compatibility** (2025-07-07): Fixed all Pydantic v1 deprecation warnings and compatibility issues
   - Updated `@validator` decorators to `@field_validator` with proper `@classmethod` decorators
   - Updated `@root_validator` to `@model_validator(mode='before')`  
