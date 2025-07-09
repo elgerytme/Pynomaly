@@ -441,3 +441,7 @@ dist/
 # Note: Archive directory is version-controlled but contents are selective
 !archive/
 !archive/**/README.md
+# Python cache files
+**/__pycache__/
+*.pyc
+*.pyo
