@@ -646,7 +646,6 @@ filterwarnings = [
     "ignore::PendingDeprecationWarning",
 ]
 timeout = 300
-maxfail = 5
 log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(name)s: %(message)s"
