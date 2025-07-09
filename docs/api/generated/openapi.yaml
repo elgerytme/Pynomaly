@@ -1,888 +1,540 @@
-components:
-  responses:
-    BadRequest:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-      description: Bad request
-    Forbidden:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-      description: Forbidden
-    InternalServerError:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-      description: Internal server error
-    NotFound:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-      description: Not found
-    Unauthorized:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-      description: Unauthorized
-  schemas:
-    AuthResponse:
-      properties:
-        access_token:
-          type: string
-        expires_in:
-          type: integer
-        refresh_token:
-          type: string
-        token_type:
-          type: string
-      type: object
-    DetectionRequest:
-      properties:
-        algorithm:
-          type: string
-        data:
-          items:
-            type: number
-          type: array
-        parameters:
-          type: object
-      required:
-      - data
-      - algorithm
-      type: object
-    DetectionResponse:
-      properties:
-        anomalies:
-          items:
-            type: object
-          type: array
-        scores:
-          items:
-            type: number
-          type: array
-        threshold:
-          type: number
-      type: object
-    Error:
-      properties:
-        detail:
-          type: string
-        instance:
-          type: string
-        status:
-          type: integer
-        title:
-          type: string
-        type:
-          type: string
-      type: object
-    LoginRequest:
-      properties:
-        password:
-          type: string
-        username:
-          type: string
-      required:
-      - username
-      - password
-      type: object
-    TOTPSetupResponse:
-      properties:
-        backup_codes:
-          items:
-            type: string
-          type: array
-        manual_entry_key:
-          type: string
-        qr_code_url:
-          type: string
-        secret:
-          type: string
-      type: object
-  securitySchemes:
-    ApiKeyAuth:
-      in: header
-      name: X-API-Key
-      type: apiKey
-    BearerAuth:
-      bearerFormat: JWT
-      scheme: bearer
-      type: http
+openapi: 3.0.3
 info:
-  contact:
-    email: support@pynomaly.com
-    name: Pynomaly Team
-    url: https://github.com/pynomaly/pynomaly
-  description: Comprehensive anomaly detection API with authentication, MFA, and admin
+  title: Pynomaly API
+  description: State-of-the-art anomaly detection API with comprehensive machine learning
     capabilities
+  version: 1.0.0
+  contact:
+    name: Pynomaly Support
+    email: support@pynomaly.com
+    url: https://docs.pynomaly.com
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-  title: Pynomaly API
-  version: 1.0.0
-openapi: 3.0.3
+servers:
+- url: https://api.pynomaly.com
+  description: Production server
+- url: https://staging-api.pynomaly.com
+  description: Staging server
+- url: http://localhost:8000
+  description: Development server
+security:
+- ApiKeyAuth: []
 paths:
-  /api/v1/admin/users:
+  /health:
     get:
-      description: List all users
+      summary: Health check endpoint
+      description: Basic health check to verify API availability
+      operationId: healthCheck
+      tags:
+      - Health
       responses:
         '200':
+          description: API is healthy
           content:
             application/json:
-              schema: {}
-          description: Users list retrieved
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: List all users
-      tags:
-      - admin
-  /api/v1/admin/users/{user_id}:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /health/detailed:
     get:
-      description: Get user details
+      summary: Detailed health check
+      description: Comprehensive health check with system metrics
+      operationId: detailedHealthCheck
+      tags:
+      - Health
       responses:
         '200':
+          description: Detailed health information
           content:
             application/json:
-              schema: {}
-          description: User details retrieved
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Get user details
+              schema:
+                $ref: '#/components/schemas/DetailedHealthResponse'
+  /api/v1/detectors:
+    get:
+      summary: List detectors
+      description: Retrieve a list of all available anomaly detectors
+      operationId: listDetectors
       tags:
-      - admin
-  /api/v1/admin/users/{user_id}/disable:
+      - Detectors
+      parameters:
+      - name: limit
+        in: query
+        description: Number of results per page
+        schema:
+          type: integer
+          default: 20
+          minimum: 1
+          maximum: 100
+      - name: offset
+        in: query
+        description: Results offset
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+      - name: algorithm
+        in: query
+        description: Filter by algorithm type
+        schema:
+          type: string
+          enum:
+          - IsolationForest
+          - LocalOutlierFactor
+          - OneClassSVM
+          - EllipticEnvelope
+          - DBSCAN
+      responses:
+        '200':
+          description: List of detectors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectorListResponse'
     post:
-      description: Disable user account
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: User account disabled
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Disable user account
+      summary: Create detector
+      description: Create a new anomaly detector
+      operationId: createDetector
       tags:
-      - admin
-  /api/v1/admin/users/{user_id}/enable:
-    post:
-      description: Enable user account
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: User account enabled
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Enable user account
-      tags:
-      - admin
-  /api/v1/admin/users/{user_id}/roles:
-    put:
-      description: Update user roles
+      - Detectors
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              properties:
-                roles:
-                - string
-              type: object
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: User roles updated
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Update user roles
-      tags:
-      - admin
-  /api/v1/api-keys/:
-    get:
-      description: List API keys
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: API keys list retrieved
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: List API keys
-      tags:
-      - api_keys
-    post:
-      description: Create new API key
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                expires_at: string
-                name: string
-                scopes:
-                - string
-              type: object
-        required: true
+              $ref: '#/components/schemas/CreateDetectorRequest'
       responses:
         '201':
+          description: Detector created successfully
           content:
             application/json:
-              schema: {}
-          description: API key created
+              schema:
+                $ref: '#/components/schemas/DetectorResponse'
         '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Create new API key
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/detectors/{detector_id}:
+    get:
+      summary: Get detector details
+      description: Retrieve detailed information about a specific detector
+      operationId: getDetector
       tags:
-      - api_keys
-  /api/v1/api-keys/{key_id}:
+      - Detectors
+      parameters:
+      - name: detector_id
+        in: path
+        required: true
+        description: Detector ID
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Detector details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectorResponse'
+        '404':
+          description: Detector not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update detector
+      description: Update detector configuration
+      operationId: updateDetector
+      tags:
+      - Detectors
+      parameters:
+      - name: detector_id
+        in: path
+        required: true
+        description: Detector ID
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDetectorRequest'
+      responses:
+        '200':
+          description: Detector updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectorResponse'
     delete:
-      description: Delete API key
-      responses:
-        '204':
-          content:
-            application/json:
-              schema: {}
-          description: API key deleted
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Delete API key
+      summary: Delete detector
+      description: Delete a detector
+      operationId: deleteDetector
       tags:
-      - api_keys
-  /api/v1/api-keys/{key_id}/regenerate:
-    post:
-      description: Regenerate API key
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: API key regenerated
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Regenerate API key
-      tags:
-      - api_keys
-  /api/v1/auth/login:
-    post:
-      description: Authenticate user and get JWT token
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                password: string
-                username: string
-              type: object
+      - Detectors
+      parameters:
+      - name: detector_id
+        in: path
         required: true
+        description: Detector ID
+        schema:
+          type: string
       responses:
         '200':
+          description: Detector deleted successfully
           content:
             application/json:
               schema:
-                access_token: string
-                expires_in: integer
-                refresh_token: string
-                token_type: string
-          description: Authentication successful
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Authenticate user and get JWT token
-      tags:
-      - authentication
-  /api/v1/auth/logout:
+                $ref: '#/components/schemas/SuccessResponse'
+  /api/v1/detectors/{detector_id}/detect:
     post:
-      description: Logout user and invalidate token
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Logout successful
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Logout user and invalidate token
+      summary: Run anomaly detection
+      description: Perform anomaly detection on new data
+      operationId: detectAnomalies
       tags:
-      - authentication
-  /api/v1/auth/password-reset:
-    post:
-      description: Request password reset
+      - Detection
+      parameters:
+      - name: detector_id
+        in: path
+        required: true
+        description: Detector ID
+        schema:
+          type: string
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              properties:
-                email: string
-              type: object
-        required: true
+              $ref: '#/components/schemas/DetectionRequest'
       responses:
         '200':
-          content:
-            application/json:
-              schema: {}
-          description: Password reset email sent
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Request password reset
-      tags:
-      - authentication
-  /api/v1/auth/password-reset/confirm:
-    post:
-      description: Confirm password reset
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                new_password: string
-                token: string
-              type: object
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Password reset successful
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Confirm password reset
-      tags:
-      - authentication
-  /api/v1/auth/refresh:
-    post:
-      description: Refresh JWT token
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                refresh_token: string
-              type: object
-        required: true
-      responses:
-        '200':
+          description: Detection results
           content:
             application/json:
               schema:
-                access_token: string
-                expires_in: integer
-          description: Token refreshed successfully
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Refresh JWT token
-      tags:
-      - authentication
-  /api/v1/detection/algorithms:
-    get:
-      description: List available algorithms
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Algorithms list retrieved
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: List available algorithms
-      tags:
-      - detection
-  /api/v1/detection/batch:
+                $ref: '#/components/schemas/DetectionResponse'
+  /api/v1/automl/optimize:
     post:
-      description: Batch anomaly detection
+      summary: Start AutoML optimization
+      description: Begin automated machine learning optimization process
+      operationId: startAutoMLOptimization
+      tags:
+      - AutoML
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              properties:
-                algorithm: string
-                datasets:
-                - object
-              type: object
-        required: true
+              $ref: '#/components/schemas/AutoMLRequest'
       responses:
         '200':
-          content:
-            application/json:
-              schema: {}
-          description: Batch detection completed
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Batch anomaly detection
-      tags:
-      - detection
-  /api/v1/detection/detect:
-    post:
-      description: Perform anomaly detection
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                algorithm: string
-                data: array
-                parameters: object
-              type: object
-        required: true
-      responses:
-        '200':
+          description: AutoML optimization started
           content:
             application/json:
               schema:
-                anomalies:
-                - object
-                scores:
-                - number
-                threshold: number
-          description: Detection completed
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Perform anomaly detection
-      tags:
-      - detection
-  /api/v1/health/:
-    get:
-      description: Health check
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Service healthy
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Health check
-      tags:
-      - health
-  /api/v1/health/detailed:
-    get:
-      description: Detailed health check
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Detailed health status
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Detailed health check
-      tags:
-      - health
-  /api/v1/mfa/backup-codes:
-    get:
-      description: Get backup codes count
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Backup codes info
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Get backup codes count
-      tags:
-      - mfa
-  /api/v1/mfa/backup-codes/regenerate:
-    post:
-      description: Regenerate backup codes
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Backup codes regenerated
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Regenerate backup codes
-      tags:
-      - mfa
-  /api/v1/mfa/email/setup:
-    post:
-      description: Setup email authentication
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Email code sent
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Setup email authentication
-      tags:
-      - mfa
-  /api/v1/mfa/email/verify:
-    post:
-      description: Verify email code
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                email_code: string
+                $ref: '#/components/schemas/AutoMLResponse'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+              example: healthy
+            timestamp:
+              type: string
+              format: date-time
+    DetailedHealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+            components:
               type: object
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: Email verification successful
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Verify email code
-      tags:
-      - mfa
-  /api/v1/mfa/sms/setup:
-    post:
-      description: Setup SMS authentication
-      requestBody:
-        content:
-          application/json:
-            schema:
               properties:
-                phone_number: string
+                database:
+                  type: string
+                redis:
+                  type: string
+                workers:
+                  type: string
+            metrics:
               type: object
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: SMS code sent
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Setup SMS authentication
-      tags:
-      - mfa
-  /api/v1/mfa/sms/verify:
-    post:
-      description: Verify SMS code
-      requestBody:
-        content:
-          application/json:
-            schema:
               properties:
-                sms_code: string
+                cpu_usage:
+                  type: number
+                memory_usage:
+                  type: number
+                disk_usage:
+                  type: number
+    DetectorListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            detectors:
+              type: array
+              items:
+                $ref: '#/components/schemas/Detector'
+            pagination:
+              $ref: '#/components/schemas/Pagination'
+    Detector:
+      type: object
+      properties:
+        id:
+          type: string
+          example: detector_abc123
+        name:
+          type: string
+          example: Production Detector
+        algorithm:
+          type: string
+          enum:
+          - IsolationForest
+          - LocalOutlierFactor
+          - OneClassSVM
+          - EllipticEnvelope
+          - DBSCAN
+        status:
+          type: string
+          enum:
+          - active
+          - training
+          - inactive
+          - error
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        performance:
+          type: object
+          properties:
+            accuracy:
+              type: number
+              minimum: 0
+              maximum: 1
+            precision:
+              type: number
+              minimum: 0
+              maximum: 1
+            recall:
+              type: number
+              minimum: 0
+              maximum: 1
+            f1_score:
+              type: number
+              minimum: 0
+              maximum: 1
+    CreateDetectorRequest:
+      type: object
+      required:
+      - name
+      - algorithm
+      properties:
+        name:
+          type: string
+          example: My Detector
+        algorithm:
+          type: string
+          enum:
+          - IsolationForest
+          - LocalOutlierFactor
+          - OneClassSVM
+          - EllipticEnvelope
+          - DBSCAN
+        parameters:
+          type: object
+          description: Algorithm-specific parameters
+        description:
+          type: string
+          example: Production anomaly detector
+    UpdateDetectorRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        parameters:
+          type: object
+        description:
+          type: string
+    DetectorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Detector'
+    DetectionRequest:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+          example:
+          - - 1.2
+            - 3.4
+            - 5.6
+          - - 2.3
+            - 4.5
+            - 6.7
+        feature_names:
+          type: array
+          items:
+            type: string
+          example:
+          - feature1
+          - feature2
+          - feature3
+        return_explanations:
+          type: boolean
+          default: false
+    DetectionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            predictions:
+              type: array
+              items:
+                $ref: '#/components/schemas/Prediction'
+            summary:
+              $ref: '#/components/schemas/DetectionSummary'
+    Prediction:
+      type: object
+      properties:
+        index:
+          type: integer
+        is_anomaly:
+          type: boolean
+        anomaly_score:
+          type: number
+        confidence:
+          type: number
+    DetectionSummary:
+      type: object
+      properties:
+        total_samples:
+          type: integer
+        anomalies_detected:
+          type: integer
+        anomaly_rate:
+          type: number
+        average_confidence:
+          type: number
+    AutoMLRequest:
+      type: object
+      required:
+      - dataset_id
+      properties:
+        dataset_id:
+          type: string
+        algorithms:
+          type: array
+          items:
+            type: string
+        objectives:
+          type: array
+          items:
+            type: string
+        constraints:
+          type: object
+          properties:
+            max_time:
+              type: integer
+            max_trials:
+              type: integer
+            max_memory:
+              type: integer
+    AutoMLResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            optimization_id:
+              type: string
+            status:
+              type: string
+            estimated_time:
+              type: integer
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
               type: object
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: SMS verification successful
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Verify SMS code
-      tags:
-      - mfa
-  /api/v1/mfa/status:
-    get:
-      description: Get MFA status
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                active_methods:
-                - object
-                backup_codes_available: boolean
-                mfa_enabled: boolean
-          description: MFA status retrieved
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Get MFA status
-      tags:
-      - mfa
-  /api/v1/mfa/totp/setup:
-    post:
-      description: Setup TOTP authentication
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                app_name: string
-                issuer: string
-              type: object
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                backup_codes:
-                - string
-                manual_entry_key: string
-                qr_code_url: string
-                secret: string
-          description: TOTP setup successful
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Setup TOTP authentication
-      tags:
-      - mfa
-  /api/v1/mfa/totp/verify:
-    post:
-      description: Verify TOTP code
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                totp_code: string
-              type: object
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: TOTP verification successful
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-      summary: Verify TOTP code
-      tags:
-      - mfa
-security:
-- BearerAuth: []
-- ApiKeyAuth: []
-servers:
-- description: Development server
-  url: http://localhost:8000
-- description: Production server
-  url: https://api.pynomaly.com
+tags:
+- name: Health
+  description: Health check and system status endpoints
+- name: Detectors
+  description: Anomaly detector management
+- name: Detection
+  description: Anomaly detection operations
+- name: AutoML
+  description: Automated machine learning optimization

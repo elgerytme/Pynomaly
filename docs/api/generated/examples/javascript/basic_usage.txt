@@ -27,7 +27,10 @@ async function listDetectors() {
         console.log(`Available detectors: ${detectors.data.detectors.length}`);
         return detectors;
     } catch (error) {
-        console.error('Failed to list detectors:', error.response?.data || error.message);
+        console.error(
+            'Failed to list detectors:',
+            error.response?.data || error.message
+        );
     }
 }
 
@@ -54,7 +57,10 @@ async function createDetector() {
         console.log(`Created detector: ${detector.data.id}`);
         return detector.data.id;
     } catch (error) {
-        console.error('Failed to create detector:', error.response?.data || error.message);
+        console.error(
+            'Failed to create detector:',
+            error.response?.data || error.message
+        );
     }
 }
 

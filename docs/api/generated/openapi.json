@@ -2,12 +2,12 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Pynomaly API",
-    "description": "Comprehensive anomaly detection API with authentication, MFA, and admin capabilities",
+    "description": "State-of-the-art anomaly detection API with comprehensive machine learning capabilities",
     "version": "1.0.0",
     "contact": {
-      "name": "Pynomaly Team",
-      "url": "https://github.com/pynomaly/pynomaly",
-      "email": "support@pynomaly.com"
+      "name": "Pynomaly Support",
+      "email": "support@pynomaly.com",
+      "url": "https://docs.pynomaly.com"
     },
     "license": {
       "name": "MIT",
@@ -16,1365 +16,814 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8000",
-      "description": "Development server"
-    },
-    {
       "url": "https://api.pynomaly.com",
       "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.pynomaly.com",
+      "description": "Staging server"
+    },
+    {
+      "url": "http://localhost:8000",
+      "description": "Development server"
     }
   ],
-  "components": {
-    "securitySchemes": {
-      "BearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      },
-      "ApiKeyAuth": {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-API-Key"
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check endpoint",
+        "description": "Basic health check to verify API availability",
+        "operationId": "healthCheck",
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "API is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
-    "schemas": {
-      "AuthResponse": {
-        "type": "object",
-        "properties": {
-          "access_token": {
-            "type": "string"
-          },
-          "refresh_token": {
-            "type": "string"
-          },
-          "token_type": {
-            "type": "string"
-          },
-          "expires_in": {
-            "type": "integer"
-          }
-        }
-      },
-      "LoginRequest": {
-        "type": "object",
-        "required": [
-          "username",
-          "password"
+    "/health/detailed": {
+      "get": {
+        "summary": "Detailed health check",
+        "description": "Comprehensive health check with system metrics",
+        "operationId": "detailedHealthCheck",
+        "tags": [
+          "Health"
         ],
-        "properties": {
-          "username": {
-            "type": "string"
+        "responses": {
+          "200": {
+            "description": "Detailed health information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedHealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/detectors": {
+      "get": {
+        "summary": "List detectors",
+        "description": "Retrieve a list of all available anomaly detectors",
+        "operationId": "listDetectors",
+        "tags": [
+          "Detectors"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of results per page",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
+            }
           },
-          "password": {
-            "type": "string"
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Results offset",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "algorithm",
+            "in": "query",
+            "description": "Filter by algorithm type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "IsolationForest",
+                "LocalOutlierFactor",
+                "OneClassSVM",
+                "EllipticEnvelope",
+                "DBSCAN"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of detectors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetectorListResponse"
+                }
+              }
+            }
           }
         }
       },
-      "TOTPSetupResponse": {
-        "type": "object",
-        "properties": {
-          "secret": {
-            "type": "string"
+      "post": {
+        "summary": "Create detector",
+        "description": "Create a new anomaly detector",
+        "operationId": "createDetector",
+        "tags": [
+          "Detectors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDetectorRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Detector created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetectorResponse"
+                }
+              }
+            }
           },
-          "qr_code_url": {
-            "type": "string"
-          },
-          "manual_entry_key": {
-            "type": "string"
-          },
-          "backup_codes": {
-            "type": "array",
-            "items": {
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/detectors/{detector_id}": {
+      "get": {
+        "summary": "Get detector details",
+        "description": "Retrieve detailed information about a specific detector",
+        "operationId": "getDetector",
+        "tags": [
+          "Detectors"
+        ],
+        "parameters": [
+          {
+            "name": "detector_id",
+            "in": "path",
+            "required": true,
+            "description": "Detector ID",
+            "schema": {
               "type": "string"
             }
           }
-        }
-      },
-      "DetectionRequest": {
-        "type": "object",
-        "required": [
-          "data",
-          "algorithm"
         ],
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "number"
+        "responses": {
+          "200": {
+            "description": "Detector details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetectorResponse"
+                }
+              }
             }
           },
-          "algorithm": {
-            "type": "string"
-          },
-          "parameters": {
-            "type": "object"
+          "404": {
+            "description": "Detector not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         }
       },
-      "DetectionResponse": {
-        "type": "object",
-        "properties": {
-          "anomalies": {
-            "type": "array",
-            "items": {
-              "type": "object"
+      "put": {
+        "summary": "Update detector",
+        "description": "Update detector configuration",
+        "operationId": "updateDetector",
+        "tags": [
+          "Detectors"
+        ],
+        "parameters": [
+          {
+            "name": "detector_id",
+            "in": "path",
+            "required": true,
+            "description": "Detector ID",
+            "schema": {
+              "type": "string"
             }
-          },
-          "scores": {
-            "type": "array",
-            "items": {
-              "type": "number"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDetectorRequest"
+              }
             }
-          },
-          "threshold": {
-            "type": "number"
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Detector updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetectorResponse"
+                }
+              }
+            }
           }
         }
       },
-      "Error": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "title": {
-            "type": "string"
-          },
-          "detail": {
-            "type": "string"
-          },
-          "status": {
-            "type": "integer"
-          },
-          "instance": {
-            "type": "string"
+      "delete": {
+        "summary": "Delete detector",
+        "description": "Delete a detector",
+        "operationId": "deleteDetector",
+        "tags": [
+          "Detectors"
+        ],
+        "parameters": [
+          {
+            "name": "detector_id",
+            "in": "path",
+            "required": true,
+            "description": "Detector ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detector deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
           }
         }
       }
     },
-    "responses": {
-      "BadRequest": {
-        "description": "Bad request",
-        "content": {
-          "application/json": {
+    "/api/v1/detectors/{detector_id}/detect": {
+      "post": {
+        "summary": "Run anomaly detection",
+        "description": "Perform anomaly detection on new data",
+        "operationId": "detectAnomalies",
+        "tags": [
+          "Detection"
+        ],
+        "parameters": [
+          {
+            "name": "detector_id",
+            "in": "path",
+            "required": true,
+            "description": "Detector ID",
             "schema": {
-              "$ref": "#/components/schemas/Error"
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DetectionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Detection results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetectionResponse"
+                }
+              }
             }
           }
         }
-      },
-      "Unauthorized": {
-        "description": "Unauthorized",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
+      }
+    },
+    "/api/v1/automl/optimize": {
+      "post": {
+        "summary": "Start AutoML optimization",
+        "description": "Begin automated machine learning optimization process",
+        "operationId": "startAutoMLOptimization",
+        "tags": [
+          "AutoML"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AutoMLRequest"
+              }
             }
           }
-        }
-      },
-      "Forbidden": {
-        "description": "Forbidden",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
-            }
-          }
-        }
-      },
-      "NotFound": {
-        "description": "Not found",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
-            }
-          }
-        }
-      },
-      "InternalServerError": {
-        "description": "Internal server error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
+        },
+        "responses": {
+          "200": {
+            "description": "AutoML optimization started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AutoMLResponse"
+                }
+              }
             }
           }
         }
       }
     }
   },
-  "security": [
-    {
-      "BearerAuth": []
-    },
-    {
-      "ApiKeyAuth": []
-    }
-  ],
-  "paths": {
-    "/api/v1/auth/login": {
-      "post": {
-        "summary": "Authenticate user and get JWT token",
-        "description": "Authenticate user and get JWT token",
-        "tags": [
-          "authentication"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Authentication successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "access_token": "string",
-                  "refresh_token": "string",
-                  "token_type": "string",
-                  "expires_in": "integer"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "username": "string",
-                  "password": "string"
-                }
-              }
-            }
-          }
-        }
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key for authentication"
       }
     },
-    "/api/v1/auth/logout": {
-      "post": {
-        "summary": "Logout user and invalidate token",
-        "description": "Logout user and invalidate token",
-        "tags": [
-          "authentication"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Logout successful",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/refresh": {
-      "post": {
-        "summary": "Refresh JWT token",
-        "description": "Refresh JWT token",
-        "tags": [
-          "authentication"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Token refreshed successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "access_token": "string",
-                  "expires_in": "integer"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "refresh_token": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/password-reset": {
-      "post": {
-        "summary": "Request password reset",
-        "description": "Request password reset",
-        "tags": [
-          "authentication"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Password reset email sent",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/password-reset/confirm": {
-      "post": {
-        "summary": "Confirm password reset",
-        "description": "Confirm password reset",
-        "tags": [
-          "authentication"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Password reset successful",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "token": "string",
-                  "new_password": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/mfa/totp/setup": {
-      "post": {
-        "summary": "Setup TOTP authentication",
-        "description": "Setup TOTP authentication",
-        "tags": [
-          "mfa"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "TOTP setup successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "secret": "string",
-                  "qr_code_url": "string",
-                  "manual_entry_key": "string",
-                  "backup_codes": [
-                    "string"
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "app_name": "string",
-                  "issuer": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/mfa/totp/verify": {
-      "post": {
-        "summary": "Verify TOTP code",
-        "description": "Verify TOTP code",
-        "tags": [
-          "mfa"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "TOTP verification successful",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "totp_code": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/mfa/sms/setup": {
-      "post": {
-        "summary": "Setup SMS authentication",
-        "description": "Setup SMS authentication",
-        "tags": [
-          "mfa"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "SMS code sent",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "phone_number": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/mfa/sms/verify": {
-      "post": {
-        "summary": "Verify SMS code",
-        "description": "Verify SMS code",
-        "tags": [
-          "mfa"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "SMS verification successful",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "sms_code": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/mfa/email/setup": {
-      "post": {
-        "summary": "Setup email authentication",
-        "description": "Setup email authentication",
-        "tags": [
-          "mfa"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Email code sent",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/mfa/email/verify": {
-      "post": {
-        "summary": "Verify email code",
-        "description": "Verify email code",
-        "tags": [
-          "mfa"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Email verification successful",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email_code": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/mfa/status": {
-      "get": {
-        "summary": "Get MFA status",
-        "description": "Get MFA status",
-        "tags": [
-          "mfa"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "MFA status retrieved",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "mfa_enabled": "boolean",
-                  "active_methods": [
-                    "object"
-                  ],
-                  "backup_codes_available": "boolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/mfa/backup-codes": {
-      "get": {
-        "summary": "Get backup codes count",
-        "description": "Get backup codes count",
-        "tags": [
-          "mfa"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Backup codes info",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/mfa/backup-codes/regenerate": {
-      "post": {
-        "summary": "Regenerate backup codes",
-        "description": "Regenerate backup codes",
-        "tags": [
-          "mfa"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Backup codes regenerated",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/users": {
-      "get": {
-        "summary": "List all users",
-        "description": "List all users",
-        "tags": [
-          "admin"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Users list retrieved",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/users/{user_id}": {
-      "get": {
-        "summary": "Get user details",
-        "description": "Get user details",
-        "tags": [
-          "admin"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "User details retrieved",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/users/{user_id}/roles": {
-      "put": {
-        "summary": "Update user roles",
-        "description": "Update user roles",
-        "tags": [
-          "admin"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "User roles updated",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "roles": [
-                    "string"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/users/{user_id}/disable": {
-      "post": {
-        "summary": "Disable user account",
-        "description": "Disable user account",
-        "tags": [
-          "admin"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "User account disabled",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/users/{user_id}/enable": {
-      "post": {
-        "summary": "Enable user account",
-        "description": "Enable user account",
-        "tags": [
-          "admin"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "User account enabled",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/api-keys/": {
-      "get": {
-        "summary": "List API keys",
-        "description": "List API keys",
-        "tags": [
-          "api_keys"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "API keys list retrieved",
-            "content": {
-              "application/json": {
-                "schema": {}
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "example": "healthy"
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
               }
             }
           }
         }
       },
-      "post": {
-        "summary": "Create new API key",
-        "description": "Create new API key",
-        "tags": [
-          "api_keys"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
+      "DetailedHealthResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "201": {
-            "description": "API key created",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string"
+              },
+              "components": {
                 "type": "object",
                 "properties": {
-                  "name": "string",
-                  "scopes": [
-                    "string"
-                  ],
-                  "expires_at": "string"
+                  "database": {
+                    "type": "string"
+                  },
+                  "redis": {
+                    "type": "string"
+                  },
+                  "workers": {
+                    "type": "string"
+                  }
                 }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/api-keys/{key_id}": {
-      "delete": {
-        "summary": "Delete API key",
-        "description": "Delete API key",
-        "tags": [
-          "api_keys"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "204": {
-            "description": "API key deleted",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/api-keys/{key_id}/regenerate": {
-      "post": {
-        "summary": "Regenerate API key",
-        "description": "Regenerate API key",
-        "tags": [
-          "api_keys"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "API key regenerated",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/detection/detect": {
-      "post": {
-        "summary": "Perform anomaly detection",
-        "description": "Perform anomaly detection",
-        "tags": [
-          "detection"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Detection completed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "anomalies": [
-                    "object"
-                  ],
-                  "scores": [
-                    "number"
-                  ],
-                  "threshold": "number"
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
+              },
+              "metrics": {
                 "type": "object",
                 "properties": {
-                  "data": "array",
-                  "algorithm": "string",
-                  "parameters": "object"
+                  "cpu_usage": {
+                    "type": "number"
+                  },
+                  "memory_usage": {
+                    "type": "number"
+                  },
+                  "disk_usage": {
+                    "type": "number"
+                  }
                 }
               }
             }
           }
         }
-      }
-    },
-    "/api/v1/detection/algorithms": {
-      "get": {
-        "summary": "List available algorithms",
-        "description": "List available algorithms",
-        "tags": [
-          "detection"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
+      },
+      "DetectorListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Algorithms list retrieved",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/detection/batch": {
-      "post": {
-        "summary": "Batch anomaly detection",
-        "description": "Batch anomaly detection",
-        "tags": [
-          "detection"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
-          },
-          "200": {
-            "description": "Batch detection completed",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "datasets": [
-                    "object"
-                  ],
-                  "algorithm": "string"
+          "data": {
+            "type": "object",
+            "properties": {
+              "detectors": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Detector"
                 }
+              },
+              "pagination": {
+                "$ref": "#/components/schemas/Pagination"
               }
             }
           }
         }
-      }
-    },
-    "/api/v1/health/": {
-      "get": {
-        "summary": "Health check",
-        "description": "Health check",
-        "tags": [
-          "health"
-        ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
+      },
+      "Detector": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "detector_abc123"
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
+          "name": {
+            "type": "string",
+            "example": "Production Detector"
           },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
+          "algorithm": {
+            "type": "string",
+            "enum": [
+              "IsolationForest",
+              "LocalOutlierFactor",
+              "OneClassSVM",
+              "EllipticEnvelope",
+              "DBSCAN"
+            ]
           },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "training",
+              "inactive",
+              "error"
+            ]
           },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
           },
-          "200": {
-            "description": "Service healthy",
-            "content": {
-              "application/json": {
-                "schema": {}
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "performance": {
+            "type": "object",
+            "properties": {
+              "accuracy": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "precision": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "recall": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "f1_score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
               }
             }
           }
         }
-      }
-    },
-    "/api/v1/health/detailed": {
-      "get": {
-        "summary": "Detailed health check",
-        "description": "Detailed health check",
-        "tags": [
-          "health"
+      },
+      "CreateDetectorRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "algorithm"
         ],
-        "responses": {
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "My Detector"
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
+          "algorithm": {
+            "type": "string",
+            "enum": [
+              "IsolationForest",
+              "LocalOutlierFactor",
+              "OneClassSVM",
+              "EllipticEnvelope",
+              "DBSCAN"
+            ]
           },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
+          "parameters": {
+            "type": "object",
+            "description": "Algorithm-specific parameters"
           },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
+          "description": {
+            "type": "string",
+            "example": "Production anomaly detector"
+          }
+        }
+      },
+      "UpdateDetectorRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
           },
-          "500": {
-            "$ref": "#/components/responses/InternalServerError"
+          "parameters": {
+            "type": "object"
           },
-          "200": {
-            "description": "Detailed health status",
-            "content": {
-              "application/json": {
-                "schema": {}
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "DetectorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "$ref": "#/components/schemas/Detector"
+          }
+        }
+      },
+      "DetectionRequest": {
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "example": [
+              [
+                1.2,
+                3.4,
+                5.6
+              ],
+              [
+                2.3,
+                4.5,
+                6.7
+              ]
+            ]
+          },
+          "feature_names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "feature1",
+              "feature2",
+              "feature3"
+            ]
+          },
+          "return_explanations": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "DetectionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "predictions": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Prediction"
+                }
+              },
+              "summary": {
+                "$ref": "#/components/schemas/DetectionSummary"
+              }
+            }
+          }
+        }
+      },
+      "Prediction": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "integer"
+          },
+          "is_anomaly": {
+            "type": "boolean"
+          },
+          "anomaly_score": {
+            "type": "number"
+          },
+          "confidence": {
+            "type": "number"
+          }
+        }
+      },
+      "DetectionSummary": {
+        "type": "object",
+        "properties": {
+          "total_samples": {
+            "type": "integer"
+          },
+          "anomalies_detected": {
+            "type": "integer"
+          },
+          "anomaly_rate": {
+            "type": "number"
+          },
+          "average_confidence": {
+            "type": "number"
+          }
+        }
+      },
+      "AutoMLRequest": {
+        "type": "object",
+        "required": [
+          "dataset_id"
+        ],
+        "properties": {
+          "dataset_id": {
+            "type": "string"
+          },
+          "algorithms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "objectives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "constraints": {
+            "type": "object",
+            "properties": {
+              "max_time": {
+                "type": "integer"
+              },
+              "max_trials": {
+                "type": "integer"
+              },
+              "max_memory": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "AutoMLResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "optimization_id": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "estimated_time": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "limit": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "has_next": {
+            "type": "boolean"
+          },
+          "has_prev": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "type": "object"
               }
             }
           }
         }
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health check and system status endpoints"
+    },
+    {
+      "name": "Detectors",
+      "description": "Anomaly detector management"
+    },
+    {
+      "name": "Detection",
+      "description": "Anomaly detection operations"
+    },
+    {
+      "name": "AutoML",
+      "description": "Automated machine learning optimization"
+    }
+  ]
 }

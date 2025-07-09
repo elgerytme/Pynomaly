@@ -2517,7 +2517,6 @@
   "domain/services/test_domain_services_comprehensive.py": true,
   "unit/application/dto/test_training_dto.py": true,
   "unit/domain/value_objects/test_confidence_interval.py": true,
-  "unit/domain/services/test_mfa_service.py::TestMFAService::test_generate_totp_secret": true,
   "unit/domain/services/test_mfa_service.py::TestMFAService::test_verify_totp_code_success": true,
   "unit/domain/services/test_mfa_service.py::TestMFAService::test_verify_totp_code_failure": true,
   "unit/domain/services/test_mfa_service.py::TestMFAService::test_confirm_totp_setup_success": true,

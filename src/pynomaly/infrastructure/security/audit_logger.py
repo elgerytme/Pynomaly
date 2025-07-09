@@ -340,14 +340,14 @@ class AuditLogger:
             correlation_id=(
                 context.correlation_id if context else self._generate_correlation_id()
             ),
-            session_id=context.session_id if context else None,
-            user_id=context.user_id if context else None,
-            user_name=context.user_name if context else None,
-            user_roles=context.user_roles if context else None,
-            ip_address=context.ip_address if context else None,
-            user_agent=context.user_agent if context else None,
-            request_id=context.request_id if context else None,
-            **kwargs,
+            session_id=kwargs.get("session_id") or (context.session_id if context else None),
+            user_id=kwargs.get("user_id") or (context.user_id if context else None),
+            user_name=kwargs.get("user_name") or (context.user_name if context else None),
+            user_roles=kwargs.get("user_roles") or (context.user_roles if context else None),
+            ip_address=kwargs.get("ip_address") or (context.ip_address if context else None),
+            user_agent=kwargs.get("user_agent") or (context.user_agent if context else None),
+            request_id=kwargs.get("request_id") or (context.request_id if context else None),
+            **{k: v for k, v in kwargs.items() if k not in ["session_id", "user_id", "user_name", "user_roles", "ip_address", "user_agent", "request_id"]},
         )
 
         # Log the event
@@ -415,7 +415,7 @@ class AuditLogger:
 
     def _log_event(self, event: SecurityEvent | AuditEvent, is_security: bool) -> None:
         """Log an event to the audit trail."""
-        event_dict = event.dict()
+        event_dict = event.model_dump()
 
         # Determine log level
         log_level = getattr(logging, event.level.value)
@@ -469,7 +469,7 @@ class AuditLogger:
 
         compliance_record = {
             "standard": standard,
-            "event": event.dict(),
+            "event": event.model_dump(),
             "compliance_timestamp": datetime.now(UTC).isoformat(),
             "retention_required": True,
             "immutable": True,

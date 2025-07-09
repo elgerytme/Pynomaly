@@ -46,7 +46,9 @@
       "Bash(rm:*)",
       "Bash(git reset:*)",
       "Bash(docker-compose:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(python:*)",
+      "Bash(docker stop:*)"
     ],
     "deny": []
   }

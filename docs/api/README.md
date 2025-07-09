@@ -1,6 +1,7 @@
 # Pynomaly API Documentation
 
-Welcome to the Pynomaly API documentation! This directory contains comprehensive documentation for the Pynomaly anomaly detection platform.
+Welcome to the Pynomaly API documentation! This directory contains comprehensive
+documentation for the Pynomaly anomaly detection platform.
 
 ## 📁 Documentation Structure
 
@@ -23,7 +24,8 @@ docs/api/
 
 ### 1. Interactive Documentation
 
-Open `generated/index.html` in your browser to explore the API interactively with Swagger UI.
+Open `generated/index.html` in your browser to explore the API interactively
+with Swagger UI.
 
 ### 2. API Specification
 
@@ -40,7 +42,8 @@ Choose your preferred language:
 
 ### 4. Postman Collection
 
-Import `generated/pynomaly_api.postman_collection.json` into Postman for easy API testing.
+Import `generated/pynomaly_api.postman_collection.json` into Postman for easy
+API testing.
 
 ## 📖 API Overview
 
@@ -125,4 +128,4 @@ python scripts/generate_api_docs.py
 
 ---
 
-*Last updated: 2025-07-09 16:28:17*
+*Last updated: 2025-07-09 16:44:19*

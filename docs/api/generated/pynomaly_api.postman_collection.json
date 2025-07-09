@@ -1,16 +1,21 @@
 {
   "info": {
     "name": "Pynomaly API",
-    "description": "Comprehensive anomaly detection API",
+    "description": "Comprehensive API collection for Pynomaly anomaly detection platform",
     "version": "1.0.0",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
-    "type": "bearer",
-    "bearer": [
+    "type": "apikey",
+    "apikey": [
       {
-        "key": "token",
-        "value": "{{auth_token}}",
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{api_key}}",
         "type": "string"
       }
     ]
@@ -18,396 +23,87 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:8000",
+      "value": "https://api.pynomaly.com",
       "type": "string"
     },
     {
-      "key": "auth_token",
-      "value": "",
+      "key": "api_key",
+      "value": "your-api-key-here",
       "type": "string"
     }
   ],
   "item": [
     {
-      "name": "Authentication",
-      "description": "Authentication endpoints",
+      "name": "Health",
       "item": [
         {
-          "name": "Authenticate user and get JWT token",
+          "name": "Health Check",
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/auth/login",
+              "raw": "{{base_url}}/health",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
-                "api",
-                "v1",
-                "auth",
-                "login"
+                "health"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"string\",\n  \"password\": \"string\"\n}"
             }
-          },
-          "response": []
+          }
         },
         {
-          "name": "Logout user and invalidate token",
+          "name": "Detailed Health Check",
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/auth/logout",
+              "raw": "{{base_url}}/health/detailed",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
-                "api",
-                "v1",
-                "auth",
-                "logout"
+                "health",
+                "detailed"
               ]
             }
-          },
-          "response": []
-        },
-        {
-          "name": "Refresh JWT token",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/refresh",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "auth",
-                "refresh"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"string\"\n}"
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Request password reset",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/password-reset",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "auth",
-                "password-reset"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"string\"\n}"
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Confirm password reset",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/password-reset/confirm",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "auth",
-                "password-reset",
-                "confirm"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"token\": \"string\",\n  \"new_password\": \"string\"\n}"
-            }
-          },
-          "response": []
+          }
         }
       ]
     },
     {
-      "name": "Mfa",
-      "description": "Mfa endpoints",
+      "name": "Detectors",
       "item": [
         {
-          "name": "Setup TOTP authentication",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/mfa/totp/setup",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "mfa",
-                "totp",
-                "setup"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"app_name\": \"string\",\n  \"issuer\": \"string\"\n}"
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Verify TOTP code",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/mfa/totp/verify",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "mfa",
-                "totp",
-                "verify"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"totp_code\": \"string\"\n}"
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Setup SMS authentication",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/mfa/sms/setup",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "mfa",
-                "sms",
-                "setup"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"phone_number\": \"string\"\n}"
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Verify SMS code",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/mfa/sms/verify",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "mfa",
-                "sms",
-                "verify"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"sms_code\": \"string\"\n}"
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Setup email authentication",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/mfa/email/setup",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "mfa",
-                "email",
-                "setup"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Verify email code",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/mfa/email/verify",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "mfa",
-                "email",
-                "verify"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email_code\": \"string\"\n}"
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get MFA status",
+          "name": "List Detectors",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/mfa/status",
+              "raw": "{{base_url}}/api/v1/detectors?limit=20&offset=0",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "mfa",
-                "status"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get backup codes count",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/mfa/backup-codes",
-              "host": [
-                "{{base_url}}"
+                "detectors"
               ],
-              "path": [
-                "api",
-                "v1",
-                "mfa",
-                "backup-codes"
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
               ]
             }
-          },
-          "response": []
+          }
         },
         {
-          "name": "Regenerate backup codes",
+          "name": "Create Detector",
           "request": {
             "method": "POST",
             "header": [
@@ -416,81 +112,44 @@
                 "value": "application/json"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Detector\",\n  \"algorithm\": \"IsolationForest\",\n  \"parameters\": {\n    \"contamination\": 0.1,\n    \"n_estimators\": 100,\n    \"random_state\": 42\n  },\n  \"description\": \"Production anomaly detector\"\n}"
+            },
             "url": {
-              "raw": "{{base_url}}/api/v1/mfa/backup-codes/regenerate",
+              "raw": "{{base_url}}/api/v1/detectors",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "mfa",
-                "backup-codes",
-                "regenerate"
+                "detectors"
               ]
             }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Admin",
-      "description": "Admin endpoints",
-      "item": [
-        {
-          "name": "List all users",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/admin/users",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users"
-              ]
-            }
-          },
-          "response": []
+          }
         },
         {
-          "name": "Get user details",
+          "name": "Get Detector",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/admin/users/{user_id}",
+              "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "admin",
-                "users",
-                "{user_id}"
+                "detectors",
+                "{{detector_id}}"
               ]
             }
-          },
-          "response": []
+          }
         },
         {
-          "name": "Update user roles",
+          "name": "Update Detector",
           "request": {
             "method": "PUT",
             "header": [
@@ -499,200 +158,50 @@
                 "value": "application/json"
               }
             ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/admin/users/{user_id}/roles",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "{user_id}",
-                "roles"
-              ]
-            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"roles\": [\n    \"string\"\n  ]\n}"
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Disable user account",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/admin/users/{user_id}/disable",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "{user_id}",
-                "disable"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Enable user account",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/admin/users/{user_id}/enable",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "admin",
-                "users",
-                "{user_id}",
-                "enable"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Api_Keys",
-      "description": "Api_Keys endpoints",
-      "item": [
-        {
-          "name": "List API keys",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/api-keys/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "api-keys",
-                ""
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create new API key",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/api-keys/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "api-keys",
-                ""
-              ]
+              "raw": "{\n  \"name\": \"Updated Detector\",\n  \"parameters\": {\n    \"contamination\": 0.05,\n    \"n_estimators\": 200\n  }\n}"
             },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"string\",\n  \"scopes\": [\n    \"string\"\n  ],\n  \"expires_at\": \"string\"\n}"
+            "url": {
+              "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "detectors",
+                "{{detector_id}}"
+              ]
             }
-          },
-          "response": []
+          }
         },
         {
-          "name": "Delete API key",
+          "name": "Delete Detector",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "{{base_url}}/api/v1/api-keys/{key_id}",
+              "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "api-keys",
-                "{key_id}"
+                "detectors",
+                "{{detector_id}}"
               ]
             }
-          },
-          "response": []
-        },
-        {
-          "name": "Regenerate API key",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/api-keys/{key_id}/regenerate",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "api-keys",
-                "{key_id}",
-                "regenerate"
-              ]
-            }
-          },
-          "response": []
+          }
         }
       ]
     },
     {
       "name": "Detection",
-      "description": "Detection endpoints",
       "item": [
         {
-          "name": "Perform anomaly detection",
+          "name": "Run Detection",
           "request": {
             "method": "POST",
             "header": [
@@ -701,134 +210,57 @@
                 "value": "application/json"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    [\n      1.2,\n      3.4,\n      5.6\n    ],\n    [\n      2.3,\n      4.5,\n      6.7\n    ],\n    [\n      3.4,\n      5.6,\n      7.8\n    ]\n  ],\n  \"feature_names\": [\n    \"feature1\",\n    \"feature2\",\n    \"feature3\"\n  ],\n  \"return_explanations\": true\n}"
+            },
             "url": {
-              "raw": "{{base_url}}/api/v1/detection/detect",
+              "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}/detect",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "detection",
+                "detectors",
+                "{{detector_id}}",
                 "detect"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"data\": \"array\",\n  \"algorithm\": \"string\",\n  \"parameters\": \"object\"\n}"
             }
-          },
-          "response": []
-        },
-        {
-          "name": "List available algorithms",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/detection/algorithms",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "detection",
-                "algorithms"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Batch anomaly detection",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/detection/batch",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "detection",
-                "batch"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"datasets\": [\n    \"object\"\n  ],\n  \"algorithm\": \"string\"\n}"
-            }
-          },
-          "response": []
+          }
         }
       ]
     },
     {
-      "name": "Health",
-      "description": "Health endpoints",
+      "name": "AutoML",
       "item": [
         {
-          "name": "Health check",
+          "name": "Start AutoML Optimization",
           "request": {
-            "method": "GET",
+            "method": "POST",
             "header": [
               {
                 "key": "Content-Type",
                 "value": "application/json"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"dataset_abc123\",\n  \"algorithms\": [\n    \"IsolationForest\",\n    \"LocalOutlierFactor\",\n    \"OneClassSVM\"\n  ],\n  \"objectives\": [\n    \"accuracy\",\n    \"speed\",\n    \"interpretability\"\n  ],\n  \"constraints\": {\n    \"max_time\": 3600,\n    \"max_trials\": 100,\n    \"max_memory\": 4096\n  }\n}"
+            },
             "url": {
-              "raw": "{{base_url}}/api/v1/health/",
+              "raw": "{{base_url}}/api/v1/automl/optimize",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "v1",
-                "health",
-                ""
+                "automl",
+                "optimize"
               ]
             }
-          },
-          "response": []
-        },
-        {
-          "name": "Detailed health check",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/health/detailed",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "health",
-                "detailed"
-              ]
-            }
-          },
-          "response": []
+          }
         }
       ]
     }
