@@ -12,8 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 class DetectorDTO(BaseModel):
     """DTO for detector information."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID
     name: str
@@ -37,8 +36,6 @@ class CreateDetectorDTO(BaseModel):
     """DTO for creating a new detector."""
     
     model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(extra="forbid")
-    """DTO for creating a new detector."""
 
     name: str = Field(min_length=1, max_length=100)
     algorithm_name: str = Field(min_length=1)
@@ -59,8 +56,6 @@ class UpdateDetectorDTO(BaseModel):
     """DTO for updating an existing detector."""
     
     model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(extra="forbid")
-    """DTO for updating an existing detector."""
 
     name: str | None = Field(None, min_length=1, max_length=100)
     contamination_rate: float | None = Field(None, ge=0, le=1)
@@ -71,8 +66,7 @@ class UpdateDetectorDTO(BaseModel):
 class DetectorResponseDTO(BaseModel):
     """DTO for detector API responses."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: UUID
     name: str
@@ -90,8 +84,7 @@ class DetectorResponseDTO(BaseModel):
 class DetectionRequestDTO(BaseModel):
     """DTO for detection requests."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: UUID
     data: list[list[float]]  # 2D array of features

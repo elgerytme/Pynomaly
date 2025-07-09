@@ -7,7 +7,7 @@ import os
 import sys
 
 # Add the scripts directory to path
-sys.path.insert(0, str(Path(__file__).parent / "scripts" / "analysis"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "scripts" / "analysis"))
 
 from analyze_project_structure import (
     load_config, 

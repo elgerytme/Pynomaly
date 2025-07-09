@@ -113,9 +113,8 @@ class AutoMLRequestDTO(BaseModel):
 
 class HyperparameterSpaceDTO(BaseModel):
     """DTO for hyperparameter search space."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     parameter_name: str = Field(..., description="Name of the hyperparameter")
     parameter_type: str = Field(
         ..., description="Type of parameter (float, int, categorical)"
@@ -135,9 +134,8 @@ class HyperparameterSpaceDTO(BaseModel):
 
 class OptimizationTrialDTO(BaseModel):
     """DTO for individual optimization trial."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     trial_number: int = Field(..., description="Trial number")
     parameters: dict[str, Any] = Field(..., description="Trial parameters")
     score: float = Field(..., description="Trial score")
@@ -148,9 +146,8 @@ class OptimizationTrialDTO(BaseModel):
 
 class EnsembleConfigDTO(BaseModel):
     """DTO for ensemble configuration."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     method: str = Field(..., description="Ensemble method")
     algorithms: list[dict[str, Any]] = Field(
         ..., description="List of algorithms in ensemble"
@@ -164,9 +161,8 @@ class EnsembleConfigDTO(BaseModel):
 
 class AutoMLResultDTO(BaseModel):
     """DTO for AutoML optimization result."""
-
-    model_config = ConfigDict(from_attributes=True)
-
+    
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
     best_algorithm: str = Field(..., description="Best performing algorithm")
     best_params: dict[str, Any] = Field(..., description="Best hyperparameters")
     best_score: float = Field(..., description="Best achieved score")
