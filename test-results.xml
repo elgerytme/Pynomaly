@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="11" time="9.370" timestamp="2025-07-08T20:05:36.721880-04:00" hostname="rocm-socm"><testcase classname="domain.test_entities.TestDetector" name="test_create_detector" time="0.068" /><testcase classname="domain.test_entities.TestDetector" name="test_detector_validation" time="0.001" /><testcase classname="domain.test_entities.TestDetector" name="test_update_parameters" time="0.001" /><testcase classname="domain.test_entities.TestDataset" name="test_create_dataset" time="0.001" /><testcase classname="domain.test_entities.TestDataset" name="test_dataset_validation" time="0.001" /><testcase classname="domain.test_entities.TestDataset" name="test_dataset_split" time="0.001" /><testcase classname="domain.test_entities.TestDataset" name="test_get_feature_types" time="0.001" /><testcase classname="domain.test_entities.TestAnomaly" name="test_create_anomaly" time="0.001"><failure message="TypeError: Score must be a number, got &lt;class 'pynomaly.domain.value_objects.anomaly_score.AnomalyScore'&gt;">self = &lt;test_entities.TestAnomaly object at 0x0000018889FCD010&gt;
+
+    def test_create_anomaly(self):
+        """Test creating an anomaly."""
+        score = AnomalyScore(value=0.95)
+&gt;       anomaly = Anomaly(
+            score=score,
+            data_point={"feature1": 10.5, "feature2": -3.2},
+            detector_name="test_detector",
+        )
+
+tests\domain\test_entities.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Anomaly(score=AnomalyScore(value=0.95, confidence_interval=None, method=None), data_point={'feature1': 10.5, 'feature2...d21-4561-a162-2a70c8b9a1be'), timestamp=datetime.datetime(2025, 7, 9, 0, 5, 36, 967346), metadata={}, explanation=None)
+
+    def __post_init__(self) -&gt; None:
+        """Validate anomaly after initialization."""
+        if not isinstance(self.score, (int, float)):
+&gt;           raise TypeError(f"Score must be a number, got {type(self.score)}")
+E           TypeError: Score must be a number, got &lt;class 'pynomaly.domain.value_objects.anomaly_score.AnomalyScore'&gt;
+
+src\pynomaly\domain\entities\anomaly.py:26: TypeError</failure></testcase><testcase classname="domain.test_entities.TestAnomaly" name="test_anomaly_validation" time="0.001"><failure message="TypeError: Score must be a number, got &lt;class 'pynomaly.domain.value_objects.anomaly_score.AnomalyScore'&gt;">self = &lt;test_entities.TestAnomaly object at 0x0000018889FCD750&gt;
+
+    def test_anomaly_validation(self):
+        """Test anomaly validation."""
+        score = AnomalyScore(value=0.5)
+    
+        # Test empty detector name
+        with pytest.raises(ValueError):
+&gt;           Anomaly(score=score, data_point={"feature1": 1.0}, detector_name="")
+
+tests\domain\test_entities.py:163: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Anomaly(score=AnomalyScore(value=0.5, confidence_interval=None, method=None), data_point={'feature1': 1.0}, detector_n...556-4d7c-8948-2e235614aa98'), timestamp=datetime.datetime(2025, 7, 9, 0, 5, 37, 193300), metadata={}, explanation=None)
+
+    def __post_init__(self) -&gt; None:
+        """Validate anomaly after initialization."""
+        if not isinstance(self.score, (int, float)):
+&gt;           raise TypeError(f"Score must be a number, got {type(self.score)}")
+E           TypeError: Score must be a number, got &lt;class 'pynomaly.domain.value_objects.anomaly_score.AnomalyScore'&gt;
+
+src\pynomaly\domain\entities\anomaly.py:26: TypeError</failure></testcase><testcase classname="domain.test_entities.TestDetectionResult" name="test_create_detection_result" time="0.001"><failure message="TypeError: Score must be a number, got &lt;class 'pynomaly.domain.value_objects.anomaly_score.AnomalyScore'&gt;">self = &lt;test_entities.TestDetectionResult object at 0x0000018889FCE150&gt;
+
+    def test_create_detection_result(self):
+        """Test creating a detection result."""
+        detector_id = UUID("12345678-1234-5678-1234-567812345678")
+        dataset_id = UUID("87654321-4321-8765-4321-876543218765")
+    
+        # Create sample data
+        scores = [
+            AnomalyScore(0.9),
+            AnomalyScore(0.92),
+            AnomalyScore(0.88),
+            AnomalyScore(0.95),
+        ]
+        anomalies = [
+&gt;           Anomaly(
+                score=scores[1],  # Second score for first anomaly
+                data_point={"feature1": 1.0},
+                detector_name="test_detector",
+            ),
+            Anomaly(
+                score=scores[3],  # Fourth score for second anomaly
+                data_point={"feature1": 2.0},
+                detector_name="test_detector",
+            ),
+        ]
+
+tests\domain\test_entities.py:194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Anomaly(score=AnomalyScore(value=0.92, confidence_interval=None, method=None), data_point={'feature1': 1.0}, detector_...1cc-46c8-94a3-42fd5edb5310'), timestamp=datetime.datetime(2025, 7, 9, 0, 5, 37, 205302), metadata={}, explanation=None)
+
+    def __post_init__(self) -&gt; None:
+        """Validate anomaly after initialization."""
+        if not isinstance(self.score, (int, float)):
+&gt;           raise TypeError(f"Score must be a number, got {type(self.score)}")
+E           TypeError: Score must be a number, got &lt;class 'pynomaly.domain.value_objects.anomaly_score.AnomalyScore'&gt;
+
+src\pynomaly\domain\entities\anomaly.py:26: TypeError</failure></testcase><testcase classname="domain.test_entities.TestDetectionResult" name="test_detection_result_validation" time="0.001"><failure message="TypeError: Score must be a number, got &lt;class 'pynomaly.domain.value_objects.anomaly_score.AnomalyScore'&gt;">self = &lt;test_entities.TestDetectionResult object at 0x0000018889FCE890&gt;
+
+    def test_detection_result_validation(self):
+        """Test detection result validation."""
+        detector_id = UUID("12345678-1234-5678-1234-567812345678")
+        dataset_id = UUID("87654321-4321-8765-4321-876543218765")
+    
+        # Create valid base data
+        scores = [AnomalyScore(0.9)]
+        anomalies = [
+&gt;           Anomaly(
+                score=scores[0],
+                data_point={"feature1": 1.0},
+                detector_name="test_detector",
+            )
+        ]
+
+tests\domain\test_entities.py:234: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Anomaly(score=AnomalyScore(value=0.9, confidence_interval=None, method=None), data_point={'feature1': 1.0}, detector_n...a5f-4670-b001-4be7197d7add'), timestamp=datetime.datetime(2025, 7, 9, 0, 5, 37, 217305), metadata={}, explanation=None)
+
+    def __post_init__(self) -&gt; None:
+        """Validate anomaly after initialization."""
+        if not isinstance(self.score, (int, float)):
+&gt;           raise TypeError(f"Score must be a number, got {type(self.score)}")
+E           TypeError: Score must be a number, got &lt;class 'pynomaly.domain.value_objects.anomaly_score.AnomalyScore'&gt;
+
+src\pynomaly\domain\entities\anomaly.py:26: TypeError</failure></testcase></testsuite></testsuites>

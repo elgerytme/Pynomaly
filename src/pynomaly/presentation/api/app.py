@@ -217,7 +217,7 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     app.include_router(user_management.router, prefix="/api/v1", tags=["user_management"])
 
-    app.include_router(admin.router, prefix="/api/v1/admin", tags=["administration"])
+    # app.include_router(admin.router, prefix="/api/v1/admin", tags=["administration"])  # Temporarily disabled
 
     app.include_router(autonomous.router, prefix="/api/v1/autonomous", tags=["autonomous"])
 

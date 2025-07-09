@@ -197,7 +197,7 @@ Pynomaly follows **Clean Architecture** principles with clear separation of conc
 
 ### **Reference Documentation**
 - **[Algorithm Reference](../reference/algorithms/)** - Algorithm documentation
-- **[Configuration Reference](../reference/configuration/)** - System configuration
+- **[Configuration Reference](../getting-started/installation.md)** - System configuration
 - **[API Reference](api-integration/)** - Complete API documentation
 
 ### **Operations**
