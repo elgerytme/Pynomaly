@@ -127,7 +127,7 @@ class TenantResource(Base):
     resource_id = Column(String(255), nullable=False)
     resource_name = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    metadata = Column(JSON, default=dict)
+    session_metadata = Column(JSON, default=dict)
 
     # Relationships
     tenant = relationship("Tenant", back_populates="resources")
@@ -195,7 +195,7 @@ class TenantCreateRequest(BaseModel):
     name: str = Field(..., min_length=3, max_length=255)
     display_name: str = Field(..., min_length=3, max_length=255)
     domain: str | None = Field(None, max_length=255)
-    admin_email: str = Field(..., regex=r"^[^@]+@[^@]+\.[^@]+$")
+    admin_email: str = Field(..., pattern=r"^[^@]+@[^@]+\.[^@]+$")
     admin_username: str = Field(..., min_length=3, max_length=255)
     admin_password: str = Field(..., min_length=8)
     settings: dict[str, Any] | None = Field(default_factory=dict)
@@ -215,7 +215,7 @@ class TenantUpdateRequest(BaseModel):
 class UserCreateRequest(BaseModel):
     """User creation request."""
 
-    email: str = Field(..., regex=r"^[^@]+@[^@]+\.[^@]+$")
+    email: str = Field(..., pattern=r"^[^@]+@[^@]+\.[^@]+$")
     username: str = Field(..., min_length=3, max_length=255)
     password: str = Field(..., min_length=8)
     role: UserRole
@@ -659,7 +659,7 @@ class MultiTenantManager:
         resource_type: ResourceType,
         resource_id: str,
         resource_name: str,
-        metadata: dict[str, Any] = None,
+        session_metadata: dict[str, Any] = None,
     ):
         """Track resource usage for tenant."""
         db = next(self.get_db())
@@ -670,7 +670,7 @@ class MultiTenantManager:
                 resource_type=resource_type.value,
                 resource_id=resource_id,
                 resource_name=resource_name,
-                metadata=metadata or {},
+                session_metadata=session_metadata or {},
             )
 
             db.add(resource)
@@ -696,7 +696,7 @@ def get_multi_tenant_manager() -> MultiTenantManager:
     global multi_tenant_manager
     if multi_tenant_manager is None:
         database_url = os.getenv(
-            "DATABASE_URL", "postgresql://user:password@localhost/pynomaly"
+            "DATABASE_URL", "sqlite:///test_tenants.db"
         )
         jwt_secret = os.getenv("JWT_SECRET", secrets.token_urlsafe(32))
         multi_tenant_manager = MultiTenantManager(database_url, jwt_secret)

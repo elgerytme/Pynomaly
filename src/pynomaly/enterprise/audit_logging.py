@@ -149,7 +149,7 @@ class AuditEvent(Base):
     # Data
     before_data = Column(JSON, nullable=True)
     after_data = Column(JSON, nullable=True)
-    metadata = Column(JSON, nullable=True)
+    event_metadata = Column(JSON, nullable=True)
 
     # Compliance
     compliance_level = Column(String(50), nullable=True)
@@ -221,7 +221,7 @@ class AuditAlert(Base):
 
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow)
-    metadata = Column(JSON, nullable=True)
+    alert_metadata = Column(JSON, nullable=True)
 
 
 # Pydantic Models
@@ -248,7 +248,7 @@ class AuditEventInfo:
     error_message: str | None
     before_data: dict[str, Any] | None
     after_data: dict[str, Any] | None
-    metadata: dict[str, Any] | None
+    event_metadata: dict[str, Any] | None
     compliance_level: ComplianceLevel | None
     sensitivity_level: SensitivityLevel | None
     retention_until: datetime | None
@@ -268,7 +268,7 @@ class AuditEventCreate(BaseModel):
     error_message: str | None = None
     before_data: dict[str, Any] | None = None
     after_data: dict[str, Any] | None = None
-    metadata: dict[str, Any] | None = None
+    event_metadata: dict[str, Any] | None = None
     compliance_level: ComplianceLevel | None = None
     sensitivity_level: SensitivityLevel | None = None
     duration_ms: int | None = None
@@ -393,7 +393,7 @@ class AuditLogger:
                         "geo_location": {"type": "geo_point"},
                         "compliance_level": {"type": "keyword"},
                         "sensitivity_level": {"type": "keyword"},
-                        "metadata": {"type": "object"},
+                        "event_metadata": {"type": "object"},
                         "before_data": {"type": "object"},
                         "after_data": {"type": "object"},
                     }
@@ -461,7 +461,7 @@ class AuditLogger:
                 "error_message": request.error_message,
                 "before_data": request.before_data,
                 "after_data": request.after_data,
-                "metadata": request.metadata,
+                "event_metadata": request.event_metadata,
                 "compliance_level": request.compliance_level.value
                 if request.compliance_level
                 else None,
@@ -495,7 +495,7 @@ class AuditLogger:
                 error_message=request.error_message,
                 before_data=request.before_data,
                 after_data=request.after_data,
-                metadata=request.metadata,
+                event_metadata=request.event_metadata,
                 compliance_level=request.compliance_level.value
                 if request.compliance_level
                 else None,
@@ -638,8 +638,8 @@ class AuditLogger:
     async def _check_data_export_alert(self, tenant_id: str, audit_event: AuditEvent):
         """Check for large data export."""
         # Check if export is larger than threshold
-        metadata = audit_event.metadata or {}
-        export_size = metadata.get("export_size", 0)
+        event_metadata = audit_event.event_metadata or {}
+        export_size = event_metadata.get("export_size", 0)
 
         if export_size > 1000000:  # 1MB threshold
             await self._create_alert(
@@ -756,7 +756,7 @@ class AuditLogger:
                         error_message=event.error_message,
                         before_data=event.before_data,
                         after_data=event.after_data,
-                        metadata=event.metadata,
+                        event_metadata=event.event_metadata,
                         compliance_level=ComplianceLevel(event.compliance_level)
                         if event.compliance_level
                         else None,
@@ -803,7 +803,7 @@ class AuditLogger:
                 error_message=event.error_message,
                 before_data=event.before_data,
                 after_data=event.after_data,
-                metadata=event.metadata,
+                event_metadata=event.event_metadata,
                 compliance_level=ComplianceLevel(event.compliance_level)
                 if event.compliance_level
                 else None,
@@ -882,7 +882,7 @@ def audit_log(
                     duration_ms=duration_ms,
                     compliance_level=compliance_level,
                     sensitivity_level=sensitivity_level,
-                    metadata={
+                    event_metadata={
                         "function": func.__name__,
                         "result_type": type(result).__name__,
                     },
@@ -910,7 +910,7 @@ def audit_log(
                     error_message=str(e),
                     compliance_level=compliance_level,
                     sensitivity_level=sensitivity_level,
-                    metadata={
+                    event_metadata={
                         "function": func.__name__,
                         "error_type": type(e).__name__,
                     },
@@ -943,7 +943,7 @@ def get_audit_logger() -> AuditLogger:
     global audit_logger
     if audit_logger is None:
         database_url = os.getenv(
-            "DATABASE_URL", "postgresql://user:password@localhost/pynomaly"
+            "DATABASE_URL", "sqlite:///test_audit.db"
         )
         elasticsearch_url = os.getenv("ELASTICSEARCH_URL")
         redis_url = os.getenv("REDIS_URL")

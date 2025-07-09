@@ -1,0 +1,652 @@
+name: Unified Maintenance Pipeline
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'    # Weekly on Monday 2 AM
+    - cron: '0 4 * * *'    # Daily at 4 AM
+    - cron: '0 6 1 * *'    # Monthly on 1st at 6 AM
+  workflow_dispatch:
+    inputs:
+      maintenance_type:
+        description: 'Type of maintenance to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - security
+          - dependencies
+          - cleanup
+          - monitoring
+          - backup
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+  issues: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  HATCH_VERSION: "1.12.0"
+
+jobs:
+  # =============================================================================
+  # SECURITY MAINTENANCE
+  # =============================================================================
+  security-maintenance:
+    name: Security Maintenance
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 2 * * 1' || github.event.inputs.maintenance_type == 'all' || github.event.inputs.maintenance_type == 'security'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install bandit safety pip-audit semgrep
+
+    - name: Run comprehensive security audit
+      run: |
+        echo "::group::Security Audit"
+        
+        # Create security report directory
+        mkdir -p security-reports
+        
+        # Run Bandit security scan
+        bandit -r src/ -f json -o security-reports/bandit-report.json || true
+        bandit -r src/ -f txt -o security-reports/bandit-report.txt || true
+        
+        # Run Safety dependency scan
+        safety check --json --output security-reports/safety-report.json || true
+        
+        # Run pip-audit
+        pip-audit --format=json --output=security-reports/pip-audit-report.json || true
+        
+        # Run Semgrep SAST
+        semgrep --config=auto --json --output=security-reports/semgrep-report.json src/ || true
+        
+        echo "::endgroup::"
+
+    - name: Check for secrets in code
+      run: |
+        echo "::group::Secret Detection"
+        
+        # Simple secret patterns check
+        if grep -r -E "(password|secret|key|token)" src/ --include="*.py" | grep -v "test_" | grep -v "#"; then
+          echo "⚠️ Found potential secrets in code - please review"
+          grep -r -E "(password|secret|key|token)" src/ --include="*.py" | grep -v "test_" | grep -v "#" > security-reports/potential-secrets.txt
+        else
+          echo "✅ No obvious secrets found in code"
+        fi
+        
+        echo "::endgroup::"
+
+    - name: Security configuration check
+      run: |
+        echo "::group::Security Configuration Check"
+        
+        # Check Docker security
+        if [ -f "deploy/docker/Dockerfile.production" ]; then
+          echo "📋 Checking Docker security configuration..."
+          
+          # Check for non-root user
+          if grep -q "USER.*root" deploy/docker/Dockerfile.production; then
+            echo "⚠️ Found root user in Docker configuration"
+          else
+            echo "✅ Non-root user configured in Docker"
+          fi
+          
+          # Check for security options
+          if grep -q "no-new-privileges" docker-compose.production.yml; then
+            echo "✅ Security options configured in docker-compose"
+          else
+            echo "⚠️ Consider adding security options to docker-compose"
+          fi
+        fi
+        
+        echo "::endgroup::"
+
+    - name: Generate security summary
+      run: |
+        echo "::group::Security Summary"
+        
+        cat > security-reports/security-summary.md << 'EOF'
+        # 🔒 Security Maintenance Report
+        
+        **Date:** $(date)
+        **Type:** Automated Security Maintenance
+        
+        ## Security Scan Results
+        
+        ### Bandit (Static Analysis)
+        - **Status:** $([ -f security-reports/bandit-report.json ] && echo "✅ Completed" || echo "❌ Failed")
+        - **Report:** `security-reports/bandit-report.json`
+        
+        ### Safety (Dependency Vulnerabilities)
+        - **Status:** $([ -f security-reports/safety-report.json ] && echo "✅ Completed" || echo "❌ Failed")
+        - **Report:** `security-reports/safety-report.json`
+        
+        ### Pip-Audit (Package Vulnerabilities)
+        - **Status:** $([ -f security-reports/pip-audit-report.json ] && echo "✅ Completed" || echo "❌ Failed")
+        - **Report:** `security-reports/pip-audit-report.json`
+        
+        ### Semgrep (SAST)
+        - **Status:** $([ -f security-reports/semgrep-report.json ] && echo "✅ Completed" || echo "❌ Failed")
+        - **Report:** `security-reports/semgrep-report.json`
+        
+        ## Recommendations
+        
+        1. Review all generated reports for critical findings
+        2. Update dependencies with known vulnerabilities
+        3. Address any hardcoded secrets or credentials
+        4. Verify Docker security configuration
+        5. Consider implementing additional security measures
+        
+        ## Next Steps
+        
+        - [ ] Review security reports
+        - [ ] Update vulnerable dependencies
+        - [ ] Fix any critical security issues
+        - [ ] Update security documentation
+        EOF
+        
+        echo "✅ Security summary generated"
+        echo "::endgroup::"
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-maintenance-reports
+        path: security-reports/
+        retention-days: 90
+
+  # =============================================================================
+  # DEPENDENCY MAINTENANCE
+  # =============================================================================
+  dependency-maintenance:
+    name: Dependency Maintenance
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 4 * * *' || github.event.inputs.maintenance_type == 'all' || github.event.inputs.maintenance_type == 'dependencies'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependency tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch==${{ env.HATCH_VERSION }} pip-tools pipdeptree
+
+    - name: Check for dependency updates
+      run: |
+        echo "::group::Dependency Update Check"
+        
+        mkdir -p dependency-reports
+        
+        # Check for outdated packages
+        pip list --outdated --format=json > dependency-reports/outdated-packages.json || true
+        
+        # Generate dependency tree
+        pipdeptree --json > dependency-reports/dependency-tree.json || true
+        
+        # Check for conflicting dependencies
+        pip check > dependency-reports/dependency-conflicts.txt 2>&1 || true
+        
+        echo "::endgroup::"
+
+    - name: Analyze dependency security
+      run: |
+        echo "::group::Dependency Security Analysis"
+        
+        # Check for known vulnerabilities
+        safety check --json --output dependency-reports/dependency-vulnerabilities.json || true
+        
+        # Check for deprecated packages
+        python -c "
+        import pkg_resources
+        import json
+        
+        deprecated_packages = []
+        for dist in pkg_resources.working_set:
+            try:
+                # This is a simplified check - in practice you'd use a more sophisticated method
+                if 'deprecated' in dist.metadata.get('Description', '').lower():
+                    deprecated_packages.append(dist.project_name)
+            except:
+                pass
+        
+        with open('dependency-reports/deprecated-packages.json', 'w') as f:
+            json.dump(deprecated_packages, f, indent=2)
+        " || true
+        
+        echo "::endgroup::"
+
+    - name: Generate dependency report
+      run: |
+        echo "::group::Dependency Report"
+        
+        cat > dependency-reports/dependency-summary.md << 'EOF'
+        # 📦 Dependency Maintenance Report
+        
+        **Date:** $(date)
+        **Type:** Automated Dependency Maintenance
+        
+        ## Dependency Analysis
+        
+        ### Outdated Packages
+        - **Report:** `dependency-reports/outdated-packages.json`
+        - **Action:** Review and update packages with security implications
+        
+        ### Dependency Tree
+        - **Report:** `dependency-reports/dependency-tree.json`
+        - **Action:** Review for unnecessary dependencies
+        
+        ### Dependency Conflicts
+        - **Report:** `dependency-reports/dependency-conflicts.txt`
+        - **Action:** Resolve any conflicts found
+        
+        ### Security Vulnerabilities
+        - **Report:** `dependency-reports/dependency-vulnerabilities.json`
+        - **Action:** Update vulnerable packages immediately
+        
+        ## Recommendations
+        
+        1. Review outdated packages and update critical ones
+        2. Remove unused dependencies to reduce attack surface
+        3. Monitor for new security advisories
+        4. Consider pinning critical package versions
+        5. Automate dependency updates where appropriate
+        
+        ## Maintenance Tasks
+        
+        - [ ] Update critical security packages
+        - [ ] Remove unused dependencies
+        - [ ] Test application with updated dependencies
+        - [ ] Update documentation if needed
+        EOF
+        
+        echo "✅ Dependency report generated"
+        echo "::endgroup::"
+
+    - name: Upload dependency reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: dependency-maintenance-reports
+        path: dependency-reports/
+        retention-days: 90
+
+  # =============================================================================
+  # CLEANUP MAINTENANCE
+  # =============================================================================
+  cleanup-maintenance:
+    name: Cleanup Maintenance
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 6 1 * *' || github.event.inputs.maintenance_type == 'all' || github.event.inputs.maintenance_type == 'cleanup'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Analyze codebase size and structure
+      run: |
+        echo "::group::Codebase Analysis"
+        
+        mkdir -p cleanup-reports
+        
+        # Count lines of code
+        find src/ -name "*.py" -exec wc -l {} + | sort -n > cleanup-reports/lines-of-code.txt
+        
+        # Find large files
+        find . -name "*.py" -size +10k -exec ls -lh {} + > cleanup-reports/large-files.txt || true
+        
+        # Find duplicate files
+        find . -name "*.py" -exec md5sum {} + | sort | uniq -d -w 32 > cleanup-reports/duplicate-files.txt || true
+        
+        # Find unused imports (simplified check)
+        python -c "
+        import os
+        import ast
+        
+        unused_imports = []
+        for root, dirs, files in os.walk('src/'):
+            for file in files:
+                if file.endswith('.py'):
+                    try:
+                        with open(os.path.join(root, file), 'r') as f:
+                            content = f.read()
+                            # Simple heuristic for unused imports
+                            if 'import' in content and 'NotImplementedError' in content:
+                                unused_imports.append(os.path.join(root, file))
+                    except:
+                        pass
+        
+        with open('cleanup-reports/potential-unused-imports.txt', 'w') as f:
+            for item in unused_imports:
+                f.write(f'{item}\n')
+        " || true
+        
+        echo "::endgroup::"
+
+    - name: Check for TODO and FIXME comments
+      run: |
+        echo "::group::TODO and FIXME Analysis"
+        
+        # Find all TODO and FIXME comments
+        grep -r -n "TODO\|FIXME\|XXX\|HACK" src/ --include="*.py" > cleanup-reports/todo-fixme-comments.txt || true
+        
+        # Count them
+        TODO_COUNT=$(grep -r "TODO" src/ --include="*.py" | wc -l || echo "0")
+        FIXME_COUNT=$(grep -r "FIXME" src/ --include="*.py" | wc -l || echo "0")
+        
+        echo "📋 Found $TODO_COUNT TODO comments and $FIXME_COUNT FIXME comments"
+        
+        echo "::endgroup::"
+
+    - name: Clean up old artifacts
+      run: |
+        echo "::group::Artifact Cleanup"
+        
+        # Clean up Python cache files
+        find . -name "__pycache__" -type d -exec rm -rf {} + || true
+        find . -name "*.pyc" -delete || true
+        find . -name "*.pyo" -delete || true
+        
+        # Clean up test artifacts
+        find . -name ".pytest_cache" -type d -exec rm -rf {} + || true
+        find . -name "htmlcov" -type d -exec rm -rf {} + || true
+        find . -name ".coverage" -delete || true
+        
+        # Clean up build artifacts
+        find . -name "build" -type d -exec rm -rf {} + || true
+        find . -name "dist" -type d -exec rm -rf {} + || true
+        find . -name "*.egg-info" -type d -exec rm -rf {} + || true
+        
+        echo "✅ Cleaned up development artifacts"
+        echo "::endgroup::"
+
+    - name: Generate cleanup report
+      run: |
+        echo "::group::Cleanup Report"
+        
+        cat > cleanup-reports/cleanup-summary.md << 'EOF'
+        # 🧹 Cleanup Maintenance Report
+        
+        **Date:** $(date)
+        **Type:** Automated Cleanup Maintenance
+        
+        ## Codebase Analysis
+        
+        ### Lines of Code
+        - **Report:** `cleanup-reports/lines-of-code.txt`
+        - **Action:** Review largest files for refactoring opportunities
+        
+        ### Large Files
+        - **Report:** `cleanup-reports/large-files.txt`
+        - **Action:** Consider breaking down large files
+        
+        ### Duplicate Files
+        - **Report:** `cleanup-reports/duplicate-files.txt`
+        - **Action:** Remove or consolidate duplicate files
+        
+        ### TODO/FIXME Comments
+        - **Report:** `cleanup-reports/todo-fixme-comments.txt`
+        - **Action:** Address outstanding TODOs and FIXMEs
+        
+        ## Cleanup Actions Performed
+        
+        ✅ Removed Python cache files (`__pycache__`, `*.pyc`, `*.pyo`)
+        ✅ Removed test artifacts (`.pytest_cache`, `htmlcov`, `.coverage`)
+        ✅ Removed build artifacts (`build`, `dist`, `*.egg-info`)
+        
+        ## Recommendations
+        
+        1. Review and address TODO/FIXME comments
+        2. Refactor large files for better maintainability
+        3. Remove or consolidate duplicate code
+        4. Consider adding pre-commit hooks for automatic cleanup
+        5. Regular code reviews to prevent accumulation of technical debt
+        
+        ## Next Steps
+        
+        - [ ] Address high-priority TODO/FIXME comments
+        - [ ] Refactor large files if needed
+        - [ ] Remove any duplicate code found
+        - [ ] Update coding standards if necessary
+        EOF
+        
+        echo "✅ Cleanup report generated"
+        echo "::endgroup::"
+
+    - name: Upload cleanup reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: cleanup-maintenance-reports
+        path: cleanup-reports/
+        retention-days: 90
+
+  # =============================================================================
+  # MONITORING MAINTENANCE
+  # =============================================================================
+  monitoring-maintenance:
+    name: Monitoring Maintenance
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 4 * * *' || github.event.inputs.maintenance_type == 'all' || github.event.inputs.maintenance_type == 'monitoring'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check monitoring configuration
+      run: |
+        echo "::group::Monitoring Configuration Check"
+        
+        mkdir -p monitoring-reports
+        
+        # Check if monitoring files exist
+        echo "📊 Checking monitoring configuration files..."
+        
+        if [ -f "config/monitoring/prometheus.yml" ]; then
+          echo "✅ Prometheus configuration found"
+        else
+          echo "⚠️ Prometheus configuration not found"
+        fi
+        
+        if [ -f "config/monitoring/grafana_dashboards.json" ]; then
+          echo "✅ Grafana dashboards found"
+        else
+          echo "⚠️ Grafana dashboards not found"
+        fi
+        
+        if [ -f "config/monitoring/alert_rules.yml" ]; then
+          echo "✅ Alert rules found"
+        else
+          echo "⚠️ Alert rules not found"
+        fi
+        
+        echo "::endgroup::"
+
+    - name: Validate monitoring endpoints
+      run: |
+        echo "::group::Monitoring Endpoints Validation"
+        
+        # Check if health endpoints are properly defined
+        if grep -r "health" src/ --include="*.py" | grep -q "endpoint\|route"; then
+          echo "✅ Health endpoints found in code"
+        else
+          echo "⚠️ Health endpoints may not be properly defined"
+        fi
+        
+        # Check for metrics instrumentation
+        if grep -r "prometheus\|metrics" src/ --include="*.py" | head -10; then
+          echo "✅ Metrics instrumentation found"
+        else
+          echo "⚠️ Metrics instrumentation may be missing"
+        fi
+        
+        echo "::endgroup::"
+
+    - name: Generate monitoring report
+      run: |
+        echo "::group::Monitoring Report"
+        
+        cat > monitoring-reports/monitoring-summary.md << 'EOF'
+        # 📊 Monitoring Maintenance Report
+        
+        **Date:** $(date)
+        **Type:** Automated Monitoring Maintenance
+        
+        ## Monitoring Infrastructure
+        
+        ### Configuration Files
+        - **Prometheus:** $([ -f "config/monitoring/prometheus.yml" ] && echo "✅ Present" || echo "❌ Missing")
+        - **Grafana:** $([ -f "config/monitoring/grafana_dashboards.json" ] && echo "✅ Present" || echo "❌ Missing")
+        - **Alert Rules:** $([ -f "config/monitoring/alert_rules.yml" ] && echo "✅ Present" || echo "❌ Missing")
+        
+        ### Application Instrumentation
+        - **Health Endpoints:** $(grep -r "health" src/ --include="*.py" | grep -q "endpoint\|route" && echo "✅ Present" || echo "❌ Missing")
+        - **Metrics:** $(grep -r "prometheus\|metrics" src/ --include="*.py" >/dev/null && echo "✅ Present" || echo "❌ Missing")
+        
+        ## Recommendations
+        
+        1. Ensure all critical services have health endpoints
+        2. Add comprehensive metrics for business KPIs
+        3. Set up alerting for critical system metrics
+        4. Regular review of monitoring dashboards
+        5. Test alert mechanisms periodically
+        
+        ## Action Items
+        
+        - [ ] Verify all monitoring endpoints are functional
+        - [ ] Review and update alert thresholds
+        - [ ] Test notification channels
+        - [ ] Update monitoring documentation
+        EOF
+        
+        echo "✅ Monitoring report generated"
+        echo "::endgroup::"
+
+    - name: Upload monitoring reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: monitoring-maintenance-reports
+        path: monitoring-reports/
+        retention-days: 90
+
+  # =============================================================================
+  # MAINTENANCE SUMMARY
+  # =============================================================================
+  maintenance-summary:
+    name: Maintenance Summary
+    runs-on: ubuntu-latest
+    needs: [security-maintenance, dependency-maintenance, cleanup-maintenance, monitoring-maintenance]
+    if: always()
+    
+    steps:
+    - name: Generate maintenance summary
+      run: |
+        mkdir -p maintenance-summary
+        
+        cat > maintenance-summary/maintenance-report.md << 'EOF'
+        # 🔧 Unified Maintenance Pipeline Summary
+        
+        **Date:** $(date)
+        **Trigger:** ${{ github.event_name }}
+        **Type:** ${{ github.event.inputs.maintenance_type || 'Scheduled' }}
+        
+        ## Maintenance Results
+        
+        | Task | Status | Description |
+        |------|--------|-------------|
+        | Security Maintenance | ${{ needs.security-maintenance.result == 'success' && '✅ Completed' || needs.security-maintenance.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} | Security audit and vulnerability scanning |
+        | Dependency Maintenance | ${{ needs.dependency-maintenance.result == 'success' && '✅ Completed' || needs.dependency-maintenance.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} | Dependency updates and security checks |
+        | Cleanup Maintenance | ${{ needs.cleanup-maintenance.result == 'success' && '✅ Completed' || needs.cleanup-maintenance.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} | Code cleanup and artifact removal |
+        | Monitoring Maintenance | ${{ needs.monitoring-maintenance.result == 'success' && '✅ Completed' || needs.monitoring-maintenance.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} | Monitoring configuration validation |
+        
+        ## Benefits of Unified Maintenance
+        
+        - **Consolidated Scheduling:** All maintenance tasks in one workflow
+        - **Comprehensive Coverage:** Security, dependencies, cleanup, and monitoring
+        - **Automated Reporting:** Generated reports for all maintenance activities
+        - **Flexible Execution:** Can run specific maintenance types on demand
+        - **Reduced Complexity:** Single workflow instead of multiple scattered tasks
+        
+        ## Next Steps
+        
+        1. Review all generated maintenance reports
+        2. Address any critical security findings
+        3. Update dependencies with known vulnerabilities
+        4. Clean up any identified code issues
+        5. Verify monitoring is functioning properly
+        
+        ## Artifacts Generated
+        
+        - Security maintenance reports
+        - Dependency analysis reports
+        - Cleanup and code analysis reports
+        - Monitoring configuration validation
+        - Unified maintenance summary
+        EOF
+        
+        echo "✅ Maintenance summary generated"
+
+    - name: Upload maintenance summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: maintenance-summary-report
+        path: maintenance-summary/
+        retention-days: 90
+
+    - name: Create maintenance issue
+      uses: actions/github-script@v7
+      if: needs.security-maintenance.result == 'failure' || needs.dependency-maintenance.result == 'failure'
+      with:
+        script: |
+          const title = `🔧 Maintenance Pipeline Alert - ${new Date().toISOString().split('T')[0]}`;
+          const body = `
+          # Maintenance Pipeline Alert
+          
+          Some maintenance tasks have failed and require attention.
+          
+          ## Failed Tasks
+          
+          - Security Maintenance: ${{ needs.security-maintenance.result }}
+          - Dependency Maintenance: ${{ needs.dependency-maintenance.result }}
+          - Cleanup Maintenance: ${{ needs.cleanup-maintenance.result }}
+          - Monitoring Maintenance: ${{ needs.monitoring-maintenance.result }}
+          
+          ## Action Required
+          
+          Please review the workflow run and address any failed maintenance tasks.
+          
+          **Run URL:** ${context.payload.repository.html_url}/actions/runs/${context.runId}
+          
+          ## Auto-generated
+          This issue was automatically created by the Unified Maintenance Pipeline.
+          `;
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['maintenance', 'automated']
+          });

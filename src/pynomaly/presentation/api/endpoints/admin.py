@@ -12,9 +12,7 @@ from pynomaly.infrastructure.auth import (
     require_tenant_admin,
 )
 from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.auth_deps import (
-    get_container_simple,
-)
+from pynomaly.presentation.api.auth_deps import get_container_simple
 
 router = APIRouter()
 

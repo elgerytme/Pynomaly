@@ -8,6 +8,8 @@ user experience of the Pynomaly CLI.
 from __future__ import annotations
 
 import difflib
+import json
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -369,51 +371,317 @@ def create_setup_wizard():
         )
     )
 
-    # Step 1: Data source
-    console.print("\n[bold]Step 1: Data Source[/bold]")
-    data_path = Prompt.ask(
-        "Enter the path to your data file (CSV, Parquet, etc.)", default="data.csv"
-    )
-
-    if not Path(data_path).exists():
-        console.print(f"[yellow]Warning:[/yellow] File {data_path} does not exist.")
-        if not Confirm.ask("Continue with setup anyway?"):
-            return None
-
-    # Step 2: Algorithm selection
-    console.print("\n[bold]Step 2: Algorithm Selection[/bold]")
-    console.print("Choose an anomaly detection algorithm:")
-    console.print("  1. IsolationForest - Fast, good for general use")
-    console.print("  2. LOF - Good for local outliers")
-    console.print("  3. OneClassSVM - Robust, slower")
-    console.print("  4. DBSCAN - Clustering-based")
-
-    algorithm = Prompt.ask(
-        "Select algorithm",
-        choices=["IsolationForest", "LOF", "OneClassSVM", "DBSCAN"],
-        default="IsolationForest",
-    )
-
-    # Step 3: Configuration
-    console.print("\n[bold]Step 3: Configuration[/bold]")
-    contamination = Prompt.ask("Expected contamination rate (0.01-0.5)", default="0.1")
-
-    # Step 4: Output options
-    console.print("\n[bold]Step 4: Output Options[/bold]")
-    output_format = Prompt.ask(
-        "Output format", choices=["csv", "json", "excel"], default="csv"
-    )
-
-    # Generate configuration
-    config = {
-        "data_path": data_path,
-        "algorithm": algorithm,
-        "contamination": float(contamination),
-        "output_format": output_format,
-    }
-
-    console.print("\n[green]Setup complete![/green]")
-    console.print("Generated configuration:")
-    console.print_json(config)
-
-    return config
+    # Create workflow helper
+    workflow = WorkflowHelper("Pynomaly Setup Wizard")
+    
+    # Step 1: Environment validation
+    def validate_environment(context):
+        """Validate environment and dependencies."""
+        console.print("\n[bold cyan]🔍 Validating Environment[/bold cyan]")
+        
+        # Check Python version
+        import sys
+        python_version = sys.version_info
+        if python_version < (3, 8):
+            console.print(f"[red]⚠️ Python {python_version.major}.{python_version.minor} detected. Python 3.8+ required.[/red]")
+            return False
+        
+        console.print(f"[green]✓[/green] Python {python_version.major}.{python_version.minor} detected")
+        
+        # Check for required packages
+        required_packages = ['pandas', 'numpy', 'scikit-learn', 'rich']
+        for package in required_packages:
+            try:
+                __import__(package)
+                console.print(f"[green]✓[/green] {package} available")
+            except ImportError:
+                console.print(f"[yellow]⚠️[/yellow] {package} not found (will be installed)")
+        
+        return True
+    
+    # Step 2: Data source configuration
+    def configure_data_source(context):
+        """Configure data source settings."""
+        console.print("\n[bold cyan]📊 Data Source Configuration[/bold cyan]")
+        
+        # Get data file path
+        data_path = Prompt.ask(
+            "Enter the path to your data file (CSV, Parquet, JSON, etc.)",
+            default="data.csv"
+        )
+        
+        # Validate file exists
+        if not Path(data_path).exists():
+            console.print(f"[yellow]⚠️ Warning:[/yellow] File {data_path} does not exist.")
+            
+            # Show file suggestions if in same directory
+            current_dir = Path(".")
+            data_files = list(current_dir.glob("*.csv")) + list(current_dir.glob("*.parquet")) + list(current_dir.glob("*.json"))
+            
+            if data_files:
+                console.print("\n[cyan]Found these data files in current directory:[/cyan]")
+                for i, file in enumerate(data_files[:5], 1):
+                    console.print(f"  {i}. {file.name}")
+                
+                use_existing = Confirm.ask("Use one of these files instead?")
+                if use_existing:
+                    selected = CLIHelpers.interactive_selection(
+                        [{"name": f.name, "id": str(f)} for f in data_files],
+                        "data file",
+                        display_key="name",
+                        id_key="id"
+                    )
+                    if selected:
+                        data_path = selected
+            
+            if not Path(data_path).exists():
+                if not Confirm.ask("Continue with setup anyway?"):
+                    return False
+        
+        # Data format detection
+        data_format = "csv"
+        if data_path.endswith(".parquet"):
+            data_format = "parquet"
+        elif data_path.endswith(".json"):
+            data_format = "json"
+        elif data_path.endswith(".xlsx"):
+            data_format = "excel"
+        
+        console.print(f"[green]✓[/green] Data format detected: {data_format}")
+        
+        # Data preprocessing options
+        console.print("\n[bold]Data Preprocessing Options:[/bold]")
+        handle_missing = Prompt.ask(
+            "How to handle missing values?",
+            choices=["drop", "fill_mean", "fill_median", "fill_mode", "skip"],
+            default="fill_mean"
+        )
+        
+        normalize_data = Confirm.ask("Normalize/standardize data?", default=True)
+        
+        return {
+            "data_path": data_path,
+            "data_format": data_format,
+            "handle_missing": handle_missing,
+            "normalize_data": normalize_data
+        }
+    
+    # Step 3: Algorithm selection with intelligent recommendations
+    def select_algorithm(context):
+        """Select anomaly detection algorithm with recommendations."""
+        console.print("\n[bold cyan]🤖 Algorithm Selection[/bold cyan]")
+        
+        # Show algorithm options with detailed information
+        algorithms = [
+            {
+                "name": "IsolationForest",
+                "description": "Fast, memory-efficient, good for general use",
+                "best_for": "Large datasets, mixed data types",
+                "performance": "⚡ Fast",
+                "complexity": "🟢 Easy"
+            },
+            {
+                "name": "LocalOutlierFactor",
+                "description": "Density-based, good for local outliers",
+                "best_for": "Small-medium datasets, local patterns",
+                "performance": "🐌 Moderate",
+                "complexity": "🟡 Medium"
+            },
+            {
+                "name": "OneClassSVM",
+                "description": "Robust, kernel-based approach",
+                "best_for": "Non-linear patterns, robustness",
+                "performance": "🐌 Slow",
+                "complexity": "🔴 Complex"
+            },
+            {
+                "name": "DBSCAN",
+                "description": "Clustering-based, density-dependent",
+                "best_for": "Clusters, varying densities",
+                "performance": "⚡ Fast",
+                "complexity": "🟡 Medium"
+            }
+        ]
+        
+        # Display algorithm comparison table
+        table = Table(title="Algorithm Comparison", show_lines=True)
+        table.add_column("Algorithm", style="cyan")
+        table.add_column("Description", style="white")
+        table.add_column("Best For", style="green")
+        table.add_column("Performance", style="yellow")
+        table.add_column("Complexity", style="magenta")
+        
+        for algo in algorithms:
+            table.add_row(
+                algo["name"],
+                algo["description"],
+                algo["best_for"],
+                algo["performance"],
+                algo["complexity"]
+            )
+        
+        console.print(table)
+        
+        # Get user selection
+        algorithm = Prompt.ask(
+            "Select algorithm",
+            choices=[algo["name"] for algo in algorithms],
+            default="IsolationForest"
+        )
+        
+        # Algorithm-specific configuration
+        algo_config = {"algorithm": algorithm}
+        
+        if algorithm == "IsolationForest":
+            n_estimators = int(Prompt.ask("Number of trees", default="100"))
+            algo_config["n_estimators"] = n_estimators
+        elif algorithm == "LocalOutlierFactor":
+            n_neighbors = int(Prompt.ask("Number of neighbors", default="20"))
+            algo_config["n_neighbors"] = n_neighbors
+        elif algorithm == "OneClassSVM":
+            kernel = Prompt.ask("Kernel type", choices=["rbf", "linear", "poly"], default="rbf")
+            algo_config["kernel"] = kernel
+        elif algorithm == "DBSCAN":
+            eps = float(Prompt.ask("Epsilon (neighborhood radius)", default="0.5"))
+            min_samples = int(Prompt.ask("Minimum samples", default="5"))
+            algo_config["eps"] = eps
+            algo_config["min_samples"] = min_samples
+        
+        return algo_config
+    
+    # Step 4: Advanced configuration
+    def configure_advanced_settings(context):
+        """Configure advanced settings."""
+        console.print("\n[bold cyan]⚙️ Advanced Configuration[/bold cyan]")
+        
+        # Contamination rate
+        contamination = float(Prompt.ask(
+            "Expected contamination rate (0.01-0.5)",
+            default="0.1"
+        ))
+        
+        # Validation settings
+        use_validation = Confirm.ask("Enable cross-validation?", default=True)
+        cv_folds = 5
+        if use_validation:
+            cv_folds = int(Prompt.ask("Number of CV folds", default="5"))
+        
+        # Performance settings
+        enable_parallel = Confirm.ask("Enable parallel processing?", default=True)
+        
+        # Monitoring settings
+        enable_monitoring = Confirm.ask("Enable performance monitoring?", default=True)
+        
+        return {
+            "contamination": contamination,
+            "use_validation": use_validation,
+            "cv_folds": cv_folds,
+            "enable_parallel": enable_parallel,
+            "enable_monitoring": enable_monitoring
+        }
+    
+    # Step 5: Output configuration
+    def configure_output(context):
+        """Configure output settings."""
+        console.print("\n[bold cyan]📤 Output Configuration[/bold cyan]")
+        
+        # Output format
+        output_format = Prompt.ask(
+            "Output format",
+            choices=["csv", "json", "excel", "parquet"],
+            default="csv"
+        )
+        
+        # Output path
+        output_path = Prompt.ask(
+            "Output file path",
+            default=f"pynomaly_results.{output_format}"
+        )
+        
+        # Visualization options
+        generate_plots = Confirm.ask("Generate visualization plots?", default=True)
+        
+        # Report generation
+        generate_report = Confirm.ask("Generate detailed report?", default=True)
+        
+        return {
+            "output_format": output_format,
+            "output_path": output_path,
+            "generate_plots": generate_plots,
+            "generate_report": generate_report
+        }
+    
+    # Step 6: Generate configuration and commands
+    def generate_final_config(context):
+        """Generate final configuration and commands."""
+        console.print("\n[bold cyan]🔧 Generating Configuration[/bold cyan]")
+        
+        # Compile all settings
+        config = {
+            "metadata": {
+                "created_at": datetime.now().isoformat(),
+                "wizard_version": "2.0",
+                "type": "setup_wizard"
+            },
+            "data_source": context.get("data_source", {}),
+            "algorithm": context.get("algorithm", {}),
+            "advanced": context.get("advanced", {}),
+            "output": context.get("output", {})
+        }
+        
+        # Save configuration to file
+        config_path = Path("pynomaly_config.json")
+        with open(config_path, "w") as f:
+            json.dump(config, f, indent=2, default=str)
+        
+        console.print(f"[green]✓[/green] Configuration saved to {config_path}")
+        
+        # Generate CLI commands
+        data_path = config["data_source"].get("data_path", "data.csv")
+        algorithm = config["algorithm"].get("algorithm", "IsolationForest")
+        contamination = config["advanced"].get("contamination", 0.1)
+        output_path = config["output"].get("output_path", "results.csv")
+        
+        commands = [
+            f"pynomaly dataset load {data_path} --name my-dataset",
+            f"pynomaly detector create my-detector --algorithm {algorithm} --contamination {contamination}",
+            "pynomaly detect train my-detector my-dataset",
+            f"pynomaly detect run my-detector my-dataset --output {output_path}"
+        ]
+        
+        context["commands"] = commands
+        context["config"] = config
+        
+        return True
+    
+    # Add workflow steps
+    workflow.add_step("validate_env", "Validating environment", validate_environment)
+    workflow.add_step("data_source", "Configuring data source", configure_data_source)
+    workflow.add_step("algorithm", "Selecting algorithm", select_algorithm)
+    workflow.add_step("advanced", "Configuring advanced settings", configure_advanced_settings)
+    workflow.add_step("output", "Configuring output", configure_output)
+    workflow.add_step("generate", "Generating configuration", generate_final_config)
+    
+    # Execute workflow
+    success = workflow.execute()
+    
+    if success:
+        config = workflow.context.get("config")
+        commands = workflow.context.get("commands", [])
+        
+        # Display final results
+        console.print("\n[green]🎉 Setup Complete![/green]")
+        console.print("\n[bold cyan]Next Steps:[/bold cyan]")
+        
+        for i, cmd in enumerate(commands, 1):
+            console.print(f"  {i}. [white]{cmd}[/white]")
+        
+        console.print("\n[bold blue]Additional Resources:[/bold blue]")
+        console.print("  • Configuration file: [white]pynomaly_config.json[/white]")
+        console.print("  • Documentation: [white]pynomaly --help[/white]")
+        console.print("  • Examples: [white]pynomaly quickstart[/white]")
+        
+        return config
+    else:
+        console.print("\n[red]Setup failed. Please try again.[/red]")
+        return None

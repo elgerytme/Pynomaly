@@ -236,19 +236,160 @@ class DetectionPipelineService:
             self.logger.info(f"Auto-tuning {detector.algorithm_name}")
 
         try:
-            # For now, return detector as-is
-            # TODO: Implement actual hyperparameter tuning
-            # This could use techniques like:
-            # - Grid search
-            # - Random search
-            # - Bayesian optimization
-            # - Evolutionary algorithms
-
+            # Implement hyperparameter tuning based on detector type
+            if hasattr(detector, 'get_params') and hasattr(detector, 'set_params'):
+                # Get current parameters
+                current_params = detector.get_params()
+                
+                # Define parameter spaces for different algorithms
+                param_spaces = self._get_parameter_spaces(detector.algorithm_name)
+                
+                if param_spaces:
+                    # Use grid search for hyperparameter tuning
+                    best_params = await self._grid_search_tuning(
+                        detector, dataset, param_spaces, verbose
+                    )
+                    
+                    # Update detector with best parameters
+                    detector.set_params(**best_params)
+                    
+                    if verbose:
+                        self.logger.info(f"Tuned parameters for {detector.algorithm_name}: {best_params}")
+                else:
+                    if verbose:
+                        self.logger.info(f"No parameter space defined for {detector.algorithm_name}")
+            
             return detector
 
         except Exception as e:
             self.logger.warning(f"Auto-tuning failed for {detector.algorithm_name}: {e}")
             return detector
+
+    def _get_parameter_spaces(self, algorithm_name: str) -> dict[str, list]:
+        """Get parameter space for hyperparameter tuning."""
+        param_spaces = {
+            "IsolationForest": {
+                "n_estimators": [50, 100, 200],
+                "max_samples": [0.5, 0.8, 1.0],
+                "contamination": [0.05, 0.1, 0.15, 0.2],
+                "max_features": [0.5, 0.8, 1.0],
+            },
+            "LocalOutlierFactor": {
+                "n_neighbors": [5, 10, 20, 35],
+                "contamination": [0.05, 0.1, 0.15, 0.2],
+                "algorithm": ["auto", "ball_tree", "kd_tree"],
+                "leaf_size": [20, 30, 40],
+            },
+            "OneClassSVM": {
+                "kernel": ["rbf", "linear", "poly"],
+                "gamma": [0.001, 0.01, 0.1, 1.0],
+                "nu": [0.05, 0.1, 0.15, 0.2],
+            },
+            "EllipticEnvelope": {
+                "contamination": [0.05, 0.1, 0.15, 0.2],
+                "support_fraction": [0.5, 0.7, 0.9],
+            },
+            "DBSCAN": {
+                "eps": [0.1, 0.3, 0.5, 0.7],
+                "min_samples": [3, 5, 10, 15],
+                "algorithm": ["auto", "ball_tree", "kd_tree"],
+            },
+        }
+        
+        return param_spaces.get(algorithm_name, {})
+
+    async def _grid_search_tuning(
+        self,
+        detector,
+        dataset,
+        param_spaces: dict[str, list],
+        verbose: bool = False
+    ) -> dict[str, Any]:
+        """Perform grid search hyperparameter tuning."""
+        import itertools
+        from sklearn.model_selection import cross_val_score
+        from sklearn.metrics import roc_auc_score
+        
+        best_params = {}
+        best_score = float('-inf')
+        
+        # Generate all parameter combinations
+        param_names = list(param_spaces.keys())
+        param_values = list(param_spaces.values())
+        
+        # Limit combinations to avoid excessive computation
+        max_combinations = 20
+        all_combinations = list(itertools.product(*param_values))
+        
+        if len(all_combinations) > max_combinations:
+            # Sample random combinations if too many
+            import random
+            random.seed(42)
+            combinations = random.sample(all_combinations, max_combinations)
+        else:
+            combinations = all_combinations
+        
+        if verbose:
+            self.logger.info(f"Testing {len(combinations)} parameter combinations")
+        
+        for i, param_values in enumerate(combinations):
+            try:
+                # Create parameter dictionary
+                params = dict(zip(param_names, param_values))
+                
+                # Set parameters
+                detector.set_params(**params)
+                
+                # Evaluate detector performance
+                score = await self._evaluate_detector_performance(detector, dataset)
+                
+                if verbose and i % 5 == 0:
+                    self.logger.info(f"Combination {i+1}/{len(combinations)}: {params} -> Score: {score:.4f}")
+                
+                # Update best parameters if better
+                if score > best_score:
+                    best_score = score
+                    best_params = params.copy()
+                    
+            except Exception as e:
+                if verbose:
+                    self.logger.warning(f"Parameter combination failed: {params} -> {e}")
+                continue
+        
+        return best_params
+
+    async def _evaluate_detector_performance(self, detector, dataset) -> float:
+        """Evaluate detector performance using cross-validation or simple metrics."""
+        try:
+            # Fit detector
+            detector.fit(dataset)
+            
+            # Get anomaly scores
+            scores = detector.score(dataset)
+            
+            # Calculate performance metric (higher is better)
+            # For unsupervised learning, we use silhouette score or similar
+            if hasattr(dataset, 'labels') and dataset.labels is not None:
+                # If we have labels, use AUC
+                labels = dataset.labels
+                score_values = [s.value for s in scores]
+                
+                try:
+                    from sklearn.metrics import roc_auc_score
+                    return roc_auc_score(labels, score_values)
+                except:
+                    # Fallback to simple score variance
+                    import numpy as np
+                    return float(np.var(score_values))
+            else:
+                # No labels - use score variance as proxy for separation
+                import numpy as np
+                score_values = [s.value for s in scores]
+                return float(np.var(score_values))
+                
+        except Exception as e:
+            # Return poor score if evaluation fails
+            return 0.0
 
     def _calculate_performance_metrics(self, result: DetectionResult) -> dict[str, float]:
         """Calculate performance metrics for a detection result.

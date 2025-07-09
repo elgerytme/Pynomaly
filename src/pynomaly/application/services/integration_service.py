@@ -11,6 +11,7 @@ from typing import Any
 import aiohttp
 from cryptography.fernet import Fernet
 
+from pynomaly.infrastructure.services.email_service import get_email_service
 from pynomaly.domain.entities.integrations import (
     Integration,
     IntegrationConfig,
@@ -412,11 +413,47 @@ class IntegrationService:
         history_record: NotificationHistory,
     ) -> bool:
         """Send email notification."""
-        # TODO: Implement email sending using SMTP or email service
-        # For now, just simulate success
-        history_record.response_status = 200
-        history_record.response_body = "Email sent successfully"
-        return True
+        # Send email notification using email service
+        email_service = get_email_service()
+        if email_service:
+            try:
+                # Extract email details from payload
+                email_address = payload.data.get("email", "")
+                subject = payload.data.get("subject", "Pynomaly Notification")
+                message = payload.data.get("message", "")
+                priority = payload.data.get("priority", "normal")
+                
+                if not email_address:
+                    history_record.response_status = 400
+                    history_record.response_body = "Email address is required"
+                    return False
+                
+                # Send email
+                success = await email_service.send_system_notification_email(
+                    email=email_address,
+                    subject=subject,
+                    message=message,
+                    priority=priority
+                )
+                
+                if success:
+                    history_record.response_status = 200
+                    history_record.response_body = "Email sent successfully"
+                    return True
+                else:
+                    history_record.response_status = 500
+                    history_record.response_body = "Failed to send email"
+                    return False
+                    
+            except Exception as e:
+                history_record.response_status = 500
+                history_record.response_body = f"Email sending error: {str(e)}"
+                return False
+        else:
+            # Email service not configured
+            history_record.response_status = 503
+            history_record.response_body = "Email service not configured"
+            return False
 
     # Template Management
     async def create_notification_template(

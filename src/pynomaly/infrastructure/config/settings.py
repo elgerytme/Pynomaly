@@ -249,6 +249,16 @@ class Settings(BaseSettings):
     ml_failure_threshold: int = 2
     ml_recovery_timeout: float = 120.0
 
+    # Email settings
+    smtp_server: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_use_tls: bool = True
+    sender_email: str | None = None
+    sender_name: str = "Pynomaly System"
+    base_url: str = "http://localhost:8000"
+
     @field_validator(
         "storage_path", "model_storage_path", "experiment_storage_path", "temp_path"
     )

@@ -5,6 +5,7 @@ This directory contains comprehensive Kubernetes deployment configurations for t
 ## Overview
 
 The deployment includes:
+
 - **Application**: Pynomaly API and web interface
 - **Databases**: PostgreSQL, Redis, MongoDB
 - **Monitoring**: Prometheus, Grafana, Alertmanager
@@ -38,6 +39,7 @@ docker push your-registry.com/pynomaly:latest
 Edit the following files with your specific values:
 
 **secrets.yaml**
+
 ```yaml
 # Update with your actual base64-encoded secrets
 data:
@@ -47,6 +49,7 @@ data:
 ```
 
 **configmap.yaml**
+
 ```yaml
 # Update with your environment-specific values
 data:
@@ -204,6 +207,7 @@ resources:
 ### Metrics Collection
 
 Prometheus collects metrics from:
+
 - Application metrics (`/metrics` endpoint)
 - System metrics (CPU, memory, disk)
 - Custom business metrics
@@ -211,6 +215,7 @@ Prometheus collects metrics from:
 ### Dashboards
 
 Grafana provides dashboards for:
+
 - Application performance
 - System resource usage
 - Business KPIs
@@ -219,6 +224,7 @@ Grafana provides dashboards for:
 ### Alerting
 
 Configured alerts for:
+
 - High error rates
 - Resource exhaustion
 - Service unavailability
@@ -229,6 +235,7 @@ Configured alerts for:
 ### Persistent Volumes
 
 The deployment uses persistent volumes for:
+
 - Database data (PostgreSQL, MongoDB)
 - Cache data (Redis)
 - Application logs
@@ -276,12 +283,14 @@ spec:
 ### Recovery Procedures
 
 1. **Database Recovery**
+
    ```bash
    # Restore from backup
    kubectl exec -it postgres-pod -- psql $DATABASE_URL < backup.sql
    ```
 
 2. **Application Recovery**
+
    ```bash
    # Restart application
    kubectl rollout restart deployment/pynomaly-app -n pynomaly-production
@@ -292,6 +301,7 @@ spec:
 ### Common Issues
 
 1. **Pods Not Starting**
+
    ```bash
    # Check pod logs
    kubectl logs -f deployment/pynomaly-app -n pynomaly-production
@@ -301,12 +311,14 @@ spec:
    ```
 
 2. **Database Connection Issues**
+
    ```bash
    # Test database connectivity
    kubectl exec -it pynomaly-app-pod -- python -c "import psycopg2; psycopg2.connect(os.environ['DATABASE_URL'])"
    ```
 
 3. **Storage Issues**
+
    ```bash
    # Check PVC status
    kubectl get pvc -n pynomaly-production
@@ -318,6 +330,7 @@ spec:
 ### Performance Tuning
 
 1. **Resource Optimization**
+
    ```yaml
    # Increase resources for heavy workloads
    resources:
@@ -330,6 +343,7 @@ spec:
    ```
 
 2. **Database Tuning**
+
    ```sql
    -- PostgreSQL optimization
    ALTER SYSTEM SET shared_buffers = '256MB';
@@ -389,6 +403,7 @@ kubectl patch hpa pynomaly-app-hpa -n pynomaly-production -p '{"spec":{"maxRepli
 ## Support
 
 For deployment support:
+
 - Check the deployment logs
 - Review the validation report
 - Consult the troubleshooting guide
@@ -397,6 +412,7 @@ For deployment support:
 ## Contributing
 
 When adding new components:
+
 1. Update the deployment configurations
 2. Add monitoring and alerting
 3. Include security configurations

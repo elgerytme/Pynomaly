@@ -9,10 +9,7 @@ from rich.table import Table
 
 from pynomaly.domain.entities import Detector
 from pynomaly.presentation.cli.container import get_cli_container
-from pynomaly.presentation.cli.ux_improvements import (
-    CLIErrorHandler,
-    CLIHelpers,
-)
+from pynomaly.presentation.cli.ux_improvements import CLIErrorHandler, CLIHelpers
 
 app = typer.Typer(
     name="detector", help="Manage anomaly detection models", rich_markup_mode="rich"

@@ -41,7 +41,9 @@
       "Bash(./environments/.venv/bin/python -m pytest tests/unit/domain/entities/test_dataset.py -v --tb=short --timeout=30)",
       "Bash(./environments/.venv/bin/python -m pytest tests/domain/services/test_domain_services_comprehensive.py::TestEnsembleAggregator::test_aggregate_scores_average -v --tb=short)",
       "Bash(./environments/.venv/bin/python -m pytest tests/unit/domain/services/test_anomaly_scorer.py -v --tb=short)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(./environments/.venv/bin/python -m pytest tests/application/services/test_detection_service_comprehensive.py -v --tb=short --timeout=30)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

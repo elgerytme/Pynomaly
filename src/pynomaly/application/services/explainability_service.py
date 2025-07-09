@@ -18,14 +18,14 @@ from pynomaly.application.dto.explainability_dto import (
     FeatureImportanceRequestDTO,
     FeatureImportanceResponseDTO,
 )
+from pynomaly.domain.services.explainability_service import CohortExplanation
 from pynomaly.domain.services.explainability_service import (
-    CohortExplanation,
+    ExplainabilityService as DomainExplainabilityService,
+)
+from pynomaly.domain.services.explainability_service import (
     ExplanationMethod,
     GlobalExplanation,
     LocalExplanation,
-)
-from pynomaly.domain.services.explainability_service import (
-    ExplainabilityService as DomainExplainabilityService,
 )
 from pynomaly.infrastructure.repositories.dataset_repository import DatasetRepository
 from pynomaly.infrastructure.repositories.detector_repository import DetectorRepository

@@ -7,6 +7,7 @@ The Pynomaly Performance System is a comprehensive suite of tools designed to mo
 ## Key Components
 
 ### 1. Advanced Benchmarking Service
+
 - **Purpose**: Comprehensive performance testing and analysis
 - **Location**: `src/pynomaly/infrastructure/performance/advanced_benchmarking_service.py`
 - **Features**:
@@ -17,6 +18,7 @@ The Pynomaly Performance System is a comprehensive suite of tools designed to mo
   - Statistical analysis and trend detection
 
 ### 2. Performance Optimization Engine
+
 - **Purpose**: Automated performance optimization
 - **Location**: `src/pynomaly/infrastructure/performance/optimization_engine.py`
 - **Features**:
@@ -27,6 +29,7 @@ The Pynomaly Performance System is a comprehensive suite of tools designed to mo
   - Real-time performance tuning
 
 ### 3. Performance Monitor
+
 - **Purpose**: Real-time performance monitoring and alerting
 - **Location**: `src/pynomaly/infrastructure/monitoring/performance_monitor.py`
 - **Features**:
@@ -37,6 +40,7 @@ The Pynomaly Performance System is a comprehensive suite of tools designed to mo
   - Automated recommendations
 
 ### 4. Performance Reporting
+
 - **Purpose**: Comprehensive performance reporting and visualization
 - **Location**: `src/pynomaly/infrastructure/performance/performance_reporting.py`
 - **Features**:
@@ -47,6 +51,7 @@ The Pynomaly Performance System is a comprehensive suite of tools designed to mo
   - Multiple export formats (HTML, JSON, PDF)
 
 ### 5. Performance Integration
+
 - **Purpose**: Seamless integration with existing services
 - **Location**: `src/pynomaly/infrastructure/performance/performance_integration.py`
 - **Features**:

@@ -13,10 +13,7 @@ from uuid import uuid4
 import pytest
 import yaml
 
-from pynomaly.domain.exceptions import (
-    ConfigurationError,
-    ValidationError,
-)
+from pynomaly.domain.exceptions import ConfigurationError, ValidationError
 from pynomaly.infrastructure.config.config_manager import ConfigManager
 from pynomaly.infrastructure.config.config_validator import ConfigValidator
 from pynomaly.infrastructure.config.feature_flags import FeatureFlags

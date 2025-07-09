@@ -9,12 +9,14 @@ This guide provides comprehensive instructions for deploying Pynomaly in product
 ### System Requirements
 
 **Minimum Requirements:**
+
 - Python 3.8+
 - RAM: 4GB
 - Storage: 10GB
 - CPU: 2 cores
 
 **Recommended for Production:**
+
 - Python 3.10+
 - RAM: 16GB+
 - Storage: 100GB+ (SSD recommended)
@@ -478,6 +480,7 @@ pynomaly docs validate
 ### Common Issues
 
 1. **High Memory Usage**
+
    ```bash
    # Check memory usage
    pynomaly system memory --detailed
@@ -487,6 +490,7 @@ pynomaly docs validate
    ```
 
 2. **Slow API Response**
+
    ```bash
    # Check performance metrics
    pynomaly perf analyze --last-hour
@@ -496,6 +500,7 @@ pynomaly docs validate
    ```
 
 3. **Database Connection Issues**
+
    ```bash
    # Check connections
    pynomaly db status
@@ -615,19 +620,22 @@ pynomaly test stress --ramp-up 60 --duration 300
 ## 🆘 Support
 
 For production support issues:
-- Email: support@pynomaly.com
+
+- Email: <support@pynomaly.com>
 - Slack: #pynomaly-production
 - On-call: +1-555-PYNOMALY
 
 ## 📝 Change Log
 
 ### v0.1.1 (Current)
+
 - Initial production deployment guide
 - Docker containerization
 - Monitoring setup
 - Security hardening
 
 ### Future Releases
+
 - Kubernetes deployment
 - Multi-region support
 - Advanced monitoring

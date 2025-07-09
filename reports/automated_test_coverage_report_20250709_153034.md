@@ -31,6 +31,7 @@
 ## Critical Gaps
 
 ### Cli (Area)
+
 - **Current Coverage**: 35.8%
 - **Target Coverage**: 60%
 - **Gap**: 24.2%
@@ -42,6 +43,7 @@
   - Add help system validation
 
 ### Domain (Layer)
+
 - **Current Coverage**: 51.9%
 - **Target Coverage**: 90%
 - **Gap**: 38.1%
@@ -70,4 +72,3 @@
 
 - Area sdk: SDK and library interfaces (Current: 47.6%, Target: 90%)
 - Layer presentation: APIs, CLI, and UI interfaces (Current: 17.9%, Target: 60%)
-

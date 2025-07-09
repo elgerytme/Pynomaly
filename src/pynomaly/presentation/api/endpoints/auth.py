@@ -23,6 +23,7 @@ from pynomaly.infrastructure.security.audit_logger import (
     get_audit_logger,
 )
 from pynomaly.infrastructure.security.rbac_middleware import require_auth
+from pynomaly.infrastructure.services.email_service import get_email_service
 
 router = APIRouter()
 
@@ -608,9 +609,39 @@ async def request_password_reset(
             },
         )
 
-        # TODO: Send email with reset link
-        # For now, we'll just return a success message
-        # In production, this would trigger an email service
+        # Send email with reset link
+        email_service = get_email_service()
+        if email_service:
+            try:
+                email_sent = await email_service.send_password_reset_email(
+                    email=request.email,
+                    reset_token=reset_token,
+                    user_name="User"  # Could be improved to get actual user name
+                )
+                if not email_sent:
+                    # Log warning but don't fail - fallback to success message
+                    audit_logger.log_security_event(
+                        SecurityEventType.AUTH_PASSWORD_CHANGE,
+                        f"Failed to send password reset email to {request.email}",
+                        level=AuditLevel.WARNING,
+                        details={"email": request.email, "error": "email_send_failed"},
+                    )
+            except Exception as e:
+                # Log error but don't fail - fallback to success message
+                audit_logger.log_security_event(
+                    SecurityEventType.AUTH_PASSWORD_CHANGE,
+                    f"Error sending password reset email to {request.email}: {str(e)}",
+                    level=AuditLevel.ERROR,
+                    details={"email": request.email, "error": str(e)},
+                )
+        else:
+            # Email service not configured - log warning
+            audit_logger.log_security_event(
+                SecurityEventType.AUTH_PASSWORD_CHANGE,
+                f"Email service not configured - password reset email not sent to {request.email}",
+                level=AuditLevel.WARNING,
+                details={"email": request.email, "error": "email_service_not_configured"},
+            )
 
         return PasswordResetResponse(
             message="Password reset email sent successfully",

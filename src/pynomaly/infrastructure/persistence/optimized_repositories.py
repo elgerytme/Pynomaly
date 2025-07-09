@@ -7,14 +7,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import (
-    Boolean,
-    Index,
-    and_,
-    func,
-    or_,
-    text,
-)
+from sqlalchemy import Boolean, Index, and_, func, or_, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import Select
@@ -26,11 +19,7 @@ from pynomaly.shared.protocols import (
     DetectorRepositoryProtocol,
 )
 
-from .database_repositories import (
-    DatasetModel,
-    DetectionResultModel,
-    DetectorModel,
-)
+from .database_repositories import DatasetModel, DetectionResultModel, DetectorModel
 
 logger = logging.getLogger(__name__)
 
