@@ -329,6 +329,8 @@ class DatabaseConfigManager:
                     config.db_type = DatabaseType.MARIADB
                 elif parsed.scheme.startswith("sqlite"):
                     config.db_type = DatabaseType.SQLITE
+                elif parsed.scheme.startswith("mongodb"):
+                    config.db_type = DatabaseType.MONGODB
 
         # Database type
         db_type = os.environ.get("PYNOMALY_DB_TYPE", "").lower()
