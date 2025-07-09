@@ -6,7 +6,6 @@ Provides DTOs for TOTP setup, SMS verification, backup codes, and MFA management
 
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -39,8 +38,8 @@ class TOTPSetupResponse(BaseModel):
     secret: str = Field(..., description="Base32 encoded secret key")
     qr_code_url: str = Field(..., description="QR code URL for easy setup")
     manual_entry_key: str = Field(..., description="Manual entry key for authenticator apps")
-    backup_codes: List[str] = Field(..., description="One-time backup codes")
-    
+    backup_codes: list[str] = Field(..., description="One-time backup codes")
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -55,7 +54,7 @@ class TOTPSetupResponse(BaseModel):
 class TOTPVerificationRequest(BaseModel):
     """Request to verify TOTP code."""
     totp_code: str = Field(..., min_length=6, max_length=6, description="6-digit TOTP code")
-    
+
     @field_validator('totp_code')
     @classmethod
     def validate_totp_code(cls, v):
@@ -67,7 +66,7 @@ class TOTPVerificationRequest(BaseModel):
 class SMSSetupRequest(BaseModel):
     """Request to setup SMS-based MFA."""
     phone_number: str = Field(..., description="Phone number for SMS verification")
-    
+
     @field_validator('phone_number')
     @classmethod
     def validate_phone_number(cls, v):
@@ -81,7 +80,7 @@ class SMSSetupRequest(BaseModel):
 class SMSVerificationRequest(BaseModel):
     """Request to verify SMS code."""
     sms_code: str = Field(..., min_length=6, max_length=6, description="6-digit SMS verification code")
-    
+
     @field_validator('sms_code')
     @classmethod
     def validate_sms_code(cls, v):
@@ -93,7 +92,7 @@ class SMSVerificationRequest(BaseModel):
 class EmailVerificationRequest(BaseModel):
     """Request to verify email-based MFA code."""
     email_code: str = Field(..., min_length=6, max_length=6, description="6-digit email verification code")
-    
+
     @field_validator('email_code')
     @classmethod
     def validate_email_code(cls, v):
@@ -114,23 +113,23 @@ class MFAMethodDTO(BaseModel):
     status: MFAMethodStatus = Field(..., description="Current status of the method")
     display_name: str = Field(..., description="Human-readable name for the method")
     created_at: datetime = Field(..., description="When the method was created")
-    last_used: Optional[datetime] = Field(None, description="When the method was last used")
+    last_used: datetime | None = Field(None, description="When the method was last used")
     is_primary: bool = Field(False, description="Whether this is the primary MFA method")
-    
+
     # Method-specific details
-    phone_number: Optional[str] = Field(None, description="Phone number for SMS methods")
-    email: Optional[str] = Field(None, description="Email for email-based methods")
-    backup_codes_remaining: Optional[int] = Field(None, description="Remaining backup codes")
+    phone_number: str | None = Field(None, description="Phone number for SMS methods")
+    email: str | None = Field(None, description="Email for email-based methods")
+    backup_codes_remaining: int | None = Field(None, description="Remaining backup codes")
 
 
 class MFAStatusResponse(BaseModel):
     """Response containing user's MFA status."""
     mfa_enabled: bool = Field(..., description="Whether MFA is enabled for the user")
-    active_methods: List[MFAMethodDTO] = Field(..., description="List of active MFA methods")
-    pending_methods: List[MFAMethodDTO] = Field(..., description="List of pending MFA methods")
-    primary_method: Optional[MFAMethodDTO] = Field(None, description="Primary MFA method")
+    active_methods: list[MFAMethodDTO] = Field(..., description="List of active MFA methods")
+    pending_methods: list[MFAMethodDTO] = Field(..., description="List of pending MFA methods")
+    primary_method: MFAMethodDTO | None = Field(None, description="Primary MFA method")
     backup_codes_available: bool = Field(..., description="Whether backup codes are available")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -183,9 +182,9 @@ class MFALoginResponse(BaseModel):
 
 class BackupCodesResponse(BaseModel):
     """Response containing backup codes."""
-    backup_codes: List[str] = Field(..., description="List of backup codes")
+    backup_codes: list[str] = Field(..., description="List of backup codes")
     codes_remaining: int = Field(..., description="Number of unused backup codes")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -198,7 +197,7 @@ class BackupCodesResponse(BaseModel):
 class MFARecoveryRequest(BaseModel):
     """Request to recover account using backup codes."""
     backup_code: str = Field(..., description="Backup recovery code")
-    new_password: Optional[str] = Field(None, description="New password for account recovery")
+    new_password: str | None = Field(None, description="New password for account recovery")
 
 
 class MFARecoveryResponse(BaseModel):
@@ -223,7 +222,7 @@ class MFADeviceDTO(BaseModel):
 
 class TrustedDevicesResponse(BaseModel):
     """Response containing trusted devices."""
-    devices: List[MFADeviceDTO] = Field(..., description="List of trusted devices")
+    devices: list[MFADeviceDTO] = Field(..., description="List of trusted devices")
     total_devices: int = Field(..., description="Total number of trusted devices")
 
 
@@ -235,11 +234,11 @@ class RevokeTrustedDeviceRequest(BaseModel):
 class MFASettingsDTO(BaseModel):
     """Data transfer object for MFA settings."""
     enforce_mfa: bool = Field(False, description="Whether MFA is enforced for all users")
-    allowed_methods: List[MFAMethodType] = Field(..., description="Allowed MFA methods")
+    allowed_methods: list[MFAMethodType] = Field(..., description="Allowed MFA methods")
     backup_codes_enabled: bool = Field(True, description="Whether backup codes are enabled")
     remember_device_duration: int = Field(2592000, description="Device remember duration in seconds")
     max_trusted_devices: int = Field(5, description="Maximum number of trusted devices per user")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -259,7 +258,7 @@ class MFAStatisticsDTO(BaseModel):
     mfa_adoption_rate: float = Field(..., description="MFA adoption rate percentage")
     method_usage: dict = Field(..., description="Usage statistics by method type")
     recent_authentications: int = Field(..., description="Recent MFA authentications")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -281,8 +280,8 @@ class MFAErrorResponse(BaseModel):
     """Error response for MFA operations."""
     error: str = Field(..., description="Error code")
     message: str = Field(..., description="Human-readable error message")
-    details: Optional[dict] = Field(None, description="Additional error details")
-    
+    details: dict | None = Field(None, description="Additional error details")
+
     class Config:
         json_schema_extra = {
             "example": {

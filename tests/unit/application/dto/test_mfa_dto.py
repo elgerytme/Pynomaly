@@ -5,44 +5,42 @@ Tests all MFA-related data transfer objects including TOTP, SMS, email verificat
 backup codes, device management, and MFA settings.
 """
 
-import pytest
-from datetime import datetime, timedelta
-from typing import List
-from unittest.mock import Mock, patch
+from datetime import datetime
 
+import pytest
 from pydantic import ValidationError
 
 from src.pynomaly.application.dto.mfa_dto import (
-    MFAMethodType,
+    BackupCodesResponse,
+    BackupCodeVerificationRequest,
+    EmailVerificationRequest,
+    MFADeviceDTO,
+    MFADisableRequest,
+    MFAEnableRequest,
+    MFAErrorResponse,
+    MFALoginRequest,
+    MFALoginResponse,
+    MFAMethodDTO,
     MFAMethodStatus,
+    MFAMethodType,
+    MFARecoveryRequest,
+    MFARecoveryResponse,
+    MFASettingsDTO,
+    MFAStatisticsDTO,
+    MFAStatusResponse,
+    RevokeTrustedDeviceRequest,
+    SMSSetupRequest,
+    SMSVerificationRequest,
     TOTPSetupRequest,
     TOTPSetupResponse,
     TOTPVerificationRequest,
-    SMSSetupRequest,
-    SMSVerificationRequest,
-    EmailVerificationRequest,
-    BackupCodeVerificationRequest,
-    MFAMethodDTO,
-    MFAStatusResponse,
-    MFAEnableRequest,
-    MFADisableRequest,
-    MFALoginRequest,
-    MFALoginResponse,
-    BackupCodesResponse,
-    MFARecoveryRequest,
-    MFARecoveryResponse,
-    MFADeviceDTO,
     TrustedDevicesResponse,
-    RevokeTrustedDeviceRequest,
-    MFASettingsDTO,
-    MFAStatisticsDTO,
-    MFAErrorResponse
 )
 
 
 class TestMFAMethodType:
     """Test cases for MFAMethodType enum."""
-    
+
     def test_all_method_types(self):
         """Test all MFA method types are defined correctly."""
         assert MFAMethodType.TOTP == "totp"
@@ -50,7 +48,7 @@ class TestMFAMethodType:
         assert MFAMethodType.EMAIL == "email"
         assert MFAMethodType.BACKUP_CODES == "backup_codes"
         assert MFAMethodType.HARDWARE_TOKEN == "hardware_token"
-    
+
     def test_enum_values(self):
         """Test enum values can be used properly."""
         method_types = [
@@ -66,14 +64,14 @@ class TestMFAMethodType:
 
 class TestMFAMethodStatus:
     """Test cases for MFAMethodStatus enum."""
-    
+
     def test_all_status_types(self):
         """Test all MFA status types are defined correctly."""
         assert MFAMethodStatus.ACTIVE == "active"
         assert MFAMethodStatus.INACTIVE == "inactive"
         assert MFAMethodStatus.PENDING == "pending"
         assert MFAMethodStatus.DISABLED == "disabled"
-    
+
     def test_enum_values(self):
         """Test enum values can be used properly."""
         statuses = [
@@ -88,7 +86,7 @@ class TestMFAMethodStatus:
 
 class TestTOTPSetupRequest:
     """Test cases for TOTPSetupRequest DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid TOTP setup request."""
         request = TOTPSetupRequest(
@@ -97,13 +95,13 @@ class TestTOTPSetupRequest:
         )
         assert request.app_name == "Test App"
         assert request.issuer == "Test Issuer"
-    
+
     def test_default_values(self):
         """Test default values for TOTP setup request."""
         request = TOTPSetupRequest()
         assert request.app_name == "Pynomaly"
         assert request.issuer == "Pynomaly Security"
-    
+
     def test_custom_values(self):
         """Test custom values override defaults."""
         request = TOTPSetupRequest(
@@ -112,7 +110,7 @@ class TestTOTPSetupRequest:
         )
         assert request.app_name == "Custom App"
         assert request.issuer == "Custom Security"
-    
+
     def test_serialization(self):
         """Test request serialization."""
         request = TOTPSetupRequest(
@@ -122,7 +120,7 @@ class TestTOTPSetupRequest:
         data = request.model_dump()
         assert data["app_name"] == "Test App"
         assert data["issuer"] == "Test Issuer"
-    
+
     def test_deserialization(self):
         """Test request deserialization."""
         data = {
@@ -136,7 +134,7 @@ class TestTOTPSetupRequest:
 
 class TestTOTPSetupResponse:
     """Test cases for TOTPSetupResponse DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid TOTP setup response."""
         response = TOTPSetupResponse(
@@ -149,19 +147,19 @@ class TestTOTPSetupResponse:
         assert "otpauth://totp/" in response.qr_code_url
         assert response.manual_entry_key == "JBSWY3DPEHPK3PXP"
         assert len(response.backup_codes) == 3
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             TOTPSetupResponse()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'secret' in error_fields
         assert 'qr_code_url' in error_fields
         assert 'manual_entry_key' in error_fields
         assert 'backup_codes' in error_fields
-    
+
     def test_backup_codes_list(self):
         """Test backup codes as list."""
         response = TOTPSetupResponse(
@@ -172,7 +170,7 @@ class TestTOTPSetupResponse:
         )
         assert len(response.backup_codes) == 5
         assert all(isinstance(code, str) for code in response.backup_codes)
-    
+
     def test_serialization(self):
         """Test response serialization."""
         response = TOTPSetupResponse(
@@ -185,7 +183,7 @@ class TestTOTPSetupResponse:
         assert data["secret"] == "TEST_SECRET"
         assert data["qr_code_url"] == "otpauth://totp/test"
         assert data["backup_codes"] == ["111111", "222222"]
-    
+
     def test_json_schema_example(self):
         """Test JSON schema example is valid."""
         example = TOTPSetupResponse.model_config.get('json_schema_extra', {}).get('example', {})
@@ -198,49 +196,49 @@ class TestTOTPSetupResponse:
 
 class TestTOTPVerificationRequest:
     """Test cases for TOTPVerificationRequest DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid TOTP verification request."""
         request = TOTPVerificationRequest(totp_code="123456")
         assert request.totp_code == "123456"
-    
+
     def test_code_length_validation(self):
         """Test TOTP code length validation."""
         # Too short
         with pytest.raises(ValidationError) as exc_info:
             TOTPVerificationRequest(totp_code="12345")
         assert "at least 6 characters" in str(exc_info.value)
-        
+
         # Too long
         with pytest.raises(ValidationError) as exc_info:
             TOTPVerificationRequest(totp_code="1234567")
         assert "at most 6 characters" in str(exc_info.value)
-    
+
     def test_digits_only_validation(self):
         """Test TOTP code must contain only digits."""
         with pytest.raises(ValidationError) as exc_info:
             TOTPVerificationRequest(totp_code="12345a")
         assert "must contain only digits" in str(exc_info.value)
-        
+
         with pytest.raises(ValidationError) as exc_info:
             TOTPVerificationRequest(totp_code="12-345")
         assert "must contain only digits" in str(exc_info.value)
-    
+
     def test_valid_digit_codes(self):
         """Test various valid digit codes."""
         valid_codes = ["123456", "000000", "999999", "654321"]
         for code in valid_codes:
             request = TOTPVerificationRequest(totp_code=code)
             assert request.totp_code == code
-    
+
     def test_required_field(self):
         """Test TOTP code is required."""
         with pytest.raises(ValidationError) as exc_info:
             TOTPVerificationRequest()
-        
+
         errors = exc_info.value.errors()
         assert any(error['loc'][0] == 'totp_code' for error in errors)
-    
+
     def test_serialization(self):
         """Test request serialization."""
         request = TOTPVerificationRequest(totp_code="123456")
@@ -250,12 +248,12 @@ class TestTOTPVerificationRequest:
 
 class TestSMSSetupRequest:
     """Test cases for SMSSetupRequest DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid SMS setup request."""
         request = SMSSetupRequest(phone_number="+1234567890")
         assert request.phone_number == "+1234567890"
-    
+
     def test_phone_number_validation(self):
         """Test phone number validation."""
         valid_numbers = [
@@ -264,11 +262,11 @@ class TestSMSSetupRequest:
             "+123456789012345",  # Max length
             "123456789"  # Min length
         ]
-        
+
         for number in valid_numbers:
             request = SMSSetupRequest(phone_number=number)
             assert request.phone_number == number
-    
+
     def test_invalid_phone_numbers(self):
         """Test invalid phone number validation."""
         invalid_numbers = [
@@ -277,29 +275,29 @@ class TestSMSSetupRequest:
             "abcdefghij",  # Non-numeric
             "+1-234-567-890abc"  # Mixed characters
         ]
-        
+
         for number in invalid_numbers:
             with pytest.raises(ValidationError) as exc_info:
                 SMSSetupRequest(phone_number=number)
             assert "Invalid phone number format" in str(exc_info.value)
-    
+
     def test_phone_number_formatting(self):
         """Test phone number with formatting characters."""
         # The validator should handle spaces and dashes
         request = SMSSetupRequest(phone_number="+1 234 567 890")
         assert request.phone_number == "+1 234 567 890"
-        
+
         request = SMSSetupRequest(phone_number="+1-234-567-890")
         assert request.phone_number == "+1-234-567-890"
-    
+
     def test_required_field(self):
         """Test phone number is required."""
         with pytest.raises(ValidationError) as exc_info:
             SMSSetupRequest()
-        
+
         errors = exc_info.value.errors()
         assert any(error['loc'][0] == 'phone_number' for error in errors)
-    
+
     def test_serialization(self):
         """Test request serialization."""
         request = SMSSetupRequest(phone_number="+1234567890")
@@ -309,49 +307,49 @@ class TestSMSSetupRequest:
 
 class TestSMSVerificationRequest:
     """Test cases for SMSVerificationRequest DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid SMS verification request."""
         request = SMSVerificationRequest(sms_code="123456")
         assert request.sms_code == "123456"
-    
+
     def test_code_length_validation(self):
         """Test SMS code length validation."""
         # Too short
         with pytest.raises(ValidationError) as exc_info:
             SMSVerificationRequest(sms_code="12345")
         assert "at least 6 characters" in str(exc_info.value)
-        
+
         # Too long
         with pytest.raises(ValidationError) as exc_info:
             SMSVerificationRequest(sms_code="1234567")
         assert "at most 6 characters" in str(exc_info.value)
-    
+
     def test_digits_only_validation(self):
         """Test SMS code must contain only digits."""
         with pytest.raises(ValidationError) as exc_info:
             SMSVerificationRequest(sms_code="12345a")
         assert "must contain only digits" in str(exc_info.value)
-        
+
         with pytest.raises(ValidationError) as exc_info:
             SMSVerificationRequest(sms_code="12-345")
         assert "must contain only digits" in str(exc_info.value)
-    
+
     def test_valid_digit_codes(self):
         """Test various valid digit codes."""
         valid_codes = ["123456", "000000", "999999", "654321"]
         for code in valid_codes:
             request = SMSVerificationRequest(sms_code=code)
             assert request.sms_code == code
-    
+
     def test_required_field(self):
         """Test SMS code is required."""
         with pytest.raises(ValidationError) as exc_info:
             SMSVerificationRequest()
-        
+
         errors = exc_info.value.errors()
         assert any(error['loc'][0] == 'sms_code' for error in errors)
-    
+
     def test_serialization(self):
         """Test request serialization."""
         request = SMSVerificationRequest(sms_code="123456")
@@ -361,49 +359,49 @@ class TestSMSVerificationRequest:
 
 class TestEmailVerificationRequest:
     """Test cases for EmailVerificationRequest DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid email verification request."""
         request = EmailVerificationRequest(email_code="123456")
         assert request.email_code == "123456"
-    
+
     def test_code_length_validation(self):
         """Test email code length validation."""
         # Too short
         with pytest.raises(ValidationError) as exc_info:
             EmailVerificationRequest(email_code="12345")
         assert "at least 6 characters" in str(exc_info.value)
-        
+
         # Too long
         with pytest.raises(ValidationError) as exc_info:
             EmailVerificationRequest(email_code="1234567")
         assert "at most 6 characters" in str(exc_info.value)
-    
+
     def test_digits_only_validation(self):
         """Test email code must contain only digits."""
         with pytest.raises(ValidationError) as exc_info:
             EmailVerificationRequest(email_code="12345a")
         assert "must contain only digits" in str(exc_info.value)
-        
+
         with pytest.raises(ValidationError) as exc_info:
             EmailVerificationRequest(email_code="12-345")
         assert "must contain only digits" in str(exc_info.value)
-    
+
     def test_valid_digit_codes(self):
         """Test various valid digit codes."""
         valid_codes = ["123456", "000000", "999999", "654321"]
         for code in valid_codes:
             request = EmailVerificationRequest(email_code=code)
             assert request.email_code == code
-    
+
     def test_required_field(self):
         """Test email code is required."""
         with pytest.raises(ValidationError) as exc_info:
             EmailVerificationRequest()
-        
+
         errors = exc_info.value.errors()
         assert any(error['loc'][0] == 'email_code' for error in errors)
-    
+
     def test_serialization(self):
         """Test request serialization."""
         request = EmailVerificationRequest(email_code="123456")
@@ -413,46 +411,46 @@ class TestEmailVerificationRequest:
 
 class TestBackupCodeVerificationRequest:
     """Test cases for BackupCodeVerificationRequest DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid backup code verification request."""
         request = BackupCodeVerificationRequest(backup_code="123456")
         assert request.backup_code == "123456"
-    
+
     def test_code_length_validation(self):
         """Test backup code length validation."""
         # Too short
         with pytest.raises(ValidationError) as exc_info:
             BackupCodeVerificationRequest(backup_code="12345")
         assert "at least 6 characters" in str(exc_info.value)
-        
+
         # Too long
         with pytest.raises(ValidationError) as exc_info:
             BackupCodeVerificationRequest(backup_code="12345678901")
         assert "at most 10 characters" in str(exc_info.value)
-    
+
     def test_valid_code_lengths(self):
         """Test valid code lengths."""
         valid_codes = ["123456", "1234567", "12345678", "123456789", "1234567890"]
         for code in valid_codes:
             request = BackupCodeVerificationRequest(backup_code=code)
             assert request.backup_code == code
-    
+
     def test_alphanumeric_codes(self):
         """Test alphanumeric backup codes are allowed."""
         valid_codes = ["ABC123", "12AB34", "XYZ789", "123ABC"]
         for code in valid_codes:
             request = BackupCodeVerificationRequest(backup_code=code)
             assert request.backup_code == code
-    
+
     def test_required_field(self):
         """Test backup code is required."""
         with pytest.raises(ValidationError) as exc_info:
             BackupCodeVerificationRequest()
-        
+
         errors = exc_info.value.errors()
         assert any(error['loc'][0] == 'backup_code' for error in errors)
-    
+
     def test_serialization(self):
         """Test request serialization."""
         request = BackupCodeVerificationRequest(backup_code="ABC123")
@@ -462,7 +460,7 @@ class TestBackupCodeVerificationRequest:
 
 class TestMFAMethodDTO:
     """Test cases for MFAMethodDTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA method DTO."""
         now = datetime.now()
@@ -488,12 +486,12 @@ class TestMFAMethodDTO:
         assert dto.phone_number == "+1234567890"
         assert dto.email == "user@example.com"
         assert dto.backup_codes_remaining == 5
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFAMethodDTO()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'id' in error_fields
@@ -501,7 +499,7 @@ class TestMFAMethodDTO:
         assert 'status' in error_fields
         assert 'display_name' in error_fields
         assert 'created_at' in error_fields
-    
+
     def test_optional_fields(self):
         """Test optional fields with defaults."""
         now = datetime.now()
@@ -517,7 +515,7 @@ class TestMFAMethodDTO:
         assert dto.phone_number is None
         assert dto.email is None
         assert dto.backup_codes_remaining is None
-    
+
     def test_totp_method(self):
         """Test TOTP method DTO."""
         now = datetime.now()
@@ -533,7 +531,7 @@ class TestMFAMethodDTO:
         assert dto.is_primary is True
         assert dto.phone_number is None
         assert dto.email is None
-    
+
     def test_sms_method(self):
         """Test SMS method DTO."""
         now = datetime.now()
@@ -548,7 +546,7 @@ class TestMFAMethodDTO:
         assert dto.method_type == MFAMethodType.SMS
         assert dto.phone_number == "+1234567890"
         assert dto.email is None
-    
+
     def test_email_method(self):
         """Test email method DTO."""
         now = datetime.now()
@@ -563,7 +561,7 @@ class TestMFAMethodDTO:
         assert dto.method_type == MFAMethodType.EMAIL
         assert dto.email == "user@example.com"
         assert dto.phone_number is None
-    
+
     def test_backup_codes_method(self):
         """Test backup codes method DTO."""
         now = datetime.now()
@@ -577,7 +575,7 @@ class TestMFAMethodDTO:
         )
         assert dto.method_type == MFAMethodType.BACKUP_CODES
         assert dto.backup_codes_remaining == 8
-    
+
     def test_serialization(self):
         """Test DTO serialization."""
         now = datetime.now()
@@ -598,7 +596,7 @@ class TestMFAMethodDTO:
 
 class TestMFAStatusResponse:
     """Test cases for MFAStatusResponse DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA status response."""
         now = datetime.now()
@@ -610,7 +608,7 @@ class TestMFAStatusResponse:
             created_at=now,
             is_primary=True
         )
-        
+
         response = MFAStatusResponse(
             mfa_enabled=True,
             active_methods=[active_method],
@@ -618,25 +616,25 @@ class TestMFAStatusResponse:
             primary_method=active_method,
             backup_codes_available=True
         )
-        
+
         assert response.mfa_enabled is True
         assert len(response.active_methods) == 1
         assert len(response.pending_methods) == 0
         assert response.primary_method == active_method
         assert response.backup_codes_available is True
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFAStatusResponse()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'mfa_enabled' in error_fields
         assert 'active_methods' in error_fields
         assert 'pending_methods' in error_fields
         assert 'backup_codes_available' in error_fields
-    
+
     def test_empty_methods(self):
         """Test response with empty method lists."""
         response = MFAStatusResponse(
@@ -646,13 +644,13 @@ class TestMFAStatusResponse:
             primary_method=None,
             backup_codes_available=False
         )
-        
+
         assert response.mfa_enabled is False
         assert len(response.active_methods) == 0
         assert len(response.pending_methods) == 0
         assert response.primary_method is None
         assert response.backup_codes_available is False
-    
+
     def test_multiple_methods(self):
         """Test response with multiple methods."""
         now = datetime.now()
@@ -664,7 +662,7 @@ class TestMFAStatusResponse:
             created_at=now,
             is_primary=True
         )
-        
+
         sms_method = MFAMethodDTO(
             id="sms_123",
             method_type=MFAMethodType.SMS,
@@ -673,7 +671,7 @@ class TestMFAStatusResponse:
             created_at=now,
             phone_number="+1234567890"
         )
-        
+
         pending_method = MFAMethodDTO(
             id="email_123",
             method_type=MFAMethodType.EMAIL,
@@ -682,7 +680,7 @@ class TestMFAStatusResponse:
             created_at=now,
             email="user@example.com"
         )
-        
+
         response = MFAStatusResponse(
             mfa_enabled=True,
             active_methods=[totp_method, sms_method],
@@ -690,11 +688,11 @@ class TestMFAStatusResponse:
             primary_method=totp_method,
             backup_codes_available=True
         )
-        
+
         assert len(response.active_methods) == 2
         assert len(response.pending_methods) == 1
         assert response.primary_method.id == "totp_123"
-    
+
     def test_serialization(self):
         """Test response serialization."""
         now = datetime.now()
@@ -705,7 +703,7 @@ class TestMFAStatusResponse:
             display_name="Google Authenticator",
             created_at=now
         )
-        
+
         response = MFAStatusResponse(
             mfa_enabled=True,
             active_methods=[active_method],
@@ -713,13 +711,13 @@ class TestMFAStatusResponse:
             primary_method=None,
             backup_codes_available=True
         )
-        
+
         data = response.model_dump()
         assert data["mfa_enabled"] is True
         assert len(data["active_methods"]) == 1
         assert data["active_methods"][0]["id"] == "mfa_123"
         assert data["primary_method"] is None
-    
+
     def test_json_schema_example(self):
         """Test JSON schema example is valid."""
         example = MFAStatusResponse.model_config.get('json_schema_extra', {}).get('example', {})
@@ -738,7 +736,7 @@ class TestMFAStatusResponse:
 
 class TestMFAEnableRequest:
     """Test cases for MFAEnableRequest DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA enable request."""
         request = MFAEnableRequest(
@@ -749,17 +747,17 @@ class TestMFAEnableRequest:
         assert request.method_type == MFAMethodType.TOTP
         assert request.verification_code == "123456"
         assert request.set_as_primary is True
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFAEnableRequest()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'method_type' in error_fields
         assert 'verification_code' in error_fields
-    
+
     def test_default_primary(self):
         """Test default set_as_primary value."""
         request = MFAEnableRequest(
@@ -767,7 +765,7 @@ class TestMFAEnableRequest:
             verification_code="654321"
         )
         assert request.set_as_primary is True
-    
+
     def test_different_method_types(self):
         """Test different MFA method types."""
         method_types = [
@@ -776,14 +774,14 @@ class TestMFAEnableRequest:
             MFAMethodType.EMAIL,
             MFAMethodType.BACKUP_CODES
         ]
-        
+
         for method_type in method_types:
             request = MFAEnableRequest(
                 method_type=method_type,
                 verification_code="123456"
             )
             assert request.method_type == method_type
-    
+
     def test_serialization(self):
         """Test request serialization."""
         request = MFAEnableRequest(
@@ -799,7 +797,7 @@ class TestMFAEnableRequest:
 
 class TestMFADisableRequest:
     """Test cases for MFADisableRequest DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA disable request."""
         request = MFADisableRequest(
@@ -808,17 +806,17 @@ class TestMFADisableRequest:
         )
         assert request.method_id == "mfa_123"
         assert request.verification_code == "123456"
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFADisableRequest()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'method_id' in error_fields
         assert 'verification_code' in error_fields
-    
+
     def test_serialization(self):
         """Test request serialization."""
         request = MFADisableRequest(
@@ -832,7 +830,7 @@ class TestMFADisableRequest:
 
 class TestMFALoginRequest:
     """Test cases for MFALoginRequest DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA login request."""
         request = MFALoginRequest(
@@ -843,17 +841,17 @@ class TestMFALoginRequest:
         assert request.method_type == MFAMethodType.TOTP
         assert request.verification_code == "123456"
         assert request.remember_device is True
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFALoginRequest()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'method_type' in error_fields
         assert 'verification_code' in error_fields
-    
+
     def test_default_remember_device(self):
         """Test default remember_device value."""
         request = MFALoginRequest(
@@ -861,7 +859,7 @@ class TestMFALoginRequest:
             verification_code="654321"
         )
         assert request.remember_device is False
-    
+
     def test_different_method_types(self):
         """Test different MFA method types."""
         method_types = [
@@ -870,14 +868,14 @@ class TestMFALoginRequest:
             MFAMethodType.EMAIL,
             MFAMethodType.BACKUP_CODES
         ]
-        
+
         for method_type in method_types:
             request = MFALoginRequest(
                 method_type=method_type,
                 verification_code="123456"
             )
             assert request.method_type == method_type
-    
+
     def test_serialization(self):
         """Test request serialization."""
         request = MFALoginRequest(
@@ -893,7 +891,7 @@ class TestMFALoginRequest:
 
 class TestMFALoginResponse:
     """Test cases for MFALoginResponse DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA login response."""
         response = MFALoginResponse(
@@ -908,18 +906,18 @@ class TestMFALoginResponse:
         assert response.token_type == "bearer"
         assert response.expires_in == 3600
         assert response.device_remembered is True
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFALoginResponse()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'access_token' in error_fields
         assert 'refresh_token' in error_fields
         assert 'expires_in' in error_fields
-    
+
     def test_default_values(self):
         """Test default values."""
         response = MFALoginResponse(
@@ -929,7 +927,7 @@ class TestMFALoginResponse:
         )
         assert response.token_type == "bearer"
         assert response.device_remembered is False
-    
+
     def test_serialization(self):
         """Test response serialization."""
         response = MFALoginResponse(
@@ -948,7 +946,7 @@ class TestMFALoginResponse:
 
 class TestBackupCodesResponse:
     """Test cases for BackupCodesResponse DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid backup codes response."""
         response = BackupCodesResponse(
@@ -957,17 +955,17 @@ class TestBackupCodesResponse:
         )
         assert len(response.backup_codes) == 3
         assert response.codes_remaining == 3
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             BackupCodesResponse()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'backup_codes' in error_fields
         assert 'codes_remaining' in error_fields
-    
+
     def test_empty_backup_codes(self):
         """Test response with empty backup codes."""
         response = BackupCodesResponse(
@@ -976,7 +974,7 @@ class TestBackupCodesResponse:
         )
         assert len(response.backup_codes) == 0
         assert response.codes_remaining == 0
-    
+
     def test_multiple_backup_codes(self):
         """Test response with multiple backup codes."""
         codes = ["111111", "222222", "333333", "444444", "555555"]
@@ -987,7 +985,7 @@ class TestBackupCodesResponse:
         assert len(response.backup_codes) == 5
         assert response.codes_remaining == 5
         assert response.backup_codes == codes
-    
+
     def test_serialization(self):
         """Test response serialization."""
         response = BackupCodesResponse(
@@ -997,7 +995,7 @@ class TestBackupCodesResponse:
         data = response.model_dump()
         assert data["backup_codes"] == ["123456", "789012"]
         assert data["codes_remaining"] == 2
-    
+
     def test_json_schema_example(self):
         """Test JSON schema example is valid."""
         example = BackupCodesResponse.model_config.get('json_schema_extra', {}).get('example', {})
@@ -1009,7 +1007,7 @@ class TestBackupCodesResponse:
 
 class TestMFARecoveryRequest:
     """Test cases for MFARecoveryRequest DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA recovery request."""
         request = MFARecoveryRequest(
@@ -1018,22 +1016,22 @@ class TestMFARecoveryRequest:
         )
         assert request.backup_code == "123456"
         assert request.new_password == "new_secure_password123"
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFARecoveryRequest()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'backup_code' in error_fields
-    
+
     def test_optional_new_password(self):
         """Test optional new password field."""
         request = MFARecoveryRequest(backup_code="123456")
         assert request.backup_code == "123456"
         assert request.new_password is None
-    
+
     def test_serialization(self):
         """Test request serialization."""
         request = MFARecoveryRequest(
@@ -1047,7 +1045,7 @@ class TestMFARecoveryRequest:
 
 class TestMFARecoveryResponse:
     """Test cases for MFARecoveryResponse DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA recovery response."""
         response = MFARecoveryResponse(
@@ -1060,19 +1058,19 @@ class TestMFARecoveryResponse:
         assert response.access_token == "access_token_123"
         assert response.refresh_token == "refresh_token_123"
         assert response.remaining_codes == 2
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFARecoveryResponse()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'message' in error_fields
         assert 'access_token' in error_fields
         assert 'refresh_token' in error_fields
         assert 'remaining_codes' in error_fields
-    
+
     def test_zero_remaining_codes(self):
         """Test response with zero remaining codes."""
         response = MFARecoveryResponse(
@@ -1082,7 +1080,7 @@ class TestMFARecoveryResponse:
             remaining_codes=0
         )
         assert response.remaining_codes == 0
-    
+
     def test_serialization(self):
         """Test response serialization."""
         response = MFARecoveryResponse(
@@ -1099,7 +1097,7 @@ class TestMFARecoveryResponse:
 
 class TestMFADeviceDTO:
     """Test cases for MFADeviceDTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA device DTO."""
         now = datetime.now()
@@ -1121,12 +1119,12 @@ class TestMFADeviceDTO:
         assert dto.created_at == now
         assert dto.last_used == now
         assert dto.is_active is True
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFADeviceDTO()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'id' in error_fields
@@ -1136,7 +1134,7 @@ class TestMFADeviceDTO:
         assert 'ip_address' in error_fields
         assert 'created_at' in error_fields
         assert 'last_used' in error_fields
-    
+
     def test_default_is_active(self):
         """Test default is_active value."""
         now = datetime.now()
@@ -1150,12 +1148,12 @@ class TestMFADeviceDTO:
             last_used=now
         )
         assert dto.is_active is True
-    
+
     def test_different_device_types(self):
         """Test different device types."""
         now = datetime.now()
         device_types = ["mobile", "desktop", "tablet", "other"]
-        
+
         for device_type in device_types:
             dto = MFADeviceDTO(
                 id=f"device_{device_type}",
@@ -1167,7 +1165,7 @@ class TestMFADeviceDTO:
                 last_used=now
             )
             assert dto.device_type == device_type
-    
+
     def test_serialization(self):
         """Test DTO serialization."""
         now = datetime.now()
@@ -1190,7 +1188,7 @@ class TestMFADeviceDTO:
 
 class TestTrustedDevicesResponse:
     """Test cases for TrustedDevicesResponse DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid trusted devices response."""
         now = datetime.now()
@@ -1203,24 +1201,24 @@ class TestTrustedDevicesResponse:
             created_at=now,
             last_used=now
         )
-        
+
         response = TrustedDevicesResponse(
             devices=[device],
             total_devices=1
         )
         assert len(response.devices) == 1
         assert response.total_devices == 1
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             TrustedDevicesResponse()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'devices' in error_fields
         assert 'total_devices' in error_fields
-    
+
     def test_empty_devices(self):
         """Test response with empty devices list."""
         response = TrustedDevicesResponse(
@@ -1229,7 +1227,7 @@ class TestTrustedDevicesResponse:
         )
         assert len(response.devices) == 0
         assert response.total_devices == 0
-    
+
     def test_multiple_devices(self):
         """Test response with multiple devices."""
         now = datetime.now()
@@ -1245,14 +1243,14 @@ class TestTrustedDevicesResponse:
                 last_used=now
             )
             devices.append(device)
-        
+
         response = TrustedDevicesResponse(
             devices=devices,
             total_devices=3
         )
         assert len(response.devices) == 3
         assert response.total_devices == 3
-    
+
     def test_serialization(self):
         """Test response serialization."""
         now = datetime.now()
@@ -1265,7 +1263,7 @@ class TestTrustedDevicesResponse:
             created_at=now,
             last_used=now
         )
-        
+
         response = TrustedDevicesResponse(
             devices=[device],
             total_devices=1
@@ -1278,21 +1276,21 @@ class TestTrustedDevicesResponse:
 
 class TestRevokeTrustedDeviceRequest:
     """Test cases for RevokeTrustedDeviceRequest DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid revoke trusted device request."""
         request = RevokeTrustedDeviceRequest(device_id="device_123")
         assert request.device_id == "device_123"
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             RevokeTrustedDeviceRequest()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'device_id' in error_fields
-    
+
     def test_serialization(self):
         """Test request serialization."""
         request = RevokeTrustedDeviceRequest(device_id="device_123")
@@ -1302,7 +1300,7 @@ class TestRevokeTrustedDeviceRequest:
 
 class TestMFASettingsDTO:
     """Test cases for MFASettingsDTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA settings DTO."""
         dto = MFASettingsDTO(
@@ -1317,16 +1315,16 @@ class TestMFASettingsDTO:
         assert dto.backup_codes_enabled is True
         assert dto.remember_device_duration == 7200
         assert dto.max_trusted_devices == 10
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFASettingsDTO()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'allowed_methods' in error_fields
-    
+
     def test_default_values(self):
         """Test default values."""
         dto = MFASettingsDTO(
@@ -1336,7 +1334,7 @@ class TestMFASettingsDTO:
         assert dto.backup_codes_enabled is True
         assert dto.remember_device_duration == 2592000  # 30 days
         assert dto.max_trusted_devices == 5
-    
+
     def test_all_method_types(self):
         """Test settings with all method types."""
         all_methods = [
@@ -1346,14 +1344,14 @@ class TestMFASettingsDTO:
             MFAMethodType.BACKUP_CODES,
             MFAMethodType.HARDWARE_TOKEN
         ]
-        
+
         dto = MFASettingsDTO(
             allowed_methods=all_methods,
             enforce_mfa=True
         )
         assert len(dto.allowed_methods) == 5
         assert dto.enforce_mfa is True
-    
+
     def test_serialization(self):
         """Test DTO serialization."""
         dto = MFASettingsDTO(
@@ -1369,7 +1367,7 @@ class TestMFASettingsDTO:
         assert data["backup_codes_enabled"] is False
         assert data["remember_device_duration"] == 3600
         assert data["max_trusted_devices"] == 3
-    
+
     def test_json_schema_example(self):
         """Test JSON schema example is valid."""
         example = MFASettingsDTO.model_config.get('json_schema_extra', {}).get('example', {})
@@ -1382,7 +1380,7 @@ class TestMFASettingsDTO:
 
 class TestMFAStatisticsDTO:
     """Test cases for MFAStatisticsDTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA statistics DTO."""
         dto = MFAStatisticsDTO(
@@ -1397,12 +1395,12 @@ class TestMFAStatisticsDTO:
         assert dto.mfa_adoption_rate == 65.0
         assert dto.method_usage == {"totp": 400, "sms": 200, "email": 50}
         assert dto.recent_authentications == 1200
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFAStatisticsDTO()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'total_users' in error_fields
@@ -1410,7 +1408,7 @@ class TestMFAStatisticsDTO:
         assert 'mfa_adoption_rate' in error_fields
         assert 'method_usage' in error_fields
         assert 'recent_authentications' in error_fields
-    
+
     def test_zero_values(self):
         """Test statistics with zero values."""
         dto = MFAStatisticsDTO(
@@ -1425,7 +1423,7 @@ class TestMFAStatisticsDTO:
         assert dto.mfa_adoption_rate == 0.0
         assert dto.method_usage == {}
         assert dto.recent_authentications == 0
-    
+
     def test_percentage_calculations(self):
         """Test percentage calculations."""
         dto = MFAStatisticsDTO(
@@ -1439,7 +1437,7 @@ class TestMFAStatisticsDTO:
         # Verify that the adoption rate makes sense
         calculated_rate = (dto.mfa_enabled_users / dto.total_users) * 100
         assert abs(calculated_rate - dto.mfa_adoption_rate) < 0.1
-    
+
     def test_method_usage_structure(self):
         """Test method usage dictionary structure."""
         method_usage = {
@@ -1449,7 +1447,7 @@ class TestMFAStatisticsDTO:
             "backup_codes": 25,
             "hardware_token": 5
         }
-        
+
         dto = MFAStatisticsDTO(
             total_users=1000,
             mfa_enabled_users=680,
@@ -1457,10 +1455,10 @@ class TestMFAStatisticsDTO:
             method_usage=method_usage,
             recent_authentications=1500
         )
-        
+
         assert dto.method_usage == method_usage
         assert sum(dto.method_usage.values()) == 680
-    
+
     def test_serialization(self):
         """Test DTO serialization."""
         dto = MFAStatisticsDTO(
@@ -1476,7 +1474,7 @@ class TestMFAStatisticsDTO:
         assert data["mfa_adoption_rate"] == 60.0
         assert data["method_usage"] == {"totp": 200, "sms": 100}
         assert data["recent_authentications"] == 800
-    
+
     def test_json_schema_example(self):
         """Test JSON schema example is valid."""
         example = MFAStatisticsDTO.model_config.get('json_schema_extra', {}).get('example', {})
@@ -1490,7 +1488,7 @@ class TestMFAStatisticsDTO:
 
 class TestMFAErrorResponse:
     """Test cases for MFAErrorResponse DTO."""
-    
+
     def test_valid_creation(self):
         """Test creating a valid MFA error response."""
         response = MFAErrorResponse(
@@ -1501,17 +1499,17 @@ class TestMFAErrorResponse:
         assert response.error == "invalid_totp_code"
         assert response.message == "The provided TOTP code is invalid or expired"
         assert response.details == {"attempts_remaining": 2}
-    
+
     def test_required_fields(self):
         """Test required fields validation."""
         with pytest.raises(ValidationError) as exc_info:
             MFAErrorResponse()
-        
+
         errors = exc_info.value.errors()
         error_fields = [error['loc'][0] for error in errors]
         assert 'error' in error_fields
         assert 'message' in error_fields
-    
+
     def test_optional_details(self):
         """Test optional details field."""
         response = MFAErrorResponse(
@@ -1521,7 +1519,7 @@ class TestMFAErrorResponse:
         assert response.error == "method_not_found"
         assert response.message == "The specified MFA method was not found"
         assert response.details is None
-    
+
     def test_different_error_types(self):
         """Test different error types."""
         error_types = [
@@ -1532,14 +1530,14 @@ class TestMFAErrorResponse:
             "rate_limit_exceeded",
             "backup_code_used"
         ]
-        
+
         for error_type in error_types:
             response = MFAErrorResponse(
                 error=error_type,
                 message=f"Error: {error_type}"
             )
             assert response.error == error_type
-    
+
     def test_complex_details(self):
         """Test complex details structure."""
         details = {
@@ -1548,7 +1546,7 @@ class TestMFAErrorResponse:
             "allowed_methods": ["totp", "sms"],
             "backup_codes_available": True
         }
-        
+
         response = MFAErrorResponse(
             error="authentication_failed",
             message="Authentication failed",
@@ -1557,7 +1555,7 @@ class TestMFAErrorResponse:
         assert response.details == details
         assert response.details["attempts_remaining"] == 1
         assert response.details["lockout_time"] == 300
-    
+
     def test_serialization(self):
         """Test response serialization."""
         response = MFAErrorResponse(
@@ -1569,7 +1567,7 @@ class TestMFAErrorResponse:
         assert data["error"] == "invalid_code"
         assert data["message"] == "Invalid verification code"
         assert data["details"] == {"code": "INVALID_CODE"}
-    
+
     def test_json_schema_example(self):
         """Test JSON schema example is valid."""
         example = MFAErrorResponse.model_config.get('json_schema_extra', {}).get('example', {})
@@ -1582,7 +1580,7 @@ class TestMFAErrorResponse:
 
 class TestMFAIntegrationScenarios:
     """Test cases for MFA integration scenarios."""
-    
+
     def test_totp_setup_workflow(self):
         """Test complete TOTP setup workflow."""
         # 1. Setup request
@@ -1590,7 +1588,7 @@ class TestMFAIntegrationScenarios:
             app_name="Test App",
             issuer="Test Security"
         )
-        
+
         # 2. Setup response
         setup_response = TOTPSetupResponse(
             secret="JBSWY3DPEHPK3PXP",
@@ -1598,45 +1596,45 @@ class TestMFAIntegrationScenarios:
             manual_entry_key="JBSWY3DPEHPK3PXP",
             backup_codes=["123456", "789012", "345678", "456789", "012345"]
         )
-        
+
         # 3. Verification request
         verification_request = TOTPVerificationRequest(totp_code="123456")
-        
+
         # 4. Enable MFA
         enable_request = MFAEnableRequest(
             method_type=MFAMethodType.TOTP,
             verification_code="123456",
             set_as_primary=True
         )
-        
+
         # Verify workflow
         assert setup_request.app_name == "Test App"
         assert setup_response.secret == "JBSWY3DPEHPK3PXP"
         assert verification_request.totp_code == "123456"
         assert enable_request.method_type == MFAMethodType.TOTP
         assert enable_request.set_as_primary is True
-    
+
     def test_sms_setup_workflow(self):
         """Test complete SMS setup workflow."""
         # 1. SMS setup request
         setup_request = SMSSetupRequest(phone_number="+1234567890")
-        
+
         # 2. SMS verification request
         verification_request = SMSVerificationRequest(sms_code="654321")
-        
+
         # 3. Enable MFA
         enable_request = MFAEnableRequest(
             method_type=MFAMethodType.SMS,
             verification_code="654321",
             set_as_primary=False
         )
-        
+
         # Verify workflow
         assert setup_request.phone_number == "+1234567890"
         assert verification_request.sms_code == "654321"
         assert enable_request.method_type == MFAMethodType.SMS
         assert enable_request.set_as_primary is False
-    
+
     def test_login_workflow(self):
         """Test complete MFA login workflow."""
         # 1. Login request
@@ -1645,7 +1643,7 @@ class TestMFAIntegrationScenarios:
             verification_code="123456",
             remember_device=True
         )
-        
+
         # 2. Successful login response
         login_response = MFALoginResponse(
             access_token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -1654,13 +1652,13 @@ class TestMFAIntegrationScenarios:
             expires_in=3600,
             device_remembered=True
         )
-        
+
         # Verify workflow
         assert login_request.method_type == MFAMethodType.TOTP
         assert login_request.remember_device is True
         assert login_response.token_type == "bearer"
         assert login_response.device_remembered is True
-    
+
     def test_backup_code_recovery_workflow(self):
         """Test backup code recovery workflow."""
         # 1. Recovery request
@@ -1668,7 +1666,7 @@ class TestMFAIntegrationScenarios:
             backup_code="123456",
             new_password="new_secure_password123"
         )
-        
+
         # 2. Recovery response
         recovery_response = MFARecoveryResponse(
             message="Account recovery successful",
@@ -1676,23 +1674,23 @@ class TestMFAIntegrationScenarios:
             refresh_token="refresh_token_123",
             remaining_codes=4
         )
-        
+
         # 3. New backup codes
         new_codes_response = BackupCodesResponse(
             backup_codes=["111111", "222222", "333333", "444444"],
             codes_remaining=4
         )
-        
+
         # Verify workflow
         assert recovery_request.backup_code == "123456"
         assert recovery_request.new_password == "new_secure_password123"
         assert recovery_response.remaining_codes == 4
         assert new_codes_response.codes_remaining == 4
-    
+
     def test_device_management_workflow(self):
         """Test device management workflow."""
         now = datetime.now()
-        
+
         # 1. Device registration (implicit during login)
         device = MFADeviceDTO(
             id="device_123",
@@ -1704,26 +1702,26 @@ class TestMFAIntegrationScenarios:
             last_used=now,
             is_active=True
         )
-        
+
         # 2. List trusted devices
         devices_response = TrustedDevicesResponse(
             devices=[device],
             total_devices=1
         )
-        
+
         # 3. Revoke device
         revoke_request = RevokeTrustedDeviceRequest(device_id="device_123")
-        
+
         # Verify workflow
         assert device.device_name == "iPhone 12"
         assert device.is_active is True
         assert devices_response.total_devices == 1
         assert revoke_request.device_id == "device_123"
-    
+
     def test_mfa_status_workflow(self):
         """Test MFA status and management workflow."""
         now = datetime.now()
-        
+
         # 1. Create MFA methods
         totp_method = MFAMethodDTO(
             id="totp_123",
@@ -1733,7 +1731,7 @@ class TestMFAIntegrationScenarios:
             created_at=now,
             is_primary=True
         )
-        
+
         sms_method = MFAMethodDTO(
             id="sms_123",
             method_type=MFAMethodType.SMS,
@@ -1742,7 +1740,7 @@ class TestMFAIntegrationScenarios:
             created_at=now,
             phone_number="+1234567890"
         )
-        
+
         # 2. MFA status response
         status_response = MFAStatusResponse(
             mfa_enabled=True,
@@ -1751,19 +1749,19 @@ class TestMFAIntegrationScenarios:
             primary_method=totp_method,
             backup_codes_available=True
         )
-        
+
         # 3. Disable MFA method
         disable_request = MFADisableRequest(
             method_id="sms_123",
             verification_code="123456"
         )
-        
+
         # Verify workflow
         assert status_response.mfa_enabled is True
         assert len(status_response.active_methods) == 2
         assert status_response.primary_method.id == "totp_123"
         assert disable_request.method_id == "sms_123"
-    
+
     def test_admin_settings_workflow(self):
         """Test admin settings and statistics workflow."""
         # 1. MFA settings
@@ -1774,7 +1772,7 @@ class TestMFAIntegrationScenarios:
             remember_device_duration=7200,
             max_trusted_devices=3
         )
-        
+
         # 2. MFA statistics
         statistics = MFAStatisticsDTO(
             total_users=1000,
@@ -1787,14 +1785,14 @@ class TestMFAIntegrationScenarios:
             },
             recent_authentications=2000
         )
-        
+
         # Verify workflow
         assert settings.enforce_mfa is True
         assert len(settings.allowed_methods) == 3
         assert settings.max_trusted_devices == 3
         assert statistics.mfa_adoption_rate == 75.0
         assert sum(statistics.method_usage.values()) == 750
-    
+
     def test_error_handling_workflow(self):
         """Test error handling workflow."""
         # 1. Invalid TOTP code error
@@ -1803,20 +1801,20 @@ class TestMFAIntegrationScenarios:
             message="The provided TOTP code is invalid or expired",
             details={"attempts_remaining": 2}
         )
-        
+
         # 2. Rate limit error
         rate_limit_error = MFAErrorResponse(
             error="rate_limit_exceeded",
             message="Too many failed attempts. Please try again later.",
             details={"lockout_time": 300}
         )
-        
+
         # 3. Method not found error
         method_error = MFAErrorResponse(
             error="method_not_found",
             message="The specified MFA method was not found"
         )
-        
+
         # Verify workflow
         assert totp_error.error == "invalid_totp_code"
         assert totp_error.details["attempts_remaining"] == 2
