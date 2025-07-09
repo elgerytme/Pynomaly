@@ -138,6 +138,7 @@ class Settings(BaseSettings):
     database_pool_recycle: int = 3600
     database_echo: bool = False
     database_echo_pool: bool = False
+    enable_wal: bool = True  # Write-Ahead Logging for SQLite
 
     # Repository selection
     use_database_repositories: bool = (
