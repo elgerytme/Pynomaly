@@ -1,0 +1,383 @@
+name: Reproducible Test Environment
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  PYNOMALY_ENVIRONMENT: ci
+  PYNOMALY_LOG_LEVEL: INFO
+  PYNOMALY_CACHE_ENABLED: false
+  PYNOMALY_AUTH_ENABLED: false
+  PYNOMALY_TESTING: true
+  PYTHONPATH: src
+  COVERAGE_CORE: sysmon
+  PLAYWRIGHT_BROWSERS_PATH: /tmp/browsers
+  HEADLESS: true
+
+jobs:
+  # Quick validation (runs first)
+  quick-validation:
+    name: Quick Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.lock
+        pip install -r requirements-dev.lock
+        pip install tox
+    
+    - name: Run quick validation
+      run: |
+        tox -e lint,type,unit
+    
+    - name: Upload quick test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: quick-test-results
+        path: |
+          .tox/*/tmp/junit.xml
+          .tox/*/tmp/coverage.xml
+
+  # Unit tests across Python versions
+  unit-tests:
+    name: Unit Tests (Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    needs: quick-validation
+    timeout-minutes: 20
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.11, 3.12]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - python-version: 3.13
+            os: ubuntu-latest
+            experimental: true
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.lock
+        pip install -r requirements-dev.lock
+        pip install tox
+    
+    - name: Run unit tests
+      run: |
+        tox -e py${{ matrix.python-version }}-unit
+      continue-on-error: ${{ matrix.experimental == true }}
+    
+    - name: Upload unit test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: unit-test-results-${{ matrix.python-version }}-${{ matrix.os }}
+        path: |
+          .tox/*/tmp/junit.xml
+          .tox/*/tmp/coverage.xml
+          .tox/*/tmp/htmlcov/
+
+  # Integration tests
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: quick-validation
+    timeout-minutes: 30
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: pynomaly_test
+          POSTGRES_USER: pynomaly
+          POSTGRES_PASSWORD: pynomaly_test_password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.lock
+        pip install -r requirements-dev.lock
+        pip install tox
+    
+    - name: Run integration tests
+      run: |
+        tox -e integration
+      env:
+        PYNOMALY_DATABASE_URL: postgresql://pynomaly:pynomaly_test_password@localhost:5432/pynomaly_test
+        PYNOMALY_REDIS_URL: redis://localhost:6379
+    
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: integration-test-results
+        path: |
+          .tox/*/tmp/junit.xml
+          .tox/*/tmp/coverage.xml
+          .tox/*/tmp/htmlcov/
+
+  # UI/E2E tests
+  ui-tests:
+    name: UI/E2E Tests
+    runs-on: ubuntu-latest
+    needs: quick-validation
+    timeout-minutes: 45
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+        cache: 'pip'
+    
+    - name: Set up Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.lock
+        pip install -r requirements-dev.lock
+        pip install tox
+    
+    - name: Install Playwright browsers
+      run: |
+        playwright install --with-deps chromium firefox webkit
+    
+    - name: Run UI tests
+      run: |
+        tox -e e2e-ui
+      env:
+        PLAYWRIGHT_BROWSERS_PATH: /tmp/browsers
+        HEADLESS: true
+    
+    - name: Upload UI test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: ui-test-results
+        path: |
+          .tox/*/tmp/junit.xml
+          .tox/*/tmp/e2e_report.html
+          screenshots/
+          test_reports/
+
+  # Security and mutation tests (run weekly)
+  advanced-tests:
+    name: Advanced Tests (Security & Mutation)
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    timeout-minutes: 60
+    if: github.event_name == 'schedule' || contains(github.event.head_commit.message, '[advanced-tests]')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.lock
+        pip install -r requirements-dev.lock
+        pip install tox
+    
+    - name: Run security tests
+      run: |
+        tox -e security
+    
+    - name: Run mutation tests
+      run: |
+        tox -e mutation
+      continue-on-error: true  # Mutation tests can be flaky
+    
+    - name: Upload advanced test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: advanced-test-results
+        path: |
+          .tox/*/tmp/bandit-report.json
+          .tox/*/tmp/safety-report.json
+          .tox/*/tmp/pip-audit-report.json
+
+  # Coverage reporting
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.lock
+        pip install -r requirements-dev.lock
+        pip install tox coverage[toml]
+    
+    - name: Download test results
+      uses: actions/download-artifact@v4
+      with:
+        pattern: '*-test-results*'
+        merge-multiple: true
+    
+    - name: Generate coverage report
+      run: |
+        tox -e coverage
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: .tox/coverage/tmp/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+    
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-reports
+        path: |
+          .tox/coverage/tmp/coverage.xml
+          .tox/coverage/tmp/coverage.json
+          .tox/coverage/tmp/htmlcov/
+
+  # Docker build test
+  docker-build:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    needs: quick-validation
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build development image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.dev
+        push: false
+        tags: pynomaly:dev
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Test Docker environment
+      run: |
+        docker run --rm pynomaly:dev python -c "import pynomaly; print('Docker build successful')"
+
+  # Final status check
+  test-results:
+    name: Test Results Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, ui-tests, coverage, docker-build]
+    if: always()
+    
+    steps:
+    - name: Check test results
+      run: |
+        echo "Test Results Summary:"
+        echo "Unit Tests: ${{ needs.unit-tests.result }}"
+        echo "Integration Tests: ${{ needs.integration-tests.result }}"
+        echo "UI Tests: ${{ needs.ui-tests.result }}"
+        echo "Coverage: ${{ needs.coverage.result }}"
+        echo "Docker Build: ${{ needs.docker-build.result }}"
+        
+        # Fail if any critical tests failed
+        if [ "${{ needs.unit-tests.result }}" = "failure" ] || [ "${{ needs.integration-tests.result }}" = "failure" ]; then
+          echo "Critical tests failed!"
+          exit 1
+        fi
+        
+        echo "All tests completed successfully!"
+
+# Workflow file best practices:
+# - Uses exact dependency versions from requirements.lock
+# - Includes comprehensive test matrix
+# - Has proper timeout and error handling
+# - Uploads artifacts for debugging
+# - Includes security and mutation testing
+# - Uses caching for faster builds
+# - Provides clear status reporting

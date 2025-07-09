@@ -24,7 +24,7 @@ from pynomaly.infrastructure.config import Container
 # from pynomaly.infrastructure.monitoring import init_telemetry
 from pynomaly.presentation.api.docs import api_docs, configure_openapi_docs
 from pynomaly.presentation.api.endpoints import (
-    admin,
+    # admin,  # Temporarily disabled due to UserModel import issue
     auth,
     automl,
     autonomous,

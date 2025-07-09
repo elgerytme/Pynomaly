@@ -17,11 +17,11 @@ def check_critical_links():
 
     # Critical files mentioned in README.md
     critical_files = [
-        "docs/WEB_API_SETUP_GUIDE.md",
-        "docs/API_QUICK_REFERENCE.md",
+        "docs/developer-guides/api-integration/WEB_API_SETUP_GUIDE.md",
+        "docs/developer-guides/api-integration/API_QUICK_REFERENCE.md",
         "docs/developer-guides/contributing/CONTRIBUTING.md",
         "CHANGELOG.md",
-        "TODO.md",
+        "docs/project/TODO.md",
     ]
 
     print("🔍 Checking critical files referenced in README.md...")

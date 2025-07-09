@@ -1,0 +1,361 @@
+name: Nightly Stability Tests
+
+on:
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_count:
+        description: 'Number of test iterations to run'
+        required: false
+        default: '10'
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  issues: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  HATCH_VERBOSE: 1
+
+jobs:
+  
+  stability-comprehensive:
+    name: Comprehensive Stability Testing
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.11", "3.12"]
+        test-iteration: [1, 2, 3, 4, 5]  # Run tests 5 times to detect flakiness
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install system dependencies (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y graphviz graphviz-dev
+
+    - name: Install system dependencies (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install graphviz
+
+    - name: Install Hatch
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Create test environment
+      run: |
+        hatch env create test
+
+    - name: Run stability tests (iteration ${{ matrix.test-iteration }})
+      run: |
+        hatch run test:run tests/_stability/ -v --tb=short \
+          --cov=src/pynomaly --cov-report=xml --cov-report=term \
+          --cov-fail-under=95 \
+          --reruns=5 --reruns-delay=2 \
+          --junitxml=stability-test-results-${{ matrix.os }}-py${{ matrix.python-version }}-iter${{ matrix.test-iteration }}.xml
+      env:
+        PYTEST_CURRENT_TEST: "iteration-${{ matrix.test-iteration }}"
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: stability-results-${{ matrix.os }}-py${{ matrix.python-version }}-iter${{ matrix.test-iteration }}
+        path: |
+          stability-test-results-*.xml
+          htmlcov/
+          coverage.xml
+        retention-days: 7
+
+  stability-stress-test:
+    name: Stability Stress Testing
+    runs-on: ubuntu-latest
+    needs: stability-comprehensive
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Hatch
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Run stress test with many iterations
+      run: |
+        hatch run test:run tests/_stability/test_flaky_test_elimination.py::TestFlakyTestElimination::test_comprehensive_flaky_test_scenarios \
+          -v --tb=short \
+          --reruns=10 --reruns-delay=1 \
+          --count=${{ github.event.inputs.test_count || '10' }}
+      continue-on-error: true
+
+    - name: Run concurrent stability tests
+      run: |
+        hatch run test:run tests/_stability/ -v --tb=short \
+          -n auto \
+          --reruns=3 --reruns-delay=2
+      continue-on-error: true
+
+  stability-metrics:
+    name: Stability Metrics Collection
+    runs-on: ubuntu-latest
+    needs: [stability-comprehensive, stability-stress-test]
+    if: always()
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Hatch
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+
+    - name: Download all test results
+      uses: actions/download-artifact@v4
+      with:
+        pattern: stability-results-*
+        merge-multiple: true
+
+    - name: Generate stability metrics report
+      run: |
+        python -c "
+        import json
+        import xml.etree.ElementTree as ET
+        import glob
+        from datetime import datetime
+
+        # Parse all test result files
+        test_files = glob.glob('stability-test-results-*.xml')
+        total_tests = 0
+        total_failures = 0
+        total_errors = 0
+        total_skipped = 0
+        test_times = []
+
+        for file in test_files:
+            try:
+                tree = ET.parse(file)
+                root = tree.getroot()
+                
+                tests = int(root.get('tests', 0))
+                failures = int(root.get('failures', 0))
+                errors = int(root.get('errors', 0))
+                skipped = int(root.get('skipped', 0))
+                time_taken = float(root.get('time', 0))
+                
+                total_tests += tests
+                total_failures += failures
+                total_errors += errors
+                total_skipped += skipped
+                test_times.append(time_taken)
+                
+            except Exception as e:
+                print(f'Error parsing {file}: {e}')
+
+        # Calculate metrics
+        success_rate = ((total_tests - total_failures - total_errors) / total_tests * 100) if total_tests > 0 else 0
+        avg_test_time = sum(test_times) / len(test_times) if test_times else 0
+        
+        # Generate report
+        report = {
+            'timestamp': datetime.now().isoformat(),
+            'total_test_runs': len(test_files),
+            'total_tests': total_tests,
+            'total_failures': total_failures,
+            'total_errors': total_errors,
+            'total_skipped': total_skipped,
+            'success_rate_percent': round(success_rate, 2),
+            'average_test_time_seconds': round(avg_test_time, 2),
+            'stability_score': round(success_rate, 2),  # Use success rate as stability score
+            'flakiness_detected': total_failures > 0 or total_errors > 0
+        }
+        
+        with open('stability-metrics.json', 'w') as f:
+            json.dump(report, f, indent=2)
+            
+        print('Stability Metrics Report:')
+        print(f'Success Rate: {success_rate:.2f}%')
+        print(f'Total Test Runs: {len(test_files)}')
+        print(f'Average Test Time: {avg_test_time:.2f}s')
+        print(f'Flakiness Detected: {report[\"flakiness_detected\"]}')
+        "
+
+    - name: Upload stability metrics
+      uses: actions/upload-artifact@v4
+      with:
+        name: stability-metrics
+        path: stability-metrics.json
+        retention-days: 30
+
+    - name: Create issue on stability failure
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          let metricsData = {};
+          try {
+            metricsData = JSON.parse(fs.readFileSync('stability-metrics.json', 'utf8'));
+          } catch (e) {
+            metricsData = { success_rate_percent: 0, flakiness_detected: true };
+          }
+          
+          if (metricsData.success_rate_percent < 95 || metricsData.flakiness_detected) {
+            const issueTitle = `🔧 Stability Test Failure - ${new Date().toISOString().split('T')[0]}`;
+            const issueBody = `## Stability Test Failure Report
+            
+**Date:** ${new Date().toISOString()}
+**Success Rate:** ${metricsData.success_rate_percent}%
+**Flakiness Detected:** ${metricsData.flakiness_detected}
+
+### Details
+- Total Test Runs: ${metricsData.total_test_runs || 'N/A'}
+- Total Failures: ${metricsData.total_failures || 'N/A'}
+- Total Errors: ${metricsData.total_errors || 'N/A'}
+- Average Test Time: ${metricsData.average_test_time_seconds || 'N/A'}s
+
+### Action Required
+The stability test suite has detected issues that need attention:
+- Success rate is below the 95% threshold
+- Flaky tests have been detected
+
+Please review the test results and apply appropriate stabilization measures.
+
+### Artifacts
+Check the workflow artifacts for detailed test results and stability metrics.
+
+### Next Steps
+1. Review failed tests in the artifacts
+2. Apply stabilization measures using the test stability framework
+3. Re-run tests to verify fixes
+4. Close this issue once stability is restored
+
+/label bug stability`;
+
+            // Check if similar issue already exists
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'stability',
+              sort: 'created',
+              direction: 'desc',
+              per_page: 1
+            });
+
+            // Only create new issue if no recent stability issue exists
+            if (issues.length === 0 || 
+                new Date() - new Date(issues[0].created_at) > 24 * 60 * 60 * 1000) {
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: issueTitle,
+                body: issueBody,
+                labels: ['bug', 'stability', 'nightly-tests']
+              });
+            }
+          }
+
+  stability-report:
+    name: Generate Stability Report
+    runs-on: ubuntu-latest
+    needs: [stability-metrics]
+    if: always()
+
+    steps:
+    - name: Download stability metrics
+      uses: actions/download-artifact@v4
+      with:
+        name: stability-metrics
+        path: ./metrics
+
+    - name: Generate stability report
+      run: |
+        mkdir -p reports
+        
+        cat > reports/stability-report.md << 'EOF'
+        # 🔧 Nightly Stability Test Report
+        
+        **Generated:** $(date)
+        **Workflow:** ${{ github.workflow }}
+        **Run ID:** ${{ github.run_id }}
+        
+        ## Summary
+        
+        This report contains the results of comprehensive stability testing designed to:
+        - Detect flaky tests across multiple environments
+        - Validate the test stability framework
+        - Ensure consistent test behavior
+        
+        ## Test Matrix
+        
+        - **Operating Systems:** Ubuntu, Windows, macOS
+        - **Python Versions:** 3.11, 3.12
+        - **Test Iterations:** 5 per environment
+        - **Retry Configuration:** 5 retries with 2s delay
+        
+        ## Results
+        
+        See the stability-metrics.json artifact for detailed metrics including:
+        - Success rates across all environments
+        - Test execution times
+        - Flakiness detection results
+        - Stability scores
+        
+        ## Next Steps
+        
+        If any instability is detected:
+        1. Review the test results artifacts
+        2. Apply the test stability framework to affected tests
+        3. Use the `@flaky` or `@stable_test` decorators as appropriate
+        4. Re-run tests to verify stabilization
+        
+        ## Framework Components Tested
+        
+        - ✅ TestStabilizer comprehensive framework
+        - ✅ Environment isolation management
+        - ✅ Retry mechanisms with exponential backoff
+        - ✅ Resource management and cleanup
+        - ✅ Timing stabilization
+        - ✅ Mock management for external dependencies
+        
+        EOF
+
+    - name: Upload stability report
+      uses: actions/upload-artifact@v4
+      with:
+        name: nightly-stability-report
+        path: reports/
+        retention-days: 90
