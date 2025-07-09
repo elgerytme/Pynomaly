@@ -82,31 +82,63 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Getting Started:
+    - Overview: getting-started/README.md
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quickstart.md
-    - Architecture: getting-started/architecture.md
-  - User Guide:
-    - CLI Usage: guide/cli.md
-    - API Usage: guide/api.md
-    - Web Interface: guide/web.md
-    - Algorithms: guide/algorithms.md
-    - Datasets: guide/datasets.md
-    - Experiments: guide/experiments.md
-  - API Reference:
-    - Domain: api/domain.md
-    - Application: api/application.md
-    - Infrastructure: api/infrastructure.md
-    - REST API: api/rest.md
-  - Advanced:
-    - Custom Algorithms: advanced/custom-algorithms.md
-    - Performance Tuning: advanced/performance.md
-    - Deployment: advanced/deployment.md
-    - Monitoring: advanced/monitoring.md
-  - Contributing:
-    - Development Setup: contributing/setup.md
-    - Code Style: contributing/style.md
-    - Testing: contributing/testing.md
-    - Documentation: contributing/docs.md
+    - Web Interface: getting-started/web-interface-quickstart.md
+    - Platform Specific:
+      - Windows Setup: getting-started/platform-specific/WINDOWS_SETUP_GUIDE.md
+      - Multi-Python: getting-started/platform-specific/MULTI_PYTHON_VERSIONS.md
+  - User Guides:
+    - Overview: user-guides/README.md
+    - Basic Usage:
+      - Datasets: user-guides/basic-usage/datasets.md
+      - Autonomous Mode: user-guides/basic-usage/autonomous-mode.md
+      - Monitoring: user-guides/basic-usage/monitoring.md
+    - Advanced Features:
+      - AutoML: user-guides/advanced-features/automl-and-intelligence.md
+      - Explainability: user-guides/advanced-features/explainability.md
+      - Performance: user-guides/advanced-features/performance.md
+    - Progressive Web App: user-guides/progressive-web-app.md
+    - Troubleshooting: user-guides/troubleshooting/troubleshooting.md
+  - Developer Guides:
+    - Overview: developer-guides/README.md
+    - API Integration:
+      - Setup Guide: developer-guides/api-integration/WEB_API_SETUP_GUIDE.md
+      - Quick Reference: developer-guides/api-integration/API_QUICK_REFERENCE.md
+      - REST API: developer-guides/api-integration/rest-api.md
+      - Authentication: developer-guides/api-integration/authentication.md
+      - Python SDK: developer-guides/api-integration/python-sdk.md
+    - Architecture:
+      - Overview: developer-guides/architecture/overview.md
+      - ERD: developer-guides/architecture/erd.md
+      - ADRs: developer-guides/architecture/adr/README.md
+    - Contributing:
+      - Guidelines: developer-guides/contributing/CONTRIBUTING.md
+      - Development Setup: developer-guides/contributing/README.md
+      - Hatch Guide: developer-guides/contributing/HATCH_GUIDE.md
+      - File Organization: developer-guides/contributing/FILE_ORGANIZATION_STANDARDS.md
+  - Reference:
+    - Algorithms:
+      - Overview: reference/algorithms/README.md
+      - Core Algorithms: reference/algorithms/core-algorithms.md
+      - Algorithm Comparison: reference/algorithms/algorithm-comparison.md
+    - API Reference: reference/api/pwa-api-reference.md
+    - Classifier Selection: reference/CLASSIFIER_SELECTION_GUIDE.md
+  - Examples:
+    - Overview: examples/README.md
+    - Banking: examples/banking/Banking_Anomaly_Detection_Guide.md
+    - Tutorials: examples/tutorials/README.md
+  - Deployment:
+    - Overview: deployment/README.md
+    - Docker: deployment/DOCKER_DEPLOYMENT_GUIDE.md
+    - Kubernetes: deployment/kubernetes.md
+    - Production: deployment/PRODUCTION_DEPLOYMENT_GUIDE.md
+    - Security: deployment/SECURITY.md
+  - Testing:
+    - Overview: testing/README.md
+    - Test Strategy: testing/TESTING_STRATEGY.md
+    - Integration Testing: testing/README_INTEGRATION_TESTING.md
 
 extra:
   social:

@@ -6,6 +6,15 @@ from pynomaly.domain.value_objects import (
     ConfidenceInterval,
     ContaminationRate,
 )
+from pynomaly.domain.abstractions import (
+    BaseEntity,
+    BaseRepository,
+    BaseService,
+    BaseValueObject,
+    DomainEvent,
+    DomainEventHandler,
+    Specification,
+)
 
 __all__ = [
     "Anomaly",
@@ -15,4 +24,12 @@ __all__ = [
     "AnomalyScore",
     "ConfidenceInterval",
     "ContaminationRate",
+    # Abstractions
+    "BaseEntity",
+    "BaseRepository",
+    "BaseService",
+    "BaseValueObject",
+    "DomainEvent",
+    "DomainEventHandler",
+    "Specification",
 ]

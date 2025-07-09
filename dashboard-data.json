@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-07-08T20:06:01.685843",
+  "project": "pynomaly",
+  "test_summary": {
+    "total_files": 424,
+    "pass_rate": 0,
+    "total_tests": 0,
+    "failed_tests": 0,
+    "execution_time": 0.0
+  },
+  "coverage_summary": {
+    "line_coverage": 6.719,
+    "branch_coverage": 0.2826,
+    "lines_covered": 6496,
+    "lines_valid": 96688
+  },
+  "quality_metrics": {
+    "overall_score": 4.0314,
+    "quality_level": "needs_improvement",
+    "test_trend": "stable",
+    "coverage_trend": "stable"
+  },
+  "recommendations": [
+    "Overall quality score is below 90%. Focus on improving both test coverage and pass rates."
+  ],
+  "artifacts": {
+    "test_report_url": "https://github.com/pynomaly/pynomaly/actions/runs/unknown",
+    "coverage_report_url": "https://github.com/pynomaly/pynomaly/actions/runs/unknown",
+    "trend_analysis_url": "https://github.com/pynomaly/pynomaly/actions/runs/unknown"
+  }
+}

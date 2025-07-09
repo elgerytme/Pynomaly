@@ -1,0 +1,30 @@
+[
+  {
+    "timestamp": "2025-07-08T20:05:55.393504",
+    "test_data": {
+      "total_tests": 0,
+      "passed": 0,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "pass_rate": 0,
+      "execution_time": 0.0,
+      "timestamp": "2025-07-08T20:05:55.261720"
+    },
+    "coverage_data": {
+      "line_coverage": 6.719,
+      "branch_coverage": 0.2826,
+      "lines_covered": 6496,
+      "lines_valid": 96688,
+      "branches_covered": 74,
+      "branches_valid": 26184,
+      "timestamp": "2025-07-08T20:05:55.385501"
+    },
+    "quality_score": {
+      "overall_score": 4.0314,
+      "quality_level": "needs_improvement",
+      "test_contribution": 0.0,
+      "coverage_contribution": 4.0314
+    }
+  }
+]

@@ -214,11 +214,12 @@ class Settings(BaseSettings):
 
     def get_database_config(self) -> dict[str, Any]:
         """Get database configuration."""
-        if not self.database_url:
+        database_url = self.get_database_url()
+        if not database_url:
             return {}
 
         config = {
-            "url": self.database_url,
+            "url": database_url,
             "pool_size": self.database_pool_size,
             "max_overflow": self.database_max_overflow,
             "pool_timeout": self.database_pool_timeout,
@@ -229,14 +230,14 @@ class Settings(BaseSettings):
         }
 
         # Add database-specific configurations
-        if self.database_url.startswith("sqlite:"):
+        if database_url.startswith("sqlite:"):
             config.update(
                 {
                     "connect_args": {"check_same_thread": False},
                     "poolclass": "StaticPool",
                 }
             )
-        elif self.database_url.startswith("postgresql:"):
+        elif database_url.startswith("postgresql:"):
             config.update(
                 {
                     "pool_size": max(self.database_pool_size, 5),
