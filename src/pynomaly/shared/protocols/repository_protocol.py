@@ -296,7 +296,9 @@ class ModelVersionRepositoryProtocol(RepositoryProtocol[ModelVersion], Protocol)
         """
         ...
 
-    async def find_by_model_and_version(self, model_id: UUID, version) -> ModelVersion | None:
+    async def find_by_model_and_version(
+        self, model_id: UUID, version
+    ) -> ModelVersion | None:
         """Find a specific version of a model.
 
         Args:
@@ -378,7 +380,7 @@ class ExperimentRunRepositoryProtocol(RepositoryProtocol[ExperimentRun], Protoco
 class PipelineRepositoryProtocol(RepositoryProtocol[Pipeline], Protocol):
     """Protocol for pipeline repository implementations."""
 
-    def find_by_name(self, name: str) -> list[Pipeline]:
+    async def find_by_name(self, name: str) -> list[Pipeline]:
         """Find pipelines by name.
 
         Args:
@@ -389,7 +391,7 @@ class PipelineRepositoryProtocol(RepositoryProtocol[Pipeline], Protocol):
         """
         ...
 
-    def find_by_name_and_environment(
+    async def find_by_name_and_environment(
         self, name: str, environment: str
     ) -> list[Pipeline]:
         """Find pipelines by name and environment.
@@ -403,7 +405,7 @@ class PipelineRepositoryProtocol(RepositoryProtocol[Pipeline], Protocol):
         """
         ...
 
-    def find_by_status(self, status) -> list[Pipeline]:
+    async def find_by_status(self, status) -> list[Pipeline]:
         """Find pipelines by status.
 
         Args:
@@ -414,7 +416,7 @@ class PipelineRepositoryProtocol(RepositoryProtocol[Pipeline], Protocol):
         """
         ...
 
-    def find_by_type(self, pipeline_type) -> list[Pipeline]:
+    async def find_by_type(self, pipeline_type) -> list[Pipeline]:
         """Find pipelines by type.
 
         Args:
@@ -430,7 +432,7 @@ class PipelineRepositoryProtocol(RepositoryProtocol[Pipeline], Protocol):
 class PipelineRunRepositoryProtocol(RepositoryProtocol[PipelineRun], Protocol):
     """Protocol for pipeline run repository implementations."""
 
-    def find_by_pipeline_id(self, pipeline_id: UUID) -> list[PipelineRun]:
+    async def find_by_pipeline_id(self, pipeline_id: UUID) -> list[PipelineRun]:
         """Find all runs for a pipeline.
 
         Args:
@@ -441,7 +443,7 @@ class PipelineRunRepositoryProtocol(RepositoryProtocol[PipelineRun], Protocol):
         """
         ...
 
-    def find_by_status(self, status: str) -> list[PipelineRun]:
+    async def find_by_status(self, status: str) -> list[PipelineRun]:
         """Find runs by status.
 
         Args:
@@ -457,7 +459,7 @@ class PipelineRunRepositoryProtocol(RepositoryProtocol[PipelineRun], Protocol):
 class AlertRepositoryProtocol(RepositoryProtocol[Alert], Protocol):
     """Protocol for alert repository implementations."""
 
-    def find_by_name(self, name: str) -> list[Alert]:
+    async def find_by_name(self, name: str) -> list[Alert]:
         """Find alerts by name.
 
         Args:
@@ -468,7 +470,7 @@ class AlertRepositoryProtocol(RepositoryProtocol[Alert], Protocol):
         """
         ...
 
-    def find_by_status(self, status) -> list[Alert]:
+    async def find_by_status(self, status) -> list[Alert]:
         """Find alerts by status.
 
         Args:
@@ -479,7 +481,7 @@ class AlertRepositoryProtocol(RepositoryProtocol[Alert], Protocol):
         """
         ...
 
-    def find_by_type(self, alert_type) -> list[Alert]:
+    async def find_by_type(self, alert_type) -> list[Alert]:
         """Find alerts by type.
 
         Args:
@@ -490,7 +492,7 @@ class AlertRepositoryProtocol(RepositoryProtocol[Alert], Protocol):
         """
         ...
 
-    def find_by_severity(self, severity) -> list[Alert]:
+    async def find_by_severity(self, severity) -> list[Alert]:
         """Find alerts by severity.
 
         Args:
@@ -508,7 +510,7 @@ class AlertNotificationRepositoryProtocol(
 ):
     """Protocol for alert notification repository implementations."""
 
-    def find_by_alert_id(self, alert_id: UUID) -> list[AlertNotification]:
+    async def find_by_alert_id(self, alert_id: UUID) -> list[AlertNotification]:
         """Find all notifications for an alert.
 
         Args:
@@ -519,7 +521,7 @@ class AlertNotificationRepositoryProtocol(
         """
         ...
 
-    def find_by_status(self, status: str) -> list[AlertNotification]:
+    async def find_by_status(self, status: str) -> list[AlertNotification]:
         """Find notifications by status.
 
         Args:

@@ -42,7 +42,7 @@ class ConfigurationTemplateService:
         configuration_service: ConfigurationCaptureService,
         repository: ConfigurationRepository,
         template_storage_path: Path | None = None,
-    ):
+    ) -> None:
         """Initialize configuration template service.
 
         Args:

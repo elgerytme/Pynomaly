@@ -1,80 +1,124 @@
-version: '3.8'
-
 services:
   # Main Pynomaly Application
   pynomaly-api:
     build:
       context: .
-      dockerfile: Dockerfile.production
-      target: production
-    image: pynomaly:production
+      dockerfile: deploy/docker/Dockerfile.production
+      target: runtime
+      args:
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
+        VERSION: ${VERSION:-latest}
+        VCS_REF: ${VCS_REF:-$(git rev-parse HEAD)}
+    image: pynomaly:production-${VERSION:-latest}
     container_name: pynomaly-api
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "${API_PORT:-8000}:8000"
     environment:
-      - ENVIRONMENT=production
+      - PYNOMALY_ENVIRONMENT=production
       - DATABASE_URL=postgresql://pynomaly:${POSTGRES_PASSWORD}@postgres:5432/pynomaly_prod
       - REDIS_URL=redis://redis-cluster:6379
-      - LOG_LEVEL=INFO
-      - WORKERS=4
-      - MAX_CONNECTIONS=100
-      - RATE_LIMIT_GLOBAL=10000
-      - RATE_LIMIT_PER_USER=1000
-      - STREAMING_BUFFER_SIZE=10000
-      - STREAMING_BATCH_SIZE=100
-      - MODEL_REGISTRY_PATH=/app/models
-      - FEATURE_STORE_PATH=/app/features
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - WORKERS=${API_WORKERS:-4}
+      - MAX_CONNECTIONS=${MAX_CONNECTIONS:-100}
+      - RATE_LIMIT_GLOBAL=${RATE_LIMIT_GLOBAL:-10000}
+      - RATE_LIMIT_PER_USER=${RATE_LIMIT_PER_USER:-1000}
+      - STREAMING_BUFFER_SIZE=${STREAMING_BUFFER_SIZE:-10000}
+      - STREAMING_BATCH_SIZE=${STREAMING_BATCH_SIZE:-100}
+      - PYNOMALY_STORAGE_PATH=/app/storage
+      - PYNOMALY_LOG_PATH=/app/logs
+      - PYNOMALY_TEMP_PATH=/app/temp
+      - PYNOMALY_CONFIG_PATH=/app/config
+      - PYNOMALY_AUTO_MIGRATE=${AUTO_MIGRATE:-true}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - JWT_REFRESH_TOKEN_EXPIRE_DAYS=${JWT_REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      - OPENTELEMETRY_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true
     volumes:
-      - pynomaly-models:/app/models
-      - pynomaly-features:/app/features
+      - pynomaly-storage:/app/storage
       - pynomaly-logs:/app/logs
+      - pynomaly-temp:/app/temp
+      - pynomaly-config:/app/config
     depends_on:
-      - postgres
-      - redis-cluster
-      - prometheus
+      postgres:
+        condition: service_healthy
+      redis-cluster:
+        condition: service_healthy
+      prometheus:
+        condition: service_started
     networks:
       - pynomaly-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/ready"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - SETGID
+      - SETUID
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M,noexec,nosuid,nodev
+      - /var/tmp:size=100M,noexec,nosuid,nodev
 
   # Real-time Streaming Service
   pynomaly-streaming:
     build:
       context: .
-      dockerfile: Dockerfile.production
-      target: streaming
-    image: pynomaly:streaming
+      dockerfile: deploy/docker/Dockerfile.production
+      target: runtime
+      args:
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
+        VERSION: ${VERSION:-latest}
+        VCS_REF: ${VCS_REF:-$(git rev-parse HEAD)}
+    image: pynomaly:streaming-${VERSION:-latest}
     container_name: pynomaly-streaming
     restart: unless-stopped
     environment:
-      - ENVIRONMENT=production
+      - PYNOMALY_ENVIRONMENT=production
       - REDIS_URL=redis://redis-cluster:6379
       - KAFKA_BROKERS=kafka:9092
-      - STREAMING_WORKERS=8
-      - BUFFER_SIZE=50000
-      - BATCH_SIZE=500
+      - STREAMING_WORKERS=${STREAMING_WORKERS:-8}
+      - BUFFER_SIZE=${STREAMING_BUFFER_SIZE:-50000}
+      - BATCH_SIZE=${STREAMING_BATCH_SIZE:-500}
+      - PYNOMALY_LOG_PATH=/app/logs
+      - PYNOMALY_TEMP_PATH=/app/temp
+      - PYNOMALY_CONFIG_PATH=/app/config
     volumes:
-      - pynomaly-models:/app/models
+      - pynomaly-storage:/app/storage
       - pynomaly-logs:/app/logs
+      - pynomaly-temp:/app/temp
+      - pynomaly-config:/app/config
     depends_on:
-      - redis-cluster
-      - kafka
+      redis-cluster:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - pynomaly-network
-    deploy:
-      replicas: 3
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2G
-        reservations:
-          cpus: '1.0'
-          memory: 1G
+    healthcheck:
+      test: ["CMD", "python", "-c", "import redis; redis.Redis(host='redis-cluster').ping()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M,noexec,nosuid,nodev
+      - /var/tmp:size=100M,noexec,nosuid,nodev
+    command: ["python", "-m", "pynomaly.infrastructure.streaming.kafka_consumer", "--config", "/app/config/streaming.yaml"]
 
   # PostgreSQL Database with High Availability
   postgres:
@@ -263,57 +307,129 @@ services:
   model-trainer:
     build:
       context: .
-      dockerfile: Dockerfile.production
-      target: trainer
-    image: pynomaly:trainer
+      dockerfile: deploy/docker/Dockerfile.production
+      target: runtime
+      args:
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +"%Y-%m-%dT%H:%M:%SZ")}
+        VERSION: ${VERSION:-latest}
+        VCS_REF: ${VCS_REF:-$(git rev-parse HEAD)}
+    image: pynomaly:trainer-${VERSION:-latest}
     container_name: pynomaly-trainer
     restart: "no"
     environment:
-      - ENVIRONMENT=production
+      - PYNOMALY_ENVIRONMENT=production
       - DATABASE_URL=postgresql://pynomaly:${POSTGRES_PASSWORD}@postgres:5432/pynomaly_prod
-      - MODEL_REGISTRY_PATH=/app/models
-      - TRAINING_DATA_PATH=/app/data
-      - TRAINING_SCHEDULE=0 2 * * *  # Daily at 2 AM
+      - PYNOMALY_STORAGE_PATH=/app/storage
+      - PYNOMALY_LOG_PATH=/app/logs
+      - PYNOMALY_TEMP_PATH=/app/temp
+      - PYNOMALY_CONFIG_PATH=/app/config
+      - TRAINING_SCHEDULE=${TRAINING_SCHEDULE:-0 2 * * *}
+      - TRAINING_WORKERS=${TRAINING_WORKERS:-4}
+      - TRAINING_MEMORY_LIMIT=${TRAINING_MEMORY_LIMIT:-8G}
     volumes:
-      - pynomaly-models:/app/models
-      - pynomaly-data:/app/data
+      - pynomaly-storage:/app/storage
       - pynomaly-logs:/app/logs
+      - pynomaly-temp:/app/temp
+      - pynomaly-config:/app/config
     depends_on:
-      - postgres
-      - pynomaly-api
+      postgres:
+        condition: service_healthy
+      pynomaly-api:
+        condition: service_healthy
     networks:
       - pynomaly-network
     profiles:
       - training
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp:size=1G,noexec,nosuid,nodev
+      - /var/tmp:size=1G,noexec,nosuid,nodev
+    command: ["python", "-m", "pynomaly.application.services.automl_service", "--config", "/app/config/training.yaml", "--mode", "production"]
 
 # Named volumes for data persistence
 volumes:
   postgres-data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/postgres
   redis-data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/redis
   kafka-data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/kafka
   zookeeper-data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/zookeeper
   zookeeper-logs:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/zookeeper-logs
   prometheus-data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/prometheus
   grafana-data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/grafana
   elasticsearch-data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/elasticsearch
   nginx-logs:
     driver: local
-  pynomaly-models:
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/nginx-logs
+  pynomaly-storage:
     driver: local
-  pynomaly-features:
-    driver: local
-  pynomaly-data:
-    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/pynomaly-storage
   pynomaly-logs:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/pynomaly-logs
+  pynomaly-temp:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/pynomaly-temp
+  pynomaly-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${DATA_PATH:-./data}/pynomaly-config
 
 # Network configuration
 networks:

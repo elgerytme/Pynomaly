@@ -121,10 +121,13 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
         """Initialize with session factory."""
         self.session_factory = session_factory
 
-    def save(self, detector: Detector) -> None:
+    async def save(self, detector: Detector) -> None:
         """Save detector to database."""
-        with self.session_factory() as session:
-            existing = session.query(DetectorModel).filter_by(id=detector.id).first()
+        async with self.session_factory() as session:
+            result = await session.execute(
+                session.query(DetectorModel).filter_by(id=detector.id)
+            )
+            existing = result.scalars().first()
             if existing:
                 # Update existing
                 existing.algorithm = detector.algorithm_name
@@ -151,7 +154,7 @@ class DatabaseDetectorRepository(DetectorRepositoryProtocol):
                 )
                 session.add(model)
 
-            session.commit()
+            await session.commit()
 
     def find_by_id(self, detector_id: UUID) -> Detector | None:
         """Find detector by ID."""

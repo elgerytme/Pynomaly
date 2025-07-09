@@ -31,13 +31,11 @@ try:
         MetaLearningConfig,
         MetaLearningStrategy,
         OptimizationConstraint,
+        OptimizationResult,
+        OptimizationStrategy,
     )
     from pynomaly.infrastructure.automl import (
         OptimizationObjective as AdvancedObjective,
-    )
-    from pynomaly.infrastructure.automl import (
-        OptimizationResult,
-        OptimizationStrategy,
     )
 
     ADVANCED_OPTIMIZER_AVAILABLE = True
@@ -337,7 +335,7 @@ class EnhancedAutoMLService(AutoMLService):
         """Create advanced objective function for optimization."""
 
         def objective_function(
-            params: dict[str, Any], trial=None, callbacks: list | None = None
+            params: dict[str, Any], trial=None, callbacks: list[Any] | None = None
         ) -> float | dict[str, float]:
             """Advanced objective function with multiple objectives."""
             try:

@@ -40,7 +40,7 @@ class StreamDataPointDTO(BaseModel):
             raise ValueError("Anomaly score must be between 0.0 and 1.0")
         return v
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary with proper timestamp serialization."""
         return {
             "timestamp": self.timestamp.isoformat() if self.timestamp else None,
@@ -51,7 +51,7 @@ class StreamDataPointDTO(BaseModel):
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "StreamDataPointDTO":
+    def from_dict(cls, data: dict[str, Any]) -> "StreamDataPointDTO":
         """Create from dictionary with proper timestamp deserialization."""
         # Handle timestamp deserialization
         timestamp = None

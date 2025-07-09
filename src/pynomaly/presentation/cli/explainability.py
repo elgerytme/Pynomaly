@@ -531,6 +531,287 @@ def status(
 
 
 @app.command()
+@require_feature("advanced_explainability")
+def counterfactuals(
+    detector_path: Path = typer.Argument(
+        ..., help="Path to saved detector model", exists=True
+    ),
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file", exists=True),
+    instance_index: int = typer.Option(
+        0, "--instance", help="Index of instance to generate counterfactuals for"
+    ),
+    num_counterfactuals: int = typer.Option(
+        5, "--num-counterfactuals", help="Number of counterfactuals to generate"
+    ),
+    method: str = typer.Option(
+        "lime",
+        "--method",
+        help="Method to use for counterfactual generation (lime, gradient)",
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output file for counterfactual results"
+    ),
+):
+    """Generate counterfactual explanations for specific instances.
+
+    DETECTOR_PATH: Path to saved detector model
+    DATASET_PATH: Path to dataset file
+
+    Examples:
+        pynomaly explainability counterfactuals model.pkl data.csv --instance 10
+        pynomaly explainability counterfactuals model.pkl data.csv --num-counterfactuals 10
+    """
+    try:
+        # Load dataset and detector
+        dataset = _load_dataset(dataset_path)
+        detector = _load_detector(detector_path)
+
+        # Get instance
+        X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+        if instance_index >= len(X):
+            console.print(
+                f"❌ Instance index {instance_index} is out of range (max: {len(X)-1})",
+                style="red",
+            )
+            sys.exit(1)
+
+        instance = X[instance_index]
+        feature_names = dataset.feature_names or [
+            f"feature_{i}" for i in range(len(instance))
+        ]
+
+        # Initialize explainability service
+        explainability_service = AdvancedExplainabilityService()
+
+        console.print(
+            f"🔄 Generating {num_counterfactuals} counterfactual explanations..."
+        )
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task("Generating counterfactuals...", total=None)
+
+            # Generate counterfactuals based on method
+            if method == "lime":
+                # Import LIME explainer
+                from pynomaly.infrastructure.explainers.lime_explainer import (
+                    LIMEExplainer,
+                )
+
+                lime_explainer = LIMEExplainer(
+                    training_data=X,
+                    feature_names=feature_names,
+                    enable_submodular_pick=True,
+                    stability_analysis=True,
+                )
+
+                counterfactuals = lime_explainer.generate_counterfactual_explanations(
+                    instance=instance,
+                    model=detector,
+                    feature_names=feature_names,
+                    num_counterfactuals=num_counterfactuals,
+                )
+            else:
+                # Use advanced explainability service
+                counterfactuals = asyncio.run(
+                    explainability_service.generate_counterfactual_explanations(
+                        detector=detector,
+                        instance=instance,
+                        feature_names=feature_names,
+                        num_counterfactuals=num_counterfactuals,
+                        method=method,
+                    )
+                )
+
+            progress.update(task, completed=100)
+
+        # Display counterfactual results
+        _display_counterfactual_results(counterfactuals, instance, feature_names)
+
+        # Save results if requested
+        if output:
+            _save_counterfactual_results(counterfactuals, output)
+            console.print(f"💾 Counterfactual results saved to: {output}")
+
+        console.print("✅ Counterfactual generation completed!", style="green")
+
+    except Exception as e:
+        console.print(f"❌ Counterfactual generation failed: {e}", style="red")
+        sys.exit(1)
+
+
+@app.command()
+@require_feature("advanced_explainability")
+def interactions(
+    detector_path: Path = typer.Argument(
+        ..., help="Path to saved detector model", exists=True
+    ),
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file", exists=True),
+    max_interactions: int = typer.Option(
+        20, "--max-interactions", help="Maximum number of interactions to analyze"
+    ),
+    method: str = typer.Option(
+        "shap", "--method", help="Method to use for interaction analysis (shap, lime)"
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output file for interaction analysis"
+    ),
+):
+    """Analyze feature interactions using advanced explainability methods.
+
+    DETECTOR_PATH: Path to saved detector model
+    DATASET_PATH: Path to dataset file
+
+    Examples:
+        pynomaly explainability interactions model.pkl data.csv
+        pynomaly explainability interactions model.pkl data.csv --max-interactions 50
+    """
+    try:
+        # Load dataset and detector
+        dataset = _load_dataset(dataset_path)
+        detector = _load_detector(detector_path)
+
+        X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+        feature_names = dataset.feature_names or [
+            f"feature_{i}" for i in range(X.shape[1])
+        ]
+
+        console.print(f"🔍 Analyzing feature interactions using {method.upper()}...")
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task("Analyzing interactions...", total=None)
+
+            # Analyze interactions based on method
+            if method == "shap":
+                # Import SHAP explainer
+                from pynomaly.infrastructure.explainers.shap_explainer import (
+                    SHAPExplainer,
+                )
+
+                shap_explainer = SHAPExplainer(
+                    explainer_type="auto",
+                    background_data=X[:100],  # Use subset for background
+                    enable_interactions=True,
+                    enable_clustering=True,
+                )
+
+                interactions = shap_explainer.get_interaction_values(
+                    instances=X,
+                    model=detector,
+                    feature_names=feature_names,
+                    max_interactions=max_interactions,
+                )
+            else:
+                # Use advanced explainability service
+                explainability_service = AdvancedExplainabilityService()
+                interactions = asyncio.run(
+                    explainability_service.analyze_feature_interactions(
+                        detector=detector,
+                        X=X,
+                        feature_names=feature_names,
+                        max_interactions=max_interactions,
+                        method=method,
+                    )
+                )
+
+            progress.update(task, completed=100)
+
+        # Display interaction results
+        _display_interaction_results(interactions, method)
+
+        # Save results if requested
+        if output:
+            _save_interaction_results(interactions, output)
+            console.print(f"💾 Interaction analysis saved to: {output}")
+
+        console.print("✅ Feature interaction analysis completed!", style="green")
+
+    except Exception as e:
+        console.print(f"❌ Feature interaction analysis failed: {e}", style="red")
+        sys.exit(1)
+
+
+@app.command()
+@require_feature("advanced_explainability")
+def dashboard(
+    detector_path: Path = typer.Argument(
+        ..., help="Path to saved detector model", exists=True
+    ),
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file", exists=True),
+    port: int = typer.Option(8080, "--port", help="Port to run dashboard on"),
+    host: str = typer.Option("localhost", "--host", help="Host to run dashboard on"),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output directory for dashboard data"
+    ),
+):
+    """Generate interactive explanation dashboard.
+
+    DETECTOR_PATH: Path to saved detector model
+    DATASET_PATH: Path to dataset file
+
+    Examples:
+        pynomaly explainability dashboard model.pkl data.csv
+        pynomaly explainability dashboard model.pkl data.csv --port 8080
+    """
+    try:
+        # Load dataset and detector
+        dataset = _load_dataset(dataset_path)
+        detector = _load_detector(detector_path)
+
+        # Initialize explainability service
+        explainability_service = AdvancedExplainabilityService()
+
+        console.print("🎨 Generating interactive explanation dashboard...")
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task("Preparing dashboard data...", total=None)
+
+            # Generate dashboard data
+            dashboard_data = asyncio.run(
+                explainability_service.generate_explanation_dashboard_data(
+                    detector=detector,
+                    dataset=dataset,
+                    include_interactions=True,
+                    include_counterfactuals=True,
+                    include_clustering=True,
+                )
+            )
+
+            progress.update(task, completed=100)
+
+        # Display dashboard info
+        _display_dashboard_info(dashboard_data, host, port)
+
+        # Save dashboard data if requested
+        if output:
+            _save_dashboard_data(dashboard_data, output)
+            console.print(f"💾 Dashboard data saved to: {output}")
+
+        console.print(
+            f"✅ Dashboard prepared! Access at http://{host}:{port}", style="green"
+        )
+        console.print(
+            "Note: Dashboard server implementation would be started here.",
+            style="yellow",
+        )
+
+    except Exception as e:
+        console.print(f"❌ Dashboard generation failed: {e}", style="red")
+        sys.exit(1)
+
+
+@app.command()
 def info(
     explanation_type: str = typer.Option(
         ..., help="Type of explanation to get information about"
@@ -990,3 +1271,147 @@ def _save_feature_importance(importance: dict, output_path: Path):
     """Save feature importance to file."""
     with open(output_path, "w") as f:
         json.dump(importance, f, indent=2, default=str)
+
+
+def _display_counterfactual_results(
+    counterfactuals: dict, instance: list, feature_names: list
+):
+    """Display counterfactual explanation results."""
+    console.print("\n🔄 Counterfactual Explanations Results", style="bold")
+
+    if "error" in counterfactuals:
+        console.print(f"❌ Error: {counterfactuals['error']}", style="red")
+        return
+
+    original_instance = counterfactuals.get("original_instance", instance)
+    original_prediction = counterfactuals.get("original_prediction", 0)
+    counterfactual_instances = counterfactuals.get("counterfactuals", [])
+
+    console.print(f"📊 Original prediction: {original_prediction:.3f}")
+    console.print(f"🔄 Generated {len(counterfactual_instances)} counterfactuals")
+
+    if counterfactual_instances:
+        # Display top counterfactuals
+        console.print("\n🎯 Top Counterfactuals:")
+        for i, cf in enumerate(counterfactual_instances[:3], 1):
+            console.print(
+                f"\n  {i}. Counterfactual (distance: {cf.get('distance', 0):.3f})"
+            )
+            console.print(f"     New prediction: {cf.get('prediction', 0):.3f}")
+            console.print(
+                f"     Prediction change: {cf.get('prediction_change', 0):.3f}"
+            )
+
+            # Show key differences
+            differences = cf.get("differences", [])[:5]  # Show top 5 differences
+            if differences:
+                console.print("     Key changes:")
+                for diff in differences:
+                    console.print(
+                        f"       {diff['feature_name']}: {diff['original_value']:.3f} → {diff['counterfactual_value']:.3f}"
+                    )
+
+
+def _save_counterfactual_results(counterfactuals: dict, output_path: Path):
+    """Save counterfactual results to file."""
+    with open(output_path, "w") as f:
+        json.dump(counterfactuals, f, indent=2, default=str)
+
+
+def _display_interaction_results(interactions: dict, method: str):
+    """Display feature interaction analysis results."""
+    console.print(f"\n🔍 {method.upper()} Feature Interaction Analysis", style="bold")
+
+    if "error" in interactions:
+        console.print(f"❌ Error: {interactions['error']}", style="red")
+        return
+
+    if not interactions:
+        console.print("ℹ️ No interactions found or method not supported", style="yellow")
+        return
+
+    # Create interaction table
+    table = Table(title="Top Feature Interactions")
+    table.add_column("Rank", style="cyan")
+    table.add_column("Feature Pair", style="white")
+    table.add_column("Interaction Strength", style="green")
+    table.add_column("Bar", style="blue")
+
+    # Sort interactions by strength
+    sorted_interactions = sorted(
+        interactions.items(), key=lambda x: abs(x[1]), reverse=True
+    )[:15]
+
+    max_strength = (
+        max(abs(strength) for _, strength in sorted_interactions)
+        if sorted_interactions
+        else 1.0
+    )
+
+    for rank, (feature_pair, strength) in enumerate(sorted_interactions, 1):
+        # Create simple bar visualization
+        bar_length = int(20 * abs(strength) / max_strength)
+        bar = "█" * bar_length + "░" * (20 - bar_length)
+
+        table.add_row(str(rank), feature_pair, f"{strength:.4f}", bar)
+
+    console.print(table)
+
+
+def _save_interaction_results(interactions: dict, output_path: Path):
+    """Save interaction analysis results to file."""
+    with open(output_path, "w") as f:
+        json.dump(interactions, f, indent=2, default=str)
+
+
+def _display_dashboard_info(dashboard_data: dict, host: str, port: int):
+    """Display dashboard information."""
+    console.print("\n🎨 Interactive Explanation Dashboard", style="bold")
+
+    # Dashboard summary
+    summary_text = f"""
+    Components Generated: {len(dashboard_data.get('components', []))}
+    Local Explanations: {len(dashboard_data.get('local_explanations', []))}
+    Global Explanations: {len(dashboard_data.get('global_explanations', []))}
+    Feature Interactions: {len(dashboard_data.get('feature_interactions', {}))}
+    Counterfactuals: {len(dashboard_data.get('counterfactuals', []))}
+    """
+
+    console.print(Panel(summary_text, title="Dashboard Summary", border_style="blue"))
+
+    # Available features
+    features = []
+    if dashboard_data.get("local_explanations"):
+        features.append("Local explanations with SHAP/LIME")
+    if dashboard_data.get("global_explanations"):
+        features.append("Global feature importance")
+    if dashboard_data.get("feature_interactions"):
+        features.append("Feature interaction analysis")
+    if dashboard_data.get("counterfactuals"):
+        features.append("Counterfactual explanations")
+    if dashboard_data.get("bias_analysis"):
+        features.append("Bias and fairness analysis")
+    if dashboard_data.get("trust_assessment"):
+        features.append("Trust and reliability assessment")
+
+    console.print("\n📊 Available Features:")
+    for feature in features:
+        console.print(f"  • {feature}")
+
+    console.print(f"\n🌐 Dashboard URL: http://{host}:{port}")
+    console.print("📱 Interactive visualizations and explanations")
+
+
+def _save_dashboard_data(dashboard_data: dict, output_path: Path):
+    """Save dashboard data to directory."""
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Save main dashboard data
+    with open(output_path / "dashboard_data.json", "w") as f:
+        json.dump(dashboard_data, f, indent=2, default=str)
+
+    # Save individual components
+    for component_name, component_data in dashboard_data.items():
+        if isinstance(component_data, (dict, list)):
+            with open(output_path / f"{component_name}.json", "w") as f:
+                json.dump(component_data, f, indent=2, default=str)

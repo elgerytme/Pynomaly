@@ -67,9 +67,17 @@ class CohortExplanationRequestDTO(BaseModel):
 
     detector_id: str = Field(..., description="Detector identifier")
     dataset_id: str = Field(..., description="Dataset identifier")
-    cohort_indices: list[int] = Field(..., description="Indices of samples in cohort")
-    explanation_methods: list[ExplanationMethod] = Field(
-        default=[ExplanationMethod.SHAP], description="Explanation methods to use"
+    cohort_indices: list[int] | None = Field(
+        default=None, description="Indices of samples in cohort"
+    )
+    cohort_definitions: list[dict[str, Any]] | None = Field(
+        default=None, description="Cohort definitions with conditions"
+    )
+    explanation_method: str = Field(
+        default="shap", description="Explanation method to use"
+    )
+    explanation_methods: list[ExplanationMethod] | None = Field(
+        default=None, description="Explanation methods to use"
     )
     max_features: int = Field(
         default=10, ge=1, le=50, description="Maximum features to explain"
@@ -1493,10 +1501,21 @@ class ExplanationRequestDTO(BaseModel):
     instance_data: dict[str, Any] | None = Field(
         default=None, description="Instance data for explanation"
     )
+    anomaly_data: dict[str, Any] | None = Field(
+        default=None, description="Anomaly data for explanation"
+    )
     instance_indices: list[int] | None = Field(
         default=None, description="Instance indices to explain"
     )
     explanation_method: str = Field(default="shap", description="Explanation method")
+    explanation_type: str = Field(default="local", description="Type of explanation")
+    feature_names: list[str] | None = Field(
+        default=None, description="Feature names for explanation"
+    )
+    model_type: str | None = Field(default=None, description="Model type")
+    lime_config: dict[str, Any] | None = Field(
+        default=None, description="LIME configuration"
+    )
     max_features: int = Field(
         default=10, ge=1, le=50, description="Maximum features to include"
     )
@@ -1549,6 +1568,17 @@ class ExplanationResponseDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     success: bool = Field(..., description="Whether explanation succeeded")
+    explanation_method: str = Field(..., description="Explanation method used")
+    explanation_type: str = Field(..., description="Type of explanation")
+    feature_contributions: dict[str, float] = Field(
+        default_factory=dict, description="Feature contribution scores"
+    )
+    overall_confidence: float = Field(
+        default=0.0, ge=0.0, le=1.0, description="Overall confidence score"
+    )
+    explanation_metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Additional explanation metadata"
+    )
     explanations: dict[str, Any] | None = Field(
         default=None, description="Generated explanations"
     )
@@ -1667,6 +1697,134 @@ class ExplanationSummaryDTO(BaseModel):
     created_at: datetime = Field(
         default_factory=datetime.now, description="Summary creation time"
     )
+
+
+class CohortExplanationResponseDTO(BaseModel):
+    """DTO for cohort explanation response."""
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+    cohort_id: str = Field(..., description="Cohort identifier")
+    cohort_size: int = Field(..., description="Number of instances in cohort")
+    cohort_explanations: dict[str, Any] = Field(
+        default_factory=dict, description="Cohort explanations by name"
+    )
+    explanations: list[LocalExplanationDTO] | None = Field(
+        default=None, description="Individual explanations"
+    )
+    global_explanation: GlobalExplanationDTO | None = Field(
+        default=None, description="Global cohort explanation"
+    )
+    summary: ExplanationSummaryDTO | None = Field(
+        default=None, description="Explanation summary"
+    )
+    status: str = Field(..., description="Response status")
+    message: str = Field(..., description="Response message")
+    error: str | None = Field(default=None, description="Error message if failed")
+
+
+class ExplanationComparisonRequestDTO(BaseModel):
+    """DTO for explanation comparison request."""
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+    detector_id: str = Field(..., description="Detector identifier")
+    instance_data: dict[str, Any] | None = Field(
+        default=None, description="Instance data to explain"
+    )
+    anomaly_data: dict[str, Any] | None = Field(
+        default=None, description="Anomaly data to explain"
+    )
+    explanation_methods: list[str] = Field(
+        default_factory=list, description="Explanation methods to compare"
+    )
+    feature_names: list[str] | None = Field(default=None, description="Feature names")
+    comparison_metrics: list[str] | None = Field(
+        default=None, description="Comparison metrics to compute"
+    )
+    methods: list[str] | None = Field(
+        default=None, description="Explanation methods to compare"
+    )
+    config: ExplanationConfigDTO | None = Field(
+        default=None, description="Explanation configuration"
+    )
+
+
+class ExplanationComparisonResponseDTO(BaseModel):
+    """DTO for explanation comparison response."""
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+    method_explanations: dict[str, dict[str, Any]] = Field(
+        default_factory=dict, description="Explanations by method"
+    )
+    comparison_metrics: dict[str, float] = Field(
+        default_factory=dict, description="Comparison metrics"
+    )
+    disagreement_analysis: dict[str, Any] = Field(
+        default_factory=dict, description="Disagreement analysis"
+    )
+    comparisons: list[MethodComparisonDTO] | None = Field(
+        default=None, description="Method comparisons"
+    )
+    recommended_method: str | None = Field(
+        default=None, description="Recommended method"
+    )
+    performance_metrics: dict[str, float] | None = Field(
+        default=None, description="Performance metrics"
+    )
+    status: str = Field(..., description="Response status")
+    message: str = Field(..., description="Response message")
+    error: str | None = Field(default=None, description="Error message if failed")
+
+
+class FeatureImportanceRequestDTO(BaseModel):
+    """DTO for feature importance request."""
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+    detector_id: str = Field(..., description="Detector identifier")
+    dataset_id: str | None = Field(default=None, description="Dataset identifier")
+    method: str = Field(
+        default="permutation", description="Importance calculation method"
+    )
+    importance_method: str | None = Field(
+        default=None, description="Importance calculation method"
+    )
+    aggregation_method: str | None = Field(
+        default=None, description="Aggregation method"
+    )
+    sample_size: int | None = Field(default=None, description="Sample size")
+    n_repeats: int = Field(default=5, description="Number of repetitions")
+    random_state: int | None = Field(
+        default=None, description="Random state for reproducibility"
+    )
+
+
+class FeatureImportanceResponseDTO(BaseModel):
+    """DTO for feature importance response."""
+
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+
+    feature_importance: dict[str, float] = Field(
+        default_factory=dict, description="Feature importance scores"
+    )
+    top_features: list[str] = Field(
+        default_factory=list, description="Top features by importance"
+    )
+    analysis_metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Analysis metadata"
+    )
+    feature_rankings: list[FeatureRankingDTO] | None = Field(
+        default=None, description="Feature rankings"
+    )
+    global_importance: GlobalExplanationDTO | None = Field(
+        default=None, description="Global importance"
+    )
+    method_used: str = Field(..., description="Method used for calculation")
+    status: str = Field(..., description="Response status")
+    message: str = Field(..., description="Response message")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 # ============================================================================
@@ -1909,6 +2067,11 @@ __all__ = [
     "CompareMethodsRequestDTO",
     "FeatureRankingDTO",
     "ExplanationSummaryDTO",
+    "CohortExplanationResponseDTO",
+    "ExplanationComparisonRequestDTO",
+    "ExplanationComparisonResponseDTO",
+    "FeatureImportanceRequestDTO",
+    "FeatureImportanceResponseDTO",
     # Utility Functions
     "convert_explanation_config_to_legacy",
     "create_explanation_config_from_legacy",

@@ -7,6 +7,7 @@ import logging
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
+from ..security.secure_database import SecureDatabaseManager, SecureMigrationManager
 from .database import DatabaseManager
 from .database_repositories import Base
 
@@ -24,6 +25,10 @@ class DatabaseMigrator:
         """
         self.db_manager = database_manager
         self.engine = database_manager.engine
+
+        # Initialize secure database components
+        self.secure_db = SecureDatabaseManager(self.engine)
+        self.secure_migration = SecureMigrationManager(self.secure_db)
 
     def create_all_tables(self) -> bool:
         """Create all database tables.
@@ -132,27 +137,39 @@ class DatabaseMigrator:
             ("BUSINESS", ["reports:read"]),
         ]
 
-        # Connect to the database
+        # Use secure migration methods
         try:
-            with self.engine.connect() as conn:
-                for role, permissions in roles_permissions:
-                    # Insert role and permissions
-                    conn.execute(
-                        text(
-                            f"INSERT INTO roles (name) VALUES ('{role}') ON CONFLICT DO NOTHING"
+            # Create roles securely
+            roles = [role for role, _ in roles_permissions]
+            self.secure_migration.create_roles_securely(roles)
+
+            # Create permissions securely
+            all_permissions = []
+            for role, permissions in roles_permissions:
+                for perm in permissions:
+                    if perm not in [p["name"] for p in all_permissions]:
+                        all_permissions.append(
+                            {
+                                "name": perm,
+                                "description": f"Permission {perm}",
+                                "resource": perm.split(":")[0]
+                                if ":" in perm
+                                else "general",
+                                "action": perm.split(":")[1] if ":" in perm else perm,
+                            }
                         )
-                    )
-                    for perm in permissions:
-                        conn.execute(
-                            text(
-                                f"INSERT INTO permissions (name) VALUES ('{perm}') ON CONFLICT DO NOTHING"
-                            )
-                        )
-                        conn.execute(
-                            text(
-                                f"INSERT INTO role_permissions (role, permission) VALUES ('{role}', '{perm}') ON CONFLICT DO NOTHING"
-                            )
-                        )
+
+            self.secure_migration.create_permissions_securely(all_permissions)
+
+            # Assign permissions to roles securely
+            role_perm_assignments = []
+            for role, permissions in roles_permissions:
+                for perm in permissions:
+                    role_perm_assignments.append((role, perm))
+
+            self.secure_migration.assign_role_permissions_securely(
+                role_perm_assignments
+            )
             logger.info("Successfully seeded roles and permissions")
             return True
         except SQLAlchemyError as e:

@@ -12,6 +12,10 @@ class SeverityLevel(str, Enum):
     HIGH = "high"
     CRITICAL = "critical"
 
+    def __str__(self) -> str:
+        """Return the string value of the enum."""
+        return self.value
+
 
 @dataclass(frozen=True)
 class SeverityScore:
@@ -21,7 +25,7 @@ class SeverityScore:
     severity_level: SeverityLevel
     confidence: float | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate severity score."""
         if not 0.0 <= self.value <= 1.0:
             raise ValueError(

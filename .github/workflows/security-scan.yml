@@ -1,4 +1,4 @@
-name: Security Scan
+name: Enhanced Security Scan
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main, develop]
   schedule:
-    - cron: '0 6 * * 1'  # Weekly on Monday at 6 AM UTC
+    - cron: '0 0 * * 0'  # Weekly on Sunday
 
 env:
   PYTHON_VERSION: "3.11"

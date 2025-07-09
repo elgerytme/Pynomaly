@@ -1,0 +1,111 @@
+version: '3.8'
+services:
+  pynomaly-api:
+    build: .
+    ports:
+    - 8000:8000
+    environment:
+    - PYNOMALY_ENV=production
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+    - postgres
+    - redis
+    volumes:
+    - ./data:/app/data
+    - ./logs:/app/logs
+    - ./backups:/app/backups
+    restart: unless-stopped
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8000/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+  pynomaly-worker:
+    build: .
+    command: celery -A pynomaly.infrastructure.celery worker --loglevel=info
+    depends_on:
+    - postgres
+    - redis
+    volumes:
+    - ./data:/app/data
+    - ./logs:/app/logs
+    restart: unless-stopped
+    environment:
+    - PYNOMALY_ENV=production
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+  postgres:
+    image: postgres:13
+    environment:
+    - POSTGRES_DB=pynomaly_prod
+    - POSTGRES_USER=pynomaly_user
+    - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+    - postgres_data:/var/lib/postgresql/data
+    ports:
+    - 5432:5432
+    restart: unless-stopped
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U pynomaly_user -d pynomaly_prod
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  redis:
+    image: redis:6-alpine
+    command: redis-server --appendonly yes
+    volumes:
+    - redis_data:/data
+    ports:
+    - 6379:6379
+    restart: unless-stopped
+    healthcheck:
+      test:
+      - CMD
+      - redis-cli
+      - ping
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+    - 9090:9090
+    volumes:
+    - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    - prometheus_data:/prometheus
+    restart: unless-stopped
+    command:
+    - --config.file=/etc/prometheus/prometheus.yml
+    - --storage.tsdb.path=/prometheus
+    - --web.console.libraries=/etc/prometheus/console_libraries
+    - --web.console.templates=/etc/prometheus/consoles
+    - --web.enable-lifecycle
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+    - 3000:3000
+    environment:
+    - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+    - grafana_data:/var/lib/grafana
+    - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+    - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    restart: unless-stopped
+volumes:
+  postgres_data: {}
+  redis_data: {}
+  prometheus_data: {}
+  grafana_data: {}
+networks:
+  default:
+    name: pynomaly-network

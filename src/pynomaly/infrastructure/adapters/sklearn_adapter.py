@@ -90,6 +90,11 @@ class SklearnAdapter:
         """Get the current parameters of the detector."""
         return self._detector.parameters
 
+    @property
+    def algorithm_name(self) -> str:
+        """Get the algorithm name."""
+        return self._detector.algorithm_name
+
     def _load_model_class(self, algorithm_name: str) -> type[BaseEstimator]:
         """Dynamically load sklearn model class."""
         module_path, class_name = self.ALGORITHM_MAPPING[algorithm_name]

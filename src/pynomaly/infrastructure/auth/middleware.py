@@ -368,3 +368,59 @@ def create_auth_context(user: UserModel | None) -> dict[str, any]:
         "permissions": permissions,
         "is_superuser": user.is_superuser,
     }
+
+
+class AuthenticationMiddleware:
+    """Authentication middleware for processing requests."""
+
+    def __init__(self, auth_service: JWTAuthService):
+        """Initialize authentication middleware.
+
+        Args:
+            auth_service: JWT authentication service
+        """
+        self.auth_service = auth_service
+
+    async def authenticate(self, request: Request) -> UserModel:
+        """Authenticate request and return user.
+
+        Args:
+            request: HTTP request
+
+        Returns:
+            Authenticated user
+
+        Raises:
+            AuthenticationError: If authentication fails
+        """
+        # Check for Authorization header
+        authorization = request.headers.get("Authorization")
+        if authorization and authorization.startswith("Bearer "):
+            token = authorization.split(" ")[1]
+            return self.auth_service.get_current_user(token)
+
+        # Check for API key header
+        api_key = request.headers.get("X-API-Key")
+        if api_key:
+            return self.auth_service.authenticate_api_key(api_key)
+
+        # No authentication credentials provided
+        raise AuthenticationError("No authentication credentials provided")
+
+    def _parse_bearer_token(self, authorization: str) -> str | None:
+        """Parse bearer token from Authorization header.
+
+        Args:
+            authorization: Authorization header value
+
+        Returns:
+            Bearer token or None
+        """
+        if not authorization:
+            return None
+
+        parts = authorization.split(" ")
+        if len(parts) != 2 or parts[0].lower() != "bearer":
+            raise AuthenticationError("Invalid authentication header format")
+
+        return parts[1]

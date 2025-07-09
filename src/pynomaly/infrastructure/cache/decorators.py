@@ -26,12 +26,12 @@ class CacheConfig:
     ttl: int | None = None
     key_prefix: str = ""
     strategy: CacheStrategy = CacheStrategy.WRITE_THROUGH
-    ignore_args: list[str] = None
-    ignore_kwargs: list[str] = None
+    ignore_args: list[str] | None = None
+    ignore_kwargs: list[str] | None = None
     serialize_complex_args: bool = True
     cache_none_values: bool = False
     error_fallback: bool = True
-    conditional_cache: Callable | None = None
+    conditional_cache: Callable[..., Any] | None = None
 
 
 class CacheKeyGenerator:
@@ -284,8 +284,8 @@ class CacheInvalidator:
     async def invalidate_function(
         self,
         func: Callable,
-        args: tuple = (),
-        kwargs: dict[str, Any] = None,
+        args: tuple[Any, ...] = (),
+        kwargs: dict[str, Any] | None = None,
         prefix: str = "",
     ) -> bool:
         """Invalidate cache for specific function call.
@@ -363,12 +363,12 @@ def cached(
     ttl: int | None = None,
     key_prefix: str = "",
     strategy: CacheStrategy = CacheStrategy.WRITE_THROUGH,
-    ignore_args: list[str] = None,
-    ignore_kwargs: list[str] = None,
+    ignore_args: list[str] | None = None,
+    ignore_kwargs: list[str] | None = None,
     serialize_complex_args: bool = True,
     cache_none_values: bool = False,
     error_fallback: bool = True,
-    conditional_cache: Callable | None = None,
+    conditional_cache: Callable[..., Any] | None = None,
 ) -> Callable[[F], F]:
     """Decorator for caching function results.
 
@@ -504,7 +504,7 @@ def cache_database_query(
 async def cache_context(
     cache_manager: IntelligentCacheManager,
     auto_invalidate: bool = True,
-    invalidation_patterns: list[str] = None,
+    invalidation_patterns: list[str] | None = None,
 ):
     """Context manager for cache operations.
 
@@ -530,8 +530,8 @@ async def cache_context(
 # Utility functions
 async def invalidate_cache(
     func: Callable,
-    args: tuple = (),
-    kwargs: dict[str, Any] = None,
+    args: tuple[Any, ...] = (),
+    kwargs: dict[str, Any] | None = None,
     prefix: str = "",
 ) -> bool:
     """Invalidate cache for specific function call.
@@ -566,7 +566,7 @@ async def invalidate_cache_pattern(pattern: str) -> int:
     return 0
 
 
-async def warm_cache(keys_and_loaders: list[tuple[str, Callable]]) -> int:
+async def warm_cache(keys_and_loaders: list[tuple[str, Callable[..., Any]]]) -> int:
     """Warm cache with preloaded data.
 
     Args:

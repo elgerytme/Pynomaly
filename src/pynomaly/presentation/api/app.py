@@ -7,6 +7,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
+
+from pynomaly.infrastructure.security.rate_limiting_middleware import (
+    RateLimitMiddleware,
+)
+from pynomaly.presentation.api.middleware import SecurityHeadersMiddleware
 
 # Optional prometheus dependency
 try:
@@ -37,6 +43,7 @@ from pynomaly.presentation.api.endpoints import (
     experiments,
     explainability,
     export,
+    frontend_support,
     health,
     model_lineage,
     performance,
@@ -195,8 +202,17 @@ def create_app(container: Container | None = None) -> FastAPI:
     # Configure OpenAPI documentation
     configure_openapi_docs(app, settings)
 
+    # Add security headers middleware first
+    app.add_middleware(SecurityHeadersMiddleware)
+
+    # Add rate limiting middleware (after security headers, before CORS)
+    app.add_middleware(RateLimitMiddleware, settings=settings)
+
     # Add CORS middleware
     app.add_middleware(CORSMiddleware, **settings.get_cors_config())
+
+    # Add session middleware for CSRF protection
+    app.add_middleware(SessionMiddleware, secret_key=settings.secret_key)
 
     # Add request tracking middleware
     app.middleware("http")(track_request_metrics)
@@ -267,6 +283,9 @@ def create_app(container: Container | None = None) -> FastAPI:
     # Real-time streaming and event processing endpoints
     app.include_router(streaming.router, prefix="/api/v1", tags=["streaming"])
     app.include_router(events.router, prefix="/api/v1", tags=["events"])
+
+    # Frontend support endpoints for web UI utilities
+    app.include_router(frontend_support.router, tags=["frontend_support"])
 
     # Distributed processing API removed for simplification
 

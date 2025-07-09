@@ -15,7 +15,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .base import RealTimeMetricFrame
 
@@ -56,12 +56,13 @@ class AnomalyDetectionMetrics(BaseModel):
     roc_auc: float | None = Field(None, ge=0.0, le=1.0, description="ROC AUC score")
     pr_auc: float | None = Field(None, ge=0.0, le=1.0, description="PR AUC score")
 
-    @validator("f1_score")
-    def validate_f1_score(cls, v: float, values: dict[str, Any]) -> float:
+    @field_validator("f1_score")
+    @classmethod
+    def validate_f1_score(cls, v: float, info) -> float:
         """Validate F1 score consistency with precision and recall."""
-        if "precision" in values and "recall" in values:
-            precision = values["precision"]
-            recall = values["recall"]
+        if info.data and "precision" in info.data and "recall" in info.data:
+            precision = info.data["precision"]
+            recall = info.data["recall"]
             if precision + recall > 0:
                 expected_f1 = 2 * (precision * recall) / (precision + recall)
                 if abs(v - expected_f1) > 0.01:  # Allow small floating point errors
@@ -91,10 +92,15 @@ class AnomalyClassificationMetrics(BaseModel):
         default_factory=dict, description="Distribution of anomalies by category"
     )
 
-    @validator("anomalies_confirmed")
-    def validate_confirmed_anomalies(cls, v: int, values: dict[str, Any]) -> int:
+    @field_validator("anomalies_confirmed")
+    @classmethod
+    def validate_confirmed_anomalies(cls, v: int, info) -> int:
         """Validate confirmed anomalies don't exceed detected."""
-        if "anomalies_detected" in values and v > values["anomalies_detected"]:
+        if (
+            info.data
+            and "anomalies_detected" in info.data
+            and v > info.data["anomalies_detected"]
+        ):
             raise ValueError("Confirmed anomalies cannot exceed detected anomalies")
         return v
 
@@ -118,7 +124,8 @@ class AnomalyTimeSeriesMetrics(BaseModel):
         None, ge=0.0, le=1.0, description="Seasonality score"
     )
 
-    @validator("sample_rate")
+    @field_validator("sample_rate")
+    @classmethod
     def validate_sample_rate(cls, v: float) -> float:
         """Validate sample rate is reasonable."""
         if v > 1000.0:  # 1kHz max
@@ -162,21 +169,24 @@ class AnomalyKPIFrame(RealTimeMetricFrame):
         None, description="Business context metadata"
     )
 
-    class Config:
-        """Pydantic configuration."""
+    model_config = ConfigDict(
+        use_enum_values=True, validate_assignment=True, extra="forbid"
+    )
 
-        use_enum_values = True
-        validate_assignment = True
-        extra = "forbid"
-
-    @validator("critical_alerts")
-    def validate_critical_alerts(cls, v: int, values: dict[str, Any]) -> int:
+    @field_validator("critical_alerts")
+    @classmethod
+    def validate_critical_alerts(cls, v: int, info) -> int:
         """Validate critical alerts don't exceed active alerts."""
-        if "active_alerts" in values and v > values["active_alerts"]:
+        if (
+            info.data
+            and "active_alerts" in info.data
+            and v > info.data["active_alerts"]
+        ):
             raise ValueError("Critical alerts cannot exceed active alerts")
         return v
 
-    @validator("memory_usage")
+    @field_validator("memory_usage")
+    @classmethod
     def validate_memory_usage(cls, v: float) -> float:
         """Validate memory usage is reasonable."""
         if v > 100000.0:  # 100GB max

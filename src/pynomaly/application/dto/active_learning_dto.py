@@ -49,7 +49,7 @@ class CreateSessionRequest:
     timeout_minutes: int | None = 60
     min_feedback_quality: float = 0.7
     target_corrections: int | None = None
-    metadata: dict = None
+    metadata: dict[str, Any] = None
 
     def __post_init__(self) -> None:
         """Validate request parameters."""
@@ -176,11 +176,11 @@ class SubmitFeedbackRequest:
     sample_id: str
     annotator_id: str
     feedback_type: FeedbackType
-    feedback_value: bool | float | str | dict
+    feedback_value: bool | float | str | dict[str, Any]
     confidence: FeedbackConfidence
     original_prediction: AnomalyScore | None = None
     time_spent_seconds: float | None = None
-    metadata: dict = None
+    metadata: dict[str, Any] = None
 
     def __post_init__(self) -> None:
         """Validate request parameters."""

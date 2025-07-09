@@ -558,6 +558,218 @@ def _save_comparison_results(results: dict, output_path: Path):
         json.dump(results, f, indent=2, default=str)
 
 
+def _display_comprehensive_results(result: dict, optimization_time: float):
+    """Display comprehensive AutoML results."""
+    console.print("\n🎯 Comprehensive AutoML Results", style="bold")
+
+    # Summary panel
+    summary_text = f"""
+    Optimization Strategy: {result.get('optimization_strategy', 'Unknown')}
+    Ensemble Method: {result.get('ensemble_method', 'Unknown')}
+    Total Trials: {result.get('total_trials', 0)}
+    Successful Trials: {result.get('successful_trials', 0)}
+    Optimization Time: {optimization_time:.2f}s
+    Best Score: {result.get('best_score', 0):.4f}
+    """
+
+    console.print(
+        Panel(summary_text, title="Optimization Summary", border_style="blue")
+    )
+
+    # Best configuration
+    best_config = result.get("best_configuration", {})
+    if best_config:
+        config_table = Table(title="Best Configuration")
+        config_table.add_column("Component", style="cyan")
+        config_table.add_column("Configuration", style="green")
+
+        for component, config in best_config.items():
+            config_table.add_row(component, str(config))
+
+        console.print(config_table)
+
+    # Feature engineering results
+    feature_engineering = result.get("feature_engineering_results", {})
+    if feature_engineering:
+        console.print("\n🔧 Feature Engineering Results:")
+        for method, results in feature_engineering.items():
+            console.print(
+                f"  {method}: {results.get('features_created', 0)} features created"
+            )
+
+    # Ensemble performance
+    ensemble_performance = result.get("ensemble_performance", {})
+    if ensemble_performance:
+        console.print("\n🎭 Ensemble Performance:")
+        for metric, value in ensemble_performance.items():
+            console.print(f"  {metric}: {value:.4f}")
+
+    # Model registry info
+    model_registry = result.get("model_registry", {})
+    if model_registry:
+        console.print(
+            f"\n📦 Model Registry: {model_registry.get('models_registered', 0)} models registered"
+        )
+
+    # Experiment tracking
+    experiment_tracking = result.get("experiment_tracking", {})
+    if experiment_tracking:
+        console.print(
+            f"\n📊 Experiment Tracking: {experiment_tracking.get('experiments_logged', 0)} experiments logged"
+        )
+
+
+def _save_comprehensive_results(result: dict, output_path: Path):
+    """Save comprehensive AutoML results to file."""
+    with open(output_path, "w") as f:
+        json.dump(result, f, indent=2, default=str)
+
+
+@app.command()
+@require_feature("advanced_automl")
+def comprehensive(
+    dataset_path: Path = typer.Argument(..., help="Path to dataset file"),
+    algorithm_name: str = typer.Argument(..., help="Algorithm name to optimize"),
+    strategy: str = typer.Option(
+        "bayesian_optimization",
+        "--strategy",
+        help="Optimization strategy (random_search, bayesian_optimization, grid_search)",
+    ),
+    ensemble_method: str = typer.Option(
+        "voting",
+        "--ensemble",
+        help="Ensemble method (voting, bagging, boosting, stacking)",
+    ),
+    feature_engineering: bool = typer.Option(
+        True,
+        "--feature-engineering/--no-feature-engineering",
+        help="Enable automated feature engineering",
+    ),
+    max_trials: int = typer.Option(
+        100, "-n", "--max-trials", help="Maximum number of optimization trials"
+    ),
+    max_time: int = typer.Option(
+        3600, "-t", "--max-time", help="Maximum optimization time in seconds"
+    ),
+    storage: Path = typer.Option(
+        Path("./automl_storage"), "--storage", help="Storage path for trials"
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output file for optimization results"
+    ),
+):
+    """Run comprehensive AutoML optimization with advanced features.
+
+    DATASET_PATH: Path to dataset file (CSV or Parquet)
+    ALGORITHM_NAME: Algorithm to optimize (IsolationForest, LOF, OneClassSVM, etc.)
+
+    Examples:
+        pynomaly automl comprehensive data.csv IsolationForest
+        pynomaly automl comprehensive data.csv LOF --strategy grid_search --ensemble stacking
+        pynomaly automl comprehensive data.parquet OneClassSVM --feature-engineering --max-trials 200
+    """
+    try:
+        # Load dataset
+        console.print(f"📊 Loading dataset: {dataset_path}")
+        dataset = _load_dataset(dataset_path)
+
+        # Initialize comprehensive AutoML service
+        console.print("🔧 Initializing comprehensive AutoML service...")
+
+        # Import comprehensive service
+        from pynomaly.application.services.comprehensive_automl_service import (
+            ComprehensiveAutoMLService,
+            ComprehensiveOptimizationConfig,
+            EnsembleMethod,
+            FeatureEngineeringMethod,
+            OptimizationStrategy,
+        )
+
+        # Map string to enum
+        strategy_enum = getattr(
+            OptimizationStrategy,
+            strategy.upper(),
+            OptimizationStrategy.BAYESIAN_OPTIMIZATION,
+        )
+        ensemble_enum = getattr(
+            EnsembleMethod, ensemble_method.upper(), EnsembleMethod.VOTING
+        )
+
+        # Configure comprehensive optimization
+        config = ComprehensiveOptimizationConfig(
+            optimization_strategy=strategy_enum,
+            ensemble_method=ensemble_enum,
+            feature_engineering_methods=[
+                FeatureEngineeringMethod.POLYNOMIAL,
+                FeatureEngineeringMethod.INTERACTION,
+            ]
+            if feature_engineering
+            else [],
+            max_trials=max_trials,
+            max_time_seconds=max_time,
+            enable_early_stopping=True,
+            enable_distributed_training=True,
+            enable_model_registry=True,
+            enable_experiment_tracking=True,
+            target_metrics=["accuracy", "precision", "recall", "f1"],
+            optimization_direction="maximize",
+            cross_validation_folds=5,
+            test_size=0.2,
+            random_state=42,
+        )
+
+        # Initialize service
+        automl_service = ComprehensiveAutoMLService(
+            storage_path=storage,
+            enable_caching=True,
+            enable_parallelization=True,
+            n_jobs=-1,
+        )
+
+        # Run comprehensive optimization with progress tracking
+        console.print("🚀 Starting comprehensive AutoML optimization...")
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TaskProgressColumn(),
+            console=console,
+        ) as progress:
+            task = progress.add_task(
+                f"Optimizing {algorithm_name} with {strategy}...", total=max_trials
+            )
+
+            start_time = time.time()
+            result = asyncio.run(
+                automl_service.comprehensive_optimize(
+                    dataset=dataset,
+                    algorithm_name=algorithm_name,
+                    config=config,
+                )
+            )
+            optimization_time = time.time() - start_time
+
+            progress.update(task, completed=max_trials)
+
+        # Display comprehensive results
+        _display_comprehensive_results(result, optimization_time)
+
+        # Save comprehensive results
+        if output:
+            _save_comprehensive_results(result, output)
+            console.print(f"💾 Comprehensive results saved to: {output}")
+
+        console.print(
+            "✅ Comprehensive AutoML optimization completed successfully!",
+            style="green",
+        )
+
+    except Exception as e:
+        console.print(f"❌ Comprehensive AutoML optimization failed: {e}", style="red")
+        sys.exit(1)
+
+
 @app.command()
 @require_feature("advanced_automl")
 def run(

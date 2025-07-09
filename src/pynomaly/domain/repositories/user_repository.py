@@ -9,6 +9,7 @@ from pynomaly.domain.entities.user import (
     User,
     UserRole,
     UserSession,
+    UserStatus,
     UserTenantRole,
 )
 from pynomaly.shared.types import TenantId, UserId
@@ -71,6 +72,18 @@ class UserRepositoryProtocol(ABC):
         self, user_id: UserId, tenant_id: TenantId, role: UserRole
     ) -> UserTenantRole:
         """Update user's role in tenant."""
+        pass
+
+    @abstractmethod
+    async def list_users(
+        self,
+        tenant_id: TenantId | None = None,
+        status: UserStatus | None = None,
+        role: UserRole | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[User]:
+        """List users with optional filters."""
         pass
 
 

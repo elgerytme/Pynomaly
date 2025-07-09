@@ -84,10 +84,19 @@ class SecuritySettings(BaseModel):
             raise ValueError(f"Sanitization level must be one of: {valid_levels}")
         return v
 
+    def get_monitoring_providers(self) -> list[str]:
+        """Get configured monitoring providers."""
+        providers = []
+        if self.enable_audit_logging:
+            providers.append("audit")
+        if self.enable_security_monitoring:
+            providers.append("security")
+        if self.threat_detection_enabled:
+            providers.append("threat_detection")
+        return providers
+
     def get_monitoring_config(self) -> dict[str, Any]:
         """Get monitoring configuration including buffer size and flush interval."""
-        import os
-
         buffer_size = int(os.getenv("PYNOMALY_MONITORING_BUFFER_SIZE", "100"))
         flush_interval = int(os.getenv("PYNOMALY_MONITORING_FLUSH_INTERVAL", "60"))
 
@@ -159,8 +168,10 @@ class Settings(BaseSettings):
     docs_enabled: bool = True  # Enable OpenAPI documentation
 
     # Security settings
-    secret_key: str = Field(default="change-me-in-production")
-    auth_enabled: bool = False
+    secret_key: str = Field(
+        default="change-me-in-production-this-is-32-chars-long-default-key"
+    )
+    auth_enabled: bool = True  # Enable authentication by default
     jwt_algorithm: str = "HS256"
     jwt_expiration: int = 3600  # seconds
 
@@ -245,6 +256,43 @@ class Settings(BaseSettings):
     def create_directories(cls, v: Path) -> Path:
         """Ensure directories exist."""
         v.mkdir(parents=True, exist_ok=True)
+        return v
+
+    @field_validator("secret_key")
+    @classmethod
+    def validate_secret_key(cls, v: str) -> str:
+        """Validate secret key security."""
+        if v == "change-me-in-production":
+            # Check if we're in production environment
+            env = os.getenv("PYNOMALY_APP_ENVIRONMENT", "development")
+            if env in ["production", "prod"]:
+                raise ValueError(
+                    "Must set a secure secret key in production environment. "
+                    "Set PYNOMALY_SECRET_KEY environment variable."
+                )
+
+        if len(v) < 32:
+            raise ValueError("Secret key must be at least 32 characters long")
+
+        return v
+
+    @field_validator("jwt_algorithm")
+    @classmethod
+    def validate_jwt_algorithm(cls, v: str) -> str:
+        """Validate JWT algorithm."""
+        valid_algorithms = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
+        if v not in valid_algorithms:
+            raise ValueError(f"JWT algorithm must be one of: {valid_algorithms}")
+        return v
+
+    @field_validator("jwt_expiration")
+    @classmethod
+    def validate_jwt_expiration(cls, v: int) -> int:
+        """Validate JWT expiration time."""
+        if v < 300:  # 5 minutes minimum
+            raise ValueError("JWT expiration must be at least 300 seconds (5 minutes)")
+        if v > 86400:  # 24 hours maximum
+            raise ValueError("JWT expiration must be at most 86400 seconds (24 hours)")
         return v
 
     @field_validator("default_contamination_rate")

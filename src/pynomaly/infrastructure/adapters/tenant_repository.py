@@ -6,8 +6,7 @@ from uuid import UUID
 from sqlalchemy import Column, DateTime, Float, Index, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, declarative_base
 
 from pynomaly.domain.entities.tenant import (
     ResourceQuota,

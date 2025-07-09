@@ -15,6 +15,7 @@ from sqlalchemy import (
     or_,
     text,
 )
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import Select
 
@@ -137,17 +138,21 @@ class QueryOptimizer:
 class OptimizedDetectorRepository(DetectorRepositoryProtocol):
     """Performance-optimized detector repository."""
 
-    def __init__(self, session_factory: sessionmaker, enable_caching: bool = True):
-        """Initialize with session factory and optional caching."""
+    def __init__(
+        self,
+        session_factory: async_sessionmaker[AsyncSession],
+        enable_caching: bool = True,
+    ):
+        """Initialize with async session factory and optional caching."""
         self.session_factory = session_factory
         self.enable_caching = enable_caching
         self._cache = {} if enable_caching else None
         self._cache_ttl = timedelta(minutes=5)
         self._cache_timestamps = {} if enable_caching else None
 
-    def save(self, detector: Detector) -> None:
+    async def save(self, detector: Detector) -> None:
         """Save detector with optimized upsert."""
-        with self.session_factory() as session:
+        async with self.session_factory() as session:
             # Use merge for efficient upsert
             model = OptimizedDetectorModel(
                 id=detector.id,
@@ -160,8 +165,8 @@ class OptimizedDetectorRepository(DetectorRepositoryProtocol):
                 updated_at=detector.updated_at,
             )
 
-            session.merge(model)
-            session.commit()
+            await session.merge(model)
+            await session.commit()
 
             # Invalidate cache
             if self._cache is not None:

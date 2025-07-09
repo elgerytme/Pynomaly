@@ -302,7 +302,7 @@ class AlgorithmOptimizationService:
         self,
         detector: Detector,
         dataset: Dataset,
-        profile: dict,
+        profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
         contamination_rate: float | None,
@@ -342,7 +342,7 @@ class AlgorithmOptimizationService:
         self,
         detector: Detector,
         dataset: Dataset,
-        profile: dict,
+        profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
         contamination_rate: float | None,
@@ -385,7 +385,7 @@ class AlgorithmOptimizationService:
         self,
         detector: Detector,
         dataset: Dataset,
-        profile: dict,
+        profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
         contamination_rate: float | None,
@@ -424,7 +424,7 @@ class AlgorithmOptimizationService:
         self,
         detector: Detector,
         dataset: Dataset,
-        profile: dict,
+        profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
         contamination_rate: float | None,
@@ -455,7 +455,7 @@ class AlgorithmOptimizationService:
         self,
         detector: Detector,
         dataset: Dataset,
-        profile: dict,
+        profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
         contamination_rate: float | None,
@@ -493,7 +493,7 @@ class AlgorithmOptimizationService:
         self,
         detector: Detector,
         dataset: Dataset,
-        profile: dict,
+        profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
         contamination_rate: float | None,
@@ -528,7 +528,7 @@ class AlgorithmOptimizationService:
         self,
         detector: Detector,
         dataset: Dataset,
-        profile: dict,
+        profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
         contamination_rate: float | None,
@@ -565,7 +565,7 @@ class AlgorithmOptimizationService:
         self,
         detector: Detector,
         dataset: Dataset,
-        profile: dict,
+        profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
         contamination_rate: float | None,
@@ -603,7 +603,7 @@ class AlgorithmOptimizationService:
         self,
         detector: Detector,
         dataset: Dataset,
-        profile: dict,
+        profile: dict[str, Any],
         optimization_level: str,
         validation_strategy: str,
         contamination_rate: float | None,
@@ -671,7 +671,7 @@ class AlgorithmOptimizationService:
 
     def _generate_limited_param_combinations(
         self, param_grid: dict, optimization_level: str
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         """Generate limited parameter combinations based on optimization level."""
         import itertools
 
@@ -826,7 +826,7 @@ class AlgorithmOptimizationService:
         return base_parameters.get(algorithm_name.lower(), {"contamination": 0.1})
 
     def _apply_dataset_adaptations(
-        self, base_params: dict, profile: dict, algorithm_name: str
+        self, base_params: dict[str, Any], profile: dict[str, Any], algorithm_name: str
     ) -> dict[str, Any]:
         """Apply dataset-specific parameter adaptations."""
         adapted_params = base_params.copy()
@@ -870,7 +870,7 @@ class AlgorithmOptimizationService:
         return adjusted_params
 
     def _generate_parameter_reasoning(
-        self, params: dict, profile: dict, algorithm_name: str
+        self, params: dict[str, Any], profile: dict[str, Any], algorithm_name: str
     ) -> list[str]:
         """Generate reasoning for parameter choices."""
         reasoning = []
@@ -923,7 +923,7 @@ class AlgorithmOptimizationService:
         return ensemble_results
 
     def _calculate_optimization_improvements(
-        self, original_results: list, optimized_results: list
+        self, original_results: list[Any], optimized_results: list[Any]
     ) -> dict[str, float]:
         """Calculate optimization improvements."""
         if not original_results or not optimized_results:
@@ -974,7 +974,7 @@ class AlgorithmOptimizationService:
 
         return improvements
 
-    def _aggregate_benchmark_results(self, results: list) -> dict[str, float]:
+    def _aggregate_benchmark_results(self, results: list[Any]) -> dict[str, float]:
         """Aggregate benchmark results."""
         if not results:
             return {}

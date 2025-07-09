@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -9,117 +10,124 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from pynomaly.presentation.cli import (
-    automl,
-    autonomous,
-    datasets,
-    deep_learning,
-    detection,
-    detectors,
-    explainability,
-    preprocessing,
-    selection,
-    server,
-    tdd,
-    validation,
-)
-from pynomaly.presentation.cli import config as config_cli
-from pynomaly.presentation.cli.export import export_app
-from pynomaly.presentation.cli.performance import performance_app
+# Check if we should use lazy loading (default: yes)
+USE_LAZY_LOADING = os.getenv("PYNOMALY_USE_LAZY_CLI", "true").lower() == "true"
 
-# These modules are now properly converted to Typer
-# from pynomaly.presentation.cli import deep_learning  # ✅ Now uses Typer - re-enabled below
-# from pynomaly.presentation.cli import explainability  # ✅ Now uses Typer - re-enabled below
-# from pynomaly.presentation.cli import selection  # ✅ Now uses Typer - re-enabled below
-# from pynomaly.presentation.cli.security import security_commands  # Temporarily disabled
-# from pynomaly.presentation.cli.dashboard import dashboard_commands  # Temporarily disabled
-# from pynomaly.presentation.cli.governance import governance_commands  # Temporarily disabled
+if USE_LAZY_LOADING:
+    # Use lazy loading for better performance
+    from pynomaly.presentation.cli.lazy_app import app
+else:
+    # Use traditional loading (for debugging/testing)
+    from pynomaly.presentation.cli import (
+        automl,
+        autonomous,
+        datasets,
+        deep_learning,
+        detection,
+        detectors,
+        explainability,
+        migrations,
+        preprocessing,
+        selection,
+        server,
+        tdd,
+        validation,
+    )
+    from pynomaly.presentation.cli import config as config_cli
+    from pynomaly.presentation.cli.export import export_app
+    from pynomaly.presentation.cli.performance import performance_app
 
-# Configuration management CLI
-try:
-    from pynomaly.presentation.cli import recommendation
+    # Configuration management CLI
+    try:
+        from pynomaly.presentation.cli import recommendation
 
-    RECOMMENDATION_CLI_AVAILABLE = True
-except ImportError:
-    recommendation = None
-    RECOMMENDATION_CLI_AVAILABLE = False
+        RECOMMENDATION_CLI_AVAILABLE = True
+    except ImportError:
+        recommendation = None
+        RECOMMENDATION_CLI_AVAILABLE = False
+
+    # Create Typer app
+    app = typer.Typer(
+        name="pynomaly",
+        help="Pynomaly - State-of-the-art anomaly detection CLI",
+        add_completion=True,
+        rich_markup_mode="rich",
+    )
+
+    # Add subcommands
+    app.add_typer(
+        autonomous.app,
+        name="auto",
+        help="Autonomous anomaly detection (auto-configure and run)",
+    )
+    app.add_typer(
+        automl.app, name="automl", help="Advanced AutoML & hyperparameter optimization"
+    )
+    app.add_typer(
+        config_cli.app,
+        name="config",
+        help="Configuration management (capture, export, import)",
+    )
+    app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
+    app.add_typer(datasets.app, name="dataset", help="Manage datasets")
+    app.add_typer(
+        preprocessing.app,
+        name="data",
+        help="Data preprocessing (clean, transform, pipeline)",
+    )
+    app.add_typer(detection.app, name="detect", help="Run anomaly detection")
+    app.add_typer(
+        tdd.app,
+        name="tdd",
+        help="Test-Driven Development (TDD) management and enforcement",
+    )
+    app.add_typer(
+        deep_learning.app,
+        name="deep-learning",
+        help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)",
+    )
+    app.add_typer(
+        explainability.app,
+        name="explainability",
+        help="🔍 Explainable AI (model interpretability, bias analysis)",
+    )
+    app.add_typer(
+        selection.app,
+        name="selection",
+        help="🧠 Intelligent algorithm selection with learning capabilities",
+    )
+    app.add_typer(
+        export_app,
+        name="export",
+        help="Export results to business intelligence platforms",
+    )
+    app.add_typer(server.app, name="server", help="Manage API server")
+    app.add_typer(
+        performance_app, name="perf", help="Performance monitoring and optimization"
+    )
+    app.add_typer(
+        validation.app,
+        name="validate",
+        help="🔍 Enhanced validation with rich output and GitHub integration",
+    )
+    app.add_typer(
+        migrations.app,
+        name="migrate",
+        help="🗄️ Database migration management",
+    )
+
+    # Configuration recommendation commands
+    if RECOMMENDATION_CLI_AVAILABLE:
+        app.add_typer(
+            recommendation.app,
+            name="recommend",
+            help="🧠 Intelligent configuration recommendations",
+        )
 
 from pynomaly.presentation.cli.container import get_cli_container
 
-# Create Typer app
-app = typer.Typer(
-    name="pynomaly",
-    help="Pynomaly - State-of-the-art anomaly detection CLI",
-    add_completion=True,
-    rich_markup_mode="rich",
-)
-
 # Create console for rich output
 console = Console()
-
-# Add subcommands
-app.add_typer(
-    autonomous.app,
-    name="auto",
-    help="Autonomous anomaly detection (auto-configure and run)",
-)
-app.add_typer(
-    automl.app, name="automl", help="Advanced AutoML & hyperparameter optimization"
-)
-app.add_typer(
-    config_cli.app,
-    name="config",
-    help="Configuration management (capture, export, import)",
-)
-app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
-app.add_typer(datasets.app, name="dataset", help="Manage datasets")
-app.add_typer(
-    preprocessing.app,
-    name="data",
-    help="Data preprocessing (clean, transform, pipeline)",
-)
-app.add_typer(detection.app, name="detect", help="Run anomaly detection")
-app.add_typer(
-    tdd.app, name="tdd", help="Test-Driven Development (TDD) management and enforcement"
-)
-app.add_typer(
-    deep_learning.app,
-    name="deep-learning",
-    help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)",
-)
-app.add_typer(
-    explainability.app,
-    name="explainability",
-    help="🔍 Explainable AI (model interpretability, bias analysis)",
-)
-app.add_typer(
-    selection.app,
-    name="selection",
-    help="🧠 Intelligent algorithm selection with learning capabilities",
-)
-# app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Still uses Click - needs conversion
-# app.add_typer(dashboard_commands, name="dashboard", help="📊 Advanced visualization dashboards (executive, operational, analytical)")  # Still uses Click - needs conversion
-# app.add_typer(governance_commands, name="governance", help="⚖️ Governance framework (audit trails, policies, risk management)")  # Still uses Click - needs conversion
-app.add_typer(
-    export_app, name="export", help="Export results to business intelligence platforms"
-)
-app.add_typer(server.app, name="server", help="Manage API server")
-app.add_typer(
-    performance_app, name="perf", help="Performance monitoring and optimization"
-)
-app.add_typer(
-    validation.app,
-    name="validate",
-    help="🔍 Enhanced validation with rich output and GitHub integration",
-)
-
-# Configuration recommendation commands
-if RECOMMENDATION_CLI_AVAILABLE:
-    app.add_typer(
-        recommendation.app,
-        name="recommend",
-        help="🧠 Intelligent configuration recommendations",
-    )
 
 
 @app.command()
@@ -505,20 +513,16 @@ def quickstart():
     console.print("\n[bold]Step 3: Create a detector[/bold]")
     console.print("Choose from various algorithms like IsolationForest, LOF, etc.")
     console.print(
-        "Example: [cyan]pynomaly detector create --name my_detector --algorithm IsolationForest[/cyan]"
+        "Example: [cyan]pynomaly detector create my_detector --algorithm IsolationForest[/cyan]"
     )
 
     console.print("\n[bold]Step 4: Train the detector[/bold]")
     console.print("Train your detector on the loaded dataset.")
-    console.print(
-        "Example: [cyan]pynomaly detect train --detector my_detector --dataset my_data[/cyan]"
-    )
+    console.print("Example: [cyan]pynomaly detect train my_detector my_data[/cyan]")
 
     console.print("\n[bold]Step 5: Detect anomalies[/bold]")
     console.print("Run detection on new data.")
-    console.print(
-        "Example: [cyan]pynomaly detect run --detector my_detector --dataset test_data[/cyan]"
-    )
+    console.print("Example: [cyan]pynomaly detect run my_detector test_data[/cyan]")
 
     console.print("\n[bold]Step 6: View and export results[/bold]")
     console.print("Analyze detection results and export them to various platforms.")
@@ -530,6 +534,38 @@ def quickstart():
     console.print(
         "\n[green]Ready to start![/green] Use [cyan]pynomaly --help[/cyan] to see all commands."
     )
+
+
+@app.command()
+def setup():
+    """Interactive setup wizard for new users.
+
+    This command provides a guided setup experience for users who are
+    new to Pynomaly, helping them configure their first detection workflow.
+    """
+    try:
+        from pynomaly.presentation.cli.ux_improvements import create_setup_wizard
+
+        config = create_setup_wizard()
+
+        if config:
+            console.print("\n[cyan]Commands to run:[/cyan]")
+            console.print(
+                f"  [white]pynomaly dataset load {config['data_path']} --name my-dataset[/white]"
+            )
+            console.print(
+                f"  [white]pynomaly detector create my-detector --algorithm {config['algorithm']} --contamination {config['contamination']}[/white]"
+            )
+            console.print(
+                "  [white]pynomaly detect train my-detector my-dataset[/white]"
+            )
+            console.print(
+                f"  [white]pynomaly detect run my-detector my-dataset --output results.{config['output_format']}[/white]"
+            )
+
+    except Exception as e:
+        console.print(f"[red]Error:[/red] Setup wizard failed: {str(e)}")
+        raise typer.Exit(1)
 
 
 @app.callback()

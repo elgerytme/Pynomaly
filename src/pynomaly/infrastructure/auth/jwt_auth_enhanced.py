@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import base64
 import logging
+import uuid
 from datetime import UTC, datetime, timedelta
 
 import jwt
@@ -73,6 +74,21 @@ class PasswordRotationStrategy(BaseModel):
     password_history_count: int = 12  # Number of previous passwords to remember
 
 
+class SessionInfo(BaseModel):
+    """Session information model."""
+
+    session_id: str
+    user_id: str
+    token_id: str
+    created_at: datetime
+    last_activity: datetime
+    ip_address: str | None = None
+    user_agent: str | None = None
+    device_info: str | None = None
+    is_active: bool = True
+    expires_at: datetime
+
+
 class JWKSKey(BaseModel):
     """JWKS key representation."""
 
@@ -93,13 +109,15 @@ class JWKSResponse(BaseModel):
 class EnhancedJWTAuthService:
     """Enhanced JWT authentication service with JWKS endpoint and rotating keys."""
 
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Settings, user_repository=None):
         """Initialize JWT auth service with rotating keys.
 
         Args:
             settings: Application settings
+            user_repository: Optional user repository for persistent storage
         """
         self.settings = settings
+        self.user_repository = user_repository
         self.algorithm = "RS256"  # Use RSA algorithm for JWKS
         self.access_token_expire = timedelta(seconds=settings.jwt_expiration)
         self.refresh_token_expire = timedelta(days=7)
@@ -125,12 +143,16 @@ class EnhancedJWTAuthService:
 
         # Security tracking
         self._failed_login_attempts: dict[
-            str, list
+            str, list[datetime]
         ] = {}  # username -> list of attempt timestamps
-        self._blacklisted_tokens: set = set()  # For token revocation
+        self._blacklisted_tokens: set[str] = set()  # For token revocation
         self._password_history: dict[
-            str, list
+            str, list[str]
         ] = {}  # user_id -> list of hashed passwords
+
+        # Session management
+        self._active_sessions: dict[str, list[dict]] = {}  # user_id -> list of sessions
+        self._session_tokens: dict[str, dict] = {}  # token_id -> session info
 
         # In-memory user store (replace with database in production)
         self._users: dict[str, UserModel] = {}
@@ -138,6 +160,14 @@ class EnhancedJWTAuthService:
 
         # Initialize default admin user
         self._init_default_users()
+
+    def _use_persistent_storage(self) -> bool:
+        """Check if we should use persistent storage."""
+        return (
+            self.user_repository is not None
+            and self.settings.use_database_repositories
+            and self.settings.database_configured
+        )
 
     def _initialize_keys(self) -> None:
         """Initialize RSA keys for JWT signing and provide JWKS keys."""
@@ -280,17 +310,32 @@ class EnhancedJWTAuthService:
         """
         return self.pwd_context.verify(plain_password, hashed_password)
 
-    def create_access_token(self, user: UserModel) -> TokenResponse:
-        """Create access token for user.
+    def create_access_token(
+        self,
+        user: UserModel,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+    ) -> TokenResponse:
+        """Create access token for user with session management.
 
         Args:
             user: User model
+            ip_address: Client IP address
+            user_agent: Client user agent
 
         Returns:
             Token response
         """
         now = datetime.now(UTC)
         expire = now + self.access_token_expire
+
+        # Generate unique session and token IDs
+        session_id = str(uuid.uuid4())
+        token_id = str(uuid.uuid4())
+
+        # Check concurrent session limits
+        max_sessions = self.settings.security.max_concurrent_sessions
+        self._enforce_session_limits(user.id, max_sessions)
 
         payload = TokenPayload(
             sub=user.id,
@@ -324,6 +369,25 @@ class EnhancedJWTAuthService:
             algorithm=self.algorithm,
             headers={"kid": self.current_key_id},
         )
+
+        # Create session info
+        session_info = SessionInfo(
+            session_id=session_id,
+            user_id=user.id,
+            token_id=token_id,
+            created_at=now,
+            last_activity=now,
+            ip_address=ip_address,
+            user_agent=user_agent,
+            device_info=self._extract_device_info(user_agent),
+            is_active=True,
+            expires_at=expire,
+        )
+
+        # Store session
+        self._store_session(session_info)
+
+        logger.info(f"Created session {session_id} for user {user.id}")
 
         return TokenResponse(
             access_token=access_token,
@@ -413,7 +477,7 @@ class EnhancedJWTAuthService:
         if username in self._failed_login_attempts:
             del self._failed_login_attempts[username]
 
-    def authenticate_user(self, username: str, password: str) -> UserModel:
+    async def authenticate_user(self, username: str, password: str) -> UserModel:
         """Authenticate user with username and password.
 
         Args:
@@ -431,10 +495,42 @@ class EnhancedJWTAuthService:
 
         # Find user by username or email
         user = None
-        for u in self._users.values():
-            if u.username == username or u.email == username:
-                user = u
-                break
+        if self._use_persistent_storage():
+            # Use repository to find user
+            try:
+                # Try to find by username first
+                domain_user = await self.user_repository.get_user_by_username(username)
+                if domain_user is None:
+                    # Try to find by email
+                    domain_user = await self.user_repository.get_user_by_email(username)
+
+                if domain_user is not None:
+                    # Convert domain user to UserModel
+                    user = UserModel(
+                        id=str(domain_user.id),
+                        username=domain_user.username,
+                        email=domain_user.email,
+                        full_name=domain_user.full_name,
+                        hashed_password=domain_user.hashed_password,
+                        is_active=domain_user.status.name == "ACTIVE",
+                        is_superuser=any(
+                            role.name == "SUPER_ADMIN" for role in domain_user.roles
+                        ),
+                        roles=[role.name for role in domain_user.roles],
+                    )
+            except Exception as e:
+                logger.error(f"Error accessing user repository: {e}")
+                # Fall back to in-memory storage
+                for u in self._users.values():
+                    if u.username == username or u.email == username:
+                        user = u
+                        break
+        else:
+            # Use in-memory storage
+            for u in self._users.values():
+                if u.username == username or u.email == username:
+                    user = u
+                    break
 
         if not user:
             self._record_failed_login(username)
@@ -705,6 +801,363 @@ class EnhancedJWTAuthService:
             logger.info(f"Revoked API key: {api_key}")
             return True
         return False
+
+    def create_password_reset_token(self, email: str) -> str:
+        """Create password reset token for user.
+
+        Args:
+            email: User email address
+
+        Returns:
+            Password reset token
+
+        Raises:
+            ValueError: If user not found or inactive
+        """
+        # Find user by email
+        user = None
+        if self._use_persistent_storage():
+            try:
+                # Use repository to find user by email
+                import asyncio
+
+                domain_user = asyncio.run(self.user_repository.get_user_by_email(email))
+
+                if domain_user is not None:
+                    user = UserModel(
+                        id=str(domain_user.id),
+                        username=domain_user.username,
+                        email=domain_user.email,
+                        full_name=domain_user.full_name,
+                        hashed_password=domain_user.hashed_password,
+                        is_active=domain_user.status.name == "ACTIVE",
+                        is_superuser=any(
+                            role.name == "SUPER_ADMIN" for role in domain_user.roles
+                        ),
+                        roles=[role.name for role in domain_user.roles],
+                    )
+            except Exception as e:
+                logger.error(f"Error accessing user repository: {e}")
+                # Fall back to in-memory storage
+                for u in self._users.values():
+                    if u.email == email:
+                        user = u
+                        break
+        else:
+            # Use in-memory storage
+            for u in self._users.values():
+                if u.email == email:
+                    user = u
+                    break
+
+        if not user:
+            raise ValueError("User not found")
+
+        if not user.is_active:
+            raise ValueError("User account is inactive")
+
+        # Create password reset token with shorter expiration
+        now = datetime.now(UTC)
+        payload = {
+            "sub": user.id,
+            "email": user.email,
+            "exp": now + timedelta(minutes=30),  # 30 minutes expiration
+            "iat": now,
+            "type": "password_reset",
+        }
+
+        token = jwt.encode(
+            payload, self.private_keys[self.current_key_id], algorithm=self.algorithm
+        )
+        logger.info(f"Created password reset token for user: {user.email}")
+        return token
+
+    def reset_password_with_token(self, token: str, new_password: str) -> None:
+        """Reset password using password reset token.
+
+        Args:
+            token: Password reset token
+            new_password: New password
+
+        Raises:
+            ValueError: If token is invalid or expired
+        """
+        try:
+            # Decode and validate token
+            payload = jwt.decode(
+                token,
+                self.public_keys[self.current_key_id],
+                algorithms=[self.algorithm],
+            )
+
+            # Check token type
+            if payload.get("type") != "password_reset":
+                raise ValueError("Invalid token type")
+
+            user_id = payload.get("sub")
+            email = payload.get("email")
+
+            if not user_id or not email:
+                raise ValueError("Invalid token payload")
+
+            # Find user
+            user = None
+            if self._use_persistent_storage():
+                try:
+                    import asyncio
+
+                    domain_user = asyncio.run(
+                        self.user_repository.get_user_by_email(email)
+                    )
+
+                    if domain_user is not None:
+                        user = UserModel(
+                            id=str(domain_user.id),
+                            username=domain_user.username,
+                            email=domain_user.email,
+                            full_name=domain_user.full_name,
+                            hashed_password=domain_user.hashed_password,
+                            is_active=domain_user.status.name == "ACTIVE",
+                            is_superuser=any(
+                                role.name == "SUPER_ADMIN" for role in domain_user.roles
+                            ),
+                            roles=[role.name for role in domain_user.roles],
+                        )
+                except Exception as e:
+                    logger.error(f"Error accessing user repository: {e}")
+                    # Fall back to in-memory storage
+                    user = self._users.get(user_id)
+            else:
+                # Use in-memory storage
+                user = self._users.get(user_id)
+
+            if not user:
+                raise ValueError("User not found")
+
+            if not user.is_active:
+                raise ValueError("User account is inactive")
+
+            # Validate password strength
+            if len(new_password) < 8:
+                raise ValueError("Password must be at least 8 characters long")
+
+            # Hash new password
+            hashed_password = self.hash_password(new_password)
+
+            # Update password
+            if self._use_persistent_storage():
+                try:
+                    # Update password in repository
+                    import asyncio
+
+                    domain_user = asyncio.run(
+                        self.user_repository.get_user_by_id(user_id)
+                    )
+                    if domain_user:
+                        # Update the hashed password
+                        domain_user.hashed_password = hashed_password
+                        asyncio.run(self.user_repository.update_user(domain_user))
+                        logger.info(f"Password reset for user: {user.email}")
+                        return
+                except Exception as e:
+                    logger.error(f"Error updating password in repository: {e}")
+                    # Fall back to in-memory storage
+                    pass
+
+            # Update in-memory storage
+            user.hashed_password = hashed_password
+            self._users[user_id] = user
+
+            # Add to password history
+            if user_id not in self._password_history:
+                self._password_history[user_id] = []
+            self._password_history[user_id].append(hashed_password)
+
+            # Keep only last 12 passwords
+            if len(self._password_history[user_id]) > 12:
+                self._password_history[user_id] = self._password_history[user_id][-12:]
+
+            logger.info(f"Password reset for user: {user.email}")
+
+        except jwt.ExpiredSignatureError:
+            raise ValueError("Password reset token has expired")
+        except jwt.InvalidTokenError:
+            raise ValueError("Invalid password reset token")
+
+    def _enforce_session_limits(self, user_id: str, max_sessions: int) -> None:
+        """Enforce concurrent session limits for user.
+
+        Args:
+            user_id: User ID
+            max_sessions: Maximum allowed concurrent sessions
+        """
+        # Clean up expired sessions first
+        self._cleanup_expired_sessions(user_id)
+
+        # Get current active sessions for user
+        user_sessions = self._active_sessions.get(user_id, [])
+        active_sessions = [s for s in user_sessions if s["is_active"]]
+
+        # If we're at the limit, remove the oldest session
+        if len(active_sessions) >= max_sessions:
+            # Sort by last activity (oldest first)
+            active_sessions.sort(key=lambda x: x["last_activity"])
+
+            # Remove oldest sessions until we're under the limit
+            sessions_to_remove = len(active_sessions) - max_sessions + 1
+            for i in range(sessions_to_remove):
+                session_to_remove = active_sessions[i]
+                self._invalidate_session(session_to_remove["session_id"])
+                logger.info(
+                    f"Removed oldest session {session_to_remove['session_id']} for user {user_id} due to session limit"
+                )
+
+    def _store_session(self, session_info: SessionInfo) -> None:
+        """Store session information.
+
+        Args:
+            session_info: Session information to store
+        """
+        session_dict = session_info.model_dump()
+
+        # Store in user sessions
+        if session_info.user_id not in self._active_sessions:
+            self._active_sessions[session_info.user_id] = []
+        self._active_sessions[session_info.user_id].append(session_dict)
+
+        # Store in token mapping
+        self._session_tokens[session_info.token_id] = session_dict
+
+    def _cleanup_expired_sessions(self, user_id: str | None = None) -> None:
+        """Clean up expired sessions.
+
+        Args:
+            user_id: Optional user ID to clean up sessions for (if None, cleans all)
+        """
+        now = datetime.now(UTC)
+
+        if user_id:
+            # Clean up sessions for specific user
+            if user_id in self._active_sessions:
+                active_sessions = []
+                for session in self._active_sessions[user_id]:
+                    if session["expires_at"] > now and session["is_active"]:
+                        active_sessions.append(session)
+                    else:
+                        # Remove from token mapping
+                        self._session_tokens.pop(session["token_id"], None)
+                        logger.debug(
+                            f"Cleaned up expired session {session['session_id']}"
+                        )
+
+                self._active_sessions[user_id] = active_sessions
+        else:
+            # Clean up all expired sessions
+            for uid in list(self._active_sessions.keys()):
+                self._cleanup_expired_sessions(uid)
+
+    def _invalidate_session(self, session_id: str) -> bool:
+        """Invalidate a specific session.
+
+        Args:
+            session_id: Session ID to invalidate
+
+        Returns:
+            True if session was found and invalidated
+        """
+        # Find and invalidate the session
+        for user_id, sessions in self._active_sessions.items():
+            for session in sessions:
+                if session["session_id"] == session_id:
+                    session["is_active"] = False
+                    # Remove from token mapping
+                    self._session_tokens.pop(session["token_id"], None)
+                    logger.info(f"Invalidated session {session_id} for user {user_id}")
+                    return True
+        return False
+
+    def _extract_device_info(self, user_agent: str | None) -> str | None:
+        """Extract device information from user agent.
+
+        Args:
+            user_agent: User agent string
+
+        Returns:
+            Device information string or None
+        """
+        if not user_agent:
+            return None
+
+        # Basic device detection (can be enhanced with a proper library)
+        user_agent_lower = user_agent.lower()
+
+        if "mobile" in user_agent_lower:
+            return "Mobile"
+        elif "tablet" in user_agent_lower:
+            return "Tablet"
+        elif (
+            "desktop" in user_agent_lower
+            or "windows" in user_agent_lower
+            or "mac" in user_agent_lower
+        ):
+            return "Desktop"
+        else:
+            return "Unknown"
+
+    def get_user_sessions(self, user_id: str) -> list[dict]:
+        """Get active sessions for a user.
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            List of active sessions
+        """
+        self._cleanup_expired_sessions(user_id)
+        return [s for s in self._active_sessions.get(user_id, []) if s["is_active"]]
+
+    def invalidate_user_sessions(
+        self, user_id: str, exclude_session_id: str | None = None
+    ) -> int:
+        """Invalidate all sessions for a user.
+
+        Args:
+            user_id: User ID
+            exclude_session_id: Optional session ID to exclude from invalidation
+
+        Returns:
+            Number of sessions invalidated
+        """
+        sessions = self._active_sessions.get(user_id, [])
+        count = 0
+
+        for session in sessions:
+            if session["is_active"] and session["session_id"] != exclude_session_id:
+                session["is_active"] = False
+                # Remove from token mapping
+                self._session_tokens.pop(session["token_id"], None)
+                count += 1
+
+        logger.info(f"Invalidated {count} sessions for user {user_id}")
+        return count
+
+    def update_session_activity(self, token: str) -> None:
+        """Update session activity timestamp.
+
+        Args:
+            token: JWT token
+        """
+        try:
+            payload = self.decode_token(token)
+
+            # Find the session and update last activity
+            for user_id, sessions in self._active_sessions.items():
+                for session in sessions:
+                    if session["user_id"] == payload.sub and session["is_active"]:
+                        session["last_activity"] = datetime.now(UTC)
+                        break
+        except Exception as e:
+            logger.debug(f"Failed to update session activity: {e}")
 
 
 # Global auth service instance

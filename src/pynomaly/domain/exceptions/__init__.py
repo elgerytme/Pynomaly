@@ -8,12 +8,14 @@ from .base import (
     ConfigurationError,
     DomainError,
     InfrastructureError,
+    InvalidConfigurationError,
     InvalidValueError,
     NotFittedError,
     PynamolyError,
     ValidationError,
 )
 from .dataset_exceptions import (
+    DataLoadError,
     DatasetError,
     DataTypeError,
     DataValidationError,
@@ -45,6 +47,16 @@ from .result_exceptions import (
     ScoreCalculationError,
     ThresholdError,
 )
+from .storage_exceptions import (
+    SerializationError,
+    StorageConfigurationError,
+    StorageConnectionError,
+    StorageError,
+    StorageNotFoundError,
+    StoragePermissionError,
+    StorageQuotaError,
+    StorageTimeoutError,
+)
 
 # Aliases for backward compatibility
 InvalidDataError = DataValidationError
@@ -64,6 +76,7 @@ __all__ = [
     "ValidationError",
     "NotFittedError",
     "ConfigurationError",
+    "InvalidConfigurationError",
     "AuthenticationError",
     "AuthorizationError",
     "CacheError",
@@ -80,6 +93,7 @@ __all__ = [
     "InsufficientDataError",
     "DataTypeError",
     "FeatureMismatchError",
+    "DataLoadError",
     # Result exceptions
     "ResultError",
     "ScoreCalculationError",
@@ -96,6 +110,15 @@ __all__ = [
     "InvalidPipelineStateError",
     "AlertNotFoundError",
     "InvalidAlertStateError",
+    # Storage exceptions
+    "StorageError",
+    "StorageConnectionError",
+    "StorageNotFoundError",
+    "StoragePermissionError",
+    "StorageTimeoutError",
+    "StorageConfigurationError",
+    "StorageQuotaError",
+    "SerializationError",
     # Aliases
     "InvalidDataError",
     "InvalidValueError",

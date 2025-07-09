@@ -21,7 +21,7 @@ Threshold = NewType("Threshold", float)
 
 # Data types
 FeatureName = NewType("FeatureName", str)
-FeatureValue = NewType("FeatureValue", int | float | str | bool)
+FeatureValue = NewType("FeatureValue", object)
 
 # Infrastructure types
 CacheKey = NewType("CacheKey", str)

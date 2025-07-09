@@ -108,6 +108,23 @@ class OptionalServiceManager:
             "rate_limiter", "pynomaly.infrastructure.auth.middleware", "RateLimiter"
         )
 
+        # User management repositories
+        self._register_service(
+            "user_repository",
+            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "SQLAlchemyUserRepository",
+        )
+        self._register_service(
+            "tenant_repository",
+            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "SQLAlchemyTenantRepository",
+        )
+        self._register_service(
+            "session_repository",
+            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "SQLAlchemySessionRepository",
+        )
+
         # Security services
         self._register_service(
             "security_monitor",
@@ -281,6 +298,23 @@ class OptionalServiceManager:
             "DatabaseDetectionResultRepository",
         )
 
+        # Database user management repositories
+        self._register_service(
+            "database_user_repository",
+            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "SQLAlchemyUserRepository",
+        )
+        self._register_service(
+            "database_tenant_repository",
+            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "SQLAlchemyTenantRepository",
+        )
+        self._register_service(
+            "database_session_repository",
+            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "SQLAlchemySessionRepository",
+        )
+
         # Application services
         self._register_service(
             "automl_service",
@@ -418,6 +452,16 @@ def _create_file_repository(config, repo_type: str):
         "result": InMemoryResultRepository,
     }
 
+    # User management repositories always use in-memory for fallback
+    user_memory_mapping = {
+        "user": lambda: None,  # Will be handled by JWT service in-memory storage
+        "tenant": lambda: None,
+        "session": lambda: None,
+    }
+
+    if repo_type in user_memory_mapping:
+        return user_memory_mapping[repo_type]()
+
     return memory_mapping[repo_type]()
 
 
@@ -446,6 +490,17 @@ class Container(containers.DeclarativeContainer):
     )
     result_repository = providers.Singleton(
         lambda: _create_repository(Settings(), "result")
+    )
+
+    # User management repositories
+    user_repository = providers.Singleton(
+        lambda: _create_repository(Settings(), "user")
+    )
+    tenant_repository = providers.Singleton(
+        lambda: _create_repository(Settings(), "tenant")
+    )
+    session_repository = providers.Singleton(
+        lambda: _create_repository(Settings(), "session")
     )
 
     # Async repository wrappers
@@ -502,6 +557,7 @@ class Container(containers.DeclarativeContainer):
                 "jwt_auth_service",
                 "singleton",
                 settings=cls.config,
+                user_repository=cls.user_repository,
             )
 
         if service_manager.is_available("permission_checker"):

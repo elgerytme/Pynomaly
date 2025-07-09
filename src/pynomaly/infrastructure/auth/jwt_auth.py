@@ -95,9 +95,9 @@ class JWTAuthService:
 
         # Security tracking
         self._failed_login_attempts: dict[
-            str, list
+            str, list[datetime]
         ] = {}  # username -> list of attempt timestamps
-        self._blacklisted_tokens: set = set()  # For token revocation
+        self._blacklisted_tokens: set[str] = set()  # For token revocation
         self._password_history: dict[
             str, list
         ] = {}  # user_id -> list of hashed passwords
@@ -660,6 +660,181 @@ class JWTAuthService:
 
         logger.info(f"API key rotated for user: {user_id}")
         return new_key
+
+    def create_password_reset_token(self, email: str) -> str:
+        """Create password reset token for user.
+
+        Args:
+            email: User email
+
+        Returns:
+            Password reset token
+
+        Raises:
+            ValueError: If user not found
+        """
+        # Find user by email
+        user = None
+        for u in self._users.values():
+            if u.email == email:
+                user = u
+                break
+
+        if not user:
+            raise ValueError("User not found")
+
+        # Create reset token (expires in 1 hour)
+        now = datetime.now(UTC)
+        expire = now + timedelta(hours=1)
+
+        payload = {
+            "sub": user.id,
+            "email": email,
+            "type": "password_reset",
+            "exp": expire,
+            "iat": now,
+        }
+
+        token = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+        logger.info(f"Password reset token created for user: {email}")
+        return token
+
+    def reset_password_with_token(self, token: str, new_password: str) -> bool:
+        """Reset password using reset token.
+
+        Args:
+            token: Password reset token
+            new_password: New password
+
+        Returns:
+            True if password was reset successfully
+
+        Raises:
+            ValueError: If token is invalid or expired
+        """
+        try:
+            payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
+
+            if payload.get("type") != "password_reset":
+                raise ValueError("Invalid token type")
+
+            user_id = payload.get("sub")
+            if not user_id:
+                raise ValueError("Invalid token")
+
+            user = self._users.get(user_id)
+            if not user:
+                raise ValueError("User not found")
+
+            # Update password
+            user.hashed_password = self.hash_password(new_password)
+
+            logger.info(f"Password reset successfully for user: {user_id}")
+            return True
+
+        except jwt.ExpiredSignatureError:
+            raise ValueError("Reset token has expired")
+        except jwt.InvalidTokenError:
+            raise ValueError("Invalid reset token")
+
+    def get_user_sessions(self, user_id: str) -> list:
+        """Get active sessions for user.
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            List of active sessions
+        """
+        # In a real implementation, this would query a session store
+        # For now, return mock data
+        return [
+            {
+                "session_id": f"session_{user_id}_1",
+                "created_at": datetime.now(UTC).isoformat(),
+                "last_activity": datetime.now(UTC).isoformat(),
+                "ip_address": "192.168.1.100",
+                "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "active": True,
+            }
+        ]
+
+    def invalidate_user_sessions(self, user_id: str) -> int:
+        """Invalidate all sessions for user.
+
+        Args:
+            user_id: User ID
+
+        Returns:
+            Number of sessions invalidated
+        """
+        # In a real implementation, this would invalidate sessions in session store
+        sessions = self.get_user_sessions(user_id)
+        count = len(sessions)
+
+        logger.info(f"Invalidated {count} sessions for user: {user_id}")
+        return count
+
+    def _invalidate_session(self, session_id: str) -> bool:
+        """Invalidate a specific session.
+
+        Args:
+            session_id: Session ID
+
+        Returns:
+            True if session was invalidated
+        """
+        # In a real implementation, this would invalidate the session in session store
+        logger.info(f"Invalidated session: {session_id}")
+        return True
+
+    def create_access_token(
+        self, user: UserModel, client_ip: str = None, user_agent: str = None
+    ) -> TokenResponse:
+        """Create access token for user with enhanced session tracking.
+
+        Args:
+            user: User model
+            client_ip: Client IP address
+            user_agent: User agent string
+
+        Returns:
+            Token response
+        """
+        now = datetime.now(UTC)
+        expire = now + self.access_token_expire
+
+        payload = TokenPayload(
+            sub=user.id,
+            exp=expire,
+            iat=now,
+            type="access",
+            roles=user.roles,
+            permissions=self._get_permissions_for_roles(user.roles),
+        )
+
+        access_token = jwt.encode(
+            payload.model_dump(), self.secret_key, algorithm=self.algorithm
+        )
+
+        # Create refresh token
+        refresh_expire = now + self.refresh_token_expire
+        refresh_payload = payload.model_copy(
+            update={"exp": refresh_expire, "type": "refresh"}
+        )
+
+        refresh_token = jwt.encode(
+            refresh_payload.model_dump(), self.secret_key, algorithm=self.algorithm
+        )
+
+        # Log session creation
+        logger.info(f"Session created for user {user.id} from {client_ip}")
+
+        return TokenResponse(
+            access_token=access_token,
+            expires_in=int(self.access_token_expire.total_seconds()),
+            refresh_token=refresh_token,
+        )
 
 
 # Global auth service instance

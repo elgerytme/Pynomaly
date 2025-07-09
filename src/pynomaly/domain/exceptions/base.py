@@ -145,6 +145,31 @@ class ConfigurationError(DomainError):
         super().__init__(message, details)
 
 
+class InvalidConfigurationError(ConfigurationError):
+    """Exception raised when configuration is invalid or corrupted."""
+
+    def __init__(
+        self,
+        message: str = "Invalid configuration",
+        config_path: str | None = None,
+        parameter: str | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize invalid configuration error.
+
+        Args:
+            message: Error message
+            config_path: Path to the configuration file
+            parameter: Configuration parameter that is invalid
+            **kwargs: Additional details
+        """
+        details = kwargs
+        if config_path:
+            details["config_path"] = config_path
+
+        super().__init__(message, parameter, **details)
+
+
 class AuthenticationError(PynamolyError):
     """Exception raised when authentication fails."""
 

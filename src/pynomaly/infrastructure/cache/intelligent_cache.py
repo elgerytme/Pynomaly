@@ -98,7 +98,7 @@ class AccessPattern:
     """Cache access pattern tracking."""
 
     key: str
-    access_times: deque = field(default_factory=lambda: deque(maxlen=100))
+    access_times: deque[float] = field(default_factory=lambda: deque(maxlen=100))
     access_frequency: float = 0.0
     last_access: float = field(default_factory=time.time)
     prediction_confidence: float = 0.0
@@ -397,7 +397,9 @@ class IntelligentCacheManager:
             logger.error(f"Cache delete pattern failed for {pattern}: {e}")
             return 0
 
-    async def warm_cache(self, keys_and_loaders: list[tuple[str, Callable]]) -> int:
+    async def warm_cache(
+        self, keys_and_loaders: list[tuple[str, Callable[..., Any]]]
+    ) -> int:
         """Warm cache with preloaded data.
 
         Args:
@@ -712,7 +714,7 @@ class IntelligentCacheManager:
         except Exception as e:
             logger.error(f"Async Redis set failed for key {key}: {e}")
 
-    async def _load_value(self, loader: Callable) -> Any:
+    async def _load_value(self, loader: Callable[..., Any]) -> Any:
         """Load value using loader function."""
         try:
             if asyncio.iscoroutinefunction(loader):

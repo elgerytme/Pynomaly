@@ -10,6 +10,9 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID
 
+import aiofiles
+import aiofiles.os
+
 from pynomaly.application.dto.configuration_dto import (
     ConfigurationCollectionDTO,
     ConfigurationSearchRequestDTO,
@@ -100,8 +103,8 @@ class ConfigurationRepository:
             if self.enable_compression:
                 await self._save_compressed(config_file, config_data)
             else:
-                with open(config_file, "w", encoding="utf-8") as f:
-                    json.dump(config_data, f, indent=2, default=str)
+                async with aiofiles.open(config_file, "w", encoding="utf-8") as f:
+                    await f.write(json.dumps(config_data, indent=2, default=str))
 
             # Update indexes
             await self._update_indexes(configuration)
@@ -138,8 +141,9 @@ class ConfigurationRepository:
             if self.enable_compression:
                 config_data = await self._load_compressed(config_file)
             else:
-                with open(config_file, encoding="utf-8") as f:
-                    config_data = json.load(f)
+                async with aiofiles.open(config_file, encoding="utf-8") as f:
+                    content = await f.read()
+                    config_data = json.loads(content)
 
             # Remove repository metadata
             config_data.pop("_repository_metadata", None)
@@ -178,7 +182,7 @@ class ConfigurationRepository:
                 await self._create_backup(config_id)
 
             # Delete configuration file
-            config_file.unlink()
+            await aiofiles.os.remove(config_file)
 
             # Remove from indexes
             await self._remove_from_indexes(config_id)
@@ -284,8 +288,8 @@ class ConfigurationRepository:
             )
 
             collection_data = collection.model_dump()
-            with open(collection_file, "w", encoding="utf-8") as f:
-                json.dump(collection_data, f, indent=2, default=str)
+            async with aiofiles.open(collection_file, "w", encoding="utf-8") as f:
+                await f.write(json.dumps(collection_data, indent=2, default=str))
 
             logger.info(f"Saved collection {collection.name} ({collection.id})")
             return True
@@ -313,8 +317,9 @@ class ConfigurationRepository:
             if not collection_file.exists():
                 return None
 
-            with open(collection_file, encoding="utf-8") as f:
-                collection_data = json.load(f)
+            async with aiofiles.open(collection_file, encoding="utf-8") as f:
+                content = await f.read()
+                collection_data = json.loads(content)
 
             return ConfigurationCollectionDTO(**collection_data)
 
@@ -335,8 +340,8 @@ class ConfigurationRepository:
             template_file = self.storage_path / "templates" / f"{template.id}.json"
 
             template_data = template.model_dump()
-            with open(template_file, "w", encoding="utf-8") as f:
-                json.dump(template_data, f, indent=2, default=str)
+            async with aiofiles.open(template_file, "w", encoding="utf-8") as f:
+                await f.write(json.dumps(template_data, indent=2, default=str))
 
             logger.info(f"Saved template {template.name} ({template.id})")
             return True
@@ -360,8 +365,9 @@ class ConfigurationRepository:
             if not template_file.exists():
                 return None
 
-            with open(template_file, encoding="utf-8") as f:
-                template_data = json.load(f)
+            async with aiofiles.open(template_file, encoding="utf-8") as f:
+                content = await f.read()
+                template_data = json.loads(content)
 
             return ConfigurationTemplateDTO(**template_data)
 
@@ -401,8 +407,8 @@ class ConfigurationRepository:
                         config_data.pop("metadata", None)
                     export_data["configurations"].append(config_data)
 
-            with open(export_path, "w", encoding="utf-8") as f:
-                json.dump(export_data, f, indent=2, default=str)
+            async with aiofiles.open(export_path, "w", encoding="utf-8") as f:
+                await f.write(json.dumps(export_data, indent=2, default=str))
 
             logger.info(
                 f"Exported {len(export_data['configurations'])} configurations to {export_path}"
@@ -426,8 +432,9 @@ class ConfigurationRepository:
             Number of configurations imported
         """
         try:
-            with open(import_path, encoding="utf-8") as f:
-                import_data = json.load(f)
+            async with aiofiles.open(import_path, encoding="utf-8") as f:
+                content = await f.read()
+                import_data = json.loads(content)
 
             imported_count = 0
             configurations = import_data.get("configurations", [])
@@ -655,24 +662,37 @@ class ConfigurationRepository:
 
     async def _save_compressed(self, file_path: Path, data: dict[str, Any]) -> None:
         """Save data with compression."""
+        import asyncio
         import gzip
 
         json_str = json.dumps(data, indent=2, default=str)
-        with gzip.open(f"{file_path}.gz", "wt", encoding="utf-8") as f:
-            f.write(json_str)
+        # Run gzip compression in thread pool to avoid blocking
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None,
+            lambda: gzip.open(f"{file_path}.gz", "wt", encoding="utf-8").write(
+                json_str
+            ),
+        )
 
     async def _load_compressed(self, file_path: Path) -> dict[str, Any]:
         """Load compressed data."""
+        import asyncio
         import gzip
 
         compressed_file = Path(f"{file_path}.gz")
         if compressed_file.exists():
-            with gzip.open(compressed_file, "rt", encoding="utf-8") as f:
-                return json.load(f)
+            # Run gzip decompression in thread pool to avoid blocking
+            loop = asyncio.get_event_loop()
+            content = await loop.run_in_executor(
+                None, lambda: gzip.open(compressed_file, "rt", encoding="utf-8").read()
+            )
+            return json.loads(content)
         else:
             # Fallback to uncompressed
-            with open(file_path, encoding="utf-8") as f:
-                return json.load(f)
+            async with aiofiles.open(file_path, encoding="utf-8") as f:
+                content = await f.read()
+                return json.loads(content)
 
     async def _update_indexes(self, configuration: ExperimentConfigurationDTO) -> None:
         """Update search indexes for configuration."""
@@ -681,8 +701,9 @@ class ConfigurationRepository:
 
         try:
             if index_file.exists():
-                with open(index_file, encoding="utf-8") as f:
-                    index_data = json.load(f)
+                async with aiofiles.open(index_file, encoding="utf-8") as f:
+                    content = await f.read()
+                    index_data = json.loads(content)
             else:
                 index_data = {"configurations": {}}
 
@@ -696,8 +717,8 @@ class ConfigurationRepository:
                 "status": configuration.status,
             }
 
-            with open(index_file, "w", encoding="utf-8") as f:
-                json.dump(index_data, f, indent=2, default=str)
+            async with aiofiles.open(index_file, "w", encoding="utf-8") as f:
+                await f.write(json.dumps(index_data, indent=2, default=str))
 
         except Exception as e:
             logger.warning(f"Failed to update indexes: {e}")
@@ -708,13 +729,14 @@ class ConfigurationRepository:
 
         try:
             if index_file.exists():
-                with open(index_file, encoding="utf-8") as f:
-                    index_data = json.load(f)
+                async with aiofiles.open(index_file, encoding="utf-8") as f:
+                    content = await f.read()
+                    index_data = json.loads(content)
 
                 index_data["configurations"].pop(str(config_id), None)
 
-                with open(index_file, "w", encoding="utf-8") as f:
-                    json.dump(index_data, f, indent=2, default=str)
+                async with aiofiles.open(index_file, "w", encoding="utf-8") as f:
+                    await f.write(json.dumps(index_data, indent=2, default=str))
 
         except Exception as e:
             logger.warning(f"Failed to remove from indexes: {e}")
@@ -725,15 +747,16 @@ class ConfigurationRepository:
             access_file = self.storage_path / "indexes" / "access_log.json"
 
             if access_file.exists():
-                with open(access_file, encoding="utf-8") as f:
-                    access_data = json.load(f)
+                async with aiofiles.open(access_file, encoding="utf-8") as f:
+                    content = await f.read()
+                    access_data = json.loads(content)
             else:
                 access_data = {}
 
             access_data[str(config_id)] = datetime.now().isoformat()
 
-            with open(access_file, "w", encoding="utf-8") as f:
-                json.dump(access_data, f, indent=2, default=str)
+            async with aiofiles.open(access_file, "w", encoding="utf-8") as f:
+                await f.write(json.dumps(access_data, indent=2, default=str))
 
         except Exception as e:
             logger.debug(f"Failed to update access timestamp: {e}")
@@ -768,7 +791,7 @@ class ConfigurationRepository:
     async def _save_repository_metadata(self) -> None:
         """Save repository metadata."""
         try:
-            with open(self.metadata_file, "w", encoding="utf-8") as f:
-                json.dump(self.metadata, f, indent=2, default=str)
+            async with aiofiles.open(self.metadata_file, "w", encoding="utf-8") as f:
+                await f.write(json.dumps(self.metadata, indent=2, default=str))
         except Exception as e:
             logger.error(f"Failed to save repository metadata: {e}")

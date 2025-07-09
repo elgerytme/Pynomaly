@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -186,7 +187,7 @@ class SemanticVersion:
 
         return abs(self_score - other_score)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {
             "major": self.major,

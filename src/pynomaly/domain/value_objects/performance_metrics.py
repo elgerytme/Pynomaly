@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -149,7 +150,7 @@ class PerformanceMetrics:
         training_time: float,
         inference_time: float,
         model_size: int,
-        **kwargs,
+        **kwargs: Any,
     ) -> PerformanceMetrics:
         """Create metrics from confusion matrix values.
 
@@ -261,12 +262,11 @@ class PerformanceMetrics:
     def total_predictions(self) -> int | None:
         """Get total number of predictions if confusion matrix available."""
         if self.has_confusion_matrix:
-            return (
-                self.true_positives
-                + self.true_negatives
-                + self.false_positives
-                + self.false_negatives
-            )
+            tp = self.true_positives or 0
+            tn = self.true_negatives or 0
+            fp = self.false_positives or 0
+            fn = self.false_negatives or 0
+            return tp + tn + fp + fn
         return None
 
     @property

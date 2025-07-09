@@ -272,7 +272,7 @@ class TaskTrackingService:
                 self.logger.error(f"Error in task subscriber callback: {e}")
 
     async def run_task_with_tracking(
-        self, task_id: str, async_func: Callable, *args, **kwargs
+        self, task_id: str, async_func: Callable[..., Any], *args, **kwargs
     ) -> Any:
         """Run an async function with automatic task tracking."""
         try:

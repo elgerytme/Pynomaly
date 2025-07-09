@@ -188,7 +188,7 @@ class DatasetConfigDTO(BaseModel):
     )
 
     # Data validation
-    expected_shape: tuple | None = Field(
+    expected_shape: tuple[int, ...] | None = Field(
         default=None, description="Expected dataset shape"
     )
     required_columns: list[str] | None = Field(

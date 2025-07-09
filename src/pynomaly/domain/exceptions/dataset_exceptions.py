@@ -139,3 +139,34 @@ class FeatureMismatchError(DatasetError):
             details["extra_features"] = extra_features
 
         super().__init__(message, details)
+
+
+class DataLoadError(DatasetError):
+    """Exception raised when data loading fails."""
+
+    def __init__(
+        self,
+        message: str = "Data loading failed",
+        source_path: str | None = None,
+        data_format: str | None = None,
+        operation: str | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize data load error.
+
+        Args:
+            message: Error message
+            source_path: Path to the data source
+            data_format: Format of the data (e.g., 'csv', 'parquet', 'json')
+            operation: Operation that failed (e.g., 'read', 'parse', 'validate')
+            **kwargs: Additional details
+        """
+        details = kwargs
+        if source_path:
+            details["source_path"] = source_path
+        if data_format:
+            details["data_format"] = data_format
+        if operation:
+            details["operation"] = operation
+
+        super().__init__(message, details)

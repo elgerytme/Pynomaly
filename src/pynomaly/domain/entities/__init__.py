@@ -10,6 +10,7 @@ from .alert import (
     NotificationChannel,
 )
 from .anomaly import Anomaly
+from .anomaly_point import AnomalyPoint
 from .dataset import Dataset
 from .detection_result import DetectionResult
 from .detector import Detector
@@ -27,6 +28,7 @@ from .pipeline import (
 
 __all__ = [
     "Anomaly",
+    "AnomalyPoint",
     "Dataset",
     "Detector",
     "DetectionResult",

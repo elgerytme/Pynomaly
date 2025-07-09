@@ -15,7 +15,9 @@ class DriftDetectionMethod(Enum):
     """Methods for drift detection."""
 
     KOLMOGOROV_SMIRNOV = "kolmogorov_smirnov"
+    KS_TEST = "kolmogorov_smirnov"  # Alias for compatibility
     POPULATION_STABILITY_INDEX = "population_stability_index"
+    PSI = "population_stability_index"  # Alias for compatibility
     JENSEN_SHANNON_DIVERGENCE = "jensen_shannon_divergence"
     MAXIMUM_MEAN_DISCREPANCY = "maximum_mean_discrepancy"
     WASSERSTEIN_DISTANCE = "wasserstein_distance"
@@ -502,6 +504,130 @@ class MonitoringStatus(Enum):
     PAUSED = "paused"
     STOPPED = "stopped"
     ERROR = "error"
+
+
+class DriftMonitoringStatus(Enum):
+    """Status of drift monitoring system."""
+
+    ACTIVE = "active"
+    PAUSED = "paused"
+    STOPPED = "stopped"
+    ERROR = "error"
+    INITIALIZING = "initializing"
+    MAINTENANCE = "maintenance"
+
+
+@dataclass
+class DriftReport:
+    """Comprehensive drift monitoring report."""
+
+    report_id: UUID = field(default_factory=uuid4)
+    model_id: UUID = field(default_factory=uuid4)
+    generation_timestamp: datetime = field(default_factory=datetime.utcnow)
+    monitoring_period: TimeWindow = field(
+        default_factory=lambda: TimeWindow(
+            start_time=datetime.utcnow() - timedelta(days=1),
+            end_time=datetime.utcnow(),
+            window_size=timedelta(hours=1),
+        )
+    )
+    drift_status: DriftMonitoringStatus = DriftMonitoringStatus.ACTIVE
+    overall_drift_score: float = 0.0
+    drift_severity: DriftSeverity = DriftSeverity.LOW
+    features_analyzed: int = 0
+    features_with_drift: int = 0
+    critical_alerts: int = 0
+    recommendations: list[str] = field(default_factory=list)
+    detailed_results: dict[str, Any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        """Validate drift report."""
+        if not (0.0 <= self.overall_drift_score <= 1.0):
+            raise ValueError("Overall drift score must be between 0.0 and 1.0")
+        if self.features_analyzed < 0:
+            raise ValueError("Features analyzed must be non-negative")
+        if self.features_with_drift < 0:
+            raise ValueError("Features with drift must be non-negative")
+        if self.features_with_drift > self.features_analyzed:
+            raise ValueError("Features with drift cannot exceed features analyzed")
+
+    def get_drift_ratio(self) -> float:
+        """Get ratio of features with drift to total features."""
+        return self.features_with_drift / max(self.features_analyzed, 1)
+
+    def needs_attention(self) -> bool:
+        """Check if report indicates need for attention."""
+        return (
+            self.drift_severity in [DriftSeverity.HIGH, DriftSeverity.CRITICAL]
+            or self.critical_alerts > 0
+            or self.get_drift_ratio() > 0.5
+        )
+
+
+@dataclass
+class DriftMetrics:
+    """Metrics for drift detection and monitoring."""
+
+    metric_id: UUID = field(default_factory=uuid4)
+    collection_timestamp: datetime = field(default_factory=datetime.utcnow)
+    model_id: UUID = field(default_factory=uuid4)
+
+    # Performance metrics
+    drift_detection_accuracy: float = 0.0
+    false_positive_rate: float = 0.0
+    false_negative_rate: float = 0.0
+    detection_latency_seconds: float = 0.0
+
+    # Data quality metrics
+    data_completeness: float = 1.0
+    data_consistency: float = 1.0
+    feature_stability: dict[str, float] = field(default_factory=dict)
+
+    # System metrics
+    monitoring_uptime: float = 1.0
+    alert_response_time: float = 0.0
+    resource_utilization: dict[str, float] = field(default_factory=dict)
+
+    # Trend metrics
+    drift_trend_direction: str = "stable"  # stable, increasing, decreasing
+    drift_velocity: float = 0.0
+    prediction_stability: float = 1.0
+
+    def __post_init__(self):
+        """Validate drift metrics."""
+        if not (0.0 <= self.drift_detection_accuracy <= 1.0):
+            raise ValueError("Drift detection accuracy must be between 0.0 and 1.0")
+        if not (0.0 <= self.false_positive_rate <= 1.0):
+            raise ValueError("False positive rate must be between 0.0 and 1.0")
+        if not (0.0 <= self.false_negative_rate <= 1.0):
+            raise ValueError("False negative rate must be between 0.0 and 1.0")
+        if not (0.0 <= self.data_completeness <= 1.0):
+            raise ValueError("Data completeness must be between 0.0 and 1.0")
+        if not (0.0 <= self.data_consistency <= 1.0):
+            raise ValueError("Data consistency must be between 0.0 and 1.0")
+        if not (0.0 <= self.monitoring_uptime <= 1.0):
+            raise ValueError("Monitoring uptime must be between 0.0 and 1.0")
+        if not (0.0 <= self.prediction_stability <= 1.0):
+            raise ValueError("Prediction stability must be between 0.0 and 1.0")
+
+    def get_overall_quality_score(self) -> float:
+        """Get overall quality score for drift monitoring."""
+        return (
+            self.drift_detection_accuracy * 0.3
+            + (1.0 - self.false_positive_rate) * 0.2
+            + (1.0 - self.false_negative_rate) * 0.2
+            + self.data_completeness * 0.1
+            + self.data_consistency * 0.1
+            + self.monitoring_uptime * 0.1
+        )
+
+    def is_performing_well(self) -> bool:
+        """Check if drift monitoring is performing well."""
+        return (
+            self.get_overall_quality_score() > 0.8
+            and self.false_positive_rate < 0.1
+            and self.false_negative_rate < 0.1
+        )
 
 
 @dataclass

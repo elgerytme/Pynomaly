@@ -16,8 +16,8 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 from pynomaly.domain.entities.user import (
     Permission,
@@ -144,15 +144,15 @@ class UserSessionModel(Base):
 class SQLAlchemyUserRepository(UserRepositoryProtocol):
     """SQLAlchemy implementation of UserRepositoryProtocol."""
 
-    def __init__(self, session_factory: sessionmaker):
+    def __init__(self, session_factory: async_sessionmaker):
         self._session_factory = session_factory
 
-    def _to_domain_user(self, user_model: UserModel) -> User:
+    async def _to_domain_user(self, user_model: UserModel) -> User:
         """Convert SQLAlchemy model to domain entity."""
         # Get tenant roles from association table
         tenant_roles = []
-        with self._session_factory() as session:
-            result = session.execute(
+        async with self._session_factory() as session:
+            result = await session.execute(
                 user_tenant_roles.select().where(
                     user_tenant_roles.c.user_id == user_model.id
                 )
@@ -212,7 +212,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
 
     async def create_user(self, user: User) -> User:
         """Create a new user."""
-        with self._session_factory() as session:
+        async with self._session_factory() as session:
             user_model = self._to_model_user(user)
             session.add(user_model)
 
@@ -228,7 +228,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
                     for p in tenant_role.permissions
                 ]
 
-                session.execute(
+                await session.execute(
                     user_tenant_roles.insert().values(
                         user_id=user.id,
                         tenant_id=tenant_role.tenant_id,
@@ -240,9 +240,9 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
                     )
                 )
 
-            session.commit()
-            session.refresh(user_model)
-            return self._to_domain_user(user_model)
+            await session.commit()
+            await session.refresh(user_model)
+            return await self._to_domain_user(user_model)
 
     async def get_user_by_id(self, user_id: UserId) -> User | None:
         """Get user by ID."""
@@ -250,7 +250,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             user_model = (
                 session.query(UserModel).filter(UserModel.id == user_id).first()
             )
-            return self._to_domain_user(user_model) if user_model else None
+            return await self._to_domain_user(user_model) if user_model else None
 
     async def get_user_by_email(self, email: str) -> User | None:
         """Get user by email."""
@@ -258,7 +258,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             user_model = (
                 session.query(UserModel).filter(UserModel.email == email).first()
             )
-            return self._to_domain_user(user_model) if user_model else None
+            return await self._to_domain_user(user_model) if user_model else None
 
     async def get_user_by_username(self, username: str) -> User | None:
         """Get user by username."""
@@ -266,7 +266,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             user_model = (
                 session.query(UserModel).filter(UserModel.username == username).first()
             )
-            return self._to_domain_user(user_model) if user_model else None
+            return await self._to_domain_user(user_model) if user_model else None
 
     async def update_user(self, user: User) -> User:
         """Update existing user."""
@@ -291,7 +291,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
 
             session.commit()
             session.refresh(user_model)
-            return self._to_domain_user(user_model)
+            return await self._to_domain_user(user_model)
 
     async def delete_user(self, user_id: UserId) -> bool:
         """Delete user."""
@@ -319,7 +319,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
             user_models = (
                 session.query(UserModel).filter(UserModel.id.in_(user_ids)).all()
             )
-            return [self._to_domain_user(model) for model in user_models]
+            return [await self._to_domain_user(model) for model in user_models]
 
     async def add_user_to_tenant(
         self, user_id: UserId, tenant_id: TenantId, role: UserRole
@@ -405,6 +405,44 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
                 permissions=get_default_permissions(role),
                 granted_at=datetime.utcnow(),
             )
+
+    async def list_users(
+        self,
+        tenant_id: TenantId | None = None,
+        status: UserStatus | None = None,
+        role: UserRole | None = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[User]:
+        """List users with optional filters."""
+        with self._session_factory() as session:
+            query = session.query(UserModel)
+
+            # Apply filters
+            if status:
+                query = query.filter(UserModel.status == status.value)
+
+            if tenant_id:
+                # Join with user_tenant_roles to filter by tenant
+                query = query.join(
+                    user_tenant_roles, UserModel.id == user_tenant_roles.c.user_id
+                ).filter(user_tenant_roles.c.tenant_id == tenant_id)
+
+                if role:
+                    query = query.filter(user_tenant_roles.c.role == role.value)
+
+            # Apply pagination
+            query = query.offset(offset).limit(limit)
+
+            user_models = query.all()
+
+            # Convert to domain entities
+            users = []
+            for user_model in user_models:
+                user = await self._to_domain_user(user_model)
+                users.append(user)
+
+            return users
 
 
 class SQLAlchemyTenantRepository(TenantRepositoryProtocol):

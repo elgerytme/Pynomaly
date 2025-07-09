@@ -1,983 +1,1548 @@
 #!/usr/bin/env python3
 """
-Generate comprehensive API documentation from Pynomaly API Gateway endpoints.
+Pynomaly API Documentation Generator
+
+This script generates comprehensive API documentation including:
+- OpenAPI 3.0 specification (JSON and YAML formats)
+- Interactive Swagger UI documentation
+- Code examples for Python, JavaScript, and cURL
+- Postman collection for API testing
+- Comprehensive endpoint documentation
 """
 
 import json
-import yaml
-import asyncio
+import sys
 from datetime import datetime
-from typing import Dict, Any, List, Optional
 from pathlib import Path
+from typing import Any
 
-# Import Pynomaly components
-from src.pynomaly.features.api_gateway import (
-    APIGateway, 
-    get_api_gateway,
-    HTTPMethod,
-    ResponseFormat,
-    EndpointStatus
-)
+import yaml
 
-class APIDocumentationGenerator:
-    """Generate comprehensive API documentation."""
-    
-    def __init__(self, output_dir: str = "docs/api"):
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        self.gateway = get_api_gateway()
-        
-    async def generate_all_documentation(self) -> Dict[str, Any]:
-        """Generate all API documentation formats."""
-        
-        # Register standard endpoints
-        await self.gateway.register_anomaly_detection_endpoints()
-        
-        # Generate different documentation formats
-        docs = {
-            'openapi': await self.generate_openapi_spec(),
-            'postman': await self.generate_postman_collection(),
-            'markdown': await self.generate_markdown_docs(),
-            'interactive': await self.generate_interactive_docs(),
-            'curl_examples': await self.generate_curl_examples(),
-            'sdk_examples': await self.generate_sdk_examples()
-        }
-        
-        # Save all documentation
-        await self.save_documentation(docs)
-        
-        return docs
-    
-    async def generate_openapi_spec(self) -> Dict[str, Any]:
-        """Generate OpenAPI 3.0 specification."""
-        
-        # Get all registered endpoints
-        endpoints = self.gateway.endpoint_manager.list_endpoints()
-        
-        openapi_spec = {
-            "openapi": "3.0.3",
-            "info": {
-                "title": "Pynomaly API",
-                "description": "Production-ready Anomaly Detection API",
-                "version": "1.0.0",
-                "contact": {
-                    "name": "Pynomaly Team",
-                    "url": "https://github.com/your-org/pynomaly",
-                    "email": "support@pynomaly.com"
-                },
-                "license": {
-                    "name": "MIT",
-                    "url": "https://opensource.org/licenses/MIT"
-                }
+# Configuration
+SCRIPT_DIR = Path(__file__).parent
+PROJECT_DIR = SCRIPT_DIR.parent
+DOCS_DIR = PROJECT_DIR / "docs" / "api"
+OUTPUT_DIR = DOCS_DIR / "generated"
+
+# Ensure output directory exists
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+# Colors for output
+class Colors:
+    GREEN = "\033[0;32m"
+    YELLOW = "\033[1;33m"
+    RED = "\033[0;31m"
+    BLUE = "\033[0;34m"
+    NC = "\033[0m"  # No Color
+
+
+def log(message: str, color: str = Colors.GREEN):
+    """Log a message with color."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"{color}[{timestamp}] {message}{Colors.NC}")
+
+
+def error(message: str):
+    """Log an error message."""
+    log(f"ERROR: {message}", Colors.RED)
+
+
+def warning(message: str):
+    """Log a warning message."""
+    log(f"WARNING: {message}", Colors.YELLOW)
+
+
+def info(message: str):
+    """Log an info message."""
+    log(f"INFO: {message}", Colors.BLUE)
+
+
+def generate_openapi_spec() -> dict[str, Any]:
+    """Generate OpenAPI 3.0 specification."""
+    log("Generating OpenAPI 3.0 specification...")
+
+    spec = {
+        "openapi": "3.0.3",
+        "info": {
+            "title": "Pynomaly API",
+            "description": "State-of-the-art anomaly detection API with comprehensive machine learning capabilities",
+            "version": "1.0.0",
+            "contact": {
+                "name": "Pynomaly Support",
+                "email": "support@pynomaly.com",
+                "url": "https://docs.pynomaly.com",
             },
-            "servers": [
-                {
-                    "url": "https://api.pynomaly.com/v1",
-                    "description": "Production server"
-                },
-                {
-                    "url": "https://staging-api.pynomaly.com/v1",
-                    "description": "Staging server"
-                },
-                {
-                    "url": "http://localhost:8000/v1",
-                    "description": "Development server"
-                }
-            ],
-            "paths": {},
-            "components": {
-                "schemas": self._generate_schemas(),
-                "securitySchemes": {
-                    "bearerAuth": {
-                        "type": "http",
-                        "scheme": "bearer",
-                        "bearerFormat": "JWT"
-                    },
-                    "apiKey": {
-                        "type": "apiKey",
-                        "in": "header",
-                        "name": "X-API-Key"
-                    }
-                }
+            "license": {"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
+        },
+        "servers": [
+            {"url": "https://api.pynomaly.com", "description": "Production server"},
+            {
+                "url": "https://staging-api.pynomaly.com",
+                "description": "Staging server",
             },
-            "security": [
-                {"bearerAuth": []},
-                {"apiKey": []}
-            ]
-        }
-        
-        # Add endpoint paths
-        for endpoint in endpoints:
-            path = endpoint.path
-            method = endpoint.method.value.lower()
-            
-            if path not in openapi_spec["paths"]:
-                openapi_spec["paths"][path] = {}
-                
-            openapi_spec["paths"][path][method] = {
-                "summary": endpoint.name or f"{method.upper()} {path}",
-                "description": endpoint.description or f"Endpoint: {endpoint.name}",
-                "operationId": f"{method}_{path.replace('/', '_').replace('-', '_')}",
-                "tags": endpoint.tags or ["general"],
-                "parameters": self._generate_parameters(endpoint),
-                "responses": self._generate_responses(endpoint),
-                "security": [{"bearerAuth": []}] if endpoint.auth_required else []
-            }
-            
-            # Add request body for POST/PUT methods
-            if method in ['post', 'put', 'patch']:
-                openapi_spec["paths"][path][method]["requestBody"] = self._generate_request_body(endpoint)
-        
-        return openapi_spec
-    
-    async def generate_postman_collection(self) -> Dict[str, Any]:
-        """Generate Postman collection."""
-        
-        endpoints = self.gateway.endpoint_manager.list_endpoints()
-        
-        collection = {
-            "info": {
-                "name": "Pynomaly API",
-                "description": "Complete Pynomaly API collection for testing",
-                "version": "1.0.0",
-                "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-            },
-            "auth": {
-                "type": "bearer",
-                "bearer": [
-                    {
-                        "key": "token",
-                        "value": "{{access_token}}",
-                        "type": "string"
-                    }
-                ]
-            },
-            "variable": [
-                {
-                    "key": "base_url",
-                    "value": "https://api.pynomaly.com",
-                    "type": "string"
-                },
-                {
-                    "key": "access_token",
-                    "value": "your_jwt_token_here",
-                    "type": "string"
-                }
-            ],
-            "item": []
-        }
-        
-        # Group endpoints by tags
-        endpoint_groups = {}
-        for endpoint in endpoints:
-            tags = endpoint.tags or ["General"]
-            for tag in tags:
-                if tag not in endpoint_groups:
-                    endpoint_groups[tag] = []
-                endpoint_groups[tag].append(endpoint)
-        
-        # Create Postman folders and requests
-        for group_name, group_endpoints in endpoint_groups.items():
-            folder = {
-                "name": group_name,
-                "item": []
-            }
-            
-            for endpoint in group_endpoints:
-                request = {
-                    "name": endpoint.name or f"{endpoint.method.value} {endpoint.path}",
-                    "request": {
-                        "method": endpoint.method.value,
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}" + endpoint.path,
-                            "host": ["{{base_url}}"],
-                            "path": endpoint.path.strip("/").split("/")
+            {"url": "http://localhost:8000", "description": "Development server"},
+        ],
+        "security": [{"ApiKeyAuth": []}],
+        "paths": {
+            "/health": {
+                "get": {
+                    "summary": "Health check endpoint",
+                    "description": "Basic health check to verify API availability",
+                    "operationId": "healthCheck",
+                    "tags": ["Health"],
+                    "responses": {
+                        "200": {
+                            "description": "API is healthy",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/HealthResponse"
+                                    }
+                                }
+                            },
                         }
                     },
-                    "response": []
                 }
-                
-                # Add request body for POST/PUT methods
-                if endpoint.method in [HTTPMethod.POST, HTTPMethod.PUT, HTTPMethod.PATCH]:
-                    request["request"]["body"] = {
-                        "mode": "raw",
-                        "raw": json.dumps(self._generate_example_request_body(endpoint), indent=2)
-                    }
-                
-                folder["item"].append(request)
-            
-            collection["item"].append(folder)
-        
-        return collection
-    
-    async def generate_markdown_docs(self) -> str:
-        """Generate Markdown documentation."""
-        
-        endpoints = self.gateway.endpoint_manager.list_endpoints()
-        
-        markdown = f"""# Pynomaly API Documentation
-
-Generated on: {datetime.now().isoformat()}
-
-## Overview
-
-Pynomaly is a production-ready anomaly detection API that provides:
-
-- **Real-time anomaly detection** with streaming capabilities
-- **Advanced analytics** with explainable AI
-- **Model management** with MLOps lifecycle
-- **Feature engineering** with preprocessing pipelines
-- **Comprehensive monitoring** and observability
-
-## Base URL
-
-```
-Production: https://api.pynomaly.com
-Staging: https://staging-api.pynomaly.com
-Development: http://localhost:8000
-```
-
-## Authentication
-
-All API endpoints require authentication. Pynomaly supports:
-
-1. **Bearer Token (JWT)**
-   ```
-   Authorization: Bearer <your_jwt_token>
-   ```
-
-2. **API Key**
-   ```
-   X-API-Key: <your_api_key>
-   ```
-
-## Rate Limiting
-
-- **Global limit**: 10,000 requests per hour
-- **Per user limit**: 1,000 requests per hour
-- **Per IP limit**: 500 requests per hour
-
-Rate limit headers are included in all responses:
-- `X-RateLimit-Limit`: Request limit per hour
-- `X-RateLimit-Remaining`: Remaining requests
-- `X-RateLimit-Reset`: Reset time (Unix timestamp)
-
-## Error Handling
-
-All errors follow the standard format:
-
-```json
-{{
-  "error": "error_type",
-  "message": "Human readable error message",
-  "details": {{
-    "field": "Additional error details"
-  }},
-  "timestamp": "2024-01-01T12:00:00Z",
-  "request_id": "req_123456789"
-}}
-```
-
-## API Endpoints
-
-"""
-        
-        # Group endpoints by tags
-        endpoint_groups = {}
-        for endpoint in endpoints:
-            tags = endpoint.tags or ["General"]
-            for tag in tags:
-                if tag not in endpoint_groups:
-                    endpoint_groups[tag] = []
-                endpoint_groups[tag].append(endpoint)
-        
-        # Generate documentation for each group
-        for group_name, group_endpoints in endpoint_groups.items():
-            markdown += f"\n### {group_name}\n\n"
-            
-            for endpoint in group_endpoints:
-                markdown += f"#### {endpoint.method.value} {endpoint.path}\n\n"
-                
-                if endpoint.description:
-                    markdown += f"{endpoint.description}\n\n"
-                
-                # Status badge
-                status_color = {
-                    EndpointStatus.ACTIVE: "green",
-                    EndpointStatus.DEPRECATED: "orange",
-                    EndpointStatus.INACTIVE: "red",
-                    EndpointStatus.MAINTENANCE: "yellow"
+            },
+            "/health/detailed": {
+                "get": {
+                    "summary": "Detailed health check",
+                    "description": "Comprehensive health check with system metrics",
+                    "operationId": "detailedHealthCheck",
+                    "tags": ["Health"],
+                    "responses": {
+                        "200": {
+                            "description": "Detailed health information",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/DetailedHealthResponse"
+                                    }
+                                }
+                            },
+                        }
+                    },
                 }
-                
-                markdown += f"![Status](https://img.shields.io/badge/status-{endpoint.status.value}-{status_color.get(endpoint.status, 'gray')})\n\n"
-                
-                # Request example
-                markdown += "**Request:**\n\n"
-                markdown += f"```http\n{endpoint.method.value} {endpoint.path} HTTP/1.1\n"
-                markdown += "Host: api.pynomaly.com\n"
-                markdown += "Content-Type: application/json\n"
-                
-                if endpoint.auth_required:
-                    markdown += "Authorization: Bearer <your_jwt_token>\n"
-                
-                if endpoint.method in [HTTPMethod.POST, HTTPMethod.PUT, HTTPMethod.PATCH]:
-                    markdown += "\n"
-                    markdown += json.dumps(self._generate_example_request_body(endpoint), indent=2)
-                
-                markdown += "\n```\n\n"
-                
-                # Response example
-                markdown += "**Response:**\n\n"
-                markdown += "```json\n"
-                markdown += json.dumps(self._generate_example_response(endpoint), indent=2)
-                markdown += "\n```\n\n"
-                
-                # Rate limiting info
-                if endpoint.rate_limit:
-                    markdown += f"**Rate Limit:** {endpoint.rate_limit} requests per minute\n\n"
-                
-                markdown += "---\n\n"
-        
-        return markdown
-    
-    async def generate_interactive_docs(self) -> Dict[str, Any]:
-        """Generate interactive documentation configuration."""
-        
-        return {
-            "swagger_ui": {
-                "url": "/docs",
-                "title": "Pynomaly API - Interactive Documentation",
-                "description": "Try out the API endpoints directly from your browser",
-                "version": "1.0.0"
             },
-            "redoc": {
-                "url": "/redoc",
-                "title": "Pynomaly API - Documentation",
-                "description": "Comprehensive API documentation with examples",
-                "version": "1.0.0"
-            },
-            "rapidoc": {
-                "url": "/rapidoc",
-                "title": "Pynomaly API - RapiDoc",
-                "description": "Modern API documentation with try-it-out features",
-                "version": "1.0.0"
-            }
-        }
-    
-    async def generate_curl_examples(self) -> Dict[str, List[str]]:
-        """Generate cURL examples for all endpoints."""
-        
-        endpoints = self.gateway.endpoint_manager.list_endpoints()
-        curl_examples = {}
-        
-        for endpoint in endpoints:
-            group = endpoint.tags[0] if endpoint.tags else "general"
-            
-            if group not in curl_examples:
-                curl_examples[group] = []
-            
-            # Base curl command
-            curl_cmd = f"curl -X {endpoint.method.value} \\\n"
-            curl_cmd += f"  'https://api.pynomaly.com{endpoint.path}' \\\n"
-            curl_cmd += f"  -H 'Content-Type: application/json' \\\n"
-            
-            if endpoint.auth_required:
-                curl_cmd += f"  -H 'Authorization: Bearer $ACCESS_TOKEN' \\\n"
-            
-            # Add request body for POST/PUT methods
-            if endpoint.method in [HTTPMethod.POST, HTTPMethod.PUT, HTTPMethod.PATCH]:
-                example_body = self._generate_example_request_body(endpoint)
-                curl_cmd += f"  -d '{json.dumps(example_body)}'"
-            else:
-                curl_cmd = curl_cmd.rstrip(" \\\n")
-            
-            curl_examples[group].append({
-                "name": endpoint.name or f"{endpoint.method.value} {endpoint.path}",
-                "description": endpoint.description or "",
-                "command": curl_cmd
-            })
-        
-        return curl_examples
-    
-    async def generate_sdk_examples(self) -> Dict[str, Dict[str, str]]:
-        """Generate SDK examples in multiple languages."""
-        
-        endpoints = self.gateway.endpoint_manager.list_endpoints()
-        sdk_examples = {
-            "python": {},
-            "javascript": {},
-            "java": {},
-            "go": {}
-        }
-        
-        for endpoint in endpoints:
-            endpoint_name = endpoint.name or f"{endpoint.method.value}_{endpoint.path.replace('/', '_')}"
-            
-            # Python example
-            sdk_examples["python"][endpoint_name] = self._generate_python_example(endpoint)
-            
-            # JavaScript example
-            sdk_examples["javascript"][endpoint_name] = self._generate_javascript_example(endpoint)
-            
-            # Java example
-            sdk_examples["java"][endpoint_name] = self._generate_java_example(endpoint)
-            
-            # Go example
-            sdk_examples["go"][endpoint_name] = self._generate_go_example(endpoint)
-        
-        return sdk_examples
-    
-    def _generate_schemas(self) -> Dict[str, Any]:
-        """Generate OpenAPI schemas for common data structures."""
-        
-        return {
-            "AnomalyDetectionRequest": {
-                "type": "object",
-                "required": ["data"],
-                "properties": {
-                    "data": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "description": "Data point for anomaly detection"
+            "/api/v1/detectors": {
+                "get": {
+                    "summary": "List detectors",
+                    "description": "Retrieve a list of all available anomaly detectors",
+                    "operationId": "listDetectors",
+                    "tags": ["Detectors"],
+                    "parameters": [
+                        {
+                            "name": "limit",
+                            "in": "query",
+                            "description": "Number of results per page",
+                            "schema": {
+                                "type": "integer",
+                                "default": 20,
+                                "minimum": 1,
+                                "maximum": 100,
+                            },
                         },
-                        "description": "Array of data points to analyze"
-                    },
-                    "algorithm": {
-                        "type": "string",
-                        "enum": ["isolation_forest", "one_class_svm", "local_outlier_factor"],
-                        "description": "Algorithm to use for detection"
-                    },
-                    "parameters": {
-                        "type": "object",
-                        "description": "Algorithm-specific parameters"
-                    }
-                }
-            },
-            "AnomalyDetectionResponse": {
-                "type": "object",
-                "properties": {
-                    "detection_id": {
-                        "type": "string",
-                        "description": "Unique identifier for this detection"
-                    },
-                    "anomalies_detected": {
-                        "type": "integer",
-                        "description": "Number of anomalies detected"
-                    },
-                    "anomalies": {
-                        "type": "array",
-                        "items": {"$ref": "#/components/schemas/Anomaly"}
-                    },
-                    "processing_time_ms": {
-                        "type": "number",
-                        "description": "Processing time in milliseconds"
-                    },
-                    "timestamp": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Detection timestamp"
-                    }
-                }
-            },
-            "Anomaly": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "description": "Unique anomaly identifier"
-                    },
-                    "score": {
-                        "type": "number",
-                        "minimum": 0,
-                        "maximum": 1,
-                        "description": "Anomaly score (0-1)"
-                    },
-                    "type": {
-                        "type": "string",
-                        "enum": ["point", "contextual", "collective"],
-                        "description": "Type of anomaly"
-                    },
-                    "timestamp": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "When the anomaly was detected"
-                    },
-                    "data_point": {
-                        "type": "object",
-                        "description": "The original data point"
-                    },
-                    "explanation": {
-                        "type": "object",
-                        "description": "Anomaly explanation details"
-                    }
-                }
-            },
-            "HealthResponse": {
-                "type": "object",
-                "properties": {
-                    "status": {
-                        "type": "string",
-                        "enum": ["healthy", "unhealthy", "degraded"],
-                        "description": "Overall system health status"
-                    },
-                    "timestamp": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Health check timestamp"
-                    },
-                    "version": {
-                        "type": "string",
-                        "description": "API version"
-                    },
-                    "uptime": {
-                        "type": "number",
-                        "description": "System uptime in seconds"
-                    },
-                    "components": {
-                        "type": "object",
-                        "description": "Component health status"
-                    }
-                }
-            },
-            "Error": {
-                "type": "object",
-                "properties": {
-                    "error": {
-                        "type": "string",
-                        "description": "Error type"
-                    },
-                    "message": {
-                        "type": "string",
-                        "description": "Human-readable error message"
-                    },
-                    "details": {
-                        "type": "object",
-                        "description": "Additional error details"
-                    },
-                    "timestamp": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Error timestamp"
-                    },
-                    "request_id": {
-                        "type": "string",
-                        "description": "Request identifier for debugging"
-                    }
-                }
-            }
-        }
-    
-    def _generate_parameters(self, endpoint) -> List[Dict[str, Any]]:
-        """Generate OpenAPI parameters for an endpoint."""
-        
-        parameters = []
-        
-        # Add common parameters based on endpoint
-        if endpoint.path == "/v1/detect":
-            parameters.extend([
-                {
-                    "name": "async",
-                    "in": "query",
-                    "description": "Process request asynchronously",
-                    "required": False,
-                    "schema": {"type": "boolean", "default": False}
-                },
-                {
-                    "name": "explain",
-                    "in": "query",
-                    "description": "Include anomaly explanations",
-                    "required": False,
-                    "schema": {"type": "boolean", "default": False}
-                }
-            ])
-        
-        return parameters
-    
-    def _generate_responses(self, endpoint) -> Dict[str, Any]:
-        """Generate OpenAPI responses for an endpoint."""
-        
-        responses = {
-            "200": {
-                "description": "Success",
-                "content": {
-                    "application/json": {
-                        "schema": {"$ref": "#/components/schemas/AnomalyDetectionResponse"}
-                    }
-                }
-            },
-            "400": {
-                "description": "Bad Request",
-                "content": {
-                    "application/json": {
-                        "schema": {"$ref": "#/components/schemas/Error"}
-                    }
-                }
-            },
-            "401": {
-                "description": "Unauthorized",
-                "content": {
-                    "application/json": {
-                        "schema": {"$ref": "#/components/schemas/Error"}
-                    }
-                }
-            },
-            "429": {
-                "description": "Rate Limit Exceeded",
-                "content": {
-                    "application/json": {
-                        "schema": {"$ref": "#/components/schemas/Error"}
-                    }
-                }
-            },
-            "500": {
-                "description": "Internal Server Error",
-                "content": {
-                    "application/json": {
-                        "schema": {"$ref": "#/components/schemas/Error"}
-                    }
-                }
-            }
-        }
-        
-        # Customize responses based on endpoint
-        if endpoint.path == "/health":
-            responses["200"]["content"]["application/json"]["schema"] = {
-                "$ref": "#/components/schemas/HealthResponse"
-            }
-        
-        return responses
-    
-    def _generate_request_body(self, endpoint) -> Dict[str, Any]:
-        """Generate OpenAPI request body for an endpoint."""
-        
-        if endpoint.path == "/v1/detect":
-            return {
-                "description": "Anomaly detection request",
-                "required": True,
-                "content": {
-                    "application/json": {
-                        "schema": {"$ref": "#/components/schemas/AnomalyDetectionRequest"},
-                        "example": self._generate_example_request_body(endpoint)
-                    }
-                }
-            }
-        
-        return {
-            "description": "Request body",
-            "required": True,
-            "content": {
-                "application/json": {
-                    "schema": {"type": "object"}
-                }
-            }
-        }
-    
-    def _generate_example_request_body(self, endpoint) -> Dict[str, Any]:
-        """Generate example request body for an endpoint."""
-        
-        if endpoint.path == "/v1/detect":
-            return {
-                "data": [
-                    {"feature_1": 1.5, "feature_2": -0.8, "feature_3": 2.1},
-                    {"feature_1": 0.3, "feature_2": 1.2, "feature_3": -0.5},
-                    {"feature_1": 3.7, "feature_2": -2.1, "feature_3": 0.9}
-                ],
-                "algorithm": "isolation_forest",
-                "parameters": {
-                    "contamination": 0.1,
-                    "n_estimators": 100
-                }
-            }
-        
-        return {}
-    
-    def _generate_example_response(self, endpoint) -> Dict[str, Any]:
-        """Generate example response for an endpoint."""
-        
-        if endpoint.path == "/health":
-            return {
-                "status": "healthy",
-                "timestamp": "2024-01-01T12:00:00Z",
-                "version": "1.0.0",
-                "uptime": 3600,
-                "components": {
-                    "database": "healthy",
-                    "redis": "healthy",
-                    "streaming": "healthy"
-                }
-            }
-        elif endpoint.path == "/v1/detect":
-            return {
-                "detection_id": "det_123456789",
-                "anomalies_detected": 1,
-                "anomalies": [
-                    {
-                        "id": "anomaly_001",
-                        "score": 0.87,
-                        "type": "point",
-                        "timestamp": "2024-01-01T12:00:00Z",
-                        "data_point": {"feature_1": 3.7, "feature_2": -2.1, "feature_3": 0.9},
-                        "explanation": {
-                            "top_features": ["feature_1", "feature_2"],
-                            "feature_contributions": {"feature_1": 0.6, "feature_2": 0.4}
+                        {
+                            "name": "offset",
+                            "in": "query",
+                            "description": "Results offset",
+                            "schema": {"type": "integer", "default": 0, "minimum": 0},
+                        },
+                        {
+                            "name": "algorithm",
+                            "in": "query",
+                            "description": "Filter by algorithm type",
+                            "schema": {
+                                "type": "string",
+                                "enum": [
+                                    "IsolationForest",
+                                    "LocalOutlierFactor",
+                                    "OneClassSVM",
+                                    "EllipticEnvelope",
+                                    "DBSCAN",
+                                ],
+                            },
+                        },
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "List of detectors",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/DetectorListResponse"
+                                    }
+                                }
+                            },
                         }
-                    }
-                ],
-                "processing_time_ms": 45.2,
-                "timestamp": "2024-01-01T12:00:00Z"
-            }
-        
-        return {"message": "Success"}
-    
-    def _generate_python_example(self, endpoint) -> str:
-        """Generate Python SDK example."""
-        
-        if endpoint.path == "/v1/detect":
-            return """
-import requests
-import json
+                    },
+                },
+                "post": {
+                    "summary": "Create detector",
+                    "description": "Create a new anomaly detector",
+                    "operationId": "createDetector",
+                    "tags": ["Detectors"],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateDetectorRequest"
+                                }
+                            }
+                        },
+                    },
+                    "responses": {
+                        "201": {
+                            "description": "Detector created successfully",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/DetectorResponse"
+                                    }
+                                }
+                            },
+                        },
+                        "400": {
+                            "description": "Invalid request",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/ErrorResponse"
+                                    }
+                                }
+                            },
+                        },
+                    },
+                },
+            },
+            "/api/v1/detectors/{detector_id}": {
+                "get": {
+                    "summary": "Get detector details",
+                    "description": "Retrieve detailed information about a specific detector",
+                    "operationId": "getDetector",
+                    "tags": ["Detectors"],
+                    "parameters": [
+                        {
+                            "name": "detector_id",
+                            "in": "path",
+                            "required": true,
+                            "description": "Detector ID",
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Detector details",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/DetectorResponse"
+                                    }
+                                }
+                            },
+                        },
+                        "404": {
+                            "description": "Detector not found",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/ErrorResponse"
+                                    }
+                                }
+                            },
+                        },
+                    },
+                },
+                "put": {
+                    "summary": "Update detector",
+                    "description": "Update detector configuration",
+                    "operationId": "updateDetector",
+                    "tags": ["Detectors"],
+                    "parameters": [
+                        {
+                            "name": "detector_id",
+                            "in": "path",
+                            "required": true,
+                            "description": "Detector ID",
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UpdateDetectorRequest"
+                                }
+                            }
+                        },
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Detector updated successfully",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/DetectorResponse"
+                                    }
+                                }
+                            },
+                        }
+                    },
+                },
+                "delete": {
+                    "summary": "Delete detector",
+                    "description": "Delete a detector",
+                    "operationId": "deleteDetector",
+                    "tags": ["Detectors"],
+                    "parameters": [
+                        {
+                            "name": "detector_id",
+                            "in": "path",
+                            "required": true,
+                            "description": "Detector ID",
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "Detector deleted successfully",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/SuccessResponse"
+                                    }
+                                }
+                            },
+                        }
+                    },
+                },
+            },
+            "/api/v1/detectors/{detector_id}/detect": {
+                "post": {
+                    "summary": "Run anomaly detection",
+                    "description": "Perform anomaly detection on new data",
+                    "operationId": "detectAnomalies",
+                    "tags": ["Detection"],
+                    "parameters": [
+                        {
+                            "name": "detector_id",
+                            "in": "path",
+                            "required": true,
+                            "description": "Detector ID",
+                            "schema": {"type": "string"},
+                        }
+                    ],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DetectionRequest"
+                                }
+                            }
+                        },
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Detection results",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/DetectionResponse"
+                                    }
+                                }
+                            },
+                        }
+                    },
+                }
+            },
+            "/api/v1/automl/optimize": {
+                "post": {
+                    "summary": "Start AutoML optimization",
+                    "description": "Begin automated machine learning optimization process",
+                    "operationId": "startAutoMLOptimization",
+                    "tags": ["AutoML"],
+                    "requestBody": {
+                        "required": true,
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/AutoMLRequest"}
+                            }
+                        },
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "AutoML optimization started",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/AutoMLResponse"
+                                    }
+                                }
+                            },
+                        }
+                    },
+                }
+            },
+        },
+        "components": {
+            "securitySchemes": {
+                "ApiKeyAuth": {
+                    "type": "apiKey",
+                    "in": "header",
+                    "name": "X-API-Key",
+                    "description": "API key for authentication",
+                }
+            },
+            "schemas": {
+                "HealthResponse": {
+                    "type": "object",
+                    "properties": {
+                        "success": {"type": "boolean", "example": true},
+                        "data": {
+                            "type": "object",
+                            "properties": {
+                                "status": {"type": "string", "example": "healthy"},
+                                "timestamp": {"type": "string", "format": "date-time"},
+                            },
+                        },
+                    },
+                },
+                "DetailedHealthResponse": {
+                    "type": "object",
+                    "properties": {
+                        "success": {"type": "boolean"},
+                        "data": {
+                            "type": "object",
+                            "properties": {
+                                "status": {"type": "string"},
+                                "components": {
+                                    "type": "object",
+                                    "properties": {
+                                        "database": {"type": "string"},
+                                        "redis": {"type": "string"},
+                                        "workers": {"type": "string"},
+                                    },
+                                },
+                                "metrics": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu_usage": {"type": "number"},
+                                        "memory_usage": {"type": "number"},
+                                        "disk_usage": {"type": "number"},
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+                "DetectorListResponse": {
+                    "type": "object",
+                    "properties": {
+                        "success": {"type": "boolean"},
+                        "data": {
+                            "type": "object",
+                            "properties": {
+                                "detectors": {
+                                    "type": "array",
+                                    "items": {"$ref": "#/components/schemas/Detector"},
+                                },
+                                "pagination": {
+                                    "$ref": "#/components/schemas/Pagination"
+                                },
+                            },
+                        },
+                    },
+                },
+                "Detector": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "string", "example": "detector_abc123"},
+                        "name": {"type": "string", "example": "Production Detector"},
+                        "algorithm": {
+                            "type": "string",
+                            "enum": [
+                                "IsolationForest",
+                                "LocalOutlierFactor",
+                                "OneClassSVM",
+                                "EllipticEnvelope",
+                                "DBSCAN",
+                            ],
+                        },
+                        "status": {
+                            "type": "string",
+                            "enum": ["active", "training", "inactive", "error"],
+                        },
+                        "created_at": {"type": "string", "format": "date-time"},
+                        "updated_at": {"type": "string", "format": "date-time"},
+                        "performance": {
+                            "type": "object",
+                            "properties": {
+                                "accuracy": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1,
+                                },
+                                "precision": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1,
+                                },
+                                "recall": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1,
+                                },
+                                "f1_score": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1,
+                                },
+                            },
+                        },
+                    },
+                },
+                "CreateDetectorRequest": {
+                    "type": "object",
+                    "required": ["name", "algorithm"],
+                    "properties": {
+                        "name": {"type": "string", "example": "My Detector"},
+                        "algorithm": {
+                            "type": "string",
+                            "enum": [
+                                "IsolationForest",
+                                "LocalOutlierFactor",
+                                "OneClassSVM",
+                                "EllipticEnvelope",
+                                "DBSCAN",
+                            ],
+                        },
+                        "parameters": {
+                            "type": "object",
+                            "description": "Algorithm-specific parameters",
+                        },
+                        "description": {
+                            "type": "string",
+                            "example": "Production anomaly detector",
+                        },
+                    },
+                },
+                "UpdateDetectorRequest": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string"},
+                        "parameters": {"type": "object"},
+                        "description": {"type": "string"},
+                    },
+                },
+                "DetectorResponse": {
+                    "type": "object",
+                    "properties": {
+                        "success": {"type": "boolean"},
+                        "data": {"$ref": "#/components/schemas/Detector"},
+                    },
+                },
+                "DetectionRequest": {
+                    "type": "object",
+                    "required": ["data"],
+                    "properties": {
+                        "data": {
+                            "type": "array",
+                            "items": {"type": "array", "items": {"type": "number"}},
+                            "example": [[1.2, 3.4, 5.6], [2.3, 4.5, 6.7]],
+                        },
+                        "feature_names": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "example": ["feature1", "feature2", "feature3"],
+                        },
+                        "return_explanations": {"type": "boolean", "default": false},
+                    },
+                },
+                "DetectionResponse": {
+                    "type": "object",
+                    "properties": {
+                        "success": {"type": "boolean"},
+                        "data": {
+                            "type": "object",
+                            "properties": {
+                                "predictions": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Prediction"
+                                    },
+                                },
+                                "summary": {
+                                    "$ref": "#/components/schemas/DetectionSummary"
+                                },
+                            },
+                        },
+                    },
+                },
+                "Prediction": {
+                    "type": "object",
+                    "properties": {
+                        "index": {"type": "integer"},
+                        "is_anomaly": {"type": "boolean"},
+                        "anomaly_score": {"type": "number"},
+                        "confidence": {"type": "number"},
+                    },
+                },
+                "DetectionSummary": {
+                    "type": "object",
+                    "properties": {
+                        "total_samples": {"type": "integer"},
+                        "anomalies_detected": {"type": "integer"},
+                        "anomaly_rate": {"type": "number"},
+                        "average_confidence": {"type": "number"},
+                    },
+                },
+                "AutoMLRequest": {
+                    "type": "object",
+                    "required": ["dataset_id"],
+                    "properties": {
+                        "dataset_id": {"type": "string"},
+                        "algorithms": {"type": "array", "items": {"type": "string"}},
+                        "objectives": {"type": "array", "items": {"type": "string"}},
+                        "constraints": {
+                            "type": "object",
+                            "properties": {
+                                "max_time": {"type": "integer"},
+                                "max_trials": {"type": "integer"},
+                                "max_memory": {"type": "integer"},
+                            },
+                        },
+                    },
+                },
+                "AutoMLResponse": {
+                    "type": "object",
+                    "properties": {
+                        "success": {"type": "boolean"},
+                        "data": {
+                            "type": "object",
+                            "properties": {
+                                "optimization_id": {"type": "string"},
+                                "status": {"type": "string"},
+                                "estimated_time": {"type": "integer"},
+                            },
+                        },
+                    },
+                },
+                "Pagination": {
+                    "type": "object",
+                    "properties": {
+                        "total": {"type": "integer"},
+                        "limit": {"type": "integer"},
+                        "offset": {"type": "integer"},
+                        "has_next": {"type": "boolean"},
+                        "has_prev": {"type": "boolean"},
+                    },
+                },
+                "SuccessResponse": {
+                    "type": "object",
+                    "properties": {
+                        "success": {"type": "boolean"},
+                        "data": {
+                            "type": "object",
+                            "properties": {"message": {"type": "string"}},
+                        },
+                    },
+                },
+                "ErrorResponse": {
+                    "type": "object",
+                    "properties": {
+                        "success": {"type": "boolean", "example": false},
+                        "error": {
+                            "type": "object",
+                            "properties": {
+                                "code": {"type": "string"},
+                                "message": {"type": "string"},
+                                "details": {"type": "object"},
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        "tags": [
+            {
+                "name": "Health",
+                "description": "Health check and system status endpoints",
+            },
+            {"name": "Detectors", "description": "Anomaly detector management"},
+            {"name": "Detection", "description": "Anomaly detection operations"},
+            {
+                "name": "AutoML",
+                "description": "Automated machine learning optimization",
+            },
+        ],
+    }
 
-# Configure API client
-base_url = "https://api.pynomaly.com"
+    return spec
+
+
+def save_openapi_spec(spec: dict[str, Any]):
+    """Save OpenAPI specification in JSON and YAML formats."""
+    log("Saving OpenAPI specification...")
+
+    # Save JSON format
+    json_path = OUTPUT_DIR / "openapi.json"
+    with open(json_path, "w") as f:
+        json.dump(spec, f, indent=2)
+
+    # Save YAML format
+    yaml_path = OUTPUT_DIR / "openapi.yaml"
+    with open(yaml_path, "w") as f:
+        yaml.dump(spec, f, default_flow_style=False, sort_keys=False)
+
+    log(f"OpenAPI specification saved to {json_path} and {yaml_path}")
+
+
+def generate_swagger_ui():
+    """Generate Swagger UI for interactive documentation."""
+    log("Generating Swagger UI...")
+
+    swagger_template = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pynomaly API Documentation</title>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin:0;
+            background: #fafafa;
+        }
+        .swagger-ui .topbar {
+            background-color: #2E3440;
+        }
+        .swagger-ui .topbar .link {
+            color: #ECEFF4;
+        }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-standalone-preset.js"></script>
+    <script>
+        window.onload = function() {
+            const ui = SwaggerUIBundle({
+                url: './openapi.json',
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                docExpansion: "none",
+                defaultModelExpandDepth: 1,
+                defaultModelsExpandDepth: 1,
+                showExtensions: true,
+                showCommonExtensions: true,
+                tryItOutEnabled: true,
+                requestInterceptor: function(request) {
+                    // Add API key if available
+                    const apiKey = localStorage.getItem('pynomaly_api_key');
+                    if (apiKey) {
+                        request.headers['X-API-Key'] = apiKey;
+                    }
+                    return request;
+                }
+            });
+
+            // Add API key input
+            setTimeout(() => {
+                const topbar = document.querySelector('.topbar');
+                if (topbar) {
+                    const apiKeyInput = document.createElement('input');
+                    apiKeyInput.type = 'text';
+                    apiKeyInput.placeholder = 'Enter API Key';
+                    apiKeyInput.style.marginLeft = '20px';
+                    apiKeyInput.style.padding = '5px';
+                    apiKeyInput.style.borderRadius = '3px';
+                    apiKeyInput.style.border = '1px solid #ccc';
+
+                    const savedKey = localStorage.getItem('pynomaly_api_key');
+                    if (savedKey) {
+                        apiKeyInput.value = savedKey;
+                    }
+
+                    apiKeyInput.addEventListener('change', function() {
+                        localStorage.setItem('pynomaly_api_key', this.value);
+                    });
+
+                    topbar.appendChild(apiKeyInput);
+                }
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
+"""
+
+    swagger_path = OUTPUT_DIR / "index.html"
+    with open(swagger_path, "w") as f:
+        f.write(swagger_template)
+
+    log(f"Swagger UI generated at {swagger_path}")
+
+
+def generate_code_examples():
+    """Generate code examples for different programming languages."""
+    log("Generating code examples...")
+
+    examples = {
+        "python": {
+            "install": "pip install requests",
+            "basic_usage": """
+import requests
+
+# Configuration
+API_KEY = "your-api-key-here"
+BASE_URL = "https://api.pynomaly.com"
+
 headers = {
-    "Authorization": "Bearer YOUR_ACCESS_TOKEN",
+    "X-API-Key": API_KEY,
     "Content-Type": "application/json"
 }
 
-# Prepare detection request
-data = {
-    "data": [
-        {"feature_1": 1.5, "feature_2": -0.8, "feature_3": 2.1},
-        {"feature_1": 0.3, "feature_2": 1.2, "feature_3": -0.5},
-        {"feature_1": 3.7, "feature_2": -2.1, "feature_3": 0.9}
-    ],
-    "algorithm": "isolation_forest",
+# Health check
+response = requests.get(f"{BASE_URL}/health", headers=headers)
+print(f"Health status: {response.json()}")
+
+# List detectors
+response = requests.get(f"{BASE_URL}/api/v1/detectors", headers=headers)
+detectors = response.json()
+print(f"Available detectors: {len(detectors['data']['detectors'])}")
+
+# Create a detector
+detector_data = {
+    "name": "My Detector",
+    "algorithm": "IsolationForest",
     "parameters": {
+        "contamination": 0.1,
+        "n_estimators": 100,
+        "random_state": 42
+    },
+    "description": "Production anomaly detector"
+}
+
+response = requests.post(
+    f"{BASE_URL}/api/v1/detectors",
+    headers=headers,
+    json=detector_data
+)
+detector = response.json()
+detector_id = detector['data']['id']
+print(f"Created detector: {detector_id}")
+
+# Run detection
+detection_data = {
+    "data": [
+        [1.2, 3.4, 5.6],
+        [2.3, 4.5, 6.7],
+        [3.4, 5.6, 7.8]
+    ],
+    "feature_names": ["feature1", "feature2", "feature3"],
+    "return_explanations": true
+}
+
+response = requests.post(
+    f"{BASE_URL}/api/v1/detectors/{detector_id}/detect",
+    headers=headers,
+    json=detection_data
+)
+results = response.json()
+print(f"Detection results: {results['data']['summary']}")
+""",
+            "sdk_usage": """
+# Using the Pynomaly Python SDK
+from pynomaly_client import PynomalyClient
+
+# Initialize client
+client = PynomalyClient(api_key="your-api-key-here")
+
+# Create detector
+detector = client.detectors.create(
+    name="My Detector",
+    algorithm="IsolationForest",
+    parameters={
         "contamination": 0.1,
         "n_estimators": 100
     }
-}
-
-# Make request
-response = requests.post(
-    f"{base_url}/v1/detect",
-    headers=headers,
-    json=data
 )
 
-# Process response
-if response.status_code == 200:
-    result = response.json()
-    print(f"Detected {result['anomalies_detected']} anomalies")
-    for anomaly in result['anomalies']:
-        print(f"Anomaly {anomaly['id']}: score={anomaly['score']}")
-else:
-    print(f"Error: {response.status_code} - {response.text}")
-"""
-        
-        return f"""
-import requests
-
-response = requests.{endpoint.method.value.lower()}(
-    "https://api.pynomaly.com{endpoint.path}",
-    headers={{"Authorization": "Bearer YOUR_ACCESS_TOKEN"}}
+# Run detection
+results = client.detectors.detect(
+    detector_id=detector.id,
+    data=[[1.2, 3.4, 5.6], [2.3, 4.5, 6.7]],
+    feature_names=["feature1", "feature2", "feature3"]
 )
 
-print(response.json())
-"""
-    
-    def _generate_javascript_example(self, endpoint) -> str:
-        """Generate JavaScript SDK example."""
-        
-        if endpoint.path == "/v1/detect":
-            return """
+print(f"Anomalies detected: {results.summary.anomalies_detected}")
+""",
+        },
+        "javascript": {
+            "install": "npm install axios",
+            "basic_usage": """
 const axios = require('axios');
 
-// Configure API client
-const baseURL = 'https://api.pynomaly.com';
+// Configuration
+const API_KEY = 'your-api-key-here';
+const BASE_URL = 'https://api.pynomaly.com';
+
 const headers = {
-    'Authorization': 'Bearer YOUR_ACCESS_TOKEN',
+    'X-API-Key': API_KEY,
     'Content-Type': 'application/json'
 };
 
-// Prepare detection request
-const data = {
-    data: [
-        { feature_1: 1.5, feature_2: -0.8, feature_3: 2.1 },
-        { feature_1: 0.3, feature_2: 1.2, feature_3: -0.5 },
-        { feature_1: 3.7, feature_2: -2.1, feature_3: 0.9 }
-    ],
-    algorithm: 'isolation_forest',
+// Health check
+async function checkHealth() {
+    try {
+        const response = await axios.get(`${BASE_URL}/health`, { headers });
+        console.log('Health status:', response.data);
+    } catch (error) {
+        console.error('Health check failed:', error.response?.data || error.message);
+    }
+}
+
+// List detectors
+async function listDetectors() {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/v1/detectors`, { headers });
+        const detectors = response.data;
+        console.log(`Available detectors: ${detectors.data.detectors.length}`);
+        return detectors;
+    } catch (error) {
+        console.error('Failed to list detectors:', error.response?.data || error.message);
+    }
+}
+
+// Create detector
+async function createDetector() {
+    const detectorData = {
+        name: 'My Detector',
+        algorithm: 'IsolationForest',
+        parameters: {
+            contamination: 0.1,
+            n_estimators: 100,
+            random_state: 42
+        },
+        description: 'Production anomaly detector'
+    };
+
+    try {
+        const response = await axios.post(
+            `${BASE_URL}/api/v1/detectors`,
+            detectorData,
+            { headers }
+        );
+        const detector = response.data;
+        console.log(`Created detector: ${detector.data.id}`);
+        return detector.data.id;
+    } catch (error) {
+        console.error('Failed to create detector:', error.response?.data || error.message);
+    }
+}
+
+// Run detection
+async function runDetection(detectorId) {
+    const detectionData = {
+        data: [
+            [1.2, 3.4, 5.6],
+            [2.3, 4.5, 6.7],
+            [3.4, 5.6, 7.8]
+        ],
+        feature_names: ['feature1', 'feature2', 'feature3'],
+        return_explanations: true
+    };
+
+    try {
+        const response = await axios.post(
+            `${BASE_URL}/api/v1/detectors/${detectorId}/detect`,
+            detectionData,
+            { headers }
+        );
+        const results = response.data;
+        console.log('Detection results:', results.data.summary);
+        return results;
+    } catch (error) {
+        console.error('Detection failed:', error.response?.data || error.message);
+    }
+}
+
+// Example usage
+(async () => {
+    await checkHealth();
+    await listDetectors();
+    const detectorId = await createDetector();
+    if (detectorId) {
+        await runDetection(detectorId);
+    }
+})();
+""",
+            "sdk_usage": """
+// Using the Pynomaly JavaScript SDK
+import { PynomalyClient } from 'pynomaly-js';
+
+// Initialize client
+const client = new PynomalyClient('your-api-key-here');
+
+// Create detector
+const detector = await client.detectors.create({
+    name: 'My Detector',
+    algorithm: 'IsolationForest',
     parameters: {
         contamination: 0.1,
         n_estimators: 100
     }
-};
+});
 
-// Make request
-axios.post(`${baseURL}/v1/detect`, data, { headers })
-    .then(response => {
-        const result = response.data;
-        console.log(`Detected ${result.anomalies_detected} anomalies`);
-        result.anomalies.forEach(anomaly => {
-            console.log(`Anomaly ${anomaly.id}: score=${anomaly.score}`);
-        });
-    })
-    .catch(error => {
-        console.error('Error:', error.response?.data || error.message);
-    });
-"""
-        
-        return f"""
-const axios = require('axios');
+// Run detection
+const results = await client.detectors.detect({
+    detectorId: detector.id,
+    data: [[1.2, 3.4, 5.6], [2.3, 4.5, 6.7]],
+    featureNames: ['feature1', 'feature2', 'feature3']
+});
 
-axios.{endpoint.method.value.lower()}('https://api.pynomaly.com{endpoint.path}', {{
-    headers: {{
-        'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
-    }}
-}})
-.then(response => console.log(response.data))
-.catch(error => console.error(error));
-"""
-    
-    def _generate_java_example(self, endpoint) -> str:
-        """Generate Java SDK example."""
-        
-        return f"""
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.URI;
+console.log(`Anomalies detected: ${results.summary.anomaliesDetected}`);
+""",
+        },
+        "curl": {
+            "health_check": """
+# Health check
+curl -X GET "https://api.pynomaly.com/health" \\
+  -H "X-API-Key: your-api-key-here"
+""",
+            "list_detectors": """
+# List detectors
+curl -X GET "https://api.pynomaly.com/api/v1/detectors?limit=10" \\
+  -H "X-API-Key: your-api-key-here" \\
+  -H "Content-Type: application/json"
+""",
+            "create_detector": """
+# Create detector
+curl -X POST "https://api.pynomaly.com/api/v1/detectors" \\
+  -H "X-API-Key: your-api-key-here" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name": "My Detector",
+    "algorithm": "IsolationForest",
+    "parameters": {
+      "contamination": 0.1,
+      "n_estimators": 100,
+      "random_state": 42
+    },
+    "description": "Production anomaly detector"
+  }'
+""",
+            "run_detection": """
+# Run detection
+curl -X POST "https://api.pynomaly.com/api/v1/detectors/detector_abc123/detect" \\
+  -H "X-API-Key: your-api-key-here" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "data": [
+      [1.2, 3.4, 5.6],
+      [2.3, 4.5, 6.7],
+      [3.4, 5.6, 7.8]
+    ],
+    "feature_names": ["feature1", "feature2", "feature3"],
+    "return_explanations": true
+  }'
+""",
+            "automl_optimization": """
+# Start AutoML optimization
+curl -X POST "https://api.pynomaly.com/api/v1/automl/optimize" \\
+  -H "X-API-Key: your-api-key-here" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "dataset_id": "dataset_abc123",
+    "algorithms": ["IsolationForest", "LocalOutlierFactor", "OneClassSVM"],
+    "objectives": ["accuracy", "speed", "interpretability"],
+    "constraints": {
+      "max_time": 3600,
+      "max_trials": 100,
+      "max_memory": 4096
+    }
+  }'
+""",
+        },
+    }
 
-HttpClient client = HttpClient.newHttpClient();
-HttpRequest request = HttpRequest.newBuilder()
-    .uri(URI.create("https://api.pynomaly.com{endpoint.path}"))
-    .header("Authorization", "Bearer YOUR_ACCESS_TOKEN")
-    .header("Content-Type", "application/json")
-    .{endpoint.method.value.upper()}()
-    .build();
+    # Save examples
+    examples_dir = OUTPUT_DIR / "examples"
+    examples_dir.mkdir(exist_ok=True)
 
-HttpResponse<String> response = client.send(request, 
-    HttpResponse.BodyHandlers.ofString());
+    for language, code_examples in examples.items():
+        lang_dir = examples_dir / language
+        lang_dir.mkdir(exist_ok=True)
 
-System.out.println(response.body());
-"""
-    
-    def _generate_go_example(self, endpoint) -> str:
-        """Generate Go SDK example."""
-        
-        return f"""
-package main
+        for example_name, code in code_examples.items():
+            example_path = lang_dir / f"{example_name}.txt"
+            with open(example_path, "w") as f:
+                f.write(code.strip())
 
-import (
-    "fmt"
-    "net/http"
-    "io/ioutil"
-)
+    log(f"Code examples generated in {examples_dir}")
 
-func main() {{
-    client := &http.Client{{}}
-    
-    req, err := http.NewRequest("{endpoint.method.value}", 
-        "https://api.pynomaly.com{endpoint.path}", nil)
-    if err != nil {{
-        panic(err)
-    }}
-    
-    req.Header.Add("Authorization", "Bearer YOUR_ACCESS_TOKEN")
-    req.Header.Add("Content-Type", "application/json")
-    
-    resp, err := client.Do(req)
-    if err != nil {{
-        panic(err)
-    }}
-    defer resp.Body.Close()
-    
-    body, err := ioutil.ReadAll(resp.Body)
-    if err != nil {{
-        panic(err)
-    }}
-    
-    fmt.Println(string(body))
-}}
-"""
-    
-    async def save_documentation(self, docs: Dict[str, Any]) -> None:
-        """Save all documentation to files."""
-        
-        # Save OpenAPI spec
-        with open(self.output_dir / "openapi.json", "w") as f:
-            json.dump(docs["openapi"], f, indent=2)
-        
-        with open(self.output_dir / "openapi.yaml", "w") as f:
-            yaml.dump(docs["openapi"], f, default_flow_style=False)
-        
-        # Save Postman collection
-        with open(self.output_dir / "postman_collection.json", "w") as f:
-            json.dump(docs["postman"], f, indent=2)
-        
-        # Save Markdown documentation
-        with open(self.output_dir / "README.md", "w") as f:
-            f.write(docs["markdown"])
-        
-        # Save interactive docs config
-        with open(self.output_dir / "interactive_docs.json", "w") as f:
-            json.dump(docs["interactive"], f, indent=2)
-        
-        # Save cURL examples
-        with open(self.output_dir / "curl_examples.json", "w") as f:
-            json.dump(docs["curl_examples"], f, indent=2)
-        
-        # Save SDK examples
-        for language, examples in docs["sdk_examples"].items():
-            lang_dir = self.output_dir / "sdk_examples" / language
-            lang_dir.mkdir(parents=True, exist_ok=True)
-            
-            for endpoint_name, example_code in examples.items():
-                with open(lang_dir / f"{endpoint_name}.{self._get_file_extension(language)}", "w") as f:
-                    f.write(example_code)
-    
-    def _get_file_extension(self, language: str) -> str:
-        """Get file extension for programming language."""
-        extensions = {
-            "python": "py",
-            "javascript": "js",
-            "java": "java",
-            "go": "go"
-        }
-        return extensions.get(language, "txt")
 
-async def main():
-    """Generate all API documentation."""
-    
-    print("🚀 Generating comprehensive API documentation...")
-    
-    generator = APIDocumentationGenerator()
-    docs = await generator.generate_all_documentation()
-    
-    print("✅ Documentation generated successfully!")
-    print(f"📁 Output directory: {generator.output_dir}")
-    print(f"📄 Generated files:")
-    print(f"  - OpenAPI spec: openapi.json, openapi.yaml")
-    print(f"  - Postman collection: postman_collection.json")
-    print(f"  - Markdown docs: README.md")
-    print(f"  - Interactive docs: interactive_docs.json")
-    print(f"  - cURL examples: curl_examples.json")
-    print(f"  - SDK examples: sdk_examples/")
-    
-    # Print summary
-    openapi_endpoints = len(docs["openapi"]["paths"])
-    print(f"\n📊 Summary:")
-    print(f"  - Total endpoints documented: {openapi_endpoints}")
-    print(f"  - Languages supported: Python, JavaScript, Java, Go")
-    print(f"  - Documentation formats: OpenAPI, Postman, Markdown, Interactive")
+def generate_postman_collection():
+    """Generate Postman collection for API testing."""
+    log("Generating Postman collection...")
+
+    collection = {
+        "info": {
+            "name": "Pynomaly API",
+            "description": "Comprehensive API collection for Pynomaly anomaly detection platform",
+            "version": "1.0.0",
+            "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        },
+        "auth": {
+            "type": "apikey",
+            "apikey": [
+                {"key": "key", "value": "X-API-Key", "type": "string"},
+                {"key": "value", "value": "{{api_key}}", "type": "string"},
+            ],
+        },
+        "variable": [
+            {"key": "base_url", "value": "https://api.pynomaly.com", "type": "string"},
+            {"key": "api_key", "value": "your-api-key-here", "type": "string"},
+        ],
+        "item": [
+            {
+                "name": "Health",
+                "item": [
+                    {
+                        "name": "Health Check",
+                        "request": {
+                            "method": "GET",
+                            "header": [],
+                            "url": {
+                                "raw": "{{base_url}}/health",
+                                "host": ["{{base_url}}"],
+                                "path": ["health"],
+                            },
+                        },
+                    },
+                    {
+                        "name": "Detailed Health Check",
+                        "request": {
+                            "method": "GET",
+                            "header": [],
+                            "url": {
+                                "raw": "{{base_url}}/health/detailed",
+                                "host": ["{{base_url}}"],
+                                "path": ["health", "detailed"],
+                            },
+                        },
+                    },
+                ],
+            },
+            {
+                "name": "Detectors",
+                "item": [
+                    {
+                        "name": "List Detectors",
+                        "request": {
+                            "method": "GET",
+                            "header": [],
+                            "url": {
+                                "raw": "{{base_url}}/api/v1/detectors?limit=20&offset=0",
+                                "host": ["{{base_url}}"],
+                                "path": ["api", "v1", "detectors"],
+                                "query": [
+                                    {"key": "limit", "value": "20"},
+                                    {"key": "offset", "value": "0"},
+                                ],
+                            },
+                        },
+                    },
+                    {
+                        "name": "Create Detector",
+                        "request": {
+                            "method": "POST",
+                            "header": [
+                                {"key": "Content-Type", "value": "application/json"}
+                            ],
+                            "body": {
+                                "mode": "raw",
+                                "raw": json.dumps(
+                                    {
+                                        "name": "My Detector",
+                                        "algorithm": "IsolationForest",
+                                        "parameters": {
+                                            "contamination": 0.1,
+                                            "n_estimators": 100,
+                                            "random_state": 42,
+                                        },
+                                        "description": "Production anomaly detector",
+                                    },
+                                    indent=2,
+                                ),
+                            },
+                            "url": {
+                                "raw": "{{base_url}}/api/v1/detectors",
+                                "host": ["{{base_url}}"],
+                                "path": ["api", "v1", "detectors"],
+                            },
+                        },
+                    },
+                    {
+                        "name": "Get Detector",
+                        "request": {
+                            "method": "GET",
+                            "header": [],
+                            "url": {
+                                "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}",
+                                "host": ["{{base_url}}"],
+                                "path": ["api", "v1", "detectors", "{{detector_id}}"],
+                            },
+                        },
+                    },
+                    {
+                        "name": "Update Detector",
+                        "request": {
+                            "method": "PUT",
+                            "header": [
+                                {"key": "Content-Type", "value": "application/json"}
+                            ],
+                            "body": {
+                                "mode": "raw",
+                                "raw": json.dumps(
+                                    {
+                                        "name": "Updated Detector",
+                                        "parameters": {
+                                            "contamination": 0.05,
+                                            "n_estimators": 200,
+                                        },
+                                    },
+                                    indent=2,
+                                ),
+                            },
+                            "url": {
+                                "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}",
+                                "host": ["{{base_url}}"],
+                                "path": ["api", "v1", "detectors", "{{detector_id}}"],
+                            },
+                        },
+                    },
+                    {
+                        "name": "Delete Detector",
+                        "request": {
+                            "method": "DELETE",
+                            "header": [],
+                            "url": {
+                                "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}",
+                                "host": ["{{base_url}}"],
+                                "path": ["api", "v1", "detectors", "{{detector_id}}"],
+                            },
+                        },
+                    },
+                ],
+            },
+            {
+                "name": "Detection",
+                "item": [
+                    {
+                        "name": "Run Detection",
+                        "request": {
+                            "method": "POST",
+                            "header": [
+                                {"key": "Content-Type", "value": "application/json"}
+                            ],
+                            "body": {
+                                "mode": "raw",
+                                "raw": json.dumps(
+                                    {
+                                        "data": [
+                                            [1.2, 3.4, 5.6],
+                                            [2.3, 4.5, 6.7],
+                                            [3.4, 5.6, 7.8],
+                                        ],
+                                        "feature_names": [
+                                            "feature1",
+                                            "feature2",
+                                            "feature3",
+                                        ],
+                                        "return_explanations": true,
+                                    },
+                                    indent=2,
+                                ),
+                            },
+                            "url": {
+                                "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}/detect",
+                                "host": ["{{base_url}}"],
+                                "path": [
+                                    "api",
+                                    "v1",
+                                    "detectors",
+                                    "{{detector_id}}",
+                                    "detect",
+                                ],
+                            },
+                        },
+                    }
+                ],
+            },
+            {
+                "name": "AutoML",
+                "item": [
+                    {
+                        "name": "Start AutoML Optimization",
+                        "request": {
+                            "method": "POST",
+                            "header": [
+                                {"key": "Content-Type", "value": "application/json"}
+                            ],
+                            "body": {
+                                "mode": "raw",
+                                "raw": json.dumps(
+                                    {
+                                        "dataset_id": "dataset_abc123",
+                                        "algorithms": [
+                                            "IsolationForest",
+                                            "LocalOutlierFactor",
+                                            "OneClassSVM",
+                                        ],
+                                        "objectives": [
+                                            "accuracy",
+                                            "speed",
+                                            "interpretability",
+                                        ],
+                                        "constraints": {
+                                            "max_time": 3600,
+                                            "max_trials": 100,
+                                            "max_memory": 4096,
+                                        },
+                                    },
+                                    indent=2,
+                                ),
+                            },
+                            "url": {
+                                "raw": "{{base_url}}/api/v1/automl/optimize",
+                                "host": ["{{base_url}}"],
+                                "path": ["api", "v1", "automl", "optimize"],
+                            },
+                        },
+                    }
+                ],
+            },
+        ],
+    }
+
+    postman_path = OUTPUT_DIR / "pynomaly_api.postman_collection.json"
+    with open(postman_path, "w") as f:
+        json.dump(collection, f, indent=2)
+
+    log(f"Postman collection generated at {postman_path}")
+
+
+def generate_readme():
+    """Generate README for the API documentation."""
+    log("Generating README...")
+
+    readme_content = """# Pynomaly API Documentation
+
+Welcome to the Pynomaly API documentation! This directory contains comprehensive documentation for the Pynomaly anomaly detection platform.
+
+## 📁 Documentation Structure
+
+```
+docs/api/
+├── API_DOCUMENTATION.md         # Main API documentation
+├── generated/                   # Generated documentation files
+│   ├── openapi.json            # OpenAPI 3.0 specification (JSON)
+│   ├── openapi.yaml            # OpenAPI 3.0 specification (YAML)
+│   ├── index.html              # Interactive Swagger UI
+│   ├── examples/               # Code examples
+│   │   ├── python/            # Python examples
+│   │   ├── javascript/        # JavaScript examples
+│   │   └── curl/              # cURL examples
+│   └── pynomaly_api.postman_collection.json  # Postman collection
+└── README.md                   # This file
+```
+
+## 🚀 Getting Started
+
+### 1. Interactive Documentation
+
+Open `generated/index.html` in your browser to explore the API interactively with Swagger UI.
+
+### 2. API Specification
+
+- **OpenAPI JSON**: `generated/openapi.json`
+- **OpenAPI YAML**: `generated/openapi.yaml`
+
+### 3. Code Examples
+
+Choose your preferred language:
+
+- **Python**: `generated/examples/python/`
+- **JavaScript**: `generated/examples/javascript/`
+- **cURL**: `generated/examples/curl/`
+
+### 4. Postman Collection
+
+Import `generated/pynomaly_api.postman_collection.json` into Postman for easy API testing.
+
+## 📖 API Overview
+
+The Pynomaly API provides comprehensive REST endpoints for:
+
+- **Health Monitoring**: System health and status checks
+- **Detector Management**: Create, update, and manage anomaly detectors
+- **Detection Operations**: Run anomaly detection on data
+- **AutoML**: Automated machine learning optimization
+- **Dataset Management**: Handle training and testing datasets
+- **Metrics & Monitoring**: Performance and system metrics
+- **Explainability**: Model interpretability and explanations
+
+## 🔐 Authentication
+
+All API endpoints require authentication via API key:
+
+```bash
+# Header authentication (recommended)
+curl -H "X-API-Key: your-api-key" https://api.pynomaly.com/api/v1/detectors
+
+# Query parameter authentication
+curl "https://api.pynomaly.com/api/v1/detectors?api_key=your-api-key"
+```
+
+## 📚 Quick Examples
+
+### Python
+
+```python
+import requests
+
+headers = {"X-API-Key": "your-api-key"}
+response = requests.get("https://api.pynomaly.com/health", headers=headers)
+print(response.json())
+```
+
+### JavaScript
+
+```javascript
+const response = await fetch('https://api.pynomaly.com/health', {
+    headers: { 'X-API-Key': 'your-api-key' }
+});
+const data = await response.json();
+console.log(data);
+```
+
+### cURL
+
+```bash
+curl -H "X-API-Key: your-api-key" https://api.pynomaly.com/health
+```
+
+## 🌐 Base URLs
+
+- **Production**: `https://api.pynomaly.com`
+- **Staging**: `https://staging-api.pynomaly.com`
+- **Development**: `http://localhost:8000`
+
+## 📊 Rate Limits
+
+- **Default**: 1000 requests per minute
+- **Burst**: 100 requests per second
+- **Training**: 10 concurrent jobs per user
+- **Detection**: 10,000 requests per minute
+
+## 📧 Support
+
+- **Documentation**: https://docs.pynomaly.com
+- **API Status**: https://status.pynomaly.com
+- **Support**: support@pynomaly.com
+- **Community**: https://github.com/pynomaly/pynomaly
+
+## 🔄 Regenerating Documentation
+
+To regenerate this documentation:
+
+```bash
+cd /path/to/pynomaly
+python scripts/generate_api_docs.py
+```
+
+---
+
+*Last updated: {timestamp}*
+""".format(timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+    readme_path = DOCS_DIR / "README.md"
+    with open(readme_path, "w") as f:
+        f.write(readme_content)
+
+    log(f"README generated at {readme_path}")
+
+
+def main():
+    """Main function to generate all API documentation."""
+    log("Starting API documentation generation...")
+
+    try:
+        # Generate OpenAPI specification
+        spec = generate_openapi_spec()
+        save_openapi_spec(spec)
+
+        # Generate interactive documentation
+        generate_swagger_ui()
+
+        # Generate code examples
+        generate_code_examples()
+
+        # Generate Postman collection
+        generate_postman_collection()
+
+        # Generate README
+        generate_readme()
+
+        log("API documentation generation completed successfully!")
+
+        # Display summary
+        print("\n" + "=" * 60)
+        print("📚 API Documentation Generated!")
+        print("=" * 60)
+        print(f"📁 Output Directory: {OUTPUT_DIR}")
+        print(f"🌐 Interactive Docs: {OUTPUT_DIR / 'index.html'}")
+        print(f"📄 OpenAPI Spec: {OUTPUT_DIR / 'openapi.json'}")
+        print(
+            f"🔧 Postman Collection: {OUTPUT_DIR / 'pynomaly_api.postman_collection.json'}"
+        )
+        print(f"💻 Code Examples: {OUTPUT_DIR / 'examples'}")
+        print("=" * 60)
+
+        # Instructions
+        print("\n🚀 Next Steps:")
+        print("1. Open the interactive documentation:")
+        print(f"   file://{OUTPUT_DIR / 'index.html'}")
+        print("2. Import the Postman collection for API testing")
+        print("3. Use the code examples to integrate with your applications")
+        print("4. Review the comprehensive API documentation")
+        print("\n✅ All documentation files are ready for use!")
+
+    except Exception as e:
+        error(f"Documentation generation failed: {str(e)}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

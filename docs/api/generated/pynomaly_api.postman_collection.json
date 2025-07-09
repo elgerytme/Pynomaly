@@ -1,0 +1,63 @@
+{
+  "info": {
+    "name": "Pynomaly API",
+    "description": "API collection for Pynomaly",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Detectors",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/v1/detectors",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "detectors"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api.pynomaly.com"
+    },
+    {
+      "key": "api_key",
+      "value": "your-api-key-here"
+    }
+  ]
+}

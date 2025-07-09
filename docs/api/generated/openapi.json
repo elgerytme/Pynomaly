@@ -1,0 +1,90 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Pynomaly API",
+    "description": "State-of-the-art anomaly detection API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.pynomaly.com",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:8000",
+      "description": "Development"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "tags": [
+          "Health"
+        ],
+        "responses": {
+          "200": {
+            "description": "API is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/detectors": {
+      "get": {
+        "summary": "List detectors",
+        "tags": [
+          "Detectors"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of detectors"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create detector",
+        "tags": [
+          "Detectors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "algorithm": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Detector created"
+          }
+        }
+      }
+    }
+  }
+}

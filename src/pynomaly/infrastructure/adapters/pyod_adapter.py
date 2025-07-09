@@ -20,7 +20,7 @@ class PyODAdapter:
     """Adapter for PyOD anomaly detection algorithms."""
 
     # Mapping of algorithm names to PyOD classes
-    ALGORITHM_MAPPING: dict[str, tuple[str, type[Any]]] = {
+    ALGORITHM_MAPPING: dict[str, tuple[str, str]] = {
         # Linear models
         "PCA": ("pyod.models.pca", "PCA"),
         "MCD": ("pyod.models.mcd", "MCD"),
@@ -115,6 +115,37 @@ class PyODAdapter:
         # Set metadata based on algorithm
         self._set_algorithm_metadata(algorithm_name)
 
+    # DetectorProtocol properties
+    @property
+    def name(self) -> str:
+        """Get the name of the detector."""
+        return self._detector.name
+
+    @property
+    def contamination_rate(self) -> ContaminationRate:
+        """Get the contamination rate."""
+        return self._detector.contamination_rate
+
+    @property
+    def is_fitted(self) -> bool:
+        """Check if the detector has been fitted."""
+        return self._detector.is_fitted
+
+    @property
+    def parameters(self) -> dict[str, Any]:
+        """Get the current parameters of the detector."""
+        return self._detector.parameters
+
+    @property
+    def algorithm_name(self) -> str:
+        """Get the algorithm name."""
+        return self._detector.algorithm_name
+
+    @property
+    def id(self) -> str:
+        """Get the detector ID."""
+        return str(self._detector.id)
+
     def _load_model_class(self, algorithm_name: str) -> type[Any]:
         """Dynamically load PyOD model class."""
         module_path, class_name = self.ALGORITHM_MAPPING[algorithm_name]
@@ -123,7 +154,7 @@ class PyODAdapter:
             import importlib
 
             module = importlib.import_module(module_path)
-            return getattr(module, class_name)
+            return getattr(module, class_name)  # type: ignore[no-any-return]
         except (ImportError, AttributeError) as e:
             raise InvalidAlgorithmError(
                 algorithm_name, available_algorithms=list(self.ALGORITHM_MAPPING.keys())
@@ -146,24 +177,24 @@ class PyODAdapter:
 
         if algorithm_name in complexity_info:
             time_complexity, space_complexity = complexity_info[algorithm_name]
-            self.update_metadata("time_complexity", time_complexity)
-            self.update_metadata("space_complexity", space_complexity)
+            self._detector.update_metadata("time_complexity", time_complexity)
+            self._detector.update_metadata("space_complexity", space_complexity)
 
         # Streaming support
         streaming_algorithms = {"LOF", "KNN", "LODA"}
-        self.update_metadata(
+        self._detector.update_metadata(
             "supports_streaming", algorithm_name in streaming_algorithms
         )
 
         # Algorithm categories
         if algorithm_name in {"IsolationForest", "LODA", "FeatureBagging"}:
-            self.update_metadata("category", "ensemble")
+            self._detector.update_metadata("category", "ensemble")
         elif algorithm_name in {"LOF", "KNN", "COF", "SOD"}:
-            self.update_metadata("category", "proximity")
+            self._detector.update_metadata("category", "proximity")
         elif algorithm_name in {"AutoEncoder", "VAE", "DeepSVDD"}:
-            self.update_metadata("category", "neural_network")
+            self._detector.update_metadata("category", "neural_network")
         elif algorithm_name in {"PCA", "MCD", "OCSVM"}:
-            self.update_metadata("category", "linear")
+            self._detector.update_metadata("category", "linear")
 
     def fit(self, dataset: Dataset) -> None:
         """Fit the PyOD detector on a dataset."""
@@ -175,9 +206,9 @@ class PyODAdapter:
             }
 
             # Special handling for certain algorithms
-            if self.algorithm_name in ["AvgKNN", "MedKNN"]:
+            if self._detector.algorithm_name in ["AvgKNN", "MedKNN"]:
                 model_params["method"] = (
-                    "mean" if "Avg" in self.algorithm_name else "median"
+                    "mean" if "Avg" in self._detector.algorithm_name else "median"
                 )
 
             self._model = self._model_class(**model_params)
@@ -190,23 +221,27 @@ class PyODAdapter:
             training_time = (time.time() - start_time) * 1000
 
             # Update detector state
-            self.is_fitted = True
-            self.trained_at = dataset.created_at
-            self.update_metadata("training_time_ms", training_time)
-            self.update_metadata("training_samples", dataset.n_samples)
-            self.update_metadata(
+            self._detector.is_fitted = True
+            self._detector.trained_at = dataset.created_at
+            self._detector.update_metadata("training_time_ms", training_time)
+            self._detector.update_metadata("training_samples", dataset.n_samples)
+            self._detector.update_metadata(
                 "training_features", len(dataset.get_numeric_features())
             )
 
         except Exception as e:
             raise FittingError(
-                detector_name=self.name, reason=str(e), dataset_name=dataset.name
+                detector_name=self._detector.name,
+                reason=str(e),
+                dataset_name=dataset.name,
             ) from e
 
     def detect(self, dataset: Dataset) -> DetectionResult:
         """Detect anomalies in a dataset."""
-        if not self.is_fitted or self._model is None:
-            raise DetectorNotFittedError(detector_name=self.name, operation="detect")
+        if not self._detector.is_fitted or self._model is None:
+            raise DetectorNotFittedError(
+                detector_name=self._detector.name, operation="detect"
+            )
 
         # Get features
         X = dataset.features[dataset.get_numeric_features()].values
@@ -233,7 +268,7 @@ class PyODAdapter:
         ]
 
         # Calculate threshold from normalized scores
-        threshold_idx = int(len(scores) * (1 - self.contamination_rate.value))
+        threshold_idx = int(len(scores) * (1 - self._detector.contamination_rate.value))
         threshold = float(np.sort(normalized_scores)[threshold_idx])
 
         # Create Anomaly entities for detected anomalies
@@ -241,21 +276,27 @@ class PyODAdapter:
         anomaly_indices = np.where(labels == 1)[0]
 
         for idx in anomaly_indices:
+            # Get data point from dataset
+            data_point = (
+                dataset.data.iloc[idx].to_dict()
+                if hasattr(dataset.data, "iloc")
+                else {}
+            )
             anomaly = Anomaly(
                 score=anomaly_scores[idx],
-                data_point=dataset.data.iloc[idx].to_dict(),
-                detector_name=self.name,
+                data_point=data_point,
+                detector_name=self._detector.name,
             )
             # Add algorithm-specific metadata
             anomaly.add_metadata("raw_score", float(scores[idx]))
-            anomaly.add_metadata("algorithm", self.algorithm_name)
+            anomaly.add_metadata("algorithm", self._detector.algorithm_name)
             anomalies.append(anomaly)
 
         execution_time = (time.time() - start_time) * 1000
 
         # Create detection result
         result = DetectionResult(
-            detector_id=self.id,
+            detector_id=self._detector.id,
             dataset_id=dataset.id,
             anomalies=anomalies,
             scores=anomaly_scores,
@@ -263,7 +304,7 @@ class PyODAdapter:
             threshold=threshold,
             execution_time_ms=execution_time,
             metadata={
-                "algorithm": self.algorithm_name,
+                "algorithm": self._detector.algorithm_name,
                 "pyod_version": self._get_pyod_version(),
             },
         )
@@ -272,8 +313,10 @@ class PyODAdapter:
 
     def score(self, dataset: Dataset) -> list[AnomalyScore]:
         """Calculate anomaly scores for a dataset."""
-        if not self.is_fitted or self._model is None:
-            raise DetectorNotFittedError(detector_name=self.name, operation="score")
+        if not self._detector.is_fitted or self._model is None:
+            raise DetectorNotFittedError(
+                detector_name=self._detector.name, operation="score"
+            )
 
         # Get features
         X = dataset.features[dataset.get_numeric_features()].values
@@ -298,12 +341,12 @@ class PyODAdapter:
     def get_params(self) -> dict[str, Any]:
         """Get current parameters."""
         if self._model is not None:
-            return self._model.get_params()
-        return self.parameters
+            return dict(self._model.get_params())
+        return self._detector.parameters
 
     def set_params(self, **params: Any) -> None:
         """Set parameters."""
-        self.update_parameters(**params)
+        self._detector.update_parameters(**params)
         if self._model is not None:
             # Update model parameters
             valid_params = {
@@ -316,7 +359,7 @@ class PyODAdapter:
         try:
             import pyod
 
-            return pyod.__version__
+            return str(pyod.__version__)
         except ImportError:
             return "unknown"
 

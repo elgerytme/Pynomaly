@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import json
-import pickle
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID
 
+from pynomaly.infrastructure.security.security_hardening import get_secure_serializer
 from pynomaly.shared.protocols import DetectorProtocol, DetectorRepositoryProtocol
 
 
@@ -64,16 +64,18 @@ class ModelPersistenceService:
         model_dir = self.storage_path / str(detector_id)
         model_dir.mkdir(exist_ok=True)
 
+        # Use secure serialization instead of pickle
+        secure_serializer = get_secure_serializer()
+
         # Save based on format
         if format == "pickle":
-            model_path = model_dir / "model.pkl"
-            with open(model_path, "wb") as f:
-                pickle.dump(detector, f)
+            # Use secure serialization instead of unsafe pickle
+            model_path = model_dir / "model.secure"
+            secure_serializer.serialize_model(detector, model_path)
         elif format == "joblib":
-            import joblib
-
+            # joblib is safer than pickle, but still use secure wrapper
             model_path = model_dir / "model.joblib"
-            joblib.dump(detector, model_path)
+            secure_serializer.serialize_model(detector, model_path)
         elif format == "onnx":
             # ONNX conversion using existing implementation
             model_path = model_dir / "model.onnx"
@@ -124,16 +126,29 @@ class ModelPersistenceService:
         if not model_dir.exists():
             raise ValueError(f"No saved model found for detector {detector_id}")
 
+        # Use secure deserialization
+        secure_serializer = get_secure_serializer()
+
         # Load based on format
         if format == "pickle":
-            model_path = model_dir / "model.pkl"
-            with open(model_path, "rb") as f:
-                detector = pickle.load(f)
+            # Use secure deserialization instead of unsafe pickle
+            model_path = model_dir / "model.secure"
+            if not model_path.exists():
+                # Try legacy pickle file for backward compatibility
+                legacy_path = model_dir / "model.pkl"
+                if legacy_path.exists():
+                    raise ValueError(
+                        f"Legacy pickle file found for detector {detector_id}. "
+                        "Please re-save the model with secure serialization."
+                    )
+                raise ValueError(
+                    f"No secure model file found for detector {detector_id}"
+                )
+            detector = secure_serializer.deserialize_model(model_path)
         elif format == "joblib":
-            import joblib
-
+            # Use secure deserialization wrapper
             model_path = model_dir / "model.joblib"
-            detector = joblib.load(model_path)
+            detector = secure_serializer.deserialize_model(model_path)
         elif format == "onnx":
             # ONNX loading - for now, load the stub or use fallback
             model_path = model_dir / "model.onnx"

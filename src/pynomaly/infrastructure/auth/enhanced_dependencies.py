@@ -2,6 +2,7 @@
 
 from collections.abc import Callable
 from functools import wraps
+from typing import Any
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -306,7 +307,7 @@ def cli_require_permissions(*permissions: str) -> Callable:
             pass
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
         def wrapper(*args, **kwargs):
             # Get auth service
@@ -355,7 +356,7 @@ def cli_require_roles(*roles: str) -> Callable:
             pass
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
         def wrapper(*args, **kwargs):
             # Get auth service
@@ -395,7 +396,7 @@ def cli_require_roles(*roles: str) -> Callable:
     return decorator
 
 
-def cli_require_superuser(func: Callable) -> Callable:
+def cli_require_superuser(func: Callable[..., Any]) -> Callable[..., Any]:
     """Create a CLI command guard that requires superuser access.
 
     Args:

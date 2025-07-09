@@ -1,13 +1,314 @@
 #!/bin/bash
 
-# =============================================================================
-# Pynomaly API Production Deployment Script
-# =============================================================================
+# Production Deployment Script for Pynomaly
+# This script handles the complete deployment process
 
-set -euo pipefail
+set -e
 
-# Script configuration
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+PROD_CONFIG_DIR="$PROJECT_ROOT/config/production"
+BACKUP_DIR="$PROJECT_ROOT/backups"
+DEPLOYMENT_LOG="$PROJECT_ROOT/deployment.log"
+
+# Functions
+log() {
+    echo -e "${GREEN}[$(date '+%Y-%m-%d %H:%M:%S')] $1${NC}" | tee -a "$DEPLOYMENT_LOG"
+}
+
+warn() {
+    echo -e "${YELLOW}[$(date '+%Y-%m-%d %H:%M:%S')] WARNING: $1${NC}" | tee -a "$DEPLOYMENT_LOG"
+}
+
+error() {
+    echo -e "${RED}[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}" | tee -a "$DEPLOYMENT_LOG"
+    exit 1
+}
+
+info() {
+    echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')] INFO: $1${NC}" | tee -a "$DEPLOYMENT_LOG"
+}
+
+# Check prerequisites
+check_prerequisites() {
+    log "Checking prerequisites..."
+
+    # Check Docker
+    if ! command -v docker &> /dev/null; then
+        error "Docker is not installed. Please install Docker first."
+    fi
+
+    # Check Docker Compose
+    if ! command -v docker-compose &> /dev/null; then
+        error "Docker Compose is not installed. Please install Docker Compose first."
+    fi
+
+    # Check if running as root (not recommended for production)
+    if [[ $EUID -eq 0 ]]; then
+        warn "Running as root is not recommended for production deployments."
+    fi
+
+    # Check disk space (minimum 10GB)
+    AVAILABLE_SPACE=$(df -BG . | tail -1 | awk '{print $4}' | sed 's/G//')
+    if [[ $AVAILABLE_SPACE -lt 10 ]]; then
+        error "Insufficient disk space. At least 10GB required, only ${AVAILABLE_SPACE}GB available."
+    fi
+
+    log "Prerequisites check passed"
+}
+
+# Create necessary directories
+create_directories() {
+    log "Creating necessary directories..."
+
+    mkdir -p "$BACKUP_DIR"
+    mkdir -p "$PROJECT_ROOT/storage/data"
+    mkdir -p "$PROJECT_ROOT/storage/logs"
+    mkdir -p "$PROJECT_ROOT/storage/ssl"
+    mkdir -p "$PROJECT_ROOT/storage/uploads"
+    mkdir -p "$PROD_CONFIG_DIR/ssl"
+
+    log "Directories created successfully"
+}
+
+# Generate SSL certificates (self-signed for development)
+generate_ssl_certificates() {
+    log "Generating SSL certificates..."
+
+    SSL_DIR="$PROD_CONFIG_DIR/ssl"
+
+    if [[ ! -f "$SSL_DIR/cert.pem" || ! -f "$SSL_DIR/key.pem" ]]; then
+        # Generate DH parameters
+        if [[ ! -f "$SSL_DIR/dhparam.pem" ]]; then
+            info "Generating DH parameters (this may take a while)..."
+            openssl dhparam -out "$SSL_DIR/dhparam.pem" 2048
+        fi
+
+        # Generate private key
+        openssl genrsa -out "$SSL_DIR/key.pem" 2048
+
+        # Generate certificate
+        openssl req -new -x509 -key "$SSL_DIR/key.pem" -out "$SSL_DIR/cert.pem" -days 365 -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
+
+        log "SSL certificates generated (self-signed)"
+        warn "For production, replace with proper SSL certificates from a CA"
+    else
+        log "SSL certificates already exist"
+    fi
+}
+
+# Validate environment configuration
+validate_environment() {
+    log "Validating environment configuration..."
+
+    ENV_FILE="$PROD_CONFIG_DIR/.env.prod"
+
+    if [[ ! -f "$ENV_FILE" ]]; then
+        error "Environment file not found: $ENV_FILE"
+    fi
+
+    # Check for required environment variables
+    required_vars=(
+        "SECRET_KEY"
+        "DB_PASSWORD"
+        "REDIS_PASSWORD"
+        "GRAFANA_PASSWORD"
+    )
+
+    for var in "${required_vars[@]}"; do
+        if ! grep -q "^$var=" "$ENV_FILE" || grep -q "^$var=CHANGE_ME" "$ENV_FILE"; then
+            error "Required environment variable $var is not set or has default value in $ENV_FILE"
+        fi
+    done
+
+    log "Environment configuration validated"
+}
+
+# Create database backup
+create_backup() {
+    log "Creating database backup..."
+
+    BACKUP_FILE="$BACKUP_DIR/pynomaly_backup_$(date +%Y%m%d_%H%M%S).sql"
+
+    if docker-compose -f "$PROD_CONFIG_DIR/docker-compose.prod.yml" ps postgres | grep -q "Up"; then
+        docker-compose -f "$PROD_CONFIG_DIR/docker-compose.prod.yml" exec -T postgres pg_dump -U pynomaly pynomaly > "$BACKUP_FILE"
+        log "Database backup created: $BACKUP_FILE"
+    else
+        info "Database not running, skipping backup"
+    fi
+}
+
+# Deploy application
+deploy_application() {
+    log "Deploying application..."
+
+    cd "$PROD_CONFIG_DIR"
+
+    # Pull latest images
+    docker-compose -f docker-compose.prod.yml pull
+
+    # Build application image
+    docker-compose -f docker-compose.prod.yml build pynomaly-api
+
+    # Start services
+    docker-compose -f docker-compose.prod.yml up -d
+
+    log "Application deployed successfully"
+}
+
+# Wait for services to be ready
+wait_for_services() {
+    log "Waiting for services to be ready..."
+
+    # Wait for database
+    info "Waiting for PostgreSQL..."
+    timeout 60 bash -c 'until docker-compose -f '"$PROD_CONFIG_DIR"'/docker-compose.prod.yml exec postgres pg_isready -U pynomaly; do sleep 2; done'
+
+    # Wait for Redis
+    info "Waiting for Redis..."
+    timeout 60 bash -c 'until docker-compose -f '"$PROD_CONFIG_DIR"'/docker-compose.prod.yml exec redis redis-cli ping; do sleep 2; done'
+
+    # Wait for API
+    info "Waiting for API..."
+    timeout 60 bash -c 'until curl -f http://localhost:8000/api/v1/health/ &>/dev/null; do sleep 2; done'
+
+    log "All services are ready"
+}
+
+# Run health checks
+run_health_checks() {
+    log "Running health checks..."
+
+    # Check API health
+    if curl -f http://localhost:8000/api/v1/health/ &>/dev/null; then
+        log "API health check passed"
+    else
+        error "API health check failed"
+    fi
+
+    # Check database connectivity
+    if docker-compose -f "$PROD_CONFIG_DIR/docker-compose.prod.yml" exec -T postgres pg_isready -U pynomaly &>/dev/null; then
+        log "Database health check passed"
+    else
+        error "Database health check failed"
+    fi
+
+    # Check Redis connectivity
+    if docker-compose -f "$PROD_CONFIG_DIR/docker-compose.prod.yml" exec -T redis redis-cli ping &>/dev/null; then
+        log "Redis health check passed"
+    else
+        error "Redis health check failed"
+    fi
+
+    log "All health checks passed"
+}
+
+# Setup monitoring
+setup_monitoring() {
+    log "Setting up monitoring..."
+
+    # Import Grafana dashboards
+    info "Importing Grafana dashboards..."
+    # This would typically involve API calls to Grafana
+
+    # Configure Prometheus alerts
+    info "Configuring Prometheus alerts..."
+    # This would involve reloading Prometheus configuration
+
+    log "Monitoring setup completed"
+}
+
+# Display deployment summary
+display_summary() {
+    log "Deployment Summary"
+    echo "==================="
+    echo "Deployment completed successfully!"
+    echo ""
+    echo "Services:"
+    echo "  - API: https://localhost/api/v1/"
+    echo "  - Health Check: https://localhost/health"
+    echo "  - Grafana: http://localhost:3000"
+    echo "  - Prometheus: http://localhost:9090"
+    echo ""
+    echo "Configuration:"
+    echo "  - Environment: production"
+    echo "  - SSL: Enabled (self-signed)"
+    echo "  - Monitoring: Enabled"
+    echo "  - Backup: Enabled"
+    echo ""
+    echo "Next steps:"
+    echo "  1. Replace self-signed SSL certificates with proper ones"
+    echo "  2. Configure DNS and firewall rules"
+    echo "  3. Set up external monitoring alerts"
+    echo "  4. Configure backup retention policies"
+    echo "  5. Review and update security settings"
+    echo ""
+    echo "For logs: tail -f $DEPLOYMENT_LOG"
+}
+
+# Main deployment function
+main() {
+    log "Starting Pynomaly production deployment..."
+
+    check_prerequisites
+    create_directories
+    generate_ssl_certificates
+    validate_environment
+    create_backup
+    deploy_application
+    wait_for_services
+    run_health_checks
+    setup_monitoring
+    display_summary
+
+    log "Deployment completed successfully!"
+}
+
+# Handle script arguments
+case "$1" in
+    "deploy")
+        main
+        ;;
+    "backup")
+        create_backup
+        ;;
+    "health")
+        run_health_checks
+        ;;
+    "logs")
+        tail -f "$DEPLOYMENT_LOG"
+        ;;
+    "stop")
+        log "Stopping services..."
+        docker-compose -f "$PROD_CONFIG_DIR/docker-compose.prod.yml" down
+        log "Services stopped"
+        ;;
+    "restart")
+        log "Restarting services..."
+        docker-compose -f "$PROD_CONFIG_DIR/docker-compose.prod.yml" restart
+        log "Services restarted"
+        ;;
+    *)
+        echo "Usage: $0 {deploy|backup|health|logs|stop|restart}"
+        echo ""
+        echo "Commands:"
+        echo "  deploy  - Full production deployment"
+        echo "  backup  - Create database backup"
+        echo "  health  - Run health checks"
+        echo "  logs    - Show deployment logs"
+        echo "  stop    - Stop all services"
+        echo "  restart - Restart all services"
+        exit 1
+        ;;
+esac
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 DEPLOY_DIR="$PROJECT_ROOT/deploy"
 

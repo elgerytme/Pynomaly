@@ -1,0 +1,95 @@
+const axios = require('axios');
+
+// Configuration
+const API_KEY = 'your-api-key-here';
+const BASE_URL = 'https://api.pynomaly.com';
+
+const headers = {
+    'X-API-Key': API_KEY,
+    'Content-Type': 'application/json'
+};
+
+// Health check
+async function checkHealth() {
+    try {
+        const response = await axios.get(`${BASE_URL}/health`, { headers });
+        console.log('Health status:', response.data);
+    } catch (error) {
+        console.error('Health check failed:', error.response?.data || error.message);
+    }
+}
+
+// List detectors
+async function listDetectors() {
+    try {
+        const response = await axios.get(`${BASE_URL}/api/v1/detectors`, { headers });
+        const detectors = response.data;
+        console.log(`Available detectors: ${detectors.data.detectors.length}`);
+        return detectors;
+    } catch (error) {
+        console.error('Failed to list detectors:', error.response?.data || error.message);
+    }
+}
+
+// Create detector
+async function createDetector() {
+    const detectorData = {
+        name: 'My Detector',
+        algorithm: 'IsolationForest',
+        parameters: {
+            contamination: 0.1,
+            n_estimators: 100,
+            random_state: 42
+        },
+        description: 'Production anomaly detector'
+    };
+
+    try {
+        const response = await axios.post(
+            `${BASE_URL}/api/v1/detectors`,
+            detectorData,
+            { headers }
+        );
+        const detector = response.data;
+        console.log(`Created detector: ${detector.data.id}`);
+        return detector.data.id;
+    } catch (error) {
+        console.error('Failed to create detector:', error.response?.data || error.message);
+    }
+}
+
+// Run detection
+async function runDetection(detectorId) {
+    const detectionData = {
+        data: [
+            [1.2, 3.4, 5.6],
+            [2.3, 4.5, 6.7],
+            [3.4, 5.6, 7.8]
+        ],
+        feature_names: ['feature1', 'feature2', 'feature3'],
+        return_explanations: true
+    };
+
+    try {
+        const response = await axios.post(
+            `${BASE_URL}/api/v1/detectors/${detectorId}/detect`,
+            detectionData,
+            { headers }
+        );
+        const results = response.data;
+        console.log('Detection results:', results.data.summary);
+        return results;
+    } catch (error) {
+        console.error('Detection failed:', error.response?.data || error.message);
+    }
+}
+
+// Example usage
+(async () => {
+    await checkHealth();
+    await listDetectors();
+    const detectorId = await createDetector();
+    if (detectorId) {
+        await runDetection(detectorId);
+    }
+})();

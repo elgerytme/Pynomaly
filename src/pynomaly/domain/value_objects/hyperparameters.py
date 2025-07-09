@@ -70,7 +70,7 @@ class HyperparameterRange:
     default_value: Any | None = None
     description: str | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate parameter range configuration."""
         if self.type in [ParameterType.CATEGORICAL, ParameterType.DISCRETE]:
             if not self.choices:
@@ -96,10 +96,10 @@ class HyperparameterRange:
         """Check if a value is valid for this parameter range."""
         try:
             if self.type == ParameterType.CATEGORICAL:
-                return value in self.choices
+                return self.choices is not None and value in self.choices
 
             elif self.type == ParameterType.DISCRETE:
-                return value in self.choices
+                return self.choices is not None and value in self.choices
 
             elif self.type == ParameterType.BOOLEAN:
                 return isinstance(value, bool)
@@ -107,12 +107,20 @@ class HyperparameterRange:
             elif self.type == ParameterType.FLOAT:
                 if not isinstance(value, (int, float)):
                     return False
-                return self.low <= value <= self.high
+                return (
+                    self.low is not None
+                    and self.high is not None
+                    and self.low <= value <= self.high
+                )
 
             elif self.type == ParameterType.INT:
                 if not isinstance(value, int):
                     return False
-                return self.low <= value <= self.high
+                return (
+                    self.low is not None
+                    and self.high is not None
+                    and self.low <= value <= self.high
+                )
 
             return False
 
@@ -128,10 +136,13 @@ class HyperparameterRange:
             ParameterType.DISCRETE,
             ParameterType.BOOLEAN,
         ]:
-            return list(self.choices)
+            return list(self.choices) if self.choices is not None else []
 
         elif self.type == ParameterType.FLOAT:
             import numpy as np
+
+            if self.low is None or self.high is None:
+                return []
 
             if self.log or self.distribution == DistributionType.LOG_UNIFORM:
                 return np.logspace(
@@ -142,6 +153,9 @@ class HyperparameterRange:
 
         elif self.type == ParameterType.INT:
             import numpy as np
+
+            if self.low is None or self.high is None:
+                return []
 
             max_size = min(grid_size, int(self.high - self.low + 1))
             return np.linspace(self.low, self.high, max_size, dtype=int).tolist()
@@ -160,9 +174,13 @@ class HyperparameterRange:
             ParameterType.DISCRETE,
             ParameterType.BOOLEAN,
         ]:
+            if self.choices is None:
+                return None
             return np.random.choice(self.choices)
 
         elif self.type == ParameterType.FLOAT:
+            if self.low is None or self.high is None:
+                return None
             if self.log or self.distribution == DistributionType.LOG_UNIFORM:
                 log_low = np.log(self.low)
                 log_high = np.log(self.high)
@@ -177,6 +195,8 @@ class HyperparameterRange:
                 return np.random.uniform(self.low, self.high)
 
         elif self.type == ParameterType.INT:
+            if self.low is None or self.high is None:
+                return None
             if self.log:
                 log_low = np.log(self.low)
                 log_high = np.log(self.high)

@@ -994,7 +994,9 @@ class StreamingDetectionService:
             self.logger.error(f"Error in drift detection: {e}")
             return False
 
-    async def _safe_call_handler(self, handler: Callable, *args, **kwargs) -> None:
+    async def _safe_call_handler(
+        self, handler: Callable[..., Any], *args, **kwargs
+    ) -> None:
         """Safely call a handler function."""
 
         try:

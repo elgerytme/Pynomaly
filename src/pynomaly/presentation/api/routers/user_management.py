@@ -118,6 +118,16 @@ class UpdateUserRoleRequest(BaseModel):
     role: UserRole
 
 
+class UpdateProfileRequest(BaseModel):
+    first_name: str | None = None
+    last_name: str | None = None
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=8)
+
+
 # Dependency injection
 async def get_user_management_service() -> UserManagementService:
     """Get user management service instance."""
@@ -868,3 +878,229 @@ async def remove_user_from_tenant(
             )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+# User Profile Self-Management Endpoints
+@router.put("/me", response_model=UserResponse)
+async def update_my_profile(
+    request: UpdateProfileRequest,
+    current_user=Depends(get_current_user),
+    user_service: UserManagementService = Depends(get_user_management_service),
+):
+    """Update current user's profile."""
+    audit_logger = get_audit_logger()
+    try:
+        user = await user_service.update_user(
+            user_id=UserId(current_user.id),
+            update_data=request.dict(exclude_unset=True),
+        )
+
+        audit_logger.log_event(
+            AuditEventType.USER_UPDATED,
+            user_id=str(current_user.id),
+            outcome="success",
+            severity=AuditSeverity.LOW,
+            details={
+                "action": "update_own_profile",
+                **request.dict(exclude_unset=True),
+            },
+        )
+
+        return UserResponse(
+            id=UUID(user.id),
+            email=user.email,
+            username=user.username,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            full_name=user.full_name,
+            status=user.status,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+            last_login_at=user.last_login_at,
+            email_verified_at=user.email_verified_at,
+            tenant_roles=[
+                {
+                    "tenant_id": str(tr.tenant_id),
+                    "role": tr.role.value,
+                    "granted_at": tr.granted_at.isoformat(),
+                    "expires_at": tr.expires_at.isoformat() if tr.expires_at else None,
+                }
+                for tr in user.tenant_roles
+            ],
+        )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.put("/me/password", response_model=dict)
+async def change_my_password(
+    request: ChangePasswordRequest,
+    current_user=Depends(get_current_user),
+    user_service: UserManagementService = Depends(get_user_management_service),
+):
+    """Change current user's password."""
+    audit_logger = get_audit_logger()
+    try:
+        # Verify current password
+        if not user_service._verify_password(
+            request.current_password, current_user.password_hash
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Current password is incorrect",
+            )
+
+        # Reset password
+        await user_service.reset_password(UserId(current_user.id), request.new_password)
+
+        audit_logger.log_event(
+            AuditEventType.PASSWORD_CHANGED,
+            user_id=str(current_user.id),
+            outcome="success",
+            severity=AuditSeverity.MEDIUM,
+            details={"action": "self_password_change"},
+        )
+
+        return {"message": "Password changed successfully."}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+# Session Management Endpoints
+@router.get("/sessions", response_model=list[dict])
+async def get_my_sessions(
+    current_user=Depends(get_current_user),
+    user_service: UserManagementService = Depends(get_user_management_service),
+):
+    """Get current user's active sessions."""
+    try:
+        sessions = await user_service._session_repo.get_active_sessions_for_user(
+            UserId(current_user.id)
+        )
+
+        return [
+            {
+                "id": session.id,
+                "created_at": session.created_at.isoformat(),
+                "expires_at": session.expires_at.isoformat(),
+                "ip_address": session.ip_address,
+                "user_agent": session.user_agent,
+                "last_activity": session.last_activity.isoformat(),
+                "is_active": session.is_active,
+            }
+            for session in sessions
+        ]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve sessions: {str(e)}",
+        )
+
+
+@router.delete("/sessions/{session_id}", response_model=dict)
+async def invalidate_session(
+    session_id: str,
+    current_user=Depends(get_current_user),
+    user_service: UserManagementService = Depends(get_user_management_service),
+):
+    """Invalidate a specific session."""
+    audit_logger = get_audit_logger()
+    try:
+        # Verify session belongs to current user
+        session = await user_service._session_repo.get_session_by_id(session_id)
+        if not session or session.user_id != UserId(current_user.id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Session not found or does not belong to current user",
+            )
+
+        success = await user_service._session_repo.delete_session(session_id)
+
+        if success:
+            audit_logger.log_event(
+                AuditEventType.USER_LOGOUT,
+                user_id=str(current_user.id),
+                outcome="success",
+                severity=AuditSeverity.LOW,
+                details={"action": "session_invalidation", "session_id": session_id},
+            )
+            return {"message": "Session invalidated successfully"}
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to invalidate session",
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.delete("/sessions", response_model=dict)
+async def invalidate_all_sessions(
+    current_user=Depends(get_current_user),
+    user_service: UserManagementService = Depends(get_user_management_service),
+):
+    """Invalidate all sessions for current user."""
+    audit_logger = get_audit_logger()
+    try:
+        success = await user_service._session_repo.delete_all_sessions_for_user(
+            UserId(current_user.id)
+        )
+
+        if success:
+            audit_logger.log_event(
+                AuditEventType.USER_LOGOUT,
+                user_id=str(current_user.id),
+                outcome="success",
+                severity=AuditSeverity.MEDIUM,
+                details={"action": "all_sessions_invalidation"},
+            )
+            return {"message": "All sessions invalidated successfully"}
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to invalidate sessions",
+            )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+# Enhanced Tenant Management
+@router.get("/tenants", response_model=list[TenantResponse])
+async def list_tenants(
+    current_user=Depends(get_current_user),
+    user_service: UserManagementService = Depends(get_user_management_service),
+):
+    """List all tenants (super admin only)."""
+    if not current_user.is_super_admin():
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only super admins can list all tenants",
+        )
+
+    try:
+        tenants = await user_service._tenant_repo.list_tenants()
+
+        return [
+            TenantResponse(
+                id=UUID(tenant.id),
+                name=tenant.name,
+                domain=tenant.domain,
+                plan=tenant.plan,
+                status=tenant.status,
+                created_at=tenant.created_at,
+                updated_at=tenant.updated_at,
+                expires_at=tenant.expires_at,
+                contact_email=tenant.contact_email,
+                billing_email=tenant.billing_email,
+            )
+            for tenant in tenants
+        ]
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to list tenants: {str(e)}",
+        )

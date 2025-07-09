@@ -169,7 +169,7 @@ class VisualizationDashboardService:
         detector_repository=None,
         result_repository=None,
         dataset_repository=None,
-    ):
+    ) -> None:
         """Initialize visualization dashboard service.
 
         Args:

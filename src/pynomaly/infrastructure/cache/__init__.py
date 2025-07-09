@@ -1,5 +1,6 @@
 """Comprehensive caching system for Pynomaly."""
 
+from .advanced_cache import CacheManager, DistributedCache
 from .cache_core import (
     CacheDecorator,
     CacheEvictionPolicy,
@@ -20,7 +21,6 @@ from .cache_integration import (
     perform_cache_maintenance,
     warm_cache_with_critical_data,
 )
-from .cache_manager import CacheManager, DistributedCache
 from .decorators import (
     AsyncCacheDecorator,
     CacheConfig,
@@ -71,7 +71,6 @@ __all__ = [
     "CacheDecorator",
     "CacheEvictionPolicy",
     "CacheManager",
-    "DistributedCache",
     # Redis cache
     "RedisCache",
     "CacheKeys",

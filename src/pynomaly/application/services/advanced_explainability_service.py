@@ -178,7 +178,7 @@ class AdvancedExplainabilityService:
         enable_lime: bool = True,
         enable_permutation: bool = True,
         cache_explanations: bool = True,
-    ):
+    ) -> None:
         """Initialize explainability service.
 
         Args:
@@ -624,7 +624,7 @@ class AdvancedExplainabilityService:
 
             if cache_key not in self.explainer_cache:
                 # Use kernel explainer as general approach
-                def predict_fn(x):
+                def predict_fn(x) -> Any:
                     return detector.decision_function(x)
 
                 # Sample background data for efficiency
@@ -737,7 +737,7 @@ class AdvancedExplainabilityService:
 
         try:
             # Create a scorer function
-            def scorer(estimator, X, y):
+            def scorer(estimator, X, y) -> float:
                 # For anomaly detection, we use consistency as score
                 predictions = estimator.decision_function(X)
                 return -np.std(predictions)  # Negative std (higher is better)
@@ -773,7 +773,7 @@ class AdvancedExplainabilityService:
 
             if cache_key not in self.explainer_cache:
 
-                def predict_fn(x):
+                def predict_fn(x) -> Any:
                     return detector.decision_function(x)
 
                 # Sample for efficiency
@@ -1094,3 +1094,489 @@ class AdvancedExplainabilityService:
             "cached_explanations": len(self.explanation_cache),
             "cached_explainers": len(self.explainer_cache),
         }
+
+    async def generate_counterfactual_explanations(
+        self,
+        detector: DetectorProtocol,
+        dataset: Dataset,
+        target_instances: list[int],
+        n_counterfactuals: int = 5,
+        optimization_method: str = "random",
+    ) -> dict[str, Any]:
+        """Generate counterfactual explanations for given instances."""
+        try:
+            logger.info(
+                f"Generating counterfactual explanations for {len(target_instances)} instances"
+            )
+
+            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+            counterfactuals = {}
+
+            for instance_idx in target_instances:
+                if instance_idx >= len(X):
+                    continue
+
+                original_instance = X[instance_idx]
+                original_prediction = detector.decision_function(
+                    original_instance.reshape(1, -1)
+                )[0]
+
+                # Generate counterfactuals
+                cf_instances = []
+
+                for _ in range(n_counterfactuals * 10):  # Generate more and select best
+                    if optimization_method == "random":
+                        # Random perturbation
+                        noise = np.random.normal(0, 0.1, original_instance.shape)
+                        candidate = original_instance + noise
+                    elif optimization_method == "genetic":
+                        # Simple genetic algorithm approach
+                        candidate = self._genetic_counterfactual(
+                            original_instance, detector, X
+                        )
+                    else:
+                        # Gradient-based (simplified)
+                        candidate = self._gradient_counterfactual(
+                            original_instance, detector
+                        )
+
+                    # Check if prediction changed significantly
+                    candidate_prediction = detector.decision_function(
+                        candidate.reshape(1, -1)
+                    )[0]
+
+                    if abs(candidate_prediction - original_prediction) > 0.1:
+                        distance = np.linalg.norm(candidate - original_instance)
+                        cf_instances.append(
+                            {
+                                "instance": candidate.tolist(),
+                                "prediction": float(candidate_prediction),
+                                "distance": float(distance),
+                                "changes": self._calculate_feature_changes(
+                                    original_instance, candidate, dataset.features or []
+                                ),
+                            }
+                        )
+
+                # Select best counterfactuals (closest to original)
+                cf_instances.sort(key=lambda x: x["distance"])
+
+                counterfactuals[f"instance_{instance_idx}"] = {
+                    "original": {
+                        "instance": original_instance.tolist(),
+                        "prediction": float(original_prediction),
+                    },
+                    "counterfactuals": cf_instances[:n_counterfactuals],
+                    "summary": {
+                        "generated": len(cf_instances),
+                        "selected": min(n_counterfactuals, len(cf_instances)),
+                        "avg_distance": float(
+                            np.mean(
+                                [
+                                    cf["distance"]
+                                    for cf in cf_instances[:n_counterfactuals]
+                                ]
+                            )
+                        )
+                        if cf_instances
+                        else 0.0,
+                    },
+                }
+
+            return counterfactuals
+
+        except Exception as e:
+            logger.error(f"Counterfactual generation failed: {e}")
+            return {"error": str(e)}
+
+    def _genetic_counterfactual(
+        self, original: np.ndarray, detector: DetectorProtocol, X: np.ndarray
+    ) -> np.ndarray:
+        """Generate counterfactual using genetic algorithm approach."""
+        # Simplified genetic algorithm
+        population_size = 50
+        generations = 10
+
+        # Initialize population
+        population = []
+        for _ in range(population_size):
+            noise = np.random.normal(0, 0.1, original.shape)
+            candidate = original + noise
+            population.append(candidate)
+
+        original_pred = detector.decision_function(original.reshape(1, -1))[0]
+
+        for generation in range(generations):
+            # Evaluate fitness
+            fitness_scores = []
+            for candidate in population:
+                candidate_pred = detector.decision_function(candidate.reshape(1, -1))[0]
+
+                # Fitness: prediction change + distance penalty
+                pred_change = abs(candidate_pred - original_pred)
+                distance_penalty = np.linalg.norm(candidate - original) * 0.1
+                fitness = pred_change - distance_penalty
+
+                fitness_scores.append(fitness)
+
+            # Selection (tournament selection)
+            new_population = []
+            for _ in range(population_size):
+                # Tournament selection
+                tournament_size = 5
+                tournament_indices = np.random.choice(
+                    len(population), tournament_size, replace=False
+                )
+                tournament_fitness = [fitness_scores[i] for i in tournament_indices]
+                winner_idx = tournament_indices[np.argmax(tournament_fitness)]
+                new_population.append(population[winner_idx].copy())
+
+            # Mutation
+            for i in range(len(new_population)):
+                if np.random.random() < 0.1:  # Mutation probability
+                    mutation = np.random.normal(0, 0.05, new_population[i].shape)
+                    new_population[i] += mutation
+
+            population = new_population
+
+        # Return best individual
+        best_idx = np.argmax(fitness_scores)
+        return population[best_idx]
+
+    def _gradient_counterfactual(
+        self, original: np.ndarray, detector: DetectorProtocol
+    ) -> np.ndarray:
+        """Generate counterfactual using gradient-based approach."""
+        current = original.copy()
+        learning_rate = 0.01
+        steps = 100
+
+        original_pred = detector.decision_function(original.reshape(1, -1))[0]
+
+        for _ in range(steps):
+            # Compute gradient
+            epsilon = 1e-5
+            gradients = np.zeros_like(current)
+
+            for i in range(len(current)):
+                # Forward difference
+                perturbed = current.copy()
+                perturbed[i] += epsilon
+
+                pred_plus = detector.decision_function(perturbed.reshape(1, -1))[0]
+                pred_minus = detector.decision_function(current.reshape(1, -1))[0]
+
+                gradient = (pred_plus - pred_minus) / epsilon
+                gradients[i] = gradient
+
+            # Update in direction that changes prediction most
+            current += learning_rate * gradients
+
+            # Check if prediction changed significantly
+            current_pred = detector.decision_function(current.reshape(1, -1))[0]
+            if abs(current_pred - original_pred) > 0.1:
+                break
+
+        return current
+
+    def _calculate_feature_changes(
+        self, original: np.ndarray, modified: np.ndarray, feature_names: list[str]
+    ) -> dict[str, dict[str, float]]:
+        """Calculate changes between original and modified instances."""
+        changes = {}
+
+        for i, feature_name in enumerate(feature_names):
+            if i < len(original) and i < len(modified):
+                original_val = original[i]
+                modified_val = modified[i]
+
+                if abs(modified_val - original_val) > 1e-6:
+                    changes[feature_name] = {
+                        "original": float(original_val),
+                        "modified": float(modified_val),
+                        "absolute_change": float(modified_val - original_val),
+                        "relative_change": float(
+                            (modified_val - original_val) / (original_val + 1e-10)
+                        ),
+                    }
+
+        return changes
+
+    async def analyze_feature_interactions(
+        self,
+        detector: DetectorProtocol,
+        dataset: Dataset,
+        method: str = "shap",
+        max_interactions: int = 20,
+    ) -> dict[str, Any]:
+        """Analyze feature interactions using various methods."""
+        try:
+            logger.info(f"Analyzing feature interactions using {method}")
+
+            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+            feature_names = dataset.features or [
+                f"feature_{i}" for i in range(X.shape[1])
+            ]
+
+            interactions = {}
+
+            if method == "shap" and self.enable_shap:
+                interactions = await self._analyze_shap_interactions(
+                    detector, X, feature_names, max_interactions
+                )
+            elif method == "correlation":
+                interactions = self._analyze_correlation_interactions(
+                    X, feature_names, max_interactions
+                )
+            elif method == "mutual_information":
+                interactions = await self._analyze_mutual_information_interactions(
+                    X, feature_names, max_interactions
+                )
+            else:
+                # Fallback to correlation
+                interactions = self._analyze_correlation_interactions(
+                    X, feature_names, max_interactions
+                )
+
+            return {
+                "method": method,
+                "interactions": interactions,
+                "feature_names": feature_names,
+                "total_features": len(feature_names),
+                "analyzed_interactions": len(interactions),
+            }
+
+        except Exception as e:
+            logger.error(f"Feature interaction analysis failed: {e}")
+            return {"error": str(e)}
+
+    async def _analyze_shap_interactions(
+        self,
+        detector: DetectorProtocol,
+        X: np.ndarray,
+        feature_names: list[str],
+        max_interactions: int,
+    ) -> dict[str, float]:
+        """Analyze SHAP interaction values."""
+        if not SHAP_AVAILABLE:
+            return {}
+
+        try:
+            # Use TreeExplainer if possible, otherwise fall back to KernelExplainer
+            def predict_fn(x) -> Any:
+                return detector.decision_function(x)
+
+            # Sample for efficiency
+            sample_size = min(100, len(X))
+            sample_indices = np.random.choice(len(X), sample_size, replace=False)
+            X_sample = X[sample_indices]
+
+            # Create explainer
+            explainer = shap.KernelExplainer(predict_fn, X_sample[:20])
+
+            # Get interaction values (if supported)
+            if hasattr(explainer, "shap_interaction_values"):
+                interaction_values = explainer.shap_interaction_values(X_sample[:50])
+
+                # Process interaction values
+                interactions = {}
+                mean_interactions = np.mean(np.abs(interaction_values), axis=0)
+
+                for i in range(len(feature_names)):
+                    for j in range(i + 1, len(feature_names)):
+                        if (
+                            i < mean_interactions.shape[0]
+                            and j < mean_interactions.shape[1]
+                        ):
+                            interaction_key = f"{feature_names[i]}_x_{feature_names[j]}"
+                            interactions[interaction_key] = float(
+                                mean_interactions[i, j]
+                            )
+
+                # Sort and return top interactions
+                sorted_interactions = sorted(
+                    interactions.items(), key=lambda x: x[1], reverse=True
+                )
+
+                return dict(sorted_interactions[:max_interactions])
+
+            return {}
+
+        except Exception as e:
+            logger.warning(f"SHAP interaction analysis failed: {e}")
+            return {}
+
+    def _analyze_correlation_interactions(
+        self,
+        X: np.ndarray,
+        feature_names: list[str],
+        max_interactions: int,
+    ) -> dict[str, float]:
+        """Analyze correlation-based interactions."""
+        try:
+            corr_matrix = np.corrcoef(X.T)
+            interactions = {}
+
+            for i in range(len(feature_names)):
+                for j in range(i + 1, len(feature_names)):
+                    if i < corr_matrix.shape[0] and j < corr_matrix.shape[1]:
+                        interaction_key = f"{feature_names[i]}_x_{feature_names[j]}"
+                        interactions[interaction_key] = float(abs(corr_matrix[i, j]))
+
+            # Sort and return top interactions
+            sorted_interactions = sorted(
+                interactions.items(), key=lambda x: x[1], reverse=True
+            )
+
+            return dict(sorted_interactions[:max_interactions])
+
+        except Exception as e:
+            logger.warning(f"Correlation analysis failed: {e}")
+            return {}
+
+    async def _analyze_mutual_information_interactions(
+        self,
+        X: np.ndarray,
+        feature_names: list[str],
+        max_interactions: int,
+    ) -> dict[str, float]:
+        """Analyze mutual information-based interactions."""
+        try:
+            from sklearn.feature_selection import mutual_info_regression
+
+            interactions = {}
+
+            # For each feature, calculate mutual information with others
+            for i in range(len(feature_names)):
+                for j in range(i + 1, len(feature_names)):
+                    if i < X.shape[1] and j < X.shape[1]:
+                        # Calculate mutual information
+                        mi_score = mutual_info_regression(
+                            X[:, [i]], X[:, j], random_state=42
+                        )[0]
+
+                        interaction_key = f"{feature_names[i]}_x_{feature_names[j]}"
+                        interactions[interaction_key] = float(mi_score)
+
+            # Sort and return top interactions
+            sorted_interactions = sorted(
+                interactions.items(), key=lambda x: x[1], reverse=True
+            )
+
+            return dict(sorted_interactions[:max_interactions])
+
+        except Exception as e:
+            logger.warning(f"Mutual information analysis failed: {e}")
+            return {}
+
+    async def generate_explanation_dashboard_data(
+        self,
+        detector: DetectorProtocol,
+        dataset: Dataset,
+        config: ExplanationConfig | None = None,
+    ) -> dict[str, Any]:
+        """Generate comprehensive data for explanation dashboard."""
+        try:
+            logger.info("Generating explanation dashboard data")
+
+            if not config:
+                config = ExplanationConfig()
+
+            X = dataset.data.values if hasattr(dataset.data, "values") else dataset.data
+            feature_names = (
+                config.feature_names
+                or dataset.features
+                or [f"feature_{i}" for i in range(X.shape[1])]
+            )
+
+            # Generate comprehensive explanation
+            explanation_report = await self.generate_comprehensive_explanation(
+                detector, dataset, config
+            )
+
+            # Generate counterfactual examples
+            sample_indices = np.random.choice(len(X), min(5, len(X)), replace=False)
+            counterfactuals = await self.generate_counterfactual_explanations(
+                detector, dataset, sample_indices.tolist()
+            )
+
+            # Analyze feature interactions
+            interactions = await self.analyze_feature_interactions(
+                detector, dataset, "correlation"
+            )
+
+            # Create dashboard data
+            dashboard_data = {
+                "summary": {
+                    "dataset_name": dataset.name,
+                    "n_samples": len(X),
+                    "n_features": len(feature_names),
+                    "model_type": getattr(detector, "algorithm_name", "unknown"),
+                    "explanation_methods": [
+                        "SHAP" if self.enable_shap else None,
+                        "LIME" if self.enable_lime else None,
+                        "Permutation" if self.enable_permutation else None,
+                    ],
+                    "trust_score": explanation_report.trust_assessment.overall_trust_score,
+                    "risk_level": explanation_report.trust_assessment.risk_assessment,
+                },
+                "global_explanation": {
+                    "feature_importance": explanation_report.global_explanation.feature_importance,
+                    "top_features": sorted(
+                        explanation_report.global_explanation.feature_importance.items(),
+                        key=lambda x: x[1],
+                        reverse=True,
+                    )[:10],
+                    "model_summary": explanation_report.global_explanation.model_summary,
+                },
+                "local_explanations": [
+                    {
+                        "sample_id": exp.sample_id,
+                        "prediction": exp.prediction,
+                        "confidence": exp.confidence,
+                        "top_features": sorted(
+                            exp.feature_contributions.items(),
+                            key=lambda x: abs(x[1]),
+                            reverse=True,
+                        )[:5],
+                    }
+                    for exp in explanation_report.local_explanations[:10]
+                ],
+                "feature_interactions": interactions,
+                "counterfactuals": counterfactuals,
+                "trust_assessment": {
+                    "overall_score": explanation_report.trust_assessment.overall_trust_score,
+                    "consistency": explanation_report.trust_assessment.consistency_score,
+                    "stability": explanation_report.trust_assessment.stability_score,
+                    "fidelity": explanation_report.trust_assessment.fidelity_score,
+                    "risk_level": explanation_report.trust_assessment.risk_assessment,
+                },
+                "bias_analysis": explanation_report.bias_analysis,
+                "recommendations": explanation_report.recommendations,
+                "visualization_data": {
+                    "feature_importance_plot": {
+                        "type": "bar",
+                        "data": explanation_report.global_explanation.feature_importance,
+                    },
+                    "trust_metrics_radar": {
+                        "type": "radar",
+                        "data": explanation_report.trust_assessment.trust_factors,
+                    },
+                    "prediction_distribution": {
+                        "type": "histogram",
+                        "data": detector.decision_function(X).tolist(),
+                    },
+                },
+            }
+
+            return dashboard_data
+
+        except Exception as e:
+            logger.error(f"Dashboard data generation failed: {e}")
+            return {"error": str(e)}
+
+    def clear_caches(self) -> None:
+        """Clear all caches."""
+        self.explanation_cache.clear()
+        self.explainer_cache.clear()
+        logger.info("All caches cleared")

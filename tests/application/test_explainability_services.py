@@ -5,7 +5,6 @@ from datetime import datetime
 from unittest.mock import Mock, patch
 
 import pytest
-from tests.conftest_dependencies import requires_dependencies
 
 from pynomaly.application.dto.explainability_dto import (
     CohortExplanationRequestDTO,
@@ -20,6 +19,7 @@ from pynomaly.application.dto.explainability_dto import (
 from pynomaly.application.services.explainability_service import ExplainabilityService
 from pynomaly.domain.entities import Anomaly, Dataset, Detector
 from pynomaly.domain.exceptions import ProcessingError, ValidationError
+from tests.conftest_dependencies import requires_dependencies
 
 
 @requires_dependencies("shap", "lime")
@@ -40,10 +40,9 @@ class TestExplainabilityService:
     def sample_dataset(self):
         """Create a sample dataset for testing."""
         return Dataset(
-            id=str(uuid.uuid4()),
             name="test_dataset",
             data=Mock(),
-            features=["temperature", "humidity", "pressure", "vibration"],
+            feature_names=["temperature", "humidity", "pressure", "vibration"],
             metadata={
                 "rows": 1000,
                 "columns": 4,
@@ -70,8 +69,7 @@ class TestExplainabilityService:
     @pytest.fixture
     def sample_anomaly(self):
         """Create a sample anomaly for testing."""
-        return Anomaly(
-            id=str(uuid.uuid4()),
+        anomaly = Anomaly(
             score=0.85,
             data_point={
                 "temperature": 95.2,
@@ -79,9 +77,12 @@ class TestExplainabilityService:
                 "pressure": 1013.2,
                 "vibration": 0.8,
             },
-            features=["temperature", "humidity", "pressure", "vibration"],
+            detector_name="test_detector",
             metadata={"index": 42, "timestamp": "2024-01-15T10:30:00Z"},
         )
+        # Add features as a dynamic attribute for testing
+        anomaly.features = ["temperature", "humidity", "pressure", "vibration"]
+        return anomaly
 
     @pytest.mark.asyncio
     async def test_shap_explanation_generation(
@@ -429,9 +430,7 @@ class TestExplainabilityService:
             else:
                 explainer_result = {"explainer_type": "KernelExplainer"}
 
-            explainability_service.shap_explainer.get_explainer_for_model.return_value = (
-                explainer_result
-            )
+            explainability_service.shap_explainer.get_explainer_for_model.return_value = explainer_result
             explainability_service.shap_explainer.explain_instance.return_value = {
                 "feature_contributions": {"feature1": 0.6, "feature2": -0.3},
                 "explanation_metadata": explainer_result,

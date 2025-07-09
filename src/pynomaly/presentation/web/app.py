@@ -13,6 +13,8 @@ from fastapi.templating import Jinja2Templates
 
 from pynomaly.infrastructure.config import Container
 
+from .csrf import add_csrf_to_context
+
 
 # Local dependency functions to avoid circular import
 def get_container() -> Container:
@@ -52,7 +54,7 @@ async def index(
     request: Request,
     container: Container = Depends(get_container),
     current_user: str | None = Depends(get_current_user),
-):
+) -> HTMLResponse:
     """Main dashboard page."""
     settings = container.config()
 
@@ -68,27 +70,31 @@ async def index(
     # Get recent results
     recent_results = container.result_repository().find_recent(5)
 
-    return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "current_user": current_user,
-            "auth_enabled": settings.auth_enabled,
-            "detector_count": detector_count,
-            "dataset_count": dataset_count,
-            "result_count": result_count,
-            "recent_results": recent_results,
-        },
-    )
+    context = {
+        "request": request,
+        "current_user": current_user,
+        "auth_enabled": settings.auth_enabled,
+        "detector_count": detector_count,
+        "dataset_count": dataset_count,
+        "result_count": result_count,
+        "recent_results": recent_results,
+    }
+
+    # Add CSRF token to context
+    context = add_csrf_to_context(request, context)
+
+    return templates.TemplateResponse("index.html", context)
 
 
 @router.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):
+async def login_page(request: Request) -> HTMLResponse:
     """Login page."""
-    return templates.TemplateResponse("login.html", {"request": request})
+    context = {"request": request}
+    context = add_csrf_to_context(request, context)
+    return templates.TemplateResponse("login.html", context)
 
 
-@router.post("/login", response_class=HTMLResponse)
+@router.post("/login", response_model=None)
 async def login_post(
     request: Request,
     username: str = Form(...),
@@ -135,7 +141,7 @@ async def login_post(
 
 
 @router.post("/logout")
-async def logout():
+async def logout() -> RedirectResponse:
     """Handle logout."""
     response = RedirectResponse(url="/login", status_code=302)
     response.delete_cookie("access_token")
@@ -145,7 +151,7 @@ async def logout():
 @router.get("/detectors", response_class=HTMLResponse)
 async def detectors_page(
     request: Request, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Detectors management page."""
     detectors = container.detector_repository().find_all()
     pyod_adapter = container.pyod_adapter()
@@ -160,7 +166,7 @@ async def detectors_page(
 @router.get("/detectors/{detector_id}", response_class=HTMLResponse)
 async def detector_detail(
     request: Request, detector_id: str, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Detector detail page."""
     from uuid import UUID
 
@@ -188,7 +194,7 @@ async def detector_detail(
 @router.get("/datasets", response_class=HTMLResponse)
 async def datasets_page(
     request: Request, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Datasets management page."""
     datasets = container.dataset_repository().find_all()
 
@@ -200,7 +206,7 @@ async def datasets_page(
 @router.get("/datasets/{dataset_id}", response_class=HTMLResponse)
 async def dataset_detail(
     request: Request, dataset_id: str, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Dataset detail page."""
     from uuid import UUID
 
@@ -234,7 +240,7 @@ async def dataset_detail(
 @router.get("/detection", response_class=HTMLResponse)
 async def detection_page(
     request: Request, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Detection page."""
     detectors = container.detector_repository().find_all()
     datasets = container.dataset_repository().find_all()
@@ -256,7 +262,7 @@ async def detection_page(
 @router.get("/experiments", response_class=HTMLResponse)
 async def experiments_page(
     request: Request, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Experiments tracking page."""
     experiment_service = container.experiment_tracking_service()
 
@@ -295,7 +301,7 @@ async def experiments_page(
 @router.get("/ensemble", response_class=HTMLResponse)
 async def ensemble_page(
     request: Request, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Ensemble management page."""
     container.ensemble_service()
     detectors = container.detector_repository().find_all()
@@ -312,7 +318,7 @@ async def ensemble_page(
 @router.get("/ensemble/create", response_class=HTMLResponse)
 async def ensemble_create_page(
     request: Request, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Ensemble creation wizard."""
     detectors = container.detector_repository().find_all()
     datasets = container.dataset_repository().find_all()
@@ -329,7 +335,7 @@ async def ensemble_create_page(
 @router.get("/ensemble/compare", response_class=HTMLResponse)
 async def ensemble_compare_page(
     request: Request, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Ensemble strategy comparison page."""
     container.ensemble_service()
     detectors = container.detector_repository().find_all()
@@ -343,7 +349,9 @@ async def ensemble_compare_page(
 
 # AutoML routes
 @router.get("/automl", response_class=HTMLResponse)
-async def automl_page(request: Request, container: Container = Depends(get_container)):
+async def automl_page(
+    request: Request, container: Container = Depends(get_container)
+) -> HTMLResponse:
     """AutoML dashboard page."""
     # Check if AutoML service is available
     automl_available = hasattr(container, "automl_service")
@@ -374,7 +382,7 @@ async def automl_page(request: Request, container: Container = Depends(get_conta
 @router.get("/automl/optimize", response_class=HTMLResponse)
 async def automl_optimize_page(
     request: Request, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """AutoML optimization setup page."""
     datasets = container.dataset_repository().find_all()
     algorithms = [
@@ -401,7 +409,7 @@ async def automl_optimize_page(
 @router.get("/visualizations", response_class=HTMLResponse)
 async def visualizations_page(
     request: Request, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Visualizations page with D3.js and ECharts."""
     # Get recent results for visualization
     results = container.result_repository().find_recent(20)
@@ -433,7 +441,9 @@ async def visualizations_page(
 
 
 @router.get("/exports", response_class=HTMLResponse)
-async def exports_page(request: Request, container: Container = Depends(get_container)):
+async def exports_page(
+    request: Request, container: Container = Depends(get_container)
+) -> HTMLResponse:
     """Export manager page."""
     return templates.TemplateResponse("exports.html", {"request": request})
 
@@ -441,7 +451,7 @@ async def exports_page(request: Request, container: Container = Depends(get_cont
 @router.get("/explainability", response_class=HTMLResponse)
 async def explainability_page(
     request: Request, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Explainability analysis page."""
     # Check if explainability services are available
     explainability_available = hasattr(container, "application_explainability_service")
@@ -467,7 +477,7 @@ async def explainability_page(
 @router.get("/monitoring", response_class=HTMLResponse)
 async def monitoring_page(
     request: Request, container: Container = Depends(get_container)
-):
+) -> HTMLResponse:
     """Real-time monitoring dashboard page."""
     # Check if monitoring services are available
     monitoring_available = hasattr(container, "telemetry_service") or hasattr(
@@ -480,7 +490,7 @@ async def monitoring_page(
     )
 
 
-@router.get("/users", response_class=HTMLResponse)
+@router.get("/users", response_model=None)
 async def users_page(
     request: Request,
     container: Container = Depends(get_container),
