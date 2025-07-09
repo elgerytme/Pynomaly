@@ -1,23 +1,13 @@
 #!/usr/bin/env python3
 """
-<<<<<<< HEAD
 Scheduled cleanup script for automated repository maintenance.
 
-This script extends the repository cleanup functionality with GitHub Actions
+This script runs both cleanup_repository.py and validate_structure.py and pushes
+reports to reports/quality/ directory, extending functionality with GitHub Actions
 integration, including automatic commit and PR creation for cleanup changes.
 """
 
 import json
-import os
-=======
-Schedule cleanup script - CLI wrapper for maintenance tasks.
-
-This script runs both cleanup_repository.py and validate_structure.py and pushes
-reports to reports/quality/ directory.
-"""
-
-import json
->>>>>>> origin/fix/33-critical-bug-fix
 import subprocess
 import sys
 from datetime import datetime
@@ -26,22 +16,20 @@ from typing import Dict, List, Optional
 
 import typer
 from rich.console import Console
-<<<<<<< HEAD
+from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 # Import the existing cleanup functionality
 sys.path.insert(0, str(Path(__file__).parent))
-from cleanup_repository import CleanupMetrics, cleanup_repository
-
-app = typer.Typer(
-    help="Scheduled cleanup script for automated repository maintenance.",
-=======
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.table import Table
+try:
+    from cleanup_repository import CleanupMetrics, cleanup_repository
+except ImportError:
+    # Fallback if cleanup_repository is not available
+    CleanupMetrics = None
+    cleanup_repository = None
 
 app = typer.Typer(
     help="CLI wrapper that runs cleanup and validation scripts, generating consolidated reports.",
->>>>>>> origin/fix/33-critical-bug-fix
     add_completion=False
 )
 console = Console()
