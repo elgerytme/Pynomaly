@@ -17,7 +17,6 @@ from pynomaly.infrastructure.performance.connection_pooling import (
 )
 from pynomaly.infrastructure.repositories.repository_factory import (
     RepositoryFactory,
-    RepositoryType,
 )
 
 from .enhanced_database import EnhancedDatabaseManager
@@ -74,10 +73,7 @@ class DatabaseConnectionIntegration:
                 )
                 
                 # Repository factory using production manager
-                self.repository_factory = RepositoryFactory(
-                    repository_type=RepositoryType.DATABASE,
-                    database_manager=self.production_manager.db_manager,
-                )
+                self.repository_factory = RepositoryFactory()
                 
                 logger.info(
                     "Initialized production database manager",
@@ -97,10 +93,7 @@ class DatabaseConnectionIntegration:
                 )
                 
                 # Repository factory using enhanced manager
-                self.repository_factory = RepositoryFactory(
-                    repository_type=RepositoryType.DATABASE,
-                    database_manager=self.enhanced_manager,
-                )
+                self.repository_factory = RepositoryFactory()
                 
                 logger.info(
                     "Initialized enhanced database manager",
@@ -112,9 +105,7 @@ class DatabaseConnectionIntegration:
             logger.error("Failed to initialize database managers", error=str(e))
             
             # Fallback to in-memory repositories
-            self.repository_factory = RepositoryFactory(
-                repository_type=RepositoryType.MEMORY
-            )
+            self.repository_factory = RepositoryFactory()
             
             logger.warning(
                 "Fallback to in-memory repositories",
@@ -128,9 +119,9 @@ class DatabaseConnectionIntegration:
             return database_url
             
         if self.environment == "testing":
-            return "sqlite:///:memory:"
+            return "sqlite+aiosqlite:///:memory:"
         else:  # development
-            return "sqlite:///./pynomaly_dev.db"
+            return "sqlite+aiosqlite:///./pynomaly_dev.db"
 
     def _get_pool_config(self) -> PoolConfiguration:
         """Get pool configuration for non-production environments."""
@@ -173,10 +164,13 @@ class DatabaseConnectionIntegration:
         if not self.repository_factory:
             raise RuntimeError("Repository factory not initialized")
             
+        # Use the factory to create repository service
+        repository_service = self.repository_factory.create_repository_service()
+        
         return {
-            "detector": await self.repository_factory.create_detector_repository(),
-            "dataset": await self.repository_factory.create_dataset_repository(),
-            "result": await self.repository_factory.create_result_repository(),
+            "detector": repository_service.detector_repository,
+            "dataset": repository_service.dataset_repository,
+            "result": repository_service.result_repository,
         }
 
     async def get_health_status(self) -> dict[str, Any]:

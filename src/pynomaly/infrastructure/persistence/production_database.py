@@ -151,9 +151,9 @@ class ProductionDatabaseManager:
                 "Set PYNOMALY_DATABASE_URL environment variable."
             )
         elif self.environment == "testing":
-            return "sqlite:///:memory:"
+            return "sqlite+aiosqlite:///:memory:"
         else:  # development
-            return "sqlite:///./pynomaly_dev.db"
+            return "sqlite+aiosqlite:///./pynomaly_dev.db"
 
     def _setup_database_listeners(self) -> None:
         """Setup database event listeners for monitoring and optimization."""
