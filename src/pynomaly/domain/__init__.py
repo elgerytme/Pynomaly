@@ -6,6 +6,16 @@ from pynomaly.domain.value_objects import (
     ConfidenceInterval,
     ContaminationRate,
 )
+from .validation import (
+    ValidationSeverity,
+    ValidationError,
+    ValidationResult,
+    DomainValidator,
+    ValidationStrategy,
+    validate_anomaly,
+    validate_dataset,
+    set_validation_strategy,
+)
 
 __all__ = [
     "Anomaly",

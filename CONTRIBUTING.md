@@ -133,13 +133,40 @@ git push origin feat/tests/your-module-description
 
 ### 3. Testing Your Changes
 
+**Unix/Linux/macOS:**
 ```bash
 # Run all tests
-hatch run test:run
+make test
 
 # Run tests with coverage
-hatch run test:run-cov
+make test-cov
 
+# Run stability tests (flaky test elimination)
+make test-stability
+
+# Run linting and formatting
+make format
+make lint
+```
+
+**Windows:**
+```batch
+# Run all tests
+.\make.bat test
+
+# Run tests with coverage
+.\make.bat test-cov
+
+# Run stability tests (flaky test elimination)
+.\make.bat test-stability
+
+# Run linting and formatting
+.\make.bat format
+.\make.bat lint
+```
+
+**Direct Hatch commands (all platforms):**
+```bash
 # Run specific test modules
 hatch run test:run tests/domain/
 hatch run test:run tests/application/
@@ -150,7 +177,33 @@ hatch run lint:typing
 hatch run lint:fmt
 ```
 
-### 4. Submitting a Pull Request
+### 4. Building and Validating Documentation
+
+**Unix/Linux/macOS:**
+```bash
+# Build documentation
+make docs
+
+# Serve documentation locally (available at http://localhost:8080)
+make docs-serve
+
+# Validate documentation links
+make docs-validate
+```
+
+**Windows:**
+```batch
+# Build documentation
+.\make.bat docs
+
+# Serve documentation locally (available at http://localhost:8080)
+.\make.bat docs-serve
+
+# Validate documentation links
+.\make.bat docs-validate
+```
+
+### 5. Submitting a Pull Request
 
 1. **Ensure your branch is up to date**:
    ```bash
@@ -160,7 +213,11 @@ hatch run lint:fmt
 
 2. **Verify all tests pass locally**:
    ```bash
-   hatch run test:run-cov
+   # Unix/Linux/macOS
+   make test-cov
+   
+   # Windows
+   .\make.bat test-cov
    ```
 
 3. **Push your changes**:
@@ -174,14 +231,14 @@ hatch run lint:fmt
    - Screenshots/examples if applicable
    - Confirmation that all CI checks pass
 
-### 5. Code Review Process
+### 6. Code Review Process
 
 - All PRs require at least one approved review
 - PR author should respond to review comments promptly
 - Use GitHub's suggestion feature for minor fixes
 - Re-request review after addressing feedback
 
-### 6. Merge Requirements
+### 7. Merge Requirements
 
 **Before merge, ensure:**
 - ✅ All CI checks pass (100% test pass rate)
@@ -190,6 +247,32 @@ hatch run lint:fmt
 - ✅ Branch is up to date with main
 - ✅ No merge conflicts
 - ✅ All conversations resolved
+
+## Project Configuration Layout
+
+The project uses a centralized configuration layout in the `config/` directory:
+
+```
+config/
+├── docs/
+│   └── mkdocs.yml           # Documentation configuration
+├── git/
+│   └── .pre-commit-config.yaml  # Git hooks configuration
+├── .env                     # Environment variables
+├── advanced_testing_config.json  # Advanced testing settings
+├── mutmut.toml             # Mutation testing configuration
+├── prometheus.yml          # Monitoring configuration
+├── pytest.ini             # Test configuration
+├── redis.conf              # Redis configuration
+├── tdd_config.json         # Test-driven development settings
+└── tox.ini                 # Multi-environment testing
+```
+
+Additional configuration files:
+- `pyproject.toml` - Main project configuration (dependencies, build, tools)
+- `Makefile` - Development automation commands (Unix/Linux/macOS)
+- `make.bat` - Development automation commands (Windows)
+- `.pre-commit-config.yaml` - Root-level pre-commit hooks
 
 ## Code Standards
 
