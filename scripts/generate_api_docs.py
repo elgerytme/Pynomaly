@@ -66,7 +66,10 @@ def generate_openapi_spec() -> dict[str, Any]:
         "openapi": "3.0.3",
         "info": {
             "title": "Pynomaly API",
-            "description": "State-of-the-art anomaly detection API with comprehensive machine learning capabilities",
+            "description": (
+                "State-of-the-art anomaly detection API with comprehensive "
+                "machine learning capabilities"
+            ),
             "version": "1.0.0",
             "contact": {
                 "name": "Pynomaly Support",
@@ -117,7 +120,10 @@ def generate_openapi_spec() -> dict[str, Any]:
                             "content": {
                                 "application/json": {
                                     "schema": {
-                                        "$ref": "#/components/schemas/DetailedHealthResponse"
+                                        "$ref": (
+                                            "#/components/schemas/"
+                                            "DetailedHealthResponse"
+                                        )
                                     }
                                 }
                             },
@@ -171,7 +177,9 @@ def generate_openapi_spec() -> dict[str, Any]:
                             "content": {
                                 "application/json": {
                                     "schema": {
-                                        "$ref": "#/components/schemas/DetectorListResponse"
+                                        "$ref": (
+                                            "#/components/schemas/DetectorListResponse"
+                                        )
                                     }
                                 }
                             },
@@ -184,7 +192,7 @@ def generate_openapi_spec() -> dict[str, Any]:
                     "operationId": "createDetector",
                     "tags": ["Detectors"],
                     "requestBody": {
-                        "required": true,
+                        "required": True,
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -220,14 +228,16 @@ def generate_openapi_spec() -> dict[str, Any]:
             "/api/v1/detectors/{detector_id}": {
                 "get": {
                     "summary": "Get detector details",
-                    "description": "Retrieve detailed information about a specific detector",
+                    "description": (
+                        "Retrieve detailed information about a specific detector"
+                    ),
                     "operationId": "getDetector",
                     "tags": ["Detectors"],
                     "parameters": [
                         {
                             "name": "detector_id",
                             "in": "path",
-                            "required": true,
+                            "required": True,
                             "description": "Detector ID",
                             "schema": {"type": "string"},
                         }
@@ -264,13 +274,13 @@ def generate_openapi_spec() -> dict[str, Any]:
                         {
                             "name": "detector_id",
                             "in": "path",
-                            "required": true,
+                            "required": True,
                             "description": "Detector ID",
                             "schema": {"type": "string"},
                         }
                     ],
                     "requestBody": {
-                        "required": true,
+                        "required": True,
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -301,7 +311,7 @@ def generate_openapi_spec() -> dict[str, Any]:
                         {
                             "name": "detector_id",
                             "in": "path",
-                            "required": true,
+                            "required": True,
                             "description": "Detector ID",
                             "schema": {"type": "string"},
                         }
@@ -330,13 +340,13 @@ def generate_openapi_spec() -> dict[str, Any]:
                         {
                             "name": "detector_id",
                             "in": "path",
-                            "required": true,
+                            "required": True,
                             "description": "Detector ID",
                             "schema": {"type": "string"},
                         }
                     ],
                     "requestBody": {
-                        "required": true,
+                        "required": True,
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -362,11 +372,13 @@ def generate_openapi_spec() -> dict[str, Any]:
             "/api/v1/automl/optimize": {
                 "post": {
                     "summary": "Start AutoML optimization",
-                    "description": "Begin automated machine learning optimization process",
+                    "description": (
+                        "Begin automated machine learning optimization process"
+                    ),
                     "operationId": "startAutoMLOptimization",
                     "tags": ["AutoML"],
                     "requestBody": {
-                        "required": true,
+                        "required": True,
                         "content": {
                             "application/json": {
                                 "schema": {"$ref": "#/components/schemas/AutoMLRequest"}
@@ -401,7 +413,7 @@ def generate_openapi_spec() -> dict[str, Any]:
                 "HealthResponse": {
                     "type": "object",
                     "properties": {
-                        "success": {"type": "boolean", "example": true},
+                        "success": {"type": "boolean", "example": True},
                         "data": {
                             "type": "object",
                             "properties": {
@@ -559,7 +571,7 @@ def generate_openapi_spec() -> dict[str, Any]:
                             "items": {"type": "string"},
                             "example": ["feature1", "feature2", "feature3"],
                         },
-                        "return_explanations": {"type": "boolean", "default": false},
+                        "return_explanations": {"type": "boolean", "default": False},
                     },
                 },
                 "DetectionResponse": {
@@ -654,7 +666,7 @@ def generate_openapi_spec() -> dict[str, Any]:
                 "ErrorResponse": {
                     "type": "object",
                     "properties": {
-                        "success": {"type": "boolean", "example": false},
+                        "success": {"type": "boolean", "example": False},
                         "error": {
                             "type": "object",
                             "properties": {
@@ -710,7 +722,8 @@ def generate_swagger_ui():
 <html>
 <head>
     <title>Pynomaly API Documentation</title>
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
+    <link rel="stylesheet" type="text/css" 
+          href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
     <style>
         html {
             box-sizing: border-box;
@@ -734,8 +747,11 @@ def generate_swagger_ui():
 </head>
 <body>
     <div id="swagger-ui"></div>
-    <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js"></script>
-    <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-standalone-preset.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js">
+    </script>
+    <script 
+        src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-standalone-preset.js">
+    </script>
     <script>
         window.onload = function() {
             const ui = SwaggerUIBundle({
@@ -860,7 +876,7 @@ detection_data = {
         [3.4, 5.6, 7.8]
     ],
     "feature_names": ["feature1", "feature2", "feature3"],
-    "return_explanations": true
+    "return_explanations": True
 }
 
 response = requests.post(
@@ -930,7 +946,10 @@ async function listDetectors() {
         console.log(`Available detectors: ${detectors.data.detectors.length}`);
         return detectors;
     } catch (error) {
-        console.error('Failed to list detectors:', error.response?.data || error.message);
+        console.error(
+            'Failed to list detectors:', 
+            error.response?.data || error.message
+        );
     }
 }
 
@@ -957,7 +976,10 @@ async function createDetector() {
         console.log(`Created detector: ${detector.data.id}`);
         return detector.data.id;
     } catch (error) {
-        console.error('Failed to create detector:', error.response?.data || error.message);
+        console.error(
+            'Failed to create detector:', 
+            error.response?.data || error.message
+        );
     }
 }
 
@@ -1109,9 +1131,13 @@ def generate_postman_collection():
     collection = {
         "info": {
             "name": "Pynomaly API",
-            "description": "Comprehensive API collection for Pynomaly anomaly detection platform",
+            "description": (
+                "Comprehensive API collection for Pynomaly anomaly detection platform"
+            ),
             "version": "1.0.0",
-            "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+            "schema": (
+                "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+            ),
         },
         "auth": {
             "type": "apikey",
@@ -1163,7 +1189,9 @@ def generate_postman_collection():
                             "method": "GET",
                             "header": [],
                             "url": {
-                                "raw": "{{base_url}}/api/v1/detectors?limit=20&offset=0",
+                                "raw": (
+                                    "{{base_url}}/api/v1/detectors?limit=20&offset=0"
+                                ),
                                 "host": ["{{base_url}}"],
                                 "path": ["api", "v1", "detectors"],
                                 "query": [
@@ -1280,13 +1308,16 @@ def generate_postman_collection():
                                             "feature2",
                                             "feature3",
                                         ],
-                                        "return_explanations": true,
+                                        "return_explanations": True,
                                     },
                                     indent=2,
                                 ),
                             },
                             "url": {
-                                "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}/detect",
+                                "raw": (
+                                    "{{base_url}}/api/v1/detectors/"
+                                    "{{detector_id}}/detect"
+                                ),
                                 "host": ["{{base_url}}"],
                                 "path": [
                                     "api",
@@ -1357,9 +1388,11 @@ def generate_readme():
     """Generate README for the API documentation."""
     log("Generating README...")
 
-    readme_content = """# Pynomaly API Documentation
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    readme_content = f"""# Pynomaly API Documentation
 
-Welcome to the Pynomaly API documentation! This directory contains comprehensive documentation for the Pynomaly anomaly detection platform.
+Welcome to the Pynomaly API documentation! This directory contains comprehensive 
+documentation for the Pynomaly anomaly detection platform.
 
 ## 📁 Documentation Structure
 
@@ -1382,7 +1415,8 @@ docs/api/
 
 ### 1. Interactive Documentation
 
-Open `generated/index.html` in your browser to explore the API interactively with Swagger UI.
+Open `generated/index.html` in your browser to explore the API interactively 
+with Swagger UI.
 
 ### 2. API Specification
 
@@ -1399,7 +1433,8 @@ Choose your preferred language:
 
 ### 4. Postman Collection
 
-Import `generated/pynomaly_api.postman_collection.json` into Postman for easy API testing.
+Import `generated/pynomaly_api.postman_collection.json` into Postman for easy 
+API testing.
 
 ## 📖 API Overview
 
@@ -1432,7 +1467,7 @@ curl "https://api.pynomaly.com/api/v1/detectors?api_key=your-api-key"
 ```python
 import requests
 
-headers = {"X-API-Key": "your-api-key"}
+headers = {{"X-API-Key": "your-api-key"}}
 response = requests.get("https://api.pynomaly.com/health", headers=headers)
 print(response.json())
 ```
@@ -1440,9 +1475,9 @@ print(response.json())
 ### JavaScript
 
 ```javascript
-const response = await fetch('https://api.pynomaly.com/health', {
-    headers: { 'X-API-Key': 'your-api-key' }
-});
+const response = await fetch('https://api.pynomaly.com/health', {{
+    headers: {{ 'X-API-Key': 'your-api-key' }}
+}});
 const data = await response.json();
 console.log(data);
 ```
@@ -1485,7 +1520,7 @@ python scripts/generate_api_docs.py
 ---
 
 *Last updated: {timestamp}*
-""".format(timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+"""
 
     readme_path = DOCS_DIR / "README.md"
     with open(readme_path, "w") as f:
@@ -1525,7 +1560,8 @@ def main():
         print(f"🌐 Interactive Docs: {OUTPUT_DIR / 'index.html'}")
         print(f"📄 OpenAPI Spec: {OUTPUT_DIR / 'openapi.json'}")
         print(
-            f"🔧 Postman Collection: {OUTPUT_DIR / 'pynomaly_api.postman_collection.json'}"
+            f"🔧 Postman Collection: "
+            f"{OUTPUT_DIR / 'pynomaly_api.postman_collection.json'}"
         )
         print(f"💻 Code Examples: {OUTPUT_DIR / 'examples'}")
         print("=" * 60)

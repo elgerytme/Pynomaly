@@ -17,7 +17,7 @@ from pynomaly.domain.exceptions import (
     InvalidAlgorithmError,
 )
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols import DetectorProtocol, ExplainableDetectorProtocol
+from pynomaly.shared.protocols.detector_protocol import DetectorProtocol, ExplainableDetectorProtocol
 
 
 @dataclass
@@ -35,7 +35,7 @@ class AlgorithmMetadata:
     typical_use_cases: list[str] | None = None
 
 
-class EnhancedPyODAdapter(DetectorProtocol, ExplainableDetectorProtocol):
+class EnhancedPyODAdapter(ExplainableDetectorProtocol):
     """Enhanced PyOD adapter with comprehensive algorithm support."""
 
     # Comprehensive algorithm mapping with metadata

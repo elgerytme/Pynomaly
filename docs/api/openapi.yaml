@@ -1,0 +1,2247 @@
+openapi: 3.0.3
+info:
+  title: Pynomaly API
+  version: 1.0.0
+  description: |
+    # Pynomaly - Advanced Anomaly Detection Platform
+    
+    The Pynomaly API provides a comprehensive platform for anomaly detection using machine learning.
+    It offers a wide range of algorithms, automated machine learning capabilities, ensemble methods,
+    and explainability features for detecting anomalies in various types of data.
+    
+    ## Features
+    
+    - **Multiple Detection Algorithms**: Support for 20+ anomaly detection algorithms
+    - **AutoML Capabilities**: Automated algorithm selection and hyperparameter optimization
+    - **Ensemble Methods**: Combine multiple detectors for improved accuracy
+    - **Explainability**: Understand why data points are classified as anomalies
+    - **Streaming Detection**: Real-time anomaly detection via WebSocket
+    - **Experiment Tracking**: Track and compare different detection approaches
+    - **Multi-tenant Architecture**: Support for multiple organizations and users
+    
+    ## Authentication
+    
+    The API supports multiple authentication methods:
+    - **JWT Bearer Tokens**: Primary method for user authentication
+    - **API Keys**: Service-to-service authentication
+    - **OAuth2**: Third-party authentication integration
+    - **Multi-Factor Authentication**: Enhanced security for sensitive operations
+    
+    ## Rate Limiting
+    
+    API requests are rate-limited to ensure fair usage:
+    - **Standard users**: 1000 requests per hour
+    - **Premium users**: 5000 requests per hour
+    - **Enterprise users**: 10000 requests per hour
+    
+    ## Support
+    
+    For technical support, please contact:
+    - Email: support@pynomaly.com
+    - Documentation: https://docs.pynomaly.com
+    - GitHub: https://github.com/pynomaly/pynomaly
+
+  contact:
+    name: Pynomaly Support
+    url: https://pynomaly.com/support
+    email: support@pynomaly.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://pynomaly.com/terms
+
+servers:
+  - url: https://api.pynomaly.com/v1
+    description: Production server
+  - url: https://staging-api.pynomaly.com/v1
+    description: Staging server
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+
+security:
+  - bearerAuth: []
+  - apiKeyAuth: []
+  - oauth2: []
+
+tags:
+  - name: authentication
+    description: User authentication and authorization
+  - name: health
+    description: System health and monitoring
+  - name: datasets
+    description: Dataset management and operations
+  - name: detectors
+    description: Anomaly detector management
+  - name: detection
+    description: Anomaly detection operations
+  - name: automl
+    description: Automated machine learning
+  - name: ensemble
+    description: Ensemble detection methods
+  - name: explainability
+    description: Model explainability and interpretability
+  - name: experiments
+    description: Experiment tracking and management
+  - name: streaming
+    description: Real-time streaming detection
+  - name: admin
+    description: Administrative operations
+  - name: export
+    description: Data and model export operations
+
+paths:
+  # Authentication Endpoints
+  /auth/login:
+    post:
+      tags: [authentication]
+      summary: User login
+      description: Authenticate user and receive JWT access token
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: Username or email address
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  description: User password
+                  example: mySecurePassword123
+              required: [username, password]
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /auth/refresh:
+    post:
+      tags: [authentication]
+      summary: Refresh JWT token
+      description: Refresh expired JWT token using refresh token
+      operationId: refreshToken
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  description: Valid refresh token
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+              required: [refresh_token]
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/register:
+    post:
+      tags: [authentication]
+      summary: User registration
+      description: Create new user account
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/me:
+    get:
+      tags: [authentication]
+      summary: Get current user
+      description: Get current authenticated user profile
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/api-keys:
+    post:
+      tags: [authentication]
+      summary: Create API key
+      description: Generate new API key for authentication
+      operationId: createApiKey
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiKeyRequest'
+      responses:
+        '201':
+          description: API key created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    get:
+      tags: [authentication]
+      summary: List API keys
+      description: Get all API keys for current user
+      operationId: listApiKeys
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: API keys retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiKeyResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/api-keys/{api_key_id}:
+    delete:
+      tags: [authentication]
+      summary: Revoke API key
+      description: Revoke and delete an API key
+      operationId: revokeApiKey
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: api_key_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: API key ID to revoke
+      responses:
+        '204':
+          description: API key revoked successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Health Endpoints
+  /health:
+    get:
+      tags: [health]
+      summary: Health check
+      description: Comprehensive system health check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: System is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /health/ready:
+    get:
+      tags: [health]
+      summary: Readiness probe
+      description: Kubernetes readiness probe endpoint
+      operationId: readinessProbe
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+        '503':
+          description: Service is not ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+
+  /health/live:
+    get:
+      tags: [health]
+      summary: Liveness probe
+      description: Kubernetes liveness probe endpoint
+      operationId: livenessProbe
+      responses:
+        '200':
+          description: Service is live
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+        '503':
+          description: Service is not live
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+
+  /health/metrics:
+    get:
+      tags: [health]
+      summary: System metrics
+      description: Get current system performance metrics
+      operationId: getSystemMetrics
+      responses:
+        '200':
+          description: System metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemMetricsResponse'
+
+  # Dataset Endpoints
+  /datasets:
+    get:
+      tags: [datasets]
+      summary: List datasets
+      description: Get all datasets accessible to current user
+      operationId: listDatasets
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of datasets to return
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Number of datasets to skip
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [name, created_at, updated_at, size]
+            default: created_at
+          description: Sort field
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order
+      responses:
+        '200':
+          description: Datasets retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /datasets/upload:
+    post:
+      tags: [datasets]
+      summary: Upload dataset
+      description: Upload a new dataset file
+      operationId: uploadDataset
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Dataset file (CSV, JSON, Parquet)
+                name:
+                  type: string
+                  description: Dataset name
+                  example: "Sales Data Q1 2024"
+                description:
+                  type: string
+                  description: Dataset description
+                  example: "Quarterly sales data for anomaly detection"
+                tags:
+                  type: array
+                  items:
+                    type: string
+                  description: Dataset tags
+                  example: ["sales", "quarterly", "2024"]
+              required: [file, name]
+      responses:
+        '201':
+          description: Dataset uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /datasets/{dataset_id}:
+    get:
+      tags: [datasets]
+      summary: Get dataset details
+      description: Get detailed information about a specific dataset
+      operationId: getDataset
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: dataset_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Dataset ID
+      responses:
+        '200':
+          description: Dataset details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [datasets]
+      summary: Delete dataset
+      description: Delete a dataset and all associated data
+      operationId: deleteDataset
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: dataset_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Dataset ID
+      responses:
+        '204':
+          description: Dataset deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /datasets/{dataset_id}/quality:
+    get:
+      tags: [datasets]
+      summary: Check dataset quality
+      description: Analyze dataset quality and provide recommendations
+      operationId: checkDatasetQuality
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: dataset_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Dataset ID
+      responses:
+        '200':
+          description: Dataset quality analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataQualityResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /datasets/{dataset_id}/sample:
+    get:
+      tags: [datasets]
+      summary: Get dataset sample
+      description: Get a sample of dataset records
+      operationId: getDatasetSample
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: dataset_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Dataset ID
+        - name: sample_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+          description: Number of records to sample
+        - name: random_seed
+          in: query
+          schema:
+            type: integer
+          description: Random seed for reproducible sampling
+      responses:
+        '200':
+          description: Dataset sample retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetSampleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Detector Endpoints
+  /detectors:
+    get:
+      tags: [detectors]
+      summary: List detectors
+      description: Get all detectors accessible to current user
+      operationId: listDetectors
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: algorithm
+          in: query
+          schema:
+            type: string
+          description: Filter by algorithm name
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [training, trained, failed, deploying, deployed]
+          description: Filter by detector status
+      responses:
+        '200':
+          description: Detectors retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectorListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [detectors]
+      summary: Create detector
+      description: Create a new anomaly detector
+      operationId: createDetector
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDetectorRequest'
+      responses:
+        '201':
+          description: Detector created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /detectors/algorithms:
+    get:
+      tags: [detectors]
+      summary: List available algorithms
+      description: Get all available anomaly detection algorithms
+      operationId: listAlgorithms
+      responses:
+        '200':
+          description: Algorithms retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlgorithmListResponse'
+
+  /detectors/{detector_id}:
+    get:
+      tags: [detectors]
+      summary: Get detector details
+      description: Get detailed information about a specific detector
+      operationId: getDetector
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: detector_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Detector ID
+      responses:
+        '200':
+          description: Detector details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [detectors]
+      summary: Update detector
+      description: Update detector configuration
+      operationId: updateDetector
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: detector_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Detector ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDetectorRequest'
+      responses:
+        '200':
+          description: Detector updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectorResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [detectors]
+      summary: Delete detector
+      description: Delete a detector and all associated data
+      operationId: deleteDetector
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: detector_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Detector ID
+      responses:
+        '204':
+          description: Detector deleted successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Detection Endpoints
+  /detection/train:
+    post:
+      tags: [detection]
+      summary: Train detector
+      description: Train an anomaly detector on a dataset
+      operationId: trainDetector
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainDetectorRequest'
+      responses:
+        '202':
+          description: Training started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJobResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /detection/detect:
+    post:
+      tags: [detection]
+      summary: Detect anomalies
+      description: Detect anomalies in data using a trained detector
+      operationId: detectAnomalies
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetectAnomaliesRequest'
+      responses:
+        '200':
+          description: Anomaly detection completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /detection/detect/batch:
+    post:
+      tags: [detection]
+      summary: Batch anomaly detection
+      description: Detect anomalies in multiple datasets or with multiple detectors
+      operationId: batchDetectAnomalies
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchDetectionRequest'
+      responses:
+        '202':
+          description: Batch detection started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchDetectionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /detection/evaluate:
+    post:
+      tags: [detection]
+      summary: Evaluate detector
+      description: Evaluate detector performance on labeled data
+      operationId: evaluateDetector
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateDetectorRequest'
+      responses:
+        '200':
+          description: Evaluation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /detection/results:
+    get:
+      tags: [detection]
+      summary: List detection results
+      description: Get detection results for current user
+      operationId: listDetectionResults
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: detector_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by detector ID
+        - name: dataset_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by dataset ID
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter results from this date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Filter results to this date
+      responses:
+        '200':
+          description: Detection results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectionResultsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token authentication
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key authentication
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.pynomaly.com/v1/oauth/authorize
+          tokenUrl: https://api.pynomaly.com/v1/oauth/token
+          scopes:
+            read: Read access to resources
+            write: Write access to resources
+            admin: Administrative access
+
+  schemas:
+    # Authentication Schemas
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refresh_token:
+          type: string
+          description: JWT refresh token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        token_type:
+          type: string
+          enum: [bearer]
+          description: Token type
+          example: bearer
+        expires_in:
+          type: integer
+          description: Token expiration time in seconds
+          example: 3600
+        scope:
+          type: string
+          description: Token scope
+          example: read write
+      required: [access_token, token_type, expires_in]
+
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: User password (min 8 characters)
+          example: SecurePassword123!
+        full_name:
+          type: string
+          description: User full name
+          example: John Doe
+        organization:
+          type: string
+          description: User organization
+          example: Acme Corp
+        role:
+          type: string
+          enum: [viewer, analyst, data_scientist]
+          description: Initial user role
+          example: analyst
+      required: [email, password, full_name]
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: User email address
+        full_name:
+          type: string
+          description: User full name
+        organization:
+          type: string
+          description: User organization
+        role:
+          type: string
+          enum: [viewer, analyst, data_scientist, admin]
+          description: User role
+        is_active:
+          type: boolean
+          description: User account status
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+        last_login:
+          type: string
+          format: date-time
+          description: Last login timestamp
+      required: [id, email, full_name, role, is_active, created_at]
+
+    ApiKeyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: API key name
+          example: Production API Key
+        description:
+          type: string
+          description: API key description
+          example: Key for production deployment
+        expires_at:
+          type: string
+          format: date-time
+          description: API key expiration date
+        permissions:
+          type: array
+          items:
+            type: string
+            enum: [read, write, admin]
+          description: API key permissions
+          example: [read, write]
+      required: [name]
+
+    ApiKeyResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: API key ID
+        name:
+          type: string
+          description: API key name
+        key:
+          type: string
+          description: API key value (only shown once)
+          example: ak_1234567890abcdef
+        description:
+          type: string
+          description: API key description
+        permissions:
+          type: array
+          items:
+            type: string
+          description: API key permissions
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        expires_at:
+          type: string
+          format: date-time
+          description: Expiration timestamp
+        last_used:
+          type: string
+          format: date-time
+          description: Last usage timestamp
+      required: [id, name, permissions, created_at]
+
+    # Health Schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, degraded]
+          description: Overall system health status
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+        version:
+          type: string
+          description: API version
+        uptime:
+          type: number
+          description: System uptime in seconds
+        checks:
+          type: object
+          properties:
+            database:
+              $ref: '#/components/schemas/HealthCheck'
+            redis:
+              $ref: '#/components/schemas/HealthCheck'
+            mongodb:
+              $ref: '#/components/schemas/HealthCheck'
+            external_services:
+              $ref: '#/components/schemas/HealthCheck'
+      required: [status, timestamp, version, uptime, checks]
+
+    HealthCheck:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, degraded]
+        response_time:
+          type: number
+          description: Response time in milliseconds
+        message:
+          type: string
+          description: Health check message
+        last_checked:
+          type: string
+          format: date-time
+          description: Last check timestamp
+      required: [status, response_time, last_checked]
+
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, error]
+        message:
+          type: string
+          description: Health check message
+        timestamp:
+          type: string
+          format: date-time
+          description: Check timestamp
+      required: [status, message, timestamp]
+
+    SystemMetricsResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Metrics collection timestamp
+        cpu:
+          type: object
+          properties:
+            usage_percent:
+              type: number
+              description: CPU usage percentage
+            load_average:
+              type: array
+              items:
+                type: number
+              description: Load average (1, 5, 15 minutes)
+        memory:
+          type: object
+          properties:
+            usage_percent:
+              type: number
+              description: Memory usage percentage
+            used_bytes:
+              type: integer
+              description: Used memory in bytes
+            total_bytes:
+              type: integer
+              description: Total memory in bytes
+        disk:
+          type: object
+          properties:
+            usage_percent:
+              type: number
+              description: Disk usage percentage
+            used_bytes:
+              type: integer
+              description: Used disk space in bytes
+            total_bytes:
+              type: integer
+              description: Total disk space in bytes
+        network:
+          type: object
+          properties:
+            bytes_sent:
+              type: integer
+              description: Network bytes sent
+            bytes_received:
+              type: integer
+              description: Network bytes received
+        application:
+          type: object
+          properties:
+            active_connections:
+              type: integer
+              description: Number of active connections
+            requests_per_second:
+              type: number
+              description: Requests per second
+            response_time_ms:
+              type: number
+              description: Average response time in milliseconds
+      required: [timestamp, cpu, memory, disk, network, application]
+
+    # Dataset Schemas
+    DatasetResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Dataset ID
+        name:
+          type: string
+          description: Dataset name
+        description:
+          type: string
+          description: Dataset description
+        file_type:
+          type: string
+          enum: [csv, json, parquet, xlsx]
+          description: Dataset file type
+        size_bytes:
+          type: integer
+          description: Dataset size in bytes
+        row_count:
+          type: integer
+          description: Number of rows
+        column_count:
+          type: integer
+          description: Number of columns
+        columns:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasetColumn'
+          description: Dataset columns
+        tags:
+          type: array
+          items:
+            type: string
+          description: Dataset tags
+        quality_score:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Data quality score
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        owner:
+          $ref: '#/components/schemas/UserResponse'
+      required: [id, name, file_type, size_bytes, row_count, column_count, columns, created_at, owner]
+
+    DatasetColumn:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Column name
+        data_type:
+          type: string
+          enum: [string, integer, float, boolean, datetime]
+          description: Column data type
+        nullable:
+          type: boolean
+          description: Whether column can contain null values
+        unique_values:
+          type: integer
+          description: Number of unique values
+        null_count:
+          type: integer
+          description: Number of null values
+        statistics:
+          type: object
+          description: Column statistics (varies by data type)
+      required: [name, data_type, nullable, unique_values, null_count]
+
+    DatasetListResponse:
+      type: object
+      properties:
+        datasets:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasetResponse'
+        total:
+          type: integer
+          description: Total number of datasets
+        limit:
+          type: integer
+          description: Items per page
+        offset:
+          type: integer
+          description: Number of items skipped
+        has_more:
+          type: boolean
+          description: Whether there are more items
+      required: [datasets, total, limit, offset, has_more]
+
+    DataQualityResponse:
+      type: object
+      properties:
+        overall_score:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Overall data quality score
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataQualityIssue'
+          description: Data quality issues found
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataQualityRecommendation'
+          description: Recommendations for improvement
+        statistics:
+          type: object
+          properties:
+            missing_values_percent:
+              type: number
+              description: Percentage of missing values
+            duplicate_rows_percent:
+              type: number
+              description: Percentage of duplicate rows
+            outliers_percent:
+              type: number
+              description: Percentage of outliers
+            data_types_consistent:
+              type: boolean
+              description: Whether data types are consistent
+        analysis_date:
+          type: string
+          format: date-time
+          description: Analysis timestamp
+      required: [overall_score, issues, recommendations, statistics, analysis_date]
+
+    DataQualityIssue:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [missing_values, duplicates, outliers, inconsistent_types, format_errors]
+          description: Issue type
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+          description: Issue severity
+        description:
+          type: string
+          description: Issue description
+        affected_columns:
+          type: array
+          items:
+            type: string
+          description: Columns affected by this issue
+        count:
+          type: integer
+          description: Number of occurrences
+        percentage:
+          type: number
+          description: Percentage of data affected
+      required: [type, severity, description, count, percentage]
+
+    DataQualityRecommendation:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [data_cleaning, feature_engineering, algorithm_selection, preprocessing]
+          description: Recommendation type
+        priority:
+          type: string
+          enum: [low, medium, high]
+          description: Recommendation priority
+        description:
+          type: string
+          description: Recommendation description
+        expected_impact:
+          type: string
+          description: Expected impact of applying recommendation
+        implementation_difficulty:
+          type: string
+          enum: [easy, medium, hard]
+          description: Implementation difficulty
+      required: [type, priority, description, expected_impact, implementation_difficulty]
+
+    DatasetSampleResponse:
+      type: object
+      properties:
+        sample_size:
+          type: integer
+          description: Number of records in sample
+        data:
+          type: array
+          items:
+            type: object
+          description: Sample data records
+        columns:
+          type: array
+          items:
+            type: string
+          description: Column names
+        statistics:
+          type: object
+          description: Basic statistics for sample
+      required: [sample_size, data, columns]
+
+    # Detector Schemas
+    DetectorResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Detector ID
+        name:
+          type: string
+          description: Detector name
+        description:
+          type: string
+          description: Detector description
+        algorithm:
+          type: string
+          description: Algorithm name
+        version:
+          type: string
+          description: Algorithm version
+        hyperparameters:
+          type: object
+          description: Algorithm hyperparameters
+        status:
+          type: string
+          enum: [created, training, trained, failed, deploying, deployed, archived]
+          description: Detector status
+        dataset_id:
+          type: string
+          format: uuid
+          description: Training dataset ID
+        performance_metrics:
+          type: object
+          description: Performance metrics (if evaluated)
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        trained_at:
+          type: string
+          format: date-time
+          description: Training completion timestamp
+        owner:
+          $ref: '#/components/schemas/UserResponse'
+      required: [id, name, algorithm, status, created_at, owner]
+
+    CreateDetectorRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Detector name
+          example: "Sales Anomaly Detector"
+        description:
+          type: string
+          description: Detector description
+          example: "Detector for identifying anomalous sales patterns"
+        algorithm:
+          type: string
+          description: Algorithm name
+          example: "isolation_forest"
+        hyperparameters:
+          type: object
+          description: Algorithm hyperparameters
+          example:
+            n_estimators: 100
+            contamination: 0.1
+        dataset_id:
+          type: string
+          format: uuid
+          description: Training dataset ID
+        auto_tune:
+          type: boolean
+          description: Whether to automatically tune hyperparameters
+          default: false
+        validation_split:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Validation split ratio
+          default: 0.2
+      required: [name, algorithm, dataset_id]
+
+    UpdateDetectorRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Detector name
+        description:
+          type: string
+          description: Detector description
+        hyperparameters:
+          type: object
+          description: Algorithm hyperparameters
+        status:
+          type: string
+          enum: [active, inactive, archived]
+          description: Detector status
+
+    DetectorListResponse:
+      type: object
+      properties:
+        detectors:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetectorResponse'
+        total:
+          type: integer
+          description: Total number of detectors
+        limit:
+          type: integer
+          description: Items per page
+        offset:
+          type: integer
+          description: Number of items skipped
+        has_more:
+          type: boolean
+          description: Whether there are more items
+      required: [detectors, total, limit, offset, has_more]
+
+    AlgorithmListResponse:
+      type: object
+      properties:
+        algorithms:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlgorithmInfo'
+        categories:
+          type: array
+          items:
+            type: string
+          description: Algorithm categories
+      required: [algorithms, categories]
+
+    AlgorithmInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Algorithm name
+        display_name:
+          type: string
+          description: Human-readable algorithm name
+        description:
+          type: string
+          description: Algorithm description
+        category:
+          type: string
+          enum: [statistical, machine_learning, neural_network, ensemble]
+          description: Algorithm category
+        complexity:
+          type: string
+          enum: [low, medium, high]
+          description: Algorithm complexity
+        performance:
+          type: string
+          enum: [low, medium, high]
+          description: Expected performance
+        scalability:
+          type: string
+          enum: [low, medium, high]
+          description: Scalability rating
+        hyperparameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/HyperparameterInfo'
+          description: Available hyperparameters
+        data_types:
+          type: array
+          items:
+            type: string
+            enum: [numerical, categorical, mixed, time_series]
+          description: Supported data types
+        use_cases:
+          type: array
+          items:
+            type: string
+          description: Recommended use cases
+      required: [name, display_name, description, category, complexity, performance, scalability, hyperparameters, data_types, use_cases]
+
+    HyperparameterInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Hyperparameter name
+        type:
+          type: string
+          enum: [int, float, bool, str, list]
+          description: Hyperparameter type
+        default:
+          description: Default value
+        min:
+          type: number
+          description: Minimum value (for numeric types)
+        max:
+          type: number
+          description: Maximum value (for numeric types)
+        choices:
+          type: array
+          description: Valid choices (for categorical types)
+        description:
+          type: string
+          description: Hyperparameter description
+        required:
+          type: boolean
+          description: Whether hyperparameter is required
+      required: [name, type, description, required]
+
+    # Detection Schemas
+    TrainDetectorRequest:
+      type: object
+      properties:
+        detector_id:
+          type: string
+          format: uuid
+          description: Detector ID to train
+        dataset_id:
+          type: string
+          format: uuid
+          description: Training dataset ID
+        validation_split:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Validation split ratio
+          default: 0.2
+        hyperparameters:
+          type: object
+          description: Override hyperparameters
+        cross_validation:
+          type: boolean
+          description: Whether to use cross-validation
+          default: true
+        early_stopping:
+          type: boolean
+          description: Whether to use early stopping
+          default: true
+        notification_webhook:
+          type: string
+          format: uri
+          description: Webhook URL for training completion notification
+      required: [detector_id, dataset_id]
+
+    TrainingJobResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+          format: uuid
+          description: Training job ID
+        detector_id:
+          type: string
+          format: uuid
+          description: Detector ID
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled]
+          description: Training job status
+        progress:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Training progress (0-1)
+        estimated_completion:
+          type: string
+          format: date-time
+          description: Estimated completion time
+        started_at:
+          type: string
+          format: date-time
+          description: Training start time
+        completed_at:
+          type: string
+          format: date-time
+          description: Training completion time
+        error_message:
+          type: string
+          description: Error message (if failed)
+        metrics:
+          type: object
+          description: Training metrics
+        logs:
+          type: array
+          items:
+            type: string
+          description: Training logs
+      required: [job_id, detector_id, status, progress]
+
+    DetectAnomaliesRequest:
+      type: object
+      properties:
+        detector_id:
+          type: string
+          format: uuid
+          description: Detector ID to use
+        data:
+          type: array
+          items:
+            type: object
+          description: Data to analyze
+        threshold:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Anomaly threshold
+        return_scores:
+          type: boolean
+          description: Whether to return anomaly scores
+          default: false
+        return_explanations:
+          type: boolean
+          description: Whether to return explanations
+          default: false
+        batch_size:
+          type: integer
+          description: Batch size for processing
+          default: 1000
+      required: [detector_id, data]
+
+    DetectionResponse:
+      type: object
+      properties:
+        detection_id:
+          type: string
+          format: uuid
+          description: Detection result ID
+        detector_id:
+          type: string
+          format: uuid
+          description: Detector ID used
+        anomalies:
+          type: array
+          items:
+            $ref: '#/components/schemas/AnomalyResult'
+          description: Detected anomalies
+        statistics:
+          type: object
+          properties:
+            total_points:
+              type: integer
+              description: Total data points analyzed
+            anomaly_count:
+              type: integer
+              description: Number of anomalies detected
+            anomaly_rate:
+              type: number
+              description: Anomaly detection rate
+            processing_time:
+              type: number
+              description: Processing time in seconds
+        threshold:
+          type: number
+          description: Threshold used for detection
+        created_at:
+          type: string
+          format: date-time
+          description: Detection timestamp
+      required: [detection_id, detector_id, anomalies, statistics, threshold, created_at]
+
+    AnomalyResult:
+      type: object
+      properties:
+        index:
+          type: integer
+          description: Data point index
+        score:
+          type: number
+          description: Anomaly score
+        is_anomaly:
+          type: boolean
+          description: Whether point is classified as anomaly
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Confidence in classification
+        explanation:
+          type: object
+          description: Explanation for classification (if requested)
+        original_data:
+          type: object
+          description: Original data point
+      required: [index, score, is_anomaly, confidence]
+
+    BatchDetectionRequest:
+      type: object
+      properties:
+        detections:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetectAnomaliesRequest'
+          description: List of detection requests
+        parallel:
+          type: boolean
+          description: Whether to run detections in parallel
+          default: true
+        notification_webhook:
+          type: string
+          format: uri
+          description: Webhook URL for completion notification
+      required: [detections]
+
+    BatchDetectionResponse:
+      type: object
+      properties:
+        batch_id:
+          type: string
+          format: uuid
+          description: Batch detection ID
+        status:
+          type: string
+          enum: [queued, running, completed, failed, cancelled]
+          description: Batch detection status
+        progress:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Batch processing progress
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetectionResponse'
+          description: Detection results (populated when completed)
+        started_at:
+          type: string
+          format: date-time
+          description: Batch start time
+        completed_at:
+          type: string
+          format: date-time
+          description: Batch completion time
+        error_message:
+          type: string
+          description: Error message (if failed)
+      required: [batch_id, status, progress]
+
+    EvaluateDetectorRequest:
+      type: object
+      properties:
+        detector_id:
+          type: string
+          format: uuid
+          description: Detector ID to evaluate
+        test_dataset_id:
+          type: string
+          format: uuid
+          description: Test dataset ID
+        ground_truth_column:
+          type: string
+          description: Column name containing ground truth labels
+        metrics:
+          type: array
+          items:
+            type: string
+            enum: [precision, recall, f1_score, auc_roc, auc_pr, accuracy]
+          description: Metrics to calculate
+          default: [precision, recall, f1_score, auc_roc]
+        threshold:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Classification threshold
+      required: [detector_id, test_dataset_id, ground_truth_column]
+
+    EvaluationResponse:
+      type: object
+      properties:
+        evaluation_id:
+          type: string
+          format: uuid
+          description: Evaluation ID
+        detector_id:
+          type: string
+          format: uuid
+          description: Detector ID evaluated
+        metrics:
+          type: object
+          properties:
+            precision:
+              type: number
+              description: Precision score
+            recall:
+              type: number
+              description: Recall score
+            f1_score:
+              type: number
+              description: F1 score
+            auc_roc:
+              type: number
+              description: AUC-ROC score
+            auc_pr:
+              type: number
+              description: AUC-PR score
+            accuracy:
+              type: number
+              description: Accuracy score
+        confusion_matrix:
+          type: object
+          properties:
+            true_positives:
+              type: integer
+            true_negatives:
+              type: integer
+            false_positives:
+              type: integer
+            false_negatives:
+              type: integer
+        threshold:
+          type: number
+          description: Threshold used for evaluation
+        test_dataset_id:
+          type: string
+          format: uuid
+          description: Test dataset ID
+        evaluated_at:
+          type: string
+          format: date-time
+          description: Evaluation timestamp
+      required: [evaluation_id, detector_id, metrics, confusion_matrix, threshold, test_dataset_id, evaluated_at]
+
+    DetectionResultsResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetectionResponse'
+        total:
+          type: integer
+          description: Total number of detection results
+        limit:
+          type: integer
+          description: Items per page
+        offset:
+          type: integer
+          description: Number of items skipped
+        has_more:
+          type: boolean
+          description: Whether there are more items
+      required: [results, total, limit, offset, has_more]
+
+    # Error Response Schemas
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Error message
+        details:
+          type: object
+          description: Additional error details
+        request_id:
+          type: string
+          description: Request ID for tracking
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+      required: [error, message, request_id, timestamp]
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: validation_error
+        message:
+          type: string
+          description: Error message
+          example: Request validation failed
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Field name
+              message:
+                type: string
+                description: Field error message
+              code:
+                type: string
+                description: Error code
+        request_id:
+          type: string
+          description: Request ID for tracking
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+      required: [error, message, details, request_id, timestamp]
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: bad_request
+            message: The request is invalid
+            request_id: req_123456789
+            timestamp: "2024-01-01T12:00:00Z"
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: unauthorized
+            message: Authentication required
+            request_id: req_123456789
+            timestamp: "2024-01-01T12:00:00Z"
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: forbidden
+            message: Access denied
+            request_id: req_123456789
+            timestamp: "2024-01-01T12:00:00Z"
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: not_found
+            message: Resource not found
+            request_id: req_123456789
+            timestamp: "2024-01-01T12:00:00Z"
+
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: conflict
+            message: Resource already exists
+            request_id: req_123456789
+            timestamp: "2024-01-01T12:00:00Z"
+
+    PayloadTooLarge:
+      description: Payload too large
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: payload_too_large
+            message: File size exceeds maximum allowed limit
+            request_id: req_123456789
+            timestamp: "2024-01-01T12:00:00Z"
+
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+          example:
+            error: validation_error
+            message: Request validation failed
+            details:
+              - field: email
+                message: Invalid email format
+                code: format_error
+              - field: password
+                message: Password must be at least 8 characters
+                code: length_error
+            request_id: req_123456789
+            timestamp: "2024-01-01T12:00:00Z"
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: rate_limit_exceeded
+            message: Too many requests
+            details:
+              limit: 1000
+              window: 3600
+              reset_time: "2024-01-01T13:00:00Z"
+            request_id: req_123456789
+            timestamp: "2024-01-01T12:00:00Z"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: internal_server_error
+            message: An unexpected error occurred
+            request_id: req_123456789
+            timestamp: "2024-01-01T12:00:00Z"
+
+  examples:
+    # Dataset Examples
+    SampleDataset:
+      summary: Sample sales dataset
+      value:
+        id: "550e8400-e29b-41d4-a716-446655440000"
+        name: "Sales Data Q1 2024"
+        description: "Quarterly sales data for anomaly detection"
+        file_type: "csv"
+        size_bytes: 1048576
+        row_count: 10000
+        column_count: 8
+        columns:
+          - name: "date"
+            data_type: "datetime"
+            nullable: false
+            unique_values: 90
+            null_count: 0
+          - name: "sales_amount"
+            data_type: "float"
+            nullable: false
+            unique_values: 9876
+            null_count: 0
+          - name: "region"
+            data_type: "string"
+            nullable: false
+            unique_values: 5
+            null_count: 0
+        tags: ["sales", "quarterly", "2024"]
+        quality_score: 0.95
+        created_at: "2024-01-01T10:00:00Z"
+        updated_at: "2024-01-01T10:00:00Z"
+
+    # Detector Examples
+    SampleDetector:
+      summary: Sample Isolation Forest detector
+      value:
+        id: "550e8400-e29b-41d4-a716-446655440001"
+        name: "Sales Anomaly Detector"
+        description: "Detector for identifying anomalous sales patterns"
+        algorithm: "isolation_forest"
+        version: "1.0.0"
+        hyperparameters:
+          n_estimators: 100
+          contamination: 0.1
+          random_state: 42
+        status: "trained"
+        dataset_id: "550e8400-e29b-41d4-a716-446655440000"
+        performance_metrics:
+          precision: 0.85
+          recall: 0.78
+          f1_score: 0.81
+          auc_roc: 0.89
+        created_at: "2024-01-01T11:00:00Z"
+        updated_at: "2024-01-01T11:30:00Z"
+        trained_at: "2024-01-01T11:30:00Z"
+
+    # Detection Examples
+    SampleDetectionResult:
+      summary: Sample detection result
+      value:
+        detection_id: "550e8400-e29b-41d4-a716-446655440002"
+        detector_id: "550e8400-e29b-41d4-a716-446655440001"
+        anomalies:
+          - index: 42
+            score: 0.95
+            is_anomaly: true
+            confidence: 0.92
+            original_data:
+              date: "2024-01-15"
+              sales_amount: 150000.0
+              region: "North"
+          - index: 156
+            score: 0.87
+            is_anomaly: true
+            confidence: 0.84
+            original_data:
+              date: "2024-02-03"
+              sales_amount: 5.0
+              region: "South"
+        statistics:
+          total_points: 1000
+          anomaly_count: 2
+          anomaly_rate: 0.002
+          processing_time: 0.15
+        threshold: 0.8
+        created_at: "2024-01-01T12:00:00Z"

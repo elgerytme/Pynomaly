@@ -44,7 +44,9 @@
       "Bash(git add:*)",
       "Bash(./environments/.venv/bin/python -m pytest tests/application/services/test_detection_service_comprehensive.py -v --tb=short --timeout=30)",
       "Bash(rm:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(docker-compose:*)",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }

@@ -8,7 +8,7 @@ from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class MFAMethodType(str, Enum):
@@ -56,7 +56,8 @@ class TOTPVerificationRequest(BaseModel):
     """Request to verify TOTP code."""
     totp_code: str = Field(..., min_length=6, max_length=6, description="6-digit TOTP code")
     
-    @validator('totp_code')
+    @field_validator('totp_code')
+    @classmethod
     def validate_totp_code(cls, v):
         if not v.isdigit():
             raise ValueError('TOTP code must contain only digits')
@@ -67,7 +68,8 @@ class SMSSetupRequest(BaseModel):
     """Request to setup SMS-based MFA."""
     phone_number: str = Field(..., description="Phone number for SMS verification")
     
-    @validator('phone_number')
+    @field_validator('phone_number')
+    @classmethod
     def validate_phone_number(cls, v):
         # Basic phone number validation
         import re
@@ -80,7 +82,8 @@ class SMSVerificationRequest(BaseModel):
     """Request to verify SMS code."""
     sms_code: str = Field(..., min_length=6, max_length=6, description="6-digit SMS verification code")
     
-    @validator('sms_code')
+    @field_validator('sms_code')
+    @classmethod
     def validate_sms_code(cls, v):
         if not v.isdigit():
             raise ValueError('SMS code must contain only digits')
@@ -91,7 +94,8 @@ class EmailVerificationRequest(BaseModel):
     """Request to verify email-based MFA code."""
     email_code: str = Field(..., min_length=6, max_length=6, description="6-digit email verification code")
     
-    @validator('email_code')
+    @field_validator('email_code')
+    @classmethod
     def validate_email_code(cls, v):
         if not v.isdigit():
             raise ValueError('Email code must contain only digits')

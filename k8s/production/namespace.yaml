@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pynomaly-prod
+  labels:
+    app: pynomaly
+    environment: production
+    version: v1.0.0
+    cost-center: "production"
+    team: "engineering"
+  annotations:
+    description: "Pynomaly Production Environment"
+    contact: "devops@pynomaly.com"
+    cost-center: "production"
+    backup-policy: "daily"
+    monitoring-enabled: "true"
+    security-scan-enabled: "true"
