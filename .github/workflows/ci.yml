@@ -429,7 +429,8 @@ jobs:
         # Overall status
         if [[ "${{ needs.project-tidy-check.result }}" == "success" &&
               "${{ needs.build.result }}" == "success" &&
-              "${{ needs.test.result }}" == "success" ]]; then
+              "${{ needs.test.result }}" == "success" &&
+              "${{ needs.maintenance.result }}" == "success" ]]; then
           echo "## 🎉 Overall Status: **PASSED**" >> ci-reports/ci-summary.md
           echo "" >> ci-reports/ci-summary.md
           echo "✅ All critical CI checks have passed successfully!" >> ci-reports/ci-summary.md
@@ -447,6 +448,7 @@ jobs:
           echo "- Project Tidy Check must pass" >> ci-reports/ci-summary.md
           echo "- Build & Package must pass" >> ci-reports/ci-summary.md
           echo "- Test Suite must pass" >> ci-reports/ci-summary.md
+          echo "- Maintenance Validation must pass (strict mode)" >> ci-reports/ci-summary.md
         fi
 
         echo "" >> ci-reports/ci-summary.md
@@ -508,7 +510,8 @@ View detailed reports in the Actions artifacts.`;
       run: |
         if [[ "${{ needs.project-tidy-check.result }}" == "success" &&
               "${{ needs.build.result }}" == "success" &&
-              "${{ needs.test.result }}" == "success" ]]; then
+              "${{ needs.test.result }}" == "success" &&
+              "${{ needs.maintenance.result }}" == "success" ]]; then
           echo "✅ CI Pipeline completed successfully"
           exit 0
         else
