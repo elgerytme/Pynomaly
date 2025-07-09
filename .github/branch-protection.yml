@@ -1,0 +1,103 @@
+# Branch Protection Configuration
+# This file documents the required branch protection settings for this repository.
+# These settings must be configured in the GitHub repository settings.
+
+branch_protection:
+  # Main branch protection
+  main:
+    # Require pull request reviews before merging
+    required_pull_request_reviews:
+      required_approving_review_count: 1
+      dismiss_stale_reviews: true
+      require_code_owner_reviews: true
+      require_last_push_approval: true
+      
+    # Require status checks to pass before merging
+    required_status_checks:
+      strict: true # Require branches to be up to date before merging
+      contexts:
+        # Enhanced CI Quality Gates - ALL MUST PASS
+        - "Quality Gate: Linting & Formatting"
+        - "Quality Gate: Unit Tests"
+        - "Quality Gate: Documentation"
+        - "Quality Gate: Security Scan"
+        - "Quality Gate: Build & Package"
+        - "Quality Gate: Integration Tests"
+        - "📊 Quality Gate Summary"
+        
+        # Original CI checks (for backwards compatibility)
+        - "Code Quality & Linting"
+        - "Build & Package"
+        - "Test Suite"
+        - "API & CLI Testing"
+        - "Security & Dependencies"
+        - "CI Summary"
+        
+        # Quality Gates workflow checks
+        - "Test Quality Gate"
+        - "Security Quality Gate"
+        - "Quality Gate Summary"
+        
+    # Enforce restrictions
+    enforce_admins: true  # Apply rules to admins too
+    
+    # Require linear history (no merge commits)
+    required_linear_history: true
+    
+    # Allow force pushes (set to false for stricter control)
+    allow_force_pushes: false
+    
+    # Allow deletions (set to false for stricter control)
+    allow_deletions: false
+    
+    # Block creations (prevent direct pushes to main)
+    block_creations: false
+    
+    # Require conversation resolution before merging
+    required_conversation_resolution: true
+    
+    # Lock branch (prevent any changes)
+    lock_branch: false
+    
+    # Fork syncing (allow fork PRs)
+    fork_syncing: true
+
+  # Develop branch protection (similar but slightly relaxed)
+  develop:
+    required_pull_request_reviews:
+      required_approving_review_count: 1
+      dismiss_stale_reviews: true
+      require_code_owner_reviews: false  # More relaxed for development
+      require_last_push_approval: false
+      
+    required_status_checks:
+      strict: true
+      contexts:
+        - "Quality Gate: Linting & Formatting"
+        - "Quality Gate: Unit Tests"
+        - "Quality Gate: Documentation"
+        - "Quality Gate: Security Scan"
+        - "Quality Gate: Build & Package"
+        - "📊 Quality Gate Summary"
+        
+    enforce_admins: false  # More relaxed for development
+    required_linear_history: false
+    allow_force_pushes: true  # Allow force pushes for development
+    allow_deletions: false
+    required_conversation_resolution: true
+    lock_branch: false
+    fork_syncing: true
+
+# Instructions to apply these settings:
+# 1. Go to your repository settings
+# 2. Navigate to "Branches" in the left sidebar
+# 3. Add a rule for "main" branch
+# 4. Configure the protection settings as specified above
+# 5. Repeat for "develop" branch
+#
+# Alternatively, these settings can be applied via GitHub API:
+# curl -X PUT \
+#   -H "Authorization: token YOUR_TOKEN" \
+#   -H "Accept: application/vnd.github.v3+json" \
+#   https://api.github.com/repos/OWNER/REPO/branches/main/protection \
+#   -d @branch-protection-main.json
