@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2025-07-09
+
+### Fixed - Stability and Bug Fixes
+- **SklearnAdapter**: Added missing `predict` method (alias for `detect`)
+- **TensorFlow Adapter**: Enhanced error handling and graceful fallbacks for missing dependencies
+- **PyTorch Adapter**: Improved import handling and error messages
+- **Test Infrastructure**: Fixed test failures and improved stability validation
+
+### Added - Testing and Validation
+- **Comprehensive Stability Tests**: 7-category test suite validating core functionality
+- **Health Monitoring**: Enhanced health check system with comprehensive monitoring
+- **Error Handling**: Improved exception handling with better error messages
+- **Integration Tests**: Additional tests for TensorFlow and PyTorch adapters
+
+### Enhanced - Developer Experience
+- **API Consistency**: Standardized method availability across all adapters
+- **Documentation**: Enhanced inline documentation and examples
+- **Error Messages**: Clearer error messages with actionable guidance
+- **Graceful Degradation**: All adapters handle missing optional dependencies properly
+
+### Testing Results
+- ✅ All 7 stability tests passing
+- ✅ Core sklearn algorithms validated (IsolationForest, OneClassSVM, LOF, EllipticEnvelope)
+- ✅ PyTorch/TensorFlow adapters graceful fallback validated
+- ✅ Error handling and edge cases covered
+- ✅ Data quality handling validated
+
 ## [0.1.0] - 2025-07-09
 
 ### Added - Foundation Release
