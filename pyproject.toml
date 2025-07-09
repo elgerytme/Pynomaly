@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 
 [tool.poetry]
 name = "pynomaly"
-version = "0.3.0"
+version = "0.1.0"
 description = "State-of-the-art Python anomaly detection package with clean architecture"
 authors = ["Pynomaly Team <team@pynomaly.io>"]
 readme = "README.md"

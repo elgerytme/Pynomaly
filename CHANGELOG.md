@@ -7,7 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.1] - 2025-01-08
+## [0.1.0] - 2025-07-09
+
+### Added - Foundation Release
+- **Core Anomaly Detection**: Basic anomaly detection algorithms (IsolationForest, OneClassSVM, LocalOutlierFactor)
+- **Domain Architecture**: Clean architecture with domain entities, value objects, and services
+- **CLI Interface**: Basic command-line interface for anomaly detection
+- **Testing Infrastructure**: Comprehensive test suite with pytest framework
+- **Configuration Management**: Environment-based configuration system
+- **Documentation**: Foundation documentation and API references
+- **Container Support**: Basic Docker containerization
+- **Build System**: Hatch + Buck2 hybrid build system with performance optimization
+
+### Fixed - Stability Improvements
+- **Critical Syntax Errors**: Resolved all syntax errors preventing pytest execution
+- **Import Dependencies**: Fixed missing import dependencies for core modules
+- **Pydantic V2 Compatibility**: Updated to Pydantic v2.10.4+ with proper validators
+- **Test Infrastructure**: Fixed test configuration and execution issues
+- **Package Build**: Verified and tested wheel/source distribution builds
+
+### Changed - Versioning Reset
+- **VERSIONING RESET**: Previous versions (0.1.1-0.3.1) were pre-production development versions
+- **Semantic Versioning**: Starting fresh with proper semantic versioning practices
+- **Quality Gates**: Implementing proper testing, security, and quality standards
+- **Production Path**: Clear roadmap to v1.0.0 production release
+
+### Note
+This release represents a versioning reset to accurately reflect the project's maturity level. 
+Previous versions contained extensive features but were not production-ready. Version 0.1.0 
+establishes a solid foundation for semantic versioning and production readiness.
+
+Historical changes from previous versions have been archived and are available for reference.
+
+---
+
+## [Pre-Reset Archive] - Historical Versions
+
+### [0.3.1] - 2025-01-08 (Archived)
 
 ### Fixed
 - **Post-v0.3.0 Code Quality Issues** (2025-01-09): Addressed linting and test infrastructure issues following release
