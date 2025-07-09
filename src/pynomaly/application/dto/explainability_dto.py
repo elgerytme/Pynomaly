@@ -63,8 +63,7 @@ class TrustMetric(str, Enum):
 class CohortExplanationRequestDTO(BaseModel):
     """DTO for cohort explanation request."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: str = Field(..., description="Detector identifier")
     dataset_id: str = Field(..., description="Dataset identifier")
@@ -148,8 +147,7 @@ class AnomalyExplanationDTO(BaseModel):
 class AutonomousExplanationReportDTO(BaseModel):
     """DTO for comprehensive autonomous detection explanation report."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
+    model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     dataset_profile: dict[str, Any] = Field(
         ..., description="Dataset characteristics profile"
@@ -346,8 +344,7 @@ class VisualizationType(str, Enum):
 class ExplanationConfigDTO(BaseModel):
     """Configuration for explanation generation."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     method: ExplanationMethod = Field(..., description="Explanation method to use")
     explanation_type: ExplanationType = Field(..., description="Type of explanation")
@@ -410,8 +407,7 @@ class ExplanationConfigDTO(BaseModel):
 class BiasAnalysisConfigDTO(BaseModel):
     """Configuration for bias analysis."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     protected_attributes: list[str] = Field(
         ..., description="Protected attribute names"
@@ -441,8 +437,7 @@ class BiasAnalysisConfigDTO(BaseModel):
 class TrustAssessmentConfigDTO(BaseModel):
     """Configuration for trust assessment."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     metrics: list[TrustMetric] = Field(
         default_factory=lambda: [TrustMetric.CONSISTENCY, TrustMetric.STABILITY],
@@ -479,8 +474,7 @@ class TrustAssessmentConfigDTO(BaseModel):
 class FeatureContributionDTO(BaseModel):
     """DTO for feature contribution information."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     feature_name: str = Field(..., description="Name of the feature")
     value: float = Field(..., description="Feature value")
@@ -504,8 +498,7 @@ class FeatureContributionDTO(BaseModel):
 class FeatureInteractionDTO(BaseModel):
     """DTO for feature interaction information."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     feature_1: str = Field(..., description="First feature name")
     feature_2: str = Field(..., description="Second feature name")
@@ -524,8 +517,7 @@ class FeatureInteractionDTO(BaseModel):
 class BiasMetricResultDTO(BaseModel):
     """DTO for individual bias metric result."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     metric_name: BiasMetric = Field(..., description="Bias metric name")
     overall_score: float = Field(..., description="Overall bias score")
@@ -551,8 +543,7 @@ class BiasMetricResultDTO(BaseModel):
 class GroupComparisonDTO(BaseModel):
     """DTO for comparing groups in bias analysis."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     group_name: str = Field(..., description="Group identifier")
     group_size: int = Field(..., description="Number of samples in group")
@@ -571,8 +562,7 @@ class GroupComparisonDTO(BaseModel):
 class BiasAnalysisResultDTO(BaseModel):
     """DTO for comprehensive bias analysis results."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: UUID = Field(..., description="Detector identifier")
     dataset_id: UUID = Field(..., description="Dataset identifier")
@@ -621,8 +611,7 @@ class BiasAnalysisResultDTO(BaseModel):
 class TrustMetricResultDTO(BaseModel):
     """DTO for individual trust metric result."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     metric_name: TrustMetric = Field(..., description="Trust metric name")
     score: float = Field(
@@ -654,8 +643,7 @@ class TrustMetricResultDTO(BaseModel):
 class UncertaintyQuantificationDTO(BaseModel):
     """DTO for uncertainty quantification results."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     epistemic_uncertainty: float = Field(
         ..., description="Model uncertainty (epistemic)"
@@ -685,8 +673,7 @@ class UncertaintyQuantificationDTO(BaseModel):
 class TrustAssessmentResultDTO(BaseModel):
     """DTO for comprehensive trust assessment results."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: UUID = Field(..., description="Detector identifier")
     dataset_id: UUID | None = Field(default=None, description="Dataset identifier")
@@ -735,8 +722,7 @@ class TrustAssessmentResultDTO(BaseModel):
 class LocalExplanationDTO(BaseModel):
     """DTO for local explanation."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     instance_id: str = Field(..., description="Instance identifier")
     anomaly_score: float = Field(..., description="Anomaly score")
@@ -785,8 +771,7 @@ class LocalExplanationDTO(BaseModel):
 class GlobalExplanationDTO(BaseModel):
     """DTO for global explanation."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     model_name: str = Field(..., description="Model name")
     feature_importances: dict[str, float] = Field(
@@ -849,8 +834,7 @@ class GlobalExplanationDTO(BaseModel):
 class VisualizationDataDTO(BaseModel):
     """DTO for visualization data."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     visualization_type: VisualizationType = Field(
         ..., description="Type of visualization"
@@ -883,8 +867,7 @@ class VisualizationDataDTO(BaseModel):
 class ExplanationVisualizationDTO(BaseModel):
     """DTO for explanation visualization package."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     explanation_id: str = Field(..., description="Explanation identifier")
     visualizations: list[VisualizationDataDTO] = Field(
@@ -926,8 +909,7 @@ class ExplanationVisualizationDTO(BaseModel):
 class ReportGenerationConfigDTO(BaseModel):
     """Configuration for report generation."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     report_type: Literal["summary", "detailed", "executive", "technical"] = Field(
         ..., description="Type of report"
@@ -970,8 +952,7 @@ class ReportGenerationConfigDTO(BaseModel):
 class ExplanationReportDTO(BaseModel):
     """DTO for comprehensive explanation report."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     report_id: UUID = Field(..., description="Report identifier")
     title: str = Field(..., description="Report title")
@@ -1025,8 +1006,7 @@ class ExplanationReportDTO(BaseModel):
 class ExplanationAuditLogDTO(BaseModel):
     """DTO for explanation audit log entry."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     audit_id: UUID = Field(..., description="Audit entry identifier")
     timestamp: datetime = Field(
@@ -1066,8 +1046,7 @@ class ExplanationAuditLogDTO(BaseModel):
 class ExplanationFeedbackDTO(BaseModel):
     """DTO for user feedback on explanations."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     feedback_id: UUID = Field(..., description="Feedback identifier")
     explanation_id: str = Field(..., description="Explanation identifier")
@@ -1123,8 +1102,7 @@ class ExplanationFeedbackDTO(BaseModel):
 class FeedbackSummaryDTO(BaseModel):
     """DTO for feedback summary and analytics."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     summary_id: UUID = Field(..., description="Summary identifier")
     period_start: datetime = Field(..., description="Summary period start")
@@ -1183,8 +1161,7 @@ class FeedbackSummaryDTO(BaseModel):
 class CohortExplanationDTO(BaseModel):
     """DTO for cohort explanation."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     cohort_id: str = Field(..., description="Cohort identifier")
     cohort_description: str = Field(..., description="Cohort description")
@@ -1239,8 +1216,7 @@ class CohortExplanationDTO(BaseModel):
 class ComprehensiveExplanationRequestDTO(BaseModel):
     """DTO for comprehensive explanation request including bias and trust analysis."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     # Core request
     detector_id: UUID = Field(..., description="Detector identifier")
@@ -1310,8 +1286,7 @@ class ComprehensiveExplanationRequestDTO(BaseModel):
 class BatchExplanationRequestDTO(BaseModel):
     """DTO for batch explanation requests."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     batch_id: UUID = Field(..., description="Batch identifier")
     detector_id: UUID = Field(..., description="Detector identifier")
@@ -1368,8 +1343,7 @@ class BatchExplanationRequestDTO(BaseModel):
 class ComprehensiveExplanationResponseDTO(BaseModel):
     """DTO for comprehensive explanation response."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     request_id: UUID = Field(..., description="Request identifier")
     success: bool = Field(..., description="Whether request was successful")
@@ -1439,8 +1413,7 @@ class ComprehensiveExplanationResponseDTO(BaseModel):
 class BatchExplanationResponseDTO(BaseModel):
     """DTO for batch explanation response."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     batch_id: UUID = Field(..., description="Batch identifier")
     status: Literal["pending", "running", "completed", "failed", "cancelled"] = Field(
@@ -1513,8 +1486,7 @@ class ExplanationRequestDTO(BaseModel):
     Legacy - use ComprehensiveExplanationRequestDTO for new implementations.
     """
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: str = Field(..., description="Detector identifier")
     dataset_id: str | None = Field(default=None, description="Dataset identifier")
@@ -1540,8 +1512,7 @@ class ExplanationRequestDTO(BaseModel):
 class MethodComparisonDTO(BaseModel):
     """DTO for method comparison results."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     method_name: str = Field(..., description="Method name")
     success: bool = Field(..., description="Whether explanation succeeded")
@@ -1555,8 +1526,7 @@ class MethodComparisonDTO(BaseModel):
 class FeatureStatisticsDTO(BaseModel):
     """DTO for feature statistics."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     feature_name: str = Field(..., description="Feature name")
     mean_contribution: float = Field(..., description="Mean contribution")
@@ -1576,8 +1546,7 @@ class ExplanationResponseDTO(BaseModel):
     Legacy - use ComprehensiveExplanationResponseDTO for new implementations.
     """
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     success: bool = Field(..., description="Whether explanation succeeded")
     explanations: dict[str, Any] | None = Field(
@@ -1606,8 +1575,7 @@ class ExplanationResponseDTO(BaseModel):
 class ExplainInstanceRequestDTO(BaseModel):
     """DTO for single instance explanation request."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: str = Field(..., description="Detector identifier")
     instance_data: dict[str, Any] = Field(..., description="Instance data to explain")
@@ -1620,8 +1588,7 @@ class ExplainInstanceRequestDTO(BaseModel):
 class ExplainModelRequestDTO(BaseModel):
     """DTO for global model explanation request."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: str = Field(..., description="Detector identifier")
     dataset_id: str = Field(..., description="Dataset identifier for background data")
@@ -1637,8 +1604,7 @@ class ExplainModelRequestDTO(BaseModel):
 class ExplainCohortRequestDTO(BaseModel):
     """DTO for cohort explanation request."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: str = Field(..., description="Detector identifier")
     dataset_id: str = Field(..., description="Dataset identifier")
@@ -1655,8 +1621,7 @@ class ExplainCohortRequestDTO(BaseModel):
 class CompareMethodsRequestDTO(BaseModel):
     """DTO for comparing explanation methods."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: str = Field(..., description="Detector identifier")
     instance_data: dict[str, Any] | None = Field(
@@ -1675,8 +1640,7 @@ class CompareMethodsRequestDTO(BaseModel):
 class FeatureRankingDTO(BaseModel):
     """DTO for feature ranking information."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     feature_name: str = Field(..., description="Feature name")
     importance_score: float = Field(..., description="Average importance score")
@@ -1688,8 +1652,7 @@ class FeatureRankingDTO(BaseModel):
 class ExplanationSummaryDTO(BaseModel):
     """DTO for explanation summary."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     detector_id: str = Field(..., description="Detector identifier")
     dataset_id: str | None = Field(default=None, description="Dataset identifier")

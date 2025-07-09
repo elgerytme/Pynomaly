@@ -406,11 +406,88 @@ jobs:
         path: site/
         retention-days: 7
 
-  # Job 6: Validation Summary and PR Comment
+  # Job 6: Enhanced Validation with Rich Output
+  enhanced-validation:
+    name: Enhanced Validation
+    runs-on: ubuntu-latest
+    outputs:
+      enhanced-status: ${{ steps.enhanced-summary.outputs.status }}
+      enhanced-report: ${{ steps.enhanced-summary.outputs.report }}
+      violations-count: ${{ steps.enhanced-summary.outputs.violations-count }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install hatch
+        pip install typer[all] rich requests
+
+    - name: Install project in development mode
+      run: |
+        hatch env create dev
+        hatch env run dev:pip install -e ".[cli]"
+
+    - name: Run enhanced validation
+      id: enhanced-validation
+      run: |
+        # Set environment variables for GitHub integration
+        export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+        export GITHUB_REPOSITORY="${{ github.repository }}"
+        export GITHUB_PR_NUMBER="${{ github.event.number }}"
+        export CI=true
+        
+        # Run validation with rich output and GitHub comment
+        hatch env run dev:python -m pynomaly.presentation.cli.app validate run \
+          --github-comment \
+          --format rich \
+          --save enhanced-validation-report.json || echo "validation_failed=true" >> $GITHUB_OUTPUT
+      continue-on-error: true
+
+    - name: Enhanced validation summary
+      id: enhanced-summary
+      run: |
+        if [ -f enhanced-validation-report.json ]; then
+          PASSED=$(jq -r '.passed' enhanced-validation-report.json)
+          VIOLATION_COUNT=$(jq -r '.violations | length' enhanced-validation-report.json)
+          
+          echo "violations-count=$VIOLATION_COUNT" >> $GITHUB_OUTPUT
+          
+          if [ "$PASSED" = "true" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "report=✅ Enhanced validation passed" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "report=❌ Enhanced validation failed with $VIOLATION_COUNT violations" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "status=failure" >> $GITHUB_OUTPUT
+          echo "report=❌ Enhanced validation report not generated" >> $GITHUB_OUTPUT
+          echo "violations-count=0" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Upload enhanced validation report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: enhanced-validation-report
+        path: enhanced-validation-report.json
+        retention-days: 30
+
+  # Job 7: Validation Summary and PR Comment
   validation-summary:
     name: Validation Summary
     runs-on: ubuntu-latest
-    needs: [quality-checks, build-validation, test-validation, security-validation, documentation-validation]
+    needs: [quality-checks, build-validation, test-validation, security-validation, documentation-validation, enhanced-validation]
     if: always()
 
     steps:
@@ -424,12 +501,13 @@ jobs:
         BUILD_STATUS="${{ needs.build-validation.outputs.build-status }}"
         SECURITY_STATUS="${{ needs.security-validation.outputs.security-status }}"
         DOCS_STATUS="${{ needs.documentation-validation.outputs.docs-status }}"
+        ENHANCED_STATUS="${{ needs.enhanced-validation.outputs.enhanced-status }}"
         
         # Check test results (matrix job)
         TEST_RESULTS="${{ needs.test-validation.result }}"
         
         # Determine overall status
-        if [[ "$QUALITY_STATUS" == "success" && "$BUILD_STATUS" == "success" && "$TEST_RESULTS" == "success" && "$SECURITY_STATUS" == "success" && "$DOCS_STATUS" == "success" ]]; then
+        if [[ "$QUALITY_STATUS" == "success" && "$BUILD_STATUS" == "success" && "$TEST_RESULTS" == "success" && "$SECURITY_STATUS" == "success" && "$DOCS_STATUS" == "success" && "$ENHANCED_STATUS" == "success" ]]; then
           OVERALL_STATUS="✅ PASSED"
           MERGE_READY="true"
         else
@@ -456,6 +534,7 @@ jobs:
         | Test Suite | ${{ needs.test-validation.result == 'success' && '✅ Passed' || '❌ Failed' }} | Unit & Integration tests with coverage |
         | Security Scan | ${{ needs.security-validation.outputs.security-status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ needs.security-validation.outputs.security-report }} |
         | Documentation | ${{ needs.documentation-validation.outputs.docs-status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ needs.documentation-validation.outputs.docs-report }} |
+        | Enhanced Validation | ${{ needs.enhanced-validation.outputs.enhanced-status == 'success' && '✅ Passed' || '❌ Failed' }} | ${{ needs.enhanced-validation.outputs.enhanced-report }} |
         
         ## 🎯 Coverage Requirements
         

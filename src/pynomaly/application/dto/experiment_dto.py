@@ -24,8 +24,7 @@ class RunDTO(BaseModel):
 class ExperimentDTO(BaseModel):
     """DTO for experiment."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: str
     name: str
@@ -48,8 +47,7 @@ class CreateExperimentDTO(BaseModel):
 class LeaderboardEntryDTO(BaseModel):
     """DTO for leaderboard entries."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     rank: int
     experiment_id: str
@@ -65,8 +63,7 @@ class LeaderboardEntryDTO(BaseModel):
 class ExperimentResponseDTO(BaseModel):
     """DTO for experiment API responses."""
     
-    model_config = ConfigDict(extra="forbid")
-     model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
 
     id: str
     name: str

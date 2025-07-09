@@ -96,8 +96,8 @@ class OptionalServiceManager:
         # Authentication services
         self._register_service(
             "jwt_auth_service",
-            "pynomaly.infrastructure.auth.jwt_auth",
-            "JWTAuthService",
+            "pynomaly.infrastructure.auth.jwt_auth_enhanced",
+            "EnhancedJWTAuthService",
         )
         self._register_service(
             "permission_checker",
@@ -501,9 +501,7 @@ class Container(containers.DeclarativeContainer):
             cls.jwt_auth_service = service_manager.create_provider(
                 "jwt_auth_service",
                 "singleton",
-                secret_key=cls.config.provided.secret_key,
-                algorithm=cls.config.provided.jwt_algorithm,
-                access_token_expire_minutes=cls.config.provided.jwt_expiration,
+                settings=cls.config,
             )
 
         if service_manager.is_available("permission_checker"):

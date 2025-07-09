@@ -1,0 +1,536 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened, ready_for_review]
+  push:
+    branches: [main, develop]
+
+env:
+  PYTHON_VERSION: "3.11"
+  UV_CACHE_DIR: /tmp/.uv-cache
+  PYTEST_TIMEOUT: 300
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+concurrency:
+  group: pr-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Skip if PR is draft
+  check-draft:
+    runs-on: ubuntu-latest
+    outputs:
+      is_draft: ${{ steps.check.outputs.is_draft }}
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.event.pull_request.draft }}" == "true" ]]; then
+            echo "is_draft=true" >> $GITHUB_OUTPUT
+            echo "PR is draft, skipping validation"
+          else
+            echo "is_draft=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Quality Gates - Lint and Type Checking
+  quality-gates:
+    runs-on: ubuntu-latest
+    needs: check-draft
+    if: needs.check-draft.outputs.is_draft != 'true'
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[lint,test]"
+
+      - name: Cache pre-commit
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Run pre-commit
+        run: |
+          uv pip install pre-commit
+          pre-commit run --all-files --show-diff-on-failure
+
+      - name: Run Ruff (linting)
+        run: uv run ruff check . --output-format=github
+
+      - name: Run Ruff (formatting)
+        run: uv run ruff format --check .
+
+      - name: Run Black (formatting check)
+        run: uv run black --check --diff .
+
+      - name: Run isort (import sorting)
+        run: uv run isort --check-only --diff .
+
+      - name: Run mypy (type checking)
+        run: uv run mypy src/pynomaly tests --config-file pyproject.toml
+
+      - name: Run Bandit (security linting)
+        run: uv run bandit -r src/pynomaly -f json -o bandit-report.json || true
+
+      - name: Upload Bandit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bandit-report
+          path: bandit-report.json
+
+      - name: Run Safety (dependency vulnerability check)
+        run: uv run safety check --json --output safety-report.json || true
+
+      - name: Upload Safety results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: safety-report
+          path: safety-report.json
+
+  # Unit Tests
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: [check-draft, quality-gates]
+    if: needs.check-draft.outputs.is_draft != 'true'
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[test,minimal]"
+
+      - name: Run unit tests
+        run: |
+          uv run pytest tests/ -m "not integration and not e2e" \
+            --cov=pynomaly \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-report=term-missing \
+            --cov-fail-under=85 \
+            --junit-xml=test-results.xml \
+            --tb=short \
+            -v
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            test-results.xml
+            htmlcov/
+            coverage.xml
+
+  # Integration Tests
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: [check-draft, quality-gates]
+    if: needs.check-draft.outputs.is_draft != 'true'
+    timeout-minutes: 30
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[test,server,caching]"
+
+      - name: Run integration tests
+        run: |
+          uv run pytest tests/ -m "integration" \
+            --cov=pynomaly \
+            --cov-report=xml \
+            --cov-append \
+            --junit-xml=integration-test-results.xml \
+            --tb=short \
+            -v
+
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: |
+            integration-test-results.xml
+            coverage.xml
+
+  # Performance Tests
+  performance-tests:
+    runs-on: ubuntu-latest
+    needs: [check-draft, quality-gates]
+    if: needs.check-draft.outputs.is_draft != 'true'
+    timeout-minutes: 25
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[test,ml]"
+
+      - name: Run performance tests
+        run: |
+          uv run pytest tests/ -m "performance" \
+            --benchmark-only \
+            --benchmark-json=benchmark-results.json \
+            --tb=short \
+            -v
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-results
+          path: benchmark-results.json
+
+  # Documentation Tests
+  docs-tests:
+    runs-on: ubuntu-latest
+    needs: [check-draft, quality-gates]
+    if: needs.check-draft.outputs.is_draft != 'true'
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[docs]"
+
+      - name: Build documentation
+        run: |
+          uv run mkdocs build --strict --verbose
+
+      - name: Test documentation links
+        run: |
+          # Test internal links
+          uv run python -m http.server 8000 --directory site &
+          sleep 2
+          curl -f http://localhost:8000/ || exit 1
+          kill %1
+
+  # Security Scanning
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: [check-draft, quality-gates]
+    if: needs.check-draft.outputs.is_draft != 'true'
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[lint,test]"
+
+      - name: Run Bandit security scan
+        run: |
+          uv run bandit -r src/pynomaly \
+            -f json \
+            -o bandit-security-report.json \
+            --severity-level medium \
+            --confidence-level medium || true
+
+      - name: Run Safety vulnerability scan
+        run: |
+          uv run safety check \
+            --json \
+            --output safety-security-report.json \
+            --ignore 70612 || true  # Ignore known false positives
+
+      - name: Run Semgrep security scan
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: auto
+          generateSarif: "1"
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+      - name: Upload security scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-scan-results
+          path: |
+            bandit-security-report.json
+            safety-security-report.json
+            semgrep.sarif
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+
+  # Dependency License Check
+  license-check:
+    runs-on: ubuntu-latest
+    needs: [check-draft, quality-gates]
+    if: needs.check-draft.outputs.is_draft != 'true'
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: uv venv
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[all]"
+          uv pip install pip-licenses
+
+      - name: Check licenses
+        run: |
+          uv run pip-licenses \
+            --format=json \
+            --output-file=licenses-report.json \
+            --ignore-packages pynomaly
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: licenses-report
+          path: licenses-report.json
+
+  # PR Summary
+  pr-summary:
+    runs-on: ubuntu-latest
+    needs: [
+      check-draft,
+      quality-gates,
+      unit-tests,
+      integration-tests,
+      performance-tests,
+      docs-tests,
+      security-scan,
+      license-check
+    ]
+    if: always() && needs.check-draft.outputs.is_draft != 'true'
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Generate PR summary
+        run: |
+          echo "# PR Validation Summary" > pr-summary.md
+          echo "" >> pr-summary.md
+          echo "## Quality Gates" >> pr-summary.md
+          if [[ "${{ needs.quality-gates.result }}" == "success" ]]; then
+            echo "✅ Quality gates passed" >> pr-summary.md
+          else
+            echo "❌ Quality gates failed" >> pr-summary.md
+          fi
+          echo "" >> pr-summary.md
+          echo "## Tests" >> pr-summary.md
+          if [[ "${{ needs.unit-tests.result }}" == "success" ]]; then
+            echo "✅ Unit tests passed" >> pr-summary.md
+          else
+            echo "❌ Unit tests failed" >> pr-summary.md
+          fi
+          if [[ "${{ needs.integration-tests.result }}" == "success" ]]; then
+            echo "✅ Integration tests passed" >> pr-summary.md
+          else
+            echo "❌ Integration tests failed" >> pr-summary.md
+          fi
+          if [[ "${{ needs.performance-tests.result }}" == "success" ]]; then
+            echo "✅ Performance tests passed" >> pr-summary.md
+          else
+            echo "❌ Performance tests failed" >> pr-summary.md
+          fi
+          echo "" >> pr-summary.md
+          echo "## Documentation" >> pr-summary.md
+          if [[ "${{ needs.docs-tests.result }}" == "success" ]]; then
+            echo "✅ Documentation builds successfully" >> pr-summary.md
+          else
+            echo "❌ Documentation build failed" >> pr-summary.md
+          fi
+          echo "" >> pr-summary.md
+          echo "## Security" >> pr-summary.md
+          if [[ "${{ needs.security-scan.result }}" == "success" ]]; then
+            echo "✅ Security scans passed" >> pr-summary.md
+          else
+            echo "❌ Security scans failed" >> pr-summary.md
+          fi
+          echo "" >> pr-summary.md
+          echo "## Licenses" >> pr-summary.md
+          if [[ "${{ needs.license-check.result }}" == "success" ]]; then
+            echo "✅ License check passed" >> pr-summary.md
+          else
+            echo "❌ License check failed" >> pr-summary.md
+          fi
+
+      - name: Comment PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('pr-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+      - name: Upload PR summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-summary
+          path: pr-summary.md
+
+  # Final Status Check
+  pr-status:
+    runs-on: ubuntu-latest
+    needs: [
+      check-draft,
+      quality-gates,
+      unit-tests,
+      integration-tests,
+      performance-tests,
+      docs-tests,
+      security-scan,
+      license-check
+    ]
+    if: always() && needs.check-draft.outputs.is_draft != 'true'
+    
+    steps:
+      - name: Check all jobs status
+        run: |
+          echo "Quality Gates: ${{ needs.quality-gates.result }}"
+          echo "Unit Tests: ${{ needs.unit-tests.result }}"
+          echo "Integration Tests: ${{ needs.integration-tests.result }}"
+          echo "Performance Tests: ${{ needs.performance-tests.result }}"
+          echo "Docs Tests: ${{ needs.docs-tests.result }}"
+          echo "Security Scan: ${{ needs.security-scan.result }}"
+          echo "License Check: ${{ needs.license-check.result }}"
+          
+          # Check if all jobs passed
+          if [[ "${{ needs.quality-gates.result }}" == "success" && \
+                "${{ needs.unit-tests.result }}" == "success" && \
+                "${{ needs.integration-tests.result }}" == "success" && \
+                "${{ needs.performance-tests.result }}" == "success" && \
+                "${{ needs.docs-tests.result }}" == "success" && \
+                "${{ needs.security-scan.result }}" == "success" && \
+                "${{ needs.license-check.result }}" == "success" ]]; then
+            echo "✅ All PR validation checks passed"
+            exit 0
+          else
+            echo "❌ Some PR validation checks failed"
+            exit 1
+          fi

@@ -494,6 +494,132 @@ def cleanup_environment():
     # Clean up any global state, reset singletons, clear caches, etc.
 
 
+# Contract testing fixtures
+@pytest.fixture
+def contract_schemas():
+    """Provide contract schemas for testing."""
+    return {
+        "dataset_creation_request": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "minLength": 1},
+                "data": {
+                    "type": "array",
+                    "items": {"type": "object"},
+                    "minItems": 1
+                },
+                "description": {"type": "string"}
+            },
+            "required": ["name", "data"]
+        },
+        "dataset_creation_response": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string"},
+                "name": {"type": "string"},
+                "description": {"type": "string"},
+                "created_at": {"type": "string", "format": "date-time"}
+            },
+            "required": ["id", "name"]
+        },
+        "detector_creation_request": {
+            "type": "object",
+            "properties": {
+                "algorithm_name": {"type": "string", "minLength": 1},
+                "parameters": {"type": "object"},
+                "metadata": {"type": "object"}
+            },
+            "required": ["algorithm_name", "parameters"]
+        },
+        "detector_creation_response": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string"},
+                "algorithm_name": {"type": "string"},
+                "parameters": {"type": "object"},
+                "is_fitted": {"type": "boolean"},
+                "created_at": {"type": "string", "format": "date-time"}
+            },
+            "required": ["id", "algorithm_name", "parameters", "is_fitted"]
+        },
+        "anomaly_detection_request": {
+            "type": "object",
+            "properties": {
+                "dataset_id": {"type": "string", "minLength": 1},
+                "detector_id": {"type": "string", "minLength": 1},
+                "parameters": {"type": "object"}
+            },
+            "required": ["dataset_id", "detector_id"]
+        },
+        "anomaly_detection_response": {
+            "type": "object",
+            "properties": {
+                "scores": {"type": "array", "items": {"type": "number"}},
+                "metadata": {"type": "object"},
+                "detector_id": {"type": "string"},
+                "dataset_id": {"type": "string"}
+            },
+            "required": ["scores", "metadata"]
+        },
+        "batch_detection_request": {
+            "type": "object",
+            "properties": {
+                "dataset_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "minItems": 1
+                },
+                "detector_id": {"type": "string", "minLength": 1},
+                "parameters": {"type": "object"}
+            },
+            "required": ["dataset_ids", "detector_id"]
+        },
+        "batch_detection_response": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "scores": {"type": "array", "items": {"type": "number"}},
+                    "metadata": {"type": "object"},
+                    "dataset_id": {"type": "string"}
+                },
+                "required": ["scores", "metadata", "dataset_id"]
+            }
+        },
+        "error_response": {
+            "type": "object",
+            "properties": {
+                "error": {"type": "string"},
+                "message": {"type": "string"},
+                "code": {"type": "integer"},
+                "details": {"type": "object"}
+            },
+            "required": ["error", "message"]
+        },
+        "paginated_response": {
+            "type": "object",
+            "properties": {
+                "items": {"type": "array"},
+                "total": {"type": "integer", "minimum": 0},
+                "page": {"type": "integer", "minimum": 1},
+                "limit": {"type": "integer", "minimum": 1},
+                "has_next": {"type": "boolean"},
+                "has_previous": {"type": "boolean"}
+            },
+            "required": ["items", "total", "page", "limit", "has_next", "has_previous"]
+        },
+        "authentication_error": {
+            "type": "object",
+            "properties": {
+                "error": {"type": "string", "enum": ["unauthorized"]},
+                "message": {"type": "string"},
+                "code": {"type": "integer", "enum": [401]}
+            },
+            "required": ["error", "message", "code"]
+        }
+    }
+
+
 # Pytest configuration and custom markers
 def pytest_configure(config):
     """Configure pytest with custom markers."""
