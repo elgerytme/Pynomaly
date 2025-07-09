@@ -1,6 +1,6 @@
 """Authentication endpoints for API."""
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -212,7 +212,7 @@ async def get_current_user_profile(
 )
 async def create_api_key(
     request: APIKeyRequest,
-    current_user: Annotated[Any | None, Depends(get_current_user_model)],
+    current_user: Annotated[UserModel | None, Depends(get_current_user)],
     auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
 ) -> APIKeyResponse:
     """Create a new API key for the current user.
@@ -261,7 +261,7 @@ async def create_api_key(
 @router.delete("/api-keys/{api_key}")
 async def revoke_api_key(
     api_key: str,
-    current_user: Annotated[Any | None, Depends(get_current_user_model)],
+    current_user: Annotated[UserModel | None, Depends(get_current_user)],
     auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
 ) -> dict:
     """Revoke an API key.

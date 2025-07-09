@@ -426,7 +426,7 @@ def main(
         # Clean without removing IDE files
         python cleanup_repository.py --no-ide
     """
-    console.print("[bold blue]🧹 Repository Cleanup Tool[/bold blue]")
+    console.print("[bold blue]Repository Cleanup Tool[/bold blue]")
     console.print("")
 
     if dry_run:

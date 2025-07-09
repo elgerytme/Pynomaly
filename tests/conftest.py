@@ -59,9 +59,8 @@ except ImportError:
 
 # Import app if available for API testing
 try:
-    # Temporarily disabled to test Issue #33 fix
-    # from pynomaly.presentation.api.app import create_app
-    APP_AVAILABLE = False
+    from pynomaly.presentation.api.app import create_app
+    APP_AVAILABLE = True
 except ImportError:
     APP_AVAILABLE = False
 
