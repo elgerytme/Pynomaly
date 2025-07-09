@@ -11,8 +11,9 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
-from pynomaly.presentation.cli.app import app
 from typer.testing import CliRunner
+
+from pynomaly.presentation.cli.app import app
 
 
 class TestConvertedCommands:
@@ -28,11 +29,13 @@ class TestConvertedCommands:
         """Create a sample dataset for testing."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
             # Create simple anomaly dataset
-            data = pd.DataFrame({
-                "feature_1": [1, 2, 3, 4, 5, 100, 7, 8, 9, 10],
-                "feature_2": [1.1, 2.1, 3.1, 4.1, 5.1, 101.1, 7.1, 8.1, 9.1, 10.1],
-                "feature_3": [0, 1, 0, 1, 0, 0, 1, 0, 1, 0],
-            })
+            data = pd.DataFrame(
+                {
+                    "feature_1": [1, 2, 3, 4, 5, 100, 7, 8, 9, 10],
+                    "feature_2": [1.1, 2.1, 3.1, 4.1, 5.1, 101.1, 7.1, 8.1, 9.1, 10.1],
+                    "feature_3": [0, 1, 0, 1, 0, 0, 1, 0, 1, 0],
+                }
+            )
             data.to_csv(f.name, index=False)
             temp_path = Path(f.name)
 
@@ -72,20 +75,27 @@ class TestConvertedCommands:
         """Test deep-learning frameworks command."""
         mock_feature.return_value = lambda func: func  # Mock decorator
 
-        with patch("pynomaly.application.services.deep_learning_integration_service.DeepLearningIntegrationService") as mock_service:
+        with patch(
+            "pynomaly.application.services.deep_learning_integration_service.DeepLearningIntegrationService"
+        ) as mock_service:
             mock_service.return_value.get_available_frameworks.return_value = {}
 
             result = runner.invoke(app, ["deep-learning", "frameworks"])
 
             # Should not crash and show some output
-            assert result.exit_code == 0 or "No deep learning frameworks available" in result.stdout
+            assert (
+                result.exit_code == 0
+                or "No deep learning frameworks available" in result.stdout
+            )
 
     @patch("pynomaly.infrastructure.config.feature_flags.require_feature")
     def test_deep_learning_info(self, mock_feature, runner):
         """Test deep-learning info command."""
         mock_feature.return_value = lambda func: func  # Mock decorator
 
-        with patch("pynomaly.application.services.deep_learning_integration_service.DeepLearningIntegrationService") as mock_service:
+        with patch(
+            "pynomaly.application.services.deep_learning_integration_service.DeepLearningIntegrationService"
+        ) as mock_service:
             mock_service.return_value.get_available_frameworks.return_value = {}
 
             result = runner.invoke(app, ["deep-learning", "info", "autoencoder"])
@@ -100,7 +110,10 @@ class TestConvertedCommands:
         result = runner.invoke(app, ["explainability", "--help"])
 
         assert result.exit_code == 0
-        assert "explainable ai" in result.stdout.lower() or "model interpretability" in result.stdout.lower()
+        assert (
+            "explainable ai" in result.stdout.lower()
+            or "model interpretability" in result.stdout.lower()
+        )
         assert "explain" in result.stdout
         assert "analyze-bias" in result.stdout
         assert "assess-trust" in result.stdout
@@ -135,7 +148,9 @@ class TestConvertedCommands:
         """Test explainability status command."""
         mock_feature.return_value = lambda func: func  # Mock decorator
 
-        with patch("pynomaly.application.services.advanced_explainability_service.AdvancedExplainabilityService") as mock_service:
+        with patch(
+            "pynomaly.application.services.advanced_explainability_service.AdvancedExplainabilityService"
+        ) as mock_service:
             mock_service.return_value.get_service_info.return_value = {
                 "shap_available": False,
                 "shap_enabled": False,
@@ -211,7 +226,9 @@ class TestConvertedCommands:
 
     def test_selection_status(self, runner):
         """Test selection status command."""
-        with patch("pynomaly.application.services.intelligent_selection_service.IntelligentSelectionService") as mock_service:
+        with patch(
+            "pynomaly.application.services.intelligent_selection_service.IntelligentSelectionService"
+        ) as mock_service:
             mock_service.return_value.get_service_info.return_value = {
                 "meta_learning_enabled": False,
                 "meta_model_trained": False,
@@ -220,7 +237,13 @@ class TestConvertedCommands:
                 "historical_learning_enabled": False,
                 "selection_history_size": 0,
                 "algorithm_count": 5,
-                "available_algorithms": ["IsolationForest", "LOF", "OneClassSVM", "OCSVM", "PCA"],
+                "available_algorithms": [
+                    "IsolationForest",
+                    "LOF",
+                    "OneClassSVM",
+                    "OCSVM",
+                    "PCA",
+                ],
                 "history_path": "/tmp/history.json",
                 "model_path": "/tmp/model.pkl",
             }
@@ -290,7 +313,9 @@ class TestConvertedCommands:
     def test_commands_with_valid_file_paths(self, runner, sample_dataset):
         """Test commands accept valid file paths."""
         # Test that file existence checking works
-        result = runner.invoke(app, ["deep-learning", "train", str(sample_dataset), "--help"])
+        result = runner.invoke(
+            app, ["deep-learning", "train", str(sample_dataset), "--help"]
+        )
         # Should show help since we added --help, but file path should be accepted
         assert result.exit_code == 0
 
@@ -299,7 +324,15 @@ class TestConvertedCommands:
         result = runner.invoke(app, ["deep-learning", "train", "/nonexistent/file.csv"])
         assert result.exit_code != 0
 
-        result = runner.invoke(app, ["explainability", "explain", "/nonexistent/model.pkl", "/nonexistent/data.csv"])
+        result = runner.invoke(
+            app,
+            [
+                "explainability",
+                "explain",
+                "/nonexistent/model.pkl",
+                "/nonexistent/data.csv",
+            ],
+        )
         assert result.exit_code != 0
 
         result = runner.invoke(app, ["selection", "recommend", "/nonexistent/data.csv"])
@@ -313,10 +346,10 @@ def test_cli_imports_successfully():
         from pynomaly.presentation.cli.app import app
 
         # Verify they are Typer apps
-        assert hasattr(deep_learning, 'app')
-        assert hasattr(explainability, 'app')
-        assert hasattr(selection, 'app')
-        assert hasattr(app, 'registered_commands') or hasattr(app, 'commands')
+        assert hasattr(deep_learning, "app")
+        assert hasattr(explainability, "app")
+        assert hasattr(selection, "app")
+        assert hasattr(app, "registered_commands") or hasattr(app, "commands")
 
         return True
     except ImportError as e:

@@ -94,13 +94,13 @@ class JWTAuthService:
         self.password_rotation = PasswordRotationStrategy()
 
         # Security tracking
-        self._failed_login_attempts: dict[
-            str, list
-        ] = {}  # username -> list of attempt timestamps
+        self._failed_login_attempts: dict[str, list] = (
+            {}
+        )  # username -> list of attempt timestamps
         self._blacklisted_tokens: set = set()  # For token revocation
-        self._password_history: dict[
-            str, list
-        ] = {}  # user_id -> list of hashed passwords
+        self._password_history: dict[str, list] = (
+            {}
+        )  # user_id -> list of hashed passwords
 
         # In-memory user store (replace with database in production)
         self._users: dict[str, UserModel] = {}

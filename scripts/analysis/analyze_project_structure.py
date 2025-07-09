@@ -513,7 +513,9 @@ def main():
     print(f"  - Full tree layout: {current_layout_file}")
     print(f"  - Violations report: {violations_file}")
     print(f"  - Detailed analysis: {output_file}")
-    print(f"\n🎯 Found {violations['total_violations']} violations that need attention.")
+    print(
+        f"\n🎯 Found {violations['total_violations']} violations that need attention."
+    )
 
     return analysis
 

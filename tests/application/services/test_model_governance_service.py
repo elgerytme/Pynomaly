@@ -5,8 +5,6 @@ This module provides comprehensive tests for the model governance service,
 ensuring proper model lifecycle management, compliance, and audit capabilities.
 """
 
-
-
 # TODO: Import actual service when implementation is complete
 # from src.pynomaly.application.services.model_governance_service import ModelGovernanceService
 

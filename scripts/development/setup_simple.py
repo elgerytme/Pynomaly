@@ -177,9 +177,7 @@ def main():
     if os.path.exists("requirements.txt"):
         run_command([python_path, "-m", "pip", "install", "-r", "requirements.txt"])
     else:
-        print(
-            "⚠️  requirements.txt not found. Installing core dependencies directly..."
-        )
+        print("⚠️  requirements.txt not found. Installing core dependencies directly...")
         core_deps = [
             "pyod>=2.0.5",
             "numpy>=1.26.0,<2.2.0",

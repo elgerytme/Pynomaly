@@ -15,13 +15,14 @@ def run_server():
     """Run the FastAPI server in a separate process"""
     try:
         # Add src to path for imports
-        sys.path.insert(0, 'src')
+        sys.path.insert(0, "src")
         from pynomaly.presentation.api.app import create_app
 
         app = create_app()
         uvicorn.run(app, host="127.0.0.1", port=8123, log_level="warning")
     except Exception as e:
         print(f"❌ Server startup failed: {e}")
+
 
 def test_endpoints():
     """Test key endpoints to ensure they're working"""
@@ -38,7 +39,9 @@ def test_endpoints():
         if response.status_code == 200:
             test_results.append(("✅ API root endpoint", "PASS"))
         else:
-            test_results.append((f"❌ API root endpoint ({response.status_code})", "FAIL"))
+            test_results.append(
+                (f"❌ API root endpoint ({response.status_code})", "FAIL")
+            )
     except Exception as e:
         test_results.append((f"❌ API root endpoint (error: {e})", "FAIL"))
 
@@ -48,7 +51,9 @@ def test_endpoints():
         if response.status_code == 200:
             test_results.append(("✅ Health endpoint", "PASS"))
         else:
-            test_results.append((f"❌ Health endpoint ({response.status_code})", "FAIL"))
+            test_results.append(
+                (f"❌ Health endpoint ({response.status_code})", "FAIL")
+            )
     except Exception as e:
         test_results.append((f"❌ Health endpoint (error: {e})", "FAIL"))
 
@@ -57,7 +62,7 @@ def test_endpoints():
         response = requests.get(f"{base_url}/api/v1/openapi.json", timeout=5)
         if response.status_code == 200:
             openapi_data = response.json()
-            paths_count = len(openapi_data.get('paths', {}))
+            paths_count = len(openapi_data.get("paths", {}))
             test_results.append((f"✅ OpenAPI docs ({paths_count} endpoints)", "PASS"))
         else:
             test_results.append((f"❌ OpenAPI docs ({response.status_code})", "FAIL"))
@@ -69,15 +74,15 @@ def test_endpoints():
         response = requests.get(f"{base_url}/api/v1/openapi.json", timeout=5)
         if response.status_code == 200:
             openapi_data = response.json()
-            paths = openapi_data.get('paths', {})
+            paths = openapi_data.get("paths", {})
 
             # Check for migrated endpoints
             migrated_endpoints = [
-                '/api/v1/automl/profile',
-                '/api/v1/autonomous/detect',
-                '/api/v1/ensemble/detect',
-                '/api/v1/explainability/explain/prediction',
-                '/api/v1/streaming/sessions'
+                "/api/v1/automl/profile",
+                "/api/v1/autonomous/detect",
+                "/api/v1/ensemble/detect",
+                "/api/v1/explainability/explain/prediction",
+                "/api/v1/streaming/sessions",
             ]
 
             found_endpoints = []
@@ -85,13 +90,19 @@ def test_endpoints():
                 if endpoint in paths:
                     found_endpoints.append(endpoint)
 
-            test_results.append((f"✅ Migrated endpoints ({len(found_endpoints)}/{len(migrated_endpoints)})", "PASS"))
+            test_results.append(
+                (
+                    f"✅ Migrated endpoints ({len(found_endpoints)}/{len(migrated_endpoints)})",
+                    "PASS",
+                )
+            )
         else:
             test_results.append(("❌ Cannot verify migrated endpoints", "FAIL"))
     except Exception as e:
         test_results.append((f"❌ Migrated endpoints check (error: {e})", "FAIL"))
 
     return test_results
+
 
 def main():
     """Main test runner"""
@@ -135,6 +146,7 @@ def main():
         server_process.join(timeout=5)
         if server_process.is_alive():
             server_process.kill()
+
 
 if __name__ == "__main__":
     sys.exit(main())

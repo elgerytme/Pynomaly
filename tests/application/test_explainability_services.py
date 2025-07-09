@@ -5,6 +5,7 @@ from datetime import datetime
 from unittest.mock import Mock, patch
 
 import pytest
+
 from pynomaly.application.dto.explainability_dto import (
     CohortExplanationRequestDTO,
     CohortExplanationResponseDTO,
@@ -18,7 +19,6 @@ from pynomaly.application.dto.explainability_dto import (
 from pynomaly.application.services.explainability_service import ExplainabilityService
 from pynomaly.domain.entities import Anomaly, Dataset, Detector
 from pynomaly.domain.exceptions import ProcessingError, ValidationError
-
 from tests.conftest_dependencies import requires_dependencies
 
 

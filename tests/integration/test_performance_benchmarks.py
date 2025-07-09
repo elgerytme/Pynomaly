@@ -45,6 +45,7 @@ class TestPerformanceBenchmarks:
             )
 
             from pynomaly.domain.models import Detector
+
             detector = Detector(name=f"{algorithm}_latency_benchmark", config=config)
 
             # Train detector
@@ -81,8 +82,9 @@ class TestPerformanceBenchmarks:
             }
 
             # Validate against benchmarks
-            assert avg_latency <= performance_benchmarks["max_detection_latency_ms"], \
-                f"{algorithm} average latency {avg_latency:.2f}ms exceeds benchmark"
+            assert (
+                avg_latency <= performance_benchmarks["max_detection_latency_ms"]
+            ), f"{algorithm} average latency {avg_latency:.2f}ms exceeds benchmark"
 
         # Print results for analysis
         print("\nDetection Latency Benchmark Results:")
@@ -127,6 +129,7 @@ class TestPerformanceBenchmarks:
             )
 
             from pynomaly.domain.models import Detector
+
             detector = Detector(name=f"{algorithm}_memory_benchmark", config=config)
 
             # Measure memory during training
@@ -157,16 +160,21 @@ class TestPerformanceBenchmarks:
             }
 
             # Validate against benchmark
-            assert memory_results[algorithm]["total_memory_mb"] <= \
-                performance_benchmarks["memory_usage_mb"], \
-                f"{algorithm} memory usage exceeds benchmark"
+            assert (
+                memory_results[algorithm]["total_memory_mb"]
+                <= performance_benchmarks["memory_usage_mb"]
+            ), f"{algorithm} memory usage exceeds benchmark"
 
         # Print results for analysis
         print("\nMemory Usage Benchmark Results:")
         for algorithm, results in memory_results.items():
             print(f"{algorithm}:")
-            print(f"  Training memory delta: {results['training_memory_delta_mb']:.2f}MB")
-            print(f"  Detection memory delta: {results['detection_memory_delta_mb']:.2f}MB")
+            print(
+                f"  Training memory delta: {results['training_memory_delta_mb']:.2f}MB"
+            )
+            print(
+                f"  Detection memory delta: {results['detection_memory_delta_mb']:.2f}MB"
+            )
             print(f"  Total memory usage: {results['total_memory_mb']:.2f}MB")
 
     async def test_throughput_benchmark(
@@ -186,11 +194,13 @@ class TestPerformanceBenchmarks:
             data_stream = []
             for i in range(1000):
                 sample = dataset.data[i % len(dataset.data)]
-                data_stream.append({
-                    "data": sample.tolist(),
-                    "sample_id": f"benchmark_sample_{i}",
-                    "timestamp": time.time(),
-                })
+                data_stream.append(
+                    {
+                        "data": sample.tolist(),
+                        "sample_id": f"benchmark_sample_{i}",
+                        "timestamp": time.time(),
+                    }
+                )
 
             # Benchmark throughput
             start_time = time.time()
@@ -213,8 +223,9 @@ class TestPerformanceBenchmarks:
             throughput = len(data_stream) / total_time
 
             # Validate against benchmark
-            assert throughput >= performance_benchmarks["throughput_samples_per_second"], \
-                f"Throughput {throughput:.2f} samples/sec below benchmark"
+            assert (
+                throughput >= performance_benchmarks["throughput_samples_per_second"]
+            ), f"Throughput {throughput:.2f} samples/sec below benchmark"
 
             # Validate all samples were processed
             assert len(results) == len(data_stream), "Not all samples were processed"
@@ -222,7 +233,7 @@ class TestPerformanceBenchmarks:
             # Calculate additional metrics
             processing_times = []
             for i, result in enumerate(results):
-                if hasattr(result, 'processing_time_ms'):
+                if hasattr(result, "processing_time_ms"):
                     processing_times.append(result.processing_time_ms)
 
             if processing_times:
@@ -271,6 +282,7 @@ class TestPerformanceBenchmarks:
             )
 
             from pynomaly.domain.models import Detector
+
             detector = Detector(name=f"cleanup_detector_{i}", config=config)
             await detection_service.train_detector(detector, dataset)
             detectors.append(detector)

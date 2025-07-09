@@ -7,7 +7,8 @@ import sys
 from collections import defaultdict
 
 # Add src to path
-sys.path.insert(0, 'src')
+sys.path.insert(0, "src")
+
 
 def validate_openapi_schema():
     """Validate the OpenAPI schema structure and completeness"""
@@ -21,7 +22,7 @@ def validate_openapi_schema():
         openapi_schema = app.openapi()
 
         # Test 1: Basic schema structure
-        required_fields = ['openapi', 'info', 'paths']
+        required_fields = ["openapi", "info", "paths"]
         for field in required_fields:
             if field in openapi_schema:
                 test_results.append((f"✅ Schema has {field}", "PASS"))
@@ -29,13 +30,20 @@ def validate_openapi_schema():
                 test_results.append((f"❌ Schema missing {field}", "FAIL"))
 
         # Test 2: Paths validation
-        paths = openapi_schema.get('paths', {})
+        paths = openapi_schema.get("paths", {})
         total_endpoints = len(paths)
 
         if total_endpoints >= 125:
-            test_results.append((f"✅ Schema has {total_endpoints} endpoints (target: 125+)", "PASS"))
+            test_results.append(
+                (f"✅ Schema has {total_endpoints} endpoints (target: 125+)", "PASS")
+            )
         else:
-            test_results.append((f"❌ Schema has only {total_endpoints} endpoints (target: 125+)", "FAIL"))
+            test_results.append(
+                (
+                    f"❌ Schema has only {total_endpoints} endpoints (target: 125+)",
+                    "FAIL",
+                )
+            )
 
         # Test 3: Endpoint structure validation
         valid_endpoints = 0
@@ -43,23 +51,31 @@ def validate_openapi_schema():
 
         for path, methods in paths.items():
             for method, details in methods.items():
-                if method in ['get', 'post', 'put', 'delete', 'patch']:
+                if method in ["get", "post", "put", "delete", "patch"]:
                     # Check required fields in endpoint definition
-                    if 'summary' in details or 'description' in details:
+                    if "summary" in details or "description" in details:
                         valid_endpoints += 1
                     else:
                         invalid_endpoints.append(f"{method.upper()} {path}")
 
         if len(invalid_endpoints) == 0:
-            test_results.append((f"✅ All {valid_endpoints} endpoints have proper documentation", "PASS"))
+            test_results.append(
+                (
+                    f"✅ All {valid_endpoints} endpoints have proper documentation",
+                    "PASS",
+                )
+            )
         else:
-            test_results.append((f"❌ {len(invalid_endpoints)} endpoints missing documentation", "FAIL"))
+            test_results.append(
+                (f"❌ {len(invalid_endpoints)} endpoints missing documentation", "FAIL")
+            )
 
         return test_results, openapi_schema
 
     except Exception as e:
         test_results.append((f"❌ Schema validation failed: {str(e)}", "FAIL"))
         return test_results, None
+
 
 def validate_endpoint_schemas():
     """Validate that endpoints have proper request/response schemas"""
@@ -71,36 +87,47 @@ def validate_endpoint_schemas():
 
         app = create_app()
         openapi_schema = app.openapi()
-        paths = openapi_schema.get('paths', {})
+        paths = openapi_schema.get("paths", {})
 
         endpoints_with_schemas = 0
         endpoints_without_schemas = []
 
         for path, methods in paths.items():
             for method, details in methods.items():
-                if method in ['post', 'put', 'patch']:
+                if method in ["post", "put", "patch"]:
                     # POST/PUT/PATCH should have request body schema
-                    if 'requestBody' in details:
+                    if "requestBody" in details:
                         endpoints_with_schemas += 1
                     else:
                         endpoints_without_schemas.append(f"{method.upper()} {path}")
-                elif method in ['get', 'delete']:
+                elif method in ["get", "delete"]:
                     # GET/DELETE should have response schema
-                    if 'responses' in details and '200' in details['responses']:
+                    if "responses" in details and "200" in details["responses"]:
                         endpoints_with_schemas += 1
                     else:
                         endpoints_without_schemas.append(f"{method.upper()} {path}")
 
         if len(endpoints_without_schemas) <= 5:  # Allow some tolerance
-            test_results.append((f"✅ Most endpoints have proper schemas ({endpoints_with_schemas} valid)", "PASS"))
+            test_results.append(
+                (
+                    f"✅ Most endpoints have proper schemas ({endpoints_with_schemas} valid)",
+                    "PASS",
+                )
+            )
         else:
-            test_results.append((f"❌ {len(endpoints_without_schemas)} endpoints missing schemas", "FAIL"))
+            test_results.append(
+                (
+                    f"❌ {len(endpoints_without_schemas)} endpoints missing schemas",
+                    "FAIL",
+                )
+            )
 
         return test_results
 
     except Exception as e:
         test_results.append((f"❌ Schema validation failed: {str(e)}", "FAIL"))
         return test_results
+
 
 def validate_migrated_routers():
     """Validate that all migrated routers are properly included"""
@@ -112,15 +139,15 @@ def validate_migrated_routers():
 
         app = create_app()
         openapi_schema = app.openapi()
-        paths = openapi_schema.get('paths', {})
+        paths = openapi_schema.get("paths", {})
 
         # Expected migrated routers and their endpoints
         expected_routers = {
-            'automl': ['/api/v1/automl/profile', '/api/v1/automl/optimize'],
-            'autonomous': ['/api/v1/autonomous/detect'],
-            'ensemble': ['/api/v1/ensemble/detect', '/api/v1/ensemble/optimize'],
-            'explainability': ['/api/v1/explainability/explain/prediction'],
-            'streaming': ['/api/v1/streaming/sessions']
+            "automl": ["/api/v1/automl/profile", "/api/v1/automl/optimize"],
+            "autonomous": ["/api/v1/autonomous/detect"],
+            "ensemble": ["/api/v1/ensemble/detect", "/api/v1/ensemble/optimize"],
+            "explainability": ["/api/v1/explainability/explain/prediction"],
+            "streaming": ["/api/v1/streaming/sessions"],
         }
 
         router_status = {}
@@ -133,10 +160,22 @@ def validate_migrated_routers():
 
             router_status[router] = (len(found_endpoints), len(expected_endpoints))
 
-            if len(found_endpoints) >= len(expected_endpoints) // 2:  # At least half found
-                test_results.append((f"✅ {router} router: {len(found_endpoints)}/{len(expected_endpoints)} endpoints", "PASS"))
+            if (
+                len(found_endpoints) >= len(expected_endpoints) // 2
+            ):  # At least half found
+                test_results.append(
+                    (
+                        f"✅ {router} router: {len(found_endpoints)}/{len(expected_endpoints)} endpoints",
+                        "PASS",
+                    )
+                )
             else:
-                test_results.append((f"❌ {router} router: {len(found_endpoints)}/{len(expected_endpoints)} endpoints", "FAIL"))
+                test_results.append(
+                    (
+                        f"❌ {router} router: {len(found_endpoints)}/{len(expected_endpoints)} endpoints",
+                        "FAIL",
+                    )
+                )
 
         return test_results
 
@@ -144,17 +183,18 @@ def validate_migrated_routers():
         test_results.append((f"❌ Router validation failed: {str(e)}", "FAIL"))
         return test_results
 
+
 def analyze_endpoint_coverage(openapi_schema):
     """Analyze endpoint coverage by router"""
     if not openapi_schema:
         return []
 
-    paths = openapi_schema.get('paths', {})
+    paths = openapi_schema.get("paths", {})
     router_coverage = defaultdict(list)
 
     for path in paths:
-        if path.startswith('/api/v1/'):
-            parts = path.split('/')
+        if path.startswith("/api/v1/"):
+            parts = path.split("/")
             if len(parts) > 3:
                 router = parts[3]
                 router_coverage[router].append(path)
@@ -167,6 +207,7 @@ def analyze_endpoint_coverage(openapi_schema):
         analysis.append(f"  • {router}: {len(endpoints)} endpoints ({percentage:.1f}%)")
 
     return analysis
+
 
 def validate_auth_consistency():
     """Validate that auth dependencies are consistently applied"""
@@ -185,6 +226,7 @@ def validate_auth_consistency():
     except Exception as e:
         test_results.append((f"❌ Auth consistency check failed: {str(e)}", "FAIL"))
         return test_results
+
 
 def main():
     """Main validation runner"""
@@ -242,6 +284,7 @@ def main():
     else:
         print(f"\n⚠️  {failed} validation tests failed.")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

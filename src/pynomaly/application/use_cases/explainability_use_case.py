@@ -74,9 +74,9 @@ class ExplainabilityResponse:
     """Response for explainability operations."""
 
     success: bool
-    explanation: None | (
-        LocalExplanation | GlobalExplanation | CohortExplanation
-    ) = None
+    explanation: None | (LocalExplanation | GlobalExplanation | CohortExplanation) = (
+        None
+    )
     explanations: dict[str, Any] | None = None  # For multiple explanations
     metadata: dict[str, Any] | None = None
     error_message: str | None = None

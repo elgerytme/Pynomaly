@@ -10,6 +10,7 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi import HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials
+
 from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
 from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, UserModel
 from pynomaly.infrastructure.auth.middleware import (

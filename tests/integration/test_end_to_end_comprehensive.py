@@ -17,12 +17,13 @@ import psutil
 import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
+from typer.testing import CliRunner
+
 from pynomaly.application.use_cases import DetectAnomalies, TrainDetector
 from pynomaly.infrastructure.config import create_container
 from pynomaly.presentation.api.app import create_app
 from pynomaly.presentation.cli.app import app as cli_app
 from pynomaly.presentation.web.app import create_web_app
-from typer.testing import CliRunner
 
 
 @pytest.fixture(scope="session")

@@ -20,6 +20,7 @@ import pytest
 try:
     from pynomaly.domain.entities import Dataset, DetectionResult, Detector
     from pynomaly.domain.value_objects import AnomalyScore
+
     DOMAIN_ENTITIES_AVAILABLE = True
 except ImportError:
     DOMAIN_ENTITIES_AVAILABLE = False
@@ -160,8 +161,12 @@ class TestDataGenerator:
         anomaly_numerical = np.random.randn(n_anomalies, 3) * 3 + 2
 
         # Categorical features
-        normal_categories = np.random.choice(["A", "B", "C"], size=n_normal, p=[0.5, 0.3, 0.2])
-        anomaly_categories = np.random.choice(["D", "E"], size=n_anomalies)  # Different categories
+        normal_categories = np.random.choice(
+            ["A", "B", "C"], size=n_normal, p=[0.5, 0.3, 0.2]
+        )
+        anomaly_categories = np.random.choice(
+            ["D", "E"], size=n_anomalies
+        )  # Different categories
 
         # Combine data
         X_num = np.vstack([normal_numerical, anomaly_numerical])
@@ -175,7 +180,9 @@ class TestDataGenerator:
         y = y[indices]
 
         # Create DataFrame
-        df = pd.DataFrame(X_num, columns=["num_feature_1", "num_feature_2", "num_feature_3"])
+        df = pd.DataFrame(
+            X_num, columns=["num_feature_1", "num_feature_2", "num_feature_3"]
+        )
         df["category"] = X_cat
 
         return df, y
@@ -219,11 +226,13 @@ class MockFactory:
             dataset.features = list(data.columns)
         else:
             # Default small dataset
-            default_data = pd.DataFrame({
-                "feature_1": np.random.randn(100),
-                "feature_2": np.random.randn(100),
-                "feature_3": np.random.randn(100),
-            })
+            default_data = pd.DataFrame(
+                {
+                    "feature_1": np.random.randn(100),
+                    "feature_2": np.random.randn(100),
+                    "feature_3": np.random.randn(100),
+                }
+            )
             dataset.data = default_data
             dataset.features = ["feature_1", "feature_2", "feature_3"]
 
@@ -255,6 +264,7 @@ class TemporaryStorageManager:
     def cleanup_all(self):
         """Clean up all created temporary directories."""
         import shutil
+
         for temp_dir in self._temp_dirs:
             if temp_dir.exists():
                 shutil.rmtree(temp_dir, ignore_errors=True)
@@ -275,7 +285,9 @@ class AsyncTestHelper:
         return loop.run_until_complete(coro)
 
     @staticmethod
-    async def wait_for_condition(condition_func, timeout: float = 5.0, check_interval: float = 0.1):
+    async def wait_for_condition(
+        condition_func, timeout: float = 5.0, check_interval: float = 0.1
+    ):
         """Wait for a condition to become true with timeout."""
         start_time = asyncio.get_event_loop().time()
         while asyncio.get_event_loop().time() - start_time < timeout:
@@ -289,7 +301,9 @@ class TestAssertions:
     """Common assertion helpers for tests."""
 
     @staticmethod
-    def assert_dataframe_equal(df1: pd.DataFrame, df2: pd.DataFrame, check_dtype: bool = True):
+    def assert_dataframe_equal(
+        df1: pd.DataFrame, df2: pd.DataFrame, check_dtype: bool = True
+    ):
         """Assert that two DataFrames are equal with detailed error messages."""
         try:
             pd.testing.assert_frame_equal(df1, df2, check_dtype=check_dtype)
@@ -304,7 +318,9 @@ class TestAssertions:
     @staticmethod
     def assert_score_in_range(score: float, min_val: float = 0.0, max_val: float = 1.0):
         """Assert that a score is within the expected range."""
-        assert min_val <= score <= max_val, f"Score {score} not in range [{min_val}, {max_val}]"
+        assert (
+            min_val <= score <= max_val
+        ), f"Score {score} not in range [{min_val}, {max_val}]"
 
     @staticmethod
     def assert_async_mock_called_with(mock: AsyncMock, *args, **kwargs):
@@ -332,7 +348,9 @@ class ConfigurationHelper:
         return default_settings
 
     @staticmethod
-    def create_algorithm_config(algorithm_name: str = "IsolationForest", **params) -> dict[str, Any]:
+    def create_algorithm_config(
+        algorithm_name: str = "IsolationForest", **params
+    ) -> dict[str, Any]:
         """Create algorithm configuration for testing."""
         default_params = {
             "contamination": 0.1,
@@ -347,7 +365,7 @@ class ConfigurationHelper:
             "validation": {
                 "enabled": True,
                 "cross_validation": False,
-            }
+            },
         }
 
 

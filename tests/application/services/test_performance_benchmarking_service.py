@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, patch
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.application.services.performance_benchmarking_service import (
     BenchmarkConfig,
     BenchmarkSuite,

@@ -307,7 +307,9 @@ async def test_drift_detection_integration():
         curr_sample = np.random.randn(500) + 1.0
 
         ks_stat, ks_p = stat_detector.kolmogorov_smirnov_test(ref_sample, curr_sample)
-        print(f"✅ Kolmogorov-Smirnov test: statistic={ks_stat:.3f}, p-value={ks_p:.6f}")
+        print(
+            f"✅ Kolmogorov-Smirnov test: statistic={ks_stat:.3f}, p-value={ks_p:.6f}"
+        )
 
         # Test Jensen-Shannon divergence
         js_div = stat_detector.jensen_shannon_divergence(ref_sample, curr_sample)

@@ -25,6 +25,7 @@ import time
 
 import numpy as np
 import pandas as pd
+
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
@@ -310,7 +311,9 @@ def tutorial_03_automl_selection(dataset, true_labels):
     """Tutorial 3: AutoML for Algorithm Selection."""
     print_section("Tutorial 3: AutoML Algorithm Selection")
 
-    print("🎯 Learning Objective: Use AutoML to automatically select the best algorithm")
+    print(
+        "🎯 Learning Objective: Use AutoML to automatically select the best algorithm"
+    )
     print("📝 AutoML will test multiple algorithms and hyperparameters automatically")
 
     # Simple AutoML implementation (inline for this tutorial)

@@ -544,9 +544,7 @@ class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):
         else:
             return inspector.get_table_names()
 
-    def list_schemas(
-        self, connection: str | sa.Engine | None = None
-    ) -> list[str]:
+    def list_schemas(self, connection: str | sa.Engine | None = None) -> list[str]:
         """List all schemas in the database.
 
         Args:

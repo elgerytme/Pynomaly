@@ -7,13 +7,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pynomaly.shared.types import TenantId, UserId
 
 
 class IntegrationType(str, Enum):
     """Types of supported integrations."""
+
     SLACK = "slack"
     PAGERDUTY = "pagerduty"
     TEAMS = "teams"
@@ -30,6 +31,7 @@ class IntegrationType(str, Enum):
 
 class IntegrationStatus(str, Enum):
     """Integration status."""
+
     ACTIVE = "active"
     INACTIVE = "inactive"
     ERROR = "error"
@@ -39,6 +41,7 @@ class IntegrationStatus(str, Enum):
 
 class NotificationLevel(str, Enum):
     """Notification severity levels."""
+
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
@@ -47,6 +50,7 @@ class NotificationLevel(str, Enum):
 
 class TriggerType(str, Enum):
     """Types of triggers that can activate integrations."""
+
     ANOMALY_DETECTED = "anomaly_detected"
     SYSTEM_ERROR = "system_error"
     THRESHOLD_EXCEEDED = "threshold_exceeded"
@@ -60,9 +64,10 @@ class TriggerType(str, Enum):
 @dataclass
 class IntegrationCredentials:
     """Secure storage for integration credentials."""
+
     encrypted_data: str
     encryption_key_id: str
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     scopes: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -70,6 +75,7 @@ class IntegrationCredentials:
 @dataclass
 class IntegrationConfig:
     """Configuration for a specific integration."""
+
     # Basic settings
     enabled: bool = True
     notification_levels: list[NotificationLevel] = field(default_factory=list)
@@ -82,8 +88,8 @@ class IntegrationConfig:
     rate_limit_per_minute: int = 60
 
     # Content settings
-    template_id: Optional[str] = None
-    custom_template: Optional[str] = None
+    template_id: str | None = None
+    custom_template: str | None = None
     include_charts: bool = False
     include_raw_data: bool = False
 
@@ -97,6 +103,7 @@ class IntegrationConfig:
 @dataclass
 class Integration:
     """Third-party integration entity."""
+
     id: str
     name: str
     integration_type: IntegrationType
@@ -104,11 +111,11 @@ class Integration:
     created_by: UserId
     status: IntegrationStatus
     config: IntegrationConfig
-    credentials: Optional[IntegrationCredentials] = None
+    credentials: IntegrationCredentials | None = None
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
-    last_triggered: Optional[datetime] = None
-    last_error: Optional[str] = None
+    last_triggered: datetime | None = None
+    last_error: str | None = None
     trigger_count: int = 0
     success_count: int = 0
     error_count: int = 0
@@ -123,32 +130,33 @@ class Integration:
     def is_healthy(self) -> bool:
         """Check if integration is healthy."""
         return (
-            self.status == IntegrationStatus.ACTIVE and
-            self.success_rate >= 90.0 and
-            self.error_count < 10
+            self.status == IntegrationStatus.ACTIVE
+            and self.success_rate >= 90.0
+            and self.error_count < 10
         )
 
 
 @dataclass
 class NotificationPayload:
     """Payload for sending notifications."""
+
     trigger_type: TriggerType
     level: NotificationLevel
     title: str
     message: str
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    tenant_id: Optional[TenantId] = None
-    user_id: Optional[UserId] = None
+    tenant_id: TenantId | None = None
+    user_id: UserId | None = None
     data: dict[str, Any] = field(default_factory=dict)
     attachments: list[dict[str, Any]] = field(default_factory=list)
 
     def to_slack_format(self) -> dict[str, Any]:
         """Convert to Slack message format."""
         color_map = {
-            NotificationLevel.INFO: "#36a64f",      # Green
-            NotificationLevel.WARNING: "#ff9500",   # Orange
-            NotificationLevel.ERROR: "#ff0000",     # Red
-            NotificationLevel.CRITICAL: "#8b0000"   # Dark red
+            NotificationLevel.INFO: "#36a64f",  # Green
+            NotificationLevel.WARNING: "#ff9500",  # Orange
+            NotificationLevel.ERROR: "#ff0000",  # Red
+            NotificationLevel.CRITICAL: "#8b0000",  # Dark red
         }
 
         return {
@@ -157,33 +165,30 @@ class NotificationPayload:
                 {
                     "color": color_map.get(self.level, "#36a64f"),
                     "fields": [
-                        {
-                            "title": "Message",
-                            "value": self.message,
-                            "short": False
-                        },
+                        {"title": "Message", "value": self.message, "short": False},
                         {
                             "title": "Level",
                             "value": self.level.value.upper(),
-                            "short": True
+                            "short": True,
                         },
                         {
                             "title": "Time",
                             "value": self.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC"),
-                            "short": True
-                        }
-                    ]
+                            "short": True,
+                        },
+                    ],
                 }
-            ] + self.attachments
+            ]
+            + self.attachments,
         }
 
     def to_teams_format(self) -> dict[str, Any]:
         """Convert to Microsoft Teams message format."""
         theme_color_map = {
-            NotificationLevel.INFO: "0078D4",      # Blue
-            NotificationLevel.WARNING: "FF8C00",   # Orange
-            NotificationLevel.ERROR: "DC143C",     # Crimson
-            NotificationLevel.CRITICAL: "8B0000"   # Dark red
+            NotificationLevel.INFO: "0078D4",  # Blue
+            NotificationLevel.WARNING: "FF8C00",  # Orange
+            NotificationLevel.ERROR: "DC143C",  # Crimson
+            NotificationLevel.CRITICAL: "8B0000",  # Dark red
         }
 
         return {
@@ -197,17 +202,14 @@ class NotificationPayload:
                     "activitySubtitle": f"Level: {self.level.value.upper()}",
                     "activityImage": "https://example.com/pynomaly-icon.png",
                     "facts": [
-                        {
-                            "name": "Message",
-                            "value": self.message
-                        },
+                        {"name": "Message", "value": self.message},
                         {
                             "name": "Time",
-                            "value": self.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC")
-                        }
-                    ]
+                            "value": self.timestamp.strftime("%Y-%m-%d %H:%M:%S UTC"),
+                        },
+                    ],
                 }
-            ]
+            ],
         }
 
     def to_pagerduty_format(self) -> dict[str, Any]:
@@ -216,7 +218,7 @@ class NotificationPayload:
             NotificationLevel.INFO: "info",
             NotificationLevel.WARNING: "warning",
             NotificationLevel.ERROR: "error",
-            NotificationLevel.CRITICAL: "critical"
+            NotificationLevel.CRITICAL: "critical",
         }
 
         return {
@@ -229,10 +231,10 @@ class NotificationPayload:
                     "message": self.message,
                     "trigger_type": self.trigger_type.value,
                     "tenant_id": str(self.tenant_id) if self.tenant_id else None,
-                    **self.data
-                }
+                    **self.data,
+                },
             },
-            "event_action": "trigger"
+            "event_action": "trigger",
         }
 
     def to_webhook_format(self) -> dict[str, Any]:
@@ -247,13 +249,14 @@ class NotificationPayload:
             "tenant_id": str(self.tenant_id) if self.tenant_id else None,
             "user_id": str(self.user_id) if self.user_id else None,
             "data": self.data,
-            "attachments": self.attachments
+            "attachments": self.attachments,
         }
 
 
 @dataclass
 class NotificationTemplate:
     """Template for formatting notifications."""
+
     id: str
     name: str
     integration_type: IntegrationType
@@ -276,22 +279,23 @@ class NotificationTemplate:
         except KeyError as e:
             return {
                 "title": "Template Error",
-                "message": f"Missing template variable: {e}"
+                "message": f"Missing template variable: {e}",
             }
 
 
 @dataclass
 class NotificationHistory:
     """History record of sent notifications."""
+
     id: str
     integration_id: str
     payload: NotificationPayload
     response_status: int
     response_body: str
     sent_at: datetime = field(default_factory=datetime.utcnow)
-    delivery_time_ms: Optional[int] = None
+    delivery_time_ms: int | None = None
     retry_count: int = 0
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
     @property
     def was_successful(self) -> bool:
@@ -312,7 +316,7 @@ DEFAULT_TEMPLATES = {
             tenant_id="",  # Will be set per tenant
             created_by="",  # System template
             is_default=True,
-            variables=["dataset_name", "anomaly_count", "detector_name", "confidence"]
+            variables=["dataset_name", "anomaly_count", "detector_name", "confidence"],
         ),
         TriggerType.SYSTEM_ERROR: NotificationTemplate(
             id="slack_error_default",
@@ -324,8 +328,8 @@ DEFAULT_TEMPLATES = {
             tenant_id="",
             created_by="",
             is_default=True,
-            variables=["error_message", "component", "timestamp"]
-        )
+            variables=["error_message", "component", "timestamp"],
+        ),
     },
     IntegrationType.PAGERDUTY: {
         TriggerType.ANOMALY_DETECTED: NotificationTemplate(
@@ -338,7 +342,7 @@ DEFAULT_TEMPLATES = {
             tenant_id="",
             created_by="",
             is_default=True,
-            variables=["dataset_name", "confidence"]
+            variables=["dataset_name", "confidence"],
         )
     },
     IntegrationType.TEAMS: {
@@ -352,22 +356,23 @@ DEFAULT_TEMPLATES = {
             tenant_id="",
             created_by="",
             is_default=True,
-            variables=["dataset_name", "anomaly_count", "detector_name"]
+            variables=["dataset_name", "anomaly_count", "detector_name"],
         )
-    }
+    },
 }
 
 
 @dataclass
 class IntegrationMetrics:
     """Metrics for integration performance."""
+
     integration_id: str
     total_notifications: int = 0
     successful_notifications: int = 0
     failed_notifications: int = 0
     average_delivery_time_ms: float = 0.0
-    last_success: Optional[datetime] = None
-    last_failure: Optional[datetime] = None
+    last_success: datetime | None = None
+    last_failure: datetime | None = None
     uptime_percentage: float = 100.0
     rate_limit_hits: int = 0
 

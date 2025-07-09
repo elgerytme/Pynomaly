@@ -8,7 +8,7 @@ from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -41,7 +41,7 @@ class ModelArm(BaseModel):
     total_rewards: float = 0.0
     total_pulls: int = 0
     recent_rewards: list[float] = Field(default_factory=list)
-    last_selected: Optional[datetime] = None
+    last_selected: datetime | None = None
     confidence_intervals: tuple[float, float] = (0.0, 1.0)
     context_features: dict[str, float] = Field(default_factory=dict)
 
@@ -126,7 +126,7 @@ class RealTimeEnsembleOptimizer:
 
         # Performance tracking
         self.performance_history: deque = deque(maxlen=optimization_window)
-        self.current_ensemble: Optional[list[Detector]] = None
+        self.current_ensemble: list[Detector] | None = None
         self.ensemble_weights: dict[str, float] = {}
 
         # Optimization state
@@ -135,7 +135,7 @@ class RealTimeEnsembleOptimizer:
         self.optimization_interval = timedelta(minutes=5)
 
         # Context tracking for contextual bandits
-        self.current_context: Optional[DataContext] = None
+        self.current_context: DataContext | None = None
         self.context_history: deque = deque(maxlen=100)
 
         # Drift detection state
@@ -177,7 +177,7 @@ class RealTimeEnsembleOptimizer:
         return ensemble
 
     async def predict_with_optimization(
-        self, data: Dataset, feedback: Optional[np.ndarray] = None
+        self, data: Dataset, feedback: np.ndarray | None = None
     ) -> tuple[np.ndarray, dict[str, Any]]:
         """Make predictions while optimizing ensemble in real-time.
 
@@ -738,9 +738,9 @@ class RealTimeEnsembleOptimizer:
                 arm_performances[arm_id] = combined_performance
                 total_performance += combined_performance
             else:
-                arm_performances[
-                    arm_id
-                ] = 0.1  # Small default weight for unexplored arms
+                arm_performances[arm_id] = (
+                    0.1  # Small default weight for unexplored arms
+                )
                 total_performance += 0.1
 
         # Normalize weights
@@ -968,9 +968,7 @@ class RealTimeEnsembleOptimizer:
                     "trend": (
                         "increasing"
                         if trend > 0.01
-                        else "decreasing"
-                        if trend < -0.01
-                        else "stable"
+                        else "decreasing" if trend < -0.01 else "stable"
                     ),
                     "slope": trend,
                     "current_value": values[-1],

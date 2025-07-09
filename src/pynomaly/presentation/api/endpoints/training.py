@@ -9,7 +9,7 @@ Provides endpoints for:
 
 import logging
 from datetime import UTC, datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -39,7 +39,7 @@ class StartTrainingRequest(BaseModel):
 
     detector_id: UUID = Field(description="ID of detector to train")
     dataset_id: str = Field(description="ID of dataset to use for training")
-    experiment_name: Optional[str] = Field(None, description="Optional experiment name")
+    experiment_name: str | None = Field(None, description="Optional experiment name")
 
     # AutoML settings
     enable_automl: bool = Field(True, description="Enable AutoML optimization")
@@ -63,15 +63,15 @@ class StartTrainingRequest(BaseModel):
     )
     cv_folds: int = Field(3, ge=2, le=10, description="Cross-validation folds")
     enable_early_stopping: bool = Field(True, description="Enable early stopping")
-    max_training_time: Optional[int] = Field(
+    max_training_time: int | None = Field(
         None, ge=60, description="Maximum training time in seconds"
     )
 
     # Resource constraints
-    max_memory_mb: Optional[int] = Field(
+    max_memory_mb: int | None = Field(
         None, ge=512, description="Maximum memory usage in MB"
     )
-    max_cpu_cores: Optional[int] = Field(
+    max_cpu_cores: int | None = Field(
         None, ge=1, description="Maximum CPU cores to use"
     )
     enable_gpu: bool = Field(False, description="Enable GPU acceleration")
@@ -82,10 +82,10 @@ class ScheduleTrainingRequest(BaseModel):
 
     detector_id: UUID = Field(description="ID of detector to train")
     dataset_id: str = Field(description="ID of dataset to use for training")
-    experiment_name: Optional[str] = Field(None, description="Optional experiment name")
+    experiment_name: str | None = Field(None, description="Optional experiment name")
 
     # Scheduling settings
-    schedule_cron: Optional[str] = Field(
+    schedule_cron: str | None = Field(
         None, description="Cron expression for scheduling"
     )
     retrain_threshold: float = Field(
@@ -113,9 +113,7 @@ class UpdatePerformanceRequest(BaseModel):
     detector_id: UUID = Field(description="ID of detector")
     score: float = Field(ge=0.0, le=1.0, description="Performance score (0-1)")
     metric_name: str = Field("auc", description="Name of the performance metric")
-    timestamp: Optional[datetime] = Field(
-        None, description="Timestamp of the measurement"
-    )
+    timestamp: datetime | None = Field(None, description="Timestamp of the measurement")
 
 
 class TrainingProgressResponse(BaseModel):
@@ -126,21 +124,21 @@ class TrainingProgressResponse(BaseModel):
     current_step: str
     progress_percentage: float
     start_time: datetime
-    estimated_completion: Optional[datetime] = None
+    estimated_completion: datetime | None = None
 
     # Current metrics
-    current_algorithm: Optional[str] = None
-    current_trial: Optional[int] = None
-    total_trials: Optional[int] = None
-    best_score: Optional[float] = None
-    current_score: Optional[float] = None
+    current_algorithm: str | None = None
+    current_trial: int | None = None
+    total_trials: int | None = None
+    best_score: float | None = None
+    current_score: float | None = None
 
     # Resource usage
-    memory_usage_mb: Optional[float] = None
-    cpu_usage_percent: Optional[float] = None
+    memory_usage_mb: float | None = None
+    cpu_usage_percent: float | None = None
 
     # Messages and logs
-    current_message: Optional[str] = None
+    current_message: str | None = None
     warnings: list[str] = Field(default_factory=list)
 
 
@@ -153,27 +151,27 @@ class TrainingResultResponse(BaseModel):
     trigger_type: str
 
     # Training metrics
-    best_algorithm: Optional[str] = None
-    best_params: Optional[dict[str, Any]] = None
-    best_score: Optional[float] = None
-    training_time_seconds: Optional[float] = None
-    trials_completed: Optional[int] = None
+    best_algorithm: str | None = None
+    best_params: dict[str, Any] | None = None
+    best_score: float | None = None
+    training_time_seconds: float | None = None
+    trials_completed: int | None = None
 
     # Model information
-    model_version: Optional[str] = None
-    model_path: Optional[str] = None
-    model_size_mb: Optional[float] = None
+    model_version: str | None = None
+    model_path: str | None = None
+    model_size_mb: float | None = None
 
     # Performance comparison
-    previous_score: Optional[float] = None
-    performance_improvement: Optional[float] = None
+    previous_score: float | None = None
+    performance_improvement: float | None = None
 
     # Metadata
-    dataset_id: Optional[str] = None
-    experiment_name: Optional[str] = None
-    start_time: Optional[datetime] = None
-    completion_time: Optional[datetime] = None
-    error_message: Optional[str] = None
+    dataset_id: str | None = None
+    experiment_name: str | None = None
+    start_time: datetime | None = None
+    completion_time: datetime | None = None
+    error_message: str | None = None
     warnings: list[str] = Field(default_factory=list)
 
 
@@ -536,7 +534,7 @@ async def get_active_trainings(
 
 @router.get("/history", response_model=TrainingHistoryResponse)
 async def get_training_history(
-    detector_id: Optional[UUID] = None,
+    detector_id: UUID | None = None,
     page: int = 1,
     page_size: int = 50,
     training_service: AutomatedTrainingService = Depends(get_training_service),

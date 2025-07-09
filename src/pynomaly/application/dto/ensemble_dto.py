@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -404,7 +404,7 @@ class EnsembleDetectionRequestDTO(BaseModel):
         max_items=20,
         description="List of detector IDs to include in ensemble (2-20 detectors)",
     )
-    data: Union[list[list[float]], list[dict[str, Any]]] = Field(
+    data: list[list[float]] | list[dict[str, Any]] = Field(
         description="Input data as array of arrays or list of dictionaries"
     )
     voting_strategy: str = Field(
@@ -432,7 +432,7 @@ class EnsembleDetectionRequestDTO(BaseModel):
         le=1.0,
         description="Agreement threshold for consensus voting",
     )
-    max_processing_time: Optional[float] = Field(
+    max_processing_time: float | None = Field(
         default=None, gt=0, description="Maximum processing time in seconds"
     )
     enable_caching: bool = Field(
@@ -525,7 +525,7 @@ class EnsembleDetectionResponseDTO(BaseModel):
     consensus_scores: list[float] = Field(
         default_factory=list, description="Agreement scores among detectors"
     )
-    individual_results: Optional[dict[str, list[float]]] = Field(
+    individual_results: dict[str, list[float]] | None = Field(
         default=None, description="Individual detector results (if requested)"
     )
     detector_weights: list[float] = Field(
@@ -544,7 +544,7 @@ class EnsembleDetectionResponseDTO(BaseModel):
         default=0.0, description="Total processing time in seconds"
     )
     warnings: list[str] = Field(default_factory=list, description="Warning messages")
-    error_message: Optional[str] = Field(
+    error_message: str | None = Field(
         default=None, description="Error message if detection failed"
     )
 
@@ -660,7 +660,7 @@ class EnsembleOptimizationResponseDTO(BaseModel):
     optimization_time: float = Field(
         default=0.0, description="Total optimization time in seconds"
     )
-    error_message: Optional[str] = Field(
+    error_message: str | None = Field(
         default=None, description="Error message if optimization failed"
     )
 

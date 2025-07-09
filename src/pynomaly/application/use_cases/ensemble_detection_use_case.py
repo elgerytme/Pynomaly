@@ -587,7 +587,9 @@ class EnsembleDetectionUseCase:
     ) -> float:
         """Bayesian model averaging for ensemble scoring."""
         # Weighted average with Bayesian interpretation
-        weighted_scores = [score * weight for score, weight in zip(scores, weights, strict=False)]
+        weighted_scores = [
+            score * weight for score, weight in zip(scores, weights, strict=False)
+        ]
         return sum(weighted_scores) / sum(weights)
 
     async def _rank_aggregation(
@@ -652,7 +654,9 @@ class EnsembleDetectionUseCase:
         uncertainties = [abs(score - 0.5) * 2 for score in scores]
 
         # Higher uncertainty weight for more confident predictions
-        uncertainty_weights = [u * w for u, w in zip(uncertainties, weights, strict=False)]
+        uncertainty_weights = [
+            u * w for u, w in zip(uncertainties, weights, strict=False)
+        ]
 
         # Normalize
         total_weight = sum(uncertainty_weights)

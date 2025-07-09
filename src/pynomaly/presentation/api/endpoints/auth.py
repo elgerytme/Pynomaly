@@ -14,7 +14,6 @@ from pynomaly.infrastructure.auth import (
     UserModel,
     get_auth,
 )
-from pynomaly.infrastructure.auth.middleware import get_current_user
 from pynomaly.infrastructure.security.rbac_middleware import require_auth
 
 router = APIRouter()
@@ -206,15 +205,14 @@ async def get_current_user_profile(
         created_at=current_user.created_at.isoformat(),
     )
 
-
-# @router.post(
-#     "/api-keys", response_model=APIKeyResponse, status_code=status.HTTP_201_CREATED
-# )
-# async def create_api_key(
-#     request: APIKeyRequest,
-#     current_user: Annotated[Any | None, Depends(get_current_user_model)],
-#     auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
-# ) -> APIKeyResponse:
+    # @router.post(
+    #     "/api-keys", response_model=APIKeyResponse, status_code=status.HTTP_201_CREATED
+    # )
+    # async def create_api_key(
+    #     request: APIKeyRequest,
+    #     current_user: Annotated[Any | None, Depends(get_current_user_model)],
+    #     auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
+    # ) -> APIKeyResponse:
     """Create a new API key for the current user.
 
     Args:
@@ -257,13 +255,12 @@ async def get_current_user_profile(
             detail=f"Failed to create API key: {e}",
         )
 
-
-# @router.delete("/api-keys/{api_key}")
-# async def revoke_api_key(
-#     api_key: str,
-#     current_user: Annotated[Any | None, Depends(get_current_user_model)],
-#     auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
-# ) -> dict:
+    # @router.delete("/api-keys/{api_key}")
+    # async def revoke_api_key(
+    #     api_key: str,
+    #     current_user: Annotated[Any | None, Depends(get_current_user_model)],
+    #     auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
+    # ) -> dict:
     """Revoke an API key.
 
     Args:
@@ -305,11 +302,10 @@ async def get_current_user_profile(
 
     return {"message": "API key revoked successfully"}
 
-
-# @router.post("/logout")
-# async def logout(
-#     current_user: Annotated[Any | None, Depends(get_current_user_model)],
-# ) -> dict:
+    # @router.post("/logout")
+    # async def logout(
+    #     current_user: Annotated[Any | None, Depends(get_current_user_model)],
+    # ) -> dict:
     """Logout current user.
 
     Note: With JWT, logout is typically handled client-side by removing the token.

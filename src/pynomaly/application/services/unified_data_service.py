@@ -596,9 +596,7 @@ class UnifiedDataService:
         for col in data.columns:
             if data[col].dtype in ["int64", "float64", "bool"]:
                 unique_values = data[col].dropna().unique()
-                if len(unique_values) == 2 and set(unique_values).issubset(
-                    {0, 1, True, False}
-                ):
+                if len(unique_values) == 2 and set(unique_values).issubset({0, 1}):
                     return col
 
         return None

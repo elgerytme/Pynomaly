@@ -19,8 +19,8 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
-R = TypeVar('R')
+T = TypeVar("T")
+R = TypeVar("R")
 
 
 @dataclass
@@ -64,12 +64,12 @@ class AsyncTaskQueue:
         """Add task to queue with optional priority."""
         task_id = str(uuid4())
         task_item = {
-            'id': task_id,
-            'func': task,
-            'args': args,
-            'kwargs': kwargs,
-            'priority': priority,
-            'created_at': time.time()
+            "id": task_id,
+            "func": task,
+            "args": args,
+            "kwargs": kwargs,
+            "priority": priority,
+            "created_at": time.time(),
         }
 
         await self._queue.put(task_item)
@@ -126,12 +126,14 @@ class AsyncTaskQueue:
             except Exception as e:
                 logger.error(f"Worker {worker_name} error: {e}")
 
-    async def _execute_task(self, task_item: dict[str, Any], worker_name: str) -> TaskResult:
+    async def _execute_task(
+        self, task_item: dict[str, Any], worker_name: str
+    ) -> TaskResult:
         """Execute a single task."""
-        task_id = task_item['id']
-        func = task_item['func']
-        args = task_item['args']
-        kwargs = task_item['kwargs']
+        task_id = task_item["id"]
+        func = task_item["func"]
+        args = task_item["args"]
+        kwargs = task_item["kwargs"]
 
         start_time = time.time()
 
@@ -148,13 +150,15 @@ class AsyncTaskQueue:
             self._stats.total_execution_time += execution_time
             self._update_stats()
 
-            logger.debug(f"Task {task_id} completed by {worker_name} in {execution_time:.3f}s")
+            logger.debug(
+                f"Task {task_id} completed by {worker_name} in {execution_time:.3f}s"
+            )
 
             return TaskResult(
                 task_id=task_id,
                 success=True,
                 result=result,
-                execution_time=execution_time
+                execution_time=execution_time,
             )
 
         except Exception as e:
@@ -167,18 +171,21 @@ class AsyncTaskQueue:
             logger.error(f"Task {task_id} failed in {worker_name}: {e}")
 
             return TaskResult(
-                task_id=task_id,
-                success=False,
-                error=e,
-                execution_time=execution_time
+                task_id=task_id, success=False, error=e, execution_time=execution_time
             )
 
     def _update_stats(self) -> None:
         """Update processing statistics."""
         if self._stats.completed_tasks + self._stats.failed_tasks > 0:
             total_processed = self._stats.completed_tasks + self._stats.failed_tasks
-            self._stats.average_execution_time = self._stats.total_execution_time / total_processed
-            self._stats.throughput_per_second = total_processed / self._stats.total_execution_time if self._stats.total_execution_time > 0 else 0
+            self._stats.average_execution_time = (
+                self._stats.total_execution_time / total_processed
+            )
+            self._stats.throughput_per_second = (
+                total_processed / self._stats.total_execution_time
+                if self._stats.total_execution_time > 0
+                else 0
+            )
 
     def get_stats(self) -> ProcessingStats:
         """Get current processing statistics."""
@@ -199,30 +206,36 @@ class AsyncTaskQueue:
 class AsyncBatchProcessor:
     """Process items in async batches for improved throughput."""
 
-    def __init__(self, batch_size: int = 100, max_concurrent_batches: int = 5,
-                 batch_timeout: float = 1.0):
+    def __init__(
+        self,
+        batch_size: int = 100,
+        max_concurrent_batches: int = 5,
+        batch_timeout: float = 1.0,
+    ):
         """Initialize batch processor."""
         self.batch_size = batch_size
         self.max_concurrent_batches = max_concurrent_batches
         self.batch_timeout = batch_timeout
         self._semaphore = Semaphore(max_concurrent_batches)
 
-    async def process_items(self, items: list[T],
-                          processor: Callable[[list[T]], Awaitable[list[R]]]) -> list[R]:
+    async def process_items(
+        self, items: list[T], processor: Callable[[list[T]], Awaitable[list[R]]]
+    ) -> list[R]:
         """Process items in concurrent batches."""
         if not items:
             return []
 
         # Split items into batches
-        batches = [items[i:i + self.batch_size]
-                  for i in range(0, len(items), self.batch_size)]
+        batches = [
+            items[i : i + self.batch_size]
+            for i in range(0, len(items), self.batch_size)
+        ]
 
         logger.info(f"Processing {len(items)} items in {len(batches)} batches")
 
         # Process batches concurrently
         batch_tasks = [
-            self._process_batch(batch, processor, i)
-            for i, batch in enumerate(batches)
+            self._process_batch(batch, processor, i) for i, batch in enumerate(batches)
         ]
 
         batch_results = await asyncio.gather(*batch_tasks, return_exceptions=True)
@@ -239,21 +252,25 @@ class AsyncBatchProcessor:
         logger.info(f"Completed processing {len(results)} items")
         return results
 
-    async def _process_batch(self, batch: list[T],
-                           processor: Callable[[list[T]], Awaitable[list[R]]],
-                           batch_id: int) -> list[R]:
+    async def _process_batch(
+        self,
+        batch: list[T],
+        processor: Callable[[list[T]], Awaitable[list[R]]],
+        batch_id: int,
+    ) -> list[R]:
         """Process a single batch."""
         async with self._semaphore:
             start_time = time.time()
 
             try:
                 result = await asyncio.wait_for(
-                    processor(batch),
-                    timeout=self.batch_timeout
+                    processor(batch), timeout=self.batch_timeout
                 )
 
                 execution_time = time.time() - start_time
-                logger.debug(f"Batch {batch_id} processed {len(batch)} items in {execution_time:.3f}s")
+                logger.debug(
+                    f"Batch {batch_id} processed {len(batch)} items in {execution_time:.3f}s"
+                )
 
                 return result
 
@@ -273,16 +290,21 @@ class AsyncDataFrameProcessor:
         self.chunk_size = chunk_size
         self.max_workers = max_workers
 
-    async def process_dataframe(self, df: pd.DataFrame,
-                              processor: Callable[[pd.DataFrame], pd.DataFrame],
-                              combine_func: Callable[[list[pd.DataFrame]], pd.DataFrame] | None = None) -> pd.DataFrame:
+    async def process_dataframe(
+        self,
+        df: pd.DataFrame,
+        processor: Callable[[pd.DataFrame], pd.DataFrame],
+        combine_func: Callable[[list[pd.DataFrame]], pd.DataFrame] | None = None,
+    ) -> pd.DataFrame:
         """Process DataFrame in async chunks."""
         if df.empty:
             return df
 
         # Split DataFrame into chunks
-        chunks = [df.iloc[i:i + self.chunk_size].copy()
-                 for i in range(0, len(df), self.chunk_size)]
+        chunks = [
+            df.iloc[i : i + self.chunk_size].copy()
+            for i in range(0, len(df), self.chunk_size)
+        ]
 
         logger.info(f"Processing DataFrame ({len(df)} rows) in {len(chunks)} chunks")
 
@@ -295,10 +317,7 @@ class AsyncDataFrameProcessor:
                 # Run CPU-bound processing in thread pool
                 return await loop.run_in_executor(None, processor, chunk)
 
-        chunk_tasks = [
-            process_chunk(chunk, i)
-            for i, chunk in enumerate(chunks)
-        ]
+        chunk_tasks = [process_chunk(chunk, i) for i, chunk in enumerate(chunks)]
 
         processed_chunks = await asyncio.gather(*chunk_tasks)
 
@@ -311,8 +330,9 @@ class AsyncDataFrameProcessor:
         logger.info(f"DataFrame processing completed: {len(result)} rows")
         return result
 
-    async def apply_async(self, df: pd.DataFrame, func: Callable,
-                         axis: int = 0, **kwargs) -> pd.Series:
+    async def apply_async(
+        self, df: pd.DataFrame, func: Callable, axis: int = 0, **kwargs
+    ) -> pd.Series:
         """Async version of DataFrame.apply()."""
         if axis == 0:
             # Apply to columns
@@ -328,11 +348,12 @@ class AsyncDataFrameProcessor:
         else:
             # Apply to rows - process in chunks
             return await self.process_dataframe(
-                df,
-                lambda chunk: chunk.apply(func, axis=1, **kwargs)
+                df, lambda chunk: chunk.apply(func, axis=1, **kwargs)
             )
 
-    async def _apply_to_series(self, series: pd.Series, func: Callable, **kwargs) -> Any:
+    async def _apply_to_series(
+        self, series: pd.Series, func: Callable, **kwargs
+    ) -> Any:
         """Apply function to series in thread pool."""
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, lambda: func(series, **kwargs))
@@ -346,9 +367,12 @@ class AsyncModelTrainer:
         self.max_concurrent_models = max_concurrent_models
         self._semaphore = Semaphore(max_concurrent_models)
 
-    async def train_models_parallel(self, model_configs: list[dict[str, Any]],
-                                  train_data: pd.DataFrame | np.ndarray,
-                                  trainer_func: Callable) -> list[TaskResult]:
+    async def train_models_parallel(
+        self,
+        model_configs: list[dict[str, Any]],
+        train_data: pd.DataFrame | np.ndarray,
+        trainer_func: Callable,
+    ) -> list[TaskResult]:
         """Train multiple models in parallel."""
         logger.info(f"Training {len(model_configs)} models in parallel")
 
@@ -363,22 +387,26 @@ class AsyncModelTrainer:
         task_results = []
         for i, result in enumerate(results):
             if isinstance(result, Exception):
-                task_results.append(TaskResult(
-                    task_id=f"model_{i}",
-                    success=False,
-                    error=result
-                ))
+                task_results.append(
+                    TaskResult(task_id=f"model_{i}", success=False, error=result)
+                )
             else:
                 task_results.append(result)
 
         successful = sum(1 for r in task_results if r.success)
-        logger.info(f"Model training completed: {successful}/{len(model_configs)} successful")
+        logger.info(
+            f"Model training completed: {successful}/{len(model_configs)} successful"
+        )
 
         return task_results
 
-    async def _train_single_model(self, config: dict[str, Any],
-                                train_data: pd.DataFrame | np.ndarray,
-                                trainer_func: Callable, model_id: int) -> TaskResult:
+    async def _train_single_model(
+        self,
+        config: dict[str, Any],
+        train_data: pd.DataFrame | np.ndarray,
+        trainer_func: Callable,
+        model_id: int,
+    ) -> TaskResult:
         """Train a single model."""
         async with self._semaphore:
             start_time = time.time()
@@ -395,14 +423,16 @@ class AsyncModelTrainer:
                     )
 
                 execution_time = time.time() - start_time
-                logger.info(f"Model {task_id} trained successfully in {execution_time:.2f}s")
+                logger.info(
+                    f"Model {task_id} trained successfully in {execution_time:.2f}s"
+                )
 
                 return TaskResult(
                     task_id=task_id,
                     success=True,
                     result=model,
                     execution_time=execution_time,
-                    metadata=config
+                    metadata=config,
                 )
 
             except Exception as e:
@@ -414,15 +444,21 @@ class AsyncModelTrainer:
                     success=False,
                     error=e,
                     execution_time=execution_time,
-                    metadata=config
+                    metadata=config,
                 )
 
 
 # Async decorators and utilities
 
-def async_retry(max_attempts: int = 3, delay: float = 1.0,
-               backoff: float = 2.0, exceptions: tuple = (Exception,)):
+
+def async_retry(
+    max_attempts: int = 3,
+    delay: float = 1.0,
+    backoff: float = 2.0,
+    exceptions: tuple = (Exception,),
+):
     """Decorator for async functions with retry logic."""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -447,21 +483,28 @@ def async_retry(max_attempts: int = 3, delay: float = 1.0,
             raise last_exception
 
         return wrapper
+
     return decorator
 
 
 def async_timeout(timeout_seconds: float):
     """Decorator to add timeout to async functions."""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             try:
-                return await asyncio.wait_for(func(*args, **kwargs), timeout=timeout_seconds)
+                return await asyncio.wait_for(
+                    func(*args, **kwargs), timeout=timeout_seconds
+                )
             except TimeoutError:
-                logger.error(f"Function {func.__name__} timed out after {timeout_seconds}s")
+                logger.error(
+                    f"Function {func.__name__} timed out after {timeout_seconds}s"
+                )
                 raise
 
         return wrapper
+
     return decorator
 
 
@@ -486,6 +529,7 @@ def async_rate_limit(calls_per_second: float):
             return await func(*args, **kwargs)
 
         return wrapper
+
     return decorator
 
 
@@ -497,6 +541,7 @@ async def async_profiler(operation_name: str = "operation"):
 
     try:
         import psutil
+
         process = psutil.Process()
         start_memory = process.memory_info().rss / 1024 / 1024  # MB
     except ImportError:
@@ -530,8 +575,9 @@ class AsyncContextManager:
         self._resources: dict[str, Any] = {}
         self._cleanup_funcs: dict[str, Callable] = {}
 
-    async def add_resource(self, name: str, resource: Any,
-                          cleanup_func: Callable | None = None) -> None:
+    async def add_resource(
+        self, name: str, resource: Any, cleanup_func: Callable | None = None
+    ) -> None:
         """Add a resource to be managed."""
         self._resources[name] = resource
         if cleanup_func:

@@ -55,7 +55,7 @@ def test_api_versioning():
         'prefix="/api/v1/experiments"',
         'prefix="/api/v1/performance"',
         'prefix="/api/v1/streaming"',
-        'prefix="/api/v1/events"'
+        'prefix="/api/v1/events"',
     ]
 
     found_versioned = 0
@@ -68,11 +68,7 @@ def test_api_versioning():
 
     # Test 3: Check for non-versioned routers (should not exist)
     print("\n3. Checking for non-versioned routers...")
-    old_patterns = [
-        'prefix="/api"',
-        'prefix="/api/auth"',
-        'prefix="/api/admin"'
-    ]
+    old_patterns = ['prefix="/api"', 'prefix="/api/auth"', 'prefix="/api/admin"']
 
     found_old = 0
     for pattern in old_patterns:
@@ -83,14 +79,17 @@ def test_api_versioning():
 
     # Test 4: Check documentation strings
     print("\n4. Checking documentation strings...")
-    if '/api/v1/auth/login' in content:
+    if "/api/v1/auth/login" in content:
         print("✅ Quick start documentation uses versioned URLs")
     else:
         print("❌ Quick start documentation not updated")
 
     # Test 5: Check version endpoint import
     print("\n5. Checking version endpoint...")
-    if 'version,' in content and 'from pynomaly.presentation.api.endpoints import' in content:
+    if (
+        "version," in content
+        and "from pynomaly.presentation.api.endpoints import" in content
+    ):
         print("✅ Version endpoint imported")
     else:
         print("❌ Version endpoint not imported")
@@ -117,6 +116,7 @@ def test_api_versioning():
     else:
         print("❌ API versioning implementation: NEEDS WORK")
         return False
+
 
 if __name__ == "__main__":
     success = test_api_versioning()

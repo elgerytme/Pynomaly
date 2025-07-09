@@ -424,9 +424,9 @@ T010,42.15,Supermarket,Local,10,3,0"""
             demo_results["preprocessing"] = self.demo_preprocessing()
 
         if demo_type in ["all", "performance"]:
-            demo_results[
-                "performance_benchmarking"
-            ] = self.demo_performance_benchmarking()
+            demo_results["performance_benchmarking"] = (
+                self.demo_performance_benchmarking()
+            )
 
         # Generate summary
         successful_demos = [

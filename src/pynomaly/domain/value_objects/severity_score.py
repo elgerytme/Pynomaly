@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class SeverityLevel(str, Enum):
@@ -20,15 +19,19 @@ class SeverityScore:
 
     value: float
     severity_level: SeverityLevel
-    confidence: Optional[float] = None
+    confidence: float | None = None
 
     def __post_init__(self):
         """Validate severity score."""
         if not 0.0 <= self.value <= 1.0:
-            raise ValueError(f"Severity score must be between 0.0 and 1.0, got {self.value}")
+            raise ValueError(
+                f"Severity score must be between 0.0 and 1.0, got {self.value}"
+            )
 
         if self.confidence is not None and not 0.0 <= self.confidence <= 1.0:
-            raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
+            raise ValueError(
+                f"Confidence must be between 0.0 and 1.0, got {self.confidence}"
+            )
 
     @classmethod
     def create_minimal(cls) -> "SeverityScore":

@@ -44,31 +44,43 @@ app = typer.Typer(
 @app.command()
 @require_feature("advanced_explainability")
 def explain(
-    detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
-    dataset_path: Path = typer.Argument(..., help="Path to dataset file (CSV or Parquet)", exists=True),
+    detector_path: Path = typer.Argument(
+        ..., help="Path to saved detector model", exists=True
+    ),
+    dataset_path: Path = typer.Argument(
+        ..., help="Path to dataset file (CSV or Parquet)", exists=True
+    ),
     explanation_type: str = typer.Option(
         "both",
-        "-t", "--explanation-type",
-        help="Type of explanation to generate (options: local, global, both)"
+        "-t",
+        "--explanation-type",
+        help="Type of explanation to generate (options: local, global, both)",
     ),
     methods: list[str] | None = typer.Option(
         None,
-        "-m", "--methods",
-        help="Explanation methods to use (options: shap, lime, permutation, gradient)"
+        "-m",
+        "--methods",
+        help="Explanation methods to use (options: shap, lime, permutation, gradient)",
     ),
-    n_samples: int = typer.Option(10, "--n-samples", help="Number of samples for local explanations"),
+    n_samples: int = typer.Option(
+        10, "--n-samples", help="Number of samples for local explanations"
+    ),
     audience: str = typer.Option(
         "technical",
         "--audience",
-        help="Target audience for explanations (technical, business, regulatory)"
+        help="Target audience for explanations (technical, business, regulatory)",
     ),
-    output: Path | None = typer.Option(None, "--output", help="Output file for explanation report"),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output file for explanation report"
+    ),
     output_format: str = typer.Option(
-        "json",
-        "--format",
-        help="Output format (json, html, pdf)"
+        "json", "--format", help="Output format (json, html, pdf)"
     ),
-    visualizations: bool = typer.Option(True, "--visualizations/--no-visualizations", help="Generate visualization plots"),
+    visualizations: bool = typer.Option(
+        True,
+        "--visualizations/--no-visualizations",
+        help="Generate visualization plots",
+    ),
 ):
     """Generate comprehensive explanations for model predictions.
 
@@ -148,21 +160,30 @@ def explain(
 @app.command()
 @require_feature("advanced_explainability")
 def analyze_bias(
-    detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
-    dataset_path: Path = typer.Argument(..., help="Path to dataset file with protected attributes", exists=True),
+    detector_path: Path = typer.Argument(
+        ..., help="Path to saved detector model", exists=True
+    ),
+    dataset_path: Path = typer.Argument(
+        ..., help="Path to dataset file with protected attributes", exists=True
+    ),
     protected_attributes: list[str] | None = typer.Option(
-        None,
-        "-p", "--protected-attributes",
-        help="Protected attribute column names"
+        None, "-p", "--protected-attributes", help="Protected attribute column names"
     ),
     metrics: list[str] | None = typer.Option(
         None,
-        "-m", "--metrics",
-        help="Fairness metrics to compute (options: demographic_parity, equalized_odds, statistical_parity)"
+        "-m",
+        "--metrics",
+        help="Fairness metrics to compute (options: demographic_parity, equalized_odds, statistical_parity)",
     ),
-    threshold: float = typer.Option(0.5, "--threshold", help="Decision threshold for binary classification"),
-    min_group_size: int = typer.Option(30, "--min-group-size", help="Minimum group size for analysis"),
-    output: Path | None = typer.Option(None, "--output", help="Output file for bias analysis results"),
+    threshold: float = typer.Option(
+        0.5, "--threshold", help="Decision threshold for binary classification"
+    ),
+    min_group_size: int = typer.Option(
+        30, "--min-group-size", help="Minimum group size for analysis"
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output file for bias analysis results"
+    ),
 ):
     """Analyze model for potential bias and fairness issues.
 
@@ -233,14 +254,28 @@ def analyze_bias(
 @app.command()
 @require_feature("advanced_explainability")
 def assess_trust(
-    detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
+    detector_path: Path = typer.Argument(
+        ..., help="Path to saved detector model", exists=True
+    ),
     dataset_path: Path = typer.Argument(..., help="Path to dataset file", exists=True),
-    n_perturbations: int = typer.Option(100, "--n-perturbations", help="Number of perturbations for stability analysis"),
-    perturbation_strength: float = typer.Option(0.1, "--perturbation-strength", help="Strength of perturbations (0-1)"),
-    consistency: bool = typer.Option(True, "--consistency/--no-consistency", help="Enable consistency analysis"),
-    stability: bool = typer.Option(True, "--stability/--no-stability", help="Enable stability analysis"),
-    fidelity: bool = typer.Option(True, "--fidelity/--no-fidelity", help="Enable fidelity assessment"),
-    output: Path | None = typer.Option(None, "--output", help="Output file for trust assessment"),
+    n_perturbations: int = typer.Option(
+        100, "--n-perturbations", help="Number of perturbations for stability analysis"
+    ),
+    perturbation_strength: float = typer.Option(
+        0.1, "--perturbation-strength", help="Strength of perturbations (0-1)"
+    ),
+    consistency: bool = typer.Option(
+        True, "--consistency/--no-consistency", help="Enable consistency analysis"
+    ),
+    stability: bool = typer.Option(
+        True, "--stability/--no-stability", help="Enable stability analysis"
+    ),
+    fidelity: bool = typer.Option(
+        True, "--fidelity/--no-fidelity", help="Enable fidelity assessment"
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output file for trust assessment"
+    ),
 ):
     """Assess trust and reliability of model predictions.
 
@@ -308,15 +343,17 @@ def assess_trust(
 @app.command()
 @require_feature("advanced_explainability")
 def feature_importance(
-    detector_path: Path = typer.Argument(..., help="Path to saved detector model", exists=True),
+    detector_path: Path = typer.Argument(
+        ..., help="Path to saved detector model", exists=True
+    ),
     dataset_path: Path = typer.Argument(..., help="Path to dataset file", exists=True),
     method: str = typer.Option(
-        "shap",
-        "--method",
-        help="Feature importance method (shap, lime, permutation)"
+        "shap", "--method", help="Feature importance method (shap, lime, permutation)"
     ),
     top_k: int = typer.Option(15, "--top-k", help="Number of top features to display"),
-    output: Path | None = typer.Option(None, "--output", help="Output file for feature importance"),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output file for feature importance"
+    ),
 ):
     """Analyze global feature importance for the model.
 
@@ -392,7 +429,9 @@ def feature_importance(
 @app.command()
 @require_feature("advanced_explainability")
 def status(
-    cache_info: bool = typer.Option(True, "--cache-info/--no-cache-info", help="Show cache information"),
+    cache_info: bool = typer.Option(
+        True, "--cache-info/--no-cache-info", help="Show cache information"
+    ),
 ):
     """Show explainability service status and capabilities.
 
@@ -494,8 +533,7 @@ def status(
 @app.command()
 def info(
     explanation_type: str = typer.Option(
-        ...,
-        help="Type of explanation to get information about"
+        ..., help="Type of explanation to get information about"
     ),
 ):
     """Get detailed information about explanation types and methods.

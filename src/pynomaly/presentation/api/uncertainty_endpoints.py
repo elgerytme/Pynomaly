@@ -5,7 +5,6 @@ This module provides REST API endpoints for calculating confidence intervals
 and uncertainty measures for anomaly detection predictions.
 """
 
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 

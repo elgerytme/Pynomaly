@@ -15,12 +15,15 @@ def trace_operation(operation_name: str = "operation", **kwargs):
     Returns:
         Decorator function
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
             # No-op implementation - just call the original function
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 

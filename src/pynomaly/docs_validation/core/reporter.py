@@ -3,7 +3,6 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 
 class ValidationReporter:
@@ -13,7 +12,7 @@ class ValidationReporter:
         """Initialize reporter with configuration."""
         self.config = config
 
-    def generate_report(self, result, output_format: str = "console") -> Optional[str]:
+    def generate_report(self, result, output_format: str = "console") -> str | None:
         """Generate validation report in specified format.
 
         Args:
@@ -79,9 +78,11 @@ class ValidationReporter:
                 "duration_seconds": result.duration_seconds,
                 "errors": result.errors,
                 "warnings": result.warnings,
-                "metrics": result.metrics
+                "metrics": result.metrics,
             },
-            "configuration": self.config.to_dict() if hasattr(self.config, 'to_dict') else {}
+            "configuration": (
+                self.config.to_dict() if hasattr(self.config, "to_dict") else {}
+            ),
         }
 
         return json.dumps(report_data, indent=2, ensure_ascii=False)
@@ -191,7 +192,9 @@ class ValidationReporter:
 
         return md
 
-    def save_report(self, result, output_format: str = "json", filename: Optional[str] = None) -> str:
+    def save_report(
+        self, result, output_format: str = "json", filename: str | None = None
+    ) -> str:
         """Save report to file and return the filename."""
         if filename is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -204,7 +207,7 @@ class ValidationReporter:
             output_path = Path(filename)
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
-            with open(output_path, 'w', encoding='utf-8') as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 f.write(report_content)
 
             print(f"Report saved to: {output_path}")

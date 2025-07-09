@@ -7,6 +7,7 @@ from datetime import datetime
 import numpy as np
 import pytest
 from pydantic import ValidationError
+
 from pynomaly.application.dto import (
     AnomalyDTO,
     CreateDetectorDTO,

@@ -208,6 +208,7 @@ uvicorn.run(app, host="127.0.0.1", port=8006, log_level="error")
         """Test basic anomaly detection"""
         try:
             import pandas as pd
+
             from pynomaly.domain.entities import Detector
             from pynomaly.domain.value_objects import ContaminationRate
             from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter

@@ -54,7 +54,7 @@ class PrivacyBudget:
     """Differential privacy budget tracking."""
 
     epsilon: float = 1.0  # Privacy budget
-    delta: float = 1e-5   # Failure probability
+    delta: float = 1e-5  # Failure probability
     spent_epsilon: float = 0.0
     remaining_epsilon: float = 1.0
     noise_multiplier: float = 1.1
@@ -214,7 +214,9 @@ class SecureAggregator:
             if median_sim >= similarity_threshold:
                 filtered_clients.append((client_id, weights, sample_size))
             else:
-                logger.warning(f"Filtering potential byzantine client: {client_id} (similarity: {median_sim:.3f})")
+                logger.warning(
+                    f"Filtering potential byzantine client: {client_id} (similarity: {median_sim:.3f})"
+                )
 
         # Ensure we don't filter too many clients
         max_filtered = int(len(client_weights) * self.byzantine_tolerance)
@@ -223,9 +225,9 @@ class SecureAggregator:
             sorted_clients = sorted(
                 client_weights,
                 key=lambda x: client_median_similarities.get(x[0], 0.0),
-                reverse=True
+                reverse=True,
             )
-            filtered_clients = sorted_clients[:len(client_weights) - max_filtered]
+            filtered_clients = sorted_clients[: len(client_weights) - max_filtered]
 
         return filtered_clients
 
@@ -286,14 +288,16 @@ class SecureAggregator:
             )
 
             # Consume privacy budget
-            epsilon_used = 1.0 / (budget.noise_multiplier ** 2)  # Simplified calculation
+            epsilon_used = 1.0 / (budget.noise_multiplier**2)  # Simplified calculation
             budget.consume_budget(epsilon_used)
 
             noisy_weights.append((client_id, noisy_weights_dict, sample_size))
 
         return noisy_weights
 
-    async def _clip_weights(self, weights: dict[str, Any], clip_norm: float) -> dict[str, Any]:
+    async def _clip_weights(
+        self, weights: dict[str, Any], clip_norm: float
+    ) -> dict[str, Any]:
         """Apply gradient clipping to weights."""
         clipped_weights = {}
 
@@ -359,7 +363,9 @@ class SecureAggregator:
             # Equal weighting if no sample size information
             weights = [1.0 / len(client_weights)] * len(client_weights)
         else:
-            weights = [sample_size / total_samples for _, _, sample_size in client_weights]
+            weights = [
+                sample_size / total_samples for _, _, sample_size in client_weights
+            ]
 
         # Initialize aggregated weights with first client's structure
         _, first_weights, _ = client_weights[0]
@@ -374,7 +380,9 @@ class SecureAggregator:
 
         return aggregated_weights
 
-    def _initialize_aggregated_weights(self, weights_structure: dict[str, Any]) -> dict[str, Any]:
+    def _initialize_aggregated_weights(
+        self, weights_structure: dict[str, Any]
+    ) -> dict[str, Any]:
         """Initialize aggregated weights with zeros matching the structure."""
         initialized = {}
 
@@ -401,7 +409,9 @@ class SecureAggregator:
                 agg_value = aggregated[key]
                 client_value = client_weights[key]
 
-                if isinstance(agg_value, list) and isinstance(client_value, (list, np.ndarray)):
+                if isinstance(agg_value, list) and isinstance(
+                    client_value, (list, np.ndarray)
+                ):
                     agg_array = np.array(agg_value)
                     client_array = np.array(client_value)
 
@@ -411,7 +421,9 @@ class SecureAggregator:
                     else:
                         result[key] = agg_value  # Keep original if shapes don't match
 
-                elif isinstance(agg_value, (int, float)) and isinstance(client_value, (int, float)):
+                elif isinstance(agg_value, (int, float)) and isinstance(
+                    client_value, (int, float)
+                ):
                     result[key] = agg_value + weight * client_value
 
                 elif isinstance(agg_value, dict) and isinstance(client_value, dict):
@@ -442,7 +454,9 @@ class SecureAggregator:
         avg_noise_level = np.mean(noise_levels) if noise_levels else 0.0
 
         # Privacy efficiency (utility vs privacy trade-off)
-        remaining_budgets = [budget.remaining_epsilon for budget in privacy_budgets.values()]
+        remaining_budgets = [
+            budget.remaining_epsilon for budget in privacy_budgets.values()
+        ]
         avg_remaining_budget = np.mean(remaining_budgets) if remaining_budgets else 0.0
 
         metrics = {
@@ -450,7 +464,8 @@ class SecureAggregator:
             "average_noise_level": avg_noise_level,
             "average_remaining_budget": avg_remaining_budget,
             "participating_clients": len(client_weights),
-            "privacy_efficiency": 1.0 - (total_epsilon_consumed / (len(privacy_budgets) * 1.0))
+            "privacy_efficiency": 1.0
+            - (total_epsilon_consumed / (len(privacy_budgets) * 1.0)),
         }
 
         return metrics
@@ -502,7 +517,7 @@ class FederatedLearningService:
             privacy_level=privacy_level,
             byzantine_tolerance=0.3,
             noise_multiplier=1.1,
-            clipping_norm=1.0
+            clipping_norm=1.0,
         )
 
         # Performance tracking
@@ -533,7 +548,7 @@ class FederatedLearningService:
                 epsilon=privacy_preferences.get("epsilon", 1.0),
                 delta=privacy_preferences.get("delta", 1e-5),
                 noise_multiplier=privacy_preferences.get("noise_multiplier", 1.1),
-                clipping_norm=privacy_preferences.get("clipping_norm", 1.0)
+                clipping_norm=privacy_preferences.get("clipping_norm", 1.0),
             )
 
             # Create client instance
@@ -541,7 +556,7 @@ class FederatedLearningService:
                 client_id=client_id,
                 capabilities=capabilities,
                 privacy_budget=privacy_budget,
-                status=ClientStatus.IDLE
+                status=ClientStatus.IDLE,
             )
 
             # Store client
@@ -581,19 +596,21 @@ class FederatedLearningService:
         selected_clients = await self._select_clients_for_round()
 
         if len(selected_clients) < self.min_clients_per_round:
-            logger.warning(f"Insufficient clients for round {self.current_round}: {len(selected_clients)} < {self.min_clients_per_round}")
+            logger.warning(
+                f"Insufficient clients for round {self.current_round}: {len(selected_clients)} < {self.min_clients_per_round}"
+            )
             return {
                 "round_number": self.current_round,
                 "status": "insufficient_clients",
                 "selected_clients": [],
-                "message": "Not enough clients available for training"
+                "message": "Not enough clients available for training",
             }
 
         # Create round information
         round_info = FederatedRound(
             round_number=self.current_round,
             start_time=datetime.now(),
-            participating_clients=[client.client_id for client in selected_clients]
+            participating_clients=[client.client_id for client in selected_clients],
         )
 
         # Update client status
@@ -608,16 +625,17 @@ class FederatedLearningService:
             "status": "started",
             "selected_clients": [client.client_id for client in selected_clients],
             "training_tasks": training_tasks,
-            "privacy_requirements": self._get_privacy_requirements(selected_clients)
+            "privacy_requirements": self._get_privacy_requirements(selected_clients),
         }
 
     async def _select_clients_for_round(self) -> list[FederatedClient]:
         """Select clients for the current training round."""
         # Get available clients
         available_clients = [
-            client for client in self.clients.values()
-            if client.status in [ClientStatus.IDLE, ClientStatus.ACTIVE] and
-            not client.privacy_budget.is_exhausted()
+            client
+            for client in self.clients.values()
+            if client.status in [ClientStatus.IDLE, ClientStatus.ACTIVE]
+            and not client.privacy_budget.is_exhausted()
         ]
 
         if not available_clients:
@@ -634,23 +652,32 @@ class FederatedLearningService:
             # Default to random
             selected = await self._random_client_selection(available_clients)
 
-        return selected[:self.max_clients_per_round]
+        return selected[: self.max_clients_per_round]
 
-    async def _random_client_selection(self, available_clients: list[FederatedClient]) -> list[FederatedClient]:
+    async def _random_client_selection(
+        self, available_clients: list[FederatedClient]
+    ) -> list[FederatedClient]:
         """Random client selection."""
         num_clients = min(len(available_clients), self.max_clients_per_round)
         indices = np.random.choice(len(available_clients), num_clients, replace=False)
         return [available_clients[i] for i in indices]
 
-    async def _weighted_client_selection(self, available_clients: list[FederatedClient]) -> list[FederatedClient]:
+    async def _weighted_client_selection(
+        self, available_clients: list[FederatedClient]
+    ) -> list[FederatedClient]:
         """Weighted client selection based on reliability and contribution."""
         # Calculate selection weights
         weights = []
         for client in available_clients:
             weight = (
-                client.metrics.reliability_score * 0.4 +
-                client.metrics.contribution_score * 0.3 +
-                (1.0 - client.privacy_budget.spent_epsilon / client.privacy_budget.epsilon) * 0.3
+                client.metrics.reliability_score * 0.4
+                + client.metrics.contribution_score * 0.3
+                + (
+                    1.0
+                    - client.privacy_budget.spent_epsilon
+                    / client.privacy_budget.epsilon
+                )
+                * 0.3
             )
             weights.append(weight)
 
@@ -669,7 +696,9 @@ class FederatedLearningService:
 
         return [available_clients[i] for i in indices]
 
-    async def _diverse_client_selection(self, available_clients: list[FederatedClient]) -> list[FederatedClient]:
+    async def _diverse_client_selection(
+        self, available_clients: list[FederatedClient]
+    ) -> list[FederatedClient]:
         """Diverse client selection to maximize data heterogeneity."""
         # This is a simplified version - in practice, you'd use more sophisticated diversity metrics
 
@@ -698,7 +727,9 @@ class FederatedLearningService:
 
         return selected_clients
 
-    async def _create_training_tasks(self, selected_clients: list[FederatedClient]) -> dict[str, Any]:
+    async def _create_training_tasks(
+        self, selected_clients: list[FederatedClient]
+    ) -> dict[str, Any]:
         """Create training tasks for selected clients."""
         tasks = {}
 
@@ -714,28 +745,31 @@ class FederatedLearningService:
                     "privacy_requirements": {
                         "noise_multiplier": client.privacy_budget.noise_multiplier,
                         "clipping_norm": client.privacy_budget.clipping_norm,
-                        "epsilon_budget": client.privacy_budget.remaining_epsilon
-                    }
+                        "epsilon_budget": client.privacy_budget.remaining_epsilon,
+                    },
                 },
-                "deadline": (datetime.now() + timedelta(minutes=30)).isoformat()
+                "deadline": (datetime.now() + timedelta(minutes=30)).isoformat(),
             }
 
             tasks[client.client_id] = task
 
         return tasks
 
-    def _get_privacy_requirements(self, selected_clients: list[FederatedClient]) -> dict[str, Any]:
+    def _get_privacy_requirements(
+        self, selected_clients: list[FederatedClient]
+    ) -> dict[str, Any]:
         """Get privacy requirements for the round."""
         return {
             "privacy_level": self.privacy_level.value,
-            "differential_privacy": self.privacy_level == PrivacyLevel.DIFFERENTIAL_PRIVACY,
+            "differential_privacy": self.privacy_level
+            == PrivacyLevel.DIFFERENTIAL_PRIVACY,
             "min_noise_multiplier": min(
                 client.privacy_budget.noise_multiplier for client in selected_clients
             ),
             "max_epsilon_per_client": max(
                 client.privacy_budget.remaining_epsilon for client in selected_clients
             ),
-            "byzantine_tolerance": 0.3
+            "byzantine_tolerance": 0.3,
         }
 
     async def receive_client_update(
@@ -763,7 +797,9 @@ class FederatedLearningService:
             client = self.clients[client_id]
 
             # Validate update
-            if not self._validate_client_update(client, local_weights, training_metrics):
+            if not self._validate_client_update(
+                client, local_weights, training_metrics
+            ):
                 return {"status": "error", "message": "Invalid client update"}
 
             # Store client update
@@ -782,12 +818,14 @@ class FederatedLearningService:
                 client, training_metrics, data_size
             )
 
-            logger.info(f"Received update from client {client_id} (data_size: {data_size})")
+            logger.info(
+                f"Received update from client {client_id} (data_size: {data_size})"
+            )
 
             return {
                 "status": "received",
                 "message": "Update received successfully",
-                "contribution_score": client.metrics.contribution_score
+                "contribution_score": client.metrics.contribution_score,
             }
 
         except Exception as e:
@@ -803,7 +841,9 @@ class FederatedLearningService:
         """Validate client model update."""
         # Check if client is expected to participate
         if client.status != ClientStatus.TRAINING:
-            logger.warning(f"Unexpected update from client {client.client_id} (status: {client.status})")
+            logger.warning(
+                f"Unexpected update from client {client.client_id} (status: {client.status})"
+            )
             return False
 
         # Check if weights have expected structure
@@ -815,13 +855,17 @@ class FederatedLearningService:
         required_metrics = ["accuracy", "training_time"]
         for metric in required_metrics:
             if metric not in training_metrics:
-                logger.warning(f"Missing metric {metric} from client {client.client_id}")
+                logger.warning(
+                    f"Missing metric {metric} from client {client.client_id}"
+                )
                 return False
 
         # Check for suspicious metrics
         accuracy = training_metrics.get("accuracy", 0.0)
         if accuracy < 0.0 or accuracy > 1.0:
-            logger.warning(f"Suspicious accuracy from client {client.client_id}: {accuracy}")
+            logger.warning(
+                f"Suspicious accuracy from client {client.client_id}: {accuracy}"
+            )
             return False
 
         return True
@@ -844,15 +888,15 @@ class FederatedLearningService:
         training_time = training_metrics.get("training_time", 1.0)
         if client.metrics.rounds_participated > 1:
             # Simplified reliability based on consistent training times
-            reliability_score = min(1.0, 60.0 / max(training_time, 1.0))  # Prefer faster training
+            reliability_score = min(
+                1.0, 60.0 / max(training_time, 1.0)
+            )  # Prefer faster training
         else:
             reliability_score = 0.5  # Default for new clients
 
         # Combined contribution score
         contribution_score = (
-            0.4 * data_score +
-            0.4 * accuracy_score +
-            0.2 * reliability_score
+            0.4 * data_score + 0.4 * accuracy_score + 0.2 * reliability_score
         )
 
         return contribution_score
@@ -866,16 +910,19 @@ class FederatedLearningService:
         try:
             # Get clients with updates for current round
             clients_with_updates = [
-                client for client in self.clients.values()
-                if (client.status == ClientStatus.UPLOADING and
-                    client.local_model_weights is not None)
+                client
+                for client in self.clients.values()
+                if (
+                    client.status == ClientStatus.UPLOADING
+                    and client.local_model_weights is not None
+                )
             ]
 
             if len(clients_with_updates) < self.min_clients_per_round:
                 return {
                     "status": "insufficient_updates",
                     "message": f"Only {len(clients_with_updates)} clients provided updates",
-                    "required": self.min_clients_per_round
+                    "required": self.min_clients_per_round,
                 }
 
             # Prepare client weights for aggregation
@@ -883,16 +930,18 @@ class FederatedLearningService:
             privacy_budgets = {}
 
             for client in clients_with_updates:
-                client_weights.append((
-                    client.client_id,
-                    client.local_model_weights,
-                    client.metrics.data_size
-                ))
+                client_weights.append(
+                    (
+                        client.client_id,
+                        client.local_model_weights,
+                        client.metrics.data_size,
+                    )
+                )
                 privacy_budgets[client.client_id] = client.privacy_budget
 
             # Perform secure aggregation
-            aggregated_weights, privacy_metrics = await self.aggregator.aggregate_weights(
-                client_weights, privacy_budgets
+            aggregated_weights, privacy_metrics = (
+                await self.aggregator.aggregate_weights(client_weights, privacy_budgets)
             )
 
             # Update global model
@@ -909,11 +958,13 @@ class FederatedLearningService:
                 round_number=self.current_round,
                 start_time=datetime.now() - timedelta(minutes=30),  # Approximate
                 end_time=datetime.now(),
-                participating_clients=[client.client_id for client in clients_with_updates],
+                participating_clients=[
+                    client.client_id for client in clients_with_updates
+                ],
                 aggregated_weights=aggregated_weights,
                 global_performance=round_performance,
                 privacy_guarantees=privacy_metrics,
-                convergence_metrics=convergence_metrics
+                convergence_metrics=convergence_metrics,
             )
 
             self.round_history.append(current_round_info)
@@ -941,48 +992,61 @@ class FederatedLearningService:
                 "performance_metrics": round_performance,
                 "privacy_metrics": privacy_metrics,
                 "convergence_metrics": convergence_metrics,
-                "next_round_ready": True
+                "next_round_ready": True,
             }
 
         except Exception as e:
             logger.error(f"Error in round aggregation: {e}")
             return {"status": "error", "message": str(e)}
 
-    def _calculate_round_performance(self, participating_clients: list[FederatedClient]) -> dict[str, float]:
+    def _calculate_round_performance(
+        self, participating_clients: list[FederatedClient]
+    ) -> dict[str, float]:
         """Calculate performance metrics for the round."""
         if not participating_clients:
             return {}
 
         # Weighted average accuracy
-        total_data_size = sum(client.metrics.data_size for client in participating_clients)
+        total_data_size = sum(
+            client.metrics.data_size for client in participating_clients
+        )
         if total_data_size > 0:
-            weighted_accuracy = sum(
-                client.metrics.model_accuracy * client.metrics.data_size
-                for client in participating_clients
-            ) / total_data_size
+            weighted_accuracy = (
+                sum(
+                    client.metrics.model_accuracy * client.metrics.data_size
+                    for client in participating_clients
+                )
+                / total_data_size
+            )
         else:
-            weighted_accuracy = np.mean([
-                client.metrics.model_accuracy for client in participating_clients
-            ])
+            weighted_accuracy = np.mean(
+                [client.metrics.model_accuracy for client in participating_clients]
+            )
 
         # Average training time
-        avg_training_time = np.mean([
-            client.metrics.training_time for client in participating_clients
-        ])
+        avg_training_time = np.mean(
+            [client.metrics.training_time for client in participating_clients]
+        )
 
         # Client diversity (simplified)
-        contribution_scores = [client.metrics.contribution_score for client in participating_clients]
-        diversity_score = np.std(contribution_scores) if len(contribution_scores) > 1 else 0.0
+        contribution_scores = [
+            client.metrics.contribution_score for client in participating_clients
+        ]
+        diversity_score = (
+            np.std(contribution_scores) if len(contribution_scores) > 1 else 0.0
+        )
 
         return {
             "weighted_accuracy": weighted_accuracy,
             "average_training_time": avg_training_time,
             "client_diversity": diversity_score,
             "participation_rate": len(participating_clients) / len(self.clients),
-            "total_data_samples": total_data_size
+            "total_data_samples": total_data_size,
         }
 
-    def _check_convergence(self, round_performance: dict[str, float]) -> dict[str, float]:
+    def _check_convergence(
+        self, round_performance: dict[str, float]
+    ) -> dict[str, float]:
         """Check convergence of federated learning."""
         current_accuracy = round_performance.get("weighted_accuracy", 0.0)
         self.convergence_history.append(current_accuracy)
@@ -991,7 +1055,7 @@ class FederatedLearningService:
             "current_accuracy": current_accuracy,
             "is_converged": False,
             "improvement_rate": 0.0,
-            "stability_score": 0.0
+            "stability_score": 0.0,
         }
 
         if len(self.convergence_history) >= 3:
@@ -1015,32 +1079,53 @@ class FederatedLearningService:
         # Client statistics
         client_stats = {
             "total_clients": len(self.clients),
-            "active_clients": len([c for c in self.clients.values() if c.status == ClientStatus.ACTIVE]),
-            "training_clients": len([c for c in self.clients.values() if c.status == ClientStatus.TRAINING]),
-            "failed_clients": len([c for c in self.clients.values() if c.status == ClientStatus.FAILED]),
+            "active_clients": len(
+                [c for c in self.clients.values() if c.status == ClientStatus.ACTIVE]
+            ),
+            "training_clients": len(
+                [c for c in self.clients.values() if c.status == ClientStatus.TRAINING]
+            ),
+            "failed_clients": len(
+                [c for c in self.clients.values() if c.status == ClientStatus.FAILED]
+            ),
         }
 
         # Privacy statistics
         privacy_stats = {
-            "clients_with_budget": len([
-                c for c in self.clients.values()
-                if not c.privacy_budget.is_exhausted()
-            ]),
-            "average_privacy_budget": np.mean([
-                c.privacy_budget.remaining_epsilon for c in self.clients.values()
-            ]) if self.clients else 0.0,
-            "privacy_level": self.privacy_level.value
+            "clients_with_budget": len(
+                [
+                    c
+                    for c in self.clients.values()
+                    if not c.privacy_budget.is_exhausted()
+                ]
+            ),
+            "average_privacy_budget": (
+                np.mean(
+                    [c.privacy_budget.remaining_epsilon for c in self.clients.values()]
+                )
+                if self.clients
+                else 0.0
+            ),
+            "privacy_level": self.privacy_level.value,
         }
 
         # Training statistics
         training_stats = {
             "current_round": self.current_round,
             "total_rounds_completed": len(self.round_history),
-            "average_participation_rate": np.mean([
-                round_info.global_performance.get("participation_rate", 0.0)
-                for round_info in self.round_history
-            ]) if self.round_history else 0.0,
-            "convergence_status": self.convergence_history[-1] if self.convergence_history else 0.0
+            "average_participation_rate": (
+                np.mean(
+                    [
+                        round_info.global_performance.get("participation_rate", 0.0)
+                        for round_info in self.round_history
+                    ]
+                )
+                if self.round_history
+                else 0.0
+            ),
+            "convergence_status": (
+                self.convergence_history[-1] if self.convergence_history else 0.0
+            ),
         }
 
         # Performance trends
@@ -1050,21 +1135,31 @@ class FederatedLearningService:
                 performance_trends[metric] = {
                     "current": values[-1],
                     "average": np.mean(values),
-                    "trend": "improving" if len(values) > 1 and values[-1] > values[-2] else "stable"
+                    "trend": (
+                        "improving"
+                        if len(values) > 1 and values[-1] > values[-2]
+                        else "stable"
+                    ),
                 }
 
         return {
             "system_status": {
                 "strategy": self.strategy.value,
                 "privacy_level": self.privacy_level.value,
-                "is_training": any(c.status == ClientStatus.TRAINING for c in self.clients.values()),
-                "last_round_completed": self.round_history[-1].end_time.isoformat() if self.round_history else None
+                "is_training": any(
+                    c.status == ClientStatus.TRAINING for c in self.clients.values()
+                ),
+                "last_round_completed": (
+                    self.round_history[-1].end_time.isoformat()
+                    if self.round_history
+                    else None
+                ),
             },
             "client_statistics": client_stats,
             "privacy_statistics": privacy_stats,
             "training_statistics": training_stats,
             "performance_trends": performance_trends,
-            "recommendations": self._generate_federated_recommendations()
+            "recommendations": self._generate_federated_recommendations(),
         }
 
     def _generate_federated_recommendations(self) -> list[str]:
@@ -1072,27 +1167,45 @@ class FederatedLearningService:
         recommendations = []
 
         # Check client participation
-        active_clients = len([c for c in self.clients.values() if c.status in [ClientStatus.ACTIVE, ClientStatus.IDLE]])
+        active_clients = len(
+            [
+                c
+                for c in self.clients.values()
+                if c.status in [ClientStatus.ACTIVE, ClientStatus.IDLE]
+            ]
+        )
         if active_clients < self.min_clients_per_round:
-            recommendations.append(f"Recruit more clients - only {active_clients} active clients available")
+            recommendations.append(
+                f"Recruit more clients - only {active_clients} active clients available"
+            )
 
         # Check privacy budget utilization
-        clients_with_budget = len([c for c in self.clients.values() if not c.privacy_budget.is_exhausted()])
+        clients_with_budget = len(
+            [c for c in self.clients.values() if not c.privacy_budget.is_exhausted()]
+        )
         if clients_with_budget < len(self.clients) * 0.5:
-            recommendations.append("Many clients have exhausted privacy budgets - consider budget reallocation")
+            recommendations.append(
+                "Many clients have exhausted privacy budgets - consider budget reallocation"
+            )
 
         # Check convergence
         if self.convergence_history and len(self.convergence_history) > 5:
-            recent_improvement = self.convergence_history[-1] - self.convergence_history[-5]
+            recent_improvement = (
+                self.convergence_history[-1] - self.convergence_history[-5]
+            )
             if recent_improvement < 0.01:
-                recommendations.append("Model convergence slowing - consider adjusting learning parameters")
+                recommendations.append(
+                    "Model convergence slowing - consider adjusting learning parameters"
+                )
 
         # Check client diversity
         if self.round_history:
             latest_round = self.round_history[-1]
             diversity = latest_round.global_performance.get("client_diversity", 0.0)
             if diversity < 0.1:
-                recommendations.append("Low client diversity detected - consider diverse client selection")
+                recommendations.append(
+                    "Low client diversity detected - consider diverse client selection"
+                )
 
         if not recommendations:
             recommendations.append("Federated learning system is operating optimally")

@@ -9,10 +9,11 @@ Tests cover:
 - Multivariate drift detection
 """
 
-
 import numpy as np
 import pandas as pd
 import pytest
+from sklearn.datasets import make_classification
+
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
 from pynomaly.infrastructure.adapters.drift_detection_adapter import (
@@ -25,7 +26,6 @@ from pynomaly.infrastructure.adapters.drift_detection_adapter import (
     StatisticalDriftDetector,
     StreamingDriftDetector,
 )
-from sklearn.datasets import make_classification
 
 
 @pytest.fixture
@@ -39,7 +39,7 @@ def base_dataset():
         n_redundant=0,
         n_informative=4,
         n_clusters_per_class=1,
-        random_state=42
+        random_state=42,
     )
 
     # Convert to anomaly labels (small fraction of anomalies)
@@ -49,13 +49,10 @@ def base_dataset():
 
     feature_names = [f"feature_{i}" for i in range(X.shape[1])]
     df = pd.DataFrame(X, columns=feature_names)
-    df['target'] = y_anomaly
+    df["target"] = y_anomaly
 
     return Dataset(
-        id="base_dataset",
-        name="Base Dataset",
-        data=df,
-        target_column="target"
+        id="base_dataset", name="Base Dataset", data=df, target_column="target"
     )
 
 
@@ -70,7 +67,7 @@ def drifted_dataset():
         n_redundant=0,
         n_informative=4,
         n_clusters_per_class=1,
-        random_state=123
+        random_state=123,
     )
 
     # Add systematic drift to first two features
@@ -84,13 +81,10 @@ def drifted_dataset():
 
     feature_names = [f"feature_{i}" for i in range(X.shape[1])]
     df = pd.DataFrame(X, columns=feature_names)
-    df['target'] = y_anomaly
+    df["target"] = y_anomaly
 
     return Dataset(
-        id="drifted_dataset",
-        name="Drifted Dataset",
-        data=df,
-        target_column="target"
+        id="drifted_dataset", name="Drifted Dataset", data=df, target_column="target"
     )
 
 
@@ -101,10 +95,7 @@ def statistical_drift_detector():
         id="test_statistical_drift",
         name="Test Statistical Drift",
         algorithm_name="StatisticalDrift",
-        parameters={
-            "significance_level": 0.05,
-            "method": "ks_test"
-        }
+        parameters={"significance_level": 0.05, "method": "ks_test"},
     )
 
 
@@ -115,10 +106,7 @@ def distance_drift_detector():
         id="test_distance_drift",
         name="Test Distance Drift",
         algorithm_name="DistanceBasedDrift",
-        parameters={
-            "kernel": "rbf",
-            "gamma": 1.0
-        }
+        parameters={"kernel": "rbf", "gamma": 1.0},
     )
 
 
@@ -129,9 +117,7 @@ def performance_drift_detector():
         id="test_performance_drift",
         name="Test Performance Drift",
         algorithm_name="PerformanceBasedDrift",
-        parameters={
-            "performance_threshold": 0.1
-        }
+        parameters={"performance_threshold": 0.1},
     )
 
 
@@ -142,10 +128,7 @@ def streaming_drift_detector():
         id="test_streaming_drift",
         name="Test Streaming Drift",
         algorithm_name="StreamingDrift",
-        parameters={
-            "window_size": 100,
-            "adaptation_rate": 0.01
-        }
+        parameters={"window_size": 100, "adaptation_rate": 0.01},
     )
 
 
@@ -163,7 +146,7 @@ class TestStatisticalDriftDetector:
         detector = StatisticalDriftDetector()
 
         # Prepare data
-        X = base_dataset.data.drop('target', axis=1).values
+        X = base_dataset.data.drop("target", axis=1).values
         feature_names = [f"feature_{i}" for i in range(X.shape[1])]
 
         # Fit reference
@@ -173,16 +156,16 @@ class TestStatisticalDriftDetector:
         for feature_name in feature_names:
             assert feature_name in detector._reference_distributions
             ref_dist = detector._reference_distributions[feature_name]
-            assert 'mean' in ref_dist
-            assert 'std' in ref_dist
-            assert 'data' in ref_dist
+            assert "mean" in ref_dist
+            assert "std" in ref_dist
+            assert "data" in ref_dist
 
     def test_ks_test_no_drift(self, base_dataset):
         """Test KS test with no drift (same distribution)."""
         detector = StatisticalDriftDetector()
 
         # Use same data for reference and current
-        X = base_dataset.data.drop('target', axis=1).values
+        X = base_dataset.data.drop("target", axis=1).values
         feature_names = [f"feature_{i}" for i in range(X.shape[1])]
 
         detector.fit_reference(X, feature_names)
@@ -198,12 +181,12 @@ class TestStatisticalDriftDetector:
         detector = StatisticalDriftDetector()
 
         # Fit on base dataset
-        X_base = base_dataset.data.drop('target', axis=1).values
+        X_base = base_dataset.data.drop("target", axis=1).values
         feature_names = [f"feature_{i}" for i in range(X_base.shape[1])]
         detector.fit_reference(X_base, feature_names)
 
         # Test on drifted dataset
-        X_drift = drifted_dataset.data.drop('target', axis=1).values
+        X_drift = drifted_dataset.data.drop("target", axis=1).values
         result = detector.detect_drift_ks_test(X_drift, feature_names)
 
         assert isinstance(result, DriftDetectionResult)
@@ -217,17 +200,17 @@ class TestStatisticalDriftDetector:
         detector = StatisticalDriftDetector()
 
         # Fit on base dataset
-        X_base = base_dataset.data.drop('target', axis=1).values
+        X_base = base_dataset.data.drop("target", axis=1).values
         feature_names = [f"feature_{i}" for i in range(X_base.shape[1])]
         detector.fit_reference(X_base, feature_names)
 
         # Test on drifted dataset
-        X_drift = drifted_dataset.data.drop('target', axis=1).values
+        X_drift = drifted_dataset.data.drop("target", axis=1).values
         result = detector.detect_drift_chi_square(X_drift, feature_names, n_bins=10)
 
         assert isinstance(result, DriftDetectionResult)
         assert result.detection_method == "chi_square"
-        assert 'n_bins' in result.details
+        assert "n_bins" in result.details
 
 
 class TestDistanceBasedDriftDetector:
@@ -235,8 +218,8 @@ class TestDistanceBasedDriftDetector:
 
     def test_distance_detector_initialization(self):
         """Test distance detector initialization."""
-        detector = DistanceBasedDriftDetector(kernel='rbf', gamma=0.5)
-        assert detector.kernel == 'rbf'
+        detector = DistanceBasedDriftDetector(kernel="rbf", gamma=0.5)
+        assert detector.kernel == "rbf"
         assert detector.gamma == 0.5
         assert detector._reference_embeddings is None
 
@@ -244,7 +227,7 @@ class TestDistanceBasedDriftDetector:
         """Test fitting reference embeddings."""
         detector = DistanceBasedDriftDetector()
 
-        X = base_dataset.data.drop('target', axis=1).values
+        X = base_dataset.data.drop("target", axis=1).values
         detector.fit_reference(X)
 
         assert detector._reference_embeddings is not None
@@ -255,7 +238,7 @@ class TestDistanceBasedDriftDetector:
         detector = DistanceBasedDriftDetector()
 
         # Use same data for reference and current
-        X = base_dataset.data.drop('target', axis=1).values
+        X = base_dataset.data.drop("target", axis=1).values
         detector.fit_reference(X)
 
         # Test with subset of same data
@@ -271,11 +254,11 @@ class TestDistanceBasedDriftDetector:
         detector = DistanceBasedDriftDetector()
 
         # Fit on base dataset
-        X_base = base_dataset.data.drop('target', axis=1).values
+        X_base = base_dataset.data.drop("target", axis=1).values
         detector.fit_reference(X_base)
 
         # Test on drifted dataset
-        X_drift = drifted_dataset.data.drop('target', axis=1).values
+        X_drift = drifted_dataset.data.drop("target", axis=1).values
         result = detector.detect_drift_mmd(X_drift, bootstrap_samples=100)
 
         assert isinstance(result, DriftDetectionResult)
@@ -285,9 +268,9 @@ class TestDistanceBasedDriftDetector:
 
     def test_rbf_kernel_computation(self, base_dataset):
         """Test RBF kernel computation."""
-        detector = DistanceBasedDriftDetector(kernel='rbf', gamma=1.0)
+        detector = DistanceBasedDriftDetector(kernel="rbf", gamma=1.0)
 
-        X = base_dataset.data.drop('target', axis=1).values[:100]  # Small sample
+        X = base_dataset.data.drop("target", axis=1).values[:100]  # Small sample
         Y = X + 0.1  # Slight perturbation
 
         kernel_matrix = detector._rbf_kernel(X, Y)
@@ -310,21 +293,21 @@ class TestPerformanceBasedDriftDetector:
         """Test fitting with labeled reference data."""
         detector = PerformanceBasedDriftDetector()
 
-        X = base_dataset.data.drop('target', axis=1).values
-        y = base_dataset.data['target'].values
+        X = base_dataset.data.drop("target", axis=1).values
+        y = base_dataset.data["target"].values
 
         detector.fit_reference(X, y)
 
         assert detector.baseline_model is not None
         assert detector._reference_performance is not None
-        assert 'accuracy' in detector._reference_performance
-        assert 'f1' in detector._reference_performance
+        assert "accuracy" in detector._reference_performance
+        assert "f1" in detector._reference_performance
 
     def test_fit_reference_without_labels(self, base_dataset):
         """Test fitting without labels (unsupervised)."""
         detector = PerformanceBasedDriftDetector()
 
-        X = base_dataset.data.drop('target', axis=1).values
+        X = base_dataset.data.drop("target", axis=1).values
 
         detector.fit_reference(X)
 
@@ -337,21 +320,21 @@ class TestPerformanceBasedDriftDetector:
         detector = PerformanceBasedDriftDetector(performance_threshold=0.05)
 
         # Fit on base dataset
-        X_base = base_dataset.data.drop('target', axis=1).values
-        y_base = base_dataset.data['target'].values
+        X_base = base_dataset.data.drop("target", axis=1).values
+        y_base = base_dataset.data["target"].values
         detector.fit_reference(X_base, y_base)
 
         # Test on drifted dataset (should show performance degradation)
-        X_drift = drifted_dataset.data.drop('target', axis=1).values
-        y_drift = drifted_dataset.data['target'].values
+        X_drift = drifted_dataset.data.drop("target", axis=1).values
+        y_drift = drifted_dataset.data["target"].values
 
         result = detector.detect_drift_performance(X_drift, y_drift)
 
         assert isinstance(result, DriftDetectionResult)
         assert result.detection_method == "performance_based"
-        assert 'reference_performance' in result.details
-        assert 'current_performance' in result.details
-        assert 'performance_degradation' in result.details
+        assert "reference_performance" in result.details
+        assert "current_performance" in result.details
+        assert "performance_degradation" in result.details
 
 
 class TestStreamingDriftDetector:
@@ -369,7 +352,7 @@ class TestStreamingDriftDetector:
         """Test initial updates to streaming detector."""
         detector = StreamingDriftDetector(window_size=100)
 
-        X = base_dataset.data.drop('target', axis=1).values
+        X = base_dataset.data.drop("target", axis=1).values
 
         # Initial update should not detect drift
         result = detector.update(X[:50])
@@ -446,7 +429,7 @@ class TestDriftDetectionAdapter:
             id="test_unsupported",
             name="Test Unsupported",
             algorithm_name="UnsupportedDrift",
-            parameters={}
+            parameters={},
         )
 
         with pytest.raises(AlgorithmNotFoundError):
@@ -475,7 +458,9 @@ class TestDriftDetectionAdapter:
         assert "drift_detected" in result.metadata
         assert result.metadata["model_type"] == "drift_detection"
 
-    def test_adapter_predict_with_drift(self, base_dataset, drifted_dataset, statistical_drift_detector):
+    def test_adapter_predict_with_drift(
+        self, base_dataset, drifted_dataset, statistical_drift_detector
+    ):
         """Test adapter prediction with drift."""
         adapter = DriftDetectionAdapter(statistical_drift_detector)
         adapter.fit(base_dataset)
@@ -492,7 +477,9 @@ class TestDriftDetectionAdapter:
             assert len(result.anomalies) > 0
             assert result.metadata["drift_severity"] in [s.value for s in DriftSeverity]
 
-    def test_adapter_fit_detect(self, base_dataset, drifted_dataset, distance_drift_detector):
+    def test_adapter_fit_detect(
+        self, base_dataset, drifted_dataset, distance_drift_detector
+    ):
         """Test adapter fit_detect method."""
         adapter = DriftDetectionAdapter(distance_drift_detector)
 
@@ -510,8 +497,11 @@ class TestDriftDetectionAdapter:
         scores = adapter.score(base_dataset)
 
         assert len(scores) == len(base_dataset.data)
-        assert all(hasattr(score, 'value') for score in scores)
-        assert all(score.method == statistical_drift_detector.algorithm_name for score in scores)
+        assert all(hasattr(score, "value") for score in scores)
+        assert all(
+            score.method == statistical_drift_detector.algorithm_name
+            for score in scores
+        )
 
     def test_adapter_params(self, statistical_drift_detector):
         """Test adapter parameter management."""
@@ -529,12 +519,15 @@ class TestDriftDetectionAdapter:
         updated_params = adapter.get_params()
         assert updated_params["significance_level"] == 0.01
 
-    @pytest.mark.parametrize("algorithm_name", [
-        "StatisticalDrift",
-        "DistanceBasedDrift",
-        "PerformanceBasedDrift",
-        "StreamingDrift"
-    ])
+    @pytest.mark.parametrize(
+        "algorithm_name",
+        [
+            "StatisticalDrift",
+            "DistanceBasedDrift",
+            "PerformanceBasedDrift",
+            "StreamingDrift",
+        ],
+    )
     def test_all_algorithms(self, base_dataset, drifted_dataset, algorithm_name):
         """Test all supported drift detection algorithms."""
         detector = Detector(
@@ -546,8 +539,8 @@ class TestDriftDetectionAdapter:
                 "window_size": 100,
                 "performance_threshold": 0.1,
                 "kernel": "rbf",
-                "gamma": 1.0
-            }
+                "gamma": 1.0,
+            },
         )
 
         adapter = DriftDetectionAdapter(detector)
@@ -570,10 +563,7 @@ class TestDriftDetectionAdapter:
         # Test prediction without fitting
         with pytest.raises(AdapterError):
             empty_dataset = Dataset(
-                id="empty",
-                name="Empty",
-                data=pd.DataFrame(),
-                target_column=None
+                id="empty", name="Empty", data=pd.DataFrame(), target_column=None
             )
             adapter.predict(empty_dataset)
 
@@ -618,7 +608,7 @@ class TestDriftDetectionIntegration:
                 id=f"test_{method}",
                 name=f"Test {method}",
                 algorithm_name=method,
-                parameters={"significance_level": 0.05, "kernel": "rbf"}
+                parameters={"significance_level": 0.05, "kernel": "rbf"},
             )
 
             adapter = DriftDetectionAdapter(detector)
@@ -636,7 +626,7 @@ class TestDriftDetectionIntegration:
             id="temporal_drift",
             name="Temporal Drift",
             algorithm_name="StreamingDrift",
-            parameters={"window_size": 50, "adaptation_rate": 0.1}
+            parameters={"window_size": 50, "adaptation_rate": 0.1},
         )
 
         adapter = DriftDetectionAdapter(detector)
@@ -644,13 +634,10 @@ class TestDriftDetectionIntegration:
         # Create initial stable dataset
         np.random.seed(42)
         stable_data = np.random.normal(0, 1, (100, 3))
-        df_stable = pd.DataFrame(stable_data, columns=['f1', 'f2', 'f3'])
+        df_stable = pd.DataFrame(stable_data, columns=["f1", "f2", "f3"])
 
         initial_dataset = Dataset(
-            id="initial",
-            name="Initial",
-            data=df_stable,
-            target_column=None
+            id="initial", name="Initial", data=df_stable, target_column=None
         )
 
         adapter.fit(initial_dataset)
@@ -659,13 +646,10 @@ class TestDriftDetectionIntegration:
         for i in range(5):
             # Gradually shift the mean
             drift_data = np.random.normal(i * 0.5, 1, (50, 3))
-            df_drift = pd.DataFrame(drift_data, columns=['f1', 'f2', 'f3'])
+            df_drift = pd.DataFrame(drift_data, columns=["f1", "f2", "f3"])
 
             drift_dataset = Dataset(
-                id=f"drift_{i}",
-                name=f"Drift {i}",
-                data=df_drift,
-                target_column=None
+                id=f"drift_{i}", name=f"Drift {i}", data=df_drift, target_column=None
             )
 
             result = adapter.predict(drift_dataset)
@@ -681,7 +665,7 @@ class TestDriftDetectionIntegration:
             id="feature_drift",
             name="Feature Drift",
             algorithm_name="StatisticalDrift",
-            parameters={"significance_level": 0.05}
+            parameters={"significance_level": 0.05},
         )
 
         adapter = DriftDetectionAdapter(detector)
@@ -689,13 +673,10 @@ class TestDriftDetectionIntegration:
         # Create reference data
         np.random.seed(42)
         X_ref = np.random.normal(0, 1, (500, 4))
-        df_ref = pd.DataFrame(X_ref, columns=['f1', 'f2', 'f3', 'f4'])
+        df_ref = pd.DataFrame(X_ref, columns=["f1", "f2", "f3", "f4"])
 
         ref_dataset = Dataset(
-            id="reference",
-            name="Reference",
-            data=df_ref,
-            target_column=None
+            id="reference", name="Reference", data=df_ref, target_column=None
         )
 
         adapter.fit(ref_dataset)
@@ -705,13 +686,10 @@ class TestDriftDetectionIntegration:
         X_drift[:, 0] += 2.0  # Shift only first feature
         X_drift[:, 2] *= 2.0  # Scale only third feature
 
-        df_drift = pd.DataFrame(X_drift, columns=['f1', 'f2', 'f3', 'f4'])
+        df_drift = pd.DataFrame(X_drift, columns=["f1", "f2", "f3", "f4"])
 
         drift_dataset = Dataset(
-            id="drift",
-            name="Drift",
-            data=df_drift,
-            target_column=None
+            id="drift", name="Drift", data=df_drift, target_column=None
         )
 
         result = adapter.predict(drift_dataset)
@@ -729,7 +707,7 @@ class TestDriftDetectionIntegration:
             id="performance_drift",
             name="Performance Drift",
             algorithm_name="PerformanceBasedDrift",
-            parameters={"performance_threshold": 0.05}
+            parameters={"performance_threshold": 0.05},
         )
 
         adapter = DriftDetectionAdapter(detector)
@@ -740,13 +718,12 @@ class TestDriftDetectionIntegration:
         degraded_data = base_dataset.data.copy()
         n_flip = int(0.3 * len(degraded_data))
         flip_indices = np.random.choice(len(degraded_data), n_flip, replace=False)
-        degraded_data.loc[flip_indices, 'target'] = 1 - degraded_data.loc[flip_indices, 'target']
+        degraded_data.loc[flip_indices, "target"] = (
+            1 - degraded_data.loc[flip_indices, "target"]
+        )
 
         degraded_dataset = Dataset(
-            id="degraded",
-            name="Degraded",
-            data=degraded_data,
-            target_column="target"
+            id="degraded", name="Degraded", data=degraded_data, target_column="target"
         )
 
         result = adapter.predict(degraded_dataset)

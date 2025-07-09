@@ -133,6 +133,7 @@ def show_dataset_info(file_path):
 def validate_dataset(file_path):
     """Validate data quality for anomaly detection"""
     import pandas as pd
+
     from pynomaly.infrastructure.data.validation_pipeline import (
         DataValidationPipeline,
         ValidationSeverity,
@@ -223,6 +224,7 @@ def validate_dataset(file_path):
 def run_detection(file_path, algorithm=None, contamination=None):
     """Run anomaly detection on dataset"""
     import pandas as pd
+
     from pynomaly.domain.entities import Dataset
     from pynomaly.domain.value_objects import ContaminationRate
     from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
@@ -298,6 +300,7 @@ def run_benchmark(file_path):
     import time
 
     import pandas as pd
+
     from pynomaly.domain.entities import Dataset
     from pynomaly.domain.value_objects import ContaminationRate
     from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
@@ -524,6 +527,7 @@ def start_server():
     """Start the API server"""
     try:
         import uvicorn
+
         from pynomaly.presentation.api import create_app
 
         print("Starting Pynomaly API server...")
@@ -548,6 +552,7 @@ def auto_select_algorithm(file_path):
     import time
 
     import pandas as pd
+
     from pynomaly.application.services.automl_service import (
         AutoMLService,
         OptimizationObjective,
@@ -922,6 +927,7 @@ def auto_select_algorithm(file_path):
 def explain_anomaly_detection(file_path, algorithm=None, instance_index=None):
     """Generate explanations for anomaly detection results"""
     import pandas as pd
+
     from pynomaly.domain.entities import Dataset
     from pynomaly.domain.value_objects import ContaminationRate
     from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
@@ -1229,6 +1235,7 @@ def visualize_anomaly_detection(file_path, algorithm=None, chart_type=None):
     import numpy as np
     import pandas as pd
     import seaborn as sns
+
     from pynomaly.domain.entities import Dataset
     from pynomaly.domain.value_objects import ContaminationRate
     from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter

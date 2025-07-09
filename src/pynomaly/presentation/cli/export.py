@@ -202,14 +202,15 @@ def export_google_sheets(
     results_file: Path = typer.Argument(
         ..., help="Path to detection results JSON file"
     ),
-    spreadsheet_id: str
-    | None = typer.Option(
+    spreadsheet_id: str | None = typer.Option(
         None, help="Existing spreadsheet ID (creates new if not provided)"
     ),
-    credentials_file: Path
-    | None = typer.Option(None, help="Google service account credentials JSON file"),
-    share_emails: list[str]
-    | None = typer.Option(None, help="Email addresses to share with"),
+    credentials_file: Path | None = typer.Option(
+        None, help="Google service account credentials JSON file"
+    ),
+    share_emails: list[str] | None = typer.Option(
+        None, help="Email addresses to share with"
+    ),
     permissions: str = typer.Option(
         "view", help="Permission level: view, edit, comment"
     ),
@@ -271,8 +272,9 @@ def export_smartsheet(
     workspace_name: str | None = typer.Option(None, help="Workspace name"),
     folder_id: str | None = typer.Option(None, help="Folder ID"),
     template_id: str | None = typer.Option(None, help="Template ID for sheet creation"),
-    share_emails: list[str]
-    | None = typer.Option(None, help="Email addresses to share with"),
+    share_emails: list[str] | None = typer.Option(
+        None, help="Email addresses to share with"
+    ),
     access_level: str = typer.Option(
         "VIEWER", help="Access level: VIEWER, EDITOR, ADMIN"
     ),
@@ -324,8 +326,7 @@ def export_multiple(
         ..., help="Export formats (excel, powerbi, gsheets, smartsheet)"
     ),
     output_dir: Path = typer.Option(".", help="Output directory for files"),
-    config_file: Path
-    | None = typer.Option(
+    config_file: Path | None = typer.Option(
         None, help="JSON configuration file for format-specific options"
     ),
 ):
@@ -389,8 +390,9 @@ def validate_config(
     format: str = typer.Argument(
         ..., help="Format to validate (excel, powerbi, gsheets, smartsheet)"
     ),
-    config_file: Path
-    | None = typer.Option(None, help="Configuration file to validate"),
+    config_file: Path | None = typer.Option(
+        None, help="Configuration file to validate"
+    ),
     output_file: Path | None = typer.Option(None, help="Output file path to validate"),
 ):
     """Validate export configuration and setup."""

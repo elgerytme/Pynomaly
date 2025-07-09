@@ -7,6 +7,7 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
+
 from pynomaly.infrastructure.config import create_container
 from pynomaly.presentation.web.app import create_web_app
 

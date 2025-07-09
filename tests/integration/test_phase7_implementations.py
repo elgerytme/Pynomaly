@@ -11,7 +11,8 @@ import numpy as np
 import pytest
 
 # Add src to path for testing
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
+
 
 class TestPhase7Integration:
     """Test suite for Phase 7 Research & Innovation Features"""
@@ -94,6 +95,7 @@ class TestPhase7Integration:
             from pynomaly.research.quantum.quantum_algorithms import (
                 QuantumAnomalyDetector,
             )
+
             print("✅ Quantum algorithms found")
             return True
         except ImportError:
@@ -104,6 +106,7 @@ class TestPhase7Integration:
         """Test if edge deployment is missing (expected to be missing)"""
         try:
             from pynomaly.research.edge.edge_deployment import EdgeDeploymentService
+
             print("✅ Edge deployment found")
             return True
         except ImportError:
@@ -114,6 +117,7 @@ class TestPhase7Integration:
         """Test if AutoML v2 is missing (expected to be missing)"""
         try:
             from pynomaly.research.automl.automl_v2 import AutoMLV2System
+
             print("✅ AutoML v2 found")
             return True
         except ImportError:
@@ -134,7 +138,7 @@ class TestPhase7Integration:
             config = {
                 "methods": [ExplanationMethod.LIME, ExplanationMethod.SHAP],
                 "lime_config": {"num_features": 3},
-                "shap_config": {"num_background": 50}
+                "shap_config": {"num_background": 50},
             }
 
             orchestrator = ExplainableAIOrchestrator(config)
@@ -169,7 +173,7 @@ class TestPhase7Integration:
             config = SyntheticDataConfig(
                 method=SyntheticMethod.STATISTICAL,
                 data_type=DataType.TABULAR,
-                num_samples=50
+                num_samples=50,
             )
 
             print("✅ Synthetic data orchestrator created successfully")
@@ -188,7 +192,7 @@ class TestPhase7Integration:
             "multimodal_models": self.test_multimodal_models_availability(),
             "quantum_algorithms": self.test_quantum_algorithms_missing(),
             "edge_deployment": self.test_edge_deployment_missing(),
-            "automl_v2": self.test_automl_v2_missing()
+            "automl_v2": self.test_automl_v2_missing(),
         }
 
         available_count = sum(results.values())
@@ -203,6 +207,7 @@ class TestPhase7Integration:
             print(f"{status} {component}")
 
         return results
+
 
 def run_phase7_tests():
     """Run all Phase 7 tests"""
@@ -239,6 +244,7 @@ def run_phase7_tests():
     print(f"   - Ready for Phase 8: {'Yes' if sum(results.values()) >= 5 else 'No'}")
 
     return results
+
 
 if __name__ == "__main__":
     run_phase7_tests()

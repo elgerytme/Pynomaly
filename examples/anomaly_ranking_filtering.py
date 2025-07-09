@@ -461,9 +461,9 @@ class AnomalyRankingSystem:
             if confidence >= confidence_threshold:
                 filtered.append(anomaly)
             else:
-                rejection_reasons[
-                    anomaly.sample_index
-                ] = f"Confidence {confidence:.3f} < {confidence_threshold}"
+                rejection_reasons[anomaly.sample_index] = (
+                    f"Confidence {confidence:.3f} < {confidence_threshold}"
+                )
 
         statistics = {
             "total_candidates": len(ranked_anomalies),
@@ -494,9 +494,9 @@ class AnomalyRankingSystem:
             if anomaly.consensus_level >= min_consensus:
                 filtered.append(anomaly)
             else:
-                rejection_reasons[
-                    anomaly.sample_index
-                ] = f"Consensus {anomaly.consensus_level:.3f} < {min_consensus}"
+                rejection_reasons[anomaly.sample_index] = (
+                    f"Consensus {anomaly.consensus_level:.3f} < {min_consensus}"
+                )
 
         statistics = {
             "total_candidates": len(ranked_anomalies),
@@ -534,9 +534,9 @@ class AnomalyRankingSystem:
             if z_score >= z_threshold:
                 filtered.append(anomaly)
             else:
-                rejection_reasons[
-                    anomaly.sample_index
-                ] = f"Z-score {z_score:.3f} < {z_threshold}"
+                rejection_reasons[anomaly.sample_index] = (
+                    f"Z-score {z_score:.3f} < {z_threshold}"
+                )
 
         statistics = {
             "total_candidates": len(ranked_anomalies),

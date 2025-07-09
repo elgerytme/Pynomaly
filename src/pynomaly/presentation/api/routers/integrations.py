@@ -8,6 +8,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, HttpUrl
+
 from pynomaly.application.services.integration_service import IntegrationService
 from pynomaly.domain.entities.integrations import (
     IntegrationConfig,

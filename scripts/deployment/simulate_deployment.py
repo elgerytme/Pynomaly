@@ -54,6 +54,7 @@ class DeploymentSimulator:
 
                 # Import after setting path
                 import uvicorn
+
                 from pynomaly.presentation.web.app import create_web_app
 
                 print("Creating web application...")

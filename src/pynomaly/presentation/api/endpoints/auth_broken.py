@@ -14,7 +14,6 @@ from pynomaly.infrastructure.auth import (
     UserModel,
     get_auth,
 )
-from pynomaly.infrastructure.auth.middleware import get_current_user
 from pynomaly.infrastructure.security.rbac_middleware import require_auth
 from pynomaly.presentation.api.auth_deps import get_current_user_model
 

@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 import pytest
+
 from pynomaly.domain.models.cicd import (
     PipelineStatus,
     PipelineTemplate,
@@ -61,9 +62,9 @@ class TestPipelineService:
     ):
         """Test creating pipeline from template."""
         # Add template to service
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
 
         # Create pipeline
         pipeline = await pipeline_service.create_pipeline_from_template(
@@ -95,9 +96,9 @@ class TestPipelineService:
     async def test_trigger_pipeline(self, pipeline_service, sample_template):
         """Test triggering pipeline execution."""
         # Create pipeline
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",
@@ -119,9 +120,9 @@ class TestPipelineService:
     ):
         """Test triggering already running pipeline returns False."""
         # Create pipeline
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",
@@ -149,9 +150,9 @@ class TestPipelineService:
         mock_subprocess.return_value = mock_process
 
         # Create pipeline
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",
@@ -179,9 +180,9 @@ class TestPipelineService:
         mock_subprocess.return_value = mock_process
 
         # Create pipeline
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",
@@ -198,9 +199,9 @@ class TestPipelineService:
     async def test_cancel_pipeline(self, pipeline_service, sample_template):
         """Test canceling running pipeline."""
         # Create pipeline
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",
@@ -220,9 +221,9 @@ class TestPipelineService:
     async def test_get_pipeline_status(self, pipeline_service, sample_template):
         """Test getting pipeline status."""
         # Create pipeline
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",
@@ -246,9 +247,9 @@ class TestPipelineService:
     async def test_list_pipelines(self, pipeline_service, sample_template):
         """Test listing pipelines."""
         # Create multiple pipelines
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
 
         pipelines = []
         for i in range(3):
@@ -269,9 +270,9 @@ class TestPipelineService:
     async def test_list_pipelines_with_filter(self, pipeline_service, sample_template):
         """Test listing pipelines with status filter."""
         # Create pipeline
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",
@@ -376,9 +377,9 @@ class TestPipelineService:
         mock_subprocess.return_value = mock_process
 
         # Create pipeline and stage
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",
@@ -411,9 +412,9 @@ class TestPipelineService:
         mock_subprocess.return_value = mock_process
 
         # Create pipeline and stage
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",
@@ -434,9 +435,9 @@ class TestPipelineService:
     async def test_calculate_pipeline_metrics(self, pipeline_service, sample_template):
         """Test calculating pipeline metrics."""
         # Create pipeline
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",
@@ -456,9 +457,9 @@ class TestPipelineService:
     async def test_get_pipeline_logs(self, pipeline_service, sample_template):
         """Test getting pipeline logs."""
         # Create pipeline
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",
@@ -495,9 +496,9 @@ class TestPipelineService:
     async def test_get_logs_nonexistent_stage(self, pipeline_service, sample_template):
         """Test getting logs for non-existent stage."""
         # Create pipeline
-        pipeline_service.pipeline_templates[
-            sample_template.template_id
-        ] = sample_template
+        pipeline_service.pipeline_templates[sample_template.template_id] = (
+            sample_template
+        )
         pipeline = await pipeline_service.create_pipeline_from_template(
             template_id=sample_template.template_id,
             pipeline_name="Test Pipeline",

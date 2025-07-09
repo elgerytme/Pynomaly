@@ -96,9 +96,7 @@ def analyze_coverage_quality(coverage_data):
                     else (
                         "🎯"
                         if coverage_pct >= 90
-                        else "📋"
-                        if coverage_pct >= 60
-                        else "⚠️"
+                        else "📋" if coverage_pct >= 60 else "⚠️"
                     )
                 )
                 file_name = file_path.split("/")[-1]

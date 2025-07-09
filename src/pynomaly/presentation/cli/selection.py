@@ -45,18 +45,30 @@ app = typer.Typer(
 @app.command()
 @require_feature("intelligent_selection")
 def recommend(
-    dataset_path: Path = typer.Argument(..., help="Path to dataset file (CSV or Parquet)", exists=True),
-    max_training_time: float | None = typer.Option(None, "--max-training-time", help="Maximum training time in seconds"),
-    max_memory: float | None = typer.Option(None, "--max-memory", help="Maximum memory usage in MB"),
-    min_accuracy: float | None = typer.Option(None, "--min-accuracy", help="Minimum required accuracy (0-1)"),
+    dataset_path: Path = typer.Argument(
+        ..., help="Path to dataset file (CSV or Parquet)", exists=True
+    ),
+    max_training_time: float | None = typer.Option(
+        None, "--max-training-time", help="Maximum training time in seconds"
+    ),
+    max_memory: float | None = typer.Option(
+        None, "--max-memory", help="Maximum memory usage in MB"
+    ),
+    min_accuracy: float | None = typer.Option(
+        None, "--min-accuracy", help="Minimum required accuracy (0-1)"
+    ),
     require_interpretability: bool = typer.Option(
         False,
         "--require-interpretability/--no-interpretability",
-        help="Require interpretable algorithms"
+        help="Require interpretable algorithms",
     ),
     gpu: bool = typer.Option(False, "--gpu/--no-gpu", help="GPU availability"),
-    output: Path | None = typer.Option(None, "--output", help="Output file for recommendations"),
-    top_k: int = typer.Option(5, "--top-k", help="Number of top recommendations to show"),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output file for recommendations"
+    ),
+    top_k: int = typer.Option(
+        5, "--top-k", help="Number of top recommendations to show"
+    ),
 ):
     """Recommend optimal algorithms for a dataset.
 
@@ -131,11 +143,19 @@ def recommend(
 @app.command()
 @require_feature("intelligent_selection")
 def benchmark(
-    dataset_path: Path = typer.Argument(..., help="Path to dataset file (CSV or Parquet)", exists=True),
-    algorithms: list[str] | None = typer.Option(None, "-a", "--algorithms", help="Specific algorithms to benchmark"),
+    dataset_path: Path = typer.Argument(
+        ..., help="Path to dataset file (CSV or Parquet)", exists=True
+    ),
+    algorithms: list[str] | None = typer.Option(
+        None, "-a", "--algorithms", help="Specific algorithms to benchmark"
+    ),
     cv_folds: int = typer.Option(3, "--cv-folds", help="Cross-validation folds"),
-    max_training_time: float | None = typer.Option(None, "--max-training-time", help="Maximum training time per algorithm"),
-    output: Path | None = typer.Option(None, "--output", help="Output file for benchmark results"),
+    max_training_time: float | None = typer.Option(
+        None, "--max-training-time", help="Maximum training time per algorithm"
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output file for benchmark results"
+    ),
 ):
     """Benchmark algorithms on a dataset.
 
@@ -209,12 +229,22 @@ def benchmark(
 @app.command()
 @require_feature("intelligent_selection")
 def learn(
-    dataset_path: Path = typer.Argument(..., help="Path to dataset file used", exists=True),
+    dataset_path: Path = typer.Argument(
+        ..., help="Path to dataset file used", exists=True
+    ),
     algorithm: str = typer.Argument(..., help="Algorithm that was used"),
-    performance_score: float = typer.Option(..., "--performance-score", help="Achieved performance score (0-1)"),
-    training_time: float | None = typer.Option(None, "--training-time", help="Training time in seconds"),
-    memory_usage: float | None = typer.Option(None, "--memory-usage", help="Memory usage in MB"),
-    additional_metrics: str | None = typer.Option(None, "--additional-metrics", help="Additional metrics as JSON string"),
+    performance_score: float = typer.Option(
+        ..., "--performance-score", help="Achieved performance score (0-1)"
+    ),
+    training_time: float | None = typer.Option(
+        None, "--training-time", help="Training time in seconds"
+    ),
+    memory_usage: float | None = typer.Option(
+        None, "--memory-usage", help="Memory usage in MB"
+    ),
+    additional_metrics: str | None = typer.Option(
+        None, "--additional-metrics", help="Additional metrics as JSON string"
+    ),
 ):
     """Learn from algorithm selection result.
 
@@ -274,8 +304,12 @@ def learn(
 @app.command()
 @require_feature("intelligent_selection")
 def insights(
-    min_samples: int = typer.Option(10, "--min-samples", help="Minimum samples required for reliable insights"),
-    output: Path | None = typer.Option(None, "--output", help="Output file for insights"),
+    min_samples: int = typer.Option(
+        10, "--min-samples", help="Minimum samples required for reliable insights"
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", help="Output file for insights"
+    ),
 ):
     """Get insights from algorithm selection history.
 
@@ -323,7 +357,9 @@ def insights(
 def predict_performance(
     dataset_path: Path = typer.Argument(..., help="Path to dataset file", exists=True),
     algorithm: str = typer.Argument(..., help="Algorithm to predict performance for"),
-    confidence_level: float = typer.Option(0.95, "--confidence-level", help="Confidence level for prediction interval"),
+    confidence_level: float = typer.Option(
+        0.95, "--confidence-level", help="Confidence level for prediction interval"
+    ),
 ):
     """Predict algorithm performance on a dataset.
 

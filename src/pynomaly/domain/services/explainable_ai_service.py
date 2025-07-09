@@ -273,7 +273,9 @@ class ExplainableAIService:
 
             if explanation_type == ExplanationType.LOCAL:
                 # Generate local explanations for each anomaly
-                for i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores, strict=False)):
+                for i, (idx, score) in enumerate(
+                    zip(anomaly_indices, anomaly_scores, strict=False)
+                ):
                     if idx >= len(X):
                         continue
 
@@ -406,7 +408,9 @@ class ExplainableAIService:
 
             if explanation_type == ExplanationType.LOCAL:
                 # Generate local explanations
-                for i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores, strict=False)):
+                for i, (idx, score) in enumerate(
+                    zip(anomaly_indices, anomaly_scores, strict=False)
+                ):
                     if idx >= len(X):
                         continue
 
@@ -507,7 +511,8 @@ class ExplainableAIService:
                 zip(
                     feature_names,
                     perm_importance.importances_mean,
-                    perm_importance.importances_std, strict=False,
+                    perm_importance.importances_std,
+                    strict=False,
                 )
             ):
                 feature_imp = FeatureImportance(
@@ -546,7 +551,9 @@ class ExplainableAIService:
 
             elif explanation_type == ExplanationType.LOCAL:
                 # For local explanations, use feature values weighted by global importance
-                for i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores, strict=False)):
+                for i, (idx, score) in enumerate(
+                    zip(anomaly_indices, anomaly_scores, strict=False)
+                ):
                     if idx >= len(X):
                         continue
 
@@ -723,7 +730,9 @@ class ExplainableAIService:
 
         elif explanation_type == ExplanationType.LOCAL:
             # Create local explanations using global importance
-            for i, (idx, score) in enumerate(zip(anomaly_indices, anomaly_scores, strict=False)):
+            for i, (idx, score) in enumerate(
+                zip(anomaly_indices, anomaly_scores, strict=False)
+            ):
                 if idx >= len(X):
                     continue
 
@@ -833,9 +842,9 @@ class ExplainableAIService:
             quality_metrics["coverage"] = min(1.0, float(total_importance))
 
         # Stability: add noise and see how explanations change (simplified)
-        quality_metrics[
-            "stability"
-        ] = 0.8  # Placeholder - would need multiple runs with noise
+        quality_metrics["stability"] = (
+            0.8  # Placeholder - would need multiple runs with noise
+        )
 
         # Sparsity: prefer explanations with fewer important features
         if explanation_result.global_explanation:

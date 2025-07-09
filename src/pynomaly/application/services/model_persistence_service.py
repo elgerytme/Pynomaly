@@ -361,7 +361,9 @@ if __name__ == "__main__":
     print("Results saved to anomalies.csv")
 '''
 
-    async def _save_onnx_model(self, detector: DetectorProtocol, model_path: Path) -> None:
+    async def _save_onnx_model(
+        self, detector: DetectorProtocol, model_path: Path
+    ) -> None:
         """Save model in ONNX format.
 
         Args:
@@ -372,11 +374,13 @@ if __name__ == "__main__":
 
         # Check if deep learning is enabled
         if not feature_flags.is_enabled("deep_learning"):
-            raise RuntimeError("Deep learning features are disabled. Enable with PYNOMALY_DEEP_LEARNING=true")
+            raise RuntimeError(
+                "Deep learning features are disabled. Enable with PYNOMALY_DEEP_LEARNING=true"
+            )
 
         try:
             # Try to get PyTorch model from detector
-            if hasattr(detector, '_model') and detector._model is not None:
+            if hasattr(detector, "_model") and detector._model is not None:
                 import torch
                 import torch.onnx
 
@@ -394,9 +398,12 @@ if __name__ == "__main__":
                     export_params=True,
                     opset_version=11,
                     do_constant_folding=True,
-                    input_names=['input'],
-                    output_names=['output'],
-                    dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
+                    input_names=["input"],
+                    output_names=["output"],
+                    dynamic_axes={
+                        "input": {0: "batch_size"},
+                        "output": {0: "batch_size"},
+                    },
                 )
             else:
                 # For non-PyTorch models, create a stub ONNX model
@@ -419,10 +426,12 @@ if __name__ == "__main__":
         import torch
 
         # Default input shape - can be overridden by detector
-        input_shape = getattr(detector, '_input_shape', (1, 10))
+        input_shape = getattr(detector, "_input_shape", (1, 10))
         return torch.randn(input_shape)
 
-    async def _create_stub_onnx_model(self, detector: DetectorProtocol, model_path: Path) -> None:
+    async def _create_stub_onnx_model(
+        self, detector: DetectorProtocol, model_path: Path
+    ) -> None:
         """Create a stub ONNX model for non-PyTorch detectors.
 
         Args:
@@ -438,9 +447,9 @@ if __name__ == "__main__":
             "detector_name": detector.name,
             "algorithm": detector.algorithm_name,
             "parameters": detector.parameters,
-            "message": "This is a stub ONNX model. Full ONNX export requires PyTorch-based models."
+            "message": "This is a stub ONNX model. Full ONNX export requires PyTorch-based models.",
         }
 
         # Save as JSON stub with .onnx extension
-        with open(model_path, 'w') as f:
+        with open(model_path, "w") as f:
             json.dump(stub_data, f, indent=2)

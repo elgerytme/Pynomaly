@@ -6,6 +6,7 @@ from tempfile import TemporaryDirectory
 
 import numpy as np
 import pytest
+
 from pynomaly.infrastructure.adapters.algorithm_factory import AlgorithmFactory
 
 # Optional PyTorch imports with fallbacks
@@ -33,7 +34,7 @@ class TestPyTorchAdapter:
     def mnist_subset(self):
         """Create a subset of MNIST data for testing."""
         # Fetch MNIST data (small subset for testing)
-        mnist = fetch_openml('mnist_784', version=1, data_home='./data', as_frame=False)
+        mnist = fetch_openml("mnist_784", version=1, data_home="./data", as_frame=False)
         X, y = mnist.data, mnist.target.astype(int)
 
         # Take a small subset for fast testing
@@ -64,7 +65,7 @@ class TestPyTorchAdapter:
 
         # Create test data (mix of normal and anomalies)
         X_test_normal = X_normal[1200:1400]  # 200 normal samples
-        X_test_anomaly = X_anomaly[:50]       # 50 anomalous samples
+        X_test_anomaly = X_anomaly[:50]  # 50 anomalous samples
 
         # Combine test data
         X_test = np.vstack([X_test_normal, X_test_anomaly])
@@ -78,8 +79,7 @@ class TestPyTorchAdapter:
 
         # Test creating autoencoder
         detector = factory.create_detector(
-            algorithm_name="autoencoder",
-            library="pytorch"
+            algorithm_name="autoencoder", library="pytorch"
         )
 
         assert detector is not None
@@ -98,11 +98,11 @@ class TestPyTorchAdapter:
             model_config={
                 "hidden_dims": [32, 16],  # Smaller network for speed
                 "latent_dim": 8,
-                "epochs": 50,             # Fewer epochs for speed
+                "epochs": 50,  # Fewer epochs for speed
                 "batch_size": 64,
                 "early_stopping_patience": 5,
-                "contamination": 0.2      # Expected 20% anomalies
-            }
+                "contamination": 0.2,  # Expected 20% anomalies
+            },
         )
 
         # Measure training time
@@ -111,7 +111,9 @@ class TestPyTorchAdapter:
         training_time = time.time() - start_time
 
         # Should finish within 5 minutes (300 seconds)
-        assert training_time < 300, f"Training took {training_time:.2f}s, expected < 300s"
+        assert (
+            training_time < 300
+        ), f"Training took {training_time:.2f}s, expected < 300s"
 
         # Test prediction
         predictions = detector.predict(X_test)
@@ -148,8 +150,8 @@ class TestPyTorchAdapter:
                 "hidden_dims": [16, 8],
                 "latent_dim": 4,
                 "epochs": 10,  # Very few epochs for speed
-                "batch_size": 32
-            }
+                "batch_size": 32,
+            },
         )
 
         detector.train(X_train[:200])  # Use even smaller dataset for speed
@@ -165,8 +167,7 @@ class TestPyTorchAdapter:
 
             # Create new detector and load
             new_detector = factory.create_detector(
-                algorithm_name="autoencoder",
-                library="pytorch"
+                algorithm_name="autoencoder", library="pytorch"
             )
             new_detector.load(model_path)
 
@@ -193,8 +194,8 @@ class TestPyTorchAdapter:
                 "decoder_dims": [16, 32],
                 "epochs": 20,
                 "batch_size": 64,
-                "beta": 1.0
-            }
+                "beta": 1.0,
+            },
         )
 
         # Train and test
@@ -219,8 +220,8 @@ class TestPyTorchAdapter:
                 "hidden_dims": [16],
                 "latent_dim": 4,
                 "epochs": 5,
-                "batch_size": 32
-            }
+                "batch_size": 32,
+            },
         )
 
         # Should work on CPU
@@ -238,9 +239,7 @@ class TestPyTorchAdapter:
         factory = AlgorithmFactory()
 
         detector = factory.create_detector(
-            algorithm_name="autoencoder",
-            library="pytorch",
-            model_config={"epochs": 5}
+            algorithm_name="autoencoder", library="pytorch", model_config={"epochs": 5}
         )
 
         # Before training
@@ -277,14 +276,12 @@ class TestPyTorchAdapter:
         # Test invalid algorithm
         with pytest.raises(Exception):
             factory.create_detector(
-                algorithm_name="invalid_algorithm",
-                library="pytorch"
+                algorithm_name="invalid_algorithm", library="pytorch"
             )
 
         # Test training without data
         detector = factory.create_detector(
-            algorithm_name="autoencoder",
-            library="pytorch"
+            algorithm_name="autoencoder", library="pytorch"
         )
 
         with pytest.raises(Exception):
@@ -302,11 +299,7 @@ class TestPyTorchAdapter:
             detector = factory.create_detector(
                 algorithm_name=algorithm,
                 library="pytorch",
-                model_config={
-                    "epochs": 15,
-                    "batch_size": 64,
-                    "contamination": 0.2
-                }
+                model_config={"epochs": 15, "batch_size": 64, "contamination": 0.2},
             )
 
             start_time = time.time()
@@ -318,7 +311,7 @@ class TestPyTorchAdapter:
 
             results[algorithm] = {
                 "training_time": training_time,
-                "detection_rate": detection_rate
+                "detection_rate": detection_rate,
             }
 
             # Each should finish reasonably quickly and detect anomalies
@@ -346,7 +339,4 @@ class TestPyTorchAdapterWithoutPyTorch:
 
         # Should raise error when trying to create PyTorch detector
         with pytest.raises(Exception):
-            factory.create_detector(
-                algorithm_name="autoencoder",
-                library="pytorch"
-            )
+            factory.create_detector(algorithm_name="autoencoder", library="pytorch")

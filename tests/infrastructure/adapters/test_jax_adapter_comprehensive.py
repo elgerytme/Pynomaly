@@ -5,6 +5,7 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.exceptions import (
     DetectorNotFittedError,
@@ -459,6 +460,7 @@ class TestJAXAdapterComprehensive:
         import os
 
         import psutil
+
         from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
 
         # Get initial memory usage

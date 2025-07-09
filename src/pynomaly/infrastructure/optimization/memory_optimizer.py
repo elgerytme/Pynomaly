@@ -9,7 +9,7 @@ import time
 from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -38,16 +38,14 @@ class MemoryMonitor:
         self.warning_threshold = warning_threshold
         self.critical_threshold = critical_threshold
         self._monitoring = False
-        self._monitor_thread: Optional[threading.Thread] = None
+        self._monitor_thread: threading.Thread | None = None
         self._memory_history: list[MemoryStats] = []
 
     def start_monitoring(self, interval_seconds: int = 5):
         """Start continuous memory monitoring."""
         self._monitoring = True
         self._monitor_thread = threading.Thread(
-            target=self._monitor_loop,
-            args=(interval_seconds,),
-            daemon=True
+            target=self._monitor_loop, args=(interval_seconds,), daemon=True
         )
         self._monitor_thread.start()
         logger.info(f"Memory monitoring started (interval: {interval_seconds}s)")
@@ -74,7 +72,7 @@ class MemoryMonitor:
             used_memory=system_memory.used,
             used_percentage=system_memory.percent,
             process_memory=process_info.rss,
-            process_percentage=process_info.rss / system_memory.total * 100
+            process_percentage=process_info.rss / system_memory.total * 100,
         )
 
     def get_memory_history(self) -> list[MemoryStats]:
@@ -94,7 +92,9 @@ class MemoryMonitor:
 
                 # Check thresholds
                 if stats.used_percentage > self.critical_threshold * 100:
-                    logger.critical(f"Critical memory usage: {stats.used_percentage:.1f}%")
+                    logger.critical(
+                        f"Critical memory usage: {stats.used_percentage:.1f}%"
+                    )
                 elif stats.used_percentage > self.warning_threshold * 100:
                     logger.warning(f"High memory usage: {stats.used_percentage:.1f}%")
 
@@ -131,7 +131,9 @@ class DataFrameOptimizer:
         return optimized_df
 
     @staticmethod
-    def _optimize_numeric_column(series: pd.Series, aggressive: bool = False) -> pd.Series:
+    def _optimize_numeric_column(
+        series: pd.Series, aggressive: bool = False
+    ) -> pd.Series:
         """Optimize numeric column data type."""
         if pd.api.types.is_integer_dtype(series):
             # Integer optimization
@@ -169,14 +171,16 @@ class DataFrameOptimizer:
         return series
 
     @staticmethod
-    def _optimize_string_column(series: pd.Series, aggressive: bool = False) -> pd.Series:
+    def _optimize_string_column(
+        series: pd.Series, aggressive: bool = False
+    ) -> pd.Series:
         """Optimize string column data type."""
         try:
             # Try to convert to category if it saves memory
             unique_ratio = series.nunique() / len(series)
 
             if unique_ratio < 0.5:  # Less than 50% unique values
-                return series.astype('category')
+                return series.astype("category")
 
             # For highly unique strings, keep as object
             return series
@@ -190,14 +194,13 @@ class DataFrameOptimizer:
         memory_usage = df.memory_usage(deep=True)
 
         return {
-            'total_memory_mb': memory_usage.sum() / 1024**2,
-            'column_memory': {
-                col: memory_usage[col] / 1024**2
-                for col in memory_usage.index
+            "total_memory_mb": memory_usage.sum() / 1024**2,
+            "column_memory": {
+                col: memory_usage[col] / 1024**2 for col in memory_usage.index
             },
-            'shape': df.shape,
-            'dtypes': df.dtypes.to_dict(),
-            'null_counts': df.isnull().sum().to_dict()
+            "shape": df.shape,
+            "dtypes": df.dtypes.to_dict(),
+            "null_counts": df.isnull().sum().to_dict(),
         }
 
 
@@ -211,21 +214,20 @@ class ChunkedProcessor:
         self.memory_monitor = MemoryMonitor()
 
     def process_dataframe_chunks(
-        self,
-        df: pd.DataFrame,
-        processor_func,
-        *args, **kwargs
+        self, df: pd.DataFrame, processor_func, *args, **kwargs
     ) -> Generator[Any, None, None]:
         """Process DataFrame in chunks to manage memory usage."""
         total_chunks = (len(df) + self.chunk_size - 1) // self.chunk_size
 
         for i in range(0, len(df), self.chunk_size):
-            chunk = df.iloc[i:i + self.chunk_size].copy()
+            chunk = df.iloc[i : i + self.chunk_size].copy()
 
             # Check memory usage
             stats = self.memory_monitor.get_current_stats()
             if stats.process_memory / 1024**2 > self.memory_limit_mb:
-                logger.warning(f"Memory limit approached: {stats.process_memory / 1024**2:.1f}MB")
+                logger.warning(
+                    f"Memory limit approached: {stats.process_memory / 1024**2:.1f}MB"
+                )
                 gc.collect()  # Force garbage collection
 
             chunk_num = i // self.chunk_size + 1
@@ -240,20 +242,16 @@ class ChunkedProcessor:
                 gc.collect()
 
     def process_file_chunks(
-        self,
-        file_path: str,
-        processor_func,
-        file_type: str = 'csv',
-        *args, **kwargs
+        self, file_path: str, processor_func, file_type: str = "csv", *args, **kwargs
     ) -> Generator[Any, None, None]:
         """Process file in chunks without loading entire file into memory."""
-        if file_type.lower() == 'csv':
+        if file_type.lower() == "csv":
             chunk_iter = pd.read_csv(file_path, chunksize=self.chunk_size)
-        elif file_type.lower() == 'parquet':
+        elif file_type.lower() == "parquet":
             # For parquet, we need to handle chunks differently
             df = pd.read_parquet(file_path)
             chunk_iter = (
-                df.iloc[i:i + self.chunk_size]
+                df.iloc[i : i + self.chunk_size]
                 for i in range(0, len(df), self.chunk_size)
             )
         else:
@@ -263,7 +261,9 @@ class ChunkedProcessor:
             # Check memory usage
             stats = self.memory_monitor.get_current_stats()
             if stats.process_memory / 1024**2 > self.memory_limit_mb:
-                logger.warning(f"Memory limit approached: {stats.process_memory / 1024**2:.1f}MB")
+                logger.warning(
+                    f"Memory limit approached: {stats.process_memory / 1024**2:.1f}MB"
+                )
                 gc.collect()
 
             logger.debug(f"Processing file chunk {chunk_num}")
@@ -293,6 +293,7 @@ class ModelMemoryOptimizer:
             return model_bytes
         elif compression_level == 1:
             import zlib
+
             return zlib.compress(model_bytes)
         elif compression_level == 2:
             return lzma.compress(model_bytes, preset=lzma.PRESET_DEFAULT)
@@ -310,6 +311,7 @@ class ModelMemoryOptimizer:
             model_bytes = compressed_data
         elif compression_level == 1:
             import zlib
+
             model_bytes = zlib.decompress(compressed_data)
         else:
             model_bytes = lzma.decompress(compressed_data)
@@ -339,10 +341,18 @@ class ModelMemoryOptimizer:
             compressed_size = None
 
         return {
-            'object_size_mb': size_bytes / 1024**2,
-            'serialized_size_mb': serialized_size / 1024**2 if serialized_size else None,
-            'compressed_size_mb': compressed_size / 1024**2 if compressed_size else None,
-            'compression_ratio': serialized_size / compressed_size if serialized_size and compressed_size else None
+            "object_size_mb": size_bytes / 1024**2,
+            "serialized_size_mb": (
+                serialized_size / 1024**2 if serialized_size else None
+            ),
+            "compressed_size_mb": (
+                compressed_size / 1024**2 if compressed_size else None
+            ),
+            "compression_ratio": (
+                serialized_size / compressed_size
+                if serialized_size and compressed_size
+                else None
+            ),
         }
 
 
@@ -353,16 +363,22 @@ def memory_profiler(description: str = "Operation"):
 
     # Get initial memory
     initial_stats = memory_monitor.get_current_stats()
-    logger.info(f"{description} - Initial memory: {initial_stats.process_memory / 1024**2:.1f}MB")
+    logger.info(
+        f"{description} - Initial memory: {initial_stats.process_memory / 1024**2:.1f}MB"
+    )
 
     try:
         yield memory_monitor
     finally:
         # Get final memory
         final_stats = memory_monitor.get_current_stats()
-        memory_diff = (final_stats.process_memory - initial_stats.process_memory) / 1024**2
+        memory_diff = (
+            final_stats.process_memory - initial_stats.process_memory
+        ) / 1024**2
 
-        logger.info(f"{description} - Final memory: {final_stats.process_memory / 1024**2:.1f}MB")
+        logger.info(
+            f"{description} - Final memory: {final_stats.process_memory / 1024**2:.1f}MB"
+        )
         logger.info(f"{description} - Memory change: {memory_diff:+.1f}MB")
 
         # Force garbage collection
@@ -435,11 +451,9 @@ class MemoryPool:
         """Get pool statistics."""
         with self._lock:
             return {
-                'pool_count': len(self._pools),
-                'total_objects': sum(len(pool) for pool in self._pools.values()),
-                'pools': {
-                    key: len(pool) for key, pool in self._pools.items()
-                }
+                "pool_count": len(self._pools),
+                "total_objects": sum(len(pool) for pool in self._pools.values()),
+                "pools": {key: len(pool) for key, pool in self._pools.items()},
             }
 
 
@@ -462,7 +476,9 @@ class MemoryOptimizationManager:
         """Stop memory monitoring."""
         self.monitor.stop_monitoring()
 
-    def optimize_dataframe(self, df: pd.DataFrame, aggressive: bool = False) -> pd.DataFrame:
+    def optimize_dataframe(
+        self, df: pd.DataFrame, aggressive: bool = False
+    ) -> pd.DataFrame:
         """Optimize DataFrame memory usage."""
         return self.dataframe_optimizer.optimize_dtypes(df, aggressive)
 
@@ -478,14 +494,14 @@ class MemoryOptimizationManager:
         pool_stats = self.memory_pool.get_stats()
 
         return {
-            'current_memory': {
-                'process_memory_mb': stats.process_memory / 1024**2,
-                'system_memory_percent': stats.used_percentage,
-                'available_memory_mb': stats.available_memory / 1024**2,
+            "current_memory": {
+                "process_memory_mb": stats.process_memory / 1024**2,
+                "system_memory_percent": stats.used_percentage,
+                "available_memory_mb": stats.available_memory / 1024**2,
             },
-            'memory_pool': pool_stats,
-            'recommendations': self._get_recommendations(stats),
-            'timestamp': time.time()
+            "memory_pool": pool_stats,
+            "recommendations": self._get_recommendations(stats),
+            "timestamp": time.time(),
         }
 
     def _get_recommendations(self, stats: MemoryStats) -> list[str]:
@@ -493,12 +509,18 @@ class MemoryOptimizationManager:
         recommendations = []
 
         if stats.used_percentage > 90:
-            recommendations.append("Critical: System memory usage over 90%. Consider reducing batch sizes.")
+            recommendations.append(
+                "Critical: System memory usage over 90%. Consider reducing batch sizes."
+            )
         elif stats.used_percentage > 80:
-            recommendations.append("Warning: High system memory usage. Monitor closely.")
+            recommendations.append(
+                "Warning: High system memory usage. Monitor closely."
+            )
 
         if stats.process_percentage > 50:
-            recommendations.append("Process using significant memory. Consider data chunking.")
+            recommendations.append(
+                "Process using significant memory. Consider data chunking."
+            )
 
         if not recommendations:
             recommendations.append("Memory usage is within acceptable limits.")

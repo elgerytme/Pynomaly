@@ -3,6 +3,7 @@
 from unittest.mock import Mock, patch
 
 import pytest
+
 from pynomaly.infrastructure.monitoring.health_checks import (
     ComponentType,
     HealthChecker,

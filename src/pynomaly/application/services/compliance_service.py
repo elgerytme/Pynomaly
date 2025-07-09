@@ -4,7 +4,7 @@ Compliance and audit logging service.
 
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 
 from pynomaly.domain.entities.compliance import (
     DEFAULT_COMPLIANCE_RULES,
@@ -39,14 +39,14 @@ class ComplianceService:
         self,
         action: AuditAction,
         tenant_id: TenantId,
-        user_id: Optional[UserId] = None,
-        resource_type: Optional[str] = None,
-        resource_id: Optional[str] = None,
-        details: Optional[dict[str, Any]] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        session_id: Optional[str] = None,
-        severity: Optional[AuditSeverity] = None,
+        user_id: UserId | None = None,
+        resource_type: str | None = None,
+        resource_id: str | None = None,
+        details: dict[str, Any] | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        session_id: str | None = None,
+        severity: AuditSeverity | None = None,
     ) -> AuditEvent:
         """Log an audit event."""
         # Determine severity if not provided
@@ -88,11 +88,11 @@ class ComplianceService:
     async def get_audit_trail(
         self,
         tenant_id: TenantId,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-        actions: Optional[list[AuditAction]] = None,
-        user_id: Optional[UserId] = None,
-        resource_type: Optional[str] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+        actions: list[AuditAction] | None = None,
+        user_id: UserId | None = None,
+        resource_type: str | None = None,
         limit: int = 1000,
         offset: int = 0,
     ) -> list[AuditEvent]:
@@ -255,7 +255,7 @@ class ComplianceService:
         self,
         request_id: str,
         processor_id: UserId,
-        response_data: Optional[dict[str, Any]] = None,
+        response_data: dict[str, Any] | None = None,
     ) -> GDPRRequest:
         """Process a GDPR request."""
         gdpr_request = await self._compliance_repo.get_gdpr_request(request_id)

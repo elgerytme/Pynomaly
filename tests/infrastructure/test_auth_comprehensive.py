@@ -7,6 +7,7 @@ from unittest.mock import Mock
 
 import jwt
 import pytest
+
 from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
 from pynomaly.infrastructure.auth.jwt_auth import (
     JWTAuthService,

@@ -7,7 +7,8 @@ import os
 import sys
 
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
+
 
 def test_auth_deps_functionality():
     """Test that auth dependencies work correctly"""
@@ -32,8 +33,10 @@ def test_auth_deps_functionality():
 
         # get_current_user_simple should accept optional HTTPAuthorizationCredentials
         sig = inspect.signature(get_current_user_simple)
-        assert 'credentials' in sig.parameters
-        test_results.append(("✅ get_current_user_simple has correct signature", "PASS"))
+        assert "credentials" in sig.parameters
+        test_results.append(
+            ("✅ get_current_user_simple has correct signature", "PASS")
+        )
 
         # get_container_simple should return Container
         sig = inspect.signature(get_container_simple)
@@ -44,6 +47,7 @@ def test_auth_deps_functionality():
     except Exception as e:
         test_results.append((f"❌ Auth dependencies test failed: {str(e)}", "FAIL"))
         return test_results
+
 
 def test_container_creation():
     """Test that container creation works"""
@@ -68,6 +72,7 @@ def test_container_creation():
         test_results.append((f"❌ Container creation failed: {str(e)}", "FAIL"))
         return test_results
 
+
 def test_auth_integration_with_endpoints():
     """Test that endpoints properly integrate with auth dependencies"""
     test_results = []
@@ -75,6 +80,7 @@ def test_auth_integration_with_endpoints():
     try:
         print("🔗 Testing auth integration with endpoints...")
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
 
         app = create_app()
@@ -85,28 +91,42 @@ def test_auth_integration_with_endpoints():
         if response.status_code == 200:
             test_results.append(("✅ Health endpoint accessible", "PASS"))
         else:
-            test_results.append((f"❌ Health endpoint failed ({response.status_code})", "FAIL"))
+            test_results.append(
+                (f"❌ Health endpoint failed ({response.status_code})", "FAIL")
+            )
 
         # Test 2: Auth endpoints exist and are accessible
         response = client.get("/api/v1/docs")
         if response.status_code == 200:
             test_results.append(("✅ API docs accessible", "PASS"))
         else:
-            test_results.append((f"❌ API docs failed ({response.status_code})", "FAIL"))
+            test_results.append(
+                (f"❌ API docs failed ({response.status_code})", "FAIL")
+            )
 
         # Test 3: Check that protected endpoints require auth (should return 401/422)
         # Try to access a protected endpoint without auth
         response = client.post("/api/v1/automl/profile", json={"dataset_id": "test"})
-        if response.status_code in [401, 422, 500]:  # Expected: auth required or validation error
+        if response.status_code in [
+            401,
+            422,
+            500,
+        ]:  # Expected: auth required or validation error
             test_results.append(("✅ Protected endpoints require auth", "PASS"))
         else:
-            test_results.append((f"❌ Protected endpoint security issue ({response.status_code})", "FAIL"))
+            test_results.append(
+                (
+                    f"❌ Protected endpoint security issue ({response.status_code})",
+                    "FAIL",
+                )
+            )
 
         return test_results
 
     except Exception as e:
         test_results.append((f"❌ Auth integration test failed: {str(e)}", "FAIL"))
         return test_results
+
 
 def test_no_circular_imports():
     """Test that there are no circular import issues"""
@@ -139,6 +159,7 @@ def test_no_circular_imports():
         test_results.append((f"❌ Import test failed: {str(e)}", "FAIL"))
         return test_results
 
+
 def test_pydantic_forward_reference_fix():
     """Test that pydantic forward reference issues are resolved"""
     test_results = []
@@ -153,8 +174,8 @@ def test_pydantic_forward_reference_fix():
         openapi_schema = app.openapi()
 
         # Verify the schema was generated successfully
-        assert 'paths' in openapi_schema
-        assert len(openapi_schema['paths']) > 0
+        assert "paths" in openapi_schema
+        assert len(openapi_schema["paths"]) > 0
 
         test_results.append(("✅ Pydantic forward reference issues resolved", "PASS"))
 
@@ -162,10 +183,13 @@ def test_pydantic_forward_reference_fix():
 
     except Exception as e:
         if "TypeAdapter" in str(e) or "ForwardRef" in str(e):
-            test_results.append((f"❌ Pydantic forward reference issue still exists: {str(e)}", "FAIL"))
+            test_results.append(
+                (f"❌ Pydantic forward reference issue still exists: {str(e)}", "FAIL")
+            )
         else:
             test_results.append((f"❌ Pydantic test failed: {str(e)}", "FAIL"))
         return test_results
+
 
 def main():
     """Main test runner"""
@@ -220,6 +244,7 @@ def main():
     else:
         print(f"\n⚠️  {failed} authentication tests failed.")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

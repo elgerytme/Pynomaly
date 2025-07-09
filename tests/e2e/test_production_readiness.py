@@ -7,7 +7,8 @@ import os
 import sys
 
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
+
 
 def test_logging_infrastructure():
     """Test logging configuration and infrastructure"""
@@ -21,9 +22,9 @@ def test_logging_infrastructure():
 
         # Check for logging configuration files
         logging_configs = [
-            'src/pynomaly/infrastructure/logging',
-            'logging.conf',
-            'logging.yml'
+            "src/pynomaly/infrastructure/logging",
+            "logging.conf",
+            "logging.yml",
         ]
 
         found_configs = []
@@ -32,7 +33,9 @@ def test_logging_infrastructure():
                 found_configs.append(config)
 
         if found_configs:
-            test_results.append((f"✅ Logging config found: {len(found_configs)} files", "PASS"))
+            test_results.append(
+                (f"✅ Logging config found: {len(found_configs)} files", "PASS")
+            )
         else:
             test_results.append(("⚠️ No logging config files found", "WARN"))
 
@@ -42,6 +45,7 @@ def test_logging_infrastructure():
         test_results.append((f"❌ Logging test failed: {str(e)}", "FAIL"))
         return test_results
 
+
 def test_health_checks():
     """Test health check endpoints and functionality"""
     test_results = []
@@ -50,28 +54,28 @@ def test_health_checks():
         print("🏥 Testing health check infrastructure...")
 
         # Check health endpoint file
-        health_file = 'src/pynomaly/presentation/api/endpoints/health.py'
+        health_file = "src/pynomaly/presentation/api/endpoints/health.py"
         if os.path.exists(health_file):
             with open(health_file) as f:
                 content = f.read()
 
             # Check for essential health check endpoints
-            health_endpoints = [
-                '/health',
-                '/ready',
-                '/live',
-                '/metrics'
-            ]
+            health_endpoints = ["/health", "/ready", "/live", "/metrics"]
 
             found_endpoints = []
             for endpoint in health_endpoints:
                 if endpoint in content:
                     found_endpoints.append(endpoint)
 
-            test_results.append((f"✅ Health endpoints: {len(found_endpoints)}/{len(health_endpoints)}", "PASS"))
+            test_results.append(
+                (
+                    f"✅ Health endpoints: {len(found_endpoints)}/{len(health_endpoints)}",
+                    "PASS",
+                )
+            )
 
             # Check for dependency checks
-            if 'database' in content.lower() or 'redis' in content.lower():
+            if "database" in content.lower() or "redis" in content.lower():
                 test_results.append(("✅ Dependency health checks included", "PASS"))
             else:
                 test_results.append(("⚠️ Limited dependency health checks", "WARN"))
@@ -84,6 +88,7 @@ def test_health_checks():
         test_results.append((f"❌ Health check test failed: {str(e)}", "FAIL"))
         return test_results
 
+
 def test_monitoring_integration():
     """Test monitoring and observability features"""
     test_results = []
@@ -94,22 +99,23 @@ def test_monitoring_integration():
         # Check for Prometheus metrics
         try:
             from prometheus_fastapi_instrumentator import Instrumentator
+
             test_results.append(("✅ Prometheus instrumentator available", "PASS"))
         except ImportError:
             test_results.append(("❌ Prometheus instrumentator missing", "FAIL"))
 
         # Check app.py for monitoring configuration
-        app_file = 'src/pynomaly/presentation/api/app.py'
+        app_file = "src/pynomaly/presentation/api/app.py"
         if os.path.exists(app_file):
             with open(app_file) as f:
                 content = f.read()
 
-            if 'prometheus' in content.lower():
+            if "prometheus" in content.lower():
                 test_results.append(("✅ Prometheus integration configured", "PASS"))
             else:
                 test_results.append(("❌ Prometheus integration missing", "FAIL"))
 
-            if 'track_request_metrics' in content:
+            if "track_request_metrics" in content:
                 test_results.append(("✅ Request metrics tracking enabled", "PASS"))
             else:
                 test_results.append(("❌ Request metrics tracking missing", "FAIL"))
@@ -120,6 +126,7 @@ def test_monitoring_integration():
         test_results.append((f"❌ Monitoring test failed: {str(e)}", "FAIL"))
         return test_results
 
+
 def test_security_features():
     """Test production security features"""
     test_results = []
@@ -128,22 +135,22 @@ def test_security_features():
         print("🔒 Testing security features...")
 
         # Check authentication infrastructure
-        auth_deps_file = 'src/pynomaly/presentation/api/auth_deps.py'
+        auth_deps_file = "src/pynomaly/presentation/api/auth_deps.py"
         if os.path.exists(auth_deps_file):
             test_results.append(("✅ Authentication system available", "PASS"))
         else:
             test_results.append(("❌ Authentication system missing", "FAIL"))
 
         # Check app.py for security middleware
-        app_file = 'src/pynomaly/presentation/api/app.py'
+        app_file = "src/pynomaly/presentation/api/app.py"
         if os.path.exists(app_file):
             with open(app_file) as f:
                 content = f.read()
 
             security_features = [
-                ('CORS', 'CORSMiddleware'),
-                ('Request tracking', 'track_request_metrics'),
-                ('Auth initialization', 'init_auth')
+                ("CORS", "CORSMiddleware"),
+                ("Request tracking", "track_request_metrics"),
+                ("Auth initialization", "init_auth"),
             ]
 
             for feature_name, feature_code in security_features:
@@ -153,7 +160,9 @@ def test_security_features():
                     test_results.append((f"❌ {feature_name} missing", "FAIL"))
 
         # Check for security service
-        security_service_file = 'src/pynomaly/infrastructure/security/security_service.py'
+        security_service_file = (
+            "src/pynomaly/infrastructure/security/security_service.py"
+        )
         if os.path.exists(security_service_file):
             test_results.append(("✅ Security service available", "PASS"))
         else:
@@ -165,6 +174,7 @@ def test_security_features():
         test_results.append((f"❌ Security test failed: {str(e)}", "FAIL"))
         return test_results
 
+
 def test_error_handling():
     """Test error handling and resilience features"""
     test_results = []
@@ -174,9 +184,9 @@ def test_error_handling():
 
         # Check for error handling in endpoints
         endpoint_files = [
-            'src/pynomaly/presentation/api/endpoints/health.py',
-            'src/pynomaly/presentation/api/endpoints/auth.py',
-            'src/pynomaly/presentation/api/endpoints/automl.py'
+            "src/pynomaly/presentation/api/endpoints/health.py",
+            "src/pynomaly/presentation/api/endpoints/auth.py",
+            "src/pynomaly/presentation/api/endpoints/automl.py",
         ]
 
         error_handling_found = 0
@@ -185,21 +195,27 @@ def test_error_handling():
                 with open(file_path) as f:
                     content = f.read()
 
-                if 'try:' in content and 'except' in content and 'HTTPException' in content:
+                if (
+                    "try:" in content
+                    and "except" in content
+                    and "HTTPException" in content
+                ):
                     error_handling_found += 1
 
         if error_handling_found >= 2:
-            test_results.append((f"✅ Error handling in {error_handling_found} endpoint files", "PASS"))
+            test_results.append(
+                (f"✅ Error handling in {error_handling_found} endpoint files", "PASS")
+            )
         else:
             test_results.append(("❌ Limited error handling found", "FAIL"))
 
         # Check for circuit breaker or resilience patterns
-        container_file = 'src/pynomaly/infrastructure/config/container.py'
+        container_file = "src/pynomaly/infrastructure/config/container.py"
         if os.path.exists(container_file):
             with open(container_file) as f:
                 content = f.read()
 
-            if 'circuit' in content.lower() or 'retry' in content.lower():
+            if "circuit" in content.lower() or "retry" in content.lower():
                 test_results.append(("✅ Resilience patterns found", "PASS"))
             else:
                 test_results.append(("⚠️ Limited resilience patterns", "WARN"))
@@ -210,6 +226,7 @@ def test_error_handling():
         test_results.append((f"❌ Error handling test failed: {str(e)}", "FAIL"))
         return test_results
 
+
 def test_configuration_management():
     """Test configuration and environment management"""
     test_results = []
@@ -218,15 +235,15 @@ def test_configuration_management():
         print("⚙️ Testing configuration management...")
 
         # Check for settings configuration
-        settings_file = 'src/pynomaly/infrastructure/config/settings.py'
+        settings_file = "src/pynomaly/infrastructure/config/settings.py"
         if os.path.exists(settings_file):
             with open(settings_file) as f:
                 content = f.read()
 
             config_features = [
-                ('Environment variables', 'Field('),
-                ('Validation', 'BaseSettings'),
-                ('Documentation', 'description=')
+                ("Environment variables", "Field("),
+                ("Validation", "BaseSettings"),
+                ("Documentation", "description="),
             ]
 
             for feature_name, feature_code in config_features:
@@ -238,11 +255,13 @@ def test_configuration_management():
             test_results.append(("❌ Settings configuration missing", "FAIL"))
 
         # Check for environment files
-        env_files = ['.env.example', '.env.template', 'docker-compose.yml']
+        env_files = [".env.example", ".env.template", "docker-compose.yml"]
         found_env_files = [f for f in env_files if os.path.exists(f)]
 
         if found_env_files:
-            test_results.append((f"✅ Environment files: {len(found_env_files)}", "PASS"))
+            test_results.append(
+                (f"✅ Environment files: {len(found_env_files)}", "PASS")
+            )
         else:
             test_results.append(("⚠️ No environment template files", "WARN"))
 
@@ -251,6 +270,7 @@ def test_configuration_management():
     except Exception as e:
         test_results.append((f"❌ Configuration test failed: {str(e)}", "FAIL"))
         return test_results
+
 
 def main():
     """Main production readiness test runner"""
@@ -313,6 +333,7 @@ def main():
     else:
         print("\n⚠️  Production readiness needs improvement.")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

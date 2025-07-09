@@ -649,9 +649,7 @@ def _display_compliance_violations(framework: str, violations: list):
         severity_color = (
             "red"
             if violation.severity == "critical"
-            else "yellow"
-            if violation.severity == "high"
-            else "white"
+            else "yellow" if violation.severity == "high" else "white"
         )
 
         table.add_row(

@@ -58,7 +58,7 @@ class UserManagementService:
         last_name: str,
         password: str,
         tenant_id: TenantId | None = None,
-        role: UserRole = UserRole.VIEWER
+        role: UserRole = UserRole.VIEWER,
     ) -> User:
         """Create a new user."""
         # Validate email uniqueness
@@ -97,7 +97,7 @@ class UserManagementService:
                 user_id=user.id,
                 tenant_id=tenant_id,
                 role=role,
-                permissions=get_default_permissions(role)
+                permissions=get_default_permissions(role),
             )
             user.tenant_roles.append(tenant_role)
 
@@ -127,7 +127,7 @@ class UserManagementService:
         session = UserSession(
             id=str(uuid.uuid4()),
             user_id=user.id,
-            expires_at=datetime.utcnow() + timedelta(hours=24)
+            expires_at=datetime.utcnow() + timedelta(hours=24),
         )
 
         await self._session_repo.create_session(session)
@@ -141,7 +141,11 @@ class UserManagementService:
     async def get_user_by_session(self, session_id: str) -> User | None:
         """Get user by session ID."""
         session = await self._session_repo.get_session_by_id(session_id)
-        if not session or not session.is_active or session.expires_at < datetime.utcnow():
+        if (
+            not session
+            or not session.is_active
+            or session.expires_at < datetime.utcnow()
+        ):
             return None
 
         # Update last activity
@@ -159,7 +163,7 @@ class UserManagementService:
         inviter_id: UserId,
         tenant_id: TenantId,
         email: str,
-        role: UserRole = UserRole.VIEWER
+        role: UserRole = UserRole.VIEWER,
     ) -> User:
         """Invite a new user to a tenant."""
         # Check if inviter has permission
@@ -167,8 +171,10 @@ class UserManagementService:
         if not inviter:
             raise UserNotFoundError("Inviter not found")
 
-        if not (inviter.is_super_admin() or
-                inviter.has_role_in_tenant(tenant_id, UserRole.TENANT_ADMIN)):
+        if not (
+            inviter.is_super_admin()
+            or inviter.has_role_in_tenant(tenant_id, UserRole.TENANT_ADMIN)
+        ):
             raise AuthorizationError("Insufficient permissions to invite users")
 
         # Generate temporary password
@@ -177,12 +183,12 @@ class UserManagementService:
         # Create user with pending status
         user = await self.create_user(
             email=email,
-            username=email.split('@')[0] + str(int(datetime.utcnow().timestamp())),
+            username=email.split("@")[0] + str(int(datetime.utcnow().timestamp())),
             first_name="",
             last_name="",
             password=temp_password,
             tenant_id=tenant_id,
-            role=role
+            role=role,
         )
 
         # TODO: Send invitation email with temp password
@@ -196,7 +202,7 @@ class UserManagementService:
         domain: str,
         plan: TenantPlan = TenantPlan.FREE,
         admin_email: str = "",
-        admin_password: str = ""
+        admin_password: str = "",
     ) -> tuple[Tenant, User | None]:
         """Create a new tenant with optional admin user."""
         # Validate domain uniqueness
@@ -213,7 +219,9 @@ class UserManagementService:
             name=name,
             domain=domain,
             plan=plan,
-            status=TenantStatus.ACTIVE if plan != TenantPlan.FREE else TenantStatus.TRIAL,
+            status=(
+                TenantStatus.ACTIVE if plan != TenantPlan.FREE else TenantStatus.TRIAL
+            ),
             limits=limits,
             usage=TenantUsage(),
         )
@@ -225,12 +233,12 @@ class UserManagementService:
         if admin_email and admin_password:
             admin_user = await self.create_user(
                 email=admin_email,
-                username=admin_email.split('@')[0],
+                username=admin_email.split("@")[0],
                 first_name="Admin",
                 last_name="User",
                 password=admin_password,
                 tenant_id=created_tenant.id,
-                role=UserRole.TENANT_ADMIN
+                role=UserRole.TENANT_ADMIN,
             )
 
             # Set user as active immediately
@@ -258,34 +266,34 @@ class UserManagementService:
                     "current": tenant.usage.users_count,
                     "limit": tenant.limits.max_users,
                     "percentage": tenant.get_limit_usage_percentage("users"),
-                    "within_limit": limits_check["users"]
+                    "within_limit": limits_check["users"],
                 },
                 "datasets": {
                     "current": tenant.usage.datasets_count,
                     "limit": tenant.limits.max_datasets,
                     "percentage": tenant.get_limit_usage_percentage("datasets"),
-                    "within_limit": limits_check["datasets"]
+                    "within_limit": limits_check["datasets"],
                 },
                 "models": {
                     "current": tenant.usage.models_count,
                     "limit": tenant.limits.max_models,
                     "percentage": tenant.get_limit_usage_percentage("models"),
-                    "within_limit": limits_check["models"]
+                    "within_limit": limits_check["models"],
                 },
                 "detections_this_month": {
                     "current": tenant.usage.detections_this_month,
                     "limit": tenant.limits.max_detections_per_month,
                     "percentage": tenant.get_limit_usage_percentage("detections"),
-                    "within_limit": limits_check["detections"]
+                    "within_limit": limits_check["detections"],
                 },
                 "storage_gb": {
                     "current": tenant.usage.storage_used_gb,
                     "limit": tenant.limits.max_storage_gb,
                     "percentage": tenant.get_limit_usage_percentage("storage"),
-                    "within_limit": limits_check["storage"]
-                }
+                    "within_limit": limits_check["storage"],
+                },
             },
-            "last_updated": tenant.usage.last_updated.isoformat()
+            "last_updated": tenant.usage.last_updated.isoformat(),
         }
 
     async def check_tenant_limits(self, tenant_id: TenantId, resource: str) -> bool:
@@ -297,17 +305,15 @@ class UserManagementService:
         limits_check = tenant.is_within_limits()
         return limits_check.get(resource, False)
 
-    async def update_tenant_usage(self, tenant_id: TenantId, resource: str, increment: int = 1) -> bool:
+    async def update_tenant_usage(
+        self, tenant_id: TenantId, resource: str, increment: int = 1
+    ) -> bool:
         """Update tenant usage for a specific resource."""
         usage_updates = {f"{resource}_count": f"+{increment}"}
         return await self._tenant_repo.update_tenant_usage(tenant_id, usage_updates)
 
     # Permission Management
-    async def update_user(
-        self,
-        user_id: UserId,
-        update_data: dict[str, any]
-    ) -> User:
+    async def update_user(self, user_id: UserId, update_data: dict[str, any]) -> User:
         """Update user information."""
         user = await self._user_repo.get_user_by_id(user_id)
         if not user:
@@ -363,23 +369,15 @@ class UserManagementService:
         status: UserStatus | None = None,
         role: UserRole | None = None,
         limit: int = 100,
-        offset: int = 0
+        offset: int = 0,
     ) -> list[User]:
         """List users with optional filters."""
         return await self._user_repo.list_users(
-            tenant_id=tenant_id,
-            status=status,
-            role=role,
-            limit=limit,
-            offset=offset
+            tenant_id=tenant_id, status=status, role=role, limit=limit, offset=offset
         )
 
     async def check_user_permission(
-        self,
-        user_id: UserId,
-        tenant_id: TenantId,
-        resource: str,
-        action: str
+        self, user_id: UserId, tenant_id: TenantId, resource: str, action: str
     ) -> bool:
         """Check if user has permission for specific action."""
         user = await self._user_repo.get_user_by_id(user_id)
@@ -412,7 +410,7 @@ class UserManagementService:
     def _verify_password(self, password: str, stored_hash: str) -> bool:
         """Verify password against stored hash."""
         try:
-            salt, password_hash = stored_hash.split(':')
+            salt, password_hash = stored_hash.split(":")
             computed_hash = hashlib.sha256((password + salt).encode()).hexdigest()
             return password_hash == computed_hash
         except ValueError:
@@ -428,7 +426,7 @@ class UserManagementService:
                 max_detections_per_month=1000,
                 max_storage_gb=1,
                 max_api_calls_per_minute=50,
-                max_concurrent_detections=1
+                max_concurrent_detections=1,
             ),
             TenantPlan.STARTER: TenantLimits(
                 max_users=10,
@@ -437,7 +435,7 @@ class UserManagementService:
                 max_detections_per_month=10000,
                 max_storage_gb=10,
                 max_api_calls_per_minute=200,
-                max_concurrent_detections=3
+                max_concurrent_detections=3,
             ),
             TenantPlan.PROFESSIONAL: TenantLimits(
                 max_users=50,
@@ -446,7 +444,7 @@ class UserManagementService:
                 max_detections_per_month=100000,
                 max_storage_gb=100,
                 max_api_calls_per_minute=1000,
-                max_concurrent_detections=10
+                max_concurrent_detections=10,
             ),
             TenantPlan.ENTERPRISE: TenantLimits(
                 max_users=500,
@@ -455,8 +453,8 @@ class UserManagementService:
                 max_detections_per_month=1000000,
                 max_storage_gb=1000,
                 max_api_calls_per_minute=5000,
-                max_concurrent_detections=50
-            )
+                max_concurrent_detections=50,
+            ),
         }
 
         return plan_limits.get(plan, plan_limits[TenantPlan.FREE])

@@ -62,7 +62,10 @@ class AggregationStrategy(ABC):
 
             # Check parameter shapes
             for param_name in first_param_names:
-                if update.parameters[param_name].shape != first_update.parameters[param_name].shape:
+                if (
+                    update.parameters[param_name].shape
+                    != first_update.parameters[param_name].shape
+                ):
                     return False
 
         return True
@@ -87,8 +90,7 @@ class FederatedAveragingAggregation(AggregationStrategy):
 
         # Calculate weights based on data size
         total_data_size = sum(
-            participants[pid].data_size for pid in updates.keys()
-            if pid in participants
+            participants[pid].data_size for pid in updates.keys() if pid in participants
         )
 
         if total_data_size == 0:
@@ -268,15 +270,15 @@ class KrumAggregation(AggregationStrategy):
         for participant_id in participant_ids:
             update = updates[participant_id]
             # Flatten all parameters into single vector
-            flat_params = np.concatenate([
-                param.flatten() for param in update.parameters.values()
-            ])
+            flat_params = np.concatenate(
+                [param.flatten() for param in update.parameters.values()]
+            )
             param_vectors.append(flat_params)
 
         param_vectors = np.array(param_vectors)
 
         # Calculate pairwise distances
-        distances = pairwise_distances(param_vectors, metric='euclidean')
+        distances = pairwise_distances(param_vectors, metric="euclidean")
 
         # Calculate Krum scores
         krum_scores = {}
@@ -286,10 +288,9 @@ class KrumAggregation(AggregationStrategy):
             # Get distances to other participants
             participant_distances = distances[i]
             # Exclude self (distance = 0)
-            other_distances = np.concatenate([
-                participant_distances[:i],
-                participant_distances[i+1:]
-            ])
+            other_distances = np.concatenate(
+                [participant_distances[:i], participant_distances[i + 1 :]]
+            )
 
             # Sum of distances to num_closest participants
             closest_distances = np.partition(other_distances, num_closest)[:num_closest]
@@ -347,13 +348,13 @@ class MultiKrumAggregation(KrumAggregation):
 
         for participant_id in participant_ids:
             update = updates[participant_id]
-            flat_params = np.concatenate([
-                param.flatten() for param in update.parameters.values()
-            ])
+            flat_params = np.concatenate(
+                [param.flatten() for param in update.parameters.values()]
+            )
             param_vectors.append(flat_params)
 
         param_vectors = np.array(param_vectors)
-        distances = pairwise_distances(param_vectors, metric='euclidean')
+        distances = pairwise_distances(param_vectors, metric="euclidean")
 
         # Calculate Krum scores
         krum_scores = {}
@@ -361,19 +362,15 @@ class MultiKrumAggregation(KrumAggregation):
 
         for i, participant_id in enumerate(participant_ids):
             participant_distances = distances[i]
-            other_distances = np.concatenate([
-                participant_distances[:i],
-                participant_distances[i+1:]
-            ])
+            other_distances = np.concatenate(
+                [participant_distances[:i], participant_distances[i + 1 :]]
+            )
             closest_distances = np.partition(other_distances, num_closest)[:num_closest]
             krum_scores[participant_id] = np.sum(closest_distances)
 
         # Select top participants with lowest Krum scores
-        sorted_participants = sorted(
-            krum_scores.keys(),
-            key=lambda x: krum_scores[x]
-        )
-        selected_participants = sorted_participants[:self.num_selected]
+        sorted_participants = sorted(krum_scores.keys(), key=lambda x: krum_scores[x])
+        selected_participants = sorted_participants[: self.num_selected]
 
         # Average the selected participants' parameters
         param_names = self._get_parameter_names(updates)
@@ -398,7 +395,9 @@ class MultiKrumAggregation(KrumAggregation):
             "num_byzantines": self.num_byzantines,
             "num_selected": self.num_selected,
             "selected_participants": [str(pid) for pid in selected_participants],
-            "avg_krum_score": np.mean([krum_scores[pid] for pid in selected_participants]),
+            "avg_krum_score": np.mean(
+                [krum_scores[pid] for pid in selected_participants]
+            ),
             "score_variance": np.var(list(krum_scores.values())),
         }
 
@@ -439,7 +438,9 @@ class GeometricMedianAggregation(AggregationStrategy):
             median_params = self._geometric_median(param_matrix)
 
             # Reshape back to original shape
-            original_shape = updates[next(iter(updates.keys()))].parameters[param_name].shape
+            original_shape = (
+                updates[next(iter(updates.keys()))].parameters[param_name].shape
+            )
             aggregated_params[param_name] = median_params.reshape(original_shape)
 
         # Calculate robustness metrics
@@ -473,9 +474,7 @@ class GeometricMedianAggregation(AggregationStrategy):
             weight_sum = np.sum(weights)
 
             # Update median
-            new_median = np.sum(
-                (weights.reshape(-1, 1) * points), axis=0
-            ) / weight_sum
+            new_median = np.sum((weights.reshape(-1, 1) * points), axis=0) / weight_sum
 
             # Check convergence
             if np.linalg.norm(new_median - median) < self.tolerance:
@@ -598,6 +597,7 @@ class FederatedAggregationService:
         for method, strategy in self.strategies.items():
             try:
                 import time
+
                 start_time = time.time()
 
                 aggregated_params, metrics = asyncio.run(

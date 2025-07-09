@@ -101,9 +101,7 @@ class FederatedParticipantClient:
                 # Start listening for coordinator messages
                 asyncio.create_task(self._listen_for_messages())
 
-                self.logger.info(
-                    f"Successfully joined federation {federation_id}"
-                )
+                self.logger.info(f"Successfully joined federation {federation_id}")
                 return True
             else:
                 self.logger.error(f"Failed to join federation {federation_id}")
@@ -281,7 +279,9 @@ class FederatedParticipantClient:
             await asyncio.sleep(0.1)
 
             # Simulate successful registration
-            self.logger.info(f"Registered with coordinator at {self.coordinator_endpoint}")
+            self.logger.info(
+                f"Registered with coordinator at {self.coordinator_endpoint}"
+            )
             return True
 
         except Exception as e:
@@ -398,7 +398,9 @@ class FederatedParticipantClient:
             "name": self.name,
             "role": self.role.value,
             "is_connected": self.is_connected,
-            "federation_id": str(self.current_federation_id) if self.current_federation_id else None,
+            "federation_id": (
+                str(self.current_federation_id) if self.current_federation_id else None
+            ),
             "current_round": self.current_round,
             "data_size": self.data_size,
             "computation_capacity": self.computation_capacity,
@@ -406,7 +408,8 @@ class FederatedParticipantClient:
             "total_updates_sent": len(self.local_updates),
             "privacy_budget_remaining": (
                 self.privacy_budget.epsilon - self.privacy_budget.spent_epsilon
-                if self.privacy_budget else None
+                if self.privacy_budget
+                else None
             ),
         }
 
@@ -430,10 +433,9 @@ class FederatedParticipantClient:
 
         # Combine and shuffle
         data = np.vstack([normal_data, anomaly_data])
-        labels = np.hstack([
-            np.zeros(normal_samples, dtype=bool),
-            np.ones(anomaly_samples, dtype=bool)
-        ])
+        labels = np.hstack(
+            [np.zeros(normal_samples, dtype=bool), np.ones(anomaly_samples, dtype=bool)]
+        )
 
         # Shuffle
         indices = np.random.permutation(num_samples)
@@ -450,10 +452,7 @@ class FederatedParticipantClient:
 
         return data, labels
 
-    async def benchmark_local_training(
-        self,
-        num_rounds: int = 5
-    ) -> dict[str, Any]:
+    async def benchmark_local_training(self, num_rounds: int = 5) -> dict[str, Any]:
         """Benchmark local training performance."""
 
         if not self.training_data:

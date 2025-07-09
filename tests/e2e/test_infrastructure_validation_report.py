@@ -120,7 +120,9 @@ async def main():
     test_count, collection_success = run_pytest_collection()
     print("📊 Test Discovery:")
     print(f"   Total discoverable tests: {test_count}")
-    print(f"   Collection status: {'✅ SUCCESS' if collection_success else '❌ FAILED'}")
+    print(
+        f"   Collection status: {'✅ SUCCESS' if collection_success else '❌ FAILED'}"
+    )
     print()
 
     # Infrastructure component tests

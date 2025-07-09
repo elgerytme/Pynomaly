@@ -46,9 +46,17 @@ class TestAutoMLAPI:
 
         use_case.auto_optimize.return_value = mock_response
 
-        with patch('pynomaly.presentation.api.endpoints.automl.get_container') as mock_get_container, \
-             patch('pynomaly.presentation.api.endpoints.automl.get_current_user') as mock_get_user, \
-             patch('pynomaly.presentation.api.endpoints.automl.require_write') as mock_require_write:
+        with (
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_container"
+            ) as mock_get_container,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_current_user"
+            ) as mock_get_user,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.require_write"
+            ) as mock_require_write,
+        ):
 
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
@@ -62,8 +70,8 @@ class TestAutoMLAPI:
                         "dataset_path": "test_data.csv",
                         "algorithm_name": "KNN",
                         "max_trials": 100,
-                        "storage_path": temp_dir
-                    }
+                        "storage_path": temp_dir,
+                    },
                 )
 
         assert response.status_code == 200
@@ -79,9 +87,17 @@ class TestAutoMLAPI:
         """Test /automl/run endpoint with unsupported algorithm."""
         container, use_case = mock_container
 
-        with patch('pynomaly.presentation.api.endpoints.automl.get_container') as mock_get_container, \
-             patch('pynomaly.presentation.api.endpoints.automl.get_current_user') as mock_get_user, \
-             patch('pynomaly.presentation.api.endpoints.automl.require_write') as mock_require_write:
+        with (
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_container"
+            ) as mock_get_container,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_current_user"
+            ) as mock_get_user,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.require_write"
+            ) as mock_require_write,
+        ):
 
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
@@ -92,8 +108,8 @@ class TestAutoMLAPI:
                 params={
                     "dataset_path": "test_data.csv",
                     "algorithm_name": "UnsupportedAlgorithm",
-                    "max_trials": 100
-                }
+                    "max_trials": 100,
+                },
             )
 
         assert response.status_code == 400
@@ -110,9 +126,17 @@ class TestAutoMLAPI:
 
         use_case.auto_optimize.return_value = mock_response
 
-        with patch('pynomaly.presentation.api.endpoints.automl.get_container') as mock_get_container, \
-             patch('pynomaly.presentation.api.endpoints.automl.get_current_user') as mock_get_user, \
-             patch('pynomaly.presentation.api.endpoints.automl.require_write') as mock_require_write:
+        with (
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_container"
+            ) as mock_get_container,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_current_user"
+            ) as mock_get_user,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.require_write"
+            ) as mock_require_write,
+        ):
 
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
@@ -123,8 +147,8 @@ class TestAutoMLAPI:
                 params={
                     "dataset_path": "invalid_data.csv",
                     "algorithm_name": "KNN",
-                    "max_trials": 50
-                }
+                    "max_trials": 50,
+                },
             )
 
         assert response.status_code == 200  # Endpoint returns 200 with error details
@@ -142,9 +166,17 @@ class TestAutoMLAPI:
         # Mock exception during optimization
         use_case.auto_optimize.side_effect = Exception("Unexpected error")
 
-        with patch('pynomaly.presentation.api.endpoints.automl.get_container') as mock_get_container, \
-             patch('pynomaly.presentation.api.endpoints.automl.get_current_user') as mock_get_user, \
-             patch('pynomaly.presentation.api.endpoints.automl.require_write') as mock_require_write:
+        with (
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_container"
+            ) as mock_get_container,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_current_user"
+            ) as mock_get_user,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.require_write"
+            ) as mock_require_write,
+        ):
 
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
@@ -155,8 +187,8 @@ class TestAutoMLAPI:
                 params={
                     "dataset_path": "test_data.csv",
                     "algorithm_name": "KNN",
-                    "max_trials": 100
-                }
+                    "max_trials": 100,
+                },
             )
 
         assert response.status_code == 200
@@ -180,9 +212,17 @@ class TestAutoMLAPI:
 
         use_case.auto_optimize.return_value = mock_response_success
 
-        with patch('pynomaly.presentation.api.endpoints.automl.get_container') as mock_get_container, \
-             patch('pynomaly.presentation.api.endpoints.automl.get_current_user') as mock_get_user, \
-             patch('pynomaly.presentation.api.endpoints.automl.require_write') as mock_require_write:
+        with (
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_container"
+            ) as mock_get_container,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_current_user"
+            ) as mock_get_user,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.require_write"
+            ) as mock_require_write,
+        ):
 
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
@@ -193,8 +233,8 @@ class TestAutoMLAPI:
                 params={
                     "dataset_path": "high_performance_data.csv",
                     "algorithm_name": "KNN",
-                    "max_trials": 100
-                }
+                    "max_trials": 100,
+                },
             )
 
         data = response.json()
@@ -216,9 +256,17 @@ class TestAutoMLAPI:
 
         use_case.auto_optimize.return_value = mock_response
 
-        with patch('pynomaly.presentation.api.endpoints.automl.get_container') as mock_get_container, \
-             patch('pynomaly.presentation.api.endpoints.automl.get_current_user') as mock_get_user, \
-             patch('pynomaly.presentation.api.endpoints.automl.require_write') as mock_require_write:
+        with (
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_container"
+            ) as mock_get_container,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_current_user"
+            ) as mock_get_user,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.require_write"
+            ) as mock_require_write,
+        ):
 
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
@@ -231,8 +279,8 @@ class TestAutoMLAPI:
                         "dataset_path": "test_data.csv",
                         "algorithm_name": "LOF",
                         "max_trials": 100,
-                        "storage_path": temp_dir
-                    }
+                        "storage_path": temp_dir,
+                    },
                 )
 
                 data = response.json()
@@ -249,16 +297,30 @@ class TestAutoMLAPI:
         """Test parameter validation for /automl/run endpoint."""
         container, use_case = mock_container
 
-        with patch('pynomaly.presentation.api.endpoints.automl.get_container') as mock_get_container, \
-             patch('pynomaly.presentation.api.endpoints.automl.get_current_user') as mock_get_user, \
-             patch('pynomaly.presentation.api.endpoints.automl.require_write') as mock_require_write:
+        with (
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_container"
+            ) as mock_get_container,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_current_user"
+            ) as mock_get_user,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.require_write"
+            ) as mock_require_write,
+        ):
 
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
             mock_require_write.return_value = "write"
 
             # Test all supported PyOD algorithms
-            supported_algorithms = ["KNN", "LOF", "IsolationForest", "OneClassSVM", "AutoEncoder"]
+            supported_algorithms = [
+                "KNN",
+                "LOF",
+                "IsolationForest",
+                "OneClassSVM",
+                "AutoEncoder",
+            ]
 
             for algorithm in supported_algorithms:
                 mock_response = Mock()
@@ -275,8 +337,8 @@ class TestAutoMLAPI:
                     params={
                         "dataset_path": "test_data.csv",
                         "algorithm_name": algorithm,
-                        "max_trials": 50
-                    }
+                        "max_trials": 50,
+                    },
                 )
 
                 assert response.status_code == 200
@@ -296,9 +358,17 @@ class TestAutoMLAPI:
 
         use_case.auto_optimize.return_value = mock_response
 
-        with patch('pynomaly.presentation.api.endpoints.automl.get_container') as mock_get_container, \
-             patch('pynomaly.presentation.api.endpoints.automl.get_current_user') as mock_get_user, \
-             patch('pynomaly.presentation.api.endpoints.automl.require_write') as mock_require_write:
+        with (
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_container"
+            ) as mock_get_container,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.get_current_user"
+            ) as mock_get_user,
+            patch(
+                "pynomaly.presentation.api.endpoints.automl.require_write"
+            ) as mock_require_write,
+        ):
 
             mock_get_container.return_value = container
             mock_get_user.return_value = "test_user"
@@ -309,8 +379,8 @@ class TestAutoMLAPI:
                 params={
                     "dataset_path": "large_dataset.csv",
                     "algorithm_name": "KNN",
-                    "max_trials": 100
-                }
+                    "max_trials": 100,
+                },
             )
 
             data = response.json()
@@ -332,7 +402,7 @@ class TestTrialPersistenceAPI:
             "best_parameters": {
                 "n_neighbors": 10,
                 "method": "largest",
-                "contamination": 0.1
+                "contamination": 0.1,
             },
             "optimization_time": 450.2,
             "trials_completed": 75,
@@ -341,8 +411,12 @@ class TestTrialPersistenceAPI:
 
         # Verify all required fields are present
         required_fields = [
-            "algorithm", "best_score", "best_parameters",
-            "optimization_time", "trials_completed", "storage_path"
+            "algorithm",
+            "best_score",
+            "best_parameters",
+            "optimization_time",
+            "trials_completed",
+            "storage_path",
         ]
 
         for field in required_fields:
@@ -386,10 +460,10 @@ class TestPerformanceCriteriaAPI:
 
         # Test cases for different improvement levels
         test_cases = [
-            (0.575, 0.15, True),   # Exactly 15% improvement
-            (0.6, 0.2, True),      # 20% improvement (exceeds criteria)
-            (0.55, 0.1, False),    # 10% improvement (below criteria)
-            (0.4, -0.2, False),    # Negative improvement
+            (0.575, 0.15, True),  # Exactly 15% improvement
+            (0.6, 0.2, True),  # 20% improvement (exceeds criteria)
+            (0.55, 0.1, False),  # 10% improvement (below criteria)
+            (0.4, -0.2, False),  # Negative improvement
         ]
 
         for optimized_score, expected_improvement, should_meet_criteria in test_cases:

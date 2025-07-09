@@ -11,31 +11,39 @@ def check_flags_always_defined():
     print("Step 3a: Verifying SHAP_AVAILABLE and LIME_AVAILABLE are always defined...")
 
     # Check the source code directly
-    app_service_file = Path("src/pynomaly/application/services/explainable_ai_service.py")
+    app_service_file = Path(
+        "src/pynomaly/application/services/explainable_ai_service.py"
+    )
     domain_service_file = Path("src/pynomaly/domain/services/explainable_ai_service.py")
 
     files_checked = 0
 
     for service_file in [app_service_file, domain_service_file]:
         if service_file.exists():
-            with open(service_file, encoding='utf-8') as f:
+            with open(service_file, encoding="utf-8") as f:
                 content = f.read()
 
             # Check that both flags are defined
-            if 'SHAP_AVAILABLE = True' in content and 'SHAP_AVAILABLE = False' in content:
+            if (
+                "SHAP_AVAILABLE = True" in content
+                and "SHAP_AVAILABLE = False" in content
+            ):
                 print(f"  ✓ {service_file.name}: SHAP_AVAILABLE is properly defined")
             else:
                 print(f"  ✗ {service_file.name}: SHAP_AVAILABLE not properly defined")
                 return False
 
-            if 'LIME_AVAILABLE = True' in content and 'LIME_AVAILABLE = False' in content:
+            if (
+                "LIME_AVAILABLE = True" in content
+                and "LIME_AVAILABLE = False" in content
+            ):
                 print(f"  ✓ {service_file.name}: LIME_AVAILABLE is properly defined")
             else:
                 print(f"  ✗ {service_file.name}: LIME_AVAILABLE not properly defined")
                 return False
 
             # Check for graceful fallback pattern
-            if 'except ImportError:' in content:
+            if "except ImportError:" in content:
                 print(f"  ✓ {service_file.name}: Graceful fallback implemented")
             else:
                 print(f"  ✗ {service_file.name}: Graceful fallback not implemented")
@@ -50,6 +58,7 @@ def check_flags_always_defined():
         print("  ✗ Step 3a: Could not verify all service files")
         return False
 
+
 def check_unit_tests_added():
     """Verify that unit tests have been added for graceful fallback."""
     print("\nStep 3b: Verifying unit tests for graceful fallback...")
@@ -57,20 +66,22 @@ def check_unit_tests_added():
     # Check for the added unit tests
     test_files = [
         Path("tests/application/services/test_explainable_ai_service.py"),
-        Path("tests/domain/services/test_explainable_ai_service_fallback.py")
+        Path("tests/domain/services/test_explainable_ai_service_fallback.py"),
     ]
 
     tests_found = 0
 
     for test_file in test_files:
         if test_file.exists():
-            with open(test_file, encoding='utf-8') as f:
+            with open(test_file, encoding="utf-8") as f:
                 content = f.read()
 
             # Look for import-related tests
-            if ('test_import_without_shap' in content or
-                'test_flags_always_defined' in content or
-                'sys.modules' in content):
+            if (
+                "test_import_without_shap" in content
+                or "test_flags_always_defined" in content
+                or "sys.modules" in content
+            ):
                 print(f"  ✓ {test_file.name}: Contains import fallback tests")
                 tests_found += 1
             else:
@@ -80,7 +91,7 @@ def check_unit_tests_added():
     validation_scripts = [
         Path("test_isolated_imports.py"),
         Path("validate_explainable_ai_imports.py"),
-        Path("task_completion_validation.py")
+        Path("task_completion_validation.py"),
     ]
 
     for script in validation_scripts:
@@ -95,13 +106,14 @@ def check_unit_tests_added():
         print("  ✗ Step 3b: No unit tests found")
         return False
 
+
 def test_graceful_fallback():
     """Test the actual graceful fallback behavior."""
     print("\nTesting graceful fallback behavior...")
 
     # Store original modules
     original_modules = {}
-    modules_to_mock = ['shap', 'lime', 'lime.lime_tabular']
+    modules_to_mock = ["shap", "lime", "lime.lime_tabular"]
 
     for module in modules_to_mock:
         if module in sys.modules:
@@ -110,10 +122,11 @@ def test_graceful_fallback():
 
     try:
         # Mock ImportError for these modules
-        with patch.dict('sys.modules', {module: None for module in modules_to_mock}):
+        with patch.dict("sys.modules", dict.fromkeys(modules_to_mock)):
             # Test the import pattern directly
             try:
                 import shap
+
                 SHAP_AVAILABLE = True
             except ImportError:
                 SHAP_AVAILABLE = False
@@ -122,18 +135,29 @@ def test_graceful_fallback():
             try:
                 import lime
                 import lime.lime_tabular
+
                 LIME_AVAILABLE = True
             except ImportError:
                 LIME_AVAILABLE = False
                 lime = None
 
             # Verify graceful fallback
-            assert not SHAP_AVAILABLE, f"Expected SHAP_AVAILABLE=False, got {SHAP_AVAILABLE}"
-            assert not LIME_AVAILABLE, f"Expected LIME_AVAILABLE=False, got {LIME_AVAILABLE}"
-            assert isinstance(SHAP_AVAILABLE, bool), f"SHAP_AVAILABLE should be bool, got {type(SHAP_AVAILABLE)}"
-            assert isinstance(LIME_AVAILABLE, bool), f"LIME_AVAILABLE should be bool, got {type(LIME_AVAILABLE)}"
+            assert (
+                not SHAP_AVAILABLE
+            ), f"Expected SHAP_AVAILABLE=False, got {SHAP_AVAILABLE}"
+            assert (
+                not LIME_AVAILABLE
+            ), f"Expected LIME_AVAILABLE=False, got {LIME_AVAILABLE}"
+            assert isinstance(
+                SHAP_AVAILABLE, bool
+            ), f"SHAP_AVAILABLE should be bool, got {type(SHAP_AVAILABLE)}"
+            assert isinstance(
+                LIME_AVAILABLE, bool
+            ), f"LIME_AVAILABLE should be bool, got {type(LIME_AVAILABLE)}"
 
-            print("  ✓ Graceful fallback works correctly when libraries are unavailable")
+            print(
+                "  ✓ Graceful fallback works correctly when libraries are unavailable"
+            )
             print(f"    - SHAP_AVAILABLE: {SHAP_AVAILABLE} (correctly False)")
             print(f"    - LIME_AVAILABLE: {LIME_AVAILABLE} (correctly False)")
 
@@ -143,6 +167,7 @@ def test_graceful_fallback():
             sys.modules[module] = original
 
     return True
+
 
 def main():
     """Main validation function."""
@@ -166,7 +191,9 @@ def main():
         print("=" * 70)
 
         if step_3a_passed:
-            print("✓ Step 3a: SHAP_AVAILABLE and LIME_AVAILABLE flags are always defined")
+            print(
+                "✓ Step 3a: SHAP_AVAILABLE and LIME_AVAILABLE flags are always defined"
+            )
         else:
             print("✗ Step 3a: Flags not properly defined")
 
@@ -194,8 +221,10 @@ def main():
     except Exception as e:
         print(f"\n❌ ERROR during validation: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     success = main()

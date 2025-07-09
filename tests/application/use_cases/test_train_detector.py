@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import pandas as pd
 import pytest
+
 from pynomaly.application.use_cases.train_detector import (
     TrainDetectorRequest,
     TrainDetectorResponse,

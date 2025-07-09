@@ -44,7 +44,6 @@ code = code.replace(
 )
 
 # Create a proper module namespace
-import sys
 import types
 
 permission_module = types.ModuleType("permission_matrix")

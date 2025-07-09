@@ -620,9 +620,7 @@ class TestReportGenerator:
                 severity_class = (
                     "error"
                     if severity == "HIGH"
-                    else "warning"
-                    if severity == "MEDIUM"
-                    else ""
+                    else "warning" if severity == "MEDIUM" else ""
                 )
 
                 content += f"""

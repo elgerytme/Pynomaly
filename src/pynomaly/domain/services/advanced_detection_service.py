@@ -295,7 +295,9 @@ class AdvancedDetectionService:
 
             # Create anomalies
             anomalies = []
-            for i, (is_anomaly, score) in enumerate(zip(predictions, scores, strict=False)):
+            for i, (is_anomaly, score) in enumerate(
+                zip(predictions, scores, strict=False)
+            ):
                 if is_anomaly:
                     anomaly = Anomaly(
                         index=i,
@@ -305,9 +307,9 @@ class AdvancedDetectionService:
                             upper=min(1.0, score + 0.1),
                             confidence_level=0.95,
                         ),
-                        features=X.iloc[i].to_dict()
-                        if isinstance(X, pd.DataFrame)
-                        else {},
+                        features=(
+                            X.iloc[i].to_dict() if isinstance(X, pd.DataFrame) else {}
+                        ),
                         timestamp=dataset.metadata.get("timestamp", None),
                         explanation=f"Detected by {algorithm.value}",
                     )

@@ -318,12 +318,12 @@ class ProcessingOrchestrator:
             "mode": session.mode.value,
             "status": session.status.value,
             "created_at": session.created_at.isoformat(),
-            "started_at": session.started_at.isoformat()
-            if session.started_at
-            else None,
-            "stopped_at": session.stopped_at.isoformat()
-            if session.stopped_at
-            else None,
+            "started_at": (
+                session.started_at.isoformat() if session.started_at else None
+            ),
+            "stopped_at": (
+                session.stopped_at.isoformat() if session.stopped_at else None
+            ),
             "total_records": session.total_records,
             "total_anomalies": session.total_anomalies,
             "error_count": session.error_count,

@@ -390,9 +390,7 @@ class ModelManagementService:
                         "trend": (
                             "improving"
                             if change > 0
-                            else "declining"
-                            if change < 0
-                            else "stable"
+                            else "declining" if change < 0 else "stable"
                         ),
                     }
 

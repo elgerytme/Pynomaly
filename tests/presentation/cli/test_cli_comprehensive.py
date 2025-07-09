@@ -11,6 +11,8 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
+from typer.testing import CliRunner
+
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.presentation.cli import (
     autonomous,
@@ -22,7 +24,6 @@ from pynomaly.presentation.cli import (
 )
 from pynomaly.presentation.cli.app import app
 from pynomaly.presentation.cli.export import export_app
-from typer.testing import CliRunner
 
 
 class TestMainCLIApp:

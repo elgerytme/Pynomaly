@@ -237,7 +237,9 @@ def compare(
 
         # Test each strategy
         for i, strategy in enumerate(strategies, 1):
-            console.print(f"\n📈 [{i}/{len(strategies)}] Testing {strategy} strategy...")
+            console.print(
+                f"\n📈 [{i}/{len(strategies)}] Testing {strategy} strategy..."
+            )
 
             try:
                 config = EnsembleConfiguration(
@@ -556,7 +558,9 @@ def _display_ensemble_comparison(results: dict):
     for i, (strategy, performance, status) in enumerate(strategy_scores):
         if status == "Success":
             result = results[strategy]
-            rank_emoji = "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else "📊"
+            rank_emoji = (
+                "🥇" if i == 0 else "🥈" if i == 1 else "🥉" if i == 2 else "📊"
+            )
             table.add_row(
                 f"{rank_emoji} {strategy}",
                 f"{result.get('estimated_performance', 0):.4f}",
@@ -678,9 +682,7 @@ def _display_algorithm_compatibility(algorithms: tuple, compatibility_matrix: di
                 color = (
                     "green"
                     if compatibility < 0.6
-                    else "yellow"
-                    if compatibility < 0.8
-                    else "red"
+                    else "yellow" if compatibility < 0.8 else "red"
                 )
                 row.append(f"[{color}]{compatibility:.2f}[/{color}]")
         table.add_row(*row)

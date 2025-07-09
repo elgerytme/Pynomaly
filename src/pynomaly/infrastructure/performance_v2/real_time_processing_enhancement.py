@@ -9,18 +9,20 @@ from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Deque, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
+
 class ProcessingMode(str, Enum):
     ULTRA_LOW_LATENCY = "ultra_low_latency"  # < 1ms
-    LOW_LATENCY = "low_latency"              # < 10ms
-    REAL_TIME = "real_time"                  # < 100ms
-    NEAR_REAL_TIME = "near_real_time"        # < 1s
+    LOW_LATENCY = "low_latency"  # < 10ms
+    REAL_TIME = "real_time"  # < 100ms
+    NEAR_REAL_TIME = "near_real_time"  # < 1s
+
 
 class NetworkOptimization(str, Enum):
     KERNEL_BYPASS = "kernel_bypass"
@@ -29,25 +31,28 @@ class NetworkOptimization(str, Enum):
     SR_IOV = "sr_iov"
     STANDARD = "standard"
 
+
 class MemoryPattern(str, Enum):
     SEQUENTIAL = "sequential"
     RANDOM = "random"
     TEMPORAL_LOCALITY = "temporal_locality"
     SPATIAL_LOCALITY = "spatial_locality"
 
+
 @dataclass
 class LatencyProfile:
     """Latency requirements and measurements."""
+
     profile_id: str
     target_latency_us: float  # Target latency in microseconds
-    max_latency_us: float     # Maximum acceptable latency
+    max_latency_us: float  # Maximum acceptable latency
     percentile_99_us: float = 0.0
     percentile_95_us: float = 0.0
     percentile_50_us: float = 0.0
-    jitter_us: float = 0.0    # Latency jitter
+    jitter_us: float = 0.0  # Latency jitter
 
     # Measurements
-    measured_latencies: Deque[float] = field(default_factory=lambda: deque(maxlen=1000))
+    measured_latencies: deque[float] = field(default_factory=lambda: deque(maxlen=1000))
 
     def add_measurement(self, latency_us: float) -> None:
         """Add a latency measurement."""
@@ -72,27 +77,31 @@ class LatencyProfile:
 
     def is_meeting_sla(self) -> bool:
         """Check if latency SLA is being met."""
-        return (self.percentile_99_us <= self.max_latency_us and
-                self.percentile_95_us <= self.target_latency_us * 1.2)
+        return (
+            self.percentile_99_us <= self.max_latency_us
+            and self.percentile_95_us <= self.target_latency_us * 1.2
+        )
+
 
 @dataclass
 class ProcessingTask:
     """Real-time processing task."""
+
     task_id: UUID
     data: np.ndarray
     priority: int
     deadline_us: float  # Deadline in microseconds from now
 
     created_at: float = field(default_factory=time.time)
-    started_at: Optional[float] = None
-    completed_at: Optional[float] = None
+    started_at: float | None = None
+    completed_at: float | None = None
 
     # Processing metadata
     algorithm: str = "default"
     parameters: dict[str, Any] = field(default_factory=dict)
 
     # Results
-    anomaly_scores: Optional[np.ndarray] = None
+    anomaly_scores: np.ndarray | None = None
     anomalies_detected: int = 0
     processing_time_us: float = 0.0
 
@@ -117,9 +126,11 @@ class ProcessingTask:
         if self.started_at:
             self.processing_time_us = (self.completed_at - self.started_at) * 1_000_000
 
+
 @dataclass
 class StreamingBuffer:
     """High-performance streaming buffer with zero-copy operations."""
+
     buffer_id: str
     capacity: int
     element_size: int
@@ -141,13 +152,17 @@ class StreamingBuffer:
     def write(self, data: np.ndarray) -> bool:
         """Write data to buffer with zero-copy semantics."""
         if data.shape[1] != self.element_size:
-            logger.error(f"Data shape mismatch: expected {self.element_size}, got {data.shape[1]}")
+            logger.error(
+                f"Data shape mismatch: expected {self.element_size}, got {data.shape[1]}"
+            )
             return False
 
         available_space = self.capacity - self.size()
         if len(data) > available_space:
             self.buffer_overruns += 1
-            logger.warning(f"Buffer {self.buffer_id} overrun: need {len(data)}, have {available_space}")
+            logger.warning(
+                f"Buffer {self.buffer_id} overrun: need {len(data)}, have {available_space}"
+            )
             return False
 
         # Write data in chunks if it wraps around
@@ -161,7 +176,7 @@ class StreamingBuffer:
 
         return True
 
-    def read(self, count: int) -> Optional[np.ndarray]:
+    def read(self, count: int) -> np.ndarray | None:
         """Read data from buffer with zero-copy semantics."""
         if count > self.size():
             return None
@@ -169,10 +184,10 @@ class StreamingBuffer:
         # Handle wrap-around reading
         if self._read_index + count <= self.capacity:
             # Simple case: no wrap-around
-            result = self._data[self._read_index:self._read_index + count].copy()
+            result = self._data[self._read_index : self._read_index + count].copy()
         else:
             # Wrap-around case
-            first_part = self._data[self._read_index:].copy()
+            first_part = self._data[self._read_index :].copy()
             second_part_size = count - len(first_part)
             second_part = self._data[:second_part_size].copy()
             result = np.vstack([first_part, second_part])
@@ -203,6 +218,7 @@ class StreamingBuffer:
         """Get buffer utilization percentage."""
         return (self.size() / self.capacity) * 100
 
+
 class UltraLowLatencyProcessor:
     """Ultra-low latency processor for sub-millisecond detection."""
 
@@ -212,7 +228,7 @@ class UltraLowLatencyProcessor:
         self.latency_profile = LatencyProfile(
             profile_id="ultra_low_latency",
             target_latency_us=config.get("target_latency_us", 500),
-            max_latency_us=config.get("max_latency_us", 1000)
+            max_latency_us=config.get("max_latency_us", 1000),
         )
 
         # Processing queues by priority
@@ -226,7 +242,7 @@ class UltraLowLatencyProcessor:
         # Performance tracking
         self.processed_tasks = 0
         self.expired_tasks = 0
-        self.processing_times: Deque[float] = deque(maxlen=1000)
+        self.processing_times: deque[float] = deque(maxlen=1000)
 
         # Pre-compiled algorithms for speed
         self.compiled_algorithms: dict[str, Callable] = {}
@@ -234,12 +250,15 @@ class UltraLowLatencyProcessor:
 
     def _compile_algorithms(self) -> None:
         """Pre-compile algorithms for ultra-fast execution."""
+
         # Simple threshold-based detection (fastest)
         def threshold_detect(data: np.ndarray, threshold: float = 2.0) -> np.ndarray:
             return (np.abs(data) > threshold).astype(np.float32)
 
         # Statistical outlier detection (fast)
-        def statistical_detect(data: np.ndarray, z_threshold: float = 3.0) -> np.ndarray:
+        def statistical_detect(
+            data: np.ndarray, z_threshold: float = 3.0
+        ) -> np.ndarray:
             if len(data) < 2:
                 return np.zeros(len(data), dtype=np.float32)
 
@@ -249,7 +268,9 @@ class UltraLowLatencyProcessor:
             return (np.max(z_scores, axis=1) > z_threshold).astype(np.float32)
 
         # Distance-based detection (medium speed)
-        def distance_detect(data: np.ndarray, distance_threshold: float = 1.5) -> np.ndarray:
+        def distance_detect(
+            data: np.ndarray, distance_threshold: float = 1.5
+        ) -> np.ndarray:
             if len(data) < 2:
                 return np.zeros(len(data), dtype=np.float32)
 
@@ -383,9 +404,16 @@ class UltraLowLatencyProcessor:
         return {
             "processed_tasks": self.processed_tasks,
             "expired_tasks": self.expired_tasks,
-            "success_rate": (self.processed_tasks / max(self.processed_tasks + self.expired_tasks, 1)) * 100,
+            "success_rate": (
+                self.processed_tasks / max(self.processed_tasks + self.expired_tasks, 1)
+            )
+            * 100,
             "latency": {
-                "current_avg_us": np.mean(recent_times[-100:]) if len(recent_times) >= 100 else np.mean(recent_times),
+                "current_avg_us": (
+                    np.mean(recent_times[-100:])
+                    if len(recent_times) >= 100
+                    else np.mean(recent_times)
+                ),
                 "percentile_95_us": self.latency_profile.percentile_95_us,
                 "percentile_99_us": self.latency_profile.percentile_99_us,
                 "jitter_us": self.latency_profile.jitter_us,
@@ -393,6 +421,7 @@ class UltraLowLatencyProcessor:
             },
             "queue_depths": {str(p): len(q) for p, q in self.priority_queues.items()},
         }
+
 
 class StreamProcessor:
     """High-performance stream processor with backpressure handling."""
@@ -407,13 +436,13 @@ class StreamProcessor:
         self.input_buffer = StreamingBuffer(
             buffer_id="input",
             capacity=self.max_buffer_size,
-            element_size=config.get("element_size", 10)
+            element_size=config.get("element_size", 10),
         )
 
         self.output_buffer = StreamingBuffer(
             buffer_id="output",
             capacity=self.max_buffer_size,
-            element_size=1  # Anomaly scores
+            element_size=1,  # Anomaly scores
         )
 
         # Processing components
@@ -440,8 +469,7 @@ class StreamProcessor:
             # Check for backpressure
             if self.input_buffer.get_utilization() > 80:
                 action = await self.backpressure_handler.handle_backpressure(
-                    self.input_buffer.get_utilization(),
-                    len(data)
+                    self.input_buffer.get_utilization(), len(data)
                 )
 
                 if action == "drop":
@@ -474,9 +502,9 @@ class StreamProcessor:
                 batch_age_ms = (current_time - last_batch_time) * 1000
 
                 # Check if we should process a batch
-                should_process = (
-                    self.input_buffer.size() >= self.batch_size or
-                    (self.input_buffer.size() > 0 and batch_age_ms >= self.batch_timeout_ms)
+                should_process = self.input_buffer.size() >= self.batch_size or (
+                    self.input_buffer.size() > 0
+                    and batch_age_ms >= self.batch_timeout_ms
                 )
 
                 if should_process:
@@ -507,7 +535,7 @@ class StreamProcessor:
                 data=batch_data,
                 priority=1,
                 deadline_us=self.batch_timeout_ms * 1000,  # Convert to microseconds
-                algorithm="statistical"
+                algorithm="statistical",
             )
 
             # Submit for ultra-low latency processing
@@ -535,11 +563,36 @@ class StreamProcessor:
             },
             "processor_metrics": processor_metrics,
             "throughput": {
-                "ingestion_rate": self.stream_stats["ingested_samples"] / max(time.time() - self.ultra_processor.latency_profile.measured_latencies[0] if self.ultra_processor.latency_profile.measured_latencies else time.time(), 1),
-                "processing_rate": self.stream_stats["processed_samples"] / max(time.time() - self.ultra_processor.latency_profile.measured_latencies[0] if self.ultra_processor.latency_profile.measured_latencies else time.time(), 1),
-                "drop_rate": self.stream_stats["dropped_samples"] / max(self.stream_stats["ingested_samples"] + self.stream_stats["dropped_samples"], 1) * 100,
+                "ingestion_rate": self.stream_stats["ingested_samples"]
+                / max(
+                    (
+                        time.time()
+                        - self.ultra_processor.latency_profile.measured_latencies[0]
+                        if self.ultra_processor.latency_profile.measured_latencies
+                        else time.time()
+                    ),
+                    1,
+                ),
+                "processing_rate": self.stream_stats["processed_samples"]
+                / max(
+                    (
+                        time.time()
+                        - self.ultra_processor.latency_profile.measured_latencies[0]
+                        if self.ultra_processor.latency_profile.measured_latencies
+                        else time.time()
+                    ),
+                    1,
+                ),
+                "drop_rate": self.stream_stats["dropped_samples"]
+                / max(
+                    self.stream_stats["ingested_samples"]
+                    + self.stream_stats["dropped_samples"],
+                    1,
+                )
+                * 100,
             },
         }
+
 
 class BackpressureHandler:
     """Handles backpressure in real-time streams."""
@@ -551,9 +604,13 @@ class BackpressureHandler:
         self.adaptive_mode = config.get("adaptive_mode", True)
 
         # Backpressure statistics
-        self.backpressure_history: Deque[tuple[float, float]] = deque(maxlen=100)  # (timestamp, utilization)
+        self.backpressure_history: deque[tuple[float, float]] = deque(
+            maxlen=100
+        )  # (timestamp, utilization)
 
-    async def handle_backpressure(self, buffer_utilization: float, incoming_data_size: int) -> str:
+    async def handle_backpressure(
+        self, buffer_utilization: float, incoming_data_size: int
+    ) -> str:
         """Handle backpressure situation."""
         self.backpressure_history.append((time.time(), buffer_utilization))
 
@@ -583,6 +640,7 @@ class BackpressureHandler:
             return 0.002  # 2ms
         else:  # Stable or decreasing
             return 0.001  # 1ms
+
 
 class NetworkOptimizer:
     """Optimizes network performance for real-time processing."""
@@ -620,7 +678,9 @@ class NetworkOptimizer:
                 "optimization_applied": True,
                 "mode": self.optimization_mode.value,
                 "optimizations": optimizations,
-                "expected_latency_reduction_us": optimizations.get("latency_reduction", 0),
+                "expected_latency_reduction_us": optimizations.get(
+                    "latency_reduction", 0
+                ),
             }
 
         except Exception as e:
@@ -682,8 +742,13 @@ class NetworkOptimizer:
             "round_trip_time_us": rtt_us,
             "bandwidth_mbps": bandwidth_mbps,
             "packet_loss_rate": self.network_metrics["packet_loss_rate"],
-            "jitter_us": np.std(list(self.network_metrics["round_trip_time_us"])[-10:]) if len(self.network_metrics["round_trip_time_us"]) >= 10 else 0,
+            "jitter_us": (
+                np.std(list(self.network_metrics["round_trip_time_us"])[-10:])
+                if len(self.network_metrics["round_trip_time_us"]) >= 10
+                else 0
+            ),
         }
+
 
 class RealTimeProcessingOrchestrator:
     """Main orchestrator for real-time processing enhancement."""
@@ -710,7 +775,10 @@ class RealTimeProcessingOrchestrator:
             await self.stream_processor.start_streaming()
 
             # Optimize network if required
-            if self.processing_mode in [ProcessingMode.ULTRA_LOW_LATENCY, ProcessingMode.LOW_LATENCY]:
+            if self.processing_mode in [
+                ProcessingMode.ULTRA_LOW_LATENCY,
+                ProcessingMode.LOW_LATENCY,
+            ]:
                 await self.network_optimizer.optimize_network_path("localhost")
 
             logger.info("Real-time processing enhancement initialized successfully")
@@ -763,7 +831,9 @@ class RealTimeProcessingOrchestrator:
     async def get_system_status(self) -> dict[str, Any]:
         """Get comprehensive system status."""
         stream_metrics = await self.stream_processor.get_stream_metrics()
-        network_metrics = await self.network_optimizer.measure_network_performance("localhost")
+        network_metrics = await self.network_optimizer.measure_network_performance(
+            "localhost"
+        )
 
         uptime_seconds = time.time() - self.system_metrics["start_time"]
 
@@ -774,10 +844,14 @@ class RealTimeProcessingOrchestrator:
             "stream_metrics": stream_metrics,
             "network_metrics": network_metrics,
             "performance_summary": {
-                "avg_throughput_samples_per_sec": self.system_metrics["total_processed"] / max(uptime_seconds, 1),
-                "anomaly_detection_rate": self.system_metrics["total_anomalies"] / max(self.system_metrics["total_processed"], 1) * 100,
+                "avg_throughput_samples_per_sec": self.system_metrics["total_processed"]
+                / max(uptime_seconds, 1),
+                "anomaly_detection_rate": self.system_metrics["total_anomalies"]
+                / max(self.system_metrics["total_processed"], 1)
+                * 100,
             },
         }
+
 
 # Example usage and testing
 async def create_sample_real_time_data() -> np.ndarray:
@@ -791,6 +865,7 @@ async def create_sample_real_time_data() -> np.ndarray:
 
     return normal_data.astype(np.float32)
 
+
 async def benchmark_real_time_performance() -> dict[str, Any]:
     """Benchmark real-time processing performance."""
     config = {
@@ -802,12 +877,12 @@ async def benchmark_real_time_performance() -> dict[str, Any]:
             "processor": {
                 "target_latency_us": 500,
                 "max_latency_us": 1000,
-            }
+            },
         },
         "network": {
             "mode": "kernel_bypass",
             "target_latency_us": 100,
-        }
+        },
     }
 
     orchestrator = RealTimeProcessingOrchestrator(config)
@@ -821,7 +896,7 @@ async def benchmark_real_time_performance() -> dict[str, Any]:
     results = []
 
     for i in range(0, len(test_data), chunk_size):
-        chunk = test_data[i:i+chunk_size]
+        chunk = test_data[i : i + chunk_size]
         result = await orchestrator.process_real_time_data(chunk)
         results.append(result)
 

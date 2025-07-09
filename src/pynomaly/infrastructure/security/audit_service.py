@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pynomaly.domain.models.security import (
@@ -33,7 +33,9 @@ class AuditService:
         # Event indexes for efficient querying
         self.events_by_user: dict[UUID, list[UUID]] = {}
         self.events_by_type: dict[ActionType, list[UUID]] = {}
-        self.events_by_timestamp: list[tuple[datetime, UUID]] = []  # (timestamp, event_id)
+        self.events_by_timestamp: list[tuple[datetime, UUID]] = (
+            []
+        )  # (timestamp, event_id)
 
         # Real-time monitoring
         self.security_alerts: list[dict[str, Any]] = []
@@ -72,18 +74,18 @@ class AuditService:
 
     async def log_event(
         self,
-        user_id: Optional[UUID],
+        user_id: UUID | None,
         action: ActionType,
         resource_type: str,
         success: bool,
-        username: Optional[str] = None,
-        resource_id: Optional[str] = None,
-        resource_name: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        session_id: Optional[str] = None,
-        request_id: Optional[str] = None,
-        additional_data: Optional[dict[str, Any]] = None,
+        username: str | None = None,
+        resource_id: str | None = None,
+        resource_name: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        session_id: str | None = None,
+        request_id: str | None = None,
+        additional_data: dict[str, Any] | None = None,
         security_level: str = "INFO",
         compliance_relevant: bool = None,
     ) -> AuditEvent:
@@ -134,7 +136,9 @@ class AuditService:
         if compliance_relevant:
             await self._analyze_compliance_event(event)
 
-        self.logger.debug(f"Logged audit event: {action.value} by {username or 'system'}")
+        self.logger.debug(
+            f"Logged audit event: {action.value} by {username or 'system'}"
+        )
         return event
 
     async def create_security_incident(
@@ -143,9 +147,9 @@ class AuditService:
         title: str,
         description: str,
         severity: str = "medium",
-        affected_systems: Optional[list[str]] = None,
-        affected_users: Optional[list[UUID]] = None,
-        detected_by: Optional[UUID] = None,
+        affected_systems: list[str] | None = None,
+        affected_users: list[UUID] | None = None,
+        detected_by: UUID | None = None,
     ) -> SecurityIncident:
         """Create security incident record."""
 
@@ -177,7 +181,9 @@ class AuditService:
                 "affected_systems_count": len(incident.affected_systems),
                 "affected_users_count": len(incident.affected_users),
             },
-            security_level="CRITICAL" if severity in ["high", "critical"] else "WARNING",
+            security_level=(
+                "CRITICAL" if severity in ["high", "critical"] else "WARNING"
+            ),
             compliance_relevant=True,
         )
 
@@ -185,18 +191,20 @@ class AuditService:
         if severity in ["high", "critical"]:
             await self._generate_security_alert(incident)
 
-        self.logger.warning(f"Security incident created: {title} (Severity: {severity})")
+        self.logger.warning(
+            f"Security incident created: {title} (Severity: {severity})"
+        )
         return incident
 
     async def query_events(
         self,
-        user_id: Optional[UUID] = None,
-        action_types: Optional[list[ActionType]] = None,
-        resource_type: Optional[str] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        success_only: Optional[bool] = None,
-        security_levels: Optional[list[str]] = None,
+        user_id: UUID | None = None,
+        action_types: list[ActionType] | None = None,
+        resource_type: str | None = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+        success_only: bool | None = None,
+        security_levels: list[str] | None = None,
         limit: int = 1000,
     ) -> list[AuditEvent]:
         """Query audit events with filters."""
@@ -281,7 +289,9 @@ class AuditService:
 
         # Calculate overall compliance score
         if report.total_controls > 0:
-            report.overall_compliance_score = (report.compliant_controls / report.total_controls) * 100
+            report.overall_compliance_score = (
+                report.compliant_controls / report.total_controls
+            ) * 100
 
         # Determine overall risk level
         critical_failures = len(report.critical_findings)
@@ -316,13 +326,15 @@ class AuditService:
             compliance_relevant=True,
         )
 
-        self.logger.info(f"Generated {framework.value} compliance report: {report.overall_compliance_score:.1f}% compliant")
+        self.logger.info(
+            f"Generated {framework.value} compliance report: {report.overall_compliance_score:.1f}% compliant"
+        )
         return report
 
     async def get_security_metrics(
         self,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
     ) -> dict[str, Any]:
         """Get security metrics for monitoring dashboard."""
 
@@ -340,28 +352,41 @@ class AuditService:
 
         # Authentication metrics
         login_attempts = sum(1 for event in events if event.action == ActionType.LOGIN)
-        failed_logins = sum(1 for event in events if event.action == ActionType.LOGIN_FAILED)
+        failed_logins = sum(
+            1 for event in events if event.action == ActionType.LOGIN_FAILED
+        )
 
         # Administrative actions
-        admin_actions = sum(1 for event in events if event.action in [
-            ActionType.USER_CREATED,
-            ActionType.USER_UPDATED,
-            ActionType.USER_DELETED,
-            ActionType.ROLE_ASSIGNED,
-            ActionType.PERMISSION_GRANTED,
-            ActionType.PERMISSION_REVOKED,
-        ])
+        admin_actions = sum(
+            1
+            for event in events
+            if event.action
+            in [
+                ActionType.USER_CREATED,
+                ActionType.USER_UPDATED,
+                ActionType.USER_DELETED,
+                ActionType.ROLE_ASSIGNED,
+                ActionType.PERMISSION_GRANTED,
+                ActionType.PERMISSION_REVOKED,
+            ]
+        )
 
         # Data access patterns
-        data_access_events = sum(1 for event in events if event.action in [
-            ActionType.DATA_READ,
-            ActionType.DATA_EXPORTED,
-            ActionType.SENSITIVE_DATA_ACCESSED,
-        ])
+        data_access_events = sum(
+            1
+            for event in events
+            if event.action
+            in [
+                ActionType.DATA_READ,
+                ActionType.DATA_EXPORTED,
+                ActionType.SENSITIVE_DATA_ACCESSED,
+            ]
+        )
 
         # Security incidents
         recent_incidents = [
-            incident for incident in self.security_incidents.values()
+            incident
+            for incident in self.security_incidents.values()
             if start_time <= incident.detected_at <= end_time
         ]
 
@@ -375,12 +400,20 @@ class AuditService:
                 "total": total_events,
                 "security_related": security_events,
                 "failed": failed_events,
-                "success_rate": ((total_events - failed_events) / total_events * 100) if total_events > 0 else 0,
+                "success_rate": (
+                    ((total_events - failed_events) / total_events * 100)
+                    if total_events > 0
+                    else 0
+                ),
             },
             "authentication": {
                 "login_attempts": login_attempts,
                 "failed_logins": failed_logins,
-                "success_rate": ((login_attempts - failed_logins) / login_attempts * 100) if login_attempts > 0 else 0,
+                "success_rate": (
+                    ((login_attempts - failed_logins) / login_attempts * 100)
+                    if login_attempts > 0
+                    else 0
+                ),
             },
             "administration": {
                 "admin_actions": admin_actions,
@@ -388,18 +421,29 @@ class AuditService:
             },
             "data_access": {
                 "total_access_events": data_access_events,
-                "daily_average": data_access_events / max(1, (end_time - start_time).days),
+                "daily_average": data_access_events
+                / max(1, (end_time - start_time).days),
             },
             "incidents": {
                 "total": len(recent_incidents),
                 "by_severity": {
-                    "critical": sum(1 for i in recent_incidents if i.severity == "critical"),
+                    "critical": sum(
+                        1 for i in recent_incidents if i.severity == "critical"
+                    ),
                     "high": sum(1 for i in recent_incidents if i.severity == "high"),
-                    "medium": sum(1 for i in recent_incidents if i.severity == "medium"),
+                    "medium": sum(
+                        1 for i in recent_incidents if i.severity == "medium"
+                    ),
                     "low": sum(1 for i in recent_incidents if i.severity == "low"),
                 },
-                "open": sum(1 for i in recent_incidents if i.response_status in ["open", "investigating"]),
-                "resolved": sum(1 for i in recent_incidents if i.response_status == "resolved"),
+                "open": sum(
+                    1
+                    for i in recent_incidents
+                    if i.response_status in ["open", "investigating"]
+                ),
+                "resolved": sum(
+                    1 for i in recent_incidents if i.response_status == "resolved"
+                ),
             },
             "alerts": {
                 "active_security_alerts": len(self.security_alerts),
@@ -501,7 +545,10 @@ class AuditService:
             await self._check_data_protection_compliance(event)
 
         # Check access control requirements
-        if event.action in [ActionType.PERMISSION_GRANTED, ActionType.PERMISSION_REVOKED]:
+        if event.action in [
+            ActionType.PERMISSION_GRANTED,
+            ActionType.PERMISSION_REVOKED,
+        ]:
             await self._check_access_control_compliance(event)
 
         # Check audit trail completeness
@@ -521,8 +568,7 @@ class AuditService:
         )
 
         same_ip_failures = [
-            e for e in recent_events
-            if e.ip_address == event.ip_address
+            e for e in recent_events if e.ip_address == event.ip_address
         ]
 
         if len(same_ip_failures) >= 5:  # 5 failures in 15 minutes
@@ -549,17 +595,24 @@ class AuditService:
                     affected_systems=["authentication"],
                 )
 
-    async def _assess_gdpr_compliance(self, report: ComplianceReport, events: list[AuditEvent]) -> None:
+    async def _assess_gdpr_compliance(
+        self, report: ComplianceReport, events: list[AuditEvent]
+    ) -> None:
         """Assess GDPR compliance requirements."""
 
         # Article 30: Records of processing activities
-        data_processing_events = [e for e in events if e.action in [
-            ActionType.DATA_CREATED,
-            ActionType.DATA_READ,
-            ActionType.DATA_UPDATED,
-            ActionType.DATA_DELETED,
-            ActionType.DATA_EXPORTED,
-        ]]
+        data_processing_events = [
+            e
+            for e in events
+            if e.action
+            in [
+                ActionType.DATA_CREATED,
+                ActionType.DATA_READ,
+                ActionType.DATA_UPDATED,
+                ActionType.DATA_DELETED,
+                ActionType.DATA_EXPORTED,
+            ]
+        ]
 
         if data_processing_events:
             report.control_results["gdpr_article_30"] = {
@@ -576,7 +629,9 @@ class AuditService:
                 "criticality": "high",
             }
             report.non_compliant_controls += 1
-            report.critical_findings.append("GDPR Article 30: No records of processing activities")
+            report.critical_findings.append(
+                "GDPR Article 30: No records of processing activities"
+            )
 
         # Article 32: Security of processing
         security_events = [e for e in events if e.is_security_event()]
@@ -596,21 +651,30 @@ class AuditService:
                 "criticality": "high",
             }
             report.non_compliant_controls += 1
-            report.critical_findings.append("GDPR Article 32: Insufficient security of processing")
+            report.critical_findings.append(
+                "GDPR Article 32: Insufficient security of processing"
+            )
 
         report.total_controls += 2
 
-    async def _assess_soc2_compliance(self, report: ComplianceReport, events: list[AuditEvent]) -> None:
+    async def _assess_soc2_compliance(
+        self, report: ComplianceReport, events: list[AuditEvent]
+    ) -> None:
         """Assess SOC 2 compliance requirements."""
 
         # CC6.1: Logical and physical access controls
-        access_control_events = [e for e in events if e.action in [
-            ActionType.LOGIN,
-            ActionType.LOGIN_FAILED,
-            ActionType.PERMISSION_GRANTED,
-            ActionType.PERMISSION_REVOKED,
-            ActionType.ROLE_ASSIGNED,
-        ]]
+        access_control_events = [
+            e
+            for e in events
+            if e.action
+            in [
+                ActionType.LOGIN,
+                ActionType.LOGIN_FAILED,
+                ActionType.PERMISSION_GRANTED,
+                ActionType.PERMISSION_REVOKED,
+                ActionType.ROLE_ASSIGNED,
+            ]
+        ]
 
         if access_control_events:
             report.control_results["soc2_cc6_1"] = {
@@ -627,14 +691,21 @@ class AuditService:
                 "criticality": "high",
             }
             report.non_compliant_controls += 1
-            report.critical_findings.append("SOC 2 CC6.1: No logical access control monitoring")
+            report.critical_findings.append(
+                "SOC 2 CC6.1: No logical access control monitoring"
+            )
 
         # CC7.1: System monitoring
-        system_events = [e for e in events if e.action in [
-            ActionType.SYSTEM_BACKUP,
-            ActionType.SYSTEM_RESTORE,
-            ActionType.SYSTEM_MAINTENANCE,
-        ]]
+        system_events = [
+            e
+            for e in events
+            if e.action
+            in [
+                ActionType.SYSTEM_BACKUP,
+                ActionType.SYSTEM_RESTORE,
+                ActionType.SYSTEM_MAINTENANCE,
+            ]
+        ]
 
         if system_events:
             report.control_results["soc2_cc7_1"] = {
@@ -695,7 +766,9 @@ class AuditService:
     async def _cleanup_old_events(self) -> None:
         """Clean up old audit events based on retention policy."""
 
-        cutoff_date = datetime.utcnow() - timedelta(days=self.security_policy.retention_period_days)
+        cutoff_date = datetime.utcnow() - timedelta(
+            days=self.security_policy.retention_period_days
+        )
 
         events_to_remove = []
         for event_id, event in self.audit_events.items():
@@ -752,18 +825,18 @@ class AuditService:
         # Remove alerts older than 24 hours
         cutoff = datetime.utcnow() - timedelta(hours=24)
         self.security_alerts = [
-            alert for alert in self.security_alerts
-            if alert["timestamp"] > cutoff
+            alert for alert in self.security_alerts if alert["timestamp"] > cutoff
         ]
 
         # In production, this would send alerts to SIEM, notification systems, etc.
         critical_alerts = [
-            alert for alert in self.security_alerts
-            if alert["severity"] == "critical"
+            alert for alert in self.security_alerts if alert["severity"] == "critical"
         ]
 
         if critical_alerts:
-            self.logger.critical(f"Processing {len(critical_alerts)} critical security alerts")
+            self.logger.critical(
+                f"Processing {len(critical_alerts)} critical security alerts"
+            )
 
     async def _check_data_protection_compliance(self, event: AuditEvent) -> None:
         """Check data protection compliance for the event."""

@@ -587,9 +587,7 @@ class PipelineOrchestrationService:
             "recent_performance": (
                 "good"
                 if recent_success_rate > 0.8
-                else "poor"
-                if recent_success_rate < 0.5
-                else "moderate"
+                else "poor" if recent_success_rate < 0.5 else "moderate"
             ),
         }
 

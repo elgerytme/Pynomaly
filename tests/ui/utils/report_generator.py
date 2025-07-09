@@ -62,14 +62,14 @@ class UITestReportGenerator:
             )
 
         if "accessibility" in results:
-            analysis["category_scores"][
-                "accessibility"
-            ] = self._analyze_accessibility_results(results["accessibility"], analysis)
+            analysis["category_scores"]["accessibility"] = (
+                self._analyze_accessibility_results(results["accessibility"], analysis)
+            )
 
         if "responsive_design" in results:
-            analysis["category_scores"][
-                "responsive"
-            ] = self._analyze_responsive_results(results["responsive_design"], analysis)
+            analysis["category_scores"]["responsive"] = (
+                self._analyze_responsive_results(results["responsive_design"], analysis)
+            )
 
         # Calculate overall score
         scores = list(analysis["category_scores"].values())

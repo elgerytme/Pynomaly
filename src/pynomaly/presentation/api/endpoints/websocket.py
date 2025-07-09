@@ -343,9 +343,11 @@ async def detections_websocket(
                                         {
                                             "id": str(sr.id),
                                             "is_anomaly": sr.is_anomaly,
-                                            "scores": [s.value for s in sr.scores]
-                                            if sr.scores
-                                            else [],
+                                            "scores": (
+                                                [s.value for s in sr.scores]
+                                                if sr.scores
+                                                else []
+                                            ),
                                             "anomaly_threshold": sr.anomaly_threshold,
                                             "execution_time_ms": sr.execution_time_ms,
                                             "metadata": sr.metadata,

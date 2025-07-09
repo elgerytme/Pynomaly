@@ -59,14 +59,14 @@ class ConfigurationCaptureService:
 
         # In-memory configuration cache
         self.configuration_cache: dict[UUID, ExperimentConfigurationDTO] = {}
-        self.configuration_index: dict[
-            str, list[UUID]
-        ] = {}  # Tag/algorithm -> config IDs
+        self.configuration_index: dict[str, list[UUID]] = (
+            {}
+        )  # Tag/algorithm -> config IDs
 
         # Capture state
-        self.active_captures: dict[
-            str, dict[str, Any]
-        ] = {}  # session_id -> capture context
+        self.active_captures: dict[str, dict[str, Any]] = (
+            {}
+        )  # session_id -> capture context
         self.capture_stats = {
             "total_captures": 0,
             "successful_captures": 0,

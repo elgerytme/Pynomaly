@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 
 import pytest
+
 from pynomaly.domain.entities.drift_report import (
     DriftConfiguration,
     DriftDetectionMethod,

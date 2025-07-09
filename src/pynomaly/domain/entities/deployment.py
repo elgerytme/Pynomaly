@@ -302,9 +302,9 @@ class Deployment:
                 self.deployment_duration
             )
             self.traffic_percentage = new_percentage
-            self.metadata[
-                "traffic_percentage_updated_at"
-            ] = datetime.utcnow().isoformat()
+            self.metadata["traffic_percentage_updated_at"] = (
+                datetime.utcnow().isoformat()
+            )
 
     def archive(self) -> None:
         """Archive this deployment."""

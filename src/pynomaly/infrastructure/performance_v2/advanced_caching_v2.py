@@ -16,12 +16,14 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+
 class CacheStrategy(str, Enum):
     LRU = "lru"  # Least Recently Used
     LFU = "lfu"  # Least Frequently Used
     ARC = "arc"  # Adaptive Replacement Cache
     PREDICTIVE = "predictive"  # Predictive prefetching
     INTELLIGENT = "intelligent"  # AI-driven caching
+
 
 class CacheTier(str, Enum):
     L1_CPU_CACHE = "l1_cpu"
@@ -33,6 +35,7 @@ class CacheTier(str, Enum):
     PERSISTENT_MEMORY = "persistent_memory"
     REMOTE_CACHE = "remote_cache"
 
+
 class CacheOperationType(str, Enum):
     READ = "read"
     WRITE = "write"
@@ -40,9 +43,11 @@ class CacheOperationType(str, Enum):
     PREFETCH = "prefetch"
     WARMUP = "warmup"
 
+
 @dataclass
 class CacheEntry:
     """Represents a cached entry with metadata."""
+
     key: str
     value: Any
     size_bytes: int
@@ -90,9 +95,11 @@ class CacheEntry:
         else:
             self.avg_access_time_ms = (self.avg_access_time_ms + access_time_ms) / 2
 
+
 @dataclass
 class CacheMetrics:
     """Performance metrics for cache operations."""
+
     tier: CacheTier
     timestamp: datetime
 
@@ -104,7 +111,7 @@ class CacheMetrics:
 
     # Performance statistics
     avg_access_time_ms: float = 0.0
-    min_access_time_ms: float = float('inf')
+    min_access_time_ms: float = float("inf")
     max_access_time_ms: float = 0.0
 
     # Capacity statistics
@@ -125,9 +132,11 @@ class CacheMetrics:
         else:
             self.hit_rate = 0.0
 
+
 @dataclass
 class PrefetchPrediction:
     """Represents a prefetch prediction."""
+
     key: str
     predicted_access_time: datetime
     confidence: float
@@ -135,10 +144,15 @@ class PrefetchPrediction:
     size_bytes: int
     data_source: str
 
-    def is_ready_for_prefetch(self, current_time: datetime, prefetch_window_ms: int) -> bool:
+    def is_ready_for_prefetch(
+        self, current_time: datetime, prefetch_window_ms: int
+    ) -> bool:
         """Check if entry is ready for prefetching."""
-        time_until_access = (self.predicted_access_time - current_time).total_seconds() * 1000
+        time_until_access = (
+            self.predicted_access_time - current_time
+        ).total_seconds() * 1000
         return 0 <= time_until_access <= prefetch_window_ms
+
 
 class MultiTierCache:
     """Multi-tier intelligent cache system."""
@@ -177,15 +191,19 @@ class MultiTierCache:
         }
 
         for tier, config in default_tiers.items():
-            self.tier_capacities[tier] = config["capacity_mb"] * 1024 * 1024  # Convert to bytes
-            self.tier_latencies[tier] = config["latency_ns"] / 1_000_000  # Convert to ms
+            self.tier_capacities[tier] = (
+                config["capacity_mb"] * 1024 * 1024
+            )  # Convert to bytes
+            self.tier_latencies[tier] = (
+                config["latency_ns"] / 1_000_000
+            )  # Convert to ms
             self.tier_storage[tier] = {}
 
             # Initialize metrics
             self.metrics[tier] = CacheMetrics(
                 tier=tier,
                 timestamp=datetime.utcnow(),
-                total_capacity_bytes=self.tier_capacities[tier]
+                total_capacity_bytes=self.tier_capacities[tier],
             )
 
     async def get(self, key: str, data_loader: Callable | None = None) -> Any | None:
@@ -194,8 +212,13 @@ class MultiTierCache:
 
         try:
             # Search through tiers from fastest to slowest
-            for tier in [CacheTier.L3_CPU_CACHE, CacheTier.SYSTEM_MEMORY,
-                        CacheTier.GPU_MEMORY, CacheTier.PERSISTENT_MEMORY, CacheTier.NVME_SSD]:
+            for tier in [
+                CacheTier.L3_CPU_CACHE,
+                CacheTier.SYSTEM_MEMORY,
+                CacheTier.GPU_MEMORY,
+                CacheTier.PERSISTENT_MEMORY,
+                CacheTier.NVME_SSD,
+            ]:
 
                 if tier in self.tier_storage:
                     entry = self.tier_storage[tier].get(key)
@@ -213,7 +236,9 @@ class MultiTierCache:
                         await self._consider_promotion(key, entry, tier)
 
                         # Update access predictor
-                        await self.access_predictor.record_access(key, datetime.utcnow())
+                        await self.access_predictor.record_access(
+                            key, datetime.utcnow()
+                        )
 
                         # Trigger prefetch predictions
                         await self._trigger_intelligent_prefetch(key)
@@ -233,7 +258,13 @@ class MultiTierCache:
             logger.error(f"Cache get operation failed for key {key}: {e}")
             return None
 
-    async def put(self, key: str, value: Any, tier: CacheTier | None = None, ttl_seconds: int | None = None) -> bool:
+    async def put(
+        self,
+        key: str,
+        value: Any,
+        tier: CacheTier | None = None,
+        ttl_seconds: int | None = None,
+    ) -> bool:
         """Put value into cache with intelligent tier placement."""
         try:
             # Determine optimal tier if not specified
@@ -245,7 +276,9 @@ class MultiTierCache:
 
             # Check capacity and evict if necessary
             if not await self._ensure_capacity(tier, size_bytes):
-                logger.warning(f"Failed to ensure capacity for key {key} in tier {tier}")
+                logger.warning(
+                    f"Failed to ensure capacity for key {key} in tier {tier}"
+                )
                 return False
 
             # Create cache entry
@@ -261,7 +294,7 @@ class MultiTierCache:
                 created_at=datetime.utcnow(),
                 last_accessed=datetime.utcnow(),
                 last_modified=datetime.utcnow(),
-                expiry_time=expiry_time
+                expiry_time=expiry_time,
             )
 
             # Store in tier
@@ -317,7 +350,9 @@ class MultiTierCache:
 
     async def _ensure_capacity(self, tier: CacheTier, required_bytes: int) -> bool:
         """Ensure sufficient capacity in tier."""
-        current_usage = sum(entry.size_bytes for entry in self.tier_storage[tier].values())
+        current_usage = sum(
+            entry.size_bytes for entry in self.tier_storage[tier].values()
+        )
         available_capacity = self.tier_capacities[tier] - current_usage
 
         if available_capacity >= required_bytes:
@@ -359,7 +394,9 @@ class MultiTierCache:
 
         return bytes_evicted >= bytes_to_evict
 
-    async def _intelligent_eviction_order(self, entries: list[CacheEntry]) -> list[CacheEntry]:
+    async def _intelligent_eviction_order(
+        self, entries: list[CacheEntry]
+    ) -> list[CacheEntry]:
         """Use intelligent algorithm to determine eviction order."""
         # Score entries based on multiple factors
         scored_entries = []
@@ -381,9 +418,13 @@ class MultiTierCache:
             score += size_score * 0.2
 
             # Predictive factor
-            predicted_access = await self.access_predictor.predict_next_access(entry.key)
+            predicted_access = await self.access_predictor.predict_next_access(
+                entry.key
+            )
             if predicted_access:
-                time_until_access = (predicted_access - datetime.utcnow()).total_seconds() / 3600
+                time_until_access = (
+                    predicted_access - datetime.utcnow()
+                ).total_seconds() / 3600
                 if time_until_access > 1:  # More than 1 hour
                     score += 0.2
 
@@ -393,7 +434,9 @@ class MultiTierCache:
         scored_entries.sort(key=lambda x: x[0], reverse=True)
         return [entry for _, entry in scored_entries]
 
-    async def _consider_promotion(self, key: str, entry: CacheEntry, current_tier: CacheTier) -> None:
+    async def _consider_promotion(
+        self, key: str, entry: CacheEntry, current_tier: CacheTier
+    ) -> None:
         """Consider promoting entry to faster tier."""
         # Only promote frequently accessed entries
         if entry.access_count < 3:
@@ -405,7 +448,7 @@ class MultiTierCache:
             CacheTier.SYSTEM_MEMORY,
             CacheTier.GPU_MEMORY,
             CacheTier.PERSISTENT_MEMORY,
-            CacheTier.NVME_SSD
+            CacheTier.NVME_SSD,
         ]
 
         current_index = tier_hierarchy.index(current_tier)
@@ -419,17 +462,23 @@ class MultiTierCache:
     async def _should_promote(self, entry: CacheEntry, target_tier: CacheTier) -> bool:
         """Determine if entry should be promoted to target tier."""
         # Check capacity
-        current_usage = sum(e.size_bytes for e in self.tier_storage[target_tier].values())
+        current_usage = sum(
+            e.size_bytes for e in self.tier_storage[target_tier].values()
+        )
         available_capacity = self.tier_capacities[target_tier] - current_usage
 
         if available_capacity < entry.size_bytes:
             return False
 
         # Check access frequency
-        access_rate = entry.access_count / max((datetime.utcnow() - entry.created_at).total_seconds() / 3600, 1)
+        access_rate = entry.access_count / max(
+            (datetime.utcnow() - entry.created_at).total_seconds() / 3600, 1
+        )
         return access_rate > 1.0  # More than 1 access per hour
 
-    async def _promote_entry(self, key: str, entry: CacheEntry, target_tier: CacheTier) -> None:
+    async def _promote_entry(
+        self, key: str, entry: CacheEntry, target_tier: CacheTier
+    ) -> None:
         """Promote entry to faster tier."""
         try:
             # Remove from current tier
@@ -449,7 +498,11 @@ class MultiTierCache:
         """Load data and cache it."""
         try:
             # Load data
-            value = await data_loader() if asyncio.iscoroutinefunction(data_loader) else data_loader()
+            value = (
+                await data_loader()
+                if asyncio.iscoroutinefunction(data_loader)
+                else data_loader()
+            )
 
             # Cache the loaded value
             await self.put(key, value)
@@ -464,7 +517,9 @@ class MultiTierCache:
         """Trigger intelligent prefetching based on access patterns."""
         try:
             # Get prefetch predictions
-            predictions = await self.access_predictor.get_prefetch_predictions(accessed_key)
+            predictions = await self.access_predictor.get_prefetch_predictions(
+                accessed_key
+            )
 
             # Submit prefetch requests
             for prediction in predictions:
@@ -489,7 +544,9 @@ class MultiTierCache:
         if metrics.avg_access_time_ms == 0:
             metrics.avg_access_time_ms = access_time_ms
         else:
-            metrics.avg_access_time_ms = (metrics.avg_access_time_ms + access_time_ms) / 2
+            metrics.avg_access_time_ms = (
+                metrics.avg_access_time_ms + access_time_ms
+            ) / 2
 
         metrics.calculate_hit_rate()
 
@@ -505,7 +562,9 @@ class MultiTierCache:
         """Update cache write metrics."""
         metrics = self.metrics[tier]
         metrics.used_capacity_bytes += size_bytes
-        metrics.utilization_percent = (metrics.used_capacity_bytes / metrics.total_capacity_bytes) * 100
+        metrics.utilization_percent = (
+            metrics.used_capacity_bytes / metrics.total_capacity_bytes
+        ) * 100
 
     def _update_eviction_metrics(self, tier: CacheTier) -> None:
         """Update eviction metrics."""
@@ -517,10 +576,12 @@ class MultiTierCache:
         stats = {
             "global": {
                 "total_operations": self.global_stats["total_operations"],
-                "uptime_seconds": (datetime.utcnow() - self.global_stats["start_time"]).total_seconds(),
+                "uptime_seconds": (
+                    datetime.utcnow() - self.global_stats["start_time"]
+                ).total_seconds(),
                 "strategy": self.strategy.value,
             },
-            "tiers": {}
+            "tiers": {},
         }
 
         for tier, metrics in self.metrics.items():
@@ -535,6 +596,7 @@ class MultiTierCache:
             }
 
         return stats
+
 
 class AccessPredictor:
     """Predicts future access patterns for intelligent caching."""
@@ -559,7 +621,9 @@ class AccessPredictor:
         # Update pattern model
         await self._update_pattern_model(key)
 
-    async def record_write(self, key: str, write_time: datetime, size_bytes: int) -> None:
+    async def record_write(
+        self, key: str, write_time: datetime, size_bytes: int
+    ) -> None:
         """Record a write event."""
         if key not in self.write_history:
             self.write_history[key] = []
@@ -580,7 +644,7 @@ class AccessPredictor:
         # Calculate inter-access intervals
         intervals = []
         for i in range(1, len(accesses)):
-            interval = (accesses[i] - accesses[i-1]).total_seconds()
+            interval = (accesses[i] - accesses[i - 1]).total_seconds()
             intervals.append(interval)
 
         if not intervals:
@@ -676,13 +740,16 @@ class AccessPredictor:
             "avg_interval_hours": avg_interval_hours,
         }
 
-    async def get_prefetch_predictions(self, accessed_key: str, max_predictions: int = 5) -> list[PrefetchPrediction]:
+    async def get_prefetch_predictions(
+        self, accessed_key: str, max_predictions: int = 5
+    ) -> list[PrefetchPrediction]:
         """Get prefetch predictions based on access patterns."""
         predictions = []
 
         # Analyze related keys (simple approach - keys with similar prefixes)
         related_keys = [
-            key for key in self.pattern_models.keys()
+            key
+            for key in self.pattern_models.keys()
             if key != accessed_key and self._are_keys_related(accessed_key, key)
         ]
 
@@ -699,12 +766,14 @@ class AccessPredictor:
                     confidence=confidence,
                     priority=int(confidence * 10),
                     size_bytes=1024,  # Default size estimate
-                    data_source="cache_predictor"
+                    data_source="cache_predictor",
                 )
                 predictions.append(prediction)
 
         # Sort by confidence and predicted access time
-        predictions.sort(key=lambda p: (p.confidence, p.predicted_access_time), reverse=True)
+        predictions.sort(
+            key=lambda p: (p.confidence, p.predicted_access_time), reverse=True
+        )
 
         return predictions
 
@@ -738,6 +807,7 @@ class AccessPredictor:
 
         return min(base_confidence, 1.0)
 
+
 class PrefetchManager:
     """Manages intelligent prefetching operations."""
 
@@ -763,7 +833,9 @@ class PrefetchManager:
             self.prefetch_stats["scheduled"] += 1
 
             # Sort queue by priority and predicted access time
-            self.prefetch_queue.sort(key=lambda p: (p.priority, p.predicted_access_time), reverse=True)
+            self.prefetch_queue.sort(
+                key=lambda p: (p.priority, p.predicted_access_time), reverse=True
+            )
 
             # Start prefetching if capacity available
             await self._process_prefetch_queue()
@@ -776,13 +848,17 @@ class PrefetchManager:
 
     async def _process_prefetch_queue(self) -> None:
         """Process queued prefetch operations."""
-        while (len(self.active_prefetches) < self.max_concurrent_prefetches and
-               self.prefetch_queue):
+        while (
+            len(self.active_prefetches) < self.max_concurrent_prefetches
+            and self.prefetch_queue
+        ):
 
             prediction = self.prefetch_queue.pop(0)
 
             # Check if still worth prefetching
-            if not prediction.is_ready_for_prefetch(datetime.utcnow(), 300000):  # 5 minutes
+            if not prediction.is_ready_for_prefetch(
+                datetime.utcnow(), 300000
+            ):  # 5 minutes
                 continue
 
             # Start prefetch task
@@ -811,6 +887,7 @@ class PrefetchManager:
             # Continue processing queue
             await self._process_prefetch_queue()
 
+
 class AdvancedCacheOrchestrator:
     """Main orchestrator for advanced caching system 2.0."""
 
@@ -818,7 +895,9 @@ class AdvancedCacheOrchestrator:
         self.config = config
         self.multi_tier_cache = MultiTierCache(config.get("cache", {}))
         self.cache_warmer = CacheWarmer(config.get("warmer", {}))
-        self.performance_optimizer = CachePerformanceOptimizer(config.get("optimizer", {}))
+        self.performance_optimizer = CachePerformanceOptimizer(
+            config.get("optimizer", {})
+        )
 
     async def initialize(self) -> bool:
         """Initialize the advanced caching system."""
@@ -851,6 +930,7 @@ class AdvancedCacheOrchestrator:
             "system_health": "healthy",  # Could be calculated based on metrics
         }
 
+
 class CacheWarmer:
     """Intelligent cache warming system."""
 
@@ -867,6 +947,7 @@ class CacheWarmer:
     async def get_warming_stats(self) -> dict[str, Any]:
         """Get cache warming statistics."""
         return self.warming_stats
+
 
 class CachePerformanceOptimizer:
     """Optimizes cache performance in real-time."""

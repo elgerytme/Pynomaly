@@ -96,12 +96,12 @@ class PerformanceProfiler:
             "successful_operations": len(durations),
             "success_rate": len(durations) / len(self.metrics) if self.metrics else 0,
             "avg_duration": statistics.mean(durations) if durations else 0,
-            "p95_duration": statistics.quantiles(durations, n=20)[18]
-            if len(durations) > 1
-            else 0,
-            "p99_duration": statistics.quantiles(durations, n=100)[98]
-            if len(durations) > 1
-            else 0,
+            "p95_duration": (
+                statistics.quantiles(durations, n=20)[18] if len(durations) > 1 else 0
+            ),
+            "p99_duration": (
+                statistics.quantiles(durations, n=100)[98] if len(durations) > 1 else 0
+            ),
             "avg_memory_usage": statistics.mean(memory_usage) if memory_usage else 0,
             "max_memory_usage": max(memory_usage) if memory_usage else 0,
             "avg_throughput": statistics.mean(throughputs) if throughputs else 0,
@@ -121,6 +121,7 @@ class TestAPIPerformance:
     def test_client(self):
         """Create test client for performance testing."""
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
 
         app = create_app(testing=True)
@@ -209,12 +210,14 @@ class TestAPIPerformance:
                     "success_rate": len(successful_requests) / len(request_results),
                     "total_time": total_time,
                     "throughput": len(successful_requests) / total_time,
-                    "avg_response_time": statistics.mean(response_times)
-                    if response_times
-                    else 0,
-                    "p95_response_time": statistics.quantiles(response_times, n=20)[18]
-                    if len(response_times) > 1
-                    else 0,
+                    "avg_response_time": (
+                        statistics.mean(response_times) if response_times else 0
+                    ),
+                    "p95_response_time": (
+                        statistics.quantiles(response_times, n=20)[18]
+                        if len(response_times) > 1
+                        else 0
+                    ),
                 }
 
         # Performance assertions
@@ -326,9 +329,9 @@ class TestAPIPerformance:
                 "workers": workers,
                 "total_requests": len(all_results),
                 "successful_requests": len(successful_requests),
-                "success_rate": len(successful_requests) / len(all_results)
-                if all_results
-                else 0,
+                "success_rate": (
+                    len(successful_requests) / len(all_results) if all_results else 0
+                ),
                 "throughput": len(successful_requests) / total_time,
                 "duration": total_time,
             }
@@ -670,9 +673,11 @@ class TestDatabasePerformance:
                 "avg_time": statistics.mean(times),
                 "min_time": min(times),
                 "max_time": max(times),
-                "p95_time": statistics.quantiles(times, n=20)[18]
-                if len(times) > 1
-                else times[0],
+                "p95_time": (
+                    statistics.quantiles(times, n=20)[18]
+                    if len(times) > 1
+                    else times[0]
+                ),
                 "throughput": 1 / statistics.mean(times),
             }
 
@@ -741,12 +746,14 @@ class TestDatabasePerformance:
                 "success_rate": len(successful_operations) / len(results),
                 "total_time": total_time,
                 "throughput": len(successful_operations) / total_time,
-                "avg_response_time": statistics.mean(response_times)
-                if response_times
-                else 0,
-                "p95_response_time": statistics.quantiles(response_times, n=20)[18]
-                if len(response_times) > 1
-                else 0,
+                "avg_response_time": (
+                    statistics.mean(response_times) if response_times else 0
+                ),
+                "p95_response_time": (
+                    statistics.quantiles(response_times, n=20)[18]
+                    if len(response_times) > 1
+                    else 0
+                ),
             }
 
             # Performance assertions
@@ -942,6 +949,7 @@ class TestSystemPerformance:
         """Test end-to-end system performance."""
 
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
 
         app = create_app(testing=True)
@@ -1047,6 +1055,7 @@ class TestSystemPerformance:
 
         # API response time
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.app import create_app
 
         app = create_app(testing=True)

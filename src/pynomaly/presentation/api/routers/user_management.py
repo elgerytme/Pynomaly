@@ -8,6 +8,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
+
 from pynomaly.application.services.user_management_service import UserManagementService
 from pynomaly.domain.entities.user import TenantPlan, TenantStatus, UserRole, UserStatus
 from pynomaly.infrastructure.security.audit_logging import (
@@ -122,12 +123,13 @@ async def get_user_management_service() -> UserManagementService:
     """Get user management service instance."""
     # TODO: Implement proper dependency injection
     # For now, this is a placeholder
+    from sqlalchemy.orm import sessionmaker
+
     from pynomaly.infrastructure.repositories.sqlalchemy_user_repository import (
         SQLAlchemySessionRepository,
         SQLAlchemyTenantRepository,
         SQLAlchemyUserRepository,
     )
-    from sqlalchemy.orm import sessionmaker
 
     # This should be injected via container
     session_factory = sessionmaker()  # Configure with actual database
@@ -202,9 +204,9 @@ async def login(
                         "tenant_id": str(tr.tenant_id),
                         "role": tr.role.value,
                         "granted_at": tr.granted_at.isoformat(),
-                        "expires_at": tr.expires_at.isoformat()
-                        if tr.expires_at
-                        else None,
+                        "expires_at": (
+                            tr.expires_at.isoformat() if tr.expires_at else None
+                        ),
                     }
                     for tr in user.tenant_roles
                 ],
@@ -377,9 +379,9 @@ async def list_users(
                         "tenant_id": str(tr.tenant_id),
                         "role": tr.role.value,
                         "granted_at": tr.granted_at.isoformat(),
-                        "expires_at": tr.expires_at.isoformat()
-                        if tr.expires_at
-                        else None,
+                        "expires_at": (
+                            tr.expires_at.isoformat() if tr.expires_at else None
+                        ),
                     }
                     for tr in user.tenant_roles
                 ],
@@ -468,9 +470,11 @@ async def toggle_user_status(
         user = await user_service.toggle_user_status(UserId(str(user_id)), new_status)
 
         audit_logger.log_event(
-            AuditEventType.USER_ACTIVATED
-            if new_status == UserStatus.ACTIVE
-            else AuditEventType.USER_DEACTIVATED,
+            (
+                AuditEventType.USER_ACTIVATED
+                if new_status == UserStatus.ACTIVE
+                else AuditEventType.USER_DEACTIVATED
+            ),
             user_id=str(current_user.id),
             outcome="success",
             severity=AuditSeverity.MEDIUM,
@@ -722,9 +726,9 @@ async def get_tenant_users(
                         "tenant_id": str(tr.tenant_id),
                         "role": tr.role.value,
                         "granted_at": tr.granted_at.isoformat(),
-                        "expires_at": tr.expires_at.isoformat()
-                        if tr.expires_at
-                        else None,
+                        "expires_at": (
+                            tr.expires_at.isoformat() if tr.expires_at else None
+                        ),
                     }
                     for tr in user.tenant_roles
                 ],

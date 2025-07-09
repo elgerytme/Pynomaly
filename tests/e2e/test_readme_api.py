@@ -3,11 +3,12 @@
 
 import sys
 
-sys.path.insert(0, '/mnt/c/Users/andre/Pynomaly/src')
+sys.path.insert(0, "/mnt/c/Users/andre/Pynomaly/src")
 
 try:
     import numpy as np
     import pandas as pd
+
     from pynomaly.domain.entities import Dataset
     from pynomaly.domain.value_objects import ContaminationRate
     from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
@@ -23,7 +24,7 @@ try:
         data = np.vstack([normal_data, outliers])
 
         # Create dataset
-        df = pd.DataFrame(data, columns=['feature1', 'feature2'])
+        df = pd.DataFrame(data, columns=["feature1", "feature2"])
         dataset = Dataset(name="Sample Data", data=df)
 
         # Create detector using Pynomaly's clean architecture
@@ -32,7 +33,7 @@ try:
             name="Basic Detector",
             contamination_rate=ContaminationRate(0.1),
             random_state=42,
-            n_estimators=100
+            n_estimators=100,
         )
 
         # Train detector
@@ -59,4 +60,5 @@ try:
 except Exception as e:
     print(f"❌ Error testing Python API example: {e}")
     import traceback
+
     traceback.print_exc()

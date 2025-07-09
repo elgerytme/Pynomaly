@@ -74,9 +74,7 @@ def generate_markdown_report(data: dict) -> str:
                 icon = (
                     "📈"
                     if trend["trend"] == "increasing"
-                    else "📉"
-                    if trend["trend"] == "decreasing"
-                    else "➡️"
+                    else "📉" if trend["trend"] == "decreasing" else "➡️"
                 )
                 lines.append(
                     f"- {icon} **{trend['name']}**: {trend['change_percent']:+.1f}% ({trend['current']} vs {trend['baseline']})"
@@ -89,9 +87,7 @@ def generate_markdown_report(data: dict) -> str:
                 icon = (
                     "📈"
                     if trend["trend"] == "increasing"
-                    else "📉"
-                    if trend["trend"] == "decreasing"
-                    else "➡️"
+                    else "📉" if trend["trend"] == "decreasing" else "➡️"
                 )
                 lines.append(
                     f"- {icon} **{trend['name']}**: {trend['change_percent']:+.1f}% ({trend['current']} vs {trend['baseline']})"

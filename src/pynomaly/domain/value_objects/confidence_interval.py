@@ -8,7 +8,6 @@ statistical confidence bounds for anomaly detection predictions.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Union
 
 import numpy as np
 
@@ -92,9 +91,7 @@ class ConfidenceInterval:
         """Check if this interval overlaps with another confidence interval."""
         return not (self.upper < other.lower or self.lower > other.upper)
 
-    def intersection(
-        self, other: ConfidenceInterval
-    ) -> Optional[ConfidenceInterval]:
+    def intersection(self, other: ConfidenceInterval) -> ConfidenceInterval | None:
         """
         Calculate the intersection of two confidence intervals.
 
@@ -164,7 +161,7 @@ class ConfidenceInterval:
     @classmethod
     def from_samples(
         cls,
-        samples: Union[np.ndarray, list],
+        samples: np.ndarray | list,
         confidence_level: float = 0.95,
         method: str = "percentile",
     ) -> ConfidenceInterval:

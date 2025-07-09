@@ -114,7 +114,7 @@ class SHAPExplainer:
         detector: Detector,
         anomaly_data: np.ndarray,
         background_data: np.ndarray | None = None,
-        feature_names: list[str] | None = None
+        feature_names: list[str] | None = None,
     ) -> ExplanationResult:
         """Generate SHAP explanation for an anomaly."""
         try:
@@ -145,7 +145,7 @@ class SHAPExplainer:
                 feature_contributions=feature_contributions,
                 explanation_text=explanation_text,
                 confidence=0.85,
-                visualizations=visualizations
+                visualizations=visualizations,
             )
 
         except Exception as e:
@@ -155,7 +155,7 @@ class SHAPExplainer:
                 anomaly_id="",
                 feature_contributions={},
                 explanation_text=f"Error generating explanation: {str(e)}",
-                confidence=0.0
+                confidence=0.0,
             )
 
     async def _calculate_shap_values(
@@ -163,7 +163,7 @@ class SHAPExplainer:
         detector: Detector,
         anomaly_data: np.ndarray,
         background_data: np.ndarray | None,
-        feature_names: list[str] | None
+        feature_names: list[str] | None,
     ) -> dict[str, float]:
         """Calculate SHAP values for the anomaly."""
         # Simplified SHAP calculation
@@ -176,20 +176,22 @@ class SHAPExplainer:
 
         # Get baseline prediction
         if background_data is not None and len(background_data) > 0:
-            baseline_score = np.mean(detector.predict(Dataset(
-                name="baseline",
-                data=background_data,
-                features=feature_names or []
-            )))
+            baseline_score = np.mean(
+                detector.predict(
+                    Dataset(
+                        name="baseline",
+                        data=background_data,
+                        features=feature_names or [],
+                    )
+                )
+            )
         else:
             baseline_score = 0.5  # Default baseline
 
         # Get anomaly prediction
-        anomaly_score = detector.predict(Dataset(
-            name="anomaly",
-            data=anomaly_data,
-            features=feature_names or []
-        ))[0]
+        anomaly_score = detector.predict(
+            Dataset(name="anomaly", data=anomaly_data, features=feature_names or [])
+        )[0]
 
         # Calculate feature importance (simplified)
         num_features = anomaly_data.shape[1]
@@ -206,11 +208,11 @@ class SHAPExplainer:
                     # Replace with zero
                     perturbed_data[0, i] = 0.0
 
-                perturbed_score = detector.predict(Dataset(
-                    name="perturbed",
-                    data=perturbed_data,
-                    features=feature_names
-                ))[0]
+                perturbed_score = detector.predict(
+                    Dataset(
+                        name="perturbed", data=perturbed_data, features=feature_names
+                    )
+                )[0]
 
                 # SHAP value = original - perturbed
                 shap_value = anomaly_score - perturbed_score
@@ -219,9 +221,7 @@ class SHAPExplainer:
         return feature_contributions
 
     def _generate_explanation_text(
-        self,
-        feature_contributions: dict[str, float],
-        feature_names: list[str] | None
+        self, feature_contributions: dict[str, float], feature_names: list[str] | None
     ) -> str:
         """Generate human-readable explanation text."""
         if not feature_contributions:
@@ -229,9 +229,7 @@ class SHAPExplainer:
 
         # Sort features by absolute contribution
         sorted_features = sorted(
-            feature_contributions.items(),
-            key=lambda x: abs(x[1]),
-            reverse=True
+            feature_contributions.items(), key=lambda x: abs(x[1]), reverse=True
         )
 
         explanation_parts = []
@@ -266,9 +264,7 @@ class SHAPExplainer:
         return "\n".join(explanation_parts)
 
     async def _create_shap_visualizations(
-        self,
-        feature_contributions: dict[str, float],
-        feature_names: list[str] | None
+        self, feature_contributions: dict[str, float], feature_names: list[str] | None
     ) -> list[dict[str, Any]]:
         """Create SHAP visualizations."""
         visualizations = []
@@ -278,9 +274,7 @@ class SHAPExplainer:
 
         # Feature importance bar chart
         sorted_features = sorted(
-            feature_contributions.items(),
-            key=lambda x: abs(x[1]),
-            reverse=True
+            feature_contributions.items(), key=lambda x: abs(x[1]), reverse=True
         )
 
         bar_chart = {
@@ -289,13 +283,13 @@ class SHAPExplainer:
             "data": {
                 "features": [item[0] for item in sorted_features],
                 "contributions": [item[1] for item in sorted_features],
-                "colors": ["red" if val < 0 else "blue" for _, val in sorted_features]
+                "colors": ["red" if val < 0 else "blue" for _, val in sorted_features],
             },
             "config": {
                 "x_label": "SHAP Value",
                 "y_label": "Features",
-                "horizontal": True
-            }
+                "horizontal": True,
+            },
         }
         visualizations.append(bar_chart)
 
@@ -306,14 +300,16 @@ class SHAPExplainer:
             "data": {
                 "features": [item[0] for item in sorted_features],
                 "contributions": [item[1] for item in sorted_features],
-                "cumulative": self._calculate_cumulative_contributions(sorted_features)
-            }
+                "cumulative": self._calculate_cumulative_contributions(sorted_features),
+            },
         }
         visualizations.append(waterfall_chart)
 
         return visualizations
 
-    def _calculate_cumulative_contributions(self, sorted_features: list[tuple[str, float]]) -> list[float]:
+    def _calculate_cumulative_contributions(
+        self, sorted_features: list[tuple[str, float]]
+    ) -> list[float]:
         """Calculate cumulative contributions for waterfall chart."""
         cumulative = []
         running_sum = 0.0
@@ -343,7 +339,7 @@ class InteractiveInvestigationDashboard:
         """
         self.explanation_methods = explanation_methods or [
             ExplanationMethod.SHAP,
-            ExplanationMethod.FEATURE_IMPORTANCE
+            ExplanationMethod.FEATURE_IMPORTANCE,
         ]
         self.max_sessions = max_sessions
         self.session_timeout = timedelta(hours=session_timeout_hours)
@@ -370,7 +366,7 @@ class InteractiveInvestigationDashboard:
         user_id: str,
         investigation_type: InvestigationType,
         anomaly_ids: list[str],
-        session_config: dict[str, Any] | None = None
+        session_config: dict[str, Any] | None = None,
     ) -> str:
         """Create a new investigation session.
 
@@ -396,7 +392,7 @@ class InteractiveInvestigationDashboard:
             start_time=datetime.now(),
             investigation_type=investigation_type,
             anomaly_ids=anomaly_ids,
-            session_data=session_config or {}
+            session_data=session_config or {},
         )
 
         self.investigation_sessions[session_id] = session
@@ -405,12 +401,14 @@ class InteractiveInvestigationDashboard:
         await self._initialize_session_data(session)
 
         # Track analytics
-        self.investigation_analytics["sessions_created"].append({
-            "timestamp": datetime.now(),
-            "user_id": user_id,
-            "investigation_type": investigation_type.value,
-            "anomaly_count": len(anomaly_ids)
-        })
+        self.investigation_analytics["sessions_created"].append(
+            {
+                "timestamp": datetime.now(),
+                "user_id": user_id,
+                "investigation_type": investigation_type.value,
+                "anomaly_count": len(anomaly_ids),
+            }
+        )
 
         logger.info(f"Created investigation session {session_id} for user {user_id}")
         return session_id
@@ -435,11 +433,13 @@ class InteractiveInvestigationDashboard:
             severity_order = {"critical": 4, "high": 3, "medium": 2, "low": 1}
             highest_severity = max(
                 session_anomalies.values(),
-                key=lambda a: severity_order.get(a.severity, 0)
+                key=lambda a: severity_order.get(a.severity, 0),
             )
             session.current_focus = highest_severity.anomaly_id
 
-    async def _generate_session_summary(self, anomalies: dict[str, AnomalyRecord]) -> dict[str, Any]:
+    async def _generate_session_summary(
+        self, anomalies: dict[str, AnomalyRecord]
+    ) -> dict[str, Any]:
         """Generate summary statistics for the session."""
         if not anomalies:
             return {}
@@ -451,7 +451,8 @@ class InteractiveInvestigationDashboard:
         time_range = {
             "start": min(timestamps),
             "end": max(timestamps),
-            "duration_hours": (max(timestamps) - min(timestamps)).total_seconds() / 3600
+            "duration_hours": (max(timestamps) - min(timestamps)).total_seconds()
+            / 3600,
         }
 
         # Severity distribution
@@ -466,7 +467,7 @@ class InteractiveInvestigationDashboard:
             "max": max(scores),
             "mean": np.mean(scores),
             "median": np.median(scores),
-            "std": np.std(scores)
+            "std": np.std(scores),
         }
 
         # Detector distribution
@@ -480,9 +481,9 @@ class InteractiveInvestigationDashboard:
             "severity_distribution": dict(severity_counts),
             "score_statistics": score_stats,
             "detector_distribution": dict(detector_counts),
-            "unique_features": len(set().union(*[
-                a.feature_values.keys() for a in anomaly_list
-            ]))
+            "unique_features": len(
+                set().union(*[a.feature_values.keys() for a in anomaly_list])
+            ),
         }
 
     async def get_session_overview(self, session_id: str) -> dict[str, Any]:
@@ -498,12 +499,13 @@ class InteractiveInvestigationDashboard:
             "user_id": session.user_id,
             "investigation_type": session.investigation_type.value,
             "start_time": session.start_time.isoformat(),
-            "duration_minutes": (datetime.now() - session.start_time).total_seconds() / 60,
+            "duration_minutes": (datetime.now() - session.start_time).total_seconds()
+            / 60,
             "current_focus": session.current_focus,
             "anomaly_count": len(session.anomaly_ids),
             "analysis_steps_count": len(session.analysis_steps),
             "findings_count": len(session.findings),
-            "hypotheses_count": len(session.hypotheses)
+            "hypotheses_count": len(session.hypotheses),
         }
 
         # Session summary
@@ -519,48 +521,56 @@ class InteractiveInvestigationDashboard:
 
         return overview
 
-    async def _get_available_actions(self, session: InvestigationSession) -> list[dict[str, Any]]:
+    async def _get_available_actions(
+        self, session: InvestigationSession
+    ) -> list[dict[str, Any]]:
         """Get available actions for the current session state."""
         actions = []
 
         # Always available actions
-        actions.extend([
-            {
-                "action": "explain_anomaly",
-                "description": "Generate explanation for focused anomaly",
-                "requires_focus": True
-            },
-            {
-                "action": "compare_anomalies",
-                "description": "Compare multiple anomalies",
-                "requires_focus": False
-            },
-            {
-                "action": "temporal_analysis",
-                "description": "Analyze temporal patterns",
-                "requires_focus": False
-            },
-            {
-                "action": "feature_analysis",
-                "description": "Analyze feature distributions",
-                "requires_focus": False
-            }
-        ])
+        actions.extend(
+            [
+                {
+                    "action": "explain_anomaly",
+                    "description": "Generate explanation for focused anomaly",
+                    "requires_focus": True,
+                },
+                {
+                    "action": "compare_anomalies",
+                    "description": "Compare multiple anomalies",
+                    "requires_focus": False,
+                },
+                {
+                    "action": "temporal_analysis",
+                    "description": "Analyze temporal patterns",
+                    "requires_focus": False,
+                },
+                {
+                    "action": "feature_analysis",
+                    "description": "Analyze feature distributions",
+                    "requires_focus": False,
+                },
+            ]
+        )
 
         # Context-specific actions
         if session.current_focus:
-            actions.append({
-                "action": "drill_down",
-                "description": "Drill down into specific anomaly",
-                "requires_focus": True
-            })
+            actions.append(
+                {
+                    "action": "drill_down",
+                    "description": "Drill down into specific anomaly",
+                    "requires_focus": True,
+                }
+            )
 
         if len(session.anomaly_ids) > 1:
-            actions.append({
-                "action": "cluster_analysis",
-                "description": "Find anomaly clusters",
-                "requires_focus": False
-            })
+            actions.append(
+                {
+                    "action": "cluster_analysis",
+                    "description": "Find anomaly clusters",
+                    "requires_focus": False,
+                }
+            )
 
         return actions
 
@@ -570,7 +580,7 @@ class InteractiveInvestigationDashboard:
         anomaly_id: str,
         explanation_method: ExplanationMethod = ExplanationMethod.SHAP,
         detector: Detector | None = None,
-        background_data: np.ndarray | None = None
+        background_data: np.ndarray | None = None,
     ) -> dict[str, Any]:
         """Generate explanation for a specific anomaly.
 
@@ -600,13 +610,15 @@ class InteractiveInvestigationDashboard:
             cached_result = self.explanation_cache[cache_key]
             # Update session
             session.current_focus = anomaly_id
-            session.analysis_steps.append({
-                "timestamp": datetime.now(),
-                "action": "explain_anomaly",
-                "method": explanation_method.value,
-                "anomaly_id": anomaly_id,
-                "cached": True
-            })
+            session.analysis_steps.append(
+                {
+                    "timestamp": datetime.now(),
+                    "action": "explain_anomaly",
+                    "method": explanation_method.value,
+                    "anomaly_id": anomaly_id,
+                    "cached": True,
+                }
+            )
             return {"explanation": cached_result, "cached": True}
 
         try:
@@ -619,7 +631,7 @@ class InteractiveInvestigationDashboard:
                     detector=detector,
                     anomaly_data=feature_values,
                     background_data=background_data,
-                    feature_names=list(anomaly.feature_values.keys())
+                    feature_names=list(anomaly.feature_values.keys()),
                 )
                 explanation.anomaly_id = anomaly_id
 
@@ -632,7 +644,7 @@ class InteractiveInvestigationDashboard:
                     anomaly_id=anomaly_id,
                     feature_contributions={},
                     explanation_text=f"Explanation method {explanation_method.value} not implemented",
-                    confidence=0.0
+                    confidence=0.0,
                 )
 
             # Cache result
@@ -640,13 +652,15 @@ class InteractiveInvestigationDashboard:
 
             # Update session
             session.current_focus = anomaly_id
-            session.analysis_steps.append({
-                "timestamp": datetime.now(),
-                "action": "explain_anomaly",
-                "method": explanation_method.value,
-                "anomaly_id": anomaly_id,
-                "confidence": explanation.confidence
-            })
+            session.analysis_steps.append(
+                {
+                    "timestamp": datetime.now(),
+                    "action": "explain_anomaly",
+                    "method": explanation_method.value,
+                    "anomaly_id": anomaly_id,
+                    "confidence": explanation.confidence,
+                }
+            )
 
             # Add to findings if high confidence
             if explanation.confidence > 0.7:
@@ -668,7 +682,9 @@ class InteractiveInvestigationDashboard:
         values = [float(value) for _, value in sorted_features]
         return np.array(values).reshape(1, -1)
 
-    async def _feature_importance_explanation(self, anomaly: AnomalyRecord) -> ExplanationResult:
+    async def _feature_importance_explanation(
+        self, anomaly: AnomalyRecord
+    ) -> ExplanationResult:
         """Generate feature importance explanation."""
         # Simplified feature importance based on deviation from normal
         feature_contributions = {}
@@ -676,11 +692,15 @@ class InteractiveInvestigationDashboard:
         for feature_name, value in anomaly.feature_values.items():
             # Simplified: use absolute value as importance
             # In practice, you'd compare against normal distribution
-            normalized_value = abs(float(value)) if isinstance(value, (int, float)) else 0.0
+            normalized_value = (
+                abs(float(value)) if isinstance(value, (int, float)) else 0.0
+            )
             feature_contributions[feature_name] = normalized_value
 
         # Normalize contributions
-        max_contrib = max(feature_contributions.values()) if feature_contributions else 1.0
+        max_contrib = (
+            max(feature_contributions.values()) if feature_contributions else 1.0
+        )
         if max_contrib > 0:
             feature_contributions = {
                 k: v / max_contrib for k, v in feature_contributions.items()
@@ -688,9 +708,7 @@ class InteractiveInvestigationDashboard:
 
         # Generate explanation text
         top_features = sorted(
-            feature_contributions.items(),
-            key=lambda x: x[1],
-            reverse=True
+            feature_contributions.items(), key=lambda x: x[1], reverse=True
         )[:3]
 
         explanation_text = "Feature importance analysis:\n"
@@ -702,14 +720,14 @@ class InteractiveInvestigationDashboard:
             anomaly_id=anomaly.anomaly_id,
             feature_contributions=feature_contributions,
             explanation_text=explanation_text,
-            confidence=0.6
+            confidence=0.6,
         )
 
     async def compare_anomalies(
         self,
         session_id: str,
         anomaly_ids: list[str],
-        comparison_metrics: list[str] = None
+        comparison_metrics: list[str] = None,
     ) -> dict[str, Any]:
         """Compare multiple anomalies.
 
@@ -736,7 +754,10 @@ class InteractiveInvestigationDashboard:
             return {"error": "Need at least 2 anomalies for comparison"}
 
         comparison_metrics = comparison_metrics or [
-            "anomaly_score", "timestamp", "severity", "detector_name"
+            "anomaly_score",
+            "timestamp",
+            "severity",
+            "detector_name",
         ]
 
         # Perform comparison
@@ -746,7 +767,7 @@ class InteractiveInvestigationDashboard:
             "similarities": {},
             "differences": {},
             "patterns": {},
-            "visualizations": []
+            "visualizations": [],
         }
 
         # Calculate similarities and differences
@@ -754,16 +775,20 @@ class InteractiveInvestigationDashboard:
         await self._identify_anomaly_patterns(anomalies, comparison_result)
 
         # Create comparison visualizations
-        comparison_visualizations = await self._create_comparison_visualizations(anomalies)
+        comparison_visualizations = await self._create_comparison_visualizations(
+            anomalies
+        )
         comparison_result["visualizations"] = comparison_visualizations
 
         # Update session
-        session.analysis_steps.append({
-            "timestamp": datetime.now(),
-            "action": "compare_anomalies",
-            "anomaly_ids": anomaly_ids,
-            "comparison_metrics": comparison_metrics
-        })
+        session.analysis_steps.append(
+            {
+                "timestamp": datetime.now(),
+                "action": "compare_anomalies",
+                "anomaly_ids": anomaly_ids,
+                "comparison_metrics": comparison_metrics,
+            }
+        )
 
         return comparison_result
 
@@ -780,8 +805,10 @@ class InteractiveInvestigationDashboard:
 
         # Temporal similarity
         timestamps = [a.timestamp for a in anomalies]
-        time_diffs = [(timestamps[i+1] - timestamps[i]).total_seconds()
-                     for i in range(len(timestamps)-1)]
+        time_diffs = [
+            (timestamps[i + 1] - timestamps[i]).total_seconds()
+            for i in range(len(timestamps) - 1)
+        ]
         if time_diffs:
             similarities["avg_time_diff_minutes"] = np.mean(time_diffs) / 60
 
@@ -812,8 +839,10 @@ class InteractiveInvestigationDashboard:
         timestamps = [a.timestamp for a in anomalies]
         if len(timestamps) > 1:
             # Check for regular intervals
-            intervals = [(timestamps[i+1] - timestamps[i]).total_seconds()
-                        for i in range(len(timestamps)-1)]
+            intervals = [
+                (timestamps[i + 1] - timestamps[i]).total_seconds()
+                for i in range(len(timestamps) - 1)
+            ]
             if intervals:
                 interval_std = np.std(intervals)
                 patterns["regular_intervals"] = interval_std < np.mean(intervals) * 0.1
@@ -830,7 +859,7 @@ class InteractiveInvestigationDashboard:
         scores = [a.anomaly_score for a in anomalies]
         if len(scores) > 2:
             # Check for increasing/decreasing trend
-            score_diffs = [scores[i+1] - scores[i] for i in range(len(scores)-1)]
+            score_diffs = [scores[i + 1] - scores[i] for i in range(len(scores) - 1)]
             avg_diff = np.mean(score_diffs)
             if abs(avg_diff) > 0.01:
                 patterns["score_trend"] = "increasing" if avg_diff > 0 else "decreasing"
@@ -851,8 +880,8 @@ class InteractiveInvestigationDashboard:
             "data": {
                 "anomaly_ids": [a.anomaly_id for a in anomalies],
                 "scores": [a.anomaly_score for a in anomalies],
-                "severities": [a.severity for a in anomalies]
-            }
+                "severities": [a.severity for a in anomalies],
+            },
         }
         visualizations.append(score_chart)
 
@@ -863,8 +892,8 @@ class InteractiveInvestigationDashboard:
             "data": {
                 "timestamps": [a.timestamp.isoformat() for a in anomalies],
                 "anomaly_ids": [a.anomaly_id for a in anomalies],
-                "scores": [a.anomaly_score for a in anomalies]
-            }
+                "scores": [a.anomaly_score for a in anomalies],
+            },
         }
         visualizations.append(timeline_chart)
 
@@ -879,7 +908,9 @@ class InteractiveInvestigationDashboard:
                 feature_row = []
                 for feature in sorted(common_features):
                     value = anomaly.feature_values.get(feature, 0)
-                    feature_row.append(float(value) if isinstance(value, (int, float)) else 0.0)
+                    feature_row.append(
+                        float(value) if isinstance(value, (int, float)) else 0.0
+                    )
                 heatmap_data.append(feature_row)
 
             heatmap_chart = {
@@ -888,8 +919,8 @@ class InteractiveInvestigationDashboard:
                 "data": {
                     "anomaly_ids": [a.anomaly_id for a in anomalies],
                     "features": sorted(common_features),
-                    "values": heatmap_data
-                }
+                    "values": heatmap_data,
+                },
             }
             visualizations.append(heatmap_chart)
 
@@ -899,7 +930,7 @@ class InteractiveInvestigationDashboard:
         self,
         session_id: str,
         time_window_hours: int = 24,
-        analysis_type: str = "pattern_detection"
+        analysis_type: str = "pattern_detection",
     ) -> dict[str, Any]:
         """Perform temporal analysis of anomalies.
 
@@ -938,13 +969,13 @@ class InteractiveInvestigationDashboard:
             "time_window": {
                 "start": start_time.isoformat(),
                 "end": end_time.isoformat(),
-                "hours": time_window_hours
+                "hours": time_window_hours,
             },
             "anomaly_count": len(windowed_anomalies),
             "temporal_patterns": {},
             "frequency_analysis": {},
             "correlations": {},
-            "visualizations": []
+            "visualizations": [],
         }
 
         # Analyze temporal patterns
@@ -954,16 +985,20 @@ class InteractiveInvestigationDashboard:
         await self._analyze_anomaly_frequency(windowed_anomalies, analysis_result)
 
         # Create temporal visualizations
-        temporal_visualizations = await self._create_temporal_visualizations(windowed_anomalies)
+        temporal_visualizations = await self._create_temporal_visualizations(
+            windowed_anomalies
+        )
         analysis_result["visualizations"] = temporal_visualizations
 
         # Update session
-        session.analysis_steps.append({
-            "timestamp": datetime.now(),
-            "action": "temporal_analysis",
-            "time_window_hours": time_window_hours,
-            "anomalies_analyzed": len(windowed_anomalies)
-        })
+        session.analysis_steps.append(
+            {
+                "timestamp": datetime.now(),
+                "action": "temporal_analysis",
+                "time_window_hours": time_window_hours,
+                "anomalies_analyzed": len(windowed_anomalies),
+            }
+        )
 
         return analysis_result
 
@@ -979,7 +1014,9 @@ class InteractiveInvestigationDashboard:
         # Calculate time intervals
         intervals = []
         for i in range(len(anomalies) - 1):
-            interval = (anomalies[i+1].timestamp - anomalies[i].timestamp).total_seconds()
+            interval = (
+                anomalies[i + 1].timestamp - anomalies[i].timestamp
+            ).total_seconds()
             intervals.append(interval)
 
         if intervals:
@@ -1000,7 +1037,9 @@ class InteractiveInvestigationDashboard:
             hour_counts[hour] += 1
 
         patterns["hourly_distribution"] = dict(hour_counts)
-        patterns["peak_hour"] = max(hour_counts, key=hour_counts.get) if hour_counts else None
+        patterns["peak_hour"] = (
+            max(hour_counts, key=hour_counts.get) if hour_counts else None
+        )
 
         # Analyze day-of-week distribution
         weekdays = [a.timestamp.weekday() for a in anomalies]
@@ -1033,7 +1072,7 @@ class InteractiveInvestigationDashboard:
             "bucket_size_minutes": bucket_size_minutes,
             "buckets": dict(buckets),
             "max_frequency": max(buckets.values()) if buckets else 0,
-            "avg_frequency": np.mean(list(buckets.values())) if buckets else 0
+            "avg_frequency": np.mean(list(buckets.values())) if buckets else 0,
         }
 
         result["frequency_analysis"] = frequency_data
@@ -1052,8 +1091,8 @@ class InteractiveInvestigationDashboard:
                 "timestamps": [a.timestamp.isoformat() for a in anomalies],
                 "scores": [a.anomaly_score for a in anomalies],
                 "severities": [a.severity for a in anomalies],
-                "anomaly_ids": [a.anomaly_id for a in anomalies]
-            }
+                "anomaly_ids": [a.anomaly_id for a in anomalies],
+            },
         }
         visualizations.append(timeline)
 
@@ -1068,8 +1107,8 @@ class InteractiveInvestigationDashboard:
             "title": "Hourly Distribution of Anomalies",
             "data": {
                 "hours": list(range(24)),
-                "counts": [hour_counts[h] for h in range(24)]
-            }
+                "counts": [hour_counts[h] for h in range(24)],
+            },
         }
         visualizations.append(hourly_dist)
 
@@ -1079,8 +1118,8 @@ class InteractiveInvestigationDashboard:
             "title": "Anomaly Scores Over Time",
             "data": {
                 "timestamps": [a.timestamp.isoformat() for a in anomalies],
-                "scores": [a.anomaly_score for a in anomalies]
-            }
+                "scores": [a.anomaly_score for a in anomalies],
+            },
         }
         visualizations.append(score_timeline)
 
@@ -1104,10 +1143,13 @@ class InteractiveInvestigationDashboard:
         current_time = datetime.now()
 
         # Session statistics
-        active_sessions = len([
-            s for s in self.investigation_sessions.values()
-            if current_time - s.start_time < self.session_timeout
-        ])
+        active_sessions = len(
+            [
+                s
+                for s in self.investigation_sessions.values()
+                if current_time - s.start_time < self.session_timeout
+            ]
+        )
 
         # Investigation patterns
         investigation_types = defaultdict(int)
@@ -1129,27 +1171,41 @@ class InteractiveInvestigationDashboard:
                 "total_sessions": len(self.investigation_sessions),
                 "active_sessions": active_sessions,
                 "average_session_duration": self._calculate_avg_session_duration(),
-                "sessions_by_type": dict(investigation_types)
+                "sessions_by_type": dict(investigation_types),
             },
             "user_activity": {
                 "unique_users": len(user_sessions),
                 "sessions_per_user": dict(user_sessions),
-                "most_active_user": max(user_sessions, key=user_sessions.get) if user_sessions else None
+                "most_active_user": (
+                    max(user_sessions, key=user_sessions.get) if user_sessions else None
+                ),
             },
             "explanation_analytics": {
                 "method_usage": dict(explanation_usage),
                 "cache_hit_rate": self._calculate_cache_hit_rate(),
-                "avg_explanation_confidence": self._calculate_avg_explanation_confidence()
+                "avg_explanation_confidence": self._calculate_avg_explanation_confidence(),
             },
             "anomaly_analytics": {
                 "total_anomalies": len(self.anomaly_records),
-                "anomalies_investigated": len(set().union(*[
-                    session.anomaly_ids for session in self.investigation_sessions.values()
-                ])),
-                "avg_anomalies_per_session": np.mean([
-                    len(session.anomaly_ids) for session in self.investigation_sessions.values()
-                ]) if self.investigation_sessions else 0
-            }
+                "anomalies_investigated": len(
+                    set().union(
+                        *[
+                            session.anomaly_ids
+                            for session in self.investigation_sessions.values()
+                        ]
+                    )
+                ),
+                "avg_anomalies_per_session": (
+                    np.mean(
+                        [
+                            len(session.anomaly_ids)
+                            for session in self.investigation_sessions.values()
+                        ]
+                    )
+                    if self.investigation_sessions
+                    else 0
+                ),
+            },
         }
 
     def _calculate_avg_session_duration(self) -> float:
@@ -1168,11 +1224,16 @@ class InteractiveInvestigationDashboard:
 
     def _calculate_cache_hit_rate(self) -> float:
         """Calculate explanation cache hit rate."""
-        total_requests = len(self.investigation_analytics.get("explanation_requests", []))
-        cached_requests = len([
-            req for req in self.investigation_analytics.get("explanation_requests", [])
-            if req.get("cached", False)
-        ])
+        total_requests = len(
+            self.investigation_analytics.get("explanation_requests", [])
+        )
+        cached_requests = len(
+            [
+                req
+                for req in self.investigation_analytics.get("explanation_requests", [])
+                if req.get("cached", False)
+            ]
+        )
 
         return cached_requests / total_requests if total_requests > 0 else 0.0
 

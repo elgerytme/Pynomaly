@@ -8,37 +8,31 @@ and other artifacts to maintain a clean repository.
 """
 
 import json
-import os
-import re
 import shutil
-import sys
 import time
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.table import Table
 
 app = typer.Typer(
     help="Cleanup the repository with options for dry-run and report generation.",
-    add_completion=False
+    add_completion=False,
 )
 console = Console()
 
 
 class CleanupMetrics:
     """Class to track cleanup execution metrics."""
-    
+
     def __init__(self) -> None:
-        self.start_time: Optional[float] = None
-        self.end_time: Optional[float] = None
+        self.start_time: float | None = None
+        self.end_time: float | None = None
         self.files_removed: int = 0
         self.directories_removed: int = 0
         self.bytes_freed: int = 0
-        self.errors: List[str] = []
+        self.errors: list[str] = []
 
     def start(self) -> None:
         """Start timing the cleanup process."""
@@ -49,7 +43,7 @@ class CleanupMetrics:
         self.end_time = time.time()
 
     @property
-    def duration(self) -> Optional[float]:
+    def duration(self) -> float | None:
         """Get the duration of the cleanup process in seconds."""
         if self.start_time and self.end_time:
             return self.end_time - self.start_time
@@ -65,13 +59,15 @@ class CleanupMetrics:
         """Record a directory removal."""
         self.directories_removed += 1
         if dir_path.exists():
-            self.bytes_freed += sum(f.stat().st_size for f in dir_path.rglob('*') if f.is_file())
+            self.bytes_freed += sum(
+                f.stat().st_size for f in dir_path.rglob("*") if f.is_file()
+            )
 
     def add_error(self, error: str) -> None:
         """Record an error during cleanup."""
         self.errors.append(error)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert metrics to dictionary for JSON serialization."""
         return {
             "start_time": self.start_time,
@@ -80,33 +76,72 @@ class CleanupMetrics:
             "files_removed": self.files_removed,
             "directories_removed": self.directories_removed,
             "bytes_freed": self.bytes_freed,
-            "errors": self.errors
+            "errors": self.errors,
         }
 
 
 # Patterns for files and directories to clean up
 CLEANUP_PATTERNS = {
     "temp_files": [
-        "*.tmp", "*.temp", "*.swp", "*.swo", "*.bak", "*.backup",
-        "*~", "*.pyc", "*.pyo", "*.pyd", "*.orig", "*.rej"
+        "*.tmp",
+        "*.temp",
+        "*.swp",
+        "*.swo",
+        "*.bak",
+        "*.backup",
+        "*~",
+        "*.pyc",
+        "*.pyo",
+        "*.pyd",
+        "*.orig",
+        "*.rej",
     ],
     "cache_dirs": [
-        "__pycache__", ".pytest_cache", ".mypy_cache", ".coverage",
-        ".ruff_cache", ".tox", "node_modules", ".venv", "venv",
-        "env", ".env", "dist", "build", "*.egg-info"
+        "__pycache__",
+        ".pytest_cache",
+        ".mypy_cache",
+        ".coverage",
+        ".ruff_cache",
+        ".tox",
+        "node_modules",
+        ".venv",
+        "venv",
+        "env",
+        ".env",
+        "dist",
+        "build",
+        "*.egg-info",
     ],
     "log_files": [
-        "*.log", "*.log.*", "*.out", "*.err", "debug.txt",
-        "error.txt", "output.txt", "*.debug"
+        "*.log",
+        "*.log.*",
+        "*.out",
+        "*.err",
+        "debug.txt",
+        "error.txt",
+        "output.txt",
+        "*.debug",
     ],
     "ide_files": [
-        ".vscode", ".idea", "*.sublime-project", "*.sublime-workspace",
-        "*.code-workspace", ".DS_Store", "Thumbs.db", "desktop.ini"
+        ".vscode",
+        ".idea",
+        "*.sublime-project",
+        "*.sublime-workspace",
+        "*.code-workspace",
+        ".DS_Store",
+        "Thumbs.db",
+        "desktop.ini",
     ],
     "test_artifacts": [
-        "htmlcov", "coverage.xml", "pytest_cache", "test-results",
-        "test-reports", "*.cover", "*.coverage", "nosetests.xml"
-    ]
+        "htmlcov",
+        "coverage.xml",
+        "pytest_cache",
+        "test-results",
+        "test-reports",
+        "*.cover",
+        "*.coverage",
+        "nosetests.xml",
+    ],
 }
 
 
@@ -122,7 +157,7 @@ def get_directory_size(dir_path: Path) -> int:
     """Get total size of directory and its contents."""
     total_size = 0
     try:
-        for file_path in dir_path.rglob('*'):
+        for file_path in dir_path.rglob("*"):
             if file_path.is_file():
                 total_size += get_file_size(file_path)
     except (OSError, FileNotFoundError):
@@ -130,7 +165,9 @@ def get_directory_size(dir_path: Path) -> int:
     return total_size
 
 
-def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[List[str], CleanupMetrics]:
+def cleanup_repository(
+    dry_run: bool = False, verbose: bool = False
+) -> tuple[list[str], CleanupMetrics]:
     """
     Perform comprehensive cleanup operations on the repository.
 
@@ -144,16 +181,16 @@ def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[Li
     cleaned_items = []
     metrics = CleanupMetrics()
     metrics.start()
-    
+
     project_root = Path.cwd()
-    
+
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         console=console,
-        transient=True
+        transient=True,
     ) as progress:
-        
+
         # Clean temporary files
         task = progress.add_task("Cleaning temporary files...", total=None)
         for pattern in CLEANUP_PATTERNS["temp_files"]:
@@ -163,12 +200,14 @@ def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[Li
                         size = get_file_size(file_path)
                         if dry_run:
                             if verbose:
-                                console.print(f"[yellow]DRY-RUN:[/yellow] Would remove {file_path}")
+                                console.print(
+                                    f"[yellow]DRY-RUN:[/yellow] Would remove {file_path}"
+                                )
                         else:
                             file_path.unlink()
                             if verbose:
                                 console.print(f"[green]Removed:[/green] {file_path}")
-                        
+
                         cleaned_items.append(str(file_path))
                         metrics.add_file_removed(file_path)
                     except OSError as e:
@@ -176,7 +215,7 @@ def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[Li
                         metrics.add_error(error_msg)
                         if verbose:
                             console.print(f"[red]Error:[/red] {error_msg}")
-        
+
         # Clean cache directories
         task = progress.add_task("Cleaning cache directories...", total=None)
         for pattern in CLEANUP_PATTERNS["cache_dirs"]:
@@ -186,12 +225,16 @@ def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[Li
                         size = get_directory_size(dir_path)
                         if dry_run:
                             if verbose:
-                                console.print(f"[yellow]DRY-RUN:[/yellow] Would remove directory {dir_path}")
+                                console.print(
+                                    f"[yellow]DRY-RUN:[/yellow] Would remove directory {dir_path}"
+                                )
                         else:
                             shutil.rmtree(dir_path)
                             if verbose:
-                                console.print(f"[green]Removed directory:[/green] {dir_path}")
-                        
+                                console.print(
+                                    f"[green]Removed directory:[/green] {dir_path}"
+                                )
+
                         cleaned_items.append(str(dir_path))
                         metrics.add_directory_removed(dir_path)
                     except OSError as e:
@@ -199,7 +242,7 @@ def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[Li
                         metrics.add_error(error_msg)
                         if verbose:
                             console.print(f"[red]Error:[/red] {error_msg}")
-        
+
         # Clean log files
         task = progress.add_task("Cleaning log files...", total=None)
         for pattern in CLEANUP_PATTERNS["log_files"]:
@@ -209,12 +252,14 @@ def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[Li
                         size = get_file_size(file_path)
                         if dry_run:
                             if verbose:
-                                console.print(f"[yellow]DRY-RUN:[/yellow] Would remove {file_path}")
+                                console.print(
+                                    f"[yellow]DRY-RUN:[/yellow] Would remove {file_path}"
+                                )
                         else:
                             file_path.unlink()
                             if verbose:
                                 console.print(f"[green]Removed:[/green] {file_path}")
-                        
+
                         cleaned_items.append(str(file_path))
                         metrics.add_file_removed(file_path)
                     except OSError as e:
@@ -222,7 +267,7 @@ def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[Li
                         metrics.add_error(error_msg)
                         if verbose:
                             console.print(f"[red]Error:[/red] {error_msg}")
-        
+
         # Clean IDE-specific files (optional)
         task = progress.add_task("Cleaning IDE files...", total=None)
         for pattern in CLEANUP_PATTERNS["ide_files"]:
@@ -233,7 +278,9 @@ def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[Li
                             size = get_file_size(path)
                             if dry_run:
                                 if verbose:
-                                    console.print(f"[yellow]DRY-RUN:[/yellow] Would remove {path}")
+                                    console.print(
+                                        f"[yellow]DRY-RUN:[/yellow] Would remove {path}"
+                                    )
                             else:
                                 path.unlink()
                                 if verbose:
@@ -243,20 +290,24 @@ def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[Li
                             size = get_directory_size(path)
                             if dry_run:
                                 if verbose:
-                                    console.print(f"[yellow]DRY-RUN:[/yellow] Would remove directory {path}")
+                                    console.print(
+                                        f"[yellow]DRY-RUN:[/yellow] Would remove directory {path}"
+                                    )
                             else:
                                 shutil.rmtree(path)
                                 if verbose:
-                                    console.print(f"[green]Removed directory:[/green] {path}")
+                                    console.print(
+                                        f"[green]Removed directory:[/green] {path}"
+                                    )
                             metrics.add_directory_removed(path)
-                        
+
                         cleaned_items.append(str(path))
                     except OSError as e:
                         error_msg = f"Failed to remove {path}: {e}"
                         metrics.add_error(error_msg)
                         if verbose:
                             console.print(f"[red]Error:[/red] {error_msg}")
-        
+
         # Clean test artifacts
         task = progress.add_task("Cleaning test artifacts...", total=None)
         for pattern in CLEANUP_PATTERNS["test_artifacts"]:
@@ -267,7 +318,9 @@ def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[Li
                             size = get_file_size(path)
                             if dry_run:
                                 if verbose:
-                                    console.print(f"[yellow]DRY-RUN:[/yellow] Would remove {path}")
+                                    console.print(
+                                        f"[yellow]DRY-RUN:[/yellow] Would remove {path}"
+                                    )
                             else:
                                 path.unlink()
                                 if verbose:
@@ -277,27 +330,35 @@ def cleanup_repository(dry_run: bool = False, verbose: bool = False) -> Tuple[Li
                             size = get_directory_size(path)
                             if dry_run:
                                 if verbose:
-                                    console.print(f"[yellow]DRY-RUN:[/yellow] Would remove directory {path}")
+                                    console.print(
+                                        f"[yellow]DRY-RUN:[/yellow] Would remove directory {path}"
+                                    )
                             else:
                                 shutil.rmtree(path)
                                 if verbose:
-                                    console.print(f"[green]Removed directory:[/green] {path}")
+                                    console.print(
+                                        f"[green]Removed directory:[/green] {path}"
+                                    )
                             metrics.add_directory_removed(path)
-                        
+
                         cleaned_items.append(str(path))
                     except OSError as e:
                         error_msg = f"Failed to remove {path}: {e}"
                         metrics.add_error(error_msg)
                         if verbose:
                             console.print(f"[red]Error:[/red] {error_msg}")
-    
+
     metrics.stop()
     return cleaned_items, metrics
 
 
 @app.command()
-def main(dry_run: bool = typer.Option(False, help="Perform a dry-run without making changes."),
-         output: str = typer.Option("cleanup_report.json", help="Output JSON report file.")):
+def main(
+    dry_run: bool = typer.Option(
+        False, help="Perform a dry-run without making changes."
+    ),
+    output: str = typer.Option("cleanup_report.json", help="Output JSON report file."),
+):
     """
     Main function for cleanup.
     """
@@ -316,10 +377,10 @@ def main(dry_run: bool = typer.Option(False, help="Perform a dry-run without mak
     report = {
         "dry_run": dry_run,
         "execution_time": metrics.duration,
-        "cleaned_items": cleaned_items
+        "cleaned_items": cleaned_items,
     }
 
-    with open(output, 'w') as f:
+    with open(output, "w") as f:
         json.dump(report, f, indent=4)
 
 

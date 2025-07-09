@@ -81,9 +81,21 @@ app.add_typer(detection.app, name="detect", help="Run anomaly detection")
 app.add_typer(
     tdd.app, name="tdd", help="Test-Driven Development (TDD) management and enforcement"
 )
-app.add_typer(deep_learning.app, name="deep-learning", help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)")
-app.add_typer(explainability.app, name="explainability", help="🔍 Explainable AI (model interpretability, bias analysis)")
-app.add_typer(selection.app, name="selection", help="🧠 Intelligent algorithm selection with learning capabilities")
+app.add_typer(
+    deep_learning.app,
+    name="deep-learning",
+    help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)",
+)
+app.add_typer(
+    explainability.app,
+    name="explainability",
+    help="🔍 Explainable AI (model interpretability, bias analysis)",
+)
+app.add_typer(
+    selection.app,
+    name="selection",
+    help="🧠 Intelligent algorithm selection with learning capabilities",
+)
 # app.add_typer(security_commands, name="security", help="🔒 Security & compliance (SOC2, GDPR, HIPAA, encryption)")  # Still uses Click - needs conversion
 # app.add_typer(dashboard_commands, name="dashboard", help="📊 Advanced visualization dashboards (executive, operational, analytical)")  # Still uses Click - needs conversion
 # app.add_typer(governance_commands, name="governance", help="⚖️ Governance framework (audit trails, policies, risk management)")  # Still uses Click - needs conversion

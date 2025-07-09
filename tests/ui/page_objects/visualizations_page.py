@@ -150,9 +150,9 @@ class VisualizationsPage(BasePage):
             self.page.wait_for_timeout(500)
 
             # ECharts usually shows tooltips on interaction
-            results[
-                "echarts_interactive"
-            ] = True  # Assume interactive if container exists
+            results["echarts_interactive"] = (
+                True  # Assume interactive if container exists
+            )
         else:
             results["echarts_interactive"] = False
 

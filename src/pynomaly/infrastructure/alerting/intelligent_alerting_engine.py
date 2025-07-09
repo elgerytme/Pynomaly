@@ -396,9 +396,9 @@ class IntelligentAlertingEngine:
         self.alert_history: deque = deque(maxlen=10000)
 
         # Notification providers
-        self.notification_providers: dict[
-            NotificationChannel, NotificationProvider
-        ] = {}
+        self.notification_providers: dict[NotificationChannel, NotificationProvider] = (
+            {}
+        )
 
         # Intelligent features
         self.alert_rate_limiter: deque = deque(maxlen=1000)

@@ -13,6 +13,7 @@ try:
     from pynomaly.domain.value_objects import ContaminationRate
     from pynomaly.infrastructure.adapters import PyODAdapter
     from pynomaly.infrastructure.repositories import InMemoryDatasetRepository
+
     MUTATION_DEPENDENCIES_AVAILABLE = True
 except ImportError:
     MUTATION_DEPENDENCIES_AVAILABLE = False

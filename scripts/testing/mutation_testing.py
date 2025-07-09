@@ -8,7 +8,6 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 import click
 
@@ -31,7 +30,7 @@ class MutationTester:
         target_paths: list[str],
         test_command: str = "python -m pytest",
         timeout_factor: float = 2.0,
-        max_mutations: Optional[int] = None,
+        max_mutations: int | None = None,
     ) -> dict[str, any]:
         """Run mutation testing on specified paths.
 
@@ -137,7 +136,7 @@ class MutationTester:
         path: str,
         test_command: str,
         timeout_factor: float,
-        max_mutations: Optional[int],
+        max_mutations: int | None,
     ) -> list[dict[str, any]]:
         """Run mutations for a specific path.
 

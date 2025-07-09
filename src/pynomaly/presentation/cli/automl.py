@@ -600,7 +600,7 @@ def run(
             console.print(
                 f"❌ Unsupported algorithm: {algorithm_name}. "
                 f"Supported: {list(supported_algorithms.keys())}",
-                style="red"
+                style="red",
             )
             sys.exit(1)
 
@@ -635,8 +635,7 @@ def run(
             start_time = time.time()
             result = asyncio.run(
                 automl_service.optimize_detection(
-                    dataset=dataset,
-                    optimization_config=config
+                    dataset=dataset, optimization_config=config
                 )
             )
             optimization_time = time.time() - start_time
@@ -670,12 +669,16 @@ def run(
 
         # Persist results
         storage.mkdir(parents=True, exist_ok=True)
-        storage_path = storage / f"{algorithm_name}_optimization_{int(time.time())}.json"
+        storage_path = (
+            storage / f"{algorithm_name}_optimization_{int(time.time())}.json"
+        )
 
         trial_data = {
             "algorithm": algorithm_name,
             "best_score": result.best_score,
-            "best_parameters": result.best_config.parameters if result.best_config else {},
+            "best_parameters": (
+                result.best_config.parameters if result.best_config else {}
+            ),
             "optimization_time": optimization_time,
             "total_trials": result.total_trials,
             "trial_history": result.trial_history,
@@ -698,12 +701,11 @@ def run(
         if improvement >= 0.15:  # 15% improvement
             console.print(
                 f"🎯 Success! F1 improvement: {improvement:.1%} (≥15% target met)",
-                style="bold green"
+                style="bold green",
             )
         else:
             console.print(
-                f"⚠️  F1 improvement: {improvement:.1%} (target: ≥15%)",
-                style="yellow"
+                f"⚠️  F1 improvement: {improvement:.1%} (target: ≥15%)", style="yellow"
             )
 
     except Exception as e:

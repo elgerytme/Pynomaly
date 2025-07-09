@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, Mock
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.services.advanced_detection_service import DetectionAlgorithm
 from pynomaly.domain.services.automl_service import (
@@ -55,19 +56,19 @@ class TestAutoMLService:
     def test_automl_service_initialization(self, automl_service):
         """Test AutoML service initialization."""
         assert automl_service is not None
-        assert hasattr(automl_service, 'parameter_spaces')
-        assert hasattr(automl_service, 'optimization_history')
+        assert hasattr(automl_service, "parameter_spaces")
+        assert hasattr(automl_service, "optimization_history")
 
     def test_pyod_parameter_spaces(self, automl_service):
         """Test PyOD parameter spaces are defined."""
-        assert hasattr(automl_service, 'PYOD_PARAMETER_SPACES')
-        assert 'KNN' in automl_service.PYOD_PARAMETER_SPACES
+        assert hasattr(automl_service, "PYOD_PARAMETER_SPACES")
+        assert "KNN" in automl_service.PYOD_PARAMETER_SPACES
 
-        knn_space = automl_service.PYOD_PARAMETER_SPACES['KNN']
-        assert knn_space['type'] == 'object'
-        assert 'n_neighbors' in knn_space['properties']
-        assert 'method' in knn_space['properties']
-        assert 'contamination' in knn_space['properties']
+        knn_space = automl_service.PYOD_PARAMETER_SPACES["KNN"]
+        assert knn_space["type"] == "object"
+        assert "n_neighbors" in knn_space["properties"]
+        assert "method" in knn_space["properties"]
+        assert "contamination" in knn_space["properties"]
 
     def test_parameter_spaces_initialization(self, automl_service):
         """Test parameter spaces are properly initialized."""
@@ -77,14 +78,14 @@ class TestAutoMLService:
         assert DetectionAlgorithm.KNN in spaces
         knn_params = spaces[DetectionAlgorithm.KNN]
 
-        assert 'n_neighbors' in knn_params
-        assert 'method' in knn_params
-        assert 'contamination' in knn_params
+        assert "n_neighbors" in knn_params
+        assert "method" in knn_params
+        assert "contamination" in knn_params
 
         # Verify parameter values
-        assert isinstance(knn_params['n_neighbors'], list)
-        assert isinstance(knn_params['method'], list)
-        assert isinstance(knn_params['contamination'], list)
+        assert isinstance(knn_params["n_neighbors"], list)
+        assert isinstance(knn_params["method"], list)
+        assert isinstance(knn_params["contamination"], list)
 
     @pytest.mark.asyncio
     async def test_optimization_with_mock_detection_service(
@@ -95,14 +96,14 @@ class TestAutoMLService:
         mock_detection_service = AsyncMock()
         mock_result = Mock()
         mock_result.metadata = {
-            'metrics': {
-                'f1_score': 0.75,
-                'precision': 0.8,
-                'recall': 0.7,
-                'auc_score': 0.85,
-                'execution_time': 1.5,
-                'memory_usage': 100.0,
-                'anomaly_rate': 0.1,
+            "metrics": {
+                "f1_score": 0.75,
+                "precision": 0.8,
+                "recall": 0.7,
+                "auc_score": 0.85,
+                "execution_time": 1.5,
+                "memory_usage": 100.0,
+                "anomaly_rate": 0.1,
             }
         }
 
@@ -115,8 +116,7 @@ class TestAutoMLService:
 
         # Run optimization
         result = await automl_service.optimize_detection(
-            dataset=sample_dataset,
-            optimization_config=optimization_config
+            dataset=sample_dataset, optimization_config=optimization_config
         )
 
         # Verify results
@@ -129,18 +129,21 @@ class TestAutoMLService:
     @pytest.mark.asyncio
     async def test_quick_algorithm_selection(self, automl_service, sample_dataset):
         """Test quick algorithm selection based on dataset characteristics."""
-        algorithm, config = await automl_service._quick_algorithm_selection(sample_dataset)
+        algorithm, config = await automl_service._quick_algorithm_selection(
+            sample_dataset
+        )
 
         assert isinstance(algorithm, DetectionAlgorithm)
         assert config is not None
         assert config.algorithm == algorithm
 
     @pytest.mark.asyncio
-    async def test_auto_select_algorithm_quick_mode(self, automl_service, sample_dataset):
+    async def test_auto_select_algorithm_quick_mode(
+        self, automl_service, sample_dataset
+    ):
         """Test auto algorithm selection in quick mode."""
         algorithm, config = await automl_service.auto_select_algorithm(
-            dataset=sample_dataset,
-            quick_mode=True
+            dataset=sample_dataset, quick_mode=True
         )
 
         assert isinstance(algorithm, DetectionAlgorithm)
@@ -153,11 +156,11 @@ class TestAutoMLService:
         )
 
         assert isinstance(recommendations, dict)
-        assert 'data_preprocessing' in recommendations
-        assert 'algorithm_suggestions' in recommendations
-        assert 'parameter_tuning' in recommendations
-        assert 'ensemble_methods' in recommendations
-        assert 'general_tips' in recommendations
+        assert "data_preprocessing" in recommendations
+        assert "algorithm_suggestions" in recommendations
+        assert "parameter_tuning" in recommendations
+        assert "ensemble_methods" in recommendations
+        assert "general_tips" in recommendations
 
     def test_global_automl_service_instance(self):
         """Test global AutoML service instance."""
@@ -186,7 +189,10 @@ class TestOptimizationConfig:
             max_trials=50,
             search_strategy=SearchStrategy.GRID_SEARCH,
             primary_metric=OptimizationMetric.PRECISION,
-            algorithms_to_test=[DetectionAlgorithm.KNN, DetectionAlgorithm.LOCAL_OUTLIER_FACTOR],
+            algorithms_to_test=[
+                DetectionAlgorithm.KNN,
+                DetectionAlgorithm.LOCAL_OUTLIER_FACTOR,
+            ],
         )
 
         assert config.max_trials == 50
@@ -204,7 +210,7 @@ class TestOptimizationResult:
             best_algorithm=DetectionAlgorithm.KNN,
             best_config=Mock(),
             best_score=0.85,
-            best_metrics={'f1_score': 0.85, 'precision': 0.9},
+            best_metrics={"f1_score": 0.85, "precision": 0.9},
             total_trials=50,
             optimization_time=120.5,
         )
@@ -278,15 +284,17 @@ class TestPyODAlgorithmSupport:
         # Test KNN parameters
         if DetectionAlgorithm.KNN in service.parameter_spaces:
             knn_params = service.parameter_spaces[DetectionAlgorithm.KNN]
-            assert 'n_neighbors' in knn_params
-            assert 'method' in knn_params
-            assert 'contamination' in knn_params
+            assert "n_neighbors" in knn_params
+            assert "method" in knn_params
+            assert "contamination" in knn_params
 
         # Test LOF parameters
         if DetectionAlgorithm.LOCAL_OUTLIER_FACTOR in service.parameter_spaces:
-            lof_params = service.parameter_spaces[DetectionAlgorithm.LOCAL_OUTLIER_FACTOR]
-            assert 'n_neighbors' in lof_params
-            assert 'contamination' in lof_params
+            lof_params = service.parameter_spaces[
+                DetectionAlgorithm.LOCAL_OUTLIER_FACTOR
+            ]
+            assert "n_neighbors" in lof_params
+            assert "contamination" in lof_params
 
 
 if __name__ == "__main__":

@@ -578,7 +578,7 @@ class EventProcessingService:
                 # Mark task as done
                 self._processing_queue.task_done()
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 # No event available, continue
                 continue
             except Exception as e:

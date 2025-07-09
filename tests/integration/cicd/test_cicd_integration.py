@@ -1,10 +1,10 @@
 """Integration tests for CI/CD pipeline system."""
 
-import asyncio
 from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
 import pytest
+
 from pynomaly.domain.models.cicd import (
     DeploymentEnvironment,
     DeploymentStrategy,
@@ -41,14 +41,17 @@ def test_workspace(tmp_path):
     # Create project structure
     (tmp_path / "src" / "pynomaly").mkdir(parents=True)
     (tmp_path / "src" / "pynomaly" / "__init__.py").touch()
-    (tmp_path / "src" / "pynomaly" / "main.py").write_text("""
+    (tmp_path / "src" / "pynomaly" / "main.py").write_text(
+        """
 def hello_world():
     return "Hello, World!"
-""")
+"""
+    )
 
     # Create test structure
     (tmp_path / "tests" / "unit").mkdir(parents=True)
-    (tmp_path / "tests" / "unit" / "test_main.py").write_text("""
+    (tmp_path / "tests" / "unit" / "test_main.py").write_text(
+        """
 import pytest
 from pynomaly.main import hello_world
 
@@ -57,17 +60,21 @@ def test_hello_world():
 
 def test_another():
     assert 1 + 1 == 2
-""")
+"""
+    )
 
     (tmp_path / "tests" / "integration").mkdir(parents=True)
-    (tmp_path / "tests" / "integration" / "test_api.py").write_text("""
+    (tmp_path / "tests" / "integration" / "test_api.py").write_text(
+        """
 def test_api_integration():
     # Mock integration test
     assert True
-""")
+"""
+    )
 
     # Create configuration files
-    (tmp_path / "pyproject.toml").write_text("""
+    (tmp_path / "pyproject.toml").write_text(
+        """
 [tool.poetry]
 name = "test-project"
 version = "0.1.0"
@@ -85,12 +92,15 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-""")
+"""
+    )
 
-    (tmp_path / "requirements.txt").write_text("""
+    (tmp_path / "requirements.txt").write_text(
+        """
 pytest>=6.0
 pytest-cov>=4.0
-""")
+"""
+    )
 
     (tmp_path / "README.md").write_text("# Test Project")
 
@@ -100,8 +110,12 @@ pytest-cov>=4.0
 class TestCICDIntegration:
     """Integration tests for complete CI/CD workflow."""
 
-    @patch("pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec")
-    @patch("pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_shell")
+    @patch(
+        "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
+    )
+    @patch(
+        "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_shell"
+    )
     async def test_complete_cicd_workflow(
         self,
         mock_subprocess_shell,
@@ -159,7 +173,9 @@ class TestCICDIntegration:
             assert len(pipeline.stages) > 0
 
             # 2. Trigger pipeline execution
-            success = await pipeline_service.trigger_pipeline(pipeline.pipeline_id, priority="high")
+            success = await pipeline_service.trigger_pipeline(
+                pipeline.pipeline_id, priority="high"
+            )
             assert success
 
             # 3. Execute pipeline (mocked)
@@ -244,12 +260,14 @@ class TestCICDIntegration:
         assert any("test_api.py" in test for test in integration_tests)
 
         # 3. Execute test suites (mocked)
-        with patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell") as mock_subprocess:
+        with patch(
+            "pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell"
+        ) as mock_subprocess:
             mock_process = AsyncMock()
             mock_process.returncode = 0
             mock_process.communicate.return_value = (
                 b"test_main.py::test_hello_world PASSED\\ntest_main.py::test_another PASSED\\n====== 2 passed in 1.0s ======",
-                b""
+                b"",
             )
             mock_subprocess.return_value = mock_process
 
@@ -263,9 +281,7 @@ class TestCICDIntegration:
             )
 
             success = await test_runner.execute_test_suite(
-                unit_suite,
-                test_workspace,
-                {"PYTHONPATH": str(test_workspace)}
+                unit_suite, test_workspace, {"PYTHONPATH": str(test_workspace)}
             )
 
             assert success
@@ -352,7 +368,9 @@ class TestCICDIntegration:
             )
 
             # Mock failed execution
-            with patch("pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec") as mock_subprocess:
+            with patch(
+                "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
+            ) as mock_subprocess:
                 mock_process = AsyncMock()
                 mock_process.returncode = 1  # Failure
                 mock_process.communicate.return_value = (b"", b"Git clone failed")
@@ -460,7 +478,9 @@ class TestCICDIntegration:
                 assert success
 
             # Check queue has all pipelines
-            total_queued = sum(len(queue) for queue in pipeline_service.pipeline_queues.values())
+            total_queued = sum(
+                len(queue) for queue in pipeline_service.pipeline_queues.values()
+            )
             assert total_queued == 3
 
             # Check pipeline numbers are unique
@@ -545,10 +565,15 @@ class TestCICDErrorScenarios:
         )
 
         # Mock git clone failure
-        with patch("pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec") as mock_subprocess:
+        with patch(
+            "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
+        ) as mock_subprocess:
             mock_process = AsyncMock()
             mock_process.returncode = 128  # Git error
-            mock_process.communicate.return_value = (b"", b"fatal: repository not found")
+            mock_process.communicate.return_value = (
+                b"",
+                b"fatal: repository not found",
+            )
             mock_subprocess.return_value = mock_process
 
             success = await pipeline_service.execute_pipeline(pipeline.pipeline_id)
@@ -563,7 +588,9 @@ class TestCICDErrorScenarios:
 
         try:
             # Mock health check failure
-            with patch.object(deployment_manager, '_perform_health_checks', return_value=False):
+            with patch.object(
+                deployment_manager, "_perform_health_checks", return_value=False
+            ):
                 deployment = await deployment_manager.deploy(
                     environment=DeploymentEnvironment.STAGING,
                     version="v1.0.0",
@@ -591,10 +618,12 @@ class TestCICDErrorScenarios:
         )
 
         # Mock long-running test
-        with patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell") as mock_subprocess:
+        with patch(
+            "pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell"
+        ) as mock_subprocess:
             mock_process = AsyncMock()
             mock_process.returncode = 1
-            mock_process.communicate.side_effect = asyncio.TimeoutError("Test timeout")
+            mock_process.communicate.side_effect = TimeoutError("Test timeout")
             mock_subprocess.return_value = mock_process
 
             success = await test_runner.execute_test_suite(

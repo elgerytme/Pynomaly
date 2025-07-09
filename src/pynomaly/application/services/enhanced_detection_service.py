@@ -256,8 +256,8 @@ class EnhancedDetectionService:
         top_k: int = 3,
         return_recommendations: bool = False,
     ) -> (
-        list[DetectorProtocol] |
-        tuple[list[DetectorProtocol], list[AlgorithmRecommendation]]
+        list[DetectorProtocol]
+        | tuple[list[DetectorProtocol], list[AlgorithmRecommendation]]
     ):
         """Get algorithm recommendations and create corresponding detectors.
 

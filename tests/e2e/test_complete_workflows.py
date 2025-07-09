@@ -10,6 +10,7 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.application.services.detection_service import DetectionService
 from pynomaly.application.use_cases.detect_anomalies import DetectAnomalies
 from pynomaly.application.use_cases.evaluate_model import EvaluateModel
@@ -909,6 +910,7 @@ class TestAPIWorkflow:
         """Test complete REST API workflow."""
 
         from fastapi.testclient import TestClient
+
         from pynomaly.presentation.api.main import app
 
         client = TestClient(app)

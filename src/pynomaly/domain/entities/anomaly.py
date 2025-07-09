@@ -29,7 +29,9 @@ class Anomaly:
             raise ValueError("Detector name cannot be empty")
 
         if not isinstance(self.data_point, dict):
-            raise TypeError(f"Data point must be a dictionary, got {type(self.data_point)}")
+            raise TypeError(
+                f"Data point must be a dictionary, got {type(self.data_point)}"
+            )
 
     @property
     def severity(self) -> str:

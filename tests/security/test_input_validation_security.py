@@ -8,6 +8,7 @@ import json
 
 import pytest
 from pydantic import ValidationError
+
 from pynomaly.domain.exceptions import ValidationError as DomainValidationError
 from pynomaly.infrastructure.validation import (
     DataSanitizer,

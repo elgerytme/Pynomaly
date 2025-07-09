@@ -115,7 +115,9 @@ def test_javascript_directory():
         print(f"✅ All {len(js_files)} JavaScript files updated - no /web references")
         return True
     else:
-        print(f"❌ Found {total_web_refs} /web references in {files_with_refs} JS files")
+        print(
+            f"❌ Found {total_web_refs} /web references in {files_with_refs} JS files"
+        )
         return False
 
 

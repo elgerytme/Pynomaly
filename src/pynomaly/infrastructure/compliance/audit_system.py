@@ -13,6 +13,7 @@ from typing import Any
 
 try:
     import aiofiles
+
     AIOFILES_AVAILABLE = True
 except ImportError:
     AIOFILES_AVAILABLE = False
@@ -22,10 +23,12 @@ from pynomaly.shared.config import Config
 # from ..monitoring.opentelemetry_service import get_telemetry_service
 # from ..monitoring.distributed_tracing import get_distributed_tracer
 
+
 # Simple stubs for monitoring
 def get_telemetry_service():
     """Simple stub for monitoring."""
     return None
+
 
 def get_distributed_tracer():
     """Simple stub for monitoring."""
@@ -91,6 +94,7 @@ class EventType(Enum):
 
 class Severity(Enum):
     """Event severity levels."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -99,6 +103,7 @@ class Severity(Enum):
 
 class ComplianceFramework(Enum):
     """Supported compliance frameworks."""
+
     GDPR = "gdpr"
     HIPAA = "hipaa"
     SOX = "sox"
@@ -145,7 +150,7 @@ class AuditEvent:
             "user_id": self.user_id,
             "resource": self.resource,
             "action": self.action,
-            "outcome": self.outcome
+            "outcome": self.outcome,
         }
 
         json_str = json.dumps(data_to_hash, sort_keys=True)
@@ -184,7 +189,7 @@ class AuditStorage:
         self,
         start_time: datetime,
         end_time: datetime,
-        filters: dict[str, Any] | None = None
+        filters: dict[str, Any] | None = None,
     ) -> list[AuditEvent]:
         """Retrieve audit events."""
         raise NotImplementedError
@@ -201,7 +206,9 @@ class FileAuditStorage(AuditStorage):
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self.rotate_size_mb = rotate_size_mb
-        self.current_file_path = self.storage_path / f"audit_{datetime.now().strftime('%Y%m%d')}.jsonl"
+        self.current_file_path = (
+            self.storage_path / f"audit_{datetime.now().strftime('%Y%m%d')}.jsonl"
+        )
 
     async def store_event(self, event: AuditEvent) -> bool:
         """Store audit event to file."""
@@ -209,11 +216,11 @@ class FileAuditStorage(AuditStorage):
             event_json = json.dumps(asdict(event), default=str)
 
             if AIOFILES_AVAILABLE:
-                async with aiofiles.open(self.current_file_path, 'a') as f:
-                    await f.write(event_json + '\n')
+                async with aiofiles.open(self.current_file_path, "a") as f:
+                    await f.write(event_json + "\n")
             else:
-                with open(self.current_file_path, 'a') as f:
-                    f.write(event_json + '\n')
+                with open(self.current_file_path, "a") as f:
+                    f.write(event_json + "\n")
 
             # Check if rotation is needed
             await self._check_rotation()
@@ -228,10 +235,13 @@ class FileAuditStorage(AuditStorage):
         try:
             file_size_mb = self.current_file_path.stat().st_size / (1024 * 1024)
             if file_size_mb >= self.rotate_size_mb:
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 rotated_path = self.storage_path / f"audit_{timestamp}.jsonl"
                 self.current_file_path.rename(rotated_path)
-                self.current_file_path = self.storage_path / f"audit_{datetime.now().strftime('%Y%m%d')}.jsonl"
+                self.current_file_path = (
+                    self.storage_path
+                    / f"audit_{datetime.now().strftime('%Y%m%d')}.jsonl"
+                )
                 logger.info(f"Rotated audit log to {rotated_path}")
         except Exception as e:
             logger.error(f"Failed to rotate audit log: {e}")
@@ -240,7 +250,7 @@ class FileAuditStorage(AuditStorage):
         self,
         start_time: datetime,
         end_time: datetime,
-        filters: dict[str, Any] | None = None
+        filters: dict[str, Any] | None = None,
     ) -> list[AuditEvent]:
         """Retrieve audit events from files."""
         events = []
@@ -254,12 +264,14 @@ class FileAuditStorage(AuditStorage):
         for file_path in relevant_files:
             try:
                 if AIOFILES_AVAILABLE:
-                    async with aiofiles.open(file_path, 'r') as f:
+                    async with aiofiles.open(file_path) as f:
                         async for line in f:
                             if line.strip():
                                 event_data = json.loads(line)
                                 event = self._dict_to_audit_event(event_data)
-                                if self._event_matches_criteria(event, start_time, end_time, filters):
+                                if self._event_matches_criteria(
+                                    event, start_time, end_time, filters
+                                ):
                                     events.append(event)
                 else:
                     with open(file_path) as f:
@@ -267,7 +279,9 @@ class FileAuditStorage(AuditStorage):
                             if line.strip():
                                 event_data = json.loads(line)
                                 event = self._dict_to_audit_event(event_data)
-                                if self._event_matches_criteria(event, start_time, end_time, filters):
+                                if self._event_matches_criteria(
+                                    event, start_time, end_time, filters
+                                ):
                                     events.append(event)
             except Exception as e:
                 logger.error(f"Failed to read audit file {file_path}: {e}")
@@ -277,10 +291,14 @@ class FileAuditStorage(AuditStorage):
     def _dict_to_audit_event(self, data: dict[str, Any]) -> AuditEvent:
         """Convert dictionary to AuditEvent object."""
         # Convert string timestamp back to datetime
-        data['timestamp'] = datetime.fromisoformat(data['timestamp'].replace('Z', '+00:00'))
-        data['event_type'] = EventType(data['event_type'])
-        data['severity'] = Severity(data['severity'])
-        data['compliance_tags'] = [ComplianceFramework(tag) for tag in data.get('compliance_tags', [])]
+        data["timestamp"] = datetime.fromisoformat(
+            data["timestamp"].replace("Z", "+00:00")
+        )
+        data["event_type"] = EventType(data["event_type"])
+        data["severity"] = Severity(data["severity"])
+        data["compliance_tags"] = [
+            ComplianceFramework(tag) for tag in data.get("compliance_tags", [])
+        ]
 
         return AuditEvent(**data)
 
@@ -289,7 +307,7 @@ class FileAuditStorage(AuditStorage):
         event: AuditEvent,
         start_time: datetime,
         end_time: datetime,
-        filters: dict[str, Any] | None
+        filters: dict[str, Any] | None,
     ) -> bool:
         """Check if event matches retrieval criteria."""
         # Time range check
@@ -341,7 +359,7 @@ class AuditSystem:
         # Storage backend
         self.storage = FileAuditStorage(
             storage_path=self.storage_path,
-            rotate_size_mb=self.config.get("audit.rotate_size_mb", 100)
+            rotate_size_mb=self.config.get("audit.rotate_size_mb", 100),
         )
 
         # Compliance rules
@@ -372,7 +390,7 @@ class AuditSystem:
                 event_types=[EventType.DATA_ACCESS, EventType.SENSITIVE_DATA_ACCESS],
                 required_fields=["user_id", "resource", "timestamp"],
                 retention_period_days=2555,  # 7 years
-                notification_required=True
+                notification_required=True,
             ),
             ComplianceRule(
                 rule_id="gdpr_data_export",
@@ -382,8 +400,8 @@ class AuditSystem:
                 event_types=[EventType.DATA_EXPORT],
                 required_fields=["user_id", "resource", "timestamp", "details"],
                 retention_period_days=2555,
-                alert_on_violation=True
-            )
+                alert_on_violation=True,
+            ),
         ]
         self.compliance_rules[ComplianceFramework.GDPR] = gdpr_rules
 
@@ -397,7 +415,7 @@ class AuditSystem:
                 event_types=[EventType.DATA_ACCESS, EventType.SENSITIVE_DATA_ACCESS],
                 required_fields=["user_id", "resource", "timestamp", "ip_address"],
                 retention_period_days=2190,  # 6 years
-                notification_required=True
+                notification_required=True,
             )
         ]
         self.compliance_rules[ComplianceFramework.HIPAA] = hipaa_rules
@@ -409,10 +427,14 @@ class AuditSystem:
                 framework=ComplianceFramework.SOX,
                 name="SOX Financial Data Access",
                 description="Log all financial data access",
-                event_types=[EventType.DATA_ACCESS, EventType.DATA_MODIFY, EventType.DATA_DELETE],
+                event_types=[
+                    EventType.DATA_ACCESS,
+                    EventType.DATA_MODIFY,
+                    EventType.DATA_DELETE,
+                ],
                 required_fields=["user_id", "resource", "timestamp", "action"],
                 retention_period_days=2555,  # 7 years
-                alert_on_violation=True
+                alert_on_violation=True,
             )
         ]
         self.compliance_rules[ComplianceFramework.SOX] = sox_rules
@@ -478,7 +500,7 @@ class AuditSystem:
         session_id: str | None = None,
         tenant_id: str | None = None,
         data_classification: str | None = None,
-        compliance_frameworks: list[ComplianceFramework] | None = None
+        compliance_frameworks: list[ComplianceFramework] | None = None,
     ) -> bool:
         """Log an audit event."""
         if not self.enabled:
@@ -505,7 +527,7 @@ class AuditSystem:
                 trace_id=trace_id,
                 tenant_id=tenant_id,
                 compliance_tags=compliance_frameworks or [],
-                data_classification=data_classification
+                data_classification=data_classification,
             )
 
             # Validate compliance requirements
@@ -528,7 +550,7 @@ class AuditSystem:
                 duration=0,
                 anomaly_count=1,
                 algorithm="audit_system",
-                tenant_id=tenant_id
+                tenant_id=tenant_id,
             )
 
             return True
@@ -546,7 +568,9 @@ class AuditSystem:
                     if event.event_type in rule.event_types:
                         await self._check_compliance_rule(event, rule)
 
-    async def _check_compliance_rule(self, event: AuditEvent, rule: ComplianceRule) -> None:
+    async def _check_compliance_rule(
+        self, event: AuditEvent, rule: ComplianceRule
+    ) -> None:
         """Check event against specific compliance rule."""
         violations = []
 
@@ -565,7 +589,7 @@ class AuditSystem:
                 "rule_id": rule.rule_id,
                 "framework": rule.framework.value,
                 "violations": violations,
-                "event_id": event.event_id
+                "event_id": event.event_id,
             }
 
             logger.warning(f"Compliance violation detected: {violation_details}")
@@ -574,10 +598,7 @@ class AuditSystem:
                 await self._send_compliance_alert(rule, event, violations)
 
     async def _send_compliance_alert(
-        self,
-        rule: ComplianceRule,
-        event: AuditEvent,
-        violations: list[str]
+        self, rule: ComplianceRule, event: AuditEvent, violations: list[str]
     ) -> None:
         """Send compliance violation alert."""
         alert_details = {
@@ -588,7 +609,7 @@ class AuditSystem:
             "violations": violations,
             "timestamp": event.timestamp.isoformat(),
             "user_id": event.user_id,
-            "resource": event.resource
+            "resource": event.resource,
         }
 
         # This would integrate with your alerting system
@@ -612,7 +633,7 @@ class AuditSystem:
         severity: Severity | None = None,
         outcome: str | None = None,
         compliance_framework: ComplianceFramework | None = None,
-        limit: int = 1000
+        limit: int = 1000,
     ) -> list[AuditEvent]:
         """Search audit events with filters."""
         try:
@@ -635,7 +656,9 @@ class AuditSystem:
                 events = [e for e in events if e.event_type in event_types]
 
             if compliance_framework:
-                events = [e for e in events if compliance_framework in e.compliance_tags]
+                events = [
+                    e for e in events if compliance_framework in e.compliance_tags
+                ]
 
             # Limit results
             return events[:limit]
@@ -645,18 +668,13 @@ class AuditSystem:
             return []
 
     async def generate_compliance_report(
-        self,
-        framework: ComplianceFramework,
-        start_time: datetime,
-        end_time: datetime
+        self, framework: ComplianceFramework, start_time: datetime, end_time: datetime
     ) -> dict[str, Any]:
         """Generate compliance report for specific framework."""
         try:
             # Get events for the framework
             events = await self.search_events(
-                start_time=start_time,
-                end_time=end_time,
-                compliance_framework=framework
+                start_time=start_time, end_time=end_time, compliance_framework=framework
             )
 
             # Analyze events
@@ -664,18 +682,18 @@ class AuditSystem:
                 "framework": framework.value,
                 "period": {
                     "start": start_time.isoformat(),
-                    "end": end_time.isoformat()
+                    "end": end_time.isoformat(),
                 },
                 "summary": {
                     "total_events": len(events),
                     "event_types": {},
                     "users": set(),
                     "resources": set(),
-                    "violations": 0
+                    "violations": 0,
                 },
                 "compliance_status": "compliant",
                 "recommendations": [],
-                "generated_at": datetime.now().isoformat()
+                "generated_at": datetime.now().isoformat(),
             }
 
             # Analyze events
@@ -710,48 +728,76 @@ class AuditSystem:
             logger.error(f"Failed to generate compliance report: {e}")
             return {"error": str(e)}
 
-    async def _add_gdpr_analysis(self, report: dict[str, Any], events: list[AuditEvent]) -> None:
+    async def _add_gdpr_analysis(
+        self, report: dict[str, Any], events: list[AuditEvent]
+    ) -> None:
         """Add GDPR-specific analysis to report."""
         gdpr_events = {
-            "data_access": len([e for e in events if e.event_type in [EventType.DATA_ACCESS, EventType.SENSITIVE_DATA_ACCESS]]),
-            "data_exports": len([e for e in events if e.event_type == EventType.DATA_EXPORT]),
-            "data_deletions": len([e for e in events if e.event_type == EventType.DATA_DELETE])
+            "data_access": len(
+                [
+                    e
+                    for e in events
+                    if e.event_type
+                    in [EventType.DATA_ACCESS, EventType.SENSITIVE_DATA_ACCESS]
+                ]
+            ),
+            "data_exports": len(
+                [e for e in events if e.event_type == EventType.DATA_EXPORT]
+            ),
+            "data_deletions": len(
+                [e for e in events if e.event_type == EventType.DATA_DELETE]
+            ),
         }
 
         report["gdpr_analysis"] = gdpr_events
 
         # Check for potential violations
         if gdpr_events["data_exports"] > 100:  # Example threshold
-            report["recommendations"].append("High number of data exports detected - review data processing activities")
+            report["recommendations"].append(
+                "High number of data exports detected - review data processing activities"
+            )
 
-    async def _add_hipaa_analysis(self, report: dict[str, Any], events: list[AuditEvent]) -> None:
+    async def _add_hipaa_analysis(
+        self, report: dict[str, Any], events: list[AuditEvent]
+    ) -> None:
         """Add HIPAA-specific analysis to report."""
         phi_access_events = [e for e in events if e.data_classification == "PHI"]
 
         report["hipaa_analysis"] = {
             "phi_access_count": len(phi_access_events),
-            "unique_phi_accessors": len({e.user_id for e in phi_access_events if e.user_id})
+            "unique_phi_accessors": len(
+                {e.user_id for e in phi_access_events if e.user_id}
+            ),
         }
 
-    async def _add_sox_analysis(self, report: dict[str, Any], events: list[AuditEvent]) -> None:
+    async def _add_sox_analysis(
+        self, report: dict[str, Any], events: list[AuditEvent]
+    ) -> None:
         """Add SOX-specific analysis to report."""
         financial_events = [e for e in events if e.data_classification == "financial"]
 
         report["sox_analysis"] = {
             "financial_data_events": len(financial_events),
-            "modifications": len([e for e in financial_events if e.event_type == EventType.DATA_MODIFY]),
-            "deletions": len([e for e in financial_events if e.event_type == EventType.DATA_DELETE])
+            "modifications": len(
+                [e for e in financial_events if e.event_type == EventType.DATA_MODIFY]
+            ),
+            "deletions": len(
+                [e for e in financial_events if e.event_type == EventType.DATA_DELETE]
+            ),
         }
 
     async def cleanup_expired_events(self) -> int:
         """Clean up expired audit events based on retention policies."""
         try:
             # Calculate cleanup date based on shortest retention period
-            min_retention_days = min([
-                rule.retention_period_days
-                for rules in self.compliance_rules.values()
-                for rule in rules
-            ], default=2555)
+            min_retention_days = min(
+                [
+                    rule.retention_period_days
+                    for rules in self.compliance_rules.values()
+                    for rule in rules
+                ],
+                default=2555,
+            )
 
             cleanup_date = datetime.now() - timedelta(days=min_retention_days)
 
@@ -773,7 +819,7 @@ class AuditSystem:
             "queue_size": self.event_queue.qsize() if self.async_mode else 0,
             "processing_active": self._processing_active,
             "enabled": self.enabled,
-            "compliance_frameworks": [f.value for f in self.compliance_rules.keys()]
+            "compliance_frameworks": [f.value for f in self.compliance_rules.keys()],
         }
 
 
@@ -790,16 +836,10 @@ def get_audit_system(config: Config | None = None) -> AuditSystem:
 
 
 async def log_audit_event(
-    event_type: EventType,
-    action: str,
-    outcome: str = "success",
-    **kwargs
+    event_type: EventType, action: str, outcome: str = "success", **kwargs
 ) -> bool:
     """Convenience function to log audit events."""
     audit_system = get_audit_system()
     return await audit_system.log_event(
-        event_type=event_type,
-        action=action,
-        outcome=outcome,
-        **kwargs
+        event_type=event_type, action=action, outcome=outcome, **kwargs
     )

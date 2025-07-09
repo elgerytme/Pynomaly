@@ -120,7 +120,7 @@ class BaseExplainer(ABC):
         self,
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        **kwargs
+        **kwargs,
     ) -> ExplanationResult:
         """Generate explanation for a sample."""
         pass
@@ -130,10 +130,12 @@ class BaseExplainer(ABC):
         X: np.ndarray,
         y: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        feature_names: list[str] | None = None
+        feature_names: list[str] | None = None,
     ) -> None:
         """Fit explainer on training data."""
-        self.feature_names = feature_names or [f"feature_{i}" for i in range(X.shape[1])]
+        self.feature_names = feature_names or [
+            f"feature_{i}" for i in range(X.shape[1])
+        ]
         self.is_fitted = True
 
 
@@ -150,7 +152,7 @@ class LIMEExplainer(BaseExplainer):
         self,
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        **kwargs
+        **kwargs,
     ) -> ExplanationResult:
         """Generate LIME explanation."""
         try:
@@ -163,8 +165,10 @@ class LIMEExplainer(BaseExplainer):
             predictions = model_predict_fn(perturbed_samples)
 
             # Calculate distances and weights
-            distances = np.array([np.linalg.norm(sample - perturbed) for perturbed in perturbed_samples])
-            weights = np.exp(-distances ** 2 / (self.kernel_width ** 2))
+            distances = np.array(
+                [np.linalg.norm(sample - perturbed) for perturbed in perturbed_samples]
+            )
+            weights = np.exp(-(distances**2) / (self.kernel_width**2))
 
             # Fit interpretable model (linear regression)
             feature_importance = await self._fit_interpretable_model(
@@ -188,8 +192,8 @@ class LIMEExplainer(BaseExplainer):
                 metadata={
                     "num_samples": len(perturbed_samples),
                     "kernel_width": self.kernel_width,
-                    "weights_range": [float(np.min(weights)), float(np.max(weights))]
-                }
+                    "weights_range": [float(np.min(weights)), float(np.max(weights))],
+                },
             )
 
         except Exception as e:
@@ -209,10 +213,7 @@ class LIMEExplainer(BaseExplainer):
         return np.array(perturbed_samples)
 
     async def _fit_interpretable_model(
-        self,
-        X: np.ndarray,
-        y: np.ndarray,
-        weights: np.ndarray
+        self, X: np.ndarray, y: np.ndarray, weights: np.ndarray
     ) -> dict[str, float]:
         """Fit weighted linear regression as interpretable model."""
         try:
@@ -239,7 +240,11 @@ class LIMEExplainer(BaseExplainer):
                 # Create feature importance dictionary
                 feature_importance = {}
                 for i, coef in enumerate(coefficients):
-                    feature_name = self.feature_names[i] if self.feature_names and i < len(self.feature_names) else f"feature_{i}"
+                    feature_name = (
+                        self.feature_names[i]
+                        if self.feature_names and i < len(self.feature_names)
+                        else f"feature_{i}"
+                    )
                     feature_importance[feature_name] = float(abs(coef))
 
                 return feature_importance
@@ -250,16 +255,23 @@ class LIMEExplainer(BaseExplainer):
             logger.error(f"Interpretable model fitting failed: {e}")
             return {}
 
-    async def _generate_lime_explanation(self, feature_importance: dict[str, float]) -> str:
+    async def _generate_lime_explanation(
+        self, feature_importance: dict[str, float]
+    ) -> str:
         """Generate human-readable LIME explanation."""
         if not feature_importance:
             return "Unable to generate explanation due to insufficient data."
 
         # Sort features by importance
-        sorted_features = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)
-        top_features = sorted_features[:self.num_features]
+        sorted_features = sorted(
+            feature_importance.items(), key=lambda x: x[1], reverse=True
+        )
+        top_features = sorted_features[: self.num_features]
 
-        explanation_parts = ["LIME Explanation:", "Most important features for this prediction:"]
+        explanation_parts = [
+            "LIME Explanation:",
+            "Most important features for this prediction:",
+        ]
 
         for i, (feature, importance) in enumerate(top_features):
             explanation_parts.append(f"{i+1}. {feature}: {importance:.4f}")
@@ -281,7 +293,7 @@ class SHAPExplainer(BaseExplainer):
         X: np.ndarray,
         y: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        feature_names: list[str] | None = None
+        feature_names: list[str] | None = None,
     ) -> None:
         """Fit SHAP explainer."""
         await super().fit(X, y, model_predict_fn, feature_names)
@@ -297,7 +309,7 @@ class SHAPExplainer(BaseExplainer):
         self,
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        **kwargs
+        **kwargs,
     ) -> ExplanationResult:
         """Generate SHAP explanation."""
         try:
@@ -309,11 +321,17 @@ class SHAPExplainer(BaseExplainer):
             # Create feature importance dictionary
             feature_importance = {}
             for i, shap_val in enumerate(shap_values):
-                feature_name = self.feature_names[i] if self.feature_names and i < len(self.feature_names) else f"feature_{i}"
+                feature_name = (
+                    self.feature_names[i]
+                    if self.feature_names and i < len(self.feature_names)
+                    else f"feature_{i}"
+                )
                 feature_importance[feature_name] = float(abs(shap_val))
 
             # Generate explanation text
-            explanation_text = await self._generate_shap_explanation(shap_values, sample)
+            explanation_text = await self._generate_shap_explanation(
+                shap_values, sample
+            )
 
             processing_time = (datetime.now() - start_time).total_seconds()
 
@@ -328,9 +346,13 @@ class SHAPExplainer(BaseExplainer):
                 processing_time=processing_time,
                 metadata={
                     "shap_values": shap_values.tolist(),
-                    "baseline_prediction": float(np.mean(model_predict_fn(self.background_samples))),
-                    "current_prediction": float(model_predict_fn(sample.reshape(1, -1))[0])
-                }
+                    "baseline_prediction": float(
+                        np.mean(model_predict_fn(self.background_samples))
+                    ),
+                    "current_prediction": float(
+                        model_predict_fn(sample.reshape(1, -1))[0]
+                    ),
+                },
             )
 
         except Exception as e:
@@ -338,9 +360,7 @@ class SHAPExplainer(BaseExplainer):
             return self._create_fallback_explanation("shap", str(e))
 
     async def _calculate_shap_values(
-        self,
-        sample: np.ndarray,
-        model_predict_fn: Callable[[np.ndarray], np.ndarray]
+        self, sample: np.ndarray, model_predict_fn: Callable[[np.ndarray], np.ndarray]
     ) -> np.ndarray:
         """Calculate SHAP values using sampling approximation."""
         try:
@@ -362,7 +382,9 @@ class SHAPExplainer(BaseExplainer):
 
                     # Create sample with coalition
                     coalition_sample = sample.copy()
-                    background_sample = self.background_samples[np.random.randint(len(self.background_samples))]
+                    background_sample = self.background_samples[
+                        np.random.randint(len(self.background_samples))
+                    ]
 
                     for j in range(n_features):
                         if not coalition[j]:
@@ -377,7 +399,7 @@ class SHAPExplainer(BaseExplainer):
                     pred_with = model_predict_fn(coalition_sample.reshape(1, -1))[0]
 
                     # Marginal contribution
-                    marginal_contribution += (pred_with - pred_without)
+                    marginal_contribution += pred_with - pred_without
 
                 shap_values[i] = marginal_contribution / num_evaluations
 
@@ -387,20 +409,29 @@ class SHAPExplainer(BaseExplainer):
             logger.error(f"SHAP value calculation failed: {e}")
             return np.zeros(len(sample))
 
-    async def _generate_shap_explanation(self, shap_values: np.ndarray, sample: np.ndarray) -> str:
+    async def _generate_shap_explanation(
+        self, shap_values: np.ndarray, sample: np.ndarray
+    ) -> str:
         """Generate SHAP explanation text."""
         # Sort by absolute SHAP value
         sorted_indices = np.argsort(np.abs(shap_values))[::-1]
 
-        explanation_parts = ["SHAP Explanation:", "Feature contributions to prediction:"]
+        explanation_parts = [
+            "SHAP Explanation:",
+            "Feature contributions to prediction:",
+        ]
 
         for i, idx in enumerate(sorted_indices[:5]):  # Top 5 features
-            feature_name = self.feature_names[idx] if self.feature_names else f"feature_{idx}"
+            feature_name = (
+                self.feature_names[idx] if self.feature_names else f"feature_{idx}"
+            )
             shap_val = shap_values[idx]
             feature_val = sample[idx]
 
             direction = "increases" if shap_val > 0 else "decreases"
-            explanation_parts.append(f"{i+1}. {feature_name} ({feature_val:.3f}) {direction} prediction by {abs(shap_val):.4f}")
+            explanation_parts.append(
+                f"{i+1}. {feature_name} ({feature_val:.3f}) {direction} prediction by {abs(shap_val):.4f}"
+            )
 
         return " | ".join(explanation_parts)
 
@@ -421,7 +452,7 @@ class CounterfactualExplainer(BaseExplainer):
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         target_class: int | None = None,
-        **kwargs
+        **kwargs,
     ) -> CounterfactualExplanation:
         """Generate counterfactual explanations."""
         try:
@@ -432,7 +463,11 @@ class CounterfactualExplainer(BaseExplainer):
 
             if target_class is None:
                 # Flip the prediction
-                target_class = 1 - round(original_pred) if original_pred < 0.5 or original_pred > 0.5 else 0.5
+                target_class = (
+                    1 - round(original_pred)
+                    if original_pred < 0.5 or original_pred > 0.5
+                    else 0.5
+                )
 
             # Generate counterfactuals based on type
             if self.counterfactual_type == CounterfactualType.NEAREST:
@@ -453,9 +488,15 @@ class CounterfactualExplainer(BaseExplainer):
                 )
 
             # Calculate metrics
-            feature_changes = await self._calculate_feature_changes(sample, counterfactuals)
-            validity_scores = await self._calculate_validity_scores(counterfactuals, model_predict_fn, target_class)
-            plausibility_scores = await self._calculate_plausibility_scores(sample, counterfactuals)
+            feature_changes = await self._calculate_feature_changes(
+                sample, counterfactuals
+            )
+            validity_scores = await self._calculate_validity_scores(
+                counterfactuals, model_predict_fn, target_class
+            )
+            plausibility_scores = await self._calculate_plausibility_scores(
+                sample, counterfactuals
+            )
             diversity_score = await self._calculate_diversity_score(counterfactuals)
 
             # Generate explanation text
@@ -471,7 +512,7 @@ class CounterfactualExplainer(BaseExplainer):
                 plausibility_scores=plausibility_scores,
                 diversity_score=diversity_score,
                 explanation_text=explanation_text,
-                generation_method=self.counterfactual_type
+                generation_method=self.counterfactual_type,
             )
 
         except Exception as e:
@@ -484,14 +525,14 @@ class CounterfactualExplainer(BaseExplainer):
                 plausibility_scores=[],
                 diversity_score=0.0,
                 explanation_text=f"Counterfactual generation failed: {e}",
-                generation_method=self.counterfactual_type
+                generation_method=self.counterfactual_type,
             )
 
     async def _generate_nearest_counterfactuals(
         self,
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        target_class: float
+        target_class: float,
     ) -> list[np.ndarray]:
         """Generate nearest counterfactuals using gradient-free optimization."""
         counterfactuals = []
@@ -510,11 +551,15 @@ class CounterfactualExplainer(BaseExplainer):
                 # Check if prediction changed
                 pred = model_predict_fn(candidate.reshape(1, -1))[0]
 
-                if abs(pred - target_class) < abs(model_predict_fn(current_sample.reshape(1, -1))[0] - target_class):
+                if abs(pred - target_class) < abs(
+                    model_predict_fn(current_sample.reshape(1, -1))[0] - target_class
+                ):
                     current_sample = candidate
 
                 # Early stopping if target reached
-                if (target_class > 0.5 and pred > 0.5) or (target_class <= 0.5 and pred <= 0.5):
+                if (target_class > 0.5 and pred > 0.5) or (
+                    target_class <= 0.5 and pred <= 0.5
+                ):
                     break
 
             counterfactuals.append(current_sample)
@@ -525,7 +570,7 @@ class CounterfactualExplainer(BaseExplainer):
         self,
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        target_class: float
+        target_class: float,
     ) -> list[np.ndarray]:
         """Generate diverse counterfactuals."""
         counterfactuals = []
@@ -533,9 +578,11 @@ class CounterfactualExplainer(BaseExplainer):
         # Generate candidates with different perturbation strategies
         strategies = [
             lambda x: x + np.random.normal(0, 0.05, x.shape),  # Small perturbations
-            lambda x: x + np.random.normal(0, 0.2, x.shape),   # Large perturbations
+            lambda x: x + np.random.normal(0, 0.2, x.shape),  # Large perturbations
             lambda x: x * (1 + np.random.normal(0, 0.1, x.shape)),  # Multiplicative
-            lambda x: np.where(np.random.random(x.shape) < 0.3, np.random.normal(0, 0.5, x.shape), x),  # Sparse
+            lambda x: np.where(
+                np.random.random(x.shape) < 0.3, np.random.normal(0, 0.5, x.shape), x
+            ),  # Sparse
         ]
 
         for strategy in strategies:
@@ -547,28 +594,32 @@ class CounterfactualExplainer(BaseExplainer):
 
                 pred = model_predict_fn(candidate.reshape(1, -1))[0]
 
-                if abs(pred - target_class) < abs(model_predict_fn(current_sample.reshape(1, -1))[0] - target_class):
+                if abs(pred - target_class) < abs(
+                    model_predict_fn(current_sample.reshape(1, -1))[0] - target_class
+                ):
                     current_sample = candidate
 
-                if (target_class > 0.5 and pred > 0.5) or (target_class <= 0.5 and pred <= 0.5):
+                if (target_class > 0.5 and pred > 0.5) or (
+                    target_class <= 0.5 and pred <= 0.5
+                ):
                     break
 
             counterfactuals.append(current_sample)
 
-        return counterfactuals[:self.num_counterfactuals]
+        return counterfactuals[: self.num_counterfactuals]
 
     async def _generate_minimal_counterfactuals(
         self,
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        target_class: float
+        target_class: float,
     ) -> list[np.ndarray]:
         """Generate minimal change counterfactuals."""
         counterfactuals = []
 
         for _ in range(self.num_counterfactuals):
             best_candidate = sample.copy()
-            best_distance = float('inf')
+            best_distance = float("inf")
 
             # Try changing each feature individually first
             for feature_idx in range(len(sample)):
@@ -579,14 +630,16 @@ class CounterfactualExplainer(BaseExplainer):
                     candidate = await self._apply_constraints(candidate)
                     pred = model_predict_fn(candidate.reshape(1, -1))[0]
 
-                    if (target_class > 0.5 and pred > 0.5) or (target_class <= 0.5 and pred <= 0.5):
+                    if (target_class > 0.5 and pred > 0.5) or (
+                        target_class <= 0.5 and pred <= 0.5
+                    ):
                         distance = np.linalg.norm(candidate - sample)
                         if distance < best_distance:
                             best_candidate = candidate
                             best_distance = distance
 
             # If single feature change doesn't work, try combinations
-            if best_distance == float('inf'):
+            if best_distance == float("inf"):
                 for iteration in range(50):
                     candidate = sample.copy()
 
@@ -594,7 +647,7 @@ class CounterfactualExplainer(BaseExplainer):
                     feature_indices = np.random.choice(
                         len(sample),
                         size=np.random.randint(1, min(3, len(sample))),
-                        replace=False
+                        replace=False,
                     )
 
                     for idx in feature_indices:
@@ -603,7 +656,9 @@ class CounterfactualExplainer(BaseExplainer):
                     candidate = await self._apply_constraints(candidate)
                     pred = model_predict_fn(candidate.reshape(1, -1))[0]
 
-                    if (target_class > 0.5 and pred > 0.5) or (target_class <= 0.5 and pred <= 0.5):
+                    if (target_class > 0.5 and pred > 0.5) or (
+                        target_class <= 0.5 and pred <= 0.5
+                    ):
                         distance = np.linalg.norm(candidate - sample)
                         if distance < best_distance:
                             best_candidate = candidate
@@ -620,19 +675,23 @@ class CounterfactualExplainer(BaseExplainer):
         for feature_idx, constraints in self.feature_constraints.items():
             if isinstance(feature_idx, int) and feature_idx < len(constrained_sample):
                 if "min" in constraints:
-                    constrained_sample[feature_idx] = max(constrained_sample[feature_idx], constraints["min"])
+                    constrained_sample[feature_idx] = max(
+                        constrained_sample[feature_idx], constraints["min"]
+                    )
                 if "max" in constraints:
-                    constrained_sample[feature_idx] = min(constrained_sample[feature_idx], constraints["max"])
+                    constrained_sample[feature_idx] = min(
+                        constrained_sample[feature_idx], constraints["max"]
+                    )
                 if "categorical" in constraints and constraints["categorical"]:
                     # Round to nearest integer for categorical features
-                    constrained_sample[feature_idx] = round(constrained_sample[feature_idx])
+                    constrained_sample[feature_idx] = round(
+                        constrained_sample[feature_idx]
+                    )
 
         return constrained_sample
 
     async def _calculate_feature_changes(
-        self,
-        original: np.ndarray,
-        counterfactuals: list[np.ndarray]
+        self, original: np.ndarray, counterfactuals: list[np.ndarray]
     ) -> list[dict[str, Any]]:
         """Calculate feature changes for each counterfactual."""
         changes = []
@@ -640,7 +699,9 @@ class CounterfactualExplainer(BaseExplainer):
         for cf in counterfactuals:
             change_dict = {}
             for i in range(len(original)):
-                feature_name = self.feature_names[i] if self.feature_names else f"feature_{i}"
+                feature_name = (
+                    self.feature_names[i] if self.feature_names else f"feature_{i}"
+                )
                 original_val = original[i]
                 cf_val = cf[i]
 
@@ -649,7 +710,9 @@ class CounterfactualExplainer(BaseExplainer):
                         "original": float(original_val),
                         "counterfactual": float(cf_val),
                         "change": float(cf_val - original_val),
-                        "relative_change": float((cf_val - original_val) / (original_val + 1e-8))
+                        "relative_change": float(
+                            (cf_val - original_val) / (original_val + 1e-8)
+                        ),
                     }
 
             changes.append(change_dict)
@@ -660,7 +723,7 @@ class CounterfactualExplainer(BaseExplainer):
         self,
         counterfactuals: list[np.ndarray],
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        target_class: float
+        target_class: float,
     ) -> list[float]:
         """Calculate validity scores (how well counterfactuals achieve target)."""
         scores = []
@@ -680,9 +743,7 @@ class CounterfactualExplainer(BaseExplainer):
         return scores
 
     async def _calculate_plausibility_scores(
-        self,
-        original: np.ndarray,
-        counterfactuals: list[np.ndarray]
+        self, original: np.ndarray, counterfactuals: list[np.ndarray]
     ) -> list[float]:
         """Calculate plausibility scores (how realistic counterfactuals are)."""
         scores = []
@@ -699,7 +760,9 @@ class CounterfactualExplainer(BaseExplainer):
 
         return scores
 
-    async def _calculate_diversity_score(self, counterfactuals: list[np.ndarray]) -> float:
+    async def _calculate_diversity_score(
+        self, counterfactuals: list[np.ndarray]
+    ) -> float:
         """Calculate diversity score among counterfactuals."""
         if len(counterfactuals) < 2:
             return 0.0
@@ -719,22 +782,30 @@ class CounterfactualExplainer(BaseExplainer):
         self,
         original: np.ndarray,
         counterfactuals: list[np.ndarray],
-        feature_changes: list[dict[str, Any]]
+        feature_changes: list[dict[str, Any]],
     ) -> str:
         """Generate human-readable counterfactual explanation."""
         if not counterfactuals:
             return "No valid counterfactuals found."
 
-        explanation_parts = [f"Generated {len(counterfactuals)} counterfactual explanations:"]
+        explanation_parts = [
+            f"Generated {len(counterfactuals)} counterfactual explanations:"
+        ]
 
         for i, changes in enumerate(feature_changes[:3]):  # Show top 3
             if changes:
                 change_descriptions = []
-                for feature, change_info in list(changes.items())[:3]:  # Top 3 changed features
+                for feature, change_info in list(changes.items())[
+                    :3
+                ]:  # Top 3 changed features
                     direction = "increase" if change_info["change"] > 0 else "decrease"
-                    change_descriptions.append(f"{direction} {feature} to {change_info['counterfactual']:.3f}")
+                    change_descriptions.append(
+                        f"{direction} {feature} to {change_info['counterfactual']:.3f}"
+                    )
 
-                explanation_parts.append(f"Counterfactual {i+1}: {', '.join(change_descriptions)}")
+                explanation_parts.append(
+                    f"Counterfactual {i+1}: {', '.join(change_descriptions)}"
+                )
 
         return " | ".join(explanation_parts)
 
@@ -753,7 +824,7 @@ class ConceptActivationVectorExplainer(BaseExplainer):
         concept_name: str,
         positive_examples: list[np.ndarray],
         negative_examples: list[np.ndarray],
-        model_activation_fn: Callable[[np.ndarray, str], np.ndarray]
+        model_activation_fn: Callable[[np.ndarray, str], np.ndarray],
     ) -> ConceptActivation:
         """Fit concept activation vector."""
         try:
@@ -762,12 +833,16 @@ class ConceptActivationVectorExplainer(BaseExplainer):
             # Get activations for positive and negative examples
             positive_activations = []
             for example in positive_examples:
-                activation = model_activation_fn(example.reshape(1, -1), self.layer_name)
+                activation = model_activation_fn(
+                    example.reshape(1, -1), self.layer_name
+                )
                 positive_activations.append(activation.flatten())
 
             negative_activations = []
             for example in negative_examples:
-                activation = model_activation_fn(example.reshape(1, -1), self.layer_name)
+                activation = model_activation_fn(
+                    example.reshape(1, -1), self.layer_name
+                )
                 negative_activations.append(activation.flatten())
 
             if not positive_activations or not negative_activations:
@@ -775,7 +850,9 @@ class ConceptActivationVectorExplainer(BaseExplainer):
 
             # Combine activations and labels
             X = np.vstack([positive_activations, negative_activations])
-            y = np.array([1] * len(positive_activations) + [0] * len(negative_activations))
+            y = np.array(
+                [1] * len(positive_activations) + [0] * len(negative_activations)
+            )
 
             # Train linear classifier to separate concept
             concept_vector = await self._train_concept_classifier(X, y)
@@ -793,7 +870,7 @@ class ConceptActivationVectorExplainer(BaseExplainer):
                 layer_name=self.layer_name,
                 sensitivity_score=0.0,  # Will be calculated per sample
                 statistical_significance=significance,
-                examples=positive_examples[:5]  # Store some examples
+                examples=positive_examples[:5],  # Store some examples
             )
 
         except Exception as e:
@@ -806,14 +883,16 @@ class ConceptActivationVectorExplainer(BaseExplainer):
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         model_activation_fn: Callable[[np.ndarray, str], np.ndarray],
         concepts: list[ConceptActivation],
-        **kwargs
+        **kwargs,
     ) -> ExplanationResult:
         """Explain prediction using concept activation vectors."""
         try:
             start_time = datetime.now()
 
             # Get sample activation
-            sample_activation = model_activation_fn(sample.reshape(1, -1), self.layer_name).flatten()
+            sample_activation = model_activation_fn(
+                sample.reshape(1, -1), self.layer_name
+            ).flatten()
 
             # Calculate concept importance for this sample
             concept_scores = {}
@@ -821,7 +900,10 @@ class ConceptActivationVectorExplainer(BaseExplainer):
             for concept in concepts:
                 # Directional derivative (simplified)
                 directional_deriv = await self._calculate_directional_derivative(
-                    sample, concept.activation_vector, model_predict_fn, model_activation_fn
+                    sample,
+                    concept.activation_vector,
+                    model_predict_fn,
+                    model_activation_fn,
                 )
 
                 # Concept activation level
@@ -848,15 +930,17 @@ class ConceptActivationVectorExplainer(BaseExplainer):
                 metadata={
                     "layer_name": self.layer_name,
                     "num_concepts": len(concepts),
-                    "activation_vector_size": len(sample_activation)
-                }
+                    "activation_vector_size": len(sample_activation),
+                },
             )
 
         except Exception as e:
             logger.error(f"Concept explanation failed: {e}")
             return self._create_fallback_explanation("concept_activation", str(e))
 
-    async def _train_concept_classifier(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
+    async def _train_concept_classifier(
+        self, X: np.ndarray, y: np.ndarray
+    ) -> np.ndarray:
         """Train linear classifier to learn concept direction."""
         try:
             from sklearn.linear_model import LogisticRegression
@@ -887,14 +971,16 @@ class ConceptActivationVectorExplainer(BaseExplainer):
         sample: np.ndarray,
         concept_vector: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        model_activation_fn: Callable[[np.ndarray, str], np.ndarray]
+        model_activation_fn: Callable[[np.ndarray, str], np.ndarray],
     ) -> float:
         """Calculate directional derivative of model output w.r.t. concept."""
         try:
             epsilon = 1e-4
 
             # Get current activation and prediction
-            current_activation = model_activation_fn(sample.reshape(1, -1), self.layer_name).flatten()
+            current_activation = model_activation_fn(
+                sample.reshape(1, -1), self.layer_name
+            ).flatten()
             current_pred = model_predict_fn(sample.reshape(1, -1))[0]
 
             # Approximate activation change (simplified)
@@ -921,13 +1007,17 @@ class ConceptActivationVectorExplainer(BaseExplainer):
         self,
         positive_activations: list[np.ndarray],
         negative_activations: list[np.ndarray],
-        concept_vector: np.ndarray
+        concept_vector: np.ndarray,
     ) -> float:
         """Calculate statistical significance of concept."""
         try:
             # Project activations onto concept vector
-            pos_projections = [np.dot(act, concept_vector) for act in positive_activations]
-            neg_projections = [np.dot(act, concept_vector) for act in negative_activations]
+            pos_projections = [
+                np.dot(act, concept_vector) for act in positive_activations
+            ]
+            neg_projections = [
+                np.dot(act, concept_vector) for act in negative_activations
+            ]
 
             # Simple t-test like measure
             pos_mean = np.mean(pos_projections)
@@ -947,14 +1037,21 @@ class ConceptActivationVectorExplainer(BaseExplainer):
             logger.warning(f"Statistical significance calculation failed: {e}")
             return 0.5
 
-    async def _generate_concept_explanation(self, concept_scores: dict[str, float]) -> str:
+    async def _generate_concept_explanation(
+        self, concept_scores: dict[str, float]
+    ) -> str:
         """Generate concept-based explanation."""
         if not concept_scores:
             return "No concept activations found."
 
-        sorted_concepts = sorted(concept_scores.items(), key=lambda x: x[1], reverse=True)
+        sorted_concepts = sorted(
+            concept_scores.items(), key=lambda x: x[1], reverse=True
+        )
 
-        explanation_parts = ["Concept Activation Explanation:", "Most activated concepts:"]
+        explanation_parts = [
+            "Concept Activation Explanation:",
+            "Most activated concepts:",
+        ]
 
         for i, (concept, score) in enumerate(sorted_concepts[:5]):
             explanation_parts.append(f"{i+1}. {concept}: {score:.4f}")
@@ -987,13 +1084,17 @@ class ExplainableAIOrchestrator:
                 )
 
             if ExplanationMethod.COUNTERFACTUAL in self.config.get("methods", []):
-                self.explainers[ExplanationMethod.COUNTERFACTUAL] = CounterfactualExplainer(
-                    self.config.get("counterfactual_config", {})
+                self.explainers[ExplanationMethod.COUNTERFACTUAL] = (
+                    CounterfactualExplainer(
+                        self.config.get("counterfactual_config", {})
+                    )
                 )
 
             if ExplanationMethod.CONCEPT_ACTIVATION in self.config.get("methods", []):
-                self.explainers[ExplanationMethod.CONCEPT_ACTIVATION] = ConceptActivationVectorExplainer(
-                    self.config.get("concept_config", {})
+                self.explainers[ExplanationMethod.CONCEPT_ACTIVATION] = (
+                    ConceptActivationVectorExplainer(
+                        self.config.get("concept_config", {})
+                    )
                 )
 
             logger.info(f"Initialized {len(self.explainers)} explanation methods")
@@ -1006,7 +1107,7 @@ class ExplainableAIOrchestrator:
         X: np.ndarray,
         y: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        feature_names: list[str] | None = None
+        feature_names: list[str] | None = None,
     ) -> None:
         """Fit all explainers."""
         try:
@@ -1025,7 +1126,7 @@ class ExplainableAIOrchestrator:
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         methods: list[ExplanationMethod] | None = None,
-        **kwargs
+        **kwargs,
     ) -> dict[ExplanationMethod, ExplanationResult]:
         """Generate explanations using specified methods."""
         try:
@@ -1045,7 +1146,9 @@ class ExplainableAIOrchestrator:
 
                     except Exception as e:
                         logger.error(f"Explanation with {method} failed: {e}")
-                        explanations[method] = self._create_error_explanation(method, str(e))
+                        explanations[method] = self._create_error_explanation(
+                            method, str(e)
+                        )
 
             return explanations
 
@@ -1057,7 +1160,7 @@ class ExplainableAIOrchestrator:
         self,
         sample: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        **kwargs
+        **kwargs,
     ) -> CounterfactualExplanation | None:
         """Generate counterfactual explanations."""
         try:
@@ -1080,7 +1183,7 @@ class ExplainableAIOrchestrator:
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
         model_activation_fn: Callable[[np.ndarray, str], np.ndarray],
         concepts: list[ConceptActivation],
-        **kwargs
+        **kwargs,
     ) -> ExplanationResult | None:
         """Generate concept-based explanations."""
         try:
@@ -1101,7 +1204,7 @@ class ExplainableAIOrchestrator:
         self,
         X: np.ndarray,
         model_predict_fn: Callable[[np.ndarray], np.ndarray],
-        sample_size: int = 100
+        sample_size: int = 100,
     ) -> dict[str, Any]:
         """Generate global model explanation."""
         try:
@@ -1124,7 +1227,10 @@ class ExplainableAIOrchestrator:
                 for method, explanation in explanations.items():
                     if explanation.feature_importance:
                         explanation_count += 1
-                        for feature, importance in explanation.feature_importance.items():
+                        for (
+                            feature,
+                            importance,
+                        ) in explanation.feature_importance.items():
                             if feature not in global_importance:
                                 global_importance[feature] = []
                             global_importance[feature].append(importance)
@@ -1135,7 +1241,7 @@ class ExplainableAIOrchestrator:
                 aggregated_importance[feature] = {
                     "mean": float(np.mean(importance_list)),
                     "std": float(np.std(importance_list)),
-                    "count": len(importance_list)
+                    "count": len(importance_list),
                 }
 
             return {
@@ -1145,15 +1251,17 @@ class ExplainableAIOrchestrator:
                 "most_important_features": sorted(
                     aggregated_importance.items(),
                     key=lambda x: x[1]["mean"],
-                    reverse=True
-                )[:10]
+                    reverse=True,
+                )[:10],
             }
 
         except Exception as e:
             logger.error(f"Global explanation generation failed: {e}")
             return {}
 
-    def _create_error_explanation(self, method: ExplanationMethod, error_msg: str) -> ExplanationResult:
+    def _create_error_explanation(
+        self, method: ExplanationMethod, error_msg: str
+    ) -> ExplanationResult:
         """Create error explanation result."""
         return ExplanationResult(
             explanation_id=f"error_{method}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
@@ -1163,10 +1271,12 @@ class ExplainableAIOrchestrator:
             feature_importance={},
             explanation_text=f"Explanation failed: {error_msg}",
             confidence=0.0,
-            processing_time=0.0
+            processing_time=0.0,
         )
 
-    def _create_fallback_explanation(self, method_name: str, error_msg: str) -> ExplanationResult:
+    def _create_fallback_explanation(
+        self, method_name: str, error_msg: str
+    ) -> ExplanationResult:
         """Create fallback explanation."""
         return ExplanationResult(
             explanation_id=f"fallback_{method_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
@@ -1176,7 +1286,7 @@ class ExplainableAIOrchestrator:
             feature_importance={},
             explanation_text=f"Fallback explanation due to error: {error_msg}",
             confidence=0.1,
-            processing_time=0.0
+            processing_time=0.0,
         )
 
     async def get_explanation_summary(self) -> dict[str, Any]:
@@ -1206,14 +1316,14 @@ class ExplainableAIOrchestrator:
             summary = {
                 "total_explanations": len(self.explanation_history),
                 "methods_used": list(method_counts.keys()),
-                "method_statistics": {}
+                "method_statistics": {},
             }
 
             for method in method_counts:
                 summary["method_statistics"][method] = {
                     "count": method_counts[method],
                     "avg_confidence": float(np.mean(method_avg_confidence[method])),
-                    "avg_processing_time": float(np.mean(method_avg_time[method]))
+                    "avg_processing_time": float(np.mean(method_avg_time[method])),
                 }
 
             return summary

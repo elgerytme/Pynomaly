@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 import jwt
 import pytest
 from fastapi.testclient import TestClient
+
 from pynomaly.domain.exceptions import AuthenticationError
 from pynomaly.presentation.api.app import create_app
 

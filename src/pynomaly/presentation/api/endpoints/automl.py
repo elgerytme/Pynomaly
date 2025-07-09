@@ -435,7 +435,9 @@ async def run_automl(
     start_time = time.time()
 
     try:
-        logger.info(f"Starting AutoML optimization for {algorithm_name} on {dataset_path}")
+        logger.info(
+            f"Starting AutoML optimization for {algorithm_name} on {dataset_path}"
+        )
 
         # Validate PyOD algorithm
         supported_algorithms = {
@@ -449,7 +451,7 @@ async def run_automl(
         if algorithm_name not in supported_algorithms:
             raise HTTPException(
                 status_code=400,
-                detail=f"Unsupported algorithm: {algorithm_name}. Supported: {list(supported_algorithms.keys())}"
+                detail=f"Unsupported algorithm: {algorithm_name}. Supported: {list(supported_algorithms.keys())}",
             )
 
         # Get AutoML use case
@@ -490,10 +492,10 @@ async def run_automl(
             # Save to storage (simplified)
             import json
             import os
+
             os.makedirs(storage_path, exist_ok=True)
             storage_file = os.path.join(
-                storage_path,
-                f"{algorithm_name}_optimization_{int(time.time())}.json"
+                storage_path, f"{algorithm_name}_optimization_{int(time.time())}.json"
             )
 
             with open(storage_file, "w") as f:
@@ -501,7 +503,9 @@ async def run_automl(
 
             # Check success criteria (F1 ≥ baseline + 15%)
             baseline_score = 0.5  # Assumed baseline
-            improvement = (optimization_response.best_score - baseline_score) / baseline_score
+            improvement = (
+                optimization_response.best_score - baseline_score
+            ) / baseline_score
             meets_criteria = improvement >= 0.15
 
             return {

@@ -42,12 +42,14 @@ class ReportingService:
         user_id: UserId,
         filters: ReportFilter | None = None,
         title: str | None = None,
-        description: str | None = None
+        description: str | None = None,
     ) -> Report:
         """Generate a new business report."""
         # Validate user permissions
         user = await self._user_service.get_user_by_id(user_id)
-        if not user or not user.has_role_in_tenant(tenant_id, ["analyst", "data_scientist", "tenant_admin"]):
+        if not user or not user.has_role_in_tenant(
+            tenant_id, ["analyst", "data_scientist", "tenant_admin"]
+        ):
             raise AuthorizationError("Insufficient permissions to generate reports")
 
         # Set default filters
@@ -55,7 +57,7 @@ class ReportingService:
             filters = ReportFilter(
                 start_date=datetime.utcnow() - timedelta(days=30),
                 end_date=datetime.utcnow(),
-                tenant_ids=[tenant_id]
+                tenant_ids=[tenant_id],
             )
 
         # Create report
@@ -68,7 +70,7 @@ class ReportingService:
             tenant_id=tenant_id,
             created_by=user_id,
             filters=filters,
-            expires_at=datetime.utcnow() + timedelta(days=30)
+            expires_at=datetime.utcnow() + timedelta(days=30),
         )
 
         # Save initial report
@@ -116,7 +118,7 @@ class ReportingService:
         detection_data = await self._metrics_repo.get_detection_metrics(
             tenant_id=report.tenant_id,
             start_date=report.filters.start_date,
-            end_date=report.filters.end_date
+            end_date=report.filters.end_date,
         )
 
         # Create metrics
@@ -127,7 +129,7 @@ class ReportingService:
             id="detection_success_rate",
             name="Detection Success Rate",
             description="Percentage of successful anomaly detections",
-            metric_type=MetricType.PERCENTAGE
+            metric_type=MetricType.PERCENTAGE,
         )
         success_rate_metric.add_value(detection_data.success_rate)
         metrics.append(success_rate_metric)
@@ -137,7 +139,7 @@ class ReportingService:
             id="total_detections",
             name="Total Detections",
             description="Total number of anomaly detection runs",
-            metric_type=MetricType.COUNTER
+            metric_type=MetricType.COUNTER,
         )
         total_detections_metric.add_value(detection_data.total_detections)
         metrics.append(total_detections_metric)
@@ -147,7 +149,7 @@ class ReportingService:
             id="anomalies_found",
             name="Anomalies Found",
             description="Total anomalies detected",
-            metric_type=MetricType.COUNTER
+            metric_type=MetricType.COUNTER,
         )
         anomalies_metric.add_value(detection_data.anomalies_found)
         metrics.append(anomalies_metric)
@@ -158,7 +160,7 @@ class ReportingService:
                 id="precision",
                 name="Model Precision",
                 description="Precision of anomaly detection models",
-                metric_type=MetricType.PERCENTAGE
+                metric_type=MetricType.PERCENTAGE,
             )
             precision_metric.add_value(detection_data.precision * 100)
             metrics.append(precision_metric)
@@ -170,8 +172,8 @@ class ReportingService:
                 "title": "Detection Results",
                 "data": {
                     "successful": detection_data.successful_detections,
-                    "failed": detection_data.failed_detections
-                }
+                    "failed": detection_data.failed_detections,
+                },
             },
             {
                 "type": "bar",
@@ -179,19 +181,25 @@ class ReportingService:
                 "data": {
                     "precision": detection_data.precision * 100,
                     "recall": detection_data.recall * 100,
-                    "f1_score": detection_data.f1_score * 100
-                }
-            }
+                    "f1_score": detection_data.f1_score * 100,
+                },
+            },
         ]
 
         # Generate insights
         insights = []
         if detection_data.success_rate < 90:
-            insights.append("Detection success rate is below recommended threshold of 90%")
+            insights.append(
+                "Detection success rate is below recommended threshold of 90%"
+            )
         if detection_data.anomaly_rate > 10:
-            insights.append("High anomaly rate detected - consider reviewing detection thresholds")
+            insights.append(
+                "High anomaly rate detected - consider reviewing detection thresholds"
+            )
         if detection_data.average_detection_time > 300:  # 5 minutes
-            insights.append("Average detection time exceeds 5 minutes - consider performance optimization")
+            insights.append(
+                "Average detection time exceeds 5 minutes - consider performance optimization"
+            )
 
         # Create section
         section = ReportSection(
@@ -201,7 +209,7 @@ class ReportingService:
             metrics=metrics,
             charts=charts,
             insights=insights,
-            order=1
+            order=1,
         )
 
         report.add_section(section)
@@ -211,7 +219,7 @@ class ReportingService:
         business_data = await self._metrics_repo.get_business_metrics(
             tenant_id=report.tenant_id,
             start_date=report.filters.start_date,
-            end_date=report.filters.end_date
+            end_date=report.filters.end_date,
         )
 
         metrics = []
@@ -221,7 +229,7 @@ class ReportingService:
             id="cost_savings",
             name="Cost Savings",
             description="Estimated cost savings from anomaly detection",
-            metric_type=MetricType.CURRENCY
+            metric_type=MetricType.CURRENCY,
         )
         cost_savings_metric.add_value(business_data.cost_savings)
         metrics.append(cost_savings_metric)
@@ -231,9 +239,11 @@ class ReportingService:
             id="roi",
             name="Return on Investment",
             description="ROI from anomaly detection implementation",
-            metric_type=MetricType.PERCENTAGE
+            metric_type=MetricType.PERCENTAGE,
         )
-        roi_metric.add_value(business_data.calculate_roi(10000))  # Assuming $10k investment
+        roi_metric.add_value(
+            business_data.calculate_roi(10000)
+        )  # Assuming $10k investment
         metrics.append(roi_metric)
 
         # Time to insight metric
@@ -241,9 +251,11 @@ class ReportingService:
             id="time_to_insight",
             name="Time to Insight",
             description="Average time from data ingestion to actionable insights",
-            metric_type=MetricType.DURATION
+            metric_type=MetricType.DURATION,
         )
-        time_to_insight_metric.add_value(business_data.time_to_insight * 3600)  # Convert hours to seconds
+        time_to_insight_metric.add_value(
+            business_data.time_to_insight * 3600
+        )  # Convert hours to seconds
         metrics.append(time_to_insight_metric)
 
         section = ReportSection(
@@ -251,7 +263,7 @@ class ReportingService:
             title="Business Impact",
             description="Key business metrics and ROI analysis",
             metrics=metrics,
-            order=2
+            order=2,
         )
 
         report.add_section(section)
@@ -261,7 +273,7 @@ class ReportingService:
         usage_data = await self._metrics_repo.get_usage_metrics(
             tenant_id=report.tenant_id,
             start_date=report.filters.start_date,
-            end_date=report.filters.end_date
+            end_date=report.filters.end_date,
         )
 
         metrics = []
@@ -271,7 +283,7 @@ class ReportingService:
             id="api_usage",
             name="API Usage",
             description="Total API calls this month",
-            metric_type=MetricType.COUNTER
+            metric_type=MetricType.COUNTER,
         )
         api_usage_metric.add_value(usage_data.api_calls_this_month)
         metrics.append(api_usage_metric)
@@ -281,7 +293,7 @@ class ReportingService:
             id="storage_usage",
             name="Storage Usage",
             description="Total storage used in GB",
-            metric_type=MetricType.GAUGE
+            metric_type=MetricType.GAUGE,
         )
         storage_metric.add_value(usage_data.storage_used_gb)
         metrics.append(storage_metric)
@@ -291,7 +303,7 @@ class ReportingService:
             title="Usage Analytics",
             description="System usage patterns and resource consumption",
             metrics=metrics,
-            order=3
+            order=3,
         )
 
         report.add_section(section)
@@ -303,7 +315,7 @@ class ReportingService:
         tenant_id: TenantId,
         user_id: UserId,
         description: str = "",
-        widgets: list[dict[str, Any]] | None = None
+        widgets: list[dict[str, Any]] | None = None,
     ) -> Dashboard:
         """Create a new dashboard."""
         dashboard = Dashboard(
@@ -312,7 +324,7 @@ class ReportingService:
             description=description,
             tenant_id=tenant_id,
             created_by=user_id,
-            widgets=widgets or []
+            widgets=widgets or [],
         )
 
         return await self._report_repo.create_dashboard(dashboard)
@@ -325,9 +337,14 @@ class ReportingService:
 
         # Check user permissions
         user = await self._user_service.get_user_by_id(user_id)
-        if not (user.is_super_admin() or
-                user.has_role_in_tenant(dashboard.tenant_id, ["viewer", "analyst", "data_scientist", "tenant_admin"]) or
-                dashboard.is_public):
+        if not (
+            user.is_super_admin()
+            or user.has_role_in_tenant(
+                dashboard.tenant_id,
+                ["viewer", "analyst", "data_scientist", "tenant_admin"],
+            )
+            or dashboard.is_public
+        ):
             raise AuthorizationError("Access denied")
 
         # Update last accessed
@@ -337,19 +354,20 @@ class ReportingService:
         return dashboard
 
     async def update_dashboard_widgets(
-        self,
-        dashboard_id: str,
-        user_id: UserId,
-        widgets: list[dict[str, Any]]
+        self, dashboard_id: str, user_id: UserId, widgets: list[dict[str, Any]]
     ) -> Dashboard:
         """Update dashboard widgets."""
         dashboard = await self.get_dashboard(dashboard_id, user_id)
 
         # Check edit permissions
         user = await self._user_service.get_user_by_id(user_id)
-        if not (user.is_super_admin() or
-                dashboard.created_by == user_id or
-                user.has_role_in_tenant(dashboard.tenant_id, ["data_scientist", "tenant_admin"])):
+        if not (
+            user.is_super_admin()
+            or dashboard.created_by == user_id
+            or user.has_role_in_tenant(
+                dashboard.tenant_id, ["data_scientist", "tenant_admin"]
+            )
+        ):
             raise AuthorizationError("Insufficient permissions to edit dashboard")
 
         dashboard.widgets = widgets
@@ -358,7 +376,9 @@ class ReportingService:
         return await self._report_repo.update_dashboard(dashboard)
 
     # Metrics Management
-    async def get_real_time_metrics(self, tenant_id: TenantId, metric_ids: list[str]) -> dict[str, Any]:
+    async def get_real_time_metrics(
+        self, tenant_id: TenantId, metric_ids: list[str]
+    ) -> dict[str, Any]:
         """Get real-time metrics for dashboard."""
         metrics = {}
 
@@ -367,9 +387,13 @@ class ReportingService:
             if metric_data:
                 metrics[metric_id] = {
                     "current_value": metric_data.current_value,
-                    "formatted_value": metric_data.latest_value.format_value() if metric_data.latest_value else "N/A",
+                    "formatted_value": (
+                        metric_data.latest_value.format_value()
+                        if metric_data.latest_value
+                        else "N/A"
+                    ),
                     "last_updated": metric_data.updated_at.isoformat(),
-                    "type": metric_data.metric_type.value
+                    "type": metric_data.metric_type.value,
                 }
 
         return metrics
@@ -380,7 +404,7 @@ class ReportingService:
         metric_id: str,
         start_date: datetime,
         end_date: datetime,
-        granularity: TimeGranularity = TimeGranularity.HOUR
+        granularity: TimeGranularity = TimeGranularity.HOUR,
     ) -> list[dict[str, Any]]:
         """Get metric history for charting."""
         metric = await self._metrics_repo.get_metric(tenant_id, metric_id)
@@ -396,15 +420,15 @@ class ReportingService:
             {
                 "timestamp": timestamp.isoformat(),
                 "value": value,
-                "formatted_value": MetricValue(value, timestamp, metric.metric_type).format_value()
+                "formatted_value": MetricValue(
+                    value, timestamp, metric.metric_type
+                ).format_value(),
             }
             for timestamp, value in aggregated.items()
         ]
 
     def _aggregate_metric_values(
-        self,
-        values: list[MetricValue],
-        granularity: TimeGranularity
+        self, values: list[MetricValue], granularity: TimeGranularity
     ) -> dict[datetime, float]:
         """Aggregate metric values by time granularity."""
         aggregated = {}
@@ -416,7 +440,9 @@ class ReportingService:
             elif granularity == TimeGranularity.HOUR:
                 key_time = value.timestamp.replace(minute=0, second=0, microsecond=0)
             elif granularity == TimeGranularity.DAY:
-                key_time = value.timestamp.replace(hour=0, minute=0, second=0, microsecond=0)
+                key_time = value.timestamp.replace(
+                    hour=0, minute=0, second=0, microsecond=0
+                )
             else:
                 key_time = value.timestamp
 
@@ -439,7 +465,7 @@ class ReportingService:
         condition: str,
         threshold: float,
         notification_channels: list[str],
-        description: str = ""
+        description: str = "",
     ) -> Alert:
         """Create a new metric alert."""
         alert = Alert(
@@ -450,7 +476,7 @@ class ReportingService:
             tenant_id=tenant_id,
             condition=condition,
             threshold=threshold,
-            notification_channels=notification_channels
+            notification_channels=notification_channels,
         )
 
         return await self._report_repo.create_alert(alert)
@@ -473,15 +499,17 @@ class ReportingService:
                 previous_value = float(metric.values[-2].value)
 
             if alert.should_trigger(current_value, previous_value):
-                triggered_alerts.append({
-                    "alert_id": alert.id,
-                    "alert_name": alert.name,
-                    "metric_id": alert.metric_id,
-                    "current_value": current_value,
-                    "threshold": alert.threshold,
-                    "condition": alert.condition,
-                    "notification_channels": alert.notification_channels
-                })
+                triggered_alerts.append(
+                    {
+                        "alert_id": alert.id,
+                        "alert_name": alert.name,
+                        "metric_id": alert.metric_id,
+                        "current_value": current_value,
+                        "threshold": alert.threshold,
+                        "condition": alert.condition,
+                        "notification_channels": alert.notification_channels,
+                    }
+                )
 
                 # Update alert trigger info
                 alert.last_triggered = datetime.utcnow()
@@ -491,7 +519,9 @@ class ReportingService:
         return triggered_alerts
 
     # Predefined Reports
-    async def create_standard_dashboard(self, tenant_id: TenantId, user_id: UserId) -> Dashboard:
+    async def create_standard_dashboard(
+        self, tenant_id: TenantId, user_id: UserId
+    ) -> Dashboard:
         """Create a standard dashboard with common widgets."""
         standard_widgets = [
             {
@@ -499,28 +529,28 @@ class ReportingService:
                 "title": "Detection Success Rate",
                 "metric_id": "detection_success_rate",
                 "size": "small",
-                "position": {"x": 0, "y": 0, "w": 3, "h": 2}
+                "position": {"x": 0, "y": 0, "w": 3, "h": 2},
             },
             {
                 "type": "metric_card",
                 "title": "Monthly Cost Savings",
                 "metric_id": "monthly_cost_savings",
                 "size": "small",
-                "position": {"x": 3, "y": 0, "w": 3, "h": 2}
+                "position": {"x": 3, "y": 0, "w": 3, "h": 2},
             },
             {
                 "type": "line_chart",
                 "title": "Detection Trends",
                 "metric_id": "total_detections",
                 "time_range": "7d",
-                "position": {"x": 0, "y": 2, "w": 6, "h": 4}
+                "position": {"x": 0, "y": 2, "w": 6, "h": 4},
             },
             {
                 "type": "pie_chart",
                 "title": "Usage Distribution",
                 "metric_id": "api_usage",
-                "position": {"x": 6, "y": 0, "w": 3, "h": 4}
-            }
+                "position": {"x": 6, "y": 0, "w": 3, "h": 4},
+            },
         ]
 
         return await self.create_dashboard(
@@ -528,5 +558,5 @@ class ReportingService:
             tenant_id=tenant_id,
             user_id=user_id,
             description="Default dashboard with key business metrics",
-            widgets=standard_widgets
+            widgets=standard_widgets,
         )

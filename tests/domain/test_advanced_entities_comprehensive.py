@@ -11,6 +11,7 @@ from uuid import UUID, uuid4
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.domain.entities.ab_testing import ABTesting
 from pynomaly.domain.entities.continuous_learning import ContinuousLearning
 from pynomaly.domain.entities.deployment import Deployment

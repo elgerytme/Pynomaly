@@ -5,6 +5,7 @@ from datetime import datetime
 from unittest.mock import Mock, patch
 
 import pytest
+
 from pynomaly.application.services.automl_service import AutoMLService
 from pynomaly.application.services.detection_service import DetectionService
 from pynomaly.application.services.ensemble_service import EnsembleService
@@ -67,9 +68,9 @@ class TestApplicationWorkflows:
         )
 
         # Configure mocks
-        workflow_services[
-            "detect_anomalies_use_case"
-        ].execute.return_value = mock_results
+        workflow_services["detect_anomalies_use_case"].execute.return_value = (
+            mock_results
+        )
 
         # Execute workflow
         use_case = workflow_services["detect_anomalies_use_case"]
@@ -119,12 +120,12 @@ class TestApplicationWorkflows:
         }
 
         # Configure mocks
-        workflow_services[
-            "train_detector_use_case"
-        ].execute.return_value = trained_detector
-        workflow_services[
-            "evaluate_model_use_case"
-        ].execute.return_value = evaluation_results
+        workflow_services["train_detector_use_case"].execute.return_value = (
+            trained_detector
+        )
+        workflow_services["evaluate_model_use_case"].execute.return_value = (
+            evaluation_results
+        )
 
         # Execute training workflow
         train_use_case = workflow_services["train_detector_use_case"]
@@ -172,9 +173,9 @@ class TestApplicationWorkflows:
             batch_results.append(result)
 
         # Mock batch processing service
-        workflow_services[
-            "detection_service"
-        ].process_batch.return_value = batch_results
+        workflow_services["detection_service"].process_batch.return_value = (
+            batch_results
+        )
 
         # Execute batch workflow
         detection_service = workflow_services["detection_service"]
@@ -216,9 +217,9 @@ class TestApplicationWorkflows:
             streaming_results.append(result)
 
         # Mock streaming detection service
-        workflow_services[
-            "detection_service"
-        ].detect_streaming.return_value = streaming_results
+        workflow_services["detection_service"].detect_streaming.return_value = (
+            streaming_results
+        )
 
         # Execute streaming workflow
         detection_service = workflow_services["detection_service"]
@@ -293,12 +294,12 @@ class TestApplicationWorkflows:
         )
 
         # Configure mocks
-        workflow_services[
-            "ensemble_service"
-        ].create_ensemble.return_value = ensemble_detector
-        workflow_services[
-            "ensemble_service"
-        ].predict_ensemble.return_value = ensemble_results
+        workflow_services["ensemble_service"].create_ensemble.return_value = (
+            ensemble_detector
+        )
+        workflow_services["ensemble_service"].predict_ensemble.return_value = (
+            ensemble_results
+        )
 
         # Execute ensemble workflow
         ensemble_service = workflow_services["ensemble_service"]
@@ -402,9 +403,9 @@ class TestApplicationWorkflows:
         }
 
         # Configure mocks
-        workflow_services[
-            "explainability_service"
-        ].explain_anomaly.return_value = explanation_results["local_explanation"]
+        workflow_services["explainability_service"].explain_anomaly.return_value = (
+            explanation_results["local_explanation"]
+        )
         workflow_services[
             "explainability_service"
         ].analyze_feature_importance.return_value = explanation_results[
@@ -502,9 +503,9 @@ class TestApplicationWorkflows:
         }
 
         # Mock comprehensive pipeline execution
-        workflow_services[
-            "detection_service"
-        ].execute_pipeline.return_value = pipeline_results
+        workflow_services["detection_service"].execute_pipeline.return_value = (
+            pipeline_results
+        )
 
         # Execute comprehensive pipeline
         detection_service = workflow_services["detection_service"]
@@ -544,9 +545,9 @@ class TestApplicationWorkflows:
             }
 
         # Mock multi-tenant processing
-        workflow_services[
-            "detection_service"
-        ].process_multi_tenant.return_value = tenant_data
+        workflow_services["detection_service"].process_multi_tenant.return_value = (
+            tenant_data
+        )
 
         # Execute multi-tenant workflow
         detection_service = workflow_services["detection_service"]
@@ -588,9 +589,9 @@ class TestApplicationWorkflows:
                 "backup_detector_id": str(uuid.uuid4()),
             }
 
-            workflow_services[
-                "detection_service"
-            ].initiate_failover.return_value = failover_results
+            workflow_services["detection_service"].initiate_failover.return_value = (
+                failover_results
+            )
 
             # Execute disaster recovery
             detection_service = workflow_services["detection_service"]

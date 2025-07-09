@@ -19,12 +19,16 @@ from pathlib import Path
 from buck2_change_detector import Buck2ChangeDetector, ChangeAnalysis
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class TestResult:
     """Result of running a Buck2 test target."""
+
     target: str
     success: bool
     duration: float
@@ -32,9 +36,11 @@ class TestResult:
     stderr: str
     command: str
 
+
 @dataclass
 class TestRunSummary:
     """Summary of an incremental test run."""
+
     total_targets: int
     successful_targets: int
     failed_targets: int
@@ -43,6 +49,7 @@ class TestRunSummary:
     results: list[TestResult]
     change_analysis: ChangeAnalysis
     run_metadata: dict
+
 
 class Buck2IncrementalTestRunner:
     """Runs Buck2 tests incrementally based on change analysis."""
@@ -59,7 +66,9 @@ class Buck2IncrementalTestRunner:
     def check_buck2_available(self) -> bool:
         """Check if Buck2 is available in the system."""
         try:
-            result = subprocess.run(["buck2", "--version"], capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                ["buck2", "--version"], capture_output=True, text=True, check=True
+            )
             logger.info(f"Buck2 version: {result.stdout.strip()}")
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
@@ -86,7 +95,7 @@ class Buck2IncrementalTestRunner:
                 duration=0.0,
                 stdout=f"DRY RUN: {command_str}",
                 stderr="",
-                command=command_str
+                command=command_str,
             )
 
         try:
@@ -95,7 +104,7 @@ class Buck2IncrementalTestRunner:
                 capture_output=True,
                 text=True,
                 timeout=self.test_timeout,
-                cwd=self.repo_root
+                cwd=self.repo_root,
             )
 
             duration = time.time() - start_time
@@ -114,7 +123,7 @@ class Buck2IncrementalTestRunner:
                 duration=duration,
                 stdout=result.stdout,
                 stderr=result.stderr,
-                command=command_str
+                command=command_str,
             )
 
         except subprocess.TimeoutExpired:
@@ -126,7 +135,7 @@ class Buck2IncrementalTestRunner:
                 duration=duration,
                 stdout="",
                 stderr=f"Test timed out after {self.test_timeout}s",
-                command=command_str
+                command=command_str,
             )
         except Exception as e:
             duration = time.time() - start_time
@@ -137,15 +146,19 @@ class Buck2IncrementalTestRunner:
                 duration=duration,
                 stdout="",
                 stderr=str(e),
-                command=command_str
+                command=command_str,
             )
 
-    def run_targets_parallel(self, targets: set[str], target_type: str = "test") -> list[TestResult]:
+    def run_targets_parallel(
+        self, targets: set[str], target_type: str = "test"
+    ) -> list[TestResult]:
         """Run multiple Buck2 targets in parallel."""
         if not targets:
             return []
 
-        logger.info(f"Running {len(targets)} {target_type} targets with {self.parallel_jobs} parallel jobs")
+        logger.info(
+            f"Running {len(targets)} {target_type} targets with {self.parallel_jobs} parallel jobs"
+        )
 
         results = []
         with ThreadPoolExecutor(max_workers=self.parallel_jobs) as executor:
@@ -163,22 +176,26 @@ class Buck2IncrementalTestRunner:
                     results.append(result)
                 except Exception as e:
                     logger.error(f"Exception running {target}: {e}")
-                    results.append(TestResult(
-                        target=target,
-                        success=False,
-                        duration=0.0,
-                        stdout="",
-                        stderr=str(e),
-                        command=f"buck2 {target_type} :{target}"
-                    ))
+                    results.append(
+                        TestResult(
+                            target=target,
+                            success=False,
+                            duration=0.0,
+                            stdout="",
+                            stderr=str(e),
+                            command=f"buck2 {target_type} :{target}",
+                        )
+                    )
 
         return results
 
-    def run_incremental_tests(self,
-                            base_commit: str = "HEAD~1",
-                            target_commit: str = "HEAD",
-                            include_build: bool = True,
-                            fail_fast: bool = False) -> TestRunSummary:
+    def run_incremental_tests(
+        self,
+        base_commit: str = "HEAD~1",
+        target_commit: str = "HEAD",
+        include_build: bool = True,
+        fail_fast: bool = False,
+    ) -> TestRunSummary:
         """Run incremental tests based on changes."""
         start_time = time.time()
 
@@ -200,7 +217,7 @@ class Buck2IncrementalTestRunner:
                 total_duration=0.0,
                 results=[],
                 change_analysis=analysis,
-                run_metadata={"status": "no_targets", "dry_run": self.dry_run}
+                run_metadata={"status": "no_targets", "dry_run": self.dry_run},
             )
 
         # Run tests
@@ -216,7 +233,9 @@ class Buck2IncrementalTestRunner:
             if fail_fast:
                 failed_tests = [r for r in test_results if not r.success]
                 if failed_tests:
-                    logger.error(f"Stopping due to {len(failed_tests)} test failures (fail_fast=True)")
+                    logger.error(
+                        f"Stopping due to {len(failed_tests)} test failures (fail_fast=True)"
+                    )
                     include_build = False
 
         # Run build targets if requested and no failures (or fail_fast disabled)
@@ -229,7 +248,9 @@ class Buck2IncrementalTestRunner:
         total_duration = time.time() - start_time
         successful_targets = sum(1 for r in all_results if r.success)
         failed_targets = sum(1 for r in all_results if not r.success)
-        total_expected = len(analysis.test_targets) + (len(analysis.build_targets) if include_build else 0)
+        total_expected = len(analysis.test_targets) + (
+            len(analysis.build_targets) if include_build else 0
+        )
         skipped_targets = total_expected - len(all_results)
 
         run_metadata = {
@@ -240,7 +261,9 @@ class Buck2IncrementalTestRunner:
             "dry_run": self.dry_run,
             "parallel_jobs": self.parallel_jobs,
             "test_timeout": self.test_timeout,
-            "run_timestamp": subprocess.run(["date", "-Iseconds"], capture_output=True, text=True).stdout.strip(),
+            "run_timestamp": subprocess.run(
+                ["date", "-Iseconds"], capture_output=True, text=True
+            ).stdout.strip(),
         }
 
         return TestRunSummary(
@@ -251,10 +274,12 @@ class Buck2IncrementalTestRunner:
             total_duration=total_duration,
             results=all_results,
             change_analysis=analysis,
-            run_metadata=run_metadata
+            run_metadata=run_metadata,
         )
 
-    def save_test_results(self, summary: TestRunSummary, output_file: Path = None) -> Path:
+    def save_test_results(
+        self, summary: TestRunSummary, output_file: Path = None
+    ) -> Path:
         """Save test results to JSON file."""
         if output_file is None:
             timestamp = int(time.time())
@@ -264,11 +289,17 @@ class Buck2IncrementalTestRunner:
         summary_dict = asdict(summary)
 
         # Convert sets in change_analysis to lists
-        summary_dict["change_analysis"]["affected_targets"] = list(summary.change_analysis.affected_targets)
-        summary_dict["change_analysis"]["test_targets"] = list(summary.change_analysis.test_targets)
-        summary_dict["change_analysis"]["build_targets"] = list(summary.change_analysis.build_targets)
+        summary_dict["change_analysis"]["affected_targets"] = list(
+            summary.change_analysis.affected_targets
+        )
+        summary_dict["change_analysis"]["test_targets"] = list(
+            summary.change_analysis.test_targets
+        )
+        summary_dict["change_analysis"]["build_targets"] = list(
+            summary.change_analysis.build_targets
+        )
 
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             json.dump(summary_dict, f, indent=2)
 
         logger.info(f"Test results saved to {output_file}")
@@ -293,7 +324,9 @@ class Buck2IncrementalTestRunner:
             for file in summary.change_analysis.changed_files[:5]:
                 print(f"  - {file}")
             if len(summary.change_analysis.changed_files) > 5:
-                print(f"  ... and {len(summary.change_analysis.changed_files) - 5} more")
+                print(
+                    f"  ... and {len(summary.change_analysis.changed_files) - 5} more"
+                )
 
         # Show failed targets
         failed_results = [r for r in summary.results if not r.success]
@@ -302,7 +335,7 @@ class Buck2IncrementalTestRunner:
             for result in failed_results:
                 print(f"  ✗ {result.target} ({result.duration:.2f}s)")
                 if result.stderr:
-                    error_lines = result.stderr.split('\n')[:3]
+                    error_lines = result.stderr.split("\n")[:3]
                     for line in error_lines:
                         if line.strip():
                             print(f"    {line.strip()}")
@@ -316,16 +349,25 @@ class Buck2IncrementalTestRunner:
         elif successful_results:
             print(f"\nSuccessful targets: {len(successful_results)} targets passed")
 
+
 def main():
     """Main entry point for the incremental test runner."""
     parser = argparse.ArgumentParser(description="Buck2 Incremental Test Runner")
     parser.add_argument("--base", default="HEAD~1", help="Base commit for comparison")
     parser.add_argument("--target", default="HEAD", help="Target commit for comparison")
     parser.add_argument("--no-build", action="store_true", help="Skip build targets")
-    parser.add_argument("--fail-fast", action="store_true", help="Stop on first failure")
-    parser.add_argument("--dry-run", action="store_true", help="Show what would be run without executing")
+    parser.add_argument(
+        "--fail-fast", action="store_true", help="Stop on first failure"
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be run without executing",
+    )
     parser.add_argument("--jobs", "-j", type=int, help="Number of parallel jobs")
-    parser.add_argument("--timeout", type=int, default=300, help="Timeout per target in seconds")
+    parser.add_argument(
+        "--timeout", type=int, default=300, help="Timeout per target in seconds"
+    )
     parser.add_argument("--output", type=Path, help="Output file for test results")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose logging")
 
@@ -348,7 +390,7 @@ def main():
             base_commit=args.base,
             target_commit=args.target,
             include_build=not args.no_build,
-            fail_fast=args.fail_fast
+            fail_fast=args.fail_fast,
         )
 
         # Print summary
@@ -367,6 +409,7 @@ def main():
     except Exception as e:
         logger.error(f"Test run failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

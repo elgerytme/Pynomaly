@@ -1,9 +1,9 @@
 """Integration tests for Pynomaly major workflows."""
 
-
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
 from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
@@ -19,9 +19,9 @@ class TestEndToEndWorkflows:
             # 1. Create dataset
             dataset = Dataset(
                 name="Integration Test Dataset",
-                data=sample_data.drop(columns=['target']),
+                data=sample_data.drop(columns=["target"]),
                 description="Dataset for integration testing",
-                features=[f"feature_{i}" for i in range(5)]
+                features=[f"feature_{i}" for i in range(5)],
             )
 
             # 2. Save dataset
@@ -32,7 +32,7 @@ class TestEndToEndWorkflows:
             detector = Detector(
                 algorithm_name="IsolationForest",
                 parameters={"contamination": 0.1, "random_state": 42},
-                metadata={"description": "Integration test detector"}
+                metadata={"description": "Integration test detector"},
             )
 
             # 4. Save detector
@@ -43,7 +43,7 @@ class TestEndToEndWorkflows:
             train_use_case = TrainDetectorUseCase(
                 detector_repository=detector_repo,
                 dataset_repository=dataset_repo,
-                pyod_adapter=container.pyod_adapter()
+                pyod_adapter=container.pyod_adapter(),
             )
 
             trained_detector = train_use_case.execute(detector.id, dataset.id)
@@ -54,7 +54,7 @@ class TestEndToEndWorkflows:
                 detector_repository=detector_repo,
                 dataset_repository=dataset_repo,
                 result_repository=container.detection_result_repository(),
-                pyod_adapter=container.pyod_adapter()
+                pyod_adapter=container.pyod_adapter(),
             )
 
             result = detection_use_case.execute(detector.id, dataset.id)
@@ -83,8 +83,8 @@ class TestEndToEndWorkflows:
             # Create dataset
             dataset = Dataset(
                 name="Multi-Detector Test Dataset",
-                data=sample_data.drop(columns=['target']),
-                features=[f"feature_{i}" for i in range(5)]
+                data=sample_data.drop(columns=["target"]),
+                features=[f"feature_{i}" for i in range(5)],
             )
             container.dataset_repository().save(dataset)
 
@@ -92,16 +92,13 @@ class TestEndToEndWorkflows:
             detectors = [
                 Detector(
                     algorithm_name="IsolationForest",
-                    parameters={"contamination": 0.1, "random_state": 42}
+                    parameters={"contamination": 0.1, "random_state": 42},
                 ),
                 Detector(
                     algorithm_name="LocalOutlierFactor",
-                    parameters={"contamination": 0.1}
+                    parameters={"contamination": 0.1},
                 ),
-                Detector(
-                    algorithm_name="OneClassSVM",
-                    parameters={"gamma": "auto"}
-                )
+                Detector(algorithm_name="OneClassSVM", parameters={"gamma": "auto"}),
             ]
 
             results = []
@@ -115,7 +112,7 @@ class TestEndToEndWorkflows:
                 train_use_case = TrainDetectorUseCase(
                     detector_repository=detector_repo,
                     dataset_repository=container.dataset_repository(),
-                    pyod_adapter=container.pyod_adapter()
+                    pyod_adapter=container.pyod_adapter(),
                 )
 
                 try:
@@ -126,7 +123,7 @@ class TestEndToEndWorkflows:
                         detector_repository=detector_repo,
                         dataset_repository=container.dataset_repository(),
                         result_repository=container.detection_result_repository(),
-                        pyod_adapter=container.pyod_adapter()
+                        pyod_adapter=container.pyod_adapter(),
                     )
 
                     result = detection_use_case.execute(detector.id, dataset.id)
@@ -156,12 +153,10 @@ class TestEndToEndWorkflows:
             for i in range(3):
                 np.random.seed(42 + i)
                 data = np.random.normal(0, 1, (100, 3))
-                df = pd.DataFrame(data, columns=[f'feature_{j}' for j in range(3)])
+                df = pd.DataFrame(data, columns=[f"feature_{j}" for j in range(3)])
 
                 dataset = Dataset(
-                    name=f"Batch Dataset {i+1}",
-                    data=df,
-                    features=df.columns.tolist()
+                    name=f"Batch Dataset {i+1}", data=df, features=df.columns.tolist()
                 )
                 datasets.append(dataset)
                 container.dataset_repository().save(dataset)
@@ -169,7 +164,7 @@ class TestEndToEndWorkflows:
             # Create detector
             detector = Detector(
                 algorithm_name="IsolationForest",
-                parameters={"contamination": 0.1, "random_state": 42}
+                parameters={"contamination": 0.1, "random_state": 42},
             )
             container.detector_repository().save(detector)
 
@@ -180,7 +175,7 @@ class TestEndToEndWorkflows:
                 train_use_case = TrainDetectorUseCase(
                     detector_repository=container.detector_repository(),
                     dataset_repository=container.dataset_repository(),
-                    pyod_adapter=container.pyod_adapter()
+                    pyod_adapter=container.pyod_adapter(),
                 )
 
                 train_use_case.execute(detector.id, dataset.id)
@@ -190,7 +185,7 @@ class TestEndToEndWorkflows:
                     detector_repository=container.detector_repository(),
                     dataset_repository=container.dataset_repository(),
                     result_repository=container.detection_result_repository(),
-                    pyod_adapter=container.pyod_adapter()
+                    pyod_adapter=container.pyod_adapter(),
                 )
 
                 result = detection_use_case.execute(detector.id, dataset.id)
@@ -213,7 +208,7 @@ class TestAPIIntegration:
 
     def test_api_authentication_workflow(self, client, auth_service):
         """Test complete API authentication workflow."""
-        if not hasattr(client, 'post'):
+        if not hasattr(client, "post"):
             pytest.skip("API client not available")
 
         # 1. Register new user (if endpoint exists)
@@ -221,12 +216,14 @@ class TestAPIIntegration:
             "username": "testuser_api",
             "email": "testuser@example.com",
             "password": "securepassword123",
-            "full_name": "Test User API"
+            "full_name": "Test User API",
         }
 
         # Try registration (might not be available)
         try:
-            register_response = client.post("/api/v1/auth/register", json=registration_data)
+            register_response = client.post(
+                "/api/v1/auth/register", json=registration_data
+            )
             if register_response.status_code not in [404, 405]:  # If endpoint exists
                 assert register_response.status_code in [200, 201]
         except:
@@ -235,7 +232,7 @@ class TestAPIIntegration:
         # 2. Login
         login_data = {
             "username": "admin",  # Use default admin user
-            "password": "admin123"
+            "password": "admin123",
         }
 
         login_response = client.post("/api/v1/auth/login", json=login_data)
@@ -256,7 +253,7 @@ class TestAPIIntegration:
         protected_endpoints = [
             "/api/v1/datasets",
             "/api/v1/detectors",
-            "/api/v1/admin/users"
+            "/api/v1/admin/users",
         ]
 
         for endpoint in protected_endpoints:
@@ -264,7 +261,9 @@ class TestAPIIntegration:
                 response = client.get(endpoint, headers=headers)
                 # Should either work (200) or be forbidden due to permissions (403)
                 # Should not be unauthorized (401) with valid token
-                assert response.status_code != 401, f"Valid token rejected at {endpoint}"
+                assert (
+                    response.status_code != 401
+                ), f"Valid token rejected at {endpoint}"
                 break  # If we get a response, authentication is working
             except:
                 continue
@@ -273,7 +272,9 @@ class TestAPIIntegration:
         if "refresh_token" in token_data:
             refresh_data = {"refresh_token": token_data["refresh_token"]}
             try:
-                refresh_response = client.post("/api/v1/auth/refresh", json=refresh_data)
+                refresh_response = client.post(
+                    "/api/v1/auth/refresh", json=refresh_data
+                )
                 if refresh_response.status_code != 404:
                     assert refresh_response.status_code == 200
                     new_token_data = refresh_response.json()
@@ -283,7 +284,7 @@ class TestAPIIntegration:
 
     def test_dataset_management_api_workflow(self, client, admin_token):
         """Test complete dataset management workflow via API."""
-        if not hasattr(client, 'post'):
+        if not hasattr(client, "post"):
             pytest.skip("API client not available")
 
         headers = {"Authorization": f"Bearer {admin_token}"}
@@ -292,11 +293,13 @@ class TestAPIIntegration:
         dataset_data = {
             "name": "API Test Dataset",
             "description": "Dataset created via API test",
-            "features": ["feature_1", "feature_2", "feature_3"]
+            "features": ["feature_1", "feature_2", "feature_3"],
         }
 
         try:
-            create_response = client.post("/api/v1/datasets", json=dataset_data, headers=headers)
+            create_response = client.post(
+                "/api/v1/datasets", json=dataset_data, headers=headers
+            )
 
             if create_response.status_code == 404:
                 pytest.skip("Dataset endpoints not available")
@@ -316,18 +319,29 @@ class TestAPIIntegration:
 
                 # 3. Get specific dataset
                 if dataset_id:
-                    get_response = client.get(f"/api/v1/datasets/{dataset_id}", headers=headers)
-                    assert get_response.status_code in [200, 404]  # Might not be found due to test isolation
+                    get_response = client.get(
+                        f"/api/v1/datasets/{dataset_id}", headers=headers
+                    )
+                    assert get_response.status_code in [
+                        200,
+                        404,
+                    ]  # Might not be found due to test isolation
 
                 # 4. Update dataset
                 update_data = {"description": "Updated description"}
                 if dataset_id:
-                    update_response = client.put(f"/api/v1/datasets/{dataset_id}", json=update_data, headers=headers)
+                    update_response = client.put(
+                        f"/api/v1/datasets/{dataset_id}",
+                        json=update_data,
+                        headers=headers,
+                    )
                     assert update_response.status_code in [200, 404, 405]
 
                 # 5. Delete dataset
                 if dataset_id:
-                    delete_response = client.delete(f"/api/v1/datasets/{dataset_id}", headers=headers)
+                    delete_response = client.delete(
+                        f"/api/v1/datasets/{dataset_id}", headers=headers
+                    )
                     assert delete_response.status_code in [200, 204, 404, 405]
 
         except Exception as e:
@@ -336,7 +350,7 @@ class TestAPIIntegration:
 
     def test_detection_api_workflow(self, client, admin_token, sample_data):
         """Test detection workflow via API."""
-        if not hasattr(client, 'post'):
+        if not hasattr(client, "post"):
             pytest.skip("API client not available")
 
         headers = {"Authorization": f"Bearer {admin_token}"}
@@ -346,10 +360,12 @@ class TestAPIIntegration:
             detector_data = {
                 "algorithm_name": "IsolationForest",
                 "parameters": {"contamination": 0.1, "random_state": 42},
-                "metadata": {"description": "API test detector"}
+                "metadata": {"description": "API test detector"},
             }
 
-            detector_response = client.post("/api/v1/detectors", json=detector_data, headers=headers)
+            detector_response = client.post(
+                "/api/v1/detectors", json=detector_data, headers=headers
+            )
 
             if detector_response.status_code == 404:
                 pytest.skip("Detector endpoints not available")
@@ -358,7 +374,9 @@ class TestAPIIntegration:
 
             # 2. List available algorithms (if endpoint exists)
             try:
-                algo_response = client.get("/api/v1/detectors/algorithms", headers=headers)
+                algo_response = client.get(
+                    "/api/v1/detectors/algorithms", headers=headers
+                )
                 if algo_response.status_code == 200:
                     algorithms = algo_response.json()
                     assert isinstance(algorithms, list)
@@ -369,11 +387,13 @@ class TestAPIIntegration:
             # 3. Run detection (if endpoints are available)
             detection_data = {
                 "detector_id": "test_detector_id",
-                "dataset_id": "test_dataset_id"
+                "dataset_id": "test_dataset_id",
             }
 
             try:
-                detection_response = client.post("/api/v1/detection/run", json=detection_data, headers=headers)
+                detection_response = client.post(
+                    "/api/v1/detection/run", json=detection_data, headers=headers
+                )
                 # Might fail due to missing data, but should not be unauthorized
                 assert detection_response.status_code != 401
             except:
@@ -384,7 +404,7 @@ class TestAPIIntegration:
 
     def test_health_and_monitoring_integration(self, client):
         """Test health and monitoring endpoints integration."""
-        if not hasattr(client, 'get'):
+        if not hasattr(client, "get"):
             pytest.skip("API client not available")
 
         # 1. Basic health check
@@ -444,20 +464,18 @@ class TestDatabaseIntegration:
         result_repo = DatabaseDetectionResultRepository(session_factory)
 
         # Create test data
-        test_data = pd.DataFrame({
-            'feature_1': [1, 2, 3, 4],
-            'feature_2': [0.1, 0.2, 0.3, 0.4]
-        })
+        test_data = pd.DataFrame(
+            {"feature_1": [1, 2, 3, 4], "feature_2": [0.1, 0.2, 0.3, 0.4]}
+        )
 
         dataset = Dataset(
             name="DB Integration Test Dataset",
             data=test_data,
-            features=['feature_1', 'feature_2']
+            features=["feature_1", "feature_2"],
         )
 
         detector = Detector(
-            algorithm_name="IsolationForest",
-            parameters={"contamination": 0.1}
+            algorithm_name="IsolationForest", parameters={"contamination": 0.1}
         )
 
         # Test dataset operations
@@ -479,7 +497,7 @@ class TestDatabaseIntegration:
             detector_id=detector.id,
             dataset_id=dataset.id,
             scores=[AnomalyScore(value=0.1), AnomalyScore(value=0.9)],
-            metadata={"test": True}
+            metadata={"test": True},
         )
 
         result_repo.save(result)
@@ -509,8 +527,8 @@ class TestDatabaseIntegration:
         # Test successful transaction
         dataset = Dataset(
             name="Transaction Test Dataset",
-            data=pd.DataFrame({'feature': [1, 2, 3]}),
-            features=['feature']
+            data=pd.DataFrame({"feature": [1, 2, 3]}),
+            features=["feature"],
         )
 
         dataset_repo.save(dataset)
@@ -521,8 +539,8 @@ class TestDatabaseIntegration:
             # Attempt to save invalid data that should cause rollback
             invalid_dataset = Dataset(
                 name="" * 1000,  # Name too long
-                data=pd.DataFrame({'feature': [1, 2, 3]}),
-                features=['feature']
+                data=pd.DataFrame({"feature": [1, 2, 3]}),
+                features=["feature"],
             )
 
             dataset_repo.save(invalid_dataset)
@@ -540,7 +558,7 @@ class TestSecurityIntegration:
 
     def test_authentication_authorization_integration(self, client, auth_service):
         """Test authentication and authorization integration."""
-        if not hasattr(client, 'get'):
+        if not hasattr(client, "get"):
             pytest.skip("API client not available")
 
         # Test without authentication
@@ -559,7 +577,7 @@ class TestSecurityIntegration:
                 username="limited_user",
                 email="limited@example.com",
                 password="password123",
-                roles=["viewer"]
+                roles=["viewer"],
             )
 
             token_response = auth_service.create_access_token(user)
@@ -574,7 +592,7 @@ class TestSecurityIntegration:
 
     def test_rate_limiting_integration(self, client):
         """Test rate limiting integration with API."""
-        if not hasattr(client, 'get'):
+        if not hasattr(client, "get"):
             pytest.skip("API client not available")
 
         # Make multiple rapid requests
@@ -614,20 +632,18 @@ class TestSecurityIntegration:
             event_type=AuditEventType.LOGIN_SUCCESS,
             user_id="test_user",
             outcome="success",
-            ip_address="127.0.0.1"
+            ip_address="127.0.0.1",
         )
 
         # Test context manager integration
         async def test_audit_context():
             async with audit_context(
-                audit_logger,
-                "test_user",
-                "read",
-                "test_resource"
+                audit_logger, "test_user", "read", "test_resource"
             ) as audit_details:
                 audit_details["records_processed"] = 100
                 # Simulate some work
                 pass
 
         import asyncio
+
         asyncio.run(test_audit_context())

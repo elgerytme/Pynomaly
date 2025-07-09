@@ -8,6 +8,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
+
 from pynomaly.application.services.reporting_service import ReportingService
 from pynomaly.domain.entities.reporting import MetricType, ReportType, TimeGranularity
 from pynomaly.domain.entities.user import User
@@ -188,9 +189,11 @@ async def generate_report(
                             "id": metric.id,
                             "name": metric.name,
                             "current_value": metric.current_value,
-                            "formatted_value": metric.latest_value.format_value()
-                            if metric.latest_value
-                            else "N/A",
+                            "formatted_value": (
+                                metric.latest_value.format_value()
+                                if metric.latest_value
+                                else "N/A"
+                            ),
                             "type": metric.metric_type.value,
                         }
                         for metric in section.metrics
@@ -362,9 +365,11 @@ async def update_dashboard(
         )
     except (ReportNotFoundError, AuthorizationError) as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND
-            if isinstance(e, ReportNotFoundError)
-            else status.HTTP_403_FORBIDDEN,
+            status_code=(
+                status.HTTP_404_NOT_FOUND
+                if isinstance(e, ReportNotFoundError)
+                else status.HTTP_403_FORBIDDEN
+            ),
             detail=str(e),
         )
 

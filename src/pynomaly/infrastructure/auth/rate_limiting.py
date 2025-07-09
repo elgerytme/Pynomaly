@@ -94,11 +94,11 @@ class RateLimiter:
                 "refill_rate": self.refill_rate,
                 "requests_in_window": requests_in_window,
                 "window_seconds": self.window_seconds,
-                "retry_after": max(
-                    0, int((tokens_requested - tokens) / self.refill_rate)
-                )
-                if not allowed
-                else 0,
+                "retry_after": (
+                    max(0, int((tokens_requested - tokens) / self.refill_rate))
+                    if not allowed
+                    else 0
+                ),
             }
 
             return allowed, rate_limit_info

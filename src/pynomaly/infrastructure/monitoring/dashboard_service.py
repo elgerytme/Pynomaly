@@ -21,13 +21,15 @@ class DashboardMetrics:
         self.metrics_data: dict[str, Any] = {}
         self.timestamp = datetime.utcnow()
 
-    def add_metric(self, name: str, value: Any, unit: str = "", tags: dict[str, str] | None = None) -> None:
+    def add_metric(
+        self, name: str, value: Any, unit: str = "", tags: dict[str, str] | None = None
+    ) -> None:
         """Add a metric to the dashboard metrics."""
         self.metrics_data[name] = {
             "value": value,
             "unit": unit,
             "tags": tags or {},
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def get_metric(self, name: str) -> dict[str, Any] | None:
@@ -379,21 +381,27 @@ class DashboardService:
 
         return widget_data
 
-    async def _get_gauge_data(self, widget: DashboardWidget, time_delta: timedelta) -> dict[str, Any]:
+    async def _get_gauge_data(
+        self, widget: DashboardWidget, time_delta: timedelta
+    ) -> dict[str, Any]:
         """Get gauge widget data."""
 
         if not widget.metrics:
             return {"value": 0, "status": "no_data"}
 
         metric_name = widget.metrics[0]
-        value = await self.metrics_service.get_metric_value(metric_name, "avg", time_delta)
+        value = await self.metrics_service.get_metric_value(
+            metric_name, "avg", time_delta
+        )
 
         if value is None:
             return {"value": 0, "status": "no_data"}
 
         # Determine status based on thresholds
         status = "normal"
-        for threshold in sorted(widget.thresholds, key=lambda t: t.get("value", 0), reverse=True):
+        for threshold in sorted(
+            widget.thresholds, key=lambda t: t.get("value", 0), reverse=True
+        ):
             if isinstance(value, (int, float)) and value >= threshold.get("value", 0):
                 status = threshold.get("color", "normal")
                 break
@@ -401,7 +409,11 @@ class DashboardService:
         return {
             "value": value,
             "status": status,
-            "unit": getattr(self.metrics_service.metrics.get(metric_name), 'unit', '') if metric_name in self.metrics_service.metrics else "",
+            "unit": (
+                getattr(self.metrics_service.metrics.get(metric_name), "unit", "")
+                if metric_name in self.metrics_service.metrics
+                else ""
+            ),
         }
 
     def _parse_time_range(self, time_range: str) -> timedelta:

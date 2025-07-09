@@ -4,7 +4,6 @@ These tests verify that the main application routes work correctly
 without relying on the complex dependency injection system.
 """
 
-
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 

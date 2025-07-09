@@ -10,6 +10,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 import yaml
+
 from pynomaly.domain.exceptions import ConfigurationError
 from pynomaly.infrastructure.config import Settings
 from pynomaly.infrastructure.config.container import Container

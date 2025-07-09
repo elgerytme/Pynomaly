@@ -6,7 +6,7 @@ import hmac
 import logging
 import secrets
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import jwt
@@ -50,8 +50,8 @@ class RBACService:
         username: str,
         email: str,
         password: str,
-        roles: Optional[set[UserRole]] = None,
-        created_by: Optional[UUID] = None,
+        roles: set[UserRole] | None = None,
+        created_by: UUID | None = None,
     ) -> User:
         """Create a new user with secure password hashing."""
 
@@ -103,9 +103,9 @@ class RBACService:
         self,
         username: str,
         password: str,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-    ) -> Optional[str]:
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+    ) -> str | None:
         """Authenticate user and return JWT token if successful."""
 
         user_id = self.users_by_username.get(username)
@@ -136,7 +136,10 @@ class RBACService:
             user.failed_login_attempts += 1
 
             # Lock account if too many failed attempts
-            if user.failed_login_attempts >= self.security_policy.max_failed_login_attempts:
+            if (
+                user.failed_login_attempts
+                >= self.security_policy.max_failed_login_attempts
+            ):
                 user.is_locked = True
                 await self._log_audit_event(
                     user_id=user.user_id,
@@ -147,10 +150,14 @@ class RBACService:
                     success=False,
                     ip_address=ip_address,
                     user_agent=user_agent,
-                    additional_data={"reason": "Account locked due to multiple failed attempts"},
+                    additional_data={
+                        "reason": "Account locked due to multiple failed attempts"
+                    },
                     security_level="CRITICAL",
                 )
-                self.logger.warning(f"Account locked for user {username} due to failed login attempts")
+                self.logger.warning(
+                    f"Account locked for user {username} due to failed login attempts"
+                )
 
             await self._handle_failed_login(username, ip_address, "Invalid password")
             return None
@@ -172,7 +179,10 @@ class RBACService:
             "session_id": session_id,
             "roles": [role.value for role in user.roles],
             "iat": datetime.utcnow().timestamp(),
-            "exp": (datetime.utcnow() + timedelta(seconds=self.security_policy.session_timeout)).timestamp(),
+            "exp": (
+                datetime.utcnow()
+                + timedelta(seconds=self.security_policy.session_timeout)
+            ).timestamp(),
         }
 
         token = jwt.encode(token_payload, self.jwt_secret, algorithm="HS256")
@@ -195,7 +205,7 @@ class RBACService:
         self.logger.info(f"User authenticated successfully: {username}")
         return token
 
-    async def validate_token(self, token: str) -> Optional[User]:
+    async def validate_token(self, token: str) -> User | None:
         """Validate JWT token and return user if valid."""
 
         try:
@@ -263,8 +273,8 @@ class RBACService:
         self,
         user_id: UUID,
         permission: PermissionType,
-        resource_type: Optional[str] = None,
-        resource_id: Optional[str] = None,
+        resource_type: str | None = None,
+        resource_id: str | None = None,
     ) -> bool:
         """Check if user has specific permission."""
 
@@ -285,7 +295,11 @@ class RBACService:
             await self._log_audit_event(
                 user_id=user.user_id,
                 username=user.username,
-                action=ActionType.SENSITIVE_DATA_ACCESSED if has_permission else ActionType.LOGIN_FAILED,
+                action=(
+                    ActionType.SENSITIVE_DATA_ACCESSED
+                    if has_permission
+                    else ActionType.LOGIN_FAILED
+                ),
                 resource_type=resource_type or "permission",
                 resource_id=resource_id,
                 success=has_permission,
@@ -376,7 +390,7 @@ class RBACService:
         user_id: UUID,
         permission: PermissionType,
         granted_by: UUID,
-        expiry: Optional[datetime] = None,
+        expiry: datetime | None = None,
     ) -> bool:
         """Grant custom permission to user."""
 
@@ -404,7 +418,9 @@ class RBACService:
             security_level="WARNING",
         )
 
-        self.logger.info(f"Granted permission {permission.value} to user {user.username}")
+        self.logger.info(
+            f"Granted permission {permission.value} to user {user.username}"
+        )
         return True
 
     async def revoke_custom_permission(
@@ -438,7 +454,9 @@ class RBACService:
             security_level="WARNING",
         )
 
-        self.logger.info(f"Revoked permission {permission.value} from user {user.username}")
+        self.logger.info(
+            f"Revoked permission {permission.value} from user {user.username}"
+        )
         return True
 
     async def create_access_request(
@@ -446,9 +464,9 @@ class RBACService:
         requester_id: UUID,
         permission: PermissionType,
         resource_type: str,
-        resource_id: Optional[str],
+        resource_id: str | None,
         justification: str,
-        requested_duration: Optional[timedelta] = None,
+        requested_duration: timedelta | None = None,
     ) -> AccessRequest:
         """Create access request for elevated permissions."""
 
@@ -465,7 +483,9 @@ class RBACService:
             resource_id=resource_id,
             justification=justification,
             requested_start_time=datetime.utcnow(),
-            requested_end_time=datetime.utcnow() + requested_duration if requested_duration else None,
+            requested_end_time=(
+                datetime.utcnow() + requested_duration if requested_duration else None
+            ),
         )
 
         self.access_requests[request.request_id] = request
@@ -485,15 +505,17 @@ class RBACService:
             },
         )
 
-        self.logger.info(f"Access request created by {requester.username} for {permission.value}")
+        self.logger.info(
+            f"Access request created by {requester.username} for {permission.value}"
+        )
         return request
 
     async def approve_access_request(
         self,
         request_id: UUID,
         approver_id: UUID,
-        approval_comments: Optional[str] = None,
-        custom_duration: Optional[timedelta] = None,
+        approval_comments: str | None = None,
+        custom_duration: timedelta | None = None,
     ) -> bool:
         """Approve access request."""
 
@@ -546,22 +568,32 @@ class RBACService:
             security_level="WARNING",
         )
 
-        self.logger.info(f"Access request approved by {approver.username} for {request.requester_username}")
+        self.logger.info(
+            f"Access request approved by {approver.username} for {request.requester_username}"
+        )
         return True
 
     def _validate_password(self, password: str) -> None:
         """Validate password against security policy."""
 
         if len(password) < self.security_policy.password_min_length:
-            raise ValueError(f"Password must be at least {self.security_policy.password_min_length} characters")
+            raise ValueError(
+                f"Password must be at least {self.security_policy.password_min_length} characters"
+            )
 
-        if self.security_policy.password_require_uppercase and not any(c.isupper() for c in password):
+        if self.security_policy.password_require_uppercase and not any(
+            c.isupper() for c in password
+        ):
             raise ValueError("Password must contain at least one uppercase letter")
 
-        if self.security_policy.password_require_lowercase and not any(c.islower() for c in password):
+        if self.security_policy.password_require_lowercase and not any(
+            c.islower() for c in password
+        ):
             raise ValueError("Password must contain at least one lowercase letter")
 
-        if self.security_policy.password_require_numbers and not any(c.isdigit() for c in password):
+        if self.security_policy.password_require_numbers and not any(
+            c.isdigit() for c in password
+        ):
             raise ValueError("Password must contain at least one number")
 
         if self.security_policy.password_require_special_chars:
@@ -601,7 +633,7 @@ class RBACService:
     async def _handle_failed_login(
         self,
         username: str,
-        ip_address: Optional[str],
+        ip_address: str | None,
         reason: str,
     ) -> None:
         """Handle failed login attempt."""
@@ -616,7 +648,8 @@ class RBACService:
             # Clean old attempts (older than 1 hour)
             cutoff = datetime.utcnow() - timedelta(hours=1)
             self.failed_login_attempts[ip_address] = [
-                timestamp for timestamp in self.failed_login_attempts[ip_address]
+                timestamp
+                for timestamp in self.failed_login_attempts[ip_address]
                 if timestamp > cutoff
             ]
 
@@ -632,21 +665,23 @@ class RBACService:
             security_level="WARNING",
         )
 
-        self.logger.warning(f"Failed login attempt for {username} from {ip_address}: {reason}")
+        self.logger.warning(
+            f"Failed login attempt for {username} from {ip_address}: {reason}"
+        )
 
     async def _log_audit_event(
         self,
         action: ActionType,
         resource_type: str,
         success: bool,
-        user_id: Optional[UUID] = None,
-        username: Optional[str] = None,
-        resource_id: Optional[str] = None,
-        resource_name: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        user_agent: Optional[str] = None,
-        session_id: Optional[str] = None,
-        additional_data: Optional[dict[str, Any]] = None,
+        user_id: UUID | None = None,
+        username: str | None = None,
+        resource_id: str | None = None,
+        resource_name: str | None = None,
+        ip_address: str | None = None,
+        user_agent: str | None = None,
+        session_id: str | None = None,
+        additional_data: dict[str, Any] | None = None,
         security_level: str = "INFO",
     ) -> None:
         """Log audit event."""
@@ -669,13 +704,16 @@ class RBACService:
         )
 
         # In production, this would be sent to a centralized audit log system
-        self.logger.info(f"Audit: {action.value} - {resource_type} - Success: {success}")
+        self.logger.info(
+            f"Audit: {action.value} - {resource_type} - Success: {success}"
+        )
 
     def get_user_sessions(self, user_id: UUID) -> list[str]:
         """Get active sessions for user."""
 
         return [
-            session_id for session_id, uid in self.active_sessions.items()
+            session_id
+            for session_id, uid in self.active_sessions.items()
             if uid == user_id
         ]
 
@@ -692,26 +730,44 @@ class RBACService:
         cutoff = datetime.utcnow() - timedelta(hours=1)
 
         for attempts in self.failed_login_attempts.values():
-            recent_failed_attempts += sum(1 for timestamp in attempts if timestamp > cutoff)
+            recent_failed_attempts += sum(
+                1 for timestamp in attempts if timestamp > cutoff
+            )
 
         return {
             "users": {
                 "total": total_users,
                 "active": active_users,
                 "locked": locked_users,
-                "locked_percentage": (locked_users / total_users * 100) if total_users > 0 else 0,
+                "locked_percentage": (
+                    (locked_users / total_users * 100) if total_users > 0 else 0
+                ),
             },
             "sessions": {
                 "active": active_sessions,
-                "average_per_user": active_sessions / active_users if active_users > 0 else 0,
+                "average_per_user": (
+                    active_sessions / active_users if active_users > 0 else 0
+                ),
             },
             "security": {
                 "failed_login_attempts_last_hour": recent_failed_attempts,
                 "suspicious_activities": len(self.suspicious_activities),
             },
             "access_requests": {
-                "pending": sum(1 for req in self.access_requests.values() if req.approval_status == "pending"),
-                "approved": sum(1 for req in self.access_requests.values() if req.approval_status == "approved"),
-                "rejected": sum(1 for req in self.access_requests.values() if req.approval_status == "rejected"),
+                "pending": sum(
+                    1
+                    for req in self.access_requests.values()
+                    if req.approval_status == "pending"
+                ),
+                "approved": sum(
+                    1
+                    for req in self.access_requests.values()
+                    if req.approval_status == "approved"
+                ),
+                "rejected": sum(
+                    1
+                    for req in self.access_requests.values()
+                    if req.approval_status == "rejected"
+                ),
             },
         }

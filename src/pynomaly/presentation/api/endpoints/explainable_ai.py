@@ -1,7 +1,7 @@
 """REST API endpoints for explainable AI (XAI) service."""
 
 from datetime import timedelta
-from typing import Any, Optional, Union
+from typing import Any
 from uuid import uuid4
 
 import numpy as np
@@ -37,12 +37,12 @@ class ExplainPredictionRequest(BaseModel):
 
     model_id: str = Field(..., description="Model identifier")
     instance_data: list[float] = Field(..., description="Input instance data")
-    feature_names: Optional[list[str]] = Field(None, description="Feature names")
-    explanation_method: Optional[str] = Field(
+    feature_names: list[str] | None = Field(None, description="Feature names")
+    explanation_method: str | None = Field(
         None, description="Explanation method to use"
     )
     num_features: int = Field(10, description="Number of top features to explain")
-    target_audience: Optional[str] = Field(
+    target_audience: str | None = Field(
         None, description="Target audience for explanation"
     )
     enable_counterfactuals: bool = Field(
@@ -68,8 +68,8 @@ class ExplainModelGlobalRequest(BaseModel):
     """Request model for global model explanation."""
 
     model_id: str = Field(..., description="Model identifier")
-    feature_names: Optional[list[str]] = Field(None, description="Feature names")
-    explanation_method: Optional[str] = Field(
+    feature_names: list[str] | None = Field(None, description="Feature names")
+    explanation_method: str | None = Field(
         None, description="Explanation method to use"
     )
     num_features: int = Field(10, description="Number of top features to explain")
@@ -91,7 +91,7 @@ class FeatureImportanceRequest(BaseModel):
     """Request model for feature importance analysis."""
 
     model_id: str = Field(..., description="Model identifier")
-    feature_names: Optional[list[str]] = Field(None, description="Feature names")
+    feature_names: list[str] | None = Field(None, description="Feature names")
     explanation_method: str = Field(
         "permutation_importance", description="Method for importance calculation"
     )
@@ -143,9 +143,9 @@ class CounterfactualRequest(BaseModel):
 
     model_id: str = Field(..., description="Model identifier")
     instance_data: list[float] = Field(..., description="Input instance data")
-    feature_names: Optional[list[str]] = Field(None, description="Feature names")
+    feature_names: list[str] | None = Field(None, description="Feature names")
     num_counterfactuals: int = Field(5, description="Number of counterfactuals")
-    max_distance: Optional[float] = Field(
+    max_distance: float | None = Field(
         None, description="Maximum distance for counterfactuals"
     )
 
@@ -187,9 +187,7 @@ class InstanceExplanationResponse(BaseModel):
     """Response model for instance explanation."""
 
     instance_id: str = Field(..., description="Instance identifier")
-    prediction_value: Union[float, int, str] = Field(
-        ..., description="Model prediction"
-    )
+    prediction_value: float | int | str = Field(..., description="Model prediction")
     prediction_confidence: float = Field(..., description="Prediction confidence")
     base_value: float = Field(..., description="Base value for additive explanations")
     feature_importances: list[FeatureImportanceResponse] = Field(
@@ -256,10 +254,10 @@ class CounterfactualResponse(BaseModel):
     """Response model for counterfactual explanations."""
 
     counterfactual_id: str = Field(..., description="Counterfactual identifier")
-    original_prediction: Union[float, int, str] = Field(
+    original_prediction: float | int | str = Field(
         ..., description="Original prediction"
     )
-    counterfactual_prediction: Union[float, int, str] = Field(
+    counterfactual_prediction: float | int | str = Field(
         ..., description="Counterfactual prediction"
     )
     feature_changes: dict[str, dict[str, float]] = Field(
@@ -292,9 +290,7 @@ class ExplainPredictionResponse(BaseModel):
     instance_explanation: InstanceExplanationResponse = Field(
         ..., description="Instance explanation details"
     )
-    trust_score: Optional[TrustScoreResponse] = Field(
-        None, description="Trust assessment"
-    )
+    trust_score: TrustScoreResponse | None = Field(None, description="Trust assessment")
     counterfactuals: list[CounterfactualResponse] = Field(
         default_factory=list, description="Counterfactual explanations"
     )

@@ -33,8 +33,9 @@ def autonomous_detect_with_all_classifiers(
     data_source: str = typer.Argument(
         ..., help="Path to data file or connection string"
     ),
-    output: Path
-    | None = typer.Option(None, "--output", "-o", help="Export results to file"),
+    output: Path | None = typer.Option(
+        None, "--output", "-o", help="Export results to file"
+    ),
     max_time: int = typer.Option(
         1800, "--max-time", help="Maximum time for detection (seconds)"
     ),
@@ -92,8 +93,9 @@ def autonomous_detect_by_family(
         "--family",
         help="Algorithm families to use",
     ),
-    output: Path
-    | None = typer.Option(None, "--output", "-o", help="Export results to file"),
+    output: Path | None = typer.Option(
+        None, "--output", "-o", help="Export results to file"
+    ),
     ensemble_within_family: bool = typer.Option(
         True,
         "--family-ensemble/--no-family-ensemble",
@@ -191,8 +193,9 @@ def analyze_detection_results(
         "--type",
         help="Analysis type: comprehensive, statistical, visual",
     ),
-    output: Path
-    | None = typer.Option(None, "--output", "-o", help="Save analysis report"),
+    output: Path | None = typer.Option(
+        None, "--output", "-o", help="Save analysis report"
+    ),
     interactive: bool = typer.Option(
         False, "--interactive/--batch", help="Interactive analysis mode"
     ),
@@ -519,9 +522,7 @@ def _display_algorithm_explanations(
         (
             "Large"
             if profile.n_samples > 10000
-            else "Medium"
-            if profile.n_samples > 1000
-            else "Small"
+            else "Medium" if profile.n_samples > 1000 else "Small"
         ),
     )
     data_summary.add_row(
@@ -557,9 +558,7 @@ def _display_algorithm_explanations(
             border_style=(
                 "green"
                 if rec.confidence > 0.8
-                else "yellow"
-                if rec.confidence > 0.6
-                else "red"
+                else "yellow" if rec.confidence > 0.6 else "red"
             ),
         )
         console.print(reasoning_panel)

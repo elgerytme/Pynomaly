@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import numpy as np
 import pytest
+
 from pynomaly.domain.models.detector import Detector
 from pynomaly.domain.models.federated import (
     AggregationMethod,
@@ -124,7 +125,9 @@ class TestFederatedLearningIntegration:
             )
 
         # Step 2: Start federated training
-        training_round = await coordinator.start_training_round(federation.federation_id)
+        training_round = await coordinator.start_training_round(
+            federation.federation_id
+        )
         assert training_round is not None
         assert training_round.round_number == 1
 
@@ -293,8 +296,10 @@ class TestFederatedLearningIntegration:
 
         for method in robust_methods:
             try:
-                aggregated_params, metrics = await aggregation_service.aggregate_advanced(
-                    method, updates, participants
+                aggregated_params, metrics = (
+                    await aggregation_service.aggregate_advanced(
+                        method, updates, participants
+                    )
                 )
 
                 assert "weights" in aggregated_params
@@ -310,7 +315,10 @@ class TestFederatedLearningIntegration:
 
             except Exception as e:
                 # Some methods might not be fully implemented
-                assert "not implemented" in str(e).lower() or "unsupported" in str(e).lower()
+                assert (
+                    "not implemented" in str(e).lower()
+                    or "unsupported" in str(e).lower()
+                )
 
     async def test_privacy_preserving_aggregation(
         self, coordinator_with_federation, participant_clients
@@ -339,7 +347,9 @@ class TestFederatedLearningIntegration:
             )
 
         # Start training round
-        training_round = await coordinator.start_training_round(federation.federation_id)
+        training_round = await coordinator.start_training_round(
+            federation.federation_id
+        )
 
         # Simulate local training with privacy
         for client in participant_clients[:3]:
@@ -392,7 +402,9 @@ class TestFederatedLearningIntegration:
 
         for round_num in range(num_rounds):
             # Start training round
-            training_round = await coordinator.start_training_round(federation.federation_id)
+            training_round = await coordinator.start_training_round(
+                federation.federation_id
+            )
 
             # Some participants contribute, others don't
             contributing_participants = participants_data[:2]  # First 2 contribute
@@ -465,7 +477,9 @@ class TestFederatedLearningIntegration:
 
         for i, loss in enumerate(losses):
             # Start training round
-            training_round = await coordinator.start_training_round(federation.federation_id)
+            training_round = await coordinator.start_training_round(
+                federation.federation_id
+            )
 
             # Send updates from all participants
             for client in participant_clients[:3]:
@@ -515,7 +529,9 @@ class TestFederatedLearningIntegration:
 
         print("\nParticipant Performance Benchmark:")
         print(f"  Average training time: {benchmark_results['avg_training_time']:.3f}s")
-        print(f"  Throughput: {benchmark_results['throughput_samples_per_second']:.1f} samples/sec")
+        print(
+            f"  Throughput: {benchmark_results['throughput_samples_per_second']:.1f} samples/sec"
+        )
         print(f"  Data size: {benchmark_results['data_size']} samples")
 
     async def test_large_scale_federation(self, security_service, base_detector):
@@ -561,7 +577,9 @@ class TestFederatedLearningIntegration:
         assert federation.can_start_training
 
         # Start training round
-        training_round = await coordinator.start_training_round(federation.federation_id)
+        training_round = await coordinator.start_training_round(
+            federation.federation_id
+        )
         assert training_round is not None
         assert len(training_round.target_participants) == num_participants
 
@@ -592,7 +610,9 @@ class TestFederatedLearningIntegration:
             )
 
         # Start training round
-        training_round = await coordinator.start_training_round(federation.federation_id)
+        training_round = await coordinator.start_training_round(
+            federation.federation_id
+        )
 
         # Simulate partial participation (some participants fail)
         working_participants = participant_clients[:3]  # Only 3 out of 5 participate

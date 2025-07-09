@@ -11,7 +11,8 @@ import numpy as np
 import pytest
 
 # Add src to path for testing
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
+
 
 class TestPhase8Integration:
     """Test suite for Phase 8 Global Scale & Performance"""
@@ -137,7 +138,7 @@ class TestPhase8Integration:
             config = {
                 "load_balancer": {"strategy": LoadBalancingStrategy.INTELLIGENT.value},
                 "replication": {"strategy": "active_active"},
-                "failover": {"enabled": True, "automatic_failover": True}
+                "failover": {"enabled": True, "automatic_failover": True},
             }
 
             orchestrator = MultiRegionDeploymentOrchestrator(config)
@@ -150,7 +151,7 @@ class TestPhase8Integration:
                 availability_zones=["us-east-1a", "us-east-1b"],
                 vpc_id="vpc-123",
                 subnet_ids=["subnet-123", "subnet-456"],
-                security_group_ids=["sg-123"]
+                security_group_ids=["sg-123"],
             )
 
             print("✅ Multi-region deployment orchestrator created successfully")
@@ -176,7 +177,7 @@ class TestPhase8Integration:
             config = {
                 "cluster": {"backend": "spark", "max_workers": 10},
                 "streaming": {"buffer_size": 1000},
-                "partitioning": {"strategy": "adaptive"}
+                "partitioning": {"strategy": "adaptive"},
             }
 
             processor = MassiveDatasetProcessor(config)
@@ -186,9 +187,7 @@ class TestPhase8Integration:
 
             # Create processing config
             processing_config = ProcessingConfig(
-                processing_mode=ProcessingMode.BATCH,
-                max_workers=5,
-                batch_size_mb=64
+                processing_mode=ProcessingMode.BATCH, max_workers=5, batch_size_mb=64
             )
 
             print("✅ Massive dataset processor created successfully")
@@ -216,8 +215,8 @@ class TestPhase8Integration:
                 "optimization": {
                     "optimization_level": OptimizationLevel.AGGRESSIVE.value,
                     "enable_memory_pooling": True,
-                    "enable_custom_kernels": True
-                }
+                    "enable_custom_kernels": True,
+                },
             }
 
             orchestrator = UltraHighPerformanceOrchestrator(config)
@@ -243,7 +242,7 @@ class TestPhase8Integration:
             config = {
                 "cache": {"strategy": CacheStrategy.INTELLIGENT.value},
                 "warmer": {"enable_warming": True},
-                "optimizer": {"enable_optimization": True}
+                "optimizer": {"enable_optimization": True},
             }
 
             orchestrator = AdvancedCacheOrchestrator(config)
@@ -271,14 +270,16 @@ class TestPhase8Integration:
                 "stream": {
                     "max_buffer_size": 1000,
                     "batch_size": 50,
-                    "processor": {"target_latency_us": 500}
+                    "processor": {"target_latency_us": 500},
                 },
-                "network": {"mode": "standard"}
+                "network": {"mode": "standard"},
             }
 
             orchestrator = RealTimeProcessingOrchestrator(config)
 
-            print("✅ Real-time processing enhancement orchestrator created successfully")
+            print(
+                "✅ Real-time processing enhancement orchestrator created successfully"
+            )
             return True
 
         except Exception as e:
@@ -299,10 +300,10 @@ class TestPhase8Integration:
                 "allocator": {
                     "scaling_policy": "intelligent",
                     "cost_sensitivity": 0.7,
-                    "performance_sensitivity": 0.8
+                    "performance_sensitivity": 0.8,
                 },
                 "carbon_monitoring": {"enable_monitoring": True},
-                "cost_tracking": {"enable_tracking": True}
+                "cost_tracking": {"enable_tracking": True},
             }
 
             orchestrator = ResourceOptimizationOrchestrator(config)
@@ -322,7 +323,7 @@ class TestPhase8Integration:
             "ultra_high_performance": self.test_ultra_high_performance_availability(),
             "advanced_caching_v2": self.test_advanced_caching_v2_availability(),
             "real_time_processing_enhancement": self.test_real_time_processing_enhancement_availability(),
-            "resource_optimization": self.test_resource_optimization_availability()
+            "resource_optimization": self.test_resource_optimization_availability(),
         }
 
         available_count = sum(results.values())
@@ -337,6 +338,7 @@ class TestPhase8Integration:
             print(f"{status} {component}")
 
         return results
+
 
 def run_phase8_tests():
     """Run all Phase 8 tests"""
@@ -356,22 +358,34 @@ def run_phase8_tests():
     functionality_results = {}
 
     if results["multi_region_deployment"]:
-        functionality_results["multi_region_deployment"] = test_instance.test_multi_region_deployment_basic_functionality()
+        functionality_results["multi_region_deployment"] = (
+            test_instance.test_multi_region_deployment_basic_functionality()
+        )
 
     if results["massive_dataset_processing"]:
-        functionality_results["massive_dataset_processing"] = test_instance.test_massive_dataset_processing_basic_functionality()
+        functionality_results["massive_dataset_processing"] = (
+            test_instance.test_massive_dataset_processing_basic_functionality()
+        )
 
     if results["ultra_high_performance"]:
-        functionality_results["ultra_high_performance"] = test_instance.test_ultra_high_performance_basic_functionality()
+        functionality_results["ultra_high_performance"] = (
+            test_instance.test_ultra_high_performance_basic_functionality()
+        )
 
     if results["advanced_caching_v2"]:
-        functionality_results["advanced_caching_v2"] = test_instance.test_advanced_caching_v2_basic_functionality()
+        functionality_results["advanced_caching_v2"] = (
+            test_instance.test_advanced_caching_v2_basic_functionality()
+        )
 
     if results["real_time_processing_enhancement"]:
-        functionality_results["real_time_processing_enhancement"] = test_instance.test_real_time_processing_enhancement_basic_functionality()
+        functionality_results["real_time_processing_enhancement"] = (
+            test_instance.test_real_time_processing_enhancement_basic_functionality()
+        )
 
     if results["resource_optimization"]:
-        functionality_results["resource_optimization"] = test_instance.test_resource_optimization_basic_functionality()
+        functionality_results["resource_optimization"] = (
+            test_instance.test_resource_optimization_basic_functionality()
+        )
 
     # Identify missing components
     missing_components = [k for k, v in results.items() if not v]
@@ -388,9 +402,15 @@ def run_phase8_tests():
     print("\\n📋 Phase 8 Test Summary:")
     print(f"   - Tests completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"   - Available components: {sum(results.values())}/{len(results)}")
-    print(f"   - Working functionality: {working_functionality}/{total_functionality_tests}")
-    print(f"   - Overall completion: {(sum(results.values()) / len(results)) * 100:.1f}%")
-    print(f"   - Ready for production: {'Yes' if sum(results.values()) >= 5 else 'Partial'}")
+    print(
+        f"   - Working functionality: {working_functionality}/{total_functionality_tests}"
+    )
+    print(
+        f"   - Overall completion: {(sum(results.values()) / len(results)) * 100:.1f}%"
+    )
+    print(
+        f"   - Ready for production: {'Yes' if sum(results.values()) >= 5 else 'Partial'}"
+    )
 
     # Performance characteristics summary
     print("\\n🚀 Phase 8 Performance Characteristics:")
@@ -402,6 +422,7 @@ def run_phase8_tests():
     print("   - Resource optimization: Dynamic allocation, cost optimization")
 
     return results
+
 
 if __name__ == "__main__":
     run_phase8_tests()

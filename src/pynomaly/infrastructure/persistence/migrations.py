@@ -137,10 +137,22 @@ class DatabaseMigrator:
             with self.engine.connect() as conn:
                 for role, permissions in roles_permissions:
                     # Insert role and permissions
-                    conn.execute(text(f"INSERT INTO roles (name) VALUES ('{role}') ON CONFLICT DO NOTHING"))
+                    conn.execute(
+                        text(
+                            f"INSERT INTO roles (name) VALUES ('{role}') ON CONFLICT DO NOTHING"
+                        )
+                    )
                     for perm in permissions:
-                        conn.execute(text(f"INSERT INTO permissions (name) VALUES ('{perm}') ON CONFLICT DO NOTHING"))
-                        conn.execute(text(f"INSERT INTO role_permissions (role, permission) VALUES ('{role}', '{perm}') ON CONFLICT DO NOTHING"))
+                        conn.execute(
+                            text(
+                                f"INSERT INTO permissions (name) VALUES ('{perm}') ON CONFLICT DO NOTHING"
+                            )
+                        )
+                        conn.execute(
+                            text(
+                                f"INSERT INTO role_permissions (role, permission) VALUES ('{role}', '{perm}') ON CONFLICT DO NOTHING"
+                            )
+                        )
             logger.info("Successfully seeded roles and permissions")
             return True
         except SQLAlchemyError as e:

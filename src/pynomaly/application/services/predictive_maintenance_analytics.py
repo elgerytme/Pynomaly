@@ -603,25 +603,25 @@ class CapacityPlanner:
                 recommendations["recommended_action"] = "immediate_scaling"
                 recommendations["scaling_factor"] = 1.5  # 50% increase
                 recommendations["target_date"] = datetime.now() + timedelta(hours=24)
-                recommendations[
-                    "justification"
-                ] = f"Critical: Peak utilization of {peak_utilization:.1%} predicted"
+                recommendations["justification"] = (
+                    f"Critical: Peak utilization of {peak_utilization:.1%} predicted"
+                )
 
             elif peak_utilization > 0.85:
                 recommendations["recommended_action"] = "planned_scaling"
                 recommendations["scaling_factor"] = 1.3  # 30% increase
                 recommendations["target_date"] = datetime.now() + timedelta(days=7)
-                recommendations[
-                    "justification"
-                ] = f"High utilization of {peak_utilization:.1%} predicted"
+                recommendations["justification"] = (
+                    f"High utilization of {peak_utilization:.1%} predicted"
+                )
 
             else:
                 recommendations["recommended_action"] = "prepare_scaling"
                 recommendations["scaling_factor"] = 1.2  # 20% increase
                 recommendations["target_date"] = datetime.now() + timedelta(days=14)
-                recommendations[
-                    "justification"
-                ] = f"Moderate utilization of {peak_utilization:.1%} predicted"
+                recommendations["justification"] = (
+                    f"Moderate utilization of {peak_utilization:.1%} predicted"
+                )
 
         # Add exhaustion date if applicable
         if exhaustion_date:
@@ -1147,11 +1147,11 @@ class PredictiveMaintenanceAnalytics:
             },
             "monitoring_status": {
                 "monitoring_active": self._running,
-                "last_health_check": max(
-                    [c.last_updated for c in self.components.values()]
-                )
-                if self.components
-                else None,
+                "last_health_check": (
+                    max([c.last_updated for c in self.components.values()])
+                    if self.components
+                    else None
+                ),
                 "components_monitored": len(self.components),
             },
         }

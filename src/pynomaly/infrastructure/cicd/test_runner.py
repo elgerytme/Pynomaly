@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pynomaly.domain.models.cicd import PipelineStatus, TestResult, TestSuite, TestType
@@ -78,7 +78,7 @@ class TestRunner:
         self,
         test_suite: TestSuite,
         workspace_path: Path,
-        environment: Optional[dict[str, str]] = None,
+        environment: dict[str, str] | None = None,
     ) -> bool:
         """Execute a test suite and update results."""
 
@@ -128,7 +128,7 @@ class TestRunner:
         self,
         test_type: TestType,
         workspace_path: Path,
-        test_patterns: Optional[list[str]] = None,
+        test_patterns: list[str] | None = None,
     ) -> list[str]:
         """Discover test files based on type and patterns."""
 
@@ -172,7 +172,7 @@ class TestRunner:
         self,
         test_type: TestType,
         workspace_path: Path,
-        environment: Optional[dict[str, str]] = None,
+        environment: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """Validate test environment requirements."""
 
@@ -227,7 +227,7 @@ class TestRunner:
         self,
         test_suite: TestSuite,
         workspace_path: Path,
-        environment: Optional[dict[str, str]],
+        environment: dict[str, str] | None,
         config: dict[str, Any],
     ) -> bool:
         """Execute tests for a test suite."""
@@ -431,9 +431,11 @@ class TestRunner:
                     test_id=uuid4(),
                     test_name=f"security_{cmd.split()[0]}",
                     test_type=TestType.SECURITY,
-                    status=PipelineStatus.SUCCESS
-                    if process.returncode == 0
-                    else PipelineStatus.FAILED,
+                    status=(
+                        PipelineStatus.SUCCESS
+                        if process.returncode == 0
+                        else PipelineStatus.FAILED
+                    ),
                     output=stdout.decode(),
                     error_message=stderr.decode() if process.returncode != 0 else None,
                 )
@@ -532,9 +534,11 @@ class TestRunner:
                     test_id=uuid4(),
                     test_name=f"{test_suite.test_type.value}_summary",
                     test_type=test_suite.test_type,
-                    status=PipelineStatus.SUCCESS
-                    if return_code == 0
-                    else PipelineStatus.FAILED,
+                    status=(
+                        PipelineStatus.SUCCESS
+                        if return_code == 0
+                        else PipelineStatus.FAILED
+                    ),
                     output=stdout,
                     error_message=stderr if return_code != 0 else None,
                 )

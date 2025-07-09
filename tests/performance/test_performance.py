@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
 from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
 from pynomaly.domain.entities import Dataset, Detector
@@ -16,7 +17,9 @@ class TestDetectionPerformance:
     """Test detection performance and scalability."""
 
     @pytest.mark.slow
-    def test_large_dataset_detection_time(self, large_dataset, sample_detector, container):
+    def test_large_dataset_detection_time(
+        self, large_dataset, sample_detector, container
+    ):
         """Test detection performance on large datasets."""
         max_time_seconds = 30  # Should complete within 30 seconds
 
@@ -28,14 +31,14 @@ class TestDetectionPerformance:
                 detector_repository=container.detector_repository(),
                 dataset_repository=container.dataset_repository(),
                 result_repository=container.detection_result_repository(),
-                pyod_adapter=container.pyod_adapter()
+                pyod_adapter=container.pyod_adapter(),
             )
 
             # Train detector first
             train_use_case = TrainDetectorUseCase(
                 detector_repository=container.detector_repository(),
                 dataset_repository=container.dataset_repository(),
-                pyod_adapter=container.pyod_adapter()
+                pyod_adapter=container.pyod_adapter(),
             )
 
             train_use_case.execute(sample_detector.id, large_dataset.id)
@@ -46,7 +49,9 @@ class TestDetectionPerformance:
             detection_time = time.time() - start_time
 
             # Performance assertions
-            assert detection_time < max_time_seconds, f"Detection took {detection_time:.2f}s, expected < {max_time_seconds}s"
+            assert (
+                detection_time < max_time_seconds
+            ), f"Detection took {detection_time:.2f}s, expected < {max_time_seconds}s"
             assert result is not None
             assert len(result.scores) == len(large_dataset.data)
 
@@ -55,7 +60,9 @@ class TestDetectionPerformance:
             print(f"Detection throughput: {throughput:.2f} samples/second")
 
             # Should process at least 1000 samples per second
-            assert throughput > 1000, f"Throughput {throughput:.2f} samples/s is too low"
+            assert (
+                throughput > 1000
+            ), f"Throughput {throughput:.2f} samples/s is too low"
 
         except ImportError:
             pytest.skip("Required dependencies not available for performance test")
@@ -75,23 +82,29 @@ class TestDetectionPerformance:
         dataset = Dataset(
             name="Memory Test Dataset",
             data=large_df,
-            features=large_df.columns.tolist()
+            features=large_df.columns.tolist(),
         )
 
         # Simulate processing
         processed_data = dataset.data.copy()
-        processed_data['anomaly_score'] = np.random.random(len(processed_data))
+        processed_data["anomaly_score"] = np.random.random(len(processed_data))
 
         final_memory = process.memory_info().rss / 1024 / 1024  # MB
         memory_increase = final_memory - initial_memory
 
-        print(f"Memory usage: {initial_memory:.2f} MB -> {final_memory:.2f} MB (+{memory_increase:.2f} MB)")
+        print(
+            f"Memory usage: {initial_memory:.2f} MB -> {final_memory:.2f} MB (+{memory_increase:.2f} MB)"
+        )
 
         # Should not use excessive memory (adjust threshold as needed)
         max_memory_increase = 500  # MB
-        assert memory_increase < max_memory_increase, f"Memory increase {memory_increase:.2f} MB exceeds threshold"
+        assert (
+            memory_increase < max_memory_increase
+        ), f"Memory increase {memory_increase:.2f} MB exceeds threshold"
 
-    def test_concurrent_detection_performance(self, sample_dataset, sample_detector, container):
+    def test_concurrent_detection_performance(
+        self, sample_dataset, sample_detector, container
+    ):
         """Test performance under concurrent load."""
         num_concurrent_requests = 10
         max_total_time = 60  # seconds
@@ -103,40 +116,44 @@ class TestDetectionPerformance:
                     detector_repository=container.detector_repository(),
                     dataset_repository=container.dataset_repository(),
                     result_repository=container.detection_result_repository(),
-                    pyod_adapter=container.pyod_adapter()
+                    pyod_adapter=container.pyod_adapter(),
                 )
 
                 start = time.time()
-                result = detection_use_case.execute(sample_detector.id, sample_dataset.id)
+                result = detection_use_case.execute(
+                    sample_detector.id, sample_dataset.id
+                )
                 duration = time.time() - start
 
                 return {
-                    'success': True,
-                    'duration': duration,
-                    'result_size': len(result.scores) if result else 0
+                    "success": True,
+                    "duration": duration,
+                    "result_size": len(result.scores) if result else 0,
                 }
             except Exception as e:
-                return {
-                    'success': False,
-                    'error': str(e),
-                    'duration': 0
-                }
+                return {"success": False, "error": str(e), "duration": 0}
 
         start_time = time.time()
 
         # Run concurrent detections
         with ThreadPoolExecutor(max_workers=num_concurrent_requests) as executor:
-            futures = [executor.submit(run_detection) for _ in range(num_concurrent_requests)]
+            futures = [
+                executor.submit(run_detection) for _ in range(num_concurrent_requests)
+            ]
             results = [future.result() for future in as_completed(futures)]
 
         total_time = time.time() - start_time
 
         # Analyze results
-        successful_results = [r for r in results if r['success']]
-        failed_results = [r for r in results if not r['success']]
+        successful_results = [r for r in results if r["success"]]
+        failed_results = [r for r in results if not r["success"]]
 
         success_rate = len(successful_results) / len(results)
-        avg_duration = np.mean([r['duration'] for r in successful_results]) if successful_results else 0
+        avg_duration = (
+            np.mean([r["duration"] for r in successful_results])
+            if successful_results
+            else 0
+        )
 
         print("Concurrent test results:")
         print(f"  Total time: {total_time:.2f}s")
@@ -145,7 +162,9 @@ class TestDetectionPerformance:
         print(f"  Failed requests: {len(failed_results)}")
 
         # Performance assertions
-        assert total_time < max_total_time, f"Total time {total_time:.2f}s exceeds threshold"
+        assert (
+            total_time < max_total_time
+        ), f"Total time {total_time:.2f}s exceeds threshold"
         assert success_rate > 0.8, f"Success rate {success_rate:.2%} is too low"
 
         if failed_results:
@@ -179,8 +198,8 @@ class TestDatabasePerformance:
         for i in range(num_records):
             dataset = Dataset(
                 name=f"test_dataset_{i}",
-                data=pd.DataFrame({'feature_1': [1, 2, 3]}),
-                features=['feature_1']
+                data=pd.DataFrame({"feature_1": [1, 2, 3]}),
+                features=["feature_1"],
             )
             datasets.append(dataset)
 
@@ -193,14 +212,18 @@ class TestDatabasePerformance:
         insert_time = time.time() - start_time
 
         # Performance assertions
-        assert insert_time < max_time_seconds, f"Bulk insert took {insert_time:.2f}s, expected < {max_time_seconds}s"
+        assert (
+            insert_time < max_time_seconds
+        ), f"Bulk insert took {insert_time:.2f}s, expected < {max_time_seconds}s"
 
         # Calculate throughput
         throughput = num_records / insert_time
         print(f"Insert throughput: {throughput:.2f} records/second")
 
         # Should insert at least 100 records per second
-        assert throughput > 100, f"Insert throughput {throughput:.2f} records/s is too low"
+        assert (
+            throughput > 100
+        ), f"Insert throughput {throughput:.2f} records/s is too low"
 
     def test_query_performance(self, session_factory):
         """Test query performance with indexed searches."""
@@ -218,8 +241,8 @@ class TestDatabasePerformance:
         for i in range(num_datasets):
             dataset = Dataset(
                 name=f"perf_test_dataset_{i}",
-                data=pd.DataFrame({'feature_1': [1, 2, 3]}),
-                features=['feature_1']
+                data=pd.DataFrame({"feature_1": [1, 2, 3]}),
+                features=["feature_1"],
             )
             repository.save(dataset)
 
@@ -231,7 +254,9 @@ class TestDatabasePerformance:
         query_time = time.time() - start_time
 
         assert len(results) >= num_datasets
-        assert query_time < max_query_time, f"Query took {query_time:.2f}s, expected < {max_query_time}s"
+        assert (
+            query_time < max_query_time
+        ), f"Query took {query_time:.2f}s, expected < {max_query_time}s"
 
         print(f"Query time: {query_time:.3f}s for {len(results)} records")
 
@@ -242,7 +267,7 @@ class TestAPIPerformance:
 
     def test_health_endpoint_response_time(self, client):
         """Test health endpoint response time."""
-        if not hasattr(client, 'get'):
+        if not hasattr(client, "get"):
             pytest.skip("API client not available")
 
         max_response_time = 0.1  # 100ms
@@ -265,11 +290,13 @@ class TestAPIPerformance:
         print(f"  Average response time: {avg_response_time*1000:.2f}ms")
         print(f"  Max response time: {max_observed_time*1000:.2f}ms")
 
-        assert avg_response_time < max_response_time, f"Average response time {avg_response_time*1000:.2f}ms exceeds threshold"
+        assert (
+            avg_response_time < max_response_time
+        ), f"Average response time {avg_response_time*1000:.2f}ms exceeds threshold"
 
     def test_api_throughput(self, client):
         """Test API throughput under load."""
-        if not hasattr(client, 'get'):
+        if not hasattr(client, "get"):
             pytest.skip("API client not available")
 
         num_requests = 50
@@ -292,8 +319,12 @@ class TestAPIPerformance:
         print(f"API throughput: {throughput:.2f} requests/second")
         print(f"Success rate: {successful_requests/num_requests:.2%}")
 
-        assert total_time < max_total_time, f"Total time {total_time:.2f}s exceeds threshold"
-        assert throughput > 5, f"Throughput {throughput:.2f} req/s is too low"  # At least 5 req/s
+        assert (
+            total_time < max_total_time
+        ), f"Total time {total_time:.2f}s exceeds threshold"
+        assert (
+            throughput > 5
+        ), f"Throughput {throughput:.2f} req/s is too low"  # At least 5 req/s
         assert successful_requests / num_requests > 0.95, "Success rate is too low"
 
 
@@ -326,8 +357,8 @@ class TestMemoryEfficiency:
                 # Process scores
                 anomalies = scores > 0.9
                 result_data = {
-                    'scores': scores.tolist(),
-                    'anomalies': anomalies.tolist()
+                    "scores": scores.tolist(),
+                    "anomalies": anomalies.tolist(),
                 }
 
                 # Clean up explicitly
@@ -344,7 +375,9 @@ class TestMemoryEfficiency:
 
         # Should not increase memory significantly
         max_increase = 50  # MB
-        assert memory_increase < max_increase, f"Memory increase {memory_increase:.2f} MB suggests memory leak"
+        assert (
+            memory_increase < max_increase
+        ), f"Memory increase {memory_increase:.2f} MB suggests memory leak"
 
     def test_large_dataset_memory_efficiency(self, performance_data):
         """Test memory efficiency with large datasets."""
@@ -357,7 +390,7 @@ class TestMemoryEfficiency:
         dataset = Dataset(
             name="Memory Efficiency Test",
             data=performance_data,
-            features=performance_data.columns.tolist()
+            features=performance_data.columns.tolist(),
         )
 
         # Should not significantly increase memory usage
@@ -380,19 +413,16 @@ class TestPerformanceBenchmarks:
     def test_detection_algorithm_benchmarks(self, sample_dataset):
         """Benchmark different detection algorithms."""
         algorithms = [
-            ('IsolationForest', {'contamination': 0.1, 'random_state': 42}),
-            ('LocalOutlierFactor', {'contamination': 0.1}),
-            ('OneClassSVM', {'gamma': 'auto'})
+            ("IsolationForest", {"contamination": 0.1, "random_state": 42}),
+            ("LocalOutlierFactor", {"contamination": 0.1}),
+            ("OneClassSVM", {"gamma": "auto"}),
         ]
 
         results = {}
 
         for algo_name, params in algorithms:
             try:
-                detector = Detector(
-                    algorithm_name=algo_name,
-                    parameters=params
-                )
+                detector = Detector(algorithm_name=algo_name, parameters=params)
 
                 start_time = time.time()
 
@@ -404,21 +434,21 @@ class TestPerformanceBenchmarks:
                 total_time = time.time() - start_time + training_time + detection_time
 
                 results[algo_name] = {
-                    'total_time': total_time,
-                    'training_time': training_time,
-                    'detection_time': detection_time,
-                    'samples_per_second': len(sample_dataset.data) / detection_time
+                    "total_time": total_time,
+                    "training_time": training_time,
+                    "detection_time": detection_time,
+                    "samples_per_second": len(sample_dataset.data) / detection_time,
                 }
 
             except Exception as e:
                 print(f"Algorithm {algo_name} failed: {e}")
-                results[algo_name] = {'error': str(e)}
+                results[algo_name] = {"error": str(e)}
 
         # Report benchmark results
         print("\nAlgorithm Performance Benchmarks:")
         print("-" * 50)
         for algo, metrics in results.items():
-            if 'error' in metrics:
+            if "error" in metrics:
                 print(f"{algo}: FAILED - {metrics['error']}")
             else:
                 print(f"{algo}:")
@@ -428,7 +458,9 @@ class TestPerformanceBenchmarks:
                 print(f"  Throughput: {metrics['samples_per_second']:.1f} samples/s")
 
         # At least one algorithm should work
-        successful_algos = [name for name, metrics in results.items() if 'error' not in metrics]
+        successful_algos = [
+            name for name, metrics in results.items() if "error" not in metrics
+        ]
         assert len(successful_algos) > 0, "No algorithms completed successfully"
 
     def test_scalability_analysis(self):
@@ -440,12 +472,10 @@ class TestPerformanceBenchmarks:
             # Generate test data
             np.random.seed(42)
             data = np.random.normal(0, 1, (size, 5))
-            df = pd.DataFrame(data, columns=[f'feature_{i}' for i in range(5)])
+            df = pd.DataFrame(data, columns=[f"feature_{i}" for i in range(5)])
 
             dataset = Dataset(
-                name=f"Scalability Test {size}",
-                data=df,
-                features=df.columns.tolist()
+                name=f"Scalability Test {size}", data=df, features=df.columns.tolist()
             )
 
             start_time = time.time()
@@ -455,24 +485,24 @@ class TestPerformanceBenchmarks:
             scores = np.random.random(len(processed))
 
             processing_time = time.time() - start_time
-            throughput = size / processing_time if processing_time > 0 else float('inf')
+            throughput = size / processing_time if processing_time > 0 else float("inf")
 
-            results.append({
-                'size': size,
-                'time': processing_time,
-                'throughput': throughput
-            })
+            results.append(
+                {"size": size, "time": processing_time, "throughput": throughput}
+            )
 
         # Analyze scalability
         print("\nScalability Analysis:")
         print("-" * 30)
         for result in results:
-            print(f"Size: {result['size']:5d} | Time: {result['time']:.3f}s | Throughput: {result['throughput']:.1f} samples/s")
+            print(
+                f"Size: {result['size']:5d} | Time: {result['time']:.3f}s | Throughput: {result['throughput']:.1f} samples/s"
+            )
 
         # Check that processing time scales reasonably
         if len(results) >= 2:
-            time_ratio = results[-1]['time'] / results[0]['time']
-            size_ratio = results[-1]['size'] / results[0]['size']
+            time_ratio = results[-1]["time"] / results[0]["time"]
+            size_ratio = results[-1]["size"] / results[0]["size"]
             efficiency_ratio = time_ratio / size_ratio
 
             print("\nScalability metrics:")
@@ -481,4 +511,6 @@ class TestPerformanceBenchmarks:
             print(f"Efficiency ratio: {efficiency_ratio:.2f}")
 
             # Should scale reasonably (not worse than quadratic)
-            assert efficiency_ratio < size_ratio, "Performance degrades too quickly with scale"
+            assert (
+                efficiency_ratio < size_ratio
+            ), "Performance degrades too quickly with scale"

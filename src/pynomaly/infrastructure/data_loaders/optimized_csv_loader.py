@@ -5,7 +5,7 @@ from __future__ import annotations
 import gc
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -216,7 +216,7 @@ class OptimizedCSVLoader(CSVLoader):
 
         return "int64"  # Keep original if no optimization possible
 
-    def _optimize_object_dtype(self, series: pd.Series) -> Optional[str]:
+    def _optimize_object_dtype(self, series: pd.Series) -> str | None:
         """Optimize object column dtype."""
         # Try numeric conversion first
         try:
@@ -290,7 +290,7 @@ class ParallelCSVLoader:
     def __init__(
         self,
         max_workers: int = 4,
-        optimized_loader_config: Optional[dict[str, Any]] = None,
+        optimized_loader_config: dict[str, Any] | None = None,
     ):
         """Initialize parallel CSV loader.
 

@@ -5,6 +5,7 @@ from unittest.mock import Mock
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.application.services.autonomous_preprocessing import (
     AutonomousPreprocessingOrchestrator,
     AutonomousQualityAnalyzer,
@@ -321,9 +322,9 @@ class TestAutonomousPreprocessingOrchestrator:
 
         # Create a corrupted dataset that will cause errors
         corrupted_data = sample_dataset_with_issues.data.copy()
-        corrupted_data.loc[
-            0, "feature_normal"
-        ] = "not_a_number"  # String in numeric column
+        corrupted_data.loc[0, "feature_normal"] = (
+            "not_a_number"  # String in numeric column
+        )
 
         corrupted_dataset = Dataset(
             id="corrupted", name="Corrupted", data=corrupted_data

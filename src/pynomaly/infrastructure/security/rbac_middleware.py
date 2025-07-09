@@ -78,8 +78,13 @@ class RBACMiddleware:
 
         # Step 4: Audit logging for sensitive operations
         await self._log_access_attempt(
-            user, required_permissions, required_role, resource_id,
-            tenant_id, True, request
+            user,
+            required_permissions,
+            required_role,
+            resource_id,
+            tenant_id,
+            True,
+            request,
         )
 
         return user
@@ -87,7 +92,7 @@ class RBACMiddleware:
     async def _authenticate_user(
         self,
         credentials: HTTPAuthorizationCredentials | None,
-        request: Request | None = None
+        request: Request | None = None,
     ) -> User:
         """Authenticate user from bearer token.
 
@@ -122,7 +127,9 @@ class RBACMiddleware:
 
             # Check if user account is active
             if user.status.value != "active":
-                await self._log_auth_failure(f"User account status: {user.status.value}", request)
+                await self._log_auth_failure(
+                    f"User account status: {user.status.value}", request
+                )
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail=f"Account is {user.status.value}",
@@ -142,10 +149,7 @@ class RBACMiddleware:
             )
 
     async def _validate_role_requirement(
-        self,
-        user: User,
-        required_role: UserRole,
-        tenant_id: UUID | None = None
+        self, user: User, required_role: UserRole, tenant_id: UUID | None = None
     ) -> None:
         """Validate that user has required role.
 
@@ -187,7 +191,9 @@ class RBACMiddleware:
         else:
             # Check if user has required role in any tenant
             user_roles = [tr.role for tr in user.tenant_roles]
-            max_user_level = max([role_hierarchy.get(role, 0) for role in user_roles], default=0)
+            max_user_level = max(
+                [role_hierarchy.get(role, 0) for role in user_roles], default=0
+            )
 
             if max_user_level < required_level:
                 self.logger.warning(
@@ -204,7 +210,7 @@ class RBACMiddleware:
         required_permissions: list[Permission],
         tenant_id: UUID | None = None,
         resource_id: str | None = None,
-        allow_self_access: bool = False
+        allow_self_access: bool = False,
     ) -> None:
         """Validate that user has required permissions.
 
@@ -252,10 +258,7 @@ class RBACMiddleware:
                 )
 
     async def _check_resource_ownership(
-        self,
-        user: User,
-        resource_id: str,
-        permission: Permission
+        self, user: User, resource_id: str, permission: Permission
     ) -> bool:
         """Check if user owns the resource they're trying to access.
 
@@ -270,10 +273,14 @@ class RBACMiddleware:
         # This would typically check a database to see if the user created/owns the resource
         # For now, we'll implement a basic check that certain permissions allow self-access
         self_access_permissions = {
-            "dataset.edit", "dataset.delete",
-            "model.edit", "model.delete",
-            "detection.edit", "detection.delete",
-            "report.edit", "report.delete"
+            "dataset.edit",
+            "dataset.delete",
+            "model.edit",
+            "model.delete",
+            "detection.edit",
+            "detection.delete",
+            "report.edit",
+            "report.delete",
         }
 
         return permission.name in self_access_permissions
@@ -286,7 +293,7 @@ class RBACMiddleware:
         resource_id: str | None,
         tenant_id: UUID | None,
         success: bool,
-        request: Request | None = None
+        request: Request | None = None,
     ) -> None:
         """Log access attempt for audit purposes.
 
@@ -310,15 +317,20 @@ class RBACMiddleware:
 
         # Log sensitive access attempts
         sensitive_permissions = {
-            "user.manage", "user.delete", "tenant.manage", "tenant.delete",
-            "billing.view", "platform.manage"
+            "user.manage",
+            "user.delete",
+            "tenant.manage",
+            "tenant.delete",
+            "billing.view",
+            "platform.manage",
         }
 
         is_sensitive = (
-            required_permissions and
-            any(p.name in sensitive_permissions for p in required_permissions)
+            required_permissions
+            and any(p.name in sensitive_permissions for p in required_permissions)
         ) or (
-            required_role and required_role in [UserRole.SUPER_ADMIN, UserRole.TENANT_ADMIN]
+            required_role
+            and required_role in [UserRole.SUPER_ADMIN, UserRole.TENANT_ADMIN]
         )
 
         if is_sensitive or not success:
@@ -331,9 +343,7 @@ class RBACMiddleware:
             )
 
     async def _log_auth_failure(
-        self,
-        reason: str,
-        request: Request | None = None
+        self, reason: str, request: Request | None = None
     ) -> None:
         """Log authentication failure for security monitoring.
 
@@ -372,18 +382,15 @@ async def get_rbac_service() -> RBACService:
         max_failed_login_attempts=5,
         session_timeout=3600,
         ip_whitelist_enabled=False,
-        allowed_ip_ranges=[]
+        allowed_ip_ranges=[],
     )
 
-    return RBACService(
-        jwt_secret=settings.secret_key,
-        security_policy=security_policy
-    )
+    return RBACService(jwt_secret=settings.secret_key, security_policy=security_policy)
 
 
 async def get_rbac_middleware(
     rbac_service: Annotated[RBACService, Depends(get_rbac_service)],
-    auth_service: Annotated[JWTAuthService, Depends(get_auth)]
+    auth_service: Annotated[JWTAuthService, Depends(get_auth)],
 ) -> RBACMiddleware:
     """Get RBAC middleware instance."""
     return RBACMiddleware(rbac_service, auth_service)
@@ -397,7 +404,7 @@ class RequirePermissions:
         permissions: list[str],
         tenant_id: UUID | None = None,
         resource_id: str | None = None,
-        allow_self_access: bool = False
+        allow_self_access: bool = False,
     ):
         """Initialize permission requirement.
 
@@ -418,8 +425,10 @@ class RequirePermissions:
     async def __call__(
         self,
         request: Request,
-        credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
-        rbac_middleware: Annotated[RBACMiddleware, Depends(get_rbac_middleware)]
+        credentials: Annotated[
+            HTTPAuthorizationCredentials | None, Depends(bearer_scheme)
+        ],
+        rbac_middleware: Annotated[RBACMiddleware, Depends(get_rbac_middleware)],
     ) -> User:
         """Validate permissions and return authorized user."""
         return await rbac_middleware.validate_user_and_permissions(
@@ -428,18 +437,14 @@ class RequirePermissions:
             tenant_id=self.tenant_id,
             resource_id=self.resource_id,
             allow_self_access=self.allow_self_access,
-            request=request
+            request=request,
         )
 
 
 class RequireRole:
     """Dependency class for requiring specific role."""
 
-    def __init__(
-        self,
-        role: UserRole,
-        tenant_id: UUID | None = None
-    ):
+    def __init__(self, role: UserRole, tenant_id: UUID | None = None):
         """Initialize role requirement.
 
         Args:
@@ -452,15 +457,17 @@ class RequireRole:
     async def __call__(
         self,
         request: Request,
-        credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
-        rbac_middleware: Annotated[RBACMiddleware, Depends(get_rbac_middleware)]
+        credentials: Annotated[
+            HTTPAuthorizationCredentials | None, Depends(bearer_scheme)
+        ],
+        rbac_middleware: Annotated[RBACMiddleware, Depends(get_rbac_middleware)],
     ) -> User:
         """Validate role and return authorized user."""
         return await rbac_middleware.validate_user_and_permissions(
             credentials=credentials,
             required_role=self.required_role,
             tenant_id=self.tenant_id,
-            request=request
+            request=request,
         )
 
 
@@ -470,13 +477,14 @@ class RequireAuthentication:
     async def __call__(
         self,
         request: Request,
-        credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
-        rbac_middleware: Annotated[RBACMiddleware, Depends(get_rbac_middleware)]
+        credentials: Annotated[
+            HTTPAuthorizationCredentials | None, Depends(bearer_scheme)
+        ],
+        rbac_middleware: Annotated[RBACMiddleware, Depends(get_rbac_middleware)],
     ) -> User:
         """Validate authentication and return user."""
         return await rbac_middleware.validate_user_and_permissions(
-            credentials=credentials,
-            request=request
+            credentials=credentials, request=request
         )
 
 
@@ -485,14 +493,14 @@ def require_permissions(
     permissions: list[str],
     tenant_id: UUID | None = None,
     resource_id: str | None = None,
-    allow_self_access: bool = False
+    allow_self_access: bool = False,
 ) -> RequirePermissions:
     """Factory function for permission requirements."""
     return RequirePermissions(
         permissions=permissions,
         tenant_id=tenant_id,
         resource_id=resource_id,
-        allow_self_access=allow_self_access
+        allow_self_access=allow_self_access,
     )
 
 
@@ -514,7 +522,12 @@ class CommonPermissions:
     DATASET_READ = ["dataset.view"]
     DATASET_WRITE = ["dataset.create", "dataset.edit"]
     DATASET_DELETE = ["dataset.delete"]
-    DATASET_MANAGE = ["dataset.create", "dataset.edit", "dataset.delete", "dataset.view"]
+    DATASET_MANAGE = [
+        "dataset.create",
+        "dataset.edit",
+        "dataset.delete",
+        "dataset.view",
+    ]
 
     # Model permissions
     MODEL_READ = ["model.view"]
@@ -525,13 +538,24 @@ class CommonPermissions:
     # Detection permissions
     DETECTION_RUN = ["detection.run"]
     DETECTION_READ = ["detection.view"]
-    DETECTION_MANAGE = ["detection.run", "detection.view", "detection.edit", "detection.delete"]
+    DETECTION_MANAGE = [
+        "detection.run",
+        "detection.view",
+        "detection.edit",
+        "detection.delete",
+    ]
 
     # User management permissions
     USER_READ = ["user.view"]
     USER_WRITE = ["user.create", "user.edit"]
     USER_DELETE = ["user.delete"]
-    USER_MANAGE = ["user.create", "user.edit", "user.delete", "user.view", "user.invite"]
+    USER_MANAGE = [
+        "user.create",
+        "user.edit",
+        "user.delete",
+        "user.view",
+        "user.invite",
+    ]
 
     # Tenant permissions
     TENANT_READ = ["tenant.view"]

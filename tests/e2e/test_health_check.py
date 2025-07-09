@@ -15,6 +15,7 @@ try:
 
     import uvicorn
     from httpx import AsyncClient
+
     from pynomaly.infrastructure.config import create_container
     from pynomaly.presentation.api.app import create_app
 except ImportError as e:

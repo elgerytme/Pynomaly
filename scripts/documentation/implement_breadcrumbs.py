@@ -243,7 +243,8 @@ class BreadcrumbImplementer:
             # Fallback
             file_title = filename.replace(".md", "").replace("-", " ").title()
             return (
-                section_patterns["base"] + f" > 📁 {subsection.title()} > 📄 {file_title}"
+                section_patterns["base"]
+                + f" > 📁 {subsection.title()} > 📄 {file_title}"
             )
 
         # Fallback for deeply nested files

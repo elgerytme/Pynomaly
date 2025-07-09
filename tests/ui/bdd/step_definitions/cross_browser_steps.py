@@ -527,9 +527,9 @@ async def then_performance_consistent_browsers(
     # Store browser-specific performance
     browser_name = cross_browser_context.current_browser
     if browser_name:
-        cross_browser_context.compatibility_results[
-            f"{browser_name}_performance"
-        ] = performance_metrics
+        cross_browser_context.compatibility_results[f"{browser_name}_performance"] = (
+            performance_metrics
+        )
 
     # Basic performance thresholds (should be reasonable across browsers)
     if performance_metrics["domContentLoaded"] > 0:

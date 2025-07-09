@@ -335,7 +335,9 @@ class AdvancedDataPipeline:
                     mask = selector.get_support()
                     selected_columns = [
                         col
-                        for col, selected in zip(transformed_data.columns, mask, strict=False)
+                        for col, selected in zip(
+                            transformed_data.columns, mask, strict=False
+                        )
                         if selected
                     ]
                     transformed_data = pd.DataFrame(

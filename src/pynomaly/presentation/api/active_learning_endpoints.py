@@ -5,8 +5,6 @@ This module provides REST API endpoints for managing human-in-the-loop
 active learning sessions, sample selection, and feedback collection.
 """
 
-from typing import Optional, Union
-
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
@@ -36,13 +34,11 @@ class CreateSessionModel(BaseModel):
         regex="^(uncertainty|diversity|disagreement|margin|entropy|committee_disagreement|expected_model_change|random)$",
     )
     max_samples: int = Field(20, ge=1, le=1000, description="Maximum number of samples")
-    timeout_minutes: Optional[int] = Field(
-        60, ge=1, le=480, description="Session timeout"
-    )
+    timeout_minutes: int | None = Field(60, ge=1, le=480, description="Session timeout")
     min_feedback_quality: float = Field(
         0.7, ge=0.0, le=1.0, description="Minimum feedback quality"
     )
-    target_corrections: Optional[int] = Field(
+    target_corrections: int | None = Field(
         None, ge=1, description="Target number of corrections"
     )
     metadata: dict = Field(default_factory=dict, description="Additional metadata")
@@ -54,7 +50,7 @@ class DetectionResultModel(BaseModel):
     sample_id: str = Field(..., description="Sample identifier")
     score: float = Field(..., ge=0.0, le=1.0, description="Anomaly score")
     is_anomaly: bool = Field(..., description="Anomaly classification")
-    timestamp: Optional[str] = Field(None, description="Detection timestamp")
+    timestamp: str | None = Field(None, description="Detection timestamp")
     model_version: str = Field(..., description="Model version")
     metadata: dict = Field(default_factory=dict, description="Additional metadata")
 
@@ -88,16 +84,14 @@ class SubmitFeedbackModel(BaseModel):
         description="Type of feedback",
         regex="^(binary_classification|confidence_rating|score_correction|explanation|feature_importance)$",
     )
-    feedback_value: Union[bool, float, str, dict] = Field(
-        ..., description="Feedback value"
-    )
+    feedback_value: bool | float | str | dict = Field(..., description="Feedback value")
     confidence: str = Field(
         "medium", description="Confidence level", regex="^(low|medium|high|expert)$"
     )
-    original_score: Optional[float] = Field(
+    original_score: float | None = Field(
         None, ge=0.0, le=1.0, description="Original prediction score"
     )
-    time_spent_seconds: Optional[float] = Field(
+    time_spent_seconds: float | None = Field(
         None, ge=0.0, description="Time spent on annotation"
     )
     metadata: dict = Field(default_factory=dict, description="Additional metadata")

@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import numpy as np
 import pandas as pd
+
 from pynomaly.domain.entities import Dataset
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
@@ -161,7 +162,9 @@ class SimpleExplainer:
             },
             "feature_importance": {
                 name: importance
-                for name, importance in zip(self.feature_names, self.feature_importance, strict=False)
+                for name, importance in zip(
+                    self.feature_names, self.feature_importance, strict=False
+                )
             },
             "top_features": sorted(
                 zip(self.feature_names, self.feature_importance, strict=False),

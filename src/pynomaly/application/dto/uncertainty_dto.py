@@ -8,7 +8,6 @@ quantification use cases.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Union
 
 from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
@@ -69,8 +68,8 @@ class UncertaintyResponse:
     """
 
     confidence_intervals: dict[str, ConfidenceInterval]
-    uncertainty_metrics: dict[str, Union[float, ConfidenceInterval]]
-    additional_metrics: dict[str, Union[float, ConfidenceInterval]]
+    uncertainty_metrics: dict[str, float | ConfidenceInterval]
+    additional_metrics: dict[str, float | ConfidenceInterval]
     method: str
     confidence_level: float
     n_samples: int
@@ -99,7 +98,7 @@ class UncertaintyResponse:
             "n_samples": self.n_samples,
         }
 
-    def get_summary(self) -> dict[str, Union[str, float]]:
+    def get_summary(self) -> dict[str, str | float]:
         """Get a summary of key uncertainty metrics."""
         summary = {
             "method": self.method,
@@ -184,8 +183,8 @@ class EnsembleUncertaintyResponse:
         n_models: Number of models in ensemble
     """
 
-    ensemble_metrics: dict[str, Union[float, ConfidenceInterval]]
-    model_uncertainties: list[dict[str, Union[int, dict]]]
+    ensemble_metrics: dict[str, float | ConfidenceInterval]
+    model_uncertainties: list[dict[str, int | dict]]
     disagreement_metrics: dict[str, float]
     method: str
     confidence_level: float
@@ -207,7 +206,7 @@ class EnsembleUncertaintyResponse:
             "n_models": self.n_models,
         }
 
-    def get_summary(self) -> dict[str, Union[str, float]]:
+    def get_summary(self) -> dict[str, str | float]:
         """Get a summary of key ensemble uncertainty metrics."""
         summary = {
             "method": self.method,

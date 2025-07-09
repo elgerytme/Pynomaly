@@ -386,9 +386,7 @@ class CoverageMonitor:
             color_class = (
                 "good"
                 if coverage_percent >= 80
-                else "warning"
-                if coverage_percent >= 60
-                else "danger"
+                else "warning" if coverage_percent >= 60 else "danger"
             )
             html += f"""
                     <tr>

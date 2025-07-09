@@ -14,30 +14,37 @@ import pandas as pd
 import pytest
 from dependency_injector import providers
 from fastapi.testclient import TestClient
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.infrastructure.auth.jwt_auth import init_auth
-from pynomaly.infrastructure.config import Container, Settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from pynomaly.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly.domain.value_objects import AnomalyScore
+from pynomaly.infrastructure.auth.jwt_auth import init_auth
+from pynomaly.infrastructure.config import Container, Settings
+
 # Optional imports for advanced features
 try:
     from pynomaly.infrastructure.observability import setup_observability
+
     OBSERVABILITY_AVAILABLE = True
 except ImportError:
     OBSERVABILITY_AVAILABLE = False
+
     def setup_observability(*args, **kwargs):
         return {}
 
+
 try:
     from pynomaly.infrastructure.security.audit_logging import init_audit_logging
+
     AUDIT_LOGGING_AVAILABLE = True
 except ImportError:
     AUDIT_LOGGING_AVAILABLE = False
+
     def init_audit_logging(*args, **kwargs):
         return None
+
 
 # Import database fixtures if available
 try:
@@ -58,9 +65,11 @@ except ImportError:
     def test_database_manager():
         pytest.skip("Database dependencies not available")
 
+
 # Import app if available for API testing
 try:
     from pynomaly.presentation.api.app import create_app
+
     APP_AVAILABLE = True
 except ImportError:
     APP_AVAILABLE = False
@@ -75,6 +84,7 @@ try:
         TestDataManager,
         TestScenarioFactory,
     )
+
     TEST_DATA_MANAGER_AVAILABLE = True
 except ImportError:
     TEST_DATA_MANAGER_AVAILABLE = False
@@ -98,23 +108,25 @@ def test_settings() -> Settings:
     temp_dir = tempfile.mkdtemp()
 
     # Set environment variables for pydantic-settings
-    os.environ.update({
-        "PYNOMALY_APP_NAME": "pynomaly-test",
-        "PYNOMALY_APP_VERSION": "0.1.0-test",
-        "PYNOMALY_APP_ENVIRONMENT": "test",
-        "PYNOMALY_APP_DEBUG": "true",
-        "PYNOMALY_DATABASE_URL": "sqlite:///:memory:",
-        "PYNOMALY_SECRET_KEY": "test-secret-key-not-for-production-use-only",
-        "PYNOMALY_JWT_ALGORITHM": "HS256",
-        "PYNOMALY_JWT_EXPIRATION": "3600",
-        "PYNOMALY_AUTH_ENABLED": "true",
-        "PYNOMALY_CACHE_ENABLED": "false",
-        "PYNOMALY_DOCS_ENABLED": "true",
-        "PYNOMALY_MONITORING_METRICS_ENABLED": "false",
-        "PYNOMALY_MONITORING_TRACING_ENABLED": "false",
-        "PYNOMALY_MONITORING_PROMETHEUS_ENABLED": "false",
-        "PYNOMALY_STORAGE_PATH": temp_dir,
-    })
+    os.environ.update(
+        {
+            "PYNOMALY_APP_NAME": "pynomaly-test",
+            "PYNOMALY_APP_VERSION": "0.1.0-test",
+            "PYNOMALY_APP_ENVIRONMENT": "test",
+            "PYNOMALY_APP_DEBUG": "true",
+            "PYNOMALY_DATABASE_URL": "sqlite:///:memory:",
+            "PYNOMALY_SECRET_KEY": "test-secret-key-not-for-production-use-only",
+            "PYNOMALY_JWT_ALGORITHM": "HS256",
+            "PYNOMALY_JWT_EXPIRATION": "3600",
+            "PYNOMALY_AUTH_ENABLED": "true",
+            "PYNOMALY_CACHE_ENABLED": "false",
+            "PYNOMALY_DOCS_ENABLED": "true",
+            "PYNOMALY_MONITORING_METRICS_ENABLED": "false",
+            "PYNOMALY_MONITORING_TRACING_ENABLED": "false",
+            "PYNOMALY_MONITORING_PROMETHEUS_ENABLED": "false",
+            "PYNOMALY_STORAGE_PATH": temp_dir,
+        }
+    )
 
     return Settings()
 
@@ -146,6 +158,7 @@ def db_engine():
     # Import and create tables
     try:
         from pynomaly.infrastructure.persistence.database_repositories import Base
+
         Base.metadata.create_all(bind=engine)
     except ImportError:
         pass  # Database models not available
@@ -223,7 +236,7 @@ def test_user(auth_service):
         email="test@example.com",
         password="testpass123",
         full_name="Test User",
-        roles=["user"]
+        roles=["user"],
     )
 
 
@@ -286,7 +299,7 @@ def large_dataset() -> Dataset:
         data=df,
         description="Large dataset for performance testing",
         features=[f"feature_{i}" for i in range(n_features)],
-        metadata={"test": True, "performance": True}
+        metadata={"test": True, "performance": True},
     )
 
 
@@ -311,7 +324,7 @@ def test_detection_result(sample_detector, sample_dataset) -> DetectionResult:
         detector_id=sample_detector.id,
         dataset_id=sample_dataset.id,
         scores=scores,
-        metadata={"test": True, "model_version": "1.0"}
+        metadata={"test": True, "model_version": "1.0"},
     )
 
 
@@ -323,7 +336,9 @@ def trained_detector(
     try:
         # Get adapter and train
         adapter = container.pyod_adapter()
-        model = adapter.create_model(sample_detector.algorithm_name, sample_detector.parameters)
+        model = adapter.create_model(
+            sample_detector.algorithm_name, sample_detector.parameters
+        )
         adapter.fit(model, sample_dataset.data)
 
         # Update detector
@@ -384,7 +399,7 @@ def malicious_inputs() -> list:
         "javascript:alert('xss')",
         "' OR 1=1 --",
         "<iframe src=javascript:alert('xss')></iframe>",
-        "../../../../windows/system32/config/sam"
+        "../../../../windows/system32/config/sam",
     ]
 
 
@@ -416,7 +431,7 @@ def observability_components():
         enable_health_checks=True,
         log_level="DEBUG",
         service_name="pynomaly-test",
-        environment="test"
+        environment="test",
     )
     return components
 
@@ -488,21 +503,11 @@ def cleanup_environment():
 def pytest_configure(config):
     """Configure pytest with custom markers."""
     # Core testing markers
-    config.addinivalue_line(
-        "markers", "integration: mark test as an integration test"
-    )
-    config.addinivalue_line(
-        "markers", "performance: mark test as a performance test"
-    )
-    config.addinivalue_line(
-        "markers", "security: mark test as a security test"
-    )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow running"
-    )
-    config.addinivalue_line(
-        "markers", "unit: mark test as a unit test"
-    )
+    config.addinivalue_line("markers", "integration: mark test as an integration test")
+    config.addinivalue_line("markers", "performance: mark test as a performance test")
+    config.addinivalue_line("markers", "security: mark test as a security test")
+    config.addinivalue_line("markers", "slow: mark test as slow running")
+    config.addinivalue_line("markers", "unit: mark test as a unit test")
 
     # Benchmark markers (from benchmarks/conftest.py)
     config.addinivalue_line("markers", "benchmark: mark test as a benchmark")
@@ -523,7 +528,9 @@ def pytest_configure(config):
     # UI/BDD testing markers (from ui/bdd/conftest.py)
     config.addinivalue_line("markers", "accessibility: Accessibility compliance tests")
     config.addinivalue_line("markers", "workflow: Complete user workflow tests")
-    config.addinivalue_line("markers", "cross_browser: Cross-browser compatibility tests")
+    config.addinivalue_line(
+        "markers", "cross_browser: Cross-browser compatibility tests"
+    )
     config.addinivalue_line("markers", "ml_engineer: ML engineer workflow tests")
     config.addinivalue_line("markers", "data_scientist: Data scientist workflow tests")
     config.addinivalue_line("markers", "critical: Critical path tests that must pass")
@@ -553,10 +560,16 @@ def pytest_addoption(parser):
         "--runslow", action="store_true", default=False, help="run slow tests"
     )
     parser.addoption(
-        "--integration", action="store_true", default=False, help="run integration tests"
+        "--integration",
+        action="store_true",
+        default=False,
+        help="run integration tests",
     )
     parser.addoption(
-        "--performance", action="store_true", default=False, help="run performance tests"
+        "--performance",
+        action="store_true",
+        default=False,
+        help="run performance tests",
     )
     parser.addoption(
         "--security", action="store_true", default=False, help="run security tests"

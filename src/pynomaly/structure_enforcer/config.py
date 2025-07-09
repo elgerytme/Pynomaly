@@ -4,10 +4,9 @@ Configuration and constants for structure enforcer.
 
 import re
 from pathlib import Path
-from typing import Dict, List, Set
 
 # Define allowed files in root directory
-ALLOWED_ROOT_FILES: Set[str] = {
+ALLOWED_ROOT_FILES: set[str] = {
     # Essential project files
     "README.md",
     "LICENSE",
@@ -42,7 +41,7 @@ ALLOWED_ROOT_FILES: Set[str] = {
 }
 
 # Define allowed directories in root
-ALLOWED_ROOT_DIRS: Set[str] = {
+ALLOWED_ROOT_DIRS: set[str] = {
     "src",
     "tests",
     "docs",
@@ -62,7 +61,7 @@ ALLOWED_ROOT_DIRS: Set[str] = {
 }
 
 # File patterns that should be moved to specific directories
-RELOCATION_RULES: Dict[str, List[str]] = {
+RELOCATION_RULES: dict[str, list[str]] = {
     "tests/": [
         r"^test_.*\.(py|sh|ps1)$",
         r"^.*_test\.(py|sh|ps1)$",
@@ -106,7 +105,7 @@ RELOCATION_RULES: Dict[str, List[str]] = {
 }
 
 # Define the expected Clean Architecture structure
-EXPECTED_STRUCTURE: Dict[str, Dict] = {
+EXPECTED_STRUCTURE: dict[str, dict] = {
     "domain": {
         "required": True,
         "description": "Pure business logic layer",
@@ -140,7 +139,7 @@ EXPECTED_STRUCTURE: Dict[str, Dict] = {
 }
 
 # Define naming conventions
-NAMING_CONVENTIONS: Dict[str, str] = {
+NAMING_CONVENTIONS: dict[str, str] = {
     "modules": r"^[a-z][a-z0-9_]*[a-z0-9]$",
     "classes": r"^[A-Z][a-zA-Z0-9]*$",
     "functions": r"^[a-z][a-z0-9_]*[a-z0-9]$",
@@ -149,7 +148,7 @@ NAMING_CONVENTIONS: Dict[str, str] = {
 }
 
 # Allowed imports for domain layer (to maintain purity)
-ALLOWED_DOMAIN_IMPORTS: Set[str] = {
+ALLOWED_DOMAIN_IMPORTS: set[str] = {
     # Python standard library
     "typing",
     "abc",
@@ -183,10 +182,10 @@ ALLOWED_DOMAIN_IMPORTS: Set[str] = {
 }
 
 # Layer dependency order for validation
-LAYER_ORDER: List[str] = ["domain", "application", "infrastructure", "presentation"]
+LAYER_ORDER: list[str] = ["domain", "application", "infrastructure", "presentation"]
 
 # Help URLs for different violation types
-HELP_URLS: Dict[str, str] = {
+HELP_URLS: dict[str, str] = {
     "file_organization": "https://github.com/pynomaly/pynomaly/blob/main/docs/development/FILE_ORGANIZATION_STANDARDS.md",
     "architecture": "https://github.com/pynomaly/pynomaly/blob/main/docs/development/ARCHITECTURE_GUIDELINES.md",
     "naming": "https://github.com/pynomaly/pynomaly/blob/main/docs/development/NAMING_CONVENTIONS.md",
@@ -220,11 +219,7 @@ def is_python_file(path: Path) -> bool:
 def is_test_file(path: Path) -> bool:
     """Check if a file is a test file."""
     name = path.name.lower()
-    return (
-        name.startswith("test_") or 
-        name.endswith("_test.py") or 
-        "test" in path.parts
-    )
+    return name.startswith("test_") or name.endswith("_test.py") or "test" in path.parts
 
 
 def is_script_file(path: Path) -> bool:
@@ -242,7 +237,7 @@ def is_docs_file(path: Path) -> bool:
     return path.suffix.lower() in [".md", ".rst", ".txt"]
 
 
-def get_file_type_info(path: Path) -> Dict[str, bool]:
+def get_file_type_info(path: Path) -> dict[str, bool]:
     """Get file type information."""
     return {
         "is_python": is_python_file(path),

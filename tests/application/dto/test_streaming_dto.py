@@ -104,12 +104,8 @@ class TestStreamDataBatchDTO:
     def test_create_valid_batch(self):
         """Test creating a valid data batch."""
         data_points = [
-            StreamDataPointDTO(
-                timestamp=datetime.now(UTC), features={"feature1": 1.0}
-            ),
-            StreamDataPointDTO(
-                timestamp=datetime.now(UTC), features={"feature1": 2.0}
-            ),
+            StreamDataPointDTO(timestamp=datetime.now(UTC), features={"feature1": 1.0}),
+            StreamDataPointDTO(timestamp=datetime.now(UTC), features={"feature1": 2.0}),
         ]
 
         dto = StreamDataBatchDTO(

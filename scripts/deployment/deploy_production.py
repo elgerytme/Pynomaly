@@ -369,7 +369,7 @@ stringData:
         if self.config.dry_run:
             logger.info("DRY RUN: Skipping deployment verification")
             # Return mock successful verification for dry run
-            return {k: True for k in verification_results.keys()}
+            return dict.fromkeys(verification_results.keys(), True)
 
         try:
             # Check pods

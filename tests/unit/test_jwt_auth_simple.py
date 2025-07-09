@@ -1,7 +1,7 @@
 """Simple unit tests for JWT authentication without complex dependencies."""
 
-
 import pytest
+
 from pynomaly.infrastructure.auth.jwt_auth import (
     JWTAuthService,
     PasswordRotationStrategy,

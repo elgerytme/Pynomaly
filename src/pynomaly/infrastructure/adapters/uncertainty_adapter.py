@@ -290,9 +290,7 @@ class ScipyUncertaintyAdapter(UncertaintyAdapterProtocol):
         # Wilson score interval calculation
         denominator = 1 + z**2 / trials
         center = (p + z**2 / (2 * trials)) / denominator
-        margin = (
-            z * np.sqrt((p * (1 - p) + z**2 / (4 * trials)) / trials) / denominator
-        )
+        margin = z * np.sqrt((p * (1 - p) + z**2 / (4 * trials)) / trials) / denominator
 
         lower = max(0.0, center - margin)
         upper = min(1.0, center + margin)

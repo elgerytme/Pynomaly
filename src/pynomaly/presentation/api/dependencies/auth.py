@@ -1,7 +1,5 @@
 """Simplified authentication dependencies for OpenAPI compatibility."""
 
-from typing import Optional
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -12,8 +10,8 @@ security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user_safe(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-) -> Optional[UserModel]:
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+) -> UserModel | None:
     """Get current authenticated user.
 
     Args:
@@ -76,7 +74,9 @@ class SimpleAuthContext:
 
 
 # Create additional role-based requirements as simplified functions
-async def require_role_safe(roles: list[str], user: UserModel = Depends(get_current_user_safe)) -> UserModel:
+async def require_role_safe(
+    roles: list[str], user: UserModel = Depends(get_current_user_safe)
+) -> UserModel:
     """Require user to have specific roles.
 
     Args:

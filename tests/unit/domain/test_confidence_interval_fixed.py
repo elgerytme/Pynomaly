@@ -7,7 +7,8 @@ validation, calculations, and methods.
 
 import numpy as np
 import pytest
-from hypothesis import given, strategies as st, assume
+from hypothesis import assume, given
+from hypothesis import strategies as st
 
 from pynomaly.domain.exceptions import InvalidValueError
 from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
@@ -16,7 +17,9 @@ from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
 @given(st.floats(min_value=0.0, max_value=1.0), st.floats(min_value=0.0, max_value=1.0))
 def test_confidence_interval_random(lower, upper):
     assume(lower <= upper)
-    ci = ConfidenceInterval(lower=lower, upper=upper, confidence_level=0.95, method="test")
+    ci = ConfidenceInterval(
+        lower=lower, upper=upper, confidence_level=0.95, method="test"
+    )
     assert ci.is_valid()
 
 

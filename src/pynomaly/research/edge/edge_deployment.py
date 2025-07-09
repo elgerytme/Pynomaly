@@ -11,18 +11,22 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+
 class EdgeFramework(str, Enum):
     TENSORFLOW_LITE = "tensorflow_lite"
     ONNX = "onnx"
+
 
 class EdgeDevice(str, Enum):
     MOBILE_PHONE = "mobile_phone"
     RASPBERRY_PI = "raspberry_pi"
     JETSON_NANO = "jetson_nano"
 
+
 class OptimizationLevel(str, Enum):
     BASIC = "basic"
     AGGRESSIVE = "aggressive"
+
 
 @dataclass
 class EdgeModelSpec:
@@ -32,6 +36,7 @@ class EdgeModelSpec:
     optimization_level: OptimizationLevel = OptimizationLevel.BASIC
     max_model_size_mb: float = 10.0
     max_inference_time_ms: float = 100.0
+
 
 @dataclass
 class EdgeDeploymentResult:
@@ -43,6 +48,7 @@ class EdgeDeploymentResult:
     compression_ratio: float = 1.0
     metadata: dict[str, Any] = None
 
+
 class EdgeDeploymentService:
     """Main service for edge deployment"""
 
@@ -50,7 +56,9 @@ class EdgeDeploymentService:
         self.config = config
         self.deployment_history: list[EdgeDeploymentResult] = []
 
-    async def deploy_model(self, model: Any, spec: EdgeModelSpec) -> EdgeDeploymentResult:
+    async def deploy_model(
+        self, model: Any, spec: EdgeModelSpec
+    ) -> EdgeDeploymentResult:
         """Deploy model to edge device"""
         try:
             logger.info(f"Deploying model {spec.model_name} to {spec.target_device}")
@@ -73,11 +81,16 @@ class EdgeDeploymentService:
                 estimated_inference_time_ms=inference_time,
                 optimization_applied=optimizations,
                 compression_ratio=10.0 / model_size,
-                metadata={"framework": spec.target_framework.value, "device": spec.target_device.value}
+                metadata={
+                    "framework": spec.target_framework.value,
+                    "device": spec.target_device.value,
+                },
             )
 
             self.deployment_history.append(result)
-            logger.info(f"Deployment successful: {model_size:.2f}MB, {inference_time:.1f}ms")
+            logger.info(
+                f"Deployment successful: {model_size:.2f}MB, {inference_time:.1f}ms"
+            )
 
             return result
 
@@ -88,40 +101,46 @@ class EdgeDeploymentService:
                 model_path="",
                 model_size_mb=0.0,
                 estimated_inference_time_ms=0.0,
-                optimization_applied=[]
+                optimization_applied=[],
             )
 
-    async def optimize_for_device(self, model: Any, target_device: EdgeDevice) -> EdgeModelSpec:
+    async def optimize_for_device(
+        self, model: Any, target_device: EdgeDevice
+    ) -> EdgeModelSpec:
         """Optimize model specification for target device"""
         device_specs = {
             EdgeDevice.MOBILE_PHONE: {
                 "framework": EdgeFramework.TENSORFLOW_LITE,
                 "max_size_mb": 10.0,
-                "max_inference_ms": 100.0
+                "max_inference_ms": 100.0,
             },
             EdgeDevice.RASPBERRY_PI: {
                 "framework": EdgeFramework.TENSORFLOW_LITE,
                 "max_size_mb": 50.0,
-                "max_inference_ms": 500.0
+                "max_inference_ms": 500.0,
             },
             EdgeDevice.JETSON_NANO: {
                 "framework": EdgeFramework.ONNX,
                 "max_size_mb": 100.0,
-                "max_inference_ms": 50.0
-            }
+                "max_inference_ms": 50.0,
+            },
         }
 
-        default_spec = device_specs.get(target_device, device_specs[EdgeDevice.MOBILE_PHONE])
+        default_spec = device_specs.get(
+            target_device, device_specs[EdgeDevice.MOBILE_PHONE]
+        )
 
         return EdgeModelSpec(
             model_name="optimized_model",
             target_device=target_device,
             target_framework=EdgeFramework(default_spec["framework"]),
             max_model_size_mb=default_spec["max_size_mb"],
-            max_inference_time_ms=default_spec["max_inference_ms"]
+            max_inference_time_ms=default_spec["max_inference_ms"],
         )
 
-    async def benchmark_deployment(self, model: Any, target_devices: list[EdgeDevice]) -> dict[EdgeDevice, EdgeDeploymentResult]:
+    async def benchmark_deployment(
+        self, model: Any, target_devices: list[EdgeDevice]
+    ) -> dict[EdgeDevice, EdgeDeploymentResult]:
         """Benchmark model across multiple devices"""
         results = {}
 

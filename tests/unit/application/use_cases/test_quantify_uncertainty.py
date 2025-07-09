@@ -9,6 +9,7 @@ from unittest.mock import Mock
 
 import numpy as np
 import pytest
+
 from pynomaly.application.dto.uncertainty_dto import (
     EnsembleUncertaintyRequest,
     EnsembleUncertaintyResponse,

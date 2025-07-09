@@ -2,8 +2,6 @@
 """Simple test to verify authentication refactoring works."""
 
 
-
-
 # Test the user models independently
 def test_user_models_import():
     """Test that user models can be imported without circular dependencies."""

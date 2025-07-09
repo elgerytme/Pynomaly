@@ -24,7 +24,9 @@ class TestCoreDependencyCompatibility:
         # Verify minimum Python version (3.11+)
         version_info = sys.version_info
         assert version_info.major == 3
-        assert version_info.minor >= 11, f"Python 3.11+ required, found {version_info.major}.{version_info.minor}"
+        assert (
+            version_info.minor >= 11
+        ), f"Python 3.11+ required, found {version_info.major}.{version_info.minor}"
 
         # Test Python 3.11+ specific features
         if version_info >= (3, 11):
@@ -32,6 +34,7 @@ class TestCoreDependencyCompatibility:
             try:
                 # ExceptionGroup is available in Python 3.11+
                 from builtins import ExceptionGroup
+
                 assert ExceptionGroup is not None
             except ImportError:
                 # Fallback for older Python versions
@@ -61,7 +64,7 @@ class TestCoreDependencyCompatibility:
         import numpy as np
 
         # Check NumPy version
-        numpy_version = tuple(map(int, np.__version__.split('.')[:2]))
+        numpy_version = tuple(map(int, np.__version__.split(".")[:2]))
         assert numpy_version >= (1, 21), f"NumPy 1.21+ required, found {np.__version__}"
 
         # Test NumPy functionality
@@ -74,7 +77,7 @@ class TestCoreDependencyCompatibility:
             np.std(test_array),
             np.sum(test_array),
             np.max(test_array),
-            np.min(test_array)
+            np.min(test_array),
         ]
 
         for result in operations:
@@ -88,9 +91,12 @@ class TestCoreDependencyCompatibility:
 
         # Test NumPy dtype compatibility
         supported_dtypes = [
-            np.float32, np.float64,
-            np.int32, np.int64,
-            np.bool_, np.object_
+            np.float32,
+            np.float64,
+            np.int32,
+            np.int64,
+            np.bool_,
+            np.object_,
         ]
 
         for dtype in supported_dtypes:
@@ -102,39 +108,35 @@ class TestCoreDependencyCompatibility:
         import pandas as pd
 
         # Check Pandas version
-        pandas_version = tuple(map(int, pd.__version__.split('.')[:2]))
+        pandas_version = tuple(map(int, pd.__version__.split(".")[:2]))
         assert pandas_version >= (1, 5), f"Pandas 1.5+ required, found {pd.__version__}"
 
         # Test DataFrame creation and operations
-        df = pd.DataFrame({
-            'A': [1, 2, 3, 4, 5],
-            'B': ['a', 'b', 'c', 'd', 'e'],
-            'C': [1.1, 2.2, 3.3, 4.4, 5.5],
-            'D': pd.date_range('2023-01-01', periods=5)
-        })
+        df = pd.DataFrame(
+            {
+                "A": [1, 2, 3, 4, 5],
+                "B": ["a", "b", "c", "d", "e"],
+                "C": [1.1, 2.2, 3.3, 4.4, 5.5],
+                "D": pd.date_range("2023-01-01", periods=5),
+            }
+        )
 
         # Test basic DataFrame operations
         assert len(df) == 5
-        assert list(df.columns) == ['A', 'B', 'C', 'D']
-        assert df['A'].dtype in [np.int32, np.int64]
-        assert df['B'].dtype == object
-        assert df['C'].dtype == np.float64
+        assert list(df.columns) == ["A", "B", "C", "D"]
+        assert df["A"].dtype in [np.int32, np.int64]
+        assert df["B"].dtype == object
+        assert df["C"].dtype == np.float64
 
         # Test DataFrame methods
-        operations = [
-            df.describe(),
-            df.head(),
-            df.tail(),
-            df.info(),
-            df.dtypes
-        ]
+        operations = [df.describe(), df.head(), df.tail(), df.info(), df.dtypes]
 
         # All operations should complete without error
         for op in operations:
             assert op is not None
 
         # Test Pandas I/O capabilities
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
             df.to_csv(f.name, index=False)
             loaded_df = pd.read_csv(f.name)
 
@@ -164,8 +166,11 @@ class TestCoreDependencyCompatibility:
             pytest.skip("scikit-learn not available")
 
         # Check scikit-learn version
-        sklearn_version = tuple(map(int, sklearn.__version__.split('.')[:2]))
-        assert sklearn_version >= (1, 0), f"scikit-learn 1.0+ required, found {sklearn.__version__}"
+        sklearn_version = tuple(map(int, sklearn.__version__.split(".")[:2]))
+        assert sklearn_version >= (
+            1,
+            0,
+        ), f"scikit-learn 1.0+ required, found {sklearn.__version__}"
 
         # Test anomaly detection algorithms
         np.random.seed(42)
@@ -201,7 +206,7 @@ class TestCoreDependencyCompatibility:
             import joblib
 
             # Test model serialization
-            with tempfile.NamedTemporaryFile(suffix='.pkl', delete=False) as f:
+            with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as f:
                 joblib.dump(iso_forest, f.name)
                 loaded_model = joblib.load(f.name)
 
@@ -227,8 +232,11 @@ class TestOptionalDependencyCompatibility:
             pytest.skip("PyTorch not available")
 
         # Check PyTorch version
-        torch_version = tuple(map(int, torch.__version__.split('.')[:2]))
-        assert torch_version >= (1, 12), f"PyTorch 1.12+ recommended, found {torch.__version__}"
+        torch_version = tuple(map(int, torch.__version__.split(".")[:2]))
+        assert torch_version >= (
+            1,
+            12,
+        ), f"PyTorch 1.12+ recommended, found {torch.__version__}"
 
         # Test basic PyTorch functionality
         x = torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0])
@@ -275,21 +283,26 @@ class TestOptionalDependencyCompatibility:
             pytest.skip("TensorFlow not available")
 
         # Check TensorFlow version
-        tf_version = tuple(map(int, tf.__version__.split('.')[:2]))
-        assert tf_version >= (2, 8), f"TensorFlow 2.8+ recommended, found {tf.__version__}"
+        tf_version = tuple(map(int, tf.__version__.split(".")[:2]))
+        assert tf_version >= (
+            2,
+            8,
+        ), f"TensorFlow 2.8+ recommended, found {tf.__version__}"
 
         # Test basic TensorFlow functionality
         x = tf.constant([1.0, 2.0, 3.0, 4.0, 5.0])
         assert x.dtype == tf.float32
 
         # Test model creation
-        model = tf.keras.Sequential([
-            tf.keras.layers.Dense(3, input_shape=(5,), activation='relu'),
-            tf.keras.layers.Dense(5, activation='linear')
-        ])
+        model = tf.keras.Sequential(
+            [
+                tf.keras.layers.Dense(3, input_shape=(5,), activation="relu"),
+                tf.keras.layers.Dense(5, activation="linear"),
+            ]
+        )
 
         # Test model compilation
-        model.compile(optimizer='adam', loss='mse')
+        model.compile(optimizer="adam", loss="mse")
 
         # Test model prediction
         test_input = tf.random.normal((10, 5))
@@ -299,9 +312,9 @@ class TestOptionalDependencyCompatibility:
         assert isinstance(output, tf.Tensor)
 
         # Test GPU availability (optional)
-        gpu_available = len(tf.config.list_physical_devices('GPU')) > 0
+        gpu_available = len(tf.config.list_physical_devices("GPU")) > 0
         if gpu_available:
-            with tf.device('/GPU:0'):
+            with tf.device("/GPU:0"):
                 gpu_output = model(test_input)
                 assert gpu_output.shape == output.shape
 
@@ -320,7 +333,7 @@ class TestOptionalDependencyCompatibility:
 
         # Test JAX transformations
         def simple_function(x):
-            return jnp.sum(x ** 2)
+            return jnp.sum(x**2)
 
         # Test gradient computation
         grad_fn = grad(simple_function)
@@ -337,7 +350,7 @@ class TestOptionalDependencyCompatibility:
         assert jnp.allclose(jit_result, normal_result)
 
         # Test vectorization
-        vmap_fn = vmap(lambda x: x ** 2)
+        vmap_fn = vmap(lambda x: x**2)
         batch_x = jnp.array([[1, 2], [3, 4], [5, 6]])
         vmap_result = vmap_fn(batch_x)
 
@@ -352,10 +365,9 @@ class TestOptionalDependencyCompatibility:
             import dask.dataframe as dd
 
             # Test Dask DataFrame
-            df = pd.DataFrame({
-                'x': np.random.random(1000),
-                'y': np.random.random(1000)
-            })
+            df = pd.DataFrame(
+                {"x": np.random.random(1000), "y": np.random.random(1000)}
+            )
             ddf = dd.from_pandas(df, npartitions=4)
 
             # Test Dask operations
@@ -400,7 +412,7 @@ class TestOptionalDependencyCompatibility:
             import matplotlib.pyplot as plt
 
             # Test basic plotting (without display)
-            matplotlib.use('Agg')  # Use non-interactive backend
+            matplotlib.use("Agg")  # Use non-interactive backend
 
             fig, ax = plt.subplots()
             x = np.linspace(0, 10, 100)
@@ -451,7 +463,7 @@ class TestPackageManagerCompatibility:
                 [sys.executable, "-m", "pip", "--version"],
                 capture_output=True,
                 text=True,
-                timeout=10
+                timeout=10,
             )
 
             if result.returncode == 0:
@@ -461,8 +473,8 @@ class TestPackageManagerCompatibility:
                 # Extract version number
                 version_parts = pip_version.split()
                 for part in version_parts:
-                    if part.count('.') >= 1:  # Version format like "23.0.1"
-                        version_nums = part.split('.')
+                    if part.count(".") >= 1:  # Version format like "23.0.1"
+                        version_nums = part.split(".")
                         major_version = int(version_nums[0])
                         assert major_version >= 20  # Modern pip version
                         break
@@ -475,10 +487,7 @@ class TestPackageManagerCompatibility:
         # Test conda availability
         try:
             result = subprocess.run(
-                ["conda", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["conda", "--version"], capture_output=True, text=True, timeout=10
             )
 
             if result.returncode == 0:
@@ -500,10 +509,7 @@ class TestPackageManagerCompatibility:
         # Test Poetry availability
         try:
             result = subprocess.run(
-                ["poetry", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["poetry", "--version"], capture_output=True, text=True, timeout=10
             )
 
             if result.returncode == 0:
@@ -516,6 +522,7 @@ class TestPackageManagerCompatibility:
                     # Verify it's a valid TOML file
                     try:
                         import toml
+
                         config = toml.load(pyproject_path)
 
                         # Check for Poetry sections
@@ -538,10 +545,7 @@ class TestPackageManagerCompatibility:
         # Test Pipenv availability
         try:
             result = subprocess.run(
-                ["pipenv", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["pipenv", "--version"], capture_output=True, text=True, timeout=10
             )
 
             if result.returncode == 0:
@@ -579,6 +583,7 @@ class TestPythonDistributionCompatibility:
             # Test C extension compatibility
             try:
                 import _ctypes
+
                 assert _ctypes is not None
             except ImportError:
                 # C extensions not available
@@ -623,6 +628,7 @@ class TestPythonDistributionCompatibility:
 
             # Test memory efficiency
             import gc
+
             gc.collect()  # Force garbage collection
 
             # PyPy should handle memory efficiently
@@ -638,16 +644,14 @@ class TestPythonDistributionCompatibility:
         anaconda_indicators = [
             "anaconda" in sys.executable.lower(),
             "conda" in sys.executable.lower(),
-            os.getenv("CONDA_DEFAULT_ENV") is not None
+            os.getenv("CONDA_DEFAULT_ENV") is not None,
         ]
 
         is_anaconda = any(anaconda_indicators)
 
         if is_anaconda:
             # Test Anaconda-specific packages
-            anaconda_packages = [
-                "numpy", "pandas", "matplotlib", "scipy"
-            ]
+            anaconda_packages = ["numpy", "pandas", "matplotlib", "scipy"]
 
             for package in anaconda_packages:
                 try:
@@ -669,7 +673,7 @@ class TestPythonDistributionCompatibility:
             sys.prefix != sys.base_prefix,  # Virtual environment
             os.getenv("VIRTUAL_ENV") is not None,
             "venv" in sys.executable.lower(),
-            ".venv" in sys.executable.lower()
+            ".venv" in sys.executable.lower(),
         ]
 
         is_venv = any(venv_indicators)
@@ -686,8 +690,12 @@ class TestPythonDistributionCompatibility:
                 if sys.platform == "win32":
                     site_packages = venv_path_obj / "Lib" / "site-packages"
                 else:
-                    python_version = f"python{sys.version_info.major}.{sys.version_info.minor}"
-                    site_packages = venv_path_obj / "lib" / python_version / "site-packages"
+                    python_version = (
+                        f"python{sys.version_info.major}.{sys.version_info.minor}"
+                    )
+                    site_packages = (
+                        venv_path_obj / "lib" / python_version / "site-packages"
+                    )
 
                 if site_packages.exists():
                     assert site_packages.is_dir()
@@ -706,7 +714,7 @@ class TestDependencyConflictResolution:
         version_constraints = [
             ("numpy", ">=1.21.0,<2.0.0"),
             ("pandas", ">=1.5.0,<3.0.0"),
-            ("scikit-learn", ">=1.0.0,<2.0.0")
+            ("scikit-learn", ">=1.0.0,<2.0.0"),
         ]
 
         for package, constraint in version_constraints:
@@ -730,8 +738,15 @@ class TestDependencyConflictResolution:
         """Test graceful fallback when optional dependencies are missing."""
         # Test missing optional dependencies
         optional_packages = [
-            "torch", "tensorflow", "jax", "dask", "ray",
-            "plotly", "seaborn", "bokeh", "streamlit"
+            "torch",
+            "tensorflow",
+            "jax",
+            "dask",
+            "ray",
+            "plotly",
+            "seaborn",
+            "bokeh",
+            "streamlit",
         ]
 
         for package in optional_packages:
@@ -778,8 +793,8 @@ class TestDependencyConflictResolution:
         # Test that namespace packages work correctly
         namespace_indicators = [
             "google" in sys.modules,  # Google namespace packages
-            "azure" in sys.modules,   # Azure namespace packages
-            "aws" in sys.modules      # AWS namespace packages
+            "azure" in sys.modules,  # Azure namespace packages
+            "aws" in sys.modules,  # AWS namespace packages
         ]
 
         # Test basic import functionality
@@ -802,10 +817,10 @@ class TestDependencyConflictResolution:
         """Test compatibility with compiled extension modules."""
         # Test common extension modules
         extension_modules = [
-            "_ctypes",     # Core C extension
-            "_sqlite3",    # SQLite extension
-            "_ssl",        # SSL extension
-            "_json",       # JSON extension
+            "_ctypes",  # Core C extension
+            "_sqlite3",  # SQLite extension
+            "_ssl",  # SSL extension
+            "_json",  # JSON extension
         ]
 
         for module_name in extension_modules:

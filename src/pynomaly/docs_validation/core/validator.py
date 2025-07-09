@@ -1,5 +1,6 @@
 """Documentation Validator: Ensures all documentation meets required standards."""
 
+
 class DocumentationValidator:
     def __init__(self, config):
         self.config = config
@@ -14,6 +15,8 @@ class DocumentationValidator:
         # Validate links
 
         print("Validation complete.")
+
+
 class ValidationConfig:
     def __init__(self, path_to_docs):
         self.path_to_docs = path_to_docs
@@ -21,6 +24,7 @@ class ValidationConfig:
     def load(self):
         # Load configuration logic
         print(f"Loading configuration from {self.path_to_docs}...")
+
 
 class ValidationReporter:
     def __init__(self):

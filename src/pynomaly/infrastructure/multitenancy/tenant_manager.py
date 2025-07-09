@@ -7,16 +7,19 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pynomaly.shared.config import Config
 
 # from ..monitoring.opentelemetry_service import get_telemetry_service
 
+
 # Simple stub for monitoring
 def get_telemetry_service():
     """Simple stub for monitoring."""
     return None
+
+
 from ..compliance.audit_system import EventType, Severity, get_audit_system
 
 logger = logging.getLogger(__name__)
@@ -24,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 class TenantStatus(Enum):
     """Tenant status enumeration."""
+
     ACTIVE = "active"
     SUSPENDED = "suspended"
     PENDING = "pending"
@@ -33,6 +37,7 @@ class TenantStatus(Enum):
 
 class TenantTier(Enum):
     """Tenant service tiers."""
+
     FREE = "free"
     BASIC = "basic"
     PROFESSIONAL = "professional"
@@ -92,13 +97,13 @@ class Tenant:
     contact_email: str
 
     # Billing and subscription
-    subscription_id: Optional[str] = None
-    billing_address: Optional[dict[str, str]] = None
-    payment_method_id: Optional[str] = None
+    subscription_id: str | None = None
+    billing_address: dict[str, str] | None = None
+    payment_method_id: str | None = None
 
     # Security
-    api_key: Optional[str] = None
-    webhook_secret: Optional[str] = None
+    api_key: str | None = None
+    webhook_secret: str | None = None
     allowed_ip_ranges: set[str] = field(default_factory=set)
 
     # Metadata
@@ -106,7 +111,7 @@ class Tenant:
     custom_attributes: dict[str, Any] = field(default_factory=dict)
 
     # Usage metrics
-    last_activity: Optional[datetime] = None
+    last_activity: datetime | None = None
     total_requests: int = 0
     total_data_processed_gb: float = 0.0
 
@@ -140,7 +145,7 @@ class Tenant:
 class TenantManager:
     """Enterprise multi-tenant management system."""
 
-    def __init__(self, config: Optional[Config] = None):
+    def __init__(self, config: Config | None = None):
         """Initialize tenant manager."""
         self.config = config or Config()
         self.telemetry = get_telemetry_service()
@@ -154,11 +159,15 @@ class TenantManager:
         self.tier_configurations = self._initialize_tier_configurations()
 
         # Tenant isolation settings
-        self.enable_strict_isolation = self.config.get("multitenancy.strict_isolation", True)
-        self.enable_resource_monitoring = self.config.get("multitenancy.resource_monitoring", True)
+        self.enable_strict_isolation = self.config.get(
+            "multitenancy.strict_isolation", True
+        )
+        self.enable_resource_monitoring = self.config.get(
+            "multitenancy.resource_monitoring", True
+        )
 
         # Background tasks
-        self._monitoring_task: Optional[asyncio.Task] = None
+        self._monitoring_task: asyncio.Task | None = None
         self._monitoring_active = False
 
         logger.info("Tenant manager initialized")
@@ -179,7 +188,7 @@ class TenantManager:
                 advanced_analytics=False,
                 custom_algorithms=False,
                 priority_support=False,
-                data_retention_days=30
+                data_retention_days=30,
             ),
             TenantTier.BASIC: TenantConfiguration(
                 max_cpu_cores=2,
@@ -194,7 +203,7 @@ class TenantManager:
                 advanced_analytics=False,
                 custom_algorithms=False,
                 priority_support=False,
-                data_retention_days=90
+                data_retention_days=90,
             ),
             TenantTier.PROFESSIONAL: TenantConfiguration(
                 max_cpu_cores=4,
@@ -206,13 +215,17 @@ class TenantManager:
                 max_models=10,
                 max_datasets=50,
                 features_enabled={
-                    "basic_detection", "advanced_detection", "data_export",
-                    "basic_analytics", "advanced_analytics", "model_training"
+                    "basic_detection",
+                    "advanced_detection",
+                    "data_export",
+                    "basic_analytics",
+                    "advanced_analytics",
+                    "model_training",
                 },
                 advanced_analytics=True,
                 custom_algorithms=False,
                 priority_support=True,
-                data_retention_days=365
+                data_retention_days=365,
             ),
             TenantTier.ENTERPRISE: TenantConfiguration(
                 max_cpu_cores=16,
@@ -224,18 +237,26 @@ class TenantManager:
                 max_models=50,
                 max_datasets=200,
                 features_enabled={
-                    "basic_detection", "advanced_detection", "ensemble_methods",
-                    "data_export", "basic_analytics", "advanced_analytics",
-                    "model_training", "automl", "explainable_ai", "drift_detection",
-                    "real_time_processing", "custom_integrations"
+                    "basic_detection",
+                    "advanced_detection",
+                    "ensemble_methods",
+                    "data_export",
+                    "basic_analytics",
+                    "advanced_analytics",
+                    "model_training",
+                    "automl",
+                    "explainable_ai",
+                    "drift_detection",
+                    "real_time_processing",
+                    "custom_integrations",
                 },
                 advanced_analytics=True,
                 custom_algorithms=True,
                 priority_support=True,
                 data_retention_days=2555,  # 7 years
                 compliance_frameworks={"gdpr", "hipaa", "sox"},
-                allowed_regions={"us-east-1", "us-west-2", "eu-west-1"}
-            )
+                allowed_regions={"us-east-1", "us-west-2", "eu-west-1"},
+            ),
         }
 
     async def create_tenant(
@@ -246,7 +267,7 @@ class TenantManager:
         tier: TenantTier,
         owner_user_id: str,
         contact_email: str,
-        custom_config: Optional[TenantConfiguration] = None
+        custom_config: TenantConfiguration | None = None,
     ) -> Tenant:
         """Create a new tenant."""
         try:
@@ -270,7 +291,7 @@ class TenantManager:
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
                 owner_user_id=owner_user_id,
-                contact_email=contact_email
+                contact_email=contact_email,
             )
 
             # Store tenant
@@ -287,9 +308,9 @@ class TenantManager:
                 details={
                     "tenant_id": tenant_id,
                     "tenant_name": name,
-                    "tier": tier.value
+                    "tier": tier.value,
                 },
-                tenant_id=tenant_id
+                tenant_id=tenant_id,
             )
 
             # Record metrics
@@ -297,7 +318,7 @@ class TenantManager:
                 duration=0,
                 anomaly_count=1,
                 algorithm="tenant_management",
-                tenant_id=tenant_id
+                tenant_id=tenant_id,
             )
 
             logger.info(f"Created tenant {tenant_id} ({name}) with tier {tier.value}")
@@ -307,18 +328,20 @@ class TenantManager:
             logger.error(f"Failed to create tenant: {e}")
             raise
 
-    async def get_tenant(self, tenant_id: str) -> Optional[Tenant]:
+    async def get_tenant(self, tenant_id: str) -> Tenant | None:
         """Get tenant by ID."""
         return self.tenants.get(tenant_id)
 
-    async def get_tenant_by_api_key(self, api_key: str) -> Optional[Tenant]:
+    async def get_tenant_by_api_key(self, api_key: str) -> Tenant | None:
         """Get tenant by API key."""
         tenant_id = self.tenant_by_api_key.get(api_key)
         if tenant_id:
             return await self.get_tenant(tenant_id)
         return None
 
-    async def update_tenant_status(self, tenant_id: str, status: TenantStatus, reason: str = "") -> bool:
+    async def update_tenant_status(
+        self, tenant_id: str, status: TenantStatus, reason: str = ""
+    ) -> bool:
         """Update tenant status."""
         try:
             tenant = await self.get_tenant(tenant_id)
@@ -339,12 +362,14 @@ class TenantManager:
                     "tenant_id": tenant_id,
                     "old_status": old_status.value,
                     "new_status": status.value,
-                    "reason": reason
+                    "reason": reason,
                 },
-                tenant_id=tenant_id
+                tenant_id=tenant_id,
             )
 
-            logger.info(f"Updated tenant {tenant_id} status from {old_status.value} to {status.value}")
+            logger.info(
+                f"Updated tenant {tenant_id} status from {old_status.value} to {status.value}"
+            )
             return True
 
         except Exception as e:
@@ -353,15 +378,21 @@ class TenantManager:
 
     async def activate_tenant(self, tenant_id: str) -> bool:
         """Activate a tenant."""
-        return await self.update_tenant_status(tenant_id, TenantStatus.ACTIVE, "Manual activation")
+        return await self.update_tenant_status(
+            tenant_id, TenantStatus.ACTIVE, "Manual activation"
+        )
 
     async def suspend_tenant(self, tenant_id: str, reason: str = "") -> bool:
         """Suspend a tenant."""
-        return await self.update_tenant_status(tenant_id, TenantStatus.SUSPENDED, reason)
+        return await self.update_tenant_status(
+            tenant_id, TenantStatus.SUSPENDED, reason
+        )
 
     async def deactivate_tenant(self, tenant_id: str, reason: str = "") -> bool:
         """Deactivate a tenant."""
-        return await self.update_tenant_status(tenant_id, TenantStatus.DEACTIVATED, reason)
+        return await self.update_tenant_status(
+            tenant_id, TenantStatus.DEACTIVATED, reason
+        )
 
     async def update_tenant_tier(self, tenant_id: str, new_tier: TenantTier) -> bool:
         """Update tenant tier and configuration."""
@@ -391,13 +422,15 @@ class TenantManager:
                     "configuration_changes": {
                         "max_cpu_cores": f"{old_config.max_cpu_cores} -> {tenant.configuration.max_cpu_cores}",
                         "max_memory_gb": f"{old_config.max_memory_gb} -> {tenant.configuration.max_memory_gb}",
-                        "max_storage_gb": f"{old_config.max_storage_gb} -> {tenant.configuration.max_storage_gb}"
-                    }
+                        "max_storage_gb": f"{old_config.max_storage_gb} -> {tenant.configuration.max_storage_gb}",
+                    },
                 },
-                tenant_id=tenant_id
+                tenant_id=tenant_id,
             )
 
-            logger.info(f"Updated tenant {tenant_id} tier from {old_tier.value} to {new_tier.value}")
+            logger.info(
+                f"Updated tenant {tenant_id} tier from {old_tier.value} to {new_tier.value}"
+            )
             return True
 
         except Exception as e:
@@ -405,9 +438,7 @@ class TenantManager:
             return False
 
     async def update_tenant_configuration(
-        self,
-        tenant_id: str,
-        config_updates: dict[str, Any]
+        self, tenant_id: str, config_updates: dict[str, Any]
     ) -> bool:
         """Update specific tenant configuration settings."""
         try:
@@ -430,12 +461,14 @@ class TenantManager:
                 severity=Severity.MEDIUM,
                 details={
                     "tenant_id": tenant_id,
-                    "configuration_updates": config_updates
+                    "configuration_updates": config_updates,
                 },
-                tenant_id=tenant_id
+                tenant_id=tenant_id,
             )
 
-            logger.info(f"Updated configuration for tenant {tenant_id}: {config_updates}")
+            logger.info(
+                f"Updated configuration for tenant {tenant_id}: {config_updates}"
+            )
             return True
 
         except Exception as e:
@@ -443,10 +476,7 @@ class TenantManager:
             return False
 
     async def record_tenant_activity(
-        self,
-        tenant_id: str,
-        activity_type: str,
-        details: Optional[dict[str, Any]] = None
+        self, tenant_id: str, activity_type: str, details: dict[str, Any] | None = None
     ) -> None:
         """Record tenant activity."""
         tenant = await self.get_tenant(tenant_id)
@@ -459,10 +489,12 @@ class TenantManager:
                 duration=0,
                 anomaly_count=1,
                 algorithm=f"tenant_activity_{activity_type}",
-                tenant_id=tenant_id
+                tenant_id=tenant_id,
             )
 
-    async def check_resource_limits(self, tenant_id: str, resource_type: str, amount: float) -> bool:
+    async def check_resource_limits(
+        self, tenant_id: str, resource_type: str, amount: float
+    ) -> bool:
         """Check if tenant can use requested resources."""
         tenant = await self.get_tenant(tenant_id)
         if not tenant or not tenant.is_active():
@@ -479,15 +511,16 @@ class TenantManager:
             return False
         elif resource_type == "bandwidth_mbps" and amount > config.max_bandwidth_mbps:
             return False
-        elif resource_type == "requests_per_minute" and amount > config.max_requests_per_minute:
+        elif (
+            resource_type == "requests_per_minute"
+            and amount > config.max_requests_per_minute
+        ):
             return False
 
         return True
 
     async def list_tenants(
-        self,
-        status: Optional[TenantStatus] = None,
-        tier: Optional[TenantTier] = None
+        self, status: TenantStatus | None = None, tier: TenantTier | None = None
     ) -> list[Tenant]:
         """List tenants with optional filters."""
         tenants = list(self.tenants.values())
@@ -511,18 +544,20 @@ class TenantManager:
             "tenant_id": tenant_id,
             "status": tenant.status.value,
             "tier": tenant.tier.value,
-            "last_activity": tenant.last_activity.isoformat() if tenant.last_activity else None,
+            "last_activity": (
+                tenant.last_activity.isoformat() if tenant.last_activity else None
+            ),
             "total_requests": tenant.total_requests,
             "total_data_processed_gb": tenant.total_data_processed_gb,
             "configuration": {
                 "max_cpu_cores": tenant.configuration.max_cpu_cores,
                 "max_memory_gb": tenant.configuration.max_memory_gb,
                 "max_storage_gb": tenant.configuration.max_storage_gb,
-                "max_requests_per_minute": tenant.configuration.max_requests_per_minute
+                "max_requests_per_minute": tenant.configuration.max_requests_per_minute,
             },
             "features_enabled": list(tenant.configuration.features_enabled),
             "created_at": tenant.created_at.isoformat(),
-            "updated_at": tenant.updated_at.isoformat()
+            "updated_at": tenant.updated_at.isoformat(),
         }
 
     async def delete_tenant(self, tenant_id: str, reason: str = "") -> bool:
@@ -551,9 +586,9 @@ class TenantManager:
                 details={
                     "tenant_id": tenant_id,
                     "tenant_name": tenant.name,
-                    "reason": reason
+                    "reason": reason,
                 },
-                tenant_id=tenant_id
+                tenant_id=tenant_id,
             )
 
             logger.info(f"Deleted tenant {tenant_id} ({tenant.name})")
@@ -609,7 +644,9 @@ class TenantManager:
                 if tenant.last_activity:
                     inactive_days = (datetime.now() - tenant.last_activity).days
                     if inactive_days > 30:  # Configurable threshold
-                        logger.warning(f"Tenant {tenant.tenant_id} inactive for {inactive_days} days")
+                        logger.warning(
+                            f"Tenant {tenant.tenant_id} inactive for {inactive_days} days"
+                        )
 
     async def _check_resource_usage(self) -> None:
         """Monitor resource usage across tenants."""
@@ -617,18 +654,22 @@ class TenantManager:
         for tenant in self.tenants.values():
             if tenant.status == TenantStatus.ACTIVE:
                 # Record usage metrics
-                self.telemetry.record_system_metrics({
-                    "tenant_requests": tenant.total_requests,
-                    "tenant_data_processed": tenant.total_data_processed_gb
-                })
+                self.telemetry.record_system_metrics(
+                    {
+                        "tenant_requests": tenant.total_requests,
+                        "tenant_data_processed": tenant.total_data_processed_gb,
+                    }
+                )
 
     async def _cleanup_inactive_tenants(self) -> None:
         """Clean up inactive or expired tenants."""
         cleanup_threshold = datetime.now() - timedelta(days=365)  # 1 year
 
         for tenant in list(self.tenants.values()):
-            if (tenant.status == TenantStatus.DEACTIVATED and
-                tenant.updated_at < cleanup_threshold):
+            if (
+                tenant.status == TenantStatus.DEACTIVATED
+                and tenant.updated_at < cleanup_threshold
+            ):
                 logger.info(f"Cleaning up inactive tenant {tenant.tenant_id}")
                 # In production, this would trigger a proper deletion workflow
 
@@ -651,15 +692,15 @@ class TenantManager:
             "status_distribution": status_counts,
             "tier_distribution": tier_counts,
             "monitoring_active": self._monitoring_active,
-            "strict_isolation_enabled": self.enable_strict_isolation
+            "strict_isolation_enabled": self.enable_strict_isolation,
         }
 
 
 # Global tenant manager instance
-_tenant_manager: Optional[TenantManager] = None
+_tenant_manager: TenantManager | None = None
 
 
-def get_tenant_manager(config: Optional[Config] = None) -> TenantManager:
+def get_tenant_manager(config: Config | None = None) -> TenantManager:
     """Get the global tenant manager instance."""
     global _tenant_manager
     if _tenant_manager is None:

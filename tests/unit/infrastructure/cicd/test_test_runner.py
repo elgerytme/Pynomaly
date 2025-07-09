@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, mock_open, patch
 from uuid import uuid4
 
 import pytest
+
 from pynomaly.domain.models.cicd import PipelineStatus, TestSuite, TestType
 from pynomaly.infrastructure.cicd.test_runner import TestRunner
 
@@ -68,22 +69,19 @@ class TestTestRunner:
         assert "bandit" in security_config["default_command"]
 
     @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
-    async def test_execute_test_suite_success(self, mock_subprocess, test_runner, sample_test_suite, workspace_path):
+    async def test_execute_test_suite_success(
+        self, mock_subprocess, test_runner, sample_test_suite, workspace_path
+    ):
         """Test successful test suite execution."""
         # Mock subprocess
         mock_process = AsyncMock()
         mock_process.returncode = 0
-        mock_process.communicate.return_value = (
-            b"====== 5 passed in 2.5s ======",
-            b""
-        )
+        mock_process.communicate.return_value = (b"====== 5 passed in 2.5s ======", b"")
         mock_subprocess.return_value = mock_process
 
         # Execute test suite
         success = await test_runner.execute_test_suite(
-            sample_test_suite,
-            workspace_path,
-            {"TEST_ENV": "unit"}
+            sample_test_suite, workspace_path, {"TEST_ENV": "unit"}
         )
 
         assert success
@@ -93,14 +91,16 @@ class TestTestRunner:
         assert sample_test_suite.failed_tests == 0
 
     @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
-    async def test_execute_test_suite_failure(self, mock_subprocess, test_runner, sample_test_suite, workspace_path):
+    async def test_execute_test_suite_failure(
+        self, mock_subprocess, test_runner, sample_test_suite, workspace_path
+    ):
         """Test failed test suite execution."""
         # Mock subprocess failure
         mock_process = AsyncMock()
         mock_process.returncode = 1
         mock_process.communicate.return_value = (
             b"====== 3 passed, 2 failed in 2.5s ======",
-            b"errors occurred"
+            b"errors occurred",
         )
         mock_subprocess.return_value = mock_process
 
@@ -116,7 +116,9 @@ class TestTestRunner:
         assert sample_test_suite.passed_tests == 3
         assert sample_test_suite.failed_tests == 2
 
-    async def test_execute_already_running_test_suite(self, test_runner, sample_test_suite, workspace_path):
+    async def test_execute_already_running_test_suite(
+        self, test_runner, sample_test_suite, workspace_path
+    ):
         """Test executing already running test suite returns False."""
         # Mark as running
         test_runner.running_tests.add(sample_test_suite.suite_id)
@@ -172,9 +174,7 @@ class TestTestRunner:
 
         # Discover with custom pattern
         discovered = await test_runner.discover_tests(
-            TestType.UNIT,
-            workspace_path,
-            ["custom_tests/*.py"]
+            TestType.UNIT, workspace_path, ["custom_tests/*.py"]
         )
 
         assert len(discovered) >= 1
@@ -198,7 +198,9 @@ class TestTestRunner:
         assert "Unit test directory exists" in result["requirements_met"]
         assert "Pytest configuration found" in result["requirements_met"]
 
-    async def test_validate_test_environment_missing_directory(self, test_runner, workspace_path):
+    async def test_validate_test_environment_missing_directory(
+        self, test_runner, workspace_path
+    ):
         """Test validating environment with missing test directory."""
         # Create minimal setup (missing test directory)
         (workspace_path / "requirements.txt").touch()
@@ -212,7 +214,9 @@ class TestTestRunner:
         assert result["valid"] is True  # Still valid, just warnings
         assert "Unit test directory not found" in result["warnings"]
 
-    async def test_validate_test_environment_missing_dependencies(self, test_runner, workspace_path):
+    async def test_validate_test_environment_missing_dependencies(
+        self, test_runner, workspace_path
+    ):
         """Test validating environment with missing dependencies."""
         # Create directory but no dependency files
         (workspace_path / "tests" / "unit").mkdir(parents=True)
@@ -239,7 +243,9 @@ class TestTestRunner:
         assert "Workspace path does not exist" in result["errors"]
 
     @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
-    async def test_execute_unit_tests(self, mock_subprocess, test_runner, workspace_path):
+    async def test_execute_unit_tests(
+        self, mock_subprocess, test_runner, workspace_path
+    ):
         """Test executing unit tests with coverage."""
         # Create test suite
         test_suite = TestSuite(
@@ -253,16 +259,13 @@ class TestTestRunner:
         mock_process.returncode = 0
         mock_process.communicate.return_value = (
             b"test_example.py::test_function PASSED\n====== 1 passed in 1.0s ======",
-            b""
+            b"",
         )
         mock_subprocess.return_value = mock_process
 
         # Execute unit tests
         success = await test_runner._execute_unit_tests(
-            test_suite,
-            workspace_path,
-            "pytest -v",
-            {"PYTHONPATH": str(workspace_path)}
+            test_suite, workspace_path, "pytest -v", {"PYTHONPATH": str(workspace_path)}
         )
 
         assert success
@@ -273,7 +276,9 @@ class TestTestRunner:
         assert "--cov" in args[0]
 
     @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
-    async def test_execute_integration_tests(self, mock_subprocess, test_runner, workspace_path):
+    async def test_execute_integration_tests(
+        self, mock_subprocess, test_runner, workspace_path
+    ):
         """Test executing integration tests with setup/teardown."""
         # Create test suite
         test_suite = TestSuite(
@@ -287,7 +292,7 @@ class TestTestRunner:
         mock_process.returncode = 0
         mock_process.communicate.return_value = (
             b"test_integration.py::test_api PASSED\n====== 1 passed in 5.0s ======",
-            b""
+            b"",
         )
         mock_subprocess.return_value = mock_process
 
@@ -296,14 +301,16 @@ class TestTestRunner:
             test_suite,
             workspace_path,
             "pytest tests/integration/ -v",
-            {"PYTHONPATH": str(workspace_path)}
+            {"PYTHONPATH": str(workspace_path)},
         )
 
         assert success
         assert len(test_suite.tests) >= 1
 
     @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
-    async def test_execute_performance_tests(self, mock_subprocess, test_runner, workspace_path):
+    async def test_execute_performance_tests(
+        self, mock_subprocess, test_runner, workspace_path
+    ):
         """Test executing performance tests with benchmarking."""
         # Create test suite
         test_suite = TestSuite(
@@ -317,7 +324,7 @@ class TestTestRunner:
         mock_process.returncode = 0
         mock_process.communicate.return_value = (
             b"test_performance.py::test_benchmark PASSED\n====== 1 passed in 10.0s ======",
-            b""
+            b"",
         )
         mock_subprocess.return_value = mock_process
 
@@ -326,7 +333,7 @@ class TestTestRunner:
             test_suite,
             workspace_path,
             "pytest tests/performance/ --benchmark-only",
-            {"PYTHONPATH": str(workspace_path)}
+            {"PYTHONPATH": str(workspace_path)},
         )
 
         assert success
@@ -337,7 +344,9 @@ class TestTestRunner:
             assert "--benchmark-json" in args[0]
 
     @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
-    async def test_execute_security_tests(self, mock_subprocess, test_runner, workspace_path):
+    async def test_execute_security_tests(
+        self, mock_subprocess, test_runner, workspace_path
+    ):
         """Test executing security tests with multiple tools."""
         # Create test suite
         test_suite = TestSuite(
@@ -357,7 +366,7 @@ class TestTestRunner:
             test_suite,
             workspace_path,
             "bandit -r src/ && safety check",
-            {"PYTHONPATH": str(workspace_path)}
+            {"PYTHONPATH": str(workspace_path)},
         )
 
         assert success
@@ -379,9 +388,7 @@ class TestTestRunner:
         ====== 2 passed in 1.5s ======
         """
 
-        success = await test_runner._parse_pytest_output(
-            test_suite, stdout, "", 0
-        )
+        success = await test_runner._parse_pytest_output(test_suite, stdout, "", 0)
 
         assert success
         assert test_suite.passed_tests == 2
@@ -402,9 +409,7 @@ class TestTestRunner:
         ====== 1 passed, 1 failed in 2.0s ======
         """
 
-        success = await test_runner._parse_pytest_output(
-            test_suite, stdout, "", 1
-        )
+        success = await test_runner._parse_pytest_output(test_suite, stdout, "", 1)
 
         assert not success
         assert test_suite.passed_tests == 1
@@ -421,15 +426,17 @@ class TestTestRunner:
 
         stdout = "Tests completed successfully"
 
-        success = await test_runner._parse_pytest_output(
-            test_suite, stdout, "", 0
-        )
+        success = await test_runner._parse_pytest_output(test_suite, stdout, "", 0)
 
         assert success
         assert len(test_suite.tests) == 1  # Summary result created
         assert test_suite.tests[0].test_name == "unit_summary"
 
-    @patch("builtins.open", new_callable=mock_open, read_data='{"totals": {"percent_covered": 85.5}}')
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data='{"totals": {"percent_covered": 85.5}}',
+    )
     async def test_parse_coverage_results(self, mock_file, test_runner, workspace_path):
         """Test parsing coverage results."""
         test_suite = TestSuite(
@@ -446,8 +453,14 @@ class TestTestRunner:
 
         assert test_suite.overall_coverage == 85.5
 
-    @patch("builtins.open", new_callable=mock_open, read_data='{"benchmarks": [{"name": "test_benchmark", "stats": {"mean": 0.001}}]}')
-    async def test_parse_benchmark_results(self, mock_file, test_runner, workspace_path):
+    @patch(
+        "builtins.open",
+        new_callable=mock_open,
+        read_data='{"benchmarks": [{"name": "test_benchmark", "stats": {"mean": 0.001}}]}',
+    )
+    async def test_parse_benchmark_results(
+        self, mock_file, test_runner, workspace_path
+    ):
         """Test parsing benchmark results."""
         test_suite = TestSuite(
             suite_id=uuid4(),
@@ -478,12 +491,16 @@ class TestTestRunner:
         (workspace_path / "tests" / "unit").mkdir(parents=True)
         (workspace_path / "pytest.ini").touch()
 
-        await test_runner._validate_unit_test_environment(workspace_path, validation_result)
+        await test_runner._validate_unit_test_environment(
+            workspace_path, validation_result
+        )
 
         assert "Unit test directory exists" in validation_result["requirements_met"]
         assert "Pytest configuration found" in validation_result["requirements_met"]
 
-    async def test_validate_integration_test_environment(self, test_runner, workspace_path):
+    async def test_validate_integration_test_environment(
+        self, test_runner, workspace_path
+    ):
         """Test validating integration test environment specifically."""
         validation_result = {
             "valid": True,
@@ -496,12 +513,21 @@ class TestTestRunner:
         (workspace_path / "tests" / "integration").mkdir(parents=True)
         (workspace_path / "docker-compose.test.yml").touch()
 
-        await test_runner._validate_integration_test_environment(workspace_path, validation_result)
+        await test_runner._validate_integration_test_environment(
+            workspace_path, validation_result
+        )
 
-        assert "Integration test directory exists" in validation_result["requirements_met"]
-        assert "Docker test environment configuration found" in validation_result["requirements_met"]
+        assert (
+            "Integration test directory exists" in validation_result["requirements_met"]
+        )
+        assert (
+            "Docker test environment configuration found"
+            in validation_result["requirements_met"]
+        )
 
-    async def test_validate_performance_test_environment(self, test_runner, workspace_path):
+    async def test_validate_performance_test_environment(
+        self, test_runner, workspace_path
+    ):
         """Test validating performance test environment specifically."""
         validation_result = {
             "valid": True,
@@ -514,12 +540,20 @@ class TestTestRunner:
         (workspace_path / "tests" / "performance").mkdir(parents=True)
         (workspace_path / "requirements.txt").write_text("pytest-benchmark>=3.0")
 
-        await test_runner._validate_performance_test_environment(workspace_path, validation_result)
+        await test_runner._validate_performance_test_environment(
+            workspace_path, validation_result
+        )
 
-        assert "Performance test directory exists" in validation_result["requirements_met"]
-        assert "pytest-benchmark dependency found" in validation_result["requirements_met"]
+        assert (
+            "Performance test directory exists" in validation_result["requirements_met"]
+        )
+        assert (
+            "pytest-benchmark dependency found" in validation_result["requirements_met"]
+        )
 
-    async def test_validate_security_test_environment(self, test_runner, workspace_path):
+    async def test_validate_security_test_environment(
+        self, test_runner, workspace_path
+    ):
         """Test validating security test environment specifically."""
         validation_result = {
             "valid": True,
@@ -531,7 +565,9 @@ class TestTestRunner:
         # Create requirements with security tools
         (workspace_path / "requirements.txt").write_text("bandit>=1.7\\nsafety>=2.0")
 
-        await test_runner._validate_security_test_environment(workspace_path, validation_result)
+        await test_runner._validate_security_test_environment(
+            workspace_path, validation_result
+        )
 
         assert any("bandit" in req for req in validation_result["requirements_met"])
 
@@ -547,11 +583,17 @@ class TestTestRunner:
         # Create E2E test directory
         (workspace_path / "tests" / "e2e").mkdir(parents=True)
 
-        await test_runner._validate_e2e_test_environment(workspace_path, validation_result)
+        await test_runner._validate_e2e_test_environment(
+            workspace_path, validation_result
+        )
 
-        assert "End-to-end test directory exists" in validation_result["requirements_met"]
+        assert (
+            "End-to-end test directory exists" in validation_result["requirements_met"]
+        )
 
-    async def test_check_python_dependencies_pyproject(self, test_runner, workspace_path):
+    async def test_check_python_dependencies_pyproject(
+        self, test_runner, workspace_path
+    ):
         """Test checking Python dependencies with pyproject.toml."""
         validation_result = {
             "valid": True,
@@ -568,7 +610,9 @@ class TestTestRunner:
         assert validation_result["valid"] is True
         assert "pyproject.toml found" in validation_result["requirements_met"]
 
-    async def test_check_python_dependencies_requirements(self, test_runner, workspace_path):
+    async def test_check_python_dependencies_requirements(
+        self, test_runner, workspace_path
+    ):
         """Test checking Python dependencies with requirements.txt."""
         validation_result = {
             "valid": True,
@@ -602,7 +646,9 @@ class TestTestRunner:
         assert "No dependency file found" in validation_result["errors"]
 
     @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_exec")
-    async def test_setup_integration_environment(self, mock_subprocess, test_runner, workspace_path):
+    async def test_setup_integration_environment(
+        self, mock_subprocess, test_runner, workspace_path
+    ):
         """Test setting up integration test environment with docker-compose."""
         # Create docker-compose test file
         (workspace_path / "docker-compose.test.yml").touch()
@@ -616,14 +662,20 @@ class TestTestRunner:
 
         # Verify docker-compose up was called
         mock_subprocess.assert_called_once_with(
-            "docker-compose", "-f", str(workspace_path / "docker-compose.test.yml"), "up", "-d",
+            "docker-compose",
+            "-f",
+            str(workspace_path / "docker-compose.test.yml"),
+            "up",
+            "-d",
             cwd=workspace_path,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
 
     @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_exec")
-    async def test_cleanup_integration_environment(self, mock_subprocess, test_runner, workspace_path):
+    async def test_cleanup_integration_environment(
+        self, mock_subprocess, test_runner, workspace_path
+    ):
         """Test cleaning up integration test environment."""
         # Create docker-compose test file
         (workspace_path / "docker-compose.test.yml").touch()
@@ -637,7 +689,10 @@ class TestTestRunner:
 
         # Verify docker-compose down was called
         mock_subprocess.assert_called_once_with(
-            "docker-compose", "-f", str(workspace_path / "docker-compose.test.yml"), "down",
+            "docker-compose",
+            "-f",
+            str(workspace_path / "docker-compose.test.yml"),
+            "down",
             cwd=workspace_path,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
@@ -654,14 +709,17 @@ class TestTestRunner:
         await test_runner._add_test_error(
             test_suite,
             "Execution Error",
-            "Test execution failed due to missing dependency"
+            "Test execution failed due to missing dependency",
         )
 
         assert test_suite.status == PipelineStatus.FAILED
         assert len(test_suite.tests) == 1
         assert test_suite.tests[0].test_name == "error_execution_error"
         assert test_suite.tests[0].status == PipelineStatus.FAILED
-        assert test_suite.tests[0].error_message == "Test execution failed due to missing dependency"
+        assert (
+            test_suite.tests[0].error_message
+            == "Test execution failed due to missing dependency"
+        )
 
 
 @pytest.mark.asyncio
@@ -673,13 +731,15 @@ class TestTestRunnerIntegration:
         # Create test environment
         unit_dir = workspace_path / "tests" / "unit"
         unit_dir.mkdir(parents=True)
-        (unit_dir / "test_example.py").write_text("""
+        (unit_dir / "test_example.py").write_text(
+            """
 def test_example():
     assert True
 
 def test_another():
     assert 1 + 1 == 2
-""")
+"""
+        )
         (workspace_path / "pytest.ini").write_text("[tool:pytest]\\ntestpaths = tests")
         (workspace_path / "requirements.txt").write_text("pytest>=6.0")
 
@@ -706,20 +766,20 @@ def test_another():
         assert any("test_example.py" in test for test in discovered)
 
         # Note: Actual execution would require real pytest, so we mock it
-        with patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell") as mock_subprocess:
+        with patch(
+            "pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell"
+        ) as mock_subprocess:
             mock_process = AsyncMock()
             mock_process.returncode = 0
             mock_process.communicate.return_value = (
                 b"test_example.py::test_example PASSED\\ntest_example.py::test_another PASSED\\n====== 2 passed in 0.1s ======",
-                b""
+                b"",
             )
             mock_subprocess.return_value = mock_process
 
             # Execute test suite
             success = await test_runner.execute_test_suite(
-                test_suite,
-                workspace_path,
-                {"PYTHONPATH": str(workspace_path)}
+                test_suite, workspace_path, {"PYTHONPATH": str(workspace_path)}
             )
 
             assert success
@@ -735,12 +795,18 @@ def test_another():
             test_dir.mkdir(parents=True)
             (test_dir / f"test_{test_type_dir}.py").touch()
 
-        (workspace_path / "requirements.txt").write_text("pytest>=6.0\\npytest-benchmark>=3.0")
+        (workspace_path / "requirements.txt").write_text(
+            "pytest>=6.0\\npytest-benchmark>=3.0"
+        )
 
         # Test discovery for different types
         unit_tests = await test_runner.discover_tests(TestType.UNIT, workspace_path)
-        integration_tests = await test_runner.discover_tests(TestType.INTEGRATION, workspace_path)
-        performance_tests = await test_runner.discover_tests(TestType.PERFORMANCE, workspace_path)
+        integration_tests = await test_runner.discover_tests(
+            TestType.INTEGRATION, workspace_path
+        )
+        performance_tests = await test_runner.discover_tests(
+            TestType.PERFORMANCE, workspace_path
+        )
 
         assert len(unit_tests) >= 1
         assert len(integration_tests) >= 1
@@ -748,7 +814,9 @@ def test_another():
 
         # Validate environments
         for test_type in [TestType.UNIT, TestType.INTEGRATION, TestType.PERFORMANCE]:
-            validation = await test_runner.validate_test_environment(test_type, workspace_path)
+            validation = await test_runner.validate_test_environment(
+                test_type, workspace_path
+            )
             assert validation["valid"] is True
 
     async def test_error_handling_workflow(self, test_runner, workspace_path):

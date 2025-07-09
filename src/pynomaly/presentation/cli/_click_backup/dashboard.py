@@ -5,18 +5,19 @@ import json
 from pathlib import Path
 
 import click
-from pynomaly.application.services.visualization_dashboard_service import (
-    DashboardType,
-    RealTimeMetrics,
-    VisualizationDashboardService,
-)
-from pynomaly.infrastructure.config.container import Container
 from rich.console import Console
 from rich.layout import Layout
 from rich.live import Live
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.application.services.visualization_dashboard_service import (
+    DashboardType,
+    RealTimeMetrics,
+    VisualizationDashboardService,
+)
+from pynomaly.infrastructure.config.container import Container
 
 console = Console()
 

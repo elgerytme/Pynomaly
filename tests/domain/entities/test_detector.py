@@ -5,6 +5,7 @@ from unittest.mock import Mock
 
 import pandas as pd
 import pytest
+
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.entities.detector import Detector

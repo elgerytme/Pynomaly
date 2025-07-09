@@ -8,6 +8,7 @@ from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import pytest
+
 from pynomaly.application.services.deployment_orchestration_service import (
     DeploymentNotFoundError,
     DeploymentOrchestrationService,

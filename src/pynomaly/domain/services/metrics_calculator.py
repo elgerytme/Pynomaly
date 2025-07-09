@@ -427,32 +427,34 @@ class MetricsCalculator:
                 # Derived metrics
                 total = tn + fp + fn + tp
                 metrics["confusion_matrix_derived"] = {
-                    "true_positive_rate": float(tp / (tp + fn))
-                    if (tp + fn) > 0
-                    else 0.0,
-                    "false_positive_rate": float(fp / (fp + tn))
-                    if (fp + tn) > 0
-                    else 0.0,
-                    "true_negative_rate": float(tn / (tn + fp))
-                    if (tn + fp) > 0
-                    else 0.0,
-                    "false_negative_rate": float(fn / (fn + tp))
-                    if (fn + tp) > 0
-                    else 0.0,
-                    "positive_predictive_value": float(tp / (tp + fp))
-                    if (tp + fp) > 0
-                    else 0.0,
-                    "negative_predictive_value": float(tn / (tn + fn))
-                    if (tn + fn) > 0
-                    else 0.0,
+                    "true_positive_rate": (
+                        float(tp / (tp + fn)) if (tp + fn) > 0 else 0.0
+                    ),
+                    "false_positive_rate": (
+                        float(fp / (fp + tn)) if (fp + tn) > 0 else 0.0
+                    ),
+                    "true_negative_rate": (
+                        float(tn / (tn + fp)) if (tn + fp) > 0 else 0.0
+                    ),
+                    "false_negative_rate": (
+                        float(fn / (fn + tp)) if (fn + tp) > 0 else 0.0
+                    ),
+                    "positive_predictive_value": (
+                        float(tp / (tp + fp)) if (tp + fp) > 0 else 0.0
+                    ),
+                    "negative_predictive_value": (
+                        float(tn / (tn + fn)) if (tn + fn) > 0 else 0.0
+                    ),
                     "prevalence": float((tp + fn) / total) if total > 0 else 0.0,
                     "detection_rate": float(tp / total) if total > 0 else 0.0,
-                    "detection_prevalence": float((tp + fp) / total)
-                    if total > 0
-                    else 0.0,
-                    "balanced_accuracy": float((tp / (tp + fn) + tn / (tn + fp)) / 2)
-                    if (tp + fn) > 0 and (tn + fp) > 0
-                    else 0.0,
+                    "detection_prevalence": (
+                        float((tp + fp) / total) if total > 0 else 0.0
+                    ),
+                    "balanced_accuracy": (
+                        float((tp / (tp + fn) + tn / (tn + fp)) / 2)
+                        if (tp + fn) > 0 and (tn + fp) > 0
+                        else 0.0
+                    ),
                 }
 
         except Exception as e:

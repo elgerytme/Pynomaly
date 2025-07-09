@@ -8,7 +8,8 @@ import sys
 import traceback
 
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
+
 
 def test_app_creation():
     """Test FastAPI app creation and basic functionality"""
@@ -25,16 +26,18 @@ def test_app_creation():
         print("📋 Testing OpenAPI schema generation...")
         openapi_schema = app.openapi()
 
-        total_paths = len(openapi_schema.get('paths', {}))
-        test_results.append((f"✅ OpenAPI generation ({total_paths} endpoints)", "PASS"))
+        total_paths = len(openapi_schema.get("paths", {}))
+        test_results.append(
+            (f"✅ OpenAPI generation ({total_paths} endpoints)", "PASS")
+        )
 
         # Check for migrated endpoints in schema
-        paths = openapi_schema.get('paths', {})
+        paths = openapi_schema.get("paths", {})
         migrated_endpoints = [
-            '/api/v1/automl/profile',
-            '/api/v1/autonomous/detect',
-            '/api/v1/ensemble/detect',
-            '/api/v1/explainability/explain/prediction'
+            "/api/v1/automl/profile",
+            "/api/v1/autonomous/detect",
+            "/api/v1/ensemble/detect",
+            "/api/v1/explainability/explain/prediction",
         ]
 
         found_endpoints = []
@@ -42,10 +45,15 @@ def test_app_creation():
             if endpoint in paths:
                 found_endpoints.append(endpoint)
 
-        test_results.append((f"✅ Migrated endpoints found ({len(found_endpoints)}/{len(migrated_endpoints)})", "PASS"))
+        test_results.append(
+            (
+                f"✅ Migrated endpoints found ({len(found_endpoints)}/{len(migrated_endpoints)})",
+                "PASS",
+            )
+        )
 
         # Test that routes are properly registered
-        routes_count = len([route for route in app.routes if hasattr(route, 'path')])
+        routes_count = len([route for route in app.routes if hasattr(route, "path")])
         test_results.append((f"✅ Routes registered ({routes_count} routes)", "PASS"))
 
         return test_results, openapi_schema
@@ -55,6 +63,7 @@ def test_app_creation():
         traceback.print_exc()
         test_results.append((f"❌ App creation failed: {str(e)}", "FAIL"))
         return test_results, None
+
 
 def test_authentication_dependencies():
     """Test that auth dependencies are properly configured"""
@@ -78,19 +87,20 @@ def test_authentication_dependencies():
         test_results.append((f"❌ Auth dependencies failed: {str(e)}", "FAIL"))
         return test_results
 
+
 def analyze_endpoints(openapi_schema):
     """Analyze the endpoint structure"""
     if not openapi_schema:
         return []
 
-    paths = openapi_schema.get('paths', {})
+    paths = openapi_schema.get("paths", {})
     analysis = []
 
     # Group by router prefix
     router_groups = {}
     for path in paths:
-        if path.startswith('/api/v1/'):
-            prefix = path.split('/')[3] if len(path.split('/')) > 3 else 'root'
+        if path.startswith("/api/v1/"):
+            prefix = path.split("/")[3] if len(path.split("/")) > 3 else "root"
             router_groups[prefix] = router_groups.get(prefix, 0) + 1
 
     analysis.append("📊 Endpoint Analysis:")
@@ -98,6 +108,7 @@ def analyze_endpoints(openapi_schema):
         analysis.append(f"  • {router}: {count} endpoints")
 
     return analysis
+
 
 def main():
     """Main test runner"""
@@ -143,6 +154,7 @@ def main():
     else:
         print(f"\n⚠️  {failed} tests failed.")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

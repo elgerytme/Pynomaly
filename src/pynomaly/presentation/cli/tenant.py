@@ -561,9 +561,7 @@ def _display_usage_summary(usage_summary):
         status_color = (
             "red"
             if quota_info["is_exceeded"]
-            else "yellow"
-            if usage_pct > 80
-            else "green"
+            else "yellow" if usage_pct > 80 else "green"
         )
         status_text = "EXCEEDED" if quota_info["is_exceeded"] else "OK"
 

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
@@ -43,7 +43,7 @@ class TrainingConfigurationRequest(BaseModel):
     max_trials: int = Field(
         default=100, ge=10, le=1000, description="Maximum number of optimization trials"
     )
-    timeout_minutes: Optional[int] = Field(
+    timeout_minutes: int | None = Field(
         default=60, ge=1, le=1440, description="Timeout in minutes"
     )
     optimization_strategy: OptimizationStrategy = Field(
@@ -82,26 +82,26 @@ class TrainingConfigurationRequest(BaseModel):
     )
 
     # Resource constraints
-    max_memory_gb: Optional[float] = Field(
+    max_memory_gb: float | None = Field(
         default=None, ge=0.1, le=1024, description="Maximum memory usage in GB"
     )
-    max_cpu_cores: Optional[int] = Field(
+    max_cpu_cores: int | None = Field(
         default=None, ge=1, le=64, description="Maximum CPU cores"
     )
     use_gpu: bool = Field(default=False, description="Enable GPU acceleration")
 
     # Experiment tracking
-    experiment_name: Optional[str] = Field(
+    experiment_name: str | None = Field(
         default=None, description="Experiment name for tracking"
     )
     track_artifacts: bool = Field(default=True, description="Enable artifact tracking")
     save_models: bool = Field(default=True, description="Save trained models")
 
     # Algorithm selection
-    algorithm_whitelist: Optional[list[str]] = Field(
+    algorithm_whitelist: list[str] | None = Field(
         default=None, description="Allowed algorithms"
     )
-    algorithm_blacklist: Optional[list[str]] = Field(
+    algorithm_blacklist: list[str] | None = Field(
         default=None, description="Excluded algorithms"
     )
     ensemble_methods: list[str] = Field(
@@ -114,7 +114,7 @@ class CreateTrainingJobRequest(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=255, description="Job name")
     dataset_id: str = Field(..., min_length=1, description="Dataset ID")
-    target_algorithms: Optional[list[str]] = Field(
+    target_algorithms: list[str] | None = Field(
         default=None, description="Target algorithms"
     )
     configuration: TrainingConfigurationRequest = Field(
@@ -132,20 +132,20 @@ class TrainingJobResponse(BaseModel):
     target_algorithms: list[str]
 
     created_at: datetime
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    error_message: Optional[str] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    error_message: str | None = None
 
-    best_score: Optional[float] = None
-    best_parameters: Optional[dict[str, Any]] = None
+    best_score: float | None = None
+    best_parameters: dict[str, Any] | None = None
 
     total_trials: int
     successful_trials: int
     failed_trials: int
     execution_time_seconds: float
 
-    model_path: Optional[str] = None
-    experiment_id: Optional[str] = None
+    model_path: str | None = None
+    experiment_id: str | None = None
 
 
 class TrainingJobMetricsResponse(BaseModel):
@@ -158,8 +158,8 @@ class TrainingJobMetricsResponse(BaseModel):
     successful_trials: int
     failed_trials: int
     success_rate: float
-    best_score: Optional[float] = None
-    best_algorithm: Optional[str] = None
+    best_score: float | None = None
+    best_algorithm: str | None = None
     trial_history: list[dict[str, Any]] = []
 
 
@@ -167,9 +167,7 @@ class QuickOptimizeRequest(BaseModel):
     """Request model for quick optimization."""
 
     dataset_id: str = Field(..., description="Dataset ID")
-    algorithms: Optional[list[str]] = Field(
-        default=None, description="Target algorithms"
-    )
+    algorithms: list[str] | None = Field(default=None, description="Target algorithms")
     max_trials: int = Field(default=50, ge=10, le=200, description="Maximum trials")
     timeout_minutes: int = Field(
         default=30, ge=5, le=120, description="Timeout in minutes"
@@ -322,7 +320,7 @@ async def get_training_job(
 
 @router.get("/jobs", response_model=list[TrainingJobResponse])
 async def list_training_jobs(
-    status_filter: Optional[TrainingStatus] = Query(
+    status_filter: TrainingStatus | None = Query(
         None, alias="status", description="Filter by status"
     ),
     limit: int = Query(

@@ -4,7 +4,6 @@ import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -31,10 +30,10 @@ performance_app = typer.Typer(
 @performance_app.command()
 def benchmark(
     suite: str = typer.Option("quick", help="Benchmark suite to run"),
-    algorithms: Optional[list[str]] = typer.Option(
+    algorithms: list[str] | None = typer.Option(
         None, help="Specific algorithms to benchmark"
     ),
-    output_dir: Optional[str] = typer.Option(None, help="Output directory for results"),
+    output_dir: str | None = typer.Option(None, help="Output directory for results"),
     iterations: int = typer.Option(3, help="Number of benchmark iterations"),
     timeout: int = typer.Option(300, help="Timeout per test in seconds"),
     export_format: list[str] = typer.Option(
@@ -165,7 +164,7 @@ def scalability(
     min_features: int = typer.Option(10, help="Minimum feature count"),
     max_features: int = typer.Option(200, help="Maximum feature count"),
     steps: int = typer.Option(10, help="Number of test points"),
-    output_file: Optional[str] = typer.Option(
+    output_file: str | None = typer.Option(
         None, help="Output file for scalability analysis"
     ),
 ):
@@ -245,7 +244,7 @@ def stress_test(
     memory_pressure: int = typer.Option(500, help="Memory pressure in MB"),
     cpu_stress: int = typer.Option(1000, help="CPU intensive operations"),
     endurance_hours: int = typer.Option(0, help="Endurance test duration in hours"),
-    output_file: Optional[str] = typer.Option(
+    output_file: str | None = typer.Option(
         None, help="Output file for stress test results"
     ),
 ):
@@ -322,12 +321,12 @@ def stress_test(
 
 @performance_app.command()
 def compare(
-    algorithms: Optional[list[str]] = typer.Option(None, help="Algorithms to compare"),
-    datasets: Optional[list[str]] = typer.Option(
+    algorithms: list[str] | None = typer.Option(None, help="Algorithms to compare"),
+    datasets: list[str] | None = typer.Option(
         None, help="Datasets to use for comparison"
     ),
-    metrics: Optional[list[str]] = typer.Option(None, help="Metrics to compare"),
-    output_file: Optional[str] = typer.Option(
+    metrics: list[str] | None = typer.Option(None, help="Metrics to compare"),
+    output_file: str | None = typer.Option(
         None, help="Output file for comparison results"
     ),
 ):
@@ -431,11 +430,11 @@ def compare(
 
 @performance_app.command()
 def report(
-    results_dir: Optional[str] = typer.Option(
+    results_dir: str | None = typer.Option(
         None, help="Directory containing benchmark results"
     ),
     report_format: str = typer.Option("console", help="Report format"),
-    output_file: Optional[str] = typer.Option(None, help="Output file for report"),
+    output_file: str | None = typer.Option(None, help="Output file for report"),
 ):
     """Generate comprehensive performance analysis report."""
 

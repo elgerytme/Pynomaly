@@ -9,6 +9,10 @@ from uuid import uuid4
 
 import numpy as np
 import pytest
+from sklearn.ensemble import IsolationForest
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+
 from pynomaly.application.services.explainable_ai_service import (
     ExplainabilityError,
     ExplainableAIService,
@@ -29,9 +33,6 @@ from pynomaly.domain.entities.explainable_ai import (
     InstanceExplanation,
     TrustScore,
 )
-from sklearn.ensemble import IsolationForest
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
 
 
 @pytest.fixture

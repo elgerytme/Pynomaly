@@ -840,9 +840,7 @@ def _display_governance_dashboard(dashboard_data: dict):
     rate_color = (
         "green"
         if compliance_rate >= 95
-        else "yellow"
-        if compliance_rate >= 80
-        else "red"
+        else "yellow" if compliance_rate >= 80 else "red"
     )
 
     compliance_table.add_row(

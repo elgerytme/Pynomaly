@@ -15,6 +15,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import httpx
 import numpy as np
 import pytest
+
 from pynomaly.sdk import AsyncPynomalaClient, PynomalaClient
 from pynomaly.sdk.exceptions import (
     AuthenticationError,

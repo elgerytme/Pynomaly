@@ -61,7 +61,9 @@ class SyntheticDataConfig:
     privacy_method: PrivacyMethod | None = None
     privacy_budget: float = 1.0  # Epsilon for differential privacy
     anomaly_ratio: float = 0.1  # Ratio of anomalies to generate
-    quality_metrics: list[str] = field(default_factory=lambda: ["distribution", "correlation", "privacy"])
+    quality_metrics: list[str] = field(
+        default_factory=lambda: ["distribution", "correlation", "privacy"]
+    )
     constraints: dict[str, Any] = field(default_factory=dict)
     seed: int | None = None
 
@@ -117,9 +119,7 @@ class BaseSyntheticGenerator(ABC):
         pass
 
     async def evaluate_quality(
-        self,
-        original_data: np.ndarray,
-        synthetic_data: np.ndarray
+        self, original_data: np.ndarray, synthetic_data: np.ndarray
     ) -> dict[str, float]:
         """Evaluate quality of synthetic data."""
         try:
@@ -127,20 +127,26 @@ class BaseSyntheticGenerator(ABC):
 
             # Distribution similarity
             if "distribution" in self.config.quality_metrics:
-                quality_scores["distribution_similarity"] = await self._evaluate_distribution_similarity(
-                    original_data, synthetic_data
+                quality_scores["distribution_similarity"] = (
+                    await self._evaluate_distribution_similarity(
+                        original_data, synthetic_data
+                    )
                 )
 
             # Correlation preservation
             if "correlation" in self.config.quality_metrics:
-                quality_scores["correlation_preservation"] = await self._evaluate_correlation_preservation(
-                    original_data, synthetic_data
+                quality_scores["correlation_preservation"] = (
+                    await self._evaluate_correlation_preservation(
+                        original_data, synthetic_data
+                    )
                 )
 
             # Statistical properties
             if "statistical" in self.config.quality_metrics:
-                quality_scores["statistical_fidelity"] = await self._evaluate_statistical_fidelity(
-                    original_data, synthetic_data
+                quality_scores["statistical_fidelity"] = (
+                    await self._evaluate_statistical_fidelity(
+                        original_data, synthetic_data
+                    )
                 )
 
             # Utility preservation (simplified)
@@ -153,9 +159,7 @@ class BaseSyntheticGenerator(ABC):
             return {"error": 1.0}
 
     async def _evaluate_distribution_similarity(
-        self,
-        original: np.ndarray,
-        synthetic: np.ndarray
+        self, original: np.ndarray, synthetic: np.ndarray
     ) -> float:
         """Evaluate distribution similarity using KL divergence approximation."""
         try:
@@ -169,7 +173,7 @@ class BaseSyntheticGenerator(ABC):
                 bins = np.linspace(
                     min(np.min(orig_feature), np.min(synth_feature)),
                     max(np.max(orig_feature), np.max(synth_feature)),
-                    20
+                    20,
                 )
 
                 orig_hist, _ = np.histogram(orig_feature, bins=bins, density=True)
@@ -186,8 +190,9 @@ class BaseSyntheticGenerator(ABC):
 
                 # Jensen-Shannon divergence (symmetric)
                 m = 0.5 * (orig_hist + synth_hist)
-                js_div = 0.5 * np.sum(orig_hist * np.log(orig_hist / m)) + \
-                         0.5 * np.sum(synth_hist * np.log(synth_hist / m))
+                js_div = 0.5 * np.sum(orig_hist * np.log(orig_hist / m)) + 0.5 * np.sum(
+                    synth_hist * np.log(synth_hist / m)
+                )
 
                 # Convert to similarity (0 = identical, 1 = completely different)
                 similarity = 1.0 - min(1.0, js_div / np.log(2))
@@ -200,9 +205,7 @@ class BaseSyntheticGenerator(ABC):
             return 0.5
 
     async def _evaluate_correlation_preservation(
-        self,
-        original: np.ndarray,
-        synthetic: np.ndarray
+        self, original: np.ndarray, synthetic: np.ndarray
     ) -> float:
         """Evaluate correlation structure preservation."""
         try:
@@ -216,10 +219,12 @@ class BaseSyntheticGenerator(ABC):
 
             # Calculate Frobenius norm difference
             diff = orig_corr - synth_corr
-            frobenius_norm = np.linalg.norm(diff, 'fro')
+            frobenius_norm = np.linalg.norm(diff, "fro")
 
             # Normalize by size
-            max_possible_diff = np.linalg.norm(orig_corr, 'fro') + np.linalg.norm(synth_corr, 'fro')
+            max_possible_diff = np.linalg.norm(orig_corr, "fro") + np.linalg.norm(
+                synth_corr, "fro"
+            )
 
             if max_possible_diff > 0:
                 correlation_score = 1.0 - (frobenius_norm / max_possible_diff)
@@ -233,9 +238,7 @@ class BaseSyntheticGenerator(ABC):
             return 0.5
 
     async def _evaluate_statistical_fidelity(
-        self,
-        original: np.ndarray,
-        synthetic: np.ndarray
+        self, original: np.ndarray, synthetic: np.ndarray
     ) -> float:
         """Evaluate statistical properties preservation."""
         try:
@@ -314,7 +317,9 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
             synthetic_normalized = await self._generate_from_noise(noise)
 
             # Denormalize
-            synthetic_data = synthetic_normalized * (self.data_std + 1e-8) + self.data_mean
+            synthetic_data = (
+                synthetic_normalized * (self.data_std + 1e-8) + self.data_mean
+            )
 
             # Generate anomaly labels if requested
             anomaly_labels = None
@@ -333,10 +338,12 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
                 metadata={
                     "latent_dim": self.latent_dim,
                     "training_epochs": len(self.training_history),
-                    "generator_params": len(self.generator_params) if self.generator_params else 0
+                    "generator_params": (
+                        len(self.generator_params) if self.generator_params else 0
+                    ),
                 },
                 generation_time=generation_time,
-                anomaly_labels=anomaly_labels
+                anomaly_labels=anomaly_labels,
             )
 
         except Exception as e:
@@ -355,7 +362,7 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
             "layer2_weights": np.random.normal(0, 0.02, (128, 64)),
             "layer2_bias": np.zeros(64),
             "output_weights": np.random.normal(0, 0.02, (64, self.input_dim)),
-            "output_bias": np.zeros(self.input_dim)
+            "output_bias": np.zeros(self.input_dim),
         }
 
         # Discriminator: input_dim -> hidden -> 1
@@ -365,7 +372,7 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
             "layer2_weights": np.random.normal(0, 0.02, (64, 32)),
             "layer2_bias": np.zeros(32),
             "output_weights": np.random.normal(0, 0.02, (32, 1)),
-            "output_bias": np.zeros(1)
+            "output_bias": np.zeros(1),
         }
 
     async def _train_gan(self, X: np.ndarray) -> None:
@@ -381,7 +388,7 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
 
                 # Mini-batch training
                 for i in range(0, len(X), batch_size):
-                    batch_real = X[i:i + batch_size]
+                    batch_real = X[i : i + batch_size]
 
                     if len(batch_real) < batch_size:
                         continue
@@ -401,14 +408,18 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
                     avg_g_loss = epoch_g_loss / num_batches
                     avg_d_loss = epoch_d_loss / num_batches
 
-                    self.training_history.append({
-                        "epoch": epoch,
-                        "generator_loss": avg_g_loss,
-                        "discriminator_loss": avg_d_loss
-                    })
+                    self.training_history.append(
+                        {
+                            "epoch": epoch,
+                            "generator_loss": avg_g_loss,
+                            "discriminator_loss": avg_d_loss,
+                        }
+                    )
 
                 if epoch % 20 == 0:
-                    logger.info(f"GAN Epoch {epoch}, G_loss: {avg_g_loss:.4f}, D_loss: {avg_d_loss:.4f}")
+                    logger.info(
+                        f"GAN Epoch {epoch}, G_loss: {avg_g_loss:.4f}, D_loss: {avg_d_loss:.4f}"
+                    )
 
         except Exception as e:
             logger.error(f"GAN training failed: {e}")
@@ -469,15 +480,24 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
             x = noise
 
             # Layer 1
-            x = np.dot(x, self.generator_params["layer1_weights"]) + self.generator_params["layer1_bias"]
+            x = (
+                np.dot(x, self.generator_params["layer1_weights"])
+                + self.generator_params["layer1_bias"]
+            )
             x = np.maximum(0.01 * x, x)  # Leaky ReLU
 
             # Layer 2
-            x = np.dot(x, self.generator_params["layer2_weights"]) + self.generator_params["layer2_bias"]
+            x = (
+                np.dot(x, self.generator_params["layer2_weights"])
+                + self.generator_params["layer2_bias"]
+            )
             x = np.maximum(0.01 * x, x)  # Leaky ReLU
 
             # Output layer
-            x = np.dot(x, self.generator_params["output_weights"]) + self.generator_params["output_bias"]
+            x = (
+                np.dot(x, self.generator_params["output_weights"])
+                + self.generator_params["output_bias"]
+            )
             x = np.tanh(x)  # Tanh activation
 
             return x
@@ -492,15 +512,24 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
             x = data
 
             # Layer 1
-            x = np.dot(x, self.discriminator_params["layer1_weights"]) + self.discriminator_params["layer1_bias"]
+            x = (
+                np.dot(x, self.discriminator_params["layer1_weights"])
+                + self.discriminator_params["layer1_bias"]
+            )
             x = np.maximum(0.01 * x, x)  # Leaky ReLU
 
             # Layer 2
-            x = np.dot(x, self.discriminator_params["layer2_weights"]) + self.discriminator_params["layer2_bias"]
+            x = (
+                np.dot(x, self.discriminator_params["layer2_weights"])
+                + self.discriminator_params["layer2_bias"]
+            )
             x = np.maximum(0.01 * x, x)  # Leaky ReLU
 
             # Output layer
-            x = np.dot(x, self.discriminator_params["output_weights"]) + self.discriminator_params["output_bias"]
+            x = (
+                np.dot(x, self.discriminator_params["output_weights"])
+                + self.discriminator_params["output_bias"]
+            )
             x = 1.0 / (1.0 + np.exp(-x))  # Sigmoid
 
             return x.flatten()
@@ -516,7 +545,9 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
         noise_scale = learning_rate * loss * 0.01
 
         for param_name in self.discriminator_params:
-            noise = np.random.normal(0, noise_scale, self.discriminator_params[param_name].shape)
+            noise = np.random.normal(
+                0, noise_scale, self.discriminator_params[param_name].shape
+            )
             self.discriminator_params[param_name] -= noise
 
     async def _update_generator_params(self, loss: float) -> None:
@@ -526,13 +557,13 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
         noise_scale = learning_rate * loss * 0.01
 
         for param_name in self.generator_params:
-            noise = np.random.normal(0, noise_scale, self.generator_params[param_name].shape)
+            noise = np.random.normal(
+                0, noise_scale, self.generator_params[param_name].shape
+            )
             self.generator_params[param_name] -= noise
 
     async def _inject_anomalies(
-        self,
-        data: np.ndarray,
-        anomaly_ratio: float
+        self, data: np.ndarray, anomaly_ratio: float
     ) -> tuple[np.ndarray, np.ndarray]:
         """Inject anomalies into synthetic data."""
         try:
@@ -564,9 +595,7 @@ class VanillaGANGenerator(BaseSyntheticGenerator):
                 elif strategy == "pattern_break":
                     # Reverse some feature relationships
                     features_to_flip = np.random.choice(
-                        data.shape[1],
-                        size=min(3, data.shape[1]),
-                        replace=False
+                        data.shape[1], size=min(3, data.shape[1]), replace=False
                     )
                     anomalous_data[idx, features_to_flip] *= -1
 
@@ -626,7 +655,9 @@ class VAEGenerator(BaseSyntheticGenerator):
             synthetic_normalized = await self._decode_latent(latent_samples)
 
             # Denormalize
-            synthetic_data = synthetic_normalized * (self.data_std + 1e-8) + self.data_mean
+            synthetic_data = (
+                synthetic_normalized * (self.data_std + 1e-8) + self.data_mean
+            )
 
             # Generate anomaly labels if requested
             anomaly_labels = None
@@ -642,12 +673,9 @@ class VAEGenerator(BaseSyntheticGenerator):
                 generation_method=SyntheticMethod.VAE,
                 quality_scores={},
                 privacy_metrics={},
-                metadata={
-                    "latent_dim": self.latent_dim,
-                    "input_dim": self.input_dim
-                },
+                metadata={"latent_dim": self.latent_dim, "input_dim": self.input_dim},
                 generation_time=generation_time,
-                anomaly_labels=anomaly_labels
+                anomaly_labels=anomaly_labels,
             )
 
         except Exception as e:
@@ -665,7 +693,7 @@ class VAEGenerator(BaseSyntheticGenerator):
             "mean_weights": np.random.normal(0, 0.02, (hidden_dim, self.latent_dim)),
             "mean_bias": np.zeros(self.latent_dim),
             "logvar_weights": np.random.normal(0, 0.02, (hidden_dim, self.latent_dim)),
-            "logvar_bias": np.zeros(self.latent_dim)
+            "logvar_bias": np.zeros(self.latent_dim),
         }
 
         # Decoder: latent_dim -> hidden -> input_dim
@@ -673,7 +701,7 @@ class VAEGenerator(BaseSyntheticGenerator):
             "layer1_weights": np.random.normal(0, 0.02, (self.latent_dim, hidden_dim)),
             "layer1_bias": np.zeros(hidden_dim),
             "output_weights": np.random.normal(0, 0.02, (hidden_dim, self.input_dim)),
-            "output_bias": np.zeros(self.input_dim)
+            "output_bias": np.zeros(self.input_dim),
         }
 
     async def _train_vae(self, X: np.ndarray) -> None:
@@ -695,7 +723,7 @@ class VAEGenerator(BaseSyntheticGenerator):
 
                 # Calculate loss (reconstruction + KL divergence)
                 recon_loss = np.mean((X - reconstructed) ** 2)
-                kl_loss = -0.5 * np.mean(1 + log_var - mu ** 2 - np.exp(log_var))
+                kl_loss = -0.5 * np.mean(1 + log_var - mu**2 - np.exp(log_var))
                 total_loss = recon_loss + kl_loss
 
                 # Update parameters (simplified)
@@ -710,23 +738,38 @@ class VAEGenerator(BaseSyntheticGenerator):
     async def _encode(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Encode input to latent parameters."""
         # Hidden layer
-        h = np.dot(x, self.encoder_params["layer1_weights"]) + self.encoder_params["layer1_bias"]
+        h = (
+            np.dot(x, self.encoder_params["layer1_weights"])
+            + self.encoder_params["layer1_bias"]
+        )
         h = np.maximum(0, h)  # ReLU
 
         # Mean and log variance
-        mu = np.dot(h, self.encoder_params["mean_weights"]) + self.encoder_params["mean_bias"]
-        log_var = np.dot(h, self.encoder_params["logvar_weights"]) + self.encoder_params["logvar_bias"]
+        mu = (
+            np.dot(h, self.encoder_params["mean_weights"])
+            + self.encoder_params["mean_bias"]
+        )
+        log_var = (
+            np.dot(h, self.encoder_params["logvar_weights"])
+            + self.encoder_params["logvar_bias"]
+        )
 
         return mu, log_var
 
     async def _decode_latent(self, z: np.ndarray) -> np.ndarray:
         """Decode latent variables to data."""
         # Hidden layer
-        h = np.dot(z, self.decoder_params["layer1_weights"]) + self.decoder_params["layer1_bias"]
+        h = (
+            np.dot(z, self.decoder_params["layer1_weights"])
+            + self.decoder_params["layer1_bias"]
+        )
         h = np.maximum(0, h)  # ReLU
 
         # Output layer
-        output = np.dot(h, self.decoder_params["output_weights"]) + self.decoder_params["output_bias"]
+        output = (
+            np.dot(h, self.decoder_params["output_weights"])
+            + self.decoder_params["output_bias"]
+        )
 
         return output
 
@@ -737,29 +780,35 @@ class VAEGenerator(BaseSyntheticGenerator):
 
         # Update encoder
         for param_name in self.encoder_params:
-            noise = np.random.normal(0, noise_scale, self.encoder_params[param_name].shape)
+            noise = np.random.normal(
+                0, noise_scale, self.encoder_params[param_name].shape
+            )
             self.encoder_params[param_name] -= noise
 
         # Update decoder
         for param_name in self.decoder_params:
-            noise = np.random.normal(0, noise_scale, self.decoder_params[param_name].shape)
+            noise = np.random.normal(
+                0, noise_scale, self.decoder_params[param_name].shape
+            )
             self.decoder_params[param_name] -= noise
 
     async def _inject_vae_anomalies(
-        self,
-        data: np.ndarray,
-        anomaly_ratio: float
+        self, data: np.ndarray, anomaly_ratio: float
     ) -> tuple[np.ndarray, np.ndarray]:
         """Inject anomalies using VAE latent space manipulation."""
         try:
             num_anomalies = int(len(data) * anomaly_ratio)
 
             # Sample anomalous latent codes (from extreme regions)
-            anomalous_latent = np.random.normal(0, 3.0, (num_anomalies, self.latent_dim))  # Higher variance
+            anomalous_latent = np.random.normal(
+                0, 3.0, (num_anomalies, self.latent_dim)
+            )  # Higher variance
             anomalous_samples = await self._decode_latent(anomalous_latent)
 
             # Denormalize anomalous samples
-            anomalous_samples = anomalous_samples * (self.data_std + 1e-8) + self.data_mean
+            anomalous_samples = (
+                anomalous_samples * (self.data_std + 1e-8) + self.data_mean
+            )
 
             # Replace random samples with anomalous ones
             anomaly_indices = np.random.choice(len(data), num_anomalies, replace=False)
@@ -803,7 +852,9 @@ class StatisticalGenerator(BaseSyntheticGenerator):
             self.correlation_matrix = np.nan_to_num(self.correlation_matrix)
 
             # Ensure positive definite
-            self.correlation_matrix = await self._make_positive_definite(self.correlation_matrix)
+            self.correlation_matrix = await self._make_positive_definite(
+                self.correlation_matrix
+            )
 
             self.is_fitted = True
             logger.info("Statistical generator fitted")
@@ -824,13 +875,16 @@ class StatisticalGenerator(BaseSyntheticGenerator):
             multivariate_normal = np.random.multivariate_normal(
                 mean=np.zeros(self.input_dim),
                 cov=self.correlation_matrix,
-                size=num_samples
+                size=num_samples,
             )
 
             # Transform to uniform using normal CDF
-            uniform_samples = 0.5 * (1 + np.sign(multivariate_normal) *
-                                   np.sqrt(2 / np.pi) *
-                                   np.sqrt(np.abs(multivariate_normal)))
+            uniform_samples = 0.5 * (
+                1
+                + np.sign(multivariate_normal)
+                * np.sqrt(2 / np.pi)
+                * np.sqrt(np.abs(multivariate_normal))
+            )
 
             # Transform using inverse marginal CDFs
             synthetic_data = np.zeros_like(uniform_samples)
@@ -843,8 +897,10 @@ class StatisticalGenerator(BaseSyntheticGenerator):
             # Generate anomaly labels if requested
             anomaly_labels = None
             if self.config.anomaly_ratio > 0:
-                anomaly_labels, synthetic_data = await self._inject_statistical_anomalies(
-                    synthetic_data, self.config.anomaly_ratio
+                anomaly_labels, synthetic_data = (
+                    await self._inject_statistical_anomalies(
+                        synthetic_data, self.config.anomaly_ratio
+                    )
                 )
 
             generation_time = (datetime.now() - start_time).total_seconds()
@@ -856,10 +912,10 @@ class StatisticalGenerator(BaseSyntheticGenerator):
                 privacy_metrics={},
                 metadata={
                     "correlation_preserved": True,
-                    "marginal_distributions": list(self.marginal_distributions.keys())
+                    "marginal_distributions": list(self.marginal_distributions.keys()),
                 },
                 generation_time=generation_time,
-                anomaly_labels=anomaly_labels
+                anomaly_labels=anomaly_labels,
             )
 
         except Exception as e:
@@ -881,10 +937,12 @@ class StatisticalGenerator(BaseSyntheticGenerator):
                 "bin_centers": bin_centers,
                 "bin_edges": bin_edges,
                 "min": np.min(feature_data),
-                "max": np.max(feature_data)
+                "max": np.max(feature_data),
             }
 
-    async def _inverse_transform_marginal(self, uniform_samples: np.ndarray, feature_idx: int) -> np.ndarray:
+    async def _inverse_transform_marginal(
+        self, uniform_samples: np.ndarray, feature_idx: int
+    ) -> np.ndarray:
         """Apply inverse transform sampling for marginal distribution."""
         try:
             dist_info = self.marginal_distributions[feature_idx]
@@ -936,9 +994,7 @@ class StatisticalGenerator(BaseSyntheticGenerator):
             return np.eye(matrix.shape[0])
 
     async def _inject_statistical_anomalies(
-        self,
-        data: np.ndarray,
-        anomaly_ratio: float
+        self, data: np.ndarray, anomaly_ratio: float
     ) -> tuple[np.ndarray, np.ndarray]:
         """Inject anomalies using statistical methods."""
         try:
@@ -982,25 +1038,33 @@ class PrivacyPreservingGenerator:
 
     def __init__(self, privacy_config: dict[str, Any]):
         self.privacy_config = privacy_config
-        self.privacy_method = PrivacyMethod(privacy_config.get("method", "differential_privacy"))
+        self.privacy_method = PrivacyMethod(
+            privacy_config.get("method", "differential_privacy")
+        )
         self.privacy_budget = privacy_config.get("budget", 1.0)
 
     async def apply_privacy_protection(
         self,
         generator: BaseSyntheticGenerator,
         X: np.ndarray,
-        y: np.ndarray | None = None
+        y: np.ndarray | None = None,
     ) -> tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
         """Apply privacy protection to synthetic data generation."""
         try:
             logger.info(f"Applying {self.privacy_method} privacy protection")
 
             if self.privacy_method == PrivacyMethod.DIFFERENTIAL_PRIVACY:
-                protected_generator, analysis = await self._apply_differential_privacy(generator, X, y)
+                protected_generator, analysis = await self._apply_differential_privacy(
+                    generator, X, y
+                )
             elif self.privacy_method == PrivacyMethod.K_ANONYMITY:
-                protected_generator, analysis = await self._apply_k_anonymity(generator, X, y)
+                protected_generator, analysis = await self._apply_k_anonymity(
+                    generator, X, y
+                )
             else:
-                protected_generator, analysis = await self._apply_basic_privacy(generator, X, y)
+                protected_generator, analysis = await self._apply_basic_privacy(
+                    generator, X, y
+                )
 
             return protected_generator, analysis
 
@@ -1012,7 +1076,7 @@ class PrivacyPreservingGenerator:
         self,
         generator: BaseSyntheticGenerator,
         X: np.ndarray,
-        y: np.ndarray | None = None
+        y: np.ndarray | None = None,
     ) -> tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
         """Apply differential privacy."""
         try:
@@ -1034,10 +1098,13 @@ class PrivacyPreservingGenerator:
                 risk_metrics={
                     "privacy_loss": float(self.privacy_budget),
                     "noise_scale": float(noise_scale),
-                    "data_utility": self._estimate_utility_loss(X, noisy_X)
+                    "data_utility": self._estimate_utility_loss(X, noisy_X),
                 },
                 recommended_usage="Suitable for general synthetic data sharing",
-                limitations=["Utility decreases with stronger privacy", "Requires careful budget management"]
+                limitations=[
+                    "Utility decreases with stronger privacy",
+                    "Requires careful budget management",
+                ],
             )
 
             return generator, analysis
@@ -1050,7 +1117,7 @@ class PrivacyPreservingGenerator:
         self,
         generator: BaseSyntheticGenerator,
         X: np.ndarray,
-        y: np.ndarray | None = None
+        y: np.ndarray | None = None,
     ) -> tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
         """Apply k-anonymity."""
         try:
@@ -1069,10 +1136,13 @@ class PrivacyPreservingGenerator:
                 privacy_guarantee=f"{k}-anonymity",
                 risk_metrics={
                     "k_value": float(k),
-                    "data_utility": self._estimate_utility_loss(X, anonymized_X)
+                    "data_utility": self._estimate_utility_loss(X, anonymized_X),
                 },
                 recommended_usage="Suitable when k individuals cannot be distinguished",
-                limitations=["Vulnerable to homogeneity attacks", "May not prevent attribute disclosure"]
+                limitations=[
+                    "Vulnerable to homogeneity attacks",
+                    "May not prevent attribute disclosure",
+                ],
             )
 
             return generator, analysis
@@ -1085,7 +1155,7 @@ class PrivacyPreservingGenerator:
         self,
         generator: BaseSyntheticGenerator,
         X: np.ndarray,
-        y: np.ndarray | None = None
+        y: np.ndarray | None = None,
     ) -> tuple[BaseSyntheticGenerator, PrivacyAnalysis]:
         """Apply basic privacy protection."""
         # Simple data perturbation
@@ -1100,7 +1170,7 @@ class PrivacyPreservingGenerator:
             privacy_guarantee="Basic noise addition",
             risk_metrics={"noise_level": noise_level},
             recommended_usage="Basic protection only",
-            limitations=["No formal privacy guarantee"]
+            limitations=["No formal privacy guarantee"],
         )
 
         return generator, analysis
@@ -1112,7 +1182,9 @@ class PrivacyPreservingGenerator:
         feature_ranges = np.max(X, axis=0) - np.min(X, axis=0)
         return float(np.max(feature_ranges))
 
-    def _estimate_utility_loss(self, original: np.ndarray, modified: np.ndarray) -> float:
+    def _estimate_utility_loss(
+        self, original: np.ndarray, modified: np.ndarray
+    ) -> float:
         """Estimate utility loss due to privacy protection."""
         try:
             # Calculate mean squared error
@@ -1168,7 +1240,9 @@ class SyntheticDataOrchestrator:
         self.privacy_generator: PrivacyPreservingGenerator | None = None
         self.generation_history: list[SyntheticDataResult] = []
 
-    async def create_generator(self, config: SyntheticDataConfig) -> BaseSyntheticGenerator:
+    async def create_generator(
+        self, config: SyntheticDataConfig
+    ) -> BaseSyntheticGenerator:
         """Create synthetic data generator."""
         try:
             if config.method == SyntheticMethod.VANILLA_GAN:
@@ -1178,17 +1252,18 @@ class SyntheticDataOrchestrator:
             elif config.method == SyntheticMethod.STATISTICAL:
                 generator = StatisticalGenerator(config)
             else:
-                logger.warning(f"Unknown method {config.method}, using statistical generator")
+                logger.warning(
+                    f"Unknown method {config.method}, using statistical generator"
+                )
                 generator = StatisticalGenerator(config)
 
             self.generators[config.method] = generator
 
             # Add privacy protection if specified
             if config.privacy_method:
-                self.privacy_generator = PrivacyPreservingGenerator({
-                    "method": config.privacy_method,
-                    "budget": config.privacy_budget
-                })
+                self.privacy_generator = PrivacyPreservingGenerator(
+                    {"method": config.privacy_method, "budget": config.privacy_budget}
+                )
 
             return generator
 
@@ -1201,7 +1276,7 @@ class SyntheticDataOrchestrator:
         X: np.ndarray,
         config: SyntheticDataConfig,
         y: np.ndarray | None = None,
-        feature_names: list[str] | None = None
+        feature_names: list[str] | None = None,
     ) -> SyntheticDataResult:
         """Generate synthetic data with quality evaluation."""
         try:
@@ -1213,8 +1288,10 @@ class SyntheticDataOrchestrator:
             # Apply privacy protection if needed
             privacy_analysis = None
             if self.privacy_generator:
-                generator, privacy_analysis = await self.privacy_generator.apply_privacy_protection(
-                    generator, X, y
+                generator, privacy_analysis = (
+                    await self.privacy_generator.apply_privacy_protection(
+                        generator, X, y
+                    )
                 )
             else:
                 # Fit generator normally
@@ -1249,7 +1326,7 @@ class SyntheticDataOrchestrator:
         X: np.ndarray,
         methods: list[SyntheticMethod],
         num_samples: int,
-        y: np.ndarray | None = None
+        y: np.ndarray | None = None,
     ) -> dict[SyntheticMethod, SyntheticDataResult]:
         """Compare different synthetic data generation methods."""
         try:
@@ -1262,7 +1339,7 @@ class SyntheticDataOrchestrator:
                     config = SyntheticDataConfig(
                         method=method,
                         data_type=DataType.TABULAR,
-                        num_samples=num_samples
+                        num_samples=num_samples,
                     )
 
                     result = await self.generate_synthetic_data(X, config, y)
@@ -1294,12 +1371,16 @@ class SyntheticDataOrchestrator:
                         "count": 0,
                         "quality_scores": [],
                         "generation_times": [],
-                        "sample_counts": []
+                        "sample_counts": [],
                     }
 
                 method_quality[method]["count"] += 1
-                method_quality[method]["generation_times"].append(result.generation_time)
-                method_quality[method]["sample_counts"].append(len(result.synthetic_data))
+                method_quality[method]["generation_times"].append(
+                    result.generation_time
+                )
+                method_quality[method]["sample_counts"].append(
+                    len(result.synthetic_data)
+                )
 
                 # Aggregate quality scores
                 for metric, score in result.quality_scores.items():
@@ -1311,7 +1392,7 @@ class SyntheticDataOrchestrator:
             summary = {
                 "total_generations": len(self.generation_history),
                 "methods_used": list(method_quality.keys()),
-                "method_performance": {}
+                "method_performance": {},
             }
 
             for method, data in method_quality.items():
@@ -1319,16 +1400,22 @@ class SyntheticDataOrchestrator:
                     "count": data["count"],
                     "avg_generation_time": float(np.mean(data["generation_times"])),
                     "avg_sample_count": float(np.mean(data["sample_counts"])),
-                    "quality_metrics": {}
+                    "quality_metrics": {},
                 }
 
                 # Average quality scores
-                for metric in ["distribution_similarity", "correlation_preservation", "utility_score"]:
+                for metric in [
+                    "distribution_similarity",
+                    "correlation_preservation",
+                    "utility_score",
+                ]:
                     if metric in data and data[metric]:
-                        summary["method_performance"][method]["quality_metrics"][metric] = {
+                        summary["method_performance"][method]["quality_metrics"][
+                            metric
+                        ] = {
                             "mean": float(np.mean(data[metric])),
                             "std": float(np.std(data[metric])),
-                            "count": len(data[metric])
+                            "count": len(data[metric]),
                         }
 
             return summary

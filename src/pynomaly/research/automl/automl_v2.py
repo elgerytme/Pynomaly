@@ -12,13 +12,16 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+
 class SearchStrategy(str, Enum):
     RANDOM_SEARCH = "random_search"
     EVOLUTIONARY = "evolutionary"
 
+
 class OptimizationObjective(str, Enum):
     ACCURACY = "accuracy"
     F1_SCORE = "f1_score"
+
 
 @dataclass
 class ArchitectureComponent:
@@ -26,12 +29,14 @@ class ArchitectureComponent:
     component_type: str
     parameters: dict[str, Any]
 
+
 @dataclass
 class NeuralArchitecture:
     architecture_id: str
     components: list[ArchitectureComponent]
     total_parameters: int = 0
     validation_score: float | None = None
+
 
 @dataclass
 class AutoMLPipeline:
@@ -42,28 +47,38 @@ class AutoMLPipeline:
     training_time: float = 0.0
     created_at: datetime = field(default_factory=datetime.now)
 
+
 class NeuralArchitectureSearchEngine:
     """Streamlined NAS engine"""
 
     def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.search_strategy = SearchStrategy(config.get("search_strategy", "random_search"))
+        self.search_strategy = SearchStrategy(
+            config.get("search_strategy", "random_search")
+        )
         self.max_evaluations = config.get("max_evaluations", 20)
 
-    async def search(self, X_train: np.ndarray, y_train: np.ndarray,
-                    X_val: np.ndarray, y_val: np.ndarray) -> NeuralArchitecture:
+    async def search(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        X_val: np.ndarray,
+        y_val: np.ndarray,
+    ) -> NeuralArchitecture:
         """Search for optimal architecture"""
         logger.info(f"Starting NAS with {self.search_strategy}")
 
         best_architecture = None
-        best_score = -float('inf')
+        best_score = -float("inf")
 
         for i in range(self.max_evaluations):
             # Generate random architecture
             architecture = await self._sample_random_architecture()
 
             # Evaluate architecture (mock)
-            score = await self._evaluate_architecture(architecture, X_train, y_train, X_val, y_val)
+            score = await self._evaluate_architecture(
+                architecture, X_train, y_train, X_val, y_val
+            )
             architecture.validation_score = score
 
             if score > best_score:
@@ -79,15 +94,19 @@ class NeuralArchitectureSearchEngine:
 
         components = [
             ArchitectureComponent("input", "input", {"input_shape": (5,)}),
-            ArchitectureComponent("dense_1", "dense", {
-                "units": random.choice([32, 64, 128]),
-                "activation": "relu"
-            }),
-            ArchitectureComponent("dense_2", "dense", {
-                "units": random.choice([16, 32, 64]),
-                "activation": "relu"
-            }),
-            ArchitectureComponent("output", "dense", {"units": 1, "activation": "sigmoid"})
+            ArchitectureComponent(
+                "dense_1",
+                "dense",
+                {"units": random.choice([32, 64, 128]), "activation": "relu"},
+            ),
+            ArchitectureComponent(
+                "dense_2",
+                "dense",
+                {"units": random.choice([16, 32, 64]), "activation": "relu"},
+            ),
+            ArchitectureComponent(
+                "output", "dense", {"units": 1, "activation": "sigmoid"}
+            ),
         ]
 
         total_params = sum(comp.parameters.get("units", 0) for comp in components)
@@ -95,17 +114,23 @@ class NeuralArchitectureSearchEngine:
         return NeuralArchitecture(
             architecture_id=f"arch_{datetime.now().strftime('%H%M%S')}",
             components=components,
-            total_parameters=total_params
+            total_parameters=total_params,
         )
 
-    async def _evaluate_architecture(self, architecture: NeuralArchitecture,
-                                   X_train: np.ndarray, y_train: np.ndarray,
-                                   X_val: np.ndarray, y_val: np.ndarray) -> float:
+    async def _evaluate_architecture(
+        self,
+        architecture: NeuralArchitecture,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        X_val: np.ndarray,
+        y_val: np.ndarray,
+    ) -> float:
         """Evaluate architecture (mock)"""
         # Mock evaluation based on architecture complexity
         complexity_score = len(architecture.components) / 10.0
         random_score = np.random.uniform(0.6, 0.9)
         return min(0.95, random_score + complexity_score * 0.05)
+
 
 class AutomatedFeatureEngineering:
     """Automated feature engineering"""
@@ -113,8 +138,9 @@ class AutomatedFeatureEngineering:
     def __init__(self, config: dict[str, Any]):
         self.config = config
 
-    async def engineer_features(self, X: np.ndarray, y: np.ndarray,
-                               feature_names: list[str] | None = None) -> tuple[np.ndarray, list[str]]:
+    async def engineer_features(
+        self, X: np.ndarray, y: np.ndarray, feature_names: list[str] | None = None
+    ) -> tuple[np.ndarray, list[str]]:
         """Engineer features automatically"""
         if feature_names is None:
             feature_names = [f"feature_{i}" for i in range(X.shape[1])]
@@ -142,18 +168,26 @@ class AutomatedFeatureEngineering:
 
         return X, feature_names
 
+
 class AutoMLV2System:
     """Complete AutoML 2.0 system"""
 
     def __init__(self, config: dict[str, Any]):
         self.config = config
         self.nas_engine = NeuralArchitectureSearchEngine(config.get("nas_config", {}))
-        self.feature_engineer = AutomatedFeatureEngineering(config.get("feature_config", {}))
+        self.feature_engineer = AutomatedFeatureEngineering(
+            config.get("feature_config", {})
+        )
         self.best_pipeline: AutoMLPipeline | None = None
 
-    async def fit(self, X_train: np.ndarray, y_train: np.ndarray,
-                 X_val: np.ndarray, y_val: np.ndarray,
-                 feature_names: list[str] | None = None) -> AutoMLPipeline:
+    async def fit(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        X_val: np.ndarray,
+        y_val: np.ndarray,
+        feature_names: list[str] | None = None,
+    ) -> AutoMLPipeline:
         """Fit complete AutoML pipeline"""
         logger.info("Starting AutoML 2.0 pipeline optimization")
         start_time = datetime.now()
@@ -166,10 +200,9 @@ class AutoMLV2System:
         # Apply same transformations to validation
         if X_train_eng.shape[1] > X_val.shape[1]:
             # Pad validation set or subset features
-            X_val_eng = np.column_stack([
-                X_val,
-                np.zeros((len(X_val), X_train_eng.shape[1] - X_val.shape[1]))
-            ])
+            X_val_eng = np.column_stack(
+                [X_val, np.zeros((len(X_val), X_train_eng.shape[1] - X_val.shape[1]))]
+            )
         else:
             X_val_eng = X_val
 
@@ -186,7 +219,7 @@ class AutoMLV2System:
             architecture=best_architecture,
             hyperparameters={"learning_rate": 0.001, "batch_size": 32},
             validation_score=best_architecture.validation_score or 0.0,
-            training_time=total_time
+            training_time=total_time,
         )
 
         logger.info(f"AutoML 2.0 completed in {total_time:.2f}s")
@@ -203,6 +236,6 @@ class AutoMLV2System:
             "training_time": self.best_pipeline.training_time,
             "architecture": {
                 "num_components": len(self.best_pipeline.architecture.components),
-                "total_parameters": self.best_pipeline.architecture.total_parameters
-            }
+                "total_parameters": self.best_pipeline.architecture.total_parameters,
+            },
         }

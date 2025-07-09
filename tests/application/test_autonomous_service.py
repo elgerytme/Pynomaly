@@ -6,6 +6,7 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pandas as pd
 import pytest
+
 from pynomaly.application.services.autonomous_service import (
     AlgorithmRecommendation,
     AutonomousConfig,

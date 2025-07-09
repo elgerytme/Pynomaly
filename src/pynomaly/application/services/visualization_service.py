@@ -1024,9 +1024,7 @@ class VisualizationService:
                             "color": (
                                 "green"
                                 if health_score > 80
-                                else "orange"
-                                if health_score > 60
-                                else "red"
+                                else "orange" if health_score > 60 else "red"
                             )
                         },
                         "steps": [
@@ -1160,7 +1158,8 @@ class VisualizationService:
             f"Score: {score:.3f}<br>Label: {label if labels is not None else 'Unknown'}"
             for score, label in zip(
                 anomaly_scores,
-                labels if labels is not None else [None] * len(anomaly_scores), strict=False,
+                labels if labels is not None else [None] * len(anomaly_scores),
+                strict=False,
             )
         ]
 

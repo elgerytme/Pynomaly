@@ -4,7 +4,6 @@ This module provides clean, non-circular authentication dependencies
 that work with OpenAPI generation.
 """
 
-
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 

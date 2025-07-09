@@ -242,9 +242,9 @@ class UncertaintyQuantificationService:
             uncertainty_metrics["confidence_interval_std"] = ci_std
 
         # Prediction interval (for individual predictions)
-        uncertainty_metrics[
-            "prediction_interval"
-        ] = self._calculate_prediction_interval(scores)
+        uncertainty_metrics["prediction_interval"] = (
+            self._calculate_prediction_interval(scores)
+        )
 
         # Entropy-based uncertainty (if applicable)
         uncertainty_metrics["entropy"] = self._calculate_entropy(scores)
@@ -279,9 +279,7 @@ class UncertaintyQuantificationService:
             "ensemble_mean": float(np.mean(mean_scores)),
             "ensemble_std": float(np.mean(std_scores)),
             "total_variance": float(np.var(ensemble_array)),
-            "aleatoric_uncertainty": float(
-                np.mean(std_scores**2)
-            ),  # Data uncertainty
+            "aleatoric_uncertainty": float(np.mean(std_scores**2)),  # Data uncertainty
             "epistemic_uncertainty": float(np.var(mean_scores)),  # Model uncertainty
         }
 

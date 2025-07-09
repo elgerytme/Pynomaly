@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -36,15 +36,15 @@ class IntegrationTestStep:
     timeout_seconds: int = 30
     retry_count: int = 0
     retry_delay: float = 1.0
-    cleanup_action: Optional[Callable] = None
+    cleanup_action: Callable | None = None
     dependencies: list[str] = field(default_factory=list)
 
     # Execution results
-    result: Optional[TestResult] = None
+    result: TestResult | None = None
     execution_time: float = 0.0
-    error_message: Optional[str] = None
+    error_message: str | None = None
     actual_result: Any = None
-    executed_at: Optional[datetime] = None
+    executed_at: datetime | None = None
 
 
 @dataclass
@@ -54,8 +54,8 @@ class IntegrationTestSuite:
     name: str
     description: str
     steps: list[IntegrationTestStep] = field(default_factory=list)
-    setup_action: Optional[Callable] = None
-    teardown_action: Optional[Callable] = None
+    setup_action: Callable | None = None
+    teardown_action: Callable | None = None
 
     # Execution results
     total_steps: int = 0
@@ -64,14 +64,14 @@ class IntegrationTestSuite:
     skipped_steps: int = 0
     error_steps: int = 0
     total_execution_time: float = 0.0
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
 
 class IntegrationTestRunner:
     """Runner for executing integration test suites."""
 
-    def __init__(self, logger: Optional[logging.Logger] = None):
+    def __init__(self, logger: logging.Logger | None = None):
         """Initialize the integration test runner.
 
         Args:
@@ -245,7 +245,7 @@ class IntegrationTestRunner:
                     else:
                         raise  # Final attempt failed
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             step.result = TestResult.ERROR
             step.error_message = f"Step timed out after {step.timeout_seconds}s"
             self.logger.error(f"Step {step.name} timed out")
@@ -455,8 +455,8 @@ class IntegrationTestBuilder:
         timeout_seconds: int = 30,
         retry_count: int = 0,
         retry_delay: float = 1.0,
-        cleanup_action: Optional[Callable] = None,
-        dependencies: Optional[list[str]] = None,
+        cleanup_action: Callable | None = None,
+        dependencies: list[str] | None = None,
     ) -> "IntegrationTestBuilder":
         """Add a step to the test suite."""
         step = IntegrationTestStep(

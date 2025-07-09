@@ -494,9 +494,9 @@ class ConfigurationTemplateService:
                         "type": self._get_parameter_type(value),
                         "description": f"Algorithm parameter: {param}",
                     }
-                    parameter_constraints[
-                        f"algorithm.{param}"
-                    ] = self._get_parameter_constraints(param, value)
+                    parameter_constraints[f"algorithm.{param}"] = (
+                        self._get_parameter_constraints(param, value)
+                    )
 
         # Common tunable parameters
         tunable_params = {
@@ -511,9 +511,9 @@ class ConfigurationTemplateService:
                     "type": self._get_parameter_type(value),
                     "description": f"Algorithm parameter: {param}",
                 }
-                parameter_constraints[
-                    f"algorithm.{param}"
-                ] = self._get_parameter_constraints(param, value)
+                parameter_constraints[f"algorithm.{param}"] = (
+                    self._get_parameter_constraints(param, value)
+                )
 
         # Evaluation parameters
         if config.evaluation_config:
@@ -529,9 +529,9 @@ class ConfigurationTemplateService:
                         "type": self._get_parameter_type(value),
                         "description": f"Evaluation parameter: {param}",
                     }
-                    parameter_constraints[
-                        f"evaluation.{param}"
-                    ] = self._get_parameter_constraints(param, value)
+                    parameter_constraints[f"evaluation.{param}"] = (
+                        self._get_parameter_constraints(param, value)
+                    )
 
         return variable_parameters, parameter_constraints
 
@@ -646,9 +646,9 @@ class ConfigurationTemplateService:
                 elif param_name == "random_state":
                     config.algorithm_config.random_state = f"{{{{ {param_path} }}}}"
                 elif param_name in config.algorithm_config.hyperparameters:
-                    config.algorithm_config.hyperparameters[
-                        param_name
-                    ] = f"{{{{ {param_path} }}}}"
+                    config.algorithm_config.hyperparameters[param_name] = (
+                        f"{{{{ {param_path} }}}}"
+                    )
 
         elif parts[0] == "evaluation":
             if len(parts) == 2:

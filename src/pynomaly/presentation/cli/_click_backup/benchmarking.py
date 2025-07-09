@@ -6,12 +6,6 @@ from datetime import datetime
 from pathlib import Path
 
 import click
-from pynomaly.application.services.performance_benchmarking_service import (
-    BenchmarkConfig,
-    BenchmarkSuite,
-    PerformanceBenchmarkingService,
-)
-from pynomaly.infrastructure.config.container import Container
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import (
@@ -22,6 +16,13 @@ from rich.progress import (
     TextColumn,
 )
 from rich.table import Table
+
+from pynomaly.application.services.performance_benchmarking_service import (
+    BenchmarkConfig,
+    BenchmarkSuite,
+    PerformanceBenchmarkingService,
+)
+from pynomaly.infrastructure.config.container import Container
 
 console = Console()
 

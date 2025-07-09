@@ -32,7 +32,7 @@ def create_websocket_router() -> APIRouter:
         heartbeat_interval=30,
         connection_timeout=300,
         max_connections_per_user=5,
-        require_auth=False  # Simplified for demo
+        require_auth=False,  # Simplified for demo
     )
 
     websocket_service = WebSocketService(config)
@@ -48,14 +48,14 @@ def create_websocket_router() -> APIRouter:
         # Extract client info
         client_info = {
             "client_host": websocket.client.host if websocket.client else "unknown",
-            "user_agent": websocket.headers.get("user-agent", "unknown")
+            "user_agent": websocket.headers.get("user-agent", "unknown"),
         }
 
         # Register connection
         connection = websocket_service.register_connection(
             connection_id=connection_id,
             user_id=None,  # Would be extracted from auth in a real implementation
-            client_info=client_info
+            client_info=client_info,
         )
 
         logger.info(f"WebSocket connection established: {connection_id}")
@@ -69,15 +69,16 @@ def create_websocket_router() -> APIRouter:
                 data={
                     "message": "Connected successfully",
                     "connection_id": connection_id,
-                    "timestamp": datetime.utcnow().isoformat()
+                    "timestamp": datetime.utcnow().isoformat(),
                 },
-                timestamp=datetime.utcnow()
+                timestamp=datetime.utcnow(),
             )
 
-            await websocket.send_text(json.dumps({
-                "type": welcome_message.type.value,
-                "data": welcome_message.data
-            }))
+            await websocket.send_text(
+                json.dumps(
+                    {"type": welcome_message.type.value, "data": welcome_message.data}
+                )
+            )
 
             # Start heartbeat task
             heartbeat_task = asyncio.create_task(
@@ -91,10 +92,7 @@ def create_websocket_router() -> APIRouter:
                 try:
                     message_data = json.loads(data)
                     await handle_websocket_message(
-                        websocket,
-                        connection_id,
-                        message_data,
-                        websocket_service
+                        websocket, connection_id, message_data, websocket_service
                     )
                 except json.JSONDecodeError:
                     logger.warning(f"Invalid JSON received from {connection_id}")
@@ -108,7 +106,7 @@ def create_websocket_router() -> APIRouter:
         finally:
             # Cleanup
             websocket_service.unregister_connection(connection_id)
-            if 'heartbeat_task' in locals():
+            if "heartbeat_task" in locals():
                 heartbeat_task.cancel()
 
     @router.websocket("/notifications/{user_id}")
@@ -122,13 +120,12 @@ def create_websocket_router() -> APIRouter:
         websocket_service.register_connection(
             connection_id=connection_id,
             user_id=user_id,
-            client_info={"type": "notifications"}
+            client_info={"type": "notifications"},
         )
 
         # Subscribe to user notifications
         websocket_service.subscribe_to_topic(
-            connection_id,
-            SubscriptionTopic.USER_NOTIFICATIONS
+            connection_id, SubscriptionTopic.USER_NOTIFICATIONS
         )
 
         logger.info(f"User notification WebSocket connected: {user_id}")
@@ -156,7 +153,7 @@ def create_websocket_router() -> APIRouter:
             "bytes_sent": metrics.bytes_sent,
             "bytes_received": metrics.bytes_received,
             "errors": metrics.errors,
-            "last_updated": metrics.last_updated.isoformat()
+            "last_updated": metrics.last_updated.isoformat(),
         }
 
     @router.get("/connections")
@@ -172,7 +169,7 @@ def create_websocket_router() -> APIRouter:
                     "connected_at": conn.connected_at.isoformat(),
                     "last_activity": conn.last_activity.isoformat(),
                     "status": conn.status.value,
-                    "subscriptions": [topic.value for topic in conn.subscriptions]
+                    "subscriptions": [topic.value for topic in conn.subscriptions],
                 }
                 for conn in connections
             ]
@@ -182,9 +179,7 @@ def create_websocket_router() -> APIRouter:
 
 
 async def send_heartbeat(
-    websocket: WebSocket,
-    connection_id: str,
-    service: WebSocketService
+    websocket: WebSocket, connection_id: str, service: WebSocketService
 ) -> None:
     """Send periodic heartbeat messages.
 
@@ -201,8 +196,8 @@ async def send_heartbeat(
                 "type": MessageType.HEARTBEAT.value,
                 "data": {
                     "timestamp": datetime.utcnow().isoformat(),
-                    "connection_id": connection_id
-                }
+                    "connection_id": connection_id,
+                },
             }
 
             await websocket.send_text(json.dumps(heartbeat_message))
@@ -217,7 +212,7 @@ async def handle_websocket_message(
     websocket: WebSocket,
     connection_id: str,
     message_data: dict,
-    service: WebSocketService
+    service: WebSocketService,
 ) -> None:
     """Handle incoming WebSocket message.
 
@@ -242,17 +237,15 @@ async def handle_websocket_message(
                     "type": "subscription_success",
                     "data": {
                         "topic": topic_name,
-                        "message": f"Subscribed to {topic_name}"
-                    }
+                        "message": f"Subscribed to {topic_name}",
+                    },
                 }
                 await websocket.send_text(json.dumps(response))
 
             except ValueError:
                 response = {
                     "type": "error",
-                    "data": {
-                        "message": f"Invalid topic: {topic_name}"
-                    }
+                    "data": {"message": f"Invalid topic: {topic_name}"},
                 }
                 await websocket.send_text(json.dumps(response))
 
@@ -268,17 +261,15 @@ async def handle_websocket_message(
                     "type": "unsubscription_success",
                     "data": {
                         "topic": topic_name,
-                        "message": f"Unsubscribed from {topic_name}"
-                    }
+                        "message": f"Unsubscribed from {topic_name}",
+                    },
                 }
                 await websocket.send_text(json.dumps(response))
 
             except ValueError:
                 response = {
                     "type": "error",
-                    "data": {
-                        "message": f"Invalid topic: {topic_name}"
-                    }
+                    "data": {"message": f"Invalid topic: {topic_name}"},
                 }
                 await websocket.send_text(json.dumps(response))
 
@@ -286,9 +277,7 @@ async def handle_websocket_message(
         # Handle ping request
         response = {
             "type": "pong",
-            "data": {
-                "timestamp": datetime.utcnow().isoformat()
-            }
+            "data": {"timestamp": datetime.utcnow().isoformat()},
         }
         await websocket.send_text(json.dumps(response))
 

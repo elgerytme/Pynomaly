@@ -12,7 +12,6 @@ def test_auth_imports():
     """Test that all auth components can be imported."""
     print("Testing auth imports...")
 
-
     print("✓ All auth components imported successfully")
 
 

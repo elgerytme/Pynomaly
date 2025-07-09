@@ -878,9 +878,7 @@ class AccessibilityTestRunner:
         score_color = (
             "#27ae60"
             if compliance_score >= 80
-            else "#f39c12"
-            if compliance_score >= 60
-            else "#e74c3c"
+            else "#f39c12" if compliance_score >= 60 else "#e74c3c"
         )
 
         return f"""
@@ -969,9 +967,7 @@ class AccessibilityTestRunner:
         status = (
             "PASS"
             if compliance_score >= 80
-            else "WARN"
-            if compliance_score >= 60
-            else "FAIL"
+            else "WARN" if compliance_score >= 60 else "FAIL"
         )
 
         summary = f"""
