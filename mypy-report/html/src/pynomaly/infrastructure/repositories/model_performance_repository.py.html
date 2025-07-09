@@ -1,0 +1,174 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../mypy-html.css">
+</head>
+<body>
+<h2>pynomaly.infrastructure.repositories.model_performance_repository</h2>
+<table>
+<caption>src\pynomaly\infrastructure\repositories\model_performance_repository.py</caption>
+<tbody><tr>
+<td class="table-lines"><pre><span id="L1" class="lineno"><a class="lineno" href="#L1">1</a></span>
+<span id="L2" class="lineno"><a class="lineno" href="#L2">2</a></span>
+<span id="L3" class="lineno"><a class="lineno" href="#L3">3</a></span>
+<span id="L4" class="lineno"><a class="lineno" href="#L4">4</a></span>
+<span id="L5" class="lineno"><a class="lineno" href="#L5">5</a></span>
+<span id="L6" class="lineno"><a class="lineno" href="#L6">6</a></span>
+<span id="L7" class="lineno"><a class="lineno" href="#L7">7</a></span>
+<span id="L8" class="lineno"><a class="lineno" href="#L8">8</a></span>
+<span id="L9" class="lineno"><a class="lineno" href="#L9">9</a></span>
+<span id="L10" class="lineno"><a class="lineno" href="#L10">10</a></span>
+<span id="L11" class="lineno"><a class="lineno" href="#L11">11</a></span>
+<span id="L12" class="lineno"><a class="lineno" href="#L12">12</a></span>
+<span id="L13" class="lineno"><a class="lineno" href="#L13">13</a></span>
+<span id="L14" class="lineno"><a class="lineno" href="#L14">14</a></span>
+<span id="L15" class="lineno"><a class="lineno" href="#L15">15</a></span>
+<span id="L16" class="lineno"><a class="lineno" href="#L16">16</a></span>
+<span id="L17" class="lineno"><a class="lineno" href="#L17">17</a></span>
+<span id="L18" class="lineno"><a class="lineno" href="#L18">18</a></span>
+<span id="L19" class="lineno"><a class="lineno" href="#L19">19</a></span>
+<span id="L20" class="lineno"><a class="lineno" href="#L20">20</a></span>
+<span id="L21" class="lineno"><a class="lineno" href="#L21">21</a></span>
+<span id="L22" class="lineno"><a class="lineno" href="#L22">22</a></span>
+<span id="L23" class="lineno"><a class="lineno" href="#L23">23</a></span>
+<span id="L24" class="lineno"><a class="lineno" href="#L24">24</a></span>
+<span id="L25" class="lineno"><a class="lineno" href="#L25">25</a></span>
+<span id="L26" class="lineno"><a class="lineno" href="#L26">26</a></span>
+<span id="L27" class="lineno"><a class="lineno" href="#L27">27</a></span>
+<span id="L28" class="lineno"><a class="lineno" href="#L28">28</a></span>
+<span id="L29" class="lineno"><a class="lineno" href="#L29">29</a></span>
+<span id="L30" class="lineno"><a class="lineno" href="#L30">30</a></span>
+<span id="L31" class="lineno"><a class="lineno" href="#L31">31</a></span>
+<span id="L32" class="lineno"><a class="lineno" href="#L32">32</a></span>
+<span id="L33" class="lineno"><a class="lineno" href="#L33">33</a></span>
+<span id="L34" class="lineno"><a class="lineno" href="#L34">34</a></span>
+<span id="L35" class="lineno"><a class="lineno" href="#L35">35</a></span>
+<span id="L36" class="lineno"><a class="lineno" href="#L36">36</a></span>
+<span id="L37" class="lineno"><a class="lineno" href="#L37">37</a></span>
+<span id="L38" class="lineno"><a class="lineno" href="#L38">38</a></span>
+<span id="L39" class="lineno"><a class="lineno" href="#L39">39</a></span>
+<span id="L40" class="lineno"><a class="lineno" href="#L40">40</a></span>
+<span id="L41" class="lineno"><a class="lineno" href="#L41">41</a></span>
+<span id="L42" class="lineno"><a class="lineno" href="#L42">42</a></span>
+<span id="L43" class="lineno"><a class="lineno" href="#L43">43</a></span>
+<span id="L44" class="lineno"><a class="lineno" href="#L44">44</a></span>
+<span id="L45" class="lineno"><a class="lineno" href="#L45">45</a></span>
+<span id="L46" class="lineno"><a class="lineno" href="#L46">46</a></span>
+<span id="L47" class="lineno"><a class="lineno" href="#L47">47</a></span>
+<span id="L48" class="lineno"><a class="lineno" href="#L48">48</a></span>
+<span id="L49" class="lineno"><a class="lineno" href="#L49">49</a></span>
+<span id="L50" class="lineno"><a class="lineno" href="#L50">50</a></span>
+<span id="L51" class="lineno"><a class="lineno" href="#L51">51</a></span>
+<span id="L52" class="lineno"><a class="lineno" href="#L52">52</a></span>
+<span id="L53" class="lineno"><a class="lineno" href="#L53">53</a></span>
+<span id="L54" class="lineno"><a class="lineno" href="#L54">54</a></span>
+<span id="L55" class="lineno"><a class="lineno" href="#L55">55</a></span>
+<span id="L56" class="lineno"><a class="lineno" href="#L56">56</a></span>
+<span id="L57" class="lineno"><a class="lineno" href="#L57">57</a></span>
+<span id="L58" class="lineno"><a class="lineno" href="#L58">58</a></span>
+<span id="L59" class="lineno"><a class="lineno" href="#L59">59</a></span>
+<span id="L60" class="lineno"><a class="lineno" href="#L60">60</a></span>
+<span id="L61" class="lineno"><a class="lineno" href="#L61">61</a></span>
+<span id="L62" class="lineno"><a class="lineno" href="#L62">62</a></span>
+<span id="L63" class="lineno"><a class="lineno" href="#L63">63</a></span>
+<span id="L64" class="lineno"><a class="lineno" href="#L64">64</a></span>
+<span id="L65" class="lineno"><a class="lineno" href="#L65">65</a></span>
+<span id="L66" class="lineno"><a class="lineno" href="#L66">66</a></span>
+</pre></td>
+<td class="table-code"><pre><span class="line-empty" title="No Anys on this line!">"""Model performance repository implementation."""</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">from uuid import UUID</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-any" title="No Anys on this line!">from pynomaly.domain.entities.model_performance import (</span>
+<span class="line-empty" title="No Anys on this line!">    ModelPerformanceBaseline,</span>
+<span class="line-empty" title="No Anys on this line!">    ModelPerformanceMetrics,</span>
+<span class="line-empty" title="No Anys on this line!">)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class ModelPerformanceRepository:</span>
+<span class="line-empty" title="No Anys on this line!">    """Repository for model performance data."""</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-any" title="No Anys on this line!">    def __init__(self):</span>
+<span class="line-empty" title="No Anys on this line!">        """Initialize the repository."""</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">        self._performances: dict[UUID, ModelPerformanceMetrics] = {}</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x1)">    async def save(self, performance: ModelPerformanceMetrics) -&gt; None:</span>
+<span class="line-empty" title="No Anys on this line!">        """Save a model performance record."""</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x4)">        self._performances[performance.id] = performance</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">    async def get_by_id(self, performance_id: UUID) -&gt; ModelPerformanceMetrics | None:</span>
+<span class="line-empty" title="No Anys on this line!">        """Get a model performance record by ID."""</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x6)
+Omitted Generics (x2)">        return self._performances.get(performance_id)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">    async def get_by_model_id(self, model_id: str) -&gt; list[ModelPerformanceMetrics]:</span>
+<span class="line-empty" title="No Anys on this line!">        """Get all performance records for a specific model."""</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x8)">        return [p for p in self._performances.values() if p.model_id == model_id]</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">    async def get_all(self) -&gt; list[ModelPerformanceMetrics]:</span>
+<span class="line-empty" title="No Anys on this line!">        """Get all performance records."""</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x4)
+Omitted Generics (x3)">        return list(self._performances.values())</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    async def delete(self, performance_id: UUID) -&gt; None:</span>
+<span class="line-empty" title="No Anys on this line!">        """Delete a performance record."""</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">        if performance_id in self._performances:</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">            del self._performances[performance_id]</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">class PerformanceBaselineRepository:</span>
+<span class="line-empty" title="No Anys on this line!">    """Repository for performance baseline data."""</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-any" title="No Anys on this line!">    def __init__(self):</span>
+<span class="line-empty" title="No Anys on this line!">        """Initialize the repository."""</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">        self._baselines: dict[UUID, ModelPerformanceBaseline] = {}</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x1)">    async def save(self, baseline: ModelPerformanceBaseline) -&gt; None:</span>
+<span class="line-empty" title="No Anys on this line!">        """Save a performance baseline record."""</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x4)">        self._baselines[baseline.id] = baseline</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">    async def get_by_id(self, baseline_id: UUID) -&gt; ModelPerformanceBaseline | None:</span>
+<span class="line-empty" title="No Anys on this line!">        """Get a performance baseline record by ID."""</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x6)
+Omitted Generics (x2)">        return self._baselines.get(baseline_id)</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">    async def get_by_model_id(self, model_id: str) -&gt; list[ModelPerformanceBaseline]:</span>
+<span class="line-empty" title="No Anys on this line!">        """Get all baseline records for a specific model."""</span>
+<span class="line-any" title="Any Types on this line: 
+Unimported (x8)">        return [b for b in self._baselines.values() if b.model_id == model_id]</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">    async def get_all(self) -&gt; list[ModelPerformanceBaseline]:</span>
+<span class="line-empty" title="No Anys on this line!">        """Get all baseline records."""</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x4)
+Omitted Generics (x3)">        return list(self._baselines.values())</span>
+<span class="line-empty" title="No Anys on this line!"></span>
+<span class="line-precise" title="No Anys on this line!">    async def delete(self, baseline_id: UUID) -&gt; None:</span>
+<span class="line-empty" title="No Anys on this line!">        """Delete a baseline record."""</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">        if baseline_id in self._baselines:</span>
+<span class="line-imprecise" title="Any Types on this line: 
+Unimported (x1)">            del self._baselines[baseline_id]</span>
+</pre></td>
+</tr></tbody>
+</table>
+</body>
+</html>
