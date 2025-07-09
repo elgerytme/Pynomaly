@@ -141,7 +141,7 @@ test_venv_fresh/
 
 # VS Code
 .vscode/
-Pynomaly.code-workspace
+*.code-workspace
 
 # Spyder project settings
 .spyderproject
@@ -377,6 +377,10 @@ build/
 toolchains/
 tools/
 stories/
+
+# Common build artifacts
+dist/
+*.egg-info/
 
 # Environments directory structure should exist, but contents are ignored
 environments/.*
