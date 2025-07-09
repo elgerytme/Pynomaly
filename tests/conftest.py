@@ -5,15 +5,25 @@ from __future__ import annotations
 import asyncio
 import os
 import shutil
+import sys
 import tempfile
 from collections.abc import Generator
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
+
+# Add src to Python path for imports
+project_root = Path(__file__).parent.parent
+src_path = project_root / "src"
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
 
 import numpy as np
 import pandas as pd
 import pytest
 from dependency_injector import providers
 from fastapi.testclient import TestClient
+
+# Now import pynomaly modules
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.value_objects import AnomalyScore
 from pynomaly.infrastructure.auth.jwt_auth import init_auth

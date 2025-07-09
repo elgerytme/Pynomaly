@@ -2262,7 +2262,6 @@
   "regression/test_api_regression_comprehensive.py::TestAPIDataIntegrityRegression": true,
   "test_streaming_components.py": true,
   "utils/test_results_template.py": true,
-  "domain/test_entities.py::TestAnomaly::test_create_anomaly": true,
   "domain/test_entities.py::TestAnomaly::test_anomaly_validation": true,
   "domain/test_entities.py::TestDetectionResult::test_create_detection_result": true,
   "domain/test_entities.py::TestDetectionResult::test_detection_result_validation": true,
@@ -2293,5 +2292,6 @@
   "unit/test_security.py::TestInputValidation": true,
   "unit/test_security.py::TestAuditLogging": true,
   "unit/test_security.py::TestAPISecurityHeaders": true,
-  "unit/test_security.py::TestSecurityIntegration": true
+  "unit/test_security.py::TestSecurityIntegration": true,
+  "benchmarks": true
 }

@@ -262,3 +262,19 @@ class MetricNotFoundError(ReportingError):
 class ReportGenerationError(ReportingError):
     """Raised when report generation fails."""
     pass
+
+
+# Core Architecture exceptions
+class DataIngestionError(InfrastructureError):
+    """Raised when data ingestion operations fail."""
+    pass
+
+
+class AnomalyDetectionError(DetectionError):
+    """Raised when anomaly detection operations fail."""
+    pass
+
+
+class AlertingError(IntegrationError):
+    """Raised when alerting operations fail."""
+    pass
