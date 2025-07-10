@@ -98,8 +98,8 @@ class StreamDataBatchDTO(BaseModel):
         """Convert to pandas DataFrame."""
         try:
             import pandas as pd
-        except ImportError:
-            raise ImportError("pandas is required for to_pandas() method")
+        except ImportError as e:
+            raise ImportError("pandas is required for to_pandas() method") from e
 
         if not self.data_points:
             return pd.DataFrame()

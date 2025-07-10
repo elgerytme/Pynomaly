@@ -107,7 +107,7 @@ def load_analysis_data(report_file: Path) -> dict:
         with open(report_file) as f:
             return json.load(f)
     except Exception as e:
-        raise ValueError(f"Failed to load analysis data from {report_file}: {e}")
+        raise ValueError(f"Failed to load analysis data from {report_file}: {e}") from e
 
 
 def create_default_thresholds() -> dict[str, float]:

@@ -407,7 +407,7 @@ class AutoMLService:
 
         except Exception as e:
             logger.error(f"Error profiling dataset: {str(e)}")
-            raise AutoMLError(f"Dataset profiling failed: {str(e)}")
+            raise AutoMLError(f"Dataset profiling failed: {str(e)}") from e
 
     def recommend_algorithms(
         self, profile: DatasetProfile, max_algorithms: int = 5

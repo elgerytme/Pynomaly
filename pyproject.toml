@@ -575,6 +575,11 @@ select = [
     "UP", # pyupgrade
 ]
 
+# Ignore specific rules that conflict with FastAPI patterns
+ignore = [
+    "B008",  # Allow function calls in argument defaults (FastAPI Depends pattern)
+]
+
 [tool.black]
 target-version = ["py311"]
 line-length = 88
