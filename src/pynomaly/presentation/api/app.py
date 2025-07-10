@@ -288,7 +288,8 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
 
-    # app.include_router(mfa.router, prefix="/api/v1", tags=["mfa"])  # Temporarily disabled
+    from pynomaly.presentation.api.endpoints import mfa
+    app.include_router(mfa.router, prefix="/api/v1", tags=["mfa"])
 
     # app.include_router(
     #     user_management.router, prefix="/api/v1", tags=["user_management"]

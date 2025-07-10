@@ -1828,6 +1828,7 @@ def mount_web_ui(app):
 
     # Setup comprehensive security monitoring
     try:
+        from pynomaly.presentation.web.security.security_monitor import setup_security_monitoring
         setup_security_monitoring(
             app,
             config={
@@ -1837,9 +1838,9 @@ def mount_web_ui(app):
                 "block_duration": 3600,
             },
         )
-        logger.info("✅ Advanced security monitoring enabled")
+        logger.logger.info("✅ Advanced security monitoring enabled")
     except Exception as e:
-        logger.warning(f"❌ Security monitoring setup failed: {e}")
+        logger.logger.warning(f"❌ Security monitoring setup failed: {e}")
 
     # Start error monitoring
     start_error_monitoring()
@@ -1865,4 +1866,15 @@ def create_web_app():
     # Mount web UI
     mount_web_ui(app)
 
+    return app
+
+
+# Create stable app export for tests
+app = None
+
+def get_app():
+    """Get or create the web application instance."""
+    global app
+    if app is None:
+        app = create_web_app()
     return app
