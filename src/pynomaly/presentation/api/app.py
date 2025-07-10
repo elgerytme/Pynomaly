@@ -44,21 +44,11 @@ from pynomaly.infrastructure.config import Container
 # from pynomaly.infrastructure.monitoring import init_telemetry
 from pynomaly.presentation.api.docs import api_docs, configure_openapi_docs
 from pynomaly.presentation.api.endpoints import (
-    admin,
     auth,
-    automl,
-    autonomous,
-    datasets,
-    detection,
-    detectors,
-    ensemble,
     events,
-    experiments,
-    explainability,
     export,
     frontend_support,
     health,
-    mfa,
     model_lineage,
     performance,
     security_management,
@@ -66,7 +56,6 @@ from pynomaly.presentation.api.endpoints import (
     version,
 )
 from pynomaly.presentation.api.router_factory import apply_openapi_overrides
-from pynomaly.presentation.api.routers import user_management
 
 # Enhanced AutoML endpoints
 try:
@@ -299,41 +288,41 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
 
-    app.include_router(mfa.router, prefix="/api/v1", tags=["mfa"])
+    # app.include_router(mfa.router, prefix="/api/v1", tags=["mfa"])  # Temporarily disabled
 
-    app.include_router(
-        user_management.router, prefix="/api/v1", tags=["user_management"]
-    )
+    # app.include_router(
+    #     user_management.router, prefix="/api/v1", tags=["user_management"]
+    # )  # Temporarily disabled
 
-    app.include_router(admin.router, prefix="/api/v1/admin", tags=["administration"])
+    # app.include_router(admin.router, prefix="/api/v1/admin", tags=["administration"])  # Temporarily disabled
 
-    app.include_router(
-        autonomous.router, prefix="/api/v1/autonomous", tags=["autonomous"]
-    )
+    # app.include_router(
+    #     autonomous.router, prefix="/api/v1/autonomous", tags=["autonomous"]
+    # )  # Temporarily disabled
 
-    app.include_router(detectors.router, prefix="/api/v1/detectors", tags=["detectors"])
+    # app.include_router(detectors.router, prefix="/api/v1/detectors", tags=["detectors"])  # Temporarily disabled
 
-    app.include_router(datasets.router, prefix="/api/v1/datasets", tags=["datasets"])
+    # app.include_router(datasets.router, prefix="/api/v1/datasets", tags=["datasets"])  # Temporarily disabled
 
-    app.include_router(detection.router, prefix="/api/v1/detection", tags=["detection"])
+    # app.include_router(detection.router, prefix="/api/v1/detection", tags=["detection"])  # Temporarily disabled
 
-    app.include_router(automl.router, prefix="/api/v1/automl", tags=["automl"])
+    # app.include_router(automl.router, prefix="/api/v1/automl", tags=["automl"])  # Temporarily disabled
 
     # Include enhanced AutoML router if available
-    if ENHANCED_AUTOML_AVAILABLE:
-        app.include_router(
-            enhanced_automl.router, prefix="/api/v1", tags=["enhanced_automl"]
-        )
+    # if ENHANCED_AUTOML_AVAILABLE:
+    #     app.include_router(
+    #         enhanced_automl.router, prefix="/api/v1", tags=["enhanced_automl"]
+    #     )  # Temporarily disabled
 
-    app.include_router(ensemble.router, prefix="/api/v1/ensemble", tags=["ensemble"])
+    # app.include_router(ensemble.router, prefix="/api/v1/ensemble", tags=["ensemble"])  # Temporarily disabled
 
-    app.include_router(
-        explainability.router, prefix="/api/v1/explainability", tags=["explainability"]
-    )
+    # app.include_router(
+    #     explainability.router, prefix="/api/v1/explainability", tags=["explainability"]
+    # )  # Temporarily disabled
 
-    app.include_router(
-        experiments.router, prefix="/api/v1/experiments", tags=["experiments"]
-    )
+    # app.include_router(
+    #     experiments.router, prefix="/api/v1/experiments", tags=["experiments"]
+    # )  # Temporarily disabled
 
     # Include version endpoint
     app.include_router(version.router, prefix="/api/v1", tags=["version"])

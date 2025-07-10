@@ -398,8 +398,8 @@ class RequirePermissions:
     def __init__(
         self,
         permissions: list[str],
-        tenant_id: Union[UUID, None] = None,
-        resource_id: Union[str, None] = None,
+        tenant_id: UUID | None = None,
+        resource_id: str | None = None,
         allow_self_access: bool = False,
     ):
         """Initialize permission requirement.

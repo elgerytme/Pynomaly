@@ -11,13 +11,13 @@ from __future__ import annotations
 
 import hashlib
 import time
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import APIKeyHeader, HTTPAuthorizationCredentials, HTTPBearer
 
 from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
-from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, UserModel, get_auth
+from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, get_auth
 from pynomaly.infrastructure.cache import get_cache
 from pynomaly.infrastructure.config import Settings
 
@@ -91,7 +91,7 @@ async def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
     api_key: Annotated[str | None, Depends(api_key_scheme)],
     auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
-) -> UserModel | None:
+):
     """Get current authenticated user.
 
     Args:
@@ -130,8 +130,8 @@ async def get_current_user(
 
 
 async def get_current_active_user(
-    current_user: Annotated[UserModel | None, Depends(get_current_user)],
-) -> UserModel | None:
+    current_user: Annotated[Any, Depends(get_current_user)],
+):
     """Get current active user, enforcing auth if enabled.
 
     Args:
@@ -171,9 +171,9 @@ class PermissionChecker:
 
     async def __call__(
         self,
-        current_user: Annotated[UserModel | None, Depends(get_current_user)],
+        current_user: Annotated[Any, Depends(get_current_user)],
         auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
-    ) -> UserModel:
+    ) -> Any:
         """Check permissions for current user.
 
         Args:
@@ -234,9 +234,9 @@ class RoleChecker:
 
     async def __call__(
         self,
-        current_user: Annotated[UserModel | None, Depends(get_current_user)],
+        current_user: Annotated[Any, Depends(get_current_user)],
         auth_service: Annotated[JWTAuthService | None, Depends(get_auth)],
-    ) -> UserModel:
+    ) -> Any:
         """Check roles for current user.
 
         Args:
@@ -337,7 +337,7 @@ async def track_request_metrics(request: Request, call_next):
     return response
 
 
-def create_auth_context(user: UserModel | None) -> dict[str, any]:
+def create_auth_context(user: Any) -> dict[str, any]:
     """Create authentication context for request.
 
     Args:
@@ -381,7 +381,7 @@ class AuthenticationMiddleware:
         """
         self.auth_service = auth_service
 
-    async def authenticate(self, request: Request) -> UserModel:
+    async def authenticate(self, request: Request):
         """Authenticate request and return user.
 
         Args:

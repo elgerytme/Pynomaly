@@ -53,11 +53,11 @@ class FastCLIContainer:
     def result_repository(self):
         """Get result repository (in-memory for CLI)."""
         if "result" not in self._repositories:
-            from pynomaly.infrastructure.persistence.memory.result_repository import (
-                InMemoryResultRepository,
+            from pynomaly.infrastructure.persistence.memory_repository import (
+                MemoryRepository,
             )
 
-            self._repositories["result"] = InMemoryResultRepository()
+            self._repositories["result"] = MemoryRepository()
         return self._repositories["result"]
 
     def get_service(self, service_name: str, lazy: bool = True):

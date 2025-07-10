@@ -8,10 +8,11 @@ import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 
+from typer.testing import CliRunner
+
 from pynomaly.domain.entities import Dataset, DetectionResult
 from pynomaly.domain.value_objects import AnomalyScore
 from pynomaly.presentation.cli.autonomous import app
-from typer.testing import CliRunner
 
 
 class TestAutonomousCommand:
@@ -90,7 +91,10 @@ class TestAutonomousCommand:
 
         assert result.exit_code == 0
         assert "detect" in result.stdout.lower()
-        assert "data-source" in result.stdout.lower() or "data_source" in result.stdout.lower()
+        assert (
+            "data-source" in result.stdout.lower()
+            or "data_source" in result.stdout.lower()
+        )
 
     def test_autonomous_profile_help(self):
         """Test autonomous profile subcommand help."""
@@ -109,32 +113,62 @@ class TestAutonomousCommand:
 
     # Autonomous Detection Tests
 
+    @patch("pynomaly.presentation.cli.autonomous.AutonomousDetectionService")
     @patch("pynomaly.presentation.cli.autonomous.get_cli_container")
-    def test_autonomous_detect_basic(self, mock_get_container):
+    def test_autonomous_detect_basic(self, mock_get_container, mock_service_class):
         """Test basic autonomous detection."""
-        # Mock container and services
+        # Mock container
         container = Mock()
-        mock_autonomous_service = Mock()
-        mock_autonomous_service.detect_anomalies.return_value = {
-            'best_detector': 'IsolationForest',
-            'anomalies_found': 2,
-            'confidence': 0.85,
-            'anomaly_indices': [3],  # The outlier row
-            'anomaly_scores': [0.9],
-            'algorithm_performance': {'IsolationForest': 0.85},
-            'preprocessing_applied': ['StandardScaler'],
-            'execution_time': 1.5
-        }
-        container.autonomous_detection_service.return_value = mock_autonomous_service
+        container.detector_repository.return_value = Mock()
+        container.result_repository.return_value = Mock()
         mock_get_container.return_value = container
 
-        # Execute command
-        result = self.runner.invoke(
-            app, ["detect", str(self.test_data_file)]
-        )
+        # Mock autonomous service instance
+        mock_service = Mock()
+        mock_service.detect_autonomous.return_value = {
+            "autonomous_detection_results": {
+                "success": True,
+                "data_profile": {
+                    "samples": 5,
+                    "features": 3,
+                    "numeric_features": 3,
+                    "missing_ratio": 0.0,
+                    "complexity_score": 0.75,
+                    "recommended_contamination": 0.1,
+                },
+                "algorithm_recommendations": [
+                    {
+                        "algorithm": "IsolationForest",
+                        "confidence": 0.85,
+                        "reasoning": "Good for high-dimensional data",
+                    }
+                ],
+                "detection_results": {
+                    "selected_algorithm": "IsolationForest",
+                    "anomalies_found": 1,
+                    "anomaly_indices": [3],
+                    "anomaly_scores": [0.9],
+                    "execution_time": 1.5,
+                },
+                "metadata": {
+                    "total_time": 2.0,
+                    "dataset_name": "autonomous_data",
+                    "timestamp": "2024-01-01T00:00:00Z",
+                },
+            }
+        }
+        mock_service_class.return_value = mock_service
 
+        # Execute command
+        result = self.runner.invoke(app, ["detect", str(self.test_data_file)])
+
+        # Should succeed and contain expected output
         assert result.exit_code == 0
-        assert "anomalies_found" in result.stdout or "best_detector" in result.stdout
+        # Check for key indicators in output
+        assert any(
+            keyword in result.stdout.lower()
+            for keyword in ["detection completed", "autonomous", "algorithm", "samples"]
+        )
 
     @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
     @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")

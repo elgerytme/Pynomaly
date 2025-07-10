@@ -400,7 +400,7 @@ def _display_results(results: dict, verbose: bool) -> None:
                 f"{result.get('anomalies_found', 0):,}",
                 f"{result.get('anomaly_rate', 0):.1%}",
                 f"{result.get('threshold', 0):.4f}",
-                f"{result.get('execution_time_ms', 0):,}",
+                f"{result.get('execution_time_ms', 0) or 0:,}",
                 best_mark,
             )
 

@@ -15,25 +15,190 @@ from contextlib import contextmanager
 from functools import wraps
 from typing import Any
 
-from opentelemetry import metrics, trace
-from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.exporter.prometheus import PrometheusMetricReader
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.instrumentation.logging import LoggingInstrumentor
-from opentelemetry.instrumentation.requests import RequestsInstrumentor
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
-from opentelemetry.metrics import CallbackOptions, Observation
-from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.semconv.resource import ResourceAttributes
-from opentelemetry.trace import Status, StatusCode
-from prometheus_client import start_http_server
-
 from pynomaly.infrastructure.config import Settings
+
+# Try importing OpenTelemetry components with fallbacks
+try:
+    from opentelemetry import metrics, trace
+    from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import (
+        OTLPMetricExporter,
+    )
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+    from opentelemetry.exporter.prometheus import PrometheusMetricReader
+    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+    from opentelemetry.instrumentation.logging import LoggingInstrumentor
+    from opentelemetry.instrumentation.requests import RequestsInstrumentor
+    from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+    from opentelemetry.metrics import CallbackOptions, Observation
+    from opentelemetry.sdk.metrics import MeterProvider
+    from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+    from opentelemetry.sdk.resources import Resource
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    from opentelemetry.semconv.resource import ResourceAttributes
+    from opentelemetry.trace import Status, StatusCode
+    from prometheus_client import start_http_server
+
+    TELEMETRY_AVAILABLE = True
+except ImportError:
+    # OpenTelemetry not available - create stubs
+    TELEMETRY_AVAILABLE = False
+
+    # Create stub classes and functions
+    class StubResource:
+        @classmethod
+        def create(cls, attributes):
+            return cls()
+
+    class StubTracerProvider:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def add_span_processor(self, processor):
+            pass
+
+        def shutdown(self):
+            pass
+
+    class StubMeterProvider:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def shutdown(self):
+            pass
+
+    class StubTracer:
+        def start_as_current_span(self, name):
+            return StubSpan()
+
+    class StubMeter:
+        def create_counter(self, *args, **kwargs):
+            return StubMetric()
+
+        def create_histogram(self, *args, **kwargs):
+            return StubMetric()
+
+        def create_observable_gauge(self, *args, **kwargs):
+            return StubMetric()
+
+    class StubSpan:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def set_attributes(self, attrs):
+            pass
+
+        def set_status(self, status):
+            pass
+
+        def record_exception(self, exc):
+            pass
+
+    class StubMetric:
+        def add(self, *args, **kwargs):
+            pass
+
+        def record(self, *args, **kwargs):
+            pass
+
+    class StubStatus:
+        def __init__(self, *args):
+            pass
+
+    class StubStatusCode:
+        ERROR = "error"
+
+    class StubInstrumentor:
+        @staticmethod
+        def instrument():
+            pass
+
+    class StubResourceAttributes:
+        SERVICE_NAME = "service.name"
+        SERVICE_VERSION = "service.version"
+        SERVICE_NAMESPACE = "service.namespace"
+        HOST_NAME = "host.name"
+        DEPLOYMENT_ENVIRONMENT = "deployment.environment"
+
+    class StubCallbackOptions:
+        pass
+
+    class StubObservation:
+        def __init__(self, value, attributes):
+            self.value = value
+            self.attributes = attributes
+
+    class StubBatchSpanProcessor:
+        def __init__(self, exporter):
+            pass
+
+    class StubOTLPSpanExporter:
+        def __init__(self, *args, **kwargs):
+            pass
+
+    class StubOTLPMetricExporter:
+        def __init__(self, *args, **kwargs):
+            pass
+
+    class StubPrometheusMetricReader:
+        def __init__(self, *args, **kwargs):
+            pass
+
+    class StubPeriodicExportingMetricReader:
+        def __init__(self, *args, **kwargs):
+            pass
+
+    # Assign stubs
+    Resource = StubResource
+    TracerProvider = StubTracerProvider
+    MeterProvider = StubMeterProvider
+    Status = StubStatus
+    StatusCode = StubStatusCode
+    FastAPIInstrumentor = StubInstrumentor
+    LoggingInstrumentor = StubInstrumentor
+    RequestsInstrumentor = StubInstrumentor
+    SQLAlchemyInstrumentor = StubInstrumentor
+    ResourceAttributes = StubResourceAttributes
+    CallbackOptions = StubCallbackOptions
+    Observation = StubObservation
+    BatchSpanProcessor = StubBatchSpanProcessor
+    OTLPSpanExporter = StubOTLPSpanExporter
+    OTLPMetricExporter = StubOTLPMetricExporter
+    PrometheusMetricReader = StubPrometheusMetricReader
+    PeriodicExportingMetricReader = StubPeriodicExportingMetricReader
+
+    # Stub modules
+    class StubTrace:
+        @staticmethod
+        def set_tracer_provider(provider):
+            pass
+
+        @staticmethod
+        def get_tracer(name):
+            return StubTracer()
+
+        @staticmethod
+        def get_current_span():
+            return StubSpan()
+
+    class StubMetrics:
+        @staticmethod
+        def set_meter_provider(provider):
+            pass
+
+        @staticmethod
+        def get_meter(name):
+            return StubMeter()
+
+    trace = StubTrace()
+    metrics = StubMetrics()
+
+    def start_http_server(*args, **kwargs):
+        pass
+
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +216,8 @@ class TelemetryService:
         self.resource = self._create_resource()
         self.tracer_provider: TracerProvider | None = None
         self.meter_provider: MeterProvider | None = None
-        self.tracer: trace.Tracer | None = None
-        self.meter: metrics.Meter | None = None
+        self.tracer = None
+        self.meter = None
 
         # Metrics collectors
         self._request_counter = None
@@ -63,7 +228,9 @@ class TelemetryService:
         self._cache_hits = None
         self._cache_misses = None
 
-        if settings.monitoring.metrics_enabled or settings.monitoring.tracing_enabled:
+        if TELEMETRY_AVAILABLE and (
+            settings.monitoring.metrics_enabled or settings.monitoring.tracing_enabled
+        ):
             self._setup_telemetry()
 
     def _create_resource(self) -> Resource:

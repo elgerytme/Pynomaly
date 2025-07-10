@@ -137,8 +137,11 @@ except ImportError:
             return None
 
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from pynomaly.domain.entities import Dataset, DetectionResult
+from pynomaly.domain.exceptions import (
+    AdapterError,
+    AlgorithmNotFoundError,
+)
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 
 logger = logging.getLogger(__name__)
@@ -490,8 +493,12 @@ class DAGMM(BaseAnomalyModel):
         return scores
 
 
-class PyTorchAdapter(Detector):
-    """Adapter for PyTorch-based deep learning anomaly detection models."""
+class PyTorchAdapter:
+    """Adapter for PyTorch-based deep learning anomaly detection models.
+
+    This adapter implements DetectorProtocol and maintains clean architecture
+    by keeping infrastructure concerns separate from domain logic.
+    """
 
     _algorithm_map = {
         "AutoEncoder": AutoEncoder,
@@ -529,17 +536,42 @@ class PyTorchAdapter(Detector):
                 f"Available algorithms: {available}"
             )
 
-        # Initialize parent Detector
-        super().__init__(
-            algorithm_name=algorithm_name,
-            name=name or f"PyTorch_{algorithm_name}",
-            contamination_rate=contamination_rate or ContaminationRate(0.1),
-            parameters=kwargs,
-        )
+        # Infrastructure state (no domain entity composition)
+        self._name = name or f"PyTorch_{algorithm_name}"
+        self._algorithm_name = algorithm_name
+        self._contamination_rate = contamination_rate or ContaminationRate(0.1)
+        self._parameters = kwargs
+        self._is_fitted = False
 
         self._model: BaseAnomalyModel | None = None
         self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._model_class = self._algorithm_map[algorithm_name]
+
+    # DetectorProtocol properties
+    @property
+    def name(self) -> str:
+        """Get the name of the detector."""
+        return self._name
+
+    @property
+    def contamination_rate(self) -> ContaminationRate:
+        """Get the contamination rate."""
+        return self._contamination_rate
+
+    @property
+    def is_fitted(self) -> bool:
+        """Check if the detector has been fitted."""
+        return self._is_fitted
+
+    @property
+    def parameters(self) -> dict[str, Any]:
+        """Get the current parameters of the detector."""
+        return self._parameters
+
+    @property
+    def algorithm_name(self) -> str:
+        """Get the algorithm name."""
+        return self._algorithm_name
 
     @property
     def supports_streaming(self) -> bool:

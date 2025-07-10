@@ -165,7 +165,52 @@ def mock_autonomous_service():
     """Create a mock autonomous detection service."""
     service = Mock()
 
-    # Mock detect_anomalies method
+    # Mock detect_autonomous method (the actual method used)
+    service.detect_autonomous.return_value = {
+        "autonomous_detection_results": {
+            "success": True,
+            "data_profile": {
+                "samples": 100,
+                "features": 3,
+                "numeric_features": 3,
+                "missing_ratio": 0.0,
+                "complexity_score": 0.75,
+                "recommended_contamination": 0.1,
+            },
+            "algorithm_recommendations": [
+                {
+                    "algorithm": "IsolationForest",
+                    "confidence": 0.85,
+                    "reasoning": "Good for high-dimensional data",
+                },
+                {
+                    "algorithm": "LocalOutlierFactor",
+                    "confidence": 0.75,
+                    "reasoning": "Suitable for local outliers",
+                },
+            ],
+            "detection_results": {
+                "selected_algorithm": "IsolationForest",
+                "anomalies_found": 2,
+                "anomaly_indices": [2, 6],
+                "anomaly_scores": [0.9, 0.95],
+                "execution_time": 1.5,
+                "hyperparameters": {"contamination": 0.1, "n_estimators": 100},
+            },
+            "preprocessing_results": {
+                "applied_steps": ["StandardScaler"],
+                "quality_score": 0.95,
+                "processing_time": 0.5,
+            },
+            "metadata": {
+                "total_time": 2.0,
+                "dataset_name": "autonomous_data",
+                "timestamp": "2024-01-01T00:00:00Z",
+            },
+        }
+    }
+
+    # Mock detect_anomalies method (legacy compatibility)
     service.detect_anomalies.return_value = {
         "best_detector": "IsolationForest",
         "anomalies_found": 2,
