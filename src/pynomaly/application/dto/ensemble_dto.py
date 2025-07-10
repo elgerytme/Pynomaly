@@ -505,7 +505,8 @@ class EnsembleDetectionRequestDTO(BaseModel):
                         raise ValueError(f"Row {i} is not a list")
                     if len(row) != expected_features:
                         raise ValueError(
-                            f"Row {i} has {len(row)} features, expected {expected_features}"
+                            f"Row {i} has {len(row)} features, "
+                            f"expected {expected_features}"
                         )
 
             # Check if it's list of dicts

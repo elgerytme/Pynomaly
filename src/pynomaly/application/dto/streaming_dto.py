@@ -231,7 +231,10 @@ class StreamingConfigurationDTO(BaseModel):
     model_config = ConfigDict(extra="forbid")
     strategy: str = Field(
         default="adaptive_batch",
-        description="Streaming strategy (real_time, micro_batch, adaptive_batch, windowed, ensemble_stream)",
+        description=(
+            "Streaming strategy (real_time, micro_batch, adaptive_batch, "
+            "windowed, ensemble_stream)"
+        ),
     )
     backpressure_strategy: str = Field(
         default="adaptive_sampling", description="Backpressure handling strategy"

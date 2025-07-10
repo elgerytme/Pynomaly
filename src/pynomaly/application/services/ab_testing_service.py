@@ -994,8 +994,12 @@ class ABTestingService:
             "required_sample_size": test.required_sample_size,
             "configuration": {
                 "test_name": test.configuration.test_name,
-                "traffic_split_strategy": test.configuration.traffic_split_strategy.value,
-                "champion_traffic_percentage": test.configuration.champion_traffic_percentage,
+                "traffic_split_strategy": (
+                    test.configuration.traffic_split_strategy.value
+                ),
+                "champion_traffic_percentage": (
+                    test.configuration.champion_traffic_percentage
+                ),
                 "challenger_traffic_percentage": test.configuration.challenger_traffic_percentage,
                 "significance_level": test.configuration.significance_level,
                 "minimum_effect_size": test.configuration.minimum_effect_size,

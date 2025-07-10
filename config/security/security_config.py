@@ -20,19 +20,33 @@ class SecuritySettings(BaseModel):
     debug_mode: bool = Field(default=False, description="Enable debug mode")
 
     # API Security
-    api_key_required: bool = Field(default=True, description="Require API key for all requests")
-    rate_limiting_enabled: bool = Field(default=True, description="Enable rate limiting")
+    api_key_required: bool = Field(
+        default=True, description="Require API key for all requests"
+    )
+    rate_limiting_enabled: bool = Field(
+        default=True, description="Enable rate limiting"
+    )
     cors_enabled: bool = Field(default=True, description="Enable CORS")
-    cors_allowed_origins: list[str] = Field(default_factory=lambda: ["https://app.pynomaly.com"])
+    cors_allowed_origins: list[str] = Field(
+        default_factory=lambda: ["https://app.pynomaly.com"]
+    )
 
     # Authentication
-    jwt_required: bool = Field(default=True, description="Require JWT for authenticated endpoints")
-    session_management: bool = Field(default=True, description="Enable session management")
+    jwt_required: bool = Field(
+        default=True, description="Require JWT for authenticated endpoints"
+    )
+    session_management: bool = Field(
+        default=True, description="Enable session management"
+    )
     two_factor_auth: bool = Field(default=True, description="Enable 2FA")
 
     # Authorization
-    rbac_enabled: bool = Field(default=True, description="Enable role-based access control")
-    permission_checks: bool = Field(default=True, description="Enable permission checks")
+    rbac_enabled: bool = Field(
+        default=True, description="Enable role-based access control"
+    )
+    permission_checks: bool = Field(
+        default=True, description="Enable permission checks"
+    )
 
     # Data Protection
     encryption_at_rest: bool = Field(default=True, description="Enable encryption at rest")
