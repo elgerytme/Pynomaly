@@ -31,7 +31,7 @@ async def list_detectors(
     limit: int = Query(100, ge=1, le=1000),
     current_user=Depends(require_viewer),
     container=Depends(lambda: Container()),
-) -> list[DetectorDTO]:
+) -> List[DetectorDTO]:
     """List all detectors."""
     detector_repo = container.detector_repository()
 
