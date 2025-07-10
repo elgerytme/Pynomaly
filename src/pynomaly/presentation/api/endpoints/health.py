@@ -427,7 +427,10 @@ def _check_configuration(settings) -> dict[str, Any]:
         issues = []
 
         # Check critical settings
-        if not settings.secret_key or settings.secret_key == "your-secret-key":
+        if (
+            not settings.security.secret_key
+            or settings.security.secret_key == "your-secret-key"
+        ):
             issues.append("Default secret key in use")
 
         if settings.debug and settings.app.environment == "production":

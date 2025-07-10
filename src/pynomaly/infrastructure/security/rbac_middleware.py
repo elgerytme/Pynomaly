@@ -18,6 +18,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pynomaly.domain.entities.user import Permission, User, UserRole
 from pynomaly.domain.security.permission_matrix import PermissionMatrix
 from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, get_auth
+from pynomaly.infrastructure.config.settings import get_settings
 from pynomaly.infrastructure.security.rbac_service import RBACService
 
 logger = logging.getLogger(__name__)
@@ -381,7 +382,9 @@ async def get_rbac_service() -> RBACService:
         allowed_ip_ranges=[],
     )
 
-    return RBACService(jwt_secret=settings.secret_key, security_policy=security_policy)
+    return RBACService(
+        jwt_secret=settings.security.secret_key, security_policy=security_policy
+    )
 
 
 async def get_rbac_middleware(

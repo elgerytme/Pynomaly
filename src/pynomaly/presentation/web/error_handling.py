@@ -163,7 +163,7 @@ class WebUILogger:
             format="%(message)s",
             handlers=[
                 logging.StreamHandler(sys.stdout),
-                logging.FileHandler(self.settings.log_path / "web_ui.log")
+                logging.FileHandler(self.settings.storage.log_path / "web_ui.log")
             ]
         )
 

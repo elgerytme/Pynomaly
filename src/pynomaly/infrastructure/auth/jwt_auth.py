@@ -76,7 +76,7 @@ class JWTAuthService:
             settings: Application settings
         """
         self.settings = settings
-        self.secret_key = settings.secret_key
+        self.secret_key = settings.security.secret_key
         self.algorithm = settings.jwt_algorithm
         self.access_token_expire = timedelta(seconds=settings.jwt_expiration)
         self.refresh_token_expire = timedelta(days=7)

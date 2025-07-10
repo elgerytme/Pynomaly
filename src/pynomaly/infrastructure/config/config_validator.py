@@ -232,14 +232,14 @@ class ConfigurationValidator:
     def _validate_security(self) -> None:
         """Validate security configuration."""
         # Check secret key
-        if self.settings.secret_key == "change-me-in-production":
+        if self.settings.security.secret_key == "change-me-in-production":
             if self.settings.app.environment == "production":
                 self.errors.append("Secret key must be changed for production")
             else:
                 self.warnings.append("Using default secret key (change for production)")
 
         # Check secret key strength
-        if len(self.settings.secret_key) < 32:
+        if len(self.settings.security.secret_key) < 32:
             self.warnings.append("Secret key should be at least 32 characters long")
 
         # Production security checks

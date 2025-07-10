@@ -8,6 +8,8 @@ import pytest
 
 from pynomaly.application.services.advanced_explainability_service import (
     AdvancedExplainabilityService,
+)
+from pynomaly.application.services.explainability_core import (
     BiasAnalysisConfig,
     BiasAnalysisResult,
     ExplanationConfig,

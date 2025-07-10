@@ -119,10 +119,10 @@ class ErrorMonitor:
     def _configure_email(self) -> bool:
         """Configure email settings"""
         return (
-            self.settings.smtp_server is not None and
-            self.settings.smtp_username is not None and
-            self.settings.smtp_password is not None and
-            self.settings.sender_email is not None
+            hasattr(self.settings, 'smtp_server') and self.settings.smtp_server is not None and
+            hasattr(self.settings, 'smtp_username') and self.settings.smtp_username is not None and
+            hasattr(self.settings, 'smtp_password') and self.settings.smtp_password is not None and
+            hasattr(self.settings, 'sender_email') and self.settings.sender_email is not None
         )
 
     def start_monitoring(self):

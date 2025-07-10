@@ -158,7 +158,7 @@ class SecurityIntegrationManager:
             # Check for development/debug settings in production
             if not self.settings.app.debug:
                 if (
-                    self.settings.secret_key
+                    self.settings.security.secret_key
                     == "change-me-in-production-this-is-32-chars-long-default-key"
                 ):
                     self.security_warnings.append(
@@ -321,7 +321,7 @@ def create_security_startup_check() -> bool:
         # Check for insecure defaults
         settings = Settings()
         if (
-            settings.secret_key
+            settings.security.secret_key
             == "change-me-in-production-this-is-32-chars-long-default-key"
         ):
             logger.error("Using default secret key - security risk")

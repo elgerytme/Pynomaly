@@ -150,7 +150,11 @@ class RateLimiter:
     def start_cleanup_task(self):
         """Start background cleanup task"""
         if self.cleanup_task is None:
-            self.cleanup_task = asyncio.create_task(self._cleanup_expired_entries())
+            try:
+                self.cleanup_task = asyncio.create_task(self._cleanup_expired_entries())
+            except RuntimeError:
+                # No event loop running, will start task later when app starts
+                pass
 
     async def _cleanup_expired_entries(self):
         """Clean up expired rate limit entries"""
@@ -784,17 +788,46 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             # Process request
             response = await call_next(request)
 
-            # Add security headers
+            # Add enhanced security headers
             response.headers["X-Content-Type-Options"] = "nosniff"
             response.headers["X-Frame-Options"] = "DENY"
             response.headers["X-XSS-Protection"] = "1; mode=block"
             response.headers["Strict-Transport-Security"] = (
-                "max-age=31536000; includeSubDomains"
+                "max-age=31536000; includeSubDomains; preload"
             )
             response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-            response.headers["Content-Security-Policy"] = (
-                "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+            
+            # Enhanced Content Security Policy
+            csp_directives = [
+                "default-src 'self'",
+                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net",
+                "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://fonts.googleapis.com",
+                "font-src 'self' https://fonts.gstatic.com",
+                "img-src 'self' data: https:",
+                "connect-src 'self' ws: wss:",
+                "frame-ancestors 'none'",
+                "base-uri 'self'",
+                "form-action 'self'",
+                "object-src 'none'",
+                "upgrade-insecure-requests"
+            ]
+            response.headers["Content-Security-Policy"] = "; ".join(csp_directives)
+            
+            # Additional security headers
+            response.headers["Permissions-Policy"] = (
+                "geolocation=(), microphone=(), camera=(), payment=(), usb=(), "
+                "magnetometer=(), gyroscope=(), speaker=(), ambient-light-sensor=(), "
+                "accelerometer=(), battery=(), display-capture=(), document-domain=()"
             )
+            response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
+            response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
+            response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+            
+            # Cache control for security
+            if path.startswith("/api/"):
+                response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+                response.headers["Pragma"] = "no-cache"
+                response.headers["Expires"] = "0"
 
             # Add rate limit headers
             rate_limit_status = self.rate_limiter.get_rate_limit_status(ip, path)

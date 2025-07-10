@@ -155,7 +155,7 @@ class ConfigurationManager:
 
         # Validate security settings for production
         if settings.app.environment == "production":
-            if settings.secret_key == "change-me-in-production":
+            if settings.security.secret_key == "change-me-in-production":
                 errors.append("Secret key must be changed for production environment")
 
             if not settings.auth_enabled:

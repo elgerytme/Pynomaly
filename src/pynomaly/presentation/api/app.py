@@ -315,11 +315,11 @@ def create_app(container: Container | None = None) -> FastAPI:
     #         enhanced_automl.router, prefix="/api/v1", tags=["enhanced_automl"]
     #     )  # Temporarily disabled
 
-    # app.include_router(ensemble.router, prefix="/api/v1/ensemble", tags=["ensemble"])  # Temporarily disabled
-
-    # app.include_router(
-    #     explainability.router, prefix="/api/v1/explainability", tags=["explainability"]
-    # )  # Temporarily disabled
+    from pynomaly.presentation.api.endpoints import ensemble, explainability
+    app.include_router(ensemble.router, prefix="/api/v1/ensemble", tags=["ensemble"])
+    app.include_router(
+        explainability.router, prefix="/api/v1/explainability", tags=["explainability"]
+    )
 
     # app.include_router(
     #     experiments.router, prefix="/api/v1/experiments", tags=["experiments"]

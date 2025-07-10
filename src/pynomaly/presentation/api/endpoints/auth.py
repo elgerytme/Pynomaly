@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 # from pydantic import EmailStr  # Temporarily disabled due to missing email-validator
 from pynomaly.domain.exceptions import AuthenticationError
+from pynomaly.domain.services.mfa_service import MFAService
 from pynomaly.infrastructure.auth import (
     JWTAuthService,
     TokenResponse,
@@ -16,6 +17,7 @@ from pynomaly.infrastructure.auth import (
     get_auth,
 )
 from pynomaly.infrastructure.auth.middleware import get_current_user
+from pynomaly.infrastructure.cache import get_cache
 from pynomaly.infrastructure.security.audit_logger import (
     AuditLevel,
     SecurityEventType,
@@ -26,6 +28,12 @@ from pynomaly.infrastructure.security.rbac_middleware import require_auth
 from pynomaly.infrastructure.services.email_service import get_email_service
 
 router = APIRouter()
+
+
+def get_mfa_service() -> MFAService:
+    """Get MFA service instance."""
+    cache = get_cache()
+    return MFAService(redis_client=cache)
 
 
 class LoginRequest(BaseModel):
@@ -95,6 +103,24 @@ class PasswordResetConfirmResponse(BaseModel):
     """Password reset confirmation response model."""
 
     message: str
+
+
+class MFAChallengeResponse(BaseModel):
+    """MFA challenge response model."""
+
+    mfa_required: bool
+    challenge_id: str
+    available_methods: list[str]
+    message: str
+
+
+class MFAVerificationRequest(BaseModel):
+    """MFA verification request model."""
+
+    challenge_id: str
+    method_type: str
+    verification_code: str
+    remember_device: bool = False
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -616,7 +642,7 @@ async def request_password_reset(
                 email_sent = await email_service.send_password_reset_email(
                     email=request.email,
                     reset_token=reset_token,
-                    user_name="User"  # Could be improved to get actual user name
+                    user_name="User",  # Could be improved to get actual user name
                 )
                 if not email_sent:
                     # Log warning but don't fail - fallback to success message
@@ -640,7 +666,10 @@ async def request_password_reset(
                 SecurityEventType.AUTH_PASSWORD_CHANGE,
                 f"Email service not configured - password reset email not sent to {request.email}",
                 level=AuditLevel.WARNING,
-                details={"email": request.email, "error": "email_service_not_configured"},
+                details={
+                    "email": request.email,
+                    "error": "email_service_not_configured",
+                },
             )
 
         return PasswordResetResponse(

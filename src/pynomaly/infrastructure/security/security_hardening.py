@@ -354,12 +354,12 @@ class SecureConfigurationManager:
 
         # Check secret key
         if (
-            self.settings.secret_key
+            self.settings.security.secret_key
             == "change-me-in-production-this-is-32-chars-long-default-key"
         ):
             warnings.append("CRITICAL: Using default secret key in production")
 
-        if len(self.settings.secret_key) < 32:
+        if len(self.settings.security.secret_key) < 32:
             warnings.append("WARNING: Secret key is too short (minimum 32 characters)")
 
         # Check JWT configuration
@@ -492,7 +492,7 @@ def initialize_security_hardening(settings: Settings) -> SecureConfigurationMana
 
     # Set secure defaults if needed
     if (
-        settings.secret_key
+        settings.security.secret_key
         == "change-me-in-production-this-is-32-chars-long-default-key"
     ):
         secure_key = config_manager.generate_secure_secret_key()

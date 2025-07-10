@@ -43,6 +43,7 @@ _LAZY_MODULES = {
     "server": ("pynomaly.presentation.cli.server", "app"),
     "perf": ("pynomaly.presentation.cli.performance", "performance_app"),
     "validate": ("pynomaly.presentation.cli.validation", "app"),
+    "migrate": ("pynomaly.presentation.cli.migrations", "app"),
 }
 
 # Optional modules that may not be available
@@ -118,6 +119,7 @@ lazy_commands = [
     ("server", "pynomaly.presentation.cli.server", "app"),
     ("perf", "pynomaly.presentation.cli.performance", "performance_app"),
     ("validate", "pynomaly.presentation.cli.validation", "app"),
+    ("migrate", "pynomaly.presentation.cli.migrations", "app"),
 ]
 
 for cmd_name, module_path, attr_name in lazy_commands:

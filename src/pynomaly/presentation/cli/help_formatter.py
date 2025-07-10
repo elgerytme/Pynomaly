@@ -175,6 +175,17 @@ STANDARD_HELP_TEXTS = {
             "pynomaly validate system --github-report",
         ],
     },
+    "migrate": {
+        "help": "🗄️ Database migration management",
+        "description": "Manage database schema migrations, version control, and rollbacks. "
+        "Provides safe database upgrades with backup and recovery options.",
+        "examples": [
+            "pynomaly migrate status",
+            "pynomaly migrate run",
+            "pynomaly migrate create 'add user preferences table'",
+            "pynomaly migrate rollback",
+        ],
+    },
 }
 
 # Standard option help texts
