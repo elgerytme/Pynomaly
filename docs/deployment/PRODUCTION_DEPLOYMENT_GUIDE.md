@@ -1,389 +1,289 @@
-# Pynomaly Production Deployment Guide
+# Production Deployment Guide
 
-🍞 **Breadcrumb:** 🏠 [Home](../index.md) > 🚀 [Deployment](README.md) > 🏭 Production Guide
+This comprehensive guide covers deploying Pynomaly to production environments with high availability, security, and monitoring capabilities.
 
----
+## Table of Contents
 
+1. [Prerequisites](#prerequisites)
+2. [Architecture Overview](#architecture-overview)
+3. [Infrastructure Setup](#infrastructure-setup)
+4. [Database Configuration](#database-configuration)
+5. [Redis Configuration](#redis-configuration)
+6. [Application Deployment](#application-deployment)
+7. [Load Balancer & Reverse Proxy](#load-balancer--reverse-proxy)
+8. [SSL/TLS Configuration](#ssltls-configuration)
+9. [Monitoring & Logging](#monitoring--logging)
+10. [Security Hardening](#security-hardening)
+11. [Backup & Disaster Recovery](#backup--disaster-recovery)
+12. [CI/CD Pipeline](#cicd-pipeline)
+13. [Performance Optimization](#performance-optimization)
+14. [Troubleshooting](#troubleshooting)
+15. [Maintenance](#maintenance)
 
-## 🚀 Enterprise-Grade Autonomous Anomaly Detection Platform
+## Prerequisites
 
-This guide provides complete instructions for deploying Pynomaly's enhanced autonomous anomaly detection system in production environments with comprehensive performance optimizations, advanced testing infrastructure, and monitoring capabilities.
+### System Requirements
 
-## 📋 Table of Contents
+- **Operating System**: Ubuntu 20.04 LTS or later, CentOS 8+, or RHEL 8+
+- **CPU**: Minimum 4 cores, Recommended 8+ cores
+- **Memory**: Minimum 16GB RAM, Recommended 32GB+ RAM
+- **Storage**: Minimum 100GB SSD, Recommended 500GB+ SSD
+- **Network**: 1Gbps network connection
 
-1. [Pre-Deployment Requirements](#pre-deployment-requirements)
-2. [System Architecture](#system-architecture)
-3. [Installation & Configuration](#installation--configuration)
-4. [Deployment Options](#deployment-options)
-5. [Monitoring & Alerting](#monitoring--alerting)
-6. [Performance Optimization](#performance-optimization)
-7. [Security Configuration](#security-configuration)
-8. [Backup & Recovery](#backup--recovery)
-9. [Troubleshooting](#troubleshooting)
-10. [Maintenance & Updates](#maintenance--updates)
+### Software Dependencies
 
-## Pre-Deployment Requirements
+- Docker 20.10+
+- Docker Compose 2.0+
+- Python 3.11+
+- PostgreSQL 14+
+- Redis 7.0+
+- NGINX 1.20+
+- Certbot (for SSL certificates)
 
-### Hardware Requirements
+### Cloud Provider Requirements
 
-#### Minimum Requirements
+- **AWS**: EC2 instances, RDS, ElastiCache, Application Load Balancer
+- **GCP**: Compute Engine, Cloud SQL, Memorystore, Cloud Load Balancing
+- **Azure**: Virtual Machines, Database for PostgreSQL, Cache for Redis, Application Gateway
+
+## Architecture Overview
+
 ```
-CPU: 4 cores (2.0 GHz+)
-RAM: 8GB
-Disk: 50GB SSD
-Network: 100 Mbps
+Internet
+    ↓
+[Load Balancer/CDN]
+    ↓
+[NGINX Reverse Proxy]
+    ↓
+[Pynomaly Application Instances]
+    ↓
+[PostgreSQL Database Cluster]
+    ↓
+[Redis Cache Cluster]
+    ↓
+[Monitoring Stack (Grafana/Prometheus)]
 ```
 
-#### Recommended for Production
-```
-CPU: 16+ cores (3.0 GHz+)
-RAM: 32GB+
-Disk: 500GB+ NVMe SSD
-Network: 1 Gbps+
-GPU: Optional (NVIDIA with 8GB+ VRAM for neural networks)
-```
+### Components
 
-#### Enterprise/High-Volume
-```
-CPU: 32+ cores (3.5 GHz+)
-RAM: 128GB+
-Disk: 2TB+ NVMe SSD RAID
-Network: 10 Gbps+
-GPU: Multiple NVIDIA A100/V100 for large-scale processing
-```
+1. **Load Balancer**: Distributes traffic across multiple application instances
+2. **Reverse Proxy**: NGINX for SSL termination and static file serving
+3. **Application Layer**: Multiple Pynomaly instances for high availability
+4. **Database Layer**: PostgreSQL with read replicas
+5. **Cache Layer**: Redis cluster for session management and caching
+6. **Monitoring**: Prometheus, Grafana, and ELK stack
 
-### Software Requirements
+## Infrastructure Setup
 
-#### Core Dependencies
+### 1. Server Provisioning
+
+#### AWS Setup
 ```bash
-# Operating System
-Ubuntu 20.04+ / CentOS 8+ / RHEL 8+
+# Create VPC and subnets
+aws ec2 create-vpc --cidr-block 10.0.0.0/16
+aws ec2 create-subnet --vpc-id vpc-12345678 --cidr-block 10.0.1.0/24
+aws ec2 create-subnet --vpc-id vpc-12345678 --cidr-block 10.0.2.0/24
 
-# Python Environment
-Python 3.11+
-Poetry 1.4+ or pip 23+
-
-# Optional but Recommended
-Redis 6.0+ (for caching)
-PostgreSQL 13+ (for persistent storage)
-Nginx 1.18+ (for load balancing)
-Docker 24.0+ (for containerization)
-Kubernetes 1.25+ (for orchestration)
+# Launch EC2 instances
+aws ec2 run-instances \
+  --image-id ami-0abcdef1234567890 \
+  --instance-type t3.xlarge \
+  --key-name my-key-pair \
+  --security-group-ids sg-12345678 \
+  --subnet-id subnet-12345678 \
+  --count 3
 ```
 
-#### Monitoring Stack
+#### GCP Setup
 ```bash
-Prometheus 2.40+ (metrics collection)
-Grafana 9.0+ (visualization)
-AlertManager 0.25+ (alerting)
-Jaeger 1.40+ (distributed tracing)
+# Create project and enable APIs
+gcloud projects create pynomaly-prod
+gcloud services enable compute.googleapis.com
+gcloud services enable sql-admin.googleapis.com
+
+# Create VM instances
+gcloud compute instances create pynomaly-app-1 \
+  --zone=us-central1-a \
+  --machine-type=n1-standard-4 \
+  --image-family=ubuntu-2004-lts \
+  --image-project=ubuntu-os-cloud \
+  --boot-disk-size=100GB
 ```
 
-## System Architecture
+### 2. Network Configuration
 
-### High-Level Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Load Balancer │ -> │   API Gateway   │ -> │  Autonomous     │
-│   (Nginx/HAProxy)│    │   (FastAPI)     │    │  Detection      │
-└─────────────────┘    └─────────────────┘    │  Engine         │
-                                              └─────────────────┘
-                              │                        │
-                              ▼                        ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Web UI        │    │   CLI Interface │    │  Algorithm      │
-│   (Progressive  │    │   (Enhanced)    │    │  Registry       │
-│   Web App)      │    │                 │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                              │                        │
-                              ▼                        ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Monitoring    │    │   Data Storage  │    │  External       │
-│   & Alerting    │    │   (Redis/DB)    │    │  Integrations   │
-│   (Prometheus)  │    │                 │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
-
-### Component Architecture
-
-```
-Autonomous Detection Engine
-├── Algorithm Selection Service
-│   ├── Data Profiler (13+ characteristics)
-│   ├── Compatibility Scorer
-│   └── Confidence Ranker
-├── AutoML Service
-│   ├── Hyperparameter Optimizer (Optuna)
-│   ├── Cross Validator
-│   └── Ensemble Creator
-├── Family Ensemble Service
-│   ├── Statistical Family (ECOD, COPOD)
-│   ├── Distance-Based Family (KNN, LOF, OneClassSVM)
-│   ├── Isolation-Based Family (IsolationForest)
-│   └── Neural Network Family (AutoEncoder, VAE)
-└── Results Analysis Service
-    ├── Pattern Analyzer
-    ├── Confidence Assessor
-    └── Insight Generator
-```
-
-## Installation & Configuration
-
-### 1. Environment Setup
-
+#### Firewall Rules
 ```bash
-# Create application user
-sudo useradd -m -s /bin/bash pynomaly
-sudo usermod -aG docker pynomaly
-
-# Create application directories
-sudo mkdir -p /opt/pynomaly/{data,logs,config,backups}
-sudo chown -R pynomaly:pynomaly /opt/pynomaly
-
-# Switch to application user
-sudo -u pynomaly -i
+# Allow HTTP/HTTPS traffic
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw allow 22/tcp  # SSH access
+sudo ufw allow 5432/tcp  # PostgreSQL (internal only)
+sudo ufw allow 6379/tcp  # Redis (internal only)
+sudo ufw enable
 ```
 
-### 2. Application Installation
-
+#### Security Groups (AWS)
 ```bash
-# Clone repository
-cd /opt/pynomaly
-git clone https://github.com/your-org/pynomaly.git
-cd pynomaly
+# Create security group
+aws ec2 create-security-group \
+  --group-name pynomaly-sg \
+  --description "Pynomaly application security group"
 
-# Setup Python environment
-python3.11 -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-pip install --upgrade pip poetry
-poetry install --only=main
-
-# Verify installation
-poetry run python -c "from pynomaly.application.services.autonomous_service import AutonomousDetectionService; print('✅ Installation successful')"
+# Add rules
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-12345678 \
+  --protocol tcp \
+  --port 443 \
+  --cidr 0.0.0.0/0
 ```
 
-### 3. Configuration
+## Database Configuration
 
-#### Environment Variables
+### 1. PostgreSQL Setup
+
+#### Installation
 ```bash
-# /opt/pynomaly/config/pynomaly.env
-export PYNOMALY_ENV=production
-export PYNOMALY_LOG_LEVEL=INFO
-export PYNOMALY_LOG_FILE=/opt/pynomaly/logs/app.log
+# Install PostgreSQL
+sudo apt update
+sudo apt install postgresql-14 postgresql-client-14 postgresql-contrib-14
 
-# API Configuration
-export PYNOMALY_API_HOST=0.0.0.0
-export PYNOMALY_API_PORT=8000
-export PYNOMALY_API_WORKERS=4
-export PYNOMALY_API_TIMEOUT=300
+# Configure PostgreSQL
+sudo -u postgres psql
+```
 
-# Performance Settings
-export PYNOMALY_MAX_UPLOAD_SIZE=500MB
-export PYNOMALY_MAX_ALGORITHMS=10
-export PYNOMALY_CACHE_ENABLED=true
-export PYNOMALY_CACHE_SIZE_MB=1024
+#### Database Creation
+```sql
+-- Create database and user
+CREATE DATABASE pynomaly_prod;
+CREATE USER pynomaly_user WITH ENCRYPTED PASSWORD 'secure_password_here';
+GRANT ALL PRIVILEGES ON DATABASE pynomaly_prod TO pynomaly_user;
 
-# Database Configuration
-export PYNOMALY_DATABASE_URL=postgresql://pynomaly:password@localhost:5432/pynomaly
+-- Grant schema permissions
+\c pynomaly_prod;
+GRANT ALL ON SCHEMA public TO pynomaly_user;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO pynomaly_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO pynomaly_user;
+```
 
-# Redis Configuration
-export PYNOMALY_REDIS_URL=redis://localhost:6379/0
+#### Performance Tuning
+```bash
+# Edit postgresql.conf
+sudo nano /etc/postgresql/14/main/postgresql.conf
+```
 
-# Monitoring
-export PYNOMALY_PROMETHEUS_ENABLED=true
-export PYNOMALY_METRICS_PORT=9090
-export PYNOMALY_HEALTH_CHECK_ENABLED=true
+```ini
+# Memory settings
+shared_buffers = 8GB
+effective_cache_size = 24GB
+work_mem = 256MB
+maintenance_work_mem = 2GB
+
+# Connection settings
+max_connections = 200
+max_prepared_transactions = 200
+
+# Checkpoint settings
+checkpoint_completion_target = 0.9
+wal_buffers = 64MB
+default_statistics_target = 100
+
+# Logging
+log_min_duration_statement = 1000
+log_checkpoints = on
+log_connections = on
+log_disconnections = on
+```
+
+#### High Availability Setup
+```bash
+# Set up streaming replication
+# On primary server
+sudo nano /etc/postgresql/14/main/postgresql.conf
+```
+
+```ini
+# Replication settings
+wal_level = replica
+max_wal_senders = 3
+wal_keep_size = 64
+```
+
+### 2. Database Migration
+```bash
+# Run migrations
+cd /path/to/pynomaly
+python -m alembic upgrade head
+
+# Create indexes for performance
+python scripts/create_production_indexes.py
+```
+
+## Redis Configuration
+
+### 1. Installation and Setup
+```bash
+# Install Redis
+sudo apt install redis-server
+
+# Configure Redis
+sudo nano /etc/redis/redis.conf
+```
+
+```ini
+# Network settings
+bind 127.0.0.1 10.0.1.100
+port 6379
+protected-mode yes
+
+# Memory settings
+maxmemory 4gb
+maxmemory-policy allkeys-lru
+
+# Persistence settings
+save 900 1
+save 300 10
+save 60 10000
 
 # Security
-export PYNOMALY_AUTH_ENABLED=true
-export PYNOMALY_JWT_SECRET_KEY=your-secret-key-here
-export PYNOMALY_CORS_ORIGINS=["https://your-domain.com"]
+requirepass your_secure_redis_password
 ```
 
-#### Application Configuration
-```yaml
-# /opt/pynomaly/config/production.yaml
-app:
-  name: "Pynomaly Production"
-  version: "1.0.0"
-  debug: false
-
-autonomous:
-  max_algorithms: 10
-  confidence_threshold: 0.7
-  enable_preprocessing: true
-  max_preprocessing_time: 600
-
-performance:
-  chunk_size: 10000
-  memory_limit_mb: 2048
-  enable_parallel_processing: true
-  max_workers: 8
-
-monitoring:
-  prometheus_enabled: true
-  metrics_retention_hours: 168  # 7 days
-  alert_cooldown_seconds: 300
-
-security:
-  auth_enabled: true
-  rate_limiting_enabled: true
-  input_validation_enabled: true
-  max_file_size_mb: 500
+### 2. Redis Cluster Setup (for high availability)
+```bash
+# Create Redis cluster
+redis-cli --cluster create \
+  10.0.1.100:7000 10.0.1.101:7000 10.0.1.102:7000 \
+  10.0.1.100:7001 10.0.1.101:7001 10.0.1.102:7001 \
+  --cluster-replicas 1
 ```
 
-## Deployment Options
+## Application Deployment
 
-### Option 1: Standalone Deployment
+### 1. Docker Deployment
 
-#### Systemd Service Configuration
-```ini
-# /etc/systemd/system/pynomaly-api.service
-[Unit]
-Description=Pynomaly Autonomous Detection API
-After=network.target postgresql.service redis.service
-
-[Service]
-Type=exec
-User=pynomaly
-Group=pynomaly
-WorkingDirectory=/opt/pynomaly/pynomaly
-Environment=PATH=/opt/pynomaly/pynomaly/.venv/bin
-EnvironmentFile=/opt/pynomaly/config/pynomaly.env
-ExecStart=/opt/pynomaly/pynomaly/.venv/bin/gunicorn pynomaly.presentation.api:app \
-    --workers 4 \
-    --worker-class uvicorn.workers.UvicornWorker \
-    --bind 0.0.0.0:8000 \
-    --timeout 300 \
-    --max-requests 1000 \
-    --max-requests-jitter 100
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-
-#### Nginx Configuration
-```nginx
-# /etc/nginx/sites-available/pynomaly
-upstream pynomaly_api {
-    server 127.0.0.1:8000;
-    # Add more servers for load balancing
-    # server 127.0.0.1:8001;
-    # server 127.0.0.1:8002;
-}
-
-server {
-    listen 80;
-    server_name your-domain.com;
-
-    # Redirect HTTP to HTTPS
-    return 301 https://$server_name$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name your-domain.com;
-
-    # SSL Configuration
-    ssl_certificate /etc/ssl/certs/pynomaly.crt;
-    ssl_certificate_key /etc/ssl/private/pynomaly.key;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
-
-    # Security Headers
-    add_header X-Frame-Options DENY;
-    add_header X-Content-Type-Options nosniff;
-    add_header X-XSS-Protection "1; mode=block";
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
-
-    # Rate Limiting
-    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
-
-    # File Upload Limits
-    client_max_body_size 500M;
-
-    # API Endpoints
-    location /api/ {
-        limit_req zone=api burst=20 nodelay;
-
-        proxy_pass http://pynomaly_api;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-
-        # Timeouts
-        proxy_connect_timeout 60s;
-        proxy_send_timeout 300s;
-        proxy_read_timeout 300s;
-    }
-
-    # Web UI
-    location / {
-        proxy_pass http://pynomaly_api;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # Health Check
-    location /health {
-        proxy_pass http://pynomaly_api/api/health/;
-        access_log off;
-    }
-
-    # Metrics (restrict access)
-    location /metrics {
-        allow 10.0.0.0/8;  # Internal networks only
-        deny all;
-        proxy_pass http://pynomaly_api/metrics;
-    }
-}
-```
-
-### Option 2: Docker Deployment
-
-#### Dockerfile
+#### Production Dockerfile
 ```dockerfile
-# /opt/pynomaly/Dockerfile
 FROM python:3.11-slim
+
+WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
-    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create application user
-RUN adduser --disabled-password --gecos '' pynomaly
-
-# Set working directory
-WORKDIR /app
-
-# Copy requirements
-COPY pyproject.toml poetry.lock ./
-
-# Install Python dependencies
-RUN pip install poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --only=main --no-dev
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY src/ ./src/
 COPY scripts/ ./scripts/
 
-# Create necessary directories
-RUN mkdir -p /app/data /app/logs && \
-    chown -R pynomaly:pynomaly /app
-
-# Switch to application user
+# Create non-root user
+RUN useradd -m -u 1000 pynomaly
 USER pynomaly
 
 # Expose port
@@ -391,36 +291,30 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8000/api/health/ || exit 1
+  CMD curl -f http://localhost:8000/health || exit 1
 
 # Start application
-CMD ["gunicorn", "pynomaly.presentation.api:app", \
-     "--workers", "4", \
-     "--worker-class", "uvicorn.workers.UvicornWorker", \
-     "--bind", "0.0.0.0:8000", \
-     "--timeout", "300"]
+CMD ["python", "-m", "uvicorn", "src.pynomaly.presentation.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
-#### Docker Compose
+#### Docker Compose Production
 ```yaml
-# /opt/pynomaly/docker-compose.prod.yml
 version: '3.8'
 
 services:
-  pynomaly:
-    build: .
-    container_name: pynomaly-api
-    restart: unless-stopped
-    ports:
-      - "8000:8000"
+  pynomaly-app:
+    image: pynomaly:latest
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
     environment:
-      - PYNOMALY_ENV=production
-      - PYNOMALY_DATABASE_URL=postgresql://pynomaly:${POSTGRES_PASSWORD}@postgres:5432/pynomaly
-      - PYNOMALY_REDIS_URL=redis://redis:6379/0
-    volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
-      - ./config:/app/config
+      - DATABASE_URL=postgresql://pynomaly_user:${DB_PASSWORD}@postgres:5432/pynomaly_prod
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - JWT_SECRET=${JWT_SECRET}
+      - ENVIRONMENT=production
     depends_on:
       - postgres
       - redis
@@ -428,24 +322,20 @@ services:
       - pynomaly-network
 
   postgres:
-    image: postgres:15-alpine
-    container_name: pynomaly-db
-    restart: unless-stopped
+    image: postgres:14
     environment:
-      - POSTGRES_DB=pynomaly
-      - POSTGRES_USER=pynomaly
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=pynomaly_prod
+      - POSTGRES_USER=pynomaly_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backups:/backups
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - pynomaly-network
 
   redis:
     image: redis:7-alpine
-    container_name: pynomaly-cache
-    restart: unless-stopped
-    command: redis-server --appendonly yes
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
     networks:
@@ -453,209 +343,321 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: pynomaly-proxy
-    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/ssl
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
     depends_on:
-      - pynomaly
-    networks:
-      - pynomaly-network
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: pynomaly-metrics
-    restart: unless-stopped
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    networks:
-      - pynomaly-network
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: pynomaly-dashboard
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana:/etc/grafana/provisioning
+      - pynomaly-app
     networks:
       - pynomaly-network
 
 volumes:
   postgres_data:
   redis_data:
-  prometheus_data:
-  grafana_data:
 
 networks:
   pynomaly-network:
     driver: bridge
 ```
 
-### Option 3: Kubernetes Deployment
+### 2. Environment Configuration
 
-#### Kubernetes Manifests
-```yaml
-# /opt/pynomaly/k8s/namespace.yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: pynomaly
+#### Production Environment File
+```bash
+# Create .env.production
+cat > .env.production << 'EOF'
+# Database
+DATABASE_URL=postgresql://pynomaly_user:${DB_PASSWORD}@localhost:5432/pynomaly_prod
 
----
-# /opt/pynomaly/k8s/deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: pynomaly-api
-  namespace: pynomaly
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: pynomaly-api
-  template:
-    metadata:
-      labels:
-        app: pynomaly-api
-    spec:
-      containers:
-      - name: pynomaly-api
-        image: pynomaly:latest
-        ports:
-        - containerPort: 8000
-        env:
-        - name: PYNOMALY_ENV
-          value: "production"
-        - name: PYNOMALY_DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: pynomaly-secrets
-              key: database-url
-        resources:
-          requests:
-            cpu: 500m
-            memory: 1Gi
-          limits:
-            cpu: 2000m
-            memory: 4Gi
-        livenessProbe:
-          httpGet:
-            path: /api/health/
-            port: 8000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /api/health/ready
-            port: 8000
-          initialDelaySeconds: 5
-          periodSeconds: 5
+# Redis
+REDIS_URL=redis://:${REDIS_PASSWORD}@localhost:6379/0
 
----
-# /opt/pynomaly/k8s/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: pynomaly-api-service
-  namespace: pynomaly
-spec:
-  selector:
-    app: pynomaly-api
-  ports:
-  - port: 80
-    targetPort: 8000
-  type: ClusterIP
+# Security
+JWT_SECRET=${JWT_SECRET}
+ENCRYPTION_KEY=${ENCRYPTION_KEY}
+API_KEY_SALT=${API_KEY_SALT}
 
----
-# /opt/pynomaly/k8s/ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: pynomaly-ingress
-  namespace: pynomaly
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-spec:
-  tls:
-  - hosts:
-    - your-domain.com
-    secretName: pynomaly-tls
-  rules:
-  - host: your-domain.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: pynomaly-api-service
-            port:
-              number: 80
+# Application
+ENVIRONMENT=production
+DEBUG=false
+LOG_LEVEL=INFO
 
----
-# /opt/pynomaly/k8s/hpa.yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: pynomaly-api-hpa
-  namespace: pynomaly
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: pynomaly-api
-  minReplicas: 3
-  maxReplicas: 10
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
+# External Services
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=${SMTP_USERNAME}
+SMTP_PASSWORD=${SMTP_PASSWORD}
+
+# Rate Limiting
+RATE_LIMIT_REQUESTS=1000
+RATE_LIMIT_WINDOW=3600
+
+# Monitoring
+PROMETHEUS_METRICS_ENABLED=true
+GRAFANA_ENABLED=true
+EOF
 ```
 
-## Monitoring & Alerting
+### 3. Application Startup Script
+```bash
+#!/bin/bash
+# /opt/pynomaly/start_production.sh
 
-### Prometheus Configuration
+set -e
+
+# Load environment variables
+source /opt/pynomaly/.env.production
+
+# Run database migrations
+python -m alembic upgrade head
+
+# Start application with Gunicorn
+exec gunicorn src.pynomaly.presentation.api.app:app \
+  --bind 0.0.0.0:8000 \
+  --workers 4 \
+  --worker-class uvicorn.workers.UvicornWorker \
+  --worker-connections 1000 \
+  --max-requests 1000 \
+  --max-requests-jitter 50 \
+  --preload \
+  --timeout 30 \
+  --keep-alive 2 \
+  --access-logfile /var/log/pynomaly/access.log \
+  --error-logfile /var/log/pynomaly/error.log \
+  --log-level info
+```
+
+## Load Balancer & Reverse Proxy
+
+### 1. NGINX Configuration
+
+#### Main Configuration
+```nginx
+# /etc/nginx/nginx.conf
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+
+events {
+    worker_connections 1024;
+    use epoll;
+    multi_accept on;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    # Logging
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log /var/log/nginx/access.log main;
+    error_log /var/log/nginx/error.log;
+
+    # Basic Settings
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+
+    # Security Headers
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+
+    # Gzip Compression
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # Rate Limiting
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+    limit_req_zone $binary_remote_addr zone=login:10m rate=5r/m;
+
+    # Upstream servers
+    upstream pynomaly_backend {
+        least_conn;
+        server 127.0.0.1:8000 max_fails=3 fail_timeout=30s;
+        server 127.0.0.1:8001 max_fails=3 fail_timeout=30s;
+        server 127.0.0.1:8002 max_fails=3 fail_timeout=30s;
+    }
+
+    # HTTP to HTTPS redirect
+    server {
+        listen 80;
+        server_name your-domain.com;
+        return 301 https://$server_name$request_uri;
+    }
+
+    # HTTPS server
+    server {
+        listen 443 ssl http2;
+        server_name your-domain.com;
+
+        # SSL configuration
+        ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
+        ssl_prefer_server_ciphers off;
+        ssl_session_cache shared:SSL:10m;
+        ssl_session_timeout 10m;
+
+        # Security headers
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Frame-Options DENY;
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header Referrer-Policy "strict-origin-when-cross-origin";
+
+        # API endpoints
+        location /api/ {
+            limit_req zone=api burst=20 nodelay;
+            proxy_pass http://pynomaly_backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_connect_timeout 30s;
+            proxy_send_timeout 30s;
+            proxy_read_timeout 30s;
+        }
+
+        # Login endpoint with stricter rate limiting
+        location /api/v1/auth/login {
+            limit_req zone=login burst=3 nodelay;
+            proxy_pass http://pynomaly_backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        # Health check endpoint
+        location /health {
+            access_log off;
+            proxy_pass http://pynomaly_backend;
+            proxy_set_header Host $host;
+        }
+
+        # Static files
+        location /static/ {
+            alias /opt/pynomaly/static/;
+            expires 30d;
+            add_header Cache-Control "public, immutable";
+        }
+
+        # Documentation
+        location /docs {
+            proxy_pass http://pynomaly_backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+}
+```
+
+### 2. Load Balancer Configuration (AWS ALB)
+
+#### ALB Setup Script
+```bash
+#!/bin/bash
+# Create Application Load Balancer
+aws elbv2 create-load-balancer \
+  --name pynomaly-alb \
+  --subnets subnet-12345678 subnet-87654321 \
+  --security-groups sg-12345678 \
+  --scheme internet-facing \
+  --type application \
+  --ip-address-type ipv4
+
+# Create target group
+aws elbv2 create-target-group \
+  --name pynomaly-targets \
+  --protocol HTTP \
+  --port 80 \
+  --vpc-id vpc-12345678 \
+  --health-check-protocol HTTP \
+  --health-check-path /health \
+  --health-check-interval-seconds 30 \
+  --health-check-timeout-seconds 5 \
+  --healthy-threshold-count 2 \
+  --unhealthy-threshold-count 3
+
+# Register targets
+aws elbv2 register-targets \
+  --target-group-arn arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/pynomaly-targets/1234567890123456 \
+  --targets Id=i-1234567890abcdef0 Id=i-0987654321fedcba0
+```
+
+## SSL/TLS Configuration
+
+### 1. Let's Encrypt Setup
+```bash
+# Install Certbot
+sudo apt install certbot python3-certbot-nginx
+
+# Obtain SSL certificate
+sudo certbot --nginx -d your-domain.com
+
+# Set up automatic renewal
+sudo crontab -e
+# Add: 0 12 * * * /usr/bin/certbot renew --quiet
+```
+
+### 2. Custom Certificate Setup
+```bash
+# Generate private key
+openssl genrsa -out /etc/ssl/private/pynomaly.key 2048
+
+# Generate certificate signing request
+openssl req -new -key /etc/ssl/private/pynomaly.key -out /etc/ssl/certs/pynomaly.csr
+
+# Generate self-signed certificate (for testing)
+openssl x509 -req -days 365 -in /etc/ssl/certs/pynomaly.csr -signkey /etc/ssl/private/pynomaly.key -out /etc/ssl/certs/pynomaly.crt
+```
+
+## Monitoring & Logging
+
+### 1. Prometheus Configuration
 ```yaml
-# /opt/pynomaly/monitoring/prometheus.yml
+# /etc/prometheus/prometheus.yml
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
 rule_files:
-  - "pynomaly_alerts.yml"
+  - "pynomaly_rules.yml"
 
 scrape_configs:
-  - job_name: 'pynomaly-api'
+  - job_name: 'pynomaly'
     static_configs:
-      - targets: ['pynomaly:8000']
-    metrics_path: '/metrics'
-    scrape_interval: 10s
+      - targets: ['localhost:8000', 'localhost:8001', 'localhost:8002']
+    metrics_path: /metrics
+    scrape_interval: 15s
 
-  - job_name: 'node-exporter'
+  - job_name: 'postgres'
     static_configs:
-      - targets: ['node-exporter:9100']
+      - targets: ['localhost:9187']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['localhost:9121']
+
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['localhost:9113']
 
 alerting:
   alertmanagers:
@@ -664,96 +666,39 @@ alerting:
           - alertmanager:9093
 ```
 
-### Alert Rules
-```yaml
-# /opt/pynomaly/monitoring/pynomaly_alerts.yml
-groups:
-- name: pynomaly_alerts
-  rules:
-  - alert: HighErrorRate
-    expr: rate(autonomous_detections_total{status="failure"}[5m]) / rate(autonomous_detections_total[5m]) > 0.1
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      summary: "High error rate in autonomous detection"
-      description: "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes"
-
-  - alert: SlowDetectionTime
-    expr: histogram_quantile(0.95, rate(autonomous_detection_duration_seconds_bucket[5m])) > 300
-    for: 2m
-    labels:
-      severity: warning
-    annotations:
-      summary: "Slow autonomous detection performance"
-      description: "95th percentile detection time is {{ $value }}s"
-
-  - alert: HighMemoryUsage
-    expr: autonomous_memory_usage_bytes / 1024 / 1024 / 1024 > 8
-    for: 5m
-    labels:
-      severity: critical
-    annotations:
-      summary: "High memory usage"
-      description: "Memory usage is {{ $value | humanize }}GB"
-
-  - alert: PynomaryServiceDown
-    expr: up{job="pynomaly-api"} == 0
-    for: 1m
-    labels:
-      severity: critical
-    annotations:
-      summary: "Pynomaly service is down"
-      description: "Pynomaly API service has been down for more than 1 minute"
-```
-
-### Grafana Dashboard
+### 2. Grafana Dashboard
 ```json
 {
   "dashboard": {
-    "title": "Pynomaly Autonomous Detection",
+    "title": "Pynomaly Production Dashboard",
     "panels": [
       {
-        "title": "Detection Rate",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "rate(autonomous_detections_total[5m])",
-            "legendFormat": "Detections/sec"
-          }
-        ]
-      },
-      {
-        "title": "Success Rate",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "rate(autonomous_detections_total{status=\"success\"}[5m]) / rate(autonomous_detections_total[5m])",
-            "legendFormat": "Success Rate"
-          }
-        ]
-      },
-      {
-        "title": "Detection Duration",
+        "title": "Request Rate",
         "type": "graph",
         "targets": [
           {
-            "expr": "histogram_quantile(0.50, rate(autonomous_detection_duration_seconds_bucket[5m]))",
-            "legendFormat": "50th percentile"
-          },
+            "expr": "rate(http_requests_total[5m])",
+            "legendFormat": "{{method}} {{status}}"
+          }
+        ]
+      },
+      {
+        "title": "Response Time",
+        "type": "graph",
+        "targets": [
           {
-            "expr": "histogram_quantile(0.95, rate(autonomous_detection_duration_seconds_bucket[5m]))",
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
             "legendFormat": "95th percentile"
           }
         ]
       },
       {
-        "title": "Algorithm Usage",
-        "type": "piechart",
+        "title": "Error Rate",
+        "type": "graph",
         "targets": [
           {
-            "expr": "increase(autonomous_detections_total{status=\"success\"}[1h])",
-            "legendFormat": "{{ algorithm }}"
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m])",
+            "legendFormat": "5xx errors"
           }
         ]
       }
@@ -762,606 +707,582 @@ groups:
 }
 ```
 
-## Performance Optimization
+### 3. Alerting Rules
+```yaml
+# /etc/prometheus/pynomaly_rules.yml
+groups:
+  - name: pynomaly
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }} requests/second"
 
-### Advanced Performance Features (NEW)
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }} seconds"
 
-Pynomaly now includes comprehensive performance optimizations:
-
-#### ✅ **Implemented Performance Enhancements**
-- **Batch Cache Operations**: 3-10x faster cache performance with Redis pipelines
-- **Optimized Data Loading**: 30-70% memory reduction, 2-5x faster CSV loading
-- **Adaptive Memory Management**: Automatic memory optimization and monitoring
-- **Feature Selection**: 20-80% feature reduction for improved performance
-- **Async Algorithm Execution**: Parallel processing capabilities
-- **Performance CLI**: Real-time monitoring and benchmarking tools
-
-#### Performance CLI Integration
-```bash
-# Run comprehensive performance benchmarks
-pynomaly perf benchmark --suite production --output-dir /opt/pynomaly/benchmarks
-
-# Monitor real-time performance
-pynomaly perf monitor --interval 30 --alert-threshold 85
-
-# Generate performance reports  
-pynomaly perf report --format html --output /opt/pynomaly/reports/performance.html
-
-# Compare algorithm performance
-pynomaly perf compare --algorithms IsolationForest LocalOutlierFactor OneClassSVM
+      - alert: DatabaseConnectionFailure
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection failed"
+          description: "PostgreSQL database is not reachable"
 ```
 
-### Production Performance Script
+## Security Hardening
+
+### 1. System Security
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install security tools
+sudo apt install fail2ban ufw aide rkhunter
+
+# Configure fail2ban
+sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+sudo nano /etc/fail2ban/jail.local
+```
+
+```ini
+[DEFAULT]
+bantime = 3600
+findtime = 600
+maxretry = 3
+
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+
+[nginx-http-auth]
+enabled = true
+filter = nginx-http-auth
+logpath = /var/log/nginx/error.log
+maxretry = 3
+```
+
+### 2. Application Security
+```bash
+# Set up proper file permissions
+sudo chown -R pynomaly:pynomaly /opt/pynomaly
+sudo chmod -R 750 /opt/pynomaly
+sudo chmod 600 /opt/pynomaly/.env.production
+
+# Secure database files
+sudo chmod 600 /var/lib/postgresql/14/main/postgresql.conf
+sudo chmod 600 /var/lib/postgresql/14/main/pg_hba.conf
+```
+
+### 3. Network Security
+```bash
+# Configure iptables (if not using ufw)
+sudo iptables -A INPUT -i lo -j ACCEPT
+sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+sudo iptables -A INPUT -j DROP
+
+# Save iptables rules
+sudo iptables-save > /etc/iptables/rules.v4
+```
+
+## Backup & Disaster Recovery
+
+### 1. Database Backup
 ```bash
 #!/bin/bash
-# /opt/pynomaly/scripts/production_performance_check.sh
+# /opt/pynomaly/scripts/backup_db.sh
 
-echo "🚀 Pynomaly Production Performance Check (Enhanced)"
-echo "=================================================="
-
-# Check system resources
-echo "📊 System Resources:"
-echo "  CPU Cores: $(nproc)"
-echo "  Memory: $(free -h | awk '/^Mem:/ {print $2}')"
-echo "  Disk: $(df -h / | awk 'NR==2 {print $4 " available"}')"
-
-# Check service status
-echo ""
-echo "🔧 Service Status:"
-systemctl is-active --quiet pynomaly-api && echo "  ✅ Pynomaly API: Running" || echo "  ❌ Pynomaly API: Stopped"
-systemctl is-active --quiet postgresql && echo "  ✅ PostgreSQL: Running" || echo "  ❌ PostgreSQL: Stopped"
-systemctl is-active --quiet redis && echo "  ✅ Redis: Running" || echo "  ❌ Redis: Stopped"
-
-# Test API endpoint
-echo ""
-echo "🌐 API Health Check:"
-if curl -sf http://localhost:8000/api/health/ > /dev/null; then
-    echo "  ✅ API Health: OK"
-else
-    echo "  ❌ API Health: Failed"
-fi
-
-# Test performance optimizations
-echo ""
-echo "⚡ Performance Optimizations Check:"
-cd /opt/pynomaly/pynomaly
-source .venv/bin/activate
-
-# Test batch cache operations
-python -c "
-import asyncio
-from pynomaly.infrastructure.caching.advanced_cache_service import AdvancedCacheService
-
-async def test_cache():
-    cache = AdvancedCacheService()
-    test_items = {'test_key': 'test_value'}
-    results = await cache.set_batch(test_items)
-    print('  ✅ Batch Cache Operations: Working' if results['test_key'] else '  ❌ Batch Cache Operations: Failed')
-
-asyncio.run(test_cache())
-"
-
-# Test memory management
-python -c "
-from pynomaly.infrastructure.performance.memory_manager import AdaptiveMemoryManager
-try:
-    manager = AdaptiveMemoryManager()
-    usage = manager.get_memory_usage()
-    print(f'  ✅ Memory Manager: Working (Usage: {usage.percent_used:.1f}%)')
-except Exception as e:
-    print(f'  ❌ Memory Manager: Failed ({e})')
-"
-
-# Test optimized data loading
-python -c "
-from pynomaly.infrastructure.data_loaders.optimized_csv_loader import OptimizedCSVLoader
-try:
-    loader = OptimizedCSVLoader()
-    print('  ✅ Optimized Data Loading: Available')
-except Exception as e:
-    print(f'  ❌ Optimized Data Loading: Failed ({e})')
-"
-
-# Run comprehensive performance suite
-echo ""
-echo "🔬 Running Performance Test Suite:"
-python scripts/testing/coverage_monitor.py run 2>/dev/null && echo "  ✅ Test Coverage Monitoring: Working" || echo "  ❌ Test Coverage Monitoring: Failed"
-
-# Run performance CLI commands
-pynomaly perf benchmark --suite quick 2>/dev/null && echo "  ✅ Performance CLI: Working" || echo "  ❌ Performance CLI: Failed"
-
-echo ""
-echo "✅ Enhanced performance check completed!"
-```
-
-### Optimization Recommendations
-
-#### High-Performance Configuration
-```yaml
-# For high-performance production deployment
-performance:
-  chunk_size: 25000
-  memory_limit_mb: 8192
-  enable_parallel_processing: true
-  max_workers: 16
-  enable_gpu_acceleration: true
-
-autonomous:
-  max_algorithms: 8
-  confidence_threshold: 0.75
-  auto_tune_hyperparams: true
-  enable_preprocessing: true
-
-api:
-  workers: 8
-  worker_connections: 2000
-  timeout: 600
-  keepalive: 2
-```
-
-#### Memory-Optimized Configuration
-```yaml
-# For memory-constrained environments
-performance:
-  chunk_size: 5000
-  memory_limit_mb: 1024
-  enable_parallel_processing: false
-  max_workers: 2
-
-autonomous:
-  max_algorithms: 3
-  confidence_threshold: 0.8
-  auto_tune_hyperparams: false
-  max_samples_analysis: 10000
-
-api:
-  workers: 2
-  worker_connections: 500
-  timeout: 300
-```
-
-## Security Configuration
-
-### SSL/TLS Setup
-```bash
-# Generate SSL certificate (using Let's Encrypt)
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com
-
-# Or use existing certificates
-sudo mkdir -p /etc/ssl/pynomaly
-sudo cp your-cert.crt /etc/ssl/pynomaly/
-sudo cp your-key.key /etc/ssl/pynomaly/
-sudo chmod 600 /etc/ssl/pynomaly/*
-```
-
-### Firewall Configuration
-```bash
-# Configure UFW firewall
-sudo ufw allow 22/tcp      # SSH
-sudo ufw allow 80/tcp      # HTTP
-sudo ufw allow 443/tcp     # HTTPS
-sudo ufw allow from 10.0.0.0/8 to any port 9090  # Prometheus (internal)
-sudo ufw enable
-```
-
-### Authentication Setup
-```bash
-# Generate JWT secret key
-export PYNOMALY_JWT_SECRET_KEY=$(openssl rand -hex 32)
-
-# Create admin user (example)
-cd /opt/pynomaly/pynomaly
-source .venv/bin/activate
-python -c "
-from pynomaly.infrastructure.auth import create_user
-create_user('admin', 'secure_password', ['admin'])
-print('Admin user created')
-"
-```
-
-## Backup & Recovery
-
-### Database Backup Script
-```bash
-#!/bin/bash
-# /opt/pynomaly/scripts/backup.sh
-
-BACKUP_DIR="/opt/pynomaly/backups"
-DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="/opt/backups/postgres"
+DB_NAME="pynomaly_prod"
+DB_USER="pynomaly_user"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 # Create backup directory
 mkdir -p $BACKUP_DIR
 
-# Backup PostgreSQL database
-pg_dump -h localhost -U pynomaly pynomaly | gzip > $BACKUP_DIR/pynomaly_db_$DATE.sql.gz
+# Perform backup
+pg_dump -h localhost -U $DB_USER -d $DB_NAME | gzip > $BACKUP_DIR/pynomaly_backup_$TIMESTAMP.sql.gz
 
-# Backup Redis data
-redis-cli --rdb $BACKUP_DIR/redis_dump_$DATE.rdb
+# Upload to S3 (optional)
+aws s3 cp $BACKUP_DIR/pynomaly_backup_$TIMESTAMP.sql.gz s3://pynomaly-backups/
 
-# Backup application data
-tar -czf $BACKUP_DIR/pynomaly_data_$DATE.tar.gz /opt/pynomaly/data
-
-# Cleanup old backups (keep 30 days)
-find $BACKUP_DIR -name "*.gz" -mtime +30 -delete
-find $BACKUP_DIR -name "*.rdb" -mtime +30 -delete
-find $BACKUP_DIR -name "*.tar.gz" -mtime +30 -delete
-
-echo "Backup completed: $DATE"
+# Clean up old backups (keep last 30 days)
+find $BACKUP_DIR -name "*.sql.gz" -mtime +30 -delete
 ```
 
-### Automated Backup with Cron
-```bash
-# Add to crontab
-crontab -e
-
-# Daily backup at 2 AM
-0 2 * * * /opt/pynomaly/scripts/backup.sh >> /opt/pynomaly/logs/backup.log 2>&1
-```
-
-### Recovery Procedure
+### 2. Application Backup
 ```bash
 #!/bin/bash
-# /opt/pynomaly/scripts/restore.sh
+# /opt/pynomaly/scripts/backup_app.sh
 
-BACKUP_FILE=$1
+BACKUP_DIR="/opt/backups/application"
+APP_DIR="/opt/pynomaly"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
-if [ -z "$BACKUP_FILE" ]; then
-    echo "Usage: $0 <backup_file>"
+# Create backup
+tar -czf $BACKUP_DIR/pynomaly_app_$TIMESTAMP.tar.gz $APP_DIR
+
+# Upload to S3
+aws s3 cp $BACKUP_DIR/pynomaly_app_$TIMESTAMP.tar.gz s3://pynomaly-backups/
+
+# Clean up old backups
+find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
+```
+
+### 3. Automated Backup Schedule
+```bash
+# Add to crontab
+sudo crontab -e
+
+# Database backup every 6 hours
+0 */6 * * * /opt/pynomaly/scripts/backup_db.sh
+
+# Application backup daily at 2 AM
+0 2 * * * /opt/pynomaly/scripts/backup_app.sh
+
+# Log rotation
+0 3 * * * /usr/sbin/logrotate /etc/logrotate.d/pynomaly
+```
+
+## CI/CD Pipeline
+
+### 1. GitHub Actions Workflow
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      - name: Run tests
+        run: |
+          pytest tests/ -v --cov=src/pynomaly --cov-report=xml
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run security scan
+        run: |
+          pip install bandit safety
+          bandit -r src/
+          safety check
+
+  deploy:
+    needs: [test, security-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to production
+        run: |
+          # Build Docker image
+          docker build -t pynomaly:${{ github.sha }} .
+          
+          # Push to registry
+          docker tag pynomaly:${{ github.sha }} ${{ secrets.DOCKER_REGISTRY }}/pynomaly:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_REGISTRY }}/pynomaly:${{ github.sha }}
+          
+          # Deploy to servers
+          ssh ${{ secrets.PROD_SERVER }} "docker pull ${{ secrets.DOCKER_REGISTRY }}/pynomaly:${{ github.sha }}"
+          ssh ${{ secrets.PROD_SERVER }} "docker-compose -f /opt/pynomaly/docker-compose.prod.yml up -d"
+```
+
+### 2. Deployment Script
+```bash
+#!/bin/bash
+# /opt/pynomaly/scripts/deploy.sh
+
+set -e
+
+IMAGE_TAG=$1
+if [ -z "$IMAGE_TAG" ]; then
+    echo "Usage: $0 <image_tag>"
     exit 1
 fi
 
-# Stop services
-sudo systemctl stop pynomaly-api
+echo "Deploying Pynomaly version $IMAGE_TAG..."
 
-# Restore database
-gunzip -c $BACKUP_FILE | psql -h localhost -U pynomaly pynomaly
+# Pull new image
+docker pull pynomaly:$IMAGE_TAG
 
-# Restart services
-sudo systemctl start pynomaly-api
+# Update docker-compose file
+sed -i "s/pynomaly:latest/pynomaly:$IMAGE_TAG/g" /opt/pynomaly/docker-compose.prod.yml
 
-echo "Restore completed from: $BACKUP_FILE"
+# Run database migrations
+docker run --rm --network pynomaly_pynomaly-network \
+  -e DATABASE_URL=$DATABASE_URL \
+  pynomaly:$IMAGE_TAG python -m alembic upgrade head
+
+# Rolling update
+docker-compose -f /opt/pynomaly/docker-compose.prod.yml up -d --no-deps pynomaly-app
+
+# Health check
+sleep 30
+curl -f http://localhost/health || exit 1
+
+echo "Deployment completed successfully!"
+```
+
+## Performance Optimization
+
+### 1. Application Configuration
+```python
+# src/pynomaly/infrastructure/config/production.py
+import os
+from typing import Dict, Any
+
+class ProductionConfig:
+    # Database connection pool
+    DATABASE_POOL_SIZE = 20
+    DATABASE_MAX_OVERFLOW = 30
+    DATABASE_POOL_TIMEOUT = 30
+    DATABASE_POOL_RECYCLE = 3600
+    
+    # Redis connection pool
+    REDIS_MAX_CONNECTIONS = 50
+    REDIS_SOCKET_KEEPALIVE = True
+    REDIS_SOCKET_KEEPALIVE_OPTIONS = {
+        "TCP_KEEPINTVL": 1,
+        "TCP_KEEPCNT": 3,
+        "TCP_KEEPIDLE": 1
+    }
+    
+    # Caching settings
+    CACHE_DEFAULT_TIMEOUT = 300
+    CACHE_REDIS_DB = 1
+    
+    # Rate limiting
+    RATE_LIMIT_STORAGE_URL = os.getenv("REDIS_URL", "redis://localhost:6379/2")
+    
+    # Logging
+    LOG_LEVEL = "INFO"
+    LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    
+    # Security
+    SECRET_KEY = os.getenv("SECRET_KEY")
+    JWT_ALGORITHM = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    
+    @classmethod
+    def get_database_url(cls) -> str:
+        return os.getenv("DATABASE_URL", "postgresql://localhost/pynomaly_prod")
+    
+    @classmethod
+    def get_redis_url(cls) -> str:
+        return os.getenv("REDIS_URL", "redis://localhost:6379/0")
+```
+
+### 2. Database Optimization
+```sql
+-- Performance indexes
+CREATE INDEX CONCURRENTLY idx_users_email ON users(email);
+CREATE INDEX CONCURRENTLY idx_users_created_at ON users(created_at);
+CREATE INDEX CONCURRENTLY idx_audit_logs_user_id ON audit_logs(user_id);
+CREATE INDEX CONCURRENTLY idx_audit_logs_timestamp ON audit_logs(timestamp);
+CREATE INDEX CONCURRENTLY idx_api_keys_user_id ON api_keys(user_id);
+CREATE INDEX CONCURRENTLY idx_api_keys_key_hash ON api_keys(key_hash);
+
+-- Partial indexes for active records
+CREATE INDEX CONCURRENTLY idx_users_active ON users(id) WHERE is_active = true;
+CREATE INDEX CONCURRENTLY idx_api_keys_active ON api_keys(id) WHERE is_active = true;
+
+-- Composite indexes for common queries
+CREATE INDEX CONCURRENTLY idx_audit_logs_user_timestamp ON audit_logs(user_id, timestamp);
+CREATE INDEX CONCURRENTLY idx_users_email_active ON users(email, is_active);
+```
+
+### 3. Caching Strategy
+```python
+# src/pynomaly/infrastructure/cache/redis_cache.py
+import json
+import pickle
+from typing import Any, Optional
+from redis import Redis
+from src.pynomaly.infrastructure.config.production import ProductionConfig
+
+class RedisCache:
+    def __init__(self, redis_client: Redis):
+        self.redis = redis_client
+        self.default_timeout = ProductionConfig.CACHE_DEFAULT_TIMEOUT
+    
+    def get(self, key: str) -> Optional[Any]:
+        """Get value from cache"""
+        try:
+            value = self.redis.get(key)
+            if value is None:
+                return None
+            return pickle.loads(value)
+        except Exception:
+            return None
+    
+    def set(self, key: str, value: Any, timeout: Optional[int] = None) -> bool:
+        """Set value in cache"""
+        try:
+            timeout = timeout or self.default_timeout
+            serialized = pickle.dumps(value)
+            return self.redis.setex(key, timeout, serialized)
+        except Exception:
+            return False
+    
+    def delete(self, key: str) -> bool:
+        """Delete value from cache"""
+        try:
+            return self.redis.delete(key) > 0
+        except Exception:
+            return False
+    
+    def clear_pattern(self, pattern: str) -> int:
+        """Clear all keys matching pattern"""
+        try:
+            keys = self.redis.keys(pattern)
+            if keys:
+                return self.redis.delete(*keys)
+            return 0
+        except Exception:
+            return 0
 ```
 
 ## Troubleshooting
 
-### Common Issues
+### 1. Common Issues
 
-#### 1. High Memory Usage
+#### High Memory Usage
 ```bash
 # Check memory usage
 free -h
-ps aux | grep pynomaly | sort -k4 -nr
+ps aux --sort=-%mem | head -10
 
-# Solution: Adjust chunk size
-export PYNOMALY_CHUNK_SIZE=5000
-export PYNOMALY_MEMORY_LIMIT_MB=1024
+# Check application memory
+docker stats pynomaly-app
+
+# Solutions:
+# - Increase server memory
+# - Optimize database queries
+# - Implement connection pooling
+# - Add memory limits to containers
 ```
 
-#### 2. Slow Detection Performance
+#### Database Connection Issues
 ```bash
-# Check system load
-top
-iostat 1
+# Check database connections
+sudo -u postgres psql -c "SELECT count(*) FROM pg_stat_activity;"
 
-# Solution: Enable parallel processing
-export PYNOMALY_ENABLE_PARALLEL_PROCESSING=true
-export PYNOMALY_MAX_WORKERS=8
+# Check connection limits
+sudo -u postgres psql -c "SHOW max_connections;"
+
+# Monitor slow queries
+sudo -u postgres psql -c "SELECT query, mean_time, calls FROM pg_stat_statements ORDER BY mean_time DESC LIMIT 10;"
 ```
 
-#### 3. API Timeout Errors
+#### Redis Connection Issues
 ```bash
-# Check logs
-tail -f /opt/pynomaly/logs/app.log
+# Check Redis status
+redis-cli ping
 
-# Solution: Increase timeout
-export PYNOMALY_API_TIMEOUT=600
+# Monitor Redis
+redis-cli monitor
+
+# Check memory usage
+redis-cli info memory
 ```
 
-### Log Analysis
+### 2. Debugging Tools
+
+#### Application Logs
 ```bash
-# Real-time log monitoring
-tail -f /opt/pynomaly/logs/app.log | grep ERROR
+# View application logs
+docker logs pynomaly-app
 
-# Performance analysis
-grep "Detection completed" /opt/pynomaly/logs/app.log | awk '{print $NF}' | sort -n
+# Real-time monitoring
+tail -f /var/log/pynomaly/error.log
 
-# Error rate analysis
-grep -c "ERROR" /opt/pynomaly/logs/app.log
-grep -c "INFO" /opt/pynomaly/logs/app.log
+# Search logs
+grep "ERROR" /var/log/pynomaly/error.log | tail -20
 ```
 
-### Health Check Script
+#### Performance Monitoring
 ```bash
-#!/bin/bash
-# /opt/pynomaly/scripts/health_check.sh
+# Check system performance
+htop
+iotop
+nethogs
 
-echo "🏥 Pynomaly Health Check"
-echo "======================="
-
-# API Health
-API_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/api/health/)
-if [ "$API_STATUS" = "200" ]; then
-    echo "✅ API: Healthy"
-else
-    echo "❌ API: Unhealthy (Status: $API_STATUS)"
-fi
-
-# Database Connection
-DB_STATUS=$(PGPASSWORD=password psql -h localhost -U pynomaly -d pynomaly -c "SELECT 1;" 2>/dev/null)
-if [ $? -eq 0 ]; then
-    echo "✅ Database: Connected"
-else
-    echo "❌ Database: Connection failed"
-fi
-
-# Redis Connection
-REDIS_STATUS=$(redis-cli ping 2>/dev/null)
-if [ "$REDIS_STATUS" = "PONG" ]; then
-    echo "✅ Redis: Connected"
-else
-    echo "❌ Redis: Connection failed"
-fi
-
-# Disk Space
-DISK_USAGE=$(df / | awk 'NR==2 {print $5}' | sed 's/%//')
-if [ "$DISK_USAGE" -lt 80 ]; then
-    echo "✅ Disk: ${DISK_USAGE}% used"
-else
-    echo "⚠️ Disk: ${DISK_USAGE}% used (Warning: >80%)"
-fi
-
-# Memory Usage
-MEM_USAGE=$(free | awk 'NR==2{printf "%.0f", $3*100/$2}')
-if [ "$MEM_USAGE" -lt 90 ]; then
-    echo "✅ Memory: ${MEM_USAGE}% used"
-else
-    echo "⚠️ Memory: ${MEM_USAGE}% used (Warning: >90%)"
-fi
+# Check application performance
+curl -w "@curl-format.txt" -o /dev/null -s "http://localhost/api/v1/health"
 ```
 
-## Maintenance & Updates
+### 3. Recovery Procedures
 
-### Update Procedure
+#### Database Recovery
+```bash
+# Restore from backup
+gunzip -c /opt/backups/postgres/pynomaly_backup_20240101_120000.sql.gz | psql -U pynomaly_user -d pynomaly_prod
+
+# Point-in-time recovery
+pg_basebackup -h localhost -D /var/lib/postgresql/recovery -U postgres -P -W
+```
+
+#### Application Recovery
+```bash
+# Restart application
+docker-compose -f /opt/pynomaly/docker-compose.prod.yml restart pynomaly-app
+
+# Rollback to previous version
+docker-compose -f /opt/pynomaly/docker-compose.prod.yml down
+sed -i "s/pynomaly:current/pynomaly:previous/g" /opt/pynomaly/docker-compose.prod.yml
+docker-compose -f /opt/pynomaly/docker-compose.prod.yml up -d
+```
+
+## Maintenance
+
+### 1. Regular Tasks
+
+#### Daily Tasks
 ```bash
 #!/bin/bash
-# /opt/pynomaly/scripts/update.sh
+# /opt/pynomaly/scripts/daily_maintenance.sh
 
-echo "🔄 Updating Pynomaly"
+# Check disk space
+df -h | grep -E "9[0-9]%" && echo "ALERT: Disk space critical"
 
-# Backup before update
-/opt/pynomaly/scripts/backup.sh
+# Check logs for errors
+grep -i error /var/log/pynomaly/error.log | tail -10
 
-# Stop services
-sudo systemctl stop pynomaly-api
+# Backup verification
+test -f /opt/backups/postgres/pynomaly_backup_$(date +%Y%m%d)*.sql.gz || echo "ALERT: No backup found for today"
 
-# Update code
-cd /opt/pynomaly/pynomaly
-git fetch origin
-git checkout main
-git pull origin main
+# Health check
+curl -f http://localhost/health || echo "ALERT: Health check failed"
+```
+
+#### Weekly Tasks
+```bash
+#!/bin/bash
+# /opt/pynomaly/scripts/weekly_maintenance.sh
+
+# Update system packages
+sudo apt update && sudo apt list --upgradable
+
+# Analyze database performance
+sudo -u postgres psql -d pynomaly_prod -c "SELECT schemaname, tablename, n_tup_ins, n_tup_upd, n_tup_del FROM pg_stat_user_tables;"
+
+# Check SSL certificate expiry
+openssl x509 -in /etc/letsencrypt/live/your-domain.com/cert.pem -text -noout | grep "Not After"
+
+# Clean old log files
+find /var/log/pynomaly -name "*.log.*" -mtime +30 -delete
+```
+
+#### Monthly Tasks
+```bash
+#!/bin/bash
+# /opt/pynomaly/scripts/monthly_maintenance.sh
+
+# Database maintenance
+sudo -u postgres psql -d pynomaly_prod -c "VACUUM ANALYZE;"
 
 # Update dependencies
-source .venv/bin/activate
-poetry install --only=main
+pip list --outdated
 
-# Run migrations (if any)
-# python scripts/migrate.py
+# Security audit
+sudo apt install -y unattended-upgrades
+sudo unattended-upgrade --dry-run
 
-# Start services
-sudo systemctl start pynomaly-api
-
-# Verify update
-sleep 10
-/opt/pynomaly/scripts/health_check.sh
-
-echo "✅ Update completed"
+# Review and rotate API keys
+python /opt/pynomaly/scripts/audit_api_keys.py
 ```
 
-### Monitoring Scripts
+### 2. Monitoring Checklist
+
+#### System Health
+- [ ] CPU usage < 80%
+- [ ] Memory usage < 80%
+- [ ] Disk space < 80%
+- [ ] Network latency < 100ms
+- [ ] SSL certificates valid for > 30 days
+
+#### Application Health
+- [ ] All services running
+- [ ] Database connections < 80% of limit
+- [ ] Redis memory usage < 80%
+- [ ] Error rate < 1%
+- [ ] Response time < 1s (95th percentile)
+
+#### Security Health
+- [ ] No failed login attempts > threshold
+- [ ] All security updates installed
+- [ ] Firewall rules up to date
+- [ ] Backup integrity verified
+- [ ] Monitoring alerts functional
+
+### 3. Scaling Procedures
+
+#### Horizontal Scaling
 ```bash
-#!/bin/bash
-# /opt/pynomaly/scripts/monitoring.sh
+# Add new application server
+docker-compose -f /opt/pynomaly/docker-compose.prod.yml up -d --scale pynomaly-app=4
 
-# Set up monitoring with cron
-(crontab -l 2>/dev/null; echo "*/5 * * * * /opt/pynomaly/scripts/health_check.sh >> /opt/pynomaly/logs/health.log 2>&1") | crontab -
-(crontab -l 2>/dev/null; echo "0 */6 * * * /opt/pynomaly/scripts/performance_optimization_suite.py >> /opt/pynomaly/logs/performance.log 2>&1") | crontab -
-
-echo "✅ Monitoring scheduled"
+# Update load balancer
+# Add new server to upstream block in nginx.conf
+# Reload nginx configuration
+sudo nginx -t && sudo nginx -s reload
 ```
 
-## 🎯 Production Checklist
-
-Before going live, verify:
-
-### ✅ **Infrastructure**
-- [ ] Hardware meets minimum requirements
-- [ ] Operating system is updated
-- [ ] Network connectivity is stable
-- [ ] Storage has adequate space
-- [ ] Backup systems are configured
-
-### ✅ **Application**
-- [ ] All dependencies are installed
-- [ ] Configuration files are correct
-- [ ] Environment variables are set
-- [ ] Database is initialized
-- [ ] SSL certificates are valid
-
-### ✅ **Security**
-- [ ] Firewall rules are configured
-- [ ] Authentication is enabled
-- [ ] Input validation is active
-- [ ] Rate limiting is configured
-- [ ] Logs are properly secured
-
-### ✅ **Monitoring**
-- [ ] Prometheus is collecting metrics
-- [ ] Grafana dashboards are configured
-- [ ] Alert rules are active
-- [ ] Log aggregation is working
-- [ ] Health checks are passing
-
-### ✅ **Performance**
-- [ ] Performance optimization is applied
-- [ ] Resource limits are configured
-- [ ] Caching is enabled
-- [ ] Load balancing is active
-- [ ] Auto-scaling is configured
-
-### ✅ **Operations**
-- [ ] Backup procedures are tested
-- [ ] Recovery procedures are documented
-- [ ] Update procedures are defined
-- [ ] Monitoring procedures are established
-- [ ] Support contacts are documented
-
-## ⚡ Performance Optimization Validation
-
-Before production deployment, validate all performance optimizations:
-
-### Batch Cache Operations Testing
+#### Vertical Scaling
 ```bash
-# Test 3-10x faster batch cache operations
-echo "📈 Testing batch cache operations..."
-python -c "
-import asyncio
-from pynomaly.infrastructure.caching.advanced_cache_service import AdvancedCacheService
+# Increase server resources
+# Stop application
+docker-compose -f /opt/pynomaly/docker-compose.prod.yml stop
 
-async def test_batch_cache():
-    cache = AdvancedCacheService()
-    test_data = {f'key_{i}': f'value_{i}' for i in range(100)}
-    result = await cache.set_batch(test_data)
-    print(f'✓ Batch cache test: {len(result)} items processed efficiently')
-
-asyncio.run(test_batch_cache())
-"
+# Resize server (cloud provider specific)
+# Update docker-compose resources
+# Restart application
+docker-compose -f /opt/pynomaly/docker-compose.prod.yml up -d
 ```
 
-### Optimized Data Loading Testing
-```bash
-# Test 30-70% memory reduction and 2-5x faster loading
-echo "💾 Testing optimized data loading..."
-python -c "
-import asyncio
-import pandas as pd
-import numpy as np
-from pynomaly.infrastructure.data_loaders.optimized_csv_loader import OptimizedCSVLoader
+## Conclusion
 
-async def test_optimized_loading():
-    # Create test data
-    data = pd.DataFrame(np.random.randn(10000, 10), columns=[f'col_{i}' for i in range(10)])
-    data.to_csv('test_data.csv', index=False)
+This production deployment guide provides a comprehensive framework for deploying Pynomaly in a production environment. Regular monitoring, maintenance, and updates are essential for maintaining a secure, performant, and reliable service.
 
-    loader = OptimizedCSVLoader(memory_optimization=True, dtype_inference=True)
-    dataset = await loader.load('test_data.csv')
-    print(f'✓ Optimized loading: {len(dataset.data)} rows, memory optimized')
-
-asyncio.run(test_optimized_loading())
-"
-```
-
-### Memory Management Testing
-```bash
-# Test adaptive memory management
-echo "🧠 Testing adaptive memory management..."
-python -c "
-import asyncio
-from pynomaly.infrastructure.performance.memory_manager import AdaptiveMemoryManager
-
-async def test_memory_manager():
-    manager = AdaptiveMemoryManager(target_memory_percent=80.0)
-    usage = manager.get_memory_usage()
-    print(f'✓ Memory manager: {usage.percent_used:.1f}% usage, optimization ready')
-
-asyncio.run(test_memory_manager())
-"
-```
-
-### Algorithm Optimization Testing
-```bash
-# Test feature selection and prediction caching
-echo "🎯 Testing algorithm optimizations..."
-python -c "
-import asyncio
-import numpy as np
-import pandas as pd
-from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.adapters.optimized_pyod_adapter import OptimizedPyODAdapter
-
-async def test_optimization():
-    data = pd.DataFrame(np.random.randn(1000, 20), columns=[f'feature_{i}' for i in range(20)])
-    dataset = Dataset(name='test', data=data)
-
-    adapter = OptimizedPyODAdapter(
-        algorithm='IsolationForest',
-        enable_feature_selection=True,
-        enable_prediction_cache=True
-    )
-
-    detector = await adapter.train(dataset)
-    print('✓ Algorithm optimization: Feature selection and caching enabled')
-
-asyncio.run(test_optimization())
-"
-```
-
-### Comprehensive Performance Benchmark
-```bash
-# Run full performance validation
-pynomaly perf benchmark --suite comprehensive --output production_benchmark.json
-
-echo "📊 Production Performance Summary:"
-echo "  • Batch cache operations: 3-10x performance improvement"
-echo "  • Optimized data loading: 30-70% memory reduction, 2-5x faster"
-echo "  • Feature selection: 20-80% feature reduction for large datasets"
-echo "  • Adaptive memory management: Real-time optimization and monitoring"
-echo "  • Prediction caching: Instant results for repeated data patterns"
-echo "  • Production-ready: Full optimization suite validated"
-```
-
-## 🚀 **READY FOR PRODUCTION**
-
-With this comprehensive deployment guide, Pynomaly's autonomous anomaly detection system is ready for enterprise production deployment with:
-
-- **Scalable Architecture**: From single server to Kubernetes clusters with production-optimized configurations
-- **Performance Optimizations**: Batch cache operations (3-10x faster), optimized data loading (30-70% memory reduction), feature selection (20-80% reduction), adaptive memory management
-- **Comprehensive Monitoring**: Prometheus, Grafana, and custom alerting with performance metrics
-- **Production Security**: SSL/TLS, authentication, firewall configuration with hardened containers
-- **Operational Excellence**: Backup, recovery, and maintenance procedures with automated health checks
-- **Enterprise Features**: High availability, load balancing, auto-scaling with HPA and resource optimization
-
-The platform is now ready to deliver intelligent, automated anomaly detection at enterprise scale with production-grade reliability, comprehensive performance optimization, and enterprise monitoring capabilities.
+For additional support or questions, please refer to the project documentation or contact the development team.
 
 ---
 
-## 🔗 **Related Documentation**
-
-### **Getting Started**
-- **[Installation Guide](../../getting-started/installation.md)** - Setup and installation
-- **[Quick Start](../../getting-started/quickstart.md)** - Your first detection
-- **[Platform Setup](../../getting-started/platform-specific/)** - Platform-specific guides
-
-### **User Guides**
-- **[Basic Usage](../basic-usage/README.md)** - Essential functionality
-- **[Advanced Features](../advanced-features/README.md)** - Sophisticated capabilities  
-- **[Troubleshooting](../troubleshooting/README.md)** - Problem solving
-
-### **Reference**
-- **[Algorithm Reference](../../reference/algorithms/README.md)** - Algorithm documentation
-- **[API Documentation](../../developer-guides/api-integration/README.md)** - Programming interfaces
-- **[Configuration](../../reference/configuration/)** - System configuration
-
-### **Examples**
-- **[Examples & Tutorials](../../examples/README.md)** - Real-world use cases
-- **[Banking Examples](../../examples/banking/)** - Financial fraud detection
-- **[Notebooks](../../examples/notebooks/)** - Interactive examples
-
----
-
-## 🆘 **Getting Help**
-
-- **[Troubleshooting Guide](../troubleshooting/troubleshooting.md)** - Common issues and solutions
-- **[GitHub Issues](https://github.com/your-org/pynomaly/issues)** - Report bugs and request features
-- **[GitHub Discussions](https://github.com/your-org/pynomaly/discussions)** - Ask questions and share ideas
-- **[Security Issues](mailto:security@pynomaly.org)** - Report security vulnerabilities
+**Last Updated**: $(date)  
+**Version**: 1.0  
+**Maintainer**: Pynomaly Development Team

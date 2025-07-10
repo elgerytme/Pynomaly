@@ -492,7 +492,13 @@ class MLGovernanceFramework:
         record = self.records[record_id]
 
         # Get model (placeholder - would get from model registry)
-        model = Model(id=record.model_id, name=f"model_{record.model_id}")
+        # Mock model class
+        class MockModel:
+            def __init__(self, id, name):
+                self.id = id
+                self.name = name
+        
+        model = MockModel(id=record.model_id, name=f"model_{record.model_id}")
 
         # Run validation
         validation_results = await self.validator.validate_model(model, validation_data)
@@ -651,7 +657,13 @@ class MLGovernanceFramework:
             )
 
         # Get model (placeholder)
-        model = Model(id=record.model_id, name=f"model_{record.model_id}")
+        # Mock model class
+        class MockModel:
+            def __init__(self, id, name):
+                self.id = id
+                self.name = name
+        
+        model = MockModel(id=record.model_id, name=f"model_{record.model_id}")
 
         # Deploy model
         deployment_result = await self.deployment_manager.deploy_model(

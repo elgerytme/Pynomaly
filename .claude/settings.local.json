@@ -54,7 +54,10 @@
       "Bash(git restore:*)",
       "Bash(./environments/.venv/bin/python -m pytest tests/performance/test_comprehensive_algorithm_benchmarks.py -v --tb=short)",
       "Bash(find:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(find:*)",
+      "Bash(true)",
+      "Bash(gh issue list:*)"
     ],
     "deny": []
   }
