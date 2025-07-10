@@ -25,11 +25,11 @@ except ImportError:
 
 # Production monitoring integration
 try:
-    from pynomaly.infrastructure.monitoring.production_monitoring_integration import (
-        create_production_monitoring
-    )
     from pynomaly.infrastructure.monitoring.fastapi_monitoring_middleware import (
-        setup_monitoring_middleware
+        setup_monitoring_middleware,
+    )
+    from pynomaly.infrastructure.monitoring.production_monitoring_integration import (
+        create_production_monitoring,
     )
     MONITORING_AVAILABLE = True
 except ImportError:

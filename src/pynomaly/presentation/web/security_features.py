@@ -3,22 +3,22 @@ Advanced security features for web UI.
 Implements rate limiting, WAF, IP blocking, and security monitoring.
 """
 
-import time
 import asyncio
-from typing import Dict, List, Optional, Set, Tuple, Any
-from collections import defaultdict, deque
-from datetime import datetime, timedelta
-from dataclasses import dataclass
-from enum import Enum
 import hashlib
-import re
-import json
-from pathlib import Path
-from functools import wraps
 import ipaddress
+import json
+import re
+import time
+from collections import defaultdict, deque
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from enum import Enum
+from functools import wraps
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple
 from urllib.parse import urlparse
 
-from fastapi import Request, Response, HTTPException, status
+from fastapi import HTTPException, Request, Response, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import PlainTextResponse
@@ -36,7 +36,12 @@ except ImportError:
         )
 
 try:
-    from pynomaly.presentation.web.error_handling import WebUIError, ErrorCode, ErrorLevel, get_web_ui_logger
+    from pynomaly.presentation.web.error_handling import (
+        ErrorCode,
+        ErrorLevel,
+        WebUIError,
+        get_web_ui_logger,
+    )
 except ImportError:
     # Fallback for testing - create mock classes
     import logging
@@ -91,7 +96,7 @@ class SecurityEvent:
     request_path: str
     request_method: str
     timestamp: datetime
-    details: Dict[str, Any]
+    details: dict[str, Any]
     event_id: str
     blocked: bool = False
     action_taken: Optional[str] = None
@@ -189,7 +194,7 @@ class RateLimiter:
                 self.logger.log(f"Error in rate limiter cleanup: {e}", level="ERROR")
                 await asyncio.sleep(60)
 
-    def is_rate_limited(self, ip: str, endpoint: str) -> Tuple[bool, Optional[str]]:
+    def is_rate_limited(self, ip: str, endpoint: str) -> tuple[bool, Optional[str]]:
         """Check if IP is rate limited for endpoint"""
         current_time = time.time()
 
@@ -258,7 +263,7 @@ class RateLimiter:
 
         self.logger.log(f"Blocked IP {ip} for {duration} seconds", level="WARNING")
 
-    def get_rate_limit_status(self, ip: str, endpoint: str) -> Dict[str, Any]:
+    def get_rate_limit_status(self, ip: str, endpoint: str) -> dict[str, Any]:
         """Get current rate limit status for IP"""
         current_time = time.time()
         timestamps = self.request_timestamps[ip]
@@ -319,7 +324,7 @@ class WebApplicationFirewall:
         self.threat_scores = defaultdict(int)
         self.threat_threshold = 100
 
-    def _load_sql_injection_patterns(self) -> List[re.Pattern]:
+    def _load_sql_injection_patterns(self) -> list[re.Pattern]:
         """Load SQL injection detection patterns"""
         patterns = [
             r"(\bUNION\b.*\bSELECT\b)",
@@ -345,7 +350,7 @@ class WebApplicationFirewall:
 
         return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
 
-    def _load_xss_patterns(self) -> List[re.Pattern]:
+    def _load_xss_patterns(self) -> list[re.Pattern]:
         """Load XSS detection patterns"""
         patterns = [
             r"(<script[^>]*>.*?</script>)",
@@ -377,7 +382,7 @@ class WebApplicationFirewall:
 
         return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
 
-    def _load_path_traversal_patterns(self) -> List[re.Pattern]:
+    def _load_path_traversal_patterns(self) -> list[re.Pattern]:
         """Load path traversal detection patterns"""
         patterns = [
             r"(\.\.\/)",
@@ -400,7 +405,7 @@ class WebApplicationFirewall:
 
         return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
 
-    def _load_command_injection_patterns(self) -> List[re.Pattern]:
+    def _load_command_injection_patterns(self) -> list[re.Pattern]:
         """Load command injection detection patterns"""
         patterns = [
             r"(;\s*cat\s+)",
@@ -430,7 +435,7 @@ class WebApplicationFirewall:
 
         return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
 
-    def _load_blocked_user_agents(self) -> List[re.Pattern]:
+    def _load_blocked_user_agents(self) -> list[re.Pattern]:
         """Load blocked user agent patterns"""
         patterns = [
             r"(sqlmap)",
@@ -461,7 +466,7 @@ class WebApplicationFirewall:
 
         return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
 
-    def _load_whitelisted_ips(self) -> Set[str]:
+    def _load_whitelisted_ips(self) -> set[str]:
         """Load whitelisted IP addresses"""
         # Add common internal IP ranges
         whitelist = {
@@ -490,7 +495,7 @@ class WebApplicationFirewall:
         """Check if IP is whitelisted"""
         return ip in self.whitelisted_ips
 
-    def check_sql_injection(self, request_data: str) -> Tuple[bool, List[str]]:
+    def check_sql_injection(self, request_data: str) -> tuple[bool, list[str]]:
         """Check for SQL injection patterns"""
         matches = []
         for pattern in self.sql_injection_patterns:
@@ -500,7 +505,7 @@ class WebApplicationFirewall:
 
         return len(matches) > 0, matches
 
-    def check_xss(self, request_data: str) -> Tuple[bool, List[str]]:
+    def check_xss(self, request_data: str) -> tuple[bool, list[str]]:
         """Check for XSS patterns"""
         matches = []
         for pattern in self.xss_patterns:
@@ -510,7 +515,7 @@ class WebApplicationFirewall:
 
         return len(matches) > 0, matches
 
-    def check_path_traversal(self, request_data: str) -> Tuple[bool, List[str]]:
+    def check_path_traversal(self, request_data: str) -> tuple[bool, list[str]]:
         """Check for path traversal patterns"""
         matches = []
         for pattern in self.path_traversal_patterns:
@@ -520,7 +525,7 @@ class WebApplicationFirewall:
 
         return len(matches) > 0, matches
 
-    def check_command_injection(self, request_data: str) -> Tuple[bool, List[str]]:
+    def check_command_injection(self, request_data: str) -> tuple[bool, list[str]]:
         """Check for command injection patterns"""
         matches = []
         for pattern in self.command_injection_patterns:
@@ -530,7 +535,7 @@ class WebApplicationFirewall:
 
         return len(matches) > 0, matches
 
-    def check_user_agent(self, user_agent: str) -> Tuple[bool, List[str]]:
+    def check_user_agent(self, user_agent: str) -> tuple[bool, list[str]]:
         """Check for blocked user agent patterns"""
         matches = []
         for pattern in self.blocked_user_agents:
@@ -540,7 +545,7 @@ class WebApplicationFirewall:
 
         return len(matches) > 0, matches
 
-    def analyze_request(self, request: Request) -> Tuple[bool, List[SecurityEvent]]:
+    def analyze_request(self, request: Request) -> tuple[bool, list[SecurityEvent]]:
         """Analyze request for security threats"""
         events = []
         blocked = False
@@ -710,7 +715,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                 )
                 self.security_events.append(event)
 
-                self.logger.warning(f"Rate limit exceeded for {ip} on {path}: {rate_limit_reason}")
+                self.logger.log(f"Rate limit exceeded for {ip} on {path}: {rate_limit_reason}", level="WARNING")
 
                 return JSONResponse(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -729,7 +734,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                 for event in waf_events:
                     self.security_events.append(event)
 
-                self.logger.critical(f"WAF blocked request from {ip} on {path}: {[e.event_type.value for e in waf_events]}")
+                self.logger.log(f"WAF blocked request from {ip} on {path}: {[e.event_type.value for e in waf_events]}", level="CRITICAL")
 
                 return JSONResponse(
                     status_code=status.HTTP_403_FORBIDDEN,
@@ -763,7 +768,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             return response
 
         except Exception as e:
-            self.logger.error(f"Error in security middleware: {e}")
+            self.logger.log(f"Error in security middleware: {e}", level="ERROR")
 
             # Record security event for middleware error
             event = SecurityEvent(
@@ -790,7 +795,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         """Generate unique event ID"""
         return hashlib.md5(f"{time.time()}{hash(self)}".encode()).hexdigest()
 
-    def get_security_events(self, limit: int = 100) -> List[Dict[str, Any]]:
+    def get_security_events(self, limit: int = 100) -> list[dict[str, Any]]:
         """Get recent security events"""
         events = list(self.security_events)[-limit:]
         return [
@@ -810,7 +815,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             for event in events
         ]
 
-    def get_security_metrics(self) -> Dict[str, Any]:
+    def get_security_metrics(self) -> dict[str, Any]:
         """Get security metrics"""
         events = list(self.security_events)
         current_time = datetime.utcnow()

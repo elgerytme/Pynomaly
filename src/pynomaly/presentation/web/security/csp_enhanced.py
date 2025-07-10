@@ -8,6 +8,7 @@ import secrets
 from typing import Dict, List, Optional
 from urllib.parse import urlparse
 
+
 class CSPBuilder:
     """Enhanced CSP builder with dynamic policy generation"""
 
@@ -57,7 +58,7 @@ class CSPBuilder:
 
         return hash_value
 
-    def get_base_policy(self) -> Dict[str, List[str]]:
+    def get_base_policy(self) -> dict[str, list[str]]:
         """Get base CSP policy directives"""
         policy = {
             'default-src': ["'self'"],
@@ -118,7 +119,7 @@ class CSPBuilder:
 
         return policy
 
-    def get_strict_policy(self) -> Dict[str, List[str]]:
+    def get_strict_policy(self) -> dict[str, list[str]]:
         """Get strict CSP policy for production"""
         policy = self.get_base_policy()
 
@@ -135,13 +136,13 @@ class CSPBuilder:
 
         return policy
 
-    def get_report_only_policy(self) -> Dict[str, List[str]]:
+    def get_report_only_policy(self) -> dict[str, list[str]]:
         """Get report-only CSP policy for testing"""
         policy = self.get_base_policy()
         policy['report-uri'] = [self.report_uri]
         return policy
 
-    def build_header_value(self, policy: Dict[str, List[str]]) -> str:
+    def build_header_value(self, policy: dict[str, list[str]]) -> str:
         """Build CSP header value from policy dict"""
         directives = []
 
@@ -154,7 +155,7 @@ class CSPBuilder:
 
         return "; ".join(directives)
 
-    def get_csp_header(self, report_only: bool = False) -> Dict[str, str]:
+    def get_csp_header(self, report_only: bool = False) -> dict[str, str]:
         """Get CSP header for response"""
         if report_only:
             policy = self.get_report_only_policy()
@@ -187,7 +188,7 @@ class SubresourceIntegrityManager:
             }
         }
 
-    def get_sri_attributes(self, url: str) -> Dict[str, str]:
+    def get_sri_attributes(self, url: str) -> dict[str, str]:
         """Get SRI attributes for a given URL"""
         return self.integrity_hashes.get(url, {})
 
@@ -244,7 +245,7 @@ class SecurityHeadersManager:
         self.csp_builder = CSPBuilder(debug_mode)
         self.sri_manager = SubresourceIntegrityManager()
 
-    def get_security_headers(self, include_csp: bool = True, report_only: bool = False) -> Dict[str, str]:
+    def get_security_headers(self, include_csp: bool = True, report_only: bool = False) -> dict[str, str]:
         """Get all security headers"""
         headers = {}
 

@@ -2,13 +2,11 @@
 Enhanced rate limiter with intelligent adaptive throttling and DDoS protection.
 """
 
-import asyncio
 import logging
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Set, Tuple
 
 import redis
 from fastapi import Request
@@ -49,10 +47,10 @@ class ClientProfile:
     blocked_count: int = 0
     threat_level: ThreatLevel = ThreatLevel.BENIGN
     request_pattern: RequestPattern = RequestPattern.NORMAL
-    user_agents: Set[str] = field(default_factory=set)
-    endpoints: Set[str] = field(default_factory=set)
-    request_sizes: List[int] = field(default_factory=list)
-    response_times: List[float] = field(default_factory=list)
+    user_agents: set[str] = field(default_factory=set)
+    endpoints: set[str] = field(default_factory=set)
+    request_sizes: list[int] = field(default_factory=list)
+    response_times: list[float] = field(default_factory=list)
     reputation_score: int = 100  # Start with good reputation
 
     def update_profile(self, request: Request, response_time: float = None):
@@ -160,8 +158,8 @@ class EnhancedRateLimiter:
         self.audit_logger = get_audit_logger()
 
         # Client profiles
-        self.client_profiles: Dict[str, ClientProfile] = {}
-        self.ip_request_windows: Dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
+        self.client_profiles: dict[str, ClientProfile] = {}
+        self.ip_request_windows: dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
 
         # Adaptive limits
         self.adaptive_limits = {
@@ -172,8 +170,8 @@ class EnhancedRateLimiter:
 
         # DDoS detection
         self.ddos_threshold = 1000  # requests per minute for DDoS detection
-        self.suspicious_ips: Set[str] = set()
-        self.blocked_ips: Set[str] = set()
+        self.suspicious_ips: set[str] = set()
+        self.blocked_ips: set[str] = set()
 
         # Attack patterns
         self.attack_patterns = {
@@ -192,7 +190,7 @@ class EnhancedRateLimiter:
         self,
         request: Request,
         response_time: float = None
-    ) -> Tuple[bool, str, Dict]:
+    ) -> tuple[bool, str, dict]:
         """Check if request should be allowed with enhanced analysis."""
         client_ip = self._get_client_ip(request)
         endpoint = request.url.path
@@ -328,7 +326,7 @@ class EnhancedRateLimiter:
         for limit_name, adaptive_limit in self.adaptive_limits.items():
             adaptive_limit.adjust_limit(self.system_load, threat_level)
 
-    async def _check_global_limit(self) -> Tuple[bool, str, Dict]:
+    async def _check_global_limit(self) -> tuple[bool, str, dict]:
         """Check global rate limit."""
         limit = self.adaptive_limits["global"].current_limit
         window = self.adaptive_limits["global"].window
@@ -351,7 +349,7 @@ class EnhancedRateLimiter:
             logger.error(f"Global rate limit check failed: {e}")
             return True, "OK", {}  # Fail open
 
-    async def _check_ip_limit(self, ip: str) -> Tuple[bool, str, Dict]:
+    async def _check_ip_limit(self, ip: str) -> tuple[bool, str, dict]:
         """Check per-IP rate limit."""
         limit = self.adaptive_limits["per_ip"].current_limit
         window = self.adaptive_limits["per_ip"].window
@@ -386,7 +384,7 @@ class EnhancedRateLimiter:
             logger.error(f"IP rate limit check failed: {e}")
             return True, "OK", {}  # Fail open
 
-    async def _check_endpoint_limit(self, endpoint: str) -> Tuple[bool, str, Dict]:
+    async def _check_endpoint_limit(self, endpoint: str) -> tuple[bool, str, dict]:
         """Check per-endpoint rate limit."""
         limit = self.adaptive_limits["per_endpoint"].current_limit
         window = self.adaptive_limits["per_endpoint"].window
@@ -410,7 +408,7 @@ class EnhancedRateLimiter:
             logger.error(f"Endpoint rate limit check failed: {e}")
             return True, "OK", {}  # Fail open
 
-    async def _check_user_limit(self, request: Request) -> Tuple[bool, str, Dict]:
+    async def _check_user_limit(self, request: Request) -> tuple[bool, str, dict]:
         """Check per-user rate limit for authenticated requests."""
         # This would integrate with your authentication system
         # For now, return True
@@ -437,7 +435,7 @@ class EnhancedRateLimiter:
 
     async def _detect_attack_patterns(
         self, profile: ClientProfile, request: Request
-    ) -> Optional[Tuple[str, Dict]]:
+    ) -> tuple[str, dict] | None:
         """Detect various attack patterns."""
         for pattern_name, detector in self.attack_patterns.items():
             result = await detector(profile, request)
@@ -445,12 +443,12 @@ class EnhancedRateLimiter:
                 return pattern_name, result
         return None
 
-    async def _detect_slow_loris(self, profile: ClientProfile, request: Request) -> Optional[Dict]:
+    async def _detect_slow_loris(self, profile: ClientProfile, request: Request) -> dict | None:
         """Detect Slow Loris attacks (slow HTTP requests)."""
         # This would need integration with request timing
         return None
 
-    async def _detect_http_flood(self, profile: ClientProfile, request: Request) -> Optional[Dict]:
+    async def _detect_http_flood(self, profile: ClientProfile, request: Request) -> dict | None:
         """Detect HTTP flood attacks."""
         now = time.time()
         recent_requests = [
@@ -466,7 +464,7 @@ class EnhancedRateLimiter:
             }
         return None
 
-    async def _detect_cc_attack(self, profile: ClientProfile, request: Request) -> Optional[Dict]:
+    async def _detect_cc_attack(self, profile: ClientProfile, request: Request) -> dict | None:
         """Detect Challenge Collapsar (CC) attacks."""
         # CC attacks typically target specific pages repeatedly
         endpoint_requests = sum(
@@ -482,7 +480,7 @@ class EnhancedRateLimiter:
             }
         return None
 
-    async def _detect_bot_network(self, profile: ClientProfile, request: Request) -> Optional[Dict]:
+    async def _detect_bot_network(self, profile: ClientProfile, request: Request) -> dict | None:
         """Detect coordinated bot network attacks."""
         # Look for similar behavior patterns across multiple IPs
         similar_profiles = 0
@@ -527,7 +525,7 @@ class EnhancedRateLimiter:
         return False
 
     async def _handle_rate_limit_violation(
-        self, profile: ClientProfile, reason: str, details: Dict
+        self, profile: ClientProfile, reason: str, details: dict
     ):
         """Handle rate limit violations."""
         self.audit_logger.log_security_event(
@@ -544,7 +542,7 @@ class EnhancedRateLimiter:
         )
 
     async def _handle_attack_detection(
-        self, profile: ClientProfile, attack_type: str, details: Dict
+        self, profile: ClientProfile, attack_type: str, details: dict
     ):
         """Handle attack pattern detection."""
         self.audit_logger.log_security_event(
@@ -578,7 +576,7 @@ class EnhancedRateLimiter:
             risk_score=100
         )
 
-    def get_statistics(self) -> Dict:
+    def get_statistics(self) -> dict:
         """Get rate limiter statistics."""
         now = time.time()
 

@@ -9,16 +9,16 @@ This middleware integrates with the production monitoring system to:
 """
 
 import time
-import asyncio
-from typing import Callable, Dict, Any, Optional
+from collections.abc import Callable
+from typing import Any
 from uuid import uuid4
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from .production_monitoring_integration import ProductionMonitoringIntegration
 from ...shared.logging import get_logger
+from .production_monitoring_integration import ProductionMonitoringIntegration
 
 logger = get_logger(__name__)
 
@@ -29,7 +29,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp, monitoring: ProductionMonitoringIntegration):
         super().__init__(app)
         self.monitoring = monitoring
-        self.active_requests: Dict[str, Dict[str, Any]] = {}
+        self.active_requests: dict[str, dict[str, Any]] = {}
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Process request with monitoring."""
@@ -120,7 +120,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
     async def _record_request_metrics(
         self,
         request: Request,
-        response: Optional[Response],
+        response: Response | None,
         duration: float,
         status_code: int,
         exception_occurred: bool
@@ -173,7 +173,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
     async def _record_additional_context(
         self,
         request: Request,
-        response: Optional[Response],
+        response: Response | None,
         duration: float
     ):
         """Record additional context-specific metrics."""
@@ -198,7 +198,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
     async def _record_anomaly_detection_context(
         self,
         request: Request,
-        response: Optional[Response],
+        response: Response | None,
         duration: float
     ):
         """Record anomaly detection specific metrics."""
@@ -225,7 +225,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
     async def _record_training_context(
         self,
         request: Request,
-        response: Optional[Response],
+        response: Response | None,
         duration: float
     ):
         """Record model training specific metrics."""
@@ -256,7 +256,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
     async def _record_dataset_context(
         self,
         request: Request,
-        response: Optional[Response],
+        response: Response | None,
         duration: float
     ):
         """Record dataset operation specific metrics."""
@@ -268,7 +268,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             logger.error(f"Failed to record dataset context: {e}")
 
-    async def get_active_requests_info(self) -> Dict[str, Any]:
+    async def get_active_requests_info(self) -> dict[str, Any]:
         """Get information about currently active requests."""
         current_time = time.time()
         active_info = {}
@@ -378,7 +378,7 @@ class AlertingMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp, monitoring: ProductionMonitoringIntegration):
         super().__init__(app)
         self.monitoring = monitoring
-        self.error_counts: Dict[str, int] = {}
+        self.error_counts: dict[str, int] = {}
         self.last_error_reset = time.time()
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:

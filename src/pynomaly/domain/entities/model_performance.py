@@ -13,8 +13,8 @@ from pynomaly.domain.value_objects import PerformanceMetrics
 class ModelPerformanceMetrics:
     """Entity representing model performance metrics."""
 
-    model_id: Union[UUID, str]
-    metrics: Union[PerformanceMetrics, dict[str, Any]]
+    model_id: UUID | str
+    metrics: PerformanceMetrics | dict[str, Any]
     id: UUID = None
     metadata: dict[str, Any] = None
 

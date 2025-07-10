@@ -6,29 +6,23 @@ This module provides comprehensive performance monitoring, profiling,
 and optimization capabilities for production environments.
 """
 
-import asyncio
-import cProfile
 import gc
-import json
 import logging
-import memory_profiler
-import os
-import psutil
 import statistics
-import sys
 import threading
 import time
-import traceback
-from abc import ABC, abstractmethod
 from collections import defaultdict, deque
+from collections.abc import Callable
 from contextlib import contextmanager
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
-from typing import Dict, List, Any, Optional, Callable, Union
-from dataclasses import dataclass, field
+from typing import Any
+
+import memory_profiler
 import numpy as np
-import pandas as pd
+import psutil
 
 
 class PerformanceMetricType(Enum):
@@ -61,10 +55,10 @@ class PerformanceMetric:
     metric_type: PerformanceMetricType
     value: float
     timestamp: datetime
-    tags: Dict[str, str] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    tags: dict[str, str] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "metric_type": self.metric_type.value,
@@ -87,9 +81,9 @@ class PerformanceProfile:
     memory_usage: float
     cpu_usage: float
     timestamp: datetime
-    call_stack: List[str] = field(default_factory=list)
+    call_stack: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "function_name": self.function_name,
@@ -219,10 +213,10 @@ class PerformanceCollector:
         """Add performance metric."""
         self.metrics.append(metric)
 
-    def get_metrics(self, metric_type: Optional[PerformanceMetricType] = None,
-                   tags: Optional[Dict[str, str]] = None,
-                   start_time: Optional[datetime] = None,
-                   end_time: Optional[datetime] = None) -> List[PerformanceMetric]:
+    def get_metrics(self, metric_type: PerformanceMetricType | None = None,
+                   tags: dict[str, str] | None = None,
+                   start_time: datetime | None = None,
+                   end_time: datetime | None = None) -> list[PerformanceMetric]:
         """Get metrics with optional filtering."""
         filtered_metrics = []
 
@@ -247,8 +241,8 @@ class PerformanceCollector:
         return filtered_metrics
 
     def get_metric_statistics(self, metric_type: PerformanceMetricType,
-                             tags: Optional[Dict[str, str]] = None,
-                             time_window: Optional[timedelta] = None) -> Dict[str, float]:
+                             tags: dict[str, str] | None = None,
+                             time_window: timedelta | None = None) -> dict[str, float]:
         """Get statistical summary of metrics."""
         end_time = datetime.now()
         start_time = end_time - time_window if time_window else None
@@ -314,7 +308,7 @@ class FunctionProfiler:
             return wrapper
         return decorator
 
-    def _update_profile(self, func_name: str, execution_time: float, memory_delta: Optional[float]):
+    def _update_profile(self, func_name: str, execution_time: float, memory_delta: float | None):
         """Update function profile."""
         if func_name not in self.profiles:
             self.profiles[func_name] = PerformanceProfile(
@@ -341,15 +335,15 @@ class FunctionProfiler:
 
         profile.timestamp = datetime.now()
 
-    def get_profile(self, func_name: str) -> Optional[PerformanceProfile]:
+    def get_profile(self, func_name: str) -> PerformanceProfile | None:
         """Get profile for specific function."""
         return self.profiles.get(func_name)
 
-    def get_all_profiles(self) -> Dict[str, PerformanceProfile]:
+    def get_all_profiles(self) -> dict[str, PerformanceProfile]:
         """Get all function profiles."""
         return self.profiles.copy()
 
-    def get_top_functions(self, metric: str = "total_time", limit: int = 10) -> List[PerformanceProfile]:
+    def get_top_functions(self, metric: str = "total_time", limit: int = 10) -> list[PerformanceProfile]:
         """Get top functions by metric."""
         sorted_profiles = sorted(
             self.profiles.values(),
@@ -395,7 +389,7 @@ class MemoryProfiler:
             self.logger.error(f"Error taking memory snapshot: {e}")
             return None
 
-    def compare_snapshots(self, start_label: str, end_label: str) -> Dict[str, Any]:
+    def compare_snapshots(self, start_label: str, end_label: str) -> dict[str, Any]:
         """Compare two memory snapshots."""
         start_snapshot = None
         end_snapshot = None
@@ -418,7 +412,7 @@ class MemoryProfiler:
             "duration": (end_snapshot["timestamp"] - start_snapshot["timestamp"]).total_seconds()
         }
 
-    def get_memory_trend(self, window_size: int = 10) -> Dict[str, Any]:
+    def get_memory_trend(self, window_size: int = 10) -> dict[str, Any]:
         """Get memory usage trend."""
         if len(self.snapshots) < window_size:
             return {}
@@ -581,7 +575,7 @@ class PerformanceOptimizer:
             except Exception as e:
                 self.logger.error(f"Error in optimization rule {rule['name']}: {e}")
 
-    def get_optimization_report(self) -> Dict[str, Any]:
+    def get_optimization_report(self) -> dict[str, Any]:
         """Get optimization report."""
         return {
             "total_rules": len(self.optimization_rules),
@@ -615,7 +609,7 @@ class PerformanceAnalyzer:
         self.collector = collector
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
-    def analyze_performance_trends(self, time_window: timedelta = timedelta(hours=1)) -> Dict[str, Any]:
+    def analyze_performance_trends(self, time_window: timedelta = timedelta(hours=1)) -> dict[str, Any]:
         """Analyze performance trends over time."""
         end_time = datetime.now()
         start_time = end_time - time_window
@@ -651,7 +645,7 @@ class PerformanceAnalyzer:
 
         return analysis
 
-    def detect_performance_anomalies(self, z_threshold: float = 2.0) -> List[Dict[str, Any]]:
+    def detect_performance_anomalies(self, z_threshold: float = 2.0) -> list[dict[str, Any]]:
         """Detect performance anomalies using z-score."""
         anomalies = []
 
@@ -690,7 +684,7 @@ class PerformanceAnalyzer:
 
         return anomalies
 
-    def generate_performance_recommendations(self) -> List[Dict[str, Any]]:
+    def generate_performance_recommendations(self) -> list[dict[str, Any]]:
         """Generate performance optimization recommendations."""
         recommendations = []
 
@@ -832,7 +826,7 @@ def profile_async_function(collector: PerformanceCollector):
 class PerformanceManager:
     """Main performance management system."""
 
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: dict[str, Any] = None):
         self.config = config or {}
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
@@ -883,7 +877,7 @@ class PerformanceManager:
             except Exception as e:
                 self.logger.error(f"Error in optimization loop: {e}")
 
-    def get_performance_report(self) -> Dict[str, Any]:
+    def get_performance_report(self) -> dict[str, Any]:
         """Get comprehensive performance report."""
         return {
             "timestamp": datetime.now().isoformat(),
@@ -965,7 +959,7 @@ def main():
     report = perf_manager.get_performance_report()
 
     # Print summary
-    print(f"\n📊 Performance Report Summary:")
+    print("\n📊 Performance Report Summary:")
     print(f"   System Metrics: {len(report['system_metrics'])} types")
     print(f"   Function Profiles: {len(report['function_profiles'])}")
     print(f"   Anomalies Detected: {len(report['anomalies'])}")
@@ -974,7 +968,7 @@ def main():
 
     # Print recommendations
     if report['recommendations']:
-        print(f"\n💡 Performance Recommendations:")
+        print("\n💡 Performance Recommendations:")
         for rec in report['recommendations']:
             print(f"   - {rec['category'].upper()}: {rec['issue']}")
             print(f"     Action: {rec['recommendation']}")

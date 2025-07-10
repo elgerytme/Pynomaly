@@ -328,7 +328,12 @@ async def get_error_trends(request: Request):
 async def report_frontend_error(request: Request, error_data: dict):
     """Report frontend error for monitoring."""
     try:
-        from pynomaly.presentation.web.error_handling import create_web_ui_error, ErrorCode, ErrorLevel, get_error_monitor
+        from pynomaly.presentation.web.error_handling import (
+            ErrorCode,
+            ErrorLevel,
+            create_web_ui_error,
+            get_error_monitor,
+        )
 
         error = create_web_ui_error(
             message=error_data.get("message", "Frontend error"),

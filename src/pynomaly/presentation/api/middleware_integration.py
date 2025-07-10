@@ -266,7 +266,9 @@ def setup_middleware_stack(app: FastAPI) -> None:
     Args:
         app: FastAPI application instance
     """
-    from pynomaly.presentation.api.middleware.security_headers import SecurityHeadersMiddleware
+    from pynomaly.presentation.api.middleware.security_headers import (
+        SecurityHeadersMiddleware,
+    )
 
     # Add security headers middleware
     app.add_middleware(SecurityHeadersMiddleware)

@@ -3,7 +3,7 @@ WAF Management API endpoints for monitoring and administration.
 """
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
@@ -45,7 +45,7 @@ class BlockedIPResponse(BaseModel):
     reason: str
     timestamp: float
     duration: int
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
 
 
 class SuspiciousIPResponse(BaseModel):
@@ -54,7 +54,7 @@ class SuspiciousIPResponse(BaseModel):
     ip: str
     reputation_score: int
     risk_level: str
-    last_seen: Optional[datetime] = None
+    last_seen: datetime | None = None
 
 
 class AttackAttemptResponse(BaseModel):
@@ -67,7 +67,7 @@ class AttackAttemptResponse(BaseModel):
     signature: str
     blocked: bool
     risk_score: int
-    details: Dict[str, Any]
+    details: dict[str, Any]
 
 
 class SignatureResponse(BaseModel):
@@ -110,11 +110,11 @@ class BlockIPRequest(BaseModel):
 class WAFConfigUpdateRequest(BaseModel):
     """WAF configuration update request model."""
 
-    blocking_enabled: Optional[bool] = None
-    monitoring_enabled: Optional[bool] = None
-    auto_block_threshold: Optional[int] = Field(None, ge=1, le=100)
-    block_duration: Optional[int] = Field(None, ge=300, le=86400)
-    max_request_size: Optional[int] = Field(None, ge=1024, le=104857600)
+    blocking_enabled: bool | None = None
+    monitoring_enabled: bool | None = None
+    auto_block_threshold: int | None = Field(None, ge=1, le=100)
+    block_duration: int | None = Field(None, ge=300, le=86400)
+    max_request_size: int | None = Field(None, ge=1024, le=104857600)
 
 
 class WAFReportResponse(BaseModel):
@@ -126,15 +126,15 @@ class WAFReportResponse(BaseModel):
     blocked_requests: int
     attacks_detected: int
     attack_rate: float
-    top_attack_types: Dict[str, int]
-    top_attackers: Dict[str, int]
-    threat_distribution: Dict[str, int]
+    top_attack_types: dict[str, int]
+    top_attackers: dict[str, int]
+    threat_distribution: dict[str, int]
     blocked_ips_count: int
     suspicious_ips_count: int
 
 
 # Global WAF middleware instance (would be injected in production)
-_waf_middleware: Optional[WAFMiddleware] = None
+_waf_middleware: WAFMiddleware | None = None
 
 
 def get_waf_middleware(settings: Settings = Depends(get_settings)) -> WAFMiddleware:
@@ -169,7 +169,7 @@ async def get_waf_status(
     )
 
 
-@router.get("/blocked-ips", response_model=List[BlockedIPResponse])
+@router.get("/blocked-ips", response_model=list[BlockedIPResponse])
 async def get_blocked_ips(
     current_user: dict = Depends(get_current_admin_user),
     waf: WAFMiddleware = Depends(get_waf_middleware)
@@ -207,7 +207,7 @@ async def get_blocked_ips(
     return blocked_ips
 
 
-@router.get("/suspicious-ips", response_model=List[SuspiciousIPResponse])
+@router.get("/suspicious-ips", response_model=list[SuspiciousIPResponse])
 async def get_suspicious_ips(
     current_user: dict = Depends(get_current_admin_user),
     waf: WAFMiddleware = Depends(get_waf_middleware)
@@ -283,12 +283,12 @@ async def unblock_ip(
         )
 
 
-@router.get("/attacks", response_model=List[AttackAttemptResponse])
+@router.get("/attacks", response_model=list[AttackAttemptResponse])
 async def get_recent_attacks(
     limit: int = Query(100, ge=1, le=1000),
-    attack_type: Optional[str] = Query(None),
-    threat_level: Optional[str] = Query(None),
-    since: Optional[datetime] = Query(None),
+    attack_type: str | None = Query(None),
+    threat_level: str | None = Query(None),
+    since: datetime | None = Query(None),
     current_user: dict = Depends(get_current_admin_user),
     waf: WAFMiddleware = Depends(get_waf_middleware)
 ):
@@ -332,10 +332,10 @@ async def get_recent_attacks(
     return attacks
 
 
-@router.get("/signatures", response_model=List[SignatureResponse])
+@router.get("/signatures", response_model=list[SignatureResponse])
 async def get_signatures(
     enabled_only: bool = Query(False),
-    attack_type: Optional[str] = Query(None),
+    attack_type: str | None = Query(None),
     current_user: dict = Depends(get_current_user),
     waf: WAFMiddleware = Depends(get_waf_middleware)
 ):

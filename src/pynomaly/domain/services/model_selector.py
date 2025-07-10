@@ -20,7 +20,7 @@ from pynomaly.domain.services.metrics_calculator import MetricsCalculator
 class ParetoOptimizer:
     """Multi-objective Pareto front optimizer for model selection."""
 
-    def __init__(self, objectives: List[Dict[str, Any]]):
+    def __init__(self, objectives: list[dict[str, Any]]):
         """Initialize Pareto optimizer.
         
         Args:
@@ -29,8 +29,8 @@ class ParetoOptimizer:
         self.objectives = objectives
 
     def find_pareto_optimal(
-        self, models: List[ModelPerformanceMetrics]
-    ) -> List[Dict[str, Any]]:
+        self, models: list[ModelPerformanceMetrics]
+    ) -> list[dict[str, Any]]:
         """Find Pareto-optimal models considering multiple objectives.
         
         Args:
@@ -101,7 +101,7 @@ class ModelSelector:
     def __init__(
         self,
         primary_metric: str = "f1_score",
-        secondary_metrics: List[str] = None
+        secondary_metrics: list[str] = None
     ):
         """Initialize ModelSelector.
         
@@ -120,8 +120,8 @@ class ModelSelector:
         self.pareto_optimizer = ParetoOptimizer(objectives)
 
     def rank_models(
-        self, models: List[ModelPerformanceMetrics]
-    ) -> List[Dict[str, Any]]:
+        self, models: list[ModelPerformanceMetrics]
+    ) -> list[dict[str, Any]]:
         """Rank models using Pareto front filtering and primary metric.
         
         Args:
@@ -194,8 +194,8 @@ class ModelSelector:
         return bool(p_value < alpha)
 
     def select_best_model(
-        self, models: List[ModelPerformanceMetrics]
-    ) -> Dict[str, Any]:
+        self, models: list[ModelPerformanceMetrics]
+    ) -> dict[str, Any]:
         """Select the best model with detailed rationale.
         
         Args:
@@ -257,7 +257,7 @@ class ModelSelector:
             "rationale": rationale
         }
 
-    def _convert_model_to_results(self, model: ModelPerformanceMetrics) -> Dict[str, Any]:
+    def _convert_model_to_results(self, model: ModelPerformanceMetrics) -> dict[str, Any]:
         """Convert ModelPerformanceMetrics to format expected by MetricsCalculator."""
         results = {}
 

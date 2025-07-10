@@ -3,8 +3,6 @@ Web Application Firewall (WAF) middleware for advanced threat detection and prev
 Provides comprehensive protection against OWASP Top 10 and advanced attack vectors.
 """
 
-import asyncio
-import hashlib
 import json
 import logging
 import re
@@ -13,7 +11,7 @@ from collections import defaultdict, deque
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 import redis
 from fastapi import Request, Response, status
@@ -29,7 +27,6 @@ from pynomaly.infrastructure.security.audit_logger import (
 from pynomaly.infrastructure.security.input_sanitizer import (
     InputSanitizer,
     SanitizationConfig,
-    ValidationError,
 )
 
 logger = logging.getLogger(__name__)
@@ -79,7 +76,7 @@ class AttackAttempt:
     timestamp: float
     attack_type: AttackType
     threat_level: ThreatLevel
-    details: Dict[str, Any]
+    details: dict[str, Any]
     signature: str
     blocked: bool = False
     risk_score: int = 0
@@ -91,8 +88,8 @@ class WAFRule:
     name: str
     enabled: bool
     action: str  # block, monitor, sanitize
-    conditions: List[str]
-    exceptions: List[str] = None
+    conditions: list[str]
+    exceptions: list[str] = None
     priority: int = 100
 
 
@@ -122,7 +119,7 @@ class WAFStats:
         if attack.blocked:
             self.blocked_requests += 1
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get current statistics."""
         uptime = time.time() - self.start_time
         return {
@@ -160,9 +157,9 @@ class WAFMiddleware(BaseHTTPMiddleware):
         self.compiled_patterns = self._compile_patterns()
 
         # IP reputation and blocking
-        self.blocked_ips: Set[str] = set()
-        self.suspicious_ips: Dict[str, int] = {}  # IP -> risk score
-        self.ip_activity: Dict[str, List[float]] = defaultdict(list)  # IP -> timestamps
+        self.blocked_ips: set[str] = set()
+        self.suspicious_ips: dict[str, int] = {}  # IP -> risk score
+        self.ip_activity: dict[str, list[float]] = defaultdict(list)  # IP -> timestamps
 
         # Anomaly detection
         self.baseline_metrics = {
@@ -177,7 +174,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
 
         logger.info("WAF middleware initialized with %d signatures", len(self.signatures))
 
-    def _load_signatures(self) -> List[ThreatSignature]:
+    def _load_signatures(self) -> list[ThreatSignature]:
         """Load threat detection signatures."""
         signatures = [
             # SQL Injection
@@ -313,14 +310,14 @@ class WAFMiddleware(BaseHTTPMiddleware):
 
         return signatures
 
-    def _load_custom_signatures(self) -> List[ThreatSignature]:
+    def _load_custom_signatures(self) -> list[ThreatSignature]:
         """Load custom threat signatures from configuration."""
         custom_sigs = []
         config_path = Path("config/security/waf_signatures.json")
 
         if config_path.exists():
             try:
-                with open(config_path, 'r') as f:
+                with open(config_path) as f:
                     data = json.load(f)
 
                 for sig_data in data.get("signatures", []):
@@ -340,7 +337,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
 
         return custom_sigs
 
-    def _compile_patterns(self) -> Dict[str, re.Pattern]:
+    def _compile_patterns(self) -> dict[str, re.Pattern]:
         """Compile regex patterns for performance."""
         patterns = {}
 
@@ -353,7 +350,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
 
         return patterns
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load WAF configuration."""
         config_path = Path("config/security/waf_config.json")
         default_config = {
@@ -376,7 +373,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
 
         if config_path.exists():
             try:
-                with open(config_path, 'r') as f:
+                with open(config_path) as f:
                     loaded_config = json.load(f)
                     default_config.update(loaded_config)
             except Exception as e:
@@ -517,7 +514,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
         except:
             return False
 
-    async def _validate_request(self, request: Request) -> Optional[Dict[str, Any]]:
+    async def _validate_request(self, request: Request) -> dict[str, Any] | None:
         """Validate basic request properties."""
         # Check request size
         if hasattr(request, 'headers') and 'content-length' in request.headers:
@@ -567,7 +564,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
 
         return None
 
-    async def _analyze_request_content(self, request: Request) -> Optional[Dict[str, Any]]:
+    async def _analyze_request_content(self, request: Request) -> dict[str, Any] | None:
         """Analyze request content for threats."""
         # Collect all request data
         content_parts = []
@@ -619,7 +616,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
 
         return None
 
-    async def _detect_anomalies(self, request: Request) -> Optional[Dict[str, Any]]:
+    async def _detect_anomalies(self, request: Request) -> dict[str, Any] | None:
         """Detect request anomalies."""
         if not self.config["anomaly_detection_enabled"]:
             return None
@@ -804,7 +801,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 f"Slow WAF processing: {processing_time:.2f}s for {request.method} {request.url.path}"
             )
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get WAF statistics."""
         return {
             "waf_stats": self.stats.get_stats(),

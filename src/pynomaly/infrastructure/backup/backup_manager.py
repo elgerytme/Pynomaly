@@ -16,15 +16,16 @@ import subprocess
 import time
 import zipfile
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Callable
-from dataclasses import dataclass, field
+from typing import Any, Callable, Dict, List, Optional
+
 import boto3
 import paramiko
-from cryptography.fernet import Fernet
 import yaml
+from cryptography.fernet import Fernet
 
 
 class BackupType(Enum):
@@ -67,11 +68,11 @@ class BackupMetadata:
     compression: CompressionType = CompressionType.GZIP
     encryption_enabled: bool = False
     retention_days: int = 30
-    tags: Dict[str, str] = field(default_factory=dict)
+    tags: dict[str, str] = field(default_factory=dict)
     error_message: str = ""
     duration_seconds: float = 0.0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "backup_id": self.backup_id,
@@ -94,7 +95,7 @@ class BackupMetadata:
 class BackupProvider(ABC):
     """Base class for backup providers."""
 
-    def __init__(self, name: str, config: Dict[str, Any]):
+    def __init__(self, name: str, config: dict[str, Any]):
         self.name = name
         self.config = config
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
@@ -110,7 +111,7 @@ class BackupProvider(ABC):
         pass
 
     @abstractmethod
-    async def list_backups(self, prefix: str = "") -> List[Dict[str, Any]]:
+    async def list_backups(self, prefix: str = "") -> list[dict[str, Any]]:
         """List available backups."""
         pass
 
@@ -123,7 +124,7 @@ class BackupProvider(ABC):
 class LocalBackupProvider(BackupProvider):
     """Local filesystem backup provider."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__("local", config)
         self.backup_root = Path(config.get("backup_directory", "/var/backups/pynomaly"))
         self.backup_root.mkdir(parents=True, exist_ok=True)
@@ -170,7 +171,7 @@ class LocalBackupProvider(BackupProvider):
             self.logger.error(f"Failed to download backup: {e}")
             return False
 
-    async def list_backups(self, prefix: str = "") -> List[Dict[str, Any]]:
+    async def list_backups(self, prefix: str = "") -> list[dict[str, Any]]:
         """List local backups."""
         backups = []
 
@@ -179,7 +180,7 @@ class LocalBackupProvider(BackupProvider):
 
             for backup_file in search_path.rglob("*.meta"):
                 try:
-                    with open(backup_file, "r") as f:
+                    with open(backup_file) as f:
                         metadata = json.load(f)
                     backups.append(metadata)
                 except Exception as e:
@@ -215,7 +216,7 @@ class LocalBackupProvider(BackupProvider):
 class S3BackupProvider(BackupProvider):
     """Amazon S3 backup provider."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__("s3", config)
         self.bucket_name = config["bucket_name"]
         self.s3_client = boto3.client(
@@ -257,7 +258,7 @@ class S3BackupProvider(BackupProvider):
             self.logger.error(f"Failed to download from S3: {e}")
             return False
 
-    async def list_backups(self, prefix: str = "") -> List[Dict[str, Any]]:
+    async def list_backups(self, prefix: str = "") -> list[dict[str, Any]]:
         """List S3 backups."""
         backups = []
 
@@ -305,7 +306,7 @@ class S3BackupProvider(BackupProvider):
 class SFTPBackupProvider(BackupProvider):
     """SFTP backup provider."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         super().__init__("sftp", config)
         self.hostname = config["hostname"]
         self.port = config.get("port", 22)
@@ -378,7 +379,7 @@ class SFTPBackupProvider(BackupProvider):
             self.logger.error(f"Failed to download via SFTP: {e}")
             return False
 
-    async def list_backups(self, prefix: str = "") -> List[Dict[str, Any]]:
+    async def list_backups(self, prefix: str = "") -> list[dict[str, Any]]:
         """List SFTP backups."""
         backups = []
 
@@ -447,7 +448,7 @@ class SFTPBackupProvider(BackupProvider):
 class DatabaseBackupHandler:
     """Handle database-specific backup operations."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
@@ -577,7 +578,7 @@ class DatabaseBackupHandler:
 class FileBackupHandler:
     """Handle file and directory backup operations."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
@@ -742,10 +743,10 @@ class BackupManager:
         self.active_backups = {}
         self.backup_history = []
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, Any]:
         """Load backup configuration."""
         if self.config_path.exists():
-            with open(self.config_path, "r") as f:
+            with open(self.config_path) as f:
                 return yaml.safe_load(f) or {}
         return {}
 
@@ -920,7 +921,7 @@ class BackupManager:
             self.logger.error(f"Restore failed: {e}")
             return False
 
-    async def _extract_backup(self, backup_file: str, restore_path: str, metadata: Dict[str, Any]) -> bool:
+    async def _extract_backup(self, backup_file: str, restore_path: str, metadata: dict[str, Any]) -> bool:
         """Extract backup to restore location."""
         try:
             compression = metadata.get("compression", "gzip")
@@ -939,7 +940,7 @@ class BackupManager:
             self.logger.error(f"Extraction failed: {e}")
             return False
 
-    async def list_backups(self, provider_name: str = "local") -> List[Dict[str, Any]]:
+    async def list_backups(self, provider_name: str = "local") -> list[dict[str, Any]]:
         """List available backups."""
         provider = self.providers.get(provider_name)
         if provider:
@@ -988,7 +989,7 @@ class BackupManager:
         except Exception as e:
             self.logger.error(f"Cleanup failed: {e}")
 
-    def get_backup_stats(self) -> Dict[str, Any]:
+    def get_backup_stats(self) -> dict[str, Any]:
         """Get backup statistics."""
         total_backups = len(self.backup_history)
         successful = len([b for b in self.backup_history if b.status == BackupStatus.COMPLETED])
