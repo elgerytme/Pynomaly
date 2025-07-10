@@ -100,7 +100,9 @@
       "Bash(gh issue comment:*)",
       "Bash(git pull:*)",
       "Bash(echo:*)",
-      "Bash(PYTHONPATH=/mnt/c/Users/andre/Pynomaly python3:*)"
+      "Bash(PYTHONPATH=/mnt/c/Users/andre/Pynomaly python3:*)",
+      "Bash(npm cache clean:*)",
+      "Bash(source:*)"
     ],
     "deny": []
   }

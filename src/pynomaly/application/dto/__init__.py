@@ -18,6 +18,7 @@ from .dataset_dto import (
     DataQualityReportDTO,
     DatasetDTO,
     DatasetResponseDTO,
+    DatasetUploadResponseDTO,
 )
 from .detection_dto import (
     ConfidenceInterval,
@@ -79,6 +80,7 @@ __all__ = [
     "CreateDatasetDTO",
     "DataQualityReportDTO",
     "DatasetResponseDTO",
+    "DatasetUploadResponseDTO",
     # Result DTOs
     "DetectionResultDTO",
     "AnomalyDTO",

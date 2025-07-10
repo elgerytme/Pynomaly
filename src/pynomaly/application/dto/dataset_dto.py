@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -133,3 +134,17 @@ class DatasetResponseDTO(BaseModel):
     quality_score: float | None = None
     status: str = "ready"
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+@dataclass
+class DatasetUploadResponseDTO:
+    """DTO for dataset upload response."""
+
+    id: str
+    name: str
+    status: str  # processing, completed, failed
+    file_size: int
+    upload_url: str
+    created_at: datetime | None = None
+    progress: float = 0.0  # Upload progress percentage
+    error_message: str | None = None

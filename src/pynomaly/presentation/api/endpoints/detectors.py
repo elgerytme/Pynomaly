@@ -1,5 +1,8 @@
 """Detector management endpoints."""
 
+from __future__ import annotations
+
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -21,7 +24,7 @@ from pynomaly.infrastructure.config import Container
 router = APIRouter()
 
 
-@router.get("/", response_model=list[DetectorDTO])
+@router.get("/", response_model=List[DetectorDTO])
 async def list_detectors(
     algorithm: str | None = Query(None, description="Filter by algorithm"),
     is_fitted: bool | None = Query(None, description="Filter by fitted status"),
