@@ -114,10 +114,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
             monitoring = create_production_monitoring()
             await monitoring.initialize()
             app.state.monitoring = monitoring
-            
+
             # Set up monitoring middleware now that monitoring is initialized
             setup_monitoring_middleware(app, monitoring)
-            
+
             print("✅ Production monitoring initialized and middleware configured")
         except Exception as e:
             print(f"❌ Failed to initialize monitoring: {e}")

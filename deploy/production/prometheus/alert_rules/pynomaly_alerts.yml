@@ -1,0 +1,201 @@
+# Pynomaly Production Alert Rules
+groups:
+  - name: pynomaly_system_alerts
+    rules:
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for more than 5 minutes. Current value: {{ $value }}%"
+          runbook_url: "https://runbooks.pynomaly.com/high-cpu"
+
+      # Critical CPU usage
+      - alert: CriticalCPUUsage
+        expr: 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100) > 95
+        for: 1m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Critical CPU usage detected"
+          description: "CPU usage is above 95% for more than 1 minute. Current value: {{ $value }}%"
+          runbook_url: "https://runbooks.pynomaly.com/critical-cpu"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 85% for more than 5 minutes. Current value: {{ $value }}%"
+          runbook_url: "https://runbooks.pynomaly.com/high-memory"
+
+      # Critical memory usage
+      - alert: CriticalMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 95
+        for: 1m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Critical memory usage detected"
+          description: "Memory usage is above 95% for more than 1 minute. Current value: {{ $value }}%"
+          runbook_url: "https://runbooks.pynomaly.com/critical-memory"
+
+      # Disk space usage
+      - alert: HighDiskUsage
+        expr: (node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High disk usage detected"
+          description: "Disk usage is above 85% on {{ $labels.mountpoint }}. Current value: {{ $value }}%"
+          runbook_url: "https://runbooks.pynomaly.com/high-disk"
+
+  - name: pynomaly_application_alerts
+    rules:
+      # API response time
+      - alert: HighAPIResponseTime
+        expr: histogram_quantile(0.95, rate(pynomaly_http_request_duration_seconds_bucket[5m])) > 2
+        for: 3m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          summary: "High API response time"
+          description: "95th percentile API response time is above 2 seconds. Current value: {{ $value }}s"
+          runbook_url: "https://runbooks.pynomaly.com/slow-api"
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(pynomaly_http_requests_total{status=~"5.."}[5m]) / rate(pynomaly_http_requests_total[5m]) * 100 > 5
+        for: 2m
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          summary: "High error rate detected"
+          description: "API error rate is above 5%. Current value: {{ $value }}%"
+          runbook_url: "https://runbooks.pynomaly.com/high-errors"
+
+      # Service down
+      - alert: ServiceDown
+        expr: up{job=~"pynomaly-.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "Service is down"
+          description: "{{ $labels.job }} service is down for more than 1 minute"
+          runbook_url: "https://runbooks.pynomaly.com/service-down"
+
+      # Database connection issues
+      - alert: DatabaseConnectionIssues
+        expr: pynomaly_database_connections_active / pynomaly_database_connections_max > 0.9
+        for: 2m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "Database connection pool near capacity"
+          description: "Database connection pool is {{ $value | humanizePercentage }} full"
+          runbook_url: "https://runbooks.pynomaly.com/database-connections"
+
+      # Model prediction errors
+      - alert: HighModelErrorRate
+        expr: rate(pynomaly_model_predictions_total{status="error"}[5m]) / rate(pynomaly_model_predictions_total[5m]) * 100 > 2
+        for: 3m
+        labels:
+          severity: warning
+          service: ml_model
+        annotations:
+          summary: "High model prediction error rate"
+          description: "Model prediction error rate is above 2%. Current value: {{ $value }}%"
+          runbook_url: "https://runbooks.pynomaly.com/model-errors"
+
+  - name: pynomaly_security_alerts
+    rules:
+      # Security threat detected
+      - alert: SecurityThreatDetected
+        expr: pynomaly_security_threat_level > 8
+        for: 0s
+        labels:
+          severity: critical
+          service: security
+        annotations:
+          summary: "High-level security threat detected"
+          description: "Security threat level is {{ $value }}/10"
+          runbook_url: "https://runbooks.pynomaly.com/security-incident"
+
+      # Failed authentication spike
+      - alert: FailedAuthenticationSpike
+        expr: rate(pynomaly_authentication_failures_total[1m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "Spike in failed authentication attempts"
+          description: "Failed authentication rate is {{ $value }} per minute"
+          runbook_url: "https://runbooks.pynomaly.com/auth-spike"
+
+      # Suspicious request patterns
+      - alert: SuspiciousRequestPatterns
+        expr: rate(pynomaly_suspicious_requests_total[5m]) > 5
+        for: 2m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "Suspicious request patterns detected"
+          description: "Suspicious request rate is {{ $value }} per minute"
+          runbook_url: "https://runbooks.pynomaly.com/suspicious-requests"
+
+  - name: pynomaly_business_alerts
+    rules:
+      # Low prediction throughput
+      - alert: LowPredictionThroughput
+        expr: rate(pynomaly_predictions_total[5m]) < 1
+        for: 10m
+        labels:
+          severity: warning
+          service: ml_model
+        annotations:
+          summary: "Low prediction throughput"
+          description: "Prediction rate is below 1 per second: {{ $value }}"
+          runbook_url: "https://runbooks.pynomaly.com/low-throughput"
+
+      # Model accuracy degradation
+      - alert: ModelAccuracyDegradation
+        expr: pynomaly_model_accuracy < 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: ml_model
+        annotations:
+          summary: "Model accuracy degradation detected"
+          description: "Model accuracy has dropped to {{ $value | humanizePercentage }}"
+          runbook_url: "https://runbooks.pynomaly.com/model-accuracy"
+
+      # Data quality issues
+      - alert: DataQualityIssues
+        expr: pynomaly_data_quality_score < 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: data_pipeline
+        annotations:
+          summary: "Data quality issues detected"
+          description: "Data quality score has dropped to {{ $value | humanizePercentage }}"
+          runbook_url: "https://runbooks.pynomaly.com/data-quality"

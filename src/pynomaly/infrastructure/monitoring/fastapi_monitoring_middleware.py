@@ -35,11 +35,11 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
         """Process request with monitoring."""
         # Generate request ID
         request_id = str(uuid4())
-        
+
         # Skip monitoring for certain paths
         if self._should_skip_monitoring(request):
             return await call_next(request)
-        
+
         # Record request start
         start_time = time.time()
         request_info = {
@@ -49,41 +49,41 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
             "client_ip": self._get_client_ip(request),
             "user_agent": request.headers.get("user-agent", ""),
         }
-        
+
         self.active_requests[request_id] = request_info
-        
+
         # Add monitoring context to request
         request.state.monitoring_request_id = request_id
         request.state.monitoring_start_time = start_time
-        
+
         response = None
         status_code = 500
         exception_occurred = False
-        
+
         try:
             # Process request
             response = await call_next(request)
             status_code = response.status_code
-            
+
         except Exception as e:
             exception_occurred = True
             logger.error(f"Request {request_id} failed with exception: {e}")
             # Re-raise the exception
             raise
-        
+
         finally:
             # Record request completion
             end_time = time.time()
             duration = end_time - start_time
-            
+
             # Clean up active requests
             self.active_requests.pop(request_id, None)
-            
+
             # Record metrics
             await self._record_request_metrics(
                 request, response, duration, status_code, exception_occurred
             )
-        
+
         return response
 
     def _should_skip_monitoring(self, request: Request) -> bool:
@@ -96,7 +96,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
             "/openapi.json",
             "/favicon.ico"
         }
-        
+
         path = request.url.path.lower()
         return any(path.startswith(skip_path) for skip_path in skip_paths)
 
@@ -106,15 +106,15 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
         forwarded_for = request.headers.get("x-forwarded-for")
         if forwarded_for:
             return forwarded_for.split(",")[0].strip()
-        
+
         real_ip = request.headers.get("x-real-ip")
         if real_ip:
             return real_ip
-        
+
         # Fall back to client address
         if hasattr(request, "client") and request.client:
             return request.client.host
-        
+
         return "unknown"
 
     async def _record_request_metrics(
@@ -129,7 +129,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
         try:
             method = request.method
             endpoint = self._normalize_endpoint(request.url.path)
-            
+
             # Record HTTP request metrics
             await self.monitoring.record_http_request(
                 method=method,
@@ -137,16 +137,16 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
                 status_code=status_code,
                 duration=duration
             )
-            
+
             # Log request details
             log_level = logger.warning if status_code >= 400 else logger.info
             log_level(
                 f"{method} {endpoint} - {status_code} - {duration:.3f}s"
             )
-            
+
             # Record additional context if available
             await self._record_additional_context(request, response, duration)
-            
+
         except Exception as e:
             logger.error(f"Failed to record request metrics: {e}")
 
@@ -154,20 +154,20 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
         """Normalize endpoint path for metrics."""
         # Replace path parameters with placeholders
         import re
-        
+
         # Replace UUIDs
         path = re.sub(
             r'/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
             '/{id}',
             path
         )
-        
+
         # Replace numeric IDs
         path = re.sub(r'/\d+', '/{id}', path)
-        
+
         # Replace file extensions
         path = re.sub(r'\.[a-zA-Z0-9]+$', '.{ext}', path)
-        
+
         return path
 
     async def _record_additional_context(
@@ -179,19 +179,19 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
         """Record additional context-specific metrics."""
         try:
             path = request.url.path
-            
+
             # Anomaly detection endpoints
             if "/api/v1/detect" in path:
                 await self._record_anomaly_detection_context(request, response, duration)
-            
+
             # Model training endpoints
             elif "/api/v1/train" in path:
                 await self._record_training_context(request, response, duration)
-            
+
             # Dataset endpoints
             elif "/api/v1/datasets" in path:
                 await self._record_dataset_context(request, response, duration)
-            
+
         except Exception as e:
             logger.error(f"Failed to record additional context: {e}")
 
@@ -206,19 +206,19 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
             # Try to extract algorithm from request body or query params
             algorithm = "unknown"
             success = response and response.status_code < 400
-            
+
             # Extract algorithm from request if possible
             if hasattr(request.state, 'algorithm'):
                 algorithm = request.state.algorithm
             elif "algorithm" in request.query_params:
                 algorithm = request.query_params["algorithm"]
-            
+
             await self.monitoring.record_anomaly_detection(
                 algorithm=algorithm,
                 duration=duration,
                 success=success
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to record anomaly detection context: {e}")
 
@@ -233,23 +233,23 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
             algorithm = "unknown"
             success = response and response.status_code < 400
             accuracy = None
-            
+
             # Extract algorithm from request
             if hasattr(request.state, 'algorithm'):
                 algorithm = request.state.algorithm
             elif "algorithm" in request.query_params:
                 algorithm = request.query_params["algorithm"]
-            
+
             # Extract accuracy from response if available
             if hasattr(request.state, 'model_accuracy'):
                 accuracy = request.state.model_accuracy
-            
+
             await self.monitoring.record_model_training(
                 algorithm=algorithm,
                 success=success,
                 accuracy=accuracy
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to record training context: {e}")
 
@@ -264,7 +264,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
             # Dataset operations might have specific metrics
             # This can be extended based on specific requirements
             pass
-            
+
         except Exception as e:
             logger.error(f"Failed to record dataset context: {e}")
 
@@ -272,7 +272,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
         """Get information about currently active requests."""
         current_time = time.time()
         active_info = {}
-        
+
         for request_id, info in self.active_requests.items():
             duration = current_time - info["start_time"]
             active_info[request_id] = {
@@ -280,7 +280,7 @@ class MonitoringMiddleware(BaseHTTPMiddleware):
                 "duration": duration,
                 "status": "active"
             }
-        
+
         return {
             "total_active": len(self.active_requests),
             "requests": active_info
@@ -300,15 +300,15 @@ class HealthCheckMiddleware(BaseHTTPMiddleware):
         # Handle health check requests
         if request.url.path == "/health":
             return await self._handle_health_check(request)
-        
+
         # Handle metrics requests
         elif request.url.path == "/metrics":
             return await self._handle_metrics_request(request)
-        
+
         # Handle monitoring status requests
         elif request.url.path == "/monitoring/status":
             return await self._handle_monitoring_status(request)
-        
+
         # Process other requests normally
         return await call_next(request)
 
@@ -317,21 +317,21 @@ class HealthCheckMiddleware(BaseHTTPMiddleware):
         try:
             # Get detailed health status
             health_status = await self.monitoring.get_monitoring_status()
-            
+
             # Determine response status code
             status_code = 200
             if health_status["status"] == "unhealthy":
                 status_code = 503
             elif health_status["status"] == "degraded":
                 status_code = 200  # Still serve traffic but warn
-            
+
             # Simple health check for load balancers
             if request.query_params.get("simple") == "true":
                 if status_code == 200:
                     return Response(content="OK", status_code=200)
                 else:
                     return Response(content="UNHEALTHY", status_code=503)
-            
+
             # Detailed health check
             self.last_health_check = time.time()
             return Response(
@@ -339,7 +339,7 @@ class HealthCheckMiddleware(BaseHTTPMiddleware):
                 status_code=status_code,
                 media_type="application/json"
             )
-            
+
         except Exception as e:
             logger.error(f"Health check failed: {e}")
             return Response(
@@ -385,12 +385,12 @@ class AlertingMiddleware(BaseHTTPMiddleware):
         """Process request with alerting integration."""
         try:
             response = await call_next(request)
-            
+
             # Monitor error patterns
             await self._monitor_error_patterns(request, response)
-            
+
             return response
-            
+
         except Exception as e:
             # Record exception for alerting
             await self._record_exception(request, e)
@@ -404,16 +404,16 @@ class AlertingMiddleware(BaseHTTPMiddleware):
             if current_time - self.last_error_reset > 3600:
                 self.error_counts.clear()
                 self.last_error_reset = current_time
-            
+
             # Track error rates by endpoint
             if response.status_code >= 400:
                 endpoint = self._normalize_endpoint(request.url.path)
                 self.error_counts[endpoint] = self.error_counts.get(endpoint, 0) + 1
-                
+
                 # Trigger alert if error rate is high
                 if self.error_counts[endpoint] > 10:  # More than 10 errors per hour
                     await self._trigger_error_rate_alert(endpoint, self.error_counts[endpoint])
-            
+
         except Exception as e:
             logger.error(f"Error monitoring patterns: {e}")
 
@@ -421,14 +421,14 @@ class AlertingMiddleware(BaseHTTPMiddleware):
         """Record exception for alerting."""
         try:
             endpoint = self._normalize_endpoint(request.url.path)
-            
+
             # Record exception metrics
             logger.error(f"Exception in {endpoint}: {exception}")
-            
+
             # Could trigger immediate alerts for critical exceptions
             if isinstance(exception, (ConnectionError, TimeoutError)):
                 await self._trigger_critical_alert(endpoint, str(exception))
-            
+
         except Exception as e:
             logger.error(f"Failed to record exception: {e}")
 
@@ -440,7 +440,7 @@ class AlertingMiddleware(BaseHTTPMiddleware):
                 await self.monitoring.alerting_service.record_metric(
                     f"endpoint_error_rate_{endpoint}", error_count
                 )
-            
+
         except Exception as e:
             logger.error(f"Failed to trigger error rate alert: {e}")
 
@@ -449,18 +449,18 @@ class AlertingMiddleware(BaseHTTPMiddleware):
         try:
             # This could trigger immediate notifications
             logger.critical(f"Critical error in {endpoint}: {error_message}")
-            
+
         except Exception as e:
             logger.error(f"Failed to trigger critical alert: {e}")
 
     def _normalize_endpoint(self, path: str) -> str:
         """Normalize endpoint path for alerting."""
         import re
-        
+
         # Replace path parameters with placeholders
         path = re.sub(r'/[0-9a-f-]{36}', '/{uuid}', path)  # UUIDs
         path = re.sub(r'/\d+', '/{id}', path)  # Numeric IDs
-        
+
         return path
 
 
@@ -470,5 +470,5 @@ def setup_monitoring_middleware(app, monitoring: ProductionMonitoringIntegration
     app.add_middleware(AlertingMiddleware, monitoring=monitoring)
     app.add_middleware(HealthCheckMiddleware, monitoring=monitoring)
     app.add_middleware(MonitoringMiddleware, monitoring=monitoring)
-    
+
     logger.info("Monitoring middleware configured")

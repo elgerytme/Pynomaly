@@ -329,7 +329,7 @@ async def report_frontend_error(request: Request, error_data: dict):
     """Report frontend error for monitoring."""
     try:
         from pynomaly.presentation.web.error_handling import create_web_ui_error, ErrorCode, ErrorLevel, get_error_monitor
-        
+
         error = create_web_ui_error(
             message=error_data.get("message", "Frontend error"),
             error_code=ErrorCode.INTERNAL_SERVER_ERROR,
@@ -356,7 +356,7 @@ async def get_security_events(request: Request, limit: int = 100):
     """Get recent security events for monitoring."""
     try:
         from pynomaly.presentation.web.security_features import get_security_middleware
-        
+
         middleware = get_security_middleware()
         events = middleware.get_security_events(limit)
         return {"events": events}
@@ -369,7 +369,7 @@ async def get_security_metrics(request: Request):
     """Get security metrics and statistics."""
     try:
         from pynomaly.presentation.web.security_features import get_security_middleware
-        
+
         middleware = get_security_middleware()
         metrics = middleware.get_security_metrics()
         return metrics
@@ -382,7 +382,7 @@ async def get_rate_limit_status(request: Request, ip: str):
     """Get rate limit status for specific IP."""
     try:
         from pynomaly.presentation.web.security_features import get_rate_limiter
-        
+
         rate_limiter = get_rate_limiter()
         endpoint = request.url.path
         status = rate_limiter.get_rate_limit_status(ip, endpoint)

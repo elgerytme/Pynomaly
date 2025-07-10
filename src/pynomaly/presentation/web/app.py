@@ -1741,16 +1741,16 @@ def mount_web_ui(app):
     from pynomaly.presentation.web.error_handling import ErrorHandlingMiddleware, get_web_ui_logger, start_error_monitoring
     logger = get_web_ui_logger()
     app.add_middleware(ErrorHandlingMiddleware, logger=logger)
-    
+
     # Initialize security features
     from pynomaly.presentation.web.security_features import SecurityMiddleware, get_rate_limiter, get_waf
     rate_limiter = get_rate_limiter()
     waf = get_waf()
     app.add_middleware(SecurityMiddleware, rate_limiter=rate_limiter, waf=waf)
-    
+
     # Start error monitoring
     start_error_monitoring()
-    
+
     # Mount static files
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 

@@ -98,7 +98,7 @@ class WAFRule:
 
 class WAFStats:
     """WAF statistics tracking."""
-    
+
     def __init__(self):
         self.total_requests = 0
         self.blocked_requests = 0
@@ -107,21 +107,21 @@ class WAFStats:
         self.top_attackers = defaultdict(int)
         self.recent_attacks = deque(maxlen=1000)
         self.start_time = time.time()
-    
+
     def record_request(self):
         """Record a processed request."""
         self.total_requests += 1
-    
+
     def record_attack(self, attack: AttackAttempt):
         """Record a detected attack."""
         self.attacks_detected += 1
         self.attack_types[attack.attack_type.value] += 1
         self.top_attackers[attack.ip] += 1
         self.recent_attacks.append(attack)
-        
+
         if attack.blocked:
             self.blocked_requests += 1
-    
+
     def get_stats(self) -> Dict[str, Any]:
         """Get current statistics."""
         uptime = time.time() - self.start_time
@@ -140,30 +140,30 @@ class WAFStats:
 
 class WAFMiddleware(BaseHTTPMiddleware):
     """Advanced Web Application Firewall middleware."""
-    
+
     def __init__(self, app, settings: Settings):
         super().__init__(app)
         self.settings = settings
         self.redis_client = redis.from_url(settings.redis_url)
         self.audit_logger = get_audit_logger()
         self.stats = WAFStats()
-        
+
         # Initialize components
         self.sanitizer = InputSanitizer(SanitizationConfig(
             level="moderate",
             max_length=50000,
             allow_html=False
         ))
-        
+
         # Threat detection signatures
         self.signatures = self._load_signatures()
         self.compiled_patterns = self._compile_patterns()
-        
+
         # IP reputation and blocking
         self.blocked_ips: Set[str] = set()
         self.suspicious_ips: Dict[str, int] = {}  # IP -> risk score
         self.ip_activity: Dict[str, List[float]] = defaultdict(list)  # IP -> timestamps
-        
+
         # Anomaly detection
         self.baseline_metrics = {
             "avg_request_size": 1024,
@@ -171,12 +171,12 @@ class WAFMiddleware(BaseHTTPMiddleware):
             "common_user_agents": set(),
             "common_paths": set()
         }
-        
+
         # Load configuration
         self.config = self._load_config()
-        
+
         logger.info("WAF middleware initialized with %d signatures", len(self.signatures))
-    
+
     def _load_signatures(self) -> List[ThreatSignature]:
         """Load threat detection signatures."""
         signatures = [
@@ -202,7 +202,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 threat_level=ThreatLevel.HIGH,
                 description="Detects error-based SQL injection attempts"
             ),
-            
+
             # XSS
             ThreatSignature(
                 name="XSS - Script Tags",
@@ -225,7 +225,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 threat_level=ThreatLevel.HIGH,
                 description="Detects XSS attempts using javascript protocol"
             ),
-            
+
             # Command Injection
             ThreatSignature(
                 name="Command Injection - Shell Commands",
@@ -241,7 +241,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 threat_level=ThreatLevel.CRITICAL,
                 description="Detects Windows command injection attempts"
             ),
-            
+
             # Path Traversal
             ThreatSignature(
                 name="Path Traversal - Directory Traversal",
@@ -257,7 +257,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 threat_level=ThreatLevel.HIGH,
                 description="Detects attempts to access system files"
             ),
-            
+
             # Scanner Detection
             ThreatSignature(
                 name="Scanner - Nikto",
@@ -273,7 +273,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 threat_level=ThreatLevel.LOW,
                 description="Detects scanning for common files/paths"
             ),
-            
+
             # Malware/Webshell
             ThreatSignature(
                 name="Webshell - PHP",
@@ -289,7 +289,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 threat_level=ThreatLevel.CRITICAL,
                 description="Detects ASP webshell patterns"
             ),
-            
+
             # Protocol Violations
             ThreatSignature(
                 name="Protocol Violation - HTTP Method",
@@ -306,23 +306,23 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 description="Detects HTTP header injection attempts"
             )
         ]
-        
+
         # Load custom signatures from config if available
         custom_signatures = self._load_custom_signatures()
         signatures.extend(custom_signatures)
-        
+
         return signatures
-    
+
     def _load_custom_signatures(self) -> List[ThreatSignature]:
         """Load custom threat signatures from configuration."""
         custom_sigs = []
         config_path = Path("config/security/waf_signatures.json")
-        
+
         if config_path.exists():
             try:
                 with open(config_path, 'r') as f:
                     data = json.load(f)
-                    
+
                 for sig_data in data.get("signatures", []):
                     sig = ThreatSignature(
                         name=sig_data["name"],
@@ -334,25 +334,25 @@ class WAFMiddleware(BaseHTTPMiddleware):
                         custom=True
                     )
                     custom_sigs.append(sig)
-                    
+
             except Exception as e:
                 logger.warning(f"Failed to load custom signatures: {e}")
-        
+
         return custom_sigs
-    
+
     def _compile_patterns(self) -> Dict[str, re.Pattern]:
         """Compile regex patterns for performance."""
         patterns = {}
-        
+
         for sig in self.signatures:
             if sig.enabled:
                 try:
                     patterns[sig.name] = re.compile(sig.pattern, sig.regex_flags)
                 except re.error as e:
                     logger.error(f"Invalid regex pattern in signature '{sig.name}': {e}")
-        
+
         return patterns
-    
+
     def _load_config(self) -> Dict[str, Any]:
         """Load WAF configuration."""
         config_path = Path("config/security/waf_config.json")
@@ -373,7 +373,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
             "sensitive_paths": ["/admin", "/config", "/backup", "/test"],
             "rules": []
         }
-        
+
         if config_path.exists():
             try:
                 with open(config_path, 'r') as f:
@@ -381,23 +381,23 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     default_config.update(loaded_config)
             except Exception as e:
                 logger.warning(f"Failed to load WAF config: {e}")
-        
+
         return default_config
-    
+
     async def dispatch(self, request: Request, call_next):
         """Process request through WAF."""
         start_time = time.time()
         self.stats.record_request()
-        
+
         try:
             # Skip WAF for whitelisted paths
             if self._is_whitelisted_path(request.url.path):
                 return await call_next(request)
-            
+
             # Get client info
             client_ip = self._get_client_ip(request)
             user_agent = request.headers.get("User-Agent", "")
-            
+
             # Check IP reputation
             if self._is_blocked_ip(client_ip):
                 attack = AttackAttempt(
@@ -412,7 +412,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 )
                 self.stats.record_attack(attack)
                 return self._create_block_response(attack)
-            
+
             # Basic request validation
             validation_result = await self._validate_request(request)
             if validation_result:
@@ -429,7 +429,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 self.stats.record_attack(attack)
                 await self._handle_attack(attack)
                 return self._create_block_response(attack)
-            
+
             # Analyze request content
             content_analysis = await self._analyze_request_content(request)
             if content_analysis:
@@ -445,10 +445,10 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 )
                 self.stats.record_attack(attack)
                 await self._handle_attack(attack)
-                
+
                 if self.config["blocking_enabled"]:
                     return self._create_block_response(attack)
-            
+
             # Check for anomalies
             anomaly_result = await self._detect_anomalies(request)
             if anomaly_result:
@@ -464,59 +464,59 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 )
                 self.stats.record_attack(attack)
                 await self._handle_attack(attack)
-            
+
             # Process request
             response = await call_next(request)
-            
+
             # Add security headers
             self._add_security_headers(response)
-            
+
             # Log successful request
             processing_time = time.time() - start_time
             self._log_request(request, response, processing_time)
-            
+
             return response
-            
+
         except Exception as e:
             logger.error(f"WAF processing error: {e}")
             # Continue without WAF protection on error
             return await call_next(request)
-    
+
     def _is_whitelisted_path(self, path: str) -> bool:
         """Check if path is whitelisted."""
         whitelist = ["/health", "/api/v1/health/", "/metrics", "/favicon.ico"]
         return path in whitelist
-    
+
     def _get_client_ip(self, request: Request) -> str:
         """Get client IP address."""
         # Check for forwarded headers
         forwarded_for = request.headers.get("X-Forwarded-For")
         if forwarded_for:
             return forwarded_for.split(",")[0].strip()
-        
+
         real_ip = request.headers.get("X-Real-IP")
         if real_ip:
             return real_ip
-        
+
         return request.client.host if request.client else "unknown"
-    
+
     def _is_blocked_ip(self, ip: str) -> bool:
         """Check if IP is blocked."""
         # Check static blacklist
         if ip in self.config.get("blacklist_ips", []):
             return True
-        
+
         # Check dynamic blocks
         if ip in self.blocked_ips:
             return True
-        
+
         # Check Redis cache
         try:
             blocked = self.redis_client.get(f"waf:blocked:{ip}")
             return blocked is not None
         except:
             return False
-    
+
     async def _validate_request(self, request: Request) -> Optional[Dict[str, Any]]:
         """Validate basic request properties."""
         # Check request size
@@ -530,7 +530,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     "signature": "request_size_limit",
                     "risk_score": 50
                 }
-        
+
         # Check file extensions
         path = request.url.path
         if '.' in path:
@@ -543,7 +543,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     "signature": "blocked_extension",
                     "risk_score": 80
                 }
-        
+
         # Check sensitive paths
         for sensitive_path in self.config["sensitive_paths"]:
             if path.startswith(sensitive_path):
@@ -554,7 +554,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     "signature": "sensitive_path_access",
                     "risk_score": 60
                 }
-        
+
         # Check HTTP method
         if request.method in ["TRACE", "TRACK", "DEBUG"]:
             return {
@@ -564,21 +564,21 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 "signature": "suspicious_http_method",
                 "risk_score": 30
             }
-        
+
         return None
-    
+
     async def _analyze_request_content(self, request: Request) -> Optional[Dict[str, Any]]:
         """Analyze request content for threats."""
         # Collect all request data
         content_parts = []
-        
+
         # URL and query parameters
         content_parts.append(str(request.url))
-        
+
         # Headers
         for name, value in request.headers.items():
             content_parts.append(f"{name}: {value}")
-        
+
         # Body (if present)
         if request.method in ["POST", "PUT", "PATCH"]:
             try:
@@ -587,23 +587,23 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     content_parts.append(body.decode('utf-8', errors='ignore'))
             except:
                 pass
-        
+
         # Combine all content
         combined_content = "\n".join(content_parts)
-        
+
         # Run through signatures
         for sig in self.signatures:
             if not sig.enabled:
                 continue
-            
+
             pattern = self.compiled_patterns.get(sig.name)
             if not pattern:
                 continue
-            
+
             match = pattern.search(combined_content)
             if match:
                 risk_score = self._calculate_risk_score(sig.threat_level, sig.attack_type)
-                
+
                 return {
                     "attack_type": sig.attack_type,
                     "threat_level": sig.threat_level,
@@ -616,17 +616,17 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     "signature": sig.name,
                     "risk_score": risk_score
                 }
-        
+
         return None
-    
+
     async def _detect_anomalies(self, request: Request) -> Optional[Dict[str, Any]]:
         """Detect request anomalies."""
         if not self.config["anomaly_detection_enabled"]:
             return None
-        
+
         anomalies = []
         risk_score = 0
-        
+
         # Check user agent
         user_agent = request.headers.get("User-Agent", "")
         if not user_agent:
@@ -635,7 +635,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
         elif len(user_agent) > 500:
             anomalies.append("Unusually long User-Agent")
             risk_score += 15
-        
+
         # Check for suspicious headers
         suspicious_headers = [
             "X-Forwarded-For", "X-Real-IP", "X-Remote-IP", "X-Client-IP"
@@ -646,43 +646,43 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 if self._is_suspicious_header_value(value):
                     anomalies.append(f"Suspicious {header}: {value}")
                     risk_score += 10
-        
+
         # Check request pattern
         path = request.url.path
         if len(path) > 200:
             anomalies.append("Unusually long request path")
             risk_score += 10
-        
+
         # Check for encoded characters
         if '%' in path and self._has_excessive_encoding(path):
             anomalies.append("Excessive URL encoding")
             risk_score += 15
-        
+
         if anomalies:
             return {
                 "anomalies": anomalies,
                 "risk_score": min(risk_score, 100)
             }
-        
+
         return None
-    
+
     def _is_suspicious_header_value(self, value: str) -> bool:
         """Check if header value is suspicious."""
         # Check for multiple IPs (potential spoofing)
         if ',' in value and len(value.split(',')) > 3:
             return True
-        
+
         # Check for suspicious characters
         if any(char in value for char in ['<', '>', '"', "'", '\\', '\n', '\r']):
             return True
-        
+
         return False
-    
+
     def _has_excessive_encoding(self, path: str) -> bool:
         """Check if path has excessive URL encoding."""
         encoded_chars = path.count('%')
         return encoded_chars > len(path) * 0.3  # More than 30% encoded
-    
+
     def _calculate_risk_score(self, threat_level: ThreatLevel, attack_type: AttackType) -> int:
         """Calculate risk score for an attack."""
         base_scores = {
@@ -691,7 +691,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
             ThreatLevel.HIGH: 75,
             ThreatLevel.CRITICAL: 100
         }
-        
+
         attack_multipliers = {
             AttackType.SQL_INJECTION: 1.2,
             AttackType.XSS: 1.1,
@@ -702,12 +702,12 @@ class WAFMiddleware(BaseHTTPMiddleware):
             AttackType.SCANNER: 0.8,
             AttackType.ANOMALY: 0.7
         }
-        
+
         base_score = base_scores.get(threat_level, 50)
         multiplier = attack_multipliers.get(attack_type, 1.0)
-        
+
         return min(int(base_score * multiplier), 100)
-    
+
     async def _handle_attack(self, attack: AttackAttempt):
         """Handle detected attack."""
         # Log security event
@@ -726,38 +726,38 @@ class WAFMiddleware(BaseHTTPMiddleware):
             },
             risk_score=attack.risk_score
         )
-        
+
         # Update IP reputation
         self._update_ip_reputation(attack.ip, attack.risk_score)
-        
+
         # Auto-block if threshold reached
         await self._check_auto_block(attack.ip)
-    
+
     def _update_ip_reputation(self, ip: str, risk_score: int):
         """Update IP reputation score."""
         current_score = self.suspicious_ips.get(ip, 0)
         new_score = min(current_score + risk_score, 100)
         self.suspicious_ips[ip] = new_score
-        
+
         # Store in Redis with TTL
         try:
             self.redis_client.setex(f"waf:reputation:{ip}", 3600, new_score)
         except:
             pass
-    
+
     async def _check_auto_block(self, ip: str):
         """Check if IP should be auto-blocked."""
         if ip in self.config.get("whitelist_ips", []):
             return
-        
+
         reputation_score = self.suspicious_ips.get(ip, 0)
         if reputation_score >= self.config["auto_block_threshold"] * 20:  # 20 points per violation
             await self._block_ip(ip, "Auto-blocked due to reputation score")
-    
+
     async def _block_ip(self, ip: str, reason: str):
         """Block an IP address."""
         self.blocked_ips.add(ip)
-        
+
         # Store in Redis with TTL
         try:
             self.redis_client.setex(
@@ -771,9 +771,9 @@ class WAFMiddleware(BaseHTTPMiddleware):
             )
         except:
             pass
-        
+
         logger.warning(f"IP {ip} blocked: {reason}")
-    
+
     def _create_block_response(self, attack: AttackAttempt) -> JSONResponse:
         """Create response for blocked request."""
         return JSONResponse(
@@ -789,21 +789,21 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 "X-WAF-Threat-Level": attack.threat_level.value
             }
         )
-    
+
     def _add_security_headers(self, response: Response):
         """Add security headers to response."""
         response.headers["X-WAF-Protected"] = "true"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
-    
+
     def _log_request(self, request: Request, response: Response, processing_time: float):
         """Log request details."""
         if processing_time > 1.0:  # Log slow requests
             logger.warning(
                 f"Slow WAF processing: {processing_time:.2f}s for {request.method} {request.url.path}"
             )
-    
+
     def get_stats(self) -> Dict[str, Any]:
         """Get WAF statistics."""
         return {
@@ -817,15 +817,15 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 "auto_block_threshold": self.config["auto_block_threshold"]
             }
         }
-    
+
     async def unblock_ip(self, ip: str) -> bool:
         """Unblock an IP address."""
         if ip in self.blocked_ips:
             self.blocked_ips.remove(ip)
-        
+
         if ip in self.suspicious_ips:
             del self.suspicious_ips[ip]
-        
+
         try:
             self.redis_client.delete(f"waf:blocked:{ip}")
             self.redis_client.delete(f"waf:reputation:{ip}")

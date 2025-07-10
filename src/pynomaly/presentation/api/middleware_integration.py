@@ -267,10 +267,10 @@ def setup_middleware_stack(app: FastAPI) -> None:
         app: FastAPI application instance
     """
     from pynomaly.presentation.api.middleware.security_headers import SecurityHeadersMiddleware
-    
+
     # Add security headers middleware
     app.add_middleware(SecurityHeadersMiddleware)
-    
+
 
 def configure_cors(app: FastAPI, allow_origins: list = None) -> None:
     """Configure CORS middleware for the FastAPI application.
@@ -280,10 +280,10 @@ def configure_cors(app: FastAPI, allow_origins: list = None) -> None:
         allow_origins: List of allowed origins, defaults to ["*"]
     """
     from fastapi.middleware.cors import CORSMiddleware
-    
+
     if allow_origins is None:
         allow_origins = ["*"]
-        
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allow_origins,

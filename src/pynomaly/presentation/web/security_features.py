@@ -41,20 +41,20 @@ except ImportError:
     # Fallback for testing - create mock classes
     import logging
     from enum import Enum
-    
+
     class ErrorCode(Enum):
         INTERNAL_SERVER_ERROR = "internal_server_error"
-    
+
     class ErrorLevel(Enum):
         ERROR = "error"
-    
+
     class WebUIError(Exception):
         def __init__(self, message, error_code, error_level, **kwargs):
             self.message = message
             self.error_code = error_code
             self.error_level = error_level
             super().__init__(message)
-    
+
     def get_web_ui_logger():
         return logging.getLogger(__name__)
 
@@ -110,17 +110,17 @@ class RateLimitRule:
 
 class RateLimiter:
     """Advanced rate limiter with burst protection and adaptive limits"""
-    
+
     def __init__(self):
         self.settings = get_settings()
         self.logger = get_web_ui_logger()
-        
+
         # Rate limiting storage
         self.request_counts = defaultdict(lambda: defaultdict(int))
         self.request_timestamps = defaultdict(lambda: deque(maxlen=10000))
         self.blocked_ips = defaultdict(lambda: {'until': None, 'count': 0})
         self.burst_counts = defaultdict(int)
-        
+
         # Rate limiting rules
         self.default_rules = RateLimitRule(
             requests_per_minute=60,
@@ -130,7 +130,7 @@ class RateLimiter:
             window_size=60,
             penalty_duration=300
         )
-        
+
         # Endpoint-specific rules
         self.endpoint_rules = {
             '/api/auth/login': RateLimitRule(5, 20, 100, 3, 60, 900),
@@ -139,60 +139,60 @@ class RateLimiter:
             '/api/upload': RateLimitRule(10, 50, 200, 5, 60, 300),
             '/api/data/export': RateLimitRule(5, 20, 100, 2, 60, 600),
         }
-        
+
         # Cleanup task
         self.cleanup_task = None
         self.start_cleanup_task()
-    
+
     def start_cleanup_task(self):
         """Start background cleanup task"""
         if self.cleanup_task is None:
             self.cleanup_task = asyncio.create_task(self._cleanup_expired_entries())
-    
+
     async def _cleanup_expired_entries(self):
         """Clean up expired rate limit entries"""
         while True:
             try:
                 current_time = time.time()
-                
+
                 # Clean up expired blocked IPs
                 expired_ips = []
                 for ip, data in self.blocked_ips.items():
                     if data['until'] and current_time > data['until']:
                         expired_ips.append(ip)
-                
+
                 for ip in expired_ips:
                     del self.blocked_ips[ip]
-                
+
                 # Clean up old request timestamps
                 for ip in list(self.request_timestamps.keys()):
                     timestamps = self.request_timestamps[ip]
                     while timestamps and current_time - timestamps[0] > 86400:  # 24 hours
                         timestamps.popleft()
-                    
+
                     if not timestamps:
                         del self.request_timestamps[ip]
-                
+
                 # Clean up old request counts
                 for ip in list(self.request_counts.keys()):
                     counts = self.request_counts[ip]
                     for window in list(counts.keys()):
                         if current_time - window > 86400:  # 24 hours
                             del counts[window]
-                    
+
                     if not counts:
                         del self.request_counts[ip]
-                
+
                 await asyncio.sleep(300)  # Clean up every 5 minutes
-                
+
             except Exception as e:
-                self.logger.error(f"Error in rate limiter cleanup: {e}")
+                self.logger.log(f"Error in rate limiter cleanup: {e}", level="ERROR")
                 await asyncio.sleep(60)
-    
+
     def is_rate_limited(self, ip: str, endpoint: str) -> Tuple[bool, Optional[str]]:
         """Check if IP is rate limited for endpoint"""
         current_time = time.time()
-        
+
         # Check if IP is currently blocked
         if ip in self.blocked_ips:
             block_data = self.blocked_ips[ip]
@@ -201,53 +201,53 @@ class RateLimiter:
             elif block_data['until'] and current_time >= block_data['until']:
                 # Unblock IP
                 del self.blocked_ips[ip]
-        
+
         # Get rate limit rules for endpoint
         rules = self.endpoint_rules.get(endpoint, self.default_rules)
-        
+
         # Check burst limit
         if self.burst_counts[ip] > rules.burst_limit:
             self._block_ip(ip, rules.penalty_duration)
             return True, f"Burst limit exceeded: {self.burst_counts[ip]} > {rules.burst_limit}"
-        
+
         # Check rate limits
         timestamps = self.request_timestamps[ip]
-        
+
         # Check per-minute limit
         recent_requests = sum(1 for ts in timestamps if current_time - ts < 60)
         if recent_requests >= rules.requests_per_minute:
             self._block_ip(ip, rules.penalty_duration)
             return True, f"Rate limit exceeded: {recent_requests} requests in last minute"
-        
+
         # Check per-hour limit
         hour_requests = sum(1 for ts in timestamps if current_time - ts < 3600)
         if hour_requests >= rules.requests_per_hour:
             self._block_ip(ip, rules.penalty_duration)
             return True, f"Rate limit exceeded: {hour_requests} requests in last hour"
-        
+
         # Check per-day limit
         day_requests = sum(1 for ts in timestamps if current_time - ts < 86400)
         if day_requests >= rules.requests_per_day:
             self._block_ip(ip, rules.penalty_duration * 2)
             return True, f"Rate limit exceeded: {day_requests} requests in last day"
-        
+
         return False, None
-    
+
     def record_request(self, ip: str, endpoint: str) -> None:
         """Record a request for rate limiting"""
         current_time = time.time()
-        
+
         # Record timestamp
         self.request_timestamps[ip].append(current_time)
-        
+
         # Update burst count
         recent_requests = sum(1 for ts in self.request_timestamps[ip] if current_time - ts < 10)
         self.burst_counts[ip] = recent_requests
-        
+
         # Update request counts
         window = int(current_time // 60) * 60  # 1-minute window
         self.request_counts[ip][window] += 1
-    
+
     def _block_ip(self, ip: str, duration: int) -> None:
         """Block IP for specified duration"""
         current_time = time.time()
@@ -255,19 +255,19 @@ class RateLimiter:
             'until': current_time + duration,
             'count': self.blocked_ips[ip]['count'] + 1 if ip in self.blocked_ips else 1
         }
-        
-        self.logger.warning(f"Blocked IP {ip} for {duration} seconds")
-    
+
+        self.logger.log(f"Blocked IP {ip} for {duration} seconds", level="WARNING")
+
     def get_rate_limit_status(self, ip: str, endpoint: str) -> Dict[str, Any]:
         """Get current rate limit status for IP"""
         current_time = time.time()
         timestamps = self.request_timestamps[ip]
         rules = self.endpoint_rules.get(endpoint, self.default_rules)
-        
+
         minute_requests = sum(1 for ts in timestamps if current_time - ts < 60)
         hour_requests = sum(1 for ts in timestamps if current_time - ts < 3600)
         day_requests = sum(1 for ts in timestamps if current_time - ts < 86400)
-        
+
         return {
             'ip': ip,
             'endpoint': endpoint,
@@ -296,29 +296,29 @@ class RateLimiter:
 
 class WebApplicationFirewall:
     """Web Application Firewall with pattern matching and threat detection"""
-    
+
     def __init__(self):
         self.settings = get_settings()
         self.logger = get_web_ui_logger()
-        
+
         # Load WAF rules
         self.sql_injection_patterns = self._load_sql_injection_patterns()
         self.xss_patterns = self._load_xss_patterns()
         self.path_traversal_patterns = self._load_path_traversal_patterns()
         self.command_injection_patterns = self._load_command_injection_patterns()
-        
+
         # Blocked patterns
         self.blocked_user_agents = self._load_blocked_user_agents()
         self.blocked_ips = set()
         self.blocked_countries = set()
-        
+
         # Whitelist
         self.whitelisted_ips = self._load_whitelisted_ips()
-        
+
         # Threat scoring
         self.threat_scores = defaultdict(int)
         self.threat_threshold = 100
-    
+
     def _load_sql_injection_patterns(self) -> List[re.Pattern]:
         """Load SQL injection detection patterns"""
         patterns = [
@@ -342,9 +342,9 @@ class WebApplicationFirewall:
             r"(\bxp_cmdshell\b)",
             r"(\bsp_executesql\b)",
         ]
-        
+
         return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
-    
+
     def _load_xss_patterns(self) -> List[re.Pattern]:
         """Load XSS detection patterns"""
         patterns = [
@@ -374,9 +374,9 @@ class WebApplicationFirewall:
             r"(<img[^>]*src\s*=\s*[\"']?javascript:)",
             r"(<link[^>]*href\s*=\s*[\"']?javascript:)",
         ]
-        
+
         return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
-    
+
     def _load_path_traversal_patterns(self) -> List[re.Pattern]:
         """Load path traversal detection patterns"""
         patterns = [
@@ -397,9 +397,9 @@ class WebApplicationFirewall:
             r"(\/etc\/hosts)",
             r"(\/proc\/self\/environ)",
         ]
-        
+
         return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
-    
+
     def _load_command_injection_patterns(self) -> List[re.Pattern]:
         """Load command injection detection patterns"""
         patterns = [
@@ -427,9 +427,9 @@ class WebApplicationFirewall:
             r"(`.*`)",
             r"(\$\(.*\))",
         ]
-        
+
         return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
-    
+
     def _load_blocked_user_agents(self) -> List[re.Pattern]:
         """Load blocked user agent patterns"""
         patterns = [
@@ -458,9 +458,9 @@ class WebApplicationFirewall:
             r"(virus)",
             r"(trojan)",
         ]
-        
+
         return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
-    
+
     def _load_whitelisted_ips(self) -> Set[str]:
         """Load whitelisted IP addresses"""
         # Add common internal IP ranges
@@ -469,27 +469,27 @@ class WebApplicationFirewall:
             '::1',
             'localhost',
         }
-        
+
         # Add private IP ranges
         private_ranges = [
             '10.0.0.0/8',
             '172.16.0.0/12',
             '192.168.0.0/16',
         ]
-        
+
         for range_str in private_ranges:
             try:
                 network = ipaddress.ip_network(range_str)
                 whitelist.update(str(ip) for ip in network.hosts())
             except ValueError:
                 continue
-        
+
         return whitelist
-    
+
     def is_whitelisted(self, ip: str) -> bool:
         """Check if IP is whitelisted"""
         return ip in self.whitelisted_ips
-    
+
     def check_sql_injection(self, request_data: str) -> Tuple[bool, List[str]]:
         """Check for SQL injection patterns"""
         matches = []
@@ -497,9 +497,9 @@ class WebApplicationFirewall:
             match = pattern.search(request_data)
             if match:
                 matches.append(match.group(0))
-        
+
         return len(matches) > 0, matches
-    
+
     def check_xss(self, request_data: str) -> Tuple[bool, List[str]]:
         """Check for XSS patterns"""
         matches = []
@@ -507,9 +507,9 @@ class WebApplicationFirewall:
             match = pattern.search(request_data)
             if match:
                 matches.append(match.group(0))
-        
+
         return len(matches) > 0, matches
-    
+
     def check_path_traversal(self, request_data: str) -> Tuple[bool, List[str]]:
         """Check for path traversal patterns"""
         matches = []
@@ -517,9 +517,9 @@ class WebApplicationFirewall:
             match = pattern.search(request_data)
             if match:
                 matches.append(match.group(0))
-        
+
         return len(matches) > 0, matches
-    
+
     def check_command_injection(self, request_data: str) -> Tuple[bool, List[str]]:
         """Check for command injection patterns"""
         matches = []
@@ -527,9 +527,9 @@ class WebApplicationFirewall:
             match = pattern.search(request_data)
             if match:
                 matches.append(match.group(0))
-        
+
         return len(matches) > 0, matches
-    
+
     def check_user_agent(self, user_agent: str) -> Tuple[bool, List[str]]:
         """Check for blocked user agent patterns"""
         matches = []
@@ -537,27 +537,27 @@ class WebApplicationFirewall:
             match = pattern.search(user_agent)
             if match:
                 matches.append(match.group(0))
-        
+
         return len(matches) > 0, matches
-    
+
     def analyze_request(self, request: Request) -> Tuple[bool, List[SecurityEvent]]:
         """Analyze request for security threats"""
         events = []
         blocked = False
-        
+
         # Get request data
         ip = request.client.host
         user_agent = request.headers.get('user-agent', '')
         path = request.url.path
         method = request.method
-        
+
         # Skip whitelisted IPs
         if self.is_whitelisted(ip):
             return False, []
-        
+
         # Collect all request data for analysis
         request_data = f"{path} {str(request.query_params)} {user_agent}"
-        
+
         # Check for SQL injection
         has_sql, sql_matches = self.check_sql_injection(request_data)
         if has_sql:
@@ -576,7 +576,7 @@ class WebApplicationFirewall:
             )
             events.append(event)
             blocked = True
-        
+
         # Check for XSS
         has_xss, xss_matches = self.check_xss(request_data)
         if has_xss:
@@ -595,7 +595,7 @@ class WebApplicationFirewall:
             )
             events.append(event)
             blocked = True
-        
+
         # Check for path traversal
         has_traversal, traversal_matches = self.check_path_traversal(request_data)
         if has_traversal:
@@ -614,7 +614,7 @@ class WebApplicationFirewall:
             )
             events.append(event)
             blocked = True
-        
+
         # Check for command injection
         has_command, command_matches = self.check_command_injection(request_data)
         if has_command:
@@ -633,7 +633,7 @@ class WebApplicationFirewall:
             )
             events.append(event)
             blocked = True
-        
+
         # Check user agent
         has_blocked_agent, agent_matches = self.check_user_agent(user_agent)
         if has_blocked_agent:
@@ -652,15 +652,15 @@ class WebApplicationFirewall:
             )
             events.append(event)
             blocked = True
-        
+
         # Update threat score
         if events:
             self.threat_scores[ip] += len(events) * 10
             if self.threat_scores[ip] > self.threat_threshold:
                 self.blocked_ips.add(ip)
-        
+
         return blocked, events
-    
+
     def _generate_event_id(self) -> str:
         """Generate unique event ID"""
         return hashlib.md5(f"{time.time()}{hash(self)}".encode()).hexdigest()
@@ -668,29 +668,29 @@ class WebApplicationFirewall:
 
 class SecurityMiddleware(BaseHTTPMiddleware):
     """Security middleware combining rate limiting and WAF"""
-    
+
     def __init__(self, app, rate_limiter: RateLimiter, waf: WebApplicationFirewall):
         super().__init__(app)
         self.rate_limiter = rate_limiter
         self.waf = waf
         self.logger = get_web_ui_logger()
         self.security_events = deque(maxlen=10000)
-    
+
     async def dispatch(self, request: Request, call_next):
         """Process request through security filters"""
         start_time = time.time()
-        
+
         # Get client info
         ip = request.client.host
         user_agent = request.headers.get('user-agent', '')
         path = request.url.path
         method = request.method
-        
+
         try:
             # Skip security checks for health endpoints
             if path in ['/health', '/healthz', '/ready']:
                 return await call_next(request)
-            
+
             # Rate limiting check
             is_rate_limited, rate_limit_reason = self.rate_limiter.is_rate_limited(ip, path)
             if is_rate_limited:
@@ -709,9 +709,9 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                     action_taken='Request blocked - Rate limit exceeded'
                 )
                 self.security_events.append(event)
-                
+
                 self.logger.warning(f"Rate limit exceeded for {ip} on {path}: {rate_limit_reason}")
-                
+
                 return JSONResponse(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                     content={
@@ -721,16 +721,16 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                         'event_id': event.event_id
                     }
                 )
-            
+
             # WAF analysis
             is_blocked, waf_events = self.waf.analyze_request(request)
             if is_blocked:
                 # Record security events
                 for event in waf_events:
                     self.security_events.append(event)
-                
+
                 self.logger.critical(f"WAF blocked request from {ip} on {path}: {[e.event_type.value for e in waf_events]}")
-                
+
                 return JSONResponse(
                     status_code=status.HTTP_403_FORBIDDEN,
                     content={
@@ -739,13 +739,13 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                         'event_ids': [e.event_id for e in waf_events]
                     }
                 )
-            
+
             # Record successful request
             self.rate_limiter.record_request(ip, path)
-            
+
             # Process request
             response = await call_next(request)
-            
+
             # Add security headers
             response.headers['X-Content-Type-Options'] = 'nosniff'
             response.headers['X-Frame-Options'] = 'DENY'
@@ -753,18 +753,18 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
             response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
             response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
-            
+
             # Add rate limit headers
             rate_limit_status = self.rate_limiter.get_rate_limit_status(ip, path)
             response.headers['X-RateLimit-Limit'] = str(rate_limit_status['limits']['minute'])
             response.headers['X-RateLimit-Remaining'] = str(rate_limit_status['remaining']['minute'])
             response.headers['X-RateLimit-Reset'] = str(int(time.time()) + 60)
-            
+
             return response
-            
+
         except Exception as e:
             self.logger.error(f"Error in security middleware: {e}")
-            
+
             # Record security event for middleware error
             event = SecurityEvent(
                 event_type=SecurityEventType.UNUSUAL_REQUEST_PATTERN,
@@ -780,16 +780,16 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                 action_taken='Request processed with error'
             )
             self.security_events.append(event)
-            
+
             return JSONResponse(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content={'error': 'Internal server error', 'event_id': event.event_id}
             )
-    
+
     def _generate_event_id(self) -> str:
         """Generate unique event ID"""
         return hashlib.md5(f"{time.time()}{hash(self)}".encode()).hexdigest()
-    
+
     def get_security_events(self, limit: int = 100) -> List[Dict[str, Any]]:
         """Get recent security events"""
         events = list(self.security_events)[-limit:]
@@ -809,26 +809,26 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             }
             for event in events
         ]
-    
+
     def get_security_metrics(self) -> Dict[str, Any]:
         """Get security metrics"""
         events = list(self.security_events)
         current_time = datetime.utcnow()
-        
+
         # Count events by type
         event_counts = defaultdict(int)
         threat_counts = defaultdict(int)
         ip_counts = defaultdict(int)
-        
+
         # Recent events (last hour)
         recent_events = [e for e in events if (current_time - e.timestamp).total_seconds() < 3600]
         blocked_events = [e for e in events if e.blocked]
-        
+
         for event in events:
             event_counts[event.event_type.value] += 1
             threat_counts[event.threat_level.value] += 1
             ip_counts[event.ip_address] += 1
-        
+
         return {
             'total_events': len(events),
             'blocked_requests': len(blocked_events),
@@ -890,26 +890,26 @@ def rate_limit(requests_per_minute: int = 60, requests_per_hour: int = 1000):
                 if isinstance(arg, Request):
                     request = arg
                     break
-            
+
             if not request:
                 return await func(*args, **kwargs)
-            
+
             # Check rate limit
             rate_limiter = get_rate_limiter()
             ip = request.client.host
             endpoint = request.url.path
-            
+
             is_limited, reason = rate_limiter.is_rate_limited(ip, endpoint)
             if is_limited:
                 raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                     detail=f"Rate limit exceeded: {reason}"
                 )
-            
+
             # Record request
             rate_limiter.record_request(ip, endpoint)
-            
+
             return await func(*args, **kwargs)
-        
+
         return wrapper
     return decorator
