@@ -79,7 +79,10 @@
       "Bash(grep:*)",
       "Bash(mkdir:*)",
       "Bash(./environments/.venv/bin/python -c \"from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter; print('PyODAdapter import successful')\")",
-      "Bash(./environments/.venv/bin/python -m pytest tests/integration/test_ml_governance_integration.py -x --tb=short)"
+      "Bash(./environments/.venv/bin/python -m pytest tests/integration/test_ml_governance_integration.py -x --tb=short)",
+      "Bash(find:*)",
+      "Bash(gh issue close:*)",
+      "Bash(./environments/.venv/bin/python:*)"
     ],
     "deny": []
   }

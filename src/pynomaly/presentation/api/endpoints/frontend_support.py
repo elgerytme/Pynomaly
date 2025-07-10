@@ -296,6 +296,7 @@ async def get_error_metrics(request: Request):
     """Get error monitoring metrics."""
     try:
         from pynomaly.presentation.web.error_handling import get_error_monitor
+
         monitor = get_error_monitor()
         return monitor.get_metrics()
     except ImportError:
@@ -307,6 +308,7 @@ async def get_error_history(request: Request, limit: int = 100):
     """Get error monitoring history."""
     try:
         from pynomaly.presentation.web.error_handling import get_error_monitor
+
         monitor = get_error_monitor()
         return {"errors": monitor.get_recent_errors(limit)}
     except ImportError:
@@ -318,6 +320,7 @@ async def get_error_trends(request: Request):
     """Get error monitoring trends."""
     try:
         from pynomaly.presentation.web.error_handling import get_error_monitor
+
         monitor = get_error_monitor()
         return monitor.get_error_trends()
     except ImportError:
@@ -341,14 +344,14 @@ async def report_frontend_error(request: Request, error_data: dict):
             error_level=ErrorLevel.ERROR,
             details=error_data.get("details", {}),
             user_message=error_data.get("user_message", "An error occurred"),
-            suggestion=error_data.get("suggestion", "Please try again")
+            suggestion=error_data.get("suggestion", "Please try again"),
         )
         monitor = get_error_monitor()
         request_info = {
             "ip": request.client.host,
             "user_agent": request.headers.get("user-agent", ""),
             "path": request.url.path,
-            "method": request.method
+            "method": request.method,
         }
         monitor.record_error(error, request_info)
         return {"status": "received", "error_id": error.error_id}

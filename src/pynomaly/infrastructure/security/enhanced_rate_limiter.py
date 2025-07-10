@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 class ThreatLevel(str, Enum):
     """Threat levels for rate limiting."""
+
     BENIGN = "benign"
     SUSPICIOUS = "suspicious"
     MALICIOUS = "malicious"
@@ -31,6 +32,7 @@ class ThreatLevel(str, Enum):
 
 class RequestPattern(str, Enum):
     """Request patterns for analysis."""
+
     NORMAL = "normal"
     BURST = "burst"
     SUSTAINED = "sustained"
@@ -40,6 +42,7 @@ class RequestPattern(str, Enum):
 @dataclass
 class ClientProfile:
     """Client behavior profile."""
+
     ip: str
     first_seen: float
     last_seen: float
@@ -115,6 +118,7 @@ class ClientProfile:
 @dataclass
 class AdaptiveLimit:
     """Adaptive rate limit configuration."""
+
     base_limit: int
     current_limit: int
     window: int
@@ -139,12 +143,14 @@ class AdaptiveLimit:
             ThreatLevel.BENIGN: 1.0,
             ThreatLevel.SUSPICIOUS: 0.7,
             ThreatLevel.MALICIOUS: 0.3,
-            ThreatLevel.CRITICAL: 0.1
+            ThreatLevel.CRITICAL: 0.1,
         }
 
         threat_factor = threat_multipliers[threat_level]
         self.current_limit = int(self.base_limit * self.adaptive_factor * threat_factor)
-        self.current_limit = max(self.current_limit, 1)  # Always allow at least 1 request
+        self.current_limit = max(
+            self.current_limit, 1
+        )  # Always allow at least 1 request
 
         self.last_adjustment = now
 
@@ -159,7 +165,9 @@ class EnhancedRateLimiter:
 
         # Client profiles
         self.client_profiles: dict[str, ClientProfile] = {}
-        self.ip_request_windows: dict[str, deque] = defaultdict(lambda: deque(maxlen=1000))
+        self.ip_request_windows: dict[str, deque] = defaultdict(
+            lambda: deque(maxlen=1000)
+        )
 
         # Adaptive limits
         self.adaptive_limits = {
@@ -187,9 +195,7 @@ class EnhancedRateLimiter:
         self.last_metrics_update = time.time()
 
     async def check_request_allowed(
-        self,
-        request: Request,
-        response_time: float = None
+        self, request: Request, response_time: float = None
     ) -> tuple[bool, str, dict]:
         """Check if request should be allowed with enhanced analysis."""
         client_ip = self._get_client_ip(request)
@@ -208,7 +214,11 @@ class EnhancedRateLimiter:
 
         # Check if IP is blocked
         if client_ip in self.blocked_ips:
-            return False, "IP_BLOCKED", {"reason": "IP previously blocked for malicious activity"}
+            return (
+                False,
+                "IP_BLOCKED",
+                {"reason": "IP previously blocked for malicious activity"},
+            )
 
         # Perform behavioral analysis
         threat_level = await self._analyze_threat_level(profile, request)
@@ -264,9 +274,7 @@ class EnhancedRateLimiter:
         """Get or create client profile."""
         if ip not in self.client_profiles:
             self.client_profiles[ip] = ClientProfile(
-                ip=ip,
-                first_seen=time.time(),
-                last_seen=time.time()
+                ip=ip, first_seen=time.time(), last_seen=time.time()
             )
         return self.client_profiles[ip]
 
@@ -278,7 +286,8 @@ class EnhancedRateLimiter:
         if now - self.last_metrics_update > 60:  # Update every minute
             # Calculate system load (simplified)
             minute_requests = sum(
-                1 for windows in self.ip_request_windows.values()
+                1
+                for windows in self.ip_request_windows.values()
                 for timestamp in windows
                 if now - timestamp < 60
             )
@@ -289,14 +298,17 @@ class EnhancedRateLimiter:
 
             self.last_metrics_update = now
 
-    async def _analyze_threat_level(self, profile: ClientProfile, request: Request) -> ThreatLevel:
+    async def _analyze_threat_level(
+        self, profile: ClientProfile, request: Request
+    ) -> ThreatLevel:
         """Analyze threat level based on behavioral patterns."""
         anomaly_score = profile.calculate_anomaly_score()
 
         # Request frequency analysis
         now = time.time()
         recent_requests = [
-            timestamp for timestamp in self.ip_request_windows[profile.ip]
+            timestamp
+            for timestamp in self.ip_request_windows[profile.ip]
             if now - timestamp < 300  # Last 5 minutes
         ]
 
@@ -305,16 +317,32 @@ class EnhancedRateLimiter:
         # User agent analysis
         user_agent = request.headers.get("User-Agent", "")
         suspicious_ua_patterns = [
-            "python", "curl", "wget", "scrapy", "bot", "crawler",
-            "scanner", "test", "benchmark", "siege", "httperf"
+            "python",
+            "curl",
+            "wget",
+            "scrapy",
+            "bot",
+            "crawler",
+            "scanner",
+            "test",
+            "benchmark",
+            "siege",
+            "httperf",
         ]
 
-        ua_suspicious = any(pattern in user_agent.lower() for pattern in suspicious_ua_patterns)
+        ua_suspicious = any(
+            pattern in user_agent.lower() for pattern in suspicious_ua_patterns
+        )
 
         # Threat level calculation
         if anomaly_score > 0.8 or request_rate > 5 or profile.blocked_count > 10:
             return ThreatLevel.CRITICAL
-        elif anomaly_score > 0.5 or request_rate > 2 or ua_suspicious or profile.blocked_count > 5:
+        elif (
+            anomaly_score > 0.5
+            or request_rate > 2
+            or ua_suspicious
+            or profile.blocked_count > 5
+        ):
             return ThreatLevel.MALICIOUS
         elif anomaly_score > 0.3 or request_rate > 1 or profile.blocked_count > 0:
             return ThreatLevel.SUSPICIOUS
@@ -336,11 +364,11 @@ class EnhancedRateLimiter:
             current = await self._get_current_count(key, window)
 
             if current >= limit:
-                return False, "GLOBAL_RATE_LIMIT", {
-                    "limit": limit,
-                    "current": current,
-                    "window": window
-                }
+                return (
+                    False,
+                    "GLOBAL_RATE_LIMIT",
+                    {"limit": limit, "current": current, "window": window},
+                )
 
             await self._increment_count(key, window)
             return True, "OK", {}
@@ -361,7 +389,7 @@ class EnhancedRateLimiter:
                 ThreatLevel.BENIGN: 1.0,
                 ThreatLevel.SUSPICIOUS: 0.5,
                 ThreatLevel.MALICIOUS: 0.2,
-                ThreatLevel.CRITICAL: 0.1
+                ThreatLevel.CRITICAL: 0.1,
             }
             limit = int(limit * threat_multipliers[profile.threat_level])
 
@@ -370,12 +398,11 @@ class EnhancedRateLimiter:
             current = await self._get_current_count(key, window)
 
             if current >= limit:
-                return False, "IP_RATE_LIMIT", {
-                    "ip": ip,
-                    "limit": limit,
-                    "current": current,
-                    "window": window
-                }
+                return (
+                    False,
+                    "IP_RATE_LIMIT",
+                    {"ip": ip, "limit": limit, "current": current, "window": window},
+                )
 
             await self._increment_count(key, window)
             return True, "OK", {}
@@ -394,12 +421,16 @@ class EnhancedRateLimiter:
             current = await self._get_current_count(key, window)
 
             if current >= limit:
-                return False, "ENDPOINT_RATE_LIMIT", {
-                    "endpoint": endpoint,
-                    "limit": limit,
-                    "current": current,
-                    "window": window
-                }
+                return (
+                    False,
+                    "ENDPOINT_RATE_LIMIT",
+                    {
+                        "endpoint": endpoint,
+                        "limit": limit,
+                        "current": current,
+                        "window": window,
+                    },
+                )
 
             await self._increment_count(key, window)
             return True, "OK", {}
@@ -443,16 +474,21 @@ class EnhancedRateLimiter:
                 return pattern_name, result
         return None
 
-    async def _detect_slow_loris(self, profile: ClientProfile, request: Request) -> dict | None:
+    async def _detect_slow_loris(
+        self, profile: ClientProfile, request: Request
+    ) -> dict | None:
         """Detect Slow Loris attacks (slow HTTP requests)."""
         # This would need integration with request timing
         return None
 
-    async def _detect_http_flood(self, profile: ClientProfile, request: Request) -> dict | None:
+    async def _detect_http_flood(
+        self, profile: ClientProfile, request: Request
+    ) -> dict | None:
         """Detect HTTP flood attacks."""
         now = time.time()
         recent_requests = [
-            t for t in self.ip_request_windows[profile.ip]
+            t
+            for t in self.ip_request_windows[profile.ip]
             if now - t < 60  # Last minute
         ]
 
@@ -460,27 +496,30 @@ class EnhancedRateLimiter:
             return {
                 "pattern": "http_flood",
                 "request_rate": len(recent_requests) / 60,
-                "threshold": 5.0
+                "threshold": 5.0,
             }
         return None
 
-    async def _detect_cc_attack(self, profile: ClientProfile, request: Request) -> dict | None:
+    async def _detect_cc_attack(
+        self, profile: ClientProfile, request: Request
+    ) -> dict | None:
         """Detect Challenge Collapsar (CC) attacks."""
         # CC attacks typically target specific pages repeatedly
         endpoint_requests = sum(
-            1 for endpoint in profile.endpoints
-            if endpoint == request.url.path
+            1 for endpoint in profile.endpoints if endpoint == request.url.path
         )
 
         if endpoint_requests > 100 and len(profile.endpoints) == 1:
             return {
                 "pattern": "cc_attack",
                 "endpoint": request.url.path,
-                "requests": endpoint_requests
+                "requests": endpoint_requests,
             }
         return None
 
-    async def _detect_bot_network(self, profile: ClientProfile, request: Request) -> dict | None:
+    async def _detect_bot_network(
+        self, profile: ClientProfile, request: Request
+    ) -> dict | None:
         """Detect coordinated bot network attacks."""
         # Look for similar behavior patterns across multiple IPs
         similar_profiles = 0
@@ -497,7 +536,7 @@ class EnhancedRateLimiter:
             return {
                 "pattern": "bot_network",
                 "similar_profiles": similar_profiles,
-                "common_endpoints": len(profile.endpoints)
+                "common_endpoints": len(profile.endpoints),
             }
         return None
 
@@ -513,10 +552,9 @@ class EnhancedRateLimiter:
 
         if total_recent_requests > self.ddos_threshold:
             # Check if this IP contributes significantly
-            ip_recent_requests = len([
-                t for t in self.ip_request_windows[ip]
-                if now - t < 60
-            ])
+            ip_recent_requests = len(
+                [t for t in self.ip_request_windows[ip] if now - t < 60]
+            )
 
             contribution = ip_recent_requests / total_recent_requests
             if contribution > 0.1:  # IP contributes more than 10% of traffic
@@ -536,9 +574,9 @@ class EnhancedRateLimiter:
                 "ip": profile.ip,
                 "reason": reason,
                 "threat_level": profile.threat_level.value,
-                **details
+                **details,
             },
-            risk_score=50
+            risk_score=50,
         )
 
     async def _handle_attack_detection(
@@ -553,9 +591,9 @@ class EnhancedRateLimiter:
                 "ip": profile.ip,
                 "attack_type": attack_type,
                 "threat_level": profile.threat_level.value,
-                **details
+                **details,
             },
-            risk_score=90
+            risk_score=90,
         )
 
         # Auto-block for certain attack types
@@ -571,9 +609,9 @@ class EnhancedRateLimiter:
             details={
                 "ip": profile.ip,
                 "attack_type": "ddos",
-                "threat_level": "critical"
+                "threat_level": "critical",
             },
-            risk_score=100
+            risk_score=100,
         )
 
     def get_statistics(self) -> dict:
@@ -582,7 +620,8 @@ class EnhancedRateLimiter:
 
         # Calculate active clients (seen in last hour)
         active_clients = sum(
-            1 for profile in self.client_profiles.values()
+            1
+            for profile in self.client_profiles.values()
             if now - profile.last_seen < 3600
         )
 
@@ -604,8 +643,8 @@ class EnhancedRateLimiter:
                 name: {
                     "base_limit": limit.base_limit,
                     "current_limit": limit.current_limit,
-                    "adaptive_factor": limit.adaptive_factor
+                    "adaptive_factor": limit.adaptive_factor,
                 }
                 for name, limit in self.adaptive_limits.items()
-            }
+            },
         }

@@ -3,6 +3,7 @@
 from .anomaly_scorer import AnomalyScorer
 from .ensemble_aggregator import EnsembleAggregator
 from .feature_validator import FeatureValidator
+from .model_selector import ModelSelector
 from .threshold_calculator import ThresholdCalculator
 
 __all__ = [
@@ -10,4 +11,5 @@ __all__ = [
     "ThresholdCalculator",
     "FeatureValidator",
     "EnsembleAggregator",
+    "ModelSelector",
 ]

@@ -17,10 +17,10 @@ import time
 import zipfile
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import boto3
 import paramiko
@@ -30,6 +30,7 @@ from cryptography.fernet import Fernet
 
 class BackupType(Enum):
     """Types of backups."""
+
     FULL = "full"
     INCREMENTAL = "incremental"
     DIFFERENTIAL = "differential"
@@ -38,6 +39,7 @@ class BackupType(Enum):
 
 class BackupStatus(Enum):
     """Backup operation status."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -47,6 +49,7 @@ class BackupStatus(Enum):
 
 class CompressionType(Enum):
     """Compression types for backups."""
+
     NONE = "none"
     GZIP = "gzip"
     ZIP = "zip"
@@ -57,6 +60,7 @@ class CompressionType(Enum):
 @dataclass
 class BackupMetadata:
     """Metadata for backup operations."""
+
     backup_id: str
     backup_type: BackupType
     source_path: str
@@ -88,7 +92,7 @@ class BackupMetadata:
             "retention_days": self.retention_days,
             "tags": self.tags,
             "error_message": self.error_message,
-            "duration_seconds": self.duration_seconds
+            "duration_seconds": self.duration_seconds,
         }
 
 
@@ -101,7 +105,9 @@ class BackupProvider(ABC):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
     @abstractmethod
-    async def upload_backup(self, local_path: str, remote_path: str, metadata: BackupMetadata) -> bool:
+    async def upload_backup(
+        self, local_path: str, remote_path: str, metadata: BackupMetadata
+    ) -> bool:
         """Upload backup to remote storage."""
         pass
 
@@ -129,7 +135,9 @@ class LocalBackupProvider(BackupProvider):
         self.backup_root = Path(config.get("backup_directory", "/var/backups/pynomaly"))
         self.backup_root.mkdir(parents=True, exist_ok=True)
 
-    async def upload_backup(self, local_path: str, remote_path: str, metadata: BackupMetadata) -> bool:
+    async def upload_backup(
+        self, local_path: str, remote_path: str, metadata: BackupMetadata
+    ) -> bool:
         """Copy backup to local backup directory."""
         try:
             destination = self.backup_root / remote_path
@@ -223,10 +231,12 @@ class S3BackupProvider(BackupProvider):
             "s3",
             aws_access_key_id=config.get("access_key_id"),
             aws_secret_access_key=config.get("secret_access_key"),
-            region_name=config.get("region", "us-east-1")
+            region_name=config.get("region", "us-east-1"),
         )
 
-    async def upload_backup(self, local_path: str, remote_path: str, metadata: BackupMetadata) -> bool:
+    async def upload_backup(
+        self, local_path: str, remote_path: str, metadata: BackupMetadata
+    ) -> bool:
         """Upload backup to S3."""
         try:
             # Upload file
@@ -239,7 +249,7 @@ class S3BackupProvider(BackupProvider):
                 Bucket=self.bucket_name,
                 Key=metadata_key,
                 Body=metadata_content,
-                ContentType="application/json"
+                ContentType="application/json",
             )
 
             return True
@@ -264,8 +274,7 @@ class S3BackupProvider(BackupProvider):
 
         try:
             response = self.s3_client.list_objects_v2(
-                Bucket=self.bucket_name,
-                Prefix=prefix
+                Bucket=self.bucket_name, Prefix=prefix
             )
 
             for obj in response.get("Contents", []):
@@ -273,13 +282,14 @@ class S3BackupProvider(BackupProvider):
                     try:
                         # Get metadata
                         metadata_response = self.s3_client.get_object(
-                            Bucket=self.bucket_name,
-                            Key=obj["Key"]
+                            Bucket=self.bucket_name, Key=obj["Key"]
                         )
                         metadata = json.loads(metadata_response["Body"].read())
                         backups.append(metadata)
                     except Exception as e:
-                        self.logger.warning(f"Failed to read metadata {obj['Key']}: {e}")
+                        self.logger.warning(
+                            f"Failed to read metadata {obj['Key']}: {e}"
+                        )
 
         except Exception as e:
             self.logger.error(f"Failed to list S3 backups: {e}")
@@ -324,11 +334,18 @@ class SFTPBackupProvider(BackupProvider):
             key = paramiko.RSAKey.from_private_key_file(self.private_key_path)
             ssh.connect(self.hostname, port=self.port, username=self.username, pkey=key)
         else:
-            ssh.connect(self.hostname, port=self.port, username=self.username, password=self.password)
+            ssh.connect(
+                self.hostname,
+                port=self.port,
+                username=self.username,
+                password=self.password,
+            )
 
         return ssh
 
-    async def upload_backup(self, local_path: str, remote_path: str, metadata: BackupMetadata) -> bool:
+    async def upload_backup(
+        self, local_path: str, remote_path: str, metadata: BackupMetadata
+    ) -> bool:
         """Upload backup via SFTP."""
         try:
             ssh = self._get_ssh_client()
@@ -398,13 +415,17 @@ class SFTPBackupProvider(BackupProvider):
                                     metadata = json.loads(f.read())
                                 backups.append(metadata)
                             except Exception as e:
-                                self.logger.warning(f"Failed to read metadata {item_path}: {e}")
+                                self.logger.warning(
+                                    f"Failed to read metadata {item_path}: {e}"
+                                )
                         elif sftp.stat(item_path).st_mode & 0o040000:  # Directory
                             list_files(item_path)
                 except OSError:
                     pass
 
-            search_path = f"{self.remote_directory}/{prefix}" if prefix else self.remote_directory
+            search_path = (
+                f"{self.remote_directory}/{prefix}" if prefix else self.remote_directory
+            )
             list_files(search_path)
 
             sftp.close()
@@ -452,7 +473,9 @@ class DatabaseBackupHandler:
         self.config = config
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
-    async def backup_postgresql(self, backup_path: str, metadata: BackupMetadata) -> bool:
+    async def backup_postgresql(
+        self, backup_path: str, metadata: BackupMetadata
+    ) -> bool:
         """Backup PostgreSQL database."""
         try:
             db_config = self.config.get("postgresql", {})
@@ -465,7 +488,7 @@ class DatabaseBackupHandler:
                 f"--dbname={db_config.get('database')}",
                 "--no-password",
                 "--verbose",
-                f"--file={backup_path}"
+                f"--file={backup_path}",
             ]
 
             # Set password environment variable
@@ -501,14 +524,16 @@ class DatabaseBackupHandler:
                 "--single-transaction",
                 "--routines",
                 "--triggers",
-                db_config.get("database")
+                db_config.get("database"),
             ]
 
             if db_config.get("password"):
                 cmd.append(f"--password={db_config['password']}")
 
             with open(backup_path, "w") as f:
-                result = subprocess.run(cmd, stdout=f, stderr=subprocess.PIPE, text=True)
+                result = subprocess.run(
+                    cmd, stdout=f, stderr=subprocess.PIPE, text=True
+                )
 
             if result.returncode == 0:
                 metadata.size_bytes = Path(backup_path).stat().st_size
@@ -536,20 +561,24 @@ class DatabaseBackupHandler:
                 "mongodump",
                 f"--host={db_config.get('host', 'localhost')}:{db_config.get('port', 27017)}",
                 f"--db={db_config.get('database')}",
-                f"--out={backup_dir}"
+                f"--out={backup_dir}",
             ]
 
             if db_config.get("username"):
-                cmd.extend([
-                    f"--username={db_config['username']}",
-                    f"--password={db_config.get('password', '')}"
-                ])
+                cmd.extend(
+                    [
+                        f"--username={db_config['username']}",
+                        f"--password={db_config.get('password', '')}",
+                    ]
+                )
 
             result = subprocess.run(cmd, capture_output=True, text=True)
 
             if result.returncode == 0:
                 # Create archive
-                shutil.make_archive(backup_path.replace(".tar.gz", ""), "gztar", backup_dir)
+                shutil.make_archive(
+                    backup_path.replace(".tar.gz", ""), "gztar", backup_dir
+                )
                 shutil.rmtree(backup_dir)
 
                 metadata.size_bytes = Path(backup_path).stat().st_size
@@ -595,8 +624,9 @@ class FileBackupHandler:
                     with open(key_file, "wb") as f:
                         f.write(self.encryption_key)
 
-    async def backup_directory(self, source_path: str, backup_path: str,
-                             metadata: BackupMetadata) -> bool:
+    async def backup_directory(
+        self, source_path: str, backup_path: str, metadata: BackupMetadata
+    ) -> bool:
         """Backup directory with compression and encryption."""
         try:
             source = Path(source_path)
@@ -659,7 +689,9 @@ class FileBackupHandler:
             self.logger.error(f"Failed to create ZIP archive: {e}")
             return False
 
-    async def _create_tar_archive(self, source: Path, archive_path: Path, compression: str) -> bool:
+    async def _create_tar_archive(
+        self, source: Path, archive_path: Path, compression: str
+    ) -> bool:
         """Create TAR archive with compression."""
         try:
             import tarfile
@@ -774,11 +806,19 @@ class BackupManager:
 
         if not self.providers:
             # Default to local provider
-            self.providers["local"] = LocalBackupProvider({"backup_directory": "/tmp/pynomaly_backups"})
+            self.providers["local"] = LocalBackupProvider(
+                {"backup_directory": "/tmp/pynomaly_backups"}
+            )
 
-    async def create_backup(self, backup_name: str, source_type: str,
-                          source_path: str, backup_type: BackupType = BackupType.FULL,
-                          provider_name: str = "local", **kwargs) -> str:
+    async def create_backup(
+        self,
+        backup_name: str,
+        source_type: str,
+        source_path: str,
+        backup_type: BackupType = BackupType.FULL,
+        provider_name: str = "local",
+        **kwargs,
+    ) -> str:
         """Create a new backup."""
         backup_id = f"{backup_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
@@ -793,7 +833,7 @@ class BackupManager:
             compression=CompressionType(kwargs.get("compression", "gzip")),
             encryption_enabled=kwargs.get("encryption", False),
             retention_days=kwargs.get("retention_days", 30),
-            tags=kwargs.get("tags", {})
+            tags=kwargs.get("tags", {}),
         )
 
         self.active_backups[backup_id] = metadata
@@ -808,10 +848,14 @@ class BackupManager:
 
             if source_type == "database":
                 backup_file = temp_dir / f"{backup_id}.sql"
-                success = await self._backup_database(source_path, str(backup_file), metadata)
+                success = await self._backup_database(
+                    source_path, str(backup_file), metadata
+                )
             elif source_type == "directory":
                 backup_file = temp_dir / f"{backup_id}.tar.gz"
-                success = await self.file_handler.backup_directory(source_path, str(backup_file), metadata)
+                success = await self.file_handler.backup_directory(
+                    source_path, str(backup_file), metadata
+                )
             else:
                 raise ValueError(f"Unsupported source type: {source_type}")
 
@@ -820,7 +864,9 @@ class BackupManager:
                 provider = self.providers.get(provider_name)
                 if provider:
                     remote_path = f"{metadata.destination_path}/{backup_file.name}"
-                    upload_success = await provider.upload_backup(str(backup_file), remote_path, metadata)
+                    upload_success = await provider.upload_backup(
+                        str(backup_file), remote_path, metadata
+                    )
 
                     if upload_success:
                         metadata.status = BackupStatus.COMPLETED
@@ -853,7 +899,9 @@ class BackupManager:
 
         return backup_id
 
-    async def _backup_database(self, database_name: str, backup_path: str, metadata: BackupMetadata) -> bool:
+    async def _backup_database(
+        self, database_name: str, backup_path: str, metadata: BackupMetadata
+    ) -> bool:
         """Backup database based on configuration."""
         db_config = self.config.get("databases", {})
 
@@ -864,11 +912,14 @@ class BackupManager:
         elif database_name in db_config.get("mongodb", {}):
             return await self.db_handler.backup_mongodb(backup_path, metadata)
         else:
-            metadata.error_message = f"Database configuration not found: {database_name}"
+            metadata.error_message = (
+                f"Database configuration not found: {database_name}"
+            )
             return False
 
-    async def restore_backup(self, backup_id: str, restore_path: str,
-                           provider_name: str = "local") -> bool:
+    async def restore_backup(
+        self, backup_id: str, restore_path: str, provider_name: str = "local"
+    ) -> bool:
         """Restore backup from storage."""
         try:
             provider = self.providers.get(provider_name)
@@ -901,7 +952,9 @@ class BackupManager:
             # Decrypt if necessary
             if backup_metadata.get("encryption_enabled"):
                 decrypted_file = f"{temp_file}.dec"
-                decrypt_success = await self.file_handler.decrypt_file(temp_file, decrypted_file)
+                decrypt_success = await self.file_handler.decrypt_file(
+                    temp_file, decrypted_file
+                )
                 if decrypt_success:
                     os.rename(decrypted_file, temp_file)
                 else:
@@ -909,7 +962,9 @@ class BackupManager:
                     return False
 
             # Extract/restore
-            success = await self._extract_backup(temp_file, restore_path, backup_metadata)
+            success = await self._extract_backup(
+                temp_file, restore_path, backup_metadata
+            )
 
             # Clean up
             if Path(temp_file).exists():
@@ -921,7 +976,9 @@ class BackupManager:
             self.logger.error(f"Restore failed: {e}")
             return False
 
-    async def _extract_backup(self, backup_file: str, restore_path: str, metadata: dict[str, Any]) -> bool:
+    async def _extract_backup(
+        self, backup_file: str, restore_path: str, metadata: dict[str, Any]
+    ) -> bool:
         """Extract backup to restore location."""
         try:
             compression = metadata.get("compression", "gzip")
@@ -931,6 +988,7 @@ class BackupManager:
                     zipf.extractall(restore_path)
             else:
                 import tarfile
+
                 with tarfile.open(backup_file, f"r:{compression}") as tar:
                     tar.extractall(restore_path)
 
@@ -992,19 +1050,29 @@ class BackupManager:
     def get_backup_stats(self) -> dict[str, Any]:
         """Get backup statistics."""
         total_backups = len(self.backup_history)
-        successful = len([b for b in self.backup_history if b.status == BackupStatus.COMPLETED])
-        failed = len([b for b in self.backup_history if b.status == BackupStatus.FAILED])
+        successful = len(
+            [b for b in self.backup_history if b.status == BackupStatus.COMPLETED]
+        )
+        failed = len(
+            [b for b in self.backup_history if b.status == BackupStatus.FAILED]
+        )
 
-        total_size = sum(b.size_bytes for b in self.backup_history if b.status == BackupStatus.COMPLETED)
+        total_size = sum(
+            b.size_bytes
+            for b in self.backup_history
+            if b.status == BackupStatus.COMPLETED
+        )
 
         return {
             "total_backups": total_backups,
             "successful_backups": successful,
             "failed_backups": failed,
-            "success_rate": (successful / total_backups * 100) if total_backups > 0 else 0,
+            "success_rate": (successful / total_backups * 100)
+            if total_backups > 0
+            else 0,
             "total_size_bytes": total_size,
             "active_backups": len(self.active_backups),
-            "providers": list(self.providers.keys())
+            "providers": list(self.providers.keys()),
         }
 
 
@@ -1013,7 +1081,7 @@ async def main():
     # Setup logging
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
     logger = logging.getLogger(__name__)
@@ -1039,7 +1107,7 @@ async def main():
         source_type="directory",
         source_path=str(test_dir),
         compression="gzip",
-        tags={"test": "true", "environment": "dev"}
+        tags={"test": "true", "environment": "dev"},
     )
 
     logger.info(f"Backup created: {backup_id}")

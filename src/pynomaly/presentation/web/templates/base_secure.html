@@ -4,24 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Pynomaly - State-of-the-art anomaly detection platform" />
-    
+
     <!-- Security Meta Tags -->
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <meta name="csrf-param" content="csrf_token" />
     <meta name="robots" content="noindex, nofollow" />
-    
+
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#3B82F6" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Pynomaly" />
-    
+
     <!-- Security Headers in Meta Tags (fallback) -->
     <meta http-equiv="X-Frame-Options" content="DENY" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
-    
+
     <!-- CSP Meta Tag (development fallback) -->
     {% if config.DEBUG %}
     <meta http-equiv="Content-Security-Policy" content="
@@ -40,9 +40,9 @@
         upgrade-insecure-requests;
     " />
     {% endif %}
-    
+
     <title>{% block title %}Pynomaly{% endblock %}</title>
-    
+
     <!-- Favicon and App Icons -->
     <link rel="icon" type="image/png" href="/static/img/favicon.png" />
     <link rel="shortcut icon" href="/static/img/favicon.png" />
@@ -50,25 +50,25 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png" />
     <link rel="manifest" href="/static/manifest.json" />
-    
+
     <!-- Preload Critical Resources -->
     <link rel="preload" href="/static/css/output.css" as="style" />
     <link rel="preload" href="/static/js/dist/main.js" as="script" />
-    
+
     <!-- DNS Prefetch for Trusted CDNs -->
     <link rel="dns-prefetch" href="//cdn.tailwindcss.com" />
     <link rel="dns-prefetch" href="//unpkg.com" />
-    
+
     <!-- Preconnect to Trusted CDNs -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
     <link rel="preconnect" href="https://unpkg.com" crossorigin />
-    
+
     <!-- Local CSS -->
     <link rel="stylesheet" href="/static/css/output.css" />
-    
+
     <!-- Tailwind CSS with SRI -->
     {{ sri_link('https://cdn.tailwindcss.com', id='tailwind-css') | safe }}
-    
+
     <!-- Tailwind Configuration (with nonce) -->
     <script nonce="{{ csp_nonce() }}">
         // Secure Tailwind configuration
@@ -78,7 +78,7 @@
                 extend: {
                     colors: {
                         primary: "#3B82F6",
-                        secondary: "#10B981", 
+                        secondary: "#10B981",
                         accent: "#F59E0B",
                         error: "#EF4444",
                         anomaly: {
@@ -97,22 +97,22 @@
             darkMode: 'class'
         };
     </script>
-    
+
     <!-- HTMX with SRI -->
     {{ sri_script('https://unpkg.com/htmx.org@1.9.10', defer=true) | safe }}
-    
+
     <!-- HTMX Extensions -->
     {{ sri_script('https://unpkg.com/htmx.org/dist/ext/json-enc.js', defer=true) | safe }}
-    
+
     <!-- Alpine.js with SRI -->
     {{ sri_script('https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js', defer=true) | safe }}
-    
+
     <!-- Custom Application Scripts -->
     <script src="/static/js/dist/main.js" defer></script>
-    
+
     <!-- Enhanced Security Manager -->
     <script src="/static/js/src/utils/security-enhanced.js" nonce="{{ csp_nonce() }}" defer></script>
-    
+
     <!-- Application Initialization (with nonce) -->
     <script nonce="{{ csp_nonce() }}">
         // Secure application initialization
@@ -123,7 +123,7 @@
                 htmx.config.addedClass = 'htmx-added';
                 htmx.config.settlingClass = 'htmx-settling';
                 htmx.config.swappingClass = 'htmx-swapping';
-                
+
                 // Add CSRF token to all HTMX requests
                 htmx.on('htmx:configRequest', function(evt) {
                     const csrfToken = document.querySelector('meta[name="csrf-token"]');
@@ -131,7 +131,7 @@
                         evt.detail.headers['X-CSRFToken'] = csrfToken.getAttribute('content');
                     }
                 });
-                
+
                 // Security event handling
                 htmx.on('htmx:responseError', function(evt) {
                     console.error('HTMX Response Error:', evt.detail);
@@ -143,22 +143,22 @@
                     }
                 });
             }
-            
+
             // Initialize enhanced security manager
             if (window.enhancedSecurityManager) {
                 console.log('🔒 Enhanced Security Manager active');
             }
-            
+
             // Initialize theme management
             const savedTheme = localStorage.getItem('theme');
             const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             const theme = savedTheme || systemTheme;
-            
+
             document.documentElement.setAttribute('data-theme', theme);
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
             }
-            
+
             // Listen for theme changes
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
                 if (!localStorage.getItem('theme')) {
@@ -168,7 +168,7 @@
                 }
             });
         });
-        
+
         // Global error handler for security monitoring
         window.addEventListener('error', function(evt) {
             if (window.enhancedSecurityManager) {
@@ -180,7 +180,7 @@
                 });
             }
         });
-        
+
         // Handle unhandled promise rejections
         window.addEventListener('unhandledrejection', function(evt) {
             if (window.enhancedSecurityManager) {
@@ -190,14 +190,14 @@
             }
         });
     </script>
-    
+
     <!-- Critical CSS (inline with hash) -->
     <style nonce="{{ csp_nonce() }}">
         /* Critical loading styles */
         .htmx-request { opacity: 0.8; }
         .htmx-swapping { opacity: 0.3; }
         .htmx-settling { opacity: 1; }
-        
+
         /* Skip link for accessibility */
         .skip-link {
             position: absolute;
@@ -207,7 +207,7 @@
             height: 1px;
             overflow: hidden;
         }
-        
+
         .skip-link:focus {
             position: absolute;
             left: 6px;
@@ -222,7 +222,7 @@
             text-decoration: none;
             border-radius: 4px;
         }
-        
+
         /* Security indicator */
         .security-indicator {
             position: fixed;
@@ -235,7 +235,7 @@
             z-index: 1000;
             opacity: 0.7;
         }
-        
+
         /* Anti-clickjacking overlay detection */
         .clickjack-detector {
             position: fixed;
@@ -247,28 +247,28 @@
             z-index: -1;
         }
     </style>
-    
+
     {% block extra_head %}{% endblock %}
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
     <!-- Skip Navigation Link -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    
+
     <!-- Security Indicator (visible in development) -->
     {% if config.DEBUG %}
     <div class="security-indicator" title="Security features active"></div>
     {% endif %}
-    
+
     <!-- Anti-clickjacking detector -->
     <div class="clickjack-detector"></div>
-    
+
     <!-- CSRF Token for JavaScript -->
     <div id="csrf-data" style="display: none;" data-token="{{ csrf_token() }}"></div>
-    
+
     <!-- Security Event Container (for logging) -->
     <div id="security-events" style="display: none;"></div>
-    
+
     <!-- Main Navigation -->
     {% block navigation %}
     <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700" role="navigation" aria-label="Main navigation">
@@ -282,10 +282,10 @@
                         <span class="text-xl font-bold">Pynomaly</span>
                     </a>
                 </div>
-                
+
                 <div class="flex items-center space-x-4">
                     <!-- Theme Toggle -->
-                    <button 
+                    <button
                         type="button"
                         class="p-2 rounded-md text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                         onclick="toggleTheme()"
@@ -298,14 +298,14 @@
                             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
                         </svg>
                     </button>
-                    
+
                     {% block nav_items %}{% endblock %}
                 </div>
             </div>
         </div>
     </nav>
     {% endblock %}
-    
+
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -319,12 +319,12 @@
         </div>
         {% endif %}
     {% endwith %}
-    
+
     <!-- Main Content -->
     <main id="main-content" role="main" class="flex-1">
         {% block content %}{% endblock %}
     </main>
-    
+
     <!-- Footer -->
     {% block footer %}
     <footer class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto" role="contentinfo">
@@ -340,24 +340,24 @@
         </div>
     </footer>
     {% endblock %}
-    
+
     <!-- Theme Toggle Function -->
     <script nonce="{{ csp_nonce() }}">
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
+
             document.documentElement.setAttribute('data-theme', newTheme);
             document.documentElement.classList.toggle('dark', newTheme === 'dark');
             localStorage.setItem('theme', newTheme);
-            
+
             // Dispatch theme change event
-            window.dispatchEvent(new CustomEvent('themechange', { 
-                detail: { theme: newTheme } 
+            window.dispatchEvent(new CustomEvent('themechange', {
+                detail: { theme: newTheme }
             }));
         }
     </script>
-    
+
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

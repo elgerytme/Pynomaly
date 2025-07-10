@@ -148,7 +148,7 @@ def get_waf_middleware(settings: Settings = Depends(get_settings)) -> WAFMiddlew
 @router.get("/status", response_model=WAFStatusResponse)
 async def get_waf_status(
     current_user: dict = Depends(get_current_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Get WAF status and statistics."""
     stats = waf.get_stats()
@@ -165,14 +165,14 @@ async def get_waf_status(
         suspicious_ips=stats["suspicious_ips"],
         active_signatures=stats["active_signatures"],
         blocking_enabled=config["blocking_enabled"],
-        monitoring_enabled=config["monitoring_enabled"]
+        monitoring_enabled=config["monitoring_enabled"],
     )
 
 
 @router.get("/blocked-ips", response_model=list[BlockedIPResponse])
 async def get_blocked_ips(
     current_user: dict = Depends(get_current_admin_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Get list of blocked IP addresses."""
     blocked_ips = []
@@ -180,10 +180,11 @@ async def get_blocked_ips(
     try:
         keys = waf.redis_client.keys("waf:blocked:*")
         for key in keys:
-            ip = key.decode('utf-8').split(':')[-1]
+            ip = key.decode("utf-8").split(":")[-1]
             data = waf.redis_client.get(key)
             if data:
                 import json
+
                 block_info = json.loads(data)
                 expires_at = None
                 if "timestamp" in block_info and "duration" in block_info:
@@ -191,17 +192,19 @@ async def get_blocked_ips(
                         block_info["timestamp"] + block_info["duration"]
                     )
 
-                blocked_ips.append(BlockedIPResponse(
-                    ip=ip,
-                    reason=block_info.get("reason", "Unknown"),
-                    timestamp=block_info.get("timestamp", 0),
-                    duration=block_info.get("duration", 0),
-                    expires_at=expires_at
-                ))
+                blocked_ips.append(
+                    BlockedIPResponse(
+                        ip=ip,
+                        reason=block_info.get("reason", "Unknown"),
+                        timestamp=block_info.get("timestamp", 0),
+                        duration=block_info.get("duration", 0),
+                        expires_at=expires_at,
+                    )
+                )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve blocked IPs: {str(e)}"
+            detail=f"Failed to retrieve blocked IPs: {str(e)}",
         )
 
     return blocked_ips
@@ -210,7 +213,7 @@ async def get_blocked_ips(
 @router.get("/suspicious-ips", response_model=list[SuspiciousIPResponse])
 async def get_suspicious_ips(
     current_user: dict = Depends(get_current_admin_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Get list of suspicious IP addresses."""
     suspicious_ips = []
@@ -218,26 +221,29 @@ async def get_suspicious_ips(
     try:
         keys = waf.redis_client.keys("waf:reputation:*")
         for key in keys:
-            ip = key.decode('utf-8').split(':')[-1]
+            ip = key.decode("utf-8").split(":")[-1]
             score = waf.redis_client.get(key)
             if score:
                 reputation_score = int(score)
                 risk_level = (
-                    "Critical" if reputation_score >= 80 else
-                    "High" if reputation_score >= 60 else
-                    "Medium" if reputation_score >= 40 else
-                    "Low"
+                    "Critical"
+                    if reputation_score >= 80
+                    else "High"
+                    if reputation_score >= 60
+                    else "Medium"
+                    if reputation_score >= 40
+                    else "Low"
                 )
 
-                suspicious_ips.append(SuspiciousIPResponse(
-                    ip=ip,
-                    reputation_score=reputation_score,
-                    risk_level=risk_level
-                ))
+                suspicious_ips.append(
+                    SuspiciousIPResponse(
+                        ip=ip, reputation_score=reputation_score, risk_level=risk_level
+                    )
+                )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve suspicious IPs: {str(e)}"
+            detail=f"Failed to retrieve suspicious IPs: {str(e)}",
         )
 
     return suspicious_ips
@@ -247,7 +253,7 @@ async def get_suspicious_ips(
 async def block_ip(
     request: BlockIPRequest,
     current_user: dict = Depends(get_current_admin_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Block an IP address."""
     try:
@@ -256,7 +262,7 @@ async def block_ip(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to block IP: {str(e)}"
+            detail=f"Failed to block IP: {str(e)}",
         )
 
 
@@ -264,7 +270,7 @@ async def block_ip(
 async def unblock_ip(
     ip: str,
     current_user: dict = Depends(get_current_admin_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Unblock an IP address."""
     try:
@@ -274,12 +280,12 @@ async def unblock_ip(
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"IP {ip} not found in blocked list"
+                detail=f"IP {ip} not found in blocked list",
             )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to unblock IP: {str(e)}"
+            detail=f"Failed to unblock IP: {str(e)}",
         )
 
 
@@ -290,7 +296,7 @@ async def get_recent_attacks(
     threat_level: str | None = Query(None),
     since: datetime | None = Query(None),
     current_user: dict = Depends(get_current_admin_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Get recent attack attempts."""
     attacks = []
@@ -301,32 +307,40 @@ async def get_recent_attacks(
 
         # Apply filters
         if attack_type:
-            recent_attacks = [a for a in recent_attacks if a.attack_type.value == attack_type]
+            recent_attacks = [
+                a for a in recent_attacks if a.attack_type.value == attack_type
+            ]
 
         if threat_level:
-            recent_attacks = [a for a in recent_attacks if a.threat_level.value == threat_level]
+            recent_attacks = [
+                a for a in recent_attacks if a.threat_level.value == threat_level
+            ]
 
         if since:
             cutoff_timestamp = since.timestamp()
-            recent_attacks = [a for a in recent_attacks if a.timestamp > cutoff_timestamp]
+            recent_attacks = [
+                a for a in recent_attacks if a.timestamp > cutoff_timestamp
+            ]
 
         # Convert to response format
         for attack in recent_attacks[-limit:]:
-            attacks.append(AttackAttemptResponse(
-                timestamp=datetime.fromtimestamp(attack.timestamp),
-                ip=attack.ip,
-                attack_type=attack.attack_type.value,
-                threat_level=attack.threat_level.value,
-                signature=attack.signature,
-                blocked=attack.blocked,
-                risk_score=attack.risk_score,
-                details=attack.details
-            ))
+            attacks.append(
+                AttackAttemptResponse(
+                    timestamp=datetime.fromtimestamp(attack.timestamp),
+                    ip=attack.ip,
+                    attack_type=attack.attack_type.value,
+                    threat_level=attack.threat_level.value,
+                    signature=attack.signature,
+                    blocked=attack.blocked,
+                    risk_score=attack.risk_score,
+                    details=attack.details,
+                )
+            )
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve attacks: {str(e)}"
+            detail=f"Failed to retrieve attacks: {str(e)}",
         )
 
     return attacks
@@ -337,7 +351,7 @@ async def get_signatures(
     enabled_only: bool = Query(False),
     attack_type: str | None = Query(None),
     current_user: dict = Depends(get_current_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Get threat detection signatures."""
     signatures = []
@@ -349,15 +363,17 @@ async def get_signatures(
         if attack_type and sig.attack_type.value != attack_type:
             continue
 
-        signatures.append(SignatureResponse(
-            name=sig.name,
-            pattern=sig.pattern,
-            attack_type=sig.attack_type.value,
-            threat_level=sig.threat_level.value,
-            description=sig.description,
-            enabled=sig.enabled,
-            custom=sig.custom
-        ))
+        signatures.append(
+            SignatureResponse(
+                name=sig.name,
+                pattern=sig.pattern,
+                attack_type=sig.attack_type.value,
+                threat_level=sig.threat_level.value,
+                description=sig.description,
+                enabled=sig.enabled,
+                custom=sig.custom,
+            )
+        )
 
     return signatures
 
@@ -366,12 +382,13 @@ async def get_signatures(
 async def create_signature(
     request: CreateSignatureRequest,
     current_user: dict = Depends(get_current_admin_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Create a new threat detection signature."""
     try:
         # Test regex pattern
         import re
+
         re.compile(request.pattern)
 
         # Create signature
@@ -382,7 +399,7 @@ async def create_signature(
             threat_level=request.threat_level,
             description=request.description,
             enabled=request.enabled,
-            custom=True
+            custom=True,
         )
 
         # Add to WAF (this would typically save to database/config)
@@ -396,12 +413,12 @@ async def create_signature(
     except re.error as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Invalid regex pattern: {str(e)}"
+            detail=f"Invalid regex pattern: {str(e)}",
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create signature: {str(e)}"
+            detail=f"Failed to create signature: {str(e)}",
         )
 
 
@@ -410,7 +427,7 @@ async def update_signature(
     signature_name: str,
     request: UpdateSignatureRequest,
     current_user: dict = Depends(get_current_admin_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Update a threat detection signature."""
     try:
@@ -422,6 +439,7 @@ async def update_signature(
                 # Update compiled patterns
                 if request.enabled:
                     import re
+
                     waf.compiled_patterns[sig.name] = re.compile(
                         sig.pattern, sig.regex_flags
                     )
@@ -432,13 +450,13 @@ async def update_signature(
 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Signature '{signature_name}' not found"
+            detail=f"Signature '{signature_name}' not found",
         )
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update signature: {str(e)}"
+            detail=f"Failed to update signature: {str(e)}",
         )
 
 
@@ -446,7 +464,7 @@ async def update_signature(
 async def delete_signature(
     signature_name: str,
     current_user: dict = Depends(get_current_admin_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Delete a custom threat detection signature."""
     try:
@@ -456,7 +474,7 @@ async def delete_signature(
                 if not sig.custom:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="Cannot delete built-in signatures"
+                        detail="Cannot delete built-in signatures",
                     )
 
                 waf.signatures.pop(i)
@@ -466,13 +484,13 @@ async def delete_signature(
 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Signature '{signature_name}' not found"
+            detail=f"Signature '{signature_name}' not found",
         )
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete signature: {str(e)}"
+            detail=f"Failed to delete signature: {str(e)}",
         )
 
 
@@ -480,7 +498,7 @@ async def delete_signature(
 async def update_config(
     request: WAFConfigUpdateRequest,
     current_user: dict = Depends(get_current_admin_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Update WAF configuration."""
     try:
@@ -494,7 +512,7 @@ async def update_config(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update configuration: {str(e)}"
+            detail=f"Failed to update configuration: {str(e)}",
         )
 
 
@@ -502,7 +520,7 @@ async def update_config(
 async def generate_report(
     hours: int = Query(24, ge=1, le=168),  # 1 hour to 1 week
     current_user: dict = Depends(get_current_admin_user),
-    waf: WAFMiddleware = Depends(get_waf_middleware)
+    waf: WAFMiddleware = Depends(get_waf_middleware),
 ):
     """Generate WAF security report."""
     try:
@@ -512,7 +530,8 @@ async def generate_report(
         # Calculate attack statistics
         cutoff_time = datetime.now() - timedelta(hours=hours)
         recent_attacks = [
-            attack for attack in waf.stats.recent_attacks
+            attack
+            for attack in waf.stats.recent_attacks
             if datetime.fromtimestamp(attack.timestamp) > cutoff_time
         ]
 
@@ -541,24 +560,26 @@ async def generate_report(
             blocked_requests=waf_stats["blocked_requests"],
             attacks_detected=len(recent_attacks),
             attack_rate=waf_stats["attack_rate"],
-            top_attack_types=dict(sorted(attack_types.items(), key=lambda x: x[1], reverse=True)),
-            top_attackers=dict(sorted(attackers.items(), key=lambda x: x[1], reverse=True)[:10]),
+            top_attack_types=dict(
+                sorted(attack_types.items(), key=lambda x: x[1], reverse=True)
+            ),
+            top_attackers=dict(
+                sorted(attackers.items(), key=lambda x: x[1], reverse=True)[:10]
+            ),
             threat_distribution=threat_distribution,
             blocked_ips_count=stats["blocked_ips"],
-            suspicious_ips_count=stats["suspicious_ips"]
+            suspicious_ips_count=stats["suspicious_ips"],
         )
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate report: {str(e)}"
+            detail=f"Failed to generate report: {str(e)}",
         )
 
 
 @router.get("/health")
-async def waf_health_check(
-    waf: WAFMiddleware = Depends(get_waf_middleware)
-):
+async def waf_health_check(waf: WAFMiddleware = Depends(get_waf_middleware)):
     """WAF health check endpoint."""
     try:
         # Basic health checks
@@ -572,11 +593,11 @@ async def waf_health_check(
             "redis_connected": redis_connected,
             "signatures_loaded": signatures_loaded,
             "signature_count": len(waf.signatures),
-            "active_signatures": len([s for s in waf.signatures if s.enabled])
+            "active_signatures": len([s for s in waf.signatures if s.enabled]),
         }
 
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"WAF health check failed: {str(e)}"
+            detail=f"WAF health check failed: {str(e)}",
         )

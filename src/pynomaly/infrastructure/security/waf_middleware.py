@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 class ThreatLevel(str, Enum):
     """Threat severity levels."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -42,6 +43,7 @@ class ThreatLevel(str, Enum):
 
 class AttackType(str, Enum):
     """Types of attacks the WAF can detect."""
+
     SQL_INJECTION = "sql_injection"
     XSS = "xss"
     COMMAND_INJECTION = "command_injection"
@@ -59,6 +61,7 @@ class AttackType(str, Enum):
 @dataclass
 class ThreatSignature:
     """Threat detection signature."""
+
     name: str
     pattern: str
     attack_type: AttackType
@@ -72,6 +75,7 @@ class ThreatSignature:
 @dataclass
 class AttackAttempt:
     """Detected attack attempt."""
+
     ip: str
     timestamp: float
     attack_type: AttackType
@@ -85,6 +89,7 @@ class AttackAttempt:
 @dataclass
 class WAFRule:
     """WAF rule configuration."""
+
     name: str
     enabled: bool
     action: str  # block, monitor, sanitize
@@ -128,10 +133,16 @@ class WAFStats:
             "blocked_requests": self.blocked_requests,
             "attacks_detected": self.attacks_detected,
             "attack_types": dict(self.attack_types),
-            "top_attackers": dict(sorted(self.top_attackers.items(), key=lambda x: x[1], reverse=True)[:10]),
+            "top_attackers": dict(
+                sorted(self.top_attackers.items(), key=lambda x: x[1], reverse=True)[
+                    :10
+                ]
+            ),
             "recent_attacks": len(self.recent_attacks),
             "requests_per_second": self.total_requests / uptime if uptime > 0 else 0,
-            "attack_rate": (self.attacks_detected / self.total_requests * 100) if self.total_requests > 0 else 0
+            "attack_rate": (self.attacks_detected / self.total_requests * 100)
+            if self.total_requests > 0
+            else 0,
         }
 
 
@@ -146,11 +157,9 @@ class WAFMiddleware(BaseHTTPMiddleware):
         self.stats = WAFStats()
 
         # Initialize components
-        self.sanitizer = InputSanitizer(SanitizationConfig(
-            level="moderate",
-            max_length=50000,
-            allow_html=False
-        ))
+        self.sanitizer = InputSanitizer(
+            SanitizationConfig(level="moderate", max_length=50000, allow_html=False)
+        )
 
         # Threat detection signatures
         self.signatures = self._load_signatures()
@@ -166,13 +175,15 @@ class WAFMiddleware(BaseHTTPMiddleware):
             "avg_request_size": 1024,
             "avg_response_time": 100,
             "common_user_agents": set(),
-            "common_paths": set()
+            "common_paths": set(),
         }
 
         # Load configuration
         self.config = self._load_config()
 
-        logger.info("WAF middleware initialized with %d signatures", len(self.signatures))
+        logger.info(
+            "WAF middleware initialized with %d signatures", len(self.signatures)
+        )
 
     def _load_signatures(self) -> list[ThreatSignature]:
         """Load threat detection signatures."""
@@ -183,125 +194,119 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 pattern=r"(?:union\s+select|select\s+.*\s+from|insert\s+into|drop\s+table|delete\s+from)",
                 attack_type=AttackType.SQL_INJECTION,
                 threat_level=ThreatLevel.HIGH,
-                description="Detects SQL injection attempts using UNION or SELECT statements"
+                description="Detects SQL injection attempts using UNION or SELECT statements",
             ),
             ThreatSignature(
                 name="SQL Injection - Blind",
                 pattern=r"(?:or\s+1=1|and\s+1=1|or\s+\d+=\d+|and\s+\d+=\d+|'(?:\s*or\s*|\s*and\s*)')",
                 attack_type=AttackType.SQL_INJECTION,
                 threat_level=ThreatLevel.HIGH,
-                description="Detects blind SQL injection attempts"
+                description="Detects blind SQL injection attempts",
             ),
             ThreatSignature(
                 name="SQL Injection - Error Based",
                 pattern=r"(?:benchmark\s*\(|pg_sleep\s*\(|waitfor\s+delay|convert\s*\(|cast\s*\()",
                 attack_type=AttackType.SQL_INJECTION,
                 threat_level=ThreatLevel.HIGH,
-                description="Detects error-based SQL injection attempts"
+                description="Detects error-based SQL injection attempts",
             ),
-
             # XSS
             ThreatSignature(
                 name="XSS - Script Tags",
                 pattern=r"<script[^>]*>.*?</script>",
                 attack_type=AttackType.XSS,
                 threat_level=ThreatLevel.HIGH,
-                description="Detects XSS attempts using script tags"
+                description="Detects XSS attempts using script tags",
             ),
             ThreatSignature(
                 name="XSS - Event Handlers",
                 pattern=r"on(?:load|error|click|focus|blur|change|submit|mouseover)\s*=",
                 attack_type=AttackType.XSS,
                 threat_level=ThreatLevel.MEDIUM,
-                description="Detects XSS attempts using event handlers"
+                description="Detects XSS attempts using event handlers",
             ),
             ThreatSignature(
                 name="XSS - JavaScript Protocol",
                 pattern=r"javascript\s*:\s*(?:alert|confirm|prompt|eval)\s*\(",
                 attack_type=AttackType.XSS,
                 threat_level=ThreatLevel.HIGH,
-                description="Detects XSS attempts using javascript protocol"
+                description="Detects XSS attempts using javascript protocol",
             ),
-
             # Command Injection
             ThreatSignature(
                 name="Command Injection - Shell Commands",
                 pattern=r"(?:;|\||\|\||&&|\$\(|`)\s*(?:cat|ls|pwd|whoami|id|uname|nc|netcat|curl|wget|ping)",
                 attack_type=AttackType.COMMAND_INJECTION,
                 threat_level=ThreatLevel.CRITICAL,
-                description="Detects command injection attempts"
+                description="Detects command injection attempts",
             ),
             ThreatSignature(
                 name="Command Injection - Windows",
                 pattern=r"(?:;|\||\|\||&&)\s*(?:dir|type|net|tasklist|systeminfo|ipconfig)",
                 attack_type=AttackType.COMMAND_INJECTION,
                 threat_level=ThreatLevel.CRITICAL,
-                description="Detects Windows command injection attempts"
+                description="Detects Windows command injection attempts",
             ),
-
             # Path Traversal
             ThreatSignature(
                 name="Path Traversal - Directory Traversal",
                 pattern=r"(?:\.\./|\.\.\\|%2e%2e%2f|%2e%2e%5c){2,}",
                 attack_type=AttackType.PATH_TRAVERSAL,
                 threat_level=ThreatLevel.HIGH,
-                description="Detects directory traversal attempts"
+                description="Detects directory traversal attempts",
             ),
             ThreatSignature(
                 name="Path Traversal - System Files",
                 pattern=r"(?:/etc/passwd|/etc/shadow|/proc/|/sys/|c:\\windows\\system32|c:\\boot\.ini)",
                 attack_type=AttackType.PATH_TRAVERSAL,
                 threat_level=ThreatLevel.HIGH,
-                description="Detects attempts to access system files"
+                description="Detects attempts to access system files",
             ),
-
             # Scanner Detection
             ThreatSignature(
                 name="Scanner - Nikto",
                 pattern=r"nikto|nmap|dirb|dirbuster|gobuster|wpscan|sqlmap",
                 attack_type=AttackType.SCANNER,
                 threat_level=ThreatLevel.MEDIUM,
-                description="Detects security scanner user agents"
+                description="Detects security scanner user agents",
             ),
             ThreatSignature(
                 name="Scanner - Suspicious Paths",
                 pattern=r"(?:\.php|\.asp|\.jsp|admin|login|config|backup|test|dev|staging|phpmyadmin)",
                 attack_type=AttackType.SCANNER,
                 threat_level=ThreatLevel.LOW,
-                description="Detects scanning for common files/paths"
+                description="Detects scanning for common files/paths",
             ),
-
             # Malware/Webshell
             ThreatSignature(
                 name="Webshell - PHP",
                 pattern=r"(?:eval\s*\(|base64_decode\s*\(|system\s*\(|exec\s*\(|shell_exec\s*\(|passthru\s*\()",
                 attack_type=AttackType.MALWARE,
                 threat_level=ThreatLevel.CRITICAL,
-                description="Detects PHP webshell patterns"
+                description="Detects PHP webshell patterns",
             ),
             ThreatSignature(
                 name="Webshell - ASP",
                 pattern=r"(?:wscript\.shell|cmd\.exe|powershell\.exe|execute\s*\(|createobject\s*\()",
                 attack_type=AttackType.MALWARE,
                 threat_level=ThreatLevel.CRITICAL,
-                description="Detects ASP webshell patterns"
+                description="Detects ASP webshell patterns",
             ),
-
             # Protocol Violations
             ThreatSignature(
                 name="Protocol Violation - HTTP Method",
                 pattern=r"(?:TRACE|TRACK|DEBUG|OPTIONS|CONNECT)",
                 attack_type=AttackType.PROTOCOL_VIOLATION,
                 threat_level=ThreatLevel.LOW,
-                description="Detects unusual HTTP methods"
+                description="Detects unusual HTTP methods",
             ),
             ThreatSignature(
                 name="Protocol Violation - Header Injection",
                 pattern=r"(?:\r\n|\n|\r)(?:content-type|set-cookie|location):",
                 attack_type=AttackType.PROTOCOL_VIOLATION,
                 threat_level=ThreatLevel.MEDIUM,
-                description="Detects HTTP header injection attempts"
-            )
+                description="Detects HTTP header injection attempts",
+            ),
         ]
 
         # Load custom signatures from config if available
@@ -328,7 +333,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                         threat_level=ThreatLevel(sig_data["threat_level"]),
                         description=sig_data.get("description", ""),
                         enabled=sig_data.get("enabled", True),
-                        custom=True
+                        custom=True,
                     )
                     custom_sigs.append(sig)
 
@@ -346,7 +351,9 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 try:
                     patterns[sig.name] = re.compile(sig.pattern, sig.regex_flags)
                 except re.error as e:
-                    logger.error(f"Invalid regex pattern in signature '{sig.name}': {e}")
+                    logger.error(
+                        f"Invalid regex pattern in signature '{sig.name}': {e}"
+                    )
 
         return patterns
 
@@ -365,10 +372,28 @@ class WAFMiddleware(BaseHTTPMiddleware):
             "rate_limit_requests": 100,
             "rate_limit_window": 60,
             "max_request_size": 1048576,  # 1MB
-            "allowed_extensions": [".jpg", ".jpeg", ".png", ".gif", ".css", ".js", ".html", ".htm", ".pdf"],
-            "blocked_extensions": [".exe", ".bat", ".cmd", ".sh", ".php", ".asp", ".jsp"],
+            "allowed_extensions": [
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".gif",
+                ".css",
+                ".js",
+                ".html",
+                ".htm",
+                ".pdf",
+            ],
+            "blocked_extensions": [
+                ".exe",
+                ".bat",
+                ".cmd",
+                ".sh",
+                ".php",
+                ".asp",
+                ".jsp",
+            ],
             "sensitive_paths": ["/admin", "/config", "/backup", "/test"],
-            "rules": []
+            "rules": [],
         }
 
         if config_path.exists():
@@ -405,7 +430,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     details={"reason": "IP blocked due to reputation"},
                     signature="ip_reputation",
                     blocked=True,
-                    risk_score=90
+                    risk_score=90,
                 )
                 self.stats.record_attack(attack)
                 return self._create_block_response(attack)
@@ -421,7 +446,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     details=validation_result["details"],
                     signature=validation_result["signature"],
                     blocked=True,
-                    risk_score=validation_result["risk_score"]
+                    risk_score=validation_result["risk_score"],
                 )
                 self.stats.record_attack(attack)
                 await self._handle_attack(attack)
@@ -438,7 +463,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     details=content_analysis["details"],
                     signature=content_analysis["signature"],
                     blocked=self.config["blocking_enabled"],
-                    risk_score=content_analysis["risk_score"]
+                    risk_score=content_analysis["risk_score"],
                 )
                 self.stats.record_attack(attack)
                 await self._handle_attack(attack)
@@ -457,7 +482,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     details=anomaly_result,
                     signature="anomaly_detection",
                     blocked=False,
-                    risk_score=anomaly_result["risk_score"]
+                    risk_score=anomaly_result["risk_score"],
                 )
                 self.stats.record_attack(attack)
                 await self._handle_attack(attack)
@@ -517,20 +542,23 @@ class WAFMiddleware(BaseHTTPMiddleware):
     async def _validate_request(self, request: Request) -> dict[str, Any] | None:
         """Validate basic request properties."""
         # Check request size
-        if hasattr(request, 'headers') and 'content-length' in request.headers:
-            content_length = int(request.headers.get('content-length', 0))
+        if hasattr(request, "headers") and "content-length" in request.headers:
+            content_length = int(request.headers.get("content-length", 0))
             if content_length > self.config["max_request_size"]:
                 return {
                     "attack_type": AttackType.DDOS,
                     "threat_level": ThreatLevel.MEDIUM,
-                    "details": {"content_length": content_length, "max_allowed": self.config["max_request_size"]},
+                    "details": {
+                        "content_length": content_length,
+                        "max_allowed": self.config["max_request_size"],
+                    },
                     "signature": "request_size_limit",
-                    "risk_score": 50
+                    "risk_score": 50,
                 }
 
         # Check file extensions
         path = request.url.path
-        if '.' in path:
+        if "." in path:
             ext = Path(path).suffix.lower()
             if ext in self.config["blocked_extensions"]:
                 return {
@@ -538,7 +566,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     "threat_level": ThreatLevel.HIGH,
                     "details": {"extension": ext, "path": path},
                     "signature": "blocked_extension",
-                    "risk_score": 80
+                    "risk_score": 80,
                 }
 
         # Check sensitive paths
@@ -549,7 +577,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                     "threat_level": ThreatLevel.MEDIUM,
                     "details": {"path": path, "sensitive_path": sensitive_path},
                     "signature": "sensitive_path_access",
-                    "risk_score": 60
+                    "risk_score": 60,
                 }
 
         # Check HTTP method
@@ -559,7 +587,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 "threat_level": ThreatLevel.LOW,
                 "details": {"method": request.method},
                 "signature": "suspicious_http_method",
-                "risk_score": 30
+                "risk_score": 30,
             }
 
         return None
@@ -581,7 +609,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
             try:
                 body = await request.body()
                 if body:
-                    content_parts.append(body.decode('utf-8', errors='ignore'))
+                    content_parts.append(body.decode("utf-8", errors="ignore"))
             except:
                 pass
 
@@ -599,7 +627,9 @@ class WAFMiddleware(BaseHTTPMiddleware):
 
             match = pattern.search(combined_content)
             if match:
-                risk_score = self._calculate_risk_score(sig.threat_level, sig.attack_type)
+                risk_score = self._calculate_risk_score(
+                    sig.threat_level, sig.attack_type
+                )
 
                 return {
                     "attack_type": sig.attack_type,
@@ -608,10 +638,10 @@ class WAFMiddleware(BaseHTTPMiddleware):
                         "signature": sig.name,
                         "description": sig.description,
                         "match": match.group(0)[:100],  # First 100 chars
-                        "position": match.start()
+                        "position": match.start(),
                     },
                     "signature": sig.name,
-                    "risk_score": risk_score
+                    "risk_score": risk_score,
                 }
 
         return None
@@ -635,7 +665,10 @@ class WAFMiddleware(BaseHTTPMiddleware):
 
         # Check for suspicious headers
         suspicious_headers = [
-            "X-Forwarded-For", "X-Real-IP", "X-Remote-IP", "X-Client-IP"
+            "X-Forwarded-For",
+            "X-Real-IP",
+            "X-Remote-IP",
+            "X-Client-IP",
         ]
         for header in suspicious_headers:
             if header in request.headers:
@@ -651,42 +684,41 @@ class WAFMiddleware(BaseHTTPMiddleware):
             risk_score += 10
 
         # Check for encoded characters
-        if '%' in path and self._has_excessive_encoding(path):
+        if "%" in path and self._has_excessive_encoding(path):
             anomalies.append("Excessive URL encoding")
             risk_score += 15
 
         if anomalies:
-            return {
-                "anomalies": anomalies,
-                "risk_score": min(risk_score, 100)
-            }
+            return {"anomalies": anomalies, "risk_score": min(risk_score, 100)}
 
         return None
 
     def _is_suspicious_header_value(self, value: str) -> bool:
         """Check if header value is suspicious."""
         # Check for multiple IPs (potential spoofing)
-        if ',' in value and len(value.split(',')) > 3:
+        if "," in value and len(value.split(",")) > 3:
             return True
 
         # Check for suspicious characters
-        if any(char in value for char in ['<', '>', '"', "'", '\\', '\n', '\r']):
+        if any(char in value for char in ["<", ">", '"', "'", "\\", "\n", "\r"]):
             return True
 
         return False
 
     def _has_excessive_encoding(self, path: str) -> bool:
         """Check if path has excessive URL encoding."""
-        encoded_chars = path.count('%')
+        encoded_chars = path.count("%")
         return encoded_chars > len(path) * 0.3  # More than 30% encoded
 
-    def _calculate_risk_score(self, threat_level: ThreatLevel, attack_type: AttackType) -> int:
+    def _calculate_risk_score(
+        self, threat_level: ThreatLevel, attack_type: AttackType
+    ) -> int:
         """Calculate risk score for an attack."""
         base_scores = {
             ThreatLevel.LOW: 25,
             ThreatLevel.MEDIUM: 50,
             ThreatLevel.HIGH: 75,
-            ThreatLevel.CRITICAL: 100
+            ThreatLevel.CRITICAL: 100,
         }
 
         attack_multipliers = {
@@ -697,7 +729,7 @@ class WAFMiddleware(BaseHTTPMiddleware):
             AttackType.DDOS: 1.1,
             AttackType.BRUTE_FORCE: 1.0,
             AttackType.SCANNER: 0.8,
-            AttackType.ANOMALY: 0.7
+            AttackType.ANOMALY: 0.7,
         }
 
         base_score = base_scores.get(threat_level, 50)
@@ -711,7 +743,9 @@ class WAFMiddleware(BaseHTTPMiddleware):
         self.audit_logger.log_security_event(
             SecurityEventType.SECURITY_INTRUSION_DETECTED,
             f"WAF detected {attack.attack_type.value} attack from {attack.ip}",
-            level=AuditLevel.WARNING if attack.threat_level in [ThreatLevel.LOW, ThreatLevel.MEDIUM] else AuditLevel.CRITICAL,
+            level=AuditLevel.WARNING
+            if attack.threat_level in [ThreatLevel.LOW, ThreatLevel.MEDIUM]
+            else AuditLevel.CRITICAL,
             details={
                 "ip": attack.ip,
                 "attack_type": attack.attack_type.value,
@@ -719,9 +753,9 @@ class WAFMiddleware(BaseHTTPMiddleware):
                 "signature": attack.signature,
                 "blocked": attack.blocked,
                 "risk_score": attack.risk_score,
-                **attack.details
+                **attack.details,
             },
-            risk_score=attack.risk_score
+            risk_score=attack.risk_score,
         )
 
         # Update IP reputation
@@ -748,7 +782,9 @@ class WAFMiddleware(BaseHTTPMiddleware):
             return
 
         reputation_score = self.suspicious_ips.get(ip, 0)
-        if reputation_score >= self.config["auto_block_threshold"] * 20:  # 20 points per violation
+        if (
+            reputation_score >= self.config["auto_block_threshold"] * 20
+        ):  # 20 points per violation
             await self._block_ip(ip, "Auto-blocked due to reputation score")
 
     async def _block_ip(self, ip: str, reason: str):
@@ -760,11 +796,13 @@ class WAFMiddleware(BaseHTTPMiddleware):
             self.redis_client.setex(
                 f"waf:blocked:{ip}",
                 self.config["block_duration"],
-                json.dumps({
-                    "reason": reason,
-                    "timestamp": time.time(),
-                    "duration": self.config["block_duration"]
-                })
+                json.dumps(
+                    {
+                        "reason": reason,
+                        "timestamp": time.time(),
+                        "duration": self.config["block_duration"],
+                    }
+                ),
             )
         except:
             pass
@@ -778,13 +816,13 @@ class WAFMiddleware(BaseHTTPMiddleware):
             content={
                 "error": "Request blocked by WAF",
                 "message": "Your request was blocked due to security policy",
-                "reference": f"WAF-{int(time.time())}-{attack.ip.replace('.', '')}"
+                "reference": f"WAF-{int(time.time())}-{attack.ip.replace('.', '')}",
             },
             headers={
                 "X-WAF-Block": "true",
                 "X-WAF-Signature": attack.signature,
-                "X-WAF-Threat-Level": attack.threat_level.value
-            }
+                "X-WAF-Threat-Level": attack.threat_level.value,
+            },
         )
 
     def _add_security_headers(self, response: Response):
@@ -794,7 +832,9 @@ class WAFMiddleware(BaseHTTPMiddleware):
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
 
-    def _log_request(self, request: Request, response: Response, processing_time: float):
+    def _log_request(
+        self, request: Request, response: Response, processing_time: float
+    ):
         """Log request details."""
         if processing_time > 1.0:  # Log slow requests
             logger.warning(
@@ -811,8 +851,8 @@ class WAFMiddleware(BaseHTTPMiddleware):
             "config": {
                 "blocking_enabled": self.config["blocking_enabled"],
                 "monitoring_enabled": self.config["monitoring_enabled"],
-                "auto_block_threshold": self.config["auto_block_threshold"]
-            }
+                "auto_block_threshold": self.config["auto_block_threshold"],
+            },
         }
 
     async def unblock_ip(self, ip: str) -> bool:

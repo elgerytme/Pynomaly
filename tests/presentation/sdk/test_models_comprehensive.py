@@ -33,10 +33,7 @@ class TestDetectionRequest:
         request = DetectionRequest(
             data=[[1, 2, 3], [4, 5, 6], [7, 8, 9]],
             algorithm="isolation_forest",
-            parameters={
-                "contamination": 0.1,
-                "n_estimators": 100
-            }
+            parameters={"contamination": 0.1, "n_estimators": 100},
         )
 
         assert request.data == [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
@@ -46,10 +43,7 @@ class TestDetectionRequest:
 
     def test_detection_request_minimal_data(self):
         """Test DetectionRequest with minimal required data."""
-        request = DetectionRequest(
-            data=[[1, 2], [3, 4]],
-            algorithm="one_class_svm"
-        )
+        request = DetectionRequest(data=[[1, 2], [3, 4]], algorithm="one_class_svm")
 
         assert request.data == [[1, 2], [3, 4]]
         assert request.algorithm == "one_class_svm"
@@ -58,20 +52,14 @@ class TestDetectionRequest:
     def test_detection_request_empty_data_validation(self):
         """Test DetectionRequest validation with empty data."""
         with pytest.raises(ValidationError) as exc_info:
-            DetectionRequest(
-                data=[],
-                algorithm="isolation_forest"
-            )
+            DetectionRequest(data=[], algorithm="isolation_forest")
 
         assert "Data cannot be empty" in str(exc_info.value)
 
     def test_detection_request_invalid_algorithm(self):
         """Test DetectionRequest validation with invalid algorithm."""
         with pytest.raises(ValidationError) as exc_info:
-            DetectionRequest(
-                data=[[1, 2], [3, 4]],
-                algorithm="invalid_algorithm"
-            )
+            DetectionRequest(data=[[1, 2], [3, 4]], algorithm="invalid_algorithm")
 
         assert "Invalid algorithm" in str(exc_info.value)
 
@@ -80,7 +68,7 @@ class TestDetectionRequest:
         request = DetectionRequest(
             data=[[1, 2], [3, 4]],
             algorithm="isolation_forest",
-            parameters={"contamination": 0.1}
+            parameters={"contamination": 0.1},
         )
 
         serialized = request.to_dict()
@@ -91,10 +79,7 @@ class TestDetectionRequest:
 
     def test_detection_request_json_serialization(self):
         """Test DetectionRequest JSON serialization."""
-        request = DetectionRequest(
-            data=[[1, 2], [3, 4]],
-            algorithm="isolation_forest"
-        )
+        request = DetectionRequest(data=[[1, 2], [3, 4]], algorithm="isolation_forest")
 
         json_str = request.to_json()
         assert isinstance(json_str, str)
@@ -109,7 +94,7 @@ class TestDetectionRequest:
         data_dict = {
             "data": [[1, 2], [3, 4]],
             "algorithm": "isolation_forest",
-            "parameters": {"contamination": 0.1}
+            "parameters": {"contamination": 0.1},
         }
 
         request = DetectionRequest.from_dict(data_dict)
@@ -128,7 +113,7 @@ class TestDetectionResponse:
             anomaly_labels=[0, 1, 0, 1],
             execution_time=0.123,
             model_info={"name": "isolation_forest", "version": "1.0"},
-            metadata={"n_samples": 4, "n_features": 3}
+            metadata={"n_samples": 4, "n_features": 3},
         )
 
         assert response.anomaly_scores == [0.1, 0.9, 0.2, 0.8]
@@ -143,7 +128,7 @@ class TestDetectionResponse:
             DetectionResponse(
                 anomaly_scores=[0.1, 0.9, 0.2],
                 anomaly_labels=[0, 1],  # Different length
-                execution_time=0.123
+                execution_time=0.123,
             )
 
         assert "Scores and labels must have the same length" in str(exc_info.value)
@@ -154,7 +139,7 @@ class TestDetectionResponse:
             DetectionResponse(
                 anomaly_scores=[0.1, 0.9],
                 anomaly_labels=[0, 1],
-                execution_time=-0.1  # Negative time
+                execution_time=-0.1,  # Negative time
             )
 
         assert "Execution time must be positive" in str(exc_info.value)
@@ -164,7 +149,7 @@ class TestDetectionResponse:
         response = DetectionResponse(
             anomaly_scores=[0.1, 0.9, 0.2, 0.8],
             anomaly_labels=[0, 1, 0, 1],
-            execution_time=0.123
+            execution_time=0.123,
         )
 
         assert response.anomaly_count == 2
@@ -177,7 +162,7 @@ class TestDetectionResponse:
             anomaly_scores=[0.1, 0.9],
             anomaly_labels=[0, 1],
             execution_time=0.123,
-            model_info={"name": "test_model"}
+            model_info={"name": "test_model"},
         )
 
         serialized = response.to_dict()
@@ -199,10 +184,10 @@ class TestTrainingRequest:
             hyperparameters={
                 "n_estimators": 100,
                 "contamination": 0.1,
-                "max_samples": "auto"
+                "max_samples": "auto",
             },
             validation_split=0.2,
-            cross_validation=True
+            cross_validation=True,
         )
 
         assert request.data == [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
@@ -213,10 +198,7 @@ class TestTrainingRequest:
 
     def test_training_request_minimal_data(self):
         """Test TrainingRequest with minimal required data."""
-        request = TrainingRequest(
-            data=[[1, 2], [3, 4]],
-            algorithm="one_class_svm"
-        )
+        request = TrainingRequest(data=[[1, 2], [3, 4]], algorithm="one_class_svm")
 
         assert request.data == [[1, 2], [3, 4]]
         assert request.algorithm == "one_class_svm"
@@ -230,7 +212,7 @@ class TestTrainingRequest:
             TrainingRequest(
                 data=[[1, 2], [3, 4]],
                 algorithm="isolation_forest",
-                validation_split=1.5  # Invalid split
+                validation_split=1.5,  # Invalid split
             )
 
         assert "Validation split must be between 0 and 1" in str(exc_info.value)
@@ -240,7 +222,7 @@ class TestTrainingRequest:
         with pytest.raises(ValidationError) as exc_info:
             TrainingRequest(
                 data=[[1, 2]],  # Only one sample
-                algorithm="isolation_forest"
+                algorithm="isolation_forest",
             )
 
         assert "Insufficient data for training" in str(exc_info.value)
@@ -250,7 +232,7 @@ class TestTrainingRequest:
         request = TrainingRequest(
             data=[[1, 2], [3, 4]],
             algorithm="isolation_forest",
-            hyperparameters={"n_estimators": 50}
+            hyperparameters={"n_estimators": 50},
         )
 
         serialized = request.to_dict()
@@ -272,7 +254,7 @@ class TestTrainingResponse:
             estimated_duration=300,
             progress=0,
             metrics={"accuracy": 0.95},
-            created_at=datetime.now()
+            created_at=datetime.now(),
         )
 
         assert response.job_id == "train-123"
@@ -290,7 +272,7 @@ class TestTrainingResponse:
             model_id="model-456",
             progress=100,
             metrics={"accuracy": 0.95, "f1_score": 0.92},
-            training_time=250
+            training_time=250,
         )
 
         assert response.status == "completed"
@@ -304,7 +286,7 @@ class TestTrainingResponse:
             job_id="train-123",
             status="failed",
             error_message="Training failed due to insufficient memory",
-            progress=45
+            progress=45,
         )
 
         assert response.status == "failed"
@@ -318,7 +300,7 @@ class TestTrainingResponse:
             TrainingResponse(
                 job_id="train-123",
                 status="running",
-                progress=150  # Invalid progress
+                progress=150,  # Invalid progress
             )
 
         assert "Progress must be between 0 and 100" in str(exc_info.value)
@@ -329,7 +311,7 @@ class TestTrainingResponse:
             job_id="train-123",
             status="running",
             progress=50,
-            metrics={"current_loss": 0.5}
+            metrics={"current_loss": 0.5},
         )
 
         serialized = response.to_dict()
@@ -353,7 +335,7 @@ class TestDatasetInfo:
             features=5,
             file_format="csv",
             upload_date=datetime.now(),
-            tags=["test", "anomaly", "sample"]
+            tags=["test", "anomaly", "sample"],
         )
 
         assert info.dataset_id == "dataset-123"
@@ -367,10 +349,7 @@ class TestDatasetInfo:
     def test_dataset_info_minimal_data(self):
         """Test DatasetInfo with minimal required data."""
         info = DatasetInfo(
-            dataset_id="dataset-123",
-            name="minimal_dataset",
-            size=100,
-            features=3
+            dataset_id="dataset-123", name="minimal_dataset", size=100, features=3
         )
 
         assert info.dataset_id == "dataset-123"
@@ -387,7 +366,7 @@ class TestDatasetInfo:
                 dataset_id="dataset-123",
                 name="test_dataset",
                 size=0,  # Invalid size
-                features=3
+                features=3,
             )
 
         assert "Size must be positive" in str(exc_info.value)
@@ -399,7 +378,7 @@ class TestDatasetInfo:
                 dataset_id="dataset-123",
                 name="test_dataset",
                 size=100,
-                features=0  # Invalid features
+                features=0,  # Invalid features
             )
 
         assert "Features must be positive" in str(exc_info.value)
@@ -411,7 +390,7 @@ class TestDatasetInfo:
             name="test_dataset",
             size=100,
             features=3,
-            tags=["test"]
+            tags=["test"],
         )
 
         serialized = info.to_dict()
@@ -436,7 +415,7 @@ class TestModelInfo:
             metrics={"accuracy": 0.95, "precision": 0.93},
             created_at=datetime.now(),
             version="1.0",
-            status="active"
+            status="active",
         )
 
         assert info.model_id == "model-123"
@@ -450,9 +429,7 @@ class TestModelInfo:
     def test_model_info_minimal_data(self):
         """Test ModelInfo with minimal required data."""
         info = ModelInfo(
-            model_id="model-123",
-            name="minimal_model",
-            algorithm="one_class_svm"
+            model_id="model-123", name="minimal_model", algorithm="one_class_svm"
         )
 
         assert info.model_id == "model-123"
@@ -465,9 +442,7 @@ class TestModelInfo:
         """Test ModelInfo validation with invalid algorithm."""
         with pytest.raises(ValidationError) as exc_info:
             ModelInfo(
-                model_id="model-123",
-                name="test_model",
-                algorithm="invalid_algorithm"
+                model_id="model-123", name="test_model", algorithm="invalid_algorithm"
             )
 
         assert "Invalid algorithm" in str(exc_info.value)
@@ -478,7 +453,7 @@ class TestModelInfo:
             model_id="model-123",
             name="test_model",
             algorithm="isolation_forest",
-            metrics={"accuracy": 0.95}
+            metrics={"accuracy": 0.95},
         )
 
         serialized = info.to_dict()
@@ -501,8 +476,8 @@ class TestHealthStatus:
             timestamp=datetime.now(),
             services={
                 "database": {"status": "healthy", "response_time": 0.05},
-                "cache": {"status": "healthy", "response_time": 0.01}
-            }
+                "cache": {"status": "healthy", "response_time": 0.01},
+            },
         )
 
         assert status.status == "healthy"
@@ -519,7 +494,7 @@ class TestHealthStatus:
             timestamp=datetime.now(),
             services={
                 "database": {"status": "unhealthy", "error": "Connection failed"}
-            }
+            },
         )
 
         assert status.status == "unhealthy"
@@ -529,20 +504,13 @@ class TestHealthStatus:
     def test_health_status_invalid_status(self):
         """Test HealthStatus validation with invalid status."""
         with pytest.raises(ValidationError) as exc_info:
-            HealthStatus(
-                status="invalid_status",
-                version="1.0.0"
-            )
+            HealthStatus(status="invalid_status", version="1.0.0")
 
         assert "Invalid status" in str(exc_info.value)
 
     def test_health_status_serialization(self):
         """Test HealthStatus serialization."""
-        status = HealthStatus(
-            status="healthy",
-            version="1.0.0",
-            uptime=3600
-        )
+        status = HealthStatus(status="healthy", version="1.0.0", uptime=3600)
 
         serialized = status.to_dict()
         assert isinstance(serialized, dict)
@@ -560,7 +528,7 @@ class TestErrorResponse:
             error_code="VALIDATION_ERROR",
             message="Invalid input data",
             details={"field": "data", "reason": "empty"},
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
 
         assert error.error_code == "VALIDATION_ERROR"
@@ -570,10 +538,7 @@ class TestErrorResponse:
 
     def test_error_response_minimal_data(self):
         """Test ErrorResponse with minimal required data."""
-        error = ErrorResponse(
-            error_code="GENERIC_ERROR",
-            message="An error occurred"
-        )
+        error = ErrorResponse(error_code="GENERIC_ERROR", message="An error occurred")
 
         assert error.error_code == "GENERIC_ERROR"
         assert error.message == "An error occurred"
@@ -584,7 +549,7 @@ class TestErrorResponse:
         error = ErrorResponse(
             error_code="TEST_ERROR",
             message="Test error message",
-            details={"test": "value"}
+            details={"test": "value"},
         )
 
         serialized = error.to_dict()
@@ -601,12 +566,7 @@ class TestPaginatedResponse:
         """Test PaginatedResponse with valid data."""
         items = [{"id": 1, "name": "item1"}, {"id": 2, "name": "item2"}]
         response = PaginatedResponse(
-            items=items,
-            total=100,
-            page=1,
-            per_page=10,
-            has_next=True,
-            has_prev=False
+            items=items, total=100, page=1, per_page=10, has_next=True, has_prev=False
         )
 
         assert response.items == items
@@ -626,7 +586,7 @@ class TestPaginatedResponse:
             page=3,
             per_page=10,
             has_next=False,
-            has_prev=True
+            has_prev=True,
         )
 
         assert response.total_pages == 3
@@ -640,7 +600,7 @@ class TestPaginatedResponse:
                 items=[],
                 total=100,
                 page=0,  # Invalid page
-                per_page=10
+                per_page=10,
             )
 
         assert "Page must be positive" in str(exc_info.value)
@@ -648,10 +608,7 @@ class TestPaginatedResponse:
     def test_paginated_response_serialization(self):
         """Test PaginatedResponse serialization."""
         response = PaginatedResponse(
-            items=[{"id": 1, "name": "item1"}],
-            total=1,
-            page=1,
-            per_page=10
+            items=[{"id": 1, "name": "item1"}], total=1, page=1, per_page=10
         )
 
         serialized = response.to_dict()
@@ -676,7 +633,7 @@ class TestModelMetrics:
             f1_score=0.92,
             roc_auc=0.94,
             confusion_matrix=[[450, 50], [30, 470]],
-            feature_importance={"feature1": 0.4, "feature2": 0.3}
+            feature_importance={"feature1": 0.4, "feature2": 0.3},
         )
 
         assert metrics.model_id == "model-123"
@@ -693,18 +650,14 @@ class TestModelMetrics:
         with pytest.raises(ValidationError) as exc_info:
             ModelMetrics(
                 model_id="model-123",
-                accuracy=1.5  # Invalid accuracy
+                accuracy=1.5,  # Invalid accuracy
             )
 
         assert "Accuracy must be between 0 and 1" in str(exc_info.value)
 
     def test_model_metrics_serialization(self):
         """Test ModelMetrics serialization."""
-        metrics = ModelMetrics(
-            model_id="model-123",
-            accuracy=0.95,
-            precision=0.93
-        )
+        metrics = ModelMetrics(model_id="model-123", accuracy=0.95, precision=0.93)
 
         serialized = metrics.to_dict()
         assert isinstance(serialized, dict)
@@ -723,10 +676,8 @@ class TestComplexModelValidation:
             anomaly_labels=[0, 1],
             execution_time=0.123,
             model_info=ModelInfo(
-                model_id="model-123",
-                name="nested_model",
-                algorithm="isolation_forest"
-            )
+                model_id="model-123", name="nested_model", algorithm="isolation_forest"
+            ),
         )
 
         assert isinstance(response.model_info, ModelInfo)
@@ -740,7 +691,7 @@ class TestComplexModelValidation:
             name="datetime_dataset",
             size=100,
             features=3,
-            upload_date=now
+            upload_date=now,
         )
 
         serialized = info.to_dict()
@@ -753,7 +704,7 @@ class TestComplexModelValidation:
             "anomaly_scores": [0.1, 0.9],
             "anomaly_labels": [0, 1],
             "execution_time": 0.123,
-            "model_info": {"name": "test_model", "version": "1.0"}
+            "model_info": {"name": "test_model", "version": "1.0"},
         }
 
         response = DetectionResponse.from_dict(json_data)
@@ -765,16 +716,11 @@ class TestComplexModelValidation:
     def test_model_partial_update(self):
         """Test model partial update functionality."""
         info = ModelInfo(
-            model_id="model-123",
-            name="original_model",
-            algorithm="isolation_forest"
+            model_id="model-123", name="original_model", algorithm="isolation_forest"
         )
 
         # Update with new data
-        updated_info = info.copy(update={
-            "name": "updated_model",
-            "version": "2.0"
-        })
+        updated_info = info.copy(update={"name": "updated_model", "version": "2.0"})
 
         assert updated_info.model_id == "model-123"  # Unchanged
         assert updated_info.name == "updated_model"  # Updated
@@ -788,7 +734,7 @@ class TestComplexModelValidation:
             DetectionResponse(
                 anomaly_scores=[0.1, 0.9, 0.2],
                 anomaly_labels=[0, 1],  # Length mismatch
-                execution_time=0.123
+                execution_time=0.123,
             )
 
         assert "length mismatch" in str(exc_info.value).lower()
@@ -801,7 +747,7 @@ def sample_detection_request():
     return DetectionRequest(
         data=[[1, 2, 3], [4, 5, 6], [7, 8, 9]],
         algorithm="isolation_forest",
-        parameters={"contamination": 0.1}
+        parameters={"contamination": 0.1},
     )
 
 
@@ -812,7 +758,7 @@ def sample_detection_response():
         anomaly_scores=[0.1, 0.9, 0.2],
         anomaly_labels=[0, 1, 0],
         execution_time=0.123,
-        model_info={"name": "test_model", "version": "1.0"}
+        model_info={"name": "test_model", "version": "1.0"},
     )
 
 
@@ -822,7 +768,7 @@ def sample_training_request():
     return TrainingRequest(
         data=[[1, 2, 3], [4, 5, 6], [7, 8, 9]],
         algorithm="isolation_forest",
-        hyperparameters={"n_estimators": 100}
+        hyperparameters={"n_estimators": 100},
     )
 
 
@@ -834,7 +780,7 @@ def sample_training_response():
         status="started",
         model_id="model-456",
         estimated_duration=300,
-        progress=0
+        progress=0,
     )
 
 
@@ -846,7 +792,7 @@ def sample_dataset_info():
         name="sample_dataset",
         size=1000,
         features=5,
-        file_format="csv"
+        file_format="csv",
     )
 
 
@@ -858,5 +804,5 @@ def sample_model_info():
         name="sample_model",
         algorithm="isolation_forest",
         hyperparameters={"n_estimators": 100},
-        metrics={"accuracy": 0.95}
+        metrics={"accuracy": 0.95},
     )

@@ -6,22 +6,18 @@ Implements rate limiting, WAF, IP blocking, and security monitoring.
 import asyncio
 import hashlib
 import ipaddress
-import json
 import re
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 from functools import wraps
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
-from urllib.parse import urlparse
+from typing import Any
 
-from fastapi import HTTPException, Request, Response, status
+from fastapi import HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import PlainTextResponse
 
 try:
     from pynomaly.core.config import get_settings
@@ -29,11 +25,9 @@ except ImportError:
     # Fallback for testing - create a mock settings function
     def get_settings():
         from types import SimpleNamespace
-        return SimpleNamespace(
-            debug=False,
-            testing=True,
-            log_level="INFO"
-        )
+
+        return SimpleNamespace(debug=False, testing=True, log_level="INFO")
+
 
 try:
     from pynomaly.presentation.web.error_handling import (
@@ -66,6 +60,7 @@ except ImportError:
 
 class SecurityThreatLevel(Enum):
     """Security threat levels"""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -74,6 +69,7 @@ class SecurityThreatLevel(Enum):
 
 class SecurityEventType(Enum):
     """Types of security events"""
+
     RATE_LIMIT_EXCEEDED = "rate_limit_exceeded"
     SUSPICIOUS_PATTERN = "suspicious_pattern"
     IP_BLOCKED = "ip_blocked"
@@ -89,6 +85,7 @@ class SecurityEventType(Enum):
 @dataclass
 class SecurityEvent:
     """Security event data structure"""
+
     event_type: SecurityEventType
     threat_level: SecurityThreatLevel
     ip_address: str
@@ -99,12 +96,13 @@ class SecurityEvent:
     details: dict[str, Any]
     event_id: str
     blocked: bool = False
-    action_taken: Optional[str] = None
+    action_taken: str | None = None
 
 
 @dataclass
 class RateLimitRule:
     """Rate limiting rule configuration"""
+
     requests_per_minute: int
     requests_per_hour: int
     requests_per_day: int
@@ -123,7 +121,7 @@ class RateLimiter:
         # Rate limiting storage
         self.request_counts = defaultdict(lambda: defaultdict(int))
         self.request_timestamps = defaultdict(lambda: deque(maxlen=10000))
-        self.blocked_ips = defaultdict(lambda: {'until': None, 'count': 0})
+        self.blocked_ips = defaultdict(lambda: {"until": None, "count": 0})
         self.burst_counts = defaultdict(int)
 
         # Rate limiting rules
@@ -133,16 +131,16 @@ class RateLimiter:
             requests_per_day=10000,
             burst_limit=10,
             window_size=60,
-            penalty_duration=300
+            penalty_duration=300,
         )
 
         # Endpoint-specific rules
         self.endpoint_rules = {
-            '/api/auth/login': RateLimitRule(5, 20, 100, 3, 60, 900),
-            '/api/auth/register': RateLimitRule(3, 10, 50, 2, 60, 1800),
-            '/api/auth/reset-password': RateLimitRule(3, 10, 20, 1, 60, 3600),
-            '/api/upload': RateLimitRule(10, 50, 200, 5, 60, 300),
-            '/api/data/export': RateLimitRule(5, 20, 100, 2, 60, 600),
+            "/api/auth/login": RateLimitRule(5, 20, 100, 3, 60, 900),
+            "/api/auth/register": RateLimitRule(3, 10, 50, 2, 60, 1800),
+            "/api/auth/reset-password": RateLimitRule(3, 10, 20, 1, 60, 3600),
+            "/api/upload": RateLimitRule(10, 50, 200, 5, 60, 300),
+            "/api/data/export": RateLimitRule(5, 20, 100, 2, 60, 600),
         }
 
         # Cleanup task
@@ -163,7 +161,7 @@ class RateLimiter:
                 # Clean up expired blocked IPs
                 expired_ips = []
                 for ip, data in self.blocked_ips.items():
-                    if data['until'] and current_time > data['until']:
+                    if data["until"] and current_time > data["until"]:
                         expired_ips.append(ip)
 
                 for ip in expired_ips:
@@ -172,7 +170,9 @@ class RateLimiter:
                 # Clean up old request timestamps
                 for ip in list(self.request_timestamps.keys()):
                     timestamps = self.request_timestamps[ip]
-                    while timestamps and current_time - timestamps[0] > 86400:  # 24 hours
+                    while (
+                        timestamps and current_time - timestamps[0] > 86400
+                    ):  # 24 hours
                         timestamps.popleft()
 
                     if not timestamps:
@@ -194,16 +194,19 @@ class RateLimiter:
                 self.logger.log(f"Error in rate limiter cleanup: {e}", level="ERROR")
                 await asyncio.sleep(60)
 
-    def is_rate_limited(self, ip: str, endpoint: str) -> tuple[bool, Optional[str]]:
+    def is_rate_limited(self, ip: str, endpoint: str) -> tuple[bool, str | None]:
         """Check if IP is rate limited for endpoint"""
         current_time = time.time()
 
         # Check if IP is currently blocked
         if ip in self.blocked_ips:
             block_data = self.blocked_ips[ip]
-            if block_data['until'] and current_time < block_data['until']:
-                return True, f"IP blocked until {datetime.fromtimestamp(block_data['until'])}"
-            elif block_data['until'] and current_time >= block_data['until']:
+            if block_data["until"] and current_time < block_data["until"]:
+                return (
+                    True,
+                    f"IP blocked until {datetime.fromtimestamp(block_data['until'])}",
+                )
+            elif block_data["until"] and current_time >= block_data["until"]:
                 # Unblock IP
                 del self.blocked_ips[ip]
 
@@ -213,7 +216,10 @@ class RateLimiter:
         # Check burst limit
         if self.burst_counts[ip] > rules.burst_limit:
             self._block_ip(ip, rules.penalty_duration)
-            return True, f"Burst limit exceeded: {self.burst_counts[ip]} > {rules.burst_limit}"
+            return (
+                True,
+                f"Burst limit exceeded: {self.burst_counts[ip]} > {rules.burst_limit}",
+            )
 
         # Check rate limits
         timestamps = self.request_timestamps[ip]
@@ -222,7 +228,10 @@ class RateLimiter:
         recent_requests = sum(1 for ts in timestamps if current_time - ts < 60)
         if recent_requests >= rules.requests_per_minute:
             self._block_ip(ip, rules.penalty_duration)
-            return True, f"Rate limit exceeded: {recent_requests} requests in last minute"
+            return (
+                True,
+                f"Rate limit exceeded: {recent_requests} requests in last minute",
+            )
 
         # Check per-hour limit
         hour_requests = sum(1 for ts in timestamps if current_time - ts < 3600)
@@ -246,7 +255,9 @@ class RateLimiter:
         self.request_timestamps[ip].append(current_time)
 
         # Update burst count
-        recent_requests = sum(1 for ts in self.request_timestamps[ip] if current_time - ts < 10)
+        recent_requests = sum(
+            1 for ts in self.request_timestamps[ip] if current_time - ts < 10
+        )
         self.burst_counts[ip] = recent_requests
 
         # Update request counts
@@ -257,8 +268,8 @@ class RateLimiter:
         """Block IP for specified duration"""
         current_time = time.time()
         self.blocked_ips[ip] = {
-            'until': current_time + duration,
-            'count': self.blocked_ips[ip]['count'] + 1 if ip in self.blocked_ips else 1
+            "until": current_time + duration,
+            "count": self.blocked_ips[ip]["count"] + 1 if ip in self.blocked_ips else 1,
         }
 
         self.logger.log(f"Blocked IP {ip} for {duration} seconds", level="WARNING")
@@ -274,28 +285,30 @@ class RateLimiter:
         day_requests = sum(1 for ts in timestamps if current_time - ts < 86400)
 
         return {
-            'ip': ip,
-            'endpoint': endpoint,
-            'current_requests': {
-                'minute': minute_requests,
-                'hour': hour_requests,
-                'day': day_requests,
-                'burst': self.burst_counts[ip]
+            "ip": ip,
+            "endpoint": endpoint,
+            "current_requests": {
+                "minute": minute_requests,
+                "hour": hour_requests,
+                "day": day_requests,
+                "burst": self.burst_counts[ip],
             },
-            'limits': {
-                'minute': rules.requests_per_minute,
-                'hour': rules.requests_per_hour,
-                'day': rules.requests_per_day,
-                'burst': rules.burst_limit
+            "limits": {
+                "minute": rules.requests_per_minute,
+                "hour": rules.requests_per_hour,
+                "day": rules.requests_per_day,
+                "burst": rules.burst_limit,
             },
-            'remaining': {
-                'minute': max(0, rules.requests_per_minute - minute_requests),
-                'hour': max(0, rules.requests_per_hour - hour_requests),
-                'day': max(0, rules.requests_per_day - day_requests),
-                'burst': max(0, rules.burst_limit - self.burst_counts[ip])
+            "remaining": {
+                "minute": max(0, rules.requests_per_minute - minute_requests),
+                "hour": max(0, rules.requests_per_hour - hour_requests),
+                "day": max(0, rules.requests_per_day - day_requests),
+                "burst": max(0, rules.burst_limit - self.burst_counts[ip]),
             },
-            'blocked': ip in self.blocked_ips,
-            'block_expires': self.blocked_ips[ip]['until'] if ip in self.blocked_ips else None
+            "blocked": ip in self.blocked_ips,
+            "block_expires": self.blocked_ips[ip]["until"]
+            if ip in self.blocked_ips
+            else None,
         }
 
 
@@ -470,16 +483,16 @@ class WebApplicationFirewall:
         """Load whitelisted IP addresses"""
         # Add common internal IP ranges
         whitelist = {
-            '127.0.0.1',
-            '::1',
-            'localhost',
+            "127.0.0.1",
+            "::1",
+            "localhost",
         }
 
         # Add private IP ranges
         private_ranges = [
-            '10.0.0.0/8',
-            '172.16.0.0/12',
-            '192.168.0.0/16',
+            "10.0.0.0/8",
+            "172.16.0.0/12",
+            "192.168.0.0/16",
         ]
 
         for range_str in private_ranges:
@@ -552,7 +565,7 @@ class WebApplicationFirewall:
 
         # Get request data
         ip = request.client.host
-        user_agent = request.headers.get('user-agent', '')
+        user_agent = request.headers.get("user-agent", "")
         path = request.url.path
         method = request.method
 
@@ -574,10 +587,10 @@ class WebApplicationFirewall:
                 request_path=path,
                 request_method=method,
                 timestamp=datetime.utcnow(),
-                details={'patterns': sql_matches, 'request_data': request_data},
+                details={"patterns": sql_matches, "request_data": request_data},
                 event_id=self._generate_event_id(),
                 blocked=True,
-                action_taken='Request blocked - SQL injection detected'
+                action_taken="Request blocked - SQL injection detected",
             )
             events.append(event)
             blocked = True
@@ -593,10 +606,10 @@ class WebApplicationFirewall:
                 request_path=path,
                 request_method=method,
                 timestamp=datetime.utcnow(),
-                details={'patterns': xss_matches, 'request_data': request_data},
+                details={"patterns": xss_matches, "request_data": request_data},
                 event_id=self._generate_event_id(),
                 blocked=True,
-                action_taken='Request blocked - XSS detected'
+                action_taken="Request blocked - XSS detected",
             )
             events.append(event)
             blocked = True
@@ -612,10 +625,14 @@ class WebApplicationFirewall:
                 request_path=path,
                 request_method=method,
                 timestamp=datetime.utcnow(),
-                details={'patterns': traversal_matches, 'request_data': request_data, 'type': 'path_traversal'},
+                details={
+                    "patterns": traversal_matches,
+                    "request_data": request_data,
+                    "type": "path_traversal",
+                },
                 event_id=self._generate_event_id(),
                 blocked=True,
-                action_taken='Request blocked - Path traversal detected'
+                action_taken="Request blocked - Path traversal detected",
             )
             events.append(event)
             blocked = True
@@ -631,10 +648,14 @@ class WebApplicationFirewall:
                 request_path=path,
                 request_method=method,
                 timestamp=datetime.utcnow(),
-                details={'patterns': command_matches, 'request_data': request_data, 'type': 'command_injection'},
+                details={
+                    "patterns": command_matches,
+                    "request_data": request_data,
+                    "type": "command_injection",
+                },
                 event_id=self._generate_event_id(),
                 blocked=True,
-                action_taken='Request blocked - Command injection detected'
+                action_taken="Request blocked - Command injection detected",
             )
             events.append(event)
             blocked = True
@@ -650,10 +671,14 @@ class WebApplicationFirewall:
                 request_path=path,
                 request_method=method,
                 timestamp=datetime.utcnow(),
-                details={'patterns': agent_matches, 'user_agent': user_agent, 'type': 'blocked_user_agent'},
+                details={
+                    "patterns": agent_matches,
+                    "user_agent": user_agent,
+                    "type": "blocked_user_agent",
+                },
                 event_id=self._generate_event_id(),
                 blocked=True,
-                action_taken='Request blocked - Blocked user agent detected'
+                action_taken="Request blocked - Blocked user agent detected",
             )
             events.append(event)
             blocked = True
@@ -687,17 +712,19 @@ class SecurityMiddleware(BaseHTTPMiddleware):
 
         # Get client info
         ip = request.client.host
-        user_agent = request.headers.get('user-agent', '')
+        user_agent = request.headers.get("user-agent", "")
         path = request.url.path
         method = request.method
 
         try:
             # Skip security checks for health endpoints
-            if path in ['/health', '/healthz', '/ready']:
+            if path in ["/health", "/healthz", "/ready"]:
                 return await call_next(request)
 
             # Rate limiting check
-            is_rate_limited, rate_limit_reason = self.rate_limiter.is_rate_limited(ip, path)
+            is_rate_limited, rate_limit_reason = self.rate_limiter.is_rate_limited(
+                ip, path
+            )
             if is_rate_limited:
                 # Record security event
                 event = SecurityEvent(
@@ -708,23 +735,26 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                     request_path=path,
                     request_method=method,
                     timestamp=datetime.utcnow(),
-                    details={'reason': rate_limit_reason},
+                    details={"reason": rate_limit_reason},
                     event_id=self._generate_event_id(),
                     blocked=True,
-                    action_taken='Request blocked - Rate limit exceeded'
+                    action_taken="Request blocked - Rate limit exceeded",
                 )
                 self.security_events.append(event)
 
-                self.logger.log(f"Rate limit exceeded for {ip} on {path}: {rate_limit_reason}", level="WARNING")
+                self.logger.log(
+                    f"Rate limit exceeded for {ip} on {path}: {rate_limit_reason}",
+                    level="WARNING",
+                )
 
                 return JSONResponse(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                     content={
-                        'error': 'Rate limit exceeded',
-                        'message': 'Too many requests. Please try again later.',
-                        'retry_after': 60,
-                        'event_id': event.event_id
-                    }
+                        "error": "Rate limit exceeded",
+                        "message": "Too many requests. Please try again later.",
+                        "retry_after": 60,
+                        "event_id": event.event_id,
+                    },
                 )
 
             # WAF analysis
@@ -734,15 +764,18 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                 for event in waf_events:
                     self.security_events.append(event)
 
-                self.logger.log(f"WAF blocked request from {ip} on {path}: {[e.event_type.value for e in waf_events]}", level="CRITICAL")
+                self.logger.log(
+                    f"WAF blocked request from {ip} on {path}: {[e.event_type.value for e in waf_events]}",
+                    level="CRITICAL",
+                )
 
                 return JSONResponse(
                     status_code=status.HTTP_403_FORBIDDEN,
                     content={
-                        'error': 'Security violation detected',
-                        'message': 'Your request has been blocked due to security policy violations.',
-                        'event_ids': [e.event_id for e in waf_events]
-                    }
+                        "error": "Security violation detected",
+                        "message": "Your request has been blocked due to security policy violations.",
+                        "event_ids": [e.event_id for e in waf_events],
+                    },
                 )
 
             # Record successful request
@@ -752,18 +785,26 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
 
             # Add security headers
-            response.headers['X-Content-Type-Options'] = 'nosniff'
-            response.headers['X-Frame-Options'] = 'DENY'
-            response.headers['X-XSS-Protection'] = '1; mode=block'
-            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-            response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-            response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+            response.headers["X-Content-Type-Options"] = "nosniff"
+            response.headers["X-Frame-Options"] = "DENY"
+            response.headers["X-XSS-Protection"] = "1; mode=block"
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=31536000; includeSubDomains"
+            )
+            response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+            )
 
             # Add rate limit headers
             rate_limit_status = self.rate_limiter.get_rate_limit_status(ip, path)
-            response.headers['X-RateLimit-Limit'] = str(rate_limit_status['limits']['minute'])
-            response.headers['X-RateLimit-Remaining'] = str(rate_limit_status['remaining']['minute'])
-            response.headers['X-RateLimit-Reset'] = str(int(time.time()) + 60)
+            response.headers["X-RateLimit-Limit"] = str(
+                rate_limit_status["limits"]["minute"]
+            )
+            response.headers["X-RateLimit-Remaining"] = str(
+                rate_limit_status["remaining"]["minute"]
+            )
+            response.headers["X-RateLimit-Reset"] = str(int(time.time()) + 60)
 
             return response
 
@@ -779,16 +820,16 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                 request_path=path,
                 request_method=method,
                 timestamp=datetime.utcnow(),
-                details={'error': str(e), 'type': 'middleware_error'},
+                details={"error": str(e), "type": "middleware_error"},
                 event_id=self._generate_event_id(),
                 blocked=False,
-                action_taken='Request processed with error'
+                action_taken="Request processed with error",
             )
             self.security_events.append(event)
 
             return JSONResponse(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                content={'error': 'Internal server error', 'event_id': event.event_id}
+                content={"error": "Internal server error", "event_id": event.event_id},
             )
 
     def _generate_event_id(self) -> str:
@@ -800,17 +841,17 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         events = list(self.security_events)[-limit:]
         return [
             {
-                'event_id': event.event_id,
-                'event_type': event.event_type.value,
-                'threat_level': event.threat_level.value,
-                'ip_address': event.ip_address,
-                'user_agent': event.user_agent,
-                'request_path': event.request_path,
-                'request_method': event.request_method,
-                'timestamp': event.timestamp.isoformat(),
-                'details': event.details,
-                'blocked': event.blocked,
-                'action_taken': event.action_taken
+                "event_id": event.event_id,
+                "event_type": event.event_type.value,
+                "threat_level": event.threat_level.value,
+                "ip_address": event.ip_address,
+                "user_agent": event.user_agent,
+                "request_path": event.request_path,
+                "request_method": event.request_method,
+                "timestamp": event.timestamp.isoformat(),
+                "details": event.details,
+                "blocked": event.blocked,
+                "action_taken": event.action_taken,
             }
             for event in events
         ]
@@ -826,7 +867,9 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         ip_counts = defaultdict(int)
 
         # Recent events (last hour)
-        recent_events = [e for e in events if (current_time - e.timestamp).total_seconds() < 3600]
+        recent_events = [
+            e for e in events if (current_time - e.timestamp).total_seconds() < 3600
+        ]
         blocked_events = [e for e in events if e.blocked]
 
         for event in events:
@@ -835,20 +878,24 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             ip_counts[event.ip_address] += 1
 
         return {
-            'total_events': len(events),
-            'blocked_requests': len(blocked_events),
-            'recent_events': len(recent_events),
-            'events_by_type': dict(event_counts),
-            'events_by_threat_level': dict(threat_counts),
-            'top_ips': dict(sorted(ip_counts.items(), key=lambda x: x[1], reverse=True)[:10]),
-            'rate_limiter_status': {
-                'blocked_ips': len(self.rate_limiter.blocked_ips),
-                'total_requests_tracked': sum(len(ts) for ts in self.rate_limiter.request_timestamps.values())
+            "total_events": len(events),
+            "blocked_requests": len(blocked_events),
+            "recent_events": len(recent_events),
+            "events_by_type": dict(event_counts),
+            "events_by_threat_level": dict(threat_counts),
+            "top_ips": dict(
+                sorted(ip_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+            ),
+            "rate_limiter_status": {
+                "blocked_ips": len(self.rate_limiter.blocked_ips),
+                "total_requests_tracked": sum(
+                    len(ts) for ts in self.rate_limiter.request_timestamps.values()
+                ),
             },
-            'waf_status': {
-                'blocked_ips': len(self.waf.blocked_ips),
-                'threat_scores': len(self.waf.threat_scores)
-            }
+            "waf_status": {
+                "blocked_ips": len(self.waf.blocked_ips),
+                "threat_scores": len(self.waf.threat_scores),
+            },
         }
 
 
@@ -886,6 +933,7 @@ def get_security_middleware() -> SecurityMiddleware:
 
 def rate_limit(requests_per_minute: int = 60, requests_per_hour: int = 1000):
     """Decorator for endpoint-specific rate limiting"""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -908,7 +956,7 @@ def rate_limit(requests_per_minute: int = 60, requests_per_hour: int = 1000):
             if is_limited:
                 raise HTTPException(
                     status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                    detail=f"Rate limit exceeded: {reason}"
+                    detail=f"Rate limit exceeded: {reason}",
                 )
 
             # Record request
@@ -917,4 +965,5 @@ def rate_limit(requests_per_minute: int = 60, requests_per_hour: int = 1000):
             return await func(*args, **kwargs)
 
         return wrapper
+
     return decorator

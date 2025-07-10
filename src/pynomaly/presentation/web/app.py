@@ -1743,6 +1743,7 @@ def mount_web_ui(app):
         get_web_ui_logger,
         start_error_monitoring,
     )
+
     logger = get_web_ui_logger()
     app.add_middleware(ErrorHandlingMiddleware, logger=logger)
 
@@ -1752,6 +1753,7 @@ def mount_web_ui(app):
         get_rate_limiter,
         get_waf,
     )
+
     rate_limiter = get_rate_limiter()
     waf = get_waf()
     app.add_middleware(SecurityMiddleware, rate_limiter=rate_limiter, waf=waf)

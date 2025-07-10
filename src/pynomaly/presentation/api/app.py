@@ -31,6 +31,7 @@ try:
     from pynomaly.infrastructure.monitoring.production_monitoring_integration import (
         create_production_monitoring,
     )
+
     MONITORING_AVAILABLE = True
 except ImportError:
     MONITORING_AVAILABLE = False
@@ -109,7 +110,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         init_auth(settings)
 
     # Initialize production monitoring
-    if MONITORING_AVAILABLE and getattr(settings, 'monitoring_enabled', False):
+    if MONITORING_AVAILABLE and getattr(settings, "monitoring_enabled", False):
         try:
             monitoring = create_production_monitoring()
             await monitoring.initialize()
@@ -132,7 +133,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     print("Shutting down...")
 
     # Cleanup monitoring
-    if hasattr(app.state, 'monitoring'):
+    if hasattr(app.state, "monitoring"):
         try:
             await app.state.monitoring.shutdown()
             print("✅ Production monitoring shutdown complete")
@@ -253,7 +254,7 @@ def create_app(container: Container | None = None) -> FastAPI:
     app.middleware("http")(track_request_metrics)
 
     # Add production monitoring middleware if available
-    if MONITORING_AVAILABLE and getattr(settings, 'monitoring_enabled', False):
+    if MONITORING_AVAILABLE and getattr(settings, "monitoring_enabled", False):
         try:
             # Note: Monitoring integration will be set up in lifespan
             # Middleware setup is deferred until monitoring is initialized

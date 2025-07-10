@@ -5,8 +5,6 @@ Implements strict CSP with nonce support and SRI validation
 
 import hashlib
 import secrets
-from typing import Dict, List, Optional
-from urllib.parse import urlparse
 
 
 class CSPBuilder:
@@ -19,17 +17,13 @@ class CSPBuilder:
         self.report_uri = "/api/security/csp-report"
 
         # Trusted CDN domains for external resources
-        self.trusted_cdns = [
-            "cdn.jsdelivr.net",
-            "unpkg.com",
-            "cdnjs.cloudflare.com"
-        ]
+        self.trusted_cdns = ["cdn.jsdelivr.net", "unpkg.com", "cdnjs.cloudflare.com"]
 
         # Resource integrity hashes (updated automatically)
         self.sri_hashes = {
             "https://cdn.tailwindcss.com": "sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN",
             "https://unpkg.com/htmx.org@1.9.10": "sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC",
-            "https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js": "sha384-x7+gjw5ZRalJWQPKnyVTpf4K2k8SdxGlszLLBiPJL8YCZqeqI8JVvZvbW9bFgN6L"
+            "https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js": "sha384-x7+gjw5ZRalJWQPKnyVTpf4K2k8SdxGlszLLBiPJL8YCZqeqI8JVvZvbW9bFgN6L",
         }
 
     def generate_nonce(self) -> str:
@@ -41,9 +35,9 @@ class CSPBuilder:
         script_hash = hashlib.sha384(script_content.encode()).digest()
         hash_value = f"sha384-{script_hash.hex()}"
 
-        if 'script-src' not in self.hashes:
-            self.hashes['script-src'] = []
-        self.hashes['script-src'].append(hash_value)
+        if "script-src" not in self.hashes:
+            self.hashes["script-src"] = []
+        self.hashes["script-src"].append(hash_value)
 
         return hash_value
 
@@ -52,53 +46,49 @@ class CSPBuilder:
         style_hash = hashlib.sha384(style_content.encode()).digest()
         hash_value = f"sha384-{style_hash.hex()}"
 
-        if 'style-src' not in self.hashes:
-            self.hashes['style-src'] = []
-        self.hashes['style-src'].append(hash_value)
+        if "style-src" not in self.hashes:
+            self.hashes["style-src"] = []
+        self.hashes["style-src"].append(hash_value)
 
         return hash_value
 
     def get_base_policy(self) -> dict[str, list[str]]:
         """Get base CSP policy directives"""
         policy = {
-            'default-src': ["'self'"],
-            'script-src': [
+            "default-src": ["'self'"],
+            "script-src": [
                 "'self'",
                 f"'nonce-{self.nonce}'",
-                *[f"https://{cdn}" for cdn in self.trusted_cdns]
+                *[f"https://{cdn}" for cdn in self.trusted_cdns],
             ],
-            'style-src': [
+            "style-src": [
                 "'self'",
                 f"'nonce-{self.nonce}'",
-                *[f"https://{cdn}" for cdn in self.trusted_cdns]
+                *[f"https://{cdn}" for cdn in self.trusted_cdns],
             ],
-            'img-src': [
+            "img-src": [
                 "'self'",
                 "data:",
                 "blob:",
-                *[f"https://{cdn}" for cdn in self.trusted_cdns]
+                *[f"https://{cdn}" for cdn in self.trusted_cdns],
             ],
-            'font-src': [
+            "font-src": [
                 "'self'",
                 "data:",
-                *[f"https://{cdn}" for cdn in self.trusted_cdns]
+                *[f"https://{cdn}" for cdn in self.trusted_cdns],
             ],
-            'connect-src': [
-                "'self'",
-                "wss:",
-                "ws:"
-            ],
-            'media-src': ["'self'"],
-            'object-src': ["'none'"],
-            'frame-src': ["'none'"],
-            'frame-ancestors': ["'none'"],
-            'form-action': ["'self'"],
-            'base-uri': ["'self'"],
-            'manifest-src': ["'self'"],
-            'worker-src': ["'self'"],
-            'child-src': ["'none'"],
-            'upgrade-insecure-requests': [],
-            'block-all-mixed-content': []
+            "connect-src": ["'self'", "wss:", "ws:"],
+            "media-src": ["'self'"],
+            "object-src": ["'none'"],
+            "frame-src": ["'none'"],
+            "frame-ancestors": ["'none'"],
+            "form-action": ["'self'"],
+            "base-uri": ["'self'"],
+            "manifest-src": ["'self'"],
+            "worker-src": ["'self'"],
+            "child-src": ["'none'"],
+            "upgrade-insecure-requests": [],
+            "block-all-mixed-content": [],
         }
 
         # Add hashes for inline content
@@ -109,13 +99,11 @@ class CSPBuilder:
         # Development mode adjustments
         if self.debug_mode:
             # Allow localhost and development servers
-            policy['connect-src'].extend([
-                "http://localhost:*",
-                "ws://localhost:*",
-                "http://127.0.0.1:*"
-            ])
+            policy["connect-src"].extend(
+                ["http://localhost:*", "ws://localhost:*", "http://127.0.0.1:*"]
+            )
             # Allow eval for development tools (with warning)
-            policy['script-src'].append("'unsafe-eval'")
+            policy["script-src"].append("'unsafe-eval'")
 
         return policy
 
@@ -126,20 +114,21 @@ class CSPBuilder:
         # Remove any unsafe directives
         for directive in policy:
             policy[directive] = [
-                source for source in policy[directive]
+                source
+                for source in policy[directive]
                 if not source.startswith("'unsafe-")
             ]
 
         # Add reporting
-        policy['report-uri'] = [self.report_uri]
-        policy['report-to'] = ["csp-endpoint"]
+        policy["report-uri"] = [self.report_uri]
+        policy["report-to"] = ["csp-endpoint"]
 
         return policy
 
     def get_report_only_policy(self) -> dict[str, list[str]]:
         """Get report-only CSP policy for testing"""
         policy = self.get_base_policy()
-        policy['report-uri'] = [self.report_uri]
+        policy["report-uri"] = [self.report_uri]
         return policy
 
     def build_header_value(self, policy: dict[str, list[str]]) -> str:
@@ -161,10 +150,15 @@ class CSPBuilder:
             policy = self.get_report_only_policy()
             header_name = "Content-Security-Policy-Report-Only"
         else:
-            policy = self.get_strict_policy() if not self.debug_mode else self.get_base_policy()
+            policy = (
+                self.get_strict_policy()
+                if not self.debug_mode
+                else self.get_base_policy()
+            )
             header_name = "Content-Security-Policy"
 
         return {header_name: self.build_header_value(policy)}
+
 
 class SubresourceIntegrityManager:
     """Manages Subresource Integrity (SRI) for external resources"""
@@ -174,18 +168,18 @@ class SubresourceIntegrityManager:
             # Tailwind CSS
             "https://cdn.tailwindcss.com": {
                 "integrity": "sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN",
-                "crossorigin": "anonymous"
+                "crossorigin": "anonymous",
             },
             # HTMX
             "https://unpkg.com/htmx.org@1.9.10": {
                 "integrity": "sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC",
-                "crossorigin": "anonymous"
+                "crossorigin": "anonymous",
             },
             # Alpine.js
             "https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js": {
                 "integrity": "sha384-x7+gjw5ZRalJWQPKnyVTpf4K2k8SdxGlszLLBiPJL8YCZqeqI8JVvZvbW9bFgN6L",
-                "crossorigin": "anonymous"
-            }
+                "crossorigin": "anonymous",
+            },
         }
 
     def get_sri_attributes(self, url: str) -> dict[str, str]:
@@ -200,7 +194,7 @@ class SubresourceIntegrityManager:
         """Add SRI hash for a URL"""
         self.integrity_hashes[url] = {
             "integrity": integrity,
-            "crossorigin": crossorigin
+            "crossorigin": crossorigin,
         }
 
     def generate_script_tag(self, url: str, **attributes) -> str:
@@ -215,7 +209,7 @@ class SubresourceIntegrityManager:
 
         # Add other attributes
         for key, value in attributes.items():
-            if key not in ['src', 'integrity', 'crossorigin']:
+            if key not in ["src", "integrity", "crossorigin"]:
                 attrs.append(f'{key}="{value}"')
 
         return f'<script {" ".join(attrs)}></script>'
@@ -232,10 +226,11 @@ class SubresourceIntegrityManager:
 
         # Add other attributes
         for key, value in attributes.items():
-            if key not in ['href', 'rel', 'integrity', 'crossorigin']:
+            if key not in ["href", "rel", "integrity", "crossorigin"]:
                 attrs.append(f'{key}="{value}"')
 
         return f'<link {" ".join(attrs)} />'
+
 
 class SecurityHeadersManager:
     """Manages comprehensive security headers"""
@@ -245,7 +240,9 @@ class SecurityHeadersManager:
         self.csp_builder = CSPBuilder(debug_mode)
         self.sri_manager = SubresourceIntegrityManager()
 
-    def get_security_headers(self, include_csp: bool = True, report_only: bool = False) -> dict[str, str]:
+    def get_security_headers(
+        self, include_csp: bool = True, report_only: bool = False
+    ) -> dict[str, str]:
         """Get all security headers"""
         headers = {}
 
@@ -264,7 +261,9 @@ class SecurityHeadersManager:
 
         # Strict-Transport-Security (HTTPS only)
         if not self.debug_mode:
-            headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+            headers["Strict-Transport-Security"] = (
+                "max-age=31536000; includeSubDomains; preload"
+            )
 
         # Referrer-Policy
         headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
@@ -278,7 +277,7 @@ class SecurityHeadersManager:
             "usb=()",
             "magnetometer=()",
             "accelerometer=()",
-            "gyroscope=()"
+            "gyroscope=()",
         ]
         headers["Permissions-Policy"] = ", ".join(permissions)
 
@@ -289,16 +288,20 @@ class SecurityHeadersManager:
 
         # Expect-CT (Certificate Transparency)
         if not self.debug_mode:
-            headers["Expect-CT"] = 'max-age=86400, enforce, report-uri="/api/security/ct-report"'
+            headers["Expect-CT"] = (
+                'max-age=86400, enforce, report-uri="/api/security/ct-report"'
+            )
 
         # Network Error Logging
-        headers["NEL"] = '{"report_to":"default","max_age":31536000,"include_subdomains":true}'
+        headers["NEL"] = (
+            '{"report_to":"default","max_age":31536000,"include_subdomains":true}'
+        )
 
         # Report-To API
         report_to = {
             "group": "default",
             "max_age": 31536000,
-            "endpoints": [{"url": "/api/security/nel-report"}]
+            "endpoints": [{"url": "/api/security/nel-report"}],
         }
         headers["Report-To"] = str(report_to).replace("'", '"')
 
@@ -315,6 +318,7 @@ class SecurityHeadersManager:
     def add_inline_style_hash(self, style_content: str) -> str:
         """Add hash for inline style"""
         return self.csp_builder.add_inline_style_hash(style_content)
+
 
 # Template helpers for Jinja2
 def setup_template_helpers(app):
@@ -349,6 +353,7 @@ def setup_template_helpers(app):
 
     return security_manager
 
+
 # Example usage in middleware
 class EnhancedSecurityMiddleware:
     """Enhanced security middleware with CSP and security headers"""
@@ -377,11 +382,12 @@ class EnhancedSecurityMiddleware:
         else:
             await self.app(scope, receive, send)
 
+
 # Export main classes
 __all__ = [
-    'CSPBuilder',
-    'SubresourceIntegrityManager',
-    'SecurityHeadersManager',
-    'EnhancedSecurityMiddleware',
-    'setup_template_helpers'
+    "CSPBuilder",
+    "SubresourceIntegrityManager",
+    "SecurityHeadersManager",
+    "EnhancedSecurityMiddleware",
+    "setup_template_helpers",
 ]

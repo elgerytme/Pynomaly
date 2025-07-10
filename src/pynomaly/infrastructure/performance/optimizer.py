@@ -27,6 +27,7 @@ import psutil
 
 class PerformanceMetricType(Enum):
     """Types of performance metrics."""
+
     LATENCY = "latency"
     THROUGHPUT = "throughput"
     CPU_USAGE = "cpu_usage"
@@ -40,6 +41,7 @@ class PerformanceMetricType(Enum):
 
 class OptimizationStrategy(Enum):
     """Performance optimization strategies."""
+
     CACHING = "caching"
     CONNECTION_POOLING = "connection_pooling"
     ASYNC_PROCESSING = "async_processing"
@@ -52,6 +54,7 @@ class OptimizationStrategy(Enum):
 @dataclass
 class PerformanceMetric:
     """Performance metric data point."""
+
     metric_type: PerformanceMetricType
     value: float
     timestamp: datetime
@@ -65,13 +68,14 @@ class PerformanceMetric:
             "value": self.value,
             "timestamp": self.timestamp.isoformat(),
             "tags": self.tags,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
 
 @dataclass
 class PerformanceProfile:
     """Performance profiling results."""
+
     function_name: str
     total_calls: int
     total_time: float
@@ -95,7 +99,7 @@ class PerformanceProfile:
             "memory_usage": self.memory_usage,
             "cpu_usage": self.cpu_usage,
             "timestamp": self.timestamp.isoformat(),
-            "call_stack": self.call_stack
+            "call_stack": self.call_stack,
         }
 
 
@@ -119,14 +123,16 @@ class PerformanceCollector:
             return
 
         self.running = True
-        self.collection_thread = threading.Thread(target=self._collection_loop, daemon=True)
+        self.collection_thread = threading.Thread(
+            target=self._collection_loop, daemon=True
+        )
         self.collection_thread.start()
         self.logger.info("Performance collection started")
 
     def stop_collection(self):
         """Stop metric collection."""
         self.running = False
-        if hasattr(self, 'collection_thread'):
+        if hasattr(self, "collection_thread"):
             self.collection_thread.join(timeout=5)
         self.logger.info("Performance collection stopped")
 
@@ -146,21 +152,25 @@ class PerformanceCollector:
         try:
             # CPU metrics
             cpu_percent = psutil.cpu_percent(interval=1)
-            self.add_metric(PerformanceMetric(
-                PerformanceMetricType.CPU_USAGE,
-                cpu_percent,
-                now,
-                tags={"source": "system", "metric": "cpu_percent"}
-            ))
+            self.add_metric(
+                PerformanceMetric(
+                    PerformanceMetricType.CPU_USAGE,
+                    cpu_percent,
+                    now,
+                    tags={"source": "system", "metric": "cpu_percent"},
+                )
+            )
 
             # Memory metrics
             memory = psutil.virtual_memory()
-            self.add_metric(PerformanceMetric(
-                PerformanceMetricType.MEMORY_USAGE,
-                memory.percent,
-                now,
-                tags={"source": "system", "metric": "memory_percent"}
-            ))
+            self.add_metric(
+                PerformanceMetric(
+                    PerformanceMetricType.MEMORY_USAGE,
+                    memory.percent,
+                    now,
+                    tags={"source": "system", "metric": "memory_percent"},
+                )
+            )
 
             # Disk I/O metrics
             disk_io = psutil.disk_io_counters()
@@ -168,41 +178,53 @@ class PerformanceCollector:
                 read_bytes_delta = disk_io.read_bytes - self._last_disk_io.read_bytes
                 write_bytes_delta = disk_io.write_bytes - self._last_disk_io.write_bytes
 
-                self.add_metric(PerformanceMetric(
-                    PerformanceMetricType.DISK_IO,
-                    read_bytes_delta / self.collection_interval,
-                    now,
-                    tags={"source": "system", "metric": "disk_read_rate"}
-                ))
+                self.add_metric(
+                    PerformanceMetric(
+                        PerformanceMetricType.DISK_IO,
+                        read_bytes_delta / self.collection_interval,
+                        now,
+                        tags={"source": "system", "metric": "disk_read_rate"},
+                    )
+                )
 
-                self.add_metric(PerformanceMetric(
-                    PerformanceMetricType.DISK_IO,
-                    write_bytes_delta / self.collection_interval,
-                    now,
-                    tags={"source": "system", "metric": "disk_write_rate"}
-                ))
+                self.add_metric(
+                    PerformanceMetric(
+                        PerformanceMetricType.DISK_IO,
+                        write_bytes_delta / self.collection_interval,
+                        now,
+                        tags={"source": "system", "metric": "disk_write_rate"},
+                    )
+                )
 
             self._last_disk_io = disk_io
 
             # Network I/O metrics
             network_io = psutil.net_io_counters()
             if self._last_network_io:
-                bytes_sent_delta = network_io.bytes_sent - self._last_network_io.bytes_sent
-                bytes_recv_delta = network_io.bytes_recv - self._last_network_io.bytes_recv
+                bytes_sent_delta = (
+                    network_io.bytes_sent - self._last_network_io.bytes_sent
+                )
+                bytes_recv_delta = (
+                    network_io.bytes_recv - self._last_network_io.bytes_recv
+                )
 
-                self.add_metric(PerformanceMetric(
-                    PerformanceMetricType.NETWORK_IO,
-                    bytes_sent_delta / self.collection_interval,
-                    now,
-                    tags={"source": "system", "metric": "network_send_rate"}
-                ))
+                self.add_metric(
+                    PerformanceMetric(
+                        PerformanceMetricType.NETWORK_IO,
+                        bytes_sent_delta / self.collection_interval,
+                        now,
+                        tags={"source": "system", "metric": "network_send_rate"},
+                    )
+                )
 
-                self.add_metric(PerformanceMetric(
-                    PerformanceMetricType.NETWORK_IO,
-                    bytes_recv_delta / self.collection_interval,
-                    now,
-                    tags={"source": "system", "metric": "network_recv_rate"}
-                ))
+                self.add_metric(
+                    PerformanceMetric(
+                        PerformanceMetricType.NETWORK_IO,
+                        bytes_recv_delta / self.collection_interval,
+                        now,
+                        tags={"source": "system", "metric": "network_recv_rate"},
+                    )
+                )
 
             self._last_network_io = network_io
 
@@ -213,10 +235,13 @@ class PerformanceCollector:
         """Add performance metric."""
         self.metrics.append(metric)
 
-    def get_metrics(self, metric_type: PerformanceMetricType | None = None,
-                   tags: dict[str, str] | None = None,
-                   start_time: datetime | None = None,
-                   end_time: datetime | None = None) -> list[PerformanceMetric]:
+    def get_metrics(
+        self,
+        metric_type: PerformanceMetricType | None = None,
+        tags: dict[str, str] | None = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+    ) -> list[PerformanceMetric]:
         """Get metrics with optional filtering."""
         filtered_metrics = []
 
@@ -240,9 +265,12 @@ class PerformanceCollector:
 
         return filtered_metrics
 
-    def get_metric_statistics(self, metric_type: PerformanceMetricType,
-                             tags: dict[str, str] | None = None,
-                             time_window: timedelta | None = None) -> dict[str, float]:
+    def get_metric_statistics(
+        self,
+        metric_type: PerformanceMetricType,
+        tags: dict[str, str] | None = None,
+        time_window: timedelta | None = None,
+    ) -> dict[str, float]:
         """Get statistical summary of metrics."""
         end_time = datetime.now()
         start_time = end_time - time_window if time_window else None
@@ -261,7 +289,7 @@ class PerformanceCollector:
             "min": min(values),
             "max": max(values),
             "p95": np.percentile(values, 95),
-            "p99": np.percentile(values, 99)
+            "p99": np.percentile(values, 99),
         }
 
 
@@ -276,6 +304,7 @@ class FunctionProfiler:
 
     def profile_function(self, include_memory: bool = False):
         """Decorator to profile function performance."""
+
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
@@ -306,9 +335,12 @@ class FunctionProfiler:
                     self._update_profile(func_name, execution_time, start_memory)
 
             return wrapper
+
         return decorator
 
-    def _update_profile(self, func_name: str, execution_time: float, memory_delta: float | None):
+    def _update_profile(
+        self, func_name: str, execution_time: float, memory_delta: float | None
+    ):
         """Update function profile."""
         if func_name not in self.profiles:
             self.profiles[func_name] = PerformanceProfile(
@@ -317,10 +349,10 @@ class FunctionProfiler:
                 total_time=0.0,
                 avg_time=0.0,
                 max_time=0.0,
-                min_time=float('inf'),
+                min_time=float("inf"),
                 memory_usage=0.0,
                 cpu_usage=0.0,
-                timestamp=datetime.now()
+                timestamp=datetime.now(),
             )
 
         profile = self.profiles[func_name]
@@ -343,12 +375,12 @@ class FunctionProfiler:
         """Get all function profiles."""
         return self.profiles.copy()
 
-    def get_top_functions(self, metric: str = "total_time", limit: int = 10) -> list[PerformanceProfile]:
+    def get_top_functions(
+        self, metric: str = "total_time", limit: int = 10
+    ) -> list[PerformanceProfile]:
         """Get top functions by metric."""
         sorted_profiles = sorted(
-            self.profiles.values(),
-            key=lambda p: getattr(p, metric, 0),
-            reverse=True
+            self.profiles.values(), key=lambda p: getattr(p, metric, 0), reverse=True
         )
         return sorted_profiles[:limit]
 
@@ -379,7 +411,7 @@ class MemoryProfiler:
                 "vms": memory_info.vms,  # Virtual Memory Size
                 "percent": process.memory_percent(),
                 "num_threads": process.num_threads(),
-                "num_fds": process.num_fds() if hasattr(process, 'num_fds') else 0
+                "num_fds": process.num_fds() if hasattr(process, "num_fds") else 0,
             }
 
             self.snapshots.append(snapshot)
@@ -407,9 +439,12 @@ class MemoryProfiler:
             "rss_delta": end_snapshot["rss"] - start_snapshot["rss"],
             "vms_delta": end_snapshot["vms"] - start_snapshot["vms"],
             "percent_delta": end_snapshot["percent"] - start_snapshot["percent"],
-            "threads_delta": end_snapshot["num_threads"] - start_snapshot["num_threads"],
+            "threads_delta": end_snapshot["num_threads"]
+            - start_snapshot["num_threads"],
             "fds_delta": end_snapshot["num_fds"] - start_snapshot["num_fds"],
-            "duration": (end_snapshot["timestamp"] - start_snapshot["timestamp"]).total_seconds()
+            "duration": (
+                end_snapshot["timestamp"] - start_snapshot["timestamp"]
+            ).total_seconds(),
         }
 
     def get_memory_trend(self, window_size: int = 10) -> dict[str, Any]:
@@ -423,11 +458,13 @@ class MemoryProfiler:
 
         return {
             "rss_trend": np.polyfit(range(len(rss_values)), rss_values, 1)[0],
-            "percent_trend": np.polyfit(range(len(percent_values)), percent_values, 1)[0],
+            "percent_trend": np.polyfit(range(len(percent_values)), percent_values, 1)[
+                0
+            ],
             "rss_mean": np.mean(rss_values),
             "percent_mean": np.mean(percent_values),
             "rss_std": np.std(rss_values),
-            "percent_std": np.std(percent_values)
+            "percent_std": np.std(percent_values),
         }
 
 
@@ -452,7 +489,7 @@ class PerformanceOptimizer:
             strategy=OptimizationStrategy.CPU_OPTIMIZATION,
             action=self._optimize_cpu_usage,
             threshold=80.0,
-            description="Optimize when CPU usage exceeds 80%"
+            description="Optimize when CPU usage exceeds 80%",
         )
 
         # High memory usage rule
@@ -462,7 +499,7 @@ class PerformanceOptimizer:
             strategy=OptimizationStrategy.MEMORY_OPTIMIZATION,
             action=self._optimize_memory_usage,
             threshold=85.0,
-            description="Optimize when memory usage exceeds 85%"
+            description="Optimize when memory usage exceeds 85%",
         )
 
         # Slow response time rule
@@ -472,11 +509,18 @@ class PerformanceOptimizer:
             strategy=OptimizationStrategy.CACHING,
             action=self._optimize_caching,
             threshold=1000.0,  # milliseconds
-            description="Enable caching when response time exceeds 1000ms"
+            description="Enable caching when response time exceeds 1000ms",
         )
 
-    def add_optimization_rule(self, name: str, condition: Callable, strategy: OptimizationStrategy,
-                            action: Callable, threshold: float, description: str = ""):
+    def add_optimization_rule(
+        self,
+        name: str,
+        condition: Callable,
+        strategy: OptimizationStrategy,
+        action: Callable,
+        threshold: float,
+        description: str = "",
+    ):
         """Add optimization rule."""
         rule = {
             "name": name,
@@ -486,31 +530,28 @@ class PerformanceOptimizer:
             "threshold": threshold,
             "description": description,
             "last_triggered": None,
-            "trigger_count": 0
+            "trigger_count": 0,
         }
         self.optimization_rules.append(rule)
 
     def _check_high_cpu_usage(self) -> bool:
         """Check if CPU usage is high."""
         stats = self.collector.get_metric_statistics(
-            PerformanceMetricType.CPU_USAGE,
-            time_window=timedelta(minutes=5)
+            PerformanceMetricType.CPU_USAGE, time_window=timedelta(minutes=5)
         )
         return stats.get("mean", 0) > 80.0
 
     def _check_high_memory_usage(self) -> bool:
         """Check if memory usage is high."""
         stats = self.collector.get_metric_statistics(
-            PerformanceMetricType.MEMORY_USAGE,
-            time_window=timedelta(minutes=5)
+            PerformanceMetricType.MEMORY_USAGE, time_window=timedelta(minutes=5)
         )
         return stats.get("mean", 0) > 85.0
 
     def _check_slow_response_time(self) -> bool:
         """Check if response time is slow."""
         stats = self.collector.get_metric_statistics(
-            PerformanceMetricType.RESPONSE_TIME,
-            time_window=timedelta(minutes=10)
+            PerformanceMetricType.RESPONSE_TIME, time_window=timedelta(minutes=10)
         )
         return stats.get("p95", 0) > 1000.0
 
@@ -522,12 +563,14 @@ class PerformanceOptimizer:
         gc.collect()
 
         # Log optimization
-        self.applied_optimizations.append({
-            "strategy": OptimizationStrategy.CPU_OPTIMIZATION,
-            "action": "garbage_collection",
-            "timestamp": datetime.now(),
-            "description": "Forced garbage collection to reduce CPU load"
-        })
+        self.applied_optimizations.append(
+            {
+                "strategy": OptimizationStrategy.CPU_OPTIMIZATION,
+                "action": "garbage_collection",
+                "timestamp": datetime.now(),
+                "description": "Forced garbage collection to reduce CPU load",
+            }
+        )
 
     def _optimize_memory_usage(self):
         """Optimize memory usage."""
@@ -537,25 +580,29 @@ class PerformanceOptimizer:
         collected = gc.collect()
 
         # Log optimization
-        self.applied_optimizations.append({
-            "strategy": OptimizationStrategy.MEMORY_OPTIMIZATION,
-            "action": "garbage_collection",
-            "timestamp": datetime.now(),
-            "description": f"Garbage collection freed {collected} objects",
-            "objects_freed": collected
-        })
+        self.applied_optimizations.append(
+            {
+                "strategy": OptimizationStrategy.MEMORY_OPTIMIZATION,
+                "action": "garbage_collection",
+                "timestamp": datetime.now(),
+                "description": f"Garbage collection freed {collected} objects",
+                "objects_freed": collected,
+            }
+        )
 
     def _optimize_caching(self):
         """Optimize caching strategy."""
         self.logger.info("Applying caching optimization")
 
         # This would typically enable or tune caching mechanisms
-        self.applied_optimizations.append({
-            "strategy": OptimizationStrategy.CACHING,
-            "action": "enable_caching",
-            "timestamp": datetime.now(),
-            "description": "Enabled aggressive caching due to slow response times"
-        })
+        self.applied_optimizations.append(
+            {
+                "strategy": OptimizationStrategy.CACHING,
+                "action": "enable_caching",
+                "timestamp": datetime.now(),
+                "description": "Enabled aggressive caching due to slow response times",
+            }
+        )
 
     def run_optimization_cycle(self):
         """Run one optimization cycle."""
@@ -566,8 +613,13 @@ class PerformanceOptimizer:
                     now = datetime.now()
                     last_triggered = rule["last_triggered"]
 
-                    if not last_triggered or (now - last_triggered).total_seconds() > 300:  # 5 minutes
-                        self.logger.info(f"Triggering optimization rule: {rule['name']}")
+                    if (
+                        not last_triggered
+                        or (now - last_triggered).total_seconds() > 300
+                    ):  # 5 minutes
+                        self.logger.info(
+                            f"Triggering optimization rule: {rule['name']}"
+                        )
                         rule["action"]()
                         rule["last_triggered"] = now
                         rule["trigger_count"] += 1
@@ -586,7 +638,9 @@ class PerformanceOptimizer:
                     "strategy": rule["strategy"].value,
                     "description": rule["description"],
                     "trigger_count": rule["trigger_count"],
-                    "last_triggered": rule["last_triggered"].isoformat() if rule["last_triggered"] else None
+                    "last_triggered": rule["last_triggered"].isoformat()
+                    if rule["last_triggered"]
+                    else None,
                 }
                 for rule in self.optimization_rules
             ],
@@ -595,10 +649,10 @@ class PerformanceOptimizer:
                     "strategy": opt["strategy"].value,
                     "action": opt["action"],
                     "timestamp": opt["timestamp"].isoformat(),
-                    "description": opt["description"]
+                    "description": opt["description"],
                 }
                 for opt in self.applied_optimizations[-10:]  # Last 10 optimizations
-            ]
+            ],
         }
 
 
@@ -609,7 +663,9 @@ class PerformanceAnalyzer:
         self.collector = collector
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
-    def analyze_performance_trends(self, time_window: timedelta = timedelta(hours=1)) -> dict[str, Any]:
+    def analyze_performance_trends(
+        self, time_window: timedelta = timedelta(hours=1)
+    ) -> dict[str, Any]:
         """Analyze performance trends over time."""
         end_time = datetime.now()
         start_time = end_time - time_window
@@ -618,7 +674,9 @@ class PerformanceAnalyzer:
 
         # Analyze each metric type
         for metric_type in PerformanceMetricType:
-            metrics = self.collector.get_metrics(metric_type, start_time=start_time, end_time=end_time)
+            metrics = self.collector.get_metrics(
+                metric_type, start_time=start_time, end_time=end_time
+            )
 
             if not metrics:
                 continue
@@ -640,19 +698,20 @@ class PerformanceAnalyzer:
                     "max": np.max(values),
                     "trend": "increasing" if trend_coefficient > 0 else "decreasing",
                     "trend_coefficient": trend_coefficient,
-                    "latest_value": values[-1]
+                    "latest_value": values[-1],
                 }
 
         return analysis
 
-    def detect_performance_anomalies(self, z_threshold: float = 2.0) -> list[dict[str, Any]]:
+    def detect_performance_anomalies(
+        self, z_threshold: float = 2.0
+    ) -> list[dict[str, Any]]:
         """Detect performance anomalies using z-score."""
         anomalies = []
 
         for metric_type in PerformanceMetricType:
             metrics = self.collector.get_metrics(
-                metric_type,
-                start_time=datetime.now() - timedelta(hours=24)
+                metric_type, start_time=datetime.now() - timedelta(hours=24)
             )
 
             if len(metrics) < 10:  # Need sufficient data
@@ -672,15 +731,17 @@ class PerformanceAnalyzer:
                 z_score = abs((metric.value - mean) / std)
 
                 if z_score > z_threshold:
-                    anomalies.append({
-                        "metric_type": metric.metric_type.value,
-                        "value": metric.value,
-                        "expected_range": [mean - 2*std, mean + 2*std],
-                        "z_score": z_score,
-                        "timestamp": metric.timestamp.isoformat(),
-                        "tags": metric.tags,
-                        "severity": "high" if z_score > 3.0 else "medium"
-                    })
+                    anomalies.append(
+                        {
+                            "metric_type": metric.metric_type.value,
+                            "value": metric.value,
+                            "expected_range": [mean - 2 * std, mean + 2 * std],
+                            "z_score": z_score,
+                            "timestamp": metric.timestamp.isoformat(),
+                            "tags": metric.tags,
+                            "severity": "high" if z_score > 3.0 else "medium",
+                        }
+                    )
 
         return anomalies
 
@@ -695,51 +756,57 @@ class PerformanceAnalyzer:
         if "cpu_usage" in trends:
             cpu_stats = trends["cpu_usage"]
             if cpu_stats["mean"] > 80:
-                recommendations.append({
-                    "category": "cpu",
-                    "priority": "high",
-                    "issue": f"High CPU usage (average {cpu_stats['mean']:.1f}%)",
-                    "recommendation": "Consider scaling horizontally or optimizing CPU-intensive operations",
-                    "actions": [
-                        "Profile CPU-intensive functions",
-                        "Implement caching for expensive operations",
-                        "Consider async processing for I/O operations"
-                    ]
-                })
+                recommendations.append(
+                    {
+                        "category": "cpu",
+                        "priority": "high",
+                        "issue": f"High CPU usage (average {cpu_stats['mean']:.1f}%)",
+                        "recommendation": "Consider scaling horizontally or optimizing CPU-intensive operations",
+                        "actions": [
+                            "Profile CPU-intensive functions",
+                            "Implement caching for expensive operations",
+                            "Consider async processing for I/O operations",
+                        ],
+                    }
+                )
 
         # Memory usage recommendations
         if "memory_usage" in trends:
             memory_stats = trends["memory_usage"]
             if memory_stats["mean"] > 85:
-                recommendations.append({
-                    "category": "memory",
-                    "priority": "high",
-                    "issue": f"High memory usage (average {memory_stats['mean']:.1f}%)",
-                    "recommendation": "Optimize memory usage to prevent out-of-memory errors",
-                    "actions": [
-                        "Review memory-intensive objects",
-                        "Implement object pooling",
-                        "Add more frequent garbage collection",
-                        "Consider memory-efficient data structures"
-                    ]
-                })
+                recommendations.append(
+                    {
+                        "category": "memory",
+                        "priority": "high",
+                        "issue": f"High memory usage (average {memory_stats['mean']:.1f}%)",
+                        "recommendation": "Optimize memory usage to prevent out-of-memory errors",
+                        "actions": [
+                            "Review memory-intensive objects",
+                            "Implement object pooling",
+                            "Add more frequent garbage collection",
+                            "Consider memory-efficient data structures",
+                        ],
+                    }
+                )
 
         # Response time recommendations
         if "response_time" in trends:
             response_stats = trends["response_time"]
             if response_stats["mean"] > 500:  # 500ms
-                recommendations.append({
-                    "category": "latency",
-                    "priority": "medium",
-                    "issue": f"Slow response times (average {response_stats['mean']:.1f}ms)",
-                    "recommendation": "Optimize application response times",
-                    "actions": [
-                        "Implement response caching",
-                        "Optimize database queries",
-                        "Use CDN for static content",
-                        "Implement connection pooling"
-                    ]
-                })
+                recommendations.append(
+                    {
+                        "category": "latency",
+                        "priority": "medium",
+                        "issue": f"Slow response times (average {response_stats['mean']:.1f}ms)",
+                        "recommendation": "Optimize application response times",
+                        "actions": [
+                            "Implement response caching",
+                            "Optimize database queries",
+                            "Use CDN for static content",
+                            "Implement connection pooling",
+                        ],
+                    }
+                )
 
         # Detect anomalies
         anomalies = self.detect_performance_anomalies()
@@ -747,19 +814,23 @@ class PerformanceAnalyzer:
         if anomalies:
             high_severity_anomalies = [a for a in anomalies if a["severity"] == "high"]
             if high_severity_anomalies:
-                recommendations.append({
-                    "category": "anomaly",
-                    "priority": "critical",
-                    "issue": f"Detected {len(high_severity_anomalies)} high-severity performance anomalies",
-                    "recommendation": "Investigate performance anomalies immediately",
-                    "actions": [
-                        "Review system logs for errors",
-                        "Check for resource contention",
-                        "Monitor for external dependencies issues",
-                        "Consider rolling back recent changes"
-                    ],
-                    "anomalies": high_severity_anomalies[:5]  # Include first 5 anomalies
-                })
+                recommendations.append(
+                    {
+                        "category": "anomaly",
+                        "priority": "critical",
+                        "issue": f"Detected {len(high_severity_anomalies)} high-severity performance anomalies",
+                        "recommendation": "Investigate performance anomalies immediately",
+                        "actions": [
+                            "Review system logs for errors",
+                            "Check for resource contention",
+                            "Monitor for external dependencies issues",
+                            "Consider rolling back recent changes",
+                        ],
+                        "anomalies": high_severity_anomalies[
+                            :5
+                        ],  # Include first 5 anomalies
+                    }
+                )
 
         return recommendations
 
@@ -780,25 +851,34 @@ def performance_timer(name: str, collector: PerformanceCollector):
         memory_delta = end_memory - start_memory
 
         # Add latency metric
-        collector.add_metric(PerformanceMetric(
-            PerformanceMetricType.LATENCY,
-            duration * 1000,  # Convert to milliseconds
-            datetime.now(),
-            tags={"operation": name, "source": "timer"}
-        ))
+        collector.add_metric(
+            PerformanceMetric(
+                PerformanceMetricType.LATENCY,
+                duration * 1000,  # Convert to milliseconds
+                datetime.now(),
+                tags={"operation": name, "source": "timer"},
+            )
+        )
 
         # Add memory metric if significant change
         if abs(memory_delta) > 1.0:  # > 1MB change
-            collector.add_metric(PerformanceMetric(
-                PerformanceMetricType.MEMORY_USAGE,
-                memory_delta,
-                datetime.now(),
-                tags={"operation": name, "source": "timer", "metric": "memory_delta"}
-            ))
+            collector.add_metric(
+                PerformanceMetric(
+                    PerformanceMetricType.MEMORY_USAGE,
+                    memory_delta,
+                    datetime.now(),
+                    tags={
+                        "operation": name,
+                        "source": "timer",
+                        "metric": "memory_delta",
+                    },
+                )
+            )
 
 
 def profile_async_function(collector: PerformanceCollector):
     """Decorator for profiling async functions."""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -812,14 +892,21 @@ def profile_async_function(collector: PerformanceCollector):
                 duration = end_time - start_time
 
                 func_name = f"{func.__module__}.{func.__name__}"
-                collector.add_metric(PerformanceMetric(
-                    PerformanceMetricType.LATENCY,
-                    duration * 1000,  # Convert to milliseconds
-                    datetime.now(),
-                    tags={"function": func_name, "type": "async", "source": "profiler"}
-                ))
+                collector.add_metric(
+                    PerformanceMetric(
+                        PerformanceMetricType.LATENCY,
+                        duration * 1000,  # Convert to milliseconds
+                        datetime.now(),
+                        tags={
+                            "function": func_name,
+                            "type": "async",
+                            "source": "profiler",
+                        },
+                    )
+                )
 
         return wrapper
+
     return decorator
 
 
@@ -841,7 +928,9 @@ class PerformanceManager:
 
         # Optimization cycle
         self.optimization_enabled = self.config.get("auto_optimization", True)
-        self.optimization_interval = self.config.get("optimization_interval", 300)  # 5 minutes
+        self.optimization_interval = self.config.get(
+            "optimization_interval", 300
+        )  # 5 minutes
 
     def start(self):
         """Start performance management."""
@@ -853,8 +942,7 @@ class PerformanceManager:
         # Start optimization cycle if enabled
         if self.optimization_enabled:
             self.optimization_thread = threading.Thread(
-                target=self._optimization_loop,
-                daemon=True
+                target=self._optimization_loop, daemon=True
             )
             self.optimization_thread.start()
 
@@ -883,8 +971,7 @@ class PerformanceManager:
             "timestamp": datetime.now().isoformat(),
             "system_metrics": {
                 metric_type.value: self.collector.get_metric_statistics(
-                    metric_type,
-                    time_window=timedelta(hours=1)
+                    metric_type, time_window=timedelta(hours=1)
                 )
                 for metric_type in PerformanceMetricType
             },
@@ -896,8 +983,10 @@ class PerformanceManager:
             "anomalies": self.analyzer.detect_performance_anomalies(),
             "recommendations": self.analyzer.generate_performance_recommendations(),
             "optimization_report": self.optimizer.get_optimization_report(),
-            "memory_snapshots": self.memory_profiler.snapshots[-10:],  # Last 10 snapshots
-            "config": self.config
+            "memory_snapshots": self.memory_profiler.snapshots[
+                -10:
+            ],  # Last 10 snapshots
+            "config": self.config,
         }
 
 
@@ -908,18 +997,20 @@ def main():
     # Setup logging
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
     logger = logging.getLogger(__name__)
     logger.info("Testing performance optimization system")
 
     # Create performance manager
-    perf_manager = PerformanceManager({
-        "collection_interval": 5,
-        "auto_optimization": True,
-        "optimization_interval": 30
-    })
+    perf_manager = PerformanceManager(
+        {
+            "collection_interval": 5,
+            "auto_optimization": True,
+            "optimization_interval": 30,
+        }
+    )
 
     # Start performance management
     perf_manager.start()
@@ -964,12 +1055,14 @@ def main():
     print(f"   Function Profiles: {len(report['function_profiles'])}")
     print(f"   Anomalies Detected: {len(report['anomalies'])}")
     print(f"   Recommendations: {len(report['recommendations'])}")
-    print(f"   Optimizations Applied: {report['optimization_report']['total_optimizations']}")
+    print(
+        f"   Optimizations Applied: {report['optimization_report']['total_optimizations']}"
+    )
 
     # Print recommendations
-    if report['recommendations']:
+    if report["recommendations"]:
         print("\n💡 Performance Recommendations:")
-        for rec in report['recommendations']:
+        for rec in report["recommendations"]:
             print(f"   - {rec['category'].upper()}: {rec['issue']}")
             print(f"     Action: {rec['recommendation']}")
 

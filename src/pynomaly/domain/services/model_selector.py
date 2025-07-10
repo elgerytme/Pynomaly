@@ -8,7 +8,7 @@ significance testing.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 import numpy as np
 from scipy.stats import ttest_ind
@@ -22,7 +22,7 @@ class ParetoOptimizer:
 
     def __init__(self, objectives: list[dict[str, Any]]):
         """Initialize Pareto optimizer.
-        
+
         Args:
             objectives: List of objectives with name and direction
         """
@@ -32,17 +32,19 @@ class ParetoOptimizer:
         self, models: list[ModelPerformanceMetrics]
     ) -> list[dict[str, Any]]:
         """Find Pareto-optimal models considering multiple objectives.
-        
+
         Args:
             models: List of model performance metrics
-            
+
         Returns:
             List of Pareto-optimal models
         """
         if not models:
             return []
 
-        def dominates(model1: ModelPerformanceMetrics, model2: ModelPerformanceMetrics) -> bool:
+        def dominates(
+            model1: ModelPerformanceMetrics, model2: ModelPerformanceMetrics
+        ) -> bool:
             """Check if model1 dominates model2."""
             better_in_all = True
             strictly_better_in_one = False
@@ -85,7 +87,9 @@ class ParetoOptimizer:
 
         return pareto_optimal
 
-    def _get_metric_value(self, model: ModelPerformanceMetrics, metric_name: str) -> float:
+    def _get_metric_value(
+        self, model: ModelPerformanceMetrics, metric_name: str
+    ) -> float:
         """Get metric value from model performance metrics."""
         if hasattr(model, "metrics") and hasattr(model.metrics, metric_name):
             return getattr(model.metrics, metric_name)
@@ -99,12 +103,10 @@ class ModelSelector:
     """Domain service for intelligent model selection."""
 
     def __init__(
-        self,
-        primary_metric: str = "f1_score",
-        secondary_metrics: list[str] = None
+        self, primary_metric: str = "f1_score", secondary_metrics: list[str] = None
     ):
         """Initialize ModelSelector.
-        
+
         Args:
             primary_metric: Primary metric for model ranking
             secondary_metrics: Additional metrics for multi-objective optimization
@@ -123,10 +125,10 @@ class ModelSelector:
         self, models: list[ModelPerformanceMetrics]
     ) -> list[dict[str, Any]]:
         """Rank models using Pareto front filtering and primary metric.
-        
+
         Args:
             models: List of model performance metrics
-            
+
         Returns:
             List of ranked models
         """
@@ -151,8 +153,7 @@ class ModelSelector:
         # Filter rankings to only include Pareto-optimal models
         primary_rankings = comparison["rankings"].get(self.primary_metric, [])
         filtered_rankings = [
-            rank for rank in primary_rankings
-            if rank["model"] in pareto_model_ids
+            rank for rank in primary_rankings if rank["model"] in pareto_model_ids
         ]
 
         return filtered_rankings
@@ -161,15 +162,15 @@ class ModelSelector:
         self,
         model1: ModelPerformanceMetrics,
         model2: ModelPerformanceMetrics,
-        alpha: float = 0.05
+        alpha: float = 0.05,
     ) -> bool:
         """Test for statistical significance between two models.
-        
+
         Args:
             model1: First model performance metrics
             model2: Second model performance metrics
             alpha: Significance level
-            
+
         Returns:
             True if there's a significant difference
         """
@@ -180,8 +181,12 @@ class ModelSelector:
         # Check if metrics are available
         if val1 == 0.0 and val2 == 0.0:
             # If both are 0, check if the metric actually exists
-            if not self._has_metric(model1, self.primary_metric) or not self._has_metric(model2, self.primary_metric):
-                raise KeyError(f"Primary metric '{self.primary_metric}' not found in model metrics")
+            if not self._has_metric(
+                model1, self.primary_metric
+            ) or not self._has_metric(model2, self.primary_metric):
+                raise KeyError(
+                    f"Primary metric '{self.primary_metric}' not found in model metrics"
+                )
 
         # For single values, create arrays for t-test
         # In practice, these would be cross-validation results
@@ -197,27 +202,21 @@ class ModelSelector:
         self, models: list[ModelPerformanceMetrics]
     ) -> dict[str, Any]:
         """Select the best model with detailed rationale.
-        
+
         Args:
             models: List of model performance metrics
-            
+
         Returns:
             Dictionary with selected model and rationale
         """
         if not models:
-            return {
-                "decision": "No suitable models found",
-                "rationale": []
-            }
+            return {"decision": "No suitable models found", "rationale": []}
 
         # Rank models
         ranked_models = self.rank_models(models)
 
         if not ranked_models:
-            return {
-                "decision": "No suitable models found",
-                "rationale": []
-            }
+            return {"decision": "No suitable models found", "rationale": []}
 
         # Select best model
         best_model = ranked_models[0]
@@ -252,12 +251,11 @@ class ModelSelector:
                     "No significant difference detected, selection based on lack of significant difference"
                 )
 
-        return {
-            "selected_model": selected_model,
-            "rationale": rationale
-        }
+        return {"selected_model": selected_model, "rationale": rationale}
 
-    def _convert_model_to_results(self, model: ModelPerformanceMetrics) -> dict[str, Any]:
+    def _convert_model_to_results(
+        self, model: ModelPerformanceMetrics
+    ) -> dict[str, Any]:
         """Convert ModelPerformanceMetrics to format expected by MetricsCalculator."""
         results = {}
 
@@ -277,7 +275,9 @@ class ModelSelector:
 
         return results
 
-    def _get_metric_value(self, model: ModelPerformanceMetrics, metric_name: str) -> float:
+    def _get_metric_value(
+        self, model: ModelPerformanceMetrics, metric_name: str
+    ) -> float:
         """Get metric value from model performance metrics."""
         if hasattr(model, "metrics"):
             if hasattr(model.metrics, metric_name):

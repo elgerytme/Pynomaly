@@ -262,7 +262,7 @@ def add_configuration_health_check(app: FastAPI) -> None:
 
 def setup_middleware_stack(app: FastAPI) -> None:
     """Setup complete middleware stack for the FastAPI application.
-    
+
     Args:
         app: FastAPI application instance
     """
@@ -276,9 +276,9 @@ def setup_middleware_stack(app: FastAPI) -> None:
 
 def configure_cors(app: FastAPI, allow_origins: list = None) -> None:
     """Configure CORS middleware for the FastAPI application.
-    
+
     Args:
-        app: FastAPI application instance  
+        app: FastAPI application instance
         allow_origins: List of allowed origins, defaults to ["*"]
     """
     from fastapi.middleware.cors import CORSMiddleware
@@ -297,7 +297,7 @@ def configure_cors(app: FastAPI, allow_origins: list = None) -> None:
 
 def configure_rate_limiting(app: FastAPI, requests_per_minute: int = 60) -> None:
     """Configure rate limiting middleware for the FastAPI application.
-    
+
     Args:
         app: FastAPI application instance
         requests_per_minute: Maximum requests per minute per client

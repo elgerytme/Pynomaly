@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 from pynomaly.domain.value_objects import PerformanceMetrics
@@ -23,7 +23,7 @@ class ModelPerformanceMetrics:
             self.id = uuid4()
         if self.metadata is None:
             self.metadata = {}
-        
+
         # Convert string model_id to ensure consistency
         if isinstance(self.model_id, str):
             # Keep as string for test compatibility
