@@ -33,21 +33,21 @@ class FastCLIContainer:
         """Get detector repository (in-memory for CLI)."""
         if "detector" not in self._repositories:
             # Use in-memory repository for CLI to avoid database overhead
-            from pynomaly.infrastructure.persistence.memory.detector_repository import (
-                InMemoryDetectorRepository,
+            from pynomaly.infrastructure.persistence.memory_repository import (
+                MemoryRepository,
             )
 
-            self._repositories["detector"] = InMemoryDetectorRepository()
+            self._repositories["detector"] = MemoryRepository()
         return self._repositories["detector"]
 
     def dataset_repository(self):
         """Get dataset repository (in-memory for CLI)."""
         if "dataset" not in self._repositories:
-            from pynomaly.infrastructure.persistence.memory.dataset_repository import (
-                InMemoryDatasetRepository,
+            from pynomaly.infrastructure.persistence.memory_repository import (
+                MemoryRepository,
             )
 
-            self._repositories["dataset"] = InMemoryDatasetRepository()
+            self._repositories["dataset"] = MemoryRepository()
         return self._repositories["dataset"]
 
     def result_repository(self):

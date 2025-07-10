@@ -69,11 +69,11 @@ class IDataValidationService(Protocol):
         self, X: pd.DataFrame, y: pd.Series | None = None
     ) -> DataValidationResult:
         """Validate input data and assess quality.
-        
+
         Args:
             X: Input features
             y: Target variable (optional)
-            
+
         Returns:
             Validation result with quality metrics
         """
@@ -87,11 +87,11 @@ class IDataProfilingService(Protocol):
         self, X: pd.DataFrame, y: pd.Series | None = None
     ) -> DataProfile:
         """Profile dataset to understand its characteristics.
-        
+
         Args:
             X: Input features
             y: Target variable (optional)
-            
+
         Returns:
             Data profile with characteristics
         """
@@ -105,11 +105,11 @@ class IFeatureEngineeringService(Protocol):
         self, X: pd.DataFrame, y: pd.Series | None = None
     ) -> FeatureEngineeringResult:
         """Engineer features for improved model performance.
-        
+
         Args:
             X: Input features
             y: Target variable (optional)
-            
+
         Returns:
             Feature engineering result with transformed data
         """
@@ -123,11 +123,11 @@ class IModelSelectionService(Protocol):
         self, data_profile: DataProfile, max_models: int = 5
     ) -> dict[str, Any]:
         """Select candidate models based on data characteristics.
-        
+
         Args:
             data_profile: Profile of the dataset
             max_models: Maximum number of models to select
-            
+
         Returns:
             Model selection result with candidates and rationale
         """
@@ -145,10 +145,10 @@ class IPipelineStage(ABC):
     @abstractmethod
     async def execute(self, context: dict[str, Any]) -> dict[str, Any]:
         """Execute this pipeline stage.
-        
+
         Args:
             context: Pipeline execution context
-            
+
         Returns:
             Stage execution result
         """
@@ -167,11 +167,11 @@ class IPipelineOrchestrator(Protocol):
         self, X: pd.DataFrame, y: pd.Series | None = None
     ) -> dict[str, Any]:
         """Execute the complete pipeline.
-        
+
         Args:
             X: Input features
             y: Target variable (optional)
-            
+
         Returns:
             Pipeline execution result
         """

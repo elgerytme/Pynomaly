@@ -472,8 +472,8 @@ class JWTAuthService:
         username: str,
         email: str,
         password: str,
-        full_name: Union[str, None] = None,
-        roles: Union[list[str], None] = None,
+        full_name: str | None = None,
+        roles: list[str] | None = None,
     ) -> UserModel:
         """Create a new user.
 
