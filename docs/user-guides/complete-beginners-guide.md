@@ -1,13 +1,166 @@
 # Complete Beginner's Guide to Pynomaly
 
-## Welcome to Anomaly Detection
+Welcome to **Pynomaly** - the most comprehensive anomaly detection platform! This guide will take you from zero to detecting anomalies like a pro in just 30 minutes.
 
-Welcome to Pynomaly! This guide will take you from complete beginner to confidently detecting anomalies in your data. Whether you're a data scientist, analyst, or developer, this guide will help you understand both the concepts and practical application of anomaly detection.
+## 🚀 What is Pynomaly?
 
-## Table of Contents
+Pynomaly is an enterprise-grade anomaly detection platform that makes machine learning accessible to everyone. Whether you're a data scientist, business analyst, or developer, Pynomaly provides:
 
-1. [What is Anomaly Detection?](#what-is-anomaly-detection)
-2. [Why Use Pynomaly?](#why-use-pynomaly)
+- **🎯 One-Click Anomaly Detection**: Upload data, get results instantly
+- **🧠 Multiple AI Algorithms**: 50+ state-of-the-art detection methods
+- **🔒 Enterprise Security**: Bank-grade security with WAF protection
+- **📊 Beautiful Dashboards**: Interactive visualizations and monitoring
+- **⚡ Production Ready**: Scalable, reliable, and fast
+
+## 🛠️ Quick Start (5 Minutes)
+
+### Step 1: Access Pynomaly
+
+Open your web browser and navigate to your Pynomaly instance:
+
+```
+http://localhost:8000
+```
+
+### Step 2: Create Your First Dataset
+
+1. Click **"Upload Dataset"** on the main dashboard
+2. Drag & drop your CSV file or click **"Browse Files"**
+3. Preview your data and click **"Upload"**
+
+> **💡 Tip**: Don't have data? Use our sample datasets in the "Examples" section!
+
+### Step 3: Detect Anomalies
+
+1. Click **"Create Detector"**
+2. Choose your dataset from the dropdown
+3. Select **"Auto-Detect"** for algorithm selection
+4. Click **"Train & Detect"**
+
+### Step 4: View Results
+
+🎉 **Congratulations!** Your anomalies are detected and visualized instantly.
+
+## 📚 Understanding Your Data
+
+### Supported Data Formats
+
+| Format | Description | Example Use Case |
+|--------|-------------|------------------|
+| **CSV** | Comma-separated values | Sales data, sensor readings |
+| **JSON** | JavaScript Object Notation | API logs, web analytics |
+| **Parquet** | Columnar storage format | Big data, data lakes |
+| **Excel** | Microsoft Excel files | Business reports, financial data |
+
+### Data Requirements
+
+- **Minimum**: 100 rows recommended
+- **Columns**: Numeric data works best
+- **Size**: Up to 100MB per file
+- **Missing Values**: Automatically handled
+
+### Data Types Pynomaly Handles
+
+- **📈 Time Series**: Stock prices, sensor data, metrics
+- **🏢 Tabular**: Customer data, transactions, logs  
+- **🌐 Network**: Graph data, connections, relationships
+- **📱 Streaming**: Real-time data feeds
+
+## 🎯 Choosing the Right Algorithm
+
+Pynomaly offers 50+ algorithms, but here's how to pick the best one:
+
+### For Beginners: Auto-Detection 🤖
+
+```
+✅ Best for: First-time users
+✅ Pros: Automatically selects optimal algorithm
+✅ Use when: You're not sure which algorithm to use
+```
+
+### Popular Algorithms by Use Case
+
+#### 📊 **Statistical Anomalies**
+
+- **Isolation Forest** - Great for general-purpose detection
+- **Local Outlier Factor (LOF)** - Finds local anomalies
+- **One-Class SVM** - Robust to noise
+
+#### 📈 **Time Series Data**
+
+- **LSTM Autoencoder** - Deep learning for complex patterns
+- **Seasonal Decomposition** - Handles seasonal data
+- **ARIMA-based Detection** - Classic statistical approach
+
+#### 🏢 **Business Data**
+
+- **Gaussian Mixture Model** - Multiple normal behaviors
+- **K-Means Clustering** - Group-based anomalies
+- **PCA** - Dimensionality reduction approach
+
+## 🔧 Advanced Features
+
+### AutoML - Automatic Machine Learning
+
+Let Pynomaly automatically:
+
+- Select the best algorithm
+- Tune hyperparameters
+- Validate results
+- Generate explanations
+
+**How to use:**
+
+1. Upload your dataset
+2. Click **"AutoML Detection"**
+3. Wait for optimization (2-10 minutes)
+4. Get the best possible results!
+
+### Ensemble Methods
+
+Combine multiple algorithms for better accuracy:
+
+```python
+# Example: Combining 3 algorithms
+ensemble = [
+    "IsolationForest",
+    "LocalOutlierFactor", 
+    "OneClassSVM"
+]
+```
+
+### Real-Time Detection
+
+Monitor live data streams:
+
+1. Go to **"Streaming"** tab
+2. Configure your data source
+3. Set detection thresholds
+4. Receive instant alerts
+
+## 📊 Understanding Results
+
+### Anomaly Scores
+
+- **Score Range**: 0.0 to 1.0
+- **0.0**: Completely normal
+- **1.0**: Definitely an anomaly
+- **0.7+**: Usually worth investigating
+
+### Visualizations Available
+
+- **📈 Scatter Plots**: See anomalies in data space
+- **📉 Time Series**: Anomalies over time
+- **🔥 Heatmaps**: Pattern intensity
+- **📊 Histograms**: Score distributions
+
+### Export Options
+
+- **CSV**: Raw results with scores
+- **PDF**: Professional reports
+- **JSON**: API-friendly format
+- **PNG/SVG**: Charts and visualizations
+
 3. [Understanding Types of Anomalies](#understanding-types-of-anomalies)
 4. [Your First 10 Minutes with Pynomaly](#your-first-10-minutes)
 5. [Understanding Your Results](#understanding-results)
@@ -30,6 +183,7 @@ Anomaly detection is the process of identifying data points, events, or patterns
 ### Why is it Important?
 
 Anomalies often represent:
+
 - **Critical issues** that need immediate attention
 - **Fraud or security breaches**
 - **Quality problems** in manufacturing
@@ -41,21 +195,25 @@ Anomalies often represent:
 Pynomaly is designed to make anomaly detection accessible to everyone:
 
 ### ✅ **Beginner-Friendly**
+
 - No need to be a machine learning expert
 - Simple APIs and clear documentation
 - Built-in best practices and sensible defaults
 
 ### ✅ **Powerful and Flexible**
+
 - 15+ state-of-the-art algorithms
 - Handles different data types (tabular, time series, text)
 - Scales from small datasets to enterprise workloads
 
 ### ✅ **Production-Ready**
+
 - Enterprise-grade security and monitoring
 - REST API and multiple client libraries
 - Comprehensive testing and validation
 
 ### ✅ **Explainable Results**
+
 - Understand why something was flagged as anomalous
 - Visual explanations and confidence scores
 - Export results in multiple formats
@@ -65,6 +223,7 @@ Pynomaly is designed to make anomaly detection accessible to everyone:
 Before diving into detection, it's helpful to understand what kinds of anomalies exist:
 
 ### 1. Point Anomalies
+
 **Individual data points that are unusual**
 
 ```
@@ -74,6 +233,7 @@ Example: A $10,000 credit card transaction when typical transactions are $20-$20
 **When to use**: Most common type, good for fraud detection, outlier identification
 
 ### 2. Contextual Anomalies
+
 **Data points that are normal in some contexts but unusual in others**
 
 ```
@@ -83,6 +243,7 @@ Example: Wearing a winter coat is normal in December but unusual in July
 **When to use**: Time-dependent data, seasonal patterns, user behavior analysis
 
 ### 3. Collective Anomalies
+
 **Groups of data points that together form an unusual pattern**
 
 ```
@@ -140,6 +301,7 @@ python my_first_detection.py
 ```
 
 You should see output like:
+
 ```
 Anomalies found:
 Row 7: {'amount': 500, 'time_of_day': 16, 'day_of_week': 1} - Score: 0.892
@@ -286,6 +448,7 @@ system_results = client.detect_anomalies(server_metrics)
 ### Data Preparation Tips
 
 1. **Clean your data**:
+
    ```python
    # Remove missing values
    data = data.dropna()
@@ -295,12 +458,14 @@ system_results = client.detect_anomalies(server_metrics)
    ```
 
 2. **Handle categorical data**:
+
    ```python
    # Pynomaly can handle categories automatically, but you can also encode them
    data['category_encoded'] = pd.Categorical(data['category']).codes
    ```
 
 3. **Scale your features if needed**:
+
    ```python
    # For algorithms sensitive to scale
    from sklearn.preprocessing import StandardScaler
@@ -374,6 +539,7 @@ transactions['amount_vs_avg'] = transactions['amount'] / transactions.groupby('u
 ## Common Pitfalls and How to Avoid Them
 
 ### 1. **Wrong Contamination Rate**
+
 ❌ **Problem**: Setting contamination too high or too low
 ✅ **Solution**: Start with your best estimate, then validate with known anomalies
 
@@ -385,6 +551,7 @@ for contamination in [0.01, 0.05, 0.1, 0.15]:
 ```
 
 ### 2. **Not Understanding Your Data**
+
 ❌ **Problem**: Applying algorithms without understanding data characteristics
 ✅ **Solution**: Always explore your data first
 
@@ -396,6 +563,7 @@ print(data.hist())
 ```
 
 ### 3. **Ignoring Data Quality**
+
 ❌ **Problem**: Running detection on dirty data
 ✅ **Solution**: Clean and validate your data
 
@@ -407,6 +575,7 @@ print(f"Data types: {data.dtypes}")
 ```
 
 ### 4. **Not Validating Results**
+
 ❌ **Problem**: Trusting algorithm output without validation
 ✅ **Solution**: Always validate with domain experts
 
@@ -423,22 +592,27 @@ if 'true_labels' in data.columns:
 Congratulations! You now understand the basics of anomaly detection with Pynomaly. Here's what to explore next:
 
 ### Immediate Next Steps
+
 1. **Try the [Interactive Tutorial](interactive-tutorial.md)** - Hands-on Jupyter notebook
 2. **Explore [Common Workflows](workflows-guide.md)** - Step-by-step guides for specific industries
 3. **Read [Algorithm Selection Guide](../reference/algorithm-comparison.md)** - Deep dive into choosing algorithms
 
 ### As You Advance
+
 1. **[Production Deployment Guide](../deployment/production-deployment.md)** - Deploy Pynomaly in production
 2. **[API Reference](../api/)** - Complete API documentation
 3. **[Custom Algorithms](advanced-customization.md)** - Build your own detection methods
 
 ### Get Help and Support
+
 - **Community Forum**: [GitHub Discussions](https://github.com/pynomaly/pynomaly/discussions)
 - **Bug Reports**: [GitHub Issues](https://github.com/pynomaly/pynomaly/issues)
 - **Documentation**: [docs.pynomaly.ai](https://docs.pynomaly.ai)
 
 ### Practice Datasets
+
 Try Pynomaly with these practice datasets:
+
 - **[Credit Card Fraud](../examples/fraud-detection-tutorial.md)** - Classic fraud detection
 - **[Network Intrusion](../examples/network-security-tutorial.md)** - Cybersecurity monitoring
 - **[Quality Control](../examples/manufacturing-quality-tutorial.md)** - Manufacturing anomalies
@@ -448,6 +622,7 @@ Try Pynomaly with these practice datasets:
 ## Quick Reference
 
 ### Basic Detection
+
 ```python
 from pynomaly import PynomalyClient
 client = PynomalyClient()
@@ -455,17 +630,20 @@ results = client.detect_anomalies(data)
 ```
 
 ### With Algorithm Choice
+
 ```python
 client = PynomalyClient(algorithm='isolation_forest')
 results = client.detect_anomalies(data, contamination=0.1)
 ```
 
 ### Get Explanations
+
 ```python
 explanations = client.explain_anomalies(data, results)
 ```
 
 ### Export Results
+
 ```python
 client.export_results(results, format='csv', filename='anomalies.csv')
 ```

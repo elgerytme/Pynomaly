@@ -82,7 +82,16 @@
       "Bash(./environments/.venv/bin/python -m pytest tests/integration/test_ml_governance_integration.py -x --tb=short)",
       "Bash(find:*)",
       "Bash(gh issue close:*)",
-      "Bash(./environments/.venv/bin/python:*)"
+      "Bash(./environments/.venv/bin/python:*)",
+      "Bash(docker:*)",
+      "Bash(rg:*)",
+      "Bash(grep:*)",
+      "Bash(grep:*)",
+      "Bash(./environments/.venv/bin/python -c \"from pynomaly.presentation.cli.app import app; print('Main CLI app import successful')\")",
+      "Bash(./environments/.venv/bin/python -c \"from pynomaly.presentation.cli.app import app; print('Main CLI app import successful')\")",
+      "Bash(mkdir:*)",
+      "Bash(ruff check:*)",
+      "Bash(./environments/.venv/bin/python scripts/development/pynomaly_cli.py --help)"
     ],
     "deny": []
   }

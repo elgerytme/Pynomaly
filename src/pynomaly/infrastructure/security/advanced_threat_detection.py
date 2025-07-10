@@ -1,739 +1,1185 @@
-"""Advanced threat detection and behavioral analysis for security hardening."""
+"""
+Advanced Threat Detection System for Pynomaly.
+
+This module implements AI-powered threat detection using machine learning,
+behavioral analysis, and threat intelligence to identify sophisticated attacks.
+"""
 
 from __future__ import annotations
 
-import hashlib
-import ipaddress
+import asyncio
 import logging
-import time
-from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime
 from enum import Enum
 from typing import Any
+from uuid import UUID, uuid4
 
-from .audit_logger import SecurityEventType
-from .security_monitor import AlertType, SecurityAlert, ThreatDetector, ThreatLevel
-from .threat_detection_config import get_threat_detection_manager
+import numpy as np
+import pandas as pd
+from sklearn.cluster import DBSCAN
+from sklearn.ensemble import IsolationForest
+from sklearn.preprocessing import StandardScaler
 
 logger = logging.getLogger(__name__)
 
 
-class ThreatIntelligenceSource(str, Enum):
-    """Threat intelligence data sources."""
+class ThreatSeverity(Enum):
+    """Threat severity levels."""
 
-    MALWARE_DOMAINS = "malware_domains"
-    KNOWN_BAD_IPS = "known_bad_ips"
-    TOR_EXIT_NODES = "tor_exit_nodes"
-    COMPROMISED_ACCOUNTS = "compromised_accounts"
-    SUSPICIOUS_USER_AGENTS = "suspicious_user_agents"
+    INFO = "info"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class ThreatCategory(Enum):
+    """Threat categories."""
+
+    MALWARE = "malware"
+    PHISHING = "phishing"
+    INTRUSION = "intrusion"
+    DATA_EXFILTRATION = "data_exfiltration"
+    PRIVILEGE_ESCALATION = "privilege_escalation"
+    LATERAL_MOVEMENT = "lateral_movement"
+    PERSISTENCE = "persistence"
+    COMMAND_CONTROL = "command_control"
+    DENIAL_OF_SERVICE = "denial_of_service"
+    INSIDER_THREAT = "insider_threat"
+
+
+class AttackPhase(Enum):
+    """MITRE ATT&CK framework phases."""
+
+    RECONNAISSANCE = "reconnaissance"
+    RESOURCE_DEVELOPMENT = "resource_development"
+    INITIAL_ACCESS = "initial_access"
+    EXECUTION = "execution"
+    PERSISTENCE = "persistence"
+    PRIVILEGE_ESCALATION = "privilege_escalation"
+    DEFENSE_EVASION = "defense_evasion"
+    CREDENTIAL_ACCESS = "credential_access"
+    DISCOVERY = "discovery"
+    LATERAL_MOVEMENT = "lateral_movement"
+    COLLECTION = "collection"
+    COMMAND_CONTROL = "command_control"
+    EXFILTRATION = "exfiltration"
+    IMPACT = "impact"
 
 
 @dataclass
-class ThreatIntelligence:
-    """Threat intelligence data."""
+class SecurityEvent:
+    """Security event for analysis."""
 
-    source: ThreatIntelligenceSource
-    indicator: str
-    threat_type: str
-    confidence: float  # 0.0 - 1.0
-    first_seen: datetime
-    last_updated: datetime
+    event_id: UUID = field(default_factory=uuid4)
+    timestamp: datetime = field(default_factory=datetime.now)
+    event_type: str = ""
+    source_ip: str = ""
+    destination_ip: str = ""
+    user_id: str = ""
+    session_id: str = ""
+    resource: str = ""
+    action: str = ""
+    user_agent: str = ""
+    request_size: int = 0
+    response_code: int = 0
+    response_time: float = 0.0
+    payload: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
-class BehaviorProfile:
-    """User behavior profile for anomaly detection."""
+class ThreatIndicator:
+    """Threat indicator of compromise (IoC)."""
 
-    user_id: str
-
-    # Login patterns
-    typical_login_hours: set[int] = field(default_factory=set)
-    typical_ips: set[str] = field(default_factory=set)
-    typical_user_agents: set[str] = field(default_factory=set)
-    typical_locations: set[str] = field(default_factory=set)
-
-    # API usage patterns
-    typical_endpoints: dict[str, int] = field(default_factory=dict)
-    avg_requests_per_hour: float = 0.0
-    max_requests_per_hour: int = 0
-
-    # Data access patterns
-    typical_data_size: float = 0.0  # Average data accessed in MB
-    max_data_accessed: float = 0.0  # Maximum data accessed in one session
-
-    # Profile metadata
-    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
-    last_updated: datetime = field(default_factory=lambda: datetime.now(UTC))
-    confidence_score: float = 0.0  # How well established this profile is
-    sample_count: int = 0
+    indicator_id: UUID = field(default_factory=uuid4)
+    indicator_type: str = ""  # ip, domain, hash, etc.
+    value: str = ""
+    threat_types: list[ThreatCategory] = field(default_factory=list)
+    confidence: float = 0.0
+    severity: ThreatSeverity = ThreatSeverity.INFO
+    first_seen: datetime = field(default_factory=datetime.now)
+    last_seen: datetime = field(default_factory=datetime.now)
+    source: str = ""
+    context: dict[str, Any] = field(default_factory=dict)
 
 
-class AdvancedBehaviorAnalyzer(ThreatDetector):
-    """Advanced behavioral analysis threat detector."""
+@dataclass
+class ThreatAlert:
+    """Security threat alert."""
+
+    alert_id: UUID = field(default_factory=uuid4)
+    title: str = ""
+    description: str = ""
+    severity: ThreatSeverity = ThreatSeverity.INFO
+    category: ThreatCategory = ThreatCategory.INTRUSION
+    attack_phase: AttackPhase = AttackPhase.INITIAL_ACCESS
+    confidence: float = 0.0
+    risk_score: float = 0.0
+    affected_entities: list[str] = field(default_factory=list)
+    indicators: list[ThreatIndicator] = field(default_factory=list)
+    events: list[SecurityEvent] = field(default_factory=list)
+    mitre_techniques: list[str] = field(default_factory=list)
+    recommended_actions: list[str] = field(default_factory=list)
+    created_at: datetime = field(default_factory=datetime.now)
+    status: str = "open"
+    investigation_notes: list[dict[str, Any]] = field(default_factory=list)
+
+
+class MLThreatDetector:
+    """Machine learning-based threat detection."""
 
     def __init__(self):
-        super().__init__("advanced_behavior")
-        self.user_profiles: dict[str, BehaviorProfile] = {}
-        self.session_data: dict[str, dict[str, Any]] = defaultdict(dict)
+        self.models = {}
+        self.feature_scalers = {}
+        self.baseline_profiles = {}
+        self.is_trained = False
 
-        # Load configuration from manager
-        config_manager = get_threat_detection_manager()
-        detector_config = config_manager.get_detector_config("advanced_behavior")
-        if detector_config:
-            self.learning_period_days = detector_config.config.get(
-                "learning_period_days", 14
-            )
-            self.anomaly_threshold = detector_config.config.get(
-                "anomaly_threshold", 0.7
-            )
-            self.min_samples_for_profile = detector_config.config.get(
-                "min_samples_for_profile", 50
-            )
-        else:
-            # Default configuration
-            self.learning_period_days = 14
-            self.anomaly_threshold = 0.7
-            self.min_samples_for_profile = 50
+    async def train_models(self, training_data: pd.DataFrame):
+        """Train ML models for threat detection."""
+        try:
+            logger.info("Training ML threat detection models")
 
-    async def analyze(self, event_data: dict[str, Any]) -> SecurityAlert | None:
-        """Analyze for advanced behavioral anomalies."""
-        user_id = event_data.get("user_id")
-        if not user_id:
-            return None
+            # Prepare features
+            features = self._extract_features(training_data)
 
-        event_data.get("event_type")
-
-        # Update behavior profile
-        await self._update_behavior_profile(user_id, event_data)
-
-        # Analyze for anomalies
-        profile = self.user_profiles.get(user_id)
-        if not profile or profile.sample_count < self.min_samples_for_profile:
-            return None  # Not enough data for analysis
-
-        anomalies = await self._detect_behavioral_anomalies(
-            user_id, event_data, profile
-        )
-
-        if (
-            anomalies
-            and self._calculate_anomaly_confidence(anomalies) > self.anomaly_threshold
-        ):
-            return SecurityAlert(
-                alert_id=f"behavior_{user_id}_{int(time.time())}",
-                alert_type=AlertType.UNUSUAL_BEHAVIOR,
-                threat_level=self._calculate_threat_level(anomalies),
-                title="Unusual Behavior Pattern Detected",
-                description=f"User {user_id} showing atypical behavior patterns",
-                timestamp=datetime.now(UTC),
-                user_id=user_id,
-                source_ip=event_data.get("ip_address"),
-                user_agent=event_data.get("user_agent"),
-                indicators={
-                    "anomaly_count": len(anomalies),
-                    "confidence_score": self._calculate_anomaly_confidence(anomalies),
-                    "profile_confidence": profile.confidence_score,
-                },
-                evidence=anomalies,
-                recommended_actions=[
-                    "Verify user identity",
-                    "Review recent user activity",
-                    "Check for account compromise",
-                    "Consider requiring re-authentication",
-                    "Monitor user closely",
-                ],
+            # Train anomaly detection model
+            self.models["anomaly"] = IsolationForest(
+                contamination=0.1, random_state=42, n_estimators=200
             )
 
-        return None
+            # Scale features
+            self.feature_scalers["anomaly"] = StandardScaler()
+            scaled_features = self.feature_scalers["anomaly"].fit_transform(features)
 
-    async def _update_behavior_profile(
-        self, user_id: str, event_data: dict[str, Any]
-    ) -> None:
-        """Update user behavior profile with new event data."""
-        if user_id not in self.user_profiles:
-            self.user_profiles[user_id] = BehaviorProfile(user_id=user_id)
+            # Train model
+            self.models["anomaly"].fit(scaled_features)
 
-        profile = self.user_profiles[user_id]
-        event_type = event_data.get("event_type")
-        current_time = datetime.now(UTC)
+            # Train clustering model for behavioral analysis
+            self.models["clustering"] = DBSCAN(eps=0.5, min_samples=5)
+            cluster_labels = self.models["clustering"].fit_predict(scaled_features)
 
-        # Update login patterns
-        if event_type == SecurityEventType.AUTH_LOGIN_SUCCESS:
-            profile.typical_login_hours.add(current_time.hour)
+            # Create baseline behavioral profiles
+            self._create_baseline_profiles(training_data, cluster_labels)
 
-            if event_data.get("ip_address"):
-                profile.typical_ips.add(event_data["ip_address"])
+            self.is_trained = True
+            logger.info("ML threat detection models trained successfully")
 
-            if event_data.get("user_agent"):
-                # Store hash of user agent to save space
-                ua_hash = hashlib.sha256(event_data["user_agent"].encode()).hexdigest()[
-                    :16
-                ]
-                profile.typical_user_agents.add(ua_hash)
+        except Exception as e:
+            logger.error(f"Failed to train ML models: {e}")
+            raise
 
-        # Update API usage patterns
-        if event_type == SecurityEventType.API_REQUEST:
-            endpoint = event_data.get("endpoint", "")
-            profile.typical_endpoints[endpoint] = (
-                profile.typical_endpoints.get(endpoint, 0) + 1
+    async def detect_threats(self, events: list[SecurityEvent]) -> list[ThreatAlert]:
+        """Detect threats using ML models."""
+        try:
+            if not self.is_trained:
+                logger.warning("ML models not trained, using rule-based detection")
+                return await self._rule_based_detection(events)
+
+            alerts = []
+
+            # Convert events to DataFrame
+            event_data = self._events_to_dataframe(events)
+
+            if event_data.empty:
+                return alerts
+
+            # Extract features
+            features = self._extract_features(event_data)
+
+            if features.empty:
+                return alerts
+
+            # Scale features
+            scaled_features = self.feature_scalers["anomaly"].transform(features)
+
+            # Detect anomalies
+            anomaly_scores = self.models["anomaly"].decision_function(scaled_features)
+            anomaly_predictions = self.models["anomaly"].predict(scaled_features)
+
+            # Analyze each event
+            for i, event in enumerate(events):
+                if i >= len(anomaly_predictions):
+                    continue
+
+                is_anomaly = anomaly_predictions[i] == -1
+                anomaly_score = abs(anomaly_scores[i])
+
+                if is_anomaly:
+                    alert = await self._create_anomaly_alert(event, anomaly_score)
+                    alerts.append(alert)
+
+            # Behavioral analysis
+            behavioral_alerts = await self._behavioral_threat_analysis(
+                events, scaled_features
             )
+            alerts.extend(behavioral_alerts)
 
-        # Update profile metadata
-        profile.last_updated = current_time
-        profile.sample_count += 1
+            # Pattern-based detection
+            pattern_alerts = await self._pattern_based_detection(events)
+            alerts.extend(pattern_alerts)
 
-        # Calculate confidence score based on sample count and time
-        days_active = (current_time - profile.created_at).days
-        profile.confidence_score = min(
-            1.0,
-            (profile.sample_count / self.min_samples_for_profile)
-            * min(1.0, days_active / self.learning_period_days),
-        )
+            logger.info(
+                f"ML threat detection completed: {len(alerts)} alerts generated"
+            )
+            return alerts
 
-    async def _detect_behavioral_anomalies(
-        self, user_id: str, event_data: dict[str, Any], profile: BehaviorProfile
-    ) -> list[str]:
-        """Detect behavioral anomalies for a user."""
-        anomalies = []
-        current_time = datetime.now(UTC)
+        except Exception as e:
+            logger.error(f"ML threat detection failed: {e}")
+            return []
 
-        # Check login time anomaly
-        if event_data.get("event_type") == SecurityEventType.AUTH_LOGIN_SUCCESS:
-            if (
-                current_time.hour not in profile.typical_login_hours
-                and len(profile.typical_login_hours) > 3
-            ):
-                anomalies.append(f"Login at unusual time: {current_time.hour:02d}:00")
+    def _extract_features(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Extract features for ML analysis."""
+        try:
+            features = pd.DataFrame()
 
-        # Check IP address anomaly
-        ip_address = event_data.get("ip_address")
-        if (
-            ip_address
-            and ip_address not in profile.typical_ips
-            and len(profile.typical_ips) > 2
-        ):
-            # Check if it's in the same subnet as known IPs
-            is_similar_network = False
-            try:
-                current_ip = ipaddress.ip_address(ip_address)
-                for known_ip in profile.typical_ips:
-                    try:
-                        known_ip_addr = ipaddress.ip_address(known_ip)
-                        if current_ip.version == known_ip_addr.version:
-                            # Check if in same /24 subnet
-                            if isinstance(current_ip, ipaddress.IPv4Address):
-                                current_network = ipaddress.ip_network(
-                                    f"{current_ip}/24", strict=False
-                                )
-                                known_network = ipaddress.ip_network(
-                                    f"{known_ip_addr}/24", strict=False
-                                )
-                                if current_network == known_network:
-                                    is_similar_network = True
-                                    break
-                    except ValueError:
-                        continue
-            except ValueError:
-                pass
+            if data.empty:
+                return features
 
-            if not is_similar_network:
-                anomalies.append(f"Login from unknown IP address: {ip_address}")
+            # Time-based features
+            if "timestamp" in data.columns:
+                data["timestamp"] = pd.to_datetime(data["timestamp"])
+                features["hour"] = data["timestamp"].dt.hour
+                features["day_of_week"] = data["timestamp"].dt.dayofweek
+                features["is_weekend"] = (data["timestamp"].dt.dayofweek >= 5).astype(
+                    int
+                )
+                features["is_business_hours"] = (
+                    (data["timestamp"].dt.hour >= 9) & (data["timestamp"].dt.hour <= 17)
+                ).astype(int)
 
-        # Check user agent anomaly
-        user_agent = event_data.get("user_agent")
-        if user_agent:
-            ua_hash = hashlib.sha256(user_agent.encode()).hexdigest()[:16]
-            if (
-                ua_hash not in profile.typical_user_agents
-                and len(profile.typical_user_agents) > 1
-            ):
-                anomalies.append("Login with unusual user agent")
+            # Request features
+            if "request_size" in data.columns:
+                features["request_size_log"] = np.log1p(data["request_size"].fillna(0))
 
-        # Check API usage anomaly
-        if event_data.get("event_type") == SecurityEventType.API_REQUEST:
-            endpoint = event_data.get("endpoint", "")
+            if "response_time" in data.columns:
+                features["response_time_log"] = np.log1p(
+                    data["response_time"].fillna(0)
+                )
 
-            # Check for access to unusual endpoints
-            if (
-                endpoint not in profile.typical_endpoints
-                and len(profile.typical_endpoints) > 5
-            ):
-                anomalies.append(f"Access to unusual endpoint: {endpoint}")
+            if "response_code" in data.columns:
+                features["is_error"] = (data["response_code"] >= 400).astype(int)
+                features["is_server_error"] = (data["response_code"] >= 500).astype(int)
 
-        return anomalies
+            # User behavior features
+            if "user_id" in data.columns:
+                user_request_counts = data.groupby("user_id").size()
+                features["user_request_frequency"] = (
+                    data["user_id"].map(user_request_counts).fillna(0)
+                )
 
-    def _calculate_anomaly_confidence(self, anomalies: list[str]) -> float:
-        """Calculate confidence score for detected anomalies."""
-        if not anomalies:
-            return 0.0
+            # IP-based features
+            if "source_ip" in data.columns:
+                ip_request_counts = data.groupby("source_ip").size()
+                features["ip_request_frequency"] = (
+                    data["source_ip"].map(ip_request_counts).fillna(0)
+                )
 
-        # Base confidence increases with number of anomalies
-        base_confidence = min(0.9, len(anomalies) * 0.3)
+            # Resource access patterns
+            if "resource" in data.columns:
+                features["resource_sensitivity"] = data["resource"].apply(
+                    self._assess_resource_sensitivity
+                )
 
-        # Increase confidence for specific high-risk anomalies
-        high_risk_patterns = ["unknown IP", "unusual endpoint", "unusual time"]
-        for anomaly in anomalies:
-            for pattern in high_risk_patterns:
-                if pattern in anomaly:
-                    base_confidence = min(1.0, base_confidence + 0.2)
-                    break
+            # Action patterns
+            if "action" in data.columns:
+                features["action_risk"] = data["action"].apply(self._assess_action_risk)
 
-        return base_confidence
+            # Fill any remaining NaN values
+            features = features.fillna(0)
 
-    def _calculate_threat_level(self, anomalies: list[str]) -> ThreatLevel:
-        """Calculate threat level based on anomalies."""
-        confidence = self._calculate_anomaly_confidence(anomalies)
+            return features
 
-        if confidence >= 0.9:
-            return ThreatLevel.HIGH
-        elif confidence >= 0.7:
-            return ThreatLevel.MEDIUM
-        else:
-            return ThreatLevel.LOW
+        except Exception as e:
+            logger.error(f"Feature extraction failed: {e}")
+            return pd.DataFrame()
 
-    def get_configuration(self) -> dict[str, Any]:
-        """Get detector configuration."""
-        return {
-            "learning_period_days": self.learning_period_days,
-            "anomaly_threshold": self.anomaly_threshold,
-            "min_samples_for_profile": self.min_samples_for_profile,
+    def _assess_resource_sensitivity(self, resource: str) -> float:
+        """Assess resource sensitivity level."""
+        sensitive_patterns = {
+            "/admin/": 1.0,
+            "/api/v1/users/": 0.8,
+            "/api/v1/models/": 0.7,
+            "/api/v1/governance/": 0.9,
+            "/api/v1/security/": 0.9,
+            "/login": 0.6,
+            "/auth/": 0.6,
         }
 
-    def update_configuration(self, config: dict[str, Any]) -> None:
-        """Update detector configuration."""
-        self.learning_period_days = config.get(
-            "learning_period_days", self.learning_period_days
-        )
-        self.anomaly_threshold = config.get("anomaly_threshold", self.anomaly_threshold)
-        self.min_samples_for_profile = config.get(
-            "min_samples_for_profile", self.min_samples_for_profile
+        for pattern, score in sensitive_patterns.items():
+            if pattern in resource:
+                return score
+
+        return 0.2  # Default low sensitivity
+
+    def _assess_action_risk(self, action: str) -> float:
+        """Assess action risk level."""
+        risk_scores = {
+            "delete": 1.0,
+            "admin": 0.9,
+            "execute": 0.8,
+            "create": 0.6,
+            "update": 0.5,
+            "read": 0.2,
+            "view": 0.1,
+            "list": 0.1,
+        }
+
+        return risk_scores.get(action.lower(), 0.3)
+
+    def _events_to_dataframe(self, events: list[SecurityEvent]) -> pd.DataFrame:
+        """Convert security events to DataFrame."""
+        try:
+            data = []
+            for event in events:
+                row = {
+                    "timestamp": event.timestamp,
+                    "event_type": event.event_type,
+                    "source_ip": event.source_ip,
+                    "destination_ip": event.destination_ip,
+                    "user_id": event.user_id,
+                    "resource": event.resource,
+                    "action": event.action,
+                    "request_size": event.request_size,
+                    "response_code": event.response_code,
+                    "response_time": event.response_time,
+                }
+                data.append(row)
+
+            return pd.DataFrame(data)
+
+        except Exception as e:
+            logger.error(f"Failed to convert events to DataFrame: {e}")
+            return pd.DataFrame()
+
+    async def _create_anomaly_alert(
+        self, event: SecurityEvent, anomaly_score: float
+    ) -> ThreatAlert:
+        """Create threat alert for anomaly."""
+        severity = self._calculate_severity(anomaly_score)
+        confidence = min(anomaly_score * 100, 95)  # Convert to percentage, cap at 95%
+
+        alert = ThreatAlert(
+            title=f"Anomalous Behavior Detected - {event.event_type}",
+            description=f"Unusual {event.event_type} activity detected from {event.source_ip}",
+            severity=severity,
+            category=ThreatCategory.INTRUSION,
+            attack_phase=AttackPhase.INITIAL_ACCESS,
+            confidence=confidence,
+            risk_score=anomaly_score,
+            affected_entities=[event.user_id, event.source_ip],
+            events=[event],
+            recommended_actions=self._get_recommended_actions(severity),
         )
 
+        return alert
 
-class ThreatIntelligenceDetector(ThreatDetector):
-    """Threat intelligence-based detection."""
+    def _calculate_severity(self, score: float) -> ThreatSeverity:
+        """Calculate threat severity based on score."""
+        if score >= 0.9:
+            return ThreatSeverity.CRITICAL
+        elif score >= 0.7:
+            return ThreatSeverity.HIGH
+        elif score >= 0.5:
+            return ThreatSeverity.MEDIUM
+        elif score >= 0.3:
+            return ThreatSeverity.LOW
+        else:
+            return ThreatSeverity.INFO
+
+    def _get_recommended_actions(self, severity: ThreatSeverity) -> list[str]:
+        """Get recommended actions based on severity."""
+        actions = {
+            ThreatSeverity.CRITICAL: [
+                "Immediately isolate affected systems",
+                "Block source IP addresses",
+                "Escalate to incident response team",
+                "Preserve forensic evidence",
+                "Notify executive leadership",
+            ],
+            ThreatSeverity.HIGH: [
+                "Investigate immediately",
+                "Consider blocking source IP",
+                "Increase monitoring",
+                "Notify security team",
+                "Review access logs",
+            ],
+            ThreatSeverity.MEDIUM: [
+                "Investigate within 4 hours",
+                "Increase user monitoring",
+                "Review authentication logs",
+                "Consider additional MFA",
+            ],
+            ThreatSeverity.LOW: [
+                "Monitor for additional activity",
+                "Review user behavior",
+                "Document findings",
+            ],
+            ThreatSeverity.INFO: [
+                "Log for future reference",
+                "Include in security metrics",
+            ],
+        }
+
+        return actions.get(severity, ["Monitor situation"])
+
+    async def _behavioral_threat_analysis(
+        self, events: list[SecurityEvent], features: np.ndarray
+    ) -> list[ThreatAlert]:
+        """Analyze behavioral threats using clustering."""
+        alerts = []
+
+        try:
+            if len(features) < 2:
+                return alerts
+
+            # Perform clustering analysis
+            cluster_labels = self.models["clustering"].fit_predict(features)
+
+            # Analyze clusters for anomalous behavior
+            unique_labels = np.unique(cluster_labels)
+
+            for label in unique_labels:
+                if label == -1:  # Noise points (potential anomalies)
+                    cluster_events = [
+                        event
+                        for i, event in enumerate(events)
+                        if i < len(cluster_labels) and cluster_labels[i] == label
+                    ]
+
+                    if cluster_events:
+                        alert = await self._create_behavioral_alert(cluster_events)
+                        alerts.append(alert)
+
+            return alerts
+
+        except Exception as e:
+            logger.error(f"Behavioral analysis failed: {e}")
+            return alerts
+
+    async def _create_behavioral_alert(
+        self, events: list[SecurityEvent]
+    ) -> ThreatAlert:
+        """Create alert for behavioral anomalies."""
+        affected_users = list(set(event.user_id for event in events if event.user_id))
+        affected_ips = list(set(event.source_ip for event in events if event.source_ip))
+
+        alert = ThreatAlert(
+            title="Behavioral Anomaly Cluster Detected",
+            description=f"Cluster of {len(events)} anomalous events detected",
+            severity=ThreatSeverity.MEDIUM,
+            category=ThreatCategory.INSIDER_THREAT,
+            attack_phase=AttackPhase.DISCOVERY,
+            confidence=75.0,
+            risk_score=0.6,
+            affected_entities=affected_users + affected_ips,
+            events=events,
+            recommended_actions=[
+                "Analyze event cluster patterns",
+                "Review affected user activities",
+                "Check for coordinated attacks",
+            ],
+        )
+
+        return alert
+
+    async def _pattern_based_detection(
+        self, events: list[SecurityEvent]
+    ) -> list[ThreatAlert]:
+        """Detect threats using pattern analysis."""
+        alerts = []
+
+        try:
+            # Group events for pattern analysis
+            event_groups = self._group_events_for_analysis(events)
+
+            # Detect various attack patterns
+            alerts.extend(await self._detect_brute_force_attacks(event_groups))
+            alerts.extend(await self._detect_data_exfiltration(event_groups))
+            alerts.extend(await self._detect_privilege_escalation(event_groups))
+            alerts.extend(await self._detect_lateral_movement(event_groups))
+
+            return alerts
+
+        except Exception as e:
+            logger.error(f"Pattern-based detection failed: {e}")
+            return alerts
+
+    def _group_events_for_analysis(
+        self, events: list[SecurityEvent]
+    ) -> dict[str, list[SecurityEvent]]:
+        """Group events for pattern analysis."""
+        groups = {"by_user": {}, "by_ip": {}, "by_resource": {}}
+
+        for event in events:
+            # Group by user
+            if event.user_id:
+                if event.user_id not in groups["by_user"]:
+                    groups["by_user"][event.user_id] = []
+                groups["by_user"][event.user_id].append(event)
+
+            # Group by IP
+            if event.source_ip:
+                if event.source_ip not in groups["by_ip"]:
+                    groups["by_ip"][event.source_ip] = []
+                groups["by_ip"][event.source_ip].append(event)
+
+            # Group by resource
+            if event.resource:
+                if event.resource not in groups["by_resource"]:
+                    groups["by_resource"][event.resource] = []
+                groups["by_resource"][event.resource].append(event)
+
+        return groups
+
+    async def _detect_brute_force_attacks(
+        self, event_groups: dict[str, list[SecurityEvent]]
+    ) -> list[ThreatAlert]:
+        """Detect brute force attacks."""
+        alerts = []
+
+        for ip, events in event_groups["by_ip"].items():
+            # Look for multiple failed login attempts
+            failed_logins = [
+                e
+                for e in events
+                if e.event_type == "authentication" and e.response_code in [401, 403]
+            ]
+
+            if len(failed_logins) >= 5:  # Threshold for brute force
+                time_window = max(e.timestamp for e in failed_logins) - min(
+                    e.timestamp for e in failed_logins
+                )
+
+                if time_window.total_seconds() <= 300:  # 5 minutes
+                    alert = ThreatAlert(
+                        title=f"Brute Force Attack Detected from {ip}",
+                        description=f"{len(failed_logins)} failed login attempts in {time_window.total_seconds():.0f} seconds",
+                        severity=ThreatSeverity.HIGH,
+                        category=ThreatCategory.INTRUSION,
+                        attack_phase=AttackPhase.CREDENTIAL_ACCESS,
+                        confidence=90.0,
+                        risk_score=0.8,
+                        affected_entities=[ip],
+                        events=failed_logins,
+                        mitre_techniques=["T1110"],  # Brute Force
+                        recommended_actions=[
+                            f"Block IP address {ip}",
+                            "Review affected user accounts",
+                            "Implement account lockout policies",
+                            "Enable additional MFA",
+                        ],
+                    )
+                    alerts.append(alert)
+
+        return alerts
+
+    async def _detect_data_exfiltration(
+        self, event_groups: dict[str, list[SecurityEvent]]
+    ) -> list[ThreatAlert]:
+        """Detect potential data exfiltration."""
+        alerts = []
+
+        for user, events in event_groups["by_user"].items():
+            # Look for large data access patterns
+            large_requests = [e for e in events if e.request_size > 10000000]  # >10MB
+
+            if len(large_requests) >= 3:
+                total_size = sum(e.request_size for e in large_requests)
+
+                alert = ThreatAlert(
+                    title=f"Potential Data Exfiltration by User {user}",
+                    description=f"User accessed {len(large_requests)} large datasets totaling {total_size:,} bytes",
+                    severity=ThreatSeverity.HIGH,
+                    category=ThreatCategory.DATA_EXFILTRATION,
+                    attack_phase=AttackPhase.EXFILTRATION,
+                    confidence=75.0,
+                    risk_score=0.7,
+                    affected_entities=[user],
+                    events=large_requests,
+                    mitre_techniques=["T1041"],  # Exfiltration Over C2 Channel
+                    recommended_actions=[
+                        f"Investigate user {user} data access patterns",
+                        "Review data classification and access controls",
+                        "Monitor network traffic for unusual outbound data",
+                        "Consider suspending user access pending investigation",
+                    ],
+                )
+                alerts.append(alert)
+
+        return alerts
+
+    async def _detect_privilege_escalation(
+        self, event_groups: dict[str, list[SecurityEvent]]
+    ) -> list[ThreatAlert]:
+        """Detect privilege escalation attempts."""
+        alerts = []
+
+        for user, events in event_groups["by_user"].items():
+            # Look for admin resource access by non-admin users
+            admin_accesses = [e for e in events if "/admin/" in e.resource]
+
+            if admin_accesses:
+                # Check if user typically accesses admin resources
+                regular_accesses = [e for e in events if "/admin/" not in e.resource]
+
+                if (
+                    len(regular_accesses) > len(admin_accesses) * 2
+                ):  # Mostly non-admin access
+                    alert = ThreatAlert(
+                        title=f"Potential Privilege Escalation by User {user}",
+                        description=f"User accessed {len(admin_accesses)} admin resources unexpectedly",
+                        severity=ThreatSeverity.HIGH,
+                        category=ThreatCategory.PRIVILEGE_ESCALATION,
+                        attack_phase=AttackPhase.PRIVILEGE_ESCALATION,
+                        confidence=70.0,
+                        risk_score=0.8,
+                        affected_entities=[user],
+                        events=admin_accesses,
+                        mitre_techniques=[
+                            "T1068"
+                        ],  # Exploitation for Privilege Escalation
+                        recommended_actions=[
+                            f"Review user {user} access permissions",
+                            "Audit recent privilege changes",
+                            "Check for unauthorized access grants",
+                            "Consider revoking elevated privileges",
+                        ],
+                    )
+                    alerts.append(alert)
+
+        return alerts
+
+    async def _detect_lateral_movement(
+        self, event_groups: dict[str, list[SecurityEvent]]
+    ) -> list[ThreatAlert]:
+        """Detect lateral movement patterns."""
+        alerts = []
+
+        for user, events in event_groups["by_user"].items():
+            # Look for access to multiple different resources in short time
+            unique_resources = set(e.resource for e in events)
+
+            if len(unique_resources) >= 10:  # Accessing many different resources
+                time_span = max(e.timestamp for e in events) - min(
+                    e.timestamp for e in events
+                )
+
+                if time_span.total_seconds() <= 3600:  # Within 1 hour
+                    alert = ThreatAlert(
+                        title=f"Potential Lateral Movement by User {user}",
+                        description=f"User accessed {len(unique_resources)} different resources in {time_span.total_seconds()/60:.0f} minutes",
+                        severity=ThreatSeverity.MEDIUM,
+                        category=ThreatCategory.LATERAL_MOVEMENT,
+                        attack_phase=AttackPhase.LATERAL_MOVEMENT,
+                        confidence=65.0,
+                        risk_score=0.6,
+                        affected_entities=[user],
+                        events=events,
+                        mitre_techniques=["T1021"],  # Remote Services
+                        recommended_actions=[
+                            f"Monitor user {user} access patterns",
+                            "Review resource access justification",
+                            "Check for unauthorized lateral access",
+                            "Implement network segmentation",
+                        ],
+                    )
+                    alerts.append(alert)
+
+        return alerts
+
+    async def _rule_based_detection(
+        self, events: list[SecurityEvent]
+    ) -> list[ThreatAlert]:
+        """Fallback rule-based detection when ML models aren't available."""
+        alerts = []
+
+        for event in events:
+            # Simple rule-based checks
+            if event.response_code >= 500:
+                alert = ThreatAlert(
+                    title="Server Error Detected",
+                    description=f"Server error {event.response_code} detected",
+                    severity=ThreatSeverity.LOW,
+                    category=ThreatCategory.DENIAL_OF_SERVICE,
+                    confidence=50.0,
+                    events=[event],
+                )
+                alerts.append(alert)
+
+        return alerts
+
+    def _create_baseline_profiles(
+        self, training_data: pd.DataFrame, cluster_labels: np.ndarray
+    ):
+        """Create baseline behavioral profiles."""
+        try:
+            # Create profiles for normal behavior clusters
+            for label in np.unique(cluster_labels):
+                if label != -1:  # Exclude noise
+                    cluster_data = training_data[cluster_labels == label]
+
+                    profile = {
+                        "cluster_id": int(label),
+                        "size": len(cluster_data),
+                        "typical_hours": cluster_data["timestamp"]
+                        .dt.hour.value_counts()
+                        .to_dict()
+                        if "timestamp" in cluster_data.columns
+                        else {},
+                        "typical_actions": cluster_data["action"]
+                        .value_counts()
+                        .to_dict()
+                        if "action" in cluster_data.columns
+                        else {},
+                        "avg_request_size": cluster_data["request_size"].mean()
+                        if "request_size" in cluster_data.columns
+                        else 0,
+                        "avg_response_time": cluster_data["response_time"].mean()
+                        if "response_time" in cluster_data.columns
+                        else 0,
+                    }
+
+                    self.baseline_profiles[label] = profile
+
+            logger.info(
+                f"Created {len(self.baseline_profiles)} baseline behavioral profiles"
+            )
+
+        except Exception as e:
+            logger.error(f"Failed to create baseline profiles: {e}")
+
+
+class ThreatIntelligencePlatform:
+    """Threat intelligence platform for enrichment and context."""
 
     def __init__(self):
-        super().__init__("threat_intelligence")
-        self.threat_feeds: dict[ThreatIntelligenceSource, list[ThreatIntelligence]] = (
-            defaultdict(list)
-        )
-        self.last_update: dict[ThreatIntelligenceSource, datetime] = {}
+        self.ioc_database = {}
+        self.threat_feeds = []
+        self.attribution_database = {}
 
-        # Load configuration from manager
-        config_manager = get_threat_detection_manager()
-        detector_config = config_manager.get_detector_config("threat_intelligence")
-        if detector_config:
-            self.update_interval = detector_config.config.get("update_interval", 3600)
-            self.confidence_threshold = detector_config.config.get(
-                "confidence_threshold", 0.7
-            )
-        else:
-            # Default configuration
-            self.update_interval = 3600  # 1 hour
-            self.confidence_threshold = 0.7
+    async def enrich_event(self, event: SecurityEvent) -> dict[str, Any]:
+        """Enrich security event with threat intelligence."""
+        enrichment = {
+            "threat_indicators": [],
+            "attribution": {},
+            "context": {},
+            "risk_score": 0.0,
+        }
 
-        # Initialize with some basic threat intelligence
-        self._initialize_threat_feeds()
+        try:
+            # Check IP reputation
+            if event.source_ip:
+                ip_intel = await self._check_ip_reputation(event.source_ip)
+                if ip_intel:
+                    enrichment["threat_indicators"].append(ip_intel)
+                    enrichment["risk_score"] += ip_intel.confidence * 0.3
 
-    def _initialize_threat_feeds(self) -> None:
-        """Initialize threat intelligence feeds with basic known bad indicators."""
-        current_time = datetime.now(UTC)
+            # Check for known attack patterns
+            pattern_intel = await self._check_attack_patterns(event)
+            if pattern_intel:
+                enrichment["context"].update(pattern_intel)
+                enrichment["risk_score"] += 0.2
 
-        # Known malicious IPs (examples - in production, use real threat feeds)
-        malicious_ips = [
-            "192.168.1.100",  # Example malicious IP
-            "10.0.0.50",  # Example malicious IP
-        ]
+            # Geolocation analysis
+            geo_intel = await self._analyze_geolocation(event.source_ip)
+            if geo_intel:
+                enrichment["context"]["geolocation"] = geo_intel
+                if geo_intel.get("is_high_risk", False):
+                    enrichment["risk_score"] += 0.3
 
-        for ip in malicious_ips:
-            threat_intel = ThreatIntelligence(
-                source=ThreatIntelligenceSource.KNOWN_BAD_IPS,
-                indicator=ip,
-                threat_type="malicious_ip",
-                confidence=0.9,
-                first_seen=current_time,
-                last_updated=current_time,
-                metadata={"source": "internal_blocklist"},
-            )
-            self.threat_feeds[ThreatIntelligenceSource.KNOWN_BAD_IPS].append(
-                threat_intel
-            )
+            return enrichment
 
-        # Suspicious user agents
-        suspicious_uas = [
-            "sqlmap",
-            "nikto",
-            "nmap",
-            "masscan",
-            "w3af",
-            "burp",
-            "dirbuster",
-        ]
+        except Exception as e:
+            logger.error(f"Threat intelligence enrichment failed: {e}")
+            return enrichment
 
-        for ua in suspicious_uas:
-            threat_intel = ThreatIntelligence(
-                source=ThreatIntelligenceSource.SUSPICIOUS_USER_AGENTS,
-                indicator=ua.lower(),
-                threat_type="malicious_tool",
-                confidence=0.95,
-                first_seen=current_time,
-                last_updated=current_time,
-                metadata={"category": "penetration_testing_tool"},
-            )
-            self.threat_feeds[ThreatIntelligenceSource.SUSPICIOUS_USER_AGENTS].append(
-                threat_intel
+    async def _check_ip_reputation(self, ip_address: str) -> ThreatIndicator | None:
+        """Check IP address reputation."""
+        # Check local IOC database
+        if ip_address in self.ioc_database:
+            return self.ioc_database[ip_address]
+
+        # Simulate threat intelligence lookup
+        # In production, integrate with real threat intelligence feeds
+        if self._is_suspicious_ip(ip_address):
+            indicator = ThreatIndicator(
+                indicator_type="ip",
+                value=ip_address,
+                threat_types=[ThreatCategory.COMMAND_CONTROL],
+                confidence=0.7,
+                severity=ThreatSeverity.MEDIUM,
+                source="threat_intelligence",
             )
 
-    async def analyze(self, event_data: dict[str, Any]) -> SecurityAlert | None:
-        """Analyze against threat intelligence feeds."""
-        # Check IP address against threat intelligence
-        ip_address = event_data.get("ip_address")
-        if ip_address:
-            for threat_intel in self.threat_feeds[
-                ThreatIntelligenceSource.KNOWN_BAD_IPS
-            ]:
-                if (
-                    ip_address == threat_intel.indicator
-                    and threat_intel.confidence >= self.confidence_threshold
-                ):
-                    return SecurityAlert(
-                        alert_id=f"ti_ip_{ip_address}_{int(time.time())}",
-                        alert_type=AlertType.SYSTEM_COMPROMISE,
-                        threat_level=ThreatLevel.CRITICAL,
-                        title="Known Malicious IP Detected",
-                        description=f"Request from known malicious IP: {ip_address}",
-                        timestamp=datetime.now(UTC),
-                        source_ip=ip_address,
-                        user_id=event_data.get("user_id"),
-                        indicators={
-                            "threat_type": threat_intel.threat_type,
-                            "confidence": threat_intel.confidence,
-                            "source": threat_intel.source,
-                        },
-                        evidence=[
-                            f"IP {ip_address} found in threat intelligence feed",
-                            f"Threat type: {threat_intel.threat_type}",
-                            f"Confidence: {threat_intel.confidence}",
-                        ],
-                        recommended_actions=[
-                            "Block IP address immediately",
-                            "Review all activity from this IP",
-                            "Check for system compromise",
-                            "Update firewall rules",
-                            "Investigate related accounts",
-                        ],
-                        auto_mitigated=True,
-                        mitigation_actions=["IP blocked based on threat intelligence"],
-                    )
-
-        # Check user agent against threat intelligence
-        user_agent = event_data.get("user_agent", "").lower()
-        if user_agent:
-            for threat_intel in self.threat_feeds[
-                ThreatIntelligenceSource.SUSPICIOUS_USER_AGENTS
-            ]:
-                if (
-                    threat_intel.indicator in user_agent
-                    and threat_intel.confidence >= self.confidence_threshold
-                ):
-                    return SecurityAlert(
-                        alert_id=f"ti_ua_{hash(user_agent)}_{int(time.time())}",
-                        alert_type=AlertType.MALWARE_DETECTED,
-                        threat_level=ThreatLevel.HIGH,
-                        title="Malicious Tool Detected",
-                        description="Request from suspicious user agent",
-                        timestamp=datetime.now(UTC),
-                        source_ip=ip_address,
-                        user_agent=event_data.get("user_agent"),
-                        indicators={
-                            "detected_tool": threat_intel.indicator,
-                            "threat_type": threat_intel.threat_type,
-                            "confidence": threat_intel.confidence,
-                        },
-                        evidence=[
-                            f"User agent contains: {threat_intel.indicator}",
-                            f"Tool category: {threat_intel.metadata.get('category', 'unknown')}",
-                        ],
-                        recommended_actions=[
-                            "Block source IP",
-                            "Review access logs",
-                            "Check for vulnerability scanning",
-                            "Investigate potential attack",
-                            "Update security monitoring",
-                        ],
-                    )
+            self.ioc_database[ip_address] = indicator
+            return indicator
 
         return None
 
-    def add_threat_intelligence(self, threat_intel: ThreatIntelligence) -> None:
-        """Add threat intelligence to feeds."""
-        self.threat_feeds[threat_intel.source].append(threat_intel)
-        self.last_update[threat_intel.source] = datetime.now(UTC)
-        logger.info(
-            f"Added threat intelligence: {threat_intel.indicator} from {threat_intel.source}"
-        )
+    def _is_suspicious_ip(self, ip_address: str) -> bool:
+        """Simple suspicious IP check (placeholder)."""
+        # In production, check against real threat feeds
+        suspicious_patterns = [
+            "192.0.2.",  # RFC 5737 test network
+            "198.51.100.",  # RFC 5737 test network
+            "203.0.113.",  # RFC 5737 test network
+        ]
 
-    def get_configuration(self) -> dict[str, Any]:
-        """Get detector configuration."""
-        return {
-            "update_interval": self.update_interval,
-            "confidence_threshold": self.confidence_threshold,
-            "feed_counts": {
-                source.value: len(indicators)
-                for source, indicators in self.threat_feeds.items()
+        return any(ip_address.startswith(pattern) for pattern in suspicious_patterns)
+
+    async def _check_attack_patterns(self, event: SecurityEvent) -> dict[str, Any]:
+        """Check for known attack patterns."""
+        patterns = {}
+
+        # SQL injection patterns
+        if "payload" in event.metadata:
+            payload = str(event.metadata["payload"]).lower()
+            sql_patterns = ["union select", "drop table", "1=1", "or 1=1"]
+
+            if any(pattern in payload for pattern in sql_patterns):
+                patterns["sql_injection_detected"] = True
+                patterns["attack_type"] = "sql_injection"
+
+        # XSS patterns
+        if event.user_agent:
+            xss_patterns = ["<script>", "javascript:", "onerror="]
+            if any(pattern in event.user_agent.lower() for pattern in xss_patterns):
+                patterns["xss_detected"] = True
+                patterns["attack_type"] = "xss"
+
+        return patterns
+
+    async def _analyze_geolocation(self, ip_address: str) -> dict[str, Any]:
+        """Analyze IP geolocation for risk assessment."""
+        # Simplified geolocation analysis
+        # In production, use real geolocation services
+
+        geo_info = {
+            "country": "Unknown",
+            "city": "Unknown",
+            "is_high_risk": False,
+            "is_tor": False,
+            "is_vpn": False,
+        }
+
+        # Simple country risk assessment
+        if ip_address.startswith("192.0.2."):
+            geo_info.update(
+                {"country": "TestLand", "city": "TestCity", "is_high_risk": True}
+            )
+
+        return geo_info
+
+
+class SecurityOrchestration:
+    """Security orchestration and automated response (SOAR)."""
+
+    def __init__(self):
+        self.response_playbooks = {}
+        self.automated_actions = {}
+        self.escalation_rules = {}
+        self._load_default_playbooks()
+
+    def _load_default_playbooks(self):
+        """Load default response playbooks."""
+        self.response_playbooks = {
+            "brute_force": {
+                "actions": ["block_ip", "notify_soc", "increase_monitoring"],
+                "escalation_threshold": "high",
+                "auto_execute": True,
+            },
+            "malware_detected": {
+                "actions": [
+                    "isolate_system",
+                    "notify_incident_response",
+                    "preserve_evidence",
+                ],
+                "escalation_threshold": "critical",
+                "auto_execute": False,
+            },
+            "data_exfiltration": {
+                "actions": ["block_user", "notify_dpo", "audit_data_access"],
+                "escalation_threshold": "high",
+                "auto_execute": False,
             },
         }
 
-    def update_configuration(self, config: dict[str, Any]) -> None:
-        """Update detector configuration."""
-        self.update_interval = config.get("update_interval", self.update_interval)
-        self.confidence_threshold = config.get(
-            "confidence_threshold", self.confidence_threshold
-        )
+    async def respond_to_threat(self, alert: ThreatAlert) -> dict[str, Any]:
+        """Orchestrate response to threat alert."""
+        response = {
+            "alert_id": str(alert.alert_id),
+            "actions_taken": [],
+            "escalated": False,
+            "response_time": datetime.now(),
+        }
 
+        try:
+            # Determine appropriate playbook
+            playbook = self._select_playbook(alert)
 
-class SessionHijackingDetector(ThreatDetector):
-    """Detector for session hijacking and abuse."""
-
-    def __init__(self):
-        super().__init__("session_hijacking")
-        self.session_tracking: dict[str, dict[str, Any]] = defaultdict(dict)
-
-        # Load configuration from manager
-        config_manager = get_threat_detection_manager()
-        detector_config = config_manager.get_detector_config("session_hijacking")
-        if detector_config:
-            self.max_ip_changes = detector_config.config.get("max_ip_changes", 3)
-            self.time_window = detector_config.config.get("time_window_seconds", 3600)
-            self.geographic_distance_km = detector_config.config.get(
-                "geographic_distance_km", 1000
-            )
-        else:
-            # Default configuration
-            self.max_ip_changes = 3  # More than 3 IP changes in time window
-            self.time_window = 3600  # 1 hour
-            self.geographic_distance_km = 1000  # Impossible travel distance
-
-    async def analyze(self, event_data: dict[str, Any]) -> SecurityAlert | None:
-        """Analyze for session hijacking indicators."""
-        session_id = event_data.get("session_id")
-        user_id = event_data.get("user_id")
-        ip_address = event_data.get("ip_address")
-
-        if not session_id or not ip_address:
-            return None
-
-        current_time = time.time()
-
-        # Initialize session tracking if new
-        if session_id not in self.session_tracking:
-            self.session_tracking[session_id] = {
-                "user_id": user_id,
-                "start_time": current_time,
-                "ip_history": [],
-                "last_activity": current_time,
-            }
-
-        session_info = self.session_tracking[session_id]
-
-        # Update last activity
-        session_info["last_activity"] = current_time
-
-        # Track IP changes
-        if ip_address not in [entry["ip"] for entry in session_info["ip_history"]]:
-            session_info["ip_history"].append(
-                {
-                    "ip": ip_address,
-                    "timestamp": current_time,
-                    "user_agent": event_data.get("user_agent", ""),
-                }
-            )
-
-            # Check for suspicious IP changes
-            recent_ips = [
-                entry
-                for entry in session_info["ip_history"]
-                if current_time - entry["timestamp"] <= self.time_window
-            ]
-
-            if len(recent_ips) > self.max_ip_changes:
-                return SecurityAlert(
-                    alert_id=f"hijack_{session_id}_{int(current_time)}",
-                    alert_type=AlertType.SESSION_HIJACK,
-                    threat_level=ThreatLevel.HIGH,
-                    title="Potential Session Hijacking",
-                    description=f"Session {session_id} showing multiple IP changes",
-                    timestamp=datetime.now(UTC),
-                    user_id=user_id,
-                    source_ip=ip_address,
-                    session_id=session_id,
-                    indicators={
-                        "ip_change_count": len(recent_ips),
-                        "max_allowed": self.max_ip_changes,
-                        "session_duration_minutes": (
-                            current_time - session_info["start_time"]
+            if playbook:
+                # Execute automated actions
+                if playbook.get("auto_execute", False):
+                    for action in playbook["actions"]:
+                        result = await self._execute_action(action, alert)
+                        response["actions_taken"].append(
+                            {
+                                "action": action,
+                                "result": result,
+                                "timestamp": datetime.now(),
+                            }
                         )
-                        / 60,
-                    },
-                    evidence=[
-                        f"Session changed IPs {len(recent_ips)} times in {self.time_window / 60} minutes",
-                        f"IP sequence: {' -> '.join([entry['ip'] for entry in recent_ips])}",
-                        f"User agents: {set(entry['user_agent'] for entry in recent_ips if entry['user_agent'])}",
-                    ],
-                    recommended_actions=[
-                        "Terminate session immediately",
-                        "Force user re-authentication",
-                        "Review session activity logs",
-                        "Check for account compromise",
-                        "Implement stricter session controls",
-                    ],
-                )
+
+                # Check escalation criteria
+                if self._should_escalate(alert, playbook):
+                    await self._escalate_alert(alert)
+                    response["escalated"] = True
+
+            logger.info(f"Automated response completed for alert {alert.alert_id}")
+            return response
+
+        except Exception as e:
+            logger.error(f"Automated response failed: {e}")
+            response["error"] = str(e)
+            return response
+
+    def _select_playbook(self, alert: ThreatAlert) -> dict[str, Any] | None:
+        """Select appropriate response playbook."""
+        category_playbook_map = {
+            ThreatCategory.INTRUSION: "brute_force",
+            ThreatCategory.MALWARE: "malware_detected",
+            ThreatCategory.DATA_EXFILTRATION: "data_exfiltration",
+        }
+
+        playbook_name = category_playbook_map.get(alert.category)
+        if playbook_name:
+            return self.response_playbooks.get(playbook_name)
 
         return None
 
-    def get_configuration(self) -> dict[str, Any]:
-        """Get detector configuration."""
-        return {
-            "max_ip_changes": self.max_ip_changes,
-            "time_window_seconds": self.time_window,
-            "geographic_distance_km": self.geographic_distance_km,
-        }
+    async def _execute_action(self, action: str, alert: ThreatAlert) -> str:
+        """Execute automated response action."""
+        try:
+            if action == "block_ip":
+                # Block IP addresses
+                ips_to_block = [
+                    entity
+                    for entity in alert.affected_entities
+                    if self._is_ip_address(entity)
+                ]
+                if ips_to_block:
+                    # In production, integrate with firewall/WAF
+                    logger.info(f"Blocking IPs: {ips_to_block}")
+                    return f"Blocked {len(ips_to_block)} IP addresses"
 
-    def update_configuration(self, config: dict[str, Any]) -> None:
-        """Update detector configuration."""
-        self.max_ip_changes = config.get("max_ip_changes", self.max_ip_changes)
-        self.time_window = config.get("time_window_seconds", self.time_window)
-        self.geographic_distance_km = config.get(
-            "geographic_distance_km", self.geographic_distance_km
+            elif action == "block_user":
+                # Block user accounts
+                users_to_block = [
+                    entity
+                    for entity in alert.affected_entities
+                    if not self._is_ip_address(entity)
+                ]
+                if users_to_block:
+                    # In production, integrate with identity management
+                    logger.info(f"Blocking users: {users_to_block}")
+                    return f"Blocked {len(users_to_block)} user accounts"
+
+            elif action == "notify_soc":
+                # Notify Security Operations Center
+                logger.info(f"SOC notification sent for alert {alert.alert_id}")
+                return "SOC notified"
+
+            elif action == "increase_monitoring":
+                # Increase monitoring for affected entities
+                logger.info(f"Increased monitoring for: {alert.affected_entities}")
+                return "Monitoring increased"
+
+            else:
+                logger.warning(f"Unknown action: {action}")
+                return f"Unknown action: {action}"
+
+        except Exception as e:
+            logger.error(f"Action execution failed: {e}")
+            return f"Action failed: {str(e)}"
+
+    def _is_ip_address(self, entity: str) -> bool:
+        """Check if entity is an IP address."""
+        parts = entity.split(".")
+        if len(parts) == 4:
+            return all(part.isdigit() and 0 <= int(part) <= 255 for part in parts)
+        return False
+
+    def _should_escalate(self, alert: ThreatAlert, playbook: dict[str, Any]) -> bool:
+        """Determine if alert should be escalated."""
+        escalation_threshold = playbook.get("escalation_threshold", "high")
+
+        severity_levels = {"info": 1, "low": 2, "medium": 3, "high": 4, "critical": 5}
+
+        alert_level = severity_levels.get(alert.severity.value, 1)
+        threshold_level = severity_levels.get(escalation_threshold, 4)
+
+        return alert_level >= threshold_level
+
+    async def _escalate_alert(self, alert: ThreatAlert):
+        """Escalate alert to higher tier."""
+        logger.info(
+            f"Escalating alert {alert.alert_id} due to severity: {alert.severity.value}"
         )
+        # In production, integrate with ticketing system and notification channels
 
 
-class DataExfiltrationDetector(ThreatDetector):
-    """Detector for potential data exfiltration."""
+class AdvancedSOC:
+    """Advanced Security Operations Center with AI-powered threat detection."""
 
     def __init__(self):
-        super().__init__("data_exfiltration")
-        self.user_data_access: dict[str, deque] = defaultdict(lambda: deque(maxlen=100))
+        self.ml_threat_detector = MLThreatDetector()
+        self.threat_intelligence = ThreatIntelligencePlatform()
+        self.security_orchestration = SecurityOrchestration()
+        self.active_alerts = {}
+        self.investigation_queue = []
 
-        # Load configuration from manager
-        config_manager = get_threat_detection_manager()
-        detector_config = config_manager.get_detector_config("data_exfiltration")
-        if detector_config:
-            self.size_threshold_mb = detector_config.config.get(
-                "size_threshold_mb", 100
-            )
-            self.time_window = detector_config.config.get("time_window_seconds", 300)
-            self.request_count_threshold = detector_config.config.get(
-                "request_count_threshold", 50
-            )
-        else:
-            # Default configuration
-            self.size_threshold_mb = 100  # Alert if user accesses > 100MB in short time
-            self.time_window = 300  # 5 minutes
-            self.request_count_threshold = 50  # > 50 requests in time window
+    async def analyze_security_events(
+        self, events: list[SecurityEvent]
+    ) -> list[ThreatAlert]:
+        """Analyze security events and generate threat alerts."""
+        try:
+            logger.info(f"Analyzing {len(events)} security events")
 
-    async def analyze(self, event_data: dict[str, Any]) -> SecurityAlert | None:
-        """Analyze for potential data exfiltration."""
-        user_id = event_data.get("user_id")
-        if not user_id:
-            return None
+            # ML-based threat detection
+            ml_alerts = await self.ml_threat_detector.detect_threats(events)
 
-        event_type = event_data.get("event_type")
+            # Enrich alerts with threat intelligence
+            enriched_alerts = []
+            for alert in ml_alerts:
+                for event in alert.events:
+                    enrichment = await self.threat_intelligence.enrich_event(event)
 
-        if event_type == SecurityEventType.DATA_ACCESS:
-            current_time = time.time()
-            data_size = event_data.get("details", {}).get("data_size_bytes", 0)
-
-            # Record data access
-            self.user_data_access[user_id].append(
-                {
-                    "timestamp": current_time,
-                    "size_bytes": data_size,
-                    "endpoint": event_data.get("endpoint", ""),
-                    "ip_address": event_data.get("ip_address"),
-                }
-            )
-
-            # Analyze recent access pattern
-            recent_accesses = [
-                access
-                for access in self.user_data_access[user_id]
-                if current_time - access["timestamp"] <= self.time_window
-            ]
-
-            if len(recent_accesses) >= 2:  # Need at least 2 accesses to analyze
-                total_size_mb = sum(
-                    access["size_bytes"] for access in recent_accesses
-                ) / (1024 * 1024)
-                request_count = len(recent_accesses)
-
-                # Check for excessive data access
-                if (
-                    total_size_mb > self.size_threshold_mb
-                    or request_count > self.request_count_threshold
-                ):
-                    return SecurityAlert(
-                        alert_id=f"exfil_{user_id}_{int(current_time)}",
-                        alert_type=AlertType.DATA_EXFILTRATION,
-                        threat_level=ThreatLevel.HIGH,
-                        title="Potential Data Exfiltration Detected",
-                        description=f"User {user_id} accessing large amounts of data",
-                        timestamp=datetime.now(UTC),
-                        user_id=user_id,
-                        source_ip=event_data.get("ip_address"),
-                        indicators={
-                            "total_data_mb": total_size_mb,
-                            "request_count": request_count,
-                            "time_window_minutes": self.time_window / 60,
-                            "threshold_mb": self.size_threshold_mb,
-                        },
-                        evidence=[
-                            f"Accessed {total_size_mb:.2f} MB in {self.time_window / 60} minutes",
-                            f"Made {request_count} data requests",
-                            f"Endpoints: {', '.join({a['endpoint'] for a in recent_accesses})}",
-                        ],
-                        affected_resources=["data", "database"],
-                        recommended_actions=[
-                            "Review user data access permissions",
-                            "Check if access is legitimate",
-                            "Monitor user activity closely",
-                            "Consider restricting data access",
-                            "Investigate potential insider threat",
-                        ],
+                    # Update alert with enrichment data
+                    alert.confidence = min(
+                        95, alert.confidence + enrichment["risk_score"] * 10
                     )
+                    alert.indicators.extend(enrichment["threat_indicators"])
 
-        return None
+                    # Add context to alert description
+                    if enrichment["context"]:
+                        alert.description += f" | Context: {enrichment['context']}"
 
-    def get_configuration(self) -> dict[str, Any]:
-        """Get detector configuration."""
-        return {
-            "size_threshold_mb": self.size_threshold_mb,
-            "time_window_seconds": self.time_window,
-            "request_count_threshold": self.request_count_threshold,
+                enriched_alerts.append(alert)
+
+            # Store active alerts
+            for alert in enriched_alerts:
+                self.active_alerts[str(alert.alert_id)] = alert
+
+                # Trigger automated response
+                await self.security_orchestration.respond_to_threat(alert)
+
+            logger.info(f"Generated {len(enriched_alerts)} threat alerts")
+            return enriched_alerts
+
+        except Exception as e:
+            logger.error(f"Security event analysis failed: {e}")
+            return []
+
+    async def get_security_dashboard(self) -> dict[str, Any]:
+        """Get security operations dashboard data."""
+        dashboard = {
+            "timestamp": datetime.now().isoformat(),
+            "active_alerts": len(self.active_alerts),
+            "alerts_by_severity": {},
+            "alerts_by_category": {},
+            "top_threats": [],
+            "affected_entities": set(),
+            "investigation_queue_size": len(self.investigation_queue),
         }
 
-    def update_configuration(self, config: dict[str, Any]) -> None:
-        """Update detector configuration."""
-        self.size_threshold_mb = config.get("size_threshold_mb", self.size_threshold_mb)
-        self.time_window = config.get("time_window_seconds", self.time_window)
-        self.request_count_threshold = config.get(
-            "request_count_threshold", self.request_count_threshold
+        # Analyze active alerts
+        for alert in self.active_alerts.values():
+            # Count by severity
+            severity = alert.severity.value
+            dashboard["alerts_by_severity"][severity] = (
+                dashboard["alerts_by_severity"].get(severity, 0) + 1
+            )
+
+            # Count by category
+            category = alert.category.value
+            dashboard["alerts_by_category"][category] = (
+                dashboard["alerts_by_category"].get(category, 0) + 1
+            )
+
+            # Collect affected entities
+            dashboard["affected_entities"].update(alert.affected_entities)
+
+        # Convert set to list for JSON serialization
+        dashboard["affected_entities"] = list(dashboard["affected_entities"])
+
+        # Get top threats by risk score
+        sorted_alerts = sorted(
+            self.active_alerts.values(), key=lambda x: x.risk_score, reverse=True
         )
+        dashboard["top_threats"] = [
+            {
+                "alert_id": str(alert.alert_id),
+                "title": alert.title,
+                "severity": alert.severity.value,
+                "risk_score": alert.risk_score,
+                "confidence": alert.confidence,
+            }
+            for alert in sorted_alerts[:5]
+        ]
+
+        return dashboard
 
 
-# Factory function to create all advanced detectors
-def create_advanced_threat_detectors() -> list[ThreatDetector]:
-    """Create all advanced threat detectors.
+# Example usage
+if __name__ == "__main__":
 
-    Returns:
-        List of configured threat detectors
-    """
-    return [
-        AdvancedBehaviorAnalyzer(),
-        ThreatIntelligenceDetector(),
-        SessionHijackingDetector(),
-        DataExfiltrationDetector(),
-    ]
+    async def test_threat_detection():
+        """Test advanced threat detection system."""
+        soc = AdvancedSOC()
+
+        # Create test security events
+        test_events = [
+            SecurityEvent(
+                event_type="authentication",
+                source_ip="192.0.2.100",
+                user_id="test_user",
+                resource="/login",
+                action="authenticate",
+                response_code=401,
+                response_time=0.5,
+            ),
+            SecurityEvent(
+                event_type="api_access",
+                source_ip="192.0.2.100",
+                user_id="test_user",
+                resource="/admin/users",
+                action="list",
+                response_code=200,
+                response_time=1.2,
+                request_size=15000000,  # Large request
+            ),
+        ]
+
+        # Analyze events
+        alerts = await soc.analyze_security_events(test_events)
+
+        print("Threat Detection Results:")
+        for alert in alerts:
+            print(f"- {alert.title} (Severity: {alert.severity.value})")
+            print(f"  Confidence: {alert.confidence:.1f}%")
+            print(f"  Risk Score: {alert.risk_score:.3f}")
+            print(f"  Affected Entities: {alert.affected_entities}")
+            print(f"  Recommended Actions: {alert.recommended_actions}")
+            print()
+
+        # Get dashboard
+        dashboard = await soc.get_security_dashboard()
+        print("Security Dashboard:")
+        print(f"- Active Alerts: {dashboard['active_alerts']}")
+        print(f"- Alerts by Severity: {dashboard['alerts_by_severity']}")
+        print(f"- Top Threats: {len(dashboard['top_threats'])}")
+
+    # Run test
+    asyncio.run(test_threat_detection())

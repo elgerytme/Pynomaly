@@ -10,6 +10,14 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
+# Import error handling utilities
+from pynomaly.shared.error_handling import (
+    handle_cli_errors,
+    print_error,
+    print_success,
+    validate_output_path,
+)
+
 # Check if we should use lazy loading (default: yes)
 USE_LAZY_LOADING = os.getenv("PYNOMALY_USE_LAZY_CLI", "true").lower() == "true"
 
@@ -131,6 +139,7 @@ console = Console()
 
 
 @app.command()
+@handle_cli_errors
 def version():
     """Show version information."""
     container = get_cli_container()
@@ -142,6 +151,7 @@ def version():
 
 
 @app.command()
+@handle_cli_errors
 def settings(
     show: bool = typer.Option(False, "--show", help="Show current settings"),
     set_key: str | None = typer.Option(None, "--set", help="Set setting key=value"),
@@ -177,7 +187,7 @@ def settings(
     elif set_key:
         # Parse key=value
         if "=" not in set_key:
-            console.print("[red]Error:[/red] Use format: --set key=value")
+            print_error("Use format: --set key=value")
             raise typer.Exit(1)
 
         key, value = set_key.split("=", 1)
@@ -191,6 +201,7 @@ def settings(
 
 
 @app.command()
+@handle_cli_errors
 def status():
     """Show system status."""
     container = get_cli_container()
@@ -239,6 +250,7 @@ def status():
 
 
 @app.command()
+@handle_cli_errors
 def generate_config(
     config_type: str = typer.Argument(
         ..., help="Config type: 'test', 'experiment', or 'autonomous'"
@@ -450,10 +462,13 @@ def generate_config(
             }
 
     else:
-        console.print(
-            f"[red]Error:[/red] Unknown config type '{config_type}'. Use 'test', 'experiment', or 'autonomous'"
+        print_error(
+            f"Unknown config type '{config_type}'. Use 'test', 'experiment', or 'autonomous'"
         )
         raise typer.Exit(1)
+
+    # Validate output path
+    validate_output_path(str(output))
 
     # Save configuration
     try:
@@ -466,9 +481,7 @@ def generate_config(
             with open(output, "w") as f:
                 json.dump(config, f, indent=2, default=str)
 
-        console.print(
-            f"[green]✓[/green] {config_type.title()} configuration generated: {output}"
-        )
+        print_success(f"{config_type.title()} configuration generated: {output}")
 
         if include_examples:
             console.print("\n[bold blue]Usage Examples:[/bold blue]")
@@ -481,11 +494,12 @@ def generate_config(
                 console.print(f"\n[dim]{description}[/dim]")
 
     except Exception as e:
-        console.print(f"[red]Error:[/red] Failed to save config: {str(e)}")
+        print_error(f"Failed to save config: {str(e)}")
         raise typer.Exit(1)
 
 
 @app.command()
+@handle_cli_errors
 def quickstart():
     """Run interactive quickstart guide."""
     console.print("[bold blue]Welcome to Pynomaly![/bold blue]\n")
@@ -537,6 +551,7 @@ def quickstart():
 
 
 @app.command()
+@handle_cli_errors
 def setup():
     """Interactive setup wizard for new users.
 
@@ -564,7 +579,7 @@ def setup():
             )
 
     except Exception as e:
-        console.print(f"[red]Error:[/red] Setup wizard failed: {str(e)}")
+        print_error(f"Setup wizard failed: {str(e)}")
         raise typer.Exit(1)
 
 
@@ -577,7 +592,7 @@ def main(
 ):
     """Pynomaly - State-of-the-art anomaly detection platform."""
     if verbose and quiet:
-        console.print("[red]Error:[/red] Cannot use --verbose and --quiet together")
+        print_error("Cannot use --verbose and --quiet together")
         raise typer.Exit(1)
 
     # Set output level

@@ -15,9 +15,9 @@ class ModelMetrics:
     recall: float
     f1_score: float
     auc_score: float = 0.0
-    metadata: dict[str, Any] = None
+    metadata: dict[str, Any] | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.metadata is None:
             object.__setattr__(self, "metadata", {})
 

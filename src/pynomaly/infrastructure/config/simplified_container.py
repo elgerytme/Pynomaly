@@ -28,6 +28,8 @@ from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
 from pynomaly.infrastructure.config.service_registry import (
     RepositoryFactory,
     ServiceGroupFactory,
+    ServiceRegistry,
+    register_all_services,
 )
 from pynomaly.infrastructure.config.settings import Settings
 from pynomaly.infrastructure.repositories import (
@@ -330,13 +332,24 @@ def create_simplified_container(testing: bool = False) -> SimplifiedContainer:
         container = SimplifiedContainer()
 
     # Wire the container to modules that need it
-    container.wire(
-        modules=[
-            "pynomaly.presentation.api",
-            "pynomaly.presentation.cli",
-            "pynomaly.presentation.web",
-        ]
-    )
+    try:
+        container.wire(
+            modules=[
+                "pynomaly.presentation.api",
+                "pynomaly.presentation.cli",
+                "pynomaly.presentation.web",
+            ]
+        )
+    except Exception as e:
+        # Log the error and continue without wiring
+        # This prevents SystemExit but still allows container creation
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Container wiring failed: {e}")
+        logger.warning(
+            "Continuing without wiring - some dependency injection features may not work"
+        )
 
     return container
 

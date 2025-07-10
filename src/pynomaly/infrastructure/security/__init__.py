@@ -10,12 +10,11 @@ This module provides comprehensive security features including:
 """
 
 from .advanced_threat_detection import (
-    AdvancedBehaviorAnalyzer,
-    BehaviorProfile,
-    DataExfiltrationDetector,
-    ThreatIntelligence,
-    ThreatIntelligenceDetector,
-    create_advanced_threat_detectors,
+    AdvancedSOC,
+    MLThreatDetector,
+    ThreatAlert,
+    ThreatIndicator,
+    ThreatIntelligencePlatform,
 )
 from .audit_logger import (
     AuditEvent,

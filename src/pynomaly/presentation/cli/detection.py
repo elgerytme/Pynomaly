@@ -10,12 +10,14 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 from pynomaly.presentation.cli.container import get_cli_container
+from pynomaly.shared.error_handling import handle_cli_errors, print_error, print_success
 
 app = typer.Typer()
 console = Console()
 
 
 @app.command("train")
+@handle_cli_errors
 def train_detector(
     detector: str = typer.Argument(..., help="Detector ID or name (can be partial)"),
     dataset: str = typer.Argument(..., help="Dataset ID or name (can be partial)"),
@@ -41,11 +43,11 @@ def train_detector(
     ]
 
     if not matching_detectors:
-        console.print(f"[red]Error:[/red] No detector found matching '{detector}'")
+        print_error(f"No detector found matching '{detector}'")
         raise typer.Exit(1)
 
     if len(matching_detectors) > 1:
-        console.print(f"[red]Error:[/red] Multiple detectors match '{detector}':")
+        print_error(f"Multiple detectors match '{detector}':")
         for d in matching_detectors:
             console.print(f"  - {d.id}: {d.name}")
         raise typer.Exit(1)
@@ -61,11 +63,11 @@ def train_detector(
     ]
 
     if not matching_datasets:
-        console.print(f"[red]Error:[/red] No dataset found matching '{dataset}'")
+        print_error(f"No dataset found matching '{dataset}'")
         raise typer.Exit(1)
 
     if len(matching_datasets) > 1:
-        console.print(f"[red]Error:[/red] Multiple datasets match '{dataset}':")
+        print_error(f"Multiple datasets match '{dataset}':")
         for d in matching_datasets:
             console.print(f"  - {d.id}: {d.name}")
         raise typer.Exit(1)
@@ -97,11 +99,11 @@ def train_detector(
             progress.update(task, completed=True)
 
         except Exception as e:
-            console.print(f"[red]Error:[/red] Training failed: {str(e)}")
+            print_error(f"Training failed: {str(e)}")
             raise typer.Exit(1)
 
     # Display results
-    console.print("[green]✓[/green] Training completed!")
+    print_success("Training completed!")
     console.print(f"\nDetector: {detector_obj.name}")
     console.print(f"Dataset: {dataset_obj.name}")
     console.print(f"Training time: {response.training_time_ms}ms")
@@ -118,6 +120,7 @@ def train_detector(
 
 
 @app.command("run")
+@handle_cli_errors
 def detect_anomalies(
     detector: str = typer.Argument(..., help="Detector ID or name (can be partial)"),
     dataset: str = typer.Argument(..., help="Dataset ID or name (can be partial)"),
@@ -146,11 +149,11 @@ def detect_anomalies(
     ]
 
     if not matching_detectors:
-        console.print(f"[red]Error:[/red] No detector found matching '{detector}'")
+        print_error(f"No detector found matching '{detector}'")
         raise typer.Exit(1)
 
     if len(matching_detectors) > 1:
-        console.print(f"[red]Error:[/red] Multiple detectors match '{detector}':")
+        print_error(f"Multiple detectors match '{detector}':")
         for d in matching_detectors:
             console.print(f"  - {d.id}: {d.name}")
         raise typer.Exit(1)
@@ -173,11 +176,11 @@ def detect_anomalies(
     ]
 
     if not matching_datasets:
-        console.print(f"[red]Error:[/red] No dataset found matching '{dataset}'")
+        print_error(f"No dataset found matching '{dataset}'")
         raise typer.Exit(1)
 
     if len(matching_datasets) > 1:
-        console.print(f"[red]Error:[/red] Multiple datasets match '{dataset}':")
+        print_error(f"Multiple datasets match '{dataset}':")
         for d in matching_datasets:
             console.print(f"  - {d.id}: {d.name}")
         raise typer.Exit(1)
@@ -323,11 +326,11 @@ def batch_detect(
     ]
 
     if not matching_datasets:
-        console.print(f"[red]Error:[/red] No dataset found matching '{dataset}'")
+        print_error(f"No dataset found matching '{dataset}'")
         raise typer.Exit(1)
 
     if len(matching_datasets) > 1:
-        console.print(f"[red]Error:[/red] Multiple datasets match '{dataset}':")
+        print_error(f"Multiple datasets match '{dataset}':")
         for d in matching_datasets:
             console.print(f"  - {d.id}: {d.name}")
         raise typer.Exit(1)
@@ -400,11 +403,11 @@ def evaluate_detector(
     ]
 
     if not matching_detectors:
-        console.print(f"[red]Error:[/red] No detector found matching '{detector}'")
+        print_error(f"No detector found matching '{detector}'")
         raise typer.Exit(1)
 
     if len(matching_detectors) > 1:
-        console.print(f"[red]Error:[/red] Multiple detectors match '{detector}':")
+        print_error(f"Multiple detectors match '{detector}':")
         for d in matching_detectors:
             console.print(f"  - {d.id}: {d.name}")
         raise typer.Exit(1)
@@ -420,11 +423,11 @@ def evaluate_detector(
     ]
 
     if not matching_datasets:
-        console.print(f"[red]Error:[/red] No dataset found matching '{dataset}'")
+        print_error(f"No dataset found matching '{dataset}'")
         raise typer.Exit(1)
 
     if len(matching_datasets) > 1:
-        console.print(f"[red]Error:[/red] Multiple datasets match '{dataset}':")
+        print_error(f"Multiple datasets match '{dataset}':")
         for d in matching_datasets:
             console.print(f"  - {d.id}: {d.name}")
         raise typer.Exit(1)
@@ -536,7 +539,7 @@ def list_results(
             or d.name.lower().startswith(detector.lower())
         ]
         if not matching:
-            console.print(f"[red]Error:[/red] No detector found matching '{detector}'")
+            print_error(f"No detector found matching '{detector}'")
             raise typer.Exit(1)
         results = result_repo.find_by_detector(matching[0].id)
     elif dataset:
@@ -549,7 +552,7 @@ def list_results(
             or d.name.lower().startswith(dataset.lower())
         ]
         if not matching:
-            console.print(f"[red]Error:[/red] No dataset found matching '{dataset}'")
+            print_error(f"No dataset found matching '{dataset}'")
             raise typer.Exit(1)
         results = result_repo.find_by_dataset(matching[0].id)
     else:

@@ -952,13 +952,21 @@ def create_container(testing: bool = False) -> Container:
         container = Container()
 
     # Wire the container to modules that need it
-    container.wire(
-        modules=[
-            "pynomaly.presentation.api",
-            "pynomaly.presentation.cli",
-            "pynomaly.presentation.web",
-        ]
-    )
+    try:
+        container.wire(
+            modules=[
+                "pynomaly.presentation.api",
+                "pynomaly.presentation.cli",
+                "pynomaly.presentation.web",
+            ]
+        )
+    except Exception as e:
+        # Log the error and continue without wiring
+        # This prevents SystemExit but still allows container creation
+        logger.warning(f"Container wiring failed: {e}")
+        logger.warning(
+            "Continuing without wiring - some dependency injection features may not work"
+        )
 
     return container
 

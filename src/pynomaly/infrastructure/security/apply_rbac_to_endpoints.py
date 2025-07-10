@@ -180,7 +180,8 @@ def apply_rbac_to_file(file_path: Path) -> bool:
 
         # Update each route function
         updated = False
-        for method, func_name in analysis["routes"]:
+        for route_tuple in analysis["routes"]:
+            method, func_name = route_tuple
             if func_name in ENDPOINT_RBAC_MAPPING:
                 rbac_req = ENDPOINT_RBAC_MAPPING[func_name]
                 old_content = content

@@ -14,6 +14,7 @@ from fastapi.templating import Jinja2Templates
 from pynomaly.infrastructure.config import Container
 
 from .csrf import add_csrf_to_context
+from .security.security_monitor import setup_security_monitoring
 
 
 # Local dependency functions to avoid circular import
@@ -84,6 +85,71 @@ async def index(
     context = add_csrf_to_context(request, context)
 
     return templates.TemplateResponse("index.html", context)
+
+
+@router.get("/onboarding", response_class=HTMLResponse)
+async def onboarding_tour(request: Request) -> HTMLResponse:
+    """Interactive onboarding tour for new users."""
+    context = {"request": request}
+    context = add_csrf_to_context(request, context)
+    return templates.TemplateResponse("onboarding_tour.html", context)
+
+
+@router.get("/security-dashboard", response_class=HTMLResponse)
+async def security_dashboard(
+    request: Request,
+    container: Container = Depends(get_container),
+    current_user: str | None = Depends(get_current_user),
+) -> HTMLResponse:
+    """Security dashboard page."""
+    settings = container.config()
+
+    # Check if auth is enabled and user is not authenticated
+    if settings.auth_enabled and not current_user:
+        return RedirectResponse(url="/login", status_code=302)
+
+    context = {
+        "request": request,
+        "current_user": current_user,
+        "auth_enabled": settings.auth_enabled,
+    }
+
+    # Add CSRF token to context
+    context = add_csrf_to_context(request, context)
+
+    return templates.TemplateResponse("security_dashboard.html", context)
+
+
+@router.get("/api/security/metrics", response_class=HTMLResponse)
+async def security_metrics_api(
+    request: Request,
+    container: Container = Depends(get_container),
+) -> dict:
+    """Security metrics API endpoint."""
+    from .security.security_monitor import get_security_monitor
+
+    monitor = get_security_monitor()
+    metrics = monitor.get_metrics()
+
+    return {
+        "metrics": metrics,
+        "recent_events": monitor.get_recent_events(limit=50),
+        "timestamp": time.time(),
+    }
+
+
+@router.get("/api/security/events", response_class=HTMLResponse)
+async def security_events_api(
+    request: Request,
+    container: Container = Depends(get_container),
+) -> dict:
+    """Security events API endpoint."""
+    from .security.security_monitor import get_security_monitor
+
+    monitor = get_security_monitor()
+    events = monitor.get_recent_events(limit=100)
+
+    return {"events": events, "total_events": len(events), "timestamp": time.time()}
 
 
 @router.get("/login", response_class=HTMLResponse)
@@ -1757,6 +1823,21 @@ def mount_web_ui(app):
     rate_limiter = get_rate_limiter()
     waf = get_waf()
     app.add_middleware(SecurityMiddleware, rate_limiter=rate_limiter, waf=waf)
+
+    # Setup comprehensive security monitoring
+    try:
+        setup_security_monitoring(
+            app,
+            config={
+                "monitoring_enabled": True,
+                "rate_limit_per_minute": 100,
+                "auto_block_threshold": 5,
+                "block_duration": 3600,
+            },
+        )
+        logger.info("✅ Advanced security monitoring enabled")
+    except Exception as e:
+        logger.warning(f"❌ Security monitoring setup failed: {e}")
 
     # Start error monitoring
     start_error_monitoring()

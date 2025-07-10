@@ -435,6 +435,23 @@ def print_warning(message: str, title: str | None = None) -> None:
     )
 
 
+def print_error(message: str, title: str | None = None) -> None:
+    """
+    Print error message with rich formatting.
+
+    Args:
+        message: Error message to display
+        title: Optional title for the panel
+    """
+    console.print(
+        Panel(
+            f"[red]{message}[/red]",
+            title=title or "❌ Error",
+            border_style="red",
+        )
+    )
+
+
 def validate_data_shape(data, min_samples: int = 1, min_features: int = 1) -> None:
     """
     Validate data shape requirements.

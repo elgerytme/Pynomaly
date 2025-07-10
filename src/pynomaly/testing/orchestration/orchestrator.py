@@ -2,15 +2,16 @@ import argparse
 import json
 import subprocess
 from pathlib import Path
+from typing import Any
 
 
 class TestOrchestrator:
-    def __init__(self, mode: str):
+    def __init__(self, mode: str) -> None:
         self.mode = mode
         self.reports_dir = Path("reports/advanced")
         self.reports_dir.mkdir(parents=True, exist_ok=True)
 
-    def run_pytest(self):
+    def run_pytest(self) -> None:
         print("Running pytest...")
         result = subprocess.run(
             [
@@ -24,7 +25,7 @@ class TestOrchestrator:
         )
         self._log_result(result)
 
-    def run_property_tests(self):
+    def run_property_tests(self) -> None:
         print("Running property-based tests...")
         result = subprocess.run(
             ["pytest", "--hypothesis-show-statistics", "tests"],
@@ -33,12 +34,12 @@ class TestOrchestrator:
         )
         self._log_result(result)
 
-    def run_mutation_tests(self):
+    def run_mutation_tests(self) -> None:
         print("Running mutation tests...")
         result = subprocess.run(["mutmut", "run"], capture_output=True, text=True)
         self._log_result(result)
 
-    def _log_result(self, result):
+    def _log_result(self, result: Any) -> None:
         if result.returncode == 0:
             print("Success")
         else:
@@ -46,12 +47,12 @@ class TestOrchestrator:
             print(result.stdout)
             print(result.stderr)
 
-    def run_all(self):
+    def run_all(self) -> None:
         self.run_pytest()
         self.run_property_tests()
         self.run_mutation_tests()
 
-    def generate_report(self):
+    def generate_report(self) -> None:
         print("Generating report...")
         report_data = {
             "mode": self.mode,
@@ -66,7 +67,7 @@ class TestOrchestrator:
             json.dump(report_data, f, indent=2)
         print(f"Report generated at: {report_file}")
 
-    def _load_coverage_data(self):
+    def _load_coverage_data(self) -> dict[str, Any]:
         try:
             with open("reports/advanced/coverage.json") as f:
                 coverage_data = json.load(f)
@@ -77,7 +78,7 @@ class TestOrchestrator:
             return {}
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Advanced Test Orchestrator")
     parser.add_argument(
         "--mode",

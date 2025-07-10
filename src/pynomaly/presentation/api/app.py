@@ -61,6 +61,7 @@ from pynomaly.presentation.api.endpoints import (
     mfa,
     model_lineage,
     performance,
+    security_management,
     streaming,
     version,
 )
@@ -253,6 +254,25 @@ def create_app(container: Container | None = None) -> FastAPI:
     # Add request tracking middleware
     app.middleware("http")(track_request_metrics)
 
+    # Setup comprehensive security monitoring for API
+    try:
+        from pynomaly.presentation.web.security.security_monitor import (
+            setup_security_monitoring,
+        )
+
+        setup_security_monitoring(
+            app,
+            config={
+                "monitoring_enabled": True,
+                "rate_limit_per_minute": 1000,  # Higher limit for API
+                "auto_block_threshold": 10,
+                "block_duration": 1800,
+            },
+        )
+        print("✅ API security monitoring enabled")
+    except Exception as e:
+        print(f"❌ API security monitoring setup failed: {e}")
+
     # Add production monitoring middleware if available
     if MONITORING_AVAILABLE and getattr(settings, "monitoring_enabled", False):
         try:
@@ -333,6 +353,9 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     # Frontend support endpoints for web UI utilities
     app.include_router(frontend_support.router, tags=["frontend_support"])
+
+    # Security management endpoints
+    app.include_router(security_management.router, tags=["security"])
 
     # Distributed processing API removed for simplification
 

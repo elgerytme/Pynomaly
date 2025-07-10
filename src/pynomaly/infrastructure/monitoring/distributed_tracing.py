@@ -5,7 +5,9 @@ from functools import wraps
 from typing import Any
 
 
-def trace_operation(operation_name: str = "operation", **kwargs):
+def trace_operation(
+    operation_name: str = "operation", **kwargs: Any
+) -> Callable[..., Any]:
     """Stub decorator for tracing operations.
 
     Args:
@@ -16,9 +18,9 @@ def trace_operation(operation_name: str = "operation", **kwargs):
         Decorator function
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
             # No-op implementation - just call the original function
             return func(*args, **kwargs)
 
@@ -27,7 +29,7 @@ def trace_operation(operation_name: str = "operation", **kwargs):
     return decorator
 
 
-def start_span(name: str, **kwargs):
+def start_span(name: str, **kwargs: Any) -> None:
     """Stub function to start a tracing span.
 
     Args:
@@ -40,12 +42,12 @@ def start_span(name: str, **kwargs):
     pass
 
 
-def end_span():
+def end_span() -> None:
     """Stub function to end a tracing span."""
     pass
 
 
-def add_span_attribute(key: str, value: Any):
+def add_span_attribute(key: str, value: Any) -> None:
     """Stub function to add attributes to current span.
 
     Args:
@@ -55,7 +57,7 @@ def add_span_attribute(key: str, value: Any):
     pass
 
 
-def set_span_error(error: Exception):
+def set_span_error(error: Exception) -> None:
     """Stub function to mark span as having an error.
 
     Args:
