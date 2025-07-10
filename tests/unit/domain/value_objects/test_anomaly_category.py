@@ -34,7 +34,7 @@ class TestAnomalyCategory:
         # Test equality
         assert AnomalyCategory.STATISTICAL == AnomalyCategory.STATISTICAL
         assert AnomalyCategory.STATISTICAL != AnomalyCategory.THRESHOLD
-        
+
         # Test string comparison
         assert AnomalyCategory.STATISTICAL == "statistical"
         assert AnomalyCategory.THRESHOLD == "threshold"
@@ -132,7 +132,9 @@ class TestAnomalyCategory:
 
     def test_enum_from_invalid_string(self):
         """Test creating enum from invalid string raises ValueError."""
-        with pytest.raises(ValueError, match="'invalid' is not a valid AnomalyCategory"):
+        with pytest.raises(
+            ValueError, match="'invalid' is not a valid AnomalyCategory"
+        ):
             AnomalyCategory("invalid")
 
     def test_enum_uniqueness(self):
@@ -164,10 +166,16 @@ class TestAnomalyCategory:
             AnomalyCategory.NEURAL: "Neural network-based anomaly detection",
             AnomalyCategory.ENSEMBLE: "Ensemble-based anomaly detection",
         }
-        
+
         assert len(category_descriptions) == 7
-        assert category_descriptions[AnomalyCategory.STATISTICAL] == "Statistical-based anomaly detection"
-        assert category_descriptions[AnomalyCategory.NEURAL] == "Neural network-based anomaly detection"
+        assert (
+            category_descriptions[AnomalyCategory.STATISTICAL]
+            == "Statistical-based anomaly detection"
+        )
+        assert (
+            category_descriptions[AnomalyCategory.NEURAL]
+            == "Neural network-based anomaly detection"
+        )
 
     def test_enum_sorting(self):
         """Test enum values can be sorted."""
@@ -177,7 +185,7 @@ class TestAnomalyCategory:
             AnomalyCategory.STATISTICAL,
             AnomalyCategory.ENSEMBLE,
         ]
-        
+
         # Sort by string value
         sorted_categories = sorted(categories, key=lambda x: x.value)
         expected = [
@@ -186,27 +194,27 @@ class TestAnomalyCategory:
             AnomalyCategory.NEURAL,
             AnomalyCategory.STATISTICAL,
         ]
-        
+
         assert sorted_categories == expected
 
     def test_enum_with_conditional_logic(self):
         """Test using enum in conditional logic."""
         category = AnomalyCategory.STATISTICAL
-        
+
         if category == AnomalyCategory.STATISTICAL:
             result = "statistical_processing"
         elif category == AnomalyCategory.NEURAL:
             result = "neural_processing"
         else:
             result = "other_processing"
-        
+
         assert result == "statistical_processing"
 
     def test_enum_case_sensitivity(self):
         """Test enum is case sensitive."""
         with pytest.raises(ValueError):
             AnomalyCategory("STATISTICAL")  # Should be lowercase
-            
+
         with pytest.raises(ValueError):
             AnomalyCategory("Statistical")  # Should be lowercase
 
@@ -214,22 +222,22 @@ class TestAnomalyCategory:
         """Test enum covers expected anomaly detection categories."""
         # Test that we have the main categories of anomaly detection
         expected_categories = {
-            "statistical",    # Statistical methods
-            "threshold",      # Threshold-based methods
-            "clustering",     # Clustering-based methods
-            "distance",       # Distance-based methods
-            "density",        # Density-based methods
-            "neural",         # Neural network methods
-            "ensemble",       # Ensemble methods
+            "statistical",  # Statistical methods
+            "threshold",  # Threshold-based methods
+            "clustering",  # Clustering-based methods
+            "distance",  # Distance-based methods
+            "density",  # Density-based methods
+            "neural",  # Neural network methods
+            "ensemble",  # Ensemble methods
         }
-        
+
         actual_categories = {category.value for category in AnomalyCategory}
         assert actual_categories == expected_categories
 
     def test_enum_method_inheritance(self):
         """Test enum inherits methods from str."""
         category = AnomalyCategory.STATISTICAL
-        
+
         # Should have string methods
         assert category.upper() == "STATISTICAL"
         assert category.startswith("stat")
@@ -239,6 +247,7 @@ class TestAnomalyCategory:
 
     def test_enum_default_usage_pattern(self):
         """Test typical usage pattern with default."""
+
         def get_category_or_default(category_str: str | None = None) -> AnomalyCategory:
             if category_str:
                 try:
@@ -246,15 +255,15 @@ class TestAnomalyCategory:
                 except ValueError:
                     pass
             return AnomalyCategory.get_default()
-        
+
         # Test with valid category
         assert get_category_or_default("neural") == AnomalyCategory.NEURAL
-        
+
         # Test with invalid category
         assert get_category_or_default("invalid") == AnomalyCategory.STATISTICAL
-        
+
         # Test with None
         assert get_category_or_default(None) == AnomalyCategory.STATISTICAL
-        
+
         # Test with empty string
         assert get_category_or_default("") == AnomalyCategory.STATISTICAL

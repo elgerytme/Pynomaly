@@ -22,8 +22,7 @@ class ContainerSecurityScanner:
 
         # Configure logging
         logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s'
+            level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
         )
         self.logger = logging.getLogger(__name__)
 
@@ -34,11 +33,7 @@ class ContainerSecurityScanner:
 
         for tool in required_tools:
             try:
-                subprocess.run(
-                    [tool, "--version"],
-                    capture_output=True,
-                    check=True
-                )
+                subprocess.run([tool, "--version"], capture_output=True, check=True)
             except (subprocess.CalledProcessError, FileNotFoundError):
                 missing_tools.append(tool)
 
@@ -57,20 +52,28 @@ class ContainerSecurityScanner:
 
         # JSON output for processing
         cmd_json = [
-            "trivy", "image",
-            "--format", "json",
-            "--output", str(trivy_output),
-            "--severity", "CRITICAL,HIGH,MEDIUM,LOW",
-            self.image_name
+            "trivy",
+            "image",
+            "--format",
+            "json",
+            "--output",
+            str(trivy_output),
+            "--severity",
+            "CRITICAL,HIGH,MEDIUM,LOW",
+            self.image_name,
         ]
 
         # SARIF output for GitHub integration
         cmd_sarif = [
-            "trivy", "image",
-            "--format", "sarif",
-            "--output", str(trivy_sarif),
-            "--severity", "CRITICAL,HIGH,MEDIUM",
-            self.image_name
+            "trivy",
+            "image",
+            "--format",
+            "sarif",
+            "--output",
+            str(trivy_sarif),
+            "--severity",
+            "CRITICAL,HIGH,MEDIUM",
+            self.image_name,
         ]
 
         # Run JSON scan
@@ -96,11 +99,15 @@ class ContainerSecurityScanner:
 
         secrets_output = self.output_dir / "trivy-secrets.json"
         cmd = [
-            "trivy", "image",
-            "--scanners", "secret",
-            "--format", "json",
-            "--output", str(secrets_output),
-            self.image_name
+            "trivy",
+            "image",
+            "--scanners",
+            "secret",
+            "--format",
+            "json",
+            "--output",
+            str(secrets_output),
+            self.image_name,
         ]
 
         result = subprocess.run(cmd, capture_output=True, text=True)
@@ -135,12 +142,15 @@ class ContainerSecurityScanner:
             "c004_reference": "Container Security Implementation",
             "vulnerabilities": vulns,
             "secrets": secrets,
-            "summary": self._generate_summary(vulns, secrets)
+            "summary": self._generate_summary(vulns, secrets),
         }
 
         # Save report
-        report_file = self.output_dir / f"security-report-{self.image_name.replace(':', '_')}.json"
-        with open(report_file, 'w') as f:
+        report_file = (
+            self.output_dir
+            / f"security-report-{self.image_name.replace(':', '_')}.json"
+        )
+        with open(report_file, "w") as f:
             json.dump(report, f, indent=2)
 
         self.logger.info(f"Security report saved to {report_file}")
@@ -156,7 +166,7 @@ class ContainerSecurityScanner:
             "low_vulnerabilities": 0,
             "secrets_found": 0,
             "security_score": 0,
-            "risk_level": "unknown"
+            "risk_level": "unknown",
         }
 
         # Count vulnerabilities
@@ -183,11 +193,11 @@ class ContainerSecurityScanner:
 
         # Calculate security score (0-100)
         penalty = (
-            summary["critical_vulnerabilities"] * 15 +
-            summary["high_vulnerabilities"] * 8 +
-            summary["medium_vulnerabilities"] * 3 +
-            summary["low_vulnerabilities"] * 1 +
-            summary["secrets_found"] * 20
+            summary["critical_vulnerabilities"] * 15
+            + summary["high_vulnerabilities"] * 8
+            + summary["medium_vulnerabilities"] * 3
+            + summary["low_vulnerabilities"] * 1
+            + summary["secrets_found"] * 20
         )
 
         summary["security_score"] = max(0, 100 - penalty)
@@ -204,16 +214,23 @@ class ContainerSecurityScanner:
 
         return summary
 
+
 def main():
     """Main execution function."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Container security scanner - C-004 implementation")
+    parser = argparse.ArgumentParser(
+        description="Container security scanner - C-004 implementation"
+    )
     parser.add_argument("image", help="Container image to scan")
-    parser.add_argument("--output-dir", default="security-reports",
-                       help="Output directory for reports")
-    parser.add_argument("--fail-on-critical", action="store_true",
-                       help="Exit with non-zero code if critical vulnerabilities found")
+    parser.add_argument(
+        "--output-dir", default="security-reports", help="Output directory for reports"
+    )
+    parser.add_argument(
+        "--fail-on-critical",
+        action="store_true",
+        help="Exit with non-zero code if critical vulnerabilities found",
+    )
 
     args = parser.parse_args()
 
@@ -234,7 +251,7 @@ def main():
     # Print summary
     summary = report["summary"]
     print(f"\\n=== Security Scan Summary for {args.image} ===")
-    print(f"C-004 Container Security Implementation")
+    print("C-004 Container Security Implementation")
     print(f"Security Score: {summary['security_score']}/100")
     print(f"Risk Level: {summary['risk_level'].upper()}")
     print(f"Total Vulnerabilities: {summary['total_vulnerabilities']}")
@@ -246,15 +263,16 @@ def main():
     print(f"\\nFull report: {report_file}")
 
     # Exit with appropriate code
-    if args.fail_on_critical and summary['critical_vulnerabilities'] > 0:
+    if args.fail_on_critical and summary["critical_vulnerabilities"] > 0:
         print("\\n❌ Critical vulnerabilities found - failing build")
         sys.exit(1)
-    elif summary['security_score'] < 70:
+    elif summary["security_score"] < 70:
         print("\\n⚠️  Security score below 70 - consider addressing findings")
         sys.exit(1)
     else:
         print("\\n✅ Security scan passed")
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

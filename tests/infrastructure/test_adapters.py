@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 import pytest
+
 from tests.conftest_dependencies import requires_dependencies, requires_dependency
 
 # Optional imports with graceful fallbacks

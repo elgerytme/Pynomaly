@@ -4,7 +4,7 @@ Tests core detection orchestration, ensemble coordination, and result processing
 """
 
 import asyncio
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import numpy as np
@@ -88,7 +88,11 @@ class TestDetectionService:
             name="test-dataset",
             file_path="/tmp/test.csv",
             features=["feature1", "feature2", "feature3"],
-            feature_types={"feature1": "numeric", "feature2": "numeric", "feature3": "categorical"},
+            feature_types={
+                "feature1": "numeric",
+                "feature2": "numeric",
+                "feature3": "categorical",
+            },
             target_column=None,
             data_shape=(100, 3),
         )
@@ -170,7 +174,9 @@ class TestDetectionService:
         # Verify
         assert result is not None
         assert result.threshold == threshold
-        assert len(result.anomalies) >= 0  # Should have some anomalies based on threshold
+        assert (
+            len(result.anomalies) >= 0
+        )  # Should have some anomalies based on threshold
 
         # Verify anomalies are properly classified
         for anomaly in result.anomalies:

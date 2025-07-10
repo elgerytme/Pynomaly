@@ -2,18 +2,18 @@
 
 import pytest
 
+from pynomaly.domain.exceptions.base import (
+    ConfigurationError,
+    DomainError,
+    NotFittedError,
+    PynamolyError,
+)
 from pynomaly.domain.exceptions.detector_exceptions import (
     DetectorConfigurationError,
     DetectorError,
     DetectorNotFittedError,
     FittingError,
     InvalidAlgorithmError,
-)
-from pynomaly.domain.exceptions.base import (
-    ConfigurationError,
-    DomainError,
-    NotFittedError,
-    PynamolyError,
 )
 
 
@@ -64,7 +64,9 @@ class TestDetectorNotFittedError:
     def test_default_creation(self):
         """Test creation with default operation."""
         error = DetectorNotFittedError("IsolationForest")
-        expected_message = "Detector 'IsolationForest' must be fitted before calling detect()"
+        expected_message = (
+            "Detector 'IsolationForest' must be fitted before calling detect()"
+        )
         assert error.message == expected_message
         assert error.details["detector_name"] == "IsolationForest"
         assert error.details["operation"] == "detect"
@@ -72,7 +74,9 @@ class TestDetectorNotFittedError:
     def test_creation_with_custom_operation(self):
         """Test creation with custom operation."""
         error = DetectorNotFittedError("IsolationForest", operation="predict")
-        expected_message = "Detector 'IsolationForest' must be fitted before calling predict()"
+        expected_message = (
+            "Detector 'IsolationForest' must be fitted before calling predict()"
+        )
         assert error.message == expected_message
         assert error.details["detector_name"] == "IsolationForest"
         assert error.details["operation"] == "predict"
@@ -83,9 +87,11 @@ class TestDetectorNotFittedError:
             "IsolationForest",
             operation="predict",
             model_version="v1.0",
-            dataset_name="test_data"
+            dataset_name="test_data",
         )
-        expected_message = "Detector 'IsolationForest' must be fitted before calling predict()"
+        expected_message = (
+            "Detector 'IsolationForest' must be fitted before calling predict()"
+        )
         assert error.message == expected_message
         assert error.details["detector_name"] == "IsolationForest"
         assert error.details["operation"] == "predict"
@@ -110,7 +116,10 @@ class TestDetectorNotFittedError:
         """Test string representation."""
         error = DetectorNotFittedError("IsolationForest", operation="predict")
         result = str(error)
-        assert "Detector 'IsolationForest' must be fitted before calling predict()" in result
+        assert (
+            "Detector 'IsolationForest' must be fitted before calling predict()"
+            in result
+        )
         assert "detector_name=IsolationForest" in result
         assert "operation=predict" in result
 
@@ -134,7 +143,9 @@ class TestDetectorConfigurationError:
     def test_basic_creation(self):
         """Test basic detector configuration error creation."""
         error = DetectorConfigurationError("IsolationForest", "Invalid parameter")
-        expected_message = "Configuration error in detector 'IsolationForest': Invalid parameter"
+        expected_message = (
+            "Configuration error in detector 'IsolationForest': Invalid parameter"
+        )
         assert error.message == expected_message
         assert error.details["detector_name"] == "IsolationForest"
 
@@ -145,9 +156,11 @@ class TestDetectorConfigurationError:
             "Invalid parameter",
             parameter="n_estimators",
             expected="positive integer",
-            actual=-10
+            actual=-10,
         )
-        expected_message = "Configuration error in detector 'IsolationForest': Invalid parameter"
+        expected_message = (
+            "Configuration error in detector 'IsolationForest': Invalid parameter"
+        )
         assert error.message == expected_message
         assert error.details["detector_name"] == "IsolationForest"
         assert error.details["parameter"] == "n_estimators"
@@ -170,12 +183,13 @@ class TestDetectorConfigurationError:
     def test_string_representation(self):
         """Test string representation."""
         error = DetectorConfigurationError(
-            "IsolationForest",
-            "Invalid parameter",
-            parameter="n_estimators"
+            "IsolationForest", "Invalid parameter", parameter="n_estimators"
         )
         result = str(error)
-        assert "Configuration error in detector 'IsolationForest': Invalid parameter" in result
+        assert (
+            "Configuration error in detector 'IsolationForest': Invalid parameter"
+            in result
+        )
         assert "detector_name=IsolationForest" in result
         assert "parameter=n_estimators" in result
 
@@ -205,7 +219,9 @@ class TestInvalidAlgorithmError:
     def test_creation_with_available_algorithms(self):
         """Test creation with available algorithms."""
         available_algorithms = ["IsolationForest", "OneClassSVM", "LocalOutlierFactor"]
-        error = InvalidAlgorithmError("InvalidAlgorithm", available_algorithms=available_algorithms)
+        error = InvalidAlgorithmError(
+            "InvalidAlgorithm", available_algorithms=available_algorithms
+        )
         expected_message = "Algorithm 'InvalidAlgorithm' is not supported. Available algorithms: IsolationForest, OneClassSVM, LocalOutlierFactor"
         assert error.message == expected_message
         assert error.details["algorithm_name"] == "InvalidAlgorithm"
@@ -214,7 +230,9 @@ class TestInvalidAlgorithmError:
     def test_creation_with_empty_available_algorithms(self):
         """Test creation with empty available algorithms."""
         error = InvalidAlgorithmError("InvalidAlgorithm", available_algorithms=[])
-        expected_message = "Algorithm 'InvalidAlgorithm' is not supported. Available algorithms: "
+        expected_message = (
+            "Algorithm 'InvalidAlgorithm' is not supported. Available algorithms: "
+        )
         assert error.message == expected_message
         assert error.details["algorithm_name"] == "InvalidAlgorithm"
         assert error.details["available_algorithms"] == []
@@ -226,7 +244,7 @@ class TestInvalidAlgorithmError:
             "InvalidAlgorithm",
             available_algorithms=available_algorithms,
             category="anomaly_detection",
-            version="1.0"
+            version="1.0",
         )
         expected_message = "Algorithm 'InvalidAlgorithm' is not supported. Available algorithms: IsolationForest, OneClassSVM"
         assert error.message == expected_message
@@ -252,7 +270,9 @@ class TestInvalidAlgorithmError:
 
     def test_single_available_algorithm(self):
         """Test with single available algorithm."""
-        error = InvalidAlgorithmError("InvalidAlgorithm", available_algorithms=["IsolationForest"])
+        error = InvalidAlgorithmError(
+            "InvalidAlgorithm", available_algorithms=["IsolationForest"]
+        )
         expected_message = "Algorithm 'InvalidAlgorithm' is not supported. Available algorithms: IsolationForest"
         assert error.message == expected_message
         assert error.details["available_algorithms"] == ["IsolationForest"]
@@ -260,7 +280,9 @@ class TestInvalidAlgorithmError:
     def test_string_representation(self):
         """Test string representation."""
         available_algorithms = ["IsolationForest", "OneClassSVM"]
-        error = InvalidAlgorithmError("InvalidAlgorithm", available_algorithms=available_algorithms)
+        error = InvalidAlgorithmError(
+            "InvalidAlgorithm", available_algorithms=available_algorithms
+        )
         result = str(error)
         assert "Algorithm 'InvalidAlgorithm' is not supported" in result
         assert "available_algorithms=['IsolationForest', 'OneClassSVM']" in result
@@ -291,7 +313,9 @@ class TestFittingError:
 
     def test_creation_with_dataset_name(self):
         """Test creation with dataset name."""
-        error = FittingError("IsolationForest", "Insufficient data", dataset_name="training_data")
+        error = FittingError(
+            "IsolationForest", "Insufficient data", dataset_name="training_data"
+        )
         expected_message = "Failed to fit detector 'IsolationForest': Insufficient data"
         assert error.message == expected_message
         assert error.details["detector_name"] == "IsolationForest"
@@ -306,7 +330,7 @@ class TestFittingError:
             dataset_name="training_data",
             n_samples=50,
             min_required=1000,
-            contamination=0.1
+            contamination=0.1,
         )
         expected_message = "Failed to fit detector 'IsolationForest': Insufficient data"
         assert error.message == expected_message
@@ -350,9 +374,7 @@ class TestFittingError:
     def test_string_representation(self):
         """Test string representation."""
         error = FittingError(
-            "IsolationForest",
-            "Insufficient data",
-            dataset_name="training_data"
+            "IsolationForest", "Insufficient data", dataset_name="training_data"
         )
         result = str(error)
         assert "Failed to fit detector 'IsolationForest': Insufficient data" in result
@@ -375,27 +397,29 @@ class TestDetectorExceptionIntegration:
         detector_error = DetectorError("Detector error")
         assert isinstance(detector_error, DomainError)
         assert isinstance(detector_error, PynamolyError)
-        
+
         # DetectorNotFittedError inherits from both NotFittedError and DetectorError
         not_fitted_error = DetectorNotFittedError("IsolationForest")
         assert isinstance(not_fitted_error, NotFittedError)
         assert isinstance(not_fitted_error, DetectorError)
         assert isinstance(not_fitted_error, DomainError)
         assert isinstance(not_fitted_error, PynamolyError)
-        
+
         # DetectorConfigurationError inherits from both ConfigurationError and DetectorError
-        config_error = DetectorConfigurationError("IsolationForest", "Invalid parameter")
+        config_error = DetectorConfigurationError(
+            "IsolationForest", "Invalid parameter"
+        )
         assert isinstance(config_error, ConfigurationError)
         assert isinstance(config_error, DetectorError)
         assert isinstance(config_error, DomainError)
         assert isinstance(config_error, PynamolyError)
-        
+
         # Other detector errors inherit from DetectorError
         invalid_algorithm_error = InvalidAlgorithmError("InvalidAlgorithm")
         assert isinstance(invalid_algorithm_error, DetectorError)
         assert isinstance(invalid_algorithm_error, DomainError)
         assert isinstance(invalid_algorithm_error, PynamolyError)
-        
+
         fitting_error = FittingError("IsolationForest", "Failed")
         assert isinstance(fitting_error, DetectorError)
         assert isinstance(fitting_error, DomainError)
@@ -405,7 +429,7 @@ class TestDetectorExceptionIntegration:
         """Test exception chaining with detector errors."""
         original_error = ValueError("Original error")
         detector_error = DetectorError("Detector error occurred", cause=original_error)
-        
+
         assert detector_error.cause == original_error
         assert "Caused by: ValueError: Original error" in str(detector_error)
 
@@ -414,7 +438,7 @@ class TestDetectorExceptionIntegration:
         error = DetectorNotFittedError("IsolationForest")
         error.with_context(user_id="123", timestamp="2023-01-01")
         error.with_context(model_version="v1.0")
-        
+
         assert error.details["user_id"] == "123"
         assert error.details["timestamp"] == "2023-01-01"
         assert error.details["model_version"] == "v1.0"
@@ -424,17 +448,20 @@ class TestDetectorExceptionIntegration:
         error = FittingError(
             "IsolationForest",
             "Insufficient data for training",
-            dataset_name="training_data"
+            dataset_name="training_data",
         )
         error.with_context(
             n_samples=50,
             min_required=1000,
             contamination=0.1,
-            operation="batch_training"
+            operation="batch_training",
         )
-        
+
         result = str(error)
-        assert "Failed to fit detector 'IsolationForest': Insufficient data for training" in result
+        assert (
+            "Failed to fit detector 'IsolationForest': Insufficient data for training"
+            in result
+        )
         assert "dataset_name=training_data" in result
         assert "n_samples=50" in result
         assert "min_required=1000" in result
@@ -444,19 +471,21 @@ class TestDetectorExceptionIntegration:
         """Test invalid algorithm error with additional context."""
         available_algorithms = ["IsolationForest", "OneClassSVM", "LocalOutlierFactor"]
         error = InvalidAlgorithmError(
-            "UnsupportedAlgorithm",
-            available_algorithms=available_algorithms
+            "UnsupportedAlgorithm", available_algorithms=available_algorithms
         )
         error.with_context(
             requested_by="user123",
             category="anomaly_detection",
             version="1.0",
-            timestamp="2023-01-01T12:00:00Z"
+            timestamp="2023-01-01T12:00:00Z",
         )
-        
+
         result = str(error)
         assert "Algorithm 'UnsupportedAlgorithm' is not supported" in result
-        assert "available_algorithms=['IsolationForest', 'OneClassSVM', 'LocalOutlierFactor']" in result
+        assert (
+            "available_algorithms=['IsolationForest', 'OneClassSVM', 'LocalOutlierFactor']"
+            in result
+        )
         assert "requested_by=user123" in result
         assert "category=anomaly_detection" in result
 
@@ -466,7 +495,9 @@ class TestDetectorExceptionIntegration:
             try:
                 raise ValueError("Parameter validation failed")
             except ValueError as e:
-                raise DetectorConfigurationError("IsolationForest", "Invalid configuration", cause=e)
+                raise DetectorConfigurationError(
+                    "IsolationForest", "Invalid configuration", cause=e
+                )
         except DetectorConfigurationError as e:
             assert e.cause is not None
             assert isinstance(e.cause, ValueError)
@@ -476,9 +507,12 @@ class TestDetectorExceptionIntegration:
         """Test detector exceptions in try-catch blocks."""
         with pytest.raises(DetectorNotFittedError) as exc_info:
             raise DetectorNotFittedError("IsolationForest", operation="predict")
-        
+
         error = exc_info.value
-        assert "Detector 'IsolationForest' must be fitted before calling predict()" in error.message
+        assert (
+            "Detector 'IsolationForest' must be fitted before calling predict()"
+            in error.message
+        )
         assert error.details["detector_name"] == "IsolationForest"
         assert error.details["operation"] == "predict"
 
@@ -486,23 +520,23 @@ class TestDetectorExceptionIntegration:
         """Test multiple inheritance behavior of detector errors."""
         # Test DetectorNotFittedError multiple inheritance
         error1 = DetectorNotFittedError("IsolationForest")
-        
+
         # Should have NotFittedError behavior
-        assert hasattr(error1, 'details')
-        assert hasattr(error1, 'with_context')
-        
+        assert hasattr(error1, "details")
+        assert hasattr(error1, "with_context")
+
         # Should have DetectorError behavior
         assert isinstance(error1, DetectorError)
-        
+
         # Test DetectorConfigurationError multiple inheritance
         error2 = DetectorConfigurationError("IsolationForest", "Invalid parameter")
-        
+
         # Should have ConfigurationError behavior
         assert isinstance(error2, ConfigurationError)
-        
+
         # Should have DetectorError behavior
         assert isinstance(error2, DetectorError)
-        
+
         # Should properly handle method resolution
         error2.with_context(additional_info="test")
         assert error2.details["additional_info"] == "test"
@@ -510,20 +544,21 @@ class TestDetectorExceptionIntegration:
     def test_error_serialization_compatibility(self):
         """Test detector error compatibility with serialization."""
         error = FittingError(
-            "IsolationForest",
-            "Insufficient data",
-            dataset_name="training_data"
+            "IsolationForest", "Insufficient data", dataset_name="training_data"
         )
         error.with_context(n_samples=50, min_required=1000)
-        
+
         # Should be able to extract serializable data
         error_data = {
             "message": error.message,
             "details": error.details,
-            "type": type(error).__name__
+            "type": type(error).__name__,
         }
-        
-        assert "Failed to fit detector 'IsolationForest': Insufficient data" in error_data["message"]
+
+        assert (
+            "Failed to fit detector 'IsolationForest': Insufficient data"
+            in error_data["message"]
+        )
         assert error_data["details"]["detector_name"] == "IsolationForest"
         assert error_data["details"]["reason"] == "Insufficient data"
         assert error_data["details"]["dataset_name"] == "training_data"
@@ -535,25 +570,42 @@ class TestDetectorExceptionIntegration:
         """Test error message construction in various scenarios."""
         # Test DetectorNotFittedError message construction
         error1 = DetectorNotFittedError("IsolationForest")
-        assert "Detector 'IsolationForest' must be fitted before calling detect()" in error1.message
-        
+        assert (
+            "Detector 'IsolationForest' must be fitted before calling detect()"
+            in error1.message
+        )
+
         error2 = DetectorNotFittedError("IsolationForest", operation="predict")
-        assert "Detector 'IsolationForest' must be fitted before calling predict()" in error2.message
-        
+        assert (
+            "Detector 'IsolationForest' must be fitted before calling predict()"
+            in error2.message
+        )
+
         # Test DetectorConfigurationError message construction
         error3 = DetectorConfigurationError("IsolationForest", "Invalid parameter")
-        assert "Configuration error in detector 'IsolationForest': Invalid parameter" in error3.message
-        
+        assert (
+            "Configuration error in detector 'IsolationForest': Invalid parameter"
+            in error3.message
+        )
+
         # Test InvalidAlgorithmError message construction
         error4 = InvalidAlgorithmError("InvalidAlgorithm")
         assert "Algorithm 'InvalidAlgorithm' is not supported" in error4.message
-        
-        error5 = InvalidAlgorithmError("InvalidAlgorithm", available_algorithms=["IsolationForest"])
-        assert "Algorithm 'InvalidAlgorithm' is not supported. Available algorithms: IsolationForest" in error5.message
-        
+
+        error5 = InvalidAlgorithmError(
+            "InvalidAlgorithm", available_algorithms=["IsolationForest"]
+        )
+        assert (
+            "Algorithm 'InvalidAlgorithm' is not supported. Available algorithms: IsolationForest"
+            in error5.message
+        )
+
         # Test FittingError message construction
         error6 = FittingError("IsolationForest", "Insufficient data")
-        assert "Failed to fit detector 'IsolationForest': Insufficient data" in error6.message
+        assert (
+            "Failed to fit detector 'IsolationForest': Insufficient data"
+            in error6.message
+        )
 
     def test_parameter_validation(self):
         """Test parameter validation in detector exceptions."""
@@ -561,24 +613,24 @@ class TestDetectorExceptionIntegration:
         error1 = DetectorNotFittedError("IsolationForest")
         assert error1.details["detector_name"] == "IsolationForest"
         assert error1.details["operation"] == "detect"
-        
+
         # Test DetectorConfigurationError required parameters
         error2 = DetectorConfigurationError("IsolationForest", "Invalid parameter")
         assert error2.details["detector_name"] == "IsolationForest"
-        
+
         # Test InvalidAlgorithmError required parameters
         error3 = InvalidAlgorithmError("InvalidAlgorithm")
         assert error3.details["algorithm_name"] == "InvalidAlgorithm"
-        
+
         # Test FittingError required parameters
         error4 = FittingError("IsolationForest", "Failed")
         assert error4.details["detector_name"] == "IsolationForest"
         assert error4.details["reason"] == "Failed"
-        
+
         # Test optional parameters
         error5 = FittingError("IsolationForest", "Failed", dataset_name="test")
         assert error5.details["dataset_name"] == "test"
-        
+
         error6 = FittingError("IsolationForest", "Failed", dataset_name=None)
         assert "dataset_name" not in error6.details
 
@@ -587,34 +639,39 @@ class TestDetectorExceptionIntegration:
         # Test workflow: trying to use unfitted detector
         with pytest.raises(DetectorNotFittedError) as exc_info:
             raise DetectorNotFittedError("IsolationForest", operation="detect")
-        
+
         unfitted_error = exc_info.value
         assert "must be fitted before calling detect()" in unfitted_error.message
-        
+
         # Test workflow: invalid configuration during setup
         config_error = DetectorConfigurationError(
             "IsolationForest",
             "Invalid contamination parameter",
             parameter="contamination",
             expected="float between 0 and 1",
-            actual=1.5
+            actual=1.5,
         )
-        assert "Configuration error in detector 'IsolationForest'" in config_error.message
-        
+        assert (
+            "Configuration error in detector 'IsolationForest'" in config_error.message
+        )
+
         # Test workflow: fitting fails
         fitting_error = FittingError(
             "IsolationForest",
             "Insufficient data for training",
-            dataset_name="small_dataset"
+            dataset_name="small_dataset",
         )
         assert "Failed to fit detector 'IsolationForest'" in fitting_error.message
-        
+
         # Test workflow: invalid algorithm selection
         algorithm_error = InvalidAlgorithmError(
             "NonExistentAlgorithm",
-            available_algorithms=["IsolationForest", "OneClassSVM"]
+            available_algorithms=["IsolationForest", "OneClassSVM"],
         )
-        assert "Algorithm 'NonExistentAlgorithm' is not supported" in algorithm_error.message
+        assert (
+            "Algorithm 'NonExistentAlgorithm' is not supported"
+            in algorithm_error.message
+        )
 
     def test_error_context_propagation(self):
         """Test error context propagation through detector operations."""
@@ -623,16 +680,14 @@ class TestDetectorExceptionIntegration:
         error.with_context(
             user_id="user123",
             operation="model_training",
-            timestamp="2023-01-01T12:00:00Z"
+            timestamp="2023-01-01T12:00:00Z",
         )
-        
+
         # Add additional context
         error.with_context(
-            parameter="n_estimators",
-            expected_type="int",
-            actual_value=-10
+            parameter="n_estimators", expected_type="int", actual_value=-10
         )
-        
+
         # Verify all context is preserved
         assert error.details["user_id"] == "user123"
         assert error.details["operation"] == "model_training"
@@ -640,7 +695,7 @@ class TestDetectorExceptionIntegration:
         assert error.details["parameter"] == "n_estimators"
         assert error.details["expected_type"] == "int"
         assert error.details["actual_value"] == -10
-        
+
         # Test that context is properly formatted in string representation
         result = str(error)
         assert "user_id=user123" in result

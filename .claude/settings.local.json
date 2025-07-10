@@ -91,7 +91,11 @@
       "Bash(./environments/.venv/bin/python -c \"from pynomaly.presentation.cli.app import app; print('Main CLI app import successful')\")",
       "Bash(mkdir:*)",
       "Bash(ruff check:*)",
-      "Bash(./environments/.venv/bin/python scripts/development/pynomaly_cli.py --help)"
+      "Bash(./environments/.venv/bin/python scripts/development/pynomaly_cli.py --help)",
+      "Bash(./scripts/deployment/deploy_advanced_monitoring.sh:*)",
+      "Bash(git stash:*)",
+      "Bash(docker:*)",
+      "Bash(fuser:*)"
     ],
     "deny": []
   }

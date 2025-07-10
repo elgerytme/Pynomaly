@@ -15,7 +15,6 @@ from pynomaly.domain.exceptions import (
     InvalidAlgorithmError,
 )
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols.detector_protocol import DetectorProtocol
 
 
 class SklearnAdapter:
@@ -180,9 +179,7 @@ class SklearnAdapter:
     def detect(self, dataset: Dataset) -> DetectionResult:
         """Detect anomalies in a dataset."""
         if not self._is_fitted or self._model is None:
-            raise DetectorNotFittedError(
-                detector_name=self._name, operation="detect"
-            )
+            raise DetectorNotFittedError(detector_name=self._name, operation="detect")
 
         # Get features
         X = dataset.features[dataset.get_numeric_features()].values
@@ -222,9 +219,7 @@ class SklearnAdapter:
         ]
 
         # Calculate threshold
-        threshold_idx = int(
-            len(raw_scores) * (1 - self._contamination_rate.value)
-        )
+        threshold_idx = int(len(raw_scores) * (1 - self._contamination_rate.value))
         threshold = float(np.sort(normalized_scores)[threshold_idx])
 
         # Create Anomaly entities
@@ -245,6 +240,7 @@ class SklearnAdapter:
 
         # Create detection result
         from uuid import uuid4
+
         result = DetectionResult(
             detector_id=uuid4(),  # Generate ID for this detection
             dataset_id=dataset.id,
@@ -268,9 +264,7 @@ class SklearnAdapter:
     def score(self, dataset: Dataset) -> list[AnomalyScore]:
         """Calculate anomaly scores for a dataset."""
         if not self._is_fitted or self._model is None:
-            raise DetectorNotFittedError(
-                detector_name=self._name, operation="score"
-            )
+            raise DetectorNotFittedError(detector_name=self._name, operation="score")
 
         # Get features
         X = dataset.features[dataset.get_numeric_features()].values

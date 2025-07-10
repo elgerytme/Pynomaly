@@ -35,19 +35,25 @@ from pynomaly.infrastructure.config import Container, Settings
 # Optional imports for advanced features
 try:
     from pynomaly.infrastructure.observability import setup_observability
+
     OBSERVABILITY_AVAILABLE = True
 except ImportError:
     OBSERVABILITY_AVAILABLE = False
+
     def setup_observability(*args, **kwargs):
         return {}
 
+
 try:
     from pynomaly.infrastructure.security.audit_logging import init_audit_logging
+
     AUDIT_LOGGING_AVAILABLE = True
 except ImportError:
     AUDIT_LOGGING_AVAILABLE = False
+
     def init_audit_logging(*args, **kwargs):
         return None
+
 
 # Import database fixtures if available
 try:
@@ -68,9 +74,11 @@ except ImportError:
     def test_database_manager():
         pytest.skip("Database dependencies not available")
 
+
 # Import app if available for API testing
 try:
     from pynomaly.presentation.api.app import create_app
+
     APP_AVAILABLE = True
 except ImportError:
     APP_AVAILABLE = False
@@ -85,6 +93,7 @@ try:
         TestDataManager,
         TestScenarioFactory,
     )
+
     TEST_DATA_MANAGER_AVAILABLE = True
 except ImportError:
     TEST_DATA_MANAGER_AVAILABLE = False
@@ -108,23 +117,25 @@ def test_settings() -> Settings:
     temp_dir = tempfile.mkdtemp()
 
     # Set environment variables for pydantic-settings
-    os.environ.update({
-        "PYNOMALY_APP_NAME": "pynomaly-test",
-        "PYNOMALY_APP_VERSION": "0.1.0-test",
-        "PYNOMALY_APP_ENVIRONMENT": "test",
-        "PYNOMALY_APP_DEBUG": "true",
-        "PYNOMALY_DATABASE_URL": "sqlite:///:memory:",
-        "PYNOMALY_SECRET_KEY": "test-secret-key-not-for-production-use-only",
-        "PYNOMALY_JWT_ALGORITHM": "HS256",
-        "PYNOMALY_JWT_EXPIRATION": "3600",
-        "PYNOMALY_AUTH_ENABLED": "true",
-        "PYNOMALY_CACHE_ENABLED": "false",
-        "PYNOMALY_DOCS_ENABLED": "true",
-        "PYNOMALY_MONITORING_METRICS_ENABLED": "false",
-        "PYNOMALY_MONITORING_TRACING_ENABLED": "false",
-        "PYNOMALY_MONITORING_PROMETHEUS_ENABLED": "false",
-        "PYNOMALY_STORAGE_PATH": temp_dir,
-    })
+    os.environ.update(
+        {
+            "PYNOMALY_APP_NAME": "pynomaly-test",
+            "PYNOMALY_APP_VERSION": "0.1.0-test",
+            "PYNOMALY_APP_ENVIRONMENT": "test",
+            "PYNOMALY_APP_DEBUG": "true",
+            "PYNOMALY_DATABASE_URL": "sqlite:///:memory:",
+            "PYNOMALY_SECRET_KEY": "test-secret-key-not-for-production-use-only",
+            "PYNOMALY_JWT_ALGORITHM": "HS256",
+            "PYNOMALY_JWT_EXPIRATION": "3600",
+            "PYNOMALY_AUTH_ENABLED": "true",
+            "PYNOMALY_CACHE_ENABLED": "false",
+            "PYNOMALY_DOCS_ENABLED": "true",
+            "PYNOMALY_MONITORING_METRICS_ENABLED": "false",
+            "PYNOMALY_MONITORING_TRACING_ENABLED": "false",
+            "PYNOMALY_MONITORING_PROMETHEUS_ENABLED": "false",
+            "PYNOMALY_STORAGE_PATH": temp_dir,
+        }
+    )
 
     return Settings()
 
@@ -156,6 +167,7 @@ def db_engine():
     # Import and create tables
     try:
         from pynomaly.infrastructure.persistence.database_repositories import Base
+
         Base.metadata.create_all(bind=engine)
     except ImportError:
         pass  # Database models not available
@@ -233,7 +245,7 @@ def test_user(auth_service):
         email="test@example.com",
         password="testpass123",
         full_name="Test User",
-        roles=["user"]
+        roles=["user"],
     )
 
 
@@ -296,7 +308,7 @@ def large_dataset() -> Dataset:
         data=df,
         description="Large dataset for performance testing",
         features=[f"feature_{i}" for i in range(n_features)],
-        metadata={"test": True, "performance": True}
+        metadata={"test": True, "performance": True},
     )
 
 
@@ -321,7 +333,7 @@ def test_detection_result(sample_detector, sample_dataset) -> DetectionResult:
         detector_id=sample_detector.id,
         dataset_id=sample_dataset.id,
         scores=scores,
-        metadata={"test": True, "model_version": "1.0"}
+        metadata={"test": True, "model_version": "1.0"},
     )
 
 
@@ -333,7 +345,9 @@ def trained_detector(
     try:
         # Get adapter and train
         adapter = container.pyod_adapter()
-        model = adapter.create_model(sample_detector.algorithm_name, sample_detector.parameters)
+        model = adapter.create_model(
+            sample_detector.algorithm_name, sample_detector.parameters
+        )
         adapter.fit(model, sample_dataset.data)
 
         # Update detector
@@ -394,7 +408,7 @@ def malicious_inputs() -> list:
         "javascript:alert('xss')",
         "' OR 1=1 --",
         "<iframe src=javascript:alert('xss')></iframe>",
-        "../../../../windows/system32/config/sam"
+        "../../../../windows/system32/config/sam",
     ]
 
 
@@ -426,7 +440,7 @@ def observability_components():
         enable_health_checks=True,
         log_level="DEBUG",
         service_name="pynomaly-test",
-        environment="test"
+        environment="test",
     )
     return components
 
@@ -503,14 +517,10 @@ def contract_schemas():
             "type": "object",
             "properties": {
                 "name": {"type": "string", "minLength": 1},
-                "data": {
-                    "type": "array",
-                    "items": {"type": "object"},
-                    "minItems": 1
-                },
-                "description": {"type": "string"}
+                "data": {"type": "array", "items": {"type": "object"}, "minItems": 1},
+                "description": {"type": "string"},
             },
-            "required": ["name", "data"]
+            "required": ["name", "data"],
         },
         "dataset_creation_response": {
             "type": "object",
@@ -518,18 +528,18 @@ def contract_schemas():
                 "id": {"type": "string"},
                 "name": {"type": "string"},
                 "description": {"type": "string"},
-                "created_at": {"type": "string", "format": "date-time"}
+                "created_at": {"type": "string", "format": "date-time"},
             },
-            "required": ["id", "name"]
+            "required": ["id", "name"],
         },
         "detector_creation_request": {
             "type": "object",
             "properties": {
                 "algorithm_name": {"type": "string", "minLength": 1},
                 "parameters": {"type": "object"},
-                "metadata": {"type": "object"}
+                "metadata": {"type": "object"},
             },
-            "required": ["algorithm_name", "parameters"]
+            "required": ["algorithm_name", "parameters"],
         },
         "detector_creation_response": {
             "type": "object",
@@ -538,18 +548,18 @@ def contract_schemas():
                 "algorithm_name": {"type": "string"},
                 "parameters": {"type": "object"},
                 "is_fitted": {"type": "boolean"},
-                "created_at": {"type": "string", "format": "date-time"}
+                "created_at": {"type": "string", "format": "date-time"},
             },
-            "required": ["id", "algorithm_name", "parameters", "is_fitted"]
+            "required": ["id", "algorithm_name", "parameters", "is_fitted"],
         },
         "anomaly_detection_request": {
             "type": "object",
             "properties": {
                 "dataset_id": {"type": "string", "minLength": 1},
                 "detector_id": {"type": "string", "minLength": 1},
-                "parameters": {"type": "object"}
+                "parameters": {"type": "object"},
             },
-            "required": ["dataset_id", "detector_id"]
+            "required": ["dataset_id", "detector_id"],
         },
         "anomaly_detection_response": {
             "type": "object",
@@ -557,9 +567,9 @@ def contract_schemas():
                 "scores": {"type": "array", "items": {"type": "number"}},
                 "metadata": {"type": "object"},
                 "detector_id": {"type": "string"},
-                "dataset_id": {"type": "string"}
+                "dataset_id": {"type": "string"},
             },
-            "required": ["scores", "metadata"]
+            "required": ["scores", "metadata"],
         },
         "batch_detection_request": {
             "type": "object",
@@ -567,12 +577,12 @@ def contract_schemas():
                 "dataset_ids": {
                     "type": "array",
                     "items": {"type": "string"},
-                    "minItems": 1
+                    "minItems": 1,
                 },
                 "detector_id": {"type": "string", "minLength": 1},
-                "parameters": {"type": "object"}
+                "parameters": {"type": "object"},
             },
-            "required": ["dataset_ids", "detector_id"]
+            "required": ["dataset_ids", "detector_id"],
         },
         "batch_detection_response": {
             "type": "array",
@@ -581,10 +591,10 @@ def contract_schemas():
                 "properties": {
                     "scores": {"type": "array", "items": {"type": "number"}},
                     "metadata": {"type": "object"},
-                    "dataset_id": {"type": "string"}
+                    "dataset_id": {"type": "string"},
                 },
-                "required": ["scores", "metadata", "dataset_id"]
-            }
+                "required": ["scores", "metadata", "dataset_id"],
+            },
         },
         "error_response": {
             "type": "object",
@@ -592,9 +602,9 @@ def contract_schemas():
                 "error": {"type": "string"},
                 "message": {"type": "string"},
                 "code": {"type": "integer"},
-                "details": {"type": "object"}
+                "details": {"type": "object"},
             },
-            "required": ["error", "message"]
+            "required": ["error", "message"],
         },
         "paginated_response": {
             "type": "object",
@@ -604,19 +614,19 @@ def contract_schemas():
                 "page": {"type": "integer", "minimum": 1},
                 "limit": {"type": "integer", "minimum": 1},
                 "has_next": {"type": "boolean"},
-                "has_previous": {"type": "boolean"}
+                "has_previous": {"type": "boolean"},
             },
-            "required": ["items", "total", "page", "limit", "has_next", "has_previous"]
+            "required": ["items", "total", "page", "limit", "has_next", "has_previous"],
         },
         "authentication_error": {
             "type": "object",
             "properties": {
                 "error": {"type": "string", "enum": ["unauthorized"]},
                 "message": {"type": "string"},
-                "code": {"type": "integer", "enum": [401]}
+                "code": {"type": "integer", "enum": [401]},
             },
-            "required": ["error", "message", "code"]
-        }
+            "required": ["error", "message", "code"],
+        },
     }
 
 
@@ -624,21 +634,11 @@ def contract_schemas():
 def pytest_configure(config):
     """Configure pytest with custom markers."""
     # Core testing markers
-    config.addinivalue_line(
-        "markers", "integration: mark test as an integration test"
-    )
-    config.addinivalue_line(
-        "markers", "performance: mark test as a performance test"
-    )
-    config.addinivalue_line(
-        "markers", "security: mark test as a security test"
-    )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow running"
-    )
-    config.addinivalue_line(
-        "markers", "unit: mark test as a unit test"
-    )
+    config.addinivalue_line("markers", "integration: mark test as an integration test")
+    config.addinivalue_line("markers", "performance: mark test as a performance test")
+    config.addinivalue_line("markers", "security: mark test as a security test")
+    config.addinivalue_line("markers", "slow: mark test as slow running")
+    config.addinivalue_line("markers", "unit: mark test as a unit test")
 
     # Benchmark markers (from benchmarks/conftest.py)
     config.addinivalue_line("markers", "benchmark: mark test as a benchmark")
@@ -659,12 +659,14 @@ def pytest_configure(config):
     # UI/BDD testing markers (from ui/bdd/conftest.py)
     config.addinivalue_line("markers", "accessibility: Accessibility compliance tests")
     config.addinivalue_line("markers", "workflow: Complete user workflow tests")
-    config.addinivalue_line("markers", "cross_browser: Cross-browser compatibility tests")
+    config.addinivalue_line(
+        "markers", "cross_browser: Cross-browser compatibility tests"
+    )
     config.addinivalue_line("markers", "ml_engineer: ML engineer workflow tests")
     config.addinivalue_line("markers", "data_scientist: Data scientist workflow tests")
     config.addinivalue_line("markers", "critical: Critical path tests that must pass")
     config.addinivalue_line("markers", "smoke: Quick smoke test scenarios")
-    
+
     # Additional testing markers
     config.addinivalue_line("markers", "e2e: End-to-end tests")
     config.addinivalue_line("markers", "contract: Contract testing")
@@ -691,49 +693,49 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "integration" in item.keywords:
                 item.add_marker(skip_integration)
-    
+
     # Skip performance tests unless requested
     if not config.getoption("--performance"):
         skip_performance = pytest.mark.skip(reason="need --performance option to run")
         for item in items:
             if "performance" in item.keywords:
                 item.add_marker(skip_performance)
-    
+
     # Skip security tests unless requested
     if not config.getoption("--security"):
         skip_security = pytest.mark.skip(reason="need --security option to run")
         for item in items:
             if "security" in item.keywords:
                 item.add_marker(skip_security)
-    
+
     # Skip mutation tests unless requested
     if not config.getoption("--mutation"):
         skip_mutation = pytest.mark.skip(reason="need --mutation option to run")
         for item in items:
             if "mutation" in item.keywords:
                 item.add_marker(skip_mutation)
-    
+
     # Skip contract tests unless requested
     if not config.getoption("--contract"):
         skip_contract = pytest.mark.skip(reason="need --contract option to run")
         for item in items:
             if "contract" in item.keywords:
                 item.add_marker(skip_contract)
-    
+
     # Skip property-based tests unless requested
     if not config.getoption("--property"):
         skip_property = pytest.mark.skip(reason="need --property option to run")
         for item in items:
             if "property" in item.keywords:
                 item.add_marker(skip_property)
-    
+
     # Skip UI tests unless requested
     if not config.getoption("--ui"):
         skip_ui = pytest.mark.skip(reason="need --ui option to run")
         for item in items:
             if "ui" in item.keywords:
                 item.add_marker(skip_ui)
-    
+
     # Skip e2e tests unless requested
     if not config.getoption("--e2e"):
         skip_e2e = pytest.mark.skip(reason="need --e2e option to run")
@@ -748,10 +750,16 @@ def pytest_addoption(parser):
         "--runslow", action="store_true", default=False, help="run slow tests"
     )
     parser.addoption(
-        "--integration", action="store_true", default=False, help="run integration tests"
+        "--integration",
+        action="store_true",
+        default=False,
+        help="run integration tests",
     )
     parser.addoption(
-        "--performance", action="store_true", default=False, help="run performance tests"
+        "--performance",
+        action="store_true",
+        default=False,
+        help="run performance tests",
     )
     parser.addoption(
         "--security", action="store_true", default=False, help="run security tests"
@@ -766,11 +774,12 @@ def pytest_addoption(parser):
         "--contract", action="store_true", default=False, help="run contract tests"
     )
     parser.addoption(
-        "--property", action="store_true", default=False, help="run property-based tests"
+        "--property",
+        action="store_true",
+        default=False,
+        help="run property-based tests",
     )
-    parser.addoption(
-        "--ui", action="store_true", default=False, help="run UI tests"
-    )
+    parser.addoption("--ui", action="store_true", default=False, help="run UI tests")
     parser.addoption(
         "--e2e", action="store_true", default=False, help="run end-to-end tests"
     )

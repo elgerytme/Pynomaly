@@ -10,11 +10,13 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.services.autonomous_service import AutonomousDetectionService as AutonomousService
+from pynomaly.application.services.autonomous_service import (
+    AutonomousDetectionService as AutonomousService,
+)
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.entities.experiment import Experiment
-from pynomaly.domain.exceptions import DatasetError, DetectorError
+from pynomaly.domain.exceptions import DatasetError
 from pynomaly.domain.value_objects import PerformanceMetrics
 
 
@@ -344,7 +346,11 @@ class TestAutonomousService:
         assert detector is not None
         assert isinstance(detector, Detector)
         assert detector.name == "autonomous-detector"
-        assert detector.algorithm_name in ["IsolationForest", "LocalOutlierFactor", "OneClassSVM"]
+        assert detector.algorithm_name in [
+            "IsolationForest",
+            "LocalOutlierFactor",
+            "OneClassSVM",
+        ]
         assert detector.hyperparameters is not None
         assert detector.is_fitted is False  # Should be created but not fitted
 
@@ -703,7 +709,7 @@ class TestAutonomousService:
         # Verify
         assert len(results) == 3
         characteristics, recommendations, preprocessing = results
-        
+
         assert characteristics is not None
         assert recommendations is not None
         assert preprocessing is not None

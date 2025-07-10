@@ -4,41 +4,31 @@ Script to clean up redundant workflow files after CI/CD simplification.
 This script safely removes old workflow files and creates a backup.
 """
 
-import os
-import shutil
 import json
+import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict
 
 
-def get_workflow_files() -> List[Path]:
+def get_workflow_files() -> list[Path]:
     """Get all workflow files in the .github/workflows directory."""
     workflows_dir = Path(".github/workflows")
     if not workflows_dir.exists():
         return []
-    
+
     return list(workflows_dir.glob("*.yml")) + list(workflows_dir.glob("*.yaml"))
 
 
-def analyze_workflows() -> Dict[str, List[Path]]:
+def analyze_workflows() -> dict[str, list[Path]]:
     """Analyze workflows and categorize them."""
     workflows = get_workflow_files()
-    
+
     # Define the new unified workflows (keep these)
-    unified_workflows = {
-        "ci-unified.yml",
-        "cd-unified.yml", 
-        "maintenance-unified.yml"
-    }
-    
+    unified_workflows = {"ci-unified.yml", "cd-unified.yml", "maintenance-unified.yml"}
+
     # Categorize workflows
-    analysis = {
-        "keep": [],
-        "remove": [],
-        "unified": []
-    }
-    
+    analysis = {"keep": [], "remove": [], "unified": []}
+
     for workflow in workflows:
         if workflow.name in unified_workflows:
             analysis["unified"].append(workflow)
@@ -48,22 +38,22 @@ def analyze_workflows() -> Dict[str, List[Path]]:
         else:
             # Remove all other workflows
             analysis["remove"].append(workflow)
-    
+
     return analysis
 
 
-def create_backup(workflows_to_remove: List[Path]) -> str:
+def create_backup(workflows_to_remove: list[Path]) -> str:
     """Create a backup of workflows that will be removed."""
     backup_dir = Path("backups/workflows") / datetime.now().strftime("%Y%m%d_%H%M%S")
     backup_dir.mkdir(parents=True, exist_ok=True)
-    
+
     for workflow in workflows_to_remove:
         shutil.copy2(workflow, backup_dir / workflow.name)
-    
+
     return str(backup_dir)
 
 
-def generate_removal_report(analysis: Dict[str, List[Path]], backup_dir: str) -> str:
+def generate_removal_report(analysis: dict[str, list[Path]], backup_dir: str) -> str:
     """Generate a report of the workflow cleanup."""
     report = f"""# Workflow Cleanup Report
 
@@ -80,20 +70,20 @@ def generate_removal_report(analysis: Dict[str, List[Path]], backup_dir: str) ->
 ## Unified Workflows (Created)
 
 """
-    
-    for workflow in analysis['unified']:
+
+    for workflow in analysis["unified"]:
         report += f"- ✅ `{workflow.name}` - New unified workflow\n"
-    
+
     report += "\n## Workflows Removed\n\n"
-    
-    for workflow in analysis['remove']:
+
+    for workflow in analysis["remove"]:
         report += f"- 🗑️ `{workflow.name}` - Redundant, functionality moved to unified workflows\n"
-    
+
     report += "\n## Workflows Kept (Temporary)\n\n"
-    
-    for workflow in analysis['keep']:
+
+    for workflow in analysis["keep"]:
         report += f"- 📋 `{workflow.name}` - Kept for comparison, can be removed after validation\n"
-    
+
     report += f"""
 
 ## Benefits of Simplification
@@ -161,79 +151,85 @@ cp {backup_dir}/*.yml .github/workflows/
 | ui-tests.yml | ci-unified.yml | UI tests in unified CI |
 | ui_testing.yml | ci-unified.yml | UI tests in unified CI |
 """
-    
+
     return report
 
 
 def main():
     """Main function to clean up workflows."""
     print("🔧 Starting workflow cleanup process...")
-    
+
     # Analyze workflows
     analysis = analyze_workflows()
-    
-    print(f"📊 Analysis complete:")
+
+    print("📊 Analysis complete:")
     print(f"  - Unified workflows: {len(analysis['unified'])}")
     print(f"  - Workflows to remove: {len(analysis['remove'])}")
     print(f"  - Workflows to keep: {len(analysis['keep'])}")
-    
-    if not analysis['remove']:
+
+    if not analysis["remove"]:
         print("✅ No workflows to remove.")
         return
-    
+
     # Create backup
     print("💾 Creating backup of workflows to be removed...")
-    backup_dir = create_backup(analysis['remove'])
+    backup_dir = create_backup(analysis["remove"])
     print(f"✅ Backup created at: {backup_dir}")
-    
+
     # Generate report
     print("📋 Generating cleanup report...")
     report = generate_removal_report(analysis, backup_dir)
-    
+
     report_path = Path("reports/workflow-cleanup-report.md")
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(report)
-    
+
     print(f"✅ Cleanup report generated: {report_path}")
-    
+
     # Show what would be removed (dry run)
     print("\n🗑️ Workflows that would be removed:")
-    for workflow in analysis['remove']:
+    for workflow in analysis["remove"]:
         print(f"  - {workflow.name}")
-    
+
     # Ask for confirmation
-    response = input("\n❓ Do you want to proceed with removing these workflows? (y/N): ")
-    
-    if response.lower() in ['y', 'yes']:
+    response = input(
+        "\n❓ Do you want to proceed with removing these workflows? (y/N): "
+    )
+
+    if response.lower() in ["y", "yes"]:
         print("\n🗑️ Removing redundant workflows...")
-        
-        for workflow in analysis['remove']:
+
+        for workflow in analysis["remove"]:
             try:
                 workflow.unlink()
                 print(f"  ✅ Removed: {workflow.name}")
             except Exception as e:
                 print(f"  ❌ Failed to remove {workflow.name}: {e}")
-        
-        print(f"\n🎉 Workflow cleanup completed!")
-        print(f"📊 Reduced from {len(analysis['keep']) + len(analysis['remove']) + len(analysis['unified'])} to {len(analysis['unified']) + len(analysis['keep'])} workflows")
+
+        print("\n🎉 Workflow cleanup completed!")
+        print(
+            f"📊 Reduced from {len(analysis['keep']) + len(analysis['remove']) + len(analysis['unified'])} to {len(analysis['unified']) + len(analysis['keep'])} workflows"
+        )
         print(f"📋 Full report available at: {report_path}")
         print(f"💾 Backup available at: {backup_dir}")
-        
+
         # Create summary JSON for automation
         summary = {
             "timestamp": datetime.now().isoformat(),
-            "total_before": len(analysis['keep']) + len(analysis['remove']) + len(analysis['unified']),
-            "total_after": len(analysis['unified']) + len(analysis['keep']),
-            "removed_count": len(analysis['remove']),
-            "unified_count": len(analysis['unified']),
+            "total_before": len(analysis["keep"])
+            + len(analysis["remove"])
+            + len(analysis["unified"]),
+            "total_after": len(analysis["unified"]) + len(analysis["keep"]),
+            "removed_count": len(analysis["remove"]),
+            "unified_count": len(analysis["unified"]),
             "backup_location": backup_dir,
-            "report_location": str(report_path)
+            "report_location": str(report_path),
         }
-        
+
         summary_path = Path("reports/workflow-cleanup-summary.json")
         summary_path.write_text(json.dumps(summary, indent=2))
         print(f"📄 Summary JSON: {summary_path}")
-        
+
     else:
         print("\n❌ Workflow cleanup cancelled.")
         print("💾 Backup preserved for future use.")

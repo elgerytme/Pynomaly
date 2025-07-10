@@ -98,44 +98,31 @@ def _add_lazy_subcommand(
         app.add_typer(subapp, name=command_name, help=help_text)
 
 
-# Add lazy subcommands - these will only import when actually used
-for cmd_name, module_path, attr_name, help_text in [
-    (
-        "auto",
-        "pynomaly.presentation.cli.autonomous",
-        "app",
-        "Autonomous anomaly detection",
-    ),
-    ("automl", "pynomaly.presentation.cli.automl", "app", "AutoML optimization"),
-    ("config", "pynomaly.presentation.cli.config", "app", "Configuration management"),
-    ("detector", "pynomaly.presentation.cli.detectors", "app", "Manage detectors"),
-    ("dataset", "pynomaly.presentation.cli.datasets", "app", "Manage datasets"),
-    ("data", "pynomaly.presentation.cli.preprocessing", "app", "Data preprocessing"),
-    ("detect", "pynomaly.presentation.cli.detection", "app", "Run detection"),
-    ("tdd", "pynomaly.presentation.cli.tdd", "app", "Test-driven development"),
-    (
-        "deep-learning",
-        "pynomaly.presentation.cli.deep_learning",
-        "app",
-        "Deep learning",
-    ),
-    (
-        "explainability",
-        "pynomaly.presentation.cli.explainability",
-        "app",
-        "Explainable AI",
-    ),
-    ("selection", "pynomaly.presentation.cli.selection", "app", "Algorithm selection"),
-    ("export", "pynomaly.presentation.cli.export", "export_app", "Export results"),
-    ("server", "pynomaly.presentation.cli.server", "app", "Manage server"),
-    (
-        "perf",
-        "pynomaly.presentation.cli.performance",
-        "performance_app",
-        "Performance tools",
-    ),
-    ("validate", "pynomaly.presentation.cli.validation", "app", "Validation tools"),
-]:
+# Import standardized help text
+from pynomaly.presentation.cli.help_formatter import get_standard_help
+
+# Add lazy subcommands with standardized help text
+lazy_commands = [
+    ("auto", "pynomaly.presentation.cli.autonomous", "app"),
+    ("automl", "pynomaly.presentation.cli.automl", "app"),
+    ("config", "pynomaly.presentation.cli.config", "app"),
+    ("detector", "pynomaly.presentation.cli.detectors", "app"),
+    ("dataset", "pynomaly.presentation.cli.datasets", "app"),
+    ("data", "pynomaly.presentation.cli.preprocessing", "app"),
+    ("detect", "pynomaly.presentation.cli.detection", "app"),
+    ("tdd", "pynomaly.presentation.cli.tdd", "app"),
+    ("deep-learning", "pynomaly.presentation.cli.deep_learning", "app"),
+    ("explainability", "pynomaly.presentation.cli.explainability", "app"),
+    ("selection", "pynomaly.presentation.cli.selection", "app"),
+    ("export", "pynomaly.presentation.cli.export", "export_app"),
+    ("server", "pynomaly.presentation.cli.server", "app"),
+    ("perf", "pynomaly.presentation.cli.performance", "performance_app"),
+    ("validate", "pynomaly.presentation.cli.validation", "app"),
+]
+
+for cmd_name, module_path, attr_name in lazy_commands:
+    help_info = get_standard_help(cmd_name)
+    help_text = help_info.get("help", f"Manage {cmd_name} operations")
     _add_lazy_subcommand(cmd_name, module_path, attr_name, help_text)
 
 # Add optional subcommands (only if available)

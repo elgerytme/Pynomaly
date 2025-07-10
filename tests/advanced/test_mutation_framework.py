@@ -16,7 +16,6 @@ import tempfile
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Optional
 
 # Configure logging
 logging.basicConfig(
@@ -36,7 +35,7 @@ class MutationResult:
     mutated_code: str
     test_passed: bool
     execution_time: float
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass
@@ -357,7 +356,7 @@ class MutationGenerator:
 
     def _apply_mutation(
         self, tree: ast.AST, original_node: ast.AST, mutant_node: ast.AST
-    ) -> Optional[ast.AST]:
+    ) -> ast.AST | None:
         """Apply a mutation to the AST tree."""
 
         class MutationApplier(ast.NodeTransformer):

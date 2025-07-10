@@ -19,9 +19,10 @@ from playwright.async_api import (
 try:
     from ..conftest import *
 except ImportError:
-    import sys
     import os
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    import sys
+
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
     try:
         from conftest import *
     except ImportError:

@@ -59,12 +59,17 @@ class TestSeverityLevel:
     def test_enum_ordering_semantics(self):
         """Test semantic ordering of severity levels."""
         # Test that levels can be used in logical contexts
-        levels = [SeverityLevel.LOW, SeverityLevel.MEDIUM, SeverityLevel.HIGH, SeverityLevel.CRITICAL]
-        
+        levels = [
+            SeverityLevel.LOW,
+            SeverityLevel.MEDIUM,
+            SeverityLevel.HIGH,
+            SeverityLevel.CRITICAL,
+        ]
+
         # Test membership
         assert SeverityLevel.HIGH in levels
         assert SeverityLevel.CRITICAL in levels
-        
+
         # Test set operations
         high_levels = {SeverityLevel.HIGH, SeverityLevel.CRITICAL}
         assert SeverityLevel.CRITICAL in high_levels
@@ -77,33 +82,25 @@ class TestSeverityScore:
     def test_basic_creation(self):
         """Test basic creation of severity score."""
         score = SeverityScore(
-            value=0.75,
-            severity_level=SeverityLevel.HIGH,
-            confidence=0.9
+            value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9
         )
-        
+
         assert score.value == 0.75
         assert score.severity_level == SeverityLevel.HIGH
         assert score.confidence == 0.9
 
     def test_creation_without_confidence(self):
         """Test creation without confidence value."""
-        score = SeverityScore(
-            value=0.5,
-            severity_level=SeverityLevel.MEDIUM
-        )
-        
+        score = SeverityScore(value=0.5, severity_level=SeverityLevel.MEDIUM)
+
         assert score.value == 0.5
         assert score.severity_level == SeverityLevel.MEDIUM
         assert score.confidence is None
 
     def test_immutability(self):
         """Test that severity score is immutable."""
-        score = SeverityScore(
-            value=0.75,
-            severity_level=SeverityLevel.HIGH
-        )
-        
+        score = SeverityScore(value=0.75, severity_level=SeverityLevel.HIGH)
+
         # Should not be able to modify values
         with pytest.raises(AttributeError):
             score.value = 0.8
@@ -114,12 +111,16 @@ class TestSeverityScore:
         SeverityScore(value=0.0, severity_level=SeverityLevel.LOW)
         SeverityScore(value=0.5, severity_level=SeverityLevel.MEDIUM)
         SeverityScore(value=1.0, severity_level=SeverityLevel.CRITICAL)
-        
+
         # Invalid values
-        with pytest.raises(ValueError, match="Severity score must be between 0.0 and 1.0"):
+        with pytest.raises(
+            ValueError, match="Severity score must be between 0.0 and 1.0"
+        ):
             SeverityScore(value=-0.1, severity_level=SeverityLevel.LOW)
-            
-        with pytest.raises(ValueError, match="Severity score must be between 0.0 and 1.0"):
+
+        with pytest.raises(
+            ValueError, match="Severity score must be between 0.0 and 1.0"
+        ):
             SeverityScore(value=1.1, severity_level=SeverityLevel.CRITICAL)
 
     def test_validation_confidence_range(self):
@@ -128,18 +129,22 @@ class TestSeverityScore:
         SeverityScore(value=0.5, severity_level=SeverityLevel.MEDIUM, confidence=0.0)
         SeverityScore(value=0.5, severity_level=SeverityLevel.MEDIUM, confidence=0.5)
         SeverityScore(value=0.5, severity_level=SeverityLevel.MEDIUM, confidence=1.0)
-        
+
         # Invalid confidence values
         with pytest.raises(ValueError, match="Confidence must be between 0.0 and 1.0"):
-            SeverityScore(value=0.5, severity_level=SeverityLevel.MEDIUM, confidence=-0.1)
-            
+            SeverityScore(
+                value=0.5, severity_level=SeverityLevel.MEDIUM, confidence=-0.1
+            )
+
         with pytest.raises(ValueError, match="Confidence must be between 0.0 and 1.0"):
-            SeverityScore(value=0.5, severity_level=SeverityLevel.MEDIUM, confidence=1.1)
+            SeverityScore(
+                value=0.5, severity_level=SeverityLevel.MEDIUM, confidence=1.1
+            )
 
     def test_create_minimal_factory(self):
         """Test create_minimal factory method."""
         score = SeverityScore.create_minimal()
-        
+
         assert score.value == 0.0
         assert score.severity_level == SeverityLevel.LOW
         assert score.confidence is None
@@ -150,17 +155,17 @@ class TestSeverityScore:
         low_score = SeverityScore.from_score(0.2)
         assert low_score.value == 0.2
         assert low_score.severity_level == SeverityLevel.LOW
-        
+
         # Test MEDIUM threshold (0.4 <= score < 0.6)
         medium_score = SeverityScore.from_score(0.5)
         assert medium_score.value == 0.5
         assert medium_score.severity_level == SeverityLevel.MEDIUM
-        
+
         # Test HIGH threshold (0.6 <= score < 0.8)
         high_score = SeverityScore.from_score(0.7)
         assert high_score.value == 0.7
         assert high_score.severity_level == SeverityLevel.HIGH
-        
+
         # Test CRITICAL threshold (>= 0.8)
         critical_score = SeverityScore.from_score(0.9)
         assert critical_score.value == 0.9
@@ -181,10 +186,14 @@ class TestSeverityScore:
     def test_from_score_validation(self):
         """Test from_score validation."""
         # Should validate input range
-        with pytest.raises(ValueError, match="Severity score must be between 0.0 and 1.0"):
+        with pytest.raises(
+            ValueError, match="Severity score must be between 0.0 and 1.0"
+        ):
             SeverityScore.from_score(-0.1)
-            
-        with pytest.raises(ValueError, match="Severity score must be between 0.0 and 1.0"):
+
+        with pytest.raises(
+            ValueError, match="Severity score must be between 0.0 and 1.0"
+        ):
             SeverityScore.from_score(1.1)
 
     def test_is_critical_method(self):
@@ -193,7 +202,7 @@ class TestSeverityScore:
         medium_score = SeverityScore(value=0.5, severity_level=SeverityLevel.MEDIUM)
         high_score = SeverityScore(value=0.7, severity_level=SeverityLevel.HIGH)
         critical_score = SeverityScore(value=0.9, severity_level=SeverityLevel.CRITICAL)
-        
+
         assert low_score.is_critical() is False
         assert medium_score.is_critical() is False
         assert high_score.is_critical() is False
@@ -205,7 +214,7 @@ class TestSeverityScore:
         medium_score = SeverityScore(value=0.5, severity_level=SeverityLevel.MEDIUM)
         high_score = SeverityScore(value=0.7, severity_level=SeverityLevel.HIGH)
         critical_score = SeverityScore(value=0.9, severity_level=SeverityLevel.CRITICAL)
-        
+
         assert low_score.is_high() is False
         assert medium_score.is_high() is False
         assert high_score.is_high() is True
@@ -213,32 +222,46 @@ class TestSeverityScore:
 
     def test_equality_comparison(self):
         """Test equality comparison."""
-        score1 = SeverityScore(value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9)
-        score2 = SeverityScore(value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9)
-        score3 = SeverityScore(value=0.8, severity_level=SeverityLevel.CRITICAL, confidence=0.9)
-        
+        score1 = SeverityScore(
+            value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9
+        )
+        score2 = SeverityScore(
+            value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9
+        )
+        score3 = SeverityScore(
+            value=0.8, severity_level=SeverityLevel.CRITICAL, confidence=0.9
+        )
+
         assert score1 == score2
         assert score1 != score3
 
     def test_hash_behavior(self):
         """Test hash behavior for use in sets and dictionaries."""
-        score1 = SeverityScore(value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9)
-        score2 = SeverityScore(value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9)
-        score3 = SeverityScore(value=0.8, severity_level=SeverityLevel.CRITICAL, confidence=0.9)
-        
+        score1 = SeverityScore(
+            value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9
+        )
+        score2 = SeverityScore(
+            value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9
+        )
+        score3 = SeverityScore(
+            value=0.8, severity_level=SeverityLevel.CRITICAL, confidence=0.9
+        )
+
         # Same values should have same hash
         assert hash(score1) == hash(score2)
-        
+
         # Different values should have different hash
         assert hash(score1) != hash(score3)
-        
+
         # Test in set
         score_set = {score1, score2, score3}
         assert len(score_set) == 2  # score1 and score2 are equal
 
     def test_repr_representation(self):
         """Test repr representation."""
-        score = SeverityScore(value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9)
+        score = SeverityScore(
+            value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9
+        )
         repr_str = repr(score)
         assert "SeverityScore" in repr_str
         assert "0.75" in repr_str
@@ -247,7 +270,9 @@ class TestSeverityScore:
 
     def test_string_representation(self):
         """Test string representation."""
-        score = SeverityScore(value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9)
+        score = SeverityScore(
+            value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9
+        )
         str_repr = str(score)
         # Should contain the dataclass string representation
         assert "SeverityScore" in str_repr or "0.75" in str_repr
@@ -255,11 +280,11 @@ class TestSeverityScore:
     def test_severity_level_integration(self):
         """Test integration with SeverityLevel enum."""
         score = SeverityScore(value=0.75, severity_level=SeverityLevel.HIGH)
-        
+
         # Should be able to compare with enum values
         assert score.severity_level == SeverityLevel.HIGH
         assert score.severity_level != SeverityLevel.LOW
-        
+
         # Should be able to compare with string values
         assert score.severity_level == "high"
         assert score.severity_level != "low"
@@ -269,38 +294,41 @@ class TestSeverityScore:
         # Without confidence
         score_no_conf = SeverityScore(value=0.75, severity_level=SeverityLevel.HIGH)
         assert score_no_conf.confidence is None
-        
+
         # With confidence
-        score_with_conf = SeverityScore(value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9)
+        score_with_conf = SeverityScore(
+            value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9
+        )
         assert score_with_conf.confidence == 0.9
-        
+
         # Should be different objects
         assert score_no_conf != score_with_conf
 
     def test_practical_usage_scenarios(self):
         """Test practical usage scenarios."""
+
         def classify_severity(score_value: float) -> SeverityScore:
             return SeverityScore.from_score(score_value)
-        
+
         def needs_immediate_attention(score: SeverityScore) -> bool:
             return score.is_critical()
-        
+
         def needs_investigation(score: SeverityScore) -> bool:
             return score.is_high()
-        
+
         # Test classification
         low_anomaly = classify_severity(0.2)
         high_anomaly = classify_severity(0.75)
         critical_anomaly = classify_severity(0.95)
-        
+
         assert low_anomaly.severity_level == SeverityLevel.LOW
         assert high_anomaly.severity_level == SeverityLevel.HIGH
         assert critical_anomaly.severity_level == SeverityLevel.CRITICAL
-        
+
         # Test action determination
         assert needs_immediate_attention(low_anomaly) is False
         assert needs_immediate_attention(critical_anomaly) is True
-        
+
         assert needs_investigation(low_anomaly) is False
         assert needs_investigation(high_anomaly) is True
         assert needs_investigation(critical_anomaly) is True
@@ -309,18 +337,14 @@ class TestSeverityScore:
         """Test severity score with confidence in different scenarios."""
         # High severity with high confidence
         high_conf_score = SeverityScore(
-            value=0.85,
-            severity_level=SeverityLevel.CRITICAL,
-            confidence=0.95
+            value=0.85, severity_level=SeverityLevel.CRITICAL, confidence=0.95
         )
-        
+
         # High severity with low confidence
         low_conf_score = SeverityScore(
-            value=0.85,
-            severity_level=SeverityLevel.CRITICAL,
-            confidence=0.3
+            value=0.85, severity_level=SeverityLevel.CRITICAL, confidence=0.3
         )
-        
+
         assert high_conf_score.is_critical() is True
         assert low_conf_score.is_critical() is True
         assert high_conf_score.confidence > low_conf_score.confidence
@@ -334,12 +358,12 @@ class TestSeverityScore:
             SeverityScore.from_score(0.7),
             SeverityScore.from_score(0.9),
         ]
-        
+
         # Filter critical scores
         critical_scores = [s for s in scores if s.is_critical()]
         assert len(critical_scores) == 1
         assert critical_scores[0].value == 0.9
-        
+
         # Filter high priority scores
         high_priority = [s for s in scores if s.is_high()]
         assert len(high_priority) == 2
@@ -353,7 +377,7 @@ class TestSeverityScore:
             SeverityScore.from_score(0.7),
             SeverityScore.from_score(0.1),
         ]
-        
+
         # Sort by value
         sorted_scores = sorted(scores, key=lambda s: s.value)
         expected_values = [0.1, 0.3, 0.7, 0.9]
@@ -368,29 +392,33 @@ class TestSeverityScore:
             SeverityLevel.HIGH: 3,
             SeverityLevel.CRITICAL: 4,
         }
-        
+
         scores = [
             SeverityScore.from_score(0.1),  # LOW
             SeverityScore.from_score(0.5),  # MEDIUM
             SeverityScore.from_score(0.7),  # HIGH
             SeverityScore.from_score(0.9),  # CRITICAL
         ]
-        
+
         priorities = [priority_map[s.severity_level] for s in scores]
         assert priorities == [1, 2, 3, 4]
 
     def test_edge_cases(self):
         """Test edge cases."""
         # Minimum values
-        min_score = SeverityScore(value=0.0, severity_level=SeverityLevel.LOW, confidence=0.0)
+        min_score = SeverityScore(
+            value=0.0, severity_level=SeverityLevel.LOW, confidence=0.0
+        )
         assert min_score.value == 0.0
         assert min_score.confidence == 0.0
-        
+
         # Maximum values
-        max_score = SeverityScore(value=1.0, severity_level=SeverityLevel.CRITICAL, confidence=1.0)
+        max_score = SeverityScore(
+            value=1.0, severity_level=SeverityLevel.CRITICAL, confidence=1.0
+        )
         assert max_score.value == 1.0
         assert max_score.confidence == 1.0
-        
+
         # Both should be valid
         assert min_score.is_critical() is False
         assert max_score.is_critical() is True
@@ -400,7 +428,7 @@ class TestSeverityScore:
         # from_score should create consistent objects
         score1 = SeverityScore.from_score(0.5)
         score2 = SeverityScore.from_score(0.5)
-        
+
         assert score1 == score2
         assert score1.value == score2.value
         assert score1.severity_level == score2.severity_level
@@ -408,13 +436,18 @@ class TestSeverityScore:
 
     def test_dataclass_properties(self):
         """Test dataclass properties."""
-        score = SeverityScore(value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9)
-        
+        score = SeverityScore(
+            value=0.75, severity_level=SeverityLevel.HIGH, confidence=0.9
+        )
+
         # Should have dataclass properties
-        assert hasattr(score, '__dataclass_fields__')
-        assert 'value' in score.__dataclass_fields__
-        assert 'severity_level' in score.__dataclass_fields__
-        assert 'confidence' in score.__dataclass_fields__
-        
+        assert hasattr(score, "__dataclass_fields__")
+        assert "value" in score.__dataclass_fields__
+        assert "severity_level" in score.__dataclass_fields__
+        assert "confidence" in score.__dataclass_fields__
+
         # Should be frozen
-        assert score.__dataclass_fields__['value'].default == score.__dataclass_fields__['value'].default  # Just testing access
+        assert (
+            score.__dataclass_fields__["value"].default
+            == score.__dataclass_fields__["value"].default
+        )  # Just testing access

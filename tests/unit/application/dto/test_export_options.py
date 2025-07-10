@@ -1,8 +1,5 @@
 """Tests for Export Options DTO."""
 
-import pytest
-from typing import Any
-
 from pynomaly.application.dto.export_options import (
     ExportDestination,
     ExportFormat,
@@ -70,7 +67,7 @@ class TestExportOptions:
     def test_default_creation(self):
         """Test creating export options with default values."""
         options = ExportOptions()
-        
+
         # Basic export settings
         assert options.format == ExportFormat.EXCEL
         assert options.destination == ExportDestination.LOCAL_FILE
@@ -78,44 +75,44 @@ class TestExportOptions:
         assert options.include_summary is True
         assert options.include_metadata is True
         assert options.use_advanced_formatting is True
-        
+
         # Excel-specific options
         assert options.create_multiple_sheets is True
         assert options.highlight_anomalies is True
         assert options.add_conditional_formatting is True
         assert options.include_formulas is False
         assert options.sheet_names == ["Results", "Summary", "Charts", "Metadata"]
-        
+
         # Additional format options
         assert options.parquet_compression == "snappy"
         assert options.json_indent == 2
-        
+
         # Data filtering and selection
         assert options.include_normal_samples is True
         assert options.include_anomaly_samples is True
         assert options.max_samples is None
         assert options.sample_columns is None
-        
+
         # Visualization options
         assert options.chart_types == ["scatter", "histogram"]
         assert options.color_scheme == "default"
         assert options.chart_size == (640, 480)
-        
+
         # Authentication and security
         assert options.credentials is None
         assert options.api_key is None
         assert options.oauth_token is None
-        
+
         # Performance options
         assert options.batch_size == 1000
         assert options.compression is False
         assert options.parallel_export is False
-        
+
         # Notification options
         assert options.notify_on_completion is False
         assert options.notification_emails is None
         assert options.webhook_url is None
-        
+
         # Custom options
         assert options.custom_options == {}
 
@@ -126,7 +123,7 @@ class TestExportOptions:
         custom_chart_size = (800, 600)
         custom_credentials = {"username": "test", "password": "secret"}
         custom_options = {"extra_feature": True, "debug": False}
-        
+
         options = ExportOptions(
             format=ExportFormat.JSON,
             destination=ExportDestination.CLOUD_STORAGE,
@@ -157,9 +154,9 @@ class TestExportOptions:
             notify_on_completion=True,
             notification_emails=["admin@example.com", "user@example.com"],
             webhook_url="https://example.com/webhook",
-            custom_options=custom_options
+            custom_options=custom_options,
         )
-        
+
         assert options.format == ExportFormat.JSON
         assert options.destination == ExportDestination.CLOUD_STORAGE
         assert options.include_charts is False
@@ -196,15 +193,17 @@ class TestExportOptions:
         # Test sheet names default setting
         options = ExportOptions(sheet_names=None)
         assert options.sheet_names == ["Results", "Summary", "Charts", "Metadata"]
-        
+
         # Test chart types validation
-        options = ExportOptions(chart_types=["scatter", "invalid_chart", "histogram", "another_invalid"])
+        options = ExportOptions(
+            chart_types=["scatter", "invalid_chart", "histogram", "another_invalid"]
+        )
         assert options.chart_types == ["scatter", "histogram"]
-        
+
         # Test parquet compression validation
         options = ExportOptions(parquet_compression="invalid_compression")
         assert options.parquet_compression == "snappy"
-        
+
         # Test valid parquet compression
         options = ExportOptions(parquet_compression="gzip")
         assert options.parquet_compression == "gzip"
@@ -212,20 +211,22 @@ class TestExportOptions:
     def test_valid_chart_types(self):
         """Test valid chart types."""
         valid_charts = ["scatter", "histogram", "line", "bar", "pie"]
-        
+
         for chart_type in valid_charts:
             options = ExportOptions(chart_types=[chart_type])
             assert chart_type in options.chart_types
 
     def test_invalid_chart_types_filtered(self):
         """Test that invalid chart types are filtered out."""
-        options = ExportOptions(chart_types=["scatter", "invalid", "histogram", "another_invalid", "line"])
+        options = ExportOptions(
+            chart_types=["scatter", "invalid", "histogram", "another_invalid", "line"]
+        )
         assert options.chart_types == ["scatter", "histogram", "line"]
 
     def test_valid_parquet_compression(self):
         """Test valid parquet compression options."""
         valid_compressions = ["snappy", "gzip", "brotli", "lz4", "zstd"]
-        
+
         for compression in valid_compressions:
             options = ExportOptions(parquet_compression=compression)
             assert options.parquet_compression == compression
@@ -238,11 +239,11 @@ class TestExportOptions:
             include_charts=False,
             max_samples=1000,
             chart_types=["bar", "pie"],
-            custom_options={"test": "value"}
+            custom_options={"test": "value"},
         )
-        
+
         result = options.to_dict()
-        
+
         assert result["format"] == "csv"
         assert result["destination"] == "email"
         assert result["include_charts"] is False
@@ -259,11 +260,11 @@ class TestExportOptions:
             "max_samples": 2000,
             "chart_types": ["scatter", "line"],
             "parquet_compression": "brotli",
-            "custom_options": {"feature": "enabled"}
+            "custom_options": {"feature": "enabled"},
         }
-        
+
         options = ExportOptions.from_dict(data)
-        
+
         assert options.format == ExportFormat.PARQUET
         assert options.destination == ExportDestination.CLOUD_STORAGE
         assert options.include_charts is True
@@ -278,11 +279,11 @@ class TestExportOptions:
             "format": ExportFormat.JSON,
             "destination": ExportDestination.API_ENDPOINT,
             "json_indent": 4,
-            "api_key": "test_key"
+            "api_key": "test_key",
         }
-        
+
         options = ExportOptions.from_dict(data)
-        
+
         assert options.format == ExportFormat.JSON
         assert options.destination == ExportDestination.API_ENDPOINT
         assert options.json_indent == 4
@@ -292,7 +293,7 @@ class TestExportOptions:
         """Test Excel-optimized configuration."""
         options = ExportOptions()
         result = options.for_excel()
-        
+
         assert result is options  # Should return self
         assert options.format == ExportFormat.EXCEL
         assert options.use_advanced_formatting is True
@@ -304,7 +305,7 @@ class TestExportOptions:
         """Test CSV-optimized configuration."""
         options = ExportOptions()
         result = options.for_csv()
-        
+
         assert result is options  # Should return self
         assert options.format == ExportFormat.CSV
         assert options.include_charts is False
@@ -314,7 +315,7 @@ class TestExportOptions:
         """Test JSON-optimized configuration."""
         options = ExportOptions()
         result = options.for_json()
-        
+
         assert result is options  # Should return self
         assert options.format == ExportFormat.JSON
         assert options.include_charts is False
@@ -325,7 +326,7 @@ class TestExportOptions:
         """Test Parquet-optimized configuration."""
         options = ExportOptions()
         result = options.for_parquet()
-        
+
         assert result is options  # Should return self
         assert options.format == ExportFormat.PARQUET
         assert options.include_charts is False
@@ -335,10 +336,10 @@ class TestExportOptions:
     def test_format_optimization_chaining(self):
         """Test that format optimization methods can be chained."""
         options = ExportOptions()
-        
+
         # Test chaining
         result = options.for_excel().for_csv().for_json()
-        
+
         assert result is options
         assert options.format == ExportFormat.JSON
         assert options.include_charts is False
@@ -351,9 +352,9 @@ class TestExportOptions:
             highlight_anomalies=False,
             add_conditional_formatting=False,
             include_formulas=True,
-            sheet_names=["Custom", "Sheet", "Names"]
+            sheet_names=["Custom", "Sheet", "Names"],
         )
-        
+
         assert options.create_multiple_sheets is False
         assert options.highlight_anomalies is False
         assert options.add_conditional_formatting is False
@@ -366,9 +367,9 @@ class TestExportOptions:
             include_normal_samples=False,
             include_anomaly_samples=True,
             max_samples=10000,
-            sample_columns=["id", "timestamp", "value", "anomaly_score"]
+            sample_columns=["id", "timestamp", "value", "anomaly_score"],
         )
-        
+
         assert options.include_normal_samples is False
         assert options.include_anomaly_samples is True
         assert options.max_samples == 10000
@@ -379,9 +380,9 @@ class TestExportOptions:
         options = ExportOptions(
             chart_types=["scatter", "line", "bar"],
             color_scheme="viridis",
-            chart_size=(1024, 768)
+            chart_size=(1024, 768),
         )
-        
+
         assert options.chart_types == ["scatter", "line", "bar"]
         assert options.color_scheme == "viridis"
         assert options.chart_size == (1024, 768)
@@ -389,25 +390,21 @@ class TestExportOptions:
     def test_authentication_options(self):
         """Test authentication and security options."""
         credentials = {"username": "test_user", "password": "secret_pass"}
-        
+
         options = ExportOptions(
             credentials=credentials,
             api_key="api_key_123",
-            oauth_token="oauth_token_456"
+            oauth_token="oauth_token_456",
         )
-        
+
         assert options.credentials == credentials
         assert options.api_key == "api_key_123"
         assert options.oauth_token == "oauth_token_456"
 
     def test_performance_options(self):
         """Test performance options."""
-        options = ExportOptions(
-            batch_size=5000,
-            compression=True,
-            parallel_export=True
-        )
-        
+        options = ExportOptions(batch_size=5000, compression=True, parallel_export=True)
+
         assert options.batch_size == 5000
         assert options.compression is True
         assert options.parallel_export is True
@@ -416,13 +413,11 @@ class TestExportOptions:
         """Test notification options."""
         emails = ["admin@company.com", "user@company.com"]
         webhook = "https://hooks.company.com/export"
-        
+
         options = ExportOptions(
-            notify_on_completion=True,
-            notification_emails=emails,
-            webhook_url=webhook
+            notify_on_completion=True, notification_emails=emails, webhook_url=webhook
         )
-        
+
         assert options.notify_on_completion is True
         assert options.notification_emails == emails
         assert options.webhook_url == webhook
@@ -433,13 +428,11 @@ class TestExportOptions:
             "custom_feature_1": True,
             "custom_feature_2": "value",
             "custom_feature_3": 42,
-            "nested_config": {
-                "sub_option": "sub_value"
-            }
+            "nested_config": {"sub_option": "sub_value"},
         }
-        
+
         options = ExportOptions(custom_options=custom_opts)
-        
+
         assert options.custom_options == custom_opts
         assert options.custom_options["custom_feature_1"] is True
         assert options.custom_options["custom_feature_2"] == "value"
@@ -451,7 +444,7 @@ class TestExportOptions:
         # Test with indent
         options = ExportOptions(json_indent=4)
         assert options.json_indent == 4
-        
+
         # Test with no indent
         options = ExportOptions(json_indent=None)
         assert options.json_indent is None
@@ -461,12 +454,12 @@ class TestExportOptions:
         # Single email
         options = ExportOptions(notification_emails=["single@example.com"])
         assert options.notification_emails == ["single@example.com"]
-        
+
         # Multiple emails
         emails = ["first@example.com", "second@example.com", "third@example.com"]
         options = ExportOptions(notification_emails=emails)
         assert options.notification_emails == emails
-        
+
         # Empty list
         options = ExportOptions(notification_emails=[])
         assert options.notification_emails == []
@@ -476,11 +469,11 @@ class TestExportOptions:
         # Small batch size
         options = ExportOptions(batch_size=100)
         assert options.batch_size == 100
-        
+
         # Large batch size
         options = ExportOptions(batch_size=50000)
         assert options.batch_size == 50000
-        
+
         # Default batch size
         options = ExportOptions()
         assert options.batch_size == 1000
@@ -490,11 +483,11 @@ class TestExportOptions:
         # Standard sizes
         options = ExportOptions(chart_size=(800, 600))
         assert options.chart_size == (800, 600)
-        
+
         # Square chart
         options = ExportOptions(chart_size=(600, 600))
         assert options.chart_size == (600, 600)
-        
+
         # Large chart
         options = ExportOptions(chart_size=(1920, 1080))
         assert options.chart_size == (1920, 1080)
@@ -508,9 +501,9 @@ class TestExportOptions:
             api_key=None,
             oauth_token=None,
             notification_emails=None,
-            webhook_url=None
+            webhook_url=None,
         )
-        
+
         assert options.max_samples is None
         assert options.sample_columns is None
         assert options.credentials is None
@@ -535,9 +528,9 @@ class TestExportOptions:
             include_anomaly_samples=True,
             compression=True,
             parallel_export=True,
-            notify_on_completion=True
+            notify_on_completion=True,
         )
-        
+
         assert options.include_charts is True
         assert options.include_summary is True
         assert options.include_metadata is True
@@ -551,7 +544,7 @@ class TestExportOptions:
         assert options.compression is True
         assert options.parallel_export is True
         assert options.notify_on_completion is True
-        
+
         # All flags disabled
         options = ExportOptions(
             include_charts=False,
@@ -566,9 +559,9 @@ class TestExportOptions:
             include_anomaly_samples=False,
             compression=False,
             parallel_export=False,
-            notify_on_completion=False
+            notify_on_completion=False,
         )
-        
+
         assert options.include_charts is False
         assert options.include_summary is False
         assert options.include_metadata is False
@@ -590,7 +583,7 @@ class TestExportOptionsIntegration:
     def test_excel_export_configuration(self):
         """Test complete Excel export configuration."""
         options = ExportOptions().for_excel()
-        
+
         options.sheet_names = ["Anomalies", "Normal_Data", "Summary", "Charts"]
         options.max_samples = 10000
         options.include_normal_samples = True
@@ -600,14 +593,14 @@ class TestExportOptionsIntegration:
         options.chart_size = (1024, 768)
         options.notify_on_completion = True
         options.notification_emails = ["analyst@company.com"]
-        
+
         # Verify Excel-specific configuration
         assert options.format == ExportFormat.EXCEL
         assert options.use_advanced_formatting is True
         assert options.highlight_anomalies is True
         assert options.add_conditional_formatting is True
         assert options.include_charts is True
-        
+
         # Verify custom configuration
         assert options.sheet_names == ["Anomalies", "Normal_Data", "Summary", "Charts"]
         assert options.max_samples == 10000
@@ -630,15 +623,15 @@ class TestExportOptionsIntegration:
                 "access_key": "AWS_ACCESS_KEY",
                 "secret_key": "AWS_SECRET_KEY",
                 "bucket": "anomaly-detection-exports",
-                "region": "us-east-1"
+                "region": "us-east-1",
             },
             custom_options={
                 "s3_path": "exports/anomalies/",
                 "metadata_format": "json",
-                "encryption": "AES256"
-            }
+                "encryption": "AES256",
+            },
         )
-        
+
         assert options.format == ExportFormat.PARQUET
         assert options.destination == ExportDestination.CLOUD_STORAGE
         assert options.parquet_compression == "brotli"
@@ -659,7 +652,12 @@ class TestExportOptionsIntegration:
             include_charts=False,
             include_metadata=True,
             max_samples=50000,
-            sample_columns=["timestamp", "feature_vector", "anomaly_score", "prediction"],
+            sample_columns=[
+                "timestamp",
+                "feature_vector",
+                "anomaly_score",
+                "prediction",
+            ],
             webhook_url="https://api.company.com/anomaly-results",
             custom_options={
                 "endpoint_url": "https://api.company.com/upload",
@@ -667,11 +665,11 @@ class TestExportOptionsIntegration:
                 "retry_count": 3,
                 "headers": {
                     "Content-Type": "application/json",
-                    "User-Agent": "Pynomaly-Exporter/1.0"
-                }
-            }
+                    "User-Agent": "Pynomaly-Exporter/1.0",
+                },
+            },
         )
-        
+
         assert options.format == ExportFormat.JSON
         assert options.destination == ExportDestination.API_ENDPOINT
         assert options.json_indent is None
@@ -680,9 +678,16 @@ class TestExportOptionsIntegration:
         assert options.include_charts is False
         assert options.include_metadata is True
         assert options.max_samples == 50000
-        assert options.sample_columns == ["timestamp", "feature_vector", "anomaly_score", "prediction"]
+        assert options.sample_columns == [
+            "timestamp",
+            "feature_vector",
+            "anomaly_score",
+            "prediction",
+        ]
         assert options.webhook_url == "https://api.company.com/anomaly-results"
-        assert options.custom_options["endpoint_url"] == "https://api.company.com/upload"
+        assert (
+            options.custom_options["endpoint_url"] == "https://api.company.com/upload"
+        )
         assert options.custom_options["timeout"] == 30
 
     def test_email_export_configuration(self):
@@ -700,7 +705,7 @@ class TestExportOptionsIntegration:
             notification_emails=[
                 "security@company.com",
                 "ops@company.com",
-                "data-science@company.com"
+                "data-science@company.com",
             ],
             custom_options={
                 "subject": "Anomaly Detection Results - {timestamp}",
@@ -708,10 +713,10 @@ class TestExportOptionsIntegration:
                 "attachment_name": "anomaly_results_{date}.csv",
                 "smtp_server": "smtp.company.com",
                 "smtp_port": 587,
-                "use_tls": True
-            }
+                "use_tls": True,
+            },
         )
-        
+
         assert options.format == ExportFormat.CSV
         assert options.destination == ExportDestination.EMAIL
         assert options.include_charts is False
@@ -723,7 +728,10 @@ class TestExportOptionsIntegration:
         assert options.notify_on_completion is True
         assert len(options.notification_emails) == 3
         assert "security@company.com" in options.notification_emails
-        assert options.custom_options["subject"] == "Anomaly Detection Results - {timestamp}"
+        assert (
+            options.custom_options["subject"]
+            == "Anomaly Detection Results - {timestamp}"
+        )
         assert options.custom_options["use_tls"] is True
 
     def test_high_performance_export_configuration(self):
@@ -745,10 +753,10 @@ class TestExportOptionsIntegration:
                 "partition_by": "date",
                 "max_file_size_mb": 500,
                 "thread_count": 8,
-                "memory_limit_gb": 16
-            }
+                "memory_limit_gb": 16,
+            },
         )
-        
+
         assert options.format == ExportFormat.PARQUET
         assert options.destination == ExportDestination.LOCAL_FILE
         assert options.parquet_compression == "zstd"
@@ -772,15 +780,15 @@ class TestExportOptionsIntegration:
             max_samples=5000,
             chart_types=["scatter", "line"],
             credentials={"key": "value"},
-            custom_options={"feature": "enabled"}
+            custom_options={"feature": "enabled"},
         )
-        
+
         # Serialize to dictionary
         options_dict = original_options.to_dict()
-        
+
         # Deserialize from dictionary
         restored_options = ExportOptions.from_dict(options_dict)
-        
+
         # Verify all fields match
         assert restored_options.format == original_options.format
         assert restored_options.destination == original_options.destination
@@ -797,30 +805,30 @@ class TestExportOptionsIntegration:
             include_charts=True,
             use_advanced_formatting=True,
             batch_size=2000,
-            notify_on_completion=True
+            notify_on_completion=True,
         )
-        
+
         # Test Excel optimization
         excel_options = ExportOptions(**base_options.__dict__).for_excel()
         assert excel_options.format == ExportFormat.EXCEL
         assert excel_options.include_charts is True
         assert excel_options.use_advanced_formatting is True
         assert excel_options.highlight_anomalies is True
-        
+
         # Test CSV optimization
         csv_options = ExportOptions(**base_options.__dict__).for_csv()
         assert csv_options.format == ExportFormat.CSV
         assert csv_options.include_charts is False
         assert csv_options.use_advanced_formatting is False
         assert csv_options.batch_size == 2000  # Should preserve other settings
-        
+
         # Test JSON optimization
         json_options = ExportOptions(**base_options.__dict__).for_json()
         assert json_options.format == ExportFormat.JSON
         assert json_options.include_charts is False
         assert json_options.use_advanced_formatting is False
         assert json_options.json_indent == 2
-        
+
         # Test Parquet optimization
         parquet_options = ExportOptions(**base_options.__dict__).for_parquet()
         assert parquet_options.format == ExportFormat.PARQUET

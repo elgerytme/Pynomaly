@@ -16,7 +16,6 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 from urllib.parse import unquote, urlparse
 
 
@@ -30,7 +29,7 @@ class BrokenLink:
     line_number: int
     issue_type: str
     context: str
-    suggested_fix: Optional[str] = None
+    suggested_fix: str | None = None
 
 
 @dataclass
@@ -345,7 +344,7 @@ class DocumentationLinkChecker:
 
         return "\n".join(context_lines)
 
-    def _suggest_fix(self, target_path: str) -> Optional[str]:
+    def _suggest_fix(self, target_path: str) -> str | None:
         """Suggest a fix for a broken link"""
         # Look for similar files
         target_name = Path(target_path).name

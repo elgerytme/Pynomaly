@@ -3,70 +3,70 @@
 import pytest
 
 from pynomaly.shared.exceptions import (
-    # Base exceptions
-    PynomaryError,
-    DomainError,
-    ValidationError,
-    BusinessRuleViolationError,
-    # User management exceptions
-    UserError,
-    UserNotFoundError,
-    UserAlreadyExistsError,
+    AlertingError,
+    AnomalyDetectionError,
+    # API exceptions
+    APIError,
     AuthenticationError,
     AuthorizationError,
-    # Tenant exceptions
-    TenantError,
-    TenantNotFoundError,
-    TenantAlreadyExistsError,
-    ResourceLimitError,
+    BusinessRuleViolationError,
+    CacheError,
+    ConfigurationError,
+    DashboardNotFoundError,
+    DatabaseError,
     # Data-related exceptions
     DataError,
+    DataFormatError,
+    # Core Architecture exceptions
+    DataIngestionError,
     DatasetNotFoundError,
     DatasetValidationError,
-    DataFormatError,
-    # Model-related exceptions
-    ModelError,
-    ModelNotFoundError,
-    ModelTrainingError,
-    ModelPredictionError,
-    UnsupportedAlgorithmError,
+    DetectionConfigurationError,
     # Detection-related exceptions
     DetectionError,
     DetectorNotFoundError,
-    DetectionConfigurationError,
+    DomainError,
+    ExportError,
+    ExternalServiceError,
+    ImportError,
     # Infrastructure exceptions
     InfrastructureError,
-    DatabaseError,
-    CacheError,
-    StorageError,
-    ConfigurationError,
-    ExternalServiceError,
-    # Performance exceptions
-    PerformanceError,
-    MemoryError,
-    TimeoutError,
-    ResourceExhaustionError,
-    # API exceptions
-    APIError,
-    InvalidRequestError,
-    RateLimitExceededError,
-    ServiceUnavailableError,
     # Integration exceptions
     IntegrationError,
-    WebhookError,
+    InvalidRequestError,
+    MemoryError,
+    MetricNotFoundError,
+    # Model-related exceptions
+    ModelError,
+    ModelNotFoundError,
+    ModelPredictionError,
+    ModelTrainingError,
     NotificationError,
-    ExportError,
-    ImportError,
+    # Performance exceptions
+    PerformanceError,
+    # Base exceptions
+    PynomaryError,
+    RateLimitExceededError,
+    ReportGenerationError,
     # Reporting exceptions
     ReportingError,
     ReportNotFoundError,
-    DashboardNotFoundError,
-    MetricNotFoundError,
-    ReportGenerationError,
-    # Core Architecture exceptions
-    DataIngestionError,
-    AnomalyDetectionError,
-    AlertingError,
+    ResourceExhaustionError,
+    ResourceLimitError,
+    ServiceUnavailableError,
+    StorageError,
+    TenantAlreadyExistsError,
+    # Tenant exceptions
+    TenantError,
+    TenantNotFoundError,
+    TimeoutError,
+    UnsupportedAlgorithmError,
+    UserAlreadyExistsError,
+    # User management exceptions
+    UserError,
+    UserNotFoundError,
+    ValidationError,
+    WebhookError,
 )
 
 
@@ -411,7 +411,11 @@ class TestPerformanceExceptions:
 
     def test_memory_error_with_details(self):
         """Test MemoryError with details."""
-        details = {"requested": "8GB", "available": "4GB", "operation": "model_training"}
+        details = {
+            "requested": "8GB",
+            "available": "4GB",
+            "operation": "model_training",
+        }
         error = MemoryError("Insufficient memory", details=details)
         assert error.message == "Insufficient memory"
         assert error.details == details
@@ -566,7 +570,7 @@ class TestExceptionUsagePatterns:
     def test_exception_chaining(self):
         """Test exception chaining."""
         original_error = ValueError("Original error")
-        
+
         try:
             raise ValidationError("Validation failed") from original_error
         except ValidationError as e:
@@ -575,19 +579,20 @@ class TestExceptionUsagePatterns:
 
     def test_exception_raising_and_catching(self):
         """Test raising and catching exceptions."""
+
         def raise_domain_error():
             raise DomainError("Domain error occurred")
-        
+
         with pytest.raises(DomainError) as exc_info:
             raise_domain_error()
-        
+
         assert exc_info.value.message == "Domain error occurred"
         assert isinstance(exc_info.value, PynomaryError)
 
     def test_exception_inheritance_chain(self):
         """Test exception inheritance chain."""
         error = UserNotFoundError("User not found")
-        
+
         assert isinstance(error, UserNotFoundError)
         assert isinstance(error, UserError)
         assert isinstance(error, DomainError)
@@ -608,7 +613,7 @@ class TestExceptionUsagePatterns:
             (ReportNotFoundError("test"), ReportingError),
             (MemoryError("test"), PerformanceError),
         ]
-        
+
         for exception, base_class in exceptions_and_bases:
             assert isinstance(exception, base_class)
             assert isinstance(exception, PynomaryError)
@@ -631,7 +636,7 @@ class TestExceptionUsagePatterns:
         error = PynomaryError("Test error")
         error.details["new_key"] = "new_value"
         assert error.details["new_key"] == "new_value"
-        
+
         # Test with initial details
         error2 = PynomaryError("Test error", details={"initial": "value"})
         error2.details["added"] = "later"

@@ -3,11 +3,7 @@
 Tests for the Performance Optimization Engine
 """
 
-import asyncio
-import gc
 import time
-from pathlib import Path
-from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -74,11 +70,11 @@ class TestIntelligentCache:
         """Test basic cache operations."""
         config = OptimizationConfig(cache_size_mb=1)
         cache = IntelligentCache(config)
-        
+
         # Set value
         result = cache.set("test_key", "test_value")
         assert result is True
-        
+
         # Get value
         value = cache.get("test_key")
         assert value == "test_value"
@@ -87,46 +83,45 @@ class TestIntelligentCache:
         """Test TTL expiration."""
         config = OptimizationConfig(cache_size_mb=1, cache_ttl_seconds=1)
         cache = IntelligentCache(config)
-        
+
         # Set value
         cache.set("test_key", "test_value")
-        
+
         # Should be available immediately
         assert cache.get("test_key") == "test_value"
-        
+
         # Wait for TTL expiration
         time.sleep(1.1)
-        
+
         # Should be expired
         assert cache.get("test_key") is None
 
     def test_cache_eviction_lru(self):
         """Test LRU eviction."""
-        config = OptimizationConfig(
-            cache_size_mb=1,
-            cache_strategy="lru"
-        )
+        config = OptimizationConfig(cache_size_mb=1, cache_strategy="lru")
         cache = IntelligentCache(config)
-        
+
         # Fill cache beyond capacity with larger items
         for i in range(20):
             cache.set(f"key_{i}", f"value_{i}", size_hint=100000)  # 100KB each
-        
+
         # First keys should be evicted due to size constraints
         first_key_exists = cache.get("key_0") is not None
         last_key_exists = cache.get("key_19") is not None
-        
+
         # At least some eviction should have occurred
-        assert not (first_key_exists and last_key_exists), "Cache should have evicted some items"
+        assert not (
+            first_key_exists and last_key_exists
+        ), "Cache should have evicted some items"
 
     def test_cache_clear(self):
         """Test cache clearing."""
         config = OptimizationConfig(cache_size_mb=1)
         cache = IntelligentCache(config)
-        
+
         cache.set("test_key", "test_value")
         assert cache.get("test_key") == "test_value"
-        
+
         cache.clear()
         assert cache.get("test_key") is None
         assert cache._cache_size == 0
@@ -135,10 +130,10 @@ class TestIntelligentCache:
         """Test cache statistics."""
         config = OptimizationConfig(cache_size_mb=1)
         cache = IntelligentCache(config)
-        
+
         cache.set("test_key", "test_value")
         stats = cache.get_stats()
-        
+
         assert isinstance(stats, dict)
         assert "total_entries" in stats
         assert "total_size_mb" in stats
@@ -158,11 +153,11 @@ class TestMemoryOptimizer:
         """Test object pooling."""
         config = OptimizationConfig(object_pooling=True)
         optimizer = MemoryOptimizer(config)
-        
+
         # Get object from pool
         obj = optimizer.get_pooled_object(list)
         assert isinstance(obj, list)
-        
+
         # Return to pool
         optimizer.return_to_pool(obj)
 
@@ -170,7 +165,7 @@ class TestMemoryOptimizer:
         """Test memory pressure detection."""
         config = OptimizationConfig(memory_threshold_mb=1)
         optimizer = MemoryOptimizer(config)
-        
+
         # Should return boolean
         pressure = optimizer.check_memory_pressure()
         assert isinstance(pressure, bool)
@@ -179,16 +174,18 @@ class TestMemoryOptimizer:
         """Test DataFrame memory optimization."""
         config = OptimizationConfig(enable_memory_optimization=True)
         optimizer = MemoryOptimizer(config)
-        
+
         # Create DataFrame with inefficient types
-        df = pd.DataFrame({
-            "small_int": [1, 2, 3, 4, 5],
-            "float_col": [1.1, 2.2, 3.3, 4.4, 5.5],
-            "category": ["A", "B", "A", "B", "A"]
-        })
-        
+        df = pd.DataFrame(
+            {
+                "small_int": [1, 2, 3, 4, 5],
+                "float_col": [1.1, 2.2, 3.3, 4.4, 5.5],
+                "category": ["A", "B", "A", "B", "A"],
+            }
+        )
+
         optimized_df = optimizer.optimize_dataframe(df)
-        
+
         # Check that optimization was applied
         assert isinstance(optimized_df, pd.DataFrame)
         assert len(optimized_df) == len(df)
@@ -197,7 +194,7 @@ class TestMemoryOptimizer:
         """Test garbage collection trigger."""
         config = OptimizationConfig(gc_threshold=1)
         optimizer = MemoryOptimizer(config)
-        
+
         # Should not raise exception
         optimizer.trigger_gc_if_needed()
         optimizer.trigger_gc_if_needed()  # Should trigger GC
@@ -217,13 +214,13 @@ class TestParallelExecutor:
         """Test parallel execution."""
         config = OptimizationConfig(max_workers=2)
         executor = ParallelExecutor(config)
-        
+
         def square(x):
             return x * x
-        
+
         items = [1, 2, 3, 4, 5]
         results = await executor.execute_parallel(square, items)
-        
+
         assert results == [1, 4, 9, 16, 25]
 
     @pytest.mark.asyncio
@@ -231,16 +228,16 @@ class TestParallelExecutor:
         """Test concurrent task execution."""
         config = OptimizationConfig(max_workers=2)
         executor = ParallelExecutor(config)
-        
+
         def task1():
             return "task1"
-        
+
         def task2():
             return "task2"
-        
+
         tasks = [task1, task2]
         results = await executor.execute_concurrent(tasks)
-        
+
         assert "task1" in results
         assert "task2" in results
 
@@ -248,7 +245,7 @@ class TestParallelExecutor:
         """Test executor cleanup."""
         config = OptimizationConfig()
         executor = ParallelExecutor(config)
-        
+
         # Should not raise exception
         executor.cleanup()
 
@@ -260,7 +257,7 @@ class TestPerformanceOptimizationEngine:
         """Test engine initialization."""
         config = OptimizationConfig()
         engine = PerformanceOptimizationEngine(config)
-        
+
         assert engine.config == config
         assert engine.cache is not None
         assert engine.batch_processor is not None
@@ -271,20 +268,20 @@ class TestPerformanceOptimizationEngine:
         """Test cached decorator for sync functions."""
         config = OptimizationConfig(enable_caching=True)
         engine = PerformanceOptimizationEngine(config)
-        
+
         call_count = 0
-        
+
         @engine.cached()
         def expensive_function(x):
             nonlocal call_count
             call_count += 1
             return x * 2
-        
+
         # First call
         result1 = expensive_function(5)
         assert result1 == 10
         assert call_count == 1
-        
+
         # Second call - should use cache
         result2 = expensive_function(5)
         assert result2 == 10
@@ -295,20 +292,20 @@ class TestPerformanceOptimizationEngine:
         """Test cached decorator for async functions."""
         config = OptimizationConfig(enable_caching=True)
         engine = PerformanceOptimizationEngine(config)
-        
+
         call_count = 0
-        
+
         @engine.cached()
         async def async_expensive_function(x):
             nonlocal call_count
             call_count += 1
             return x * 2
-        
+
         # First call
         result1 = await async_expensive_function(5)
         assert result1 == 10
         assert call_count == 1
-        
+
         # Second call - should use cache
         result2 = await async_expensive_function(5)
         assert result2 == 10
@@ -318,15 +315,15 @@ class TestPerformanceOptimizationEngine:
         """Test memory optimized decorator."""
         config = OptimizationConfig(enable_memory_optimization=True)
         engine = PerformanceOptimizationEngine(config)
-        
+
         @engine.memory_optimized()
         def process_dataframe(df):
             return df.copy()
-        
+
         # Create test DataFrame
         df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
         result = process_dataframe(df)
-        
+
         assert isinstance(result, pd.DataFrame)
         assert len(result) == len(df)
 
@@ -335,23 +332,23 @@ class TestPerformanceOptimizationEngine:
         """Test parallel decorator."""
         config = OptimizationConfig(enable_parallel_processing=True)
         engine = PerformanceOptimizationEngine(config)
-        
+
         @engine.parallel()
         def process_item(item):  # Changed to sync function
             return item * 2
-        
+
         items = [1, 2, 3, 4, 5]
         results = await process_item(items)
-        
+
         assert results == [2, 4, 6, 8, 10]
 
     def test_optimization_stats(self):
         """Test optimization statistics."""
         config = OptimizationConfig()
         engine = PerformanceOptimizationEngine(config)
-        
+
         stats = engine.get_optimization_stats()
-        
+
         assert isinstance(stats, dict)
         assert "cache_stats" in stats
         assert "optimization_counters" in stats
@@ -362,7 +359,7 @@ class TestPerformanceOptimizationEngine:
         """Test engine cleanup."""
         config = OptimizationConfig()
         engine = PerformanceOptimizationEngine(config)
-        
+
         # Should not raise exception
         engine.cleanup()
 
@@ -373,7 +370,7 @@ class TestOptimizationEngineFactory:
     def test_create_default_engine(self):
         """Test creating engine with defaults."""
         engine = create_optimization_engine()
-        
+
         assert isinstance(engine, PerformanceOptimizationEngine)
         assert engine.config.cache_size_mb == 512
         assert engine.config.enable_caching is True
@@ -381,11 +378,9 @@ class TestOptimizationEngineFactory:
     def test_create_custom_engine(self):
         """Test creating engine with custom settings."""
         engine = create_optimization_engine(
-            cache_size_mb=256,
-            max_workers=4,
-            enable_all_optimizations=False
+            cache_size_mb=256, max_workers=4, enable_all_optimizations=False
         )
-        
+
         assert isinstance(engine, PerformanceOptimizationEngine)
         assert engine.config.cache_size_mb == 256
         assert engine.config.max_workers == 4
@@ -402,12 +397,12 @@ class TestIntegrationScenarios:
             enable_caching=True,
             enable_memory_optimization=True,
             enable_parallel_processing=True,
-            cache_size_mb=1
+            cache_size_mb=1,
         )
         engine = PerformanceOptimizationEngine(config)
-        
+
         call_count = 0
-        
+
         @engine.cached()
         @engine.memory_optimized()
         async def optimized_function(data):
@@ -416,17 +411,17 @@ class TestIntegrationScenarios:
             if isinstance(data, pd.DataFrame):
                 return data.sum().sum()
             return sum(data)
-        
+
         # Test with list
         result1 = await optimized_function([1, 2, 3, 4, 5])
         assert result1 == 15
         assert call_count == 1
-        
+
         # Test with cache hit
         result2 = await optimized_function([1, 2, 3, 4, 5])
         assert result2 == 15
         assert call_count == 1  # Should use cache
-        
+
         # Test with DataFrame
         df = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
         result3 = await optimized_function(df)
@@ -437,15 +432,15 @@ class TestIntegrationScenarios:
         """Test performance monitoring integration."""
         config = OptimizationConfig()
         engine = PerformanceOptimizationEngine(config)
-        
+
         # Test that stats are collected
         stats = engine.get_optimization_stats()
         assert "cache_stats" in stats
-        
+
         # Test cache hit/miss tracking
         engine.optimization_stats["cache_hits"] = 5
         engine.optimization_stats["cache_misses"] = 2
-        
+
         stats = engine.get_optimization_stats()
         assert stats["optimization_counters"]["cache_hits"] == 5
         assert stats["optimization_counters"]["cache_misses"] == 2
@@ -455,17 +450,17 @@ class TestIntegrationScenarios:
         """Test error handling in optimizations."""
         config = OptimizationConfig()
         engine = PerformanceOptimizationEngine(config)
-        
+
         @engine.cached()
         async def failing_function(x):
             if x < 0:
                 raise ValueError("Negative value")
             return x * 2
-        
+
         # Test successful call
         result = await failing_function(5)
         assert result == 10
-        
+
         # Test error handling
         with pytest.raises(ValueError):
             await failing_function(-1)

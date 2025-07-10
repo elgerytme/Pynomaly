@@ -7,8 +7,8 @@ import os
 import shutil
 import sys
 import tempfile
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 from unittest.mock import AsyncMock, MagicMock
 
 import numpy as np
@@ -48,16 +48,16 @@ def sample_data() -> pd.DataFrame:
     np.random.seed(42)  # Fixed seed for reproducibility
     n_samples = 100
     n_features = 3
-    
+
     # Generate normal data
     normal_data = np.random.normal(0, 1, (n_samples - 10, n_features))
-    
+
     # Generate anomalous data
     anomalous_data = np.random.normal(3, 1, (10, n_features))
-    
+
     # Combine data
     data = np.vstack([normal_data, anomalous_data])
-    
+
     return pd.DataFrame(data, columns=[f"feature_{i}" for i in range(n_features)])
 
 
@@ -66,6 +66,7 @@ def sample_dataset(sample_data):
     """Create sample dataset entity."""
     try:
         from pynomaly.domain.entities import Dataset
+
         return Dataset(name="test_dataset", data=sample_data)
     except ImportError:
         # Return simple mock if entity not available
@@ -111,13 +112,13 @@ def isolate_tests():
     """Isolate tests by cleaning up state."""
     # Before test
     original_env = os.environ.copy()
-    
+
     yield
-    
+
     # After test - restore environment
     os.environ.clear()
     os.environ.update(original_env)
-    
+
     # Reset random seed
     np.random.seed(None)
 
@@ -127,7 +128,7 @@ def isolate_tests():
 def suppress_warnings():
     """Suppress common warnings during tests."""
     import warnings
-    
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", UserWarning)
         warnings.simplefilter("ignore", DeprecationWarning)
@@ -160,17 +161,18 @@ def pytest_collection_modifyitems(config, items):
 @pytest.fixture(scope="function")
 def retry_on_failure():
     """Provide retry mechanism for flaky operations."""
+
     def retry(func, max_attempts=3, delay=0.1):
         import time
-        
+
         for attempt in range(max_attempts):
             try:
                 return func()
-            except Exception as e:
+            except Exception:
                 if attempt == max_attempts - 1:
                     raise
-                time.sleep(delay * (2 ** attempt))  # Exponential backoff
-    
+                time.sleep(delay * (2**attempt))  # Exponential backoff
+
     return retry
 
 
@@ -179,19 +181,19 @@ def retry_on_failure():
 def resource_manager():
     """Manage test resources and cleanup."""
     resources = []
-    
+
     def add_resource(resource):
         resources.append(resource)
         return resource
-    
+
     yield add_resource
-    
+
     # Cleanup resources
     for resource in reversed(resources):
         try:
-            if hasattr(resource, 'close'):
+            if hasattr(resource, "close"):
                 resource.close()
-            elif hasattr(resource, 'cleanup'):
+            elif hasattr(resource, "cleanup"):
                 resource.cleanup()
         except Exception:
             pass  # Ignore cleanup errors
@@ -202,26 +204,26 @@ def resource_manager():
 def performance_timer():
     """Timer for performance testing."""
     import time
-    
+
     class Timer:
         def __init__(self):
             self.start_time = None
             self.end_time = None
-        
+
         def __enter__(self):
             self.start_time = time.perf_counter()
             return self
-        
+
         def __exit__(self, *args):
             self.end_time = time.perf_counter()
-        
+
         @property
         def elapsed(self):
             if self.start_time is None:
                 return 0
             end = self.end_time if self.end_time is not None else time.perf_counter()
             return end - self.start_time
-    
+
     return Timer
 
 
@@ -231,9 +233,9 @@ def deterministic_data():
     """Create deterministic test data for reproducible tests."""
     np.random.seed(42)
     return {
-        'small': np.random.normal(0, 1, (50, 3)),
-        'medium': np.random.normal(0, 1, (500, 5)),
-        'large': np.random.normal(0, 1, (1000, 10))
+        "small": np.random.normal(0, 1, (50, 3)),
+        "medium": np.random.normal(0, 1, (500, 5)),
+        "large": np.random.normal(0, 1, (1000, 10)),
     }
 
 
@@ -242,6 +244,7 @@ def skip_if_no_torch():
     """Skip test if PyTorch not available."""
     try:
         import torch
+
         return pytest.mark.skipif(False, reason="")
     except ImportError:
         return pytest.mark.skipif(True, reason="PyTorch not available")
@@ -251,6 +254,7 @@ def skip_if_no_tensorflow():
     """Skip test if TensorFlow not available."""
     try:
         import tensorflow
+
         return pytest.mark.skipif(False, reason="")
     except ImportError:
         return pytest.mark.skipif(True, reason="TensorFlow not available")
@@ -260,6 +264,7 @@ def skip_if_no_fastapi():
     """Skip test if FastAPI not available."""
     try:
         import fastapi
+
         return pytest.mark.skipif(False, reason="")
     except ImportError:
         return pytest.mark.skipif(True, reason="FastAPI not available")
@@ -267,20 +272,20 @@ def skip_if_no_fastapi():
 
 # Export commonly used fixtures and utilities
 __all__ = [
-    'event_loop',
-    'temp_dir',
-    'sample_data',
-    'sample_dataset',
-    'mock_detector',
-    'mock_async_repository',
-    'mock_sync_repository',
-    'isolate_tests',
-    'suppress_warnings',
-    'retry_on_failure',
-    'resource_manager',
-    'performance_timer',
-    'deterministic_data',
-    'skip_if_no_torch',
-    'skip_if_no_tensorflow',
-    'skip_if_no_fastapi',
+    "event_loop",
+    "temp_dir",
+    "sample_data",
+    "sample_dataset",
+    "mock_detector",
+    "mock_async_repository",
+    "mock_sync_repository",
+    "isolate_tests",
+    "suppress_warnings",
+    "retry_on_failure",
+    "resource_manager",
+    "performance_timer",
+    "deterministic_data",
+    "skip_if_no_torch",
+    "skip_if_no_tensorflow",
+    "skip_if_no_fastapi",
 ]

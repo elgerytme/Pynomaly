@@ -10,17 +10,14 @@ This script sets up comprehensive production monitoring including:
 - Real-time dashboard
 """
 
-import asyncio
 import json
 import os
 import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Dict, Any
 
 import yaml
-import requests
 
 
 class ProductionMonitoringSetup:
@@ -31,7 +28,7 @@ class ProductionMonitoringSetup:
         self.config_dir = config_dir or self.project_root / "config" / "monitoring"
         self.monitoring_dir = self.project_root / "monitoring"
         self.scripts_dir = self.project_root / "scripts" / "monitoring"
-        
+
         # Ensure directories exist
         self.config_dir.mkdir(parents=True, exist_ok=True)
         self.monitoring_dir.mkdir(parents=True, exist_ok=True)
@@ -40,7 +37,7 @@ class ProductionMonitoringSetup:
     def setup_monitoring_stack(self):
         """Set up the complete monitoring stack."""
         print("🚀 Setting up Pynomaly Production Monitoring Stack...")
-        
+
         try:
             # 1. Create configuration files
             print("📝 Creating configuration files...")
@@ -48,30 +45,30 @@ class ProductionMonitoringSetup:
             self.create_grafana_config()
             self.create_alertmanager_config()
             self.create_docker_compose()
-            
+
             # 2. Create alert rules
             print("🚨 Creating alert rules...")
             self.create_alert_rules()
-            
+
             # 3. Create dashboards
             print("📊 Creating Grafana dashboards...")
             self.create_grafana_dashboards()
-            
+
             # 4. Create startup scripts
             print("🔧 Creating management scripts...")
             self.create_management_scripts()
-            
+
             # 5. Create health check endpoints
             print("💓 Setting up health checks...")
             self.create_health_checks()
-            
+
             # 6. Start services
             print("▶️ Starting monitoring services...")
             self.start_services()
-            
+
             print("✅ Production monitoring setup complete!")
             self.print_service_info()
-            
+
         except Exception as e:
             print(f"❌ Setup failed: {e}")
             sys.exit(1)
@@ -84,12 +81,12 @@ class ProductionMonitoringSetup:
                 "evaluation_interval": "15s",
                 "external_labels": {
                     "monitor": "pynomaly-production",
-                    "environment": "production"
-                }
+                    "environment": "production",
+                },
             },
             "rule_files": [
                 "/etc/prometheus/alert_rules.yml",
-                "/etc/prometheus/recording_rules.yml"
+                "/etc/prometheus/recording_rules.yml",
             ],
             "scrape_configs": [
                 {
@@ -97,49 +94,49 @@ class ProductionMonitoringSetup:
                     "static_configs": [{"targets": ["pynomaly-app:8000"]}],
                     "metrics_path": "/metrics",
                     "scrape_interval": "10s",
-                    "scrape_timeout": "5s"
+                    "scrape_timeout": "5s",
                 },
                 {
                     "job_name": "pynomaly-realtime-dashboard",
                     "static_configs": [{"targets": ["pynomaly-dashboard:8080"]}],
                     "metrics_path": "/metrics",
-                    "scrape_interval": "15s"
+                    "scrape_interval": "15s",
                 },
                 {
                     "job_name": "prometheus",
-                    "static_configs": [{"targets": ["localhost:9090"]}]
+                    "static_configs": [{"targets": ["localhost:9090"]}],
                 },
                 {
                     "job_name": "node-exporter",
-                    "static_configs": [{"targets": ["node-exporter:9100"]}]
+                    "static_configs": [{"targets": ["node-exporter:9100"]}],
                 },
                 {
                     "job_name": "postgres-exporter",
-                    "static_configs": [{"targets": ["postgres-exporter:9187"]}]
+                    "static_configs": [{"targets": ["postgres-exporter:9187"]}],
                 },
                 {
                     "job_name": "redis-exporter",
-                    "static_configs": [{"targets": ["redis-exporter:9121"]}]
+                    "static_configs": [{"targets": ["redis-exporter:9121"]}],
                 },
                 {
                     "job_name": "nginx-exporter",
-                    "static_configs": [{"targets": ["nginx-exporter:9113"]}]
-                }
+                    "static_configs": [{"targets": ["nginx-exporter:9113"]}],
+                },
             ],
             "alerting": {
                 "alertmanagers": [
                     {
                         "static_configs": [{"targets": ["alertmanager:9093"]}],
-                        "timeout": "10s"
+                        "timeout": "10s",
                     }
                 ]
-            }
+            },
         }
-        
+
         config_file = self.config_dir / "prometheus.yml"
-        with open(config_file, 'w') as f:
+        with open(config_file, "w") as f:
             yaml.dump(config, f, default_flow_style=False, indent=2)
-        
+
         print(f"   ✓ Prometheus config: {config_file}")
 
     def create_grafana_config(self):
@@ -156,24 +153,21 @@ class ProductionMonitoringSetup:
                     "isDefault": True,
                     "basicAuth": False,
                     "editable": True,
-                    "jsonData": {
-                        "timeInterval": "15s",
-                        "httpMethod": "POST"
-                    }
+                    "jsonData": {"timeInterval": "15s", "httpMethod": "POST"},
                 }
-            ]
+            ],
         }
-        
+
         grafana_dir = self.config_dir / "grafana" / "provisioning"
         grafana_dir.mkdir(parents=True, exist_ok=True)
-        
+
         datasources_dir = grafana_dir / "datasources"
         datasources_dir.mkdir(exist_ok=True)
-        
+
         datasource_file = datasources_dir / "datasource.yml"
-        with open(datasource_file, 'w') as f:
+        with open(datasource_file, "w") as f:
             yaml.dump(datasource_config, f, default_flow_style=False, indent=2)
-        
+
         # Dashboard provisioning
         dashboard_config = {
             "apiVersion": 1,
@@ -186,20 +180,18 @@ class ProductionMonitoringSetup:
                     "disableDeletion": False,
                     "updateIntervalSeconds": 10,
                     "allowUiUpdates": True,
-                    "options": {
-                        "path": "/var/lib/grafana/dashboards"
-                    }
+                    "options": {"path": "/var/lib/grafana/dashboards"},
                 }
-            ]
+            ],
         }
-        
+
         dashboards_dir = grafana_dir / "dashboards"
         dashboards_dir.mkdir(exist_ok=True)
-        
+
         dashboard_file = dashboards_dir / "dashboard.yml"
-        with open(dashboard_file, 'w') as f:
+        with open(dashboard_file, "w") as f:
             yaml.dump(dashboard_config, f, default_flow_style=False, indent=2)
-        
+
         print(f"   ✓ Grafana config: {grafana_dir}")
 
     def create_alertmanager_config(self):
@@ -210,7 +202,7 @@ class ProductionMonitoringSetup:
                 "smtp_from": "${ALERT_EMAIL_FROM}",
                 "smtp_auth_username": "${SMTP_USERNAME}",
                 "smtp_auth_password": "${SMTP_PASSWORD}",
-                "slack_api_url": "${SLACK_WEBHOOK_URL}"
+                "slack_api_url": "${SLACK_WEBHOOK_URL}",
             },
             "route": {
                 "group_by": ["alertname", "cluster", "service"],
@@ -223,15 +215,15 @@ class ProductionMonitoringSetup:
                         "match": {"severity": "critical"},
                         "receiver": "critical-alerts",
                         "group_wait": "5s",
-                        "repeat_interval": "15m"
+                        "repeat_interval": "15m",
                     },
                     {
                         "match": {"severity": "warning"},
                         "receiver": "warning-alerts",
                         "group_wait": "30s",
-                        "repeat_interval": "2h"
-                    }
-                ]
+                        "repeat_interval": "2h",
+                    },
+                ],
             },
             "receivers": [
                 {
@@ -240,9 +232,9 @@ class ProductionMonitoringSetup:
                         {
                             "to": "${ALERT_EMAIL_TO}",
                             "subject": "Pynomaly Alert: {{ .GroupLabels.alertname }}",
-                            "body": "{{ range .Alerts }}{{ .Annotations.summary }}\\n{{ .Annotations.description }}{{ end }}"
+                            "body": "{{ range .Alerts }}{{ .Annotations.summary }}\\n{{ .Annotations.description }}{{ end }}",
                         }
-                    ]
+                    ],
                 },
                 {
                     "name": "critical-alerts",
@@ -250,7 +242,7 @@ class ProductionMonitoringSetup:
                         {
                             "to": "${CRITICAL_ALERT_EMAIL_TO}",
                             "subject": "🚨 CRITICAL: Pynomaly Alert - {{ .GroupLabels.alertname }}",
-                            "body": "{{ range .Alerts }}{{ .Annotations.summary }}\\n{{ .Annotations.description }}\\n\\nLabels: {{ .Labels }}{{ end }}"
+                            "body": "{{ range .Alerts }}{{ .Annotations.summary }}\\n{{ .Annotations.description }}\\n\\nLabels: {{ .Labels }}{{ end }}",
                         }
                     ],
                     "slack_configs": [
@@ -258,9 +250,9 @@ class ProductionMonitoringSetup:
                             "channel": "${SLACK_CHANNEL}",
                             "title": "🚨 Critical Alert: {{ .GroupLabels.alertname }}",
                             "text": "{{ range .Alerts }}{{ .Annotations.summary }}\\n{{ .Annotations.description }}{{ end }}",
-                            "color": "danger"
+                            "color": "danger",
                         }
-                    ]
+                    ],
                 },
                 {
                     "name": "warning-alerts",
@@ -268,7 +260,7 @@ class ProductionMonitoringSetup:
                         {
                             "to": "${ALERT_EMAIL_TO}",
                             "subject": "⚠️ WARNING: Pynomaly Alert - {{ .GroupLabels.alertname }}",
-                            "body": "{{ range .Alerts }}{{ .Annotations.summary }}\\n{{ .Annotations.description }}{{ end }}"
+                            "body": "{{ range .Alerts }}{{ .Annotations.summary }}\\n{{ .Annotations.description }}{{ end }}",
                         }
                     ],
                     "slack_configs": [
@@ -276,17 +268,17 @@ class ProductionMonitoringSetup:
                             "channel": "${SLACK_CHANNEL}",
                             "title": "⚠️ Warning: {{ .GroupLabels.alertname }}",
                             "text": "{{ range .Alerts }}{{ .Annotations.summary }}\\n{{ .Annotations.description }}{{ end }}",
-                            "color": "warning"
+                            "color": "warning",
                         }
-                    ]
-                }
-            ]
+                    ],
+                },
+            ],
         }
-        
+
         config_file = self.config_dir / "alertmanager.yml"
-        with open(config_file, 'w') as f:
+        with open(config_file, "w") as f:
             yaml.dump(config, f, default_flow_style=False, indent=2)
-        
+
         print(f"   ✓ Alertmanager config: {config_file}")
 
     def create_alert_rules(self):
@@ -298,23 +290,23 @@ class ProductionMonitoringSetup:
                     "rules": [
                         {
                             "alert": "PynomályServiceDown",
-                            "expr": "up{job=\"pynomaly-api\"} == 0",
+                            "expr": 'up{job="pynomaly-api"} == 0',
                             "for": "1m",
                             "labels": {"severity": "critical"},
                             "annotations": {
                                 "summary": "Pynomaly service is down",
-                                "description": "The Pynomaly API service has been down for more than 1 minute."
-                            }
+                                "description": "The Pynomaly API service has been down for more than 1 minute.",
+                            },
                         },
                         {
                             "alert": "HighErrorRate",
-                            "expr": "(rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m])) > 0.1",
+                            "expr": '(rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])) > 0.1',
                             "for": "5m",
                             "labels": {"severity": "critical"},
                             "annotations": {
                                 "summary": "High error rate detected",
-                                "description": "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes."
-                            }
+                                "description": "Error rate is {{ $value | humanizePercentage }} over the last 5 minutes.",
+                            },
                         },
                         {
                             "alert": "HighResponseTime",
@@ -323,18 +315,18 @@ class ProductionMonitoringSetup:
                             "labels": {"severity": "warning"},
                             "annotations": {
                                 "summary": "High response time detected",
-                                "description": "95th percentile response time is {{ $value }}s over the last 5 minutes."
-                            }
+                                "description": "95th percentile response time is {{ $value }}s over the last 5 minutes.",
+                            },
                         },
                         {
                             "alert": "HighCPUUsage",
-                            "expr": "100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100) > 80",
+                            "expr": '100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80',
                             "for": "10m",
                             "labels": {"severity": "warning"},
                             "annotations": {
                                 "summary": "High CPU usage",
-                                "description": "CPU usage is above 80% for {{ $labels.instance }} for more than 10 minutes."
-                            }
+                                "description": "CPU usage is above 80% for {{ $labels.instance }} for more than 10 minutes.",
+                            },
                         },
                         {
                             "alert": "HighMemoryUsage",
@@ -343,18 +335,18 @@ class ProductionMonitoringSetup:
                             "labels": {"severity": "warning"},
                             "annotations": {
                                 "summary": "High memory usage",
-                                "description": "Memory usage is above 85% for {{ $labels.instance }} for more than 10 minutes."
-                            }
+                                "description": "Memory usage is above 85% for {{ $labels.instance }} for more than 10 minutes.",
+                            },
                         },
                         {
                             "alert": "DiskSpaceRunningOut",
-                            "expr": "(node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"}) * 100 < 10",
+                            "expr": '(node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 10',
                             "for": "5m",
                             "labels": {"severity": "critical"},
                             "annotations": {
                                 "summary": "Disk space running out",
-                                "description": "Disk space is below 10% for {{ $labels.instance }}."
-                            }
+                                "description": "Disk space is below 10% for {{ $labels.instance }}.",
+                            },
                         },
                         {
                             "alert": "DatabaseConnectionFailure",
@@ -363,8 +355,8 @@ class ProductionMonitoringSetup:
                             "labels": {"severity": "critical"},
                             "annotations": {
                                 "summary": "Database connection failure",
-                                "description": "PostgreSQL database is not reachable."
-                            }
+                                "description": "PostgreSQL database is not reachable.",
+                            },
                         },
                         {
                             "alert": "RedisConnectionFailure",
@@ -373,8 +365,8 @@ class ProductionMonitoringSetup:
                             "labels": {"severity": "critical"},
                             "annotations": {
                                 "summary": "Redis connection failure",
-                                "description": "Redis cache is not reachable."
-                            }
+                                "description": "Redis cache is not reachable.",
+                            },
                         },
                         {
                             "alert": "AnomalyDetectionFailure",
@@ -383,8 +375,8 @@ class ProductionMonitoringSetup:
                             "labels": {"severity": "warning"},
                             "annotations": {
                                 "summary": "Multiple anomaly detection failures",
-                                "description": "{{ $value }} anomaly detection failures in the last hour."
-                            }
+                                "description": "{{ $value }} anomaly detection failures in the last hour.",
+                            },
                         },
                         {
                             "alert": "HighAnomalyRate",
@@ -393,10 +385,10 @@ class ProductionMonitoringSetup:
                             "labels": {"severity": "warning"},
                             "annotations": {
                                 "summary": "High anomaly detection rate",
-                                "description": "Anomaly rate is {{ $value }} anomalies per second over the last 10 minutes."
-                            }
-                        }
-                    ]
+                                "description": "Anomaly rate is {{ $value }} anomalies per second over the last 10 minutes.",
+                            },
+                        },
+                    ],
                 },
                 {
                     "name": "pynomaly.performance",
@@ -408,8 +400,8 @@ class ProductionMonitoringSetup:
                             "labels": {"severity": "warning"},
                             "annotations": {
                                 "summary": "Model training timeout",
-                                "description": "{{ $value }} model training timeouts in the last hour."
-                            }
+                                "description": "{{ $value }} model training timeouts in the last hour.",
+                            },
                         },
                         {
                             "alert": "LowModelAccuracy",
@@ -418,25 +410,25 @@ class ProductionMonitoringSetup:
                             "labels": {"severity": "warning"},
                             "annotations": {
                                 "summary": "Low model accuracy",
-                                "description": "Model accuracy is {{ $value | humanizePercentage }}."
-                            }
-                        }
-                    ]
-                }
+                                "description": "Model accuracy is {{ $value | humanizePercentage }}.",
+                            },
+                        },
+                    ],
+                },
             ]
         }
-        
+
         rules_file = self.config_dir / "alert_rules.yml"
-        with open(rules_file, 'w') as f:
+        with open(rules_file, "w") as f:
             yaml.dump(rules, f, default_flow_style=False, indent=2)
-        
+
         print(f"   ✓ Alert rules: {rules_file}")
 
     def create_grafana_dashboards(self):
         """Create Grafana dashboards."""
         dashboard_dir = self.config_dir / "grafana" / "dashboards"
         dashboard_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Main Pynomaly dashboard
         main_dashboard = {
             "dashboard": {
@@ -446,10 +438,7 @@ class ProductionMonitoringSetup:
                 "tags": ["pynomaly", "production", "overview"],
                 "timezone": "UTC",
                 "refresh": "30s",
-                "time": {
-                    "from": "now-1h",
-                    "to": "now"
-                },
+                "time": {"from": "now-1h", "to": "now"},
                 "panels": [
                     {
                         "id": 1,
@@ -457,9 +446,9 @@ class ProductionMonitoringSetup:
                         "type": "stat",
                         "targets": [
                             {
-                                "expr": "up{job=\"pynomaly-api\"}",
+                                "expr": 'up{job="pynomaly-api"}',
                                 "legendFormat": "API Service",
-                                "refId": "A"
+                                "refId": "A",
                             }
                         ],
                         "fieldConfig": {
@@ -468,12 +457,12 @@ class ProductionMonitoringSetup:
                                 "thresholds": {
                                     "steps": [
                                         {"color": "red", "value": 0},
-                                        {"color": "green", "value": 1}
+                                        {"color": "green", "value": 1},
                                     ]
-                                }
+                                },
                             }
                         },
-                        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+                        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0},
                     },
                     {
                         "id": 2,
@@ -483,14 +472,11 @@ class ProductionMonitoringSetup:
                             {
                                 "expr": "rate(http_requests_total[5m])",
                                 "legendFormat": "{{ method }} {{ status }}",
-                                "refId": "A"
+                                "refId": "A",
                             }
                         ],
                         "gridPos": {"h": 8, "w": 12, "x": 6, "y": 0},
-                        "yAxes": [
-                            {"label": "Requests/sec", "min": 0},
-                            {"show": False}
-                        ]
+                        "yAxes": [{"label": "Requests/sec", "min": 0}, {"show": False}],
                     },
                     {
                         "id": 3,
@@ -500,14 +486,11 @@ class ProductionMonitoringSetup:
                             {
                                 "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
                                 "legendFormat": "95th percentile",
-                                "refId": "A"
+                                "refId": "A",
                             }
                         ],
                         "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0},
-                        "yAxes": [
-                            {"label": "Seconds", "min": 0},
-                            {"show": False}
-                        ]
+                        "yAxes": [{"label": "Seconds", "min": 0}, {"show": False}],
                     },
                     {
                         "id": 4,
@@ -515,16 +498,16 @@ class ProductionMonitoringSetup:
                         "type": "graph",
                         "targets": [
                             {
-                                "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m])",
+                                "expr": 'rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])',
                                 "legendFormat": "Error Rate",
-                                "refId": "A"
+                                "refId": "A",
                             }
                         ],
                         "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
                         "yAxes": [
                             {"label": "Error Rate", "min": 0, "max": 1},
-                            {"show": False}
-                        ]
+                            {"show": False},
+                        ],
                     },
                     {
                         "id": 5,
@@ -532,21 +515,21 @@ class ProductionMonitoringSetup:
                         "type": "graph",
                         "targets": [
                             {
-                                "expr": "100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+                                "expr": '100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)',
                                 "legendFormat": "CPU Usage %",
-                                "refId": "A"
+                                "refId": "A",
                             },
                             {
                                 "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
                                 "legendFormat": "Memory Usage %",
-                                "refId": "B"
-                            }
+                                "refId": "B",
+                            },
                         ],
                         "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
                         "yAxes": [
                             {"label": "Percentage", "min": 0, "max": 100},
-                            {"show": False}
-                        ]
+                            {"show": False},
+                        ],
                     },
                     {
                         "id": 6,
@@ -556,29 +539,29 @@ class ProductionMonitoringSetup:
                             {
                                 "expr": "rate(anomalies_detected_total[5m])",
                                 "legendFormat": "Anomalies/sec",
-                                "refId": "A"
+                                "refId": "A",
                             },
                             {
                                 "expr": "model_accuracy",
                                 "legendFormat": "Model Accuracy",
-                                "refId": "B"
-                            }
+                                "refId": "B",
+                            },
                         ],
                         "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
                         "yAxes": [
                             {"label": "Rate", "min": 0},
-                            {"label": "Accuracy", "min": 0, "max": 1}
-                        ]
-                    }
-                ]
+                            {"label": "Accuracy", "min": 0, "max": 1},
+                        ],
+                    },
+                ],
             },
-            "overwrite": True
+            "overwrite": True,
         }
-        
+
         dashboard_file = dashboard_dir / "pynomaly-overview.json"
-        with open(dashboard_file, 'w') as f:
+        with open(dashboard_file, "w") as f:
             json.dump(main_dashboard, f, indent=2)
-        
+
         print(f"   ✓ Grafana dashboard: {dashboard_file}")
 
     def create_docker_compose(self):
@@ -593,7 +576,7 @@ class ProductionMonitoringSetup:
                     "volumes": [
                         "./config/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml",
                         "./config/monitoring/alert_rules.yml:/etc/prometheus/alert_rules.yml",
-                        "prometheus_data:/prometheus"
+                        "prometheus_data:/prometheus",
                     ],
                     "command": [
                         "--config.file=/etc/prometheus/prometheus.yml",
@@ -602,10 +585,10 @@ class ProductionMonitoringSetup:
                         "--web.console.templates=/etc/prometheus/consoles",
                         "--storage.tsdb.retention.time=30d",
                         "--web.enable-lifecycle",
-                        "--web.enable-admin-api"
+                        "--web.enable-admin-api",
                     ],
                     "restart": "unless-stopped",
-                    "networks": ["monitoring"]
+                    "networks": ["monitoring"],
                 },
                 "grafana": {
                     "image": "grafana/grafana:latest",
@@ -614,15 +597,15 @@ class ProductionMonitoringSetup:
                     "environment": [
                         "GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}",
                         "GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}",
-                        "GF_USERS_ALLOW_SIGN_UP=false"
+                        "GF_USERS_ALLOW_SIGN_UP=false",
                     ],
                     "volumes": [
                         "./config/monitoring/grafana/provisioning:/etc/grafana/provisioning",
                         "./config/monitoring/grafana/dashboards:/var/lib/grafana/dashboards",
-                        "grafana_data:/var/lib/grafana"
+                        "grafana_data:/var/lib/grafana",
                     ],
                     "restart": "unless-stopped",
-                    "networks": ["monitoring"]
+                    "networks": ["monitoring"],
                 },
                 "alertmanager": {
                     "image": "prom/alertmanager:latest",
@@ -634,10 +617,10 @@ class ProductionMonitoringSetup:
                     "command": [
                         "--config.file=/etc/alertmanager/alertmanager.yml",
                         "--storage.path=/alertmanager",
-                        "--web.external-url=http://localhost:9093"
+                        "--web.external-url=http://localhost:9093",
                     ],
                     "restart": "unless-stopped",
-                    "networks": ["monitoring"]
+                    "networks": ["monitoring"],
                 },
                 "node-exporter": {
                     "image": "prom/node-exporter:latest",
@@ -646,58 +629,47 @@ class ProductionMonitoringSetup:
                     "volumes": [
                         "/proc:/host/proc:ro",
                         "/sys:/host/sys:ro",
-                        "/:/rootfs:ro"
+                        "/:/rootfs:ro",
                     ],
                     "command": [
                         "--path.procfs=/host/proc",
                         "--path.rootfs=/rootfs",
                         "--path.sysfs=/host/sys",
-                        "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+                        "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)",
                     ],
                     "restart": "unless-stopped",
-                    "networks": ["monitoring"]
+                    "networks": ["monitoring"],
                 },
                 "postgres-exporter": {
                     "image": "quay.io/prometheuscommunity/postgres-exporter",
                     "container_name": "pynomaly-postgres-exporter",
                     "ports": ["9187:9187"],
-                    "environment": [
-                        "DATA_SOURCE_NAME=${DATABASE_URL}"
-                    ],
+                    "environment": ["DATA_SOURCE_NAME=${DATABASE_URL}"],
                     "restart": "unless-stopped",
-                    "networks": ["monitoring"]
+                    "networks": ["monitoring"],
                 },
                 "redis-exporter": {
                     "image": "oliver006/redis_exporter",
                     "container_name": "pynomaly-redis-exporter",
                     "ports": ["9121:9121"],
-                    "environment": [
-                        "REDIS_ADDR=${REDIS_URL}"
-                    ],
+                    "environment": ["REDIS_ADDR=${REDIS_URL}"],
                     "restart": "unless-stopped",
-                    "networks": ["monitoring"]
-                }
+                    "networks": ["monitoring"],
+                },
             },
-            "volumes": {
-                "prometheus_data": {},
-                "grafana_data": {}
-            },
-            "networks": {
-                "monitoring": {
-                    "driver": "bridge"
-                }
-            }
+            "volumes": {"prometheus_data": {}, "grafana_data": {}},
+            "networks": {"monitoring": {"driver": "bridge"}},
         }
-        
+
         compose_file = self.monitoring_dir / "docker-compose.monitoring.yml"
-        with open(compose_file, 'w') as f:
+        with open(compose_file, "w") as f:
             yaml.dump(compose_config, f, default_flow_style=False, indent=2)
-        
+
         print(f"   ✓ Docker Compose: {compose_file}")
 
     def create_management_scripts(self):
         """Create monitoring management scripts."""
-        
+
         # Start script
         start_script = """#!/bin/bash
 set -e
@@ -753,12 +725,12 @@ echo "   • Alertmanager: http://localhost:9093"
 echo ""
 echo "🎯 To view logs: docker-compose -f monitoring/docker-compose.monitoring.yml logs -f"
 """
-        
+
         start_file = self.scripts_dir / "start-monitoring.sh"
-        with open(start_file, 'w') as f:
+        with open(start_file, "w") as f:
             f.write(start_script)
         start_file.chmod(0o755)
-        
+
         # Stop script
         stop_script = """#!/bin/bash
 echo "🛑 Stopping Pynomaly Monitoring Stack..."
@@ -767,12 +739,12 @@ docker-compose -f monitoring/docker-compose.monitoring.yml down
 
 echo "✅ Monitoring stack stopped."
 """
-        
+
         stop_file = self.scripts_dir / "stop-monitoring.sh"
-        with open(stop_file, 'w') as f:
+        with open(stop_file, "w") as f:
             f.write(stop_script)
         stop_file.chmod(0o755)
-        
+
         # Status script
         status_script = """#!/bin/bash
 echo "📊 Pynomaly Monitoring Stack Status"
@@ -808,12 +780,12 @@ echo ""
 echo "💾 Resource Usage:"
 docker stats --no-stream --format "table {{.Container}}\\t{{.CPUPerc}}\\t{{.MemUsage}}" $(docker-compose -f monitoring/docker-compose.monitoring.yml ps -q)
 """
-        
+
         status_file = self.scripts_dir / "monitoring-status.sh"
-        with open(status_file, 'w') as f:
+        with open(status_file, "w") as f:
             f.write(status_script)
         status_file.chmod(0o755)
-        
+
         print(f"   ✓ Management scripts: {self.scripts_dir}")
 
     def create_health_checks(self):
@@ -824,43 +796,37 @@ docker stats --no-stream --format "table {{.Container}}\\t{{.CPUPerc}}\\t{{.MemU
                     "url": "http://localhost:8000/health",
                     "timeout": 5,
                     "interval": 30,
-                    "retries": 3
+                    "retries": 3,
                 },
                 "prometheus": {
                     "url": "http://localhost:9090/-/healthy",
                     "timeout": 5,
                     "interval": 60,
-                    "retries": 2
+                    "retries": 2,
                 },
                 "grafana": {
                     "url": "http://localhost:3000/api/health",
                     "timeout": 5,
                     "interval": 60,
-                    "retries": 2
+                    "retries": 2,
                 },
                 "alertmanager": {
                     "url": "http://localhost:9093/-/healthy",
                     "timeout": 5,
                     "interval": 60,
-                    "retries": 2
-                }
+                    "retries": 2,
+                },
             },
             "notifications": {
-                "webhook": {
-                    "url": "${HEALTH_CHECK_WEBHOOK_URL}",
-                    "enabled": False
-                },
-                "email": {
-                    "enabled": True,
-                    "recipients": ["${HEALTH_CHECK_EMAIL}"]
-                }
-            }
+                "webhook": {"url": "${HEALTH_CHECK_WEBHOOK_URL}", "enabled": False},
+                "email": {"enabled": True, "recipients": ["${HEALTH_CHECK_EMAIL}"]},
+            },
         }
-        
+
         health_file = self.config_dir / "health_checks.yml"
-        with open(health_file, 'w') as f:
+        with open(health_file, "w") as f:
             yaml.dump(health_check_config, f, default_flow_style=False, indent=2)
-        
+
         print(f"   ✓ Health check config: {health_file}")
 
     def start_services(self):
@@ -868,32 +834,40 @@ docker stats --no-stream --format "table {{.Container}}\\t{{.CPUPerc}}\\t{{.MemU
         try:
             # Change to project root
             os.chdir(self.project_root)
-            
+
             # Create Docker network
-            subprocess.run(["docker", "network", "create", "monitoring"], 
-                         capture_output=True, check=False)
-            
+            subprocess.run(
+                ["docker", "network", "create", "monitoring"],
+                capture_output=True,
+                check=False,
+            )
+
             # Start monitoring stack
-            subprocess.run([
-                "docker-compose", 
-                "-f", "monitoring/docker-compose.monitoring.yml", 
-                "up", "-d"
-            ], check=True)
-            
+            subprocess.run(
+                [
+                    "docker-compose",
+                    "-f",
+                    "monitoring/docker-compose.monitoring.yml",
+                    "up",
+                    "-d",
+                ],
+                check=True,
+            )
+
             print("   ✓ Services started")
-            
+
             # Wait for services
             time.sleep(30)
-            
+
         except subprocess.CalledProcessError as e:
             print(f"   ❌ Failed to start services: {e}")
             raise
 
     def print_service_info(self):
         """Print service information."""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("🎉 PYNOMALY MONITORING STACK READY!")
-        print("="*60)
+        print("=" * 60)
         print()
         print("📊 Service URLs:")
         print("   • Prometheus:     http://localhost:9090")
@@ -929,14 +903,14 @@ docker stats --no-stream --format "table {{.Container}}\\t{{.CPUPerc}}\\t{{.MemU
         print("   4. Configure backup for metrics data")
         print("   5. Set up log aggregation (ELK stack)")
         print()
-        print("="*60)
+        print("=" * 60)
 
 
 def main():
     """Main entry point."""
     print("🔥 Pynomaly Production Monitoring Setup")
     print("=" * 50)
-    
+
     setup = ProductionMonitoringSetup()
     setup.setup_monitoring_stack()
 

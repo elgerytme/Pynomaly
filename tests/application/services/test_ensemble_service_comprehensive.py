@@ -3,15 +3,13 @@ Comprehensive tests for ensemble service.
 Tests ensemble model management, aggregation strategies, and ensemble optimization.
 """
 
-import asyncio
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import numpy as np
 import pytest
 
 from pynomaly.application.services import EnsembleService
-from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.entities.detection_result import DetectionResult
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.exceptions import DetectorError
@@ -479,12 +477,16 @@ class TestEnsembleService:
         # Verify
         assert result is not None
         assert result.has_confidence_intervals
-        
+
         # Verify confidence intervals are properly aggregated
         aggregated_score = result.anomaly_scores[0]
         assert aggregated_score.confidence_lower is not None
         assert aggregated_score.confidence_upper is not None
-        assert aggregated_score.confidence_lower <= aggregated_score.value <= aggregated_score.confidence_upper
+        assert (
+            aggregated_score.confidence_lower
+            <= aggregated_score.value
+            <= aggregated_score.confidence_upper
+        )
 
     @pytest.mark.asyncio
     async def test_optimize_ensemble_weights(
@@ -594,7 +596,10 @@ class TestEnsembleService:
         mock_results = []
         for i, detector in enumerate(sample_ensemble["detectors"]):
             # Create diverse predictions
-            scores = [AnomalyScore(0.1 + i * 0.1 + np.random.random() * 0.1) for _ in range(10)]
+            scores = [
+                AnomalyScore(0.1 + i * 0.1 + np.random.random() * 0.1)
+                for _ in range(10)
+            ]
             result = DetectionResult(
                 detector_id=detector.id,
                 anomaly_scores=scores,

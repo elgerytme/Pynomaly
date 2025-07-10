@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from ...enterprise.enterprise_service import router as enterprise_router
-from ...infrastructure.config import Settings, get_settings
+from ...infrastructure.config import get_settings
 from ...infrastructure.security.rate_limiting_middleware import RateLimitMiddleware
 from ...infrastructure.security.security_headers import SecurityHeadersMiddleware
 from ...infrastructure.security.waf_middleware import WAFMiddleware
@@ -72,7 +72,7 @@ app = FastAPI(
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
-    openapi_url="/openapi.json"
+    openapi_url="/openapi.json",
 )
 
 # Configure API documentation
@@ -106,26 +106,24 @@ async def global_exception_handler(request, exc):
         content={
             "error": "InternalServerError",
             "message": "An unexpected error occurred",
-            "request_id": getattr(request.state, 'request_id', 'unknown')
-        }
+            "request_id": getattr(request.state, "request_id", "unknown"),
+        },
     )
 
 
 # Authentication dependency
-async def get_current_user_token(credentials: HTTPAuthorizationCredentials = Security(security)):
+async def get_current_user_token(
+    credentials: HTTPAuthorizationCredentials = Security(security),
+):
     """Get current user from JWT token."""
     try:
         # This would integrate with your authentication system
         # For now, return a mock user for demonstration
-        return {
-            "user_id": "demo_user",
-            "tenant_id": "demo_tenant",
-            "role": "admin"
-        }
+        return {"user_id": "demo_user", "tenant_id": "demo_tenant", "role": "admin"}
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication token"
+            detail="Invalid authentication token",
         )
 
 
@@ -148,14 +146,14 @@ async def get_current_user_token(credentials: HTTPAuthorizationCredentials = Sec
                             "database": "healthy",
                             "cache": "healthy",
                             "model_registry": "healthy",
-                            "monitoring": "healthy"
-                        }
+                            "monitoring": "healthy",
+                        },
                     }
                 }
-            }
+            },
         },
-        **COMMON_RESPONSES
-    }
+        **COMMON_RESPONSES,
+    },
 )
 async def health_check():
     """Get system health status."""
@@ -167,8 +165,8 @@ async def health_check():
             "database": "healthy",
             "cache": "healthy",
             "model_registry": "healthy",
-            "monitoring": "healthy"
-        }
+            "monitoring": "healthy",
+        },
     }
 
 
@@ -188,12 +186,12 @@ async def health_check():
                         "version": "1.0.0",
                         "description": "Enterprise Anomaly Detection Platform",
                         "documentation": "/docs",
-                        "health": "/health"
+                        "health": "/health",
                     }
                 }
-            }
+            },
         }
-    }
+    },
 )
 async def root():
     """Get API information."""
@@ -202,7 +200,7 @@ async def root():
         "version": "1.0.0",
         "description": "Enterprise Anomaly Detection Platform",
         "documentation": "/docs",
-        "health": "/health"
+        "health": "/health",
     }
 
 
@@ -226,18 +224,18 @@ async def root():
                         "metadata": {
                             "algorithm": "isolation_forest",
                             "contamination": 0.1,
-                            "n_estimators": 100
-                        }
+                            "n_estimators": 100,
+                        },
                     }
                 }
-            }
+            },
         },
-        **COMMON_RESPONSES
-    }
+        **COMMON_RESPONSES,
+    },
 )
 async def detect_anomalies(
     request: dict[str, Any],
-    current_user: dict[str, Any] = Depends(get_current_user_token)
+    current_user: dict[str, Any] = Depends(get_current_user_token),
 ):
     """Detect anomalies in the provided data."""
     try:
@@ -250,16 +248,15 @@ async def detect_anomalies(
             "processing_time_ms": 45.6,
             "metadata": {
                 "algorithm": request.get("algorithm", "isolation_forest"),
-                "contamination": request.get("parameters", {}).get("contamination", 0.1),
-                "user_id": current_user["user_id"]
-            }
+                "contamination": request.get("parameters", {}).get(
+                    "contamination", 0.1
+                ),
+                "user_id": current_user["user_id"],
+            },
         }
     except Exception as e:
         logger.error(f"Anomaly detection failed: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="Anomaly detection failed"
-        )
+        raise HTTPException(status_code=500, detail="Anomaly detection failed")
 
 
 # Model management endpoints
@@ -280,20 +277,20 @@ async def detect_anomalies(
                             "accuracy": 0.95,
                             "precision": 0.92,
                             "recall": 0.89,
-                            "f1_score": 0.90
+                            "f1_score": 0.90,
                         },
                         "training_time_ms": 5643.2,
-                        "created_at": "2024-01-01T12:00:00Z"
+                        "created_at": "2024-01-01T12:00:00Z",
                     }
                 }
-            }
+            },
         },
-        **COMMON_RESPONSES
-    }
+        **COMMON_RESPONSES,
+    },
 )
 async def train_model(
     request: dict[str, Any],
-    current_user: dict[str, Any] = Depends(get_current_user_token)
+    current_user: dict[str, Any] = Depends(get_current_user_token),
 ):
     """Train a new anomaly detection model."""
     try:
@@ -305,17 +302,14 @@ async def train_model(
                 "accuracy": 0.95,
                 "precision": 0.92,
                 "recall": 0.89,
-                "f1_score": 0.90
+                "f1_score": 0.90,
             },
             "training_time_ms": 5643.2,
-            "created_at": "2024-01-01T12:00:00Z"
+            "created_at": "2024-01-01T12:00:00Z",
         }
     except Exception as e:
         logger.error(f"Model training failed: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="Model training failed"
-        )
+        raise HTTPException(status_code=500, detail="Model training failed")
 
 
 @app.get(
@@ -339,25 +333,24 @@ async def train_model(
                         "metrics": {
                             "accuracy": 0.95,
                             "precision": 0.92,
-                            "recall": 0.89
+                            "recall": 0.89,
                         },
                         "deployments": {
                             "production": {
                                 "status": "active",
                                 "deployed_at": "2024-01-01T14:00:00Z",
-                                "endpoint": "https://api.pynomaly.com/models/isolation_forest_20240101_001/predict"
+                                "endpoint": "https://api.pynomaly.com/models/isolation_forest_20240101_001/predict",
                             }
-                        }
+                        },
                     }
                 }
-            }
+            },
         },
-        **COMMON_RESPONSES
-    }
+        **COMMON_RESPONSES,
+    },
 )
 async def get_model_info(
-    model_id: str,
-    current_user: dict[str, Any] = Depends(get_current_user_token)
+    model_id: str, current_user: dict[str, Any] = Depends(get_current_user_token)
 ):
     """Get detailed information about a specific model."""
     try:
@@ -370,25 +363,18 @@ async def get_model_info(
             "status": "active",
             "author": "data_scientist@company.com",
             "created_at": "2024-01-01T12:00:00Z",
-            "metrics": {
-                "accuracy": 0.95,
-                "precision": 0.92,
-                "recall": 0.89
-            },
+            "metrics": {"accuracy": 0.95, "precision": 0.92, "recall": 0.89},
             "deployments": {
                 "production": {
                     "status": "active",
                     "deployed_at": "2024-01-01T14:00:00Z",
-                    "endpoint": f"https://api.pynomaly.com/models/{model_id}/predict"
+                    "endpoint": f"https://api.pynomaly.com/models/{model_id}/predict",
                 }
-            }
+            },
         }
     except Exception as e:
         logger.error(f"Failed to get model info: {e}")
-        raise HTTPException(
-            status_code=404,
-            detail="Model not found"
-        )
+        raise HTTPException(status_code=404, detail="Model not found")
 
 
 # Include enterprise router
@@ -396,7 +382,7 @@ app.include_router(
     enterprise_router,
     prefix="/enterprise",
     tags=["Enterprise"],
-    dependencies=[Depends(get_current_user_token)]
+    dependencies=[Depends(get_current_user_token)],
 )
 
 # Include MLOps router
@@ -404,21 +390,14 @@ app.include_router(
     mlops_router,
     prefix="/mlops",
     tags=["MLOps"],
-    dependencies=[Depends(get_current_user_token)]
+    dependencies=[Depends(get_current_user_token)],
 )
 
 # Include WAF management router
 app.include_router(
-    waf_management.router,
-    dependencies=[Depends(get_current_user_token)]
+    waf_management.router, dependencies=[Depends(get_current_user_token)]
 )
 
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,
-        log_level="info"
-    )
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="info")

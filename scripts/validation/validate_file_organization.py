@@ -209,24 +209,29 @@ def main():
     """Main validation function - now calls the unified CLI."""
     print("[!] DEPRECATED: This script has been replaced by 'pyno-org validate'")
     print("    Falling back to the unified CLI...\n")
-    
+
     try:
         # Call the unified CLI
         import subprocess
+
         result = subprocess.run(
-            [sys.executable, str(Path(__file__).parent.parent / "pyno_org.py"), "validate"],
+            [
+                sys.executable,
+                str(Path(__file__).parent.parent / "pyno_org.py"),
+                "validate",
+            ],
             capture_output=False,
-            text=True
+            text=True,
         )
         sys.exit(result.returncode)
     except Exception as e:
         print(f"[-] Error calling unified CLI: {e}")
         print("    Falling back to original implementation...\n")
-        
+
         # Fallback to original implementation
         is_valid, violations, suggestions = validate_file_organization()
         print_results(is_valid, violations, suggestions)
-        
+
         # Save validation report
         report = {
             "is_valid": is_valid,
@@ -234,13 +239,13 @@ def main():
             "suggestions": suggestions,
             "timestamp": str(Path.cwd()),
         }
-        
+
         reports_dir = Path("reports")
         reports_dir.mkdir(exist_ok=True)
-        
+
         with open(reports_dir / "file_organization_validation.json", "w") as f:
             json.dump(report, f, indent=2)
-        
+
         sys.exit(0 if is_valid else 1)
 
 

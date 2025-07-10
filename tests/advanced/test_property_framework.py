@@ -14,7 +14,7 @@ import time
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 try:
     from hypothesis import HealthCheck, Phase, given, settings
@@ -45,9 +45,9 @@ class PropertyTestResult:
     property_name: str
     test_passed: bool
     examples_tested: int
-    counterexample: Optional[str]
+    counterexample: str | None
     execution_time: float
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass

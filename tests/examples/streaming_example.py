@@ -11,9 +11,8 @@ This example demonstrates:
 import asyncio
 import json
 import logging
-import time
 from datetime import datetime, timedelta
-from typing import Any, Dict
+from typing import Any
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -33,7 +32,7 @@ from pynomaly.infrastructure.streaming.websocket_gateway import (
 class MetricsPublisher:
     """Mock metrics publisher for demonstration."""
 
-    def __init__(self, queue_type: str, config: Dict[str, Any]):
+    def __init__(self, queue_type: str, config: dict[str, Any]):
         self.queue_type = queue_type
         self.config = config
         self.published_count = 0
@@ -51,6 +50,7 @@ class MetricsPublisher:
         self.published_count += 1
         logger.info(f"Published metrics #{self.published_count} to {self.queue_type}")
         logger.debug(f"Metrics: {metrics.dict()}")
+
 
 # Mock WebSocket for demonstration
 class MockWebSocket:
@@ -70,7 +70,9 @@ class MockWebSocket:
         """Send text message."""
         self.messages.append(message)
         data = json.loads(message)
-        logger.info(f"WebSocket {self.client_id} received: {data.get('type', 'unknown')}")
+        logger.info(
+            f"WebSocket {self.client_id} received: {data.get('type', 'unknown')}"
+        )
 
     async def close(self):
         """Close the WebSocket connection."""
@@ -83,17 +85,17 @@ class StreamingExample:
 
     def __init__(self):
         # Initialize components
-        self.metrics_publisher = MetricsPublisher("kafka", {
-            "bootstrap_servers": ["localhost:9092"],
-            "topic": "realtime_metrics"
-        })
+        self.metrics_publisher = MetricsPublisher(
+            "kafka",
+            {"bootstrap_servers": ["localhost:9092"], "topic": "realtime_metrics"},
+        )
 
         self.websocket_gateway = WebSocketGateway(
-            update_interval=5,      # Update every 5 seconds
+            update_interval=5,  # Update every 5 seconds
             heartbeat_interval=30,  # Heartbeat every 30 seconds
             connection_timeout=60,  # 60 second timeout
             max_connections_per_dashboard=100,
-            max_message_queue_size=1000
+            max_message_queue_size=1000,
         )
 
         # Mock dashboard connections
@@ -160,7 +162,7 @@ class StreamingExample:
                         last_processed_at=datetime.utcnow(),
                         pipeline_uptime=timedelta(seconds=counter * 10),
                         memory_usage_mb=512.0 + (counter % 100),
-                        cpu_usage_percent=65.0 + (counter % 20)
+                        cpu_usage_percent=65.0 + (counter % 20),
                     )
 
                     # Publish to message queue
@@ -172,11 +174,13 @@ class StreamingExample:
                         session_id=f"session_{dashboard_id}",
                         metrics=streaming_metrics,
                         uptime_seconds=counter * 10.0,
-                        status="active"
+                        status="active",
                     )
 
                     # Update dashboard metrics
-                    await self.websocket_gateway.update_dashboard_metrics(dashboard_id, realtime_metrics)
+                    await self.websocket_gateway.update_dashboard_metrics(
+                        dashboard_id, realtime_metrics
+                    )
 
                     # Simulate alerts for high error rates
                     if streaming_metrics.error_count > 2:
@@ -184,9 +188,11 @@ class StreamingExample:
                             "severity": "high",
                             "message": f"High error count: {streaming_metrics.error_count}",
                             "timestamp": datetime.utcnow().isoformat(),
-                            "dashboard_id": dashboard_id
+                            "dashboard_id": dashboard_id,
                         }
-                        await self.websocket_gateway.send_alert(dashboard_id, alert_data)
+                        await self.websocket_gateway.send_alert(
+                            dashboard_id, alert_data
+                        )
 
                 # Wait before next iteration
                 await asyncio.sleep(10)  # Generate metrics every 10 seconds
@@ -219,7 +225,7 @@ class StreamingExample:
                     self.dashboard_connections[connection_id] = {
                         "websocket": mock_websocket,
                         "dashboard_id": dashboard_id,
-                        "connected_at": datetime.utcnow()
+                        "connected_at": datetime.utcnow(),
                     }
 
                     # Simulate client staying connected for a while
@@ -280,10 +286,12 @@ class StreamingExample:
                 anomalies_detected=999,
                 processing_rate=999.0,
                 average_latency=99.0,
-                error_count=99
-            )
+                error_count=99,
+            ),
         )
-        await self.websocket_gateway.update_dashboard_metrics(dashboard_id, test_metrics)
+        await self.websocket_gateway.update_dashboard_metrics(
+            dashboard_id, test_metrics
+        )
 
         # 4. Test alert sending
         logger.info("Testing alert sending...")
@@ -291,7 +299,7 @@ class StreamingExample:
             "severity": "critical",
             "message": "Test alert for demonstration",
             "timestamp": datetime.utcnow().isoformat(),
-            "dashboard_id": dashboard_id
+            "dashboard_id": dashboard_id,
         }
         await self.websocket_gateway.send_alert(dashboard_id, alert_data)
 

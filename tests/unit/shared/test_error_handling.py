@@ -3,7 +3,6 @@
 import asyncio
 import tempfile
 from pathlib import Path
-from typing import Any
 from unittest.mock import Mock, patch
 
 import pytest
@@ -47,7 +46,7 @@ class TestPynomaliError:
         """Test error to_dict conversion."""
         details = {"field": "invalid"}
         error = PynomaliError("Validation failed", details=details)
-        
+
         result = error.to_dict()
         expected = {
             "error_type": "PynomaliError",
@@ -94,7 +93,7 @@ class TestSpecificErrors:
         """Test to_dict works for inherited errors."""
         error = ValidationError("Invalid input", details={"field": "age"})
         result = error.to_dict()
-        
+
         assert result["error_type"] == "ValidationError"
         assert result["message"] == "Invalid input"
         assert result["details"]["field"] == "age"
@@ -105,10 +104,10 @@ class TestValidateFileExists:
 
     def test_valid_file_string_path(self):
         """Test validation with valid file using string path."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmp:
             tmp.write("test content")
             tmp.flush()
-            
+
             result = validate_file_exists(tmp.name)
             assert isinstance(result, Path)
             assert result.exists()
@@ -116,10 +115,10 @@ class TestValidateFileExists:
 
     def test_valid_file_path_object(self):
         """Test validation with valid file using Path object."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmp:
             tmp.write("test content")
             tmp.flush()
-            
+
             result = validate_file_exists(Path(tmp.name))
             assert isinstance(result, Path)
             assert result.exists()
@@ -137,13 +136,13 @@ class TestValidateFileExists:
 
     def test_unreadable_file(self):
         """Test validation with unreadable file."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as tmp:
             tmp.write("test content")
             tmp.flush()
-            
+
             # Make file unreadable
             Path(tmp.name).chmod(0o000)
-            
+
             try:
                 with pytest.raises(ResourceNotFoundError, match="not readable"):
                     validate_file_exists(tmp.name)
@@ -154,10 +153,10 @@ class TestValidateFileExists:
     def test_error_details(self):
         """Test error details are included."""
         nonexistent_path = "/nonexistent/file.txt"
-        
+
         with pytest.raises(ResourceNotFoundError) as exc_info:
             validate_file_exists(nonexistent_path)
-        
+
         error = exc_info.value
         assert "file_path" in error.details
         assert "absolute_path" in error.details
@@ -190,7 +189,7 @@ class TestValidateDataFormat:
         path_xlsx = Path("test.xlsx")
         result_xlsx = validate_data_format(path_xlsx)
         assert result_xlsx == "excel"
-        
+
         path_xls = Path("test.xls")
         result_xls = validate_data_format(path_xls)
         assert result_xls == "excel"
@@ -204,17 +203,17 @@ class TestValidateDataFormat:
     def test_unsupported_format(self):
         """Test unsupported format raises error."""
         path = Path("test.txt")
-        
+
         with pytest.raises(ValidationError, match="Unsupported file format"):
             validate_data_format(path)
 
     def test_error_details_for_unsupported(self):
         """Test error details for unsupported format."""
         path = Path("test.txt")
-        
+
         with pytest.raises(ValidationError) as exc_info:
             validate_data_format(path)
-        
+
         error = exc_info.value
         assert "file_path" in error.details
         assert "detected_format" in error.details
@@ -241,7 +240,7 @@ class TestValidateContaminationRate:
         # Just above 0
         result = validate_contamination_rate(0.001)
         assert result == 0.001
-        
+
         # Just below 1
         result = validate_contamination_rate(0.999)
         assert result == 0.999
@@ -275,7 +274,7 @@ class TestValidateContaminationRate:
         """Test error details are included."""
         with pytest.raises(ValidationError) as exc_info:
             validate_contamination_rate(1.5)
-        
+
         error = exc_info.value
         assert "value" in error.details
         assert "valid_range" in error.details
@@ -300,24 +299,24 @@ class TestValidateAlgorithmName:
     def test_invalid_type(self):
         """Test non-string algorithm name raises error."""
         available = ["IsolationForest"]
-        
+
         with pytest.raises(ValidationError, match="must be a string"):
             validate_algorithm_name(123, available)
 
     def test_unknown_algorithm(self):
         """Test unknown algorithm raises error."""
         available = ["IsolationForest", "LocalOutlierFactor"]
-        
+
         with pytest.raises(ValidationError, match="Unknown algorithm"):
             validate_algorithm_name("UnknownAlgorithm", available)
 
     def test_error_details_for_unknown(self):
         """Test error details for unknown algorithm."""
         available = ["IsolationForest", "LocalOutlierFactor"]
-        
+
         with pytest.raises(ValidationError) as exc_info:
             validate_algorithm_name("UnknownAlgorithm", available)
-        
+
         error = exc_info.value
         assert "requested_algorithm" in error.details
         assert "available_algorithms" in error.details
@@ -337,7 +336,7 @@ class TestValidateDataShape:
         """Test valid data shape."""
         mock_data = Mock()
         mock_data.shape = (100, 5)
-        
+
         # Should not raise any exception
         validate_data_shape(mock_data)
 
@@ -345,7 +344,7 @@ class TestValidateDataShape:
         """Test with custom minimum requirements."""
         mock_data = Mock()
         mock_data.shape = (50, 3)
-        
+
         # Should not raise with custom minimums
         validate_data_shape(mock_data, min_samples=10, min_features=2)
 
@@ -353,7 +352,7 @@ class TestValidateDataShape:
         """Test insufficient samples raises error."""
         mock_data = Mock()
         mock_data.shape = (5, 10)
-        
+
         with pytest.raises(ValidationError, match="Insufficient samples"):
             validate_data_shape(mock_data, min_samples=10)
 
@@ -361,7 +360,7 @@ class TestValidateDataShape:
         """Test insufficient features raises error."""
         mock_data = Mock()
         mock_data.shape = (100, 1)
-        
+
         with pytest.raises(ValidationError, match="Insufficient features"):
             validate_data_shape(mock_data, min_features=2)
 
@@ -369,7 +368,7 @@ class TestValidateDataShape:
         """Test data without shape attribute raises error."""
         mock_data = Mock()
         del mock_data.shape
-        
+
         with pytest.raises(ValidationError, match="must have a 'shape' attribute"):
             validate_data_shape(mock_data)
 
@@ -377,10 +376,10 @@ class TestValidateDataShape:
         """Test error details are included."""
         mock_data = Mock()
         mock_data.shape = (5, 2)
-        
+
         with pytest.raises(ValidationError) as exc_info:
             validate_data_shape(mock_data, min_samples=10)
-        
+
         error = exc_info.value
         assert "current_samples" in error.details
         assert "minimum_required" in error.details
@@ -394,42 +393,46 @@ class TestHandleCliErrors:
 
     def test_successful_function_call(self):
         """Test decorator with successful function call."""
+
         @handle_cli_errors
         def successful_func():
             return "success"
-        
+
         result = successful_func()
         assert result == "success"
 
     def test_pynomali_error_handling(self):
         """Test decorator handles PynomaliError."""
+
         @handle_cli_errors
         def failing_func():
             raise ValidationError("Test error", details={"field": "value"})
-        
-        with patch('builtins.print') as mock_print:
+
+        with patch("builtins.print") as mock_print:
             result = failing_func()
             assert result is False
             mock_print.assert_called()
 
     def test_unexpected_error_handling(self):
         """Test decorator handles unexpected errors."""
+
         @handle_cli_errors
         def failing_func():
             raise ValueError("Unexpected error")
-        
-        with patch('builtins.print') as mock_print:
+
+        with patch("builtins.print") as mock_print:
             result = failing_func()
             assert result is False
             mock_print.assert_called()
 
     def test_decorator_preserves_function_attributes(self):
         """Test decorator preserves function attributes."""
+
         @handle_cli_errors
         def test_func():
             """Test function."""
             pass
-        
+
         assert test_func.__name__ == "test_func"
         assert test_func.__doc__ == "Test function."
 
@@ -439,46 +442,51 @@ class TestHandleApiErrors:
 
     def test_successful_sync_function(self):
         """Test decorator with successful sync function."""
+
         @handle_api_errors
         def successful_func():
             return "success"
-        
+
         result = successful_func()
         assert result == "success"
 
     def test_successful_async_function(self):
         """Test decorator with successful async function."""
+
         @handle_api_errors
         async def successful_async_func():
             return "async_success"
-        
+
         result = asyncio.run(successful_async_func())
         assert result == "async_success"
 
     def test_pynomali_error_passthrough(self):
         """Test decorator passes through PynomaliError."""
+
         @handle_api_errors
         def failing_func():
             raise ValidationError("Test error")
-        
+
         with pytest.raises(ValidationError):
             failing_func()
 
     def test_unexpected_error_wrapping(self):
         """Test decorator wraps unexpected errors."""
+
         @handle_api_errors
         def failing_func():
             raise ValueError("Unexpected error")
-        
+
         with pytest.raises(PynomaliError, match="Internal server error"):
             failing_func()
 
     def test_async_error_handling(self):
         """Test decorator handles async errors."""
+
         @handle_api_errors
         async def failing_async_func():
             raise ValueError("Async error")
-        
+
         with pytest.raises(PynomaliError, match="Internal server error"):
             asyncio.run(failing_async_func())
 
@@ -490,17 +498,20 @@ class TestSafeImport:
         """Test successful module import."""
         result = safe_import("os")
         import os
+
         assert result == os
 
     def test_failed_import_default_message(self):
         """Test failed import with default message."""
-        with pytest.raises(ConfigurationError, match="Required dependency.*not installed"):
+        with pytest.raises(
+            ConfigurationError, match="Required dependency.*not installed"
+        ):
             safe_import("nonexistent_module")
 
     def test_failed_import_custom_message(self):
         """Test failed import with custom message."""
         custom_message = "Custom error message"
-        
+
         with pytest.raises(ConfigurationError, match=custom_message):
             safe_import("nonexistent_module", custom_message)
 
@@ -508,7 +519,7 @@ class TestSafeImport:
         """Test error details are included."""
         with pytest.raises(ConfigurationError) as exc_info:
             safe_import("nonexistent_module")
-        
+
         error = exc_info.value
         assert "module_name" in error.details
         assert "import_error" in error.details
@@ -569,7 +580,7 @@ class TestCreateUserFriendlyMessage:
             (ConnectionError("Connection failed"), "Network connection failed"),
             (TimeoutError("Timeout"), "Operation timed out"),
         ]
-        
+
         for error, expected_text in test_cases:
             result = create_user_friendly_message(error)
             assert expected_text in result
@@ -581,35 +592,37 @@ class TestIntegrationScenarios:
     def test_file_validation_workflow(self):
         """Test complete file validation workflow."""
         # Create temporary file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as tmp:
             tmp.write("col1,col2\n1,2\n3,4\n")
             tmp.flush()
-            
+
             # Test complete workflow
             path = validate_file_exists(tmp.name)
             format_type = validate_data_format(path)
-            
+
             assert isinstance(path, Path)
             assert format_type == "csv"
 
     def test_error_chain_handling(self):
         """Test error chain handling."""
+
         def process_data():
             try:
                 validate_contamination_rate(1.5)
             except ValidationError as e:
                 raise ConfigurationError("Configuration failed") from e
-        
+
         with pytest.raises(ConfigurationError):
             process_data()
 
     def test_decorator_combination(self):
         """Test combining decorators."""
+
         @handle_cli_errors
         @handle_api_errors
         def combined_func():
             return "success"
-        
+
         # Should work normally
         result = combined_func()
         assert result == "success"

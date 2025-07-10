@@ -3,8 +3,9 @@ Enhanced visualizations page object with comprehensive wait strategies and retry
 """
 
 from playwright.sync_api import Page, expect
-from .base_page import BasePage
+
 from ..helpers import retry_on_failure
+from .base_page import BasePage
 
 
 class VisualizationsPage(BasePage):
@@ -12,12 +13,16 @@ class VisualizationsPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = "http://localhost:8000"):
         super().__init__(page, base_url)
-        
+
         # Page elements
-        self.visualizations_container_selector = ".visualizations-container, .viz-container"
+        self.visualizations_container_selector = (
+            ".visualizations-container, .viz-container"
+        )
         self.chart_selector = ".chart, .visualization"
         self.chart_type_selector = "select#chart-type"
-        self.generate_button_selector = ".generate-chart, button[data-action='generate']"
+        self.generate_button_selector = (
+            ".generate-chart, button[data-action='generate']"
+        )
         self.export_button_selector = ".export-chart, button[data-action='export']"
 
     @retry_on_failure(max_retries=3, delay=1.0)
@@ -30,10 +35,13 @@ class VisualizationsPage(BasePage):
         """Wait for visualizations page to be fully loaded."""
         # Wait for page title
         expect(self.page).to_have_title("Visualizations", timeout=self.default_timeout)
-        
+
         # Wait for visualizations container or empty state
-        self.page.wait_for_selector(f"{self.visualizations_container_selector}, .empty-state", timeout=self.default_timeout)
-        
+        self.page.wait_for_selector(
+            f"{self.visualizations_container_selector}, .empty-state",
+            timeout=self.default_timeout,
+        )
+
         # Wait for HTMX to settle
         self.htmx_wait.wait_for_htmx_settle()
 
@@ -61,24 +69,28 @@ class VisualizationsPage(BasePage):
     def get_charts_list(self) -> list:
         """Get list of charts displayed."""
         charts = []
-        
+
         if self.page.locator(self.chart_selector).count() > 0:
             chart_elements = self.page.locator(self.chart_selector)
-            
+
             for i in range(chart_elements.count()):
                 chart = chart_elements.nth(i)
                 title_element = chart.locator(".chart-title, .title")
-                
-                charts.append({
-                    "title": title_element.text_content() or f"Chart {i+1}",
-                    "visible": chart.is_visible(),
-                })
-        
+
+                charts.append(
+                    {
+                        "title": title_element.text_content() or f"Chart {i+1}",
+                        "visible": chart.is_visible(),
+                    }
+                )
+
         return charts
 
     def verify_chart_exists(self, chart_title: str) -> bool:
         """Verify that a chart with the given title exists."""
-        chart_element = self.page.locator(f"{self.chart_selector}:has-text('{chart_title}')")
+        chart_element = self.page.locator(
+            f"{self.chart_selector}:has-text('{chart_title}')"
+        )
         return chart_element.is_visible()
 
     def get_chart_count(self) -> int:
@@ -89,10 +101,10 @@ class VisualizationsPage(BasePage):
         """Wait for chart generation to complete."""
         # Wait for loading indicator to disappear
         self.htmx_wait.wait_for_htmx_indicator_hidden(timeout=timeout)
-        
+
         # Wait for chart to be visible
         self.page.wait_for_selector(self.chart_selector, timeout=timeout)
-        
+
         # Wait for HTMX to settle
         self.htmx_wait.wait_for_htmx_settle()
 

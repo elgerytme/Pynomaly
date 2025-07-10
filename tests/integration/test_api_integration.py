@@ -5,9 +5,9 @@ Tests API endpoints and their integration with the underlying services.
 """
 
 from fastapi.testclient import TestClient
-from tests.integration.framework.integration_test_base import ServiceIntegrationTest
 
 from pynomaly.presentation.api.app import create_app
+from tests.integration.framework.integration_test_base import ServiceIntegrationTest
 
 
 class TestAPIIntegration(ServiceIntegrationTest):

@@ -3,7 +3,8 @@ Enhanced base page object with robust wait strategies, retry mechanisms, and scr
 """
 
 from playwright.sync_api import Page, expect
-from ..helpers import retry_on_failure, HTMXWaitHelper, ScreenshotHelper, VideoHelper
+
+from ..helpers import HTMXWaitHelper, ScreenshotHelper, VideoHelper, retry_on_failure
 
 
 class BasePage:
@@ -48,4 +49,3 @@ class BasePage:
     def capture_screenshot(self, name: str, full_page: bool = True):
         """Capture screenshot with consistent naming."""
         return self.screenshot_helper.capture_screenshot(name, full_page)
-

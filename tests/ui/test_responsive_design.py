@@ -1,8 +1,7 @@
 """Responsive Design Testing Suite."""
 
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
-import pytest
 from playwright.sync_api import Page
 
 
@@ -15,9 +14,24 @@ class TestResponsiveDesign:
         {"width": 375, "height": 667, "name": "mobile_medium", "device": "iPhone 8"},
         {"width": 414, "height": 896, "name": "mobile_large", "device": "iPhone XR"},
         {"width": 768, "height": 1024, "name": "tablet_portrait", "device": "iPad"},
-        {"width": 1024, "height": 768, "name": "tablet_landscape", "device": "iPad Landscape"},
-        {"width": 1280, "height": 720, "name": "desktop_small", "device": "Small Desktop"},
-        {"width": 1920, "height": 1080, "name": "desktop_large", "device": "Large Desktop"},
+        {
+            "width": 1024,
+            "height": 768,
+            "name": "tablet_landscape",
+            "device": "iPad Landscape",
+        },
+        {
+            "width": 1280,
+            "height": 720,
+            "name": "desktop_small",
+            "device": "Small Desktop",
+        },
+        {
+            "width": 1920,
+            "height": 1080,
+            "name": "desktop_large",
+            "device": "Large Desktop",
+        },
     ]
 
     def test_viewport_responsiveness(self, page: Page):
@@ -25,7 +39,9 @@ class TestResponsiveDesign:
         results = {}
 
         for viewport in self.VIEWPORTS:
-            page.set_viewport_size({"width": viewport["width"], "height": viewport["height"]})
+            page.set_viewport_size(
+                {"width": viewport["width"], "height": viewport["height"]}
+            )
             page.goto("http://pynomaly-app:8000/web/")
             page.wait_for_load_state("networkidle")
             page.wait_for_timeout(1000)  # Wait for responsive adjustments
@@ -36,18 +52,19 @@ class TestResponsiveDesign:
 
             # Take screenshot for visual verification
             page.screenshot(
-                path=f"screenshots/responsive_{viewport['name']}.png",
-                full_page=True
+                path=f"screenshots/responsive_{viewport['name']}.png", full_page=True
             )
 
         # Verify critical elements are present across all viewports
         for viewport_name, result in results.items():
-            assert result["navigation_visible"], \
-                f"Navigation should be visible on {viewport_name}"
-            assert result["main_content_visible"], \
-                f"Main content should be visible on {viewport_name}"
+            assert result[
+                "navigation_visible"
+            ], f"Navigation should be visible on {viewport_name}"
+            assert result[
+                "main_content_visible"
+            ], f"Main content should be visible on {viewport_name}"
 
-    def _check_layout_elements(self, page: Page, viewport: Dict) -> Dict[str, Any]:
+    def _check_layout_elements(self, page: Page, viewport: dict) -> dict[str, Any]:
         """Check key layout elements for a specific viewport."""
         return {
             "viewport": viewport,
@@ -57,10 +74,10 @@ class TestResponsiveDesign:
             "mobile_menu_visible": self._is_mobile_menu_visible(page, viewport),
             "desktop_menu_visible": self._is_desktop_menu_visible(page, viewport),
             "content_readable": self._check_content_readability(page),
-            "no_horizontal_scroll": self._check_horizontal_scroll(page)
+            "no_horizontal_scroll": self._check_horizontal_scroll(page),
         }
 
-    def _is_mobile_menu_visible(self, page: Page, viewport: Dict) -> bool:
+    def _is_mobile_menu_visible(self, page: Page, viewport: dict) -> bool:
         """Check if mobile menu is appropriately visible."""
         mobile_button = page.locator("nav .sm\\:hidden button, .mobile-menu-button")
 
@@ -69,7 +86,7 @@ class TestResponsiveDesign:
         else:
             return True  # Desktop doesn't need mobile menu visible
 
-    def _is_desktop_menu_visible(self, page: Page, viewport: Dict) -> bool:
+    def _is_desktop_menu_visible(self, page: Page, viewport: dict) -> bool:
         """Check if desktop menu is appropriately visible."""
         desktop_nav = page.locator("nav .hidden.sm\\:flex, .desktop-menu")
 
@@ -130,7 +147,9 @@ class TestResponsiveDesign:
             mobile_nav_items = page.locator("nav .sm\\:hidden a, nav .mobile-menu a")
 
             # Should have navigation items
-            assert mobile_nav_items.count() > 0, "Mobile menu should have navigation items"
+            assert (
+                mobile_nav_items.count() > 0
+            ), "Mobile menu should have navigation items"
 
             # Test navigation
             if mobile_nav_items.count() > 0:
@@ -161,13 +180,16 @@ class TestResponsiveDesign:
             # Get element dimensions
             box = element.bounding_box()
             if box:
-                touch_target_results.append({
-                    "element": element.get_attribute("tagName") or "unknown",
-                    "width": box["width"],
-                    "height": box["height"],
-                    "min_dimension": min(box["width"], box["height"]),
-                    "adequate_size": min(box["width"], box["height"]) >= 44  # iOS/Android guideline
-                })
+                touch_target_results.append(
+                    {
+                        "element": element.get_attribute("tagName") or "unknown",
+                        "width": box["width"],
+                        "height": box["height"],
+                        "min_dimension": min(box["width"], box["height"]),
+                        "adequate_size": min(box["width"], box["height"])
+                        >= 44,  # iOS/Android guideline
+                    }
+                )
 
         # Most interactive elements should have adequate touch target size
         adequate_targets = [r for r in touch_target_results if r["adequate_size"]]
@@ -175,19 +197,22 @@ class TestResponsiveDesign:
 
         if total_targets > 0:
             adequate_percentage = len(adequate_targets) / total_targets
-            assert adequate_percentage >= 0.8, \
-                f"At least 80% of touch targets should be adequate size. Got {adequate_percentage:.1%}"
+            assert (
+                adequate_percentage >= 0.8
+            ), f"At least 80% of touch targets should be adequate size. Got {adequate_percentage:.1%}"
 
     def test_text_scaling(self, page: Page):
         """Test text scaling and readability."""
         viewports_to_test = [
             {"width": 320, "height": 568, "name": "small_mobile"},
             {"width": 768, "height": 1024, "name": "tablet"},
-            {"width": 1920, "height": 1080, "name": "desktop"}
+            {"width": 1920, "height": 1080, "name": "desktop"},
         ]
 
         for viewport in viewports_to_test:
-            page.set_viewport_size({"width": viewport["width"], "height": viewport["height"]})
+            page.set_viewport_size(
+                {"width": viewport["width"], "height": viewport["height"]}
+            )
             page.goto("http://pynomaly-app:8000/web/")
             page.wait_for_load_state("networkidle")
 
@@ -214,23 +239,27 @@ class TestResponsiveDesign:
             """)
 
             # Minimum font size should be readable
-            assert font_size_check["minFontSize"] >= 12, \
-                f"Minimum font size should be at least 12px on {viewport['name']}"
+            assert (
+                font_size_check["minFontSize"] >= 12
+            ), f"Minimum font size should be at least 12px on {viewport['name']}"
 
             # Should have reasonable font size range
-            assert font_size_check["maxFontSize"] <= 72, \
-                f"Maximum font size should be reasonable on {viewport['name']}"
+            assert (
+                font_size_check["maxFontSize"] <= 72
+            ), f"Maximum font size should be reasonable on {viewport['name']}"
 
     def test_image_responsiveness(self, page: Page):
         """Test image responsiveness."""
         viewports_to_test = [
             {"width": 375, "height": 667},
             {"width": 768, "height": 1024},
-            {"width": 1920, "height": 1080}
+            {"width": 1920, "height": 1080},
         ]
 
         for viewport in viewports_to_test:
-            page.set_viewport_size({"width": viewport["width"], "height": viewport["height"]})
+            page.set_viewport_size(
+                {"width": viewport["width"], "height": viewport["height"]}
+            )
             page.goto("http://pynomaly-app:8000/web/")
             page.wait_for_load_state("networkidle")
 
@@ -241,7 +270,8 @@ class TestResponsiveDesign:
                 img = images.nth(i)
 
                 # Get image dimensions
-                img_info = page.evaluate("""
+                img_info = page.evaluate(
+                    """
                     (img) => {
                         const rect = img.getBoundingClientRect();
                         return {
@@ -252,12 +282,15 @@ class TestResponsiveDesign:
                             maxWidth: window.getComputedStyle(img).maxWidth
                         };
                     }
-                """, img)
+                """,
+                    img,
+                )
 
                 # Image should not overflow viewport
                 viewport_width = viewport["width"]
-                assert img_info["displayWidth"] <= viewport_width + 1, \
-                    f"Image {i} should not overflow viewport on {viewport_width}px width"
+                assert (
+                    img_info["displayWidth"] <= viewport_width + 1
+                ), f"Image {i} should not overflow viewport on {viewport_width}px width"
 
     def test_layout_grid_responsiveness(self, page: Page):
         """Test CSS Grid and Flexbox responsiveness."""
@@ -266,11 +299,13 @@ class TestResponsiveDesign:
         viewports_to_test = [
             {"width": 375, "height": 667, "expected_columns": 1},
             {"width": 768, "height": 1024, "expected_columns": 2},
-            {"width": 1920, "height": 1080, "expected_columns": 3}
+            {"width": 1920, "height": 1080, "expected_columns": 3},
         ]
 
         for viewport in viewports_to_test:
-            page.set_viewport_size({"width": viewport["width"], "height": viewport["height"]})
+            page.set_viewport_size(
+                {"width": viewport["width"], "height": viewport["height"]}
+            )
             page.wait_for_load_state("networkidle")
             page.wait_for_timeout(500)
 
@@ -281,7 +316,8 @@ class TestResponsiveDesign:
                 container = grid_containers.nth(i)
 
                 # Get grid information
-                grid_info = page.evaluate("""
+                grid_info = page.evaluate(
+                    """
                     (container) => {
                         const styles = window.getComputedStyle(container);
                         const children = container.children;
@@ -307,7 +343,9 @@ class TestResponsiveDesign:
                             totalChildren: children.length
                         };
                     }
-                """, container)
+                """,
+                    container,
+                )
 
                 # Check if layout adapts appropriately
                 if grid_info["display"] == "grid" and grid_info["totalChildren"] > 0:
@@ -315,11 +353,13 @@ class TestResponsiveDesign:
 
                     # Should adapt to viewport
                     if viewport["width"] <= 640:  # Mobile
-                        assert columns_in_row <= 2, \
-                            f"Mobile should have at most 2 columns, got {columns_in_row}"
+                        assert (
+                            columns_in_row <= 2
+                        ), f"Mobile should have at most 2 columns, got {columns_in_row}"
                     elif viewport["width"] <= 1024:  # Tablet
-                        assert columns_in_row <= 3, \
-                            f"Tablet should have at most 3 columns, got {columns_in_row}"
+                        assert (
+                            columns_in_row <= 3
+                        ), f"Tablet should have at most 3 columns, got {columns_in_row}"
 
     def test_form_responsiveness(self, page: Page):
         """Test form responsiveness."""
@@ -328,11 +368,13 @@ class TestResponsiveDesign:
         viewports_to_test = [
             {"width": 375, "height": 667, "name": "mobile"},
             {"width": 768, "height": 1024, "name": "tablet"},
-            {"width": 1920, "height": 1080, "name": "desktop"}
+            {"width": 1920, "height": 1080, "name": "desktop"},
         ]
 
         for viewport in viewports_to_test:
-            page.set_viewport_size({"width": viewport["width"], "height": viewport["height"]})
+            page.set_viewport_size(
+                {"width": viewport["width"], "height": viewport["height"]}
+            )
             page.wait_for_load_state("networkidle")
 
             # Check form elements
@@ -342,7 +384,8 @@ class TestResponsiveDesign:
                 form = forms.first
 
                 # Check form width
-                form_info = page.evaluate("""
+                form_info = page.evaluate(
+                    """
                     (form) => {
                         const rect = form.getBoundingClientRect();
                         const styles = window.getComputedStyle(form);
@@ -352,11 +395,14 @@ class TestResponsiveDesign:
                             padding: styles.padding
                         };
                     }
-                """, form)
+                """,
+                    form,
+                )
 
                 # Form should not be wider than viewport
-                assert form_info["width"] <= viewport["width"], \
-                    f"Form should fit in viewport on {viewport['name']}"
+                assert (
+                    form_info["width"] <= viewport["width"]
+                ), f"Form should fit in viewport on {viewport['name']}"
 
                 # Check input elements
                 inputs = form.locator("input, select, textarea")
@@ -364,7 +410,8 @@ class TestResponsiveDesign:
                 for i in range(inputs.count()):
                     input_elem = inputs.nth(i)
 
-                    input_info = page.evaluate("""
+                    input_info = page.evaluate(
+                        """
                         (input) => {
                             const rect = input.getBoundingClientRect();
                             return {
@@ -372,12 +419,15 @@ class TestResponsiveDesign:
                                 height: rect.height
                             };
                         }
-                    """, input_elem)
+                    """,
+                        input_elem,
+                    )
 
                     # Input should be appropriately sized
                     if viewport["width"] <= 640:  # Mobile
-                        assert input_info["height"] >= 40, \
-                            f"Input {i} should be at least 40px tall on mobile"
+                        assert (
+                            input_info["height"] >= 40
+                        ), f"Input {i} should be at least 40px tall on mobile"
 
     def test_content_reflow(self, page: Page):
         """Test content reflow and overflow handling."""
@@ -426,18 +476,19 @@ class TestResponsiveDesign:
             }
         """)
 
-        assert not overflow_check["hasHorizontalOverflow"], \
-            f"Page should not have horizontal overflow. Wide elements: {overflow_check['wideElements']}"
+        assert not overflow_check[
+            "hasHorizontalOverflow"
+        ], f"Page should not have horizontal overflow. Wide elements: {overflow_check['wideElements']}"
 
     def test_breakpoint_consistency(self, page: Page):
         """Test consistency at CSS breakpoints."""
         # Common Tailwind CSS breakpoints
         breakpoints = [
-            640,   # sm
-            768,   # md
+            640,  # sm
+            768,  # md
             1024,  # lg
             1280,  # xl
-            1536   # 2xl
+            1536,  # 2xl
         ]
 
         for breakpoint in breakpoints:
@@ -464,36 +515,44 @@ class TestResponsiveDesign:
                     }
                 """)
 
-                assert layout_stable["mainVisible"], \
-                    f"Main content should be visible at {width}px"
-                assert layout_stable["navVisible"], \
-                    f"Navigation should be visible at {width}px"
+                assert layout_stable[
+                    "mainVisible"
+                ], f"Main content should be visible at {width}px"
+                assert layout_stable[
+                    "navVisible"
+                ], f"Navigation should be visible at {width}px"
 
-    def generate_responsive_report(self, page: Page) -> Dict[str, Any]:
+    def generate_responsive_report(self, page: Page) -> dict[str, Any]:
         """Generate comprehensive responsive design report."""
         report = {
             "viewports_tested": [],
             "breakpoint_issues": [],
             "touch_target_issues": [],
-            "overflow_issues": []
+            "overflow_issues": [],
         }
 
         for viewport in self.VIEWPORTS:
-            page.set_viewport_size({"width": viewport["width"], "height": viewport["height"]})
+            page.set_viewport_size(
+                {"width": viewport["width"], "height": viewport["height"]}
+            )
             page.goto("http://pynomaly-app:8000/web/")
             page.wait_for_load_state("networkidle")
 
             layout_check = self._check_layout_elements(page, viewport)
 
-            report["viewports_tested"].append({
-                "viewport": viewport,
-                "layout_check": layout_check,
-                "passed": all([
-                    layout_check["navigation_visible"],
-                    layout_check["main_content_visible"],
-                    layout_check["content_readable"],
-                    layout_check["no_horizontal_scroll"]
-                ])
-            })
+            report["viewports_tested"].append(
+                {
+                    "viewport": viewport,
+                    "layout_check": layout_check,
+                    "passed": all(
+                        [
+                            layout_check["navigation_visible"],
+                            layout_check["main_content_visible"],
+                            layout_check["content_readable"],
+                            layout_check["no_horizontal_scroll"],
+                        ]
+                    ),
+                }
+            )
 
         return report

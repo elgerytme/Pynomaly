@@ -11,9 +11,7 @@ from uuid import UUID, uuid4
 from pynomaly.domain.value_objects import ContaminationRate
 
 if TYPE_CHECKING:
-    from pynomaly.domain.entities.dataset import Dataset
-    from pynomaly.domain.entities.detection_result import DetectionResult
-    from pynomaly.domain.entities.training_result import TrainingResult
+    pass
 
 
 @dataclass
@@ -132,7 +130,7 @@ class Detector:
 
     def validate_for_detection(self) -> None:
         """Validate that the detector is ready for detection.
-        
+
         Raises:
             ValueError: If detector is not fitted
         """

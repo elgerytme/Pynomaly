@@ -1,0 +1,340 @@
+# CI/CD Pipeline Configuration for Pynomaly
+# This file contains configuration for the automated deployment pipeline
+
+# Global pipeline settings
+pipeline:
+  version: "2.0.0"
+  name: "Pynomaly CI/CD Pipeline"
+  description: "Comprehensive CI/CD pipeline for Pynomaly anomaly detection platform"
+  
+# Environment configurations
+environments:
+  development:
+    namespace: "pynomaly-dev"
+    replicas: 1
+    resources:
+      cpu_request: "100m"
+      cpu_limit: "500m"
+      memory_request: "256Mi"
+      memory_limit: "1Gi"
+    autoscaling:
+      enabled: false
+    monitoring:
+      enabled: true
+      retention: "7d"
+    
+  staging:
+    namespace: "pynomaly-staging"
+    replicas: 2
+    resources:
+      cpu_request: "250m"
+      cpu_limit: "1000m"
+      memory_request: "512Mi"
+      memory_limit: "2Gi"
+    autoscaling:
+      enabled: true
+      min_replicas: 2
+      max_replicas: 5
+      target_cpu: 70
+    monitoring:
+      enabled: true
+      retention: "30d"
+    
+  production:
+    namespace: "pynomaly-prod"
+    replicas: 3
+    resources:
+      cpu_request: "500m"
+      cpu_limit: "2000m"
+      memory_request: "1Gi"
+      memory_limit: "4Gi"
+    autoscaling:
+      enabled: true
+      min_replicas: 3
+      max_replicas: 10
+      target_cpu: 60
+    monitoring:
+      enabled: true
+      retention: "90d"
+
+# Deployment strategies
+deployment_strategies:
+  rolling:
+    max_unavailable: "25%"
+    max_surge: "25%"
+    timeout: 600
+    
+  blue_green:
+    timeout: 900
+    verification_period: 300
+    rollback_on_failure: true
+    
+  canary:
+    initial_percentage: 10
+    increment_percentage: 10
+    max_percentage: 100
+    evaluation_interval: 300
+    success_threshold: 95
+    error_threshold: 5
+
+# Testing configuration
+testing:
+  unit_tests:
+    enabled: true
+    timeout: 300
+    coverage_threshold: 80
+    
+  integration_tests:
+    enabled: true
+    timeout: 600
+    parallel: true
+    
+  security_tests:
+    enabled: true
+    timeout: 300
+    tools:
+      - bandit
+      - safety
+      - semgrep
+      
+  performance_tests:
+    enabled: true
+    timeout: 900
+    load_duration: 300
+    concurrent_users: 100
+
+# Build configuration
+build:
+  docker:
+    registry: "ghcr.io/pynomaly/pynomaly"
+    platforms:
+      - "linux/amd64"
+      - "linux/arm64"
+    cache_enabled: true
+    multi_stage: true
+    
+  python:
+    version: "3.11"
+    package_manager: "hatch"
+    build_backend: "hatchling"
+
+# Security configuration
+security:
+  vulnerability_scanning:
+    enabled: true
+    fail_on_high: true
+    fail_on_critical: true
+    
+  secrets_scanning:
+    enabled: true
+    tools:
+      - trufflehog
+      - gitleaks
+      
+  dependency_scanning:
+    enabled: true
+    update_policy: "patch"
+    
+  container_scanning:
+    enabled: true
+    scanner: "trivy"
+    severity_threshold: "MEDIUM"
+
+# Monitoring and alerting
+monitoring:
+  health_checks:
+    enabled: true
+    endpoints:
+      - "/api/v1/health"
+      - "/api/v1/health/ready"
+      - "/api/v1/health/live"
+    timeout: 10
+    retries: 3
+    
+  metrics:
+    enabled: true
+    prometheus:
+      enabled: true
+      scrape_interval: "30s"
+      retention: "15d"
+      
+  logging:
+    enabled: true
+    level: "INFO"
+    format: "json"
+    aggregation: "elasticsearch"
+    
+  alerting:
+    enabled: true
+    channels:
+      slack:
+        webhook_url: "${SLACK_WEBHOOK_URL}"
+        channel: "#pynomaly-alerts"
+      teams:
+        webhook_url: "${TEAMS_WEBHOOK_URL}"
+      pagerduty:
+        service_key: "${PAGERDUTY_SERVICE_KEY}"
+
+# Notification configuration
+notifications:
+  deployment_start:
+    enabled: true
+    channels: ["slack", "teams"]
+    
+  deployment_success:
+    enabled: true
+    channels: ["slack", "teams"]
+    include_metrics: true
+    
+  deployment_failure:
+    enabled: true
+    channels: ["slack", "teams", "pagerduty"]
+    escalate: true
+    
+  rollback_initiated:
+    enabled: true
+    channels: ["slack", "teams", "pagerduty"]
+    priority: "high"
+
+# Rollback configuration
+rollback:
+  automatic:
+    enabled: true
+    triggers:
+      - health_check_failure
+      - error_rate_threshold
+      - response_time_threshold
+    conditions:
+      error_rate: 5  # percentage
+      response_time: 5000  # milliseconds
+      health_check_failures: 3
+      
+  manual:
+    enabled: true
+    require_approval: true
+    approvers:
+      - "devops-team"
+      - "engineering-leads"
+
+# Quality gates
+quality_gates:
+  code_coverage:
+    enabled: true
+    threshold: 80
+    
+  security_score:
+    enabled: true
+    threshold: 80
+    
+  performance_benchmarks:
+    enabled: true
+    response_time_p95: 1000  # milliseconds
+    throughput_min: 100  # requests per second
+    
+  dependency_health:
+    enabled: true
+    outdated_threshold: 30  # days
+    vulnerable_threshold: 0
+
+# Artifact management
+artifacts:
+  retention:
+    images: "30d"
+    logs: "90d"
+    reports: "180d"
+    
+  cleanup:
+    enabled: true
+    schedule: "0 2 * * 0"  # Weekly on Sunday at 2 AM
+    
+  storage:
+    type: "s3"
+    bucket: "pynomaly-ci-artifacts"
+    encryption: true
+
+# Integration configuration
+integrations:
+  github:
+    enabled: true
+    status_updates: true
+    deployment_tracking: true
+    
+  jira:
+    enabled: false
+    project_key: "PYNO"
+    
+  datadog:
+    enabled: false
+    api_key: "${DATADOG_API_KEY}"
+    
+  newrelic:
+    enabled: false
+    license_key: "${NEWRELIC_LICENSE_KEY}"
+
+# Feature flags
+feature_flags:
+  parallel_testing: true
+  cache_optimization: true
+  advanced_metrics: true
+  canary_deployments: false
+  blue_green_deployments: false
+  automated_rollback: true
+  security_scanning: true
+  performance_monitoring: true
+  chaos_engineering: false
+
+# Compliance and governance
+compliance:
+  audit_logging:
+    enabled: true
+    retention: "2y"
+    
+  approval_workflows:
+    production:
+      required: true
+      approvers: 2
+      timeout: "24h"
+    staging:
+      required: false
+      
+  change_management:
+    enabled: true
+    tracking_system: "github"
+    
+  documentation:
+    auto_generation: true
+    formats: ["markdown", "pdf"]
+    distribution: ["confluence", "slack"]
+
+# Performance optimization
+performance:
+  build_optimization:
+    enabled: true
+    parallel_jobs: 4
+    cache_layers: true
+    
+  deployment_optimization:
+    enabled: true
+    prewarming: true
+    progressive_rollout: true
+    
+  resource_optimization:
+    enabled: true
+    right_sizing: true
+    cost_monitoring: true
+
+# Disaster recovery
+disaster_recovery:
+  backup:
+    enabled: true
+    frequency: "daily"
+    retention: "30d"
+    
+  multi_region:
+    enabled: false
+    regions: ["us-east-1", "us-west-2"]
+    
+  failover:
+    automatic: false
+    rto: "1h"  # Recovery Time Objective
+    rpo: "15m"  # Recovery Point Objective

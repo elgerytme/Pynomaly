@@ -5,7 +5,6 @@ import fnmatch
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Set
 
 try:
     import yaml
@@ -13,58 +12,66 @@ except ImportError:
     yaml = None
 
 
-def load_config(config_path: Optional[str] = None) -> Optional[Dict]:
+def load_config(config_path: str | None = None) -> dict | None:
     """Load configuration from .pyno-org.yaml file."""
     if config_path is None:
         config_path = ".pyno-org.yaml"
-    
+
     config_file = Path(config_path)
     if not config_file.exists():
         return None
-    
+
     if yaml is None:
         print("Warning: PyYAML not installed. Using fallback configuration.")
         return None
-    
+
     try:
-        with open(config_file, 'r') as f:
+        with open(config_file) as f:
             return yaml.safe_load(f)
     except Exception as e:
         print(f"Warning: Could not load config file {config_path}: {e}")
         return None
 
 
-def matches_pattern(path: str, patterns: List[str]) -> bool:
+def matches_pattern(path: str, patterns: list[str]) -> bool:
     """Check if a path matches any of the given patterns."""
     for pattern in patterns:
-        if fnmatch.fnmatch(path, pattern) or fnmatch.fnmatch(path.lower(), pattern.lower()):
+        if fnmatch.fnmatch(path, pattern) or fnmatch.fnmatch(
+            path.lower(), pattern.lower()
+        ):
             return True
     return False
 
 
-def should_delete_item(item_path: Path, delete_patterns: List[str], allowlist: List[str]) -> bool:
+def should_delete_item(
+    item_path: Path, delete_patterns: list[str], allowlist: list[str]
+) -> bool:
     """Determine if an item should be deleted based on patterns and allowlist."""
     relative_path = str(item_path.relative_to(Path.cwd()))
-    
+
     # For directories, also check with trailing slash
     if item_path.is_dir():
         relative_path_with_slash = relative_path + "/"
     else:
         relative_path_with_slash = relative_path
-    
+
     # Check if item is in allowlist
-    if matches_pattern(relative_path, allowlist) or matches_pattern(relative_path_with_slash, allowlist):
+    if matches_pattern(relative_path, allowlist) or matches_pattern(
+        relative_path_with_slash, allowlist
+    ):
         return False
-    
+
     # Check if item matches delete patterns
-    return matches_pattern(relative_path, delete_patterns) or matches_pattern(relative_path_with_slash, delete_patterns)
+    return matches_pattern(relative_path, delete_patterns) or matches_pattern(
+        relative_path_with_slash, delete_patterns
+    )
 
 
-def analyze_project_structure(config_path: Optional[str] = None) -> dict:
+def analyze_project_structure(config_path: str | None = None) -> dict:
     """Analyze the project structure and categorize files."""
 
     project_root = Path.cwd()
-    
+
     # Load configuration
     config = load_config(config_path)
 
@@ -105,13 +112,13 @@ def analyze_project_structure(config_path: Optional[str] = None) -> dict:
 
     # Update allowed files and directories if specified in config
     if config:
-        config_allowed_files = config.get('allowed_root_files', [])
+        config_allowed_files = config.get("allowed_root_files", [])
         if config_allowed_files:
             ALLOWED_ROOT_FILES.update(config_allowed_files)
 
     # Define delete and move patterns
-    delete_patterns = config.get('delete_patterns', []) if config else []
-    allowlist = config.get('allowlist', []) if config else []
+    delete_patterns = config.get("delete_patterns", []) if config else []
+    allowlist = config.get("allowlist", []) if config else []
 
     # Define allowed root directories
     ALLOWED_ROOT_DIRS = {
@@ -137,7 +144,7 @@ def analyze_project_structure(config_path: Optional[str] = None) -> dict:
 
     # Update allowed directories if specified in config
     if config:
-        config_allowed_dirs = config.get('allowed_root_directories', [])
+        config_allowed_dirs = config.get("allowed_root_directories", [])
         if config_allowed_dirs:
             ALLOWED_ROOT_DIRS.update(config_allowed_dirs)
 
@@ -224,32 +231,32 @@ def analyze_project_structure(config_path: Optional[str] = None) -> dict:
     return analysis
 
 
-def categorize_stray_file(file_path: Path, config: Optional[Dict] = None) -> str:
+def categorize_stray_file(file_path: Path, config: dict | None = None) -> str:
     """Categorize a stray file based on its name, extension, and configuration."""
     name = file_path.name.lower()
     relative_path = str(file_path.relative_to(Path.cwd()))
 
     # Check if it should be deleted based on configuration
     if config:
-        delete_patterns = config.get('delete_patterns', [])
-        allowlist = config.get('allowlist', [])
-        
+        delete_patterns = config.get("delete_patterns", [])
+        allowlist = config.get("allowlist", [])
+
         if should_delete_item(file_path, delete_patterns, allowlist):
             return "artifacts_for_deletion"
-    
+
     # Check configuration move patterns
-    if config and 'move_patterns' in config:
-        move_patterns = config['move_patterns']
+    if config and "move_patterns" in config:
+        move_patterns = config["move_patterns"]
         for category, pattern_info in move_patterns.items():
-            patterns = pattern_info.get('patterns', [])
-            excludes = pattern_info.get('excludes', [])
-            
+            patterns = pattern_info.get("patterns", [])
+            excludes = pattern_info.get("excludes", [])
+
             # Check if file matches any pattern
             if matches_pattern(relative_path, patterns):
                 # Check if file should be excluded
                 if not matches_pattern(relative_path, excludes):
                     return category
-    
+
     # Fallback to original categorization logic
     # Testing files
     if any(x in name for x in ["test_", "testing", "_test"]):
@@ -295,26 +302,26 @@ def categorize_stray_file(file_path: Path, config: Optional[Dict] = None) -> str
     return "miscellaneous"
 
 
-def categorize_stray_directory(dir_path: Path, config: Optional[Dict] = None) -> str:
+def categorize_stray_directory(dir_path: Path, config: dict | None = None) -> str:
     """Categorize a stray directory based on its name, contents, and configuration."""
     name = dir_path.name.lower()
     relative_path = str(dir_path.relative_to(Path.cwd()))
 
     # Check if it should be deleted based on configuration
     if config:
-        delete_patterns = config.get('delete_patterns', [])
-        allowlist = config.get('allowlist', [])
-        
+        delete_patterns = config.get("delete_patterns", [])
+        allowlist = config.get("allowlist", [])
+
         if should_delete_item(dir_path, delete_patterns, allowlist):
             return "artifacts_for_deletion"
-    
+
     # Check configuration move patterns
-    if config and 'move_patterns' in config:
-        move_patterns = config['move_patterns']
+    if config and "move_patterns" in config:
+        move_patterns = config["move_patterns"]
         for category, pattern_info in move_patterns.items():
-            patterns = pattern_info.get('patterns', [])
-            excludes = pattern_info.get('excludes', [])
-            
+            patterns = pattern_info.get("patterns", [])
+            excludes = pattern_info.get("excludes", [])
+
             # Check if directory matches any pattern
             if matches_pattern(relative_path, patterns):
                 # Check if directory should be excluded
@@ -414,7 +421,7 @@ def generate_recommendations(analysis: dict) -> list[str]:
         recommendations.append(
             f"DELETE {file_categories['version_artifacts']} version artifact files"
         )
-    
+
     if file_categories.get("artifacts_for_deletion", 0) > 0:
         recommendations.append(
             f"DELETE {file_categories['artifacts_for_deletion']} artifact files (configured for deletion)"
@@ -434,7 +441,7 @@ def generate_recommendations(analysis: dict) -> list[str]:
         recommendations.append(
             f"DELETE {dir_categories['environment']} virtual environment directories"
         )
-    
+
     if dir_categories.get("artifacts_for_deletion", 0) > 0:
         recommendations.append(
             f"DELETE {dir_categories['artifacts_for_deletion']} artifact directories (configured for deletion)"
@@ -648,7 +655,9 @@ def main():
     print(f"  - Full tree layout: {current_layout_file}")
     print(f"  - Violations report: {violations_file}")
     print(f"  - Detailed analysis: {output_file}")
-    print(f"\n🎯 Found {violations['total_violations']} violations that need attention.")
+    print(
+        f"\n🎯 Found {violations['total_violations']} violations that need attention."
+    )
 
     return analysis
 

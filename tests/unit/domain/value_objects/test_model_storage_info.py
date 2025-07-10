@@ -1,6 +1,7 @@
 """Tests for model storage info value object."""
 
 import hashlib
+
 import pytest
 
 from pynomaly.domain.value_objects.model_storage_info import (
@@ -75,7 +76,7 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="a" * 64,  # Valid SHA-256 format
         )
-        
+
         assert storage_info.storage_backend == StorageBackend.LOCAL_FILESYSTEM
         assert storage_info.storage_path == "/path/to/model.pkl"
         assert storage_info.format == SerializationFormat.PICKLE
@@ -92,9 +93,9 @@ class TestModelStorageInfo:
             checksum="a" * 64,
             encryption_key_id="key123",
             compression_type="gzip",
-            metadata_path="s3://bucket/model.meta"
+            metadata_path="s3://bucket/model.meta",
         )
-        
+
         assert storage_info.encryption_key_id == "key123"
         assert storage_info.compression_type == "gzip"
         assert storage_info.metadata_path == "s3://bucket/model.meta"
@@ -108,14 +109,16 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="a" * 64,
         )
-        
+
         # Should not be able to modify values
         with pytest.raises(AttributeError):
             storage_info.storage_backend = StorageBackend.AWS_S3
 
     def test_validation_storage_backend_type(self):
         """Test validation of storage backend type."""
-        with pytest.raises(TypeError, match="Storage backend must be StorageBackend enum"):
+        with pytest.raises(
+            TypeError, match="Storage backend must be StorageBackend enum"
+        ):
             ModelStorageInfo(
                 storage_backend="local_filesystem",  # String instead of enum
                 storage_path="/path/to/model.pkl",
@@ -156,7 +159,7 @@ class TestModelStorageInfo:
             size_bytes=0,
             checksum="a" * 64,
         )
-        
+
         ModelStorageInfo(
             storage_backend=StorageBackend.LOCAL_FILESYSTEM,
             storage_path="/path/to/model.pkl",
@@ -164,7 +167,7 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="a" * 64,
         )
-        
+
         # Invalid sizes
         with pytest.raises(ValueError, match="Size must be non-negative integer"):
             ModelStorageInfo(
@@ -174,7 +177,7 @@ class TestModelStorageInfo:
                 size_bytes=-1,
                 checksum="a" * 64,
             )
-        
+
         with pytest.raises(ValueError, match="Size must be non-negative integer"):
             ModelStorageInfo(
                 storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -205,7 +208,7 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="a" * 64,  # 64 hex chars
         )
-        
+
         ModelStorageInfo(
             storage_backend=StorageBackend.LOCAL_FILESYSTEM,
             storage_path="/path/to/model.pkl",
@@ -213,7 +216,7 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="1234567890abcdef" * 4,  # 64 hex chars
         )
-        
+
         # Invalid checksums
         with pytest.raises(ValueError, match="Invalid SHA-256 checksum format"):
             ModelStorageInfo(
@@ -223,7 +226,7 @@ class TestModelStorageInfo:
                 size_bytes=1024,
                 checksum="a" * 63,  # Too short
             )
-        
+
         with pytest.raises(ValueError, match="Invalid SHA-256 checksum format"):
             ModelStorageInfo(
                 storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -232,7 +235,7 @@ class TestModelStorageInfo:
                 size_bytes=1024,
                 checksum="a" * 65,  # Too long
             )
-        
+
         with pytest.raises(ValueError, match="Invalid SHA-256 checksum format"):
             ModelStorageInfo(
                 storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -248,7 +251,7 @@ class TestModelStorageInfo:
         assert ModelStorageInfo._is_valid_sha256("a" * 64) is True
         assert ModelStorageInfo._is_valid_sha256("1234567890abcdef" * 4) is True
         assert ModelStorageInfo._is_valid_sha256("ABCDEF0123456789" * 4) is True
-        
+
         # Invalid cases
         assert ModelStorageInfo._is_valid_sha256("a" * 63) is False  # Too short
         assert ModelStorageInfo._is_valid_sha256("a" * 65) is False  # Too long
@@ -263,9 +266,9 @@ class TestModelStorageInfo:
             format=SerializationFormat.PICKLE,
             size_bytes=1024,
             checksum="a" * 64,
-            compression_type="gzip"
+            compression_type="gzip",
         )
-        
+
         assert storage_info.storage_backend == StorageBackend.LOCAL_FILESYSTEM
         assert storage_info.storage_path == "/path/to/model.pkl"
         assert storage_info.format == SerializationFormat.PICKLE
@@ -283,9 +286,9 @@ class TestModelStorageInfo:
             format=SerializationFormat.PICKLE,
             size_bytes=2048,
             checksum="b" * 64,
-            encryption_key_id="key456"
+            encryption_key_id="key456",
         )
-        
+
         assert storage_info.storage_backend == StorageBackend.AWS_S3
         assert storage_info.storage_path == "s3://my-bucket/models/model.pkl"
         assert storage_info.format == SerializationFormat.PICKLE
@@ -301,9 +304,9 @@ class TestModelStorageInfo:
             artifact_path="models/model",
             format=SerializationFormat.MLFLOW_MODEL,
             size_bytes=4096,
-            checksum="c" * 64
+            checksum="c" * 64,
         )
-        
+
         assert storage_info.storage_backend == StorageBackend.MLFLOW
         assert storage_info.storage_path == "runs:/run456/models/model"
         assert storage_info.format == SerializationFormat.MLFLOW_MODEL
@@ -321,7 +324,7 @@ class TestModelStorageInfo:
             checksum="a" * 64,
         )
         assert storage_info1.is_encrypted is False
-        
+
         # With encryption key
         storage_info2 = ModelStorageInfo(
             storage_backend=StorageBackend.AWS_S3,
@@ -329,7 +332,7 @@ class TestModelStorageInfo:
             format=SerializationFormat.PICKLE,
             size_bytes=1024,
             checksum="a" * 64,
-            encryption_key_id="key123"
+            encryption_key_id="key123",
         )
         assert storage_info2.is_encrypted is True
 
@@ -344,7 +347,7 @@ class TestModelStorageInfo:
             checksum="a" * 64,
         )
         assert storage_info1.is_compressed is False
-        
+
         # With compression
         storage_info2 = ModelStorageInfo(
             storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -352,7 +355,7 @@ class TestModelStorageInfo:
             format=SerializationFormat.PICKLE,
             size_bytes=1024,
             checksum="a" * 64,
-            compression_type="gzip"
+            compression_type="gzip",
         )
         assert storage_info2.is_compressed is True
 
@@ -364,7 +367,7 @@ class TestModelStorageInfo:
             StorageBackend.AZURE_BLOB,
             StorageBackend.GCP_STORAGE,
         ]
-        
+
         for backend in cloud_backends:
             storage_info = ModelStorageInfo(
                 storage_backend=backend,
@@ -374,7 +377,7 @@ class TestModelStorageInfo:
                 checksum="a" * 64,
             )
             assert storage_info.is_cloud_storage is True
-        
+
         # Non-cloud storage backends
         non_cloud_backends = [
             StorageBackend.LOCAL_FILESYSTEM,
@@ -382,7 +385,7 @@ class TestModelStorageInfo:
             StorageBackend.DATABASE,
             StorageBackend.REDIS,
         ]
-        
+
         for backend in non_cloud_backends:
             storage_info = ModelStorageInfo(
                 storage_backend=backend,
@@ -404,7 +407,7 @@ class TestModelStorageInfo:
             checksum="a" * 64,
         )
         assert storage_info1.is_local_storage is True
-        
+
         # Non-local storage
         storage_info2 = ModelStorageInfo(
             storage_backend=StorageBackend.AWS_S3,
@@ -423,7 +426,7 @@ class TestModelStorageInfo:
             SerializationFormat.MLFLOW_MODEL,
             SerializationFormat.TENSORFLOW_SAVEDMODEL,
         ]
-        
+
         for format_type in streaming_formats:
             storage_info = ModelStorageInfo(
                 storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -433,14 +436,14 @@ class TestModelStorageInfo:
                 checksum="a" * 64,
             )
             assert storage_info.format_supports_streaming is True
-        
+
         # Non-streaming formats
         non_streaming_formats = [
             SerializationFormat.PICKLE,
             SerializationFormat.JOBLIB,
             SerializationFormat.ONNX,
         ]
-        
+
         for format_type in non_streaming_formats:
             storage_info = ModelStorageInfo(
                 storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -460,7 +463,7 @@ class TestModelStorageInfo:
             SerializationFormat.HUGGINGFACE,
             SerializationFormat.MLFLOW_MODEL,
         ]
-        
+
         for format_type in portable_formats:
             storage_info = ModelStorageInfo(
                 storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -470,14 +473,14 @@ class TestModelStorageInfo:
                 checksum="a" * 64,
             )
             assert storage_info.format_is_portable is True
-        
+
         # Non-portable formats
         non_portable_formats = [
             SerializationFormat.PICKLE,
             SerializationFormat.JOBLIB,
             SerializationFormat.PYTORCH_STATE_DICT,
         ]
-        
+
         for format_type in non_portable_formats:
             storage_info = ModelStorageInfo(
                 storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -499,7 +502,7 @@ class TestModelStorageInfo:
             checksum="a" * 64,
         )
         assert local_storage.get_storage_url() == "file:///path/to/model.pkl"
-        
+
         # AWS S3
         s3_storage = ModelStorageInfo(
             storage_backend=StorageBackend.AWS_S3,
@@ -509,7 +512,7 @@ class TestModelStorageInfo:
             checksum="a" * 64,
         )
         assert s3_storage.get_storage_url() == "s3://bucket/model.pkl"
-        
+
         # MLflow
         mlflow_storage = ModelStorageInfo(
             storage_backend=StorageBackend.MLFLOW,
@@ -519,7 +522,7 @@ class TestModelStorageInfo:
             checksum="a" * 64,
         )
         assert mlflow_storage.get_storage_url() == "mlflow://runs:/run123/model"
-        
+
         # HuggingFace Hub
         hf_storage = ModelStorageInfo(
             storage_backend=StorageBackend.HUGGINGFACE_HUB,
@@ -540,7 +543,7 @@ class TestModelStorageInfo:
             checksum="a" * 64,
         )
         assert storage_info.get_size_mb() == 2.0
-        
+
         storage_info2 = ModelStorageInfo(
             storage_backend=StorageBackend.LOCAL_FILESYSTEM,
             storage_path="/path/to/model.pkl",
@@ -560,7 +563,7 @@ class TestModelStorageInfo:
             (1610612736, "1.5 GB"),
             (1073741824, "1.0 GB"),
         ]
-        
+
         for size_bytes, expected in test_cases:
             storage_info = ModelStorageInfo(
                 storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -575,7 +578,7 @@ class TestModelStorageInfo:
         """Test verify_checksum method."""
         test_data = b"test model data"
         expected_checksum = hashlib.sha256(test_data).hexdigest()
-        
+
         storage_info = ModelStorageInfo(
             storage_backend=StorageBackend.LOCAL_FILESYSTEM,
             storage_path="/path/to/model.pkl",
@@ -583,13 +586,13 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum=expected_checksum,
         )
-        
+
         # Valid checksum
         assert storage_info.verify_checksum(test_data) is True
-        
+
         # Invalid checksum
         assert storage_info.verify_checksum(b"different data") is False
-        
+
         # Test case insensitive comparison
         storage_info_upper = ModelStorageInfo(
             storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -610,11 +613,11 @@ class TestModelStorageInfo:
             checksum="a" * 64,
             encryption_key_id="key123",
             compression_type="gzip",
-            metadata_path="s3://bucket/model.meta"
+            metadata_path="s3://bucket/model.meta",
         )
-        
+
         result = storage_info.to_dict()
-        
+
         expected = {
             "storage_backend": "aws_s3",
             "storage_path": "s3://bucket/model.pkl",
@@ -630,7 +633,7 @@ class TestModelStorageInfo:
             "is_cloud_storage": True,
             "storage_url": "s3://bucket/model.pkl",
         }
-        
+
         assert result == expected
 
     def test_string_representation(self):
@@ -642,7 +645,7 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="a" * 64,
         )
-        
+
         result = str(storage_info)
         expected = "Storage(pickle on local_filesystem, 1.0 KB)"
         assert result == expected
@@ -656,7 +659,7 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="a" * 64,
         )
-        
+
         storage_info2 = ModelStorageInfo(
             storage_backend=StorageBackend.LOCAL_FILESYSTEM,
             storage_path="/path/to/model.pkl",
@@ -664,7 +667,7 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="a" * 64,
         )
-        
+
         storage_info3 = ModelStorageInfo(
             storage_backend=StorageBackend.LOCAL_FILESYSTEM,
             storage_path="/path/to/model.pkl",
@@ -672,7 +675,7 @@ class TestModelStorageInfo:
             size_bytes=2048,  # Different size
             checksum="a" * 64,
         )
-        
+
         assert storage_info1 == storage_info2
         assert storage_info1 != storage_info3
 
@@ -685,7 +688,7 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="a" * 64,
         )
-        
+
         storage_info2 = ModelStorageInfo(
             storage_backend=StorageBackend.LOCAL_FILESYSTEM,
             storage_path="/path/to/model.pkl",
@@ -693,7 +696,7 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="a" * 64,
         )
-        
+
         storage_info3 = ModelStorageInfo(
             storage_backend=StorageBackend.AWS_S3,
             storage_path="s3://bucket/model.pkl",
@@ -701,13 +704,13 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="a" * 64,
         )
-        
+
         # Same values should have same hash
         assert hash(storage_info1) == hash(storage_info2)
-        
+
         # Different values should have different hash
         assert hash(storage_info1) != hash(storage_info3)
-        
+
         # Test in set
         storage_set = {storage_info1, storage_info2, storage_info3}
         assert len(storage_set) == 2  # storage_info1 and storage_info2 are equal
@@ -721,7 +724,7 @@ class TestModelStorageInfo:
             size_bytes=1024,
             checksum="a" * 64,
         )
-        
+
         repr_str = repr(storage_info)
         assert "ModelStorageInfo" in repr_str
         assert "LOCAL_FILESYSTEM" in repr_str
@@ -738,9 +741,9 @@ class TestModelStorageInfo:
             checksum="1234567890abcdef" * 4,
             encryption_key_id="arn:aws:kms:us-west-2:123456789012:key/12345678-1234-1234-1234-123456789012",
             compression_type="gzip",
-            metadata_path="s3://ml-models/anomaly-detection/v1.0.0/model.meta.json"
+            metadata_path="s3://ml-models/anomaly-detection/v1.0.0/model.meta.json",
         )
-        
+
         # Test all properties
         assert storage_info.is_cloud_storage is True
         assert storage_info.is_local_storage is False
@@ -748,19 +751,22 @@ class TestModelStorageInfo:
         assert storage_info.is_compressed is True
         assert storage_info.format_is_portable is False
         assert storage_info.format_supports_streaming is False
-        
+
         # Test size calculations
         assert storage_info.get_size_mb() == 5.0
         assert storage_info.get_size_human_readable() == "5.0 MB"
-        
+
         # Test URL generation
-        assert storage_info.get_storage_url() == "s3://ml-models/anomaly-detection/v1.0.0/model.pkl"
-        
+        assert (
+            storage_info.get_storage_url()
+            == "s3://ml-models/anomaly-detection/v1.0.0/model.pkl"
+        )
+
         # Test checksum verification
         test_data = b"test model data"
         actual_checksum = hashlib.sha256(test_data).hexdigest()
         assert storage_info.verify_checksum(test_data) is False  # Different checksum
-        
+
         # Test dictionary conversion
         result_dict = storage_info.to_dict()
         assert result_dict["storage_backend"] == "aws_s3"
@@ -776,14 +782,14 @@ class TestModelStorageInfo:
             format=SerializationFormat.JOBLIB,
             size_bytes=2097152,
             checksum="abcdef1234567890" * 4,
-            compression_type="lzma"
+            compression_type="lzma",
         )
-        
+
         assert local_info.storage_backend == StorageBackend.LOCAL_FILESYSTEM
         assert local_info.format == SerializationFormat.JOBLIB
         assert local_info.compression_type == "lzma"
         assert local_info.is_local_storage is True
-        
+
         # S3 factory
         s3_info = ModelStorageInfo.create_for_s3(
             bucket="ml-models-prod",
@@ -791,15 +797,15 @@ class TestModelStorageInfo:
             format=SerializationFormat.ONNX,
             size_bytes=10485760,
             checksum="fedcba0987654321" * 4,
-            encryption_key_id="encryption-key-id"
+            encryption_key_id="encryption-key-id",
         )
-        
+
         assert s3_info.storage_backend == StorageBackend.AWS_S3
         assert s3_info.format == SerializationFormat.ONNX
         assert s3_info.encryption_key_id == "encryption-key-id"
         assert s3_info.is_cloud_storage is True
         assert s3_info.format_is_portable is True
-        
+
         # MLflow factory
         mlflow_info = ModelStorageInfo.create_for_mlflow(
             experiment_id="123456",
@@ -807,9 +813,9 @@ class TestModelStorageInfo:
             artifact_path="model/artifacts",
             format=SerializationFormat.MLFLOW_MODEL,
             size_bytes=20971520,
-            checksum="1a2b3c4d5e6f7890" * 4
+            checksum="1a2b3c4d5e6f7890" * 4,
         )
-        
+
         assert mlflow_info.storage_backend == StorageBackend.MLFLOW
         assert mlflow_info.format == SerializationFormat.MLFLOW_MODEL
         assert mlflow_info.storage_path == "runs:/abcdef123456/model/artifacts"
@@ -828,7 +834,7 @@ class TestModelStorageInfo:
         )
         assert zero_size_info.get_size_mb() == 0.0
         assert zero_size_info.get_size_human_readable() == "0 B"
-        
+
         # Very large size
         large_size_info = ModelStorageInfo(
             storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -839,7 +845,7 @@ class TestModelStorageInfo:
         )
         assert large_size_info.get_size_mb() == 10240.0
         assert large_size_info.get_size_human_readable() == "10.0 GB"
-        
+
         # Minimum valid path
         min_path_info = ModelStorageInfo(
             storage_backend=StorageBackend.LOCAL_FILESYSTEM,
@@ -862,7 +868,7 @@ class TestModelStorageInfo:
             (StorageBackend.DATABASE, SerializationFormat.PICKLE),
             (StorageBackend.REDIS, SerializationFormat.JOBLIB),
         ]
-        
+
         for backend, format_type in combinations:
             storage_info = ModelStorageInfo(
                 storage_backend=backend,
@@ -871,10 +877,10 @@ class TestModelStorageInfo:
                 size_bytes=1024,
                 checksum="a" * 64,
             )
-            
+
             assert storage_info.storage_backend == backend
             assert storage_info.format == format_type
-            
+
             # Test that properties work for all combinations
             assert isinstance(storage_info.is_cloud_storage, bool)
             assert isinstance(storage_info.is_local_storage, bool)

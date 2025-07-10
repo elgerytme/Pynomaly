@@ -62,61 +62,45 @@ else:
         rich_markup_mode="rich",
     )
 
-    # Add subcommands
-    app.add_typer(
-        autonomous.app,
-        name="auto",
-        help="Autonomous anomaly detection (auto-configure and run)",
-    )
-    app.add_typer(
-        automl.app, name="automl", help="Advanced AutoML & hyperparameter optimization"
-    )
-    app.add_typer(
-        config_cli.app,
-        name="config",
-        help="Configuration management (capture, export, import)",
-    )
-    app.add_typer(detectors.app, name="detector", help="Manage anomaly detectors")
-    app.add_typer(datasets.app, name="dataset", help="Manage datasets")
-    app.add_typer(
-        preprocessing.app,
-        name="data",
-        help="Data preprocessing (clean, transform, pipeline)",
-    )
-    app.add_typer(detection.app, name="detect", help="Run anomaly detection")
+    # Import standardized help text
+    from pynomaly.presentation.cli.help_formatter import get_standard_help
+
+    # Add subcommands with standardized help text
+    subcommands = [
+        (autonomous.app, "auto"),
+        (automl.app, "automl"),
+        (config_cli.app, "config"),
+        (detectors.app, "detector"),
+        (datasets.app, "dataset"),
+        (preprocessing.app, "data"),
+        (detection.app, "detect"),
+        (explainability.app, "explainability"),
+        (export_app, "export"),
+        (server.app, "server"),
+        (performance_app, "perf"),
+        (validation.app, "validate"),
+    ]
+
+    for subapp, name in subcommands:
+        help_info = get_standard_help(name)
+        help_text = help_info.get("help", f"Manage {name} operations")
+        app.add_typer(subapp, name=name, help=help_text)
+
+    # Add remaining subcommands with custom help
     app.add_typer(
         tdd.app,
         name="tdd",
-        help="Test-Driven Development (TDD) management and enforcement",
+        help="🧪 Test-driven development and quality assurance",
     )
     app.add_typer(
         deep_learning.app,
         name="deep-learning",
-        help="🧠 Deep learning anomaly detection (PyTorch, TensorFlow, JAX)",
-    )
-    app.add_typer(
-        explainability.app,
-        name="explainability",
-        help="🔍 Explainable AI (model interpretability, bias analysis)",
+        help="🧠 Deep learning anomaly detection models",
     )
     app.add_typer(
         selection.app,
         name="selection",
-        help="🧠 Intelligent algorithm selection with learning capabilities",
-    )
-    app.add_typer(
-        export_app,
-        name="export",
-        help="Export results to business intelligence platforms",
-    )
-    app.add_typer(server.app, name="server", help="Manage API server")
-    app.add_typer(
-        performance_app, name="perf", help="Performance monitoring and optimization"
-    )
-    app.add_typer(
-        validation.app,
-        name="validate",
-        help="🔍 Enhanced validation with rich output and GitHub integration",
+        help="🎯 Intelligent algorithm selection with learning",
     )
     app.add_typer(
         migrations.app,

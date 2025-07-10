@@ -12,6 +12,7 @@ from typing import Any
 
 import pytest
 from playwright.async_api import Browser, Page
+
 from tests.ui.accessibility.wcag_validation_framework import (
     WCAGLevel,
     WCAGValidationFramework,

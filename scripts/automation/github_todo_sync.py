@@ -30,7 +30,7 @@ import yaml
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.testing.automated_test_coverage_analysis import TodoRead, TodoWrite
+# Todo list management using direct file operations for standalone use
 
 
 class SyncDirection(Enum):

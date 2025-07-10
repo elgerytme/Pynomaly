@@ -3,8 +3,9 @@ Enhanced dashboard page object with comprehensive wait strategies and retry mech
 """
 
 from playwright.sync_api import Page, expect
-from .base_page import BasePage
+
 from ..helpers import retry_on_failure
+from .base_page import BasePage
 
 
 class DashboardPage(BasePage):
@@ -12,7 +13,7 @@ class DashboardPage(BasePage):
 
     def __init__(self, page: Page, base_url: str = "http://localhost:8000"):
         super().__init__(page, base_url)
-        
+
         # Page elements
         self.logo_selector = "img[alt*='Pynomaly'], .logo"
         self.nav_selector = "nav, .navigation"
@@ -21,7 +22,7 @@ class DashboardPage(BasePage):
         self.charts_selector = ".charts, .dashboard-charts"
         self.recent_detections_selector = ".recent-detections, .recent-results"
         self.quick_actions_selector = ".quick-actions, .actions"
-        
+
         # Navigation links mapping
         self.nav_links = {
             "Dashboard": "/",
@@ -43,10 +44,10 @@ class DashboardPage(BasePage):
         self.wait_for_element_visible(self.logo_selector)
         self.wait_for_element_visible(self.nav_selector)
         self.wait_for_element_visible(self.title_selector)
-        
+
         # Wait for HTMX to settle
         self.htmx_wait.wait_for_htmx_settle()
-        
+
         # Wait for any dynamic content loading
         self.htmx_wait.wait_for_htmx_indicator_hidden()
 
@@ -59,12 +60,12 @@ class DashboardPage(BasePage):
         """Click navigation link with retry logic."""
         nav_link = self.page.locator(f"nav a:has-text('{link_text}')")
         expect(nav_link).to_be_visible(timeout=self.default_timeout)
-        
+
         nav_link.click()
-        
+
         # Wait for navigation to complete
         self.htmx_wait.wait_for_htmx_settle()
-        
+
         # Wait for page load
         self.page.wait_for_load_state("networkidle", timeout=self.default_timeout)
 
@@ -85,8 +86,12 @@ class DashboardPage(BasePage):
             "title": self.page.locator(self.title_selector).is_visible(),
             "metrics": self.page.locator(self.metrics_selector).is_visible(),
             "charts": self.page.locator(self.charts_selector).is_visible(),
-            "recent_detections": self.page.locator(self.recent_detections_selector).is_visible(),
-            "quick_actions": self.page.locator(self.quick_actions_selector).is_visible(),
+            "recent_detections": self.page.locator(
+                self.recent_detections_selector
+            ).is_visible(),
+            "quick_actions": self.page.locator(
+                self.quick_actions_selector
+            ).is_visible(),
         }
         return components
 
@@ -97,29 +102,29 @@ class DashboardPage(BasePage):
             "tablet": {"width": 768, "height": 1024},
             "desktop": {"width": 1920, "height": 1080},
         }
-        
+
         results = {}
-        
+
         for size_name, viewport in viewports.items():
             # Set viewport
             self.page.set_viewport_size(viewport)
-            
+
             # Wait for layout to adjust
             self.page.wait_for_timeout(1000)
-            
+
             # Check if layout is working
             navigation_visible = self.page.locator(self.nav_selector).is_visible()
             content_visible = self.page.locator(self.title_selector).is_visible()
-            
+
             results[size_name] = {
                 "layout_ok": navigation_visible and content_visible,
                 "navigation_visible": navigation_visible,
                 "content_visible": content_visible,
             }
-        
+
         # Reset to default viewport
         self.page.set_viewport_size({"width": 1920, "height": 1080})
-        
+
         return results
 
     def verify_accessibility(self) -> dict:
@@ -128,12 +133,14 @@ class DashboardPage(BasePage):
             "has_title": bool(self.page.title()),
             "has_main_heading": self.page.locator("h1").is_visible(),
             "has_lang_attribute": bool(self.page.locator("html[lang]").count()),
-            "has_viewport_meta": bool(self.page.locator('meta[name="viewport"]').count()),
+            "has_viewport_meta": bool(
+                self.page.locator('meta[name="viewport"]').count()
+            ),
             "images_have_alt": True,
             "buttons_have_labels": True,
             "inputs_have_labels": True,
         }
-        
+
         # Check images have alt text
         images = self.page.locator("img")
         for i in range(images.count()):
@@ -141,7 +148,7 @@ class DashboardPage(BasePage):
             if not img.get_attribute("alt"):
                 accessibility_results["images_have_alt"] = False
                 break
-        
+
         # Check buttons have labels
         buttons = self.page.locator("button")
         for i in range(buttons.count()):
@@ -151,29 +158,29 @@ class DashboardPage(BasePage):
             if not (text and text.strip()) and not aria_label:
                 accessibility_results["buttons_have_labels"] = False
                 break
-        
+
         # Check inputs have labels
         inputs = self.page.locator("input, select, textarea")
         for i in range(inputs.count()):
             input_elem = inputs.nth(i)
             input_id = input_elem.get_attribute("id")
             placeholder = input_elem.get_attribute("placeholder")
-            
+
             has_label = False
             if input_id:
                 label = self.page.locator(f'label[for="{input_id}"]')
                 has_label = label.count() > 0
-            
+
             if not has_label and not placeholder:
                 accessibility_results["inputs_have_labels"] = False
                 break
-        
+
         return accessibility_results
 
     def simulate_user_interaction_flow(self) -> list:
         """Simulate realistic user interaction patterns."""
         interaction_results = []
-        
+
         try:
             # Test navigation flow
             for link_text in ["Datasets", "Detectors", "Detection"]:
@@ -181,48 +188,54 @@ class DashboardPage(BasePage):
                     self.click_nav_link(link_text)
                     self.wait_for_page_load()
                     interaction_results.append(f"✓ Navigated to {link_text}")
-                    
+
                     # Return to dashboard
                     self.click_nav_link("Dashboard")
                     self.wait_for_dashboard_load()
-                    interaction_results.append(f"✓ Returned to Dashboard from {link_text}")
-        
+                    interaction_results.append(
+                        f"✓ Returned to Dashboard from {link_text}"
+                    )
+
         except Exception as e:
             interaction_results.append(f"✗ Navigation interaction failed: {str(e)}")
-        
+
         try:
             # Test dashboard interactions
             if self.page.locator(self.quick_actions_selector).is_visible():
                 # Test quick actions if available
-                quick_actions = self.page.locator(f"{self.quick_actions_selector} button")
+                quick_actions = self.page.locator(
+                    f"{self.quick_actions_selector} button"
+                )
                 if quick_actions.count() > 0:
                     first_action = quick_actions.first
                     first_action.click()
                     self.htmx_wait.wait_for_htmx_settle()
                     interaction_results.append("✓ Quick action interaction successful")
-        
+
         except Exception as e:
             interaction_results.append(f"✗ Quick action interaction failed: {str(e)}")
-        
+
         return interaction_results
 
     def get_metrics_data(self) -> list:
         """Get metrics data from dashboard."""
         metrics_data = []
-        
+
         if self.page.locator(self.metrics_selector).is_visible():
             metrics = self.page.locator(f"{self.metrics_selector} .metric")
-            
+
             for i in range(metrics.count()):
                 metric = metrics.nth(i)
                 title_element = metric.locator(".metric-title, .title")
                 value_element = metric.locator(".metric-value, .value")
-                
-                metrics_data.append({
-                    "title": title_element.text_content() or "",
-                    "value": value_element.text_content() or "",
-                })
-        
+
+                metrics_data.append(
+                    {
+                        "title": title_element.text_content() or "",
+                        "value": value_element.text_content() or "",
+                    }
+                )
+
         return metrics_data
 
     def capture_screenshot(self, name: str, full_page: bool = True):
@@ -238,7 +251,7 @@ class DashboardPage(BasePage):
         try:
             self.page.wait_for_function(
                 "() => typeof jQuery !== 'undefined' ? jQuery.active === 0 : true",
-                timeout=self.default_timeout
+                timeout=self.default_timeout,
             )
         except:
             # jQuery might not be available

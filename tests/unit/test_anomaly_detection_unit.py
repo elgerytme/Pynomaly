@@ -9,17 +9,21 @@ This module demonstrates:
 - Coverage optimization
 """
 
-import pytest
-import numpy as np
-from unittest.mock import Mock, patch, MagicMock
-from hypothesis import given, strategies as st, assume, example, settings
-from hypothesis.extra.numpy import arrays
-import pandas as pd
+from unittest.mock import Mock, patch
 
-from pynomaly.domain.entities import Dataset, Detector, DetectionResult
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.application.services.anomaly_detection_service import AnomalyDetectionService
+import numpy as np
+import pandas as pd
+import pytest
+from hypothesis import assume, example, given, settings
+from hypothesis import strategies as st
+from hypothesis.extra.numpy import arrays
+
+from pynomaly.application.services.anomaly_detection_service import (
+    AnomalyDetectionService,
+)
+from pynomaly.domain.entities import Dataset, DetectionResult, Detector
 from pynomaly.domain.services.detection_service import DetectionService
+from pynomaly.domain.value_objects import AnomalyScore
 
 
 class TestAnomalyDetectionService:
@@ -29,23 +33,23 @@ class TestAnomalyDetectionService:
         """Test service initialization."""
         service = AnomalyDetectionService()
         assert service is not None
-        assert hasattr(service, 'detect_anomalies')
+        assert hasattr(service, "detect_anomalies")
 
     def test_detect_anomalies_with_valid_data(self, sample_dataset, sample_detector):
         """Test anomaly detection with valid data."""
         service = AnomalyDetectionService()
-        
+
         # Mock the underlying detection
-        with patch.object(service, '_run_detection') as mock_detection:
+        with patch.object(service, "_run_detection") as mock_detection:
             mock_detection.return_value = DetectionResult(
                 detector_id=sample_detector.id,
                 dataset_id=sample_dataset.id,
                 scores=[AnomalyScore(0.1), AnomalyScore(0.9)],
-                metadata={"test": True}
+                metadata={"test": True},
             )
-            
+
             result = service.detect_anomalies(sample_dataset, sample_detector)
-            
+
             assert result is not None
             assert len(result.scores) == 2
             assert result.detector_id == sample_detector.id
@@ -56,52 +60,51 @@ class TestAnomalyDetectionService:
         empty_dataset = Dataset(
             name="Empty Dataset",
             data=pd.DataFrame(),
-            description="Empty dataset for testing"
+            description="Empty dataset for testing",
         )
-        
+
         service = AnomalyDetectionService()
-        
+
         with pytest.raises(ValueError, match="Dataset cannot be empty"):
             service.detect_anomalies(empty_dataset, sample_detector)
 
     def test_detect_anomalies_with_invalid_detector(self, sample_dataset):
         """Test anomaly detection with invalid detector."""
         invalid_detector = Detector(
-            algorithm_name="NonExistentAlgorithm",
-            parameters={}
+            algorithm_name="NonExistentAlgorithm", parameters={}
         )
-        
+
         service = AnomalyDetectionService()
-        
+
         with pytest.raises(ValueError, match="Unsupported algorithm"):
             service.detect_anomalies(sample_dataset, invalid_detector)
 
-    @pytest.mark.parametrize("algorithm,expected_params", [
-        ("IsolationForest", {"contamination": 0.1}),
-        ("LocalOutlierFactor", {"n_neighbors": 20}),
-        ("OneClassSVM", {"nu": 0.05}),
-    ])
+    @pytest.mark.parametrize(
+        "algorithm,expected_params",
+        [
+            ("IsolationForest", {"contamination": 0.1}),
+            ("LocalOutlierFactor", {"n_neighbors": 20}),
+            ("OneClassSVM", {"nu": 0.05}),
+        ],
+    )
     def test_detect_anomalies_with_different_algorithms(
         self, sample_dataset, algorithm, expected_params
     ):
         """Test anomaly detection with different algorithms."""
-        detector = Detector(
-            algorithm_name=algorithm,
-            parameters=expected_params
-        )
-        
+        detector = Detector(algorithm_name=algorithm, parameters=expected_params)
+
         service = AnomalyDetectionService()
-        
-        with patch.object(service, '_run_detection') as mock_detection:
+
+        with patch.object(service, "_run_detection") as mock_detection:
             mock_detection.return_value = DetectionResult(
                 detector_id=detector.id,
                 dataset_id=sample_dataset.id,
                 scores=[AnomalyScore(0.5)],
-                metadata={"algorithm": algorithm}
+                metadata={"algorithm": algorithm},
             )
-            
+
             result = service.detect_anomalies(sample_dataset, detector)
-            
+
             assert result.metadata["algorithm"] == algorithm
             mock_detection.assert_called_once()
 
@@ -109,24 +112,25 @@ class TestAnomalyDetectionService:
     def test_detect_anomalies_performance(self, large_dataset, sample_detector):
         """Test anomaly detection performance with large dataset."""
         service = AnomalyDetectionService()
-        
+
         import time
+
         start_time = time.time()
-        
+
         # Mock for performance test
-        with patch.object(service, '_run_detection') as mock_detection:
+        with patch.object(service, "_run_detection") as mock_detection:
             mock_detection.return_value = DetectionResult(
                 detector_id=sample_detector.id,
                 dataset_id=large_dataset.id,
                 scores=[AnomalyScore(0.5)] * len(large_dataset.data),
-                metadata={"performance_test": True}
+                metadata={"performance_test": True},
             )
-            
+
             result = service.detect_anomalies(large_dataset, sample_detector)
-            
+
             end_time = time.time()
             execution_time = end_time - start_time
-            
+
             assert execution_time < 5.0  # Should complete within 5 seconds
             assert len(result.scores) == len(large_dataset.data)
 
@@ -139,53 +143,55 @@ class TestDetectionServicePropertyBased:
             dtype=np.float64,
             shape=st.tuples(
                 st.integers(min_value=10, max_value=1000),  # rows
-                st.integers(min_value=2, max_value=50)      # columns
+                st.integers(min_value=2, max_value=50),  # columns
             ),
-            elements=st.floats(min_value=-100, max_value=100, allow_nan=False)
+            elements=st.floats(min_value=-100, max_value=100, allow_nan=False),
         ),
-        contamination=st.floats(min_value=0.01, max_value=0.5)
+        contamination=st.floats(min_value=0.01, max_value=0.5),
     )
     @settings(max_examples=50, deadline=10000)
     def test_detection_service_properties(self, data, contamination):
         """Property-based test for detection service invariants."""
         assume(not np.any(np.isnan(data)))
         assume(not np.any(np.isinf(data)))
-        
+
         # Create dataset
         df = pd.DataFrame(data)
         dataset = Dataset(
             name="Property Test Dataset",
             data=df,
-            description="Generated dataset for property testing"
+            description="Generated dataset for property testing",
         )
-        
+
         # Create detector
         detector = Detector(
             algorithm_name="IsolationForest",
-            parameters={"contamination": contamination, "random_state": 42}
+            parameters={"contamination": contamination, "random_state": 42},
         )
-        
+
         service = DetectionService()
-        
+
         # Mock the actual detection
-        with patch.object(service, '_get_adapter') as mock_adapter:
+        with patch.object(service, "_get_adapter") as mock_adapter:
             mock_model = Mock()
             mock_model.decision_function.return_value = np.random.random(len(data))
             mock_adapter.return_value.create_model.return_value = mock_model
             mock_adapter.return_value.fit.return_value = None
-            mock_adapter.return_value.predict.return_value = np.random.choice([0, 1], len(data))
-            
+            mock_adapter.return_value.predict.return_value = np.random.choice(
+                [0, 1], len(data)
+            )
+
             result = service.detect_anomalies(dataset, detector)
-            
+
             # Property 1: Result should have same number of scores as input samples
             assert len(result.scores) == len(data)
-            
+
             # Property 2: All scores should be valid numbers
             for score in result.scores:
                 assert isinstance(score, AnomalyScore)
                 assert not np.isnan(score.value)
                 assert not np.isinf(score.value)
-            
+
             # Property 3: Result should have correct detector and dataset IDs
             assert result.detector_id == detector.id
             assert result.dataset_id == dataset.id
@@ -193,53 +199,54 @@ class TestDetectionServicePropertyBased:
     @given(
         n_samples=st.integers(min_value=5, max_value=100),
         n_features=st.integers(min_value=2, max_value=20),
-        noise_level=st.floats(min_value=0.0, max_value=2.0)
+        noise_level=st.floats(min_value=0.0, max_value=2.0),
     )
     @example(n_samples=10, n_features=5, noise_level=0.1)  # Known good example
-    def test_detection_service_with_synthetic_data(self, n_samples, n_features, noise_level):
+    def test_detection_service_with_synthetic_data(
+        self, n_samples, n_features, noise_level
+    ):
         """Test detection service with synthetic data generation."""
         # Generate synthetic data
         np.random.seed(42)
         normal_data = np.random.normal(0, 1, (n_samples, n_features))
         noise = np.random.normal(0, noise_level, (n_samples, n_features))
         data = normal_data + noise
-        
+
         df = pd.DataFrame(data)
         dataset = Dataset(
             name="Synthetic Dataset",
             data=df,
-            description="Synthetic dataset for testing"
+            description="Synthetic dataset for testing",
         )
-        
+
         detector = Detector(
             algorithm_name="IsolationForest",
-            parameters={"contamination": 0.1, "random_state": 42}
+            parameters={"contamination": 0.1, "random_state": 42},
         )
-        
+
         service = DetectionService()
-        
+
         # Mock the detection
-        with patch.object(service, '_get_adapter') as mock_adapter:
+        with patch.object(service, "_get_adapter") as mock_adapter:
             mock_model = Mock()
             mock_model.decision_function.return_value = np.random.random(n_samples)
             mock_adapter.return_value.create_model.return_value = mock_model
             mock_adapter.return_value.fit.return_value = None
-            mock_adapter.return_value.predict.return_value = np.random.choice([0, 1], n_samples)
-            
+            mock_adapter.return_value.predict.return_value = np.random.choice(
+                [0, 1], n_samples
+            )
+
             result = service.detect_anomalies(dataset, detector)
-            
+
             # Properties should hold regardless of data characteristics
             assert len(result.scores) == n_samples
             assert all(isinstance(score, AnomalyScore) for score in result.scores)
             assert result.detector_id == detector.id
 
     @given(
-        algorithm=st.sampled_from([
-            "IsolationForest",
-            "LocalOutlierFactor", 
-            "OneClassSVM",
-            "EllipticEnvelope"
-        ])
+        algorithm=st.sampled_from(
+            ["IsolationForest", "LocalOutlierFactor", "OneClassSVM", "EllipticEnvelope"]
+        )
     )
     def test_detection_service_algorithm_invariants(self, algorithm):
         """Test that detection service maintains invariants across different algorithms."""
@@ -247,30 +254,29 @@ class TestDetectionServicePropertyBased:
         np.random.seed(42)
         data = np.random.normal(0, 1, (100, 5))
         df = pd.DataFrame(data)
-        
+
         dataset = Dataset(
             name="Algorithm Test Dataset",
             data=df,
-            description="Dataset for algorithm testing"
+            description="Dataset for algorithm testing",
         )
-        
-        detector = Detector(
-            algorithm_name=algorithm,
-            parameters={"random_state": 42}
-        )
-        
+
+        detector = Detector(algorithm_name=algorithm, parameters={"random_state": 42})
+
         service = DetectionService()
-        
+
         # Mock the detection
-        with patch.object(service, '_get_adapter') as mock_adapter:
+        with patch.object(service, "_get_adapter") as mock_adapter:
             mock_model = Mock()
             mock_model.decision_function.return_value = np.random.random(100)
             mock_adapter.return_value.create_model.return_value = mock_model
             mock_adapter.return_value.fit.return_value = None
-            mock_adapter.return_value.predict.return_value = np.random.choice([0, 1], 100)
-            
+            mock_adapter.return_value.predict.return_value = np.random.choice(
+                [0, 1], 100
+            )
+
             result = service.detect_anomalies(dataset, detector)
-            
+
             # Algorithm-independent invariants
             assert len(result.scores) == 100
             assert result.detector_id == detector.id
@@ -293,25 +299,29 @@ class TestAnomalyScoreValueObject:
         AnomalyScore(0.0)
         AnomalyScore(1.0)
         AnomalyScore(0.5)
-        
+
         # Invalid scores should raise ValueError
         with pytest.raises(ValueError):
-            AnomalyScore(float('nan'))
-        
-        with pytest.raises(ValueError):
-            AnomalyScore(float('inf'))
+            AnomalyScore(float("nan"))
 
-    @given(score_value=st.floats(min_value=-1000, max_value=1000, allow_nan=False, allow_infinity=False))
+        with pytest.raises(ValueError):
+            AnomalyScore(float("inf"))
+
+    @given(
+        score_value=st.floats(
+            min_value=-1000, max_value=1000, allow_nan=False, allow_infinity=False
+        )
+    )
     def test_anomaly_score_properties(self, score_value):
         """Property-based test for AnomalyScore."""
         score = AnomalyScore(score_value)
-        
+
         # Property 1: Value should be preserved
         assert score.value == score_value
-        
+
         # Property 2: Value should be a float
         assert isinstance(score.value, float)
-        
+
         # Property 3: Score should be comparable
         other_score = AnomalyScore(score_value)
         assert score.value == other_score.value
@@ -321,7 +331,7 @@ class TestAnomalyScoreValueObject:
         score1 = AnomalyScore(0.3)
         score2 = AnomalyScore(0.7)
         score3 = AnomalyScore(0.3)
-        
+
         assert score1.value < score2.value
         assert score2.value > score1.value
         assert score1.value == score3.value
@@ -331,11 +341,11 @@ class TestAnomalyScoreValueObject:
         # Test with very small values
         small_score = AnomalyScore(1e-10)
         assert small_score.value == 1e-10
-        
+
         # Test with very large values
         large_score = AnomalyScore(1e10)
         assert large_score.value == 1e10
-        
+
         # Test with negative values
         negative_score = AnomalyScore(-0.5)
         assert negative_score.value == -0.5
@@ -346,63 +356,56 @@ class TestDatasetEntityUnit:
 
     def test_dataset_creation_with_minimal_data(self):
         """Test Dataset creation with minimal required data."""
-        df = pd.DataFrame({'feature1': [1, 2, 3], 'feature2': [4, 5, 6]})
-        dataset = Dataset(
-            name="Test Dataset",
-            data=df,
-            description="Test dataset"
-        )
-        
+        df = pd.DataFrame({"feature1": [1, 2, 3], "feature2": [4, 5, 6]})
+        dataset = Dataset(name="Test Dataset", data=df, description="Test dataset")
+
         assert dataset.name == "Test Dataset"
         assert dataset.description == "Test dataset"
         assert len(dataset.data) == 3
-        assert list(dataset.data.columns) == ['feature1', 'feature2']
+        assert list(dataset.data.columns) == ["feature1", "feature2"]
 
     def test_dataset_with_metadata(self):
         """Test Dataset with metadata."""
-        df = pd.DataFrame({'feature1': [1, 2, 3]})
+        df = pd.DataFrame({"feature1": [1, 2, 3]})
         metadata = {"source": "test", "created_by": "unit_test"}
-        
+
         dataset = Dataset(
-            name="Test Dataset",
-            data=df,
-            description="Test dataset",
-            metadata=metadata
+            name="Test Dataset", data=df, description="Test dataset", metadata=metadata
         )
-        
+
         assert dataset.metadata == metadata
         assert dataset.metadata["source"] == "test"
 
     @pytest.mark.parametrize("data_size", [1, 10, 100, 1000])
     def test_dataset_with_different_sizes(self, data_size):
         """Test Dataset with different data sizes."""
-        df = pd.DataFrame({
-            'feature1': list(range(data_size)),
-            'feature2': list(range(data_size, 2 * data_size))
-        })
-        
+        df = pd.DataFrame(
+            {
+                "feature1": list(range(data_size)),
+                "feature2": list(range(data_size, 2 * data_size)),
+            }
+        )
+
         dataset = Dataset(
             name=f"Test Dataset {data_size}",
             data=df,
-            description=f"Test dataset with {data_size} samples"
+            description=f"Test dataset with {data_size} samples",
         )
-        
+
         assert len(dataset.data) == data_size
         assert dataset.name == f"Test Dataset {data_size}"
 
     def test_dataset_immutability(self):
         """Test that Dataset maintains data integrity."""
-        original_df = pd.DataFrame({'feature1': [1, 2, 3]})
+        original_df = pd.DataFrame({"feature1": [1, 2, 3]})
         dataset = Dataset(
-            name="Test Dataset",
-            data=original_df,
-            description="Test dataset"
+            name="Test Dataset", data=original_df, description="Test dataset"
         )
-        
+
         # Modifying original DataFrame should not affect dataset
-        original_df.loc[0, 'feature1'] = 999
-        
-        assert dataset.data.iloc[0]['feature1'] == 1  # Should remain unchanged
+        original_df.loc[0, "feature1"] = 999
+
+        assert dataset.data.iloc[0]["feature1"] == 1  # Should remain unchanged
 
 
 @pytest.mark.unit
@@ -412,10 +415,9 @@ class TestDetectorEntityUnit:
     def test_detector_creation(self):
         """Test Detector creation."""
         detector = Detector(
-            algorithm_name="IsolationForest",
-            parameters={"contamination": 0.1}
+            algorithm_name="IsolationForest", parameters={"contamination": 0.1}
         )
-        
+
         assert detector.algorithm_name == "IsolationForest"
         assert detector.parameters["contamination"] == 0.1
         assert detector.is_fitted is False
@@ -426,36 +428,35 @@ class TestDetectorEntityUnit:
         detector = Detector(
             algorithm_name="IsolationForest",
             parameters={"contamination": 0.1},
-            metadata=metadata
+            metadata=metadata,
         )
-        
+
         assert detector.metadata == metadata
 
     def test_detector_fitting_state(self):
         """Test Detector fitting state management."""
         detector = Detector(
-            algorithm_name="IsolationForest",
-            parameters={"contamination": 0.1}
+            algorithm_name="IsolationForest", parameters={"contamination": 0.1}
         )
-        
+
         assert detector.is_fitted is False
-        
+
         # Simulate fitting
         detector.is_fitted = True
         assert detector.is_fitted is True
 
-    @pytest.mark.parametrize("algorithm,params", [
-        ("IsolationForest", {"contamination": 0.1}),
-        ("LocalOutlierFactor", {"n_neighbors": 20}),
-        ("OneClassSVM", {"nu": 0.05, "gamma": "scale"}),
-    ])
+    @pytest.mark.parametrize(
+        "algorithm,params",
+        [
+            ("IsolationForest", {"contamination": 0.1}),
+            ("LocalOutlierFactor", {"n_neighbors": 20}),
+            ("OneClassSVM", {"nu": 0.05, "gamma": "scale"}),
+        ],
+    )
     def test_detector_with_different_algorithms(self, algorithm, params):
         """Test Detector with different algorithms and parameters."""
-        detector = Detector(
-            algorithm_name=algorithm,
-            parameters=params
-        )
-        
+        detector = Detector(algorithm_name=algorithm, parameters=params)
+
         assert detector.algorithm_name == algorithm
         assert detector.parameters == params
 
@@ -468,45 +469,45 @@ class TestDetectionPipelineProperties:
     @given(
         n_samples=st.integers(min_value=10, max_value=200),
         n_features=st.integers(min_value=2, max_value=10),
-        contamination=st.floats(min_value=0.01, max_value=0.3)
+        contamination=st.floats(min_value=0.01, max_value=0.3),
     )
     @settings(max_examples=20, deadline=15000)
-    def test_end_to_end_detection_properties(self, n_samples, n_features, contamination):
+    def test_end_to_end_detection_properties(
+        self, n_samples, n_features, contamination
+    ):
         """Test end-to-end detection pipeline properties."""
         # Generate synthetic data
         np.random.seed(42)
         data = np.random.normal(0, 1, (n_samples, n_features))
-        df = pd.DataFrame(data, columns=[f'feature_{i}' for i in range(n_features)])
-        
+        df = pd.DataFrame(data, columns=[f"feature_{i}" for i in range(n_features)])
+
         dataset = Dataset(
             name="Property Test Dataset",
             data=df,
-            description="Generated for property testing"
+            description="Generated for property testing",
         )
-        
+
         detector = Detector(
             algorithm_name="IsolationForest",
-            parameters={"contamination": contamination, "random_state": 42}
+            parameters={"contamination": contamination, "random_state": 42},
         )
-        
+
         service = AnomalyDetectionService()
-        
+
         # Mock the detection
-        with patch.object(service, '_run_detection') as mock_detection:
+        with patch.object(service, "_run_detection") as mock_detection:
             expected_anomalies = int(n_samples * contamination)
-            mock_scores = [
-                AnomalyScore(np.random.random()) for _ in range(n_samples)
-            ]
-            
+            mock_scores = [AnomalyScore(np.random.random()) for _ in range(n_samples)]
+
             mock_detection.return_value = DetectionResult(
                 detector_id=detector.id,
                 dataset_id=dataset.id,
                 scores=mock_scores,
-                metadata={"n_samples": n_samples, "n_features": n_features}
+                metadata={"n_samples": n_samples, "n_features": n_features},
             )
-            
+
             result = service.detect_anomalies(dataset, detector)
-            
+
             # Pipeline properties
             assert len(result.scores) == n_samples
             assert result.detector_id == detector.id

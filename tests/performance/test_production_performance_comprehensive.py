@@ -5,20 +5,16 @@ Advanced performance tests covering production scenarios, stress testing,
 memory profiling, scalability analysis, and performance regression detection.
 """
 
-import asyncio
 import gc
 import multiprocessing
 import os
-import resource
 import statistics
 import threading
 import time
-from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock
 
 import numpy as np
 import psutil
@@ -31,10 +27,9 @@ try:
 except ImportError:
     # Import mocks if actual modules not available
     from tests.performance.test_performance_security_mocks import patch_imports
+
     patch_imports()
     from pynomaly.domain.entities.detector import Detector
-    from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
-    from pynomaly.domain.value_objects.performance_metrics import PerformanceMetrics
 
 
 @dataclass
@@ -73,10 +68,10 @@ class ProductionPerformanceProfiler:
         initial_cpu = self.process.cpu_percent()
         initial_gc = gc.get_count()[0]
         initial_threads = threading.active_count()
-        
+
         start_time = time.perf_counter()
         gc.collect()  # Clean slate
-        
+
         try:
             yield self
             success = True
@@ -84,7 +79,7 @@ class ProductionPerformanceProfiler:
         except Exception as e:
             success = False
             error_message = str(e)
-            
+
         finally:
             # Record final state
             end_time = time.perf_counter()
@@ -93,15 +88,15 @@ class ProductionPerformanceProfiler:
             final_cpu = self.process.cpu_percent()
             final_gc = gc.get_count()[0]
             final_threads = threading.active_count()
-            
+
             memory_used = final_memory - initial_memory
             cpu_percent = final_cpu - initial_cpu
             throughput = 1 / duration if duration > 0 else 0
-            
+
             # Calculate percentiles
             p95 = np.percentile(self.latency_samples, 95) if self.latency_samples else 0
             p99 = np.percentile(self.latency_samples, 99) if self.latency_samples else 0
-            
+
             metrics = ProductionPerformanceMetrics(
                 operation=operation_name,
                 duration=duration,
@@ -117,7 +112,7 @@ class ProductionPerformanceProfiler:
                 thread_count=final_threads - initial_threads,
                 error_message=error_message,
             )
-            
+
             self.metrics.append(metrics)
             self.latency_samples.clear()
 
@@ -158,10 +153,12 @@ class TestProductionPerformance:
             for i in range(100):
                 data_copies.append(large_dataset.copy())
                 profiler.record_latency(time.perf_counter())
-                
+
                 # Check memory usage doesn't exceed 1GB (more realistic for testing)
                 memory_usage = psutil.Process().memory_info().rss / 1024 / 1024
-                assert memory_usage < 1000, f"Memory usage {memory_usage}MB exceeds limit"
+                assert (
+                    memory_usage < 1000
+                ), f"Memory usage {memory_usage}MB exceeds limit"
 
         metrics = profiler.metrics[-1]
         assert metrics.success
@@ -170,7 +167,7 @@ class TestProductionPerformance:
     def test_concurrent_detection_performance(self, profiler, detector, large_dataset):
         """Test performance under concurrent detection requests."""
         num_threads = multiprocessing.cpu_count()
-        
+
         def detection_task():
             start = time.perf_counter()
             # Simulate detection
@@ -196,10 +193,11 @@ class TestProductionPerformance:
             # Simulate high CPU and memory usage
             cpu_bound_tasks = []
             for _ in range(multiprocessing.cpu_count()):
+
                 def cpu_task():
                     # CPU-intensive computation
-                    return sum(i ** 2 for i in range(10000))
-                
+                    return sum(i**2 for i in range(10000))
+
                 cpu_bound_tasks.append(cpu_task())
 
             # Memory stress
@@ -209,7 +207,7 @@ class TestProductionPerformance:
 
         metrics = profiler.metrics[-1]
         assert metrics.success
-        
+
         # Check system didn't crash under stress
         assert psutil.virtual_memory().percent < 95  # Less than 95% memory usage
 
@@ -220,11 +218,11 @@ class TestProductionPerformance:
             for i in range(1000):
                 # Simulate periodic processing
                 time.sleep(0.001)  # 1ms sleep
-                
+
                 if i % 100 == 0:
                     # Force garbage collection periodically
                     gc.collect()
-                    
+
                 profiler.record_latency(0.001)
 
         metrics = profiler.metrics[-1]
@@ -235,28 +233,28 @@ class TestProductionPerformance:
     def test_memory_leak_detection(self, profiler):
         """Test for memory leaks in long-running operations."""
         initial_memory = psutil.Process().memory_info().rss
-        
+
         with profiler.profile_operation("memory_leak_test"):
             for i in range(500):
                 # Simulate operations that might leak memory
                 data = np.random.random((100, 100))
                 processed_data = data * 2
                 result = np.sum(processed_data)
-                
+
                 # Clean up references
                 del data, processed_data, result
-                
+
                 if i % 50 == 0:
                     gc.collect()
                     current_memory = psutil.Process().memory_info().rss
                     memory_growth = current_memory - initial_memory
-                    
+
                     # Memory growth should be reasonable
                     assert memory_growth < 50 * 1024 * 1024  # Less than 50MB growth
 
         metrics = profiler.metrics[-1]
         assert metrics.success
-        
+
         # Final memory check
         final_memory = psutil.Process().memory_info().rss
         total_growth = final_memory - initial_memory
@@ -272,7 +270,7 @@ class TestProductionPerformance:
                 conn = Mock()
                 conn.execute = Mock(return_value=True)
                 connections.append(conn)
-                
+
                 # Simulate query execution
                 start = time.perf_counter()
                 conn.execute("SELECT * FROM detectors")
@@ -285,6 +283,7 @@ class TestProductionPerformance:
 
     def test_api_response_time_under_load(self, profiler):
         """Test API response times under load."""
+
         def simulate_api_request():
             start = time.perf_counter()
             # Simulate API processing
@@ -307,13 +306,13 @@ class TestProductionPerformance:
     def test_cache_performance_impact(self, profiler):
         """Test cache performance impact."""
         cache = {}
-        
+
         def cached_operation(key):
             if key in cache:
                 return cache[key]
-            
+
             # Simulate expensive operation
-            result = sum(i ** 2 for i in range(1000))
+            result = sum(i**2 for i in range(1000))
             cache[key] = result
             return result
 
@@ -324,7 +323,7 @@ class TestProductionPerformance:
                 result = cached_operation(i)
                 end = time.perf_counter()
                 profiler.record_latency(end - start)
-            
+
             # Second run - cache hit
             for i in range(100):
                 start = time.perf_counter()
@@ -334,39 +333,42 @@ class TestProductionPerformance:
 
         metrics = profiler.metrics[-1]
         assert metrics.success
-        
+
         # Cache hits should be much faster
         cache_hit_latencies = profiler.latency_samples[100:]
         cache_miss_latencies = profiler.latency_samples[:100]
-        
+
         avg_cache_hit = statistics.mean(cache_hit_latencies)
         avg_cache_miss = statistics.mean(cache_miss_latencies)
-        
+
         assert avg_cache_hit < avg_cache_miss * 0.1  # Cache hits 10x faster
 
     def test_scalability_analysis(self, profiler):
         """Test system scalability with increasing load."""
         results = []
-        
+
         for load_factor in [1, 2, 4, 8, 16]:
             with profiler.profile_operation(f"scalability_test_{load_factor}"):
+
                 def work_unit():
                     # Simulate work
                     return sum(i for i in range(1000))
-                
+
                 with ThreadPoolExecutor(max_workers=load_factor) as executor:
-                    futures = [executor.submit(work_unit) for _ in range(load_factor * 10)]
+                    futures = [
+                        executor.submit(work_unit) for _ in range(load_factor * 10)
+                    ]
                     [f.result() for f in futures]
-            
+
             metrics = profiler.metrics[-1]
             results.append((load_factor, metrics.throughput))
 
         # Analyze scalability
         throughputs = [r[1] for r in results]
-        
+
         # Throughput should increase with load (up to a point)
         assert throughputs[1] > throughputs[0]  # 2x load should be faster
-        
+
         # But efficiency shouldn't degrade too much
         efficiency_ratio = throughputs[-1] / throughputs[0]
         assert efficiency_ratio > 0.5  # Should maintain at least 50% efficiency
@@ -375,19 +377,19 @@ class TestProductionPerformance:
         """Test resource cleanup performance."""
         with profiler.profile_operation("resource_cleanup_test"):
             resources = []
-            
+
             # Create resources
             for i in range(1000):
                 resource = Mock()
                 resource.close = Mock()
                 resources.append(resource)
-            
+
             # Cleanup resources
             start = time.perf_counter()
             for resource in resources:
                 resource.close()
             cleanup_time = time.perf_counter() - start
-            
+
             profiler.record_latency(cleanup_time)
 
         metrics = profiler.metrics[-1]
@@ -397,26 +399,26 @@ class TestProductionPerformance:
     def test_performance_regression_detection(self, profiler):
         """Test performance regression detection."""
         baseline_metrics = []
-        
+
         # Establish baseline
         for _ in range(5):
             with profiler.profile_operation("baseline_test"):
                 # Simulate consistent operation
                 time.sleep(0.1)
                 profiler.record_latency(0.1)
-            
+
             baseline_metrics.append(profiler.metrics[-1])
-        
+
         # Test current performance
         with profiler.profile_operation("current_test"):
             time.sleep(0.1)
             profiler.record_latency(0.1)
-        
+
         current_metrics = profiler.metrics[-1]
-        
+
         # Check for regression
         baseline_avg = statistics.mean(m.duration for m in baseline_metrics)
         regression_threshold = baseline_avg * 1.5  # 50% performance degradation
-        
+
         assert current_metrics.duration < regression_threshold
         assert current_metrics.success

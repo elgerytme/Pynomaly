@@ -4,11 +4,8 @@ Create GitHub Issues for Test Coverage Gaps
 Generates specific GitHub issues based on test coverage analysis results.
 """
 
-import json
-import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
 
 import click
 
@@ -21,7 +18,7 @@ class GitHubIssueCreator:
         self.issues_dir = self.project_root / "issues"
         self.issues_dir.mkdir(exist_ok=True)
 
-    def create_critical_gap_issues(self) -> List[Dict]:
+    def create_critical_gap_issues(self) -> list[dict]:
         """Create issues for critical test coverage gaps."""
         issues = []
 
@@ -31,7 +28,7 @@ class GitHubIssueCreator:
             "body": self._generate_cli_gap_issue_body(),
             "labels": ["test-coverage", "critical", "cli", "phase-1"],
             "assignees": [],
-            "milestone": "Test Coverage Improvement - Phase 1"
+            "milestone": "Test Coverage Improvement - Phase 1",
         }
         issues.append(cli_issue)
 
@@ -41,7 +38,7 @@ class GitHubIssueCreator:
             "body": self._generate_infrastructure_gap_issue_body(),
             "labels": ["test-coverage", "critical", "infrastructure", "phase-1"],
             "assignees": [],
-            "milestone": "Test Coverage Improvement - Phase 1"
+            "milestone": "Test Coverage Improvement - Phase 1",
         }
         issues.append(infra_issue)
 
@@ -51,13 +48,13 @@ class GitHubIssueCreator:
             "body": self._generate_system_testing_issue_body(),
             "labels": ["test-coverage", "critical", "system-testing", "phase-1"],
             "assignees": [],
-            "milestone": "Test Coverage Improvement - Phase 1"
+            "milestone": "Test Coverage Improvement - Phase 1",
         }
         issues.append(system_issue)
 
         return issues
 
-    def create_high_priority_issues(self) -> List[Dict]:
+    def create_high_priority_issues(self) -> list[dict]:
         """Create issues for high-priority improvements."""
         issues = []
 
@@ -67,7 +64,7 @@ class GitHubIssueCreator:
             "body": self._generate_acceptance_testing_issue_body(),
             "labels": ["test-improvement", "high", "acceptance-testing", "phase-2"],
             "assignees": [],
-            "milestone": "Test Coverage Improvement - Phase 2"
+            "milestone": "Test Coverage Improvement - Phase 2",
         }
         issues.append(acceptance_issue)
 
@@ -77,7 +74,7 @@ class GitHubIssueCreator:
             "body": self._generate_presentation_layer_issue_body(),
             "labels": ["test-improvement", "high", "presentation", "phase-2"],
             "assignees": [],
-            "milestone": "Test Coverage Improvement - Phase 2"
+            "milestone": "Test Coverage Improvement - Phase 2",
         }
         issues.append(presentation_issue)
 
@@ -87,13 +84,13 @@ class GitHubIssueCreator:
             "body": self._generate_cross_layer_integration_issue_body(),
             "labels": ["test-improvement", "high", "integration", "phase-2"],
             "assignees": [],
-            "milestone": "Test Coverage Improvement - Phase 2"
+            "milestone": "Test Coverage Improvement - Phase 2",
         }
         issues.append(integration_issue)
 
         return issues
 
-    def create_improvement_task_issues(self) -> List[Dict]:
+    def create_improvement_task_issues(self) -> list[dict]:
         """Create specific task issues for implementing improvements."""
         issues = []
 
@@ -103,14 +100,14 @@ class GitHubIssueCreator:
                 "title": "[TEST IMPROVEMENT] CLI Commands - Create comprehensive command-specific tests",
                 "body": self._generate_cli_commands_task_body(),
                 "labels": ["test-improvement", "cli", "commands", "phase-1-task"],
-                "parent": "CLI Testing Gap"
+                "parent": "CLI Testing Gap",
             },
             {
                 "title": "[TEST IMPROVEMENT] CLI Integration - Create workflow and configuration tests",
                 "body": self._generate_cli_integration_task_body(),
                 "labels": ["test-improvement", "cli", "integration", "phase-1-task"],
-                "parent": "CLI Testing Gap"
-            }
+                "parent": "CLI Testing Gap",
+            },
         ]
 
         # Task issues for Infrastructure improvement
@@ -118,15 +115,25 @@ class GitHubIssueCreator:
             {
                 "title": "[TEST IMPROVEMENT] Infrastructure Repositories - Create comprehensive repository tests",
                 "body": self._generate_repository_testing_task_body(),
-                "labels": ["test-improvement", "infrastructure", "repositories", "phase-1-task"],
-                "parent": "Infrastructure Layer Gap"
+                "labels": [
+                    "test-improvement",
+                    "infrastructure",
+                    "repositories",
+                    "phase-1-task",
+                ],
+                "parent": "Infrastructure Layer Gap",
             },
             {
                 "title": "[TEST IMPROVEMENT] Infrastructure External Services - Create integration tests",
                 "body": self._generate_external_services_task_body(),
-                "labels": ["test-improvement", "infrastructure", "external-services", "phase-1-task"],
-                "parent": "Infrastructure Layer Gap"
-            }
+                "labels": [
+                    "test-improvement",
+                    "infrastructure",
+                    "external-services",
+                    "phase-1-task",
+                ],
+                "parent": "Infrastructure Layer Gap",
+            },
         ]
 
         issues.extend(cli_tasks + infra_tasks)
@@ -134,7 +141,7 @@ class GitHubIssueCreator:
 
     def _generate_cli_gap_issue_body(self) -> str:
         """Generate issue body for CLI testing gap."""
-        return """## Test Coverage Gap Details
+        return f"""## Test Coverage Gap Details
 
 ### Coverage Information
 - **Area/Layer**: CLI (Command Line Interface)
@@ -170,7 +177,7 @@ The CLI is a major user interface for Pynomaly with severely inadequate test cov
 ### Implementation Plan
 - **Estimated Effort**: 3 weeks, 1 developer
 - **Dependencies**: CLI framework understanding, test data creation
-- **Deliverables**: 
+- **Deliverables**:
   ```
   tests/cli/commands/
   ├── test_detect_command.py
@@ -178,7 +185,7 @@ The CLI is a major user interface for Pynomaly with severely inadequate test cov
   ├── test_autonomous_command.py
   ├── test_dataset_command.py
   └── test_export_command.py
-  
+
   tests/cli/integration/
   ├── test_cli_workflows.py
   ├── test_cli_configuration.py
@@ -195,13 +202,13 @@ The CLI is a major user interface for Pynomaly with severely inadequate test cov
 
 ---
 ### Analysis Details
-**Report Generated**: {timestamp}
+**Report Generated**: {datetime.now().isoformat()}
 **Analysis Tool**: Automated Test Coverage Analysis
-**Priority**: Phase 1 - Critical Gap Resolution""".format(timestamp=datetime.now().isoformat())
+**Priority**: Phase 1 - Critical Gap Resolution"""
 
     def _generate_infrastructure_gap_issue_body(self) -> str:
         """Generate issue body for infrastructure testing gap."""
-        return """## Test Coverage Gap Details
+        return f"""## Test Coverage Gap Details
 
 ### Coverage Information
 - **Area/Layer**: Infrastructure Layer
@@ -266,13 +273,13 @@ The infrastructure layer has significant gaps in test coverage, particularly aro
 
 ---
 ### Analysis Details
-**Report Generated**: {timestamp}
+**Report Generated**: {datetime.now().isoformat()}
 **Analysis Tool**: Automated Test Coverage Analysis
-**Priority**: Phase 1 - Critical Gap Resolution""".format(timestamp=datetime.now().isoformat())
+**Priority**: Phase 1 - Critical Gap Resolution"""
 
     def _generate_system_testing_issue_body(self) -> str:
         """Generate issue body for system testing gap."""
-        return """## Test Coverage Gap Details
+        return f"""## Test Coverage Gap Details
 
 ### Coverage Information
 - **Area/Layer**: System Testing
@@ -329,9 +336,9 @@ There is no dedicated system testing category, which means end-to-end system val
 
 ---
 ### Analysis Details
-**Report Generated**: {timestamp}
+**Report Generated**: {datetime.now().isoformat()}
 **Analysis Tool**: Automated Test Coverage Analysis
-**Priority**: Phase 1 - Critical Gap Resolution""".format(timestamp=datetime.now().isoformat())
+**Priority**: Phase 1 - Critical Gap Resolution"""
 
     def _generate_acceptance_testing_issue_body(self) -> str:
         """Generate issue body for acceptance testing."""
@@ -421,7 +428,7 @@ tests/acceptance/
 ### Tracking
 - **Parent Epic**: Test Coverage Improvement - Phase 2
 - **Sprint**: Phase 2 Implementation
-- **Priority**: High""".format(timestamp=datetime.now().isoformat())
+- **Priority**: High""".format()
 
     def _generate_presentation_layer_issue_body(self) -> str:
         """Generate issue body for presentation layer improvement."""
@@ -511,7 +518,7 @@ tests/presentation/
 ### Tracking
 - **Parent Epic**: Test Coverage Improvement - Phase 2
 - **Sprint**: Phase 2 Implementation
-- **Priority**: High""".format(timestamp=datetime.now().isoformat())
+- **Priority**: High""".format()
 
     def _generate_cross_layer_integration_issue_body(self) -> str:
         """Generate issue body for cross-layer integration testing."""
@@ -595,7 +602,7 @@ tests/integration/cross_layer/
 ### Tracking
 - **Parent Epic**: Test Coverage Improvement - Phase 2
 - **Sprint**: Phase 2 Implementation
-- **Priority**: High""".format(timestamp=datetime.now().isoformat())
+- **Priority**: High""".format()
 
     def _generate_cli_commands_task_body(self) -> str:
         """Generate task body for CLI commands testing."""
@@ -679,7 +686,7 @@ tests/cli/commands/
 ### Tracking
 - **Parent Epic**: CLI Testing Gap
 - **Sprint**: Phase 1 Implementation
-- **Priority**: Critical""".format(timestamp=datetime.now().isoformat())
+- **Priority**: Critical""".format()
 
     def _generate_cli_integration_task_body(self) -> str:
         """Generate task body for CLI integration testing."""
@@ -762,7 +769,7 @@ tests/cli/integration/
 ### Tracking
 - **Parent Epic**: CLI Testing Gap
 - **Sprint**: Phase 1 Implementation
-- **Priority**: Critical""".format(timestamp=datetime.now().isoformat())
+- **Priority**: Critical""".format()
 
     def _generate_repository_testing_task_body(self) -> str:
         """Generate task body for repository testing."""
@@ -845,7 +852,7 @@ tests/infrastructure/persistence/
 ### Tracking
 - **Parent Epic**: Infrastructure Layer Gap
 - **Sprint**: Phase 1 Implementation
-- **Priority**: Critical""".format(timestamp=datetime.now().isoformat())
+- **Priority**: Critical""".format()
 
     def _generate_external_services_task_body(self) -> str:
         """Generate task body for external services testing."""
@@ -928,9 +935,9 @@ tests/infrastructure/external/
 ### Tracking
 - **Parent Epic**: Infrastructure Layer Gap
 - **Sprint**: Phase 1 Implementation
-- **Priority**: Critical""".format(timestamp=datetime.now().isoformat())
+- **Priority**: Critical""".format()
 
-    def save_issues_to_files(self, issues: List[Dict], category: str) -> None:
+    def save_issues_to_files(self, issues: list[dict], category: str) -> None:
         """Save issues to markdown files for review."""
         category_dir = self.issues_dir / category
         category_dir.mkdir(exist_ok=True)
@@ -947,7 +954,7 @@ tests/infrastructure/external/
 
 {issue['body']}
 """
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 f.write(content)
 
         click.echo(f"✅ Saved {len(issues)} {category} issues to {category_dir}")
@@ -969,8 +976,10 @@ tests/infrastructure/external/
         self.save_issues_to_files(task_issues, "improvement_tasks")
 
         # Generate summary
-        total_issues = len(critical_issues) + len(high_priority_issues) + len(task_issues)
-        
+        total_issues = (
+            len(critical_issues) + len(high_priority_issues) + len(task_issues)
+        )
+
         summary = f"""# GitHub Issues Summary
 
 **Generated**: {datetime.now().isoformat()}
@@ -1002,28 +1011,30 @@ To create these issues using GitHub CLI:
 {self._generate_gh_cli_commands(task_issues)}
 ```
 """
-        
-        with open(self.issues_dir / "README.md", 'w') as f:
+
+        with open(self.issues_dir / "README.md", "w") as f:
             f.write(summary)
 
-        click.echo(f"\n📊 Issue Generation Summary:")
+        click.echo("\n📊 Issue Generation Summary:")
         click.echo(f"├── Critical Gaps: {len(critical_issues)} issues")
         click.echo(f"├── High Priority: {len(high_priority_issues)} issues")
         click.echo(f"├── Improvement Tasks: {len(task_issues)} issues")
         click.echo(f"└── Total: {total_issues} issues")
         click.echo(f"\n✅ All issues saved to: {self.issues_dir}")
 
-    def _generate_gh_cli_commands(self, issues: List[Dict]) -> str:
+    def _generate_gh_cli_commands(self, issues: list[dict]) -> str:
         """Generate GitHub CLI commands for creating issues."""
         commands = []
         for issue in issues:
-            labels = ' '.join([f'--label "{label}"' for label in issue['labels']])
-            title = issue['title'].replace('"', '\\"')
-            
+            labels = " ".join([f'--label "{label}"' for label in issue["labels"]])
+            title = issue["title"].replace('"', '\\"')
+
             # Save body to temp file and reference it
-            commands.append(f'gh issue create --title "{title}" {labels} --body-file <(echo "{issue["body"][:100]}...")')
-        
-        return '\n'.join(commands[:3])  # Show first 3 as examples
+            commands.append(
+                f'gh issue create --title "{title}" {labels} --body-file <(echo "{issue["body"][:100]}...")'
+            )
+
+        return "\n".join(commands[:3])  # Show first 3 as examples
 
 
 @click.command()

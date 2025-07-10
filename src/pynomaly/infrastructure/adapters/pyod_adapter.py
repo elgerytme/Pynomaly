@@ -14,7 +14,6 @@ from pynomaly.domain.exceptions import (
     InvalidAlgorithmError,
 )
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols.detector_protocol import DetectorProtocol
 
 
 class PyODAdapter:
@@ -109,6 +108,7 @@ class PyODAdapter:
         self._is_fitted = False
         self._metadata: dict[str, Any] = {}
         from uuid import uuid4
+
         self._id = uuid4()
 
         # Load PyOD model class
@@ -238,9 +238,7 @@ class PyODAdapter:
     def detect(self, dataset: Dataset) -> DetectionResult:
         """Detect anomalies in a dataset."""
         if not self._is_fitted or self._model is None:
-            raise DetectorNotFittedError(
-                detector_name=self._name, operation="detect"
-            )
+            raise DetectorNotFittedError(detector_name=self._name, operation="detect")
 
         # Get features
         X = dataset.features[dataset.get_numeric_features()].values
@@ -313,9 +311,7 @@ class PyODAdapter:
     def score(self, dataset: Dataset) -> list[AnomalyScore]:
         """Calculate anomaly scores for a dataset."""
         if not self._is_fitted or self._model is None:
-            raise DetectorNotFittedError(
-                detector_name=self._name, operation="score"
-            )
+            raise DetectorNotFittedError(detector_name=self._name, operation="score")
 
         # Get features
         X = dataset.features[dataset.get_numeric_features()].values

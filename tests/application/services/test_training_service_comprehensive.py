@@ -3,19 +3,20 @@ Comprehensive tests for training service.
 Tests model training orchestration, validation, and training pipeline management.
 """
 
-import asyncio
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, Mock
 from uuid import uuid4
 
 import numpy as np
 import pytest
 
-from pynomaly.application.services.training_service import AutomatedTrainingService as TrainingService
+from pynomaly.application.services.training_service import (
+    AutomatedTrainingService as TrainingService,
+)
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.entities.training_job import TrainingJob
 from pynomaly.domain.entities.training_result import TrainingResult
-from pynomaly.domain.exceptions import DatasetError, DetectorError, TrainingError
+from pynomaly.domain.exceptions import DetectorError, TrainingError
 from pynomaly.domain.value_objects import PerformanceMetrics
 
 
@@ -95,7 +96,11 @@ class TestTrainingService:
             name="training-dataset",
             file_path="/tmp/train.csv",
             features=["feature1", "feature2", "feature3"],
-            feature_types={"feature1": "numeric", "feature2": "numeric", "feature3": "numeric"},
+            feature_types={
+                "feature1": "numeric",
+                "feature2": "numeric",
+                "feature3": "numeric",
+            },
             target_column=None,
             data_shape=(1000, 3),
         )
@@ -363,7 +368,7 @@ class TestTrainingService:
         # Mock callbacks
         progress_callback = Mock()
         validation_callback = Mock()
-        
+
         callbacks = {
             "on_epoch_end": progress_callback,
             "on_validation_end": validation_callback,
@@ -613,7 +618,9 @@ class TestTrainingService:
         mock_detector_repository.find_by_id.return_value = sample_detector
 
         # Mock algorithm adapter to raise error
-        mock_algorithm_registry.get_adapter.return_value.fit.side_effect = RuntimeError("Training failed")
+        mock_algorithm_registry.get_adapter.return_value.fit.side_effect = RuntimeError(
+            "Training failed"
+        )
 
         # Execute & Verify
         with pytest.raises(TrainingError, match="Training failed"):

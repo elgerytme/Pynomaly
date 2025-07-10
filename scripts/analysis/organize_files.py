@@ -20,7 +20,7 @@ except ImportError:
     def load_config(config_path=None):
         """Fallback config loader."""
         return None
-    
+
     def categorize_stray_file(file_path, config=None):
         """Fallback categorization function."""
         name = file_path.name.lower()
@@ -64,7 +64,9 @@ except ImportError:
 class FileOrganizer:
     """Automated file organization system."""
 
-    def __init__(self, project_root: Path = None, dry_run: bool = True, config_path: str = None):
+    def __init__(
+        self, project_root: Path = None, dry_run: bool = True, config_path: str = None
+    ):
         self.project_root = project_root or Path.cwd()
         self.dry_run = dry_run
         self.operations = []
@@ -210,11 +212,11 @@ class FileOrganizer:
             ".pre-commit-config.yaml",
             ".pyno-org.yaml",
         }
-        
+
         # Update with configuration if available
-        if self.config and 'allowed_root_files' in self.config:
-            allowed_files.update(self.config['allowed_root_files'])
-        
+        if self.config and "allowed_root_files" in self.config:
+            allowed_files.update(self.config["allowed_root_files"])
+
         return filename in allowed_files
 
     def _is_allowed_root_directory(self, dirname: str) -> bool:
@@ -239,11 +241,11 @@ class FileOrganizer:
             ".git",
             "node_modules",
         }
-        
+
         # Update with configuration if available
-        if self.config and 'allowed_root_directories' in self.config:
-            allowed_dirs.update(self.config['allowed_root_directories'])
-        
+        if self.config and "allowed_root_directories" in self.config:
+            allowed_dirs.update(self.config["allowed_root_directories"])
+
         return dirname in allowed_dirs
 
     def _plan_file_operation(self, file_info: dict) -> dict | None:
@@ -412,102 +414,115 @@ def main():
     """Main organization function - now calls the unified CLI."""
     print("[!] DEPRECATED: This script has been replaced by 'pyno-org organize'")
     print("    Falling back to the unified CLI...\n")
-    
+
     try:
         # Map old arguments to new CLI
         import sys
-        new_args = [sys.executable, str(Path(__file__).parent.parent / "pyno_org.py"), "organize"]
-        
+
+        new_args = [
+            sys.executable,
+            str(Path(__file__).parent.parent / "pyno_org.py"),
+            "organize",
+        ]
+
         # Parse original arguments to map to new CLI
         parser = argparse.ArgumentParser(description="Organize Pynomaly project files")
         parser.add_argument(
-            "--execute", action="store_true", help="Execute operations (default is dry-run)"
+            "--execute",
+            action="store_true",
+            help="Execute operations (default is dry-run)",
         )
         parser.add_argument(
             "--force", action="store_true", help="Force execution without confirmation"
         )
         parser.add_argument("--output", type=str, help="Save report to file")
-        
+
         args = parser.parse_args()
-        
+
         # Map arguments to new CLI
         if args.execute:
             new_args.append("--fix")
         else:
             new_args.append("--dry")
-            
+
         if args.force:
             new_args.append("--force")
-            
+
         if args.output:
             new_args.extend(["--output", args.output])
-        
+
         # Call the unified CLI
         result = subprocess.run(new_args, capture_output=False, text=True)
         sys.exit(result.returncode)
-        
+
     except Exception as e:
         print(f"[-] Error calling unified CLI: {e}")
         print("    Falling back to original implementation...\n")
-        
+
         # Fallback to original implementation
         parser = argparse.ArgumentParser(description="Organize Pynomaly project files")
         parser.add_argument(
-            "--execute", action="store_true", help="Execute operations (default is dry-run)"
+            "--execute",
+            action="store_true",
+            help="Execute operations (default is dry-run)",
         )
         parser.add_argument(
             "--force", action="store_true", help="Force execution without confirmation"
         )
         parser.add_argument("--output", type=str, help="Save report to file")
-        
+
         args = parser.parse_args()
-        
+
         # Initialize organizer
         organizer = FileOrganizer(dry_run=not args.execute)
-        
+
         print("[*] Pynomaly File Organization Tool")
         print("=" * 50)
-        
+
         # Analyze current state
         analysis = organizer.analyze_repository()
-        
+
         if not analysis["stray_files"] and not analysis["stray_directories"]:
             print("[+] Repository is already well-organized!")
             return
-        
+
         print(
             f"Found {len(analysis['stray_files'])} stray files and {len(analysis['stray_directories'])} stray directories"
         )
-        
+
         # Plan operations
         operations = organizer.plan_organization(analysis)
-        
+
         if not operations:
             print("[!] No operations needed")
             return
-        
+
         print(f"\nPlanned {len(operations)} operations:")
         for op in operations:
             print(
                 f"  • {op['action'].upper()}: {op['source']} -> {op.get('target', 'DELETED')}"
             )
-        
+
         # Confirm execution if not dry run
         if args.execute and not args.force:
             response = input(f"\n[!] Execute {len(operations)} operations? [y/N]: ")
             if response.lower() != "y":
                 print("[-] Operation cancelled")
                 return
-        
+
         # Execute operations
         results = organizer.execute_operations(operations)
-        
+
         # Print summary
         print_summary(results, not args.execute)
-        
+
         # Save report if requested
         if args.output:
-            report = {"analysis": analysis, "operations": operations, "results": results}
+            report = {
+                "analysis": analysis,
+                "operations": operations,
+                "results": results,
+            }
             with open(args.output, "w") as f:
                 json.dump(report, f, indent=2)
             print(f"\n[>] Report saved to: {args.output}")

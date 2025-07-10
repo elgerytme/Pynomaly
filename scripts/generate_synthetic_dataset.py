@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 
 def generate_random_string(length=10):
     """Generate a random string of specified length."""
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+    return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
 
 def generate_timestamp():
@@ -28,23 +28,29 @@ def generate_timestamp():
 def generate_row():
     """Generate a single row of synthetic data."""
     return {
-        'id': random.randint(1, 10000000),
-        'timestamp': generate_timestamp().isoformat(),
-        'user_id': random.randint(1, 100000),
-        'session_id': generate_random_string(16),
-        'event_type': random.choice(['click', 'view', 'purchase', 'login', 'logout']),
-        'category': random.choice(['electronics', 'clothing', 'books', 'food', 'sports']),
-        'value': round(random.uniform(0.01, 999.99), 2),
-        'quantity': random.randint(1, 10),
-        'status': random.choice(['active', 'inactive', 'pending', 'completed']),
-        'metadata': json.dumps({
-            'browser': random.choice(['Chrome', 'Firefox', 'Safari', 'Edge']),
-            'os': random.choice(['Windows', 'macOS', 'Linux']),
-            'device': random.choice(['desktop', 'mobile', 'tablet']),
-            'location': random.choice(['US', 'UK', 'CA', 'DE', 'FR', 'JP', 'AU'])
-        }),
-        'description': generate_random_string(50),
-        'tags': ','.join([generate_random_string(8) for _ in range(random.randint(1, 5))])
+        "id": random.randint(1, 10000000),
+        "timestamp": generate_timestamp().isoformat(),
+        "user_id": random.randint(1, 100000),
+        "session_id": generate_random_string(16),
+        "event_type": random.choice(["click", "view", "purchase", "login", "logout"]),
+        "category": random.choice(
+            ["electronics", "clothing", "books", "food", "sports"]
+        ),
+        "value": round(random.uniform(0.01, 999.99), 2),
+        "quantity": random.randint(1, 10),
+        "status": random.choice(["active", "inactive", "pending", "completed"]),
+        "metadata": json.dumps(
+            {
+                "browser": random.choice(["Chrome", "Firefox", "Safari", "Edge"]),
+                "os": random.choice(["Windows", "macOS", "Linux"]),
+                "device": random.choice(["desktop", "mobile", "tablet"]),
+                "location": random.choice(["US", "UK", "CA", "DE", "FR", "JP", "AU"]),
+            }
+        ),
+        "description": generate_random_string(50),
+        "tags": ",".join(
+            [generate_random_string(8) for _ in range(random.randint(1, 5))]
+        ),
     }
 
 
@@ -53,10 +59,12 @@ def estimate_row_size():
     sample_row = generate_row()
     # Convert to JSON string to estimate size
     json_str = json.dumps(sample_row)
-    return len(json_str.encode('utf-8'))
+    return len(json_str.encode("utf-8"))
 
 
-def generate_synthetic_dataset(target_size_gb=10, output_file='data/synthetic_10gb.csv'):
+def generate_synthetic_dataset(
+    target_size_gb=10, output_file="data/synthetic_10gb.csv"
+):
     """Generate a synthetic dataset of approximately the target size."""
     target_size_bytes = target_size_gb * 1024 * 1024 * 1024  # Convert GB to bytes
 
@@ -72,11 +80,20 @@ def generate_synthetic_dataset(target_size_gb=10, output_file='data/synthetic_10
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     # Generate the dataset
-    with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
+    with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
         fieldnames = [
-            'id', 'timestamp', 'user_id', 'session_id', 'event_type',
-            'category', 'value', 'quantity', 'status', 'metadata',
-            'description', 'tags'
+            "id",
+            "timestamp",
+            "user_id",
+            "session_id",
+            "event_type",
+            "category",
+            "value",
+            "quantity",
+            "status",
+            "metadata",
+            "description",
+            "tags",
         ]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
@@ -94,7 +111,9 @@ def generate_synthetic_dataset(target_size_gb=10, output_file='data/synthetic_10
                 if rows_written % 10000 == 0:
                     current_size = os.path.getsize(output_file)
                     progress = (current_size / target_size_bytes) * 100
-                    print(f"Progress: {progress:.1f}% ({rows_written:,} rows, {current_size / (1024*1024*1024):.2f} GB)")
+                    print(
+                        f"Progress: {progress:.1f}% ({rows_written:,} rows, {current_size / (1024*1024*1024):.2f} GB)"
+                    )
                     bytes_written = current_size
 
                     # Check if we've reached the target
@@ -105,7 +124,7 @@ def generate_synthetic_dataset(target_size_gb=10, output_file='data/synthetic_10
             print(f"\nInterrupted by user. Generated {rows_written:,} rows.")
 
     final_size = os.path.getsize(output_file)
-    print(f"\nDataset generation complete!")
+    print("\nDataset generation complete!")
     print(f"Final size: {final_size / (1024*1024*1024):.2f} GB")
     print(f"Total rows: {rows_written:,}")
     print(f"Output file: {output_file}")
@@ -114,7 +133,7 @@ def generate_synthetic_dataset(target_size_gb=10, output_file='data/synthetic_10
 if __name__ == "__main__":
     # Allow command line arguments for target size and output file
     target_size = 10
-    output_file = 'data/synthetic_10gb.csv'
+    output_file = "data/synthetic_10gb.csv"
 
     if len(sys.argv) > 1:
         target_size = int(sys.argv[1])

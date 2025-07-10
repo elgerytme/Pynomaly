@@ -9,10 +9,20 @@ from rich.table import Table
 
 from pynomaly.domain.entities import Detector
 from pynomaly.presentation.cli.container import get_cli_container
+from pynomaly.presentation.cli.help_formatter import (
+    get_option_help,
+    get_standard_help,
+)
 from pynomaly.presentation.cli.ux_improvements import CLIErrorHandler, CLIHelpers
 
+# Get standardized help for this command group
+_help_info = get_standard_help("detector")
+
 app = typer.Typer(
-    name="detector", help="Manage anomaly detection models", rich_markup_mode="rich"
+    name="detector",
+    help=_help_info["help"],
+    rich_markup_mode="rich",
+    no_args_is_help=True,
 )
 console = Console()
 
@@ -20,33 +30,40 @@ console = Console()
 @app.command("list")
 def list_detectors(
     algorithm: str | None = typer.Option(
-        None, "--algorithm", "-a", help="Filter by algorithm", rich_help_panel="Filters"
+        None,
+        "--algorithm",
+        "-a",
+        help=get_option_help("algorithm"),
+        rich_help_panel="Filters",
     ),
     fitted: bool | None = typer.Option(
-        None, "--fitted", help="Filter by fitted status", rich_help_panel="Filters"
+        None,
+        "--fitted",
+        help="Show only trained/fitted detectors",
+        rich_help_panel="Filters",
     ),
     limit: int = typer.Option(
         10,
         "--limit",
         "-l",
-        help="Maximum results to show",
+        help=get_option_help("limit"),
         rich_help_panel="Display Options",
     ),
     format: str = typer.Option(
         "table",
         "--format",
         "-f",
-        help="Output format: table, json, csv",
+        help=get_option_help("format"),
         rich_help_panel="Display Options",
     ),
 ):
-    """List all detectors with enhanced filtering and display options.
+    """List all detectors with filtering and display options.
 
-    [bold]Common Usage:[/bold]
-    • List all detectors: [cyan]pynomaly detector list[/cyan]
-    • Filter by algorithm: [cyan]pynomaly detector list --algorithm IsolationForest[/cyan]
-    • Show only fitted detectors: [cyan]pynomaly detector list --fitted[/cyan]
-    • Export to CSV: [cyan]pynomaly detector list --format csv[/cyan]
+    Examples:
+      pynomaly detector list
+      pynomaly detector list --algorithm IsolationForest
+      pynomaly detector list --fitted --format json
+      pynomaly detector list --limit 20 --format csv
 
     [bold]Examples:[/bold]
     • [cyan]pynomaly detector list --algorithm LOF --fitted --limit 5[/cyan]
@@ -375,13 +392,41 @@ def delete_detector(
         raise typer.Exit(1)
 
 
+@app.command("examples")
+def show_examples():
+    """Show common detector usage examples with rich formatting."""
+    from pynomaly.presentation.cli.help_formatter import format_rich_help
+
+    examples = [
+        "pynomaly detector create --name fraud_detector --algorithm IsolationForest",
+        "pynomaly detector list --algorithm LOF --fitted",
+        "pynomaly detector show my_detector --format json",
+        "pynomaly detector clone detector_123 new_detector_name",
+        "pynomaly detector delete old_detector --force",
+    ]
+
+    tips = [
+        "Use partial IDs for faster commands (e.g., '123' instead of full UUID)",
+        "Filter commands support multiple criteria for precise results",
+        "Use --format json for programmatic integration",
+        "Always backup important detectors before deletion",
+    ]
+
+    format_rich_help(
+        title="Detector Management Examples",
+        description=_help_info["description"],
+        examples=examples,
+        tips=tips,
+    )
+
+
 @app.command("algorithms")
 def list_algorithms(
     category: str | None = typer.Option(
-        None, "--category", "-c", help="Filter by category"
+        None, "--category", "-c", help="Filter by algorithm category"
     ),
 ):
-    """List available algorithms."""
+    """List available anomaly detection algorithms."""
     get_cli_container()
 
     try:

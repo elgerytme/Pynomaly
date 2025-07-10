@@ -9,14 +9,13 @@ GitHub code scanning.
 
 import json
 import sys
+import uuid
 from datetime import datetime
 from pathlib import Path
-import uuid
 
 # Import the existing validation logic
 sys.path.insert(0, str(Path(__file__).parent))
 from validate_file_organization import print_results, validate_file_organization
-
 
 SARIF_VERSION = "2.1.0"
 
@@ -28,7 +27,7 @@ def generate_sarif(violations):
         "driver": {
             "name": "validate_structure",
             "informationUri": "https://github.com/pynomaly/pynomaly",
-            "rules": []
+            "rules": [],
         }
     }
     results = []
@@ -36,34 +35,25 @@ def generate_sarif(violations):
         result = {
             "ruleId": str(uuid.uuid4()),
             "level": "error",
-            "message": {
-                "text": violation
-            },
+            "message": {"text": violation},
             "locations": [
                 {
                     "physicalLocation": {
-                        "artifactLocation": {
-                            "uri": "file://pathname"
-                        },
-                        "region": {
-                            "startLine": 0
-                        }
+                        "artifactLocation": {"uri": "file://pathname"},
+                        "region": {"startLine": 0},
                     }
                 }
-            ]
+            ],
         }
         results.append(result)
 
-    run = {
-        "tool": tool,
-        "results": results
-    }
+    run = {"tool": tool, "results": results}
     runs.append(run)
 
     sarif_report = {
         "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
         "version": SARIF_VERSION,
-        "runs": runs
+        "runs": runs,
     }
 
     return sarif_report
@@ -87,7 +77,7 @@ def main():
         "violations": violations,
         "suggestions": suggestions,
         "validation_type": "pre-commit",
-        "timestamp": timestamp
+        "timestamp": timestamp,
     }
 
     sarif_report = generate_sarif(violations)
