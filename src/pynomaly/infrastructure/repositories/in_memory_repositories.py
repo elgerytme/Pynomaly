@@ -23,20 +23,20 @@ class InMemoryDetectorRepository(DetectorRepositoryProtocol):
         self._model_artifacts: dict[UUID, bytes] = {}
         self._name_index: dict[str, UUID] = {}
 
-    def save(self, entity: Detector) -> None:
+    async def save(self, entity: Detector) -> None:
         """Save a detector to the repository."""
         self._storage[entity.id] = entity
         self._name_index[entity.name] = entity.id
 
-    def find_by_id(self, entity_id: UUID) -> Detector | None:
+    async def find_by_id(self, entity_id: UUID) -> Detector | None:
         """Find a detector by its ID."""
         return self._storage.get(entity_id)
 
-    def find_all(self) -> list[Detector]:
+    async def find_all(self) -> list[Detector]:
         """Find all detectors in the repository."""
         return list(self._storage.values())
 
-    def delete(self, entity_id: UUID) -> bool:
+    async def delete(self, entity_id: UUID) -> bool:
         """Delete a detector by its ID."""
         if entity_id in self._storage:
             detector = self._storage[entity_id]
@@ -53,22 +53,22 @@ class InMemoryDetectorRepository(DetectorRepositoryProtocol):
             return True
         return False
 
-    def exists(self, entity_id: UUID) -> bool:
+    async def exists(self, entity_id: UUID) -> bool:
         """Check if a detector exists."""
         return entity_id in self._storage
 
-    def count(self) -> int:
+    async def count(self) -> int:
         """Count total number of detectors."""
         return len(self._storage)
 
-    def find_by_name(self, name: str) -> Detector | None:
+    async def find_by_name(self, name: str) -> Detector | None:
         """Find a detector by name."""
         detector_id = self._name_index.get(name)
         if detector_id:
             return self._storage.get(detector_id)
         return None
 
-    def find_by_algorithm(self, algorithm_name: str) -> list[Detector]:
+    async def find_by_algorithm(self, algorithm_name: str) -> list[Detector]:
         """Find all detectors using a specific algorithm."""
         return [
             detector
@@ -76,15 +76,15 @@ class InMemoryDetectorRepository(DetectorRepositoryProtocol):
             if detector.algorithm_name == algorithm_name
         ]
 
-    def find_fitted(self) -> list[Detector]:
+    async def find_fitted(self) -> list[Detector]:
         """Find all fitted detectors."""
         return [detector for detector in self._storage.values() if detector.is_fitted]
 
-    def save_model_artifact(self, detector_id: UUID, artifact: bytes) -> None:
+    async def save_model_artifact(self, detector_id: UUID, artifact: bytes) -> None:
         """Save the trained model artifact."""
         self._model_artifacts[detector_id] = artifact
 
-    def load_model_artifact(self, detector_id: UUID) -> bytes | None:
+    async def load_model_artifact(self, detector_id: UUID) -> bytes | None:
         """Load the trained model artifact."""
         return self._model_artifacts.get(detector_id)
 
@@ -98,20 +98,20 @@ class InMemoryDatasetRepository(DatasetRepositoryProtocol):
         self._name_index: dict[str, UUID] = {}
         self._data_storage: dict[UUID, Any] = {}
 
-    def save(self, entity: Dataset) -> None:
+    async def save(self, entity: Dataset) -> None:
         """Save a dataset to the repository."""
         self._storage[entity.id] = entity
         self._name_index[entity.name] = entity.id
 
-    def find_by_id(self, entity_id: UUID) -> Dataset | None:
+    async def find_by_id(self, entity_id: UUID) -> Dataset | None:
         """Find a dataset by its ID."""
         return self._storage.get(entity_id)
 
-    def find_all(self) -> list[Dataset]:
+    async def find_all(self) -> list[Dataset]:
         """Find all datasets in the repository."""
         return list(self._storage.values())
 
-    def delete(self, entity_id: UUID) -> bool:
+    async def delete(self, entity_id: UUID) -> bool:
         """Delete a dataset by its ID."""
         if entity_id in self._storage:
             dataset = self._storage[entity_id]
@@ -128,22 +128,22 @@ class InMemoryDatasetRepository(DatasetRepositoryProtocol):
             return True
         return False
 
-    def exists(self, entity_id: UUID) -> bool:
+    async def exists(self, entity_id: UUID) -> bool:
         """Check if a dataset exists."""
         return entity_id in self._storage
 
-    def count(self) -> int:
+    async def count(self) -> int:
         """Count total number of datasets."""
         return len(self._storage)
 
-    def find_by_name(self, name: str) -> Dataset | None:
+    async def find_by_name(self, name: str) -> Dataset | None:
         """Find a dataset by name."""
         dataset_id = self._name_index.get(name)
         if dataset_id:
             return self._storage.get(dataset_id)
         return None
 
-    def find_by_metadata(self, key: str, value: Any) -> list[Dataset]:
+    async def find_by_metadata(self, key: str, value: Any) -> list[Dataset]:
         """Find datasets by metadata key-value pair."""
         return [
             dataset
@@ -151,7 +151,7 @@ class InMemoryDatasetRepository(DatasetRepositoryProtocol):
             if dataset.metadata.get(key) == value
         ]
 
-    def save_data(self, dataset_id: UUID, format: str = "parquet") -> str:
+    async def save_data(self, dataset_id: UUID, format: str = "parquet") -> str:
         """Save dataset data to persistent storage."""
         dataset = self._storage.get(dataset_id)
         if not dataset:
@@ -166,7 +166,7 @@ class InMemoryDatasetRepository(DatasetRepositoryProtocol):
 
         return f"memory://{dataset_id}.{format}"
 
-    def load_data(self, dataset_id: UUID) -> Dataset | None:
+    async def load_data(self, dataset_id: UUID) -> Dataset | None:
         """Load dataset with its data from storage."""
         dataset = self._storage.get(dataset_id)
         if dataset and dataset_id in self._data_storage:
@@ -184,7 +184,7 @@ class InMemoryResultRepository(DetectionResultRepositoryProtocol):
         self._detector_index: dict[UUID, list[UUID]] = {}
         self._dataset_index: dict[UUID, list[UUID]] = {}
 
-    def save(self, entity: DetectionResult) -> None:
+    async def save(self, entity: DetectionResult) -> None:
         """Save a detection result to the repository."""
         self._storage[entity.id] = entity
 
@@ -197,15 +197,15 @@ class InMemoryResultRepository(DetectionResultRepositoryProtocol):
             self._dataset_index[entity.dataset_id] = []
         self._dataset_index[entity.dataset_id].append(entity.id)
 
-    def find_by_id(self, entity_id: UUID) -> DetectionResult | None:
+    async def find_by_id(self, entity_id: UUID) -> DetectionResult | None:
         """Find a detection result by its ID."""
         return self._storage.get(entity_id)
 
-    def find_all(self) -> list[DetectionResult]:
+    async def find_all(self) -> list[DetectionResult]:
         """Find all detection results in the repository."""
         return list(self._storage.values())
 
-    def delete(self, entity_id: UUID) -> bool:
+    async def delete(self, entity_id: UUID) -> bool:
         """Delete a detection result by its ID."""
         if entity_id in self._storage:
             result = self._storage[entity_id]
@@ -225,15 +225,15 @@ class InMemoryResultRepository(DetectionResultRepositoryProtocol):
             return True
         return False
 
-    def exists(self, entity_id: UUID) -> bool:
+    async def exists(self, entity_id: UUID) -> bool:
         """Check if a detection result exists."""
         return entity_id in self._storage
 
-    def count(self) -> int:
+    async def count(self) -> int:
         """Count total number of detection results."""
         return len(self._storage)
 
-    def find_by_detector(self, detector_id: UUID) -> list[DetectionResult]:
+    async def find_by_detector(self, detector_id: UUID) -> list[DetectionResult]:
         """Find all results from a specific detector."""
         result_ids = self._detector_index.get(detector_id, [])
         return [
@@ -242,7 +242,7 @@ class InMemoryResultRepository(DetectionResultRepositoryProtocol):
             if result_id in self._storage
         ]
 
-    def find_by_dataset(self, dataset_id: UUID) -> list[DetectionResult]:
+    async def find_by_dataset(self, dataset_id: UUID) -> list[DetectionResult]:
         """Find all results for a specific dataset."""
         result_ids = self._dataset_index.get(dataset_id, [])
         return [
@@ -251,7 +251,7 @@ class InMemoryResultRepository(DetectionResultRepositoryProtocol):
             if result_id in self._storage
         ]
 
-    def find_recent(self, limit: int = 10) -> list[DetectionResult]:
+    async def find_recent(self, limit: int = 10) -> list[DetectionResult]:
         """Find most recent detection results."""
         # Sort by timestamp
         sorted_results = sorted(
@@ -259,7 +259,7 @@ class InMemoryResultRepository(DetectionResultRepositoryProtocol):
         )
         return sorted_results[:limit]
 
-    def get_summary_stats(self, result_id: UUID) -> dict[str, Any]:
+    async def get_summary_stats(self, result_id: UUID) -> dict[str, Any]:
         """Get summary statistics for a result."""
         result = self._storage.get(result_id)
         if not result:

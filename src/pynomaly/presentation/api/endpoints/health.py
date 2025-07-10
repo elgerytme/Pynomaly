@@ -286,8 +286,8 @@ async def readiness_check(
         container.config()
 
         # Check repositories are accessible
-        container.detector_repository().count()
-        container.dataset_repository().count()
+        await container.detector_repository().count()
+        await container.dataset_repository().count()
 
         # Check if database is responsive (if configured)
         try:
@@ -331,7 +331,7 @@ async def liveness_check() -> dict[str, str]:
 
         return {
             "status": "alive",
-            "uptime_seconds": metrics.uptime_seconds,
+            "uptime_seconds": str(metrics.uptime_seconds),
             "timestamp": datetime.now(UTC).isoformat(),
         }
 
@@ -348,12 +348,12 @@ async def liveness_check() -> dict[str, str]:
         )
 
 
-def _check_repositories(container: Container) -> dict[str, Any]:
+async def _check_repositories(container: Container) -> dict[str, Any]:
     """Check repository health."""
     try:
-        detector_count = container.detector_repository().count()
-        dataset_count = container.dataset_repository().count()
-        result_count = container.result_repository().count()
+        detector_count = await container.detector_repository().count()
+        dataset_count = await container.dataset_repository().count()
+        result_count = await container.result_repository().count()
 
         return {
             "status": "healthy",
