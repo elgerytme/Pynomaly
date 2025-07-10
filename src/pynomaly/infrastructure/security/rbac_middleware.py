@@ -8,8 +8,6 @@ This module provides enterprise-grade middleware that:
 - Includes audit logging
 """
 
-from __future__ import annotations
-
 import logging
 from typing import Annotated
 from uuid import UUID
@@ -18,9 +16,7 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from pynomaly.domain.entities.user import Permission, User, UserRole
-from pynomaly.domain.security.permission_matrix import (
-    PermissionMatrix,
-)
+from pynomaly.domain.security.permission_matrix import PermissionMatrix
 from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, get_auth
 from pynomaly.infrastructure.security.rbac_service import RBACService
 
@@ -402,8 +398,8 @@ class RequirePermissions:
     def __init__(
         self,
         permissions: list[str],
-        tenant_id: UUID | None = None,
-        resource_id: str | None = None,
+        tenant_id: Union[UUID, None] = None,
+        resource_id: Union[str, None] = None,
         allow_self_access: bool = False,
     ):
         """Initialize permission requirement.

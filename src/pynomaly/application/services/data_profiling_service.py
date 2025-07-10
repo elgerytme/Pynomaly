@@ -1,608 +1,480 @@
-"""Data profiling service for autonomous detection."""
+"""Data profiling service following single responsibility principle."""
 
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
 import pandas as pd
-from scipy import stats
 
-from pynomaly.application.services.autonomous_preprocessing import (
-    AutonomousPreprocessingOrchestrator,
-    DataQualityReport,
-)
-from pynomaly.domain.entities import Dataset
+from .interfaces.pipeline_services import DataProfile, IDataProfilingService
+
+logger = logging.getLogger(__name__)
 
 
-@dataclass
-class DataProfile:
-    """Data profiling results."""
+class DataProfilingService(IDataProfilingService):
+    """Service for profiling datasets to understand their characteristics."""
 
-    n_samples: int
-    n_features: int
-    numeric_features: int
-    categorical_features: int
-    temporal_features: int
-    missing_values_ratio: float
-    data_types: dict[str, str]
-    correlation_score: float
-    sparsity_ratio: float
-    outlier_ratio_estimate: float
-    seasonality_detected: bool
-    trend_detected: bool
-    recommended_contamination: float
-    complexity_score: float
-
-    # Preprocessing-related fields
-    quality_score: float = 1.0
-    quality_report: DataQualityReport | None = None
-    preprocessing_recommended: bool = False
-    preprocessing_applied: bool = False
-    preprocessing_metadata: dict[str, Any] | None = None
-
-
-class DataProfilingService:
-    """Service responsible for data profiling and quality assessment."""
-
-    def __init__(self, preprocessing_orchestrator: AutonomousPreprocessingOrchestrator | None = None):
+    def __init__(self, include_advanced_analysis: bool = True):
         """Initialize data profiling service.
 
         Args:
-            preprocessing_orchestrator: Orchestrator for preprocessing operations
+            include_advanced_analysis: Whether to include expensive analysis
         """
-        self.preprocessing_orchestrator = preprocessing_orchestrator or AutonomousPreprocessingOrchestrator()
-        self.logger = logging.getLogger(__name__)
+        self.include_advanced_analysis = include_advanced_analysis
 
-    async def profile_dataset(
-        self,
-        dataset: Dataset,
-        max_samples: int = 10000,
-        verbose: bool = False,
-        existing_profile: DataProfile | None = None,
+    async def profile_data(
+        self, X: pd.DataFrame, y: pd.Series | None = None
     ) -> DataProfile:
-        """Profile dataset and analyze characteristics.
+        """Profile dataset to understand its characteristics.
 
         Args:
-            dataset: Dataset to profile
-            max_samples: Maximum samples to analyze
-            verbose: Enable verbose logging
-            existing_profile: Existing profile to update (if any)
+            X: Input features
+            y: Target variable (optional)
 
         Returns:
-            Complete data profile
+            Data profile with characteristics
         """
-        if verbose:
-            self.logger.info(f"Profiling dataset: {dataset.name}")
+        logger.info("📊 Profiling dataset characteristics")
 
-        df = dataset.data
+        try:
+            # Basic statistics
+            basic_stats = self._calculate_basic_stats(X)
 
-        # Sample data if too large
-        if len(df) > max_samples:
-            df = df.sample(n=max_samples, random_state=42)
-            if verbose:
-                self.logger.info(f"Sampled {max_samples} rows for profiling")
+            # Feature analysis
+            feature_analysis = self._analyze_features(X)
 
-        # Basic statistics
-        basic_stats = self._calculate_basic_statistics(df)
+            # Data quality analysis
+            data_quality = self._analyze_data_quality(X)
 
-        # Data types analysis
-        type_analysis = self._analyze_data_types(df)
+            # Advanced analysis if enabled
+            sparsity_ratio = self._calculate_sparsity_ratio(X)
+            missing_values_ratio = self._calculate_missing_values_ratio(X)
+            complexity_score = self._calculate_complexity_score(
+                X, sparsity_ratio, missing_values_ratio
+            )
 
+            # Include target analysis if available
+            if y is not None:
+                target_analysis = self._analyze_target_variable(y)
+                basic_stats["target_analysis"] = target_analysis
+
+            logger.info(
+                f"Dataset profiling completed. Complexity score: {complexity_score:.3f}"
+            )
+
+            return DataProfile(
+                basic_stats=basic_stats,
+                feature_analysis=feature_analysis,
+                data_quality=data_quality,
+                sparsity_ratio=sparsity_ratio,
+                missing_values_ratio=missing_values_ratio,
+                complexity_score=complexity_score,
+            )
+
+        except Exception as e:
+            logger.error(f"Data profiling failed: {e}")
+            # Return minimal profile on error
+            return DataProfile(
+                basic_stats={"error": str(e)},
+                feature_analysis={},
+                data_quality={},
+                sparsity_ratio=0.0,
+                missing_values_ratio=0.0,
+                complexity_score=0.0,
+            )
+
+    def _calculate_basic_stats(self, X: pd.DataFrame) -> dict[str, Any]:
+        """Calculate basic dataset statistics."""
+        n_samples, n_features = X.shape
+        memory_usage_mb = X.memory_usage(deep=True).sum() / (1024 * 1024)
+
+        return {
+            "n_samples": n_samples,
+            "n_features": n_features,
+            "memory_usage_mb": float(memory_usage_mb),
+            "data_shape": f"{n_samples}x{n_features}",
+            "memory_per_sample_kb": float(memory_usage_mb * 1024 / n_samples)
+            if n_samples > 0
+            else 0.0,
+        }
+
+    def _analyze_features(self, X: pd.DataFrame) -> dict[str, Any]:
+        """Analyze feature types and characteristics."""
+        # Categorize features by type
+        numeric_features = X.select_dtypes(include=[np.number]).columns.tolist()
+        categorical_features = X.select_dtypes(
+            include=["object", "category"]
+        ).columns.tolist()
+        datetime_features = X.select_dtypes(include=["datetime"]).columns.tolist()
+        boolean_features = X.select_dtypes(include=["bool"]).columns.tolist()
+
+        # Feature type mapping
+        feature_types = {}
+        for col in X.columns:
+            if col in numeric_features:
+                feature_types[col] = "numeric"
+            elif col in categorical_features:
+                feature_types[col] = "categorical"
+            elif col in datetime_features:
+                feature_types[col] = "datetime"
+            elif col in boolean_features:
+                feature_types[col] = "boolean"
+            else:
+                feature_types[col] = "other"
+
+        # Feature statistics for numeric columns
+        numeric_stats = {}
+        if numeric_features:
+            numeric_data = X[numeric_features]
+            numeric_stats = {
+                "mean_values": numeric_data.mean().to_dict(),
+                "std_values": numeric_data.std().to_dict(),
+                "min_values": numeric_data.min().to_dict(),
+                "max_values": numeric_data.max().to_dict(),
+                "zero_counts": (numeric_data == 0).sum().to_dict(),
+                "infinite_counts": np.isinf(numeric_data).sum().to_dict(),
+            }
+
+        # Categorical feature statistics
+        categorical_stats = {}
+        if categorical_features:
+            for col in categorical_features:
+                categorical_stats[col] = {
+                    "unique_count": int(X[col].nunique()),
+                    "mode": X[col].mode().iloc[0] if not X[col].mode().empty else None,
+                    "most_frequent_count": int(X[col].value_counts().iloc[0])
+                    if not X[col].value_counts().empty
+                    else 0,
+                }
+
+        return {
+            "feature_types": feature_types,
+            "numeric_features": numeric_features,
+            "categorical_features": categorical_features,
+            "datetime_features": datetime_features,
+            "boolean_features": boolean_features,
+            "numeric_count": len(numeric_features),
+            "categorical_count": len(categorical_features),
+            "datetime_count": len(datetime_features),
+            "boolean_count": len(boolean_features),
+            "numeric_statistics": numeric_stats,
+            "categorical_statistics": categorical_stats,
+        }
+
+    def _analyze_data_quality(self, X: pd.DataFrame) -> dict[str, Any]:
+        """Analyze data quality metrics."""
         # Missing values analysis
-        missing_analysis = self._analyze_missing_values(df)
+        missing_per_column = X.isnull().sum()
+        missing_ratios = missing_per_column / len(X)
 
-        # Correlation analysis
-        correlation_analysis = self._analyze_correlations(df)
+        # Duplicate analysis
+        duplicate_count = X.duplicated().sum()
+        duplicate_ratio = duplicate_count / len(X)
 
-        # Outlier analysis
-        outlier_analysis = self._analyze_outliers(df)
+        # Constant features
+        constant_features = []
+        near_constant_features = []
+        for col in X.columns:
+            unique_count = X[col].nunique(dropna=False)
+            if unique_count <= 1:
+                constant_features.append(col)
+            elif unique_count <= 2:
+                near_constant_features.append(col)
 
-        # Temporal analysis
-        temporal_analysis = self._analyze_temporal_patterns(df)
+        # Data consistency checks
+        consistency_issues = []
 
-        # Complexity analysis
-        complexity_analysis = self._calculate_complexity_score(df)
+        # Check for mixed data types in object columns
+        for col in X.select_dtypes(include=["object"]).columns:
+            sample_types = {type(val).__name__ for val in X[col].dropna().iloc[:100]}
+            if len(sample_types) > 1:
+                consistency_issues.append(
+                    f"Mixed types in column '{col}': {sample_types}"
+                )
 
-        # Contamination recommendation
-        contamination_recommendation = self._recommend_contamination_rate(df, outlier_analysis)
+        # Check for extreme outliers in numeric columns
+        numeric_cols = X.select_dtypes(include=[np.number]).columns
+        extreme_outliers = {}
+        for col in numeric_cols:
+            if X[col].std() > 0:  # Avoid division by zero
+                z_scores = np.abs((X[col] - X[col].mean()) / X[col].std())
+                extreme_outlier_count = (z_scores > 5).sum()
+                if extreme_outlier_count > 0:
+                    extreme_outliers[col] = int(extreme_outlier_count)
 
-        # Create profile
-        profile = DataProfile(
-            n_samples=len(dataset.data),
-            n_features=len(df.columns),
-            numeric_features=type_analysis["numeric_count"],
-            categorical_features=type_analysis["categorical_count"],
-            temporal_features=type_analysis["temporal_count"],
-            missing_values_ratio=missing_analysis["missing_ratio"],
-            data_types=type_analysis["data_types"],
-            correlation_score=correlation_analysis["avg_correlation"],
-            sparsity_ratio=missing_analysis["sparsity_ratio"],
-            outlier_ratio_estimate=outlier_analysis["outlier_ratio"],
-            seasonality_detected=temporal_analysis["seasonality_detected"],
-            trend_detected=temporal_analysis["trend_detected"],
-            recommended_contamination=contamination_recommendation,
-            complexity_score=complexity_analysis["complexity_score"],
+        return {
+            "missing_values": {
+                "total_missing": int(missing_per_column.sum()),
+                "missing_per_column": missing_per_column.to_dict(),
+                "missing_ratios": missing_ratios.to_dict(),
+                "columns_with_missing": missing_per_column[
+                    missing_per_column > 0
+                ].index.tolist(),
+                "fully_missing_columns": missing_ratios[
+                    missing_ratios == 1.0
+                ].index.tolist(),
+            },
+            "duplicates": {
+                "duplicate_count": int(duplicate_count),
+                "duplicate_ratio": float(duplicate_ratio),
+                "unique_count": int(len(X) - duplicate_count),
+            },
+            "feature_variance": {
+                "constant_features": constant_features,
+                "near_constant_features": near_constant_features,
+                "constant_count": len(constant_features),
+                "near_constant_count": len(near_constant_features),
+            },
+            "consistency": {
+                "issues": consistency_issues,
+                "extreme_outliers": extreme_outliers,
+                "issue_count": len(consistency_issues) + len(extreme_outliers),
+            },
+        }
+
+    def _calculate_sparsity_ratio(self, X: pd.DataFrame) -> float:
+        """Calculate sparsity ratio for numeric features."""
+        numeric_cols = X.select_dtypes(include=[np.number]).columns
+        if len(numeric_cols) == 0:
+            return 0.0
+
+        numeric_data = X[numeric_cols]
+        zero_count = (numeric_data == 0).sum().sum()
+        total_elements = len(X) * len(numeric_cols)
+
+        return float(zero_count / total_elements) if total_elements > 0 else 0.0
+
+    def _calculate_missing_values_ratio(self, X: pd.DataFrame) -> float:
+        """Calculate overall missing values ratio."""
+        total_missing = X.isnull().sum().sum()
+        total_elements = len(X) * len(X.columns)
+
+        return float(total_missing / total_elements) if total_elements > 0 else 0.0
+
+    def _calculate_complexity_score(
+        self, X: pd.DataFrame, sparsity_ratio: float, missing_values_ratio: float
+    ) -> float:
+        """Calculate dataset complexity score (0-1)."""
+        complexity_factors = []
+
+        # Size factor (30%)
+        size_factor = min(len(X) / 10000, 1.0)
+        complexity_factors.append(size_factor * 0.3)
+
+        # Dimensionality factor (25%)
+        dim_factor = min(len(X.columns) / 1000, 1.0)
+        complexity_factors.append(dim_factor * 0.25)
+
+        # Sparsity factor (20%)
+        complexity_factors.append(sparsity_ratio * 0.2)
+
+        # Missing data factor (15%)
+        complexity_factors.append(missing_values_ratio * 0.15)
+
+        # Feature type diversity factor (10%)
+        numeric_ratio = len(X.select_dtypes(include=[np.number]).columns) / len(
+            X.columns
         )
+        categorical_ratio = len(
+            X.select_dtypes(include=["object", "category"]).columns
+        ) / len(X.columns)
+        diversity_factor = 1.0 - abs(0.5 - numeric_ratio) - abs(0.5 - categorical_ratio)
+        complexity_factors.append(max(diversity_factor, 0.0) * 0.1)
 
-        # Update existing profile if provided
-        if existing_profile:
-            profile.quality_score = existing_profile.quality_score
-            profile.quality_report = existing_profile.quality_report
-            profile.preprocessing_recommended = existing_profile.preprocessing_recommended
-            profile.preprocessing_applied = existing_profile.preprocessing_applied
-            profile.preprocessing_metadata = existing_profile.preprocessing_metadata
+        return min(sum(complexity_factors), 1.0)
 
-        if verbose:
-            self.logger.info(f"Profiling completed: {profile.n_samples} samples, {profile.n_features} features")
+    def _analyze_target_variable(self, y: pd.Series) -> dict[str, Any]:
+        """Analyze target variable characteristics."""
+        unique_values = y.nunique()
+        value_counts = y.value_counts()
+        missing_count = y.isnull().sum()
 
-        return profile
+        analysis = {
+            "unique_values": int(unique_values),
+            "missing_count": int(missing_count),
+            "missing_ratio": float(missing_count / len(y)),
+            "data_type": str(y.dtype),
+        }
 
-    def _calculate_basic_statistics(self, df: pd.DataFrame) -> dict[str, Any]:
-        """Calculate basic dataset statistics.
+        # Classification vs regression detection
+        if unique_values <= 20:  # Likely classification
+            analysis["task_type"] = "classification"
+            analysis["class_distribution"] = value_counts.to_dict()
 
-        Args:
-            df: DataFrame to analyze
+            # Class imbalance analysis
+            if len(value_counts) > 1:
+                max_class_count = value_counts.max()
+                min_class_count = value_counts.min()
+                analysis["class_imbalance_ratio"] = float(
+                    max_class_count / min_class_count
+                )
+                analysis["is_balanced"] = analysis["class_imbalance_ratio"] <= 2.0
+            else:
+                analysis["class_imbalance_ratio"] = 1.0
+                analysis["is_balanced"] = True
 
-        Returns:
-            Dictionary of basic statistics
-        """
-        try:
-            numeric_cols = df.select_dtypes(include=[np.number]).columns
+        else:  # Likely regression
+            analysis["task_type"] = "regression"
+            if pd.api.types.is_numeric_dtype(y):
+                analysis["target_statistics"] = {
+                    "mean": float(y.mean()),
+                    "std": float(y.std()),
+                    "min": float(y.min()),
+                    "max": float(y.max()),
+                    "median": float(y.median()),
+                }
 
-            return {
-                "n_samples": len(df),
-                "n_features": len(df.columns),
-                "memory_usage": df.memory_usage(deep=True).sum(),
-                "numeric_features": len(numeric_cols),
-                "categorical_features": len(df.columns) - len(numeric_cols),
-                "mean_values": df[numeric_cols].mean().to_dict() if len(numeric_cols) > 0 else {},
-                "std_values": df[numeric_cols].std().to_dict() if len(numeric_cols) > 0 else {},
-            }
-        except Exception as e:
-            self.logger.warning(f"Failed to calculate basic statistics: {e}")
-            return {"n_samples": len(df), "n_features": len(df.columns)}
+        return analysis
 
-    def _analyze_data_types(self, df: pd.DataFrame) -> dict[str, Any]:
-        """Analyze data types and categorize features.
+    def get_profiling_summary(self, profile: DataProfile) -> dict[str, Any]:
+        """Get a human-readable summary of the profiling results."""
+        n_samples = profile.basic_stats["n_samples"]
+        n_features = profile.basic_stats["n_features"]
+        memory_mb = profile.basic_stats["memory_usage_mb"]
 
-        Args:
-            df: DataFrame to analyze
+        summary = {
+            "dataset_size": f"{n_samples:,} samples × {n_features} features",
+            "memory_usage": f"{memory_mb:.1f} MB",
+            "feature_breakdown": {
+                "numeric": profile.feature_analysis["numeric_count"],
+                "categorical": profile.feature_analysis["categorical_count"],
+                "datetime": profile.feature_analysis["datetime_count"],
+                "boolean": profile.feature_analysis["boolean_count"],
+            },
+            "data_quality_score": self._calculate_quality_score(profile),
+            "key_insights": self._generate_insights(profile),
+            "recommendations": self._generate_recommendations(profile),
+        }
 
-        Returns:
-            Dictionary of data type analysis
-        """
-        try:
-            data_types = {}
-            numeric_count = 0
-            categorical_count = 0
-            temporal_count = 0
+        return summary
 
-            for col in df.columns:
-                dtype = str(df[col].dtype)
+    def _calculate_quality_score(self, profile: DataProfile) -> float:
+        """Calculate overall data quality score from profile."""
+        score_factors = []
 
-                if pd.api.types.is_numeric_dtype(df[col]):
-                    data_types[col] = "numeric"
-                    numeric_count += 1
-                elif pd.api.types.is_datetime64_any_dtype(df[col]):
-                    data_types[col] = "temporal"
-                    temporal_count += 1
-                elif pd.api.types.is_categorical_dtype(df[col]) or df[col].dtype == "object":
-                    # Check if it's actually temporal
-                    if self._is_temporal_column(df[col]):
-                        data_types[col] = "temporal"
-                        temporal_count += 1
-                    else:
-                        data_types[col] = "categorical"
-                        categorical_count += 1
-                else:
-                    data_types[col] = "other"
-                    categorical_count += 1
+        # Missing values factor (40%)
+        missing_penalty = profile.missing_values_ratio
+        score_factors.append((1.0 - missing_penalty) * 0.4)
 
-            return {
-                "data_types": data_types,
-                "numeric_count": numeric_count,
-                "categorical_count": categorical_count,
-                "temporal_count": temporal_count,
-            }
-        except Exception as e:
-            self.logger.warning(f"Failed to analyze data types: {e}")
-            return {"data_types": {}, "numeric_count": 0, "categorical_count": 0, "temporal_count": 0}
+        # Duplicate factor (20%)
+        duplicate_ratio = profile.data_quality.get("duplicates", {}).get(
+            "duplicate_ratio", 0
+        )
+        score_factors.append((1.0 - duplicate_ratio) * 0.2)
 
-    def _is_temporal_column(self, series: pd.Series) -> bool:
-        """Check if a series contains temporal data.
+        # Constant features factor (20%)
+        total_features = profile.basic_stats.get("n_features", 1)
+        constant_count = profile.data_quality.get("feature_variance", {}).get(
+            "constant_count", 0
+        )
+        constant_ratio = constant_count / total_features if total_features > 0 else 0
+        score_factors.append((1.0 - constant_ratio) * 0.2)
 
-        Args:
-            series: Series to check
+        # Consistency factor (20%)
+        consistency_issues = profile.data_quality.get("consistency", {}).get(
+            "issue_count", 0
+        )
+        max_expected_issues = max(
+            total_features * 0.1, 1
+        )  # Allow up to 10% of features to have issues
+        consistency_penalty = min(consistency_issues / max_expected_issues, 1.0)
+        score_factors.append((1.0 - consistency_penalty) * 0.2)
 
-        Returns:
-            True if series contains temporal data
-        """
-        try:
-            # Try to parse as datetime
-            sample_size = min(100, len(series))
-            sample = series.dropna().head(sample_size)
+        return min(sum(score_factors), 1.0)
 
-            if len(sample) == 0:
-                return False
+    def _generate_insights(self, profile: DataProfile) -> list[str]:
+        """Generate key insights from the profile."""
+        insights = []
 
-            # Check for common datetime patterns
-            datetime_patterns = [
-                r"\d{4}-\d{2}-\d{2}",  # YYYY-MM-DD
-                r"\d{2}/\d{2}/\d{4}",  # MM/DD/YYYY
-                r"\d{4}/\d{2}/\d{2}",  # YYYY/MM/DD
-                r"\d{2}-\d{2}-\d{4}",  # MM-DD-YYYY
-            ]
+        # Dataset size insights
+        n_samples = profile.basic_stats["n_samples"]
+        n_features = profile.basic_stats["n_features"]
 
-            import re
-            for pattern in datetime_patterns:
-                if any(re.search(pattern, str(val)) for val in sample):
-                    return True
+        if n_samples < 100:
+            insights.append(
+                "Very small dataset - may need more data for reliable models"
+            )
+        elif n_samples > 100000:
+            insights.append("Large dataset - consider sampling for faster prototyping")
 
-            # Try pandas datetime conversion
-            try:
-                pd.to_datetime(sample)
-                return True
-            except:
-                return False
-
-        except Exception:
-            return False
-
-    def _analyze_missing_values(self, df: pd.DataFrame) -> dict[str, Any]:
-        """Analyze missing values in the dataset.
-
-        Args:
-            df: DataFrame to analyze
-
-        Returns:
-            Dictionary of missing values analysis
-        """
-        try:
-            total_cells = df.shape[0] * df.shape[1]
-            missing_cells = df.isnull().sum().sum()
-            missing_ratio = missing_cells / total_cells if total_cells > 0 else 0
-
-            missing_by_column = df.isnull().sum().to_dict()
-            missing_patterns = {}
-
-            # Analyze sparsity (ratio of zero/empty values)
-            sparse_cells = 0
-            for col in df.columns:
-                if pd.api.types.is_numeric_dtype(df[col]):
-                    sparse_cells += (df[col] == 0).sum()
-                elif df[col].dtype == "object":
-                    sparse_cells += (df[col] == "").sum()
-
-            sparsity_ratio = sparse_cells / total_cells if total_cells > 0 else 0
-
-            return {
-                "missing_ratio": missing_ratio,
-                "missing_cells": missing_cells,
-                "missing_by_column": missing_by_column,
-                "missing_patterns": missing_patterns,
-                "sparsity_ratio": sparsity_ratio,
-            }
-        except Exception as e:
-            self.logger.warning(f"Failed to analyze missing values: {e}")
-            return {"missing_ratio": 0, "sparsity_ratio": 0}
-
-    def _analyze_correlations(self, df: pd.DataFrame) -> dict[str, Any]:
-        """Analyze feature correlations.
-
-        Args:
-            df: DataFrame to analyze
-
-        Returns:
-            Dictionary of correlation analysis
-        """
-        try:
-            numeric_cols = df.select_dtypes(include=[np.number]).columns
-
-            if len(numeric_cols) < 2:
-                return {"avg_correlation": 0.0, "max_correlation": 0.0, "correlation_matrix": {}}
-
-            corr_matrix = df[numeric_cols].corr()
-
-            # Get upper triangle (excluding diagonal)
-            upper_triangle = corr_matrix.where(
-                np.triu(np.ones(corr_matrix.shape), k=1).astype(bool)
+        if n_features > n_samples:
+            insights.append(
+                "High-dimensional dataset - feature selection may be beneficial"
             )
 
-            correlations = upper_triangle.stack().abs()
+        # Feature type insights
+        numeric_ratio = profile.feature_analysis["numeric_count"] / n_features
+        if numeric_ratio < 0.3:
+            insights.append(
+                "Mostly categorical features - may need extensive preprocessing"
+            )
+        elif numeric_ratio > 0.9:
+            insights.append("Mostly numeric features - good for most ML algorithms")
 
-            return {
-                "avg_correlation": correlations.mean(),
-                "max_correlation": correlations.max(),
-                "correlation_matrix": corr_matrix.to_dict(),
-                "highly_correlated_pairs": self._find_highly_correlated_pairs(corr_matrix),
-            }
-        except Exception as e:
-            self.logger.warning(f"Failed to analyze correlations: {e}")
-            return {"avg_correlation": 0.0, "max_correlation": 0.0}
+        # Data quality insights
+        if profile.missing_values_ratio > 0.3:
+            insights.append("High missing data ratio - imputation strategy needed")
 
-    def _find_highly_correlated_pairs(self, corr_matrix: pd.DataFrame, threshold: float = 0.8) -> list[tuple]:
-        """Find highly correlated feature pairs.
+        constant_count = profile.data_quality.get("feature_variance", {}).get(
+            "constant_count", 0
+        )
+        if constant_count > 0:
+            insights.append(f"{constant_count} constant features can be removed")
 
-        Args:
-            corr_matrix: Correlation matrix
-            threshold: Correlation threshold
+        # Complexity insights
+        if profile.complexity_score > 0.7:
+            insights.append("Complex dataset - may require advanced preprocessing")
+        elif profile.complexity_score < 0.3:
+            insights.append("Simple dataset - basic algorithms should work well")
 
-        Returns:
-            List of highly correlated pairs
-        """
-        try:
-            pairs = []
-            for i in range(len(corr_matrix.columns)):
-                for j in range(i + 1, len(corr_matrix.columns)):
-                    if abs(corr_matrix.iloc[i, j]) >= threshold:
-                        pairs.append((
-                            corr_matrix.columns[i],
-                            corr_matrix.columns[j],
-                            corr_matrix.iloc[i, j]
-                        ))
-            return pairs
-        except Exception as e:
-            self.logger.warning(f"Failed to find correlated pairs: {e}")
-            return []
+        return insights
 
-    def _analyze_outliers(self, df: pd.DataFrame) -> dict[str, Any]:
-        """Analyze outliers in the dataset.
+    def _generate_recommendations(self, profile: DataProfile) -> list[str]:
+        """Generate actionable recommendations from the profile."""
+        recommendations = []
 
-        Args:
-            df: DataFrame to analyze
-
-        Returns:
-            Dictionary of outlier analysis
-        """
-        try:
-            numeric_cols = df.select_dtypes(include=[np.number]).columns
-
-            if len(numeric_cols) == 0:
-                return {"outlier_ratio": 0.0, "outliers_by_column": {}}
-
-            total_outliers = 0
-            outliers_by_column = {}
-
-            for col in numeric_cols:
-                series = df[col].dropna()
-                if len(series) == 0:
-                    continue
-
-                # Use IQR method to detect outliers
-                Q1 = series.quantile(0.25)
-                Q3 = series.quantile(0.75)
-                IQR = Q3 - Q1
-
-                lower_bound = Q1 - 1.5 * IQR
-                upper_bound = Q3 + 1.5 * IQR
-
-                outliers = ((series < lower_bound) | (series > upper_bound)).sum()
-                outliers_by_column[col] = outliers
-                total_outliers += outliers
-
-            outlier_ratio = total_outliers / (len(df) * len(numeric_cols)) if len(numeric_cols) > 0 else 0
-
-            return {
-                "outlier_ratio": outlier_ratio,
-                "outliers_by_column": outliers_by_column,
-                "total_outliers": total_outliers,
-            }
-        except Exception as e:
-            self.logger.warning(f"Failed to analyze outliers: {e}")
-            return {"outlier_ratio": 0.0}
-
-    def _analyze_temporal_patterns(self, df: pd.DataFrame) -> dict[str, Any]:
-        """Analyze temporal patterns in the dataset.
-
-        Args:
-            df: DataFrame to analyze
-
-        Returns:
-            Dictionary of temporal analysis
-        """
-        try:
-            temporal_cols = []
-            for col in df.columns:
-                if pd.api.types.is_datetime64_any_dtype(df[col]) or self._is_temporal_column(df[col]):
-                    temporal_cols.append(col)
-
-            if not temporal_cols:
-                return {"seasonality_detected": False, "trend_detected": False}
-
-            seasonality_detected = False
-            trend_detected = False
-
-            # Analyze first temporal column
-            if temporal_cols:
-                temporal_series = df[temporal_cols[0]].dropna()
-                if len(temporal_series) > 10:
-                    # Simple trend detection using linear regression
-                    try:
-                        if pd.api.types.is_datetime64_any_dtype(temporal_series):
-                            numeric_time = pd.to_numeric(temporal_series)
-                            slope, _, _, p_value, _ = stats.linregress(
-                                range(len(numeric_time)), numeric_time
-                            )
-                            trend_detected = p_value < 0.05 and abs(slope) > 0
-
-                        # Basic seasonality detection (simplified)
-                        if len(temporal_series) > 24:
-                            # Check for repeating patterns
-                            seasonality_detected = self._detect_seasonality(temporal_series)
-                    except Exception:
-                        pass
-
-            return {
-                "seasonality_detected": seasonality_detected,
-                "trend_detected": trend_detected,
-                "temporal_columns": temporal_cols,
-            }
-        except Exception as e:
-            self.logger.warning(f"Failed to analyze temporal patterns: {e}")
-            return {"seasonality_detected": False, "trend_detected": False}
-
-    def _detect_seasonality(self, series: pd.Series) -> bool:
-        """Detect seasonality in a time series.
-
-        Args:
-            series: Time series to analyze
-
-        Returns:
-            True if seasonality is detected
-        """
-        try:
-            # Simple autocorrelation check
-            if len(series) < 50:
-                return False
-
-            # Convert to numeric if needed
-            if pd.api.types.is_datetime64_any_dtype(series):
-                numeric_series = pd.to_numeric(series)
+        # Missing values recommendations
+        if profile.missing_values_ratio > 0.1:
+            if profile.missing_values_ratio > 0.5:
+                recommendations.append("Consider collecting more complete data")
             else:
-                numeric_series = pd.to_numeric(series, errors='coerce').dropna()
+                recommendations.append("Implement missing value imputation strategy")
 
-            if len(numeric_series) < 50:
-                return False
+        # Feature engineering recommendations
+        numeric_count = profile.feature_analysis["numeric_count"]
+        categorical_count = profile.feature_analysis["categorical_count"]
 
-            # Check autocorrelation at various lags
-            autocorr_values = []
-            for lag in [7, 12, 24, 30, 365]:  # Common seasonal periods
-                if lag < len(numeric_series):
-                    autocorr = numeric_series.autocorr(lag=lag)
-                    if not np.isnan(autocorr):
-                        autocorr_values.append(abs(autocorr))
+        if categorical_count > 0:
+            recommendations.append("Apply encoding techniques for categorical features")
 
-            # If any autocorrelation is high, consider it seasonal
-            return any(autocorr > 0.3 for autocorr in autocorr_values)
-        except Exception:
-            return False
+        if numeric_count > 5:
+            recommendations.append("Consider feature scaling/normalization")
 
-    def _calculate_complexity_score(self, df: pd.DataFrame) -> dict[str, Any]:
-        """Calculate dataset complexity score.
+        # Data cleaning recommendations
+        duplicate_ratio = profile.data_quality.get("duplicates", {}).get(
+            "duplicate_ratio", 0
+        )
+        if duplicate_ratio > 0.05:
+            recommendations.append("Remove duplicate records before training")
 
-        Args:
-            df: DataFrame to analyze
+        constant_count = profile.data_quality.get("feature_variance", {}).get(
+            "constant_count", 0
+        )
+        if constant_count > 0:
+            recommendations.append("Remove constant features to reduce dimensionality")
 
-        Returns:
-            Dictionary of complexity analysis
-        """
-        try:
-            # Factors contributing to complexity
-            factors = {}
-
-            # Size factor
-            size_factor = min(len(df) / 100000, 1.0)  # Normalize to 0-1
-            factors["size"] = size_factor
-
-            # Dimensionality factor
-            dim_factor = min(len(df.columns) / 1000, 1.0)  # Normalize to 0-1
-            factors["dimensionality"] = dim_factor
-
-            # Missing values factor
-            missing_factor = df.isnull().sum().sum() / (len(df) * len(df.columns))
-            factors["missing_values"] = missing_factor
-
-            # Data type diversity factor
-            unique_types = len(set(str(dtype) for dtype in df.dtypes))
-            type_factor = min(unique_types / 10, 1.0)  # Normalize to 0-1
-            factors["type_diversity"] = type_factor
-
-            # Categorical complexity factor
-            categorical_complexity = 0
-            for col in df.columns:
-                if df[col].dtype == "object":
-                    unique_values = df[col].nunique()
-                    categorical_complexity += min(unique_values / 100, 1.0)
-
-            if len(df.columns) > 0:
-                categorical_complexity /= len(df.columns)
-            factors["categorical_complexity"] = categorical_complexity
-
-            # Overall complexity score (weighted average)
-            complexity_score = (
-                0.2 * size_factor +
-                0.2 * dim_factor +
-                0.2 * missing_factor +
-                0.2 * type_factor +
-                0.2 * categorical_complexity
+        # Performance recommendations
+        if profile.basic_stats["memory_usage_mb"] > 1000:
+            recommendations.append(
+                "Consider data sampling or chunked processing for large dataset"
             )
 
-            return {
-                "complexity_score": complexity_score,
-                "factors": factors,
-            }
-        except Exception as e:
-            self.logger.warning(f"Failed to calculate complexity score: {e}")
-            return {"complexity_score": 0.5}
+        consistency_issues = profile.data_quality.get("consistency", {}).get(
+            "issue_count", 0
+        )
+        if consistency_issues > 0:
+            recommendations.append("Address data consistency issues before modeling")
 
-    def _recommend_contamination_rate(self, df: pd.DataFrame, outlier_analysis: dict[str, Any]) -> float:
-        """Recommend contamination rate based on data analysis.
-
-        Args:
-            df: DataFrame to analyze
-            outlier_analysis: Results from outlier analysis
-
-        Returns:
-            Recommended contamination rate
-        """
-        try:
-            # Base contamination rate
-            base_rate = 0.1  # Default 10%
-
-            # Adjust based on outlier analysis
-            outlier_ratio = outlier_analysis.get("outlier_ratio", 0.1)
-
-            # Use outlier ratio as a guide, but constrain it
-            if outlier_ratio > 0:
-                # Use outlier ratio but clamp between 0.01 and 0.5
-                recommended_rate = max(0.01, min(0.5, outlier_ratio))
-            else:
-                recommended_rate = base_rate
-
-            # Adjust based on dataset size
-            if len(df) < 1000:
-                # For small datasets, use slightly higher contamination
-                recommended_rate = min(recommended_rate * 1.5, 0.2)
-            elif len(df) > 100000:
-                # For large datasets, use slightly lower contamination
-                recommended_rate = max(recommended_rate * 0.8, 0.01)
-
-            return recommended_rate
-        except Exception as e:
-            self.logger.warning(f"Failed to recommend contamination rate: {e}")
-            return 0.1
-
-    def create_summary_report(self, profile: DataProfile) -> str:
-        """Create a human-readable summary report.
-
-        Args:
-            profile: Data profile to summarize
-
-        Returns:
-            Human-readable summary report
-        """
-        try:
-            report_lines = [
-                "=== DATA PROFILE SUMMARY ===",
-                f"Dataset Size: {profile.n_samples:,} samples × {profile.n_features} features",
-                f"Feature Types: {profile.numeric_features} numeric, {profile.categorical_features} categorical, {profile.temporal_features} temporal",
-                f"Data Quality: {profile.missing_values_ratio:.1%} missing values, {profile.sparsity_ratio:.1%} sparse values",
-                f"Correlations: Average correlation {profile.correlation_score:.3f}",
-                f"Outliers: {profile.outlier_ratio_estimate:.1%} estimated outlier ratio",
-                f"Complexity: {profile.complexity_score:.3f} complexity score",
-                f"Recommended Contamination: {profile.recommended_contamination:.1%}",
-            ]
-
-            if profile.temporal_features > 0:
-                report_lines.append(f"Temporal Patterns: Seasonality {'detected' if profile.seasonality_detected else 'not detected'}, Trend {'detected' if profile.trend_detected else 'not detected'}")
-
-            if profile.preprocessing_applied:
-                report_lines.append(f"Preprocessing: Applied (Quality Score: {profile.quality_score:.3f})")
-
-            return "\n".join(report_lines)
-        except Exception as e:
-            self.logger.warning(f"Failed to create summary report: {e}")
-            return "Failed to generate summary report"
+        return recommendations

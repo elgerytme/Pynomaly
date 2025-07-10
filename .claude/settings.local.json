@@ -97,7 +97,9 @@
       "Bash(docker:*)",
       "Bash(fuser:*)",
       "Bash(grep:*)",
-      "Bash(gh issue comment:*)"
+      "Bash(gh issue comment:*)",
+      "Bash(git pull:*)",
+      "Bash(echo:*)"
     ],
     "deny": []
   }
