@@ -1,12 +1,13 @@
 """In-memory repository implementations for testing and development."""
 
 from typing import Any, TypeVar
+from uuid import UUID
 
 T = TypeVar("T")
 
 
 class MemoryRepository:
-    """Generic in-memory repository for testing."""
+    """Generic in-memory repository for testing - standardized async implementation."""
 
     def __init__(self) -> None:
         """Initialize empty repository."""
@@ -25,35 +26,41 @@ class MemoryRepository:
             key = f"{type(entity).__name__}_{len(self._storage)}"
             self._storage[key] = entity
 
-    async def find_by_id(self, entity_id: str) -> T | None:
+    async def find_by_id(self, entity_id: UUID | str) -> T | None:
         """Find entity by ID.
 
         Args:
-            entity_id: ID of entity to find
+            entity_id: ID of entity to find (UUID or string)
 
         Returns:
             Entity if found, None otherwise
         """
-        return self._storage.get(entity_id)
+        return self._storage.get(str(entity_id))
 
-    async def list_all(self) -> list[T]:
-        """List all entities.
+    async def find_all(self) -> list[T]:
+        """Find all entities.
 
         Returns:
             List of all entities
         """
         return list(self._storage.values())
 
-    async def delete(self, entity_id: str) -> None:
+    async def delete(self, entity_id: UUID | str) -> bool:
         """Delete entity by ID.
 
         Args:
             entity_id: ID of entity to delete
+            
+        Returns:
+            True if entity was deleted, False if not found
         """
-        if entity_id in self._storage:
-            del self._storage[entity_id]
+        entity_id_str = str(entity_id)
+        if entity_id_str in self._storage:
+            del self._storage[entity_id_str]
+            return True
+        return False
 
-    async def exists(self, entity_id: str) -> bool:
+    async def exists(self, entity_id: UUID | str) -> bool:
         """Check if entity exists.
 
         Args:
@@ -62,7 +69,7 @@ class MemoryRepository:
         Returns:
             True if entity exists, False otherwise
         """
-        return entity_id in self._storage
+        return str(entity_id) in self._storage
 
     async def count(self) -> int:
         """Count total entities.
@@ -73,5 +80,5 @@ class MemoryRepository:
         return len(self._storage)
 
     def clear(self) -> None:
-        """Clear all entities."""
+        """Clear all entities (sync method for testing convenience)."""
         self._storage.clear()
