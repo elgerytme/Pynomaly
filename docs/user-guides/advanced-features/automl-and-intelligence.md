@@ -4,10 +4,29 @@
 
 ---
 
-
 ## Overview
 
 Pynomaly's AutoML capabilities enable automatic algorithm selection, hyperparameter optimization, and intelligent anomaly detection configuration. This guide covers autonomous detection, dataset profiling, intelligent threshold calculation, and advanced optimization techniques.
+
+## 🎛️ Feature Configuration
+
+AutoML features are controlled by feature flags. Enable the required features:
+
+```bash
+# Essential for basic AutoML
+export PYNOMALY_AUTOML=true
+
+# Advanced AutoML with multi-objective optimization
+export PYNOMALY_ADVANCED_AUTOML=true
+
+# Meta-learning from optimization history
+export PYNOMALY_META_LEARNING=true
+
+# Ensemble optimization
+export PYNOMALY_ENSEMBLE_OPTIMIZATION=true
+```
+
+See the [Feature Flags Guide](../feature-flags/) for complete configuration options.
 
 ## 🤖 Autonomous Anomaly Detection
 

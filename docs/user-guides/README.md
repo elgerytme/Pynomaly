@@ -4,34 +4,49 @@
 
 ---
 
-
 Learn how to effectively use Pynomaly for your anomaly detection needs. These guides are organized by experience level and use case complexity.
 
 ## 📋 Quick Navigation
 
 ### 🏁 **[Basic Usage](basic-usage/)**
+
 Essential functionality for everyday anomaly detection tasks.
+
 - **[Autonomous Mode](basic-usage/autonomous-mode.md)** - Automatic algorithm selection
 - **[Datasets](basic-usage/datasets.md)** - Data management and preparation
 - **[Monitoring](basic-usage/monitoring.md)** - System monitoring and observability
 
 ### 📱 **[Progressive Web App](progressive-web-app.md)**
+
 Modern web interface with offline capabilities and mobile optimization.
+
 - **Installation and Setup** - Browser and mobile installation
 - **Offline Functionality** - Work without internet connectivity
 - **Data Synchronization** - Seamless online/offline data sync
 - **Mobile Optimization** - Touch-friendly interface and responsive design
 
 ### 🚀 **[Advanced Features](advanced-features/)**
+
 Sophisticated capabilities for complex use cases and optimization.
+
 - **[AutoML & Intelligence](advanced-features/automl-and-intelligence.md)** - Automated machine learning
 - **[Explainability](advanced-features/explainability.md)** - Understanding anomaly predictions
 - **[Performance Tuning](advanced-features/performance-tuning.md)** - Optimization strategies
 - **[Performance Analysis](advanced-features/performance.md)** - Performance monitoring
 - **[Dataset Analysis](advanced-features/dataset-analysis-guide.md)** - Advanced data analysis
 
+### ⚙️ **[Configuration](configuration/)**
+
+System configuration and feature management.
+
+- **[Feature Flags](feature-flags/)** - Enable and configure advanced features
+- **[Environment Setup](configuration/environment.md)** - Production configuration
+- **[Security Settings](configuration/security.md)** - Authentication and encryption
+
 ### 🔧 **[Troubleshooting](troubleshooting/)**
+
 Problem-solving guides and common issue resolution.
+
 - **[Troubleshooting Guide](troubleshooting/troubleshooting.md)** - Common issues and solutions
 - **[Advanced Troubleshooting](troubleshooting/troubleshooting-guide.md)** - Complex problem diagnosis
 
@@ -40,24 +55,29 @@ Problem-solving guides and common issue resolution.
 ## 🎯 User Journey Paths
 
 ### **Data Scientist - First Time User**
+
 1. Start with [Basic Usage](basic-usage/) to understand core concepts
 2. Try [Autonomous Mode](basic-usage/autonomous-mode.md) for automatic algorithm selection
 3. Explore [Dataset Management](basic-usage/datasets.md) for data preparation
 4. Use [Monitoring](basic-usage/monitoring.md) to track performance
 
 ### **Experienced ML Practitioner**
-1. Jump to [Advanced Features](advanced-features/) for sophisticated capabilities
-2. Leverage [AutoML](advanced-features/automl-and-intelligence.md) for optimization
-3. Master [Performance Tuning](advanced-features/performance-tuning.md) for production
-4. Implement [Explainability](advanced-features/explainability.md) for interpretability
+
+1. Configure [Feature Flags](feature-flags/) to enable advanced capabilities
+2. Jump to [Advanced Features](advanced-features/) for sophisticated functionality
+3. Leverage [AutoML](advanced-features/automl-and-intelligence.md) for optimization
+4. Master [Performance Tuning](advanced-features/performance-tuning.md) for production
+5. Implement [Explainability](advanced-features/explainability.md) for interpretability
 
 ### **Business Analyst**
+
 1. Begin with [Basic Usage](basic-usage/) for fundamental operations
 2. Focus on [Dataset Analysis](advanced-features/dataset-analysis-guide.md) for insights
 3. Use [Explainability](advanced-features/explainability.md) to understand results
 4. Reference [Troubleshooting](troubleshooting/) when needed
 
 ### **Operations Team**
+
 1. Master [Monitoring](basic-usage/monitoring.md) for system observability
 2. Learn [Performance Analysis](advanced-features/performance.md) for optimization
 3. Keep [Troubleshooting](troubleshooting/) guides handy for issue resolution
@@ -68,15 +88,18 @@ Problem-solving guides and common issue resolution.
 ## 🔗 Related Documentation
 
 ### **Prerequisites**
+
 - **[Getting Started](../getting-started/)** - Installation and initial setup
 - **[Algorithm Reference](../reference/algorithms/)** - Understanding available algorithms
 
 ### **Next Steps**
+
 - **[Developer Guides](../developer-guides/)** - Technical development and integration
 - **[Deployment](../deployment/)** - Production deployment and operations
 - **[Examples](../examples/)** - Real-world use cases and tutorials
 
 ### **Technical Reference**
+
 - **[API Reference](../developer-guides/api-integration/)** - Programming interfaces
 - **[Configuration](../reference/configuration/)** - System configuration options
 
@@ -85,21 +108,25 @@ Problem-solving guides and common issue resolution.
 ## 💡 Tips for Success
 
 ### **Start Simple**
+
 - Begin with [Autonomous Mode](basic-usage/autonomous-mode.md) for automatic algorithm selection
 - Use default settings initially, then customize as you learn
 - Focus on understanding your data before optimizing algorithms
 
 ### **Iterate and Improve**
+
 - Start with [Basic Usage](basic-usage/) then progress to [Advanced Features](advanced-features/)
 - Use [Performance Tuning](advanced-features/performance-tuning.md) to optimize results
 - Implement [Monitoring](basic-usage/monitoring.md) to track improvement over time
 
 ### **Understand Your Results**
+
 - Always use [Explainability](advanced-features/explainability.md) to interpret predictions
 - Validate findings with domain expertise
 - Document learnings for future reference
 
 ### **Plan for Production**
+
 - Consider [Performance](advanced-features/performance.md) implications early
 - Implement [Monitoring](basic-usage/monitoring.md) from the start
 - Review [Deployment](../deployment/) guides for production planning
