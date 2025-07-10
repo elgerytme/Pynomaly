@@ -95,7 +95,9 @@
       "Bash(./scripts/deployment/deploy_advanced_monitoring.sh:*)",
       "Bash(git stash:*)",
       "Bash(docker:*)",
-      "Bash(fuser:*)"
+      "Bash(fuser:*)",
+      "Bash(grep:*)",
+      "Bash(gh issue comment:*)"
     ],
     "deny": []
   }

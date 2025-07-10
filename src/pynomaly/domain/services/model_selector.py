@@ -188,15 +188,32 @@ class ModelSelector:
                     f"Primary metric '{self.primary_metric}' not found in model metrics"
                 )
 
-        # For single values, create arrays for t-test
-        # In practice, these would be cross-validation results
-        array1 = np.array([val1] * 10 + np.random.normal(0, 0.01, 10))
-        array2 = np.array([val2] * 10 + np.random.normal(0, 0.01, 10))
+        # Check if models have cross-validation results
+        cv_scores1 = getattr(model1, "cv_scores", {}).get(self.primary_metric, None)
+        cv_scores2 = getattr(model2, "cv_scores", {}).get(self.primary_metric, None)
 
-        # Perform t-test
-        _, p_value = ttest_ind(array1, array2)
+        if cv_scores1 is not None and cv_scores2 is not None:
+            # Use actual cross-validation scores for statistical testing
+            array1 = np.array(cv_scores1)
+            array2 = np.array(cv_scores2)
 
-        return bool(p_value < alpha)
+            # Ensure we have enough samples for meaningful test
+            if len(array1) >= 3 and len(array2) >= 3:
+                # Perform t-test with actual CV scores
+                _, p_value = ttest_ind(array1, array2)
+                return bool(p_value < alpha)
+
+        # Fallback: use effect size based comparison for single point estimates
+        effect_size = abs(val1 - val2) / max(
+            val1, val2, 0.001
+        )  # Avoid division by zero
+
+        # Consider significant if effect size > 5% and absolute difference > threshold
+        threshold = (
+            0.02 if self.primary_metric in ["precision", "recall", "f1"] else 0.05
+        )
+
+        return effect_size > 0.05 and abs(val1 - val2) > threshold
 
     def select_best_model(
         self, models: list[ModelPerformanceMetrics]
