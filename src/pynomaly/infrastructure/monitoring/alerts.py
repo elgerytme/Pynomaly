@@ -326,35 +326,36 @@ class MetricsCollector:
         try:
             # Get error rate from production monitor if available
             from .production_monitor import get_monitor
+
             monitor = get_monitor()
-            if monitor and hasattr(monitor, 'get_error_rate'):
+            if monitor and hasattr(monitor, "get_error_rate"):
                 return monitor.get_error_rate()
-            
+
             # Fallback: calculate from system metrics
-            total_requests = self.metrics.get('total_requests', 1000)
-            error_count = self.metrics.get('error_count', 0)
+            total_requests = self.metrics.get("total_requests", 1000)
+            error_count = self.metrics.get("error_count", 0)
             return min(error_count / total_requests, 1.0) if total_requests > 0 else 0.0
         except Exception as e:
-            logger.warning(f"Could not get error rate: {e}")
+            self.logger.warning(f"Could not get error rate: {e}")
             return 0.01  # Conservative fallback
 
     def _get_queue_size(self) -> int:
         """Get queue size from monitoring system."""
         try:
             # Check if we have queue metrics available
-            queue_size = self.metrics.get('queue_size', 0)
+            queue_size = self.metrics.get("queue_size", 0)
             if queue_size > 0:
                 return queue_size
-            
+
             # Fallback: estimate based on system load
             cpu_percent = psutil.cpu_percent(interval=0.1)
             memory_percent = psutil.virtual_memory().percent
-            
+
             # Simple heuristic: higher system load suggests more queued work
             estimated_queue = int((cpu_percent + memory_percent) / 20)
             return max(0, min(estimated_queue, 50))  # Cap at reasonable maximum
         except Exception as e:
-            logger.warning(f"Could not get queue size: {e}")
+            self.logger.warning(f"Could not get queue size: {e}")
             return 0  # Conservative fallback
 
     def get_metric(self, name: str) -> Any | None:
@@ -602,11 +603,11 @@ class NotificationChannel:
 
     def send_alert(self, alert: Alert):
         """Send alert notification."""
-        raise NotImplementedError
+        pass  # Default implementation does nothing
 
     def send_resolution(self, alert: Alert):
         """Send resolution notification."""
-        raise NotImplementedError
+        pass  # Default implementation does nothing
 
 
 class EmailNotificationChannel(NotificationChannel):
@@ -898,21 +899,24 @@ class HealthChecker:
         """Check database health using existing health service."""
         try:
             # Use existing health service for database checks
-            from .health_service import HealthService
-            from .health_checks import get_health_checker, ComponentType
-            
+            from .health_checks import ComponentType, get_health_checker
+
             health_checker = get_health_checker()
             if health_checker:
                 # Check database health
-                db_health = health_checker.check_component_health(ComponentType.DATABASE)
-                if db_health and db_health.status.value in ['degraded', 'unhealthy']:
+                db_health = health_checker.check_component_health(
+                    ComponentType.DATABASE
+                )
+                if db_health and db_health.status.value in ["degraded", "unhealthy"]:
                     self._create_health_alert(
                         "Database Health Alert",
                         f"Database health is {db_health.status.value}: {db_health.message}",
-                        AlertSeverity.ERROR if db_health.status.value == 'unhealthy' else AlertSeverity.WARNING
+                        AlertSeverity.ERROR
+                        if db_health.status.value == "unhealthy"
+                        else AlertSeverity.WARNING,
                     )
                     return
-                
+
             # Fallback: basic connection test with timeout
             start_time = time.time()
             # Simulate database ping - in real implementation, use actual database connection

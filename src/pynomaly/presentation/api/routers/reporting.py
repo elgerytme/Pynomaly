@@ -261,8 +261,31 @@ async def list_reports(
     reporting_service: ReportingService = Depends(get_reporting_service),
 ):
     """List reports for a tenant."""
-    # TODO: Implement repository method for listing reports
-    return []
+    try:
+        reports = await reporting_service.list_reports(
+            tenant_id=TenantId(str(tenant_id)),
+            user_id=UserId(current_user.id),
+            limit=limit,
+            offset=offset,
+        )
+
+        return [
+            ReportResponse(
+                id=report.id,
+                title=report.title,
+                description=report.description,
+                report_type=report.report_type,
+                status=report.status.value,
+                created_at=report.created_at,
+                completed_at=report.completed_at,
+                expires_at=report.expires_at,
+                sections=[],  # Simplified for listing
+                metadata=report.metadata,
+            )
+            for report in reports
+        ]
+    except AuthorizationError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
 
 @router.get("/tenants/{tenant_id}/reports/{report_id}", response_model=ReportResponse)
@@ -274,15 +297,52 @@ async def get_report(
 ):
     """Get a specific report."""
     try:
-        # TODO: Implement get_report method
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Report retrieval not implemented yet",
+        report = await reporting_service.get_report(
+            report_id=report_id,
+            tenant_id=TenantId(str(tenant_id)),
+            user_id=UserId(current_user.id),
+        )
+
+        return ReportResponse(
+            id=report.id,
+            title=report.title,
+            description=report.description,
+            report_type=report.report_type,
+            status=report.status.value,
+            created_at=report.created_at,
+            completed_at=report.completed_at,
+            expires_at=report.expires_at,
+            sections=[
+                {
+                    "id": section.id,
+                    "title": section.title,
+                    "description": section.description,
+                    "metrics": [
+                        {
+                            "id": metric.id,
+                            "name": metric.name,
+                            "current_value": metric.current_value,
+                            "formatted_value": metric.latest_value.format_value()
+                            if metric.latest_value
+                            else "N/A",
+                            "type": metric.metric_type.value,
+                        }
+                        for metric in section.metrics
+                    ],
+                    "charts": section.charts,
+                    "insights": section.insights,
+                    "order": section.order,
+                }
+                for section in report.sections
+            ],
+            metadata=report.metadata,
         )
     except ReportNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Report not found"
         )
+    except AuthorizationError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
 
 # Dashboard Management Endpoints
@@ -330,8 +390,29 @@ async def list_dashboards(
     reporting_service: ReportingService = Depends(get_reporting_service),
 ):
     """List dashboards for a tenant."""
-    # TODO: Implement repository method for listing dashboards
-    return []
+    try:
+        dashboards = await reporting_service.list_dashboards(
+            tenant_id=TenantId(str(tenant_id)),
+            user_id=UserId(current_user.id),
+        )
+
+        return [
+            DashboardResponse(
+                id=dashboard.id,
+                name=dashboard.name,
+                description=dashboard.description,
+                widgets=dashboard.widgets,
+                layout=dashboard.layout,
+                refresh_interval=dashboard.refresh_interval,
+                is_public=dashboard.is_public,
+                created_at=dashboard.created_at,
+                updated_at=dashboard.updated_at,
+                last_accessed=dashboard.last_accessed,
+            )
+            for dashboard in dashboards
+        ]
+    except AuthorizationError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
 
 @router.get(
@@ -388,8 +469,11 @@ async def update_dashboard(
         )
 
         if request.layout:
-            dashboard.layout = request.layout
-            # TODO: Update dashboard layout in repository
+            dashboard = await reporting_service.update_dashboard_layout(
+                dashboard_id=dashboard_id,
+                user_id=UserId(current_user.id),
+                layout=request.layout,
+            )
 
         return DashboardResponse(
             id=dashboard.id,
@@ -582,7 +666,12 @@ async def get_business_insights_summary(
         end_date = datetime.utcnow()
         start_date = end_date - timedelta(days=days)
 
-        # TODO: Implement comprehensive insights generation
+        await reporting_service.generate_business_insights(
+            tenant_id=TenantId(str(tenant_id)),
+            start_date=start_date,
+            end_date=end_date,
+        )
+
         return {
             "tenant_id": str(tenant_id),
             "period": {

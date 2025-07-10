@@ -169,24 +169,24 @@ class BaseAnomalyModel(BaseAnomalyModelBase):
         self, x: torch.Tensor, recon: torch.Tensor, **kwargs
     ) -> torch.Tensor:
         """Calculate loss function for anomaly detection.
-        
+
         Args:
             x: Original input tensor
             recon: Reconstructed tensor
             **kwargs: Additional arguments
-            
+
         Returns:
             Loss tensor
         """
         # Default MSE loss for reconstruction
-        return torch.nn.functional.mse_loss(recon, x, reduction='none')
+        return torch.nn.functional.mse_loss(recon, x, reduction="none")
 
     def anomaly_score(self, x: torch.Tensor) -> torch.Tensor:
         """Calculate anomaly scores for input data.
-        
+
         Args:
             x: Input tensor
-            
+
         Returns:
             Anomaly scores tensor
         """

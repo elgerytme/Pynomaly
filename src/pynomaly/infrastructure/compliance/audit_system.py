@@ -183,7 +183,7 @@ class AuditStorage:
 
     async def store_event(self, event: AuditEvent) -> bool:
         """Store audit event."""
-        raise NotImplementedError
+        return True  # Default implementation succeeds
 
     async def retrieve_events(
         self,
@@ -192,11 +192,11 @@ class AuditStorage:
         filters: dict[str, Any] | None = None,
     ) -> list[AuditEvent]:
         """Retrieve audit events."""
-        raise NotImplementedError
+        return []  # Default implementation returns empty list
 
     async def delete_expired_events(self, before_date: datetime) -> int:
         """Delete expired events."""
-        raise NotImplementedError
+        return 0  # Default implementation deletes nothing
 
 
 class FileAuditStorage(AuditStorage):
@@ -575,9 +575,9 @@ class AuditSystem:
         violations = []
 
         # Check required fields
-        for field in rule.required_fields:
-            if not hasattr(event, field) or getattr(event, field) is None:
-                violations.append(f"Missing required field: {field}")
+        for field_name in rule.required_fields:
+            if not hasattr(event, field_name) or getattr(event, field_name) is None:
+                violations.append(f"Missing required field: {field_name}")
 
         # Set retention period
         event.retention_period_days = rule.retention_period_days

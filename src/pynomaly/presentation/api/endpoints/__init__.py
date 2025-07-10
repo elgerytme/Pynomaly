@@ -1,7 +1,6 @@
 """API endpoints."""
 
-from . import (
-    admin,
+from . import (  # admin,  # Temporarily disabled due to UserModel forward reference issue
     auth,
     autonomous,
     datasets,
@@ -14,7 +13,7 @@ from . import (
 )
 
 __all__ = [
-    "admin",
+    # "admin",  # Temporarily disabled due to UserModel forward reference issue
     "auth",
     "autonomous",
     "datasets",

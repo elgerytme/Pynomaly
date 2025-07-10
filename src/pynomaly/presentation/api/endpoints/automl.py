@@ -19,6 +19,7 @@ from pynomaly.application.dto.automl_dto import (
 )
 from pynomaly.infrastructure.auth import require_read, require_write
 from pynomaly.infrastructure.config import Container
+from pynomaly.infrastructure.config.feature_flags import require_feature
 from pynomaly.presentation.api.deps import get_container, get_current_user
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,7 @@ router = APIRouter()
 
 
 @router.post("/profile", response_model=AutoMLProfileResponseDTO)
+@require_feature("advanced_automl")
 async def profile_dataset(
     request: AutoMLProfileRequestDTO,
     container: Container = Depends(get_container),
@@ -126,6 +128,7 @@ async def profile_dataset(
 
 
 @router.post("/optimize", response_model=AutoMLResponseDTO)
+@require_feature("advanced_automl")
 async def optimize_automl(
     request: AutoMLRequestDTO,
     background_tasks: BackgroundTasks,
@@ -211,6 +214,7 @@ async def optimize_automl(
 @router.post(
     "/optimize-algorithm", response_model=HyperparameterOptimizationResponseDTO
 )
+@require_feature("advanced_automl")
 async def optimize_single_algorithm(
     request: HyperparameterOptimizationRequestDTO,
     container: Container = Depends(get_container),
@@ -272,6 +276,7 @@ async def optimize_single_algorithm(
 
 
 @router.get("/algorithms", response_model=dict)
+@require_feature("advanced_automl")
 async def list_supported_algorithms(
     container: Container = Depends(get_container),
     current_user: str | None = Depends(get_current_user),
@@ -279,6 +284,20 @@ async def list_supported_algorithms(
 ) -> dict:
     """List all supported algorithms for AutoML."""
     try:
+        # Import feature_flags for runtime check
+        from pynomaly.infrastructure.config.feature_flags import feature_flags
+        
+        # Check if AutoML features are enabled
+        if not feature_flags.is_enabled("automl") and not feature_flags.is_enabled("advanced_automl"):
+            return {
+                "error": "AutoML features are not enabled",
+                "message": "Enable AutoML by setting PYNOMALY_AUTOML=true or PYNOMALY_ADVANCED_AUTOML=true",
+                "total_algorithms": 0,
+                "all_algorithms": [],
+                "by_family": {},
+                "automl_enabled": False,
+            }
+
         # Get algorithm adapter registry
         registry = container.algorithm_adapter_registry()
 
@@ -314,6 +333,13 @@ async def list_supported_algorithms(
                 "balanced_accuracy",
             ],
             "ensemble_methods": ["weighted_voting", "stacking", "bagging"],
+            "automl_enabled": True,
+            "feature_flags": {
+                "automl": feature_flags.is_enabled("automl"),
+                "advanced_automl": feature_flags.is_enabled("advanced_automl"),
+                "meta_learning": feature_flags.is_enabled("meta_learning"),
+                "ensemble_optimization": feature_flags.is_enabled("ensemble_optimization"),
+            },
         }
 
     except Exception as e:
@@ -322,6 +348,7 @@ async def list_supported_algorithms(
 
 
 @router.get("/status/{optimization_id}")
+@require_feature("advanced_automl")
 async def get_optimization_status(
     optimization_id: UUID,
     container: Container = Depends(get_container),
@@ -352,6 +379,7 @@ async def get_optimization_status(
 
 
 @router.delete("/optimization/{optimization_id}")
+@require_feature("advanced_automl")
 async def cancel_optimization(
     optimization_id: UUID,
     container: Container = Depends(get_container),
@@ -377,6 +405,7 @@ async def cancel_optimization(
 
 
 @router.get("/recommendations/{dataset_id}")
+@require_automl
 async def get_algorithm_recommendations(
     dataset_id: str,
     max_recommendations: int = 5,
@@ -422,6 +451,7 @@ async def get_algorithm_recommendations(
 
 
 @router.post("/run")
+@require_automl
 async def run_automl(
     dataset_path: str,
     algorithm_name: str,
@@ -544,6 +574,7 @@ async def run_automl(
 
 
 @router.post("/batch-optimize")
+@require_feature("advanced_automl")
 async def batch_optimize(
     dataset_ids: list[str],
     optimization_objective: str = "auc",

@@ -12,6 +12,7 @@ from rich.table import Table
 
 from pynomaly.application.services.enhanced_automl_service import EnhancedAutoMLConfig
 from pynomaly.infrastructure.config.container import create_container
+from pynomaly.infrastructure.config.feature_flags import require_feature
 
 console = Console()
 
@@ -23,6 +24,7 @@ def enhanced_automl_cli():
 
 
 @enhanced_automl_cli.command()
+@require_feature("advanced_automl")
 @click.argument("dataset_id")
 @click.argument("algorithm")
 @click.option(
@@ -151,6 +153,7 @@ def optimize(
 
 
 @enhanced_automl_cli.command()
+@require_feature("advanced_automl")
 @click.argument("dataset_id")
 @click.option(
     "--objectives",
@@ -261,6 +264,7 @@ def auto_optimize(
 
 
 @enhanced_automl_cli.command()
+@require_feature("advanced_automl")
 @click.argument("dataset_id")
 @click.option(
     "--objectives",
@@ -379,6 +383,7 @@ def multi_objective(
 
 
 @enhanced_automl_cli.command()
+@require_feature("advanced_automl")
 @click.argument("result_file", type=click.Path(exists=True))
 def analyze(result_file: str):
     """Analyze optimization results and provide insights."""

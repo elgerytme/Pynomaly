@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Protocol
 from uuid import uuid4
 
 import numpy as np
@@ -39,6 +40,83 @@ from pynomaly.domain.entities.human_feedback import (
 )
 from pynomaly.domain.services.active_learning_service import ActiveLearningService
 
+
+class ActiveLearningSessionRepositoryProtocol(Protocol):
+    """Protocol for active learning session repository."""
+
+    def get_session(self, session_id: str) -> ActiveLearningSession | None:
+        """Get session by ID."""
+        ...
+
+    def save_session(self, session: ActiveLearningSession) -> None:
+        """Save session."""
+        ...
+
+    def find_similar_samples(self, sample_data: dict, session_id: str) -> list[dict]:
+        """Find similar samples in the session."""
+        ...
+
+
+class MemoryActiveLearningSessionRepository:
+    """In-memory repository for active learning sessions."""
+
+    def __init__(self) -> None:
+        """Initialize storage."""
+        self._sessions: dict[str, ActiveLearningSession] = {}
+        self._sample_data: dict[str, dict] = {}  # session_id -> sample_data
+
+    def get_session(self, session_id: str) -> ActiveLearningSession | None:
+        """Get session by ID."""
+        return self._sessions.get(session_id)
+
+    def save_session(self, session: ActiveLearningSession) -> None:
+        """Save session."""
+        self._sessions[session.session_id] = session
+
+    def find_similar_samples(self, sample_data: dict, session_id: str) -> list[dict]:
+        """Find similar samples in the session."""
+        session_samples = self._sample_data.get(session_id, {})
+
+        # Simple similarity based on data structure and values
+        similar_samples = []
+        for sample_id, stored_data in session_samples.items():
+            similarity_score = self._calculate_similarity(sample_data, stored_data)
+            if similarity_score > 0.7:  # Threshold for similarity
+                similar_samples.append(
+                    {
+                        "sample_id": sample_id,
+                        "data": stored_data,
+                        "similarity": similarity_score,
+                        "label": stored_data.get("label", "unknown"),
+                    }
+                )
+
+        return similar_samples
+
+    def _calculate_similarity(self, data1: dict, data2: dict) -> float:
+        """Calculate similarity between two data samples."""
+        try:
+            # Simple similarity calculation based on common keys and values
+            common_keys = set(data1.keys()) & set(data2.keys())
+            if not common_keys:
+                return 0.0
+
+            matches = 0
+            for key in common_keys:
+                if data1[key] == data2[key]:
+                    matches += 1
+
+            return matches / len(common_keys)
+        except Exception:
+            return 0.0
+
+    def store_sample_data(self, session_id: str, sample_id: str, data: dict) -> None:
+        """Store sample data for similarity calculations."""
+        if session_id not in self._sample_data:
+            self._sample_data[session_id] = {}
+        self._sample_data[session_id][sample_id] = data
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -52,6 +130,25 @@ class ManageActiveLearningUseCase:
     """
 
     active_learning_service: ActiveLearningService
+
+    def __post_init__(self) -> None:
+        """Initialize simple session storage."""
+        # Mock session repository functionality
+        self._sessions: dict[str, ActiveLearningSession] = {}
+        self._sample_data: dict[str, dict] = {}  # session_id -> {sample_id -> data}
+
+    @property
+    def session_repository(self):
+        """Mock session repository."""
+        return self
+
+    def get_session(self, session_id: str) -> ActiveLearningSession | None:
+        """Get session by ID."""
+        return self._sessions.get(session_id)
+
+    def save_session(self, session: ActiveLearningSession) -> None:
+        """Save session."""
+        self._sessions[session.session_id] = session
 
     def create_session(self, request: CreateSessionRequest) -> CreateSessionResponse:
         """
@@ -342,6 +439,19 @@ class ManageActiveLearningUseCase:
         else:
             raise ValueError(f"Unsupported feedback type: {request.feedback_type}")
 
+        # Store sample data for similarity calculations
+        sample_data = {
+            "sample_id": feedback.sample_id,
+            "feedback_type": feedback.feedback_type.value,
+            "feedback_value": feedback.feedback_value,
+            "confidence": feedback.confidence.value,
+            "label": str(feedback.feedback_value),
+            "timestamp": datetime.now().isoformat(),
+        }
+        self._store_sample_data(
+            feedback.session_id or request.session_id, feedback.sample_id, sample_data
+        )
+
         # Calculate feedback quality metrics
         feedback_quality = self._assess_feedback_quality(feedback)
 
@@ -616,12 +726,24 @@ class ManageActiveLearningUseCase:
 
         # Calculate consistency score based on similar samples
         try:
+            # Create sample data representation for similarity comparison
+            sample_data = {
+                "sample_id": feedback.sample_id,
+                "feedback_type": feedback.feedback_type.value,
+                "feedback_value": feedback.feedback_value,
+                "confidence": feedback.confidence.value,
+            }
             # Find similar samples in the session
-            similar_samples = self._find_similar_samples(feedback.sample_data)
+            similar_samples = self._find_similar_samples(
+                sample_data, feedback.session_id
+            )
             if similar_samples:
                 # Calculate consistency with similar annotations
+                feedback_label = str(feedback.feedback_value)
                 consistent_labels = sum(
-                    1 for sample in similar_samples if sample.label == feedback.label
+                    1
+                    for sample in similar_samples
+                    if sample.get("label") == feedback_label
                 )
                 consistency_score = consistent_labels / len(similar_samples)
             else:
@@ -753,9 +875,9 @@ class ManageActiveLearningUseCase:
             # Group feedback by similar samples
             similar_groups = {}
             for feedback in feedback_history:
-                # Use a simple similarity metric
+                # Use a simple similarity metric based on sample_id
                 # (in practice, use more sophisticated methods)
-                sample_key = str(hash(str(feedback.sample_data)))[:8]
+                sample_key = str(hash(str(feedback.sample_id)))[:8]
                 if sample_key not in similar_groups:
                     similar_groups[sample_key] = []
                 similar_groups[sample_key].append(feedback)
@@ -779,15 +901,57 @@ class ManageActiveLearningUseCase:
             logger.warning(f"Could not calculate feedback consistency: {e}")
             return 0.85
 
-    def _find_similar_samples(self, sample_data: dict) -> list:
+    def _find_similar_samples(
+        self, sample_data: dict, session_id: str | None = None
+    ) -> list:
         """Find similar samples in the current session."""
-        # Placeholder implementation - in practice, use embeddings or feature similarity
         try:
-            # Simple similarity based on data structure
+            if not session_id:
+                return []
+
+            # Get session samples
+            session_samples = self._sample_data.get(session_id, {})
+
+            # Simple similarity based on data structure and values
             similar_samples = []
-            # This would typically query the session repository for similar samples
-            # For now, return empty list to avoid errors
+            for sample_id, stored_data in session_samples.items():
+                similarity_score = self._calculate_sample_similarity(
+                    sample_data, stored_data
+                )
+                if similarity_score > 0.7:  # Threshold for similarity
+                    similar_samples.append(
+                        {
+                            "sample_id": sample_id,
+                            "data": stored_data,
+                            "similarity": similarity_score,
+                            "label": stored_data.get("label", "unknown"),
+                        }
+                    )
+
             return similar_samples
         except Exception as e:
             logger.warning(f"Could not find similar samples: {e}")
             return []
+
+    def _calculate_sample_similarity(self, data1: dict, data2: dict) -> float:
+        """Calculate similarity between two data samples."""
+        try:
+            # Simple similarity calculation based on common keys and values
+            common_keys = set(data1.keys()) & set(data2.keys())
+            if not common_keys:
+                return 0.0
+
+            matches = 0
+            for key in common_keys:
+                if data1[key] == data2[key]:
+                    matches += 1
+
+            return matches / len(common_keys)
+        except Exception:
+            return 0.0
+
+    def _store_sample_data(self, session_id: str, sample_id: str, data: dict) -> None:
+        """Store sample data for similarity calculations."""
+        if session_id not in self._sample_data:
+            self._sample_data[session_id] = {}
+        self._sample_data[session_id][sample_id] = data
