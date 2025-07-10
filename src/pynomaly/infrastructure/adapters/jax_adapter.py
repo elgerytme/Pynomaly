@@ -403,6 +403,32 @@ class JAXAdapter(Detector):
         # Algorithm-specific initialization
         self.algorithm_type = self.ALGORITHM_MAPPING[algorithm_name]
 
+    # DetectorProtocol properties
+    @property
+    def name(self) -> str:
+        """Get the name of the detector."""
+        return self._name
+
+    @property
+    def contamination_rate(self) -> ContaminationRate:
+        """Get the contamination rate."""
+        return self._contamination_rate
+
+    @property
+    def is_fitted(self) -> bool:
+        """Check if the detector has been fitted."""
+        return self._is_fitted
+
+    @property
+    def parameters(self) -> dict[str, Any]:
+        """Get the current parameters of the detector."""
+        return self._parameters
+
+    @property
+    def algorithm_name(self) -> str:
+        """Get the algorithm name."""
+        return self._algorithm_name
+
     def _prepare_data(self, dataset: Dataset) -> jnp.ndarray:
         """Prepare data for JAX training."""
         if dataset.features is None:
@@ -813,7 +839,7 @@ class JAXAdapter(Detector):
 
             return DetectionResult(
                 id=str(uuid4()),
-                detector_id=self.id,
+                detector_id=self.name,
                 dataset_id=dataset.id,
                 anomalies=anomalies,
                 n_anomalies=n_anomalies,

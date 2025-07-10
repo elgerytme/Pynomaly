@@ -9,7 +9,7 @@ from uuid import uuid4
 import numpy as np
 import structlog
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
 from pynomaly.domain.exceptions import (
     AdapterError,
     DetectorNotFittedError,
@@ -301,8 +301,12 @@ class DeepSVDD(Model):
         return self.center
 
 
-class TensorFlowAdapter(Detector):
-    """TensorFlow adapter for deep learning anomaly detection."""
+class TensorFlowAdapter:
+    """TensorFlow adapter for deep learning anomaly detection.
+
+    This adapter implements DetectorProtocol and maintains clean architecture
+    by keeping infrastructure concerns separate from domain logic.
+    """
 
     ALGORITHM_MAPPING = {
         "AutoEncoder": AutoEncoder,
@@ -337,13 +341,12 @@ class TensorFlowAdapter(Detector):
                 algorithm_name, available_algorithms=list(self.ALGORITHM_MAPPING.keys())
             )
 
-        # Initialize parent
-        super().__init__(
-            name=name or f"TensorFlow_{algorithm_name}",
-            algorithm_name=algorithm_name,
-            contamination_rate=contamination_rate or ContaminationRate(0.1),
-            **kwargs,
-        )
+        # Infrastructure state (no domain entity composition)
+        self._name = name or f"TensorFlow_{algorithm_name}"
+        self._algorithm_name = algorithm_name
+        self._contamination_rate = contamination_rate or ContaminationRate(0.1)
+        self._parameters = kwargs
+        self._is_fitted = False
 
         # TensorFlow-specific attributes
         self.model: Model | None = None
@@ -371,6 +374,32 @@ class TensorFlowAdapter(Detector):
                 "early_stopping_patience",
             ]
         }
+
+    # DetectorProtocol properties
+    @property
+    def name(self) -> str:
+        """Get the name of the detector."""
+        return self._name
+
+    @property
+    def contamination_rate(self) -> ContaminationRate:
+        """Get the contamination rate."""
+        return self._contamination_rate
+
+    @property
+    def is_fitted(self) -> bool:
+        """Check if the detector has been fitted."""
+        return self._is_fitted
+
+    @property
+    def parameters(self) -> dict[str, Any]:
+        """Get the current parameters of the detector."""
+        return self._parameters
+
+    @property
+    def algorithm_name(self) -> str:
+        """Get the algorithm name."""
+        return self._algorithm_name
 
     def _detect_device(self) -> str:
         """Detect available device (CPU/GPU)."""
@@ -503,7 +532,7 @@ class TensorFlowAdapter(Detector):
             self._calculate_threshold(X)
 
             # Mark as fitted
-            self.is_fitted = True
+            self._is_fitted = True
 
             training_time = time.time() - start_time
 
@@ -643,7 +672,7 @@ class TensorFlowAdapter(Detector):
             )
 
             return DetectionResult(
-                detector_id=self.id,
+                detector_id=self.name,
                 dataset_name=dataset.name,
                 scores=anomaly_scores,
                 labels=labels,

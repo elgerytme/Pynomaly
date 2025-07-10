@@ -1807,6 +1807,8 @@ def mount_web_ui(app):
     from pynomaly.presentation.web.error_handling import (
         ErrorHandlingMiddleware,
         get_web_ui_logger,
+    )
+    from pynomaly.presentation.web.error_monitoring import (
         start_error_monitoring,
     )
 

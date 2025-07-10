@@ -147,7 +147,7 @@ async def get_current_active_user(
     settings = Settings()
 
     # Check if auth is enabled and user is required
-    if settings.auth_enabled and not current_user:
+    if settings.security.auth_enabled and not current_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required",

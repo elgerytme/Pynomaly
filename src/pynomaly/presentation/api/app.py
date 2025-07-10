@@ -93,10 +93,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     print(f"Starting {settings.app.name} v{settings.app.version}")
 
     # Initialize services
-    if settings.cache_enabled:
+    if settings.storage.cache_enabled:
         init_cache(settings)
 
-    if settings.auth_enabled:
+    if settings.security.auth_enabled:
         init_auth(settings)
 
     # Initialize production monitoring
@@ -202,9 +202,9 @@ def create_app(container: Container | None = None) -> FastAPI:
 - **Documentation**: [https://pynomaly.readthedocs.io](https://pynomaly.readthedocs.io)
 - **Issues**: [https://github.com/pynomaly/pynomaly/issues](https://github.com/pynomaly/pynomaly/issues)
         """,
-        docs_url="/api/v1/docs" if settings.docs_enabled else None,
-        redoc_url="/api/v1/redoc" if settings.docs_enabled else None,
-        openapi_url="/api/v1/openapi.json" if settings.docs_enabled else None,
+        docs_url="/api/v1/docs" if settings.api.docs_enabled else None,
+        redoc_url="/api/v1/redoc" if settings.api.docs_enabled else None,
+        openapi_url="/api/v1/openapi.json" if settings.api.docs_enabled else None,
         lifespan=lifespan,
         contact={
             "name": "Pynomaly Team",
@@ -238,7 +238,7 @@ def create_app(container: Container | None = None) -> FastAPI:
     app.add_middleware(CORSMiddleware, **settings.get_cors_config())
 
     # Add session middleware for CSRF protection
-    app.add_middleware(SessionMiddleware, secret_key=settings.secret_key)
+    app.add_middleware(SessionMiddleware, secret_key=settings.security.secret_key)
 
     # Add request tracking middleware
     app.middleware("http")(track_request_metrics)
@@ -367,4 +367,4 @@ def create_app(container: Container | None = None) -> FastAPI:
 
 
 # Create default app instance for uvicorn
-app = create_app()
+# app = create_app()  # Commented out to prevent immediate creation during import

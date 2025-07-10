@@ -47,6 +47,18 @@ class DataValidationService(IDataValidationService):
             n_samples, n_features = X.shape
             logger.info(f"Data shape: {n_samples} samples, {n_features} features")
 
+            # Check for empty dataset
+            if n_samples == 0 or n_features == 0:
+                issues.append("Empty dataset: no samples or features found")
+                recommendations.append("Ensure dataset contains data before validation")
+                return DataValidationResult(
+                    is_valid=False,
+                    statistics={"n_samples": n_samples, "n_features": n_features},
+                    quality_score=0.0,
+                    issues=issues,
+                    recommendations=recommendations,
+                )
+
             # Check for minimum data requirements
             if n_samples < 10:
                 issues.append("Insufficient data: less than 10 samples")

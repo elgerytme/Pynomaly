@@ -99,7 +99,8 @@
       "Bash(grep:*)",
       "Bash(gh issue comment:*)",
       "Bash(git pull:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(PYTHONPATH=/mnt/c/Users/andre/Pynomaly python3:*)"
     ],
     "deny": []
   }

@@ -665,7 +665,7 @@ class PyTorchAdapter:
                     avg_loss = total_loss / len(train_loader)
                     logger.info(f"Epoch [{epoch + 1}/{epochs}], Loss: {avg_loss:.4f}")
 
-            self.is_fitted = True
+            self._is_fitted = True
             logger.info(f"Successfully trained PyTorch {self.algorithm_name}")
 
         except Exception as e:
@@ -817,7 +817,7 @@ class PyTorchAdapter:
             ]
 
             return DetectionResult(
-                detector_id=self.id,
+                detector_id=self.name,
                 dataset_name=dataset.name,
                 scores=anomaly_scores,
                 labels=labels,

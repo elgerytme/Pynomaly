@@ -11,15 +11,19 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly.domain.entities import Dataset, DetectionResult
 from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import AnomalyScore
+from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 
 logger = logging.getLogger(__name__)
 
 
-class PyGODAdapter(Detector):
-    """Adapter for PyGOD graph anomaly detection algorithms."""
+class PyGODAdapter:
+    """Adapter for PyGOD graph anomaly detection algorithms.
+
+    This adapter implements DetectorProtocol and maintains clean architecture
+    by keeping infrastructure concerns separate from domain logic.
+    """
 
     # Lazy imports to avoid import errors if PyGOD not installed
     _algorithm_map: dict[str, type] | None = None
@@ -65,33 +69,73 @@ class PyGODAdapter(Detector):
 
         return cls._algorithm_map
 
-    def __init__(self, algorithm: str, parameters: dict[str, Any] | None = None):
+    def __init__(
+        self,
+        algorithm_name: str,
+        name: str | None = None,
+        contamination_rate: ContaminationRate | None = None,
+        **kwargs: Any,
+    ):
         """Initialize PyGOD adapter with detector configuration.
 
         Args:
-            algorithm: Algorithm name
-            parameters: Algorithm parameters
+            algorithm_name: Name of the PyGOD algorithm
+            name: Optional custom name for the detector
+            contamination_rate: Expected contamination rate
+            **kwargs: Algorithm-specific parameters
         """
-        super().__init__(algorithm=algorithm, parameters=parameters or {})
+        # Infrastructure state (no domain entity composition)
+        self._name = name or f"PyGOD_{algorithm_name}"
+        self._algorithm_name = algorithm_name
+        self._contamination_rate = contamination_rate or ContaminationRate(0.1)
+        self._parameters = kwargs
+        self._is_fitted = False
+
         self._model = None
         self._init_algorithm()
+
+    # DetectorProtocol properties
+    @property
+    def name(self) -> str:
+        """Get the name of the detector."""
+        return self._name
+
+    @property
+    def contamination_rate(self) -> ContaminationRate:
+        """Get the contamination rate."""
+        return self._contamination_rate
+
+    @property
+    def is_fitted(self) -> bool:
+        """Check if the detector has been fitted."""
+        return self._is_fitted
+
+    @property
+    def parameters(self) -> dict[str, Any]:
+        """Get the current parameters of the detector."""
+        return self._parameters
+
+    @property
+    def algorithm_name(self) -> str:
+        """Get the algorithm name."""
+        return self._algorithm_name
 
     def _init_algorithm(self) -> None:
         """Initialize the PyGOD algorithm instance."""
         algorithm_map = self._get_algorithm_map()
 
-        if self.algorithm not in algorithm_map:
+        if self._algorithm_name not in algorithm_map:
             available = ", ".join(algorithm_map.keys())
             raise AlgorithmNotFoundError(
-                f"Algorithm '{self.algorithm}' not found in PyGOD. "
+                f"Algorithm '{self._algorithm_name}' not found in PyGOD. "
                 f"Available algorithms: {available}"
             )
 
         try:
-            algorithm_class = algorithm_map[self.algorithm]
+            algorithm_class = algorithm_map[self._algorithm_name]
 
             # Configure parameters
-            params = self.parameters.copy()
+            params = self._parameters.copy()
 
             # Handle common parameter mappings
             if "contamination" in params:
@@ -210,7 +254,7 @@ class PyGODAdapter(Detector):
             ]
 
             return DetectionResult(
-                detector_id=self.id,
+                detector_id=self.name,
                 dataset_id=dataset.id,
                 scores=anomaly_scores,
                 labels=labels.tolist(),
