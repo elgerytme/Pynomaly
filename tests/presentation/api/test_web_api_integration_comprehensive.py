@@ -12,7 +12,7 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 from fastapi import status
 
-from pynomaly.presentation.web_api.app import app
+from pynomaly.presentation.api.app import app
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.entities.dataset import Dataset
 from pynomaly.domain.entities.detection_result import DetectionResult
@@ -143,7 +143,7 @@ class TestWebAPIIntegrationComprehensive:
             "hyperparameters": {"n_estimators": 100},
         }
         
-        with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_services["detection"]):
+        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_services["detection"]):
             detector_response = client.post(
                 "/api/v1/detectors",
                 json=detector_payload,
@@ -160,7 +160,7 @@ class TestWebAPIIntegrationComprehensive:
             "validation_split": 0.2,
         }
         
-        with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_services["detection"]):
+        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_services["detection"]):
             train_response = client.post(
                 "/api/v1/detection/train",
                 json=train_payload,
@@ -178,7 +178,7 @@ class TestWebAPIIntegrationComprehensive:
             "threshold": 0.5,
         }
         
-        with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_services["detection"]):
+        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_services["detection"]):
             detect_response = client.post(
                 "/api/v1/detection/detect",
                 json=detect_payload,
@@ -218,7 +218,7 @@ class TestWebAPIIntegrationComprehensive:
             "max_trials": 10,
         }
         
-        with patch("pynomaly.presentation.web_api.dependencies.get_automl_service", return_value=mock_services["automl"]):
+        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_services["automl"]):
             automl_response = client.post(
                 "/api/v1/automl/run",
                 json=automl_payload,
@@ -239,7 +239,7 @@ class TestWebAPIIntegrationComprehensive:
             "hyperparameters": best_detector["hyperparameters"],
         }
         
-        with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_services["detection"]):
+        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_services["detection"]):
             detector_response = client.post(
                 "/api/v1/detectors",
                 json=detector_payload,
@@ -300,7 +300,7 @@ class TestWebAPIIntegrationComprehensive:
             },
         }
         
-        with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_services["streaming"]):
+        with patch("pynomaly.presentation.api.deps.get_streaming_service", return_value=mock_services["streaming"]):
             session_response = client.post(
                 "/api/v1/streaming/sessions",
                 json=session_payload,
@@ -327,7 +327,7 @@ class TestWebAPIIntegrationComprehensive:
             "anomalies_detected": 0,
         }
         
-        with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_services["streaming"]):
+        with patch("pynomaly.presentation.api.deps.get_streaming_service", return_value=mock_services["streaming"]):
             process_response = client.post(
                 "/api/v1/streaming/process",
                 json=data_payload,
@@ -371,7 +371,7 @@ class TestWebAPIIntegrationComprehensive:
             )
         
         # Test detector endpoint
-        with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_services["detection"]):
+        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_services["detection"]):
             detector_response = client.get(
                 f"/api/v1/detectors/{detector_id}",
                 headers=auth_headers,
@@ -405,9 +405,9 @@ class TestWebAPIIntegrationComprehensive:
                     if hasattr(service, method):
                         getattr(service, method).side_effect = Exception("Not found")
             
-            with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_services["dataset"]):
-                with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_services["detection"]):
-                    with patch("pynomaly.presentation.web_api.dependencies.get_streaming_service", return_value=mock_services["streaming"]):
+            with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_services["dataset"]):
+                with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_services["detection"]):
+                    with patch("pynomaly.presentation.api.deps.get_streaming_service", return_value=mock_services["streaming"]):
                         response = client.get(endpoint, headers=auth_headers)
                         assert response.status_code in [404, 503]
 
@@ -447,8 +447,8 @@ class TestWebAPIIntegrationComprehensive:
             # Make multiple rapid requests
             responses = []
             for i in range(5):
-                with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_services["detection"]):
-                    with patch("pynomaly.presentation.web_api.dependencies.get_automl_service", return_value=mock_services["automl"]):
+                with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_services["detection"]):
+                    with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_services["automl"]):
                         response = client.post(endpoint, json=payload, headers=auth_headers)
                         responses.append(response.status_code)
             
@@ -471,8 +471,8 @@ class TestWebAPIIntegrationComprehensive:
         ]
         
         for method, endpoint, *payload in endpoints:
-            with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_services["dataset"]):
-                with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_services["detection"]):
+            with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_services["dataset"]):
+                with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_services["detection"]):
                     if method == "GET":
                         response = client.get(endpoint, headers=cors_headers)
                     else:
@@ -492,8 +492,8 @@ class TestWebAPIIntegrationComprehensive:
         ]
         
         for method, endpoint, *payload in endpoints:
-            with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_services["dataset"]):
-                with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_services["detection"]):
+            with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_services["dataset"]):
+                with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_services["detection"]):
                     if method == "GET":
                         response = client.get(endpoint, headers=auth_headers)
                     else:
@@ -520,8 +520,8 @@ class TestWebAPIIntegrationComprehensive:
         for method, endpoint in endpoints:
             start_time = time.time()
             
-            with patch("pynomaly.presentation.web_api.dependencies.get_dataset_service", return_value=mock_services["dataset"]):
-                with patch("pynomaly.presentation.web_api.dependencies.get_detection_service", return_value=mock_services["detection"]):
+            with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_services["dataset"]):
+                with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_services["detection"]):
                     response = client.get(endpoint, headers=auth_headers)
             
             response_time = time.time() - start_time

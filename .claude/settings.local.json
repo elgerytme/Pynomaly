@@ -48,7 +48,13 @@
       "Bash(docker-compose:*)",
       "Bash(chmod:*)",
       "Bash(python:*)",
-      "Bash(docker stop:*)"
+      "Bash(docker stop:*)",
+      "Bash(./environments/.venv/bin/python scripts/performance_testing.py)",
+      "Bash(./environments/.venv/bin/python -m pytest tests/presentation/api/test_automl_endpoints_comprehensive.py::TestAutoMLEndpointsComprehensive::test_run_automl_success -v --tb=short --timeout=30)",
+      "Bash(git restore:*)",
+      "Bash(./environments/.venv/bin/python -m pytest tests/performance/test_comprehensive_algorithm_benchmarks.py -v --tb=short)",
+      "Bash(find:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

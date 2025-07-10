@@ -114,7 +114,7 @@ class TestMFAEndpoints:
             with patch("pynomaly.presentation.api.endpoints.mfa.get_current_user") as mock_get_user:
                 mock_get_user.return_value = mock_user
 
-                with patch("pynomaly.presentation.api.endpoints.mfa.get_current_admin_user") as mock_get_admin:
+                with patch("pynomaly.presentation.api.endpoints.mfa.require_admin_simple") as mock_get_admin:
                     mock_get_admin.return_value = mock_admin_user
 
                     with patch("pynomaly.presentation.api.endpoints.mfa.get_mfa_service") as mock_get_mfa:

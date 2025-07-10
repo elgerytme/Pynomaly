@@ -5,6 +5,7 @@ A comprehensive real-time alerting and notification system for the Pynomaly anom
 ## Features
 
 ### 🚨 Alert Management
+
 - **Rule-based alerting** with flexible conditions and thresholds
 - **Multiple severity levels** (Low, Medium, High, Critical)
 - **Configurable alert conditions** (>, <, >=, <=, ==, !=)
@@ -12,12 +13,14 @@ A comprehensive real-time alerting and notification system for the Pynomaly anom
 - **Alert acknowledgment and resolution** workflow
 
 ### 📡 Real-time Monitoring
+
 - **Metric collection** from system and application sources
 - **Prometheus integration** for metrics export
 - **WebSocket support** for real-time alert notifications
 - **Background processing** for high-performance metric ingestion
 
 ### 🔔 Multi-channel Notifications
+
 - **Email notifications** with HTML templates
 - **Slack integration** with rich message formatting
 - **Discord webhook** support
@@ -26,6 +29,7 @@ A comprehensive real-time alerting and notification system for the Pynomaly anom
 - **Webhook notifications** for custom integrations
 
 ### 📊 System Integration
+
 - **SQLAlchemy ORM** for database persistence
 - **FastAPI REST API** for management and monitoring
 - **Pydantic validation** for type safety
@@ -58,7 +62,9 @@ A comprehensive real-time alerting and notification system for the Pynomaly anom
 ## Components
 
 ### 1. Alert Manager (`alert_manager.py`)
+
 Core component responsible for:
+
 - Managing alert rules (CRUD operations)
 - Processing incoming metrics against rules
 - Triggering alerts when conditions are met
@@ -66,14 +72,18 @@ Core component responsible for:
 - Managing alert lifecycle (acknowledgment, resolution)
 
 ### 2. Metric Collector (`metric_collector.py`)
+
 Handles metric collection and processing:
+
 - Collects system metrics (CPU, memory, disk, network)
 - Accepts custom application metrics
 - Exports metrics to Prometheus
 - Provides real-time metric streaming
 
 ### 3. Alerting Service (`alerting_service.py`)
+
 FastAPI-based REST API providing:
+
 - Alert rule management endpoints
 - Metric submission endpoints
 - Real-time WebSocket connections
@@ -176,28 +186,34 @@ app.include_router(alerting_router, prefix="/api/v1")
 ## API Endpoints
 
 ### Alert Rules Management
+
 - `POST /alerting/rules` - Create alert rule
 - `GET /alerting/rules` - List all rules
 - `PUT /alerting/rules/{rule_id}` - Update rule
 - `DELETE /alerting/rules/{rule_id}` - Delete rule
 
 ### Alert Management
+
 - `GET /alerting/alerts` - Get active alerts
 - `POST /alerting/alerts/{alert_id}/acknowledge` - Acknowledge alert
 - `POST /alerting/alerts/{alert_id}/resolve` - Resolve alert
 
 ### Metrics Submission
+
 - `POST /alerting/metrics` - Submit single metric
 - `POST /alerting/metrics/batch` - Submit multiple metrics
 
 ### System Monitoring
+
 - `GET /alerting/status` - Get system status
 - `GET /alerting/health` - Health check
 
 ### WebSocket
+
 - `WS /alerting/ws/{client_id}` - Real-time alert notifications
 
 ### Demo Endpoints
+
 - `POST /alerting/demo/trigger-alert` - Trigger demo alert
 - `POST /alerting/demo/create-rule` - Create demo rule
 
@@ -263,6 +279,7 @@ python scripts/demo_alerting.py
 ```
 
 The demo will:
+
 1. Check system health
 2. Create sample alert rules
 3. Submit test metrics
@@ -272,16 +289,19 @@ The demo will:
 ## Testing
 
 ### Unit Tests
+
 ```bash
 pytest tests/unit/infrastructure/alerting/
 ```
 
 ### Integration Tests
+
 ```bash
 pytest tests/integration/alerting/
 ```
 
 ### Load Testing
+
 ```bash
 python scripts/load_test_alerting.py
 ```
@@ -289,13 +309,16 @@ python scripts/load_test_alerting.py
 ## Monitoring
 
 ### Prometheus Metrics
+
 The system exports metrics to Prometheus:
+
 - `alerting_rules_total` - Total number of alert rules
 - `alerting_alerts_active` - Number of active alerts
 - `alerting_notifications_sent_total` - Total notifications sent
 - `alerting_metric_processing_duration_seconds` - Metric processing time
 
 ### Health Checks
+
 - Database connectivity
 - Notification service availability
 - Metric collection status
@@ -304,16 +327,19 @@ The system exports metrics to Prometheus:
 ## Security
 
 ### Input Validation
+
 - All API inputs are validated using Pydantic
 - SQL injection prevention through SQLAlchemy ORM
 - XSS protection in notification templates
 
 ### Authentication
+
 - API key authentication for REST endpoints
 - WebSocket connection validation
 - Rate limiting for metric submission
 
 ### Data Protection
+
 - Sensitive data encryption in database
 - Secure webhook URL validation
 - Audit logging for all operations
@@ -321,12 +347,14 @@ The system exports metrics to Prometheus:
 ## Performance
 
 ### Optimizations
+
 - Background metric processing
 - Database connection pooling
 - Efficient alert rule evaluation
 - Batch notification sending
 
 ### Scalability
+
 - Horizontal scaling support
 - Redis caching for frequently accessed data
 - Asynchronous processing throughout

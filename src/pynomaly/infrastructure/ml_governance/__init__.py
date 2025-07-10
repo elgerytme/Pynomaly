@@ -22,7 +22,7 @@ __all__ = [
     "ModelCard",
     "DataSheet",
     "ModelValidator",
-    "ComplianceChecker", 
+    "ComplianceChecker",
     "DeploymentManager",
     "GovernanceStatus",
     "ModelStage",

@@ -33,7 +33,8 @@ from pynomaly.application.dto.mfa_dto import (
     MFAErrorResponse,
 )
 from pynomaly.domain.services.mfa_service import MFAService
-from pynomaly.infrastructure.auth import get_current_user, get_current_admin_user
+from pynomaly.infrastructure.auth import get_current_user
+from pynomaly.presentation.api.auth_deps import require_admin_simple
 from pynomaly.infrastructure.cache import get_cache
 from pynomaly.infrastructure.security.audit_logger import (
     get_audit_logger,
@@ -801,7 +802,7 @@ async def revoke_trusted_device(
 # Admin endpoints
 @router.get("/admin/settings", response_model=MFASettingsDTO)
 async def get_mfa_settings(
-    current_admin=Depends(get_current_admin_user),
+    current_admin=Depends(require_admin_simple),
 ):
     """
     Get MFA settings for the organization.
@@ -821,9 +822,9 @@ async def get_mfa_settings(
     except Exception as e:
         audit_logger.log_security_event(
             SecurityEventType.MFA_SETTINGS_ACCESS_FAILED,
-            f"MFA settings access failed for admin {current_admin.id}: {str(e)}",
+            f"MFA settings access failed for admin {current_admin.id if current_admin else 'unknown'}: {str(e)}",
             level=AuditLevel.ERROR,
-            user_id=current_admin.id,
+            user_id=current_admin.id if current_admin else None,
             details={"error": str(e)},
             risk_score=10
         )
@@ -835,7 +836,7 @@ async def get_mfa_settings(
 
 @router.get("/admin/statistics", response_model=MFAStatisticsDTO)
 async def get_mfa_statistics(
-    current_admin=Depends(get_current_admin_user),
+    current_admin=Depends(require_admin_simple),
     mfa_service: MFAService = Depends(get_mfa_service),
 ):
     """
@@ -848,9 +849,9 @@ async def get_mfa_statistics(
         
         audit_logger.log_security_event(
             SecurityEventType.MFA_STATISTICS_ACCESS,
-            f"MFA statistics accessed by admin {current_admin.id}",
+            f"MFA statistics accessed by admin {current_admin.id if current_admin else 'unknown'}",
             level=AuditLevel.INFO,
-            user_id=current_admin.id,
+            user_id=current_admin.id if current_admin else None,
             details={"statistics": True}
         )
         
@@ -859,9 +860,9 @@ async def get_mfa_statistics(
     except Exception as e:
         audit_logger.log_security_event(
             SecurityEventType.MFA_STATISTICS_ACCESS_FAILED,
-            f"MFA statistics access failed for admin {current_admin.id}: {str(e)}",
+            f"MFA statistics access failed for admin {current_admin.id if current_admin else 'unknown'}: {str(e)}",
             level=AuditLevel.ERROR,
-            user_id=current_admin.id,
+            user_id=current_admin.id if current_admin else None,
             details={"error": str(e)},
             risk_score=10
         )

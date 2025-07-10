@@ -116,7 +116,8 @@ class TestMFAService:
     @patch('pynomaly.domain.services.mfa_service.pyotp')
     def test_verify_totp_code_success(self, mock_pyotp, mfa_service, mock_redis):
         """Test successful TOTP code verification."""
-        mock_redis.get.return_value = b"TESTSECRET123"
+        # First call: get secret, second call: check if code was used (should be None)
+        mock_redis.get.side_effect = [b"TESTSECRET123", None]
         
         mock_totp = Mock()
         mock_totp.verify.return_value = True
@@ -442,7 +443,9 @@ class TestMFAService:
         assert service.is_device_trusted("test123", "user123") is False
         assert service.revoke_trusted_device("test123", "user123") is False
     
-    def test_error_handling_in_totp_verification(self, mfa_service, mock_redis):
+    @patch('pynomaly.domain.services.mfa_service.PYOTP_AVAILABLE', True)
+    @patch('pynomaly.domain.services.mfa_service.pyotp')
+    def test_error_handling_in_totp_verification(self, mock_pyotp, mfa_service, mock_redis):
         """Test error handling in TOTP verification."""
         mock_redis.get.side_effect = Exception("Redis error")
         

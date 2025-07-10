@@ -1,131 +1,190 @@
 # Pynomaly API Documentation
 
-Welcome to the Pynomaly API documentation! This directory contains comprehensive
-documentation for the Pynomaly anomaly detection platform.
 
-## 📁 Documentation Structure
+# Pynomaly - Enterprise Anomaly Detection Platform
 
-```
-docs/api/
-├── API_DOCUMENTATION.md         # Main API documentation
-├── generated/                   # Generated documentation files
-│   ├── openapi.json            # OpenAPI 3.0 specification (JSON)
-│   ├── openapi.yaml            # OpenAPI 3.0 specification (YAML)
-│   ├── index.html              # Interactive Swagger UI
-│   ├── examples/               # Code examples
-│   │   ├── python/            # Python examples
-│   │   ├── javascript/        # JavaScript examples
-│   │   └── curl/              # cURL examples
-│   └── pynomaly_api.postman_collection.json  # Postman collection
-└── README.md                   # This file
-```
+A comprehensive, production-ready anomaly detection system with enterprise-grade features.
 
-## 🚀 Getting Started
+## Features
 
-### 1. Interactive Documentation
+### Core Detection
+- **Anomaly Detection**: Detect anomalies in time series, tabular, and streaming data
+- **Multiple Algorithms**: Support for Isolation Forest, One-Class SVM, LSTM Autoencoders, and custom models
+- **Ensemble Methods**: Combine multiple detection algorithms for improved accuracy
+- **Real-time Processing**: Stream processing for continuous anomaly detection
 
-Open `generated/index.html` in your browser to explore the API interactively
-with Swagger UI.
+### MLOps Platform
+- **Model Registry**: Centralized model management with versioning and metadata
+- **Experiment Tracking**: Track experiments, parameters, and metrics
+- **Model Deployment**: Deploy models to development, staging, and production environments
+- **Automated Retraining**: Automatic model retraining based on data drift and performance degradation
 
-### 2. API Specification
+### Enterprise Features
+- **Multi-tenancy**: Complete tenant isolation with role-based access control
+- **Audit Logging**: Comprehensive audit trails with compliance support (GDPR, HIPAA, SOX)
+- **Security**: JWT authentication, data encryption, and tamper detection
+- **Analytics Dashboard**: Real-time insights and business metrics
 
-- **OpenAPI JSON**: `generated/openapi.json`
-- **OpenAPI YAML**: `generated/openapi.yaml`
+### Monitoring & Observability
+- **Health Monitoring**: System health checks and performance metrics
+- **Alerting**: Real-time alerts for anomalies and system issues
+- **Compliance Reporting**: Generate compliance reports for regulatory requirements
+- **Performance Tracking**: Track model performance and system metrics
 
-### 3. Code Examples
+## Quick Start
 
-Choose your preferred language:
-
-- **Python**: `generated/examples/python/`
-- **JavaScript**: `generated/examples/javascript/`
-- **cURL**: `generated/examples/curl/`
-
-### 4. Postman Collection
-
-Import `generated/pynomaly_api.postman_collection.json` into Postman for easy
-API testing.
-
-## 📖 API Overview
-
-The Pynomaly API provides comprehensive REST endpoints for:
-
-- **Health Monitoring**: System health and status checks
-- **Detector Management**: Create, update, and manage anomaly detectors
-- **Detection Operations**: Run anomaly detection on data
-- **AutoML**: Automated machine learning optimization
-- **Dataset Management**: Handle training and testing datasets
-- **Metrics & Monitoring**: Performance and system metrics
-- **Explainability**: Model interpretability and explanations
-
-## 🔐 Authentication
-
-All API endpoints require authentication via API key:
-
+### 1. Authentication
 ```bash
-# Header authentication (recommended)
-curl -H "X-API-Key: your-api-key" https://api.pynomaly.com/api/v1/detectors
-
-# Query parameter authentication
-curl "https://api.pynomaly.com/api/v1/detectors?api_key=your-api-key"
+# Get JWT token
+curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"username": "your_username", "password": "your_password"}'
 ```
 
-## 📚 Quick Examples
-
-### Python
-
-```python
-import requests
-
-headers = {"X-API-Key": "your-api-key"}
-response = requests.get("https://api.pynomaly.com/health", headers=headers)
-print(response.json())
-```
-
-### JavaScript
-
-```javascript
-const response = await fetch('https://api.pynomaly.com/health', {
-    headers: { 'X-API-Key': 'your-api-key' }
-});
-const data = await response.json();
-console.log(data);
-```
-
-### cURL
-
+### 2. Basic Anomaly Detection
 ```bash
-curl -H "X-API-Key: your-api-key" https://api.pynomaly.com/health
+# Detect anomalies in data
+curl -X POST "https://api.pynomaly.com/api/v1/detection/detect" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data": [1.0, 2.0, 3.0, 100.0, 4.0, 5.0],
+    "algorithm": "isolation_forest",
+    "parameters": {"contamination": 0.1}
+  }'
 ```
 
-## 🌐 Base URLs
+### 3. Train Custom Model
+```bash
+# Train a new model
+curl -X POST "https://api.pynomaly.com/api/v1/detection/train" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "training_data": "path/to/training/data.csv",
+    "algorithm": "lstm_autoencoder",
+    "parameters": {"epochs": 100, "batch_size": 32}
+  }'
+```
 
-- **Production**: `https://api.pynomaly.com`
-- **Staging**: `https://staging-api.pynomaly.com`
-- **Development**: `http://localhost:8000`
+## Authentication
 
-## 📊 Rate Limits
+Most endpoints require authentication using JWT tokens. Include the token in the Authorization header:
 
-- **Default**: 1000 requests per minute
-- **Burst**: 100 requests per second
-- **Training**: 10 concurrent jobs per user
-- **Detection**: 10,000 requests per minute
+```
+Authorization: Bearer <your-jwt-token>
+```
 
-## 📧 Support
+### API Key Authentication
+For service-to-service authentication, use API keys:
+
+```
+X-API-Key: <your-api-key>
+```
+
+## Rate Limiting
+
+API calls are rate-limited to ensure fair usage and system stability:
+- **Standard users**: 1000 requests per hour
+- **Enterprise users**: 10000 requests per hour
+- **Internal services**: Unlimited
+
+## Error Handling
+
+The API uses standard HTTP status codes and returns detailed error messages following RFC 7807:
+
+```json
+{
+  "type": "https://pynomaly.com/errors/validation-error",
+  "title": "Validation Error",
+  "status": 422,
+  "detail": "The request data is invalid",
+  "instance": "/api/v1/detection/detect",
+  "errors": [
+    {
+      "field": "data",
+      "message": "Field required"
+    }
+  ]
+}
+```
+
+## Support
 
 - **Documentation**: https://docs.pynomaly.com
-- **API Status**: https://status.pynomaly.com
 - **Support**: support@pynomaly.com
-- **Community**: https://github.com/pynomaly/pynomaly
+- **Community**: https://community.pynomaly.com
 
-## 🔄 Regenerating Documentation
 
-To regenerate this documentation:
+## Generated Documentation
 
+This directory contains comprehensive API documentation for the Pynomaly platform:
+
+- **`openapi.json`** - OpenAPI 3.0 specification in JSON format
+- **`openapi.yaml`** - OpenAPI 3.0 specification in YAML format
+- **`examples/`** - Client code examples in various languages
+
+## API Endpoints
+
+### Authentication
+- `POST /api/v1/auth/login` - User authentication
+- `POST /api/v1/auth/refresh` - Token refresh
+- `GET /api/v1/auth/me` - Get current user profile
+
+### Anomaly Detection
+- `POST /api/v1/detection/detect` - Detect anomalies in data
+- `POST /api/v1/detection/train` - Train anomaly detection model
+- `POST /api/v1/detection/batch` - Batch anomaly detection
+
+### Model Management
+- `GET /api/v1/models` - List available models
+- `GET /api/v1/models/{model_id}` - Get model details
+
+### Health & Monitoring
+- `GET /api/v1/health` - System health check
+- `GET /api/v1/health/metrics` - System metrics
+
+## Usage Examples
+
+### Authentication
 ```bash
-cd /path/to/pynomaly
-python scripts/generate_api_docs.py
+curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"username": "your_username", "password": "your_password"}'
 ```
+
+### Anomaly Detection
+```bash
+curl -X POST "https://api.pynomaly.com/api/v1/detection/detect" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data": [1.0, 2.0, 3.0, 100.0, 4.0, 5.0],
+    "algorithm": "isolation_forest",
+    "parameters": {"contamination": 0.1}
+  }'
+```
+
+## Interactive Documentation
+
+- **Swagger UI**: Available at `/api/v1/docs`
+- **ReDoc**: Available at `/api/v1/redoc`
+
+## Client Libraries
+
+See the `examples/` directory for client code examples in:
+- Python
+- JavaScript/TypeScript
+- cURL
+- Java
+- Go
+
+## Support
+
+- **Documentation**: https://docs.pynomaly.com
+- **Support**: support@pynomaly.com
+- **Community**: https://community.pynomaly.com
 
 ---
 
-*Last updated: 2025-07-09 16:44:19*
+Generated on: 2025-07-09 16:46:53

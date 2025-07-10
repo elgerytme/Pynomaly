@@ -12,7 +12,7 @@ from fastapi import status
 from fastapi.testclient import TestClient
 
 from pynomaly.domain.exceptions import DetectorError, ExplainabilityError
-from pynomaly.presentation.web_api.app import app
+from pynomaly.presentation.api.app import app
 
 
 class TestExplainabilityEndpointsComprehensive:
@@ -178,7 +178,7 @@ class TestExplainabilityEndpointsComprehensive:
         self, client, valid_explain_anomaly_payload, mock_explainability_service, auth_headers
     ):
         """Test successful anomaly explanation."""
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.post(
                 "/api/v1/explainability/anomaly",
                 json=valid_explain_anomaly_payload,
@@ -209,7 +209,7 @@ class TestExplainabilityEndpointsComprehensive:
         """Test anomaly explanation with invalid detector."""
         mock_explainability_service.explain_anomaly.side_effect = DetectorError("Detector not found")
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.post(
                 "/api/v1/explainability/anomaly",
                 json=valid_explain_anomaly_payload,
@@ -249,7 +249,7 @@ class TestExplainabilityEndpointsComprehensive:
         self, client, valid_explain_detector_payload, mock_explainability_service, auth_headers
     ):
         """Test successful detector explanation."""
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.post(
                 "/api/v1/explainability/detector",
                 json=valid_explain_detector_payload,
@@ -276,7 +276,7 @@ class TestExplainabilityEndpointsComprehensive:
         """Test detector explanation with invalid detector."""
         mock_explainability_service.explain_detector.side_effect = DetectorError("Detector not found")
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.post(
                 "/api/v1/explainability/detector",
                 json=valid_explain_detector_payload,
@@ -289,7 +289,7 @@ class TestExplainabilityEndpointsComprehensive:
         self, client, valid_compare_explanations_payload, mock_explainability_service, auth_headers
     ):
         """Test successful explanation comparison."""
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.post(
                 "/api/v1/explainability/compare",
                 json=valid_compare_explanations_payload,
@@ -327,7 +327,7 @@ class TestExplainabilityEndpointsComprehensive:
         """Test successful feature importance retrieval."""
         detector_id = str(uuid4())
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.get(
                 f"/api/v1/explainability/feature-importance/{detector_id}",
                 headers=auth_headers,
@@ -346,7 +346,7 @@ class TestExplainabilityEndpointsComprehensive:
         """Test feature importance with specific method."""
         detector_id = str(uuid4())
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.get(
                 f"/api/v1/explainability/feature-importance/{detector_id}?method=shap&top_k=5",
                 headers=auth_headers,
@@ -363,7 +363,7 @@ class TestExplainabilityEndpointsComprehensive:
         mock_explainability_service.get_feature_importance.side_effect = DetectorError("Detector not found")
         detector_id = str(uuid4())
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.get(
                 f"/api/v1/explainability/feature-importance/{detector_id}",
                 headers=auth_headers,
@@ -386,7 +386,7 @@ class TestExplainabilityEndpointsComprehensive:
         }
         mock_explainability_service.get_explanation.return_value = mock_explanation
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.get(
                 f"/api/v1/explainability/explanations/{explanation_id}",
                 headers=auth_headers,
@@ -406,7 +406,7 @@ class TestExplainabilityEndpointsComprehensive:
         mock_explainability_service.get_explanation.side_effect = ExplainabilityError("Explanation not found")
         explanation_id = str(uuid4())
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.get(
                 f"/api/v1/explainability/explanations/{explanation_id}",
                 headers=auth_headers,
@@ -436,7 +436,7 @@ class TestExplainabilityEndpointsComprehensive:
         ]
         mock_explainability_service.list_explanations.return_value = mock_explanations
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.get("/api/v1/explainability/explanations", headers=auth_headers)
 
         assert response.status_code == status.HTTP_200_OK
@@ -450,7 +450,7 @@ class TestExplainabilityEndpointsComprehensive:
         """Test explanations listing with filters."""
         mock_explainability_service.list_explanations.return_value = []
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.get(
                 "/api/v1/explainability/explanations?detector_id=test-detector&method=SHAP",
                 headers=auth_headers,
@@ -467,7 +467,7 @@ class TestExplainabilityEndpointsComprehensive:
         explanation_id = str(uuid4())
         mock_explainability_service.delete_explanation.return_value = True
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.delete(
                 f"/api/v1/explainability/explanations/{explanation_id}",
                 headers=auth_headers,
@@ -482,7 +482,7 @@ class TestExplainabilityEndpointsComprehensive:
         mock_explainability_service.delete_explanation.side_effect = ExplainabilityError("Explanation not found")
         explanation_id = str(uuid4())
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.delete(
                 f"/api/v1/explainability/explanations/{explanation_id}",
                 headers=auth_headers,
@@ -499,7 +499,7 @@ class TestExplainabilityEndpointsComprehensive:
         results = []
 
         def make_explain_request():
-            with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+            with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
                 response = client.post(
                     "/api/v1/explainability/anomaly",
                     json=valid_explain_anomaly_payload,
@@ -551,7 +551,7 @@ class TestExplainabilityEndpointsComprehensive:
         # Test service unavailable
         mock_explainability_service.explain_anomaly.side_effect = Exception("Service unavailable")
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.post(
                 "/api/v1/explainability/anomaly",
                 json=valid_explain_anomaly_payload,
@@ -564,7 +564,7 @@ class TestExplainabilityEndpointsComprehensive:
         self, client, valid_explain_anomaly_payload, mock_explainability_service, auth_headers
     ):
         """Test security headers in explainability responses."""
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.post(
                 "/api/v1/explainability/anomaly",
                 json=valid_explain_anomaly_payload,
@@ -585,7 +585,7 @@ class TestExplainabilityEndpointsComprehensive:
             "Origin": "https://example.com",
         }
 
-        with patch("pynomaly.presentation.web_api.dependencies.get_explainability_service", return_value=mock_explainability_service):
+        with patch("pynomaly.presentation.api.deps.get_explainability_service", return_value=mock_explainability_service):
             response = client.post(
                 "/api/v1/explainability/anomaly",
                 json=valid_explain_anomaly_payload,
