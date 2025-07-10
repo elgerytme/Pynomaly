@@ -1,18 +1,55 @@
 /**
- * Cache Manager for API Responses and Static Assets
- * Implements intelligent caching strategies for performance
+ * Advanced Cache Manager for API Responses and Static Assets
+ * Implements multi-layer caching with compression, metrics, and smart invalidation
  */
 
 class CacheManager {
-  constructor() {
+  constructor(options = {}) {
+    this.options = {
+      maxMemoryCacheSize: 100,
+      defaultTTL: 5 * 60 * 1000, // 5 minutes
+      enableCompression: true,
+      enableMetrics: true,
+      enableServiceWorkerCache: true,
+      compressionThreshold: 1024, // 1KB
+      ...options
+    };
+    
     this.memoryCache = new Map();
+    this.memoryCacheSize = 0;
+    this.pendingRequests = new Map();
     this.cacheKeys = {
       API_RESPONSES: 'api-responses',
       USER_PREFERENCES: 'user-preferences',
-      STATIC_DATA: 'static-data'
+      STATIC_DATA: 'static-data',
+      CHART_DATA: 'chart-data',
+      MODEL_RESULTS: 'model-results'
     };
-    this.maxMemoryCacheSize = 50;
-    this.defaultTTL = 5 * 60 * 1000; // 5 minutes
+    
+    // Performance metrics
+    this.metrics = {
+      hits: 0,
+      misses: 0,
+      evictions: 0,
+      compressionSaved: 0,
+      networkRequests: 0,
+      cacheSize: 0
+    };
+    
+    this.compressionSupported = 'CompressionStream' in window;
+    this.init();
+  }
+  
+  init() {
+    // Setup automatic cleanup
+    setInterval(() => {
+      this.cleanupExpiredMemoryCache();
+    }, 60000); // Every minute
+    
+    // Setup periodic IndexedDB cleanup
+    setInterval(() => {
+      this.cleanupExpiredCache();
+    }, 10 * 60 * 1000); // Every 10 minutes
   }
 
   // Memory cache for frequently accessed data

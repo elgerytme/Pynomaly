@@ -5,7 +5,7 @@ import pytest
 import pandas as pd
 from uuid import uuid4
 
-from pynomaly.domain.entities.model import Model
+from pynomaly.domain.entities.model import Model, ModelType
 from pynomaly.infrastructure.ml_governance import (
     MLGovernanceFramework,
     ModelStage,
@@ -19,10 +19,14 @@ from pynomaly.application.services.ml_governance_service import MLGovernanceAppl
 def sample_model():
     """Create a sample model for testing."""
     return Model(
-        id=uuid4(),
         name="test_anomaly_detector",
-        algorithm="isolation_forest",
-        parameters={"n_estimators": 100, "contamination": 0.1}
+        description="Test anomaly detection model using Isolation Forest",
+        model_type=ModelType.UNSUPERVISED,
+        algorithm_family="isolation_forest",
+        created_by="test_user",
+        tags=["test", "anomaly_detection"],
+        use_cases=["fraud_detection"],
+        data_requirements={"features": 3, "format": "numerical"}
     )
 
 
@@ -297,9 +301,11 @@ async def test_bulk_compliance_check(governance_service, sample_validation_data)
     
     for i in range(3):
         model = Model(
-            id=uuid4(),
             name=f"bulk_test_model_{i}",
-            algorithm="isolation_forest"
+            description=f"Bulk test model {i}",
+            model_type=ModelType.UNSUPERVISED,
+            algorithm_family="isolation_forest",
+            created_by="bulk_test_user"
         )
         models.append(model)
         
@@ -386,7 +392,13 @@ async def test_governance_record_retrieval(governance_framework, sample_model, s
     # Register multiple models
     record1 = await governance_framework.register_model(sample_model, created_by="user1")
     
-    model2 = Model(id=uuid4(), name="model2")
+    model2 = Model(
+        name="model2",
+        description="Second test model",
+        model_type=ModelType.SUPERVISED,
+        algorithm_family="random_forest",
+        created_by="user2"
+    )
     record2 = await governance_framework.register_model(model2, created_by="user2")
     
     # Test record retrieval by ID

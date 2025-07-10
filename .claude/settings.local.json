@@ -57,7 +57,9 @@
       "Bash(git commit:*)",
       "Bash(find:*)",
       "Bash(true)",
-      "Bash(gh issue list:*)"
+      "Bash(gh issue list:*)",
+      "Bash(git commit:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
