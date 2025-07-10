@@ -104,7 +104,8 @@
       "Bash(npm cache clean:*)",
       "Bash(source:*)",
       "Bash(mv:*)",
-      "Bash(PYNOMALY_USE_LAZY_CLI=false python3 -m pynomaly.presentation.cli.app migrate --help)"
+      "Bash(PYNOMALY_USE_LAZY_CLI=false python3 -m pynomaly.presentation.cli.app migrate --help)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }
