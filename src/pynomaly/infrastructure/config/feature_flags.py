@@ -189,6 +189,12 @@ class FeatureFlags(BaseSettings):
         default=True, description="Enable advanced BI reporting and analytics"
     )
 
+    # Legacy AutoML support for backward compatibility
+    automl: bool = Field(
+        default=True,
+        description="Enable AutoML features (alias for advanced_automl)",
+    )
+
     # Phase 4: Advanced Capabilities (Disabled by default)
     automl_framework: bool = Field(
         default=False,
@@ -376,6 +382,16 @@ class FeatureFlagManager:
                 stage=FeatureStage.BETA,
                 dependencies={"real_time_dashboards"},
             ),
+            # Legacy AutoML support  
+            "automl": FeatureDefinition(
+                name="automl",
+                description="AutoML features (alias for advanced_automl)",
+                category=FeatureCategory.AUTOMATION,
+                stage=FeatureStage.STABLE,
+                default_enabled=True,
+                dependencies={"algorithm_optimization"},
+                required_packages={"optuna"},
+            ),
             # Phase 4: Advanced Capabilities
             "automl_framework": FeatureDefinition(
                 name="automl_framework",
@@ -501,6 +517,22 @@ def require_feature(feature_name: str):
     return decorator
 
 
+def require_automl(func):
+    """Decorator to require AutoML features for function execution."""
+    import functools
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if not is_automl_enabled():
+            raise RuntimeError(
+                "AutoML features are not enabled. "
+                "Enable them by setting PYNOMALY_AUTOML=true or PYNOMALY_ADVANCED_AUTOML=true"
+            )
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 def conditional_import(feature_name: str, module_name: str, fallback=None):
     """Conditionally import a module based on feature flag."""
     if feature_flags.is_enabled(feature_name):
@@ -532,6 +564,11 @@ def is_advanced_analytics_enabled() -> bool:
     return feature_flags.is_enabled(
         "explainability_integration"
     ) or feature_flags.is_enabled("statistical_validation")
+
+
+def is_automl_enabled() -> bool:
+    """Check if AutoML features are enabled."""
+    return feature_flags.is_enabled("automl") or feature_flags.is_enabled("advanced_automl")
 
 
 def get_feature_flags() -> FeatureFlags:

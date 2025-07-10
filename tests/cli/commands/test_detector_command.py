@@ -11,7 +11,7 @@ import pytest
 from typer.testing import CliRunner
 
 from pynomaly.domain.exceptions import DetectorError, ValidationError
-from pynomaly.presentation.cli.commands.detector import detector_app
+from pynomaly.presentation.cli.detectors import app as detector_app
 
 
 class TestDetectorCommand:

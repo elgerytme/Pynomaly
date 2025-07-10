@@ -11,7 +11,7 @@ import pytest
 from typer.testing import CliRunner
 
 from pynomaly.domain.exceptions import DatasetError, ValidationError
-from pynomaly.presentation.cli.commands.datasets import datasets_app
+from pynomaly.presentation.cli.datasets import app as datasets_app
 
 
 class TestDatasetsCommand:
@@ -23,24 +23,25 @@ class TestDatasetsCommand:
         return CliRunner()
 
     @pytest.fixture
-    def mock_dataset_service(self):
-        """Mock dataset service."""
-        with patch(
-            "pynomaly.presentation.cli.commands.datasets.dataset_service"
-        ) as mock:
-            yield mock
-
-    @pytest.fixture
     def mock_container(self):
         """Mock CLI container."""
         with patch(
-            "pynomaly.presentation.cli.commands.datasets.get_cli_container"
+            "pynomaly.presentation.cli.datasets.get_cli_container"
         ) as mock:
             container = Mock()
-            container.config.return_value.storage_path = Path("/tmp/pynomaly")
-            container.config.return_value.max_dataset_size_mb = 100
+            
+            # Mock repository
+            mock_repo = Mock()
+            container.dataset_repository.return_value = mock_repo
+            
+            # Mock config
+            mock_config = Mock()
+            mock_config.storage_path = Path("/tmp/pynomaly")
+            mock_config.max_dataset_size_mb = 100
+            container.config.return_value = mock_config
+            
             mock.return_value = container
-            yield container
+            yield container, mock_repo
 
     @pytest.fixture
     def sample_dataset_data(self):
@@ -72,20 +73,30 @@ class TestDatasetsCommand:
     # Dataset List Command Tests
 
     def test_datasets_list_basic(
-        self, runner, mock_dataset_service, sample_dataset_data
+        self, runner, mock_container, sample_dataset_data
     ):
         """Test basic dataset list command."""
-        # Mock dataset service
+        container, mock_repo = mock_container
+        
+        # Mock dataset
         mock_dataset = Mock()
-        mock_dataset.to_dict.return_value = sample_dataset_data
-        mock_dataset_service.list_datasets.return_value = [mock_dataset]
+        mock_dataset.id = "test-dataset"
+        mock_dataset.name = "Test Dataset"
+        mock_dataset.n_samples = 100
+        mock_dataset.n_features = 3
+        mock_dataset.has_target = True
+        mock_dataset.memory_usage = 1024 * 1024  # 1MB
+        mock_dataset.created_at = Mock()
+        mock_dataset.created_at.strftime.return_value = "2024-01-01 00:00"
+        
+        mock_repo.find_all.return_value = [mock_dataset]
 
         result = runner.invoke(datasets_app, ["list"])
 
         assert result.exit_code == 0
         assert "Test Dataset" in result.stdout
         assert "test-dataset" in result.stdout
-        mock_dataset_service.list_datasets.assert_called_once()
+        mock_repo.find_all.assert_called_once()
 
     def test_datasets_list_empty(self, runner, mock_dataset_service):
         """Test dataset list with no datasets."""
