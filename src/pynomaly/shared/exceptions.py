@@ -329,3 +329,23 @@ class AlertingError(IntegrationError):
     """Raised when alerting operations fail."""
 
     pass
+
+
+# Training-related exceptions
+class TrainingError(ModelError):
+    """Raised when training operations fail."""
+
+    pass
+
+
+class DataValidationError(DataError):
+    """Raised when data validation fails."""
+
+    pass
+
+
+# Repository-related exceptions
+class RepositoryError(InfrastructureError):
+    """Raised when repository operations fail."""
+
+    pass

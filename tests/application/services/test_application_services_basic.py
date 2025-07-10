@@ -19,22 +19,22 @@ class TestApplicationServicesBasic:
         """Test DetectionService can be instantiated."""
         # Create mock dependencies
         mock_detector_repo = Mock()
-        mock_dataset_repo = Mock()
         mock_result_repo = Mock()
-        mock_algorithm_registry = Mock()
+        mock_anomaly_scorer = Mock()
+        mock_threshold_calculator = Mock()
 
         # Instantiate service
         service = DetectionService(
             detector_repository=mock_detector_repo,
-            dataset_repository=mock_dataset_repo,
             result_repository=mock_result_repo,
-            algorithm_registry=mock_algorithm_registry,
+            anomaly_scorer=mock_anomaly_scorer,
+            threshold_calculator=mock_threshold_calculator,
         )
 
         # Verify
         assert service is not None
-        assert hasattr(service, 'detect_anomalies')
-        assert hasattr(service, 'get_detection_results')
+        assert hasattr(service, "detect_with_multiple_detectors")
+        assert hasattr(service, "get_detection_history")
 
     def test_ensemble_service_instantiation(self):
         """Test EnsembleService can be instantiated."""
@@ -54,8 +54,8 @@ class TestApplicationServicesBasic:
 
         # Verify
         assert service is not None
-        assert hasattr(service, 'create_ensemble')
-        assert hasattr(service, 'detect_with_ensemble')
+        assert hasattr(service, "create_ensemble")
+        assert hasattr(service, "detect_with_ensemble")
 
     def test_autonomous_detection_service_instantiation(self):
         """Test AutonomousDetectionService can be instantiated."""
@@ -75,8 +75,8 @@ class TestApplicationServicesBasic:
 
         # Verify
         assert service is not None
-        assert hasattr(service, 'create_autonomous_detector')
-        assert hasattr(service, 'run_autonomous_detection')
+        assert hasattr(service, "create_autonomous_detector")
+        assert hasattr(service, "run_autonomous_detection")
 
     def test_automated_training_service_instantiation(self):
         """Test AutomatedTrainingService can be instantiated."""
@@ -96,8 +96,8 @@ class TestApplicationServicesBasic:
 
         # Verify
         assert service is not None
-        assert hasattr(service, 'train_detector')
-        assert hasattr(service, 'create_training_job')
+        assert hasattr(service, "train_detector")
+        assert hasattr(service, "create_training_job")
 
     def test_detection_service_method_signatures(self):
         """Test DetectionService has expected method signatures."""
@@ -116,12 +116,13 @@ class TestApplicationServicesBasic:
         )
 
         # Check method signatures
-        assert callable(getattr(service, 'detect_anomalies', None))
-        assert callable(getattr(service, 'get_detection_results', None))
+        assert callable(getattr(service, "detect_anomalies", None))
+        assert callable(getattr(service, "get_detection_results", None))
 
         # Check if methods are async
         method = service.detect_anomalies
         import inspect
+
         assert inspect.iscoroutinefunction(method)
 
     def test_ensemble_service_method_signatures(self):
@@ -141,8 +142,8 @@ class TestApplicationServicesBasic:
         )
 
         # Check method signatures
-        assert callable(getattr(service, 'create_ensemble', None))
-        assert callable(getattr(service, 'detect_with_ensemble', None))
+        assert callable(getattr(service, "create_ensemble", None))
+        assert callable(getattr(service, "detect_with_ensemble", None))
 
     def test_autonomous_detection_service_method_signatures(self):
         """Test AutonomousDetectionService has expected method signatures."""
@@ -161,8 +162,8 @@ class TestApplicationServicesBasic:
         )
 
         # Check method signatures
-        assert callable(getattr(service, 'create_autonomous_detector', None))
-        assert callable(getattr(service, 'run_autonomous_detection', None))
+        assert callable(getattr(service, "create_autonomous_detector", None))
+        assert callable(getattr(service, "run_autonomous_detection", None))
 
     def test_automated_training_service_method_signatures(self):
         """Test AutomatedTrainingService has expected method signatures."""
@@ -181,8 +182,8 @@ class TestApplicationServicesBasic:
         )
 
         # Check method signatures
-        assert callable(getattr(service, 'train_detector', None))
-        assert callable(getattr(service, 'create_training_job', None))
+        assert callable(getattr(service, "train_detector", None))
+        assert callable(getattr(service, "create_training_job", None))
 
     def test_service_dependency_injection(self):
         """Test that services properly inject dependencies."""
@@ -238,12 +239,14 @@ class TestApplicationServicesBasic:
         )
 
         expected_methods = [
-            'detect_anomalies',
-            'get_detection_results',
+            "detect_anomalies",
+            "get_detection_results",
         ]
 
         for method_name in expected_methods:
-            assert hasattr(detection_service, method_name), f"Missing method: {method_name}"
+            assert hasattr(
+                detection_service, method_name
+            ), f"Missing method: {method_name}"
             method = getattr(detection_service, method_name)
             assert callable(method), f"Method {method_name} is not callable"
 
@@ -265,10 +268,10 @@ class TestApplicationServicesBasic:
 
         # Verify service is properly configured
         assert service is not None
-        assert hasattr(service, 'detector_repository')
-        assert hasattr(service, 'dataset_repository')
-        assert hasattr(service, 'result_repository')
-        assert hasattr(service, 'algorithm_registry')
+        assert hasattr(service, "detector_repository")
+        assert hasattr(service, "dataset_repository")
+        assert hasattr(service, "result_repository")
+        assert hasattr(service, "algorithm_registry")
 
     def test_service_isolation(self):
         """Test that services are properly isolated."""
