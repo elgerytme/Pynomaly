@@ -85,7 +85,7 @@ def analyze_endpoint_file(file_path: Path) -> dict[str, list[str]]:
     dep_pattern = r"(\w+):\s*[^=]*=\s*Depends\(([^)]+)\)"
     deps = re.findall(dep_pattern, content)
 
-    return {"routes": routes, "dependencies": deps, "content": content}
+    return {"routes": routes, "dependencies": deps, "content": [content]}
 
 
 def update_imports(content: str) -> str:
@@ -171,7 +171,7 @@ def apply_rbac_to_file(file_path: Path) -> bool:
     """Apply RBAC to a single endpoint file."""
     try:
         analysis = analyze_endpoint_file(file_path)
-        content = analysis["content"]
+        content = analysis["content"][0]
 
         print(f"Processing {file_path.name}...")
 
@@ -210,7 +210,7 @@ def apply_rbac_to_file(file_path: Path) -> bool:
         return False
 
 
-def main():
+def main() -> None:
     """Main function to apply RBAC to all endpoints."""
     print("Applying RBAC middleware to all API endpoints...")
     print("=" * 50)

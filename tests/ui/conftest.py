@@ -16,7 +16,17 @@ from playwright.async_api import (
     Playwright,
 )
 
-from ..conftest import *
+try:
+    from ..conftest import *
+except ImportError:
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    try:
+        from conftest import *
+    except ImportError:
+        # Minimal pytest configuration for standalone tests
+        pass
 
 # Enhanced Configuration
 BASE_URL = os.getenv("PYNOMALY_BASE_URL", "http://localhost:8000")

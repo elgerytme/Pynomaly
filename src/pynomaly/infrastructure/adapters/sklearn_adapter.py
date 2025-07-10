@@ -8,20 +8,21 @@ from typing import Any
 import numpy as np
 from sklearn.base import BaseEstimator
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
 from pynomaly.domain.exceptions import (
     DetectorNotFittedError,
     FittingError,
     InvalidAlgorithmError,
 )
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from pynomaly.shared.protocols.detector_protocol import DetectorProtocol
 
 
 class SklearnAdapter:
     """Adapter for scikit-learn anomaly detection algorithms.
 
-    This adapter implements DetectorProtocol and uses composition with
-    a Detector entity to maintain clean architecture principles.
+    This adapter implements DetectorProtocol and maintains clean architecture
+    by keeping infrastructure concerns separate from domain logic.
     """
 
     # Mapping of algorithm names to sklearn classes
@@ -54,13 +55,13 @@ class SklearnAdapter:
                 algorithm_name, available_algorithms=list(self.ALGORITHM_MAPPING.keys())
             )
 
-        # Compose with Detector entity (domain object)
-        self._detector = Detector(
-            name=name or f"Sklearn_{algorithm_name}",
-            algorithm_name=algorithm_name,
-            contamination_rate=contamination_rate or ContaminationRate.auto(),
-            parameters=kwargs,
-        )
+        # Infrastructure state (no domain entity composition)
+        self._name = name or f"Sklearn_{algorithm_name}"
+        self._algorithm_name = algorithm_name
+        self._contamination_rate = contamination_rate or ContaminationRate.auto()
+        self._parameters = kwargs
+        self._is_fitted = False
+        self._metadata: dict[str, Any] = {}
 
         # Load sklearn model class
         self._model_class = self._load_model_class(algorithm_name)
@@ -73,27 +74,27 @@ class SklearnAdapter:
     @property
     def name(self) -> str:
         """Get the name of the detector."""
-        return self._detector.name
+        return self._name
 
     @property
     def contamination_rate(self) -> ContaminationRate:
         """Get the contamination rate."""
-        return self._detector.contamination_rate
+        return self._contamination_rate
 
     @property
     def is_fitted(self) -> bool:
         """Check if the detector has been fitted."""
-        return self._detector.is_fitted
+        return self._is_fitted
 
     @property
     def parameters(self) -> dict[str, Any]:
         """Get the current parameters of the detector."""
-        return self._detector.parameters
+        return self._parameters
 
     @property
     def algorithm_name(self) -> str:
         """Get the algorithm name."""
-        return self._detector.algorithm_name
+        return self._algorithm_name
 
     def _load_model_class(self, algorithm_name: str) -> type[BaseEstimator]:
         """Dynamically load sklearn model class."""
@@ -122,17 +123,17 @@ class SklearnAdapter:
 
         if algorithm_name in complexity_info:
             time_complexity, space_complexity = complexity_info[algorithm_name]
-            self._detector.update_metadata("time_complexity", time_complexity)
-            self._detector.update_metadata("space_complexity", space_complexity)
+            self._metadata["time_complexity"] = time_complexity
+            self._metadata["space_complexity"] = space_complexity
 
         # Special characteristics
         if algorithm_name == "LocalOutlierFactor":
-            self._detector.update_metadata("supports_novelty", True)
-            self._detector.update_metadata("requires_neighbors", True)
+            self._metadata["supports_novelty"] = True
+            self._metadata["requires_neighbors"] = True
 
         if algorithm_name == "SGDOneClassSVM":
-            self._detector.update_metadata("supports_streaming", True)
-            self._detector.update_metadata("is_online", True)
+            self._metadata["supports_streaming"] = True
+            self._metadata["is_online"] = True
 
     def fit(self, dataset: Dataset) -> None:
         """Fit the sklearn detector on a dataset."""
@@ -141,15 +142,15 @@ class SklearnAdapter:
             model_params = self.parameters.copy()
 
             # Handle contamination parameter
-            if self._detector.algorithm_name in [
+            if self._algorithm_name in [
                 "IsolationForest",
                 "LocalOutlierFactor",
                 "EllipticEnvelope",
             ]:
-                model_params["contamination"] = self._detector.contamination_rate.value
+                model_params["contamination"] = self._contamination_rate.value
 
             # Special handling for LocalOutlierFactor
-            if self._detector.algorithm_name == "LocalOutlierFactor":
+            if self._algorithm_name == "LocalOutlierFactor":
                 # For training, we need novelty=True to use predict later
                 model_params["novelty"] = True
 
@@ -163,26 +164,24 @@ class SklearnAdapter:
             training_time = (time.time() - start_time) * 1000
 
             # Update detector state
-            self._detector.is_fitted = True
-            self._detector.trained_at = dataset.created_at
-            self._detector.update_metadata("training_time_ms", training_time)
-            self._detector.update_metadata("training_samples", dataset.n_samples)
-            self._detector.update_metadata(
-                "training_features", len(dataset.get_numeric_features())
-            )
+            self._is_fitted = True
+            self._metadata["training_time_ms"] = training_time
+            self._metadata["training_samples"] = dataset.n_samples
+            self._metadata["training_features"] = len(dataset.get_numeric_features())
+            self._metadata["trained_at"] = dataset.created_at
 
         except Exception as e:
             raise FittingError(
-                detector_name=self._detector.name,
+                detector_name=self._name,
                 reason=str(e),
                 dataset_name=dataset.name,
             ) from e
 
     def detect(self, dataset: Dataset) -> DetectionResult:
         """Detect anomalies in a dataset."""
-        if not self._detector.is_fitted or self._model is None:
+        if not self._is_fitted or self._model is None:
             raise DetectorNotFittedError(
-                detector_name=self._detector.name, operation="detect"
+                detector_name=self._name, operation="detect"
             )
 
         # Get features
@@ -224,7 +223,7 @@ class SklearnAdapter:
 
         # Calculate threshold
         threshold_idx = int(
-            len(raw_scores) * (1 - self._detector.contamination_rate.value)
+            len(raw_scores) * (1 - self._contamination_rate.value)
         )
         threshold = float(np.sort(normalized_scores)[threshold_idx])
 
@@ -236,17 +235,18 @@ class SklearnAdapter:
             anomaly = Anomaly(
                 score=anomaly_scores[idx],
                 data_point=dataset.data.iloc[idx].to_dict(),
-                detector_name=self._detector.name,
+                detector_name=self._name,
             )
             anomaly.add_metadata("raw_score", float(raw_scores[idx]))
-            anomaly.add_metadata("algorithm", self._detector.algorithm_name)
+            anomaly.add_metadata("algorithm", self._algorithm_name)
             anomalies.append(anomaly)
 
         execution_time = (time.time() - start_time) * 1000
 
         # Create detection result
+        from uuid import uuid4
         result = DetectionResult(
-            detector_id=self._detector.id,
+            detector_id=uuid4(),  # Generate ID for this detection
             dataset_id=dataset.id,
             anomalies=anomalies,
             scores=anomaly_scores,
@@ -254,7 +254,7 @@ class SklearnAdapter:
             threshold=threshold,
             execution_time_ms=execution_time,
             metadata={
-                "algorithm": self._detector.algorithm_name,
+                "algorithm": self._algorithm_name,
                 "sklearn_version": self._get_sklearn_version(),
             },
         )
@@ -267,9 +267,9 @@ class SklearnAdapter:
 
     def score(self, dataset: Dataset) -> list[AnomalyScore]:
         """Calculate anomaly scores for a dataset."""
-        if not self._detector.is_fitted or self._model is None:
+        if not self._is_fitted or self._model is None:
             raise DetectorNotFittedError(
-                detector_name=self._detector.name, operation="score"
+                detector_name=self._name, operation="score"
             )
 
         # Get features
@@ -302,13 +302,15 @@ class SklearnAdapter:
         """Get current parameters."""
         if self._model is not None:
             return self._model.get_params()
-        return self._detector.parameters
+        return self._parameters
 
     def set_params(self, **params: Any) -> None:
         """Set parameters."""
-        self._detector.update_parameters(**params)
+        self._parameters.update(params)
         if self._model is not None:
             self._model.set_params(**params)
+        # Reset fitted state when parameters change
+        self._is_fitted = False
 
     def fit_detect(self, dataset: Dataset) -> DetectionResult:
         """Fit the detector and detect anomalies in one step."""

@@ -105,7 +105,9 @@ class OptimizationConfigDTO(BaseModel):
     metric: str = Field(default="roc_auc", description="Target metric")
 
     # Search space
-    n_trials: int = Field(default=100, ge=1, description="Number of optimization trials")
+    n_trials: int = Field(
+        default=100, ge=1, description="Number of optimization trials"
+    )
     timeout: float | None = Field(default=None, description="Timeout in seconds")
 
     # Hyperparameter ranges
@@ -666,7 +668,7 @@ class ExperimentConfigurationDTO(BaseModel):
 
 # Aliases for backward compatibility
 DatasetConfigurationDTO = DatasetConfigDTO
-AlgorithmConfigurationDTO = AlgorithmConfigDTO
+# AlgorithmConfigurationDTO already defined above - skip duplicate
 PreprocessingConfigurationDTO = PreprocessingConfigDTO
 EvaluationConfigurationDTO = EvaluationConfigDTO
 

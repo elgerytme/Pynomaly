@@ -14,7 +14,7 @@ from fastapi import FastAPI
 from pynomaly.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.infrastructure.config.feature_flags import is_feature_enabled
+from pynomaly.infrastructure.config.feature_flags import feature_flags
 from pynomaly.infrastructure.middleware.configuration_middleware import (
     ConfigurationAPIMiddleware,
     ConfigurationCaptureMiddleware,
@@ -35,7 +35,7 @@ def setup_configuration_middleware(
         configuration_service: Configuration capture service
         environment: Application environment (development/production)
     """
-    if not is_feature_enabled("advanced_automl"):
+    if not feature_flags.is_enabled("advanced_automl"):
         logger.info(
             "Configuration middleware disabled - advanced_automl feature not enabled"
         )
@@ -236,7 +236,7 @@ def add_configuration_health_check(app: FastAPI) -> None:
         """Health check for configuration system."""
         try:
             # Check if configuration features are enabled
-            config_enabled = is_feature_enabled("advanced_automl")
+            config_enabled = feature_flags.is_enabled("advanced_automl")
 
             health_status = {
                 "status": "healthy" if config_enabled else "disabled",
@@ -258,3 +258,48 @@ def add_configuration_health_check(app: FastAPI) -> None:
                 "error": str(e),
                 "timestamp": "datetime.now().isoformat()",
             }
+
+
+def setup_middleware_stack(app: FastAPI) -> None:
+    """Setup complete middleware stack for the FastAPI application.
+    
+    Args:
+        app: FastAPI application instance
+    """
+    from pynomaly.presentation.api.middleware.security_headers import SecurityHeadersMiddleware
+    
+    # Add security headers middleware
+    app.add_middleware(SecurityHeadersMiddleware)
+    
+
+def configure_cors(app: FastAPI, allow_origins: list = None) -> None:
+    """Configure CORS middleware for the FastAPI application.
+    
+    Args:
+        app: FastAPI application instance  
+        allow_origins: List of allowed origins, defaults to ["*"]
+    """
+    from fastapi.middleware.cors import CORSMiddleware
+    
+    if allow_origins is None:
+        allow_origins = ["*"]
+        
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allow_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+
+def configure_rate_limiting(app: FastAPI, requests_per_minute: int = 60) -> None:
+    """Configure rate limiting middleware for the FastAPI application.
+    
+    Args:
+        app: FastAPI application instance
+        requests_per_minute: Maximum requests per minute per client
+    """
+    # Rate limiting middleware would be implemented here
+    # For now, this is a placeholder
+    pass

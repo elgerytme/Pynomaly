@@ -462,7 +462,7 @@ class SecureBaseModel(BaseModel):
 
 
 # Global validator instance
-validator = InputValidator(strict_mode=True)
+global_input_validator = InputValidator(strict_mode=True)
 
 
 def validate_input(value: Any, field_type: str = "string", **kwargs) -> Any:

@@ -65,6 +65,17 @@
       "Bash(grep:*)",
       "Bash(npm run build-js:analyze:*)",
       "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(git push:*)",
+      "Bash(./environments/.venv/bin/python scripts/deployment/validate_production_deployment.py)",
+      "Bash(./environments/.venv/bin/python scripts/validation/production_deployment_validation.py)",
+      "Bash(./environments/.venv/bin/python -m pytest tests/infrastructure/test_sklearn_adapter.py -xvs)",
+      "Bash(rg:*)",
+      "Bash(./environments/.venv/bin/python scripts/validate_production.sh)",
+      "Bash(./environments/.venv/bin/python -m pytest tests/infrastructure/test_sklearn_adapter.py::test_sklearn_adapter_initialization -xvs)",
+      "Bash(bash:*)",
+      "Bash(./environments/.venv/bin/python -c \"from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter; print('SklearnAdapter import successful')\")",
+      "Bash(grep:*)",
       "Bash(grep:*)"
     ],
     "deny": []

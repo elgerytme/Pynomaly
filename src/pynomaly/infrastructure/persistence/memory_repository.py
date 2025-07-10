@@ -8,7 +8,7 @@ T = TypeVar("T")
 class MemoryRepository:
     """Generic in-memory repository for testing."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize empty repository."""
         self._storage: dict[str, Any] = {}
 

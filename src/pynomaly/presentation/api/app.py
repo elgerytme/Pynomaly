@@ -23,6 +23,18 @@ except ImportError:
     PROMETHEUS_AVAILABLE = False
     Instrumentator = None
 
+# Production monitoring integration
+try:
+    from pynomaly.infrastructure.monitoring.production_monitoring_integration import (
+        create_production_monitoring
+    )
+    from pynomaly.infrastructure.monitoring.fastapi_monitoring_middleware import (
+        setup_monitoring_middleware
+    )
+    MONITORING_AVAILABLE = True
+except ImportError:
+    MONITORING_AVAILABLE = False
+
 from pynomaly.infrastructure.auth import init_auth, track_request_metrics
 from pynomaly.infrastructure.cache import init_cache
 from pynomaly.infrastructure.config import Container
@@ -96,6 +108,20 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     if settings.auth_enabled:
         init_auth(settings)
 
+    # Initialize production monitoring
+    if MONITORING_AVAILABLE and getattr(settings, 'monitoring_enabled', False):
+        try:
+            monitoring = create_production_monitoring()
+            await monitoring.initialize()
+            app.state.monitoring = monitoring
+            
+            # Set up monitoring middleware now that monitoring is initialized
+            setup_monitoring_middleware(app, monitoring)
+            
+            print("✅ Production monitoring initialized and middleware configured")
+        except Exception as e:
+            print(f"❌ Failed to initialize monitoring: {e}")
+
     if settings.monitoring.metrics_enabled or settings.monitoring.tracing_enabled:
         # init_telemetry(settings)  # Temporarily disabled
         pass
@@ -104,6 +130,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 
     # Shutdown
     print("Shutting down...")
+
+    # Cleanup monitoring
+    if hasattr(app.state, 'monitoring'):
+        try:
+            await app.state.monitoring.shutdown()
+            print("✅ Production monitoring shutdown complete")
+        except Exception as e:
+            print(f"❌ Error shutting down monitoring: {e}")
 
     # Cleanup services
     # Telemetry cleanup temporarily disabled
@@ -217,6 +251,15 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     # Add request tracking middleware
     app.middleware("http")(track_request_metrics)
+
+    # Add production monitoring middleware if available
+    if MONITORING_AVAILABLE and getattr(settings, 'monitoring_enabled', False):
+        try:
+            # Note: Monitoring integration will be set up in lifespan
+            # Middleware setup is deferred until monitoring is initialized
+            pass
+        except Exception as e:
+            print(f"Warning: Could not set up monitoring middleware: {e}")
 
     # Add Prometheus metrics if enabled and available
     if settings.monitoring.prometheus_enabled and PROMETHEUS_AVAILABLE:

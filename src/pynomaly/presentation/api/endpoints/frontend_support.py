@@ -289,3 +289,103 @@ async def report_security_data(request: Request, data: dict):
     )
 
     return {"status": "received", "data_type": "security"}
+
+
+@router.get("/error-monitoring/metrics")
+async def get_error_metrics(request: Request):
+    """Get error monitoring metrics."""
+    try:
+        from pynomaly.presentation.web.error_handling import get_error_monitor
+        monitor = get_error_monitor()
+        return monitor.get_metrics()
+    except ImportError:
+        return {"status": "error", "message": "Error monitoring not available"}
+
+
+@router.get("/error-monitoring/history")
+async def get_error_history(request: Request, limit: int = 100):
+    """Get error monitoring history."""
+    try:
+        from pynomaly.presentation.web.error_handling import get_error_monitor
+        monitor = get_error_monitor()
+        return {"errors": monitor.get_recent_errors(limit)}
+    except ImportError:
+        return {"errors": []}
+
+
+@router.get("/error-monitoring/trends")
+async def get_error_trends(request: Request):
+    """Get error monitoring trends."""
+    try:
+        from pynomaly.presentation.web.error_handling import get_error_monitor
+        monitor = get_error_monitor()
+        return monitor.get_error_trends()
+    except ImportError:
+        return {"trends": {}}
+
+
+@router.post("/error-monitoring/report")
+async def report_frontend_error(request: Request, error_data: dict):
+    """Report frontend error for monitoring."""
+    try:
+        from pynomaly.presentation.web.error_handling import create_web_ui_error, ErrorCode, ErrorLevel, get_error_monitor
+        
+        error = create_web_ui_error(
+            message=error_data.get("message", "Frontend error"),
+            error_code=ErrorCode.INTERNAL_SERVER_ERROR,
+            error_level=ErrorLevel.ERROR,
+            details=error_data.get("details", {}),
+            user_message=error_data.get("user_message", "An error occurred"),
+            suggestion=error_data.get("suggestion", "Please try again")
+        )
+        monitor = get_error_monitor()
+        request_info = {
+            "ip": request.client.host,
+            "user_agent": request.headers.get("user-agent", ""),
+            "path": request.url.path,
+            "method": request.method
+        }
+        monitor.record_error(error, request_info)
+        return {"status": "received", "error_id": error.error_id}
+    except ImportError:
+        return {"status": "error", "message": "Error monitoring not available"}
+
+
+@router.get("/security/events")
+async def get_security_events(request: Request, limit: int = 100):
+    """Get recent security events for monitoring."""
+    try:
+        from pynomaly.presentation.web.security_features import get_security_middleware
+        
+        middleware = get_security_middleware()
+        events = middleware.get_security_events(limit)
+        return {"events": events}
+    except ImportError:
+        return {"events": []}
+
+
+@router.get("/security/metrics")
+async def get_security_metrics(request: Request):
+    """Get security metrics and statistics."""
+    try:
+        from pynomaly.presentation.web.security_features import get_security_middleware
+        
+        middleware = get_security_middleware()
+        metrics = middleware.get_security_metrics()
+        return metrics
+    except ImportError:
+        return {"status": "error", "message": "Security monitoring not available"}
+
+
+@router.get("/security/rate-limit-status/{ip}")
+async def get_rate_limit_status(request: Request, ip: str):
+    """Get rate limit status for specific IP."""
+    try:
+        from pynomaly.presentation.web.security_features import get_rate_limiter
+        
+        rate_limiter = get_rate_limiter()
+        endpoint = request.url.path
+        status = rate_limiter.get_rate_limit_status(ip, endpoint)
+        return status
+    except ImportError:
+        return {"status": "error", "message": "Rate limiting not available"}

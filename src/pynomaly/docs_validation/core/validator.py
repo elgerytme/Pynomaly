@@ -1,11 +1,13 @@
 """Documentation Validator: Ensures all documentation meets required standards."""
 
+from typing import Any
+
 
 class DocumentationValidator:
-    def __init__(self, config):
+    def __init__(self, config: Any) -> None:
         self.config = config
 
-    def validate(self):
+    def validate(self) -> None:
         # Perform validation logic
         print("Validating documentation...")
 
@@ -18,18 +20,18 @@ class DocumentationValidator:
 
 
 class ValidationConfig:
-    def __init__(self, path_to_docs):
+    def __init__(self, path_to_docs: str) -> None:
         self.path_to_docs = path_to_docs
 
-    def load(self):
+    def load(self) -> None:
         # Load configuration logic
         print(f"Loading configuration from {self.path_to_docs}...")
 
 
 class ValidationReporter:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def report(self):
+    def report(self) -> None:
         # Reporting logic
         print("Generating report...")

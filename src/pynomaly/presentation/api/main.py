@@ -16,8 +16,13 @@ from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from ...enterprise.enterprise_service import router as enterprise_router
+from ...infrastructure.config import Settings, get_settings
+from ...infrastructure.security.rate_limiting_middleware import RateLimitMiddleware
+from ...infrastructure.security.security_headers import SecurityHeadersMiddleware
+from ...infrastructure.security.waf_middleware import WAFMiddleware
 from ...mlops.mlops_service import router as mlops_router
 from .docs import COMMON_RESPONSES, ENDPOINT_METADATA, configure_api_docs
+from .endpoints import waf_management
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -83,6 +88,12 @@ app.add_middleware(
 )
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# Add security middleware
+settings = get_settings()
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(WAFMiddleware, settings=settings)
+app.add_middleware(RateLimitMiddleware, settings=settings)
 
 
 # Global exception handler
@@ -393,6 +404,12 @@ app.include_router(
     mlops_router,
     prefix="/mlops",
     tags=["MLOps"],
+    dependencies=[Depends(get_current_user_token)]
+)
+
+# Include WAF management router
+app.include_router(
+    waf_management.router,
     dependencies=[Depends(get_current_user_token)]
 )
 

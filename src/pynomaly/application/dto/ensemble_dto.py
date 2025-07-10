@@ -569,8 +569,8 @@ class EnsembleDetectionResponseDTO(BaseModel):
     )
 
 
-class EnsembleOptimizationRequestDTO(BaseModel):
-    """Request DTO for ensemble optimization."""
+class EnsembleDetectorOptimizationRequestDTO(BaseModel):
+    """Request DTO for ensemble detector optimization."""
 
     model_config = ConfigDict(extra="forbid")
     detector_ids: list[str] = Field(
@@ -653,8 +653,8 @@ class EnsembleOptimizationRequestDTO(BaseModel):
         return v
 
 
-class EnsembleOptimizationResponseDTO(BaseModel):
-    """Response DTO for ensemble optimization."""
+class EnsembleDetectorOptimizationResponseDTO(BaseModel):
+    """Response DTO for ensemble detector optimization."""
 
     model_config = ConfigDict(extra="forbid")
     success: bool = Field(description="Whether optimization was successful")

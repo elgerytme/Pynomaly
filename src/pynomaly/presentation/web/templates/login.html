@@ -65,6 +65,7 @@
       {% endif %}
 
       <form class="mt-8 space-y-6" action="/web/login" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         <div class="rounded-md shadow-sm -space-y-px">
           <div>
             <label for="username" class="sr-only">Username or Email</label>
@@ -127,13 +128,14 @@
           </button>
         </div>
 
+        {% if app.debug %}
         <div class="text-center">
           <div class="text-sm text-gray-600">
-            <strong>Development Login:</strong><br />
-            Username: <code class="bg-gray-100 px-1 rounded">admin</code><br />
-            Password: <code class="bg-gray-100 px-1 rounded">admin123</code>
+            <strong>Development Mode:</strong><br />
+            <span class="text-xs">Check documentation for setup instructions</span>
           </div>
         </div>
+        {% endif %}
       </form>
     </div>
   </body>

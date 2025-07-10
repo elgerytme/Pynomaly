@@ -155,6 +155,6 @@ def map_http_error(
         return ResourceNotFoundError(resource_type, resource_id, details=details)
 
     try:
-        return error_class(message, status_code=status_code, details=details)  # type: ignore[misc]
+        return error_class(message, status_code=status_code, details=details)  # type: ignore[no-any-return,operator]
     except Exception:
         return PynomaliSDKError(message, status_code=status_code, details=details)
