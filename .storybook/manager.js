@@ -3,7 +3,7 @@
  * Customizes the Storybook UI and manager interface
  */
 
-import { addons } from '@storybook/addons';
+import { addons } from '@storybook/manager-api';
 import pynomalyTheme from './theme';
 
 addons.setConfig({
