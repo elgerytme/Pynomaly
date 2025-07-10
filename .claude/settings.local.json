@@ -59,7 +59,9 @@
       "Bash(true)",
       "Bash(gh issue list:*)",
       "Bash(git commit:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(gh issue view:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }

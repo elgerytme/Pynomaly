@@ -1,0 +1,30 @@
+{{- if .Values.configMap.create }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pynomaly.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pynomaly.labels" . | nindent 4 }}
+    app.kubernetes.io/component: config
+  annotations:
+    {{- with .Values.configMap.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  {{- range $key, $value := .Values.env }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if .Values.postgresql.enabled }}
+  DATABASE_HOST: {{ include "pynomaly.postgresql.fullname" . }}
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: {{ .Values.postgresql.auth.database }}
+  {{- end }}
+  {{- if .Values.redis.enabled }}
+  REDIS_HOST: {{ include "pynomaly.redis.fullname" . }}-master
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  CELERY_BROKER_URL: redis://{{ include "pynomaly.redis.fullname" . }}-master:6379/0
+  CELERY_RESULT_BACKEND: redis://{{ include "pynomaly.redis.fullname" . }}-master:6379/0
+  {{- end }}
+{{- end }}
