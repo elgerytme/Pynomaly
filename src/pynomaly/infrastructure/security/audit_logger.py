@@ -86,7 +86,7 @@ class SecurityEventType(str, Enum):
     MODEL_DELETED = "model.deleted"
     MODEL_PREDICTION = "model.prediction"
     MODEL_ANOMALY_DETECTED = "model.anomaly_detected"
-    
+
     # MFA Events
     MFA_TOTP_SETUP_INITIATED = "mfa.totp.setup.initiated"
     MFA_TOTP_SETUP_FAILED = "mfa.totp.setup.failed"

@@ -240,25 +240,25 @@ class DetectionPipelineService:
             if hasattr(detector, 'get_params') and hasattr(detector, 'set_params'):
                 # Get current parameters
                 current_params = detector.get_params()
-                
+
                 # Define parameter spaces for different algorithms
                 param_spaces = self._get_parameter_spaces(detector.algorithm_name)
-                
+
                 if param_spaces:
                     # Use grid search for hyperparameter tuning
                     best_params = await self._grid_search_tuning(
                         detector, dataset, param_spaces, verbose
                     )
-                    
+
                     # Update detector with best parameters
                     detector.set_params(**best_params)
-                    
+
                     if verbose:
                         self.logger.info(f"Tuned parameters for {detector.algorithm_name}: {best_params}")
                 else:
                     if verbose:
                         self.logger.info(f"No parameter space defined for {detector.algorithm_name}")
-            
+
             return detector
 
         except Exception as e:
@@ -295,7 +295,7 @@ class DetectionPipelineService:
                 "algorithm": ["auto", "ball_tree", "kd_tree"],
             },
         }
-        
+
         return param_spaces.get(algorithm_name, {})
 
     async def _grid_search_tuning(
@@ -307,20 +307,19 @@ class DetectionPipelineService:
     ) -> dict[str, Any]:
         """Perform grid search hyperparameter tuning."""
         import itertools
-        from sklearn.model_selection import cross_val_score
-        from sklearn.metrics import roc_auc_score
-        
+
+
         best_params = {}
         best_score = float('-inf')
-        
+
         # Generate all parameter combinations
         param_names = list(param_spaces.keys())
         param_values = list(param_spaces.values())
-        
+
         # Limit combinations to avoid excessive computation
         max_combinations = 20
         all_combinations = list(itertools.product(*param_values))
-        
+
         if len(all_combinations) > max_combinations:
             # Sample random combinations if too many
             import random
@@ -328,34 +327,34 @@ class DetectionPipelineService:
             combinations = random.sample(all_combinations, max_combinations)
         else:
             combinations = all_combinations
-        
+
         if verbose:
             self.logger.info(f"Testing {len(combinations)} parameter combinations")
-        
+
         for i, param_values in enumerate(combinations):
             try:
                 # Create parameter dictionary
-                params = dict(zip(param_names, param_values))
-                
+                params = dict(zip(param_names, param_values, strict=False))
+
                 # Set parameters
                 detector.set_params(**params)
-                
+
                 # Evaluate detector performance
                 score = await self._evaluate_detector_performance(detector, dataset)
-                
+
                 if verbose and i % 5 == 0:
                     self.logger.info(f"Combination {i+1}/{len(combinations)}: {params} -> Score: {score:.4f}")
-                
+
                 # Update best parameters if better
                 if score > best_score:
                     best_score = score
                     best_params = params.copy()
-                    
+
             except Exception as e:
                 if verbose:
                     self.logger.warning(f"Parameter combination failed: {params} -> {e}")
                 continue
-        
+
         return best_params
 
     async def _evaluate_detector_performance(self, detector, dataset) -> float:
@@ -363,17 +362,17 @@ class DetectionPipelineService:
         try:
             # Fit detector
             detector.fit(dataset)
-            
+
             # Get anomaly scores
             scores = detector.score(dataset)
-            
+
             # Calculate performance metric (higher is better)
             # For unsupervised learning, we use silhouette score or similar
             if hasattr(dataset, 'labels') and dataset.labels is not None:
                 # If we have labels, use AUC
                 labels = dataset.labels
                 score_values = [s.value for s in scores]
-                
+
                 try:
                     from sklearn.metrics import roc_auc_score
                     return roc_auc_score(labels, score_values)
@@ -386,8 +385,8 @@ class DetectionPipelineService:
                 import numpy as np
                 score_values = [s.value for s in scores]
                 return float(np.var(score_values))
-                
-        except Exception as e:
+
+        except Exception:
             # Return poor score if evaluation fails
             return 0.0
 

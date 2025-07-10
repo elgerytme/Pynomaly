@@ -198,11 +198,11 @@ class UserManagementService:
             try:
                 # Generate invitation token (could be improved to use JWT tokens)
                 invitation_token = secrets.token_urlsafe(32)
-                
+
                 # Store invitation token with user ID for later verification
                 # This would typically be stored in a database table
                 # For now, we'll just send the email
-                
+
                 await email_service.send_user_invitation_email(
                     email=email,
                     invitation_token=invitation_token,

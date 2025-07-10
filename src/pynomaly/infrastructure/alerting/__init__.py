@@ -11,6 +11,33 @@ This module provides comprehensive alerting capabilities including:
 """
 
 # Legacy intelligent alerting engine (kept for backward compatibility)
+# New real-time alerting system components
+from .alert_manager import (
+    AlertInfo,
+    AlertManager,
+    AlertRuleCreate,
+    AlertRuleUpdate,
+    AlertStatus,
+    get_alert_manager,
+)
+from .alert_manager import (
+    AlertRule as NewAlertRule,
+)
+from .alert_manager import (
+    AlertSeverity as NewAlertSeverity,
+)
+from .alert_manager import (
+    NotificationChannel as NewNotificationChannel,
+)
+from .alerting_service import (
+    AlertRuleResponse,
+    AlertSystemStatus,
+    MetricSubmission,
+    websocket_connections,
+)
+from .alerting_service import (
+    router as alerting_router,
+)
 from .intelligent_alerting_engine import (
     Alert,
     AlertCategory,
@@ -24,32 +51,10 @@ from .intelligent_alerting_engine import (
     WebhookNotificationProvider,
     create_default_alert_rules,
 )
-
-# New real-time alerting system components
-from .alert_manager import (
-    AlertManager,
-    AlertInfo,
-    AlertRule as NewAlertRule,
-    AlertRuleCreate,
-    AlertRuleUpdate,
-    AlertSeverity as NewAlertSeverity,
-    AlertStatus,
-    NotificationChannel as NewNotificationChannel,
-    get_alert_manager,
-)
-
 from .metric_collector import (
     MetricCollector,
     MetricInfo,
     get_metric_collector,
-)
-
-from .alerting_service import (
-    router as alerting_router,
-    AlertSystemStatus,
-    MetricSubmission,
-    AlertRuleResponse,
-    websocket_connections,
 )
 
 __all__ = [
@@ -65,7 +70,7 @@ __all__ = [
     "SlackNotificationProvider",
     "WebhookNotificationProvider",
     "create_default_alert_rules",
-    
+
     # New real-time alerting system
     "AlertManager",
     "AlertInfo",
@@ -76,12 +81,12 @@ __all__ = [
     "AlertStatus",
     "NewNotificationChannel",
     "get_alert_manager",
-    
+
     # Metric Collector
     "MetricCollector",
     "MetricInfo",
     "get_metric_collector",
-    
+
     # Alerting Service
     "alerting_router",
     "AlertSystemStatus",

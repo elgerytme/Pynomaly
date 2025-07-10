@@ -62,6 +62,9 @@
       "Bash(git commit:*)",
       "Bash(gh issue view:*)",
       "Bash(git push:*)",
+      "Bash(grep:*)",
+      "Bash(npm run build-js:analyze:*)",
+      "Bash(find:*)",
       "Bash(grep:*)"
     ],
     "deny": []

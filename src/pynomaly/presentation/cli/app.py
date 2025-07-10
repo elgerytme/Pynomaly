@@ -18,9 +18,9 @@ if USE_LAZY_LOADING:
     from pynomaly.presentation.cli.lazy_app import app
 else:
     # Use traditional loading (for debugging/testing)
-    from pynomaly.presentation.cli import automl, autonomous
-    from pynomaly.presentation.cli import config as config_cli
     from pynomaly.presentation.cli import (
+        automl,
+        autonomous,
         datasets,
         deep_learning,
         detection,
@@ -33,6 +33,7 @@ else:
         tdd,
         validation,
     )
+    from pynomaly.presentation.cli import config as config_cli
     from pynomaly.presentation.cli.export import export_app
     from pynomaly.presentation.cli.performance import performance_app
 

@@ -15,20 +15,27 @@ from typing import Any
 
 import typer
 from rich.console import Console
+from rich.live import Live
 from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
+from rich.progress import (
+    BarColumn,
+    Progress,
+    SpinnerColumn,
+    TaskProgressColumn,
+    TextColumn,
+    TimeRemainingColumn,
+)
 from rich.prompt import Confirm, Prompt
+from rich.status import Status
 from rich.syntax import Syntax
 from rich.table import Table
-from rich.live import Live
-from rich.status import Status
 
 console = Console()
 
 
 class CLIErrorHandler:
     """Centralized error handling with helpful suggestions and logging."""
-    
+
     _session_id: str = "unknown"
 
     @staticmethod
@@ -40,13 +47,13 @@ class CLIErrorHandler:
             "details": details,
             "session_id": getattr(CLIErrorHandler, "_session_id", "unknown")
         }
-        
+
         # In production, this would log to a proper logging system
         # For now, we'll append to a local error log file
         try:
             log_path = Path.home() / ".pynomaly" / "error.log"
             log_path.parent.mkdir(exist_ok=True)
-            
+
             with open(log_path, "a") as f:
                 f.write(json.dumps(error_log) + "\n")
         except Exception:
@@ -66,7 +73,7 @@ class CLIErrorHandler:
     def set_session_id(cls, session_id: str) -> None:
         """Set session ID for error tracking."""
         cls._session_id = session_id
-    
+
     @classmethod
     def get_error_summary(cls) -> dict[str, Any]:
         """Get summary of recent errors for diagnostics."""
@@ -74,25 +81,25 @@ class CLIErrorHandler:
             log_path = Path.home() / ".pynomaly" / "error.log"
             if not log_path.exists():
                 return {"total_errors": 0, "recent_errors": []}
-            
+
             recent_errors = []
-            with open(log_path, "r") as f:
+            with open(log_path) as f:
                 for line in f:
                     try:
                         error_data = json.loads(line.strip())
                         recent_errors.append(error_data)
                     except json.JSONDecodeError:
                         continue
-            
+
             # Get last 10 errors
             recent_errors = recent_errors[-10:]
-            
+
             # Count error types
             error_counts = {}
             for error in recent_errors:
                 error_type = error.get("error_type", "unknown")
                 error_counts[error_type] = error_counts.get(error_type, 0) + 1
-            
+
             return {
                 "total_errors": len(recent_errors),
                 "recent_errors": recent_errors,
@@ -109,7 +116,7 @@ class CLIErrorHandler:
         console.print(
             f"[red]❌ Error:[/red] No detector found matching '{detector_query}'"
         )
-        
+
         # Log the error
         CLIErrorHandler._log_error("detector_not_found", {
             "query": detector_query,
@@ -155,7 +162,7 @@ class CLIErrorHandler:
         console.print("\n[cyan]🔧 Create new detector:[/cyan]")
         console.print("Run [white]pynomaly detector create --help[/white] for options")
         console.print("Quick start: [white]pynomaly detector create my-detector --algorithm IsolationForest[/white]")
-        
+
         # Show support info
         CLIErrorHandler._show_support_info()
 
@@ -461,21 +468,21 @@ def create_setup_wizard():
 
     # Create workflow helper
     workflow = WorkflowHelper("Pynomaly Setup Wizard")
-    
+
     # Step 1: Environment validation
     def validate_environment(context):
         """Validate environment and dependencies."""
         console.print("\n[bold cyan]🔍 Validating Environment[/bold cyan]")
-        
+
         # Check Python version
         import sys
         python_version = sys.version_info
         if python_version < (3, 8):
             console.print(f"[red]⚠️ Python {python_version.major}.{python_version.minor} detected. Python 3.8+ required.[/red]")
             return False
-        
+
         console.print(f"[green]✓[/green] Python {python_version.major}.{python_version.minor} detected")
-        
+
         # Check for required packages
         required_packages = ['pandas', 'numpy', 'scikit-learn', 'rich']
         for package in required_packages:
@@ -484,33 +491,33 @@ def create_setup_wizard():
                 console.print(f"[green]✓[/green] {package} available")
             except ImportError:
                 console.print(f"[yellow]⚠️[/yellow] {package} not found (will be installed)")
-        
+
         return True
-    
+
     # Step 2: Data source configuration
     def configure_data_source(context):
         """Configure data source settings."""
         console.print("\n[bold cyan]📊 Data Source Configuration[/bold cyan]")
-        
+
         # Get data file path
         data_path = Prompt.ask(
             "Enter the path to your data file (CSV, Parquet, JSON, etc.)",
             default="data.csv"
         )
-        
+
         # Validate file exists
         if not Path(data_path).exists():
             console.print(f"[yellow]⚠️ Warning:[/yellow] File {data_path} does not exist.")
-            
+
             # Show file suggestions if in same directory
             current_dir = Path(".")
             data_files = list(current_dir.glob("*.csv")) + list(current_dir.glob("*.parquet")) + list(current_dir.glob("*.json"))
-            
+
             if data_files:
                 console.print("\n[cyan]Found these data files in current directory:[/cyan]")
                 for i, file in enumerate(data_files[:5], 1):
                     console.print(f"  {i}. {file.name}")
-                
+
                 use_existing = Confirm.ask("Use one of these files instead?")
                 if use_existing:
                     selected = CLIHelpers.interactive_selection(
@@ -521,11 +528,11 @@ def create_setup_wizard():
                     )
                     if selected:
                         data_path = selected
-            
+
             if not Path(data_path).exists():
                 if not Confirm.ask("Continue with setup anyway?"):
                     return False
-        
+
         # Data format detection
         data_format = "csv"
         if data_path.endswith(".parquet"):
@@ -534,9 +541,9 @@ def create_setup_wizard():
             data_format = "json"
         elif data_path.endswith(".xlsx"):
             data_format = "excel"
-        
+
         console.print(f"[green]✓[/green] Data format detected: {data_format}")
-        
+
         # Data preprocessing options
         console.print("\n[bold]Data Preprocessing Options:[/bold]")
         handle_missing = Prompt.ask(
@@ -544,21 +551,21 @@ def create_setup_wizard():
             choices=["drop", "fill_mean", "fill_median", "fill_mode", "skip"],
             default="fill_mean"
         )
-        
+
         normalize_data = Confirm.ask("Normalize/standardize data?", default=True)
-        
+
         return {
             "data_path": data_path,
             "data_format": data_format,
             "handle_missing": handle_missing,
             "normalize_data": normalize_data
         }
-    
+
     # Step 3: Algorithm selection with intelligent recommendations
     def select_algorithm(context):
         """Select anomaly detection algorithm with recommendations."""
         console.print("\n[bold cyan]🤖 Algorithm Selection[/bold cyan]")
-        
+
         # Show algorithm options with detailed information
         algorithms = [
             {
@@ -590,7 +597,7 @@ def create_setup_wizard():
                 "complexity": "🟡 Medium"
             }
         ]
-        
+
         # Display algorithm comparison table
         table = Table(title="Algorithm Comparison", show_lines=True)
         table.add_column("Algorithm", style="cyan")
@@ -598,7 +605,7 @@ def create_setup_wizard():
         table.add_column("Best For", style="green")
         table.add_column("Performance", style="yellow")
         table.add_column("Complexity", style="magenta")
-        
+
         for algo in algorithms:
             table.add_row(
                 algo["name"],
@@ -607,19 +614,19 @@ def create_setup_wizard():
                 algo["performance"],
                 algo["complexity"]
             )
-        
+
         console.print(table)
-        
+
         # Get user selection
         algorithm = Prompt.ask(
             "Select algorithm",
             choices=[algo["name"] for algo in algorithms],
             default="IsolationForest"
         )
-        
+
         # Algorithm-specific configuration
         algo_config = {"algorithm": algorithm}
-        
+
         if algorithm == "IsolationForest":
             n_estimators = int(Prompt.ask("Number of trees", default="100"))
             algo_config["n_estimators"] = n_estimators
@@ -634,32 +641,32 @@ def create_setup_wizard():
             min_samples = int(Prompt.ask("Minimum samples", default="5"))
             algo_config["eps"] = eps
             algo_config["min_samples"] = min_samples
-        
+
         return algo_config
-    
+
     # Step 4: Advanced configuration
     def configure_advanced_settings(context):
         """Configure advanced settings."""
         console.print("\n[bold cyan]⚙️ Advanced Configuration[/bold cyan]")
-        
+
         # Contamination rate
         contamination = float(Prompt.ask(
             "Expected contamination rate (0.01-0.5)",
             default="0.1"
         ))
-        
+
         # Validation settings
         use_validation = Confirm.ask("Enable cross-validation?", default=True)
         cv_folds = 5
         if use_validation:
             cv_folds = int(Prompt.ask("Number of CV folds", default="5"))
-        
+
         # Performance settings
         enable_parallel = Confirm.ask("Enable parallel processing?", default=True)
-        
+
         # Monitoring settings
         enable_monitoring = Confirm.ask("Enable performance monitoring?", default=True)
-        
+
         return {
             "contamination": contamination,
             "use_validation": use_validation,
@@ -667,43 +674,43 @@ def create_setup_wizard():
             "enable_parallel": enable_parallel,
             "enable_monitoring": enable_monitoring
         }
-    
+
     # Step 5: Output configuration
     def configure_output(context):
         """Configure output settings."""
         console.print("\n[bold cyan]📤 Output Configuration[/bold cyan]")
-        
+
         # Output format
         output_format = Prompt.ask(
             "Output format",
             choices=["csv", "json", "excel", "parquet"],
             default="csv"
         )
-        
+
         # Output path
         output_path = Prompt.ask(
             "Output file path",
             default=f"pynomaly_results.{output_format}"
         )
-        
+
         # Visualization options
         generate_plots = Confirm.ask("Generate visualization plots?", default=True)
-        
+
         # Report generation
         generate_report = Confirm.ask("Generate detailed report?", default=True)
-        
+
         return {
             "output_format": output_format,
             "output_path": output_path,
             "generate_plots": generate_plots,
             "generate_report": generate_report
         }
-    
+
     # Step 6: Generate configuration and commands
     def generate_final_config(context):
         """Generate final configuration and commands."""
         console.print("\n[bold cyan]🔧 Generating Configuration[/bold cyan]")
-        
+
         # Compile all settings
         config = {
             "metadata": {
@@ -716,32 +723,32 @@ def create_setup_wizard():
             "advanced": context.get("advanced", {}),
             "output": context.get("output", {})
         }
-        
+
         # Save configuration to file
         config_path = Path("pynomaly_config.json")
         with open(config_path, "w") as f:
             json.dump(config, f, indent=2, default=str)
-        
+
         console.print(f"[green]✓[/green] Configuration saved to {config_path}")
-        
+
         # Generate CLI commands
         data_path = config["data_source"].get("data_path", "data.csv")
         algorithm = config["algorithm"].get("algorithm", "IsolationForest")
         contamination = config["advanced"].get("contamination", 0.1)
         output_path = config["output"].get("output_path", "results.csv")
-        
+
         commands = [
             f"pynomaly dataset load {data_path} --name my-dataset",
             f"pynomaly detector create my-detector --algorithm {algorithm} --contamination {contamination}",
             "pynomaly detect train my-detector my-dataset",
             f"pynomaly detect run my-detector my-dataset --output {output_path}"
         ]
-        
+
         context["commands"] = commands
         context["config"] = config
-        
+
         return True
-    
+
     # Add workflow steps
     workflow.add_step("validate_env", "Validating environment", validate_environment)
     workflow.add_step("data_source", "Configuring data source", configure_data_source)
@@ -749,26 +756,26 @@ def create_setup_wizard():
     workflow.add_step("advanced", "Configuring advanced settings", configure_advanced_settings)
     workflow.add_step("output", "Configuring output", configure_output)
     workflow.add_step("generate", "Generating configuration", generate_final_config)
-    
+
     # Execute workflow
     success = workflow.execute()
-    
+
     if success:
         config = workflow.context.get("config")
         commands = workflow.context.get("commands", [])
-        
+
         # Display final results
         console.print("\n[green]🎉 Setup Complete![/green]")
         console.print("\n[bold cyan]Next Steps:[/bold cyan]")
-        
+
         for i, cmd in enumerate(commands, 1):
             console.print(f"  {i}. [white]{cmd}[/white]")
-        
+
         console.print("\n[bold blue]Additional Resources:[/bold blue]")
         console.print("  • Configuration file: [white]pynomaly_config.json[/white]")
         console.print("  • Documentation: [white]pynomaly --help[/white]")
         console.print("  • Examples: [white]pynomaly quickstart[/white]")
-        
+
         return config
     else:
         console.print("\n[red]Setup failed. Please try again.[/red]")
@@ -777,13 +784,13 @@ def create_setup_wizard():
 
 class ProgressIndicator:
     """Enhanced progress indicators for various operations."""
-    
+
     def __init__(self, console: Console = None):
         """Initialize progress indicator with optional console."""
         self.console = console or Console()
         self._current_progress = None
         self._current_status = None
-    
+
     def create_progress_bar(self, description: str = "Processing...") -> Progress:
         """Create a rich progress bar with multiple columns."""
         return Progress(
@@ -795,7 +802,7 @@ class ProgressIndicator:
             console=self.console,
             transient=True
         )
-    
+
     def create_spinner(self, message: str = "Processing...") -> Status:
         """Create a spinner for indefinite operations."""
         return Status(
@@ -803,16 +810,16 @@ class ProgressIndicator:
             console=self.console,
             spinner="dots"
         )
-    
+
     def track_file_upload(self, file_path: str, chunk_size: int = 8192):
         """Track file upload progress."""
         from pathlib import Path
-        
+
         file_size = Path(file_path).stat().st_size
-        
+
         with self.create_progress_bar("Uploading file...") as progress:
             task = progress.add_task(f"[cyan]Uploading {Path(file_path).name}...", total=file_size)
-            
+
             uploaded = 0
             # Simulate file upload (in real implementation, this would be actual upload)
             import time
@@ -821,37 +828,37 @@ class ProgressIndicator:
                 time.sleep(0.01)  # Simulate network delay
                 uploaded += chunk
                 progress.update(task, completed=uploaded)
-    
+
     def track_training_progress(self, total_epochs: int, current_metrics: dict = None):
         """Track model training progress with live metrics."""
         with self.create_progress_bar("Training model...") as progress:
             task = progress.add_task("[cyan]Training...", total=total_epochs)
-            
+
             # In real implementation, this would track actual training
             import time
             for epoch in range(total_epochs):
                 time.sleep(0.1)  # Simulate training time
-                
+
                 # Update progress
                 progress.update(
-                    task, 
-                    completed=epoch + 1, 
+                    task,
+                    completed=epoch + 1,
                     description=f"[cyan]Epoch {epoch + 1}/{total_epochs}"
                 )
-                
+
                 # Show live metrics if provided
                 if current_metrics:
                     metrics_str = " | ".join([f"{k}: {v:.3f}" for k, v in current_metrics.items()])
                     progress.update(task, description=f"[cyan]Epoch {epoch + 1}/{total_epochs} | {metrics_str}")
-    
+
     def track_data_processing(self, steps: list[str], step_function=None):
         """Track multi-step data processing with detailed progress."""
         with self.create_progress_bar("Processing data...") as progress:
             main_task = progress.add_task("[cyan]Overall Progress", total=len(steps))
-            
+
             for i, step in enumerate(steps):
                 step_task = progress.add_task(f"[yellow]{step}...", total=100)
-                
+
                 # Execute step function if provided
                 if step_function:
                     result = step_function(i, step, lambda p: progress.update(step_task, completed=p))
@@ -864,23 +871,23 @@ class ProgressIndicator:
                     for j in range(100):
                         time.sleep(0.001)
                         progress.update(step_task, completed=j + 1)
-                
+
                 progress.update(step_task, description=f"[green]✓ {step}")
                 progress.update(main_task, completed=i + 1)
-        
+
         return True
-    
+
     def track_batch_operation(self, items: list, operation_name: str, batch_function=None):
         """Track batch operations with item-by-item progress."""
         with self.create_progress_bar(f"{operation_name}...") as progress:
             task = progress.add_task(f"[cyan]{operation_name}", total=len(items))
-            
+
             results = []
             for i, item in enumerate(items):
                 # Update description with current item
                 item_name = str(item)[:30] + "..." if len(str(item)) > 30 else str(item)
                 progress.update(task, description=f"[cyan]{operation_name}: {item_name}")
-                
+
                 # Execute batch function if provided
                 if batch_function:
                     result = batch_function(item, i)
@@ -890,48 +897,48 @@ class ProgressIndicator:
                     import time
                     time.sleep(0.05)
                     results.append(f"processed_{item}")
-                
+
                 progress.update(task, completed=i + 1)
-            
+
             progress.update(task, description=f"[green]✓ {operation_name} completed")
             return results
-    
+
     def show_live_metrics(self, metrics_function, duration: int = 10):
         """Show live updating metrics."""
         from rich.layout import Layout
         from rich.text import Text
-        
+
         layout = Layout()
-        
+
         with Live(layout, refresh_per_second=2, console=self.console) as live:
             import time
             start_time = time.time()
-            
+
             while time.time() - start_time < duration:
                 # Get current metrics
                 metrics = metrics_function() if metrics_function else {}
-                
+
                 # Create metrics display
                 metrics_text = Text()
                 metrics_text.append("Live Metrics\n\n", style="bold cyan")
-                
+
                 for key, value in metrics.items():
                     metrics_text.append(f"{key}: ", style="white")
                     metrics_text.append(f"{value}\n", style="green")
-                
+
                 layout.update(Panel(metrics_text, title="System Metrics", border_style="cyan"))
                 time.sleep(0.5)
-    
+
     def show_comparison_progress(self, algorithms: list[str], test_function=None):
         """Show progress for comparing multiple algorithms."""
         with self.create_progress_bar("Comparing algorithms...") as progress:
             main_task = progress.add_task("[cyan]Overall comparison", total=len(algorithms))
-            
+
             results = {}
             for i, algorithm in enumerate(algorithms):
                 # Create task for this algorithm
                 algo_task = progress.add_task(f"[yellow]Testing {algorithm}...", total=100)
-                
+
                 # Execute test function if provided
                 if test_function:
                     result = test_function(algorithm, lambda p: progress.update(algo_task, completed=p))
@@ -943,16 +950,16 @@ class ProgressIndicator:
                         time.sleep(0.01)
                         progress.update(algo_task, completed=j + 1)
                     results[algorithm] = {"accuracy": 0.85 + (i * 0.03), "time": 10 + (i * 2)}
-                
+
                 progress.update(algo_task, description=f"[green]✓ {algorithm} completed")
                 progress.update(main_task, completed=i + 1)
-            
+
             return results
-    
+
     def __enter__(self):
         """Context manager entry."""
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager exit."""
         if self._current_progress:

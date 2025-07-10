@@ -10,10 +10,9 @@ import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Any, Optional
 from urllib.parse import urljoin
 
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 from pynomaly.infrastructure.config.settings import Settings
 
@@ -22,12 +21,12 @@ logger = logging.getLogger(__name__)
 
 class EmailConfig(BaseModel):
     """Email configuration settings."""
-    
+
     model_config = ConfigDict(
         validate_assignment=True,
         extra="forbid"
     )
-    
+
     smtp_server: str
     smtp_port: int = 587
     smtp_username: str
@@ -40,24 +39,24 @@ class EmailConfig(BaseModel):
 
 class EmailTemplate(BaseModel):
     """Email template model."""
-    
+
     model_config = ConfigDict(
         validate_assignment=True,
         extra="forbid"
     )
-    
+
     subject: str
     html_content: str
     text_content: str
-    
+
 
 class EmailService:
     """Email service for sending various types of emails."""
-    
+
     def __init__(self, config: EmailConfig):
         """Initialize email service with configuration."""
         self.config = config
-        
+
     async def send_password_reset_email(
         self,
         email: EmailStr,
@@ -80,24 +79,24 @@ class EmailService:
                 self.config.base_url,
                 f"/reset-password?token={reset_token}"
             )
-            
+
             # Generate email content
             template = self._get_password_reset_template(
                 user_name=user_name,
                 reset_link=reset_link
             )
-            
+
             return await self._send_email(
                 to_email=email,
                 subject=template.subject,
                 html_content=template.html_content,
                 text_content=template.text_content
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to send password reset email to {email}: {e}")
             return False
-    
+
     async def send_user_invitation_email(
         self,
         email: EmailStr,
@@ -122,25 +121,25 @@ class EmailService:
                 self.config.base_url,
                 f"/accept-invitation?token={invitation_token}"
             )
-            
+
             # Generate email content
             template = self._get_user_invitation_template(
                 inviter_name=inviter_name,
                 organization_name=organization_name,
                 invitation_link=invitation_link
             )
-            
+
             return await self._send_email(
                 to_email=email,
                 subject=template.subject,
                 html_content=template.html_content,
                 text_content=template.text_content
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to send invitation email to {email}: {e}")
             return False
-    
+
     async def send_system_notification_email(
         self,
         email: EmailStr,
@@ -166,18 +165,18 @@ class EmailService:
                 message=message,
                 priority=priority
             )
-            
+
             return await self._send_email(
                 to_email=email,
                 subject=template.subject,
                 html_content=template.html_content,
                 text_content=template.text_content
             )
-            
+
         except Exception as e:
             logger.error(f"Failed to send system notification to {email}: {e}")
             return False
-    
+
     async def _send_email(
         self,
         to_email: EmailStr,
@@ -202,29 +201,29 @@ class EmailService:
             msg["Subject"] = subject
             msg["From"] = f"{self.config.sender_name} <{self.config.sender_email}>"
             msg["To"] = str(to_email)
-            
+
             # Attach text and HTML parts
             text_part = MIMEText(text_content, "plain")
             html_part = MIMEText(html_content, "html")
-            
+
             msg.attach(text_part)
             msg.attach(html_part)
-            
+
             # Send email
             with smtplib.SMTP(self.config.smtp_server, self.config.smtp_port) as server:
                 if self.config.use_tls:
                     server.starttls()
-                
+
                 server.login(self.config.smtp_username, self.config.smtp_password)
                 server.send_message(msg)
-            
+
             logger.info(f"Email sent successfully to {to_email}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to send email to {to_email}: {e}")
             return False
-    
+
     def _get_password_reset_template(
         self,
         user_name: str,
@@ -232,7 +231,7 @@ class EmailService:
     ) -> EmailTemplate:
         """Get password reset email template."""
         subject = "Password Reset Request - Pynomaly"
-        
+
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -294,7 +293,7 @@ class EmailService:
         </body>
         </html>
         """
-        
+
         text_content = f"""
         Hello {user_name},
 
@@ -313,13 +312,13 @@ class EmailService:
         ---
         This is an automated message. Please do not reply to this email.
         """
-        
+
         return EmailTemplate(
             subject=subject,
             html_content=html_content,
             text_content=text_content
         )
-    
+
     def _get_user_invitation_template(
         self,
         inviter_name: str,
@@ -328,7 +327,7 @@ class EmailService:
     ) -> EmailTemplate:
         """Get user invitation email template."""
         subject = f"You're invited to join {organization_name} on Pynomaly"
-        
+
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -402,7 +401,7 @@ class EmailService:
         </body>
         </html>
         """
-        
+
         text_content = f"""
         Hello!
 
@@ -425,13 +424,13 @@ class EmailService:
         ---
         This is an automated message. Please do not reply to this email.
         """
-        
+
         return EmailTemplate(
             subject=subject,
             html_content=html_content,
             text_content=text_content
         )
-    
+
     def _get_system_notification_template(
         self,
         subject: str,
@@ -441,13 +440,13 @@ class EmailService:
         """Get system notification email template."""
         priority_colors = {
             "low": "#6c757d",
-            "normal": "#007bff", 
+            "normal": "#007bff",
             "high": "#fd7e14",
             "urgent": "#dc3545"
         }
-        
+
         priority_color = priority_colors.get(priority, "#007bff")
-        
+
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -505,7 +504,7 @@ class EmailService:
         </body>
         </html>
         """
-        
+
         text_content = f"""
         PYNOMALY SYSTEM NOTIFICATION
         
@@ -521,7 +520,7 @@ class EmailService:
         ---
         This is an automated message. Please do not reply to this email.
         """
-        
+
         return EmailTemplate(
             subject=subject,
             html_content=html_content,
@@ -530,18 +529,18 @@ class EmailService:
 
 
 # Global email service instance
-_email_service: Optional[EmailService] = None
+_email_service: EmailService | None = None
 
 
-def get_email_service() -> Optional[EmailService]:
+def get_email_service() -> EmailService | None:
     """Get the global email service instance."""
     return _email_service
 
 
-def init_email_service(settings: Settings) -> Optional[EmailService]:
+def init_email_service(settings: Settings) -> EmailService | None:
     """Initialize the global email service."""
     global _email_service
-    
+
     try:
         # Check if email is configured
         if not all([
@@ -552,7 +551,7 @@ def init_email_service(settings: Settings) -> Optional[EmailService]:
         ]):
             logger.warning("Email service not configured - email features will be disabled")
             return None
-        
+
         config = EmailConfig(
             smtp_server=settings.smtp_server,
             smtp_port=settings.smtp_port,
@@ -563,11 +562,11 @@ def init_email_service(settings: Settings) -> Optional[EmailService]:
             sender_name=settings.sender_name,
             base_url=settings.base_url
         )
-        
+
         _email_service = EmailService(config)
         logger.info("Email service initialized successfully")
         return _email_service
-        
+
     except Exception as e:
         logger.error(f"Failed to initialize email service: {e}")
         return None

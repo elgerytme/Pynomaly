@@ -11,7 +11,6 @@ from typing import Any
 import aiohttp
 from cryptography.fernet import Fernet
 
-from pynomaly.infrastructure.services.email_service import get_email_service
 from pynomaly.domain.entities.integrations import (
     Integration,
     IntegrationConfig,
@@ -24,6 +23,7 @@ from pynomaly.domain.entities.integrations import (
     NotificationPayload,
     NotificationTemplate,
 )
+from pynomaly.infrastructure.services.email_service import get_email_service
 from pynomaly.shared.exceptions import (
     AuthenticationError,
     IntegrationError,
@@ -422,12 +422,12 @@ class IntegrationService:
                 subject = payload.data.get("subject", "Pynomaly Notification")
                 message = payload.data.get("message", "")
                 priority = payload.data.get("priority", "normal")
-                
+
                 if not email_address:
                     history_record.response_status = 400
                     history_record.response_body = "Email address is required"
                     return False
-                
+
                 # Send email
                 success = await email_service.send_system_notification_email(
                     email=email_address,
@@ -435,7 +435,7 @@ class IntegrationService:
                     message=message,
                     priority=priority
                 )
-                
+
                 if success:
                     history_record.response_status = 200
                     history_record.response_body = "Email sent successfully"
@@ -444,7 +444,7 @@ class IntegrationService:
                     history_record.response_status = 500
                     history_record.response_body = "Failed to send email"
                     return False
-                    
+
             except Exception as e:
                 history_record.response_status = 500
                 history_record.response_body = f"Email sending error: {str(e)}"

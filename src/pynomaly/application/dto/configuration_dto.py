@@ -103,20 +103,20 @@ class OptimizationConfigDTO(BaseModel):
     strategy: str = Field(default="bayesian", description="Optimization strategy")
     objective: str = Field(default="maximize", description="Optimization objective")
     metric: str = Field(default="roc_auc", description="Target metric")
-    
+
     # Search space
     n_trials: int = Field(default=100, ge=1, description="Number of optimization trials")
     timeout: float | None = Field(default=None, description="Timeout in seconds")
-    
+
     # Hyperparameter ranges
     param_ranges: dict[str, Any] = Field(
         default_factory=dict, description="Parameter ranges for optimization"
     )
-    
+
     # Early stopping
     early_stopping: bool = Field(default=False, description="Enable early stopping")
     patience: int = Field(default=10, description="Early stopping patience")
-    
+
     # Optimization options
     parallel_jobs: int = Field(default=1, description="Number of parallel jobs")
     random_state: int = Field(default=42, description="Random state")

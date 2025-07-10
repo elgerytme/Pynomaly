@@ -9,28 +9,27 @@ This module provides a unified interface to integrate all monitoring components:
 """
 
 import asyncio
-import logging
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Any
 
-from prometheus_client import Counter, Histogram, Gauge, CollectorRegistry
+from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram
 from prometheus_client.exposition import start_http_server
 
+from ...shared.logging import get_logger
 from .advanced_alerting_service import (
     AdvancedAlertingService,
-    AlertRule,
     AlertChannel,
+    AlertRule,
     AlertSeverity,
+    NotificationChannel,
     ThresholdCondition,
-    NotificationChannel
 )
-from .realtime_dashboard import RealtimeDashboard
 from .health_checks import HealthCheckManager
-from .performance_monitor import PerformanceMonitor
 from .metrics_service import MetricsService
-from ...shared.logging import get_logger
+from .performance_monitor import PerformanceMonitor
+from .realtime_dashboard import RealtimeDashboard
 
 logger = get_logger(__name__)
 
@@ -38,24 +37,24 @@ logger = get_logger(__name__)
 class ProductionMonitoringIntegration:
     """Unified production monitoring system integration."""
 
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: dict[str, Any] = None):
         self.config = config or {}
         self.registry = CollectorRegistry()
-        
+
         # Core services
-        self.alerting_service: Optional[AdvancedAlertingService] = None
-        self.dashboard: Optional[RealtimeDashboard] = None
-        self.health_manager: Optional[HealthCheckManager] = None
-        self.performance_monitor: Optional[PerformanceMonitor] = None
-        self.metrics_service: Optional[MetricsService] = None
-        
+        self.alerting_service: AdvancedAlertingService | None = None
+        self.dashboard: RealtimeDashboard | None = None
+        self.health_manager: HealthCheckManager | None = None
+        self.performance_monitor: PerformanceMonitor | None = None
+        self.metrics_service: MetricsService | None = None
+
         # Prometheus metrics
         self.setup_core_metrics()
-        
+
         # Background tasks
-        self._monitoring_tasks: List[asyncio.Task] = []
+        self._monitoring_tasks: list[asyncio.Task] = []
         self._running = False
-        
+
     def setup_core_metrics(self):
         """Set up core Prometheus metrics."""
         # Application metrics
@@ -65,61 +64,61 @@ class ProductionMonitoringIntegration:
             ['method', 'endpoint', 'status'],
             registry=self.registry
         )
-        
+
         self.http_request_duration = Histogram(
             'http_request_duration_seconds',
             'HTTP request duration',
             ['method', 'endpoint'],
             registry=self.registry
         )
-        
+
         self.anomaly_detection_total = Counter(
             'anomaly_detection_total',
             'Total anomaly detections',
             ['algorithm', 'status'],
             registry=self.registry
         )
-        
+
         self.anomaly_detection_duration = Histogram(
             'anomaly_detection_duration_seconds',
             'Anomaly detection duration',
             ['algorithm'],
             registry=self.registry
         )
-        
+
         self.model_training_total = Counter(
             'model_training_total',
             'Total model training attempts',
             ['algorithm', 'status'],
             registry=self.registry
         )
-        
+
         self.model_accuracy = Gauge(
             'model_accuracy',
             'Current model accuracy',
             ['algorithm'],
             registry=self.registry
         )
-        
+
         # System metrics
         self.active_connections = Gauge(
             'active_connections',
             'Active connections',
             registry=self.registry
         )
-        
+
         self.memory_usage_bytes = Gauge(
             'memory_usage_bytes',
             'Memory usage in bytes',
             registry=self.registry
         )
-        
+
         self.cpu_usage_percent = Gauge(
             'cpu_usage_percent',
             'CPU usage percentage',
             registry=self.registry
         )
-        
+
         # Alert metrics
         self.alerts_total = Counter(
             'alerts_total',
@@ -127,7 +126,7 @@ class ProductionMonitoringIntegration:
             ['severity', 'rule'],
             registry=self.registry
         )
-        
+
         self.active_alerts = Gauge(
             'active_alerts',
             'Current active alerts',
@@ -138,38 +137,38 @@ class ProductionMonitoringIntegration:
     async def initialize(self):
         """Initialize all monitoring components."""
         logger.info("Initializing production monitoring integration...")
-        
+
         try:
             # Initialize alerting service
             await self._initialize_alerting()
-            
+
             # Initialize dashboard
             await self._initialize_dashboard()
-            
+
             # Initialize health checks
             await self._initialize_health_checks()
-            
+
             # Initialize performance monitoring
             await self._initialize_performance_monitoring()
-            
+
             # Initialize metrics service
             await self._initialize_metrics_service()
-            
+
             # Setup default alert rules
             await self._setup_default_alert_rules()
-            
+
             # Setup notification channels
             await self._setup_notification_channels()
-            
+
             # Start Prometheus metrics server
             self._start_metrics_server()
-            
+
             # Start background monitoring tasks
             await self._start_background_tasks()
-            
+
             self._running = True
             logger.info("Production monitoring integration initialized successfully")
-            
+
         except Exception as e:
             logger.error(f"Failed to initialize monitoring integration: {e}")
             raise
@@ -185,7 +184,7 @@ class ProductionMonitoringIntegration:
         dashboard_config = self.config.get('dashboard', {})
         host = dashboard_config.get('host', '0.0.0.0')
         port = dashboard_config.get('port', 8080)
-        
+
         self.dashboard = RealtimeDashboard(host=host, port=port)
         logger.info(f"Real-time dashboard initialized on {host}:{port}")
 
@@ -217,7 +216,7 @@ class ProductionMonitoringIntegration:
         """Set up default alert rules for production."""
         if not self.alerting_service:
             return
-            
+
         # High error rate alert
         error_rate_rule = AlertRule(
             name="High Error Rate",
@@ -237,7 +236,7 @@ class ProductionMonitoringIntegration:
             escalation_delay_minutes=15
         )
         self.alerting_service.add_alert_rule(error_rate_rule)
-        
+
         # High response time alert
         response_time_rule = AlertRule(
             name="High Response Time",
@@ -255,7 +254,7 @@ class ProductionMonitoringIntegration:
             suppress_duration_minutes=60
         )
         self.alerting_service.add_alert_rule(response_time_rule)
-        
+
         # Anomaly detection failures
         anomaly_failure_rule = AlertRule(
             name="Anomaly Detection Failures",
@@ -273,7 +272,7 @@ class ProductionMonitoringIntegration:
             suppress_duration_minutes=120
         )
         self.alerting_service.add_alert_rule(anomaly_failure_rule)
-        
+
         # Low model accuracy
         accuracy_rule = AlertRule(
             name="Low Model Accuracy",
@@ -291,7 +290,7 @@ class ProductionMonitoringIntegration:
             suppress_duration_minutes=180
         )
         self.alerting_service.add_alert_rule(accuracy_rule)
-        
+
         # System resource alerts
         cpu_rule = AlertRule(
             name="High CPU Usage",
@@ -309,7 +308,7 @@ class ProductionMonitoringIntegration:
             suppress_duration_minutes=60
         )
         self.alerting_service.add_alert_rule(cpu_rule)
-        
+
         memory_rule = AlertRule(
             name="High Memory Usage",
             description="Memory usage above 85% for 10 minutes",
@@ -326,14 +325,14 @@ class ProductionMonitoringIntegration:
             suppress_duration_minutes=60
         )
         self.alerting_service.add_alert_rule(memory_rule)
-        
+
         logger.info("Default alert rules configured")
 
     async def _setup_notification_channels(self):
         """Set up notification channels."""
         if not self.alerting_service:
             return
-            
+
         # Email channel
         email_config = self.config.get('notifications', {}).get('email', {})
         if email_config.get('enabled'):
@@ -352,7 +351,7 @@ class ProductionMonitoringIntegration:
                 severity_filter=[AlertSeverity.HIGH, AlertSeverity.CRITICAL]
             )
             self.alerting_service.add_notification_channel(email_channel)
-        
+
         # Slack channel
         slack_config = self.config.get('notifications', {}).get('slack', {})
         if slack_config.get('enabled'):
@@ -367,7 +366,7 @@ class ProductionMonitoringIntegration:
                 }
             )
             self.alerting_service.add_notification_channel(slack_channel)
-        
+
         # Webhook channel
         webhook_config = self.config.get('notifications', {}).get('webhook', {})
         if webhook_config.get('enabled'):
@@ -382,7 +381,7 @@ class ProductionMonitoringIntegration:
                 }
             )
             self.alerting_service.add_notification_channel(webhook_channel)
-        
+
         logger.info("Notification channels configured")
 
     def _start_metrics_server(self):
@@ -400,41 +399,41 @@ class ProductionMonitoringIntegration:
         self._monitoring_tasks.append(
             asyncio.create_task(self._collect_system_metrics())
         )
-        
+
         # Dashboard broadcast task
         if self.dashboard:
             self._monitoring_tasks.append(
                 asyncio.create_task(self.dashboard.start_background_tasks())
             )
-        
+
         # Health checks
         if self.health_manager:
             self._monitoring_tasks.append(
                 asyncio.create_task(self.health_manager.start_monitoring())
             )
-        
+
         # Performance monitoring
         if self.performance_monitor:
             self._monitoring_tasks.append(
                 asyncio.create_task(self.performance_monitor.start_monitoring())
             )
-        
+
         logger.info("Background monitoring tasks started")
 
     async def _collect_system_metrics(self):
         """Background task to collect system metrics."""
         import psutil
-        
+
         while self._running:
             try:
                 # CPU usage
                 cpu_percent = psutil.cpu_percent(interval=1)
                 self.cpu_usage_percent.set(cpu_percent)
-                
+
                 # Memory usage
                 memory = psutil.virtual_memory()
                 self.memory_usage_bytes.set(memory.used)
-                
+
                 # Record metrics for alerting
                 if self.alerting_service:
                     await self.alerting_service.record_metric(
@@ -443,9 +442,9 @@ class ProductionMonitoringIntegration:
                     await self.alerting_service.record_metric(
                         "memory_usage_percent", memory.percent
                     )
-                
+
                 await asyncio.sleep(30)  # Collect every 30 seconds
-                
+
             except asyncio.CancelledError:
                 break
             except Exception as e:
@@ -453,62 +452,62 @@ class ProductionMonitoringIntegration:
                 await asyncio.sleep(60)
 
     # Monitoring interface methods
-    
-    async def record_http_request(self, method: str, endpoint: str, 
+
+    async def record_http_request(self, method: str, endpoint: str,
                                 status_code: int, duration: float):
         """Record HTTP request metrics."""
         # Prometheus metrics
         self.http_requests_total.labels(
-            method=method, 
-            endpoint=endpoint, 
+            method=method,
+            endpoint=endpoint,
             status=str(status_code)
         ).inc()
-        
+
         self.http_request_duration.labels(
-            method=method, 
+            method=method,
             endpoint=endpoint
         ).observe(duration)
-        
+
         # Calculate error rate for alerting
         if self.alerting_service and status_code >= 500:
             await self.alerting_service.record_metric(
                 "http_error_rate", 1 if status_code >= 500 else 0
             )
 
-    async def record_anomaly_detection(self, algorithm: str, 
+    async def record_anomaly_detection(self, algorithm: str,
                                      duration: float, success: bool):
         """Record anomaly detection metrics."""
         status = "success" if success else "failure"
-        
+
         self.anomaly_detection_total.labels(
-            algorithm=algorithm, 
+            algorithm=algorithm,
             status=status
         ).inc()
-        
+
         if success:
             self.anomaly_detection_duration.labels(
                 algorithm=algorithm
             ).observe(duration)
-        
+
         # Record for alerting
         if self.alerting_service and not success:
             await self.alerting_service.record_metric(
                 "anomaly_detection_failures", 1
             )
 
-    async def record_model_training(self, algorithm: str, 
+    async def record_model_training(self, algorithm: str,
                                   success: bool, accuracy: float = None):
         """Record model training metrics."""
         status = "success" if success else "failure"
-        
+
         self.model_training_total.labels(
-            algorithm=algorithm, 
+            algorithm=algorithm,
             status=status
         ).inc()
-        
+
         if success and accuracy is not None:
             self.model_accuracy.labels(algorithm=algorithm).set(accuracy)
-            
+
             # Record for alerting
             if self.alerting_service:
                 await self.alerting_service.record_metric(
@@ -518,21 +517,21 @@ class ProductionMonitoringIntegration:
     async def record_alert(self, severity: str, rule_name: str):
         """Record alert metrics."""
         self.alerts_total.labels(severity=severity, rule=rule_name).inc()
-        
+
         # Update active alerts gauge
         if self.alerting_service:
             stats = self.alerting_service.get_alert_statistics()
             for sev, count in stats.get("alerts_by_severity", {}).items():
                 self.active_alerts.labels(severity=sev).set(count)
 
-    async def get_monitoring_status(self) -> Dict[str, Any]:
+    async def get_monitoring_status(self) -> dict[str, Any]:
         """Get overall monitoring system status."""
         status = {
             "timestamp": datetime.now().isoformat(),
             "status": "healthy",
             "components": {}
         }
-        
+
         # Alerting service status
         if self.alerting_service:
             alert_stats = self.alerting_service.get_alert_statistics()
@@ -540,42 +539,42 @@ class ProductionMonitoringIntegration:
                 "status": "healthy",
                 "stats": alert_stats
             }
-        
+
         # Dashboard status
         if self.dashboard:
             status["components"]["dashboard"] = {
                 "status": "healthy",
                 "websocket_connections": len(self.dashboard.websocket_connections)
             }
-        
+
         # Health checks status
         if self.health_manager:
             health_status = await self.health_manager.get_overall_status()
             status["components"]["health_checks"] = health_status
-        
+
         # Performance monitor status
         if self.performance_monitor:
             perf_status = await self.performance_monitor.get_status()
             status["components"]["performance"] = perf_status
-        
+
         # Determine overall status
         component_statuses = [
-            comp.get("status", "unknown") 
+            comp.get("status", "unknown")
             for comp in status["components"].values()
         ]
-        
+
         if "unhealthy" in component_statuses:
             status["status"] = "unhealthy"
         elif "degraded" in component_statuses:
             status["status"] = "degraded"
-        
+
         return status
 
     async def trigger_test_alert(self, severity: AlertSeverity = AlertSeverity.LOW):
         """Trigger a test alert for testing purposes."""
         if not self.alerting_service:
             return False
-            
+
         test_rule = AlertRule(
             name="Test Alert",
             description="This is a test alert to verify notification channels",
@@ -591,24 +590,24 @@ class ProductionMonitoringIntegration:
             channels=[AlertChannel.EMAIL, AlertChannel.SLACK],
             suppress_duration_minutes=1
         )
-        
+
         self.alerting_service.add_alert_rule(test_rule)
         await self.alerting_service.record_metric("test_metric", 1)
-        
+
         # Clean up test rule after a short delay
         async def cleanup():
             await asyncio.sleep(60)
             self.alerting_service.remove_alert_rule(test_rule.rule_id)
-        
+
         asyncio.create_task(cleanup())
         return True
 
     async def shutdown(self):
         """Shutdown monitoring integration."""
         logger.info("Shutting down production monitoring integration...")
-        
+
         self._running = False
-        
+
         # Cancel background tasks
         for task in self._monitoring_tasks:
             if not task.done():
@@ -617,20 +616,20 @@ class ProductionMonitoringIntegration:
                     await task
                 except asyncio.CancelledError:
                     pass
-        
+
         # Shutdown components
         if self.alerting_service:
             await self.alerting_service.shutdown()
-        
+
         if self.health_manager:
             await self.health_manager.shutdown()
-        
+
         if self.performance_monitor:
             await self.performance_monitor.shutdown()
-        
+
         if self.metrics_service:
             await self.metrics_service.shutdown()
-        
+
         logger.info("Production monitoring integration shutdown complete")
 
     async def run_dashboard(self):
@@ -642,10 +641,10 @@ class ProductionMonitoringIntegration:
 def create_production_monitoring(config_file: str = None) -> ProductionMonitoringIntegration:
     """Create production monitoring integration from config file."""
     config = {}
-    
+
     if config_file and Path(config_file).exists():
         import yaml
-        with open(config_file, 'r') as f:
+        with open(config_file) as f:
             config = yaml.safe_load(f)
     else:
         # Default configuration
@@ -679,5 +678,5 @@ def create_production_monitoring(config_file: str = None) -> ProductionMonitorin
                 }
             }
         }
-    
+
     return ProductionMonitoringIntegration(config)

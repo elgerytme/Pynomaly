@@ -1,87 +1,86 @@
 """Integration module for performance monitoring system."""
 
-import asyncio
 import logging
 from datetime import datetime
 from pathlib import Path
 
-from .performance_alerts import performance_monitor, AlertSeverity, MetricType
 from .alert_handlers import create_alert_handlers
+from .performance_alerts import AlertSeverity, MetricType, performance_monitor
 
 logger = logging.getLogger(__name__)
 
 
 class PerformanceMonitoringIntegration:
     """Integration class for performance monitoring system."""
-    
+
     def __init__(self, config_path: str = "config/monitoring/performance_alerts.json"):
         """Initialize performance monitoring integration."""
         self.config_path = config_path
         self.handlers_configured = False
         self.monitoring_started = False
-    
+
     def configure_alert_handlers(self):
         """Configure alert handlers from configuration."""
         if self.handlers_configured:
             return
-        
+
         try:
             import json
             config_file = Path(self.config_path)
-            
+
             if not config_file.exists():
                 logger.warning(f"Configuration file not found: {self.config_path}")
                 return
-            
-            with open(config_file, 'r') as f:
+
+            with open(config_file) as f:
                 config = json.load(f)
-            
+
             # Create and add handlers
             alert_handlers = create_alert_handlers(config.get('alert_handlers', {}))
-            
+
             # Clear existing handlers and add new ones
             performance_monitor.alert_handlers.clear()
             for handler in alert_handlers:
                 performance_monitor.add_alert_handler(handler)
-            
+
             self.handlers_configured = True
             logger.info(f"Configured {len(alert_handlers)} alert handlers")
-            
+
         except Exception as e:
             logger.error(f"Failed to configure alert handlers: {e}")
-    
+
     def start_monitoring(self):
         """Start performance monitoring system."""
         if self.monitoring_started:
             return
-        
+
         try:
             # Configure handlers first
             self.configure_alert_handlers()
-            
+
             # Start monitoring
             performance_monitor.start_monitoring()
             self.monitoring_started = True
-            
+
             logger.info("Performance monitoring system started")
-            
+
         except Exception as e:
             logger.error(f"Failed to start performance monitoring: {e}")
-    
+
     def stop_monitoring(self):
         """Stop performance monitoring system."""
         if not self.monitoring_started:
             return
-        
+
         try:
             performance_monitor.stop_monitoring()
             self.monitoring_started = False
-            
+
             logger.info("Performance monitoring system stopped")
-            
+
         except Exception as e:
             logger.error(f"Failed to stop performance monitoring: {e}")
-    
+
     def get_system_status(self):
         """Get comprehensive system status."""
         return {
@@ -96,11 +95,11 @@ class PerformanceMonitoringIntegration:
             },
             "statistics": performance_monitor.get_performance_stats()
         }
-    
+
     def create_test_alert(self, severity: AlertSeverity = AlertSeverity.MEDIUM):
         """Create a test alert for testing purposes."""
         from .performance_alerts import PerformanceAlert
-        
+
         test_alert = PerformanceAlert(
             alert_id=f"test_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
             severity=severity,
@@ -112,75 +111,75 @@ class PerformanceMonitoringIntegration:
             tags={"test": "true"},
             metadata={"test_purpose": "integration_test"}
         )
-        
+
         # Process the test alert
         performance_monitor.process_alert(test_alert)
-        
+
         return test_alert
-    
+
     def export_metrics_to_prometheus(self, output_file: str = "metrics.prom"):
         """Export metrics in Prometheus format."""
         try:
             metrics_content = []
-            
+
             # Get current metrics
             stats = performance_monitor.get_performance_stats()
-            
+
             # Total alerts metric
-            metrics_content.append(f"# HELP pynomaly_alerts_total Total number of alerts generated")
-            metrics_content.append(f"# TYPE pynomaly_alerts_total counter")
+            metrics_content.append("# HELP pynomaly_alerts_total Total number of alerts generated")
+            metrics_content.append("# TYPE pynomaly_alerts_total counter")
             metrics_content.append(f"pynomaly_alerts_total {stats['total_alerts']}")
             metrics_content.append("")
-            
+
             # Alerts by severity
-            metrics_content.append(f"# HELP pynomaly_alerts_by_severity_total Number of alerts by severity")
-            metrics_content.append(f"# TYPE pynomaly_alerts_by_severity_total counter")
+            metrics_content.append("# HELP pynomaly_alerts_by_severity_total Number of alerts by severity")
+            metrics_content.append("# TYPE pynomaly_alerts_by_severity_total counter")
             for severity, count in stats['alerts_by_severity'].items():
                 metrics_content.append(f"pynomaly_alerts_by_severity_total{{severity=\"{severity}\"}} {count}")
             metrics_content.append("")
-            
+
             # Alerts by type
-            metrics_content.append(f"# HELP pynomaly_alerts_by_type_total Number of alerts by metric type")
-            metrics_content.append(f"# TYPE pynomaly_alerts_by_type_total counter")
+            metrics_content.append("# HELP pynomaly_alerts_by_type_total Number of alerts by metric type")
+            metrics_content.append("# TYPE pynomaly_alerts_by_type_total counter")
             for metric_type, count in stats['alerts_by_type'].items():
                 metrics_content.append(f"pynomaly_alerts_by_type_total{{metric_type=\"{metric_type}\"}} {count}")
             metrics_content.append("")
-            
+
             # Active alerts
-            metrics_content.append(f"# HELP pynomaly_active_alerts_total Number of currently active alerts")
-            metrics_content.append(f"# TYPE pynomaly_active_alerts_total gauge")
+            metrics_content.append("# HELP pynomaly_active_alerts_total Number of currently active alerts")
+            metrics_content.append("# TYPE pynomaly_active_alerts_total gauge")
             metrics_content.append(f"pynomaly_active_alerts_total {stats['active_alerts_count']}")
             metrics_content.append("")
-            
+
             # Monitoring status
-            metrics_content.append(f"# HELP pynomaly_monitoring_active Whether monitoring is active")
-            metrics_content.append(f"# TYPE pynomaly_monitoring_active gauge")
+            metrics_content.append("# HELP pynomaly_monitoring_active Whether monitoring is active")
+            metrics_content.append("# TYPE pynomaly_monitoring_active gauge")
             metrics_content.append(f"pynomaly_monitoring_active {1 if stats['monitoring_active'] else 0}")
             metrics_content.append("")
-            
+
             # Metrics buffer size
-            metrics_content.append(f"# HELP pynomaly_metrics_buffer_size Number of metrics in buffer")
-            metrics_content.append(f"# TYPE pynomaly_metrics_buffer_size gauge")
+            metrics_content.append("# HELP pynomaly_metrics_buffer_size Number of metrics in buffer")
+            metrics_content.append("# TYPE pynomaly_metrics_buffer_size gauge")
             metrics_content.append(f"pynomaly_metrics_buffer_size {stats['metrics_buffer_size']}")
             metrics_content.append("")
-            
+
             # Write to file
             with open(output_file, 'w') as f:
                 f.write('\n'.join(metrics_content))
-            
+
             logger.info(f"Metrics exported to {output_file}")
-            
+
         except Exception as e:
             logger.error(f"Failed to export metrics: {e}")
-    
+
     def get_health_check(self):
         """Get health check information."""
         try:
             stats = performance_monitor.get_performance_stats()
-            
+
             # Determine health status
             health_status = "healthy"
-            
+
             # Check if there are critical alerts
             if stats['alerts_by_severity'].get('critical', 0) > 0:
                 health_status = "critical"
@@ -188,7 +187,7 @@ class PerformanceMonitoringIntegration:
                 health_status = "degraded"
             elif stats['alerts_by_severity'].get('medium', 0) > 0:
                 health_status = "warning"
-            
+
             return {
                 "status": health_status,
                 "timestamp": datetime.now().isoformat(),
@@ -205,7 +204,7 @@ class PerformanceMonitoringIntegration:
                     "performance_monitor": "pass" if stats['monitoring_active'] else "fail"
                 }
             }
-            
+
         except Exception as e:
             logger.error(f"Health check failed: {e}")
             return {

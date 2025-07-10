@@ -12,13 +12,12 @@ This module implements a comprehensive API versioning strategy that supports:
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
-from dataclasses import dataclass
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.routing import APIRoute
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -46,13 +45,13 @@ class APIVersionInfo:
     version: str
     status: APIVersionStatus
     release_date: datetime
-    deprecation_date: Optional[datetime] = None
-    sunset_date: Optional[datetime] = None
-    supported_until: Optional[datetime] = None
-    features: Set[str] = None
-    breaking_changes: List[str] = None
-    migration_guide: Optional[str] = None
-    
+    deprecation_date: datetime | None = None
+    sunset_date: datetime | None = None
+    supported_until: datetime | None = None
+    features: set[str] = None
+    breaking_changes: list[str] = None
+    migration_guide: str | None = None
+
     def __post_init__(self):
         """Initialize default values."""
         if self.features is None:
@@ -63,17 +62,17 @@ class APIVersionInfo:
 
 class APIVersionManager:
     """Manages API versions and compatibility."""
-    
+
     def __init__(self):
         """Initialize version manager."""
-        self.versions: Dict[str, APIVersionInfo] = {}
+        self.versions: dict[str, APIVersionInfo] = {}
         self.current_version = "v1"
         self.supported_versions = {"v1"}
         self.default_strategy = VersioningStrategy.URL_PATH
-        
+
         # Initialize default versions
         self._initialize_default_versions()
-    
+
     def _initialize_default_versions(self) -> None:
         """Initialize default API versions."""
         # Version 1.0 - Current stable version
@@ -91,7 +90,7 @@ class APIVersionManager:
             breaking_changes=[],
             migration_guide="https://docs.pynomaly.com/migration/v1"
         )
-        
+
         # Version 2.0 - Preview version with new features
         self.versions["v2"] = APIVersionInfo(
             version="v2",
@@ -115,65 +114,65 @@ class APIVersionManager:
             ],
             migration_guide="https://docs.pynomaly.com/migration/v2"
         )
-    
+
     def register_version(self, version_info: APIVersionInfo) -> None:
         """Register a new API version."""
         self.versions[version_info.version] = version_info
         logger.info(f"Registered API version: {version_info.version}")
-    
-    def get_version_info(self, version: str) -> Optional[APIVersionInfo]:
+
+    def get_version_info(self, version: str) -> APIVersionInfo | None:
         """Get information about a specific version."""
         return self.versions.get(version)
-    
-    def get_supported_versions(self) -> Set[str]:
+
+    def get_supported_versions(self) -> set[str]:
         """Get all supported versions."""
         return {
             version for version, info in self.versions.items()
             if info.status in [APIVersionStatus.ACTIVE, APIVersionStatus.DEPRECATED]
         }
-    
-    def get_active_versions(self) -> Set[str]:
+
+    def get_active_versions(self) -> set[str]:
         """Get active versions."""
         return {
             version for version, info in self.versions.items()
             if info.status == APIVersionStatus.ACTIVE
         }
-    
+
     def is_version_supported(self, version: str) -> bool:
         """Check if a version is supported."""
         return version in self.get_supported_versions()
-    
-    def deprecate_version(self, version: str, deprecation_date: datetime = None, 
+
+    def deprecate_version(self, version: str, deprecation_date: datetime = None,
                          sunset_date: datetime = None) -> None:
         """Deprecate a version."""
         if version not in self.versions:
             raise ValueError(f"Version {version} not found")
-        
+
         if deprecation_date is None:
             deprecation_date = datetime.now()
-        
+
         if sunset_date is None:
             sunset_date = deprecation_date + timedelta(days=365)  # 1 year
-        
+
         version_info = self.versions[version]
         version_info.status = APIVersionStatus.DEPRECATED
         version_info.deprecation_date = deprecation_date
         version_info.sunset_date = sunset_date
-        
+
         logger.warning(f"Version {version} deprecated. Sunset date: {sunset_date}")
-    
-    def get_version_compatibility(self, from_version: str, to_version: str) -> Dict[str, Any]:
+
+    def get_version_compatibility(self, from_version: str, to_version: str) -> dict[str, Any]:
         """Get compatibility information between versions."""
         from_info = self.get_version_info(from_version)
         to_info = self.get_version_info(to_version)
-        
+
         if not from_info or not to_info:
             return {"compatible": False, "reason": "Version not found"}
-        
+
         # Check feature compatibility
         missing_features = from_info.features - to_info.features
         new_features = to_info.features - from_info.features
-        
+
         return {
             "compatible": len(missing_features) == 0,
             "missing_features": list(missing_features),
@@ -189,18 +188,18 @@ class APIVersionResponse(BaseModel):
     version: str = Field(..., description="API version")
     status: APIVersionStatus = Field(..., description="Version status")
     release_date: datetime = Field(..., description="Version release date")
-    deprecation_date: Optional[datetime] = Field(None, description="Version deprecation date")
-    sunset_date: Optional[datetime] = Field(None, description="Version sunset date")
-    features: List[str] = Field(..., description="Available features")
-    breaking_changes: List[str] = Field(..., description="Breaking changes from previous version")
-    migration_guide: Optional[str] = Field(None, description="Migration guide URL")
+    deprecation_date: datetime | None = Field(None, description="Version deprecation date")
+    sunset_date: datetime | None = Field(None, description="Version sunset date")
+    features: list[str] = Field(..., description="Available features")
+    breaking_changes: list[str] = Field(..., description="Breaking changes from previous version")
+    migration_guide: str | None = Field(None, description="Migration guide URL")
 
 
 class APIVersionsResponse(BaseModel):
     """API versions listing response."""
     current_version: str = Field(..., description="Current API version")
-    supported_versions: List[str] = Field(..., description="Supported API versions")
-    versions: List[APIVersionResponse] = Field(..., description="Detailed version information")
+    supported_versions: list[str] = Field(..., description="Supported API versions")
+    versions: list[APIVersionResponse] = Field(..., description="Detailed version information")
 
 
 class APICompatibilityResponse(BaseModel):
@@ -208,10 +207,10 @@ class APICompatibilityResponse(BaseModel):
     from_version: str = Field(..., description="Source version")
     to_version: str = Field(..., description="Target version")
     compatible: bool = Field(..., description="Whether versions are compatible")
-    missing_features: List[str] = Field(..., description="Features missing in target version")
-    new_features: List[str] = Field(..., description="New features in target version")
-    breaking_changes: List[str] = Field(..., description="Breaking changes")
-    migration_guide: Optional[str] = Field(None, description="Migration guide URL")
+    missing_features: list[str] = Field(..., description="Features missing in target version")
+    new_features: list[str] = Field(..., description="New features in target version")
+    breaking_changes: list[str] = Field(..., description="Breaking changes")
+    migration_guide: str | None = Field(None, description="Migration guide URL")
 
 
 # Global version manager instance
@@ -229,28 +228,28 @@ def get_api_version(request: Request) -> str:
 
 class APIVersionMiddleware:
     """Middleware for API versioning."""
-    
+
     def __init__(self, version_manager: APIVersionManager):
         """Initialize middleware."""
         self.version_manager = version_manager
-    
+
     def extract_version(self, request: Request) -> str:
         """Extract version from request."""
         # Try URL path first (/api/v1/...)
         path_parts = request.url.path.split('/')
         if len(path_parts) > 2 and path_parts[2].startswith('v'):
             return path_parts[2]
-        
+
         # Try header
         version = request.headers.get("API-Version")
         if version:
             return version
-        
+
         # Try query parameter
         version = request.query_params.get("version")
         if version:
             return version
-        
+
         # Try media type
         accept_header = request.headers.get("Accept", "")
         if "vnd.pynomaly.v" in accept_header:
@@ -262,10 +261,10 @@ class APIVersionMiddleware:
             if end == -1:
                 end = len(accept_header)
             return f"v{accept_header[start:end]}"
-        
+
         # Default to current version
         return self.version_manager.current_version
-    
+
     def validate_version(self, version: str) -> None:
         """Validate that the requested version is supported."""
         if not self.version_manager.is_version_supported(version):
@@ -274,12 +273,12 @@ class APIVersionMiddleware:
                 status_code=400,
                 detail=f"API version '{version}' is not supported. Supported versions: {supported_versions}"
             )
-        
+
         # Check if version is deprecated
         version_info = self.version_manager.get_version_info(version)
         if version_info and version_info.status == APIVersionStatus.DEPRECATED:
             logger.warning(f"Client using deprecated API version: {version}")
-    
+
     def add_version_headers(self, response, version: str) -> None:
         """Add version-related headers to response."""
         version_info = self.version_manager.get_version_info(version)
@@ -288,7 +287,7 @@ class APIVersionMiddleware:
             response.headers["API-Supported-Versions"] = ", ".join(
                 sorted(self.version_manager.get_supported_versions())
             )
-            
+
             if version_info.status == APIVersionStatus.DEPRECATED:
                 response.headers["API-Deprecation-Date"] = version_info.deprecation_date.isoformat()
                 if version_info.sunset_date:
@@ -304,7 +303,7 @@ def get_version_manager() -> APIVersionManager:
 def create_version_router() -> APIRouter:
     """Create router for version management endpoints."""
     router = APIRouter(prefix="/api/version", tags=["API Versioning"])
-    
+
     @router.get("/", response_model=APIVersionsResponse)
     async def get_versions():
         """Get all API versions."""
@@ -320,20 +319,20 @@ def create_version_router() -> APIRouter:
                 breaking_changes=info.breaking_changes,
                 migration_guide=info.migration_guide
             ))
-        
+
         return APIVersionsResponse(
             current_version=version_manager.current_version,
             supported_versions=list(version_manager.get_supported_versions()),
             versions=versions
         )
-    
+
     @router.get("/{version}", response_model=APIVersionResponse)
     async def get_version(version: str):
         """Get specific version information."""
         info = version_manager.get_version_info(version)
         if not info:
             raise HTTPException(status_code=404, detail=f"Version {version} not found")
-        
+
         return APIVersionResponse(
             version=info.version,
             status=info.status,
@@ -344,12 +343,12 @@ def create_version_router() -> APIRouter:
             breaking_changes=info.breaking_changes,
             migration_guide=info.migration_guide
         )
-    
+
     @router.get("/{from_version}/compatibility/{to_version}", response_model=APICompatibilityResponse)
     async def get_compatibility(from_version: str, to_version: str):
         """Get compatibility information between versions."""
         compatibility = version_manager.get_version_compatibility(from_version, to_version)
-        
+
         return APICompatibilityResponse(
             from_version=from_version,
             to_version=to_version,
@@ -359,5 +358,5 @@ def create_version_router() -> APIRouter:
             breaking_changes=compatibility.get("breaking_changes", []),
             migration_guide=compatibility.get("migration_guide")
         )
-    
+
     return router

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 from uuid import UUID
 
@@ -15,7 +16,6 @@ from pynomaly.infrastructure.ml_governance import (
     ModelGovernanceRecord,
     ModelStage,
 )
-import logging
 
 logger = logging.getLogger(__name__)
 

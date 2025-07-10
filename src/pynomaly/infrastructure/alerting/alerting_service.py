@@ -5,25 +5,29 @@ This module provides a FastAPI router for alert management and real-time alertin
 """
 
 import asyncio
-import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from datetime import datetime
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    WebSocket,
+    WebSocketDisconnect,
+)
 from pydantic import BaseModel
 
 from .alert_manager import (
-    AlertManager,
     AlertInfo,
+    AlertManager,
     AlertRuleCreate,
     AlertRuleUpdate,
     AlertSeverity,
-    AlertStatus,
     NotificationChannel,
     get_alert_manager,
 )
-from .metric_collector import MetricCollector, get_metric_collector
+from .metric_collector import get_metric_collector
 
 # Configure structured logging
 structlog.configure(
@@ -50,24 +54,24 @@ logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/alerting", tags=["alerting"])
 
 # WebSocket connections for real-time alerts
-websocket_connections: Dict[str, WebSocket] = {}
+websocket_connections: dict[str, WebSocket] = {}
 
 
 # Pydantic models for API
 class AlertRuleResponse(BaseModel):
     """Alert rule response model."""
-    
+
     id: str
     name: str
-    description: Optional[str]
+    description: str | None
     metric_name: str
     condition: str
     threshold: str
     duration: int
     severity: AlertSeverity
     enabled: bool
-    notification_channels: List[NotificationChannel]
-    notification_template: Optional[str]
+    notification_channels: list[NotificationChannel]
+    notification_template: str | None
     cooldown_period: int
     created_at: datetime
     updated_at: datetime
@@ -75,23 +79,23 @@ class AlertRuleResponse(BaseModel):
 
 class AlertSystemStatus(BaseModel):
     """Alert system status model."""
-    
+
     status: str
     timestamp: datetime
     active_alerts: int
     total_rules: int
     enabled_rules: int
     notifications_sent_24h: int
-    system_health: Dict[str, str]
+    system_health: dict[str, str]
 
 
 class MetricSubmission(BaseModel):
     """Metric submission model."""
-    
+
     metric_name: str
     value: float
-    timestamp: Optional[datetime] = None
-    metadata: Optional[Dict[str, str]] = None
+    timestamp: datetime | None = None
+    metadata: dict[str, str] | None = None
 
 
 # Alert Rule Management Endpoints
@@ -103,14 +107,14 @@ async def create_alert_rule(
     """Create a new alert rule."""
     try:
         rule_id = await alert_manager.create_alert_rule(rule_data)
-        
+
         # Get created rule details
         rules = await alert_manager.get_alert_rules()
         rule = next((r for r in rules if r.id == rule_id), None)
-        
+
         if not rule:
             raise HTTPException(status_code=500, detail="Failed to retrieve created rule")
-        
+
         return AlertRuleResponse(
             id=rule.id,
             name=rule.name,
@@ -127,20 +131,20 @@ async def create_alert_rule(
             created_at=rule.created_at,
             updated_at=rule.updated_at,
         )
-        
+
     except Exception as e:
         logger.error(f"Failed to create alert rule: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/rules", response_model=List[AlertRuleResponse])
+@router.get("/rules", response_model=list[AlertRuleResponse])
 async def get_alert_rules(
     alert_manager: AlertManager = Depends(get_alert_manager)
 ):
     """Get all alert rules."""
     try:
         rules = await alert_manager.get_alert_rules()
-        
+
         return [
             AlertRuleResponse(
                 id=rule.id,
@@ -160,7 +164,7 @@ async def get_alert_rules(
             )
             for rule in rules
         ]
-        
+
     except Exception as e:
         logger.error(f"Failed to get alert rules: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -175,17 +179,17 @@ async def update_alert_rule(
     """Update an alert rule."""
     try:
         success = await alert_manager.update_alert_rule(rule_id, rule_data)
-        
+
         if not success:
             raise HTTPException(status_code=404, detail="Alert rule not found")
-        
+
         # Get updated rule details
         rules = await alert_manager.get_alert_rules()
         rule = next((r for r in rules if r.id == rule_id), None)
-        
+
         if not rule:
             raise HTTPException(status_code=500, detail="Failed to retrieve updated rule")
-        
+
         return AlertRuleResponse(
             id=rule.id,
             name=rule.name,
@@ -202,7 +206,7 @@ async def update_alert_rule(
             created_at=rule.created_at,
             updated_at=rule.updated_at,
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -218,12 +222,12 @@ async def delete_alert_rule(
     """Delete an alert rule."""
     try:
         success = await alert_manager.delete_alert_rule(rule_id)
-        
+
         if not success:
             raise HTTPException(status_code=404, detail="Alert rule not found")
-        
+
         return {"message": "Alert rule deleted successfully"}
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -232,7 +236,7 @@ async def delete_alert_rule(
 
 
 # Alert Management Endpoints
-@router.get("/alerts", response_model=List[AlertInfo])
+@router.get("/alerts", response_model=list[AlertInfo])
 async def get_active_alerts(
     alert_manager: AlertManager = Depends(get_alert_manager)
 ):
@@ -240,7 +244,7 @@ async def get_active_alerts(
     try:
         alerts = await alert_manager.get_active_alerts()
         return alerts
-        
+
     except Exception as e:
         logger.error(f"Failed to get active alerts: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -254,12 +258,12 @@ async def acknowledge_alert(
     """Acknowledge an alert."""
     try:
         success = await alert_manager.acknowledge_alert(alert_id)
-        
+
         if not success:
             raise HTTPException(status_code=404, detail="Alert not found")
-        
+
         return {"message": "Alert acknowledged successfully"}
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -275,12 +279,12 @@ async def resolve_alert(
     """Resolve an alert."""
     try:
         success = await alert_manager.resolve_alert(alert_id)
-        
+
         if not success:
             raise HTTPException(status_code=404, detail="Alert not found")
-        
+
         return {"message": "Alert resolved successfully"}
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -304,9 +308,9 @@ async def submit_metric(
             metric.value,
             metric.metadata or {}
         )
-        
+
         return {"message": "Metric submitted successfully"}
-        
+
     except Exception as e:
         logger.error(f"Failed to submit metric: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -314,7 +318,7 @@ async def submit_metric(
 
 @router.post("/metrics/batch")
 async def submit_metrics_batch(
-    metrics: List[MetricSubmission],
+    metrics: list[MetricSubmission],
     background_tasks: BackgroundTasks,
     alert_manager: AlertManager = Depends(get_alert_manager)
 ):
@@ -328,9 +332,9 @@ async def submit_metrics_batch(
                 metric.value,
                 metric.metadata or {}
             )
-        
+
         return {"message": f"Submitted {len(metrics)} metrics successfully"}
-        
+
     except Exception as e:
         logger.error(f"Failed to submit metrics batch: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -345,15 +349,15 @@ async def get_system_status(
     try:
         # Get active alerts
         active_alerts = await alert_manager.get_active_alerts()
-        
+
         # Get alert rules
         rules = await alert_manager.get_alert_rules()
         enabled_rules = [r for r in rules if r.enabled]
-        
+
         # Calculate notifications sent in last 24 hours
         # This would require additional database queries in a real implementation
         notifications_sent_24h = 0
-        
+
         return AlertSystemStatus(
             status="healthy",
             timestamp=datetime.utcnow(),
@@ -368,7 +372,7 @@ async def get_system_status(
                 "metrics_collection": "healthy"
             }
         )
-        
+
     except Exception as e:
         logger.error(f"Failed to get system status: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -394,9 +398,9 @@ async def websocket_endpoint(
     """WebSocket endpoint for real-time alert notifications."""
     await websocket.accept()
     websocket_connections[client_id] = websocket
-    
+
     logger.info(f"WebSocket client connected: {client_id}")
-    
+
     try:
         # Send initial active alerts
         active_alerts = await alert_manager.get_active_alerts()
@@ -404,22 +408,22 @@ async def websocket_endpoint(
             "type": "initial_alerts",
             "alerts": [alert.dict() for alert in active_alerts]
         })
-        
+
         # Keep connection alive and listen for messages
         while True:
             try:
                 message = await websocket.receive_text()
-                
+
                 # Handle client messages (e.g., acknowledge, resolve)
                 if message == "ping":
                     await websocket.send_text("pong")
-                    
+
             except WebSocketDisconnect:
                 break
-                
+
     except Exception as e:
         logger.error(f"WebSocket error for client {client_id}: {e}")
-        
+
     finally:
         # Clean up connection
         if client_id in websocket_connections:
@@ -435,7 +439,7 @@ async def stream_alerts_to_websockets(alert_manager: AlertManager):
             if websocket_connections:
                 # Get current active alerts
                 active_alerts = await alert_manager.get_active_alerts()
-                
+
                 # Send to all connected clients
                 for client_id, websocket in list(websocket_connections.items()):
                     try:
@@ -449,10 +453,10 @@ async def stream_alerts_to_websockets(alert_manager: AlertManager):
                         # Remove disconnected client
                         if client_id in websocket_connections:
                             del websocket_connections[client_id]
-            
+
             # Wait before next update
             await asyncio.sleep(30)  # Update every 30 seconds
-            
+
         except Exception as e:
             logger.error(f"Error in alert streaming: {e}")
             await asyncio.sleep(60)  # Wait longer on error
@@ -463,21 +467,21 @@ async def stream_alerts_to_websockets(alert_manager: AlertManager):
 async def startup_event():
     """Initialize alerting service on startup."""
     logger.info("Starting alerting service...")
-    
+
     try:
         # Initialize alert manager
         alert_manager = get_alert_manager()
         await alert_manager.start()
-        
+
         # Initialize metric collector
         metric_collector = get_metric_collector()
         await metric_collector.start()
-        
+
         # Start background alert streaming
         asyncio.create_task(stream_alerts_to_websockets(alert_manager))
-        
+
         logger.info("Alerting service started successfully")
-        
+
     except Exception as e:
         logger.error(f"Failed to start alerting service: {e}")
         raise
@@ -487,27 +491,27 @@ async def startup_event():
 async def shutdown_event():
     """Cleanup on shutdown."""
     logger.info("Stopping alerting service...")
-    
+
     try:
         # Stop alert manager
         alert_manager = get_alert_manager()
         await alert_manager.stop()
-        
+
         # Stop metric collector
         metric_collector = get_metric_collector()
         await metric_collector.stop()
-        
+
         # Close WebSocket connections
         for client_id, websocket in websocket_connections.items():
             try:
                 await websocket.close()
             except:
                 pass
-        
+
         websocket_connections.clear()
-        
+
         logger.info("Alerting service stopped successfully")
-        
+
     except Exception as e:
         logger.error(f"Error during alerting service shutdown: {e}")
 
@@ -523,7 +527,7 @@ async def trigger_demo_alert(
     try:
         await alert_manager.process_metric(metric_name, value, {"source": "demo"})
         return {"message": f"Demo alert triggered for {metric_name}={value}"}
-        
+
     except Exception as e:
         logger.error(f"Failed to trigger demo alert: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -547,11 +551,11 @@ async def create_demo_rule(
             notification_channels=[NotificationChannel.EMAIL, NotificationChannel.SLACK],
             cooldown_period=300,
         )
-        
+
         rule_id = await alert_manager.create_alert_rule(rule_data)
-        
+
         return {"message": f"Demo rule created with ID: {rule_id}"}
-        
+
     except Exception as e:
         logger.error(f"Failed to create demo rule: {e}")
         raise HTTPException(status_code=500, detail=str(e))

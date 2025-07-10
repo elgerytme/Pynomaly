@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
@@ -26,8 +27,6 @@ from uuid import UUID, uuid4
 
 import numpy as np
 import pandas as pd
-
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -497,7 +496,7 @@ class MLGovernanceFramework:
             def __init__(self, id, name):
                 self.id = id
                 self.name = name
-        
+
         model = MockModel(id=record.model_id, name=f"model_{record.model_id}")
 
         # Run validation
@@ -662,7 +661,7 @@ class MLGovernanceFramework:
             def __init__(self, id, name):
                 self.id = id
                 self.name = name
-        
+
         model = MockModel(id=record.model_id, name=f"model_{record.model_id}")
 
         # Deploy model
