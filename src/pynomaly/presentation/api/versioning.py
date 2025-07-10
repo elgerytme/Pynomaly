@@ -296,6 +296,11 @@ class APIVersionMiddleware:
                     response.headers["Warning"] = f"299 - \"API version {version} is deprecated and will be sunset on {version_info.sunset_date.date()}\""
 
 
+def get_version_manager() -> APIVersionManager:
+    """Get the global version manager instance."""
+    return version_manager
+
+
 def create_version_router() -> APIRouter:
     """Create router for version management endpoints."""
     router = APIRouter(prefix="/api/version", tags=["API Versioning"])

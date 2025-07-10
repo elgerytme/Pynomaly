@@ -71,7 +71,7 @@ class ProductionPerformanceProfiler:
         # Record initial state
         initial_memory = self.process.memory_info().rss
         initial_cpu = self.process.cpu_percent()
-        initial_gc = sum(gc.get_stats())
+        initial_gc = gc.get_count()[0]
         initial_threads = threading.active_count()
         
         start_time = time.perf_counter()
@@ -91,7 +91,7 @@ class ProductionPerformanceProfiler:
             duration = end_time - start_time
             final_memory = self.process.memory_info().rss
             final_cpu = self.process.cpu_percent()
-            final_gc = sum(gc.get_stats())
+            final_gc = gc.get_count()[0]
             final_threads = threading.active_count()
             
             memory_used = final_memory - initial_memory
