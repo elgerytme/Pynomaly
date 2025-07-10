@@ -1,6 +1,5 @@
 """UI Test Configuration - Playwright-specific fixtures that extend the root conftest.py."""
 
-# Import all fixtures from root conftest
 import os
 import tempfile
 from collections.abc import Generator
@@ -16,18 +15,8 @@ from playwright.async_api import (
     Playwright,
 )
 
-try:
-    from ..conftest import *
-except ImportError:
-    import os
-    import sys
-
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-    try:
-        from conftest import *
-    except ImportError:
-        # Minimal pytest configuration for standalone tests
-        pass
+# Import all fixtures from root conftest to prevent conflicts
+from ..conftest import *
 
 # Enhanced Configuration
 BASE_URL = os.getenv("PYNOMALY_BASE_URL", "http://localhost:8000")

@@ -24,11 +24,11 @@ from playwright.async_api import (
     async_playwright,
 )
 
-from .utils.accessibility_validator import AccessibilityValidator
-from .utils.cross_browser_manager import CrossBrowserManager
-from .utils.performance_validator import PerformanceValidator
-from .utils.test_data_generator import TestDataGenerator
-from .utils.visual_regression_manager import VisualRegressionManager
+from tests.ui.advanced.utils.accessibility_validator import AccessibilityValidator
+from tests.ui.advanced.utils.cross_browser_manager import CrossBrowserManager
+from tests.ui.advanced.utils.performance_validator import PerformanceValidator
+from tests.ui.advanced.utils.test_data_generator import TestDataGenerator
+from tests.ui.advanced.utils.visual_regression_manager import VisualRegressionManager
 
 
 class AdvancedUITestFramework:

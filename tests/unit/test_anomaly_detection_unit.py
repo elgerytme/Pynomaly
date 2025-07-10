@@ -22,7 +22,7 @@ from pynomaly.application.services.anomaly_detection_service import (
     AnomalyDetectionService,
 )
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.services.detection_service import DetectionService
+from pynomaly.domain.services.advanced_detection_service import AdvancedDetectionService
 from pynomaly.domain.value_objects import AnomalyScore
 
 
@@ -135,7 +135,7 @@ class TestAnomalyDetectionService:
             assert len(result.scores) == len(large_dataset.data)
 
 
-class TestDetectionServicePropertyBased:
+class TestAdvancedDetectionServicePropertyBased:
     """Property-based tests for DetectionService using Hypothesis."""
 
     @given(
@@ -169,7 +169,7 @@ class TestDetectionServicePropertyBased:
             parameters={"contamination": contamination, "random_state": 42},
         )
 
-        service = DetectionService()
+        service = AdvancedDetectionService()
 
         # Mock the actual detection
         with patch.object(service, "_get_adapter") as mock_adapter:
@@ -224,7 +224,7 @@ class TestDetectionServicePropertyBased:
             parameters={"contamination": 0.1, "random_state": 42},
         )
 
-        service = DetectionService()
+        service = AdvancedDetectionService()
 
         # Mock the detection
         with patch.object(service, "_get_adapter") as mock_adapter:
@@ -263,7 +263,7 @@ class TestDetectionServicePropertyBased:
 
         detector = Detector(algorithm_name=algorithm, parameters={"random_state": 42})
 
-        service = DetectionService()
+        service = AdvancedDetectionService()
 
         # Mock the detection
         with patch.object(service, "_get_adapter") as mock_adapter:

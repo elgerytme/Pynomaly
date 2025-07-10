@@ -105,7 +105,8 @@
       "Bash(source:*)",
       "Bash(mv:*)",
       "Bash(PYNOMALY_USE_LAZY_CLI=false python3 -m pynomaly.presentation.cli.app migrate --help)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(PYTHONPATH=src python3 -m pytest tests/unit/test_anomaly_detection_unit.py::TestAnomalyDetectionService::test_init_creates_service --tb=short -v)"
     ],
     "deny": []
   }

@@ -756,10 +756,10 @@ class PyTorchAdapter:
         Args:
             **params: Parameters to set
         """
-        self.parameters.update(params)
+        self._parameters.update(params)
         # Re-initialize if algorithm changed
         if "algorithm_name" in params:
-            self.algorithm_name = params["algorithm_name"]
+            self._algorithm_name = params["algorithm_name"]
             if params["algorithm_name"] not in self._algorithm_map:
                 available = ", ".join(self._algorithm_map.keys())
                 raise AlgorithmNotFoundError(
@@ -767,6 +767,9 @@ class PyTorchAdapter:
                     f"Available algorithms: {available}"
                 )
             self._model_class = self._algorithm_map[params["algorithm_name"]]
+            # Reset fitting status if algorithm changed
+            self._is_fitted = False
+            self._model = None
 
     def predict(self, dataset: Dataset) -> DetectionResult:
         """Detect anomalies using the trained model.
@@ -845,33 +848,71 @@ class PyTorchAdapter:
 
         Returns:
             Numpy array of features
+
+        Raises:
+            AdapterError: If data preparation fails
         """
-        df = dataset.data
+        try:
+            df = dataset.data
 
-        # Select numeric columns
-        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+            # Validate dataset
+            if df is None or df.empty:
+                raise AdapterError("Dataset is empty or None")
 
-        # Remove target column if present
-        if dataset.target_column and dataset.target_column in numeric_cols:
-            numeric_cols.remove(dataset.target_column)
+            # Select numeric columns
+            numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
 
-        if not numeric_cols:
-            raise AdapterError("No numeric features found in dataset")
+            # Remove target column if present
+            if dataset.target_column and dataset.target_column in numeric_cols:
+                numeric_cols.remove(dataset.target_column)
 
-        # Extract features and handle missing values
-        X = df[numeric_cols].values
+            if not numeric_cols:
+                raise AdapterError("No numeric features found in dataset")
 
-        # Simple imputation - replace NaN with column mean
-        col_means = np.nanmean(X, axis=0)
-        nan_indices = np.where(np.isnan(X))
-        X[nan_indices] = np.take(col_means, nan_indices[1])
+            # Extract features and handle missing values
+            X = df[numeric_cols].values
 
-        # Standardize features
-        mean = np.mean(X, axis=0)
-        std = np.std(X, axis=0) + 1e-6  # Add small constant to avoid division by zero
-        X = (X - mean) / std
+            # Validate data shape
+            if X.shape[0] == 0:
+                raise AdapterError("Dataset has no rows")
+            if X.shape[1] == 0:
+                raise AdapterError("Dataset has no features")
 
-        return X
+            # Check for invalid values
+            if not np.isfinite(X).all():
+                # Simple imputation - replace NaN/inf with column mean
+                for col_idx in range(X.shape[1]):
+                    col_data = X[:, col_idx]
+                    finite_mask = np.isfinite(col_data)
+
+                    if not finite_mask.any():
+                        # If entire column is non-finite, fill with zeros
+                        X[:, col_idx] = 0.0
+                    else:
+                        # Replace non-finite values with column mean
+                        col_mean = np.mean(col_data[finite_mask])
+                        X[~finite_mask, col_idx] = col_mean
+
+            # Standardize features
+            mean = np.mean(X, axis=0)
+            std = np.std(X, axis=0)
+
+            # Avoid division by zero
+            std = np.where(std == 0, 1e-6, std)
+            X = (X - mean) / std
+
+            # Final validation
+            if not np.isfinite(X).all():
+                raise AdapterError(
+                    "Data still contains non-finite values after preprocessing"
+                )
+
+            return X
+
+        except Exception as e:
+            if isinstance(e, AdapterError):
+                raise
+            raise AdapterError(f"Data preparation failed: {e}")
 
     def _calculate_confidence(self, score: float, threshold: float) -> float:
         """Calculate confidence score for anomaly.

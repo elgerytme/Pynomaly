@@ -631,9 +631,7 @@ addopts = [
     "--color=yes",
     "--durations=10",
     "--show-capture=no",
-    "--maxfail=5",
-    "--reruns=2",
-    "--reruns-delay=1"
+    "--maxfail=5"
 ]
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
@@ -689,13 +687,6 @@ filterwarnings = [
 ]
 timeout = 300
 asyncio_mode = "auto"
-env = [
-    "PYNOMALY_ENV=testing",
-    "PYNOMALY_DEBUG=true",
-    "PYNOMALY_LOG_LEVEL=DEBUG",
-    "PYTHONPATH=src",
-    "TESTING=true"
-]
 log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(name)s: %(message)s"

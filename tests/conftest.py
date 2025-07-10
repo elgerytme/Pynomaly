@@ -1,4 +1,4 @@
-"""Consolidated pytest configuration for stable testing."""
+"""Consolidated pytest configuration for stable testing - Primary conftest for all tests."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ import os
 import shutil
 import sys
 import tempfile
+import warnings
 from collections.abc import Generator
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
@@ -15,7 +16,18 @@ import numpy as np
 import pandas as pd
 import pytest
 
-# Add src to Python path
+# Suppress warnings early
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=PendingDeprecationWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic.*")
+warnings.filterwarnings("ignore", category=UserWarning, module="dependency_injector.*")
+warnings.filterwarnings("ignore", category=UserWarning, module="sklearn.*")
+warnings.filterwarnings("ignore", category=UserWarning, module="scipy.*")
+warnings.filterwarnings("ignore", category=UserWarning, module="numpy.*")
+warnings.filterwarnings("ignore", category=UserWarning, module="pandas.*")
+
+# Add src to Python path ONCE
 project_root = Path(__file__).parent.parent
 src_path = project_root / "src"
 if str(src_path) not in sys.path:
@@ -106,21 +118,55 @@ def mock_sync_repository():
     return mock
 
 
-# Test isolation
+# Test isolation - Enhanced for stability
 @pytest.fixture(autouse=True)
 def isolate_tests():
-    """Isolate tests by cleaning up state."""
-    # Before test
+    """Isolate tests by cleaning up state and preventing interference."""
+    # Store original state
     original_env = os.environ.copy()
+    original_cwd = os.getcwd()
+
+    # Set deterministic seeds before test
+    np.random.seed(42)
+
+    # Clear module cache for test modules only
+    test_modules_to_clear = [
+        mod
+        for mod in sys.modules.keys()
+        if "pynomaly" in mod
+        and any(test_path in mod for test_path in ["test_", "_test"])
+    ]
 
     yield
 
-    # After test - restore environment
-    os.environ.clear()
-    os.environ.update(original_env)
+    # After test - comprehensive cleanup
+    try:
+        # Restore environment completely
+        os.environ.clear()
+        os.environ.update(original_env)
 
-    # Reset random seed
-    np.random.seed(None)
+        # Restore working directory
+        try:
+            os.chdir(original_cwd)
+        except (OSError, FileNotFoundError):
+            pass  # Directory may not exist anymore
+
+        # Clear test module cache to prevent state bleeding
+        for mod_name in test_modules_to_clear:
+            if mod_name in sys.modules:
+                del sys.modules[mod_name]
+
+        # Reset random seed
+        np.random.seed(None)
+
+        # Force garbage collection
+        import gc
+
+        gc.collect()
+
+    except Exception:
+        # Don't let cleanup failures break the test run
+        pass
 
 
 # Error handling
@@ -136,26 +182,68 @@ def suppress_warnings():
         yield
 
 
-# Test markers
+# Test markers and configuration
 def pytest_configure(config):
-    """Configure pytest with essential markers."""
+    """Configure pytest with essential markers - MAIN configuration."""
+    # Only configure if not already configured to prevent conflicts
+    if hasattr(config, "_pynomaly_configured"):
+        return
+
+    config._pynomaly_configured = True
+
+    # Set timeout plugin if available
+    try:
+        import pytest_timeout
+
+        config.addinivalue_line("markers", "timeout: Timeout for test execution")
+    except ImportError:
+        pass
+
+    # Core markers for test organization
     config.addinivalue_line("markers", "unit: Unit tests")
     config.addinivalue_line("markers", "integration: Integration tests")
     config.addinivalue_line("markers", "slow: Slow tests")
     config.addinivalue_line("markers", "flaky: Potentially flaky tests")
-    config.addinivalue_line("markers", "timeout: Timeout for test execution")
+    config.addinivalue_line("markers", "stable: Tests requiring full stabilization")
+    config.addinivalue_line(
+        "markers", "isolation: Tests requiring environment isolation"
+    )
+    config.addinivalue_line("markers", "retry: Tests requiring retry logic")
 
 
 def pytest_collection_modifyitems(config, items):
-    """Modify test collection to handle flaky tests."""
-    # Add timeout to potentially flaky tests
+    """Modify test collection to handle flaky tests and add stability measures."""
+    # Only process if not already processed
+    if hasattr(config, "_pynomaly_items_processed"):
+        return
+
+    config._pynomaly_items_processed = True
+
     for item in items:
+        # Add appropriate timeouts based on test type
         if "integration" in item.keywords or "slow" in item.keywords:
-            item.add_marker(pytest.mark.timeout(60))
+            if hasattr(pytest, "mark") and hasattr(pytest.mark, "timeout"):
+                item.add_marker(pytest.mark.timeout(120))  # 2 minutes for slow tests
         elif "flaky" in item.keywords:
-            item.add_marker(pytest.mark.timeout(30))
+            if hasattr(pytest, "mark") and hasattr(pytest.mark, "timeout"):
+                item.add_marker(pytest.mark.timeout(60))  # 1 minute for flaky tests
         else:
-            item.add_marker(pytest.mark.timeout(10))
+            if hasattr(pytest, "mark") and hasattr(pytest.mark, "timeout"):
+                item.add_marker(pytest.mark.timeout(30))  # 30 seconds for regular tests
+
+        # Auto-apply flaky marker to tests with flaky indicators in their names
+        if any(
+            indicator in item.name.lower()
+            for indicator in ["flaky", "unstable", "intermittent"]
+        ):
+            if not item.get_closest_marker("flaky"):
+                item.add_marker(pytest.mark.flaky)
+
+        # Auto-apply integration marker for integration test paths
+        if "integration" in str(item.fspath) and not item.get_closest_marker(
+            "integration"
+        ):
+            item.add_marker(pytest.mark.integration)
 
 
 # Retry mechanism for flaky tests

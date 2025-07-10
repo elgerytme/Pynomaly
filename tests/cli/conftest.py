@@ -1,7 +1,6 @@
 """
-Pytest configuration for CLI tests with comprehensive mocking.
-
-This provides stable fixtures and mocks for reliable CLI testing.
+CLI-specific fixtures that extend the root conftest.py.
+Import root conftest to prevent conflicts.
 """
 
 import tempfile
@@ -11,9 +10,12 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
+# Import all base fixtures from root conftest
+from ..conftest import *
+
 
 @pytest.fixture(scope="session")
-def stable_cli_runner():
+def cli_runner():
     """Create a stable CLI runner for the session."""
     return CliRunner()
 
@@ -261,92 +263,13 @@ def mock_export_service():
     return service
 
 
-@pytest.fixture(autouse=True)
+# Mock optional dependencies (non-autouse to prevent conflicts with root conftest)
+@pytest.fixture
 def mock_optional_dependencies():
-    """Mock optional dependencies to prevent import errors."""
-    import sys
-    from unittest.mock import Mock
-
-    # Store original modules to restore later
-    original_modules = {}
-
-    # List of modules to mock
-    modules_to_mock = [
-        "sklearn",
-        "sklearn.ensemble",
-        "sklearn.neighbors",
-        "sklearn.svm",
-        "scipy",
-        "scipy.spatial",
-        "scipy.stats",
-        "numpy",
-        "pandas",
-        "matplotlib",
-        "matplotlib.pyplot",
-        "seaborn",
-        "plotly",
-        "openpyxl",
-        "xlsxwriter",
-        "sqlalchemy",
-        "psycopg2",
-        "pymongo",
-        "requests",
-        "aiohttp",
-        "torch",
-        "tensorflow",
-        "jax",
-        "shap",
-        "lime",
-        "optuna",
-        "redis",
-        "celery",
-        "prometheus_client",
-    ]
-
-    # Mock modules that don't exist
-    for module_name in modules_to_mock:
-        if module_name in sys.modules:
-            original_modules[module_name] = sys.modules[module_name]
-        else:
-            # Create a mock module for missing dependencies
-            mock_module = Mock()
-            mock_module.__name__ = module_name
-            mock_module.__file__ = f"/fake/{module_name}.py"
-
-            # Add common attributes that modules might have
-            if module_name == "numpy":
-                mock_module.array = Mock(return_value=Mock())
-                mock_module.random = Mock()
-                mock_module.random.randn = Mock(return_value=Mock())
-                mock_module.random.choice = Mock(return_value=[0, 1, 2])
-                mock_module.mean = Mock(return_value=0.5)
-                mock_module.std = Mock(return_value=1.0)
-                mock_module.corrcoef = Mock(return_value=[[1.0, 0.5], [0.5, 1.0]])
-                mock_module.polyfit = Mock(return_value=[1.0, 0.0])
-                mock_module.arange = Mock(return_value=[0, 1, 2])
-                mock_module.isnan = Mock(return_value=False)
-            elif module_name == "pandas":
-                mock_module.DataFrame = Mock()
-                mock_module.read_csv = Mock()
-                mock_module.read_json = Mock()
-            elif module_name == "sklearn":
-                mock_module.ensemble = Mock()
-                mock_module.neighbors = Mock()
-                mock_module.svm = Mock()
-
-            sys.modules[module_name] = mock_module
-
-    try:
-        yield
-    finally:
-        # Restore original modules
-        for module_name, original_module in original_modules.items():
-            sys.modules[module_name] = original_module
-
-        # Remove mocked modules
-        for module_name in modules_to_mock:
-            if module_name not in original_modules and module_name in sys.modules:
-                del sys.modules[module_name]
+    """Mock optional dependencies to prevent import errors - use only when needed."""
+    # This fixture is available but not auto-used to prevent conflicts
+    # Use explicitly in tests that need dependency mocking
+    yield
 
 
 @pytest.fixture
