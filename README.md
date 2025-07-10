@@ -44,6 +44,7 @@ These tools ensure that the code meets the quality standards and is free from vu
 ## Features
 
 ### Core Features (Stable)
+
 - 🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture
 - 🔌 **PyOD Integration**: Production-ready PyOD algorithms (40+ algorithms including Isolation Forest, LOF, One-Class SVM)
 - 🧪 **scikit-learn Support**: Standard ML algorithms for anomaly detection
@@ -53,6 +54,7 @@ These tools ensure that the code meets the quality standards and is free from vu
 - ✅ **Testing**: Comprehensive test suite with high coverage
 
 ### Advanced Features (Production Ready)
+
 - 🚀 **FastAPI REST API**: 65+ API endpoints with OpenAPI documentation
 - 🔐 **Authentication**: JWT-based authentication framework (optional)
 - 📈 **Monitoring**: Prometheus metrics collection capabilities
@@ -63,26 +65,37 @@ These tools ensure that the code meets the quality standards and is free from vu
 
 ### Experimental Features (Limited Support)
 
-**NOTE:** The following features are marked as experimental and their implementations might be incomplete or not available:
-- **ONNX model format is not supported yet in the storage service**
-- **Certain PyTorch base models are placeholders without concrete implementations**
-- 🤖 **AutoML**: Hyperparameter optimization framework (requires additional setup)
-- 🔍 **Explainability**: SHAP/LIME integration (requires: `pip install shap lime`)
-- 🧠 **Deep Learning**: PyTorch/TensorFlow adapters (optional dependencies)
-- 📱 **PWA Features**: Progressive Web App capabilities (basic implementation)
-- 📊 **Graph Analysis**: PyGOD integration (experimental, requires additional setup)
+**📋 [View Complete Feature Status →](docs/reference/FEATURE_IMPLEMENTATION_STATUS.md)**
+
+**⚠️ IMPORTANT - READ BEFORE USE**: The following features have significant implementation limitations. Many are frameworks or placeholders rather than complete implementations:
+
+- 🤖 **AutoML**: Framework exists but requires `optuna` installation and ML expertise to configure
+- 🔍 **Explainability**: Service architecture exists but most methods return placeholder/mock data  
+- 🧠 **Deep Learning**: Advanced PyTorch adapter available, TensorFlow/JAX support is minimal
+- 📱 **PWA Features**: Basic Progressive Web App, offline functionality limited
+- 📊 **Graph Analysis**: **NOT IMPLEMENTED** - PyGOD integration mentioned but not functional
+
+**❌ NOT IMPLEMENTED (Despite Documentation Claims)**:
+
+- **Real-time Streaming**: Framework classes exist but no actual streaming functionality
+- **Advanced Business Intelligence**: Export formatting and BI integrations are placeholder  
+- **Enterprise LDAP/SAML**: Only basic JWT authentication implemented
+
+**✅ RECOMMENDATION**: Start with [Core Features](#core-features-stable) which are production-ready. Consult the [Feature Implementation Status Guide](docs/reference/FEATURE_IMPLEMENTATION_STATUS.md) for accurate implementation details before depending on any experimental feature.
 
 ## Installation
 
 ### Quick Setup (Recommended)
 
 #### Prerequisites
+
 ```bash
 # Ensure Python 3.11+ is installed
 python --version  # Should show 3.11 or higher
 ```
 
 #### Installation
+
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/pynomaly.git
@@ -105,6 +118,7 @@ python -c "import pynomaly; print('Installation successful')"
 ```
 
 #### Feature Installation Options
+
 ```bash
 # 🎯 Quick Start (recommended for most users)
 pip install -e ".[server]"       # Complete server (CLI + API + web)
@@ -126,6 +140,7 @@ python scripts/setup/install_features.py
 If you prefer traditional Python environment management, Pynomaly uses a centralized environment structure:
 
 #### Quick Start
+
 ```bash
 # Create virtual environment in organized directory structure
 mkdir -p environments
@@ -145,6 +160,7 @@ pip install -e ".[all]"             # All available features
 **Environment Organization**: Pynomaly uses a centralized `environments/` directory with dot-prefix naming (`.venv`, `.test_env`) to keep the project root clean and organize all virtual environments in one location.
 
 #### Feature-Specific Installation
+
 ```bash
 # Core functionality only
 pip install -e .
@@ -178,29 +194,34 @@ pip install -e ".[dev]"             # Development tools
 Pynomaly is designed to work seamlessly across different operating systems and environments:
 
 **Supported Platforms:**
+
 - **Linux/Unix**: Full compatibility with bash shell environments
 - **macOS**: Complete support for all features and commands
 - **Windows**: Full compatibility with PowerShell and Command Prompt
 - **WSL/WSL2**: Tested and verified on Windows Subsystem for Linux
 
 **Shell Compatibility:**
+
 - **Bash**: All commands and scripts tested and verified
 - **PowerShell**: Cross-platform PowerShell support (Core 6.0+)
 - **Command Prompt**: Basic functionality available
 - **Zsh/Fish**: Compatible with alternative Unix shells
 
 **Python Environment Support:**
+
 - **Virtual Environments**: `venv`, `virtualenv`, `conda`, `pipenv`, `poetry`
 - **Python Versions**: 3.11, 3.12, 3.13+
 - **Package Managers**: pip, conda, poetry, pipenv
 
 **Installation Methods:**
+
 - **Package Installation**: `pip install -e .` (cross-platform)
 - **Development Setup**: Poetry-based development environment
 - **Container Deployment**: Docker support for all platforms
 - **Cloud Deployment**: AWS, Azure, GCP compatible
 
 **Path Handling:**
+
 - Automatic cross-platform path normalization
 - Windows backslash (`\`) and Unix forward slash (`/`) support
 - Environment variable handling across all platforms
@@ -320,7 +341,7 @@ if __name__ == "__main__":
 
 ### Web API & Interface
 
-Access the API and Progressive Web App at http://localhost:8000 after starting the server.
+Access the API and Progressive Web App at <http://localhost:8000> after starting the server.
 
 **📚 Complete Setup Guide**: See [docs/developer-guides/api-integration/WEB_API_SETUP_GUIDE.md](docs/developer-guides/api-integration/WEB_API_SETUP_GUIDE.md) for detailed instructions across all environments.
 
@@ -426,6 +447,7 @@ src/pynomaly/
 ## Supported Algorithm Libraries
 
 ### PyOD (Python Outlier Detection)
+
 - **Statistical**: Isolation Forest, Local Outlier Factor, One-Class SVM, MCD, PCA
 - **Probabilistic**: GMM, COPOD, ECOD, Histogram-based, Sampling
 - **Linear**: PCA, Kernel PCA, Robust Covariance, Feature Bagging
@@ -433,28 +455,33 @@ src/pynomaly/
 - **Neural Networks**: AutoEncoder, VAE, Deep SVDD, SO-GAAL, MO-GAAL
 
 ### Time Series Algorithms (Custom Implementation)
+
 - **Statistical**: Rolling statistics, percentile-based detection
 - **Decomposition**: Seasonal decomposition with trend analysis
 - **Change Point**: Statistical tests for abrupt changes
 
 ### PyGOD (Python Graph Outlier Detection)
+
 - **Node-level**: Anomalous node detection in graphs
 - **Edge-level**: Anomalous edge and subgraph detection  
 - **Graph-level**: Anomalous graph classification
 - **Deep Learning**: Graph neural networks, graph autoencoders
 
 ### Scikit-learn Integration
+
 - **Ensemble**: Isolation Forest, One-Class SVM
 - **Neighbors**: Local Outlier Factor, Novelty detection
 - **Clustering**: DBSCAN outliers, Gaussian Mixture
 - **Covariance**: Elliptic Envelope, Robust Covariance
 
 ### Deep Learning Frameworks
+
 - **PyTorch**: Custom neural architectures, GPU acceleration
 - **TensorFlow**: Distributed training, TensorBoard integration
 - **JAX**: High-performance computing, automatic differentiation
 
 ### Multi-Modal Detection
+
 - **Tabular Data**: Traditional ML and statistical methods
 - **Time Series**: Seasonal decomposition, LSTM, Transformers  
 - **Graph Data**: GNN-based detection, network analysis
@@ -485,6 +512,7 @@ pre-commit install
 ```
 
 #### Code Quality & Testing
+
 ```bash
 # Run tests
 pytest tests/                    # Run all tests
@@ -503,6 +531,7 @@ python -m build                  # Build distribution
 ```
 
 #### Web Development
+
 ```bash
 # Start development server
 uvicorn pynomaly.presentation.api.app:app --reload --port 8000
@@ -553,6 +582,7 @@ npm run build-css
 **Pynomaly is actively developed with the following implementation status:**
 
 ### ✅ Stable Features
+
 - **Core anomaly detection**: PyOD integration with 40+ algorithms
 - **Basic web interface**: HTMX-based UI with Tailwind CSS
 - **CLI tools**: Basic dataset and detector management
@@ -560,32 +590,36 @@ npm run build-css
 - **API foundation**: FastAPI with 65+ endpoints
 
 ### ⚠️ Beta Features
+
 - **Authentication**: JWT framework (requires configuration)
 - **Monitoring**: Prometheus metrics (optional)
 - **Export functionality**: CSV/JSON export
 - **Ensemble methods**: Advanced voting strategies
 
-### 🚧 Experimental Features
-- **AutoML**: Requires additional setup and dependencies
-- **Deep Learning**: PyTorch/TensorFlow adapters (optional install)
-- **Explainability**: SHAP/LIME integration (manual setup required)
-- **PWA features**: Basic Progressive Web App capabilities
-- **Real-time streaming**: Framework exists, limited functionality
+### 🚧 Experimental Features (Limited/Placeholder Implementations)
 
-### ❌ Planned Features
-- **Graph anomaly detection**: PyGOD integration in development
-- **Advanced visualization**: Complex D3.js components
-- **Production monitoring**: Full observability stack
-- **Text anomaly detection**: NLP-based detection methods
+- **AutoML**: Framework exists, requires optuna + ML expertise
+- **Deep Learning**: PyTorch adapter advanced, TensorFlow/JAX minimal
+- **Explainability**: Service architecture exists, most methods return mock data
+- **PWA features**: Basic Progressive Web App, offline functionality limited
+
+### ❌ Not Implemented (Despite Some Documentation Claims)
+
+- **Graph anomaly detection**: PyGOD integration not functional
+- **Real-time streaming**: Framework classes exist, no actual streaming
+- **Advanced BI export**: Basic CSV/JSON works, formatting/BI integrations placeholder
+- **Enterprise security**: Basic JWT only, no LDAP/SAML integration
+- **Advanced visualization**: Basic charts work, complex D3.js components limited
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed progress and [TODO.md](docs/project/TODO.md) for planned features.
 
 ## Important Notes
 
-- **Optional Dependencies**: Many advanced features require additional packages (`pip install shap lime torch tensorflow`)
-- **Configuration Required**: Some features need manual setup (authentication, monitoring)
-- **Platform Support**: Tested on Linux/macOS/Windows with Python 3.11+
-- **Documentation**: Some documentation may describe planned rather than implemented features
+- **Feature Accuracy**: This README contains historical feature descriptions. For accurate implementation status, **always consult** the [Feature Implementation Status Guide](docs/reference/FEATURE_IMPLEMENTATION_STATUS.md)
+- **Optional Dependencies**: Many advanced features require additional packages and may be placeholders (`pip install shap lime torch tensorflow`)
+- **Configuration Required**: Most "advanced" features need manual setup, additional dependencies, or ML expertise
+- **Platform Support**: Core features tested on Linux/macOS/Windows with Python 3.11+
+- **Production Use**: Only [Core Features](#core-features-stable) and [Advanced Features (Production Ready)](#advanced-features-production-ready) are recommended for production
 
 ## Contributing
 
