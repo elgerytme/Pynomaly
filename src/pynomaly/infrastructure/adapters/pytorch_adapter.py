@@ -168,10 +168,35 @@ class BaseAnomalyModel(BaseAnomalyModelBase):
     def loss_function(
         self, x: torch.Tensor, recon: torch.Tensor, **kwargs
     ) -> torch.Tensor:
-        raise NotImplementedError
+        """Calculate loss function for anomaly detection.
+        
+        Args:
+            x: Original input tensor
+            recon: Reconstructed tensor
+            **kwargs: Additional arguments
+            
+        Returns:
+            Loss tensor
+        """
+        # Default MSE loss for reconstruction
+        return torch.nn.functional.mse_loss(recon, x, reduction='none')
 
     def anomaly_score(self, x: torch.Tensor) -> torch.Tensor:
-        raise NotImplementedError
+        """Calculate anomaly scores for input data.
+        
+        Args:
+            x: Input tensor
+            
+        Returns:
+            Anomaly scores tensor
+        """
+        with torch.no_grad():
+            # Forward pass to get reconstruction
+            recon = self.forward(x)
+            # Calculate reconstruction error as anomaly score
+            loss = self.loss_function(x, recon)
+            # Return mean loss across features for each sample
+            return torch.mean(loss, dim=1)
 
 
 class AutoEncoder(BaseAnomalyModel):

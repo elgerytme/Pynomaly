@@ -7,6 +7,7 @@ active learning sessions including sample selection and feedback collection.
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from uuid import uuid4
@@ -37,6 +38,8 @@ from pynomaly.domain.entities.human_feedback import (
     HumanFeedback,
 )
 from pynomaly.domain.services.active_learning_service import ActiveLearningService
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -111,18 +114,35 @@ class ManageActiveLearningUseCase:
                     session_id=session_id,
                     status=SessionStatus.ACTIVE,
                     created_at=datetime.now(),
-                    updated_at=datetime.now()
+                    updated_at=datetime.now(),
                 )
                 self.session_repository.save_session(session)
 
             # Calculate actual progress
-            samples_selected = len(session.selected_samples) if hasattr(session, 'selected_samples') else 0
-            samples_annotated = len(session.annotated_samples) if hasattr(session, 'annotated_samples') else 0
-            completion_percentage = (samples_annotated / samples_selected * 100) if samples_selected > 0 else 0.0
+            samples_selected = (
+                len(session.selected_samples)
+                if hasattr(session, "selected_samples")
+                else 0
+            )
+            samples_annotated = (
+                len(session.annotated_samples)
+                if hasattr(session, "annotated_samples")
+                else 0
+            )
+            completion_percentage = (
+                (samples_annotated / samples_selected * 100)
+                if samples_selected > 0
+                else 0.0
+            )
 
             # Calculate average time per sample
-            total_time = sum(getattr(sample, 'annotation_time', 0) for sample in getattr(session, 'annotated_samples', []))
-            average_time_per_sample = total_time / samples_annotated if samples_annotated > 0 else 0.0
+            total_time = sum(
+                getattr(sample, "annotation_time", 0)
+                for sample in getattr(session, "annotated_samples", [])
+            )
+            average_time_per_sample = (
+                total_time / samples_annotated if samples_annotated > 0 else 0.0
+            )
 
             return SessionStatusResponse(
                 session_id=session_id,
@@ -360,13 +380,30 @@ class ManageActiveLearningUseCase:
                 raise ValueError(f"Session not found: {request.session_id}")
 
             # Calculate real-time progress
-            samples_selected = len(session.selected_samples) if hasattr(session, 'selected_samples') else 0
-            samples_annotated = len(session.annotated_samples) if hasattr(session, 'annotated_samples') else 0
-            completion_percentage = (samples_annotated / samples_selected * 100) if samples_selected > 0 else 0.0
+            samples_selected = (
+                len(session.selected_samples)
+                if hasattr(session, "selected_samples")
+                else 0
+            )
+            samples_annotated = (
+                len(session.annotated_samples)
+                if hasattr(session, "annotated_samples")
+                else 0
+            )
+            completion_percentage = (
+                (samples_annotated / samples_selected * 100)
+                if samples_selected > 0
+                else 0.0
+            )
 
             # Calculate timing metrics
-            total_time = sum(getattr(sample, 'annotation_time', 0) for sample in getattr(session, 'annotated_samples', []))
-            average_time_per_sample = total_time / samples_annotated if samples_annotated > 0 else 0.0
+            total_time = sum(
+                getattr(sample, "annotation_time", 0)
+                for sample in getattr(session, "annotated_samples", [])
+            )
+            average_time_per_sample = (
+                total_time / samples_annotated if samples_annotated > 0 else 0.0
+            )
 
             return SessionStatusResponse(
                 session_id=request.session_id,
@@ -375,22 +412,44 @@ class ManageActiveLearningUseCase:
                     "samples_selected": samples_selected,
                     "samples_annotated": samples_annotated,
                     "completion_percentage": completion_percentage,
-                "average_time_per_sample": 45.2,
-            },
-            quality_metrics={
-                "average_confidence": 0.75,
-                "average_feedback_weight": 0.82,
-                "correction_rate": 0.35,
-                "high_confidence_rate": 0.60,
-            },
-            recent_activity=[
-                {
-                    "timestamp": datetime.now().isoformat(),
-                    "action": "feedback_submitted",
-                    "details": "Binary classification feedback with high confidence",
-                }
-            ],
-        )
+                    "average_time_per_sample": average_time_per_sample,
+                },
+                quality_metrics={
+                    "average_confidence": 0.75,
+                    "average_feedback_weight": 0.82,
+                    "correction_rate": 0.35,
+                    "high_confidence_rate": 0.60,
+                },
+                recent_activity=[
+                    {
+                        "timestamp": datetime.now().isoformat(),
+                        "action": "feedback_submitted",
+                        "details": (
+                            "Binary classification feedback with high confidence"
+                        ),
+                    }
+                ],
+            )
+        except Exception as e:
+            logger.error(f"Error getting session status: {e}")
+            # Return error response
+            return SessionStatusResponse(
+                session_id=request.session_id,
+                status=SessionStatus.ERROR,
+                progress={
+                    "samples_selected": 0,
+                    "samples_annotated": 0,
+                    "completion_percentage": 0.0,
+                    "average_time_per_sample": 0.0,
+                },
+                quality_metrics={
+                    "average_confidence": 0.0,
+                    "average_feedback_weight": 0.0,
+                    "correction_rate": 0.0,
+                    "high_confidence_rate": 0.0,
+                },
+                message=f"Error retrieving session: {e}",
+            )
 
     def update_model_with_feedback(
         self, request: UpdateModelRequest
@@ -561,8 +620,9 @@ class ManageActiveLearningUseCase:
             similar_samples = self._find_similar_samples(feedback.sample_data)
             if similar_samples:
                 # Calculate consistency with similar annotations
-                consistent_labels = sum(1 for sample in similar_samples
-                                      if sample.label == feedback.label)
+                consistent_labels = sum(
+                    1 for sample in similar_samples if sample.label == feedback.label
+                )
                 consistency_score = consistent_labels / len(similar_samples)
             else:
                 consistency_score = 0.8  # Default when no similar samples
@@ -693,7 +753,8 @@ class ManageActiveLearningUseCase:
             # Group feedback by similar samples
             similar_groups = {}
             for feedback in feedback_history:
-                # Use a simple similarity metric (in practice, use more sophisticated methods)
+                # Use a simple similarity metric
+                # (in practice, use more sophisticated methods)
                 sample_key = str(hash(str(feedback.sample_data)))[:8]
                 if sample_key not in similar_groups:
                     similar_groups[sample_key] = []
@@ -709,7 +770,11 @@ class ManageActiveLearningUseCase:
                     consistency = labels.count(most_common_label) / len(labels)
                     consistency_scores.append(consistency)
 
-            return sum(consistency_scores) / len(consistency_scores) if consistency_scores else 0.85
+            return (
+                sum(consistency_scores) / len(consistency_scores)
+                if consistency_scores
+                else 0.85
+            )
         except Exception as e:
             logger.warning(f"Could not calculate feedback consistency: {e}")
             return 0.85

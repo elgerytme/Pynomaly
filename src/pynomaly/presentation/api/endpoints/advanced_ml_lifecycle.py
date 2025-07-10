@@ -346,17 +346,41 @@ async def log_model(
 ) -> LogModelResponse:
     """Log a trained model with the specified run."""
     try:
-        # Note: In a real implementation, you'd need to handle model serialization
-        # This is a simplified example
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Model logging via API requires file upload support",
+        # Get ML service instance
+        from pynomaly.application.services.ml_service import MLService
+        from pynomaly.infrastructure.config import get_container
+        
+        container = get_container()
+        ml_service_instance = container.get_ml_service()
+        
+        # Convert request to model data
+        model_data = {
+            "name": request.model_name,
+            "version": request.model_version,
+            "algorithm": request.algorithm,
+            "parameters": request.parameters,
+            "metrics": request.metrics,
+            "metadata": request.metadata,
+            "tags": request.tags,
+        }
+        
+        # Log model with the ML service
+        model_id = await ml_service_instance.log_model(run_id, model_data)
+        
+        return LogModelResponse(
+            model_id=model_id,
+            model_name=request.model_name,
+            model_version=request.model_version,
+            logged_at=datetime.now(),
+            status="logged",
+            artifact_path=f"/models/{model_id}",
+            metadata=request.metadata,
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to log model: {str(e)}",
-        )
+        ) from e
 
 
 @router.post("/runs/{run_id}/end")

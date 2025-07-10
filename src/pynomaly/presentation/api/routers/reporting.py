@@ -109,26 +109,27 @@ class AlertResponse(BaseModel):
 # Dependencies
 async def get_reporting_service() -> ReportingService:
     """Get reporting service instance."""
-    from pynomaly.infrastructure.config import Container
-    from pynomaly.infrastructure.persistence.sqlalchemy.repositories.reporting_repository import SQLAlchemyReportingRepository
+    from pynomaly.infrastructure.persistence.sqlalchemy.repositories.reporting_repository import (
+        SQLAlchemyReportingRepository,
+    )
     from pynomaly.infrastructure.persistence.sqlalchemy.session import get_session
-    
+
     # Get database session
     session = get_session()
-    
+
     # Create repository
     repository = SQLAlchemyReportingRepository(session)
-    
+
     # Create service
     return ReportingService(repository)
 
 
 async def get_current_user() -> User:
     """Get current authenticated user."""
-    from pynomaly.infrastructure.auth.jwt_auth import get_auth
+
     from pynomaly.domain.entities.user import User
-    from fastapi import Request
-    
+    from pynomaly.infrastructure.auth.jwt_auth import get_auth
+
     # For now, return a mock user for development
     # In production, this would extract user from JWT token
     auth_service = get_auth()
@@ -146,7 +147,7 @@ async def get_current_user() -> User:
                 created_at=auth_user.created_at,
                 last_login=auth_user.last_login,
             )
-    
+
     # Fallback mock user
     return User(
         id="mock_user",
