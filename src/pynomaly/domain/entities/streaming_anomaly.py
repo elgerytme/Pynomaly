@@ -230,12 +230,12 @@ class StreamingAlert:
     message: str
     anomaly_score: float
 
+    # Timing
+    triggered_at: datetime
+    
     # Data context
     triggering_data: dict[str, Any]
     window_data: list[Any] | None = None
-
-    # Timing
-    triggered_at: datetime
     alert_window_start: datetime | None = None
     alert_window_end: datetime | None = None
 
@@ -262,10 +262,8 @@ class StreamingConfiguration:
     # Stream settings
     stream_id: UUID
     stream_name: str
-    processing_mode: StreamingMode = StreamingMode.REAL_TIME
-
-    # Detector configuration
     detector_id: UUID
+    processing_mode: StreamingMode = StreamingMode.REAL_TIME
     detector_config: dict[str, Any] = field(default_factory=dict)
 
     # Window configuration

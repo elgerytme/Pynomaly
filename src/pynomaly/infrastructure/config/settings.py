@@ -2,44 +2,21 @@
 
 from __future__ import annotations
 
-import os
-from pathlib import Path
-from typing import Any
-
-from pydantic import BaseModel, Field, field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
-class AppSettings(BaseModel):
-    """Application-specific settings."""
-
-    name: str = "Pynomaly"
-    version: str = "0.1.0"
-    description: str = (
-        "Advanced anomaly detection API with unified multi-algorithm interface"
-    )
-    environment: str = "development"
-    debug: bool = False
+from .api_settings import APISettings
+from .app_settings import AppSettings
+from .database_settings import DatabaseSettings
+from .ml_settings import MLSettings
+from .monitoring_settings import MonitoringSettings
+from .resilience_settings import ResilienceSettings
+from .security_auth_settings import SecurityAuthSettings
+from .storage_settings import StorageSettings
 
 
-class MonitoringSettings(BaseModel):
-    """Monitoring and observability settings."""
-
-    metrics_enabled: bool = True
-    tracing_enabled: bool = False
-    prometheus_enabled: bool = True
-    prometheus_port: int = 9090
-    otlp_endpoint: str | None = None
-    otlp_insecure: bool = True
-    log_level: str = "INFO"
-    log_format: str = "json"
-    host_name: str = "localhost"
-    instrument_fastapi: bool = True
-    instrument_sqlalchemy: bool = True
-
-
-class SecuritySettings(BaseModel):
-    """Security and audit settings."""
+class SecuritySettings(SecurityAuthSettings):
+    """Extended security settings including advanced features."""
 
     # Input sanitization
     sanitization_level: str = "moderate"  # strict, moderate, permissive
@@ -75,15 +52,6 @@ class SecuritySettings(BaseModel):
     session_timeout: int = 3600  # 1 hour
     max_concurrent_sessions: int = 5
 
-    @field_validator("sanitization_level")
-    @classmethod
-    def validate_sanitization_level(cls, v: str) -> str:
-        """Validate sanitization level."""
-        valid_levels = ["strict", "moderate", "permissive"]
-        if v not in valid_levels:
-            raise ValueError(f"Sanitization level must be one of: {valid_levels}")
-        return v
-
     def get_monitoring_providers(self) -> list[str]:
         """Get configured monitoring providers."""
         providers = []
@@ -95,26 +63,6 @@ class SecuritySettings(BaseModel):
             providers.append("threat_detection")
         return providers
 
-    def get_monitoring_config(self) -> dict[str, Any]:
-        """Get monitoring configuration including buffer size and flush interval."""
-        buffer_size = int(os.getenv("PYNOMALY_MONITORING_BUFFER_SIZE", "100"))
-        flush_interval = int(os.getenv("PYNOMALY_MONITORING_FLUSH_INTERVAL", "60"))
-
-        return {
-            "providers": self.get_monitoring_providers(),
-            "buffer_size": buffer_size,
-            "flush_interval": flush_interval,
-        }
-
-    @field_validator("encryption_algorithm")
-    @classmethod
-    def validate_encryption_algorithm(cls, v: str) -> str:
-        """Validate encryption algorithm."""
-        valid_algorithms = ["fernet", "aes_gcm", "aes_cbc"]
-        if v not in valid_algorithms:
-            raise ValueError(f"Encryption algorithm must be one of: {valid_algorithms}")
-        return v
-
 
 class Settings(BaseSettings):
     """Application settings with environment variable support."""
@@ -123,265 +71,32 @@ class Settings(BaseSettings):
         env_file=".env", env_prefix="PYNOMALY_", case_sensitive=False, extra="ignore"
     )
 
-    # Application settings
+    # Configuration modules
     app: AppSettings = Field(default_factory=AppSettings)
-
-    # API settings
-    api_host: str = "0.0.0.0"
-    api_port: int = 8000
-    api_workers: int = 1
-    api_cors_origins: list[str] = ["*"]
-    api_rate_limit: int = 100  # requests per minute
-
-    # Storage settings
-    storage_path: Path = Path("./storage")
-    model_storage_path: Path = Path("./storage/models")
-    experiment_storage_path: Path = Path("./storage/experiments")
-    temp_path: Path = Path("./storage/temp")
-    log_path: Path = Path("./storage/logs")
-
-    # Database settings
-    database_url: str | None = None
-    database_pool_size: int = 10
-    database_max_overflow: int = 20
-    database_pool_timeout: int = 30
-    database_pool_recycle: int = 3600
-    database_echo: bool = False
-    database_echo_pool: bool = False
-
-    # Repository selection
-    use_database_repositories: bool = (
-        False  # Default to in-memory for backward compatibility
-    )
-
-    @property
-    def database_configured(self) -> bool:
-        """Check if database is configured."""
-        return self.database_url is not None
-
-    # Cache settings
-    cache_enabled: bool = True
-    cache_ttl: int = 3600  # seconds
-    redis_url: str | None = None
-
-    # Documentation settings
-    docs_enabled: bool = True  # Enable OpenAPI documentation
-
-    # Security settings
-    secret_key: str = Field(
-        default="change-me-in-production-this-is-32-chars-long-default-key"
-    )
-    auth_enabled: bool = True  # Enable authentication by default
-    jwt_algorithm: str = "HS256"
-    jwt_expiration: int = 3600  # seconds
-
-    # Monitoring settings
+    api: APISettings = Field(default_factory=APISettings)
+    database: DatabaseSettings = Field(default_factory=DatabaseSettings)
+    storage: StorageSettings = Field(default_factory=StorageSettings)
+    ml: MLSettings = Field(default_factory=MLSettings)
     monitoring: MonitoringSettings = Field(default_factory=MonitoringSettings)
-
-    # Security settings
+    resilience: ResilienceSettings = Field(default_factory=ResilienceSettings)
     security: SecuritySettings = Field(default_factory=SecuritySettings)
-
-    # Algorithm settings
-    default_contamination_rate: float = 0.1
-    max_parallel_detectors: int = 4
-    detector_timeout: int = 300  # seconds
-
-    # Data processing settings
-    max_dataset_size_mb: int = 1000
-    chunk_size: int = 10000
-    max_features: int = 1000
-
-    # ML settings
-    random_seed: int = 42
-    gpu_enabled: bool = False
-    gpu_memory_fraction: float = 0.8
-
-    # Streaming settings
-    kafka_bootstrap_servers: str = "localhost:9092"
-    kafka_topic_prefix: str = "pynomaly"
-    streaming_enabled: bool = False
-    max_streaming_sessions: int = 10
-
-    # Resilience settings
-    resilience_enabled: bool = True
-    default_timeout: float = 5.0
-    database_timeout: float = 30.0
-    api_timeout: float = 60.0
-    cache_timeout: float = 5.0
-    file_timeout: float = 10.0
-    ml_timeout: float = 300.0
-
-    # Retry settings
-    default_max_attempts: int = 3
-    database_max_attempts: int = 3
-    api_max_attempts: int = 5
-    cache_max_attempts: int = 2
-    file_max_attempts: int = 3
-    ml_max_attempts: int = 2
-
-    # Retry backoff settings
-    default_base_delay: float = 1.0
-    default_max_delay: float = 60.0
-    default_exponential_base: float = 2.0
-    default_jitter: bool = True
-    database_base_delay: float = 0.5
-    database_max_delay: float = 10.0
-    api_base_delay: float = 1.0
-    api_max_delay: float = 30.0
-    cache_base_delay: float = 0.1
-    cache_max_delay: float = 1.0
-    file_base_delay: float = 0.2
-    file_max_delay: float = 5.0
-    ml_base_delay: float = 5.0
-    ml_max_delay: float = 30.0
-
-    # Circuit breaker settings
-    default_failure_threshold: int = 5
-    default_recovery_timeout: float = 60.0
-    database_failure_threshold: int = 3
-    database_recovery_timeout: float = 30.0
-    api_failure_threshold: int = 5
-    api_recovery_timeout: float = 60.0
-    cache_failure_threshold: int = 3
-    cache_recovery_timeout: float = 15.0
-    file_failure_threshold: int = 3
-    file_recovery_timeout: float = 30.0
-    ml_failure_threshold: int = 2
-    ml_recovery_timeout: float = 120.0
-
-    # Email settings
-    smtp_server: str | None = None
-    smtp_port: int = 587
-    smtp_username: str | None = None
-    smtp_password: str | None = None
-    smtp_use_tls: bool = True
-    sender_email: str | None = None
-    sender_name: str = "Pynomaly System"
-    base_url: str = "http://localhost:8000"
-
-    @field_validator(
-        "storage_path", "model_storage_path", "experiment_storage_path", "temp_path"
-    )
-    @classmethod
-    def create_directories(cls, v: Path) -> Path:
-        """Ensure directories exist."""
-        v.mkdir(parents=True, exist_ok=True)
-        return v
-
-    @field_validator("secret_key")
-    @classmethod
-    def validate_secret_key(cls, v: str) -> str:
-        """Validate secret key security."""
-        if v == "change-me-in-production":
-            # Check if we're in production environment
-            env = os.getenv("PYNOMALY_APP_ENVIRONMENT", "development")
-            if env in ["production", "prod"]:
-                raise ValueError(
-                    "Must set a secure secret key in production environment. "
-                    "Set PYNOMALY_SECRET_KEY environment variable."
-                )
-
-        if len(v) < 32:
-            raise ValueError("Secret key must be at least 32 characters long")
-
-        return v
-
-    @field_validator("jwt_algorithm")
-    @classmethod
-    def validate_jwt_algorithm(cls, v: str) -> str:
-        """Validate JWT algorithm."""
-        valid_algorithms = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
-        if v not in valid_algorithms:
-            raise ValueError(f"JWT algorithm must be one of: {valid_algorithms}")
-        return v
-
-    @field_validator("jwt_expiration")
-    @classmethod
-    def validate_jwt_expiration(cls, v: int) -> int:
-        """Validate JWT expiration time."""
-        if v < 300:  # 5 minutes minimum
-            raise ValueError("JWT expiration must be at least 300 seconds (5 minutes)")
-        if v > 86400:  # 24 hours maximum
-            raise ValueError("JWT expiration must be at most 86400 seconds (24 hours)")
-        return v
-
-    @field_validator("default_contamination_rate")
-    @classmethod
-    def validate_contamination_rate(cls, v: float) -> float:
-        """Validate contamination rate is in valid range."""
-        if not 0 <= v <= 1:
-            raise ValueError("Contamination rate must be between 0 and 1")
-        return v
 
     @property
     def is_production(self) -> bool:
         """Check if running in production mode."""
-        return not self.app.debug
+        return self.app.is_production
 
-    def get_database_config(self) -> dict[str, Any]:
+    def get_database_config(self):
         """Get database configuration."""
-        if not self.database_url:
-            return {}
+        return self.database.get_database_config(self.app.debug)
 
-        config = {
-            "url": self.database_url,
-            "pool_size": self.database_pool_size,
-            "max_overflow": self.database_max_overflow,
-            "pool_timeout": self.database_pool_timeout,
-            "pool_recycle": self.database_pool_recycle,
-            "pool_pre_ping": True,
-            "echo": self.database_echo or self.app.debug,
-            "echo_pool": self.database_echo_pool,
-        }
-
-        # Add database-specific configurations
-        if self.database_url.startswith("sqlite:"):
-            config.update(
-                {
-                    "connect_args": {"check_same_thread": False},
-                    "poolclass": "StaticPool",
-                }
-            )
-        elif self.database_url.startswith("postgresql:"):
-            config.update(
-                {
-                    "pool_size": max(self.database_pool_size, 5),
-                    "max_overflow": max(self.database_max_overflow, 10),
-                }
-            )
-
-        return config
-
-    def get_logging_config(self) -> dict[str, Any]:
+    def get_logging_config(self):
         """Get logging configuration."""
-        return {
-            "version": 1,
-            "disable_existing_loggers": False,
-            "formatters": {
-                "json": {
-                    "()": "structlog.stdlib.ProcessorFormatter",
-                    "processor": "structlog.processors.JSONRenderer()",
-                },
-                "text": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
-            },
-            "handlers": {
-                "console": {
-                    "class": "logging.StreamHandler",
-                    "formatter": self.monitoring.log_format,
-                    "stream": "ext://sys.stdout",
-                }
-            },
-            "root": {"level": self.monitoring.log_level, "handlers": ["console"]},
-        }
+        return self.monitoring.get_logging_config()
 
-    def get_cors_config(self) -> dict[str, Any]:
+    def get_cors_config(self):
         """Get CORS configuration for API."""
-        return {
-            "allow_origins": self.api_cors_origins,
-            "allow_credentials": True,
-            "allow_methods": ["*"],
-            "allow_headers": ["*"],
-        }
+        return self.api.get_cors_config()
 
 
 # Global settings instance

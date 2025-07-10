@@ -68,6 +68,7 @@ InvalidParameterError = ValidationError
 ProcessingError = DomainError
 EntityNotFoundError = DomainError
 PynomaliError = PynamolyError  # Common typo alias
+TrainingError = FittingError  # Training-specific fitting error
 
 __all__ = [
     # Base exceptions
@@ -129,4 +130,5 @@ __all__ = [
     "InvalidParameterError",
     "ProcessingError",
     "PynomaliError",
+    "TrainingError",
 ]
