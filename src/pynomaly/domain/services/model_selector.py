@@ -177,6 +177,12 @@ class ModelSelector:
         val1 = self._get_metric_value(model1, self.primary_metric)
         val2 = self._get_metric_value(model2, self.primary_metric)
         
+        # Check if metrics are available
+        if val1 == 0.0 and val2 == 0.0:
+            # If both are 0, check if the metric actually exists
+            if not self._has_metric(model1, self.primary_metric) or not self._has_metric(model2, self.primary_metric):
+                raise KeyError(f"Primary metric '{self.primary_metric}' not found in model metrics")
+        
         # For single values, create arrays for t-test
         # In practice, these would be cross-validation results
         array1 = np.array([val1] * 10 + np.random.normal(0, 0.01, 10))
@@ -185,7 +191,7 @@ class ModelSelector:
         # Perform t-test
         _, p_value = ttest_ind(array1, array2)
         
-        return p_value < alpha
+        return bool(p_value < alpha)
     
     def select_best_model(
         self, models: List[ModelPerformanceMetrics]

@@ -76,7 +76,9 @@
       "Bash(bash:*)",
       "Bash(./environments/.venv/bin/python -c \"from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter; print('SklearnAdapter import successful')\")",
       "Bash(grep:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(mkdir:*)",
+      "Bash(./environments/.venv/bin/python -c \"from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter; print('PyODAdapter import successful')\")"
     ],
     "deny": []
   }

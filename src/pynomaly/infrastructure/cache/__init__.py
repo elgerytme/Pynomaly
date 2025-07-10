@@ -24,7 +24,7 @@ from .cache_integration import (
 from .decorators import (
     AsyncCacheDecorator,
     CacheConfig,
-    CacheDecorator,
+    # CacheDecorator imported from cache_core above
     CacheInvalidator,
     CacheKeyGenerator,
     SyncCacheDecorator,

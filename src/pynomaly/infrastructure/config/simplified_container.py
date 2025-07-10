@@ -43,10 +43,7 @@ from pynomaly.infrastructure.repositories.async_wrappers import (
     AsyncDetectionResultRepositoryWrapper,
     AsyncDetectorRepositoryWrapper,
 )
-from pynomaly.infrastructure.repositories.in_memory_repositories import (
-    InMemoryDetectorRepository,
-    InMemoryResultRepository,
-)
+# InMemoryDetectorRepository and InMemoryResultRepository already imported above
 
 
 class SimplifiedContainer(containers.DeclarativeContainer):
