@@ -109,14 +109,55 @@ class AlertResponse(BaseModel):
 # Dependencies
 async def get_reporting_service() -> ReportingService:
     """Get reporting service instance."""
-    # TODO: Implement proper dependency injection
-    pass
+    from pynomaly.infrastructure.config import Container
+    from pynomaly.infrastructure.persistence.sqlalchemy.repositories.reporting_repository import SQLAlchemyReportingRepository
+    from pynomaly.infrastructure.persistence.sqlalchemy.session import get_session
+    
+    # Get database session
+    session = get_session()
+    
+    # Create repository
+    repository = SQLAlchemyReportingRepository(session)
+    
+    # Create service
+    return ReportingService(repository)
 
 
 async def get_current_user() -> User:
     """Get current authenticated user."""
-    # TODO: Implement authentication
-    pass
+    from pynomaly.infrastructure.auth.jwt_auth import get_auth
+    from pynomaly.domain.entities.user import User
+    from fastapi import Request
+    
+    # For now, return a mock user for development
+    # In production, this would extract user from JWT token
+    auth_service = get_auth()
+    if auth_service:
+        # Get mock admin user
+        auth_user = auth_service._users.get("admin")
+        if auth_user:
+            return User(
+                id=auth_user.id,
+                username=auth_user.username,
+                email=auth_user.email,
+                full_name=auth_user.full_name,
+                is_active=auth_user.is_active,
+                roles=auth_user.roles,
+                created_at=auth_user.created_at,
+                last_login=auth_user.last_login,
+            )
+    
+    # Fallback mock user
+    return User(
+        id="mock_user",
+        username="mock_user",
+        email="mock@example.com",
+        full_name="Mock User",
+        is_active=True,
+        roles=["user"],
+        created_at=datetime.now(),
+        last_login=None,
+    )
 
 
 async def require_tenant_access(

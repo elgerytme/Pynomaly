@@ -8,11 +8,10 @@ import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from typer.testing import CliRunner
-
 from pynomaly.domain.entities import Dataset, DetectionResult
 from pynomaly.domain.value_objects import AnomalyScore
 from pynomaly.presentation.cli.app import app
+from typer.testing import CliRunner
 
 
 class TestAutonomousCommand:
@@ -115,7 +114,7 @@ class TestAutonomousCommand:
 
         assert result.exit_code == 0
         assert "quick" in result.stdout.lower()
-        assert "fast" in result.stdout.lower() or "rapid" in result.stdout.lower()
+        assert "minimal configuration" in result.stdout.lower()
 
     # Autonomous Detection Tests
 

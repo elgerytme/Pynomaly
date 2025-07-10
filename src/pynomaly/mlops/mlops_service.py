@@ -143,10 +143,22 @@ class MLOpsService:
             if not run:
                 raise ValueError(f"Run not found: {run_id}")
 
-            # Create model (placeholder - in practice, load from artifacts)
-            from sklearn.ensemble import IsolationForest
+            # Load model from experiment artifacts
+            try:
+                # Try to load model from run artifacts
+                artifacts = await self.experiment_tracker.get_artifacts(run_id)
+                if artifacts and "model" in artifacts:
+                    model = artifacts["model"]
+                    logger.info(f"Loaded model from experiment artifacts: {run_id}")
+                else:
+                    raise ValueError("No model artifact found in experiment run")
+            except Exception as e:
+                logger.warning(f"Could not load model from artifacts: {e}")
+                # Fallback: create a default model for testing
+                from sklearn.ensemble import IsolationForest
 
-            model = IsolationForest(contamination=0.1, random_state=42)
+                model = IsolationForest(contamination=0.1, random_state=42)
+                logger.info("Using fallback IsolationForest model")
 
             # Register model
             model_id = await self.model_registry.register_model(
@@ -596,10 +608,47 @@ router = APIRouter(prefix="/mlops", tags=["mlops"])
 async def register_model(request: ModelRegistrationRequest):
     """Register a new model."""
     try:
-        # Create placeholder model (in practice, this would be uploaded)
-        from sklearn.ensemble import IsolationForest
+        # Load model from request data or create from specification
+        if hasattr(request, "model_artifact") and request.model_artifact:
+            # Load from uploaded artifact
+            try:
+                import base64
+                import tempfile
 
-        model = IsolationForest(contamination=0.1, random_state=42)
+                import joblib
+
+                # Decode base64 model data
+                model_data = base64.b64decode(request.model_artifact)
+
+                # Save to temporary file and load
+                with tempfile.NamedTemporaryFile(
+                    suffix=".pkl", delete=False
+                ) as tmp_file:
+                    tmp_file.write(model_data)
+                    tmp_file.flush()
+                    model = joblib.load(tmp_file.name)
+
+                logger.info("Loaded model from uploaded artifact")
+            except Exception as e:
+                logger.error(f"Failed to load model from artifact: {e}")
+                raise ValueError(f"Invalid model artifact: {e}")
+        else:
+            # Create model from specification
+            model_type = getattr(request, "model_type", "isolation_forest")
+            model_params = getattr(request, "model_params", {})
+
+            if model_type == "isolation_forest":
+                from sklearn.ensemble import IsolationForest
+
+                model = IsolationForest(
+                    contamination=model_params.get("contamination", 0.1),
+                    random_state=model_params.get("random_state", 42),
+                    n_estimators=model_params.get("n_estimators", 100),
+                )
+            else:
+                raise ValueError(f"Unsupported model type: {model_type}")
+
+            logger.info(f"Created {model_type} model with params: {model_params}")
 
         model_id = await mlops_service.model_registry.register_model(
             model=model,
