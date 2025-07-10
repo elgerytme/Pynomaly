@@ -178,7 +178,7 @@ async def health_check(
 
     # Get Redis client if available
     redis_client = None
-    if include_cache and settings.cache_enabled:
+    if include_cache and settings.storage.cache_enabled:
         try:
             if hasattr(container, "redis_cache") and container.redis_cache():
                 redis_client = container.redis_cache().client
@@ -310,6 +310,16 @@ async def readiness_check(
         )
 
 
+@router.get("/simple")
+async def simple_health() -> dict[str, str]:
+    """Simple health check without dependencies."""
+    return {
+        "status": "healthy",
+        "message": "Service is running",
+        "timestamp": datetime.now(UTC).isoformat(),
+    }
+
+
 @router.get("/live")
 async def liveness_check() -> dict[str, str]:
     """Kubernetes liveness probe - simple check that application is alive."""
@@ -433,10 +443,10 @@ def _check_configuration(settings) -> dict[str, Any]:
         ):
             issues.append("Default secret key in use")
 
-        if settings.debug and settings.app.environment == "production":
+        if settings.app.debug and settings.app.environment == "production":
             issues.append("Debug mode enabled in production")
 
-        if not settings.cors_origins:
+        if not settings.api.api_cors_origins:
             issues.append("No CORS origins configured")
 
         status = "healthy" if not issues else "degraded"
@@ -451,7 +461,7 @@ def _check_configuration(settings) -> dict[str, Any]:
             "message": message,
             "details": {
                 "environment": settings.app.environment,
-                "debug": settings.debug,
+                "debug": settings.app.debug,
                 "issues": issues,
             },
         }

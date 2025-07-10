@@ -22,10 +22,7 @@ logger = logging.getLogger(__name__)
 class EmailConfig(BaseModel):
     """Email configuration settings."""
 
-    model_config = ConfigDict(
-        validate_assignment=True,
-        extra="forbid"
-    )
+    model_config = ConfigDict(validate_assignment=True, extra="forbid")
 
     smtp_server: str
     smtp_port: int = 587
@@ -40,10 +37,7 @@ class EmailConfig(BaseModel):
 class EmailTemplate(BaseModel):
     """Email template model."""
 
-    model_config = ConfigDict(
-        validate_assignment=True,
-        extra="forbid"
-    )
+    model_config = ConfigDict(validate_assignment=True, extra="forbid")
 
     subject: str
     html_content: str
@@ -58,39 +52,34 @@ class EmailService:
         self.config = config
 
     async def send_password_reset_email(
-        self,
-        email: EmailStr,
-        reset_token: str,
-        user_name: str = "User"
+        self, email: EmailStr, reset_token: str, user_name: str = "User"
     ) -> bool:
         """Send password reset email with reset link.
-        
+
         Args:
             email: Recipient email address
             reset_token: Password reset token
             user_name: User's name for personalization
-            
+
         Returns:
             True if email was sent successfully
         """
         try:
             # Create reset link
             reset_link = urljoin(
-                self.config.base_url,
-                f"/reset-password?token={reset_token}"
+                self.config.base_url, f"/reset-password?token={reset_token}"
             )
 
             # Generate email content
             template = self._get_password_reset_template(
-                user_name=user_name,
-                reset_link=reset_link
+                user_name=user_name, reset_link=reset_link
             )
 
             return await self._send_email(
                 to_email=email,
                 subject=template.subject,
                 html_content=template.html_content,
-                text_content=template.text_content
+                text_content=template.text_content,
             )
 
         except Exception as e:
@@ -102,38 +91,37 @@ class EmailService:
         email: EmailStr,
         invitation_token: str,
         inviter_name: str = "Pynomaly Team",
-        organization_name: str = "Pynomaly"
+        organization_name: str = "Pynomaly",
     ) -> bool:
         """Send user invitation email.
-        
+
         Args:
             email: Recipient email address
             invitation_token: Invitation token
             inviter_name: Name of person sending invitation
             organization_name: Organization name
-            
+
         Returns:
             True if email was sent successfully
         """
         try:
             # Create invitation link
             invitation_link = urljoin(
-                self.config.base_url,
-                f"/accept-invitation?token={invitation_token}"
+                self.config.base_url, f"/accept-invitation?token={invitation_token}"
             )
 
             # Generate email content
             template = self._get_user_invitation_template(
                 inviter_name=inviter_name,
                 organization_name=organization_name,
-                invitation_link=invitation_link
+                invitation_link=invitation_link,
             )
 
             return await self._send_email(
                 to_email=email,
                 subject=template.subject,
                 html_content=template.html_content,
-                text_content=template.text_content
+                text_content=template.text_content,
             )
 
         except Exception as e:
@@ -141,36 +129,30 @@ class EmailService:
             return False
 
     async def send_system_notification_email(
-        self,
-        email: EmailStr,
-        subject: str,
-        message: str,
-        priority: str = "normal"
+        self, email: EmailStr, subject: str, message: str, priority: str = "normal"
     ) -> bool:
         """Send system notification email.
-        
+
         Args:
             email: Recipient email address
             subject: Email subject
             message: Email message
             priority: Email priority (low, normal, high, urgent)
-            
+
         Returns:
             True if email was sent successfully
         """
         try:
             # Generate email content
             template = self._get_system_notification_template(
-                subject=subject,
-                message=message,
-                priority=priority
+                subject=subject, message=message, priority=priority
             )
 
             return await self._send_email(
                 to_email=email,
                 subject=template.subject,
                 html_content=template.html_content,
-                text_content=template.text_content
+                text_content=template.text_content,
             )
 
         except Exception as e:
@@ -178,20 +160,16 @@ class EmailService:
             return False
 
     async def _send_email(
-        self,
-        to_email: EmailStr,
-        subject: str,
-        html_content: str,
-        text_content: str
+        self, to_email: EmailStr, subject: str, html_content: str, text_content: str
     ) -> bool:
         """Send email using SMTP.
-        
+
         Args:
             to_email: Recipient email address
             subject: Email subject
             html_content: HTML email content
             text_content: Plain text email content
-            
+
         Returns:
             True if email was sent successfully
         """
@@ -225,9 +203,7 @@ class EmailService:
             return False
 
     def _get_password_reset_template(
-        self,
-        user_name: str,
-        reset_link: str
+        self, user_name: str, reset_link: str
     ) -> EmailTemplate:
         """Get password reset email template."""
         subject = "Password Reset Request - Pynomaly"
@@ -244,12 +220,12 @@ class EmailService:
                 .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
                 .header {{ background-color: #007bff; color: white; padding: 20px; text-align: center; }}
                 .content {{ padding: 20px; }}
-                .button {{ 
-                    display: inline-block; 
-                    padding: 12px 24px; 
-                    background-color: #007bff; 
-                    color: white; 
-                    text-decoration: none; 
+                .button {{
+                    display: inline-block;
+                    padding: 12px 24px;
+                    background-color: #007bff;
+                    color: white;
+                    text-decoration: none;
                     border-radius: 4px;
                     margin: 20px 0;
                 }}
@@ -263,28 +239,28 @@ class EmailService:
                     <h1>Pynomaly</h1>
                     <p>Password Reset Request</p>
                 </div>
-                
+
                 <div class="content">
                     <p>Hello {user_name},</p>
-                    
+
                     <p>We received a request to reset your password for your Pynomaly account. If you made this request, click the button below to reset your password:</p>
-                    
+
                     <p style="text-align: center;">
                         <a href="{reset_link}" class="button">Reset Password</a>
                     </p>
-                    
+
                     <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
                     <p style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 4px;">
                         {reset_link}
                     </p>
-                    
+
                     <div class="warning">
                         <strong>Important:</strong> This link will expire in 1 hour for security reasons. If you didn't request this password reset, please ignore this email or contact support if you have concerns.
                     </div>
-                    
+
                     <p>Best regards,<br>The Pynomaly Team</p>
                 </div>
-                
+
                 <div class="footer">
                     <p>This is an automated message. Please do not reply to this email.</p>
                     <p>&copy; 2024 Pynomaly. All rights reserved.</p>
@@ -314,16 +290,11 @@ class EmailService:
         """
 
         return EmailTemplate(
-            subject=subject,
-            html_content=html_content,
-            text_content=text_content
+            subject=subject, html_content=html_content, text_content=text_content
         )
 
     def _get_user_invitation_template(
-        self,
-        inviter_name: str,
-        organization_name: str,
-        invitation_link: str
+        self, inviter_name: str, organization_name: str, invitation_link: str
     ) -> EmailTemplate:
         """Get user invitation email template."""
         subject = f"You're invited to join {organization_name} on Pynomaly"
@@ -340,12 +311,12 @@ class EmailService:
                 .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
                 .header {{ background-color: #28a745; color: white; padding: 20px; text-align: center; }}
                 .content {{ padding: 20px; }}
-                .button {{ 
-                    display: inline-block; 
-                    padding: 12px 24px; 
-                    background-color: #28a745; 
-                    color: white; 
-                    text-decoration: none; 
+                .button {{
+                    display: inline-block;
+                    padding: 12px 24px;
+                    background-color: #28a745;
+                    color: white;
+                    text-decoration: none;
                     border-radius: 4px;
                     margin: 20px 0;
                 }}
@@ -360,12 +331,12 @@ class EmailService:
                     <h1>Pynomaly</h1>
                     <p>You're Invited!</p>
                 </div>
-                
+
                 <div class="content">
                     <p>Hello!</p>
-                    
+
                     <p>{inviter_name} has invited you to join <strong>{organization_name}</strong> on Pynomaly - the comprehensive anomaly detection platform.</p>
-                    
+
                     <div class="features">
                         <h3>With Pynomaly, you can:</h3>
                         <ul>
@@ -375,24 +346,24 @@ class EmailService:
                             <li>Access detailed analytics and reporting</li>
                         </ul>
                     </div>
-                    
+
                     <p>Click the button below to accept the invitation and create your account:</p>
-                    
+
                     <p style="text-align: center;">
                         <a href="{invitation_link}" class="button">Accept Invitation</a>
                     </p>
-                    
+
                     <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
                     <p style="word-break: break-all; background-color: #f8f9fa; padding: 10px; border-radius: 4px;">
                         {invitation_link}
                     </p>
-                    
+
                     <p>This invitation will expire in 7 days.</p>
-                    
+
                     <p>Welcome to Pynomaly!</p>
                     <p>The Pynomaly Team</p>
                 </div>
-                
+
                 <div class="footer">
                     <p>This is an automated message. Please do not reply to this email.</p>
                     <p>&copy; 2024 Pynomaly. All rights reserved.</p>
@@ -426,23 +397,18 @@ class EmailService:
         """
 
         return EmailTemplate(
-            subject=subject,
-            html_content=html_content,
-            text_content=text_content
+            subject=subject, html_content=html_content, text_content=text_content
         )
 
     def _get_system_notification_template(
-        self,
-        subject: str,
-        message: str,
-        priority: str
+        self, subject: str, message: str, priority: str
     ) -> EmailTemplate:
         """Get system notification email template."""
         priority_colors = {
             "low": "#6c757d",
             "normal": "#007bff",
             "high": "#fd7e14",
-            "urgent": "#dc3545"
+            "urgent": "#dc3545",
         }
 
         priority_color = priority_colors.get(priority, "#007bff")
@@ -460,18 +426,18 @@ class EmailService:
                 .header {{ background-color: {priority_color}; color: white; padding: 20px; text-align: center; }}
                 .content {{ padding: 20px; }}
                 .footer {{ background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; color: #666; }}
-                .priority {{ 
-                    background-color: {priority_color}; 
-                    color: white; 
-                    padding: 5px 10px; 
-                    border-radius: 3px; 
+                .priority {{
+                    background-color: {priority_color};
+                    color: white;
+                    padding: 5px 10px;
+                    border-radius: 3px;
                     font-size: 12px;
                     text-transform: uppercase;
                 }}
-                .message {{ 
-                    background-color: #f8f9fa; 
-                    padding: 15px; 
-                    border-radius: 4px; 
+                .message {{
+                    background-color: #f8f9fa;
+                    padding: 15px;
+                    border-radius: 4px;
                     margin: 20px 0;
                     border-left: 4px solid {priority_color};
                 }}
@@ -483,19 +449,19 @@ class EmailService:
                     <h1>Pynomaly</h1>
                     <p>System Notification</p>
                 </div>
-                
+
                 <div class="content">
                     <p><span class="priority">{priority} Priority</span></p>
-                    
+
                     <div class="message">
                         <p>{message}</p>
                     </div>
-                    
+
                     <p>This is an automated system notification from Pynomaly.</p>
-                    
+
                     <p>Best regards,<br>The Pynomaly System</p>
                 </div>
-                
+
                 <div class="footer">
                     <p>This is an automated message. Please do not reply to this email.</p>
                     <p>&copy; 2024 Pynomaly. All rights reserved.</p>
@@ -507,24 +473,22 @@ class EmailService:
 
         text_content = f"""
         PYNOMALY SYSTEM NOTIFICATION
-        
+
         Priority: {priority.upper()}
-        
+
         {message}
-        
+
         This is an automated system notification from Pynomaly.
-        
+
         Best regards,
         The Pynomaly System
-        
+
         ---
         This is an automated message. Please do not reply to this email.
         """
 
         return EmailTemplate(
-            subject=subject,
-            html_content=html_content,
-            text_content=text_content
+            subject=subject, html_content=html_content, text_content=text_content
         )
 
 
@@ -543,24 +507,28 @@ def init_email_service(settings: Settings) -> EmailService | None:
 
     try:
         # Check if email is configured
-        if not all([
-            settings.smtp_server,
-            settings.smtp_username,
-            settings.smtp_password,
-            settings.sender_email
-        ]):
-            logger.warning("Email service not configured - email features will be disabled")
+        if not all(
+            [
+                settings.security.smtp_server,
+                settings.security.smtp_username,
+                settings.security.smtp_password,
+                settings.security.sender_email,
+            ]
+        ):
+            logger.warning(
+                "Email service not configured - email features will be disabled"
+            )
             return None
 
         config = EmailConfig(
-            smtp_server=settings.smtp_server,
-            smtp_port=settings.smtp_port,
-            smtp_username=settings.smtp_username,
-            smtp_password=settings.smtp_password,
-            use_tls=settings.smtp_use_tls,
-            sender_email=settings.sender_email,
-            sender_name=settings.sender_name,
-            base_url=settings.base_url
+            smtp_server=settings.security.smtp_server,
+            smtp_port=settings.security.smtp_port,
+            smtp_username=settings.security.smtp_username,
+            smtp_password=settings.security.smtp_password,
+            use_tls=settings.security.smtp_use_tls,
+            sender_email=settings.security.sender_email,
+            sender_name=settings.security.sender_name,
+            base_url=settings.security.base_url,
         )
 
         _email_service = EmailService(config)

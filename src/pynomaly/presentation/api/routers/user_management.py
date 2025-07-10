@@ -131,24 +131,17 @@ class ChangePasswordRequest(BaseModel):
 # Dependency injection
 async def get_user_management_service() -> UserManagementService:
     """Get user management service instance."""
-    # TODO: Implement proper dependency injection
-    # For now, this is a placeholder
-    from sqlalchemy.orm import sessionmaker
-
-    from pynomaly.infrastructure.repositories.sqlalchemy_user_repository import (
-        SQLAlchemySessionRepository,
-        SQLAlchemyTenantRepository,
-        SQLAlchemyUserRepository,
+    from pynomaly.infrastructure.persistence.repository_factory import (
+        get_session_repository,
+        get_tenant_repository,
+        get_user_repository,
     )
 
-    # This should be injected via container
-    session_factory = sessionmaker()  # Configure with actual database
-
-    user_repo = SQLAlchemyUserRepository(session_factory)
-    tenant_repo = SQLAlchemyTenantRepository(session_factory)
-    session_repo = SQLAlchemySessionRepository(session_factory)
-
-    return UserManagementService(user_repo, tenant_repo, session_repo)
+    return UserManagementService(
+        user_repository=get_user_repository(),
+        tenant_repository=get_tenant_repository(),
+        session_repository=get_session_repository(),
+    )
 
 
 async def get_current_user(

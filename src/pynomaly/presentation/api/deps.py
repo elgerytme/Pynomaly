@@ -19,7 +19,15 @@ security = HTTPBearer(auto_error=False)
 
 def get_container(request: Request) -> Container:
     """Get DI container from app state."""
-    return request.app.state.container
+    try:
+        return request.app.state.container
+    except AttributeError:
+        # Create default container for testing/fallback scenarios
+        from pynomaly.infrastructure.config import create_container
+
+        container = create_container()
+        request.app.state.container = container
+        return container
 
 
 async def get_current_user(

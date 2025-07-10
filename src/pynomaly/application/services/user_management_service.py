@@ -203,22 +203,28 @@ class UserManagementService:
                 # This would typically be stored in a database table
                 # For now, we'll just send the email
 
+                # Get tenant for invitation email
+                tenant = await self._tenant_repo.get_tenant_by_id(tenant_id)
                 await email_service.send_user_invitation_email(
                     email=email,
                     invitation_token=invitation_token,
-                    inviter_name=self.current_user.name if self.current_user else "Administrator",
-                    organization_name=tenant.name if tenant else "Pynomaly"
+                    inviter_name=inviter.full_name or "Administrator",
+                    organization_name=tenant.name if tenant else "Pynomaly",
                 )
             except Exception as e:
                 # Log error but don't fail user creation
                 import logging
+
                 logger = logging.getLogger(__name__)
                 logger.error(f"Failed to send invitation email to {email}: {e}")
         else:
             # Email service not configured - log warning
             import logging
+
             logger = logging.getLogger(__name__)
-            logger.warning(f"Email service not configured - invitation email not sent to {email}")
+            logger.warning(
+                f"Email service not configured - invitation email not sent to {email}"
+            )
 
         return user
 
