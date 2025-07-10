@@ -27,18 +27,10 @@ from pynomaly.domain.services import (
 )
 from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
 from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.repositories import (
-    FileDatasetRepository,
-    FileDetectorRepository,
-    FileResultRepository,
-    InMemoryDatasetRepository,
-    InMemoryDetectorRepository,
-    InMemoryResultRepository,
-)
-from pynomaly.infrastructure.repositories.async_wrappers import (
-    AsyncDatasetRepositoryWrapper,
-    AsyncDetectionResultRepositoryWrapper,
-    AsyncDetectorRepositoryWrapper,
+from pynomaly.infrastructure.repositories.memory_repository import (
+    MemoryDatasetRepository,
+    MemoryDetectionResultRepository,
+    MemoryDetectorRepository,
 )
 
 logger = logging.getLogger(__name__)
@@ -434,22 +426,12 @@ def _create_repository(config, repo_type: str):
 
 
 def _create_file_repository(config, repo_type: str):
-    """Create file-based repository."""
-    repo_mapping = {
-        "detector": FileDetectorRepository,
-        "dataset": FileDatasetRepository,
-        "result": FileResultRepository,
-    }
-
-    repo_class = repo_mapping.get(repo_type)
-    if repo_class:
-        return repo_class(config.storage_path)
-
-    # Fall back to in-memory
+    """Create repository - preferring async memory repositories for consistency."""
+    # Use async memory repositories directly for better consistency
     memory_mapping = {
-        "detector": InMemoryDetectorRepository,
-        "dataset": InMemoryDatasetRepository,
-        "result": InMemoryResultRepository,
+        "detector": MemoryDetectorRepository,
+        "dataset": MemoryDatasetRepository,
+        "result": MemoryDetectionResultRepository,
     }
 
     # User management repositories always use in-memory for fallback
@@ -462,7 +444,11 @@ def _create_file_repository(config, repo_type: str):
     if repo_type in user_memory_mapping:
         return user_memory_mapping[repo_type]()
 
-    return memory_mapping[repo_type]()
+    repo_class = memory_mapping.get(repo_type)
+    if repo_class:
+        return repo_class()
+
+    raise ValueError(f"Unknown repository type: {repo_type}")
 
 
 class Container(containers.DeclarativeContainer):
@@ -503,16 +489,10 @@ class Container(containers.DeclarativeContainer):
         lambda: _create_repository(Settings(), "session")
     )
 
-    # Async repository wrappers
-    async_detector_repository = providers.Singleton(
-        AsyncDetectorRepositoryWrapper, sync_repository=detector_repository
-    )
-    async_dataset_repository = providers.Singleton(
-        AsyncDatasetRepositoryWrapper, sync_repository=dataset_repository
-    )
-    async_result_repository = providers.Singleton(
-        AsyncDetectionResultRepositoryWrapper, sync_repository=result_repository
-    )
+    # Repository aliases for backwards compatibility
+    async_detector_repository = detector_repository
+    async_dataset_repository = dataset_repository
+    async_result_repository = result_repository
 
     # Create optional service providers dynamically
     def __init_subclass__(cls, **kwargs):

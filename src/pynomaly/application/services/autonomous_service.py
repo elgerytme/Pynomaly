@@ -786,8 +786,8 @@ class AutonomousDetectionService:
 
                 # Save detector and result if requested
                 if config.save_results:
-                    self.detector_repository.save(detector)
-                    self.result_repository.save(result)
+                    await self.detector_repository.save(detector)
+                    await self.result_repository.save(result)
 
             except Exception as e:
                 if config.verbose:

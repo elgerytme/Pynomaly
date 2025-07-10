@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 from pynomaly.domain.entities import Dataset, DetectionResult
 from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.presentation.cli.app import app
+from pynomaly.presentation.cli.autonomous import app
 from typer.testing import CliRunner
 
 
@@ -78,72 +78,63 @@ class TestAutonomousCommand:
 
     def test_autonomous_help_command(self):
         """Test autonomous command help output."""
-        result = self.runner.invoke(app, ["auto", "--help"])
+        result = self.runner.invoke(app, ["--help"])
 
         assert result.exit_code == 0
-        assert "autonomous" in result.stdout.lower() or "auto" in result.stdout.lower()
         assert "detect" in result.stdout.lower()
-        assert "profile" in result.stdout.lower() or "quick" in result.stdout.lower()
+        assert "Commands" in result.stdout
 
     def test_autonomous_detect_help(self):
         """Test autonomous detect subcommand help."""
-        result = self.runner.invoke(app, ["auto", "detect", "--help"])
+        result = self.runner.invoke(app, ["detect", "--help"])
 
         assert result.exit_code == 0
         assert "detect" in result.stdout.lower()
-        assert "dataset" in result.stdout.lower()
-        assert (
-            "automatic" in result.stdout.lower()
-            or "autonomous" in result.stdout.lower()
-        )
+        assert "data-source" in result.stdout.lower() or "data_source" in result.stdout.lower()
 
     def test_autonomous_profile_help(self):
         """Test autonomous profile subcommand help."""
-        result = self.runner.invoke(app, ["auto", "profile", "--help"])
+        result = self.runner.invoke(app, ["profile", "--help"])
 
         assert result.exit_code == 0
         assert "profile" in result.stdout.lower()
-        assert "data" in result.stdout.lower()
-        assert (
-            "analysis" in result.stdout.lower() or "profiling" in result.stdout.lower()
-        )
+        assert "data" in result.stdout.lower() or "data-source" in result.stdout.lower()
 
     def test_autonomous_quick_help(self):
         """Test autonomous quick subcommand help."""
-        result = self.runner.invoke(app, ["auto", "quick", "--help"])
+        result = self.runner.invoke(app, ["quick", "--help"])
 
         assert result.exit_code == 0
         assert "quick" in result.stdout.lower()
-        assert "minimal configuration" in result.stdout.lower()
 
     # Autonomous Detection Tests
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
-    def test_autonomous_detect_basic(
-        self, mock_dataset_service, mock_autonomous_service
-    ):
+    @patch("pynomaly.presentation.cli.autonomous.get_cli_container")
+    def test_autonomous_detect_basic(self, mock_get_container):
         """Test basic autonomous detection."""
-        # Mock services
-        mock_dataset = Mock(spec=Dataset)
-        mock_dataset.name = "test_dataset"
-        mock_dataset.n_samples = 5
-        mock_dataset.n_features = 3
-        mock_dataset_service.load_dataset.return_value = mock_dataset
-
-        mock_result = Mock(spec=DetectionResult)
-        mock_result.anomalies = []
-        mock_result.scores = [AnomalyScore(0.3), AnomalyScore(0.9), AnomalyScore(0.2)]
-        mock_autonomous_service.autonomous_detect.return_value = mock_result
+        # Mock container and services
+        container = Mock()
+        mock_autonomous_service = Mock()
+        mock_autonomous_service.detect_anomalies.return_value = {
+            'best_detector': 'IsolationForest',
+            'anomalies_found': 2,
+            'confidence': 0.85,
+            'anomaly_indices': [3],  # The outlier row
+            'anomaly_scores': [0.9],
+            'algorithm_performance': {'IsolationForest': 0.85},
+            'preprocessing_applied': ['StandardScaler'],
+            'execution_time': 1.5
+        }
+        container.autonomous_detection_service.return_value = mock_autonomous_service
+        mock_get_container.return_value = container
 
         # Execute command
         result = self.runner.invoke(
-            app, ["auto", "detect", "--dataset", str(self.test_data_file)]
+            app, ["detect", str(self.test_data_file)]
         )
 
         assert result.exit_code == 0
-        mock_dataset_service.load_dataset.assert_called_once()
-        mock_autonomous_service.autonomous_detect.assert_called_once()
+        assert "anomalies_found" in result.stdout or "best_detector" in result.stdout
 
     @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
     @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")

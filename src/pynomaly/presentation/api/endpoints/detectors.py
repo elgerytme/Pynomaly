@@ -11,7 +11,6 @@ from pynomaly.application.services.algorithm_adapter_registry import (
 from pynomaly.domain.entities import Detector
 from pynomaly.domain.value_objects import ContaminationRate
 from pynomaly.infrastructure.auth import (
-    UserModel,
     require_analyst,
     require_data_scientist,
     require_tenant_admin,
@@ -27,14 +26,14 @@ async def list_detectors(
     algorithm: str | None = Query(None, description="Filter by algorithm"),
     is_fitted: bool | None = Query(None, description="Filter by fitted status"),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: UserModel = Depends(require_viewer),
+    current_user = Depends(require_viewer),
     container: Container = Depends(lambda: Container()),
 ) -> list[DetectorDTO]:
     """List all detectors."""
     detector_repo = container.detector_repository()
 
     # Get all detectors
-    detectors = detector_repo.find_all()
+    detectors = await detector_repo.find_all()
 
     # Apply filters
     if algorithm:
@@ -92,13 +91,13 @@ async def list_algorithms() -> dict:
 @router.get("/{detector_id}", response_model=DetectorDTO)
 async def get_detector(
     detector_id: UUID,
-    current_user: UserModel = Depends(require_viewer),
+    current_user = Depends(require_viewer),
     container: Container = Depends(lambda: Container()),
 ) -> DetectorDTO:
     """Get a specific detector."""
     detector_repo = container.detector_repository()
 
-    detector = detector_repo.find_by_id(detector_id)
+    detector = await detector_repo.find_by_id(detector_id)
     if not detector:
         raise HTTPException(status_code=404, detail="Detector not found")
 
@@ -123,7 +122,7 @@ async def get_detector(
 @router.post("/", response_model=DetectorDTO)
 async def create_detector(
     detector_data: CreateDetectorDTO,
-    current_user: UserModel = Depends(require_data_scientist),
+    current_user = Depends(require_data_scientist),
     container: Container = Depends(lambda: Container()),
 ) -> DetectorDTO:
     """Create a new detector."""
@@ -157,7 +156,7 @@ async def create_detector(
         detector.update_metadata(key, value)
 
     # Save to repository
-    detector_repo.save(detector)
+    await detector_repo.save(detector)
 
     return DetectorDTO(
         id=detector.id,
@@ -181,13 +180,13 @@ async def create_detector(
 async def update_detector(
     detector_id: UUID,
     update_data: UpdateDetectorDTO,
-    current_user: UserModel = Depends(require_analyst),
+    current_user = Depends(require_analyst),
     container: Container = Depends(lambda: Container()),
 ) -> DetectorDTO:
     """Update detector parameters."""
     detector_repo = container.detector_repository()
 
-    detector = detector_repo.find_by_id(detector_id)
+    detector = await detector_repo.find_by_id(detector_id)
     if not detector:
         raise HTTPException(status_code=404, detail="Detector not found")
 
@@ -206,7 +205,7 @@ async def update_detector(
             detector.update_metadata(key, value)
 
     # Save changes
-    detector_repo.save(detector)
+    await detector_repo.save(detector)
 
     return DetectorDTO(
         id=detector.id,
@@ -229,15 +228,15 @@ async def update_detector(
 @router.delete("/{detector_id}")
 async def delete_detector(
     detector_id: UUID,
-    current_user: UserModel = Depends(require_tenant_admin),
+    current_user = Depends(require_tenant_admin),
     container: Container = Depends(lambda: Container()),
 ) -> dict:
     """Delete a detector. Requires admin permissions."""
     detector_repo = container.detector_repository()
 
-    if not detector_repo.exists(detector_id):
+    if not await detector_repo.exists(detector_id):
         raise HTTPException(status_code=404, detail="Detector not found")
 
-    success = detector_repo.delete(detector_id)
+    success = await detector_repo.delete(detector_id)
 
     return {"success": success, "message": "Detector deleted"}

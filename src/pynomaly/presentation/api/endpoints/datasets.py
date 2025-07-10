@@ -9,7 +9,6 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 from pynomaly.application.dto import DataQualityReportDTO, DatasetDTO
 from pynomaly.domain.entities import Dataset
 from pynomaly.infrastructure.auth import (
-    UserModel,
     require_data_scientist,
     require_viewer,
 )
@@ -38,14 +37,14 @@ router = APIRouter()
 async def list_datasets(
     has_target: bool | None = Query(None, description="Filter by target presence"),
     limit: int = Query(100, ge=1, le=1000),
-    current_user: UserModel = Depends(require_viewer),
+    current_user=Depends(require_viewer),
     container: Container = Depends(lambda: Container()),
 ) -> list[DatasetDTO]:
     """List all datasets."""
     dataset_repo = container.dataset_repository()
 
     # Get all datasets
-    datasets = dataset_repo.find_all()
+    datasets = await dataset_repo.find_all()
 
     # Apply filters
     if has_target is not None:
@@ -79,13 +78,13 @@ async def list_datasets(
 @router.get("/{dataset_id}", response_model=DatasetDTO)
 async def get_dataset(
     dataset_id: UUID,
-    current_user: UserModel = Depends(require_viewer),
+    current_user=Depends(require_viewer),
     container: Container = Depends(lambda: Container()),
 ) -> DatasetDTO:
     """Get a specific dataset."""
     dataset_repo = container.dataset_repository()
 
-    dataset = dataset_repo.find_by_id(dataset_id)
+    dataset = await dataset_repo.find_by_id(dataset_id)
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
 
@@ -113,7 +112,7 @@ async def upload_dataset(
     name: str | None = Form(None),
     description: str | None = Form(None),
     target_column: str | None = Form(None),
-    current_user: UserModel = Depends(require_data_scientist),
+    current_user=Depends(require_data_scientist),
     container: Container = Depends(lambda: Container()),
 ) -> DatasetDTO:
     """Upload a dataset from file."""
@@ -175,7 +174,7 @@ async def upload_dataset(
 
     # Save to repository
     dataset_repo = container.dataset_repository()
-    dataset_repo.save(dataset)
+    await dataset_repo.save(dataset)
 
     return DatasetDTO(
         id=dataset.id,
@@ -198,14 +197,14 @@ async def upload_dataset(
 @router.get("/{dataset_id}/quality", response_model=DataQualityReportDTO)
 async def check_dataset_quality(
     dataset_id: UUID,
-    current_user: UserModel = Depends(require_viewer),
+    current_user=Depends(require_viewer),
     container: Container = Depends(lambda: Container()),
 ) -> DataQualityReportDTO:
     """Check dataset quality."""
     dataset_repo = container.dataset_repository()
     feature_validator = container.feature_validator()
 
-    dataset = dataset_repo.find_by_id(dataset_id)
+    dataset = await dataset_repo.find_by_id(dataset_id)
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
 
@@ -236,7 +235,7 @@ async def get_dataset_sample(
     """Get a sample of dataset rows."""
     dataset_repo = container.dataset_repository()
 
-    dataset = dataset_repo.find_by_id(dataset_id)
+    dataset = await dataset_repo.find_by_id(dataset_id)
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
 
@@ -265,7 +264,7 @@ async def split_dataset(
     """Split dataset into train and test sets."""
     dataset_repo = container.dataset_repository()
 
-    dataset = dataset_repo.find_by_id(dataset_id)
+    dataset = await dataset_repo.find_by_id(dataset_id)
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
 
@@ -276,8 +275,8 @@ async def split_dataset(
         )
 
         # Save both datasets
-        dataset_repo.save(train_dataset)
-        dataset_repo.save(test_dataset)
+        await dataset_repo.save(train_dataset)
+        await dataset_repo.save(test_dataset)
 
         return {
             "train_dataset_id": str(train_dataset.id),
@@ -303,9 +302,9 @@ async def delete_dataset(
     """Delete a dataset."""
     dataset_repo = container.dataset_repository()
 
-    if not dataset_repo.exists(dataset_id):
+    if not await dataset_repo.exists(dataset_id):
         raise HTTPException(status_code=404, detail="Dataset not found")
 
-    success = dataset_repo.delete(dataset_id)
+    success = await dataset_repo.delete(dataset_id)
 
     return {"success": success, "message": "Dataset deleted"}

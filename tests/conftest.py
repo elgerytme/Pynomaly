@@ -143,6 +143,7 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "integration: Integration tests")
     config.addinivalue_line("markers", "slow: Slow tests")
     config.addinivalue_line("markers", "flaky: Potentially flaky tests")
+    config.addinivalue_line("markers", "timeout: Timeout for test execution")
 
 
 def pytest_collection_modifyitems(config, items):

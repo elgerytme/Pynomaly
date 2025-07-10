@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -46,14 +45,7 @@ class ModelPersistenceService:
             Path where model was saved
         """
         # Load detector
-        import asyncio
-
-        if hasattr(
-            self.detector_repository, "find_by_id"
-        ) and asyncio.iscoroutinefunction(self.detector_repository.find_by_id):
-            detector = await self.detector_repository.find_by_id(detector_id)
-        else:
-            detector = self.detector_repository.find_by_id(detector_id)
+        detector = await self.detector_repository.find_by_id(detector_id)
         if detector is None:
             raise ValueError(f"Detector {detector_id} not found")
 
@@ -100,12 +92,7 @@ class ModelPersistenceService:
             json.dump(meta, f, indent=2)
 
         # Save to repository as well
-        if hasattr(self.detector_repository, "save") and asyncio.iscoroutinefunction(
-            self.detector_repository.save
-        ):
-            await self.detector_repository.save(detector)
-        else:
-            self.detector_repository.save(detector)
+        await self.detector_repository.save(detector)
 
         return str(model_path)
 
@@ -157,12 +144,7 @@ class ModelPersistenceService:
             raise ValueError(f"Unknown format: {format}")
 
         # Update repository
-        if hasattr(self.detector_repository, "save") and asyncio.iscoroutinefunction(
-            self.detector_repository.save
-        ):
-            await self.detector_repository.save(detector)
-        else:
-            self.detector_repository.save(detector)
+        await self.detector_repository.save(detector)
 
         return detector
 
@@ -180,14 +162,7 @@ class ModelPersistenceService:
             Paths of exported files
         """
         # Load detector
-        import asyncio
-
-        if hasattr(
-            self.detector_repository, "find_by_id"
-        ) and asyncio.iscoroutinefunction(self.detector_repository.find_by_id):
-            detector = await self.detector_repository.find_by_id(detector_id)
-        else:
-            detector = self.detector_repository.find_by_id(detector_id)
+        detector = await self.detector_repository.find_by_id(detector_id)
         if detector is None:
             raise ValueError(f"Detector {detector_id} not found")
 

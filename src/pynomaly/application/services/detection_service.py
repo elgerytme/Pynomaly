@@ -55,13 +55,7 @@ class DetectionService:
         # Load all detectors
         detectors = []
         for detector_id in detector_ids:
-            # Handle async repository pattern
-            if hasattr(
-                self.detector_repository, "find_by_id"
-            ) and asyncio.iscoroutinefunction(self.detector_repository.find_by_id):
-                detector = await self.detector_repository.find_by_id(detector_id)
-            else:
-                detector = self.detector_repository.find_by_id(detector_id)
+            detector = await self.detector_repository.find_by_id(detector_id)
 
             if detector is None:
                 raise ValueError(f"Detector {detector_id} not found")
@@ -84,13 +78,7 @@ class DetectionService:
         # Save results if requested
         if save_results:
             for result in results:
-                # Handle async repository pattern
-                if hasattr(
-                    self.result_repository, "save"
-                ) and asyncio.iscoroutinefunction(self.result_repository.save):
-                    await self.result_repository.save(result)
-                else:
-                    self.result_repository.save(result)
+                await self.result_repository.save(result)
 
         return result_dict
 
@@ -120,12 +108,7 @@ class DetectionService:
             Detection result with custom threshold
         """
         # Load detector
-        if hasattr(
-            self.detector_repository, "find_by_id"
-        ) and asyncio.iscoroutinefunction(self.detector_repository.find_by_id):
-            detector = await self.detector_repository.find_by_id(detector_id)
-        else:
-            detector = self.detector_repository.find_by_id(detector_id)
+        detector = await self.detector_repository.find_by_id(detector_id)
         if detector is None:
             raise ValueError(f"Detector {detector_id} not found")
 
@@ -209,12 +192,7 @@ class DetectionService:
             Updated result with confidence intervals
         """
         # Load original result
-        if hasattr(
-            self.result_repository, "find_by_id"
-        ) and asyncio.iscoroutinefunction(self.result_repository.find_by_id):
-            result = await self.result_repository.find_by_id(result_id)
-        else:
-            result = self.result_repository.find_by_id(result_id)
+        result = await self.result_repository.find_by_id(result_id)
         if result is None:
             raise ValueError(f"Result {result_id} not found")
 
@@ -245,12 +223,7 @@ class DetectionService:
         result.add_metadata("confidence_method", method)
 
         # Save updated result
-        if hasattr(self.result_repository, "save") and asyncio.iscoroutinefunction(
-            self.result_repository.save
-        ):
-            await self.result_repository.save(result)
-        else:
-            self.result_repository.save(result)
+        await self.result_repository.save(result)
 
         return result
 
@@ -271,26 +244,11 @@ class DetectionService:
             List of detection results
         """
         if detector_id:
-            if hasattr(
-                self.result_repository, "find_by_detector"
-            ) and asyncio.iscoroutinefunction(self.result_repository.find_by_detector):
-                results = await self.result_repository.find_by_detector(detector_id)
-            else:
-                results = self.result_repository.find_by_detector(detector_id)
+            results = await self.result_repository.find_by_detector(detector_id)
         elif dataset_id:
-            if hasattr(
-                self.result_repository, "find_by_dataset"
-            ) and asyncio.iscoroutinefunction(self.result_repository.find_by_dataset):
-                results = await self.result_repository.find_by_dataset(dataset_id)
-            else:
-                results = self.result_repository.find_by_dataset(dataset_id)
+            results = await self.result_repository.find_by_dataset(dataset_id)
         else:
-            if hasattr(
-                self.result_repository, "find_recent"
-            ) and asyncio.iscoroutinefunction(self.result_repository.find_recent):
-                results = await self.result_repository.find_recent(limit)
-            else:
-                results = self.result_repository.find_recent(limit)
+            results = await self.result_repository.find_recent(limit)
 
         # Sort by timestamp and limit
         results = sorted(results, key=lambda r: r.timestamp, reverse=True)[:limit]
