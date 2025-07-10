@@ -423,7 +423,15 @@ async def test_governance_record_retrieval(governance_framework, sample_model, s
 async def test_concurrent_governance_operations(governance_service, sample_validation_data):
     """Test concurrent governance operations."""
     # Create multiple models for concurrent processing
-    models = [Model(id=uuid4(), name=f"concurrent_model_{i}") for i in range(5)]
+    models = [
+        Model(
+            name=f"concurrent_model_{i}",
+            description=f"Concurrent test model {i}",
+            model_type=ModelType.UNSUPERVISED,
+            algorithm_family="isolation_forest",
+            created_by=f"concurrent_user_{i}"
+        ) for i in range(5)
+    ]
     
     model_info_template = {
         "name": "Concurrent Test Model",
