@@ -31,6 +31,7 @@ def get_container(request: Request) -> Container:
 
 
 async def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials | None = Depends(security),
     container: Container = Depends(get_container),
 ) -> str | None:
@@ -41,14 +42,19 @@ async def get_current_user(
     """
     settings = container.config()
 
-    if not settings.auth_enabled:
+    if not settings.security.auth_enabled:
         return None
 
-    # Get auth service
+    # Get auth service from container
     from pynomaly.domain.exceptions import AuthenticationError
-    from pynomaly.infrastructure.auth import get_auth
 
-    auth_service = get_auth()
+    try:
+        auth_service = container.auth_service()
+    except Exception:
+        # Fallback to global auth service
+        from pynomaly.infrastructure.auth import get_auth
+        auth_service = get_auth()
+        
     if not auth_service:
         # If auth is enabled but service unavailable, raise error for API endpoints
         # For web endpoints, we'll handle this gracefully

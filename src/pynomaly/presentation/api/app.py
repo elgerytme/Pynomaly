@@ -325,7 +325,8 @@ def create_app(container: Container | None = None) -> FastAPI:
     #     experiments.router, prefix="/api/v1/experiments", tags=["experiments"]
     # )  # Temporarily disabled
 
-    # Include version endpoint
+    # Include health and version endpoints
+    app.include_router(health.router, prefix="/api/v1", tags=["health"])
     app.include_router(version.router, prefix="/api/v1", tags=["version"])
 
     app.include_router(
@@ -368,4 +369,10 @@ def create_app(container: Container | None = None) -> FastAPI:
 
 
 # Create default app instance for uvicorn
-# app = create_app()  # Commented out to prevent immediate creation during import
+try:
+    app = create_app()
+except Exception as e:
+    # Fallback for testing environments
+    from fastapi import FastAPI
+    app = FastAPI(title="Pynomaly API (Test Mode)")
+    print(f"Warning: Using fallback app due to: {e}")

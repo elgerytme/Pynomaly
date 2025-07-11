@@ -144,7 +144,7 @@ class PyGODAdapter:
                 params["contamination"] = 0.1  # Default
 
             # Algorithm-specific parameter handling
-            if self.algorithm in ["DOMINANT", "GCNAE", "ANOMALOUS"]:
+            if self._algorithm_name in ["DOMINANT", "GCNAE", "ANOMALOUS"]:
                 # Deep learning models
                 params.setdefault("hidden_dim", 64)
                 params.setdefault("num_layers", 2)
@@ -157,12 +157,12 @@ class PyGODAdapter:
                 else:
                     params["gpu"] = -1  # CPU by default
 
-            elif self.algorithm == "SCAN":
+            elif self._algorithm_name == "SCAN":
                 # SCAN specific parameters
                 params.setdefault("eps", 0.5)
                 params.setdefault("mu", 2)
 
-            elif self.algorithm == "RADAR":
+            elif self._algorithm_name == "RADAR":
                 # RADAR specific parameters
                 params.setdefault("gamma", 1.0)
                 params.setdefault("k", 5)
@@ -172,7 +172,7 @@ class PyGODAdapter:
 
         except Exception as e:
             raise AdapterError(
-                f"Failed to initialize PyGOD algorithm '{self.algorithm}': {e}"
+                f"Failed to initialize PyGOD algorithm '{self._algorithm_name}': {e}"
             )
 
     def fit(self, dataset: Dataset) -> None:
@@ -194,11 +194,11 @@ class PyGODAdapter:
             else:
                 # Some models might use different training methods
                 raise AdapterError(
-                    f"Model {self.algorithm} does not support fit method"
+                    f"Model {self._algorithm_name} does not support fit method"
                 )
 
-            self.is_fitted = True
-            logger.info(f"Successfully trained PyGOD {self.algorithm}")
+            self._is_fitted = True
+            logger.info(f"Successfully trained PyGOD {self._algorithm_name}")
 
         except Exception as e:
             raise AdapterError(f"Failed to train PyGOD model: {e}")
@@ -232,7 +232,7 @@ class PyGODAdapter:
                     scores = labels.astype(float)
             else:
                 raise AdapterError(
-                    f"Model {self.algorithm} does not support predict method"
+                    f"Model {self._algorithm_name} does not support predict method"
                 )
 
             # Normalize scores to [0, 1] range
@@ -259,7 +259,7 @@ class PyGODAdapter:
                 scores=anomaly_scores,
                 labels=labels.tolist(),
                 metadata={
-                    "algorithm": self.algorithm,
+                    "algorithm": self._algorithm_name,
                     "n_anomalies": int(np.sum(labels)),
                     "contamination_rate": float(np.sum(labels) / len(labels)),
                     "is_graph": True,
