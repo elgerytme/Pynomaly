@@ -1,7 +1,7 @@
 """Benchmark-specific fixtures that extend the root conftest.py."""
 
 # Import all fixtures from root conftest
-from ..conftest import *
+from tests.conftest import *
 
 
 # Additional benchmark-specific hooks
@@ -11,6 +11,7 @@ def pytest_benchmark_update_machine_info(config, machine_info):
 
     try:
         import psutil
+
         machine_info.update(
             {
                 "python_version": platform.python_version(),

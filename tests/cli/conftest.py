@@ -8,10 +8,10 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
-from typer.testing import CliRunner
 
 # Import all base fixtures from root conftest
-from ..conftest import *
+from tests.conftest import *
+from typer.testing import CliRunner
 
 
 @pytest.fixture(scope="session")

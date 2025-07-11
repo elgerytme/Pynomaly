@@ -19,7 +19,7 @@ from pynomaly.application.dto.automl_dto import (
 )
 from pynomaly.infrastructure.auth import require_read, require_write
 from pynomaly.infrastructure.config import Container
-from pynomaly.infrastructure.config.feature_flags import require_feature
+from pynomaly.infrastructure.config.feature_flags import require_automl, require_feature
 from pynomaly.presentation.api.deps import get_container, get_current_user
 
 logger = logging.getLogger(__name__)
@@ -286,9 +286,11 @@ async def list_supported_algorithms(
     try:
         # Import feature_flags for runtime check
         from pynomaly.infrastructure.config.feature_flags import feature_flags
-        
+
         # Check if AutoML features are enabled
-        if not feature_flags.is_enabled("automl") and not feature_flags.is_enabled("advanced_automl"):
+        if not feature_flags.is_enabled("automl") and not feature_flags.is_enabled(
+            "advanced_automl"
+        ):
             return {
                 "error": "AutoML features are not enabled",
                 "message": "Enable AutoML by setting PYNOMALY_AUTOML=true or PYNOMALY_ADVANCED_AUTOML=true",
@@ -338,7 +340,9 @@ async def list_supported_algorithms(
                 "automl": feature_flags.is_enabled("automl"),
                 "advanced_automl": feature_flags.is_enabled("advanced_automl"),
                 "meta_learning": feature_flags.is_enabled("meta_learning"),
-                "ensemble_optimization": feature_flags.is_enabled("ensemble_optimization"),
+                "ensemble_optimization": feature_flags.is_enabled(
+                    "ensemble_optimization"
+                ),
             },
         }
 

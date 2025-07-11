@@ -599,7 +599,7 @@ Add implementation details, technical notes, or related issues here.
                         results["updated"] += 1
                         self._log_action(
                             "UPDATE_TODO",
-                            f"Updated todo {existing_todo.id} from GitHub issue #{issue.number}"
+                            f"Updated todo {existing_todo.id} from GitHub issue #{issue.number}",
                         )
                     else:
                         results["skipped"] += 1
