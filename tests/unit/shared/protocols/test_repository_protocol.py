@@ -1,7 +1,11 @@
-"""Tests for repository protocol."""
+"""
+Comprehensive tests for Repository Protocol definitions.
+Tests protocol conformance, type checking, and CRUD operation contracts.
+"""
 
-from typing import Any
-from unittest.mock import Mock
+import inspect
+from typing import get_type_hints
+from unittest.mock import AsyncMock, Mock
 from uuid import UUID, uuid4
 
 import pytest
@@ -13,8 +17,11 @@ from pynomaly.domain.entities import (
     DetectionResult,
     Detector,
     Experiment,
+    ExperimentRun,
     Model,
+    ModelVersion,
     Pipeline,
+    PipelineRun,
 )
 from pynomaly.shared.protocols.repository_protocol import (
     AlertNotificationRepositoryProtocol,
@@ -35,547 +42,646 @@ from pynomaly.shared.protocols.repository_protocol import (
 class TestRepositoryProtocol:
     """Test suite for base RepositoryProtocol."""
 
-    def test_protocol_definition(self):
-        """Test protocol has required methods."""
-        assert hasattr(RepositoryProtocol, "save")
-        assert hasattr(RepositoryProtocol, "find_by_id")
-        assert hasattr(RepositoryProtocol, "find_all")
-        assert hasattr(RepositoryProtocol, "delete")
-        assert hasattr(RepositoryProtocol, "exists")
-        assert hasattr(RepositoryProtocol, "count")
+    def test_protocol_is_runtime_checkable(self):
+        """Test that RepositoryProtocol is runtime checkable."""
+        assert hasattr(RepositoryProtocol, "__runtime_checkable__")
+        assert RepositoryProtocol.__runtime_checkable__ is True
 
-    def test_protocol_runtime_checkable(self):
-        """Test protocol is runtime checkable."""
+    def test_protocol_defines_crud_methods(self):
+        """Test that protocol defines all CRUD methods."""
+        crud_methods = ["save", "find_by_id", "find_all", "delete", "exists", "count"]
 
-        class ConcreteRepository:
-            def save(self, entity: Any) -> None:
-                pass
+        for method in crud_methods:
+            assert hasattr(RepositoryProtocol, method)
+            assert callable(getattr(RepositoryProtocol, method))
 
-            def find_by_id(self, entity_id: UUID) -> Any | None:
-                return None
+    def test_protocol_method_signatures(self):
+        """Test that protocol methods have correct signatures."""
+        # Test save method signature
+        save_sig = inspect.signature(RepositoryProtocol.save)
+        assert "entity" in save_sig.parameters
+        assert save_sig.return_annotation is None or save_sig.return_annotation == type(None)
 
-            def find_all(self) -> list[Any]:
-                return []
+        # Test find_by_id signature
+        find_by_id_sig = inspect.signature(RepositoryProtocol.find_by_id)
+        assert "entity_id" in find_by_id_sig.parameters
 
-            def delete(self, entity_id: UUID) -> bool:
-                return True
+        # Test delete signature
+        delete_sig = inspect.signature(RepositoryProtocol.delete)
+        assert "entity_id" in delete_sig.parameters
+        assert delete_sig.return_annotation == bool
 
-            def exists(self, entity_id: UUID) -> bool:
-                return False
+        # Test count signature
+        count_sig = inspect.signature(RepositoryProtocol.count)
+        assert count_sig.return_annotation == int
 
-            def count(self) -> int:
-                return 0
+    def test_protocol_is_generic(self):
+        """Test that RepositoryProtocol is generic."""
+        # Should have a type parameter
+        assert hasattr(RepositoryProtocol, "__parameters__")
 
-        repository = ConcreteRepository()
-        assert isinstance(repository, RepositoryProtocol)
+    @pytest.mark.asyncio
+    async def test_mock_repository_implementation(self):
+        """Test mock repository implementation."""
+        mock_repo = AsyncMock(spec=RepositoryProtocol[Dataset])
+        mock_entity = Mock(spec=Dataset)
+        entity_id = uuid4()
 
-    def test_basic_operations(self):
-        """Test basic repository operations."""
-        mock_repo = Mock(spec=RepositoryProtocol)
-        mock_entity = Mock()
-        test_id = uuid4()
-
-        # Test save
-        mock_repo.save(mock_entity)
-        mock_repo.save.assert_called_once_with(mock_entity)
-
-        # Test find_by_id
+        # Configure mock returns
+        mock_repo.save.return_value = None
         mock_repo.find_by_id.return_value = mock_entity
-        result = mock_repo.find_by_id(test_id)
-        assert result == mock_entity
-
-        # Test find_all
         mock_repo.find_all.return_value = [mock_entity]
-        results = mock_repo.find_all()
-        assert results == [mock_entity]
-
-        # Test delete
         mock_repo.delete.return_value = True
-        deleted = mock_repo.delete(test_id)
+        mock_repo.exists.return_value = True
+        mock_repo.count.return_value = 5
+
+        # Test CRUD operations
+        await mock_repo.save(mock_entity)
+        mock_repo.save.assert_called_with(mock_entity)
+
+        found_entity = await mock_repo.find_by_id(entity_id)
+        assert found_entity == mock_entity
+
+        all_entities = await mock_repo.find_all()
+        assert len(all_entities) == 1
+        assert all_entities[0] == mock_entity
+
+        deleted = await mock_repo.delete(entity_id)
         assert deleted is True
 
-        # Test exists
-        mock_repo.exists.return_value = True
-        exists = mock_repo.exists(test_id)
+        exists = await mock_repo.exists(entity_id)
         assert exists is True
 
-        # Test count
-        mock_repo.count.return_value = 1
-        count = mock_repo.count()
-        assert count == 1
+        count = await mock_repo.count()
+        assert count == 5
+
+    @pytest.mark.asyncio
+    async def test_concrete_repository_implementation(self):
+        """Test a concrete repository implementation."""
+
+        class ConcreteRepository:
+            def __init__(self):
+                self._entities = {}
+
+            async def save(self, entity) -> None:
+                self._entities[entity.id] = entity
+
+            async def find_by_id(self, entity_id: UUID):
+                return self._entities.get(entity_id)
+
+            async def find_all(self) -> list:
+                return list(self._entities.values())
+
+            async def delete(self, entity_id: UUID) -> bool:
+                if entity_id in self._entities:
+                    del self._entities[entity_id]
+                    return True
+                return False
+
+            async def exists(self, entity_id: UUID) -> bool:
+                return entity_id in self._entities
+
+            async def count(self) -> int:
+                return len(self._entities)
+
+        repo = ConcreteRepository()
+        assert isinstance(repo, RepositoryProtocol)
+
+        # Test with mock entity
+        mock_entity = Mock()
+        mock_entity.id = uuid4()
+
+        # Test save
+        await repo.save(mock_entity)
+        assert await repo.count() == 1
+
+        # Test find_by_id
+        found = await repo.find_by_id(mock_entity.id)
+        assert found == mock_entity
+
+        # Test exists
+        assert await repo.exists(mock_entity.id) is True
+
+        # Test find_all
+        all_entities = await repo.find_all()
+        assert len(all_entities) == 1
+
+        # Test delete
+        deleted = await repo.delete(mock_entity.id)
+        assert deleted is True
+        assert await repo.count() == 0
 
 
 class TestDetectorRepositoryProtocol:
     """Test suite for DetectorRepositoryProtocol."""
 
-    def test_protocol_inheritance(self):
-        """Test DetectorRepositoryProtocol extends RepositoryProtocol."""
-        assert hasattr(DetectorRepositoryProtocol, "save")
-        assert hasattr(DetectorRepositoryProtocol, "find_by_id")
-        assert hasattr(DetectorRepositoryProtocol, "find_by_name")
-        assert hasattr(DetectorRepositoryProtocol, "find_by_algorithm")
-        assert hasattr(DetectorRepositoryProtocol, "find_fitted")
-        assert hasattr(DetectorRepositoryProtocol, "save_model_artifact")
-        assert hasattr(DetectorRepositoryProtocol, "load_model_artifact")
+    def test_inherits_from_repository_protocol(self):
+        """Test that DetectorRepositoryProtocol inherits from RepositoryProtocol."""
+        assert issubclass(DetectorRepositoryProtocol, RepositoryProtocol)
 
-    def test_protocol_runtime_checkable(self):
-        """Test DetectorRepositoryProtocol is runtime checkable."""
+    def test_protocol_defines_detector_specific_methods(self):
+        """Test protocol defines detector-specific methods."""
+        detector_methods = [
+            "find_by_name",
+            "find_by_algorithm",
+            "find_fitted",
+            "save_model_artifact",
+            "load_model_artifact",
+        ]
 
-        class ConcreteDetectorRepository:
-            def save(self, entity: Detector) -> None:
-                pass
+        for method in detector_methods:
+            assert hasattr(DetectorRepositoryProtocol, method)
+            assert callable(getattr(DetectorRepositoryProtocol, method))
 
-            def find_by_id(self, entity_id: UUID) -> Detector | None:
-                return None
+    def test_detector_method_signatures(self):
+        """Test detector-specific method signatures."""
+        # Test find_by_name signature
+        find_by_name_sig = inspect.signature(DetectorRepositoryProtocol.find_by_name)
+        assert "name" in find_by_name_sig.parameters
 
-            def find_all(self) -> list[Detector]:
-                return []
+        # Test find_by_algorithm signature
+        find_by_algo_sig = inspect.signature(DetectorRepositoryProtocol.find_by_algorithm)
+        assert "algorithm_name" in find_by_algo_sig.parameters
 
-            def delete(self, entity_id: UUID) -> bool:
-                return True
+        # Test save_model_artifact signature
+        save_artifact_sig = inspect.signature(DetectorRepositoryProtocol.save_model_artifact)
+        assert "detector_id" in save_artifact_sig.parameters
+        assert "artifact" in save_artifact_sig.parameters
 
-            def exists(self, entity_id: UUID) -> bool:
-                return False
-
-            def count(self) -> int:
-                return 0
-
-            def find_by_name(self, name: str) -> Detector | None:
-                return None
-
-            def find_by_algorithm(self, algorithm_name: str) -> list[Detector]:
-                return []
-
-            def find_fitted(self) -> list[Detector]:
-                return []
-
-            def save_model_artifact(self, detector_id: UUID, artifact: bytes) -> None:
-                pass
-
-            def load_model_artifact(self, detector_id: UUID) -> bytes | None:
-                return None
-
-        repository = ConcreteDetectorRepository()
-        assert isinstance(repository, DetectorRepositoryProtocol)
-        assert isinstance(repository, RepositoryProtocol)
-
-    def test_detector_specific_methods(self):
-        """Test detector-specific methods."""
-        mock_repo = Mock(spec=DetectorRepositoryProtocol)
+    @pytest.mark.asyncio
+    async def test_mock_detector_repository(self):
+        """Test mock detector repository implementation."""
+        mock_repo = AsyncMock(spec=DetectorRepositoryProtocol)
         mock_detector = Mock(spec=Detector)
-        test_id = uuid4()
+        detector_id = uuid4()
 
-        # Test find_by_name
+        # Configure detector-specific returns
         mock_repo.find_by_name.return_value = mock_detector
-        result = mock_repo.find_by_name("test_detector")
-        assert result == mock_detector
-
-        # Test find_by_algorithm
         mock_repo.find_by_algorithm.return_value = [mock_detector]
-        results = mock_repo.find_by_algorithm("IsolationForest")
-        assert results == [mock_detector]
-
-        # Test find_fitted
         mock_repo.find_fitted.return_value = [mock_detector]
-        fitted = mock_repo.find_fitted()
-        assert fitted == [mock_detector]
+        mock_repo.save_model_artifact.return_value = None
+        mock_repo.load_model_artifact.return_value = b"model_data"
 
-        # Test save_model_artifact
-        artifact = b"model_data"
-        mock_repo.save_model_artifact(test_id, artifact)
-        mock_repo.save_model_artifact.assert_called_once_with(test_id, artifact)
+        # Test detector-specific operations
+        found_by_name = await mock_repo.find_by_name("test_detector")
+        assert found_by_name == mock_detector
 
-        # Test load_model_artifact
-        mock_repo.load_model_artifact.return_value = artifact
-        loaded = mock_repo.load_model_artifact(test_id)
-        assert loaded == artifact
+        found_by_algo = await mock_repo.find_by_algorithm("IsolationForest")
+        assert len(found_by_algo) == 1
+        assert found_by_algo[0] == mock_detector
+
+        fitted_detectors = await mock_repo.find_fitted()
+        assert len(fitted_detectors) == 1
+
+        await mock_repo.save_model_artifact(detector_id, b"model_data")
+        mock_repo.save_model_artifact.assert_called_with(detector_id, b"model_data")
+
+        artifact = await mock_repo.load_model_artifact(detector_id)
+        assert artifact == b"model_data"
 
 
 class TestDatasetRepositoryProtocol:
     """Test suite for DatasetRepositoryProtocol."""
 
-    def test_protocol_inheritance(self):
-        """Test DatasetRepositoryProtocol extends RepositoryProtocol."""
-        assert hasattr(DatasetRepositoryProtocol, "save")
-        assert hasattr(DatasetRepositoryProtocol, "find_by_id")
-        assert hasattr(DatasetRepositoryProtocol, "find_by_name")
-        assert hasattr(DatasetRepositoryProtocol, "find_by_metadata")
-        assert hasattr(DatasetRepositoryProtocol, "save_data")
-        assert hasattr(DatasetRepositoryProtocol, "load_data")
+    def test_inherits_from_repository_protocol(self):
+        """Test that DatasetRepositoryProtocol inherits from RepositoryProtocol."""
+        assert issubclass(DatasetRepositoryProtocol, RepositoryProtocol)
 
-    def test_protocol_runtime_checkable(self):
-        """Test DatasetRepositoryProtocol is runtime checkable."""
+    def test_protocol_defines_dataset_specific_methods(self):
+        """Test protocol defines dataset-specific methods."""
+        dataset_methods = ["find_by_name", "find_by_metadata", "save_data", "load_data"]
 
-        class ConcreteDatasetRepository:
-            def save(self, entity: Dataset) -> None:
-                pass
+        for method in dataset_methods:
+            assert hasattr(DatasetRepositoryProtocol, method)
+            assert callable(getattr(DatasetRepositoryProtocol, method))
 
-            def find_by_id(self, entity_id: UUID) -> Dataset | None:
-                return None
-
-            def find_all(self) -> list[Dataset]:
-                return []
-
-            def delete(self, entity_id: UUID) -> bool:
-                return True
-
-            def exists(self, entity_id: UUID) -> bool:
-                return False
-
-            def count(self) -> int:
-                return 0
-
-            def find_by_name(self, name: str) -> Dataset | None:
-                return None
-
-            def find_by_metadata(self, key: str, value: Any) -> list[Dataset]:
-                return []
-
-            def save_data(self, dataset_id: UUID, format: str = "parquet") -> str:
-                return f"/path/to/data.{format}"
-
-            def load_data(self, dataset_id: UUID) -> Dataset | None:
-                return None
-
-        repository = ConcreteDatasetRepository()
-        assert isinstance(repository, DatasetRepositoryProtocol)
-        assert isinstance(repository, RepositoryProtocol)
-
-    def test_dataset_specific_methods(self):
-        """Test dataset-specific methods."""
-        mock_repo = Mock(spec=DatasetRepositoryProtocol)
+    @pytest.mark.asyncio
+    async def test_mock_dataset_repository(self):
+        """Test mock dataset repository implementation."""
+        mock_repo = AsyncMock(spec=DatasetRepositoryProtocol)
         mock_dataset = Mock(spec=Dataset)
-        test_id = uuid4()
+        dataset_id = uuid4()
 
-        # Test find_by_name
+        # Configure dataset-specific returns
         mock_repo.find_by_name.return_value = mock_dataset
-        result = mock_repo.find_by_name("test_dataset")
-        assert result == mock_dataset
-
-        # Test find_by_metadata
         mock_repo.find_by_metadata.return_value = [mock_dataset]
-        results = mock_repo.find_by_metadata("source", "csv")
-        assert results == [mock_dataset]
-
-        # Test save_data
         mock_repo.save_data.return_value = "/path/to/data.parquet"
-        path = mock_repo.save_data(test_id, "parquet")
-        assert path == "/path/to/data.parquet"
-
-        # Test load_data
         mock_repo.load_data.return_value = mock_dataset
-        loaded = mock_repo.load_data(test_id)
-        assert loaded == mock_dataset
+
+        # Test dataset-specific operations
+        found_by_name = await mock_repo.find_by_name("test_dataset")
+        assert found_by_name == mock_dataset
+
+        found_by_metadata = await mock_repo.find_by_metadata("source", "csv")
+        assert len(found_by_metadata) == 1
+
+        saved_path = await mock_repo.save_data(dataset_id, "parquet")
+        assert saved_path == "/path/to/data.parquet"
+
+        loaded_dataset = await mock_repo.load_data(dataset_id)
+        assert loaded_dataset == mock_dataset
 
 
 class TestDetectionResultRepositoryProtocol:
     """Test suite for DetectionResultRepositoryProtocol."""
 
-    def test_protocol_inheritance(self):
-        """Test DetectionResultRepositoryProtocol extends RepositoryProtocol."""
-        assert hasattr(DetectionResultRepositoryProtocol, "save")
-        assert hasattr(DetectionResultRepositoryProtocol, "find_by_id")
-        assert hasattr(DetectionResultRepositoryProtocol, "find_by_detector")
-        assert hasattr(DetectionResultRepositoryProtocol, "find_by_dataset")
-        assert hasattr(DetectionResultRepositoryProtocol, "find_recent")
-        assert hasattr(DetectionResultRepositoryProtocol, "get_summary_stats")
+    def test_inherits_from_repository_protocol(self):
+        """Test that DetectionResultRepositoryProtocol inherits from RepositoryProtocol."""
+        assert issubclass(DetectionResultRepositoryProtocol, RepositoryProtocol)
 
-    def test_protocol_runtime_checkable(self):
-        """Test DetectionResultRepositoryProtocol is runtime checkable."""
+    def test_protocol_defines_result_specific_methods(self):
+        """Test protocol defines result-specific methods."""
+        result_methods = [
+            "find_by_detector",
+            "find_by_dataset",
+            "find_recent",
+            "get_summary_stats",
+        ]
 
-        class ConcreteDetectionResultRepository:
-            def save(self, entity: DetectionResult) -> None:
-                pass
+        for method in result_methods:
+            assert hasattr(DetectionResultRepositoryProtocol, method)
+            assert callable(getattr(DetectionResultRepositoryProtocol, method))
 
-            def find_by_id(self, entity_id: UUID) -> DetectionResult | None:
-                return None
-
-            def find_all(self) -> list[DetectionResult]:
-                return []
-
-            def delete(self, entity_id: UUID) -> bool:
-                return True
-
-            def exists(self, entity_id: UUID) -> bool:
-                return False
-
-            def count(self) -> int:
-                return 0
-
-            def find_by_detector(self, detector_id: UUID) -> list[DetectionResult]:
-                return []
-
-            def find_by_dataset(self, dataset_id: UUID) -> list[DetectionResult]:
-                return []
-
-            def find_recent(self, limit: int = 10) -> list[DetectionResult]:
-                return []
-
-            def get_summary_stats(self, result_id: UUID) -> dict[str, Any]:
-                return {}
-
-        repository = ConcreteDetectionResultRepository()
-        assert isinstance(repository, DetectionResultRepositoryProtocol)
-        assert isinstance(repository, RepositoryProtocol)
-
-    def test_detection_result_specific_methods(self):
-        """Test detection result-specific methods."""
-        mock_repo = Mock(spec=DetectionResultRepositoryProtocol)
+    @pytest.mark.asyncio
+    async def test_mock_detection_result_repository(self):
+        """Test mock detection result repository implementation."""
+        mock_repo = AsyncMock(spec=DetectionResultRepositoryProtocol)
         mock_result = Mock(spec=DetectionResult)
-        test_id = uuid4()
+        detector_id = uuid4()
+        dataset_id = uuid4()
+        result_id = uuid4()
 
-        # Test find_by_detector
+        # Configure result-specific returns
         mock_repo.find_by_detector.return_value = [mock_result]
-        results = mock_repo.find_by_detector(test_id)
-        assert results == [mock_result]
-
-        # Test find_by_dataset
         mock_repo.find_by_dataset.return_value = [mock_result]
-        results = mock_repo.find_by_dataset(test_id)
-        assert results == [mock_result]
-
-        # Test find_recent
         mock_repo.find_recent.return_value = [mock_result]
-        recent = mock_repo.find_recent(5)
-        assert recent == [mock_result]
+        mock_repo.get_summary_stats.return_value = {
+            "total_anomalies": 5,
+            "avg_score": 0.7,
+        }
 
-        # Test get_summary_stats
-        stats = {"anomalies": 10, "accuracy": 0.95}
-        mock_repo.get_summary_stats.return_value = stats
-        result_stats = mock_repo.get_summary_stats(test_id)
-        assert result_stats == stats
+        # Test result-specific operations
+        detector_results = await mock_repo.find_by_detector(detector_id)
+        assert len(detector_results) == 1
+
+        dataset_results = await mock_repo.find_by_dataset(dataset_id)
+        assert len(dataset_results) == 1
+
+        recent_results = await mock_repo.find_recent(limit=10)
+        assert len(recent_results) == 1
+
+        stats = await mock_repo.get_summary_stats(result_id)
+        assert stats["total_anomalies"] == 5
+        assert stats["avg_score"] == 0.7
 
 
 class TestModelRepositoryProtocol:
     """Test suite for ModelRepositoryProtocol."""
 
-    def test_protocol_inheritance(self):
-        """Test ModelRepositoryProtocol extends RepositoryProtocol."""
-        assert hasattr(ModelRepositoryProtocol, "save")
-        assert hasattr(ModelRepositoryProtocol, "find_by_id")
-        assert hasattr(ModelRepositoryProtocol, "find_by_name")
-        assert hasattr(ModelRepositoryProtocol, "find_by_stage")
-        assert hasattr(ModelRepositoryProtocol, "find_by_type")
+    def test_inherits_from_repository_protocol(self):
+        """Test that ModelRepositoryProtocol inherits from RepositoryProtocol."""
+        assert issubclass(ModelRepositoryProtocol, RepositoryProtocol)
 
-    def test_protocol_runtime_checkable(self):
-        """Test ModelRepositoryProtocol is runtime checkable."""
+    def test_protocol_defines_model_specific_methods(self):
+        """Test protocol defines model-specific methods."""
+        model_methods = ["find_by_name", "find_by_stage", "find_by_type"]
 
-        class ConcreteModelRepository:
-            def save(self, entity: Model) -> None:
-                pass
+        for method in model_methods:
+            assert hasattr(ModelRepositoryProtocol, method)
+            assert callable(getattr(ModelRepositoryProtocol, method))
 
-            def find_by_id(self, entity_id: UUID) -> Model | None:
-                return None
-
-            def find_all(self) -> list[Model]:
-                return []
-
-            def delete(self, entity_id: UUID) -> bool:
-                return True
-
-            def exists(self, entity_id: UUID) -> bool:
-                return False
-
-            def count(self) -> int:
-                return 0
-
-            def find_by_name(self, name: str) -> list[Model]:
-                return []
-
-            def find_by_stage(self, stage: Any) -> list[Model]:
-                return []
-
-            def find_by_type(self, model_type: Any) -> list[Model]:
-                return []
-
-        repository = ConcreteModelRepository()
-        assert isinstance(repository, ModelRepositoryProtocol)
-        assert isinstance(repository, RepositoryProtocol)
-
-    def test_model_specific_methods(self):
-        """Test model-specific methods."""
-        mock_repo = Mock(spec=ModelRepositoryProtocol)
+    @pytest.mark.asyncio
+    async def test_mock_model_repository(self):
+        """Test mock model repository implementation."""
+        mock_repo = AsyncMock(spec=ModelRepositoryProtocol)
         mock_model = Mock(spec=Model)
 
-        # Test find_by_name
+        # Configure model-specific returns
         mock_repo.find_by_name.return_value = [mock_model]
-        results = mock_repo.find_by_name("test_model")
-        assert results == [mock_model]
-
-        # Test find_by_stage
         mock_repo.find_by_stage.return_value = [mock_model]
-        results = mock_repo.find_by_stage("production")
-        assert results == [mock_model]
-
-        # Test find_by_type
         mock_repo.find_by_type.return_value = [mock_model]
-        results = mock_repo.find_by_type("classifier")
-        assert results == [mock_model]
+
+        # Test model-specific operations
+        models_by_name = await mock_repo.find_by_name("test_model")
+        assert len(models_by_name) == 1
+
+        models_by_stage = await mock_repo.find_by_stage("production")
+        assert len(models_by_stage) == 1
+
+        models_by_type = await mock_repo.find_by_type("anomaly_detection")
+        assert len(models_by_type) == 1
 
 
-class TestProtocolInteractions:
-    """Test protocol interactions and edge cases."""
+class TestExperimentRepositoryProtocol:
+    """Test suite for ExperimentRepositoryProtocol."""
 
-    def test_multiple_protocol_implementation(self):
-        """Test class implementing multiple repository protocols."""
+    def test_inherits_from_repository_protocol(self):
+        """Test that ExperimentRepositoryProtocol inherits from RepositoryProtocol."""
+        assert issubclass(ExperimentRepositoryProtocol, RepositoryProtocol)
 
-        class MultiProtocolRepository:
-            def save(self, entity: Any) -> None:
-                pass
+    def test_protocol_defines_experiment_specific_methods(self):
+        """Test protocol defines experiment-specific methods."""
+        experiment_methods = ["find_by_name", "find_by_status", "find_by_type"]
 
-            def find_by_id(self, entity_id: UUID) -> Any | None:
-                return None
+        for method in experiment_methods:
+            assert hasattr(ExperimentRepositoryProtocol, method)
+            assert callable(getattr(ExperimentRepositoryProtocol, method))
 
-            def find_all(self) -> list[Any]:
-                return []
-
-            def delete(self, entity_id: UUID) -> bool:
-                return True
-
-            def exists(self, entity_id: UUID) -> bool:
-                return False
-
-            def count(self) -> int:
-                return 0
-
-            def find_by_name(self, name: str) -> Any | None:
-                return None
-
-            def find_by_algorithm(self, algorithm_name: str) -> list[Any]:
-                return []
-
-            def find_fitted(self) -> list[Any]:
-                return []
-
-            def save_model_artifact(self, detector_id: UUID, artifact: bytes) -> None:
-                pass
-
-            def load_model_artifact(self, detector_id: UUID) -> bytes | None:
-                return None
-
-        repository = MultiProtocolRepository()
-        assert isinstance(repository, RepositoryProtocol)
-        assert isinstance(repository, DetectorRepositoryProtocol)
-
-    def test_error_handling(self):
-        """Test error handling in repository operations."""
-        mock_repo = Mock(spec=RepositoryProtocol)
-        test_id = uuid4()
-
-        # Configure mock to raise exception
-        mock_repo.find_by_id.side_effect = ValueError("Database error")
-
-        with pytest.raises(ValueError, match="Database error"):
-            mock_repo.find_by_id(test_id)
-
-    def test_uuid_handling(self):
-        """Test UUID parameter handling."""
-        mock_repo = Mock(spec=RepositoryProtocol)
-        test_id = uuid4()
-
-        # Test with UUID
-        mock_repo.find_by_id(test_id)
-        mock_repo.find_by_id.assert_called_with(test_id)
-
-        # Test with string UUID
-        str_id = str(test_id)
-        mock_repo.find_by_id(str_id)
-        mock_repo.find_by_id.assert_called_with(str_id)
-
-    def test_type_parameters(self):
-        """Test type parameters in generic protocols."""
-        # Test that protocols can be used with type parameters
-        detector_repo: DetectorRepositoryProtocol = Mock()
-        dataset_repo: DatasetRepositoryProtocol = Mock()
-
-        # Should be able to assign specific types
-        assert detector_repo is not None
-        assert dataset_repo is not None
-
-    def test_inheritance_chain(self):
-        """Test inheritance chain for specialized protocols."""
-        # All specialized protocols should inherit from base RepositoryProtocol
-        protocols = [
-            DetectorRepositoryProtocol,
-            DatasetRepositoryProtocol,
-            DetectionResultRepositoryProtocol,
-            ModelRepositoryProtocol,
-            ModelVersionRepositoryProtocol,
-            ExperimentRepositoryProtocol,
-            ExperimentRunRepositoryProtocol,
-            PipelineRepositoryProtocol,
-            PipelineRunRepositoryProtocol,
-            AlertRepositoryProtocol,
-            AlertNotificationRepositoryProtocol,
-        ]
-
-        for protocol in protocols:
-            # Check that each protocol has the base methods
-            assert hasattr(protocol, "save")
-            assert hasattr(protocol, "find_by_id")
-            assert hasattr(protocol, "find_all")
-            assert hasattr(protocol, "delete")
-            assert hasattr(protocol, "exists")
-            assert hasattr(protocol, "count")
-
-    def test_runtime_checkable_consistency(self):
-        """Test that all protocols are runtime checkable."""
-        protocols = [
-            RepositoryProtocol,
-            DetectorRepositoryProtocol,
-            DatasetRepositoryProtocol,
-            DetectionResultRepositoryProtocol,
-            ModelRepositoryProtocol,
-            ModelVersionRepositoryProtocol,
-            ExperimentRepositoryProtocol,
-            ExperimentRunRepositoryProtocol,
-            PipelineRepositoryProtocol,
-            PipelineRunRepositoryProtocol,
-            AlertRepositoryProtocol,
-            AlertNotificationRepositoryProtocol,
-        ]
-
-        for protocol in protocols:
-            # Each protocol should be decorated with @runtime_checkable
-            assert hasattr(protocol, "__class_getitem__")  # Generic protocol marker
-
-
-class TestSpecializedProtocols:
-    """Test specialized repository protocols."""
-
-    def test_experiment_repository_protocol(self):
-        """Test ExperimentRepositoryProtocol."""
-        mock_repo = Mock(spec=ExperimentRepositoryProtocol)
+    @pytest.mark.asyncio
+    async def test_mock_experiment_repository(self):
+        """Test mock experiment repository implementation."""
+        mock_repo = AsyncMock(spec=ExperimentRepositoryProtocol)
         mock_experiment = Mock(spec=Experiment)
 
+        # Configure experiment-specific returns
         mock_repo.find_by_name.return_value = [mock_experiment]
-        results = mock_repo.find_by_name("test_experiment")
-        assert results == [mock_experiment]
+        mock_repo.find_by_status.return_value = [mock_experiment]
+        mock_repo.find_by_type.return_value = [mock_experiment]
 
-    def test_pipeline_repository_protocol(self):
-        """Test PipelineRepositoryProtocol."""
-        mock_repo = Mock(spec=PipelineRepositoryProtocol)
+        # Test experiment-specific operations
+        experiments_by_name = await mock_repo.find_by_name("test_experiment")
+        assert len(experiments_by_name) == 1
+
+        experiments_by_status = await mock_repo.find_by_status("running")
+        assert len(experiments_by_status) == 1
+
+        experiments_by_type = await mock_repo.find_by_type("hyperparameter_tuning")
+        assert len(experiments_by_type) == 1
+
+
+class TestPipelineRepositoryProtocol:
+    """Test suite for PipelineRepositoryProtocol."""
+
+    def test_inherits_from_repository_protocol(self):
+        """Test that PipelineRepositoryProtocol inherits from RepositoryProtocol."""
+        assert issubclass(PipelineRepositoryProtocol, RepositoryProtocol)
+
+    def test_protocol_defines_pipeline_specific_methods(self):
+        """Test protocol defines pipeline-specific methods."""
+        pipeline_methods = [
+            "find_by_name",
+            "find_by_name_and_environment",
+            "find_by_status",
+            "find_by_type",
+        ]
+
+        for method in pipeline_methods:
+            assert hasattr(PipelineRepositoryProtocol, method)
+            assert callable(getattr(PipelineRepositoryProtocol, method))
+
+    @pytest.mark.asyncio
+    async def test_mock_pipeline_repository(self):
+        """Test mock pipeline repository implementation."""
+        mock_repo = AsyncMock(spec=PipelineRepositoryProtocol)
         mock_pipeline = Mock(spec=Pipeline)
 
+        # Configure pipeline-specific returns
+        mock_repo.find_by_name.return_value = [mock_pipeline]
         mock_repo.find_by_name_and_environment.return_value = [mock_pipeline]
-        results = mock_repo.find_by_name_and_environment("test_pipeline", "production")
-        assert results == [mock_pipeline]
+        mock_repo.find_by_status.return_value = [mock_pipeline]
+        mock_repo.find_by_type.return_value = [mock_pipeline]
 
-    def test_alert_repository_protocol(self):
-        """Test AlertRepositoryProtocol."""
-        mock_repo = Mock(spec=AlertRepositoryProtocol)
+        # Test pipeline-specific operations
+        pipelines_by_name = await mock_repo.find_by_name("test_pipeline")
+        assert len(pipelines_by_name) == 1
+
+        pipelines_by_env = await mock_repo.find_by_name_and_environment(
+            "test_pipeline", "production"
+        )
+        assert len(pipelines_by_env) == 1
+
+        pipelines_by_status = await mock_repo.find_by_status("active")
+        assert len(pipelines_by_status) == 1
+
+        pipelines_by_type = await mock_repo.find_by_type("training")
+        assert len(pipelines_by_type) == 1
+
+
+class TestAlertRepositoryProtocol:
+    """Test suite for AlertRepositoryProtocol."""
+
+    def test_inherits_from_repository_protocol(self):
+        """Test that AlertRepositoryProtocol inherits from RepositoryProtocol."""
+        assert issubclass(AlertRepositoryProtocol, RepositoryProtocol)
+
+    def test_protocol_defines_alert_specific_methods(self):
+        """Test protocol defines alert-specific methods."""
+        alert_methods = ["find_by_name", "find_by_status", "find_by_type", "find_by_severity"]
+
+        for method in alert_methods:
+            assert hasattr(AlertRepositoryProtocol, method)
+            assert callable(getattr(AlertRepositoryProtocol, method))
+
+    @pytest.mark.asyncio
+    async def test_mock_alert_repository(self):
+        """Test mock alert repository implementation."""
+        mock_repo = AsyncMock(spec=AlertRepositoryProtocol)
         mock_alert = Mock(spec=Alert)
 
+        # Configure alert-specific returns
+        mock_repo.find_by_name.return_value = [mock_alert]
+        mock_repo.find_by_status.return_value = [mock_alert]
+        mock_repo.find_by_type.return_value = [mock_alert]
         mock_repo.find_by_severity.return_value = [mock_alert]
-        results = mock_repo.find_by_severity("high")
-        assert results == [mock_alert]
 
-    def test_alert_notification_repository_protocol(self):
-        """Test AlertNotificationRepositoryProtocol."""
-        mock_repo = Mock(spec=AlertNotificationRepositoryProtocol)
-        mock_notification = Mock(spec=AlertNotification)
-        test_id = uuid4()
+        # Test alert-specific operations
+        alerts_by_name = await mock_repo.find_by_name("test_alert")
+        assert len(alerts_by_name) == 1
 
-        mock_repo.find_by_alert_id.return_value = [mock_notification]
-        results = mock_repo.find_by_alert_id(test_id)
-        assert results == [mock_notification]
+        alerts_by_status = await mock_repo.find_by_status("active")
+        assert len(alerts_by_status) == 1
+
+        alerts_by_type = await mock_repo.find_by_type("anomaly_threshold")
+        assert len(alerts_by_type) == 1
+
+        alerts_by_severity = await mock_repo.find_by_severity("high")
+        assert len(alerts_by_severity) == 1
+
+
+class TestRepositoryProtocolInteroperability:
+    """Test interoperability and consistency across repository protocols."""
+
+    def test_all_protocols_inherit_from_base(self):
+        """Test that all repository protocols inherit from base RepositoryProtocol."""
+        repository_protocols = [
+            DetectorRepositoryProtocol,
+            DatasetRepositoryProtocol,
+            DetectionResultRepositoryProtocol,
+            ModelRepositoryProtocol,
+            ModelVersionRepositoryProtocol,
+            ExperimentRepositoryProtocol,
+            ExperimentRunRepositoryProtocol,
+            PipelineRepositoryProtocol,
+            PipelineRunRepositoryProtocol,
+            AlertRepositoryProtocol,
+            AlertNotificationRepositoryProtocol,
+        ]
+
+        for protocol in repository_protocols:
+            assert issubclass(protocol, RepositoryProtocol)
+
+    def test_all_protocols_are_runtime_checkable(self):
+        """Test that all repository protocols are runtime checkable."""
+        repository_protocols = [
+            DetectorRepositoryProtocol,
+            DatasetRepositoryProtocol,
+            DetectionResultRepositoryProtocol,
+            ModelRepositoryProtocol,
+            ModelVersionRepositoryProtocol,
+            ExperimentRepositoryProtocol,
+            ExperimentRunRepositoryProtocol,
+            PipelineRepositoryProtocol,
+            PipelineRunRepositoryProtocol,
+            AlertRepositoryProtocol,
+            AlertNotificationRepositoryProtocol,
+        ]
+
+        for protocol in repository_protocols:
+            assert hasattr(protocol, "__runtime_checkable__")
+
+    def test_crud_methods_consistency(self):
+        """Test that all repository protocols have consistent CRUD methods."""
+        base_methods = ["save", "find_by_id", "find_all", "delete", "exists", "count"]
+
+        repository_protocols = [
+            DetectorRepositoryProtocol,
+            DatasetRepositoryProtocol,
+            DetectionResultRepositoryProtocol,
+            ModelRepositoryProtocol,
+            ExperimentRepositoryProtocol,
+            PipelineRepositoryProtocol,
+            AlertRepositoryProtocol,
+        ]
+
+        for protocol in repository_protocols:
+            for method in base_methods:
+                assert hasattr(protocol, method), f"{protocol.__name__} missing {method}"
+
+    @pytest.mark.asyncio
+    async def test_polymorphic_repository_usage(self):
+        """Test polymorphic usage of different repository types."""
+        # Create mocks for different repository types
+        detector_repo = AsyncMock(spec=DetectorRepositoryProtocol)
+        dataset_repo = AsyncMock(spec=DatasetRepositoryProtocol)
+        result_repo = AsyncMock(spec=DetectionResultRepositoryProtocol)
+
+        repositories = [detector_repo, dataset_repo, result_repo]
+
+        # Configure common CRUD operations
+        for repo in repositories:
+            repo.count.return_value = 5
+            repo.exists.return_value = True
+
+        # Test polymorphic usage
+        async def count_all_entities(repos: list[RepositoryProtocol]) -> int:
+            total = 0
+            for repo in repos:
+                total += await repo.count()
+            return total
+
+        total_count = await count_all_entities(repositories)
+        assert total_count == 15  # 3 repos * 5 entities each
+
+    def test_repository_protocol_type_parameters(self):
+        """Test that repository protocols correctly use type parameters."""
+        # DetectorRepositoryProtocol should work with Detector type
+        detector_repo = AsyncMock(spec=DetectorRepositoryProtocol)
+        assert isinstance(detector_repo, RepositoryProtocol)
+
+        # DatasetRepositoryProtocol should work with Dataset type
+        dataset_repo = AsyncMock(spec=DatasetRepositoryProtocol)
+        assert isinstance(dataset_repo, RepositoryProtocol)
+
+    @pytest.mark.asyncio
+    async def test_error_handling_consistency(self):
+        """Test consistent error handling across repository protocols."""
+        repos = [
+            AsyncMock(spec=DetectorRepositoryProtocol),
+            AsyncMock(spec=DatasetRepositoryProtocol),
+            AsyncMock(spec=DetectionResultRepositoryProtocol),
+        ]
+
+        # Configure all repos to raise the same exception type
+        non_existent_id = uuid4()
+        for repo in repos:
+            repo.find_by_id.return_value = None
+            repo.delete.return_value = False
+
+        # Test consistent None returns for not found
+        for repo in repos:
+            result = await repo.find_by_id(non_existent_id)
+            assert result is None
+
+            deleted = await repo.delete(non_existent_id)
+            assert deleted is False
+
+    def test_method_signature_consistency(self):
+        """Test that similar methods across protocols have consistent signatures."""
+        # Test find_by_name methods have consistent signatures
+        protocols_with_find_by_name = [
+            DetectorRepositoryProtocol,
+            DatasetRepositoryProtocol,
+            ModelRepositoryProtocol,
+            ExperimentRepositoryProtocol,
+            PipelineRepositoryProtocol,
+            AlertRepositoryProtocol,
+        ]
+
+        for protocol in protocols_with_find_by_name:
+            method_sig = inspect.signature(protocol.find_by_name)
+            assert "name" in method_sig.parameters
+            # All should take a string name parameter
+            name_param = method_sig.parameters["name"]
+            assert name_param.annotation == str
+
+    @pytest.mark.asyncio
+    async def test_repository_protocol_contracts(self):
+        """Test that repository protocol contracts are properly defined."""
+
+        class TestRepository:
+            def __init__(self):
+                self._entities = {}
+
+            async def save(self, entity) -> None:
+                self._entities[entity.id] = entity
+
+            async def find_by_id(self, entity_id: UUID):
+                return self._entities.get(entity_id)
+
+            async def find_all(self) -> list:
+                return list(self._entities.values())
+
+            async def delete(self, entity_id: UUID) -> bool:
+                return self._entities.pop(entity_id, None) is not None
+
+            async def exists(self, entity_id: UUID) -> bool:
+                return entity_id in self._entities
+
+            async def count(self) -> int:
+                return len(self._entities)
+
+        repo = TestRepository()
+
+        # Test that the repository conforms to the protocol
+        assert isinstance(repo, RepositoryProtocol)
+
+        # Test contract behavior
+        mock_entity = Mock()
+        mock_entity.id = uuid4()
+
+        # Save should persist entity
+        await repo.save(mock_entity)
+        assert await repo.exists(mock_entity.id)
+
+        # Find by ID should return saved entity
+        found = await repo.find_by_id(mock_entity.id)
+        assert found == mock_entity
+
+        # Count should reflect saved entities
+        assert await repo.count() == 1
+
+        # Delete should remove entity
+        deleted = await repo.delete(mock_entity.id)
+        assert deleted is True
+        assert not await repo.exists(mock_entity.id)
+        assert await repo.count() == 0

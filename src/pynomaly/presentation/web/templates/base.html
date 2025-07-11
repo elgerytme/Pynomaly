@@ -56,6 +56,7 @@
 
     <!-- Design System CSS -->
     <link rel="stylesheet" href="/static/css/design-system.css" />
+    <link rel="stylesheet" href="/static/css/theme-system.css" />
     <link rel="stylesheet" href="/static/css/tailwind.css" />
 
     <!-- Custom CSS -->
@@ -234,7 +235,7 @@
 
     {% block head %}{% endblock %}
   </head>
-  <body class="bg-gray-50">
+  <body class="bg-gray-50 transition-colors duration-300">
     <!-- Navigation -->
     <nav class="bg-white shadow-lg" x-data="{ mobileMenuOpen: false }">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -426,7 +427,12 @@
             </div>
           </div>
 
-          <!-- Mobile menu button -->
+          <!-- Right side navigation items -->
+          <div class="flex items-center space-x-4">
+            <!-- Theme toggle button (will be populated by ThemeManager) -->
+            <div id="theme-toggle-container"></div>
+
+            <!-- Mobile menu button -->
           <div class="-mr-2 flex items-center sm:hidden">
             <button
               @click="mobileMenuOpen = !mobileMenuOpen"
@@ -454,6 +460,7 @@
                 />
               </svg>
             </button>
+          </div>
           </div>
         </div>
       </div>
@@ -559,9 +566,12 @@
       </div>
     </footer>
 
+    <!-- Theme Manager -->
+    <script type="module" src="/static/js/src/utils/theme-manager.js"></script>
+
     <!-- Enhanced Dashboard JavaScript -->
     <script src="/static/js/dashboard.js"></script>
-    
+
     <!-- Frontend Monitoring and Utilities -->
     <script src="/static/js/src/utils/frontend-monitoring.js"></script>
     <script src="/static/js/src/utils/performance-dashboard.js"></script>

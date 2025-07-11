@@ -10,11 +10,8 @@ import pytest
 from pynomaly.shared.error_handling import (
     ConfigurationError,
     PerformanceError,
-    PynomaliError,
-    ResourceNotFoundError,
     ValidationError,
     create_user_friendly_message,
-    handle_api_errors,
     handle_cli_errors,
     safe_import,
     validate_algorithm_name,

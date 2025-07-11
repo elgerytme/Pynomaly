@@ -7,11 +7,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from pynomaly.shared.error_handling.recovery import (
-    APIRecoveryHandler,
     CacheRecoveryHandler,
-    DatabaseRecoveryHandler,
     FallbackRecoveryHandler,
-    FileRecoveryHandler,
     RecoveryConfig,
     RecoveryContext,
     RecoveryHandler,
@@ -43,7 +40,7 @@ class TestRecoveryConfig:
             timeout=30.0,
             fallback_enabled=True,
             circuit_breaker_enabled=True,
-            recovery_strategies=[RecoveryStrategy.RETRY, RecoveryStrategy.FALLBACK]
+            recovery_strategies=[RecoveryStrategy.RETRY, RecoveryStrategy.FALLBACK],
         )
 
         assert config.max_retries == 3
@@ -82,10 +79,7 @@ class TestRecoveryConfig:
     def test_recovery_config_to_dict(self):
         """Test RecoveryConfig to_dict method."""
         config = RecoveryConfig(
-            max_retries=3,
-            retry_delay=1.0,
-            timeout=30.0,
-            fallback_enabled=True
+            max_retries=3, retry_delay=1.0, timeout=30.0, fallback_enabled=True
         )
 
         result = config.to_dict()
@@ -101,7 +95,7 @@ class TestRecoveryConfig:
             "max_retries": 5,
             "retry_delay": 2.0,
             "timeout": 60.0,
-            "fallback_enabled": False
+            "fallback_enabled": False,
         }
 
         config = RecoveryConfig.from_dict(data)
@@ -123,7 +117,7 @@ class TestRecoveryContext:
             attempt=1,
             total_attempts=3,
             start_time=datetime.utcnow(),
-            metadata={"key": "value"}
+            metadata={"key": "value"},
         )
 
         assert context.operation == "test_operation"
@@ -139,7 +133,7 @@ class TestRecoveryContext:
         context = RecoveryContext(
             operation="test_operation",
             error=Exception("test error"),
-            start_time=start_time
+            start_time=start_time,
         )
 
         elapsed = context.elapsed_time()
@@ -152,7 +146,7 @@ class TestRecoveryContext:
         context = RecoveryContext(
             operation="test_operation",
             error=Exception("test error"),
-            start_time=start_time
+            start_time=start_time,
         )
 
         # Should timeout with 30 second limit
@@ -164,8 +158,7 @@ class TestRecoveryContext:
     def test_recovery_context_add_metadata(self):
         """Test adding metadata."""
         context = RecoveryContext(
-            operation="test_operation",
-            error=Exception("test error")
+            operation="test_operation", error=Exception("test error")
         )
 
         context.add_metadata("key1", "value1")
@@ -180,7 +173,7 @@ class TestRecoveryContext:
             operation="test_operation",
             error=Exception("test error"),
             attempt=1,
-            total_attempts=3
+            total_attempts=3,
         )
 
         result = context.to_dict()
@@ -204,7 +197,7 @@ class TestRecoveryResult:
             strategy_used=RecoveryStrategy.RETRY,
             attempts=2,
             recovery_time=timedelta(seconds=5),
-            error=None
+            error=None,
         )
 
         assert result.success is True
@@ -223,7 +216,7 @@ class TestRecoveryResult:
             strategy_used=RecoveryStrategy.FALLBACK,
             attempts=3,
             recovery_time=timedelta(seconds=10),
-            error=error
+            error=error,
         )
 
         assert result.success is False
@@ -240,7 +233,7 @@ class TestRecoveryResult:
             result="test_result",
             strategy_used=RecoveryStrategy.RETRY,
             attempts=2,
-            recovery_time=timedelta(seconds=5)
+            recovery_time=timedelta(seconds=5),
         )
 
         dict_result = result.to_dict()
@@ -258,7 +251,7 @@ class TestRecoveryResult:
             "result": "test_result",
             "strategy_used": "RETRY",
             "attempts": 2,
-            "recovery_time": 5.0
+            "recovery_time": 5.0,
         }
 
         result = RecoveryResult.from_dict(data)
@@ -293,7 +286,7 @@ class TestRecoveryMetrics:
             result="test_result",
             strategy_used=RecoveryStrategy.RETRY,
             attempts=2,
-            recovery_time=timedelta(seconds=5)
+            recovery_time=timedelta(seconds=5),
         )
 
         metrics.record_recovery(result)
@@ -315,7 +308,7 @@ class TestRecoveryMetrics:
             strategy_used=RecoveryStrategy.FALLBACK,
             attempts=3,
             recovery_time=timedelta(seconds=10),
-            error=Exception("failed")
+            error=Exception("failed"),
         )
 
         metrics.record_recovery(result)
@@ -401,8 +394,7 @@ class TestRecoveryHandler:
         handler = RecoveryHandler(config)
 
         context = RecoveryContext(
-            operation="test_operation",
-            error=Exception("test error")
+            operation="test_operation", error=Exception("test error")
         )
 
         with pytest.raises(NotImplementedError):
@@ -422,8 +414,7 @@ class TestRecoveryHandler:
         handler.handle_recovery = AsyncMock(return_value="recovered_result")
 
         context = RecoveryContext(
-            operation="test_operation",
-            error=Exception("test error")
+            operation="test_operation", error=Exception("test error")
         )
 
         result = await handler.execute_recovery(context)
@@ -444,8 +435,7 @@ class TestRecoveryHandler:
         handler.can_handle = AsyncMock(return_value=False)
 
         context = RecoveryContext(
-            operation="test_operation",
-            error=Exception("test error")
+            operation="test_operation", error=Exception("test error")
         )
 
         result = await handler.execute_recovery(context)
@@ -462,15 +452,12 @@ class TestRecoveryHandler:
 
         # Mock methods
         handler.can_handle = AsyncMock(return_value=True)
-        handler.handle_recovery = AsyncMock(side_effect=[
-            Exception("retry 1"),
-            Exception("retry 2"),
-            "success"
-        ])
+        handler.handle_recovery = AsyncMock(
+            side_effect=[Exception("retry 1"), Exception("retry 2"), "success"]
+        )
 
         context = RecoveryContext(
-            operation="test_operation",
-            error=Exception("test error")
+            operation="test_operation", error=Exception("test error")
         )
 
         result = await handler.execute_recovery(context)
@@ -491,8 +478,7 @@ class TestRecoveryHandler:
         handler.handle_recovery = AsyncMock(side_effect=lambda ctx: asyncio.sleep(0.2))
 
         context = RecoveryContext(
-            operation="test_operation",
-            error=Exception("test error")
+            operation="test_operation", error=Exception("test error")
         )
 
         result = await handler.execute_recovery(context)
@@ -520,15 +506,13 @@ class TestCacheRecoveryHandler:
 
         # Should handle cache errors
         cache_context = RecoveryContext(
-            operation="cache_get",
-            error=CacheError("cache error")
+            operation="cache_get", error=CacheError("cache error")
         )
         assert await handler.can_handle(cache_context) is True
 
         # Should not handle other errors
         other_context = RecoveryContext(
-            operation="db_query",
-            error=DatabaseError("db error")
+            operation="db_query", error=DatabaseError("db error")
         )
         assert await handler.can_handle(other_context) is False
 
@@ -546,7 +530,7 @@ class TestCacheRecoveryHandler:
         context = RecoveryContext(
             operation="cache_get",
             error=CacheError("cache error"),
-            metadata={"key": "test_key"}
+            metadata={"key": "test_key"},
         )
 
         result = await handler.handle_recovery(context)
@@ -561,8 +545,7 @@ class TestCacheRecoveryHandler:
         handler = CacheRecoveryHandler(config)
 
         context = RecoveryContext(
-            operation="cache_get",
-            error=CacheError("cache error")
+            operation="cache_get", error=CacheError("cache error")
         )
 
         with pytest.raises(RecoveryError):
@@ -582,7 +565,7 @@ class TestCacheRecoveryHandler:
         context = RecoveryContext(
             operation="cache_set",
             error=CacheError("cache error"),
-            metadata={"key": "test_key", "value": "test_value", "ttl": 3600}
+            metadata={"key": "test_key", "value": "test_value", "ttl": 3600},
         )
 
         result = await handler.handle_recovery(context)
@@ -604,7 +587,7 @@ class TestCacheRecoveryHandler:
         context = RecoveryContext(
             operation="cache_delete",
             error=CacheError("cache error"),
-            metadata={"key": "test_key"}
+            metadata={"key": "test_key"},
         )
 
         result = await handler.handle_recovery(context)
@@ -632,15 +615,13 @@ class TestDatabaseRecoveryHandler:
 
         # Should handle database errors
         db_context = RecoveryContext(
-            operation="db_query",
-            error=DatabaseError("db error")
+            operation="db_query", error=DatabaseError("db error")
         )
         assert await handler.can_handle(db_context) is True
 
         # Should not handle other errors
         other_context = RecoveryContext(
-            operation="cache_get",
-            error=CacheError("cache error")
+            operation="cache_get", error=CacheError("cache error")
         )
         assert await handler.can_handle(other_context) is False
 
@@ -658,7 +639,7 @@ class TestDatabaseRecoveryHandler:
         context = RecoveryContext(
             operation="db_query",
             error=DatabaseError("db error"),
-            metadata={"query": "SELECT * FROM users", "params": {"id": 1}}
+            metadata={"query": "SELECT * FROM users", "params": {"id": 1}},
         )
 
         result = await handler.handle_recovery(context)
@@ -672,10 +653,7 @@ class TestDatabaseRecoveryHandler:
         config = RecoveryConfig()
         handler = DatabaseRecoveryHandler(config)
 
-        context = RecoveryContext(
-            operation="db_query",
-            error=DatabaseError("db error")
-        )
+        context = RecoveryContext(operation="db_query", error=DatabaseError("db error"))
 
         with pytest.raises(RecoveryError):
             await handler.handle_recovery(context)
@@ -692,8 +670,7 @@ class TestDatabaseRecoveryHandler:
         handler.fallback_db = mock_db
 
         context = RecoveryContext(
-            operation="db_connect",
-            error=DatabaseError("connection error")
+            operation="db_connect", error=DatabaseError("connection error")
         )
 
         result = await handler.handle_recovery(context)
@@ -720,16 +697,12 @@ class TestAPIRecoveryHandler:
         handler = APIRecoveryHandler(config)
 
         # Should handle API errors
-        api_context = RecoveryContext(
-            operation="api_call",
-            error=APIError("api error")
-        )
+        api_context = RecoveryContext(operation="api_call", error=APIError("api error"))
         assert await handler.can_handle(api_context) is True
 
         # Should not handle other errors
         other_context = RecoveryContext(
-            operation="cache_get",
-            error=CacheError("cache error")
+            operation="cache_get", error=CacheError("cache error")
         )
         assert await handler.can_handle(other_context) is False
 
@@ -748,8 +721,8 @@ class TestAPIRecoveryHandler:
             metadata={
                 "url": "https://primary.api.com/endpoint",
                 "method": "GET",
-                "headers": {"Authorization": "Bearer token"}
-            }
+                "headers": {"Authorization": "Bearer token"},
+            },
         )
 
         with patch("aiohttp.ClientSession.get") as mock_get:
@@ -769,10 +742,7 @@ class TestAPIRecoveryHandler:
         config = RecoveryConfig()
         handler = APIRecoveryHandler(config)
 
-        context = RecoveryContext(
-            operation="api_call",
-            error=APIError("api error")
-        )
+        context = RecoveryContext(operation="api_call", error=APIError("api error"))
 
         with pytest.raises(RecoveryError):
             await handler.handle_recovery(context)
@@ -786,23 +756,22 @@ class TestAPIRecoveryHandler:
         # Add multiple fallback endpoints
         handler.fallback_endpoints = [
             "https://fallback1.api.com",
-            "https://fallback2.api.com"
+            "https://fallback2.api.com",
         ]
 
         context = RecoveryContext(
             operation="api_call",
             error=APIError("api error"),
-            metadata={
-                "url": "https://primary.api.com/endpoint",
-                "method": "GET"
-            }
+            metadata={"url": "https://primary.api.com/endpoint", "method": "GET"},
         )
 
         with patch("aiohttp.ClientSession.get") as mock_get:
             # First fallback fails, second succeeds
             mock_get.side_effect = [
                 Exception("fallback1 failed"),
-                AsyncMock(status=200, json=AsyncMock(return_value={"result": "success"}))
+                AsyncMock(
+                    status=200, json=AsyncMock(return_value={"result": "success"})
+                ),
             ]
 
             result = await handler.handle_recovery(context)
@@ -830,15 +799,13 @@ class TestFileRecoveryHandler:
 
         # Should handle file errors
         file_context = RecoveryContext(
-            operation="file_read",
-            error=FileError("file error")
+            operation="file_read", error=FileError("file error")
         )
         assert await handler.can_handle(file_context) is True
 
         # Should not handle other errors
         other_context = RecoveryContext(
-            operation="cache_get",
-            error=CacheError("cache error")
+            operation="cache_get", error=CacheError("cache error")
         )
         assert await handler.can_handle(other_context) is False
 
@@ -854,10 +821,15 @@ class TestFileRecoveryHandler:
         context = RecoveryContext(
             operation="file_read",
             error=FileError("file error"),
-            metadata={"file_path": "/original/path/file.txt"}
+            metadata={"file_path": "/original/path/file.txt"},
         )
 
-        with patch("builtins.open", MagicMock(return_value=MagicMock(read=MagicMock(return_value="file_content")))):
+        with patch(
+            "builtins.open",
+            MagicMock(
+                return_value=MagicMock(read=MagicMock(return_value="file_content"))
+            ),
+        ):
             result = await handler.handle_recovery(context)
 
             assert result == "file_content"
@@ -868,10 +840,7 @@ class TestFileRecoveryHandler:
         config = RecoveryConfig()
         handler = FileRecoveryHandler(config)
 
-        context = RecoveryContext(
-            operation="file_read",
-            error=FileError("file error")
-        )
+        context = RecoveryContext(operation="file_read", error=FileError("file error"))
 
         with pytest.raises(RecoveryError):
             await handler.handle_recovery(context)
@@ -890,8 +859,8 @@ class TestFileRecoveryHandler:
             error=FileError("file error"),
             metadata={
                 "file_path": "/original/path/file.txt",
-                "content": "test_content"
-            }
+                "content": "test_content",
+            },
         )
 
         with patch("builtins.open", MagicMock()) as mock_open:
@@ -924,8 +893,7 @@ class TestFallbackRecoveryHandler:
 
         # Should handle any error
         context = RecoveryContext(
-            operation="any_operation",
-            error=Exception("any error")
+            operation="any_operation", error=Exception("any error")
         )
         assert await handler.can_handle(context) is True
 
@@ -936,8 +904,7 @@ class TestFallbackRecoveryHandler:
         handler = FallbackRecoveryHandler(config, lambda: "fallback_result")
 
         context = RecoveryContext(
-            operation="any_operation",
-            error=Exception("any error")
+            operation="any_operation", error=Exception("any error")
         )
 
         result = await handler.handle_recovery(context)
@@ -955,8 +922,7 @@ class TestFallbackRecoveryHandler:
         handler = FallbackRecoveryHandler(config, async_fallback)
 
         context = RecoveryContext(
-            operation="any_operation",
-            error=Exception("any error")
+            operation="any_operation", error=Exception("any error")
         )
 
         result = await handler.handle_recovery(context)
@@ -974,8 +940,7 @@ class TestFallbackRecoveryHandler:
         handler = FallbackRecoveryHandler(config, fallback_with_context)
 
         context = RecoveryContext(
-            operation="test_operation",
-            error=Exception("test error")
+            operation="test_operation", error=Exception("test error")
         )
 
         result = await handler.handle_recovery(context)
@@ -1042,8 +1007,7 @@ class TestRecoveryManager:
         manager.add_handler(handler)
 
         context = RecoveryContext(
-            operation="cache_get",
-            error=CacheError("cache error")
+            operation="cache_get", error=CacheError("cache error")
         )
 
         result = await manager.recover(context)
@@ -1063,10 +1027,7 @@ class TestRecoveryManager:
         handler.can_handle = AsyncMock(return_value=False)
         manager.add_handler(handler)
 
-        context = RecoveryContext(
-            operation="db_query",
-            error=DatabaseError("db error")
-        )
+        context = RecoveryContext(operation="db_query", error=DatabaseError("db error"))
 
         result = await manager.recover(context)
 
@@ -1090,10 +1051,7 @@ class TestRecoveryManager:
         db_handler.handle_recovery = AsyncMock(return_value="db_recovered")
         manager.add_handler(db_handler)
 
-        context = RecoveryContext(
-            operation="db_query",
-            error=DatabaseError("db error")
-        )
+        context = RecoveryContext(operation="db_query", error=DatabaseError("db error"))
 
         result = await manager.recover(context)
 
@@ -1142,7 +1100,7 @@ class TestRecoveryDecorators:
         @recovery_handler(config)
         async def test_func():
             # Simulate failure then success
-            if not hasattr(test_func, 'called'):
+            if not hasattr(test_func, "called"):
                 test_func.called = True
                 raise Exception("First call fails")
             return "success"
@@ -1153,6 +1111,7 @@ class TestRecoveryDecorators:
     @pytest.mark.asyncio
     async def test_fallback_on_error_decorator(self):
         """Test fallback_on_error decorator."""
+
         @fallback_on_error(lambda: "fallback_result")
         async def test_func():
             raise Exception("Function fails")
@@ -1163,9 +1122,10 @@ class TestRecoveryDecorators:
     @pytest.mark.asyncio
     async def test_circuit_breaker_recovery_decorator(self):
         """Test circuit_breaker_recovery decorator."""
+
         @circuit_breaker_recovery(failure_threshold=2, recovery_timeout=0.1)
         async def test_func():
-            if not hasattr(test_func, 'calls'):
+            if not hasattr(test_func, "calls"):
                 test_func.calls = 0
             test_func.calls += 1
 

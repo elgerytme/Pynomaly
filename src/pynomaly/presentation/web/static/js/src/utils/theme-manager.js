@@ -56,13 +56,13 @@ class ThemeManager {
         }
       }
     };
-    
+
     this.mediaQueries = {
       prefersColorScheme: window.matchMedia('(prefers-color-scheme: dark)'),
       prefersContrast: window.matchMedia('(prefers-contrast: high)'),
       prefersReducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)')
     };
-    
+
     this.init();
   }
 
@@ -78,7 +78,7 @@ class ThemeManager {
     const savedTheme = localStorage.getItem('pynomaly-theme');
     const systemPrefersDark = this.mediaQueries.prefersColorScheme.matches;
     const systemPrefersHighContrast = this.mediaQueries.prefersContrast.matches;
-    
+
     if (savedTheme && this.themes[savedTheme]) {
       this.currentTheme = savedTheme;
     } else if (systemPrefersHighContrast) {
@@ -118,13 +118,18 @@ class ThemeManager {
     themeToggle.className = 'theme-toggle-btn';
     themeToggle.setAttribute('aria-label', 'Toggle theme');
     themeToggle.innerHTML = this.getThemeIcon();
-    
-    // Add to header or create header section
-    const header = document.querySelector('header') || document.querySelector('nav');
-    if (header) {
-      header.appendChild(themeToggle);
+
+    // Add to theme toggle container or header
+    const themeContainer = document.getElementById('theme-toggle-container');
+    if (themeContainer) {
+      themeContainer.appendChild(themeToggle);
     } else {
-      document.body.appendChild(themeToggle);
+      const header = document.querySelector('header') || document.querySelector('nav');
+      if (header) {
+        header.appendChild(themeToggle);
+      } else {
+        document.body.appendChild(themeToggle);
+      }
     }
 
     // Add click handler
@@ -160,7 +165,7 @@ class ThemeManager {
         </svg>
       `
     };
-    
+
     return icons[this.currentTheme] || icons.light;
   }
 
@@ -168,7 +173,7 @@ class ThemeManager {
     const themes = Object.keys(this.themes);
     const currentIndex = themes.indexOf(this.currentTheme);
     const nextIndex = (currentIndex + 1) % themes.length;
-    
+
     this.setTheme(themes[nextIndex]);
   }
 
@@ -180,11 +185,11 @@ class ThemeManager {
 
     const previousTheme = this.currentTheme;
     this.currentTheme = themeName;
-    
+
     this.applyTheme();
     this.saveThemePreference();
     this.updateThemeToggle();
-    
+
     // Emit theme change event
     this.emitThemeChangeEvent(previousTheme, themeName);
   }
@@ -192,16 +197,16 @@ class ThemeManager {
   applyTheme() {
     const theme = this.themes[this.currentTheme];
     const root = document.documentElement;
-    
+
     // Apply CSS custom properties
     Object.entries(theme.colors).forEach(([key, value]) => {
       root.style.setProperty(`--color-${key}`, value);
     });
-    
+
     // Add theme class to body
     document.body.className = document.body.className.replace(/theme-\w+/g, '');
     document.body.classList.add(`theme-${this.currentTheme}`);
-    
+
     // Update meta theme-color
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (!metaThemeColor) {
@@ -210,7 +215,7 @@ class ThemeManager {
       document.head.appendChild(metaThemeColor);
     }
     metaThemeColor.content = theme.colors.primary;
-    
+
     // Apply theme-specific styles
     this.applyThemeStyles();
   }
@@ -223,7 +228,7 @@ class ThemeManager {
       themeStylesheet.id = 'theme-stylesheet';
       document.head.appendChild(themeStylesheet);
     }
-    
+
     const theme = this.themes[this.currentTheme];
     const css = this.generateThemeCSS(theme);
     themeStylesheet.textContent = css;
@@ -232,26 +237,26 @@ class ThemeManager {
   generateThemeCSS(theme) {
     return `
       /* Theme: ${theme.name} */
-      
+
       .theme-${this.currentTheme} {
         background-color: var(--color-background);
         color: var(--color-text);
         transition: background-color 0.3s ease, color 0.3s ease;
       }
-      
+
       /* Button styles */
       .theme-${this.currentTheme} .btn-primary {
         background-color: var(--color-primary);
         color: var(--color-background);
         border: 1px solid var(--color-primary);
       }
-      
+
       .theme-${this.currentTheme} .btn-secondary {
         background-color: var(--color-secondary);
         color: var(--color-background);
         border: 1px solid var(--color-secondary);
       }
-      
+
       /* Input styles */
       .theme-${this.currentTheme} input,
       .theme-${this.currentTheme} textarea,
@@ -260,57 +265,57 @@ class ThemeManager {
         color: var(--color-text);
         border: 1px solid var(--color-border);
       }
-      
+
       /* Card styles */
       .theme-${this.currentTheme} .card {
         background-color: var(--color-surface);
         border: 1px solid var(--color-border);
         box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
       }
-      
+
       /* Navigation styles */
       .theme-${this.currentTheme} nav {
         background-color: var(--color-surface);
         border-bottom: 1px solid var(--color-border);
       }
-      
+
       /* Alert styles */
       .theme-${this.currentTheme} .alert-success {
         background-color: var(--color-success);
         color: var(--color-background);
       }
-      
+
       .theme-${this.currentTheme} .alert-warning {
         background-color: var(--color-warning);
         color: var(--color-background);
       }
-      
+
       .theme-${this.currentTheme} .alert-error {
         background-color: var(--color-error);
         color: var(--color-background);
       }
-      
+
       /* Table styles */
       .theme-${this.currentTheme} table {
         background-color: var(--color-surface);
       }
-      
+
       .theme-${this.currentTheme} th {
         background-color: var(--color-background);
         color: var(--color-text);
         border-bottom: 2px solid var(--color-border);
       }
-      
+
       .theme-${this.currentTheme} td {
         border-bottom: 1px solid var(--color-border);
       }
-      
+
       /* Focus styles */
       .theme-${this.currentTheme} *:focus {
         outline: 2px solid var(--color-primary);
         outline-offset: 2px;
       }
-      
+
       /* High contrast specific styles */
       ${this.currentTheme === 'highContrast' ? this.getHighContrastStyles() : ''}
     `;
@@ -322,17 +327,17 @@ class ThemeManager {
       .theme-highContrast * {
         border-width: 2px !important;
       }
-      
+
       .theme-highContrast button {
         border: 2px solid var(--color-text) !important;
         font-weight: bold;
       }
-      
+
       .theme-highContrast a {
         text-decoration: underline !important;
         font-weight: bold;
       }
-      
+
       .theme-highContrast .card {
         border: 3px solid var(--color-text) !important;
       }
@@ -359,24 +364,24 @@ class ThemeManager {
         theme: this.themes[newTheme]
       }
     });
-    
+
     document.dispatchEvent(event);
   }
 
   setupAccessibilityFeatures() {
     // Setup reduced motion
     this.toggleReducedMotion(this.mediaQueries.prefersReducedMotion.matches);
-    
+
     // Setup focus management
     this.setupFocusManagement();
-    
+
     // Setup keyboard navigation
     this.setupKeyboardNavigation();
   }
 
   toggleReducedMotion(enabled) {
     const root = document.documentElement;
-    
+
     if (enabled) {
       root.style.setProperty('--animation-duration', '0s');
       root.style.setProperty('--transition-duration', '0s');
@@ -404,10 +409,10 @@ class ThemeManager {
     const focusableElements = container.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-    
+
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
-    
+
     if (event.shiftKey) {
       if (document.activeElement === firstElement) {
         lastElement.focus();
@@ -429,7 +434,7 @@ class ThemeManager {
         e.preventDefault();
         this.toggleTheme();
       }
-      
+
       // Escape to close modals
       if (e.key === 'Escape') {
         const activeModal = document.querySelector('.modal.active');
@@ -442,7 +447,7 @@ class ThemeManager {
 
   closeModal(modal) {
     modal.classList.remove('active');
-    
+
     // Return focus to trigger element
     const trigger = modal.dataset.trigger;
     if (trigger) {

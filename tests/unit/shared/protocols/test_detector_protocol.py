@@ -225,8 +225,13 @@ class TestStreamingDetectorProtocol:
                 return (True, Mock(spec=AnomalyScore))
 
         detector = ConcreteStreamingDetector()
-        assert isinstance(detector, StreamingDetectorProtocol)
+        # Check base DetectorProtocol methods exist and are callable
         assert isinstance(detector, DetectorProtocol)
+        # Check streaming-specific methods exist and are callable
+        assert hasattr(detector, "partial_fit")
+        assert hasattr(detector, "detect_online")
+        assert callable(detector.partial_fit)
+        assert callable(detector.detect_online)
 
 
 class TestExplainableDetectorProtocol:
@@ -314,8 +319,13 @@ class TestExplainableDetectorProtocol:
                 return {"feature1": 0.5}
 
         detector = ConcreteExplainableDetector()
-        assert isinstance(detector, ExplainableDetectorProtocol)
+        # Check base DetectorProtocol methods exist and are callable
         assert isinstance(detector, DetectorProtocol)
+        # Check explainable-specific methods exist and are callable
+        assert hasattr(detector, "explain")
+        assert hasattr(detector, "feature_importances")
+        assert callable(detector.explain)
+        assert callable(detector.feature_importances)
 
 
 class TestEnsembleDetectorProtocol:
@@ -423,8 +433,16 @@ class TestEnsembleDetectorProtocol:
                 return {"detector1": 0.5}
 
         detector = ConcreteEnsembleDetector()
-        assert isinstance(detector, EnsembleDetectorProtocol)
+        # Check base DetectorProtocol methods exist and are callable
         assert isinstance(detector, DetectorProtocol)
+        # Check ensemble-specific methods exist and are callable
+        assert hasattr(detector, "base_detectors")
+        assert hasattr(detector, "add_detector")
+        assert hasattr(detector, "remove_detector")
+        assert hasattr(detector, "get_detector_weights")
+        assert callable(detector.add_detector)
+        assert callable(detector.remove_detector)
+        assert callable(detector.get_detector_weights)
 
 
 class TestProtocolInteractions:
@@ -485,9 +503,18 @@ class TestProtocolInteractions:
                 return {"feature1": 0.5}
 
         detector = AdvancedDetector()
+        # Check base DetectorProtocol methods exist and are callable
         assert isinstance(detector, DetectorProtocol)
-        assert isinstance(detector, StreamingDetectorProtocol)
-        assert isinstance(detector, ExplainableDetectorProtocol)
+        # Check streaming methods exist and are callable
+        assert hasattr(detector, "partial_fit")
+        assert hasattr(detector, "detect_online")
+        assert callable(detector.partial_fit)
+        assert callable(detector.detect_online)
+        # Check explainable methods exist and are callable
+        assert hasattr(detector, "explain")
+        assert hasattr(detector, "feature_importances")
+        assert callable(detector.explain)
+        assert callable(detector.feature_importances)
 
     def test_protocol_with_none_values(self):
         """Test protocol handles None values appropriately."""
