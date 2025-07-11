@@ -358,9 +358,9 @@ class TestContaminationRateEdgeCases:
     def test_percentage_calculation_precision(self):
         """Test percentage calculation with various precisions."""
         test_cases = [
-            (0.001, 0.1),      # 0.1%
-            (0.0001, 0.01),    # 0.01%
-            (0.12345, 12.345), # 12.345%
+            (0.001, 0.1),  # 0.1%
+            (0.0001, 0.01),  # 0.01%
+            (0.12345, 12.345),  # 12.345%
         ]
 
         for value, expected_percentage in test_cases:
@@ -398,8 +398,8 @@ class TestContaminationRateRepresentation:
         """Test difference between str and repr."""
         rate = ContaminationRate(value=0.1)
 
-        str_repr = str(rate)      # Should be "10.0%"
-        repr_repr = repr(rate)    # Should be "ContaminationRate(value=0.1)"
+        str_repr = str(rate)  # Should be "10.0%"
+        repr_repr = repr(rate)  # Should be "ContaminationRate(value=0.1)"
 
         assert str_repr != repr_repr
         assert "%" in str_repr
@@ -442,6 +442,7 @@ class TestContaminationRateUsagePatterns:
 
     def test_rate_categorization(self):
         """Test categorizing rates using class constants."""
+
         def categorize_rate(rate: ContaminationRate) -> str:
             if rate <= ContaminationRate.LOW:
                 return "low"

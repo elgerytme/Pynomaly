@@ -52,14 +52,14 @@ class EnhancedPWAManager {
 
     try {
       console.log('[PWA] Registering service worker...');
-      
+
       const registration = await navigator.serviceWorker.register('/static/sw.js', {
         scope: '/',
         updateViaCache: 'none'
       });
 
       this.serviceWorker = registration;
-      
+
       // Handle updates
       registration.addEventListener('updatefound', () => {
         this.handleServiceWorkerUpdate(registration);
@@ -86,7 +86,7 @@ class EnhancedPWAManager {
 
   handleServiceWorkerUpdate(registration) {
     const newWorker = registration.installing;
-    
+
     newWorker.addEventListener('statechange', () => {
       if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
         console.log('[PWA] New service worker available');
@@ -142,9 +142,9 @@ class EnhancedPWAManager {
   }
 
   showInstallButton() {
-    const installButton = document.getElementById('pwa-install-button') || 
+    const installButton = document.getElementById('pwa-install-button') ||
                          this.createInstallButton();
-    
+
     installButton.style.display = 'block';
     installButton.addEventListener('click', () => this.promptInstall());
   }
@@ -158,7 +158,7 @@ class EnhancedPWAManager {
       <span class="install-text">Install App</span>
     `;
     button.style.display = 'none';
-    
+
     // Add to appropriate location
     const header = document.querySelector('header') || document.querySelector('nav');
     if (header) {
@@ -166,7 +166,7 @@ class EnhancedPWAManager {
     } else {
       document.body.appendChild(button);
     }
-    
+
     return button;
   }
 
@@ -186,15 +186,15 @@ class EnhancedPWAManager {
     try {
       this.deferredPrompt.prompt();
       const result = await this.deferredPrompt.userChoice;
-      
+
       console.log('[PWA] Install prompt result:', result.outcome);
-      
+
       if (result.outcome === 'accepted') {
         this.notifyInstallListeners('accepted');
       } else {
         this.notifyInstallListeners('dismissed');
       }
-      
+
       this.deferredPrompt = null;
       return result.outcome === 'accepted';
     } catch (error) {
@@ -223,7 +223,7 @@ class EnhancedPWAManager {
 
   handleNetworkChange(isOnline) {
     this.updateNetworkStatusIndicator(isOnline);
-    
+
     if (isOnline) {
       this.processOfflineQueue();
       this.syncOfflineData();
@@ -243,7 +243,7 @@ class EnhancedPWAManager {
       <div class="status-dot"></div>
       <span class="status-text">Online</span>
     `;
-    
+
     document.body.appendChild(indicator);
     this.updateNetworkStatusIndicator(this.isOnline);
   }
@@ -254,7 +254,7 @@ class EnhancedPWAManager {
 
     const dot = indicator.querySelector('.status-dot');
     const text = indicator.querySelector('.status-text');
-    
+
     if (isOnline) {
       dot.className = 'status-dot online';
       text.textContent = 'Online';
@@ -269,10 +269,10 @@ class EnhancedPWAManager {
   enableOfflineMode() {
     // Enable offline functionality
     document.body.classList.add('offline-mode');
-    
+
     // Show offline banner
     this.showOfflineBanner();
-    
+
     // Enable offline data loading
     this.loadOfflineData();
   }
@@ -288,7 +288,7 @@ class EnhancedPWAManager {
         <button class="banner-close" onclick="this.parentElement.parentElement.remove()">×</button>
       </div>
     `;
-    
+
     document.body.insertBefore(banner, document.body.firstChild);
   }
 
@@ -298,7 +298,7 @@ class EnhancedPWAManager {
     try {
       // Request offline data from service worker
       const channel = new MessageChannel();
-      
+
       return new Promise((resolve) => {
         channel.port1.onmessage = (event) => {
           const offlineData = event.data;
@@ -327,7 +327,7 @@ class EnhancedPWAManager {
 
     // Setup sync event listeners
     this.setupSyncEventListeners();
-    
+
     // Start periodic sync check
     this.startPeriodicSyncCheck();
   }
@@ -348,7 +348,7 @@ class EnhancedPWAManager {
 
   handleOfflineFormSubmission(event) {
     event.preventDefault();
-    
+
     const form = event.target;
     const formData = new FormData(form);
     const syncData = {
@@ -365,7 +365,7 @@ class EnhancedPWAManager {
 
   queueSyncRequest(syncData) {
     this.offlineQueue.push(syncData);
-    
+
     // Store in service worker for persistence
     if (navigator.serviceWorker.controller) {
       navigator.serviceWorker.controller.postMessage({
@@ -385,7 +385,7 @@ class EnhancedPWAManager {
       'analysis_request': 'analysis-queue',
       'metric_data': 'metrics-sync'
     };
-    
+
     return syncTags[type] || 'general-sync';
   }
 
@@ -407,7 +407,7 @@ class EnhancedPWAManager {
       for (const syncData of this.offlineQueue) {
         await this.processSyncItem(syncData);
       }
-      
+
       this.offlineQueue = [];
       this.notifySyncListeners('sync_completed');
     } catch (error) {
@@ -456,7 +456,7 @@ class EnhancedPWAManager {
 
   async checkNotificationPermission() {
     this.notificationPermission = Notification.permission;
-    
+
     if (this.notificationPermission === 'default') {
       this.showNotificationPrompt();
     }
@@ -486,11 +486,11 @@ class EnhancedPWAManager {
     try {
       const permission = await Notification.requestPermission();
       this.notificationPermission = permission;
-      
+
       if (permission === 'granted') {
         await this.subscribeToNotifications();
       }
-      
+
       this.dismissNotification();
     } catch (error) {
       console.error('[PWA] Notification permission request failed:', error);
@@ -508,7 +508,7 @@ class EnhancedPWAManager {
 
       // Send subscription to server
       await this.sendSubscriptionToServer(subscription);
-      
+
       console.log('[PWA] Push notification subscription successful');
     } catch (error) {
       console.error('[PWA] Push notification subscription failed:', error);
@@ -565,7 +565,7 @@ class EnhancedPWAManager {
 
     // Track offline usage
     this.trackOfflineEvents();
-    
+
     // Setup offline analytics sync
     this.setupOfflineAnalyticsSync();
   }
@@ -711,7 +711,7 @@ class EnhancedPWAManager {
 
   handleCacheStatus(data) {
     console.log('[PWA] Cache status:', data);
-    
+
     // Update storage usage indicator
     this.updateStorageUsage(data);
   }
@@ -739,7 +739,7 @@ class EnhancedPWAManager {
         <p class="notification-message">${options.message}</p>
         <div class="notification-actions">
           ${options.actions.map(action => `
-            <button class="notification-btn ${action.primary ? 'primary' : 'secondary'}" 
+            <button class="notification-btn ${action.primary ? 'primary' : 'secondary'}"
                     data-action="${action.action || action.text}">
               ${action.text}
             </button>
@@ -845,7 +845,7 @@ class EnhancedPWAManager {
 
     return new Promise((resolve) => {
       const channel = new MessageChannel();
-      
+
       channel.port1.onmessage = (event) => {
         resolve(event.data);
       };

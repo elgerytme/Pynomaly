@@ -1,0 +1,10 @@
+- id: validate-documentation-dates
+  name: Validate documentation dates
+  description: 'Check that dates in documentation are current and not off by days/months/years'
+  entry: python scripts/automation/validate_dates.py
+  language: python
+  files: '\.(md|yml|yaml)$'
+  additional_dependencies: ['python-dateutil']
+  pass_filenames: false
+  always_run: false
+  stages: [commit, push]

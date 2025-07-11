@@ -43,17 +43,23 @@ class TestSemanticVersionValidation:
 
     def test_negative_major_version(self):
         """Test that negative major version raises error."""
-        with pytest.raises(ValueError, match="Major version must be non-negative integer"):
+        with pytest.raises(
+            ValueError, match="Major version must be non-negative integer"
+        ):
             SemanticVersion(major=-1, minor=0, patch=0)
 
     def test_negative_minor_version(self):
         """Test that negative minor version raises error."""
-        with pytest.raises(ValueError, match="Minor version must be non-negative integer"):
+        with pytest.raises(
+            ValueError, match="Minor version must be non-negative integer"
+        ):
             SemanticVersion(major=0, minor=-1, patch=0)
 
     def test_negative_patch_version(self):
         """Test that negative patch version raises error."""
-        with pytest.raises(ValueError, match="Patch version must be non-negative integer"):
+        with pytest.raises(
+            ValueError, match="Patch version must be non-negative integer"
+        ):
             SemanticVersion(major=0, minor=0, patch=-1)
 
     def test_non_integer_major_version(self):
@@ -61,7 +67,9 @@ class TestSemanticVersionValidation:
         invalid_values = [1.5, "1", None, [1], {1: 1}]
 
         for value in invalid_values:
-            with pytest.raises(ValueError, match="Major version must be non-negative integer"):
+            with pytest.raises(
+                ValueError, match="Major version must be non-negative integer"
+            ):
                 SemanticVersion(major=value, minor=0, patch=0)  # type: ignore
 
     def test_non_integer_minor_version(self):
@@ -69,7 +77,9 @@ class TestSemanticVersionValidation:
         invalid_values = [1.5, "1", None, [1], {1: 1}]
 
         for value in invalid_values:
-            with pytest.raises(ValueError, match="Minor version must be non-negative integer"):
+            with pytest.raises(
+                ValueError, match="Minor version must be non-negative integer"
+            ):
                 SemanticVersion(major=0, minor=value, patch=0)  # type: ignore
 
     def test_non_integer_patch_version(self):
@@ -77,7 +87,9 @@ class TestSemanticVersionValidation:
         invalid_values = [1.5, "1", None, [1], {1: 1}]
 
         for value in invalid_values:
-            with pytest.raises(ValueError, match="Patch version must be non-negative integer"):
+            with pytest.raises(
+                ValueError, match="Patch version must be non-negative integer"
+            ):
                 SemanticVersion(major=0, minor=0, patch=value)  # type: ignore
 
 
@@ -174,16 +186,16 @@ class TestSemanticVersionFromString:
     def test_invalid_version_strings(self):
         """Test invalid version strings."""
         invalid_strings = [
-            "1.2",           # Missing patch
-            "1.2.3.4",       # Too many components
-            "1.2.x",         # Non-numeric patch
-            "a.b.c",         # All non-numeric
-            "1.2.3-alpha",   # Pre-release suffix
-            "1.2.3+build",   # Build metadata
-            "",              # Empty string
-            "v",             # Just prefix
-            "1",             # Single number
-            "1.2.3.4.5",     # Too many components
+            "1.2",  # Missing patch
+            "1.2.3.4",  # Too many components
+            "1.2.x",  # Non-numeric patch
+            "a.b.c",  # All non-numeric
+            "1.2.3-alpha",  # Pre-release suffix
+            "1.2.3+build",  # Build metadata
+            "",  # Empty string
+            "v",  # Just prefix
+            "1",  # Single number
+            "1.2.3.4.5",  # Too many components
         ]
 
         for invalid_str in invalid_strings:
@@ -298,7 +310,10 @@ class TestSemanticVersionComparison:
             (SemanticVersion(1, 0, 0), SemanticVersion(2, 0, 0)),  # Major difference
             (SemanticVersion(1, 1, 0), SemanticVersion(1, 2, 0)),  # Minor difference
             (SemanticVersion(1, 1, 1), SemanticVersion(1, 1, 2)),  # Patch difference
-            (SemanticVersion(0, 9, 9), SemanticVersion(1, 0, 0)),  # Major trumps minor/patch
+            (
+                SemanticVersion(0, 9, 9),
+                SemanticVersion(1, 0, 0),
+            ),  # Major trumps minor/patch
         ]
 
         for smaller, larger in test_cases:
@@ -321,7 +336,10 @@ class TestSemanticVersionComparison:
             (SemanticVersion(2, 0, 0), SemanticVersion(1, 0, 0)),  # Major difference
             (SemanticVersion(1, 2, 0), SemanticVersion(1, 1, 0)),  # Minor difference
             (SemanticVersion(1, 1, 2), SemanticVersion(1, 1, 1)),  # Patch difference
-            (SemanticVersion(1, 0, 0), SemanticVersion(0, 9, 9)),  # Major trumps minor/patch
+            (
+                SemanticVersion(1, 0, 0),
+                SemanticVersion(0, 9, 9),
+            ),  # Major trumps minor/patch
         ]
 
         for larger, smaller in test_cases:
@@ -616,8 +634,8 @@ class TestSemanticVersionEdgeCases:
 
         # Increment to get version progression
         v0_1_1 = initial.increment_patch()  # 0.1.1
-        v0_2_0 = v0_1_1.increment_minor()   # 0.2.0
-        v1_0_0 = v0_2_0.increment_major()   # 1.0.0
+        v0_2_0 = v0_1_1.increment_minor()  # 0.2.0
+        v1_0_0 = v0_2_0.increment_major()  # 1.0.0
 
         # Test progression
         assert initial < v0_1_1 < v0_2_0 < v1_0_0

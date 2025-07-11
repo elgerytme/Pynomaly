@@ -4,7 +4,6 @@ Tests protocol conformance, type checking, and CRUD operation contracts.
 """
 
 import inspect
-from typing import get_type_hints
 from unittest.mock import AsyncMock, Mock
 from uuid import UUID, uuid4
 
@@ -12,16 +11,12 @@ import pytest
 
 from pynomaly.domain.entities import (
     Alert,
-    AlertNotification,
     Dataset,
     DetectionResult,
     Detector,
     Experiment,
-    ExperimentRun,
     Model,
-    ModelVersion,
     Pipeline,
-    PipelineRun,
 )
 from pynomaly.shared.protocols.repository_protocol import (
     AlertNotificationRepositoryProtocol,
@@ -60,7 +55,9 @@ class TestRepositoryProtocol:
         # Test save method signature
         save_sig = inspect.signature(RepositoryProtocol.save)
         assert "entity" in save_sig.parameters
-        assert save_sig.return_annotation is None or save_sig.return_annotation == type(None)
+        assert save_sig.return_annotation is None or save_sig.return_annotation == type(
+            None
+        )
 
         # Test find_by_id signature
         find_by_id_sig = inspect.signature(RepositoryProtocol.find_by_id)
@@ -200,11 +197,15 @@ class TestDetectorRepositoryProtocol:
         assert "name" in find_by_name_sig.parameters
 
         # Test find_by_algorithm signature
-        find_by_algo_sig = inspect.signature(DetectorRepositoryProtocol.find_by_algorithm)
+        find_by_algo_sig = inspect.signature(
+            DetectorRepositoryProtocol.find_by_algorithm
+        )
         assert "algorithm_name" in find_by_algo_sig.parameters
 
         # Test save_model_artifact signature
-        save_artifact_sig = inspect.signature(DetectorRepositoryProtocol.save_model_artifact)
+        save_artifact_sig = inspect.signature(
+            DetectorRepositoryProtocol.save_model_artifact
+        )
         assert "detector_id" in save_artifact_sig.parameters
         assert "artifact" in save_artifact_sig.parameters
 
@@ -466,7 +467,12 @@ class TestAlertRepositoryProtocol:
 
     def test_protocol_defines_alert_specific_methods(self):
         """Test protocol defines alert-specific methods."""
-        alert_methods = ["find_by_name", "find_by_status", "find_by_type", "find_by_severity"]
+        alert_methods = [
+            "find_by_name",
+            "find_by_status",
+            "find_by_type",
+            "find_by_severity",
+        ]
 
         for method in alert_methods:
             assert hasattr(AlertRepositoryProtocol, method)
@@ -555,7 +561,9 @@ class TestRepositoryProtocolInteroperability:
 
         for protocol in repository_protocols:
             for method in base_methods:
-                assert hasattr(protocol, method), f"{protocol.__name__} missing {method}"
+                assert hasattr(
+                    protocol, method
+                ), f"{protocol.__name__} missing {method}"
 
     @pytest.mark.asyncio
     async def test_polymorphic_repository_usage(self):

@@ -57,7 +57,7 @@ export class AdvancedInteractiveDashboard {
               <span>Real-time ${this.state.realTimeEnabled ? 'ON' : 'OFF'}</span>
             </div>
           </div>
-          
+
           <div class="dashboard-controls">
             <div class="time-range-selector">
               <label class="sr-only">Time Range</label>
@@ -70,7 +70,7 @@ export class AdvancedInteractiveDashboard {
                 <option value="custom">Custom Range</option>
               </select>
             </div>
-            
+
             <div class="view-controls">
               <button id="toggle-realtime" class="btn-base btn-secondary" aria-label="Toggle real-time updates">
                 <span class="realtime-icon">📡</span>
@@ -103,7 +103,7 @@ export class AdvancedInteractiveDashboard {
                 </div>
               </div>
             </div>
-            
+
             <div class="filter-group">
               <label>Anomaly Score Range</label>
               <div class="range-slider" id="score-range-slider">
@@ -114,14 +114,14 @@ export class AdvancedInteractiveDashboard {
                 </div>
               </div>
             </div>
-            
+
             <div class="filter-group">
               <label>Dataset Source</label>
               <select id="dataset-filter" class="form-select" multiple>
                 <option value="all" selected>All Sources</option>
               </select>
             </div>
-            
+
             <div class="filter-actions">
               <button id="apply-filters" class="btn-base btn-primary">Apply Filters</button>
               <button id="reset-filters" class="btn-base btn-secondary">Reset</button>
@@ -143,7 +143,7 @@ export class AdvancedInteractiveDashboard {
                 <span class="change">-</span>
               </div>
             </div>
-            
+
             <div class="metric-card" id="anomaly-rate-card">
               <div class="metric-header">
                 <h3>Anomaly Rate</h3>
@@ -154,7 +154,7 @@ export class AdvancedInteractiveDashboard {
                 <span class="change">-</span>
               </div>
             </div>
-            
+
             <div class="metric-card" id="avg-processing-time-card">
               <div class="metric-header">
                 <h3>Avg Processing Time</h3>
@@ -165,7 +165,7 @@ export class AdvancedInteractiveDashboard {
                 <span class="change">-</span>
               </div>
             </div>
-            
+
             <div class="metric-card" id="system-health-card">
               <div class="metric-header">
                 <h3>System Health</h3>
@@ -391,7 +391,7 @@ export class AdvancedInteractiveDashboard {
 
   async initPerformanceMatrixChart() {
     const container = document.getElementById('performance-matrix-chart');
-    
+
     // Initialize ECharts with 3D capabilities
     const chart = echarts.init(container, null, {
       renderer: this.options.enableWebGL ? 'canvas' : 'svg'
@@ -430,7 +430,7 @@ export class AdvancedInteractiveDashboard {
     };
 
     chart.setOption(option);
-    
+
     // Add click handler for drill-down
     chart.on('click', (params) => {
       this.handlePerformanceDrillDown(params);
@@ -445,7 +445,7 @@ export class AdvancedInteractiveDashboard {
 
   async initFeatureNetworkChart() {
     const container = document.getElementById('feature-network-chart');
-    
+
     // Create D3 force-directed network
     const width = container.clientWidth;
     const height = 300;
@@ -521,7 +521,7 @@ export class AdvancedInteractiveDashboard {
 
   async initMultidimExplorerChart() {
     const container = document.getElementById('multidim-explorer-chart');
-    
+
     // Create interactive visualization component
     const explorer = new InteractiveDataVisualization(container, {
       width: container.clientWidth,
@@ -545,7 +545,7 @@ export class AdvancedInteractiveDashboard {
 
   async initRealTimeStreamChart() {
     const container = document.getElementById('realtime-stream-chart');
-    
+
     // Create streaming chart with WebGL for performance
     const chart = echarts.init(container, null, {
       renderer: 'canvas'
@@ -621,7 +621,7 @@ export class AdvancedInteractiveDashboard {
     };
 
     chart.setOption(option);
-    
+
     this.charts.set('stream', {
       chart,
       container,
@@ -640,7 +640,7 @@ export class AdvancedInteractiveDashboard {
 
   setupTimelineInteractions() {
     const timelineChart = this.charts.get('timeline');
-    
+
     // Add brush for time selection
     const brush = d3.brushX()
       .extent([[0, 0], [timelineChart.width, timelineChart.height]])
@@ -665,10 +665,10 @@ export class AdvancedInteractiveDashboard {
   async setupInteractions() {
     // Cross-chart interactions
     this.setupCrossChartInteractions();
-    
+
     // Advanced filtering
     this.setupAdvancedFiltering();
-    
+
     // Collaborative features
     this.setupCollaborativeInteractions();
   }
@@ -700,7 +700,7 @@ export class AdvancedInteractiveDashboard {
       slider.addEventListener('input', () => {
         const min = parseFloat(scoreMinSlider.value);
         const max = parseFloat(scoreMaxSlider.value);
-        
+
         // Ensure min doesn't exceed max
         if (min > max) {
           if (slider === scoreMinSlider) {
@@ -709,7 +709,7 @@ export class AdvancedInteractiveDashboard {
             scoreMinSlider.value = max;
           }
         }
-        
+
         scoreRangeText.textContent = `${scoreMinSlider.value} - ${scoreMaxSlider.value}`;
         this.updateFilters();
       });
@@ -740,26 +740,26 @@ export class AdvancedInteractiveDashboard {
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${window.location.host}/ws/dashboard`;
-      
+
       this.websocket = new WebSocket(wsUrl);
-      
+
       this.websocket.onopen = () => {
         console.log('[Dashboard] WebSocket connected');
         this.updateConnectionStatus(true);
       };
-      
+
       this.websocket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         this.handleRealTimeData(data);
       };
-      
+
       this.websocket.onclose = () => {
         console.log('[Dashboard] WebSocket disconnected');
         this.updateConnectionStatus(false);
         // Attempt reconnection
         setTimeout(() => this.connectRealTime(), 5000);
       };
-      
+
       this.websocket.onerror = (error) => {
         console.error('[Dashboard] WebSocket error:', error);
       };
@@ -816,12 +816,12 @@ export class AdvancedInteractiveDashboard {
     const totalCard = document.getElementById('total-detections-card');
     const totalValue = totalCard.querySelector('.value');
     const totalChange = totalCard.querySelector('.change');
-    
+
     // Update anomaly rate
     const rateCard = document.getElementById('anomaly-rate-card');
     const rateValue = rateCard.querySelector('.value');
     const rateChange = rateCard.querySelector('.change');
-    
+
     // Update processing time
     const timeCard = document.getElementById('avg-processing-time-card');
     const timeValue = timeCard.querySelector('.value');
@@ -836,7 +836,7 @@ export class AdvancedInteractiveDashboard {
   animateMetricUpdate(element, newValue) {
     element.style.transform = 'scale(1.1)';
     element.style.transition = 'transform 0.3s ease';
-    
+
     setTimeout(() => {
       element.textContent = newValue;
       element.style.transform = 'scale(1)';
@@ -887,7 +887,7 @@ export class AdvancedInteractiveDashboard {
   initiateDrillDown(chartType) {
     const modal = document.getElementById('drill-down-modal');
     const content = document.getElementById('drill-down-content');
-    
+
     // Add to drill-down stack
     this.state.drillDownStack.push({
       chartType,
@@ -972,7 +972,7 @@ export class AdvancedInteractiveDashboard {
             break;
         }
       }
-      
+
       if (e.key === 'Escape') {
         this.closeDrillDown();
         this.closeModalDialogs();
@@ -1023,7 +1023,7 @@ export class AdvancedInteractiveDashboard {
   generateNetworkData() {
     const nodes = [];
     const links = [];
-    
+
     // Generate feature nodes
     for (let i = 0; i < 20; i++) {
       nodes.push({
@@ -1086,10 +1086,10 @@ export class AdvancedInteractiveDashboard {
   // Event handlers and utility methods
   toggleRealTime() {
     this.state.realTimeEnabled = !this.state.realTimeEnabled;
-    
+
     const indicator = document.querySelector('.real-time-indicator');
     const button = document.getElementById('toggle-realtime');
-    
+
     if (this.state.realTimeEnabled) {
       indicator.classList.add('active');
       indicator.classList.remove('inactive');
@@ -1127,13 +1127,13 @@ export class AdvancedInteractiveDashboard {
     const blob = new Blob([JSON.stringify(dashboardData, null, 2)], {
       type: 'application/json'
     });
-    
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = `pynomaly-dashboard-${Date.now()}.json`;
     link.click();
-    
+
     URL.revokeObjectURL(url);
   }
 
@@ -1159,13 +1159,13 @@ export class AdvancedInteractiveDashboard {
     if (this.websocket) {
       this.websocket.close();
     }
-    
+
     this.charts.forEach(chart => {
       if (chart.chart && chart.chart.dispose) {
         chart.chart.dispose();
       }
     });
-    
+
     this.charts.clear();
     this.interactions.clear();
     this.realTimeData.clear();

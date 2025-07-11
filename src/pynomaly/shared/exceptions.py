@@ -349,3 +349,17 @@ class RepositoryError(InfrastructureError):
     """Raised when repository operations fail."""
 
     pass
+
+
+# File system exceptions
+class FileError(InfrastructureError):
+    """Raised when file operations fail."""
+
+    pass
+
+
+# Recovery exceptions
+class RecoveryError(InfrastructureError):
+    """Raised when recovery operations fail."""
+
+    pass

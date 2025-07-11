@@ -104,6 +104,15 @@ repos:
         language: system
         files: \.py$
 
+      # Validate documentation dates
+      - id: validate-documentation-dates
+        name: Validate documentation dates
+        entry: python scripts/automation/validate_dates.py
+        language: system
+        files: '\.(md|yml|yaml)$'
+        pass_filenames: false
+        stages: [commit, push]
+
 # CI configuration
 ci:
   autofix_commit_msg: |

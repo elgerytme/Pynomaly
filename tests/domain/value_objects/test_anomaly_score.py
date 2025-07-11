@@ -150,12 +150,12 @@ class TestAnomalyScoreValidation:
         # Create mocks that don't have the required attributes
         mock_missing_all = Mock()
         # Remove the attributes if they exist
-        if hasattr(mock_missing_all, 'contains'):
-            delattr(mock_missing_all, 'contains')
-        if hasattr(mock_missing_all, 'lower'):
-            delattr(mock_missing_all, 'lower')
-        if hasattr(mock_missing_all, 'upper'):
-            delattr(mock_missing_all, 'upper')
+        if hasattr(mock_missing_all, "contains"):
+            delattr(mock_missing_all, "contains")
+        if hasattr(mock_missing_all, "lower"):
+            delattr(mock_missing_all, "lower")
+        if hasattr(mock_missing_all, "upper"):
+            delattr(mock_missing_all, "upper")
 
         with pytest.raises(
             ValidationError,
@@ -561,13 +561,14 @@ class TestAnomalyScoreEdgeCases:
     def test_nested_metadata(self):
         """Test with deeply nested metadata."""
         nested_metadata = {
-            "level1": {
-                "level2": {"level3": {"level4": {"key": "deep_value"}}}
-            }
+            "level1": {"level2": {"level3": {"level4": {"key": "deep_value"}}}}
         }
         score = AnomalyScore(value=0.5, metadata=nested_metadata)
 
-        assert score.metadata["level1"]["level2"]["level3"]["level4"]["key"] == "deep_value"
+        assert (
+            score.metadata["level1"]["level2"]["level3"]["level4"]["key"]
+            == "deep_value"
+        )
 
     def test_unicode_in_metadata(self):
         """Test with unicode characters in metadata."""

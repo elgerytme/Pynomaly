@@ -1,5 +1,6 @@
 """API documentation configuration and utilities."""
 
+from .common_responses import COMMON_RESPONSES, ENDPOINT_METADATA, configure_api_docs
 from .openapi_config import (
     OpenAPIConfig,
     configure_openapi_docs,
@@ -15,6 +16,9 @@ from .response_models import (
 from .schema_examples import SchemaExamples
 
 __all__ = [
+    "COMMON_RESPONSES",
+    "ENDPOINT_METADATA",
+    "configure_api_docs",
     "OpenAPIConfig",
     "configure_openapi_docs",
     "get_custom_redoc_html",

@@ -46,9 +46,9 @@ class EnhancedWebSocketService {
   connect() {
     try {
       console.log('[WebSocket] Connecting to:', this.options.url);
-      
+
       this.ws = new WebSocket(this.options.url);
-      
+
       // Enable compression if supported
       if (this.options.enableCompression) {
         this.ws.binaryType = 'arraybuffer';
@@ -69,19 +69,19 @@ class EnhancedWebSocketService {
     console.log('[WebSocket] Connection established');
     this.isConnected = true;
     this.reconnectAttempts = 0;
-    
+
     // Send authentication and initialization
     this.authenticate();
-    
+
     // Process queued messages
     this.processMessageQueue();
-    
+
     // Start heartbeat
     this.startHeartbeat();
-    
+
     // Notify listeners
     this.notifyConnectionListeners('connected', event);
-    
+
     // Subscribe to default channels
     this.subscribeToDefaultChannels();
   }
@@ -89,7 +89,7 @@ class EnhancedWebSocketService {
   handleMessage(event) {
     try {
       let message;
-      
+
       // Handle binary messages
       if (event.data instanceof ArrayBuffer) {
         message = this.decodeBinaryMessage(event.data);
@@ -99,7 +99,7 @@ class EnhancedWebSocketService {
 
       console.log('[WebSocket] Message received:', message.type);
       this.routeMessage(message);
-      
+
     } catch (error) {
       console.error('[WebSocket] Message parsing failed:', error);
     }
@@ -109,9 +109,9 @@ class EnhancedWebSocketService {
     console.log('[WebSocket] Connection closed:', event.code, event.reason);
     this.isConnected = false;
     this.stopHeartbeat();
-    
+
     this.notifyConnectionListeners('disconnected', event);
-    
+
     // Schedule reconnection if not intentionally closed
     if (event.code !== 1000) {
       this.scheduleReconnect();
@@ -316,7 +316,7 @@ class EnhancedWebSocketService {
 
   handleServerError(data) {
     console.error('[WebSocket] Server error:', data);
-    
+
     // Show user-friendly error message
     this.showNotification({
       title: 'Server Error',
@@ -334,7 +334,7 @@ class EnhancedWebSocketService {
     if (!this.subscriptions.has(channel)) {
       this.subscriptions.set(channel, new Set());
     }
-    
+
     if (callback) {
       this.subscriptions.get(channel).add(callback);
     }
@@ -360,7 +360,7 @@ class EnhancedWebSocketService {
 
       if (subscribers.size === 0) {
         this.subscriptions.delete(channel);
-        
+
         // Send unsubscription message
         this.send({
           type: 'unsubscribe',
@@ -375,14 +375,14 @@ class EnhancedWebSocketService {
     if (this.isConnected) {
       try {
         let data;
-        
+
         // Use binary encoding for large messages if supported
         if (this.options.enableBinarySupport && this.shouldUseBinaryEncoding(message)) {
           data = this.encodeBinaryMessage(message);
         } else {
           data = JSON.stringify(message);
         }
-        
+
         this.ws.send(data);
         return true;
       } catch (error) {
@@ -479,7 +479,7 @@ class EnhancedWebSocketService {
     );
 
     console.log(`[WebSocket] Scheduling reconnect attempt ${this.reconnectAttempts} in ${delay}ms`);
-    
+
     this.reconnectTimer = setTimeout(() => {
       this.connect();
     }, delay);
@@ -501,7 +501,7 @@ class EnhancedWebSocketService {
 
   setupHeartbeat() {
     this.startHeartbeat();
-    
+
     // Handle page visibility changes
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
@@ -514,7 +514,7 @@ class EnhancedWebSocketService {
 
   startHeartbeat() {
     this.stopHeartbeat();
-    
+
     this.heartbeatTimer = setInterval(() => {
       if (this.isConnected) {
         this.send({

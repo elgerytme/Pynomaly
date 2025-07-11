@@ -390,14 +390,17 @@ def _create_repository(config, repo_type: str):
     service_manager = OptionalServiceManager()
 
     # Try database repository first if configured
-    if config.use_database_repositories and config.database_configured:
+    if (
+        config.database.use_database_repositories
+        and config.database.database_configured
+    ):
         db_repo_class = service_manager.get_service(f"database_{repo_type}_repository")
         if db_repo_class and service_manager.is_available("database_manager"):
             try:
                 db_manager_class = service_manager.get_service("database_manager")
                 db_manager = db_manager_class(
-                    database_url=config.database_url,
-                    echo=config.database_echo or config.app.debug,
+                    database_url=config.database.database_url,
+                    echo=config.database.database_echo or config.app.debug,
                 )
 
                 # Initialize database if needed
@@ -558,7 +561,7 @@ class Container(containers.DeclarativeContainer):
                 "redis_cache",
                 "singleton",
                 redis_url=providers.Callable(lambda: cls.config().get_redis_url()),
-                default_ttl=cls.config.provided.cache_ttl,
+                default_ttl=providers.Callable(lambda: cls.config().cache_ttl),
             )
 
         # Monitoring services
@@ -900,56 +903,65 @@ class Container(containers.DeclarativeContainer):
 
     def auth_service(self):
         """Get the authentication service.
-        
+
         Returns:
             Auth service instance or None if not available
         """
         # Try enhanced JWT service first
-        if hasattr(self, 'jwt_auth_service'):
+        if hasattr(self, "jwt_auth_service"):
             try:
                 return self.jwt_auth_service()
             except Exception:
                 pass
-        
+
         # Fallback to global auth service
         from pynomaly.infrastructure.auth import get_auth
+
         return get_auth()
 
     def database_manager(self):
         """Get the database manager service.
-        
+
         Returns:
             Database manager instance or None if not available
         """
-        if hasattr(self, 'database_manager_service'):
+        if hasattr(self, "database_manager_service"):
             try:
                 return self.database_manager_service()
             except Exception:
                 pass
-        
+
         # Return a simple database status object for health checks
-        return type('DatabaseManager', (), {
-            'engine': type('Engine', (), {'url': 'memory://'}),
-            'is_connected': lambda: True
-        })()
+        return type(
+            "DatabaseManager",
+            (),
+            {
+                "engine": type("Engine", (), {"url": "memory://"}),
+                "is_connected": lambda: True,
+            },
+        )()
 
     def redis_cache(self):
         """Get the Redis cache service.
-        
+
         Returns:
             Redis cache instance or None if not available
         """
-        if hasattr(self, 'redis_cache_service'):
+        if hasattr(self, "redis_cache_service"):
             try:
                 return self.redis_cache_service()
             except Exception:
                 pass
-        
-        # Return a simple cache status object for health checks  
-        return type('RedisCache', (), {
-            'client': type('Client', (), {'ping': lambda: True}),
-            'is_connected': lambda: True
-        })()
+
+        # Return a simple cache status object for health checks
+        return type(
+            "RedisCache",
+            (),
+            {
+                "client": type("Client", (), {"ping": lambda: True}),
+                "is_connected": lambda: True,
+            },
+        )()
 
 
 # Initialize optional providers

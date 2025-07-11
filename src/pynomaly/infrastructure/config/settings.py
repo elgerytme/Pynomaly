@@ -98,6 +98,15 @@ class Settings(BaseSettings):
         """Get CORS configuration for API."""
         return self.api.get_cors_config()
 
+    def get_redis_url(self) -> str:
+        """Get Redis URL for cache configuration."""
+        return self.storage.redis_url or "redis://localhost:6379/0"
+
+    @property
+    def cache_ttl(self) -> int:
+        """Get cache TTL setting."""
+        return self.storage.cache_ttl
+
 
 # Global settings instance
 _settings: Settings | None = None

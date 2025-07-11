@@ -414,7 +414,7 @@ async def get_available_methods(
         logger.info(f"User {current_user} requesting available explanation methods")
 
         # Get explainability service
-        explainability_service = container.explainability_service()
+        explainability_service = container.application_explainability_service()
 
         # Get available methods
         methods = explainability_service.get_available_methods()
@@ -616,7 +616,7 @@ async def explainability_health_check(
     """
     try:
         # Check if explainability service is available
-        explainability_service = container.explainability_service()
+        explainability_service = container.application_explainability_service()
         available_methods = explainability_service.get_available_methods()
 
         return {

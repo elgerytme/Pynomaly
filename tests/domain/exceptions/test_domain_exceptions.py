@@ -7,11 +7,7 @@ error handling, and consistent behavior across the domain layer.
 
 import pytest
 
-from pynomaly.domain.exceptions import (
-    DomainError,
-    InvalidValueError,
-    ValidationError,
-)
+from pynomaly.domain.exceptions import DomainError, InvalidValueError, ValidationError
 
 
 class TestDomainError:
@@ -51,7 +47,9 @@ class TestDomainError:
 
     def test_domain_error_with_complex_message(self):
         """Test domain error with complex message."""
-        complex_message = "Entity validation failed: field 'value' must be positive, got -5"
+        complex_message = (
+            "Entity validation failed: field 'value' must be positive, got -5"
+        )
         exc = DomainError(complex_message)
 
         assert str(exc) == complex_message
@@ -144,7 +142,9 @@ class TestInvalidValueError:
 
     def test_invalid_value_error_with_enum_info(self):
         """Test invalid value error with enumeration information."""
-        message = "Invalid method: 'custom'. Valid options: ['percentile', 'fixed', 'iqr']"
+        message = (
+            "Invalid method: 'custom'. Valid options: ['percentile', 'fixed', 'iqr']"
+        )
         exc = InvalidValueError(message)
 
         assert "custom" in str(exc)
@@ -216,6 +216,7 @@ class TestDomainExceptionUsagePatterns:
 
     def test_validation_error_for_value_objects(self):
         """Test using ValidationError for value object validation."""
+
         def validate_anomaly_score(value):
             if not isinstance(value, (int, float)):
                 raise ValidationError(f"Score must be numeric, got {type(value)}")
@@ -235,6 +236,7 @@ class TestDomainExceptionUsagePatterns:
 
     def test_invalid_value_error_for_configuration(self):
         """Test using InvalidValueError for configuration validation."""
+
         def validate_threshold_method(method):
             valid_methods = ["percentile", "fixed", "iqr", "mad", "adaptive"]
             if method not in valid_methods:
@@ -252,6 +254,7 @@ class TestDomainExceptionUsagePatterns:
 
     def test_nested_exception_handling(self):
         """Test handling nested exceptions."""
+
         def create_value_object():
             try:
                 # Simulate nested validation
@@ -272,19 +275,20 @@ class TestDomainExceptionUsagePatterns:
 
     def test_exception_with_context_information(self):
         """Test exceptions with rich context information."""
+
         def validate_semantic_version(major, minor, patch):
             context = f"SemanticVersion(major={major}, minor={minor}, patch={patch})"
-            
+
             if not isinstance(major, int) or major < 0:
                 raise ValidationError(
                     f"{context}: Major version must be non-negative integer, got {major}"
                 )
-            
+
             if not isinstance(minor, int) or minor < 0:
                 raise ValidationError(
                     f"{context}: Minor version must be non-negative integer, got {minor}"
                 )
-            
+
             if not isinstance(patch, int) or patch < 0:
                 raise ValidationError(
                     f"{context}: Patch version must be non-negative integer, got {patch}"
@@ -296,29 +300,32 @@ class TestDomainExceptionUsagePatterns:
         # Invalid major should include context
         with pytest.raises(ValidationError) as exc_info:
             validate_semantic_version(-1, 2, 3)
-        
+
         assert "SemanticVersion(major=-1, minor=2, patch=3)" in str(exc_info.value)
         assert "Major version must be non-negative integer" in str(exc_info.value)
 
     def test_multiple_validation_errors(self):
         """Test handling multiple validation errors."""
+
         def validate_complex_object(data):
             errors = []
-            
+
             if "score" not in data:
                 errors.append("Missing required field: score")
             elif not isinstance(data["score"], (int, float)):
                 errors.append("Score must be numeric")
             elif not (0.0 <= data["score"] <= 1.0):
                 errors.append("Score must be between 0 and 1")
-            
+
             if "threshold" not in data:
                 errors.append("Missing required field: threshold")
             elif not isinstance(data["threshold"], (int, float)):
                 errors.append("Threshold must be numeric")
-            
+
             if errors:
-                raise ValidationError(f"Multiple validation errors: {'; '.join(errors)}")
+                raise ValidationError(
+                    f"Multiple validation errors: {'; '.join(errors)}"
+                )
 
         # Valid data should not raise
         validate_complex_object({"score": 0.8, "threshold": 0.5})
@@ -326,7 +333,7 @@ class TestDomainExceptionUsagePatterns:
         # Multiple errors should be collected
         with pytest.raises(ValidationError) as exc_info:
             validate_complex_object({"score": "invalid", "threshold": None})
-        
+
         error_message = str(exc_info.value)
         assert "Multiple validation errors" in error_message
         assert "Score must be numeric" in error_message

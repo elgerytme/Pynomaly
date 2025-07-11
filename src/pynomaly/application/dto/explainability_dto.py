@@ -730,7 +730,9 @@ class TrustAssessmentResultDTO(BaseModel):
 class LocalExplanationDTO(BaseModel):
     """DTO for local explanation."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(
+        from_attributes=True, extra="forbid", protected_namespaces=()
+    )
 
     instance_id: str = Field(..., description="Instance identifier")
     anomaly_score: float = Field(..., description="Anomaly score")
@@ -779,7 +781,9 @@ class LocalExplanationDTO(BaseModel):
 class GlobalExplanationDTO(BaseModel):
     """DTO for global explanation."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(
+        from_attributes=True, extra="forbid", protected_namespaces=()
+    )
 
     model_name: str = Field(..., description="Model name")
     feature_importances: dict[str, float] = Field(
@@ -1169,7 +1173,9 @@ class FeedbackSummaryDTO(BaseModel):
 class CohortExplanationDTO(BaseModel):
     """DTO for cohort explanation."""
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(
+        from_attributes=True, extra="forbid", protected_namespaces=()
+    )
 
     cohort_id: str = Field(..., description="Cohort identifier")
     cohort_description: str = Field(..., description="Cohort description")
@@ -1494,7 +1500,9 @@ class ExplanationRequestDTO(BaseModel):
     Legacy - use ComprehensiveExplanationRequestDTO for new implementations.
     """
 
-    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    model_config = ConfigDict(
+        from_attributes=True, extra="forbid", protected_namespaces=()
+    )
 
     detector_id: str = Field(..., description="Detector identifier")
     dataset_id: str | None = Field(default=None, description="Dataset identifier")

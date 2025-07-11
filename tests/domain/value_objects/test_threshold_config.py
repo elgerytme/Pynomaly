@@ -77,7 +77,7 @@ class TestThresholdConfigValidation:
             "custom",
             "",
             "PERCENTILE",  # case sensitive
-            "Fixed",       # case sensitive
+            "Fixed",  # case sensitive
         ]
 
         for method in invalid_methods:
@@ -127,9 +127,7 @@ class TestThresholdConfigValidation:
         ]
 
         for min_val, max_val in valid_combinations:
-            config = ThresholdConfig(
-                min_threshold=min_val, max_threshold=max_val
-            )
+            config = ThresholdConfig(min_threshold=min_val, max_threshold=max_val)
             assert config.min_threshold == min_val
             assert config.max_threshold == max_val
 

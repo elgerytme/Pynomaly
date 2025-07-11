@@ -10,6 +10,8 @@ from pydantic import BaseModel, field_validator
 class StorageSettings(BaseModel):
     """Storage configuration settings."""
 
+    model_config = {"protected_namespaces": ()}
+
     # Storage paths
     storage_path: Path = Path("./storage")
     model_storage_path: Path = Path("./storage/models")
