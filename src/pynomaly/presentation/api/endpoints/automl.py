@@ -1,10 +1,16 @@
 """AutoML API endpoints."""
 
+from __future__ import annotations
+
 import logging
 import time
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+
+if TYPE_CHECKING:
+    from pynomaly.infrastructure.config import Container
 
 from pynomaly.application.dto.automl_dto import (
     AlgorithmRecommendationDTO,
@@ -18,7 +24,6 @@ from pynomaly.application.dto.automl_dto import (
     HyperparameterOptimizationResponseDTO,
 )
 from pynomaly.infrastructure.auth import require_read, require_write
-from pynomaly.infrastructure.config import Container
 from pynomaly.infrastructure.config.feature_flags import require_automl, require_feature
 from pynomaly.presentation.api.deps import get_container, get_current_user
 

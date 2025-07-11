@@ -220,16 +220,8 @@ def pytest_collection_modifyitems(config, items):
     config._pynomaly_items_processed = True
 
     for item in items:
-        # Add appropriate timeouts based on test type
-        if "integration" in item.keywords or "slow" in item.keywords:
-            if hasattr(pytest, "mark") and hasattr(pytest.mark, "timeout"):
-                item.add_marker(pytest.mark.timeout(120))  # 2 minutes for slow tests
-        elif "flaky" in item.keywords:
-            if hasattr(pytest, "mark") and hasattr(pytest.mark, "timeout"):
-                item.add_marker(pytest.mark.timeout(60))  # 1 minute for flaky tests
-        else:
-            if hasattr(pytest, "mark") and hasattr(pytest.mark, "timeout"):
-                item.add_marker(pytest.mark.timeout(30))  # 30 seconds for regular tests
+        # Skip timeout markers since pytest-timeout is not available
+        # Timeouts are configured globally in pytest.ini instead
 
         # Auto-apply flaky marker to tests with flaky indicators in their names
         if any(
