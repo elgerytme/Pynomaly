@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 93  
+**Total Open Issues**: 94  
 **Completed**: 53 (Issue #113 - P1: Standardize Repository Async/Sync Patterns, Issue #128 - P2: Complete ADR Documentation Suite - Consolidated Tracking, Issue #28 - DOC-003: Architecture Decision Records (ADRs), Issue #97 - P2: Implement PyGOD Graph Anomaly Detection, Issue #86 - Phase 1: Critical Infrastructure Tests (Protocols & Shared Foundation), Issue #108 - P2: Create Production Deployment Guide, Issue #88 - Phase 2: Domain Layer Tests (Value Objects & Exceptions))  
 **In Progress**: 2  
-**Pending**: 26  
+**Pending**: 27  
 
-**Last Sync**: July 14, 2025 at 17:12 UTC
+**Last Sync**: July 14, 2025 at 17:13 UTC
 
 ---
 
@@ -276,6 +276,18 @@
 
 - **Scope**: ## Problem  **Priority**: P1 - High (Critical Structural Issue)  The project has duplicate directories serving similar purposes, creating confusion and maintenance overhead:  - `src/infrastructure/` v...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/129)
+
+### **Issue #130: P1: Resolve Build System Conflicts (Poetry vs Hatch)**
+
+**Labels**: Infrastructure, CI/CD, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: 🏗️ Infrastructure  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Problem  **Priority**: P1 - High (Critical Build Infrastructure Issue)  The project has conflicting build system configurations:  - **Dual Configuration**: Both Poetry and Hatch configurations in `...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/130)
 
 ## 🔶 **P2-Medium Priority Issues**
 
@@ -1157,6 +1169,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 17:12 UTC  
+**Last Updated**: July 14, 2025 at 17:13 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
