@@ -569,8 +569,7 @@ exclude = [
 minversion = "8.0"
 addopts = [
     "--strict-markers",
-    "--strict-config",
-    "--verbose",
+    "--strict-config", 
     "--tb=short",
     "--disable-warnings",
     "--color=yes",
@@ -582,12 +581,23 @@ testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*", "*Tests"]
 python_functions = ["test_*"]
+asyncio_mode = "auto"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning", 
+    "ignore::FutureWarning",
+    "ignore::UserWarning:pydantic.*",
+    "ignore::UserWarning:dependency_injector.*",
+    "ignore::UserWarning:sklearn.*",
+    "ignore::ResourceWarning"
+]
 markers = [
     "unit: Unit tests",
     "integration: Integration tests",
     "api: API tests",
-    "cli: CLI tests",
-    "performance: Performance tests",
+    "cli: CLI tests", 
+    "ui: UI/frontend tests",
+    "performance: Performance and load tests",
     "security: Security tests",
     "slow: Slow tests (may take more than 1 second)",
     "fast: Fast tests (should complete in under 1 second)",
@@ -597,6 +607,11 @@ markers = [
     "external: Tests that require external services",
     "auth: Authentication/authorization tests",
     "model: Machine learning model tests",
+    "torch: Tests requiring PyTorch",
+    "tensorflow: Tests requiring TensorFlow", 
+    "jax: Tests requiring JAX",
+    "contract: Contract/API validation tests",
+    "automl: AutoML related tests",
     "streaming: Real-time processing tests",
     "ui: User interface tests",
     "smoke: Smoke tests for basic functionality",
@@ -622,16 +637,7 @@ markers = [
     "xfail: Expected to fail",
     "skip: Skip these tests"
 ]
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
-    "ignore::FutureWarning",
-    "ignore::UserWarning:pydantic.*",
-    "ignore::UserWarning:dependency_injector.*",
-    "error::UserWarning:pynomaly.*"
-]
 timeout = 300
-asyncio_mode = "auto"
 log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(name)s: %(message)s"

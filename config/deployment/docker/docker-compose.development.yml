@@ -1,0 +1,51 @@
+# Development Environment Overrides
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.development.yml up
+
+version: '3.8'
+
+services:
+  pynomaly-api:
+    build:
+      context: ../../..
+      dockerfile: Dockerfile.dev
+    environment:
+      - PYNOMALY_ENV=development
+      - PYNOMALY_DEBUG=true
+      - PYNOMALY_API_RELOAD=true
+      - PYNOMALY_LOG_LEVEL=DEBUG
+    volumes:
+      - ../../../src:/app/src:ro  # Mount source for hot reload
+      - ../../../tests:/app/tests:ro
+      - ../../../config:/app/config:ro
+    ports:
+      - "8000:8000"
+      - "5678:5678"  # Debug port
+    command: ["uvicorn", "pynomaly.presentation.api.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  redis:
+    environment:
+      - REDIS_PASSWORD=  # No password for development
+    ports:
+      - "6379:6379"
+
+  postgres:
+    environment:
+      - POSTGRES_DB=pynomaly_dev
+      - POSTGRES_USER=dev_user
+      - POSTGRES_PASSWORD=dev_password
+    ports:
+      - "5432:5432"
+
+  # Development tools
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres
