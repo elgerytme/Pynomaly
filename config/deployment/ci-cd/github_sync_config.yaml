@@ -1,0 +1,321 @@
+# GitHub Issues and Todo List Synchronization Configuration
+
+# Synchronization settings
+sync:
+  enabled: true
+  direction: "bidirectional"  # todo_to_github, github_to_todo, bidirectional
+  auto_sync_interval: 300     # 5 minutes in seconds
+  conflict_resolution: "github_wins"  # github_wins, todo_wins, manual
+  max_retries: 3
+  retry_delay: 5              # seconds
+
+# GitHub configuration
+github:
+  # Repository settings
+  repository: "pynomaly/pynomaly"
+  api_base_url: "https://api.github.com"
+  
+  # Label configuration for issue categorization
+  labels:
+    # Prefix for all todo-related issues
+    todo_prefix: "todo:"
+    
+    # Priority labels
+    priority_high: "priority:high"
+    priority_medium: "priority:medium"
+    priority_low: "priority:low"
+    
+    # Status labels
+    status_pending: "status:pending"
+    status_in_progress: "status:in-progress"
+    status_completed: "status:completed"
+    
+    # Category labels (optional)
+    category_bug: "category:bug"
+    category_feature: "category:feature"
+    category_enhancement: "category:enhancement"
+    category_documentation: "category:documentation"
+    category_testing: "category:testing"
+    category_infrastructure: "category:infrastructure"
+  
+  # Issue template configuration
+  issue_template:
+    title_format: "TODO: {content}"
+    body_template: |
+      ## Todo Item
+      
+      **ID**: {id}
+      **Priority**: {priority}
+      **Status**: {status}
+      **Created**: {created_at}
+      **Updated**: {updated_at}
+      
+      **Description**: {content}
+      
+      ---
+      *This issue was automatically created from the todo list.*
+      *Do not edit the todo metadata above this line.*
+      
+      ### Additional Notes
+      
+      Add any additional context, requirements, or implementation details here.
+      
+      ### Acceptance Criteria
+      
+      - [ ] Task completed successfully
+      - [ ] Tests pass (if applicable)
+      - [ ] Documentation updated (if applicable)
+      - [ ] Code reviewed (if applicable)
+      
+      ### Implementation Notes
+      
+      Add implementation details, technical notes, or related issues here.
+      
+      ### Related Issues
+      
+      Link to any related issues or dependencies here.
+  
+  # Issue assignment and management
+  assignment:
+    auto_assign: false
+    default_assignee: null
+    assign_by_priority:
+      high: ["maintainer1", "maintainer2"]
+      medium: ["developer1", "developer2"]
+      low: ["contributor1", "contributor2"]
+  
+  # Milestone and project management
+  milestones:
+    auto_assign_milestone: false
+    milestone_mapping:
+      high: "Next Release"
+      medium: "Future Release"
+      low: "Backlog"
+
+# Status and priority mapping
+mapping:
+  # Todo status to GitHub issue state
+  status_mapping:
+    pending: "open"
+    in_progress: "open"
+    completed: "closed"
+  
+  # GitHub issue state to todo status
+  reverse_status_mapping:
+    open: "pending"
+    closed: "completed"
+  
+  # Priority level mapping
+  priority_mapping:
+    high: 1
+    medium: 2
+    low: 3
+  
+  # Category mapping from todo content analysis
+  category_keywords:
+    bug: ["bug", "fix", "error", "issue", "problem"]
+    feature: ["feature", "add", "implement", "create"]
+    enhancement: ["enhance", "improve", "optimize", "upgrade"]
+    documentation: ["doc", "documentation", "readme", "guide"]
+    testing: ["test", "testing", "coverage", "spec"]
+    infrastructure: ["deploy", "ci", "cd", "infrastructure", "automation"]
+
+# Webhook configuration for real-time sync
+webhooks:
+  enabled: false
+  endpoint: "/webhook/github-issues"
+  secret: null  # Set this to a secure random string
+  events:
+    - "issues"
+    - "issue_comment"
+  
+  # Webhook server configuration
+  server:
+    host: "0.0.0.0"
+    port: 8080
+    ssl_enabled: false
+    ssl_cert_path: null
+    ssl_key_path: null
+
+# Automation rules
+automation:
+  # Auto-sync triggers
+  triggers:
+    on_todo_change: true
+    on_issue_change: true
+    on_schedule: true
+    schedule_cron: "*/5 * * * *"  # Every 5 minutes
+  
+  # Auto-labeling rules
+  auto_labeling:
+    enabled: true
+    rules:
+      - condition: "content_contains(['bug', 'fix', 'error'])"
+        labels: ["category:bug"]
+      - condition: "content_contains(['feature', 'add', 'implement'])"
+        labels: ["category:feature"]
+      - condition: "content_contains(['test', 'testing'])"
+        labels: ["category:testing"]
+      - condition: "content_contains(['doc', 'documentation'])"
+        labels: ["category:documentation"]
+  
+  # Auto-assignment rules
+  auto_assignment:
+    enabled: false
+    rules:
+      - condition: "priority == 'high'"
+        assignees: ["tech-lead"]
+      - condition: "labels.includes('category:bug')"
+        assignees: ["bug-triager"]
+      - condition: "labels.includes('category:testing')"
+        assignees: ["qa-engineer"]
+
+# Notification settings
+notifications:
+  enabled: true
+  channels:
+    # Slack notifications
+    slack:
+      enabled: false
+      webhook_url: null
+      channel: "#dev-tasks"
+      notify_on:
+        - "sync_completed"
+        - "sync_failed"
+        - "conflicts_detected"
+    
+    # Email notifications
+    email:
+      enabled: false
+      smtp_server: null
+      smtp_port: 587
+      username: null
+      password: null
+      from_email: "noreply@pynomaly.com"
+      to_emails: []
+      notify_on:
+        - "sync_failed"
+        - "conflicts_detected"
+    
+    # GitHub notifications (comments)
+    github_comments:
+      enabled: true
+      notify_on:
+        - "todo_created"
+        - "todo_completed"
+        - "sync_conflicts"
+
+# Conflict resolution strategies
+conflict_resolution:
+  strategy: "github_wins"  # github_wins, todo_wins, manual, timestamp_wins
+  
+  # Manual conflict resolution
+  manual_resolution:
+    enabled: false
+    notification_method: "github_comment"
+    timeout_hours: 24
+    default_action: "github_wins"
+  
+  # Conflict detection rules
+  detection_rules:
+    content_mismatch: true
+    status_mismatch: true
+    priority_mismatch: true
+    timestamp_threshold: 300  # 5 minutes
+
+# Backup and recovery
+backup:
+  enabled: true
+  backup_interval: 3600  # 1 hour
+  backup_location: "backups/sync"
+  retention_days: 30
+  
+  # What to backup
+  backup_items:
+    - "todo_list"
+    - "sync_log"
+    - "configuration"
+    - "mappings"
+
+# Logging and monitoring
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Log destinations
+  destinations:
+    console: true
+    file: true
+    file_path: "logs/github_sync.log"
+    max_file_size: "10MB"
+    backup_count: 5
+  
+  # What to log
+  log_events:
+    - "sync_start"
+    - "sync_complete"
+    - "sync_error"
+    - "issue_created"
+    - "issue_updated"
+    - "todo_created"
+    - "todo_updated"
+    - "conflicts_detected"
+    - "conflicts_resolved"
+
+# Performance and rate limiting
+performance:
+  # GitHub API rate limiting
+  github_rate_limit:
+    requests_per_hour: 5000
+    respect_rate_limit: true
+    backoff_factor: 2
+    max_backoff: 300  # 5 minutes
+  
+  # Batch processing
+  batch_processing:
+    enabled: true
+    batch_size: 20
+    batch_delay: 1  # seconds between batches
+  
+  # Caching
+  caching:
+    enabled: true
+    cache_duration: 300  # 5 minutes
+    cache_location: "cache/github_sync"
+
+# Security settings
+security:
+  # Token management
+  token_security:
+    token_rotation_days: 90
+    token_encryption: true
+    token_storage: "environment"  # environment, keyring, file
+  
+  # Webhook security
+  webhook_security:
+    verify_signatures: true
+    allowed_ips: []  # Empty means all IPs allowed
+    rate_limiting:
+      enabled: true
+      requests_per_minute: 60
+  
+  # Data protection
+  data_protection:
+    encrypt_sensitive_data: true
+    sanitize_logs: true
+    audit_trail: true
+
+# Testing and development
+development:
+  # Test mode settings
+  test_mode:
+    enabled: false
+    dry_run: true
+    mock_github_api: true
+    test_repository: "pynomaly/pynomaly-test"
+  
+  # Debug settings
+  debug:
+    verbose_logging: false
+    save_api_responses: false
+    response_cache_dir: "debug/api_responses"

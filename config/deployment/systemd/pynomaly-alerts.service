@@ -1,0 +1,19 @@
+[Unit]
+Description=Pynomaly Alert Manager
+After=network.target
+Requires=network.target
+
+[Service]
+Type=simple
+User=pynomaly
+Group=pynomaly
+WorkingDirectory=/mnt/c/Users/andre/Pynomaly
+Environment=PYTHONPATH=/mnt/c/Users/andre/Pynomaly/src
+ExecStart=/usr/bin/python3 -m pynomaly.infrastructure.monitoring.alerts
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

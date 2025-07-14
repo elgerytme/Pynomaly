@@ -8,7 +8,11 @@ adapters, and infrastructure-specific configurations.
 from .di import MLOpsContainer
 from .config import MLOpsSettings, DatabaseConfig
 from .storage import ArtifactStorageService, S3ArtifactStorage, LocalArtifactStorage
-from .persistence import SqlAlchemyModelRepository, SqlAlchemyExperimentRepository, Base
+from .persistence import (
+    SqlAlchemyModelRepository, SqlAlchemyExperimentRepository, 
+    SqlAlchemyPipelineRepository, SqlAlchemyPipelineRunRepository, Base
+)
+from .execution import PipelineExecutor, PipelineScheduler
 
 __all__ = [
     "MLOpsContainer",
@@ -18,6 +22,10 @@ __all__ = [
     "S3ArtifactStorage",
     "LocalArtifactStorage",
     "SqlAlchemyModelRepository",
-    "SqlAlchemyExperimentRepository", 
+    "SqlAlchemyExperimentRepository",
+    "SqlAlchemyPipelineRepository",
+    "SqlAlchemyPipelineRunRepository", 
+    "PipelineExecutor",
+    "PipelineScheduler",
     "Base",
 ]
