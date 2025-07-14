@@ -1,0 +1,179 @@
+# GitHub Issues to TODO.md Sync Configuration
+
+# Repository Configuration
+repository:
+  owner: "elgerytme"
+  name: "Pynomaly"
+  
+# File Paths
+paths:
+  todo_file: "TODO.md"
+  log_file: "sync.log"
+  
+# Sync Settings
+sync:
+  # How often to sync (in minutes) for scheduled sync
+  interval: 30
+  
+  # Include closed issues in sync
+  include_closed: true
+  
+  # Maximum number of issues to process
+  max_issues: 200
+  
+  # Truncate issue body length
+  body_truncate: 200
+
+# Priority Mapping
+priorities:
+  "P1-High": 
+    emoji: "🔥"
+    label: "P1-High"
+    order: 1
+  "P2-Medium":
+    emoji: "🔶"
+    label: "P2-Medium"
+    order: 2
+  "P3-Low":
+    emoji: "🟢"
+    label: "P3-Low"
+    order: 3
+  default: "P2-Medium"
+
+# Status Mapping
+statuses:
+  closed: "✅ COMPLETED"
+  in_progress: "🔄 IN PROGRESS"
+  blocked: "🚫 BLOCKED"
+  pending: "⏳ PENDING"
+  
+# Status Detection Rules
+status_rules:
+  # Labels that indicate in-progress status
+  in_progress_labels:
+    - "In-Progress"
+    - "in progress"
+    - "WIP"
+    - "working"
+    
+  # Labels that indicate blocked status
+  blocked_labels:
+    - "Blocked"
+    - "blocked"
+    - "waiting"
+    - "dependencies"
+
+# Category Mapping
+categories:
+  bug: "🐛 Bug"
+  enhancement: "✨ Enhancement"
+  documentation: "📚 Documentation"
+  Presentation: "🎨 Presentation"
+  Application: "⚙️ Application"
+  Infrastructure: "🏗️ Infrastructure"
+  "CI/CD": "🔄 CI/CD"
+  General: "📋 General"
+  default: "General"
+
+# Webhook Configuration
+webhook:
+  # Port for webhook server
+  port: 8080
+  
+  # Events to trigger sync
+  events:
+    - "issues.opened"
+    - "issues.edited"
+    - "issues.closed"
+    - "issues.reopened"
+    - "issues.labeled"
+    - "issues.unlabeled"
+    - "issue_comment.created"
+    - "issue_comment.edited"
+    - "issue_comment.deleted"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+# GitHub API Configuration
+github:
+  # API base URL
+  base_url: "https://api.github.com"
+  
+  # Request timeout (seconds)
+  timeout: 30
+  
+  # Rate limit handling
+  rate_limit:
+    retry_after: 60
+    max_retries: 3
+    
+  # API version
+  api_version: "v3"
+
+# TODO.md Template Configuration
+template:
+  # Header template
+  header: |
+    # Pynomaly GitHub Issues
+    
+    **Auto-Synchronized GitHub Issues List**
+    
+    **Total Open Issues**: {total_issues}
+    **Completed**: {completed_count} ({completed_examples})
+    **In Progress**: {in_progress_count}
+    **Pending**: {pending_count}
+    
+    **Last Sync**: {sync_time}
+    
+    ---
+  
+  # Section headers
+  sections:
+    high_priority: "## 🔥 **P1-High Priority Issues**"
+    medium_priority: "## 🔶 **P2-Medium Priority Issues**"
+    low_priority: "## 🟢 **P3-Low Priority Issues**"
+  
+  # Issue format template
+  issue_format: |
+    ### **Issue #{number}: {title}**
+    
+    **Labels**: {labels}
+    **Priority**: {priority}
+    **Status**: {status}
+    **Category**: {category}
+    **Created**: {created_date}
+    **Updated**: {updated_date}
+    
+    - **Scope**: {body_preview}
+    - **GitHub**: [View Issue]({url})
+    
+  # Footer template
+  footer: |
+    ---
+    
+    ## 🔧 **Automation Setup**
+    
+    **GitHub Actions Workflow**: `.github/workflows/issue-sync.yml`
+    **Sync Script**: `scripts/automation/sync_github_issues_to_todo.py`
+    **Manual Sync**: `scripts/automation/manual_sync.py`
+    
+    **Triggers**:
+    - Issue opened, edited, closed, reopened
+    - Issue labeled or unlabeled
+    - Issue comments created, edited, deleted
+    - Manual workflow dispatch
+    
+    **Rules**:
+    1. **Priority Mapping**: P1-High → 🔥, P2-Medium → 🔶, P3-Low → 🟢
+    2. **Status Detection**: Closed → ✅ COMPLETED, In-Progress label → 🔄, Blocked label → 🚫, Default → ⏳ PENDING
+    3. **Category Classification**: Based on labels (Presentation, Application, Infrastructure, etc.)
+    4. **Auto-formatting**: Consistent structure with links, dates, and priority badges
+    
+    ---
+    
+    **Last Updated**: {sync_time}
+    **Sync Status**: ✅ Active (Auto-synced on issue changes)
+    **Next Manual Review**: As needed for strategic planning
