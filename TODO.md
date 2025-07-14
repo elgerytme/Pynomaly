@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 125  
+**Total Open Issues**: 127  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 41  
+**Pending**: 43  
 
 **Last Sync**: July 14, 2025 at 19:16 UTC
 
@@ -1394,6 +1394,30 @@
 
 - **Scope**: ## Overview Create modern, responsive web interface for data science operations with interactive dashboards, drag-and-drop functionality, and real-time updates. This provides user-friendly access to a...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/160)
+
+### **Issue #162: Phase 5.1: Python SDK - Data Science Client Library**
+
+**Labels**: enhancement, Domain, est:1w, P2-Medium  
+**Priority**: 🔶 P2-Medium  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Create comprehensive Python SDK for data science packages with intuitive APIs, async support, and integration with popular data science libraries.  ## Acceptance Criteria - [ ] Pythonic AP...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/162)
+
+### **Issue #163: Phase 5.2: JavaScript SDK - Web Integration Library**
+
+**Labels**: enhancement, Domain, est:1w, P2-Medium  
+**Priority**: 🔶 P2-Medium  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Develop JavaScript/TypeScript SDK for web application integration with data science capabilities.  ## Acceptance Criteria - [ ] TypeScript definitions and modern JavaScript support - [ ] P...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/163)
 
 ## 🟢 **P3-Low Priority Issues**
 
