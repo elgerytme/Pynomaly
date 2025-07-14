@@ -27,7 +27,7 @@ TRACES_DIR = Path("test_reports/traces")
 # Test configuration
 TEST_CONFIG = {
     "base_url": BASE_URL,
-    "timeout": 30000,  # 30 seconds
+    "timeout": 60000,  # 60 seconds - increased for CI environments
     "headless": os.getenv("HEADLESS", "true").lower() == "true",
     "slow_mo": int(os.getenv("SLOW_MO", "0")),
     "viewport": {"width": 1920, "height": 1080},
@@ -39,6 +39,57 @@ TEST_CONFIG = {
 # Create directories
 for directory in [SCREENSHOTS_DIR, VIDEOS_DIR, TRACES_DIR]:
     directory.mkdir(parents=True, exist_ok=True)
+
+
+async def wait_for_element_with_retry(page: Page, selector: str, timeout: int = 30000, retry_interval: int = 500):
+    """Wait for element with exponential backoff retry instead of fixed timeout."""
+    import asyncio
+    
+    start_time = asyncio.get_event_loop().time()
+    end_time = start_time + (timeout / 1000)
+    
+    attempt = 0
+    while asyncio.get_event_loop().time() < end_time:
+        try:
+            element = await page.wait_for_selector(selector, timeout=retry_interval)
+            if element:
+                return element
+        except Exception:
+            # Exponential backoff with jitter
+            attempt += 1
+            delay = min(retry_interval * (2 ** (attempt - 1)), 5000) / 1000  # Max 5 second delay
+            jitter = delay * 0.1 * (0.5 - asyncio.get_event_loop().time() % 1)  # Add jitter
+            await asyncio.sleep(delay + jitter)
+    
+    raise TimeoutError(f"Element {selector} not found after {timeout}ms")
+
+
+async def wait_for_page_load_with_polling(page: Page, url_pattern: str = None, timeout: int = 30000):
+    """Wait for page load with network idle detection and polling."""
+    import asyncio
+    
+    start_time = asyncio.get_event_loop().time()
+    end_time = start_time + (timeout / 1000)
+    
+    while asyncio.get_event_loop().time() < end_time:
+        try:
+            # Check if page is loaded and network is idle
+            await page.wait_for_load_state("networkidle", timeout=1000)
+            
+            # Optional URL pattern check
+            if url_pattern and url_pattern not in page.url:
+                await asyncio.sleep(0.1)
+                continue
+                
+            # Additional check: ensure DOM is ready
+            ready_state = await page.evaluate("document.readyState")
+            if ready_state == "complete":
+                return
+                
+        except Exception:
+            await asyncio.sleep(0.1)
+    
+    raise TimeoutError(f"Page load timeout after {timeout}ms")
 
 
 @pytest.fixture(scope="session")

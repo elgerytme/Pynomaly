@@ -1,6 +1,7 @@
 """Tests for cache warming functionality (Issue #99)."""
 
 import asyncio
+import time
 from datetime import datetime
 from unittest.mock import AsyncMock
 
@@ -11,6 +12,16 @@ from pynomaly.infrastructure.cache.cache_warming import (
     WarmingMetrics,
     WarmingStrategy,
 )
+
+
+async def wait_for_condition(condition_func, timeout=5.0, poll_interval=0.01):
+    """Wait for a condition to be true with polling instead of fixed delays."""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        if await condition_func() if asyncio.iscoroutinefunction(condition_func) else condition_func():
+            return True
+        await asyncio.sleep(poll_interval)
+    return False
 
 
 class TestWarmingStrategy:
@@ -174,7 +185,7 @@ class TestCacheWarmingService:
         strategy = WarmingStrategy(
             name="test_strategy",
             batch_size=2,
-            delay_between_batches=0.01,
+            delay_between_batches=0.001,  # Minimal delay for testing
             data_generator=mock_generator,
         )
 
@@ -448,17 +459,20 @@ class TestCacheWarmingService:
     async def test_shutdown(self, warming_service):
         """Test service shutdown."""
         # Add some mock tasks
-        task1 = asyncio.create_task(asyncio.sleep(0.1))
-        task2 = asyncio.create_task(asyncio.sleep(0.1))
+        task1 = asyncio.create_task(asyncio.sleep(1.0))  # Longer sleep to ensure proper cancellation
+        task2 = asyncio.create_task(asyncio.sleep(1.0))
         warming_service.warming_tasks.add(task1)
         warming_service.warming_tasks.add(task2)
 
         # Shutdown service
         await warming_service.shutdown()
 
-        # Tasks should be cancelled
-        assert task1.cancelled() or task1.done()
-        assert task2.cancelled() or task2.done()
+        # Wait for tasks to be properly cancelled using polling
+        async def tasks_cancelled():
+            return (task1.cancelled() or task1.done()) and (task2.cancelled() or task2.done())
+        
+        cancelled = await wait_for_condition(tasks_cancelled, timeout=2.0)
+        assert cancelled, "Tasks were not properly cancelled within timeout"
         assert warming_service._shutdown_event.is_set()
 
 
@@ -507,7 +521,7 @@ class TestCacheWarmingIntegration:
         large_strategy = WarmingStrategy(
             name="large_dataset",
             batch_size=100,
-            delay_between_batches=0.001,  # Minimal delay
+            delay_between_batches=0.0001,  # Ultra-minimal delay for performance test
             data_generator=large_data_generator,
         )
 

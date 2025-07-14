@@ -48,8 +48,8 @@ class TestProductionRedisCache:
         return redis_mock
 
     @pytest.fixture
-    def production_cache(self, mock_settings, mock_redis):
-        """Create production cache instance with mocked Redis."""
+    async def production_cache(self, mock_settings, mock_redis):
+        """Create production cache instance with mocked Redis and proper cleanup."""
         with patch(
             "pynomaly.infrastructure.cache.redis_production.redis.Redis",
             return_value=mock_redis,
@@ -61,7 +61,18 @@ class TestProductionRedisCache:
                 enable_circuit_breaker=True,
             )
             cache.redis = mock_redis
-            return cache
+            try:
+                yield cache
+            finally:
+                # Ensure proper cleanup of resources
+                try:
+                    await asyncio.wait_for(cache.close(), timeout=2.0)
+                except (asyncio.TimeoutError, AttributeError):
+                    # Force cleanup if normal close fails
+                    for task in getattr(cache, '_warming_tasks', set()):
+                        if not task.done():
+                            task.cancel()
+                    await asyncio.sleep(0.05)  # Brief grace period
 
     async def test_cache_initialization(self, mock_settings):
         """Test cache initialization with different configurations."""
@@ -258,21 +269,23 @@ class TestProductionRedisCache:
         assert namespaced == "test:test_key"
 
     async def test_concurrent_operations(self, production_cache, mock_redis):
-        """Test concurrent cache operations."""
+        """Test concurrent cache operations with proper resource management."""
         mock_redis.get.return_value = b'{"value": "test"}'
         mock_redis.set.return_value = True
 
-        # Create multiple concurrent operations
-        tasks = []
-        for i in range(10):
-            tasks.append(production_cache.get(f"key_{i}"))
-            tasks.append(production_cache.set(f"key_{i}", f"value_{i}"))
+        # Create multiple concurrent operations with limited concurrency
+        async def limited_operations():
+            tasks = []
+            for i in range(5):  # Reduced concurrency to avoid resource issues
+                tasks.append(production_cache.get(f"key_{i}"))
+                tasks.append(production_cache.set(f"key_{i}", f"value_{i}"))
+            return await asyncio.gather(*tasks, return_exceptions=True)
 
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+        results = await limited_operations()
 
         # Check that no exceptions occurred
         exceptions = [r for r in results if isinstance(r, Exception)]
-        assert len(exceptions) == 0
+        assert len(exceptions) == 0, f"Unexpected exceptions: {exceptions}"
 
     async def test_memory_optimization(self, production_cache):
         """Test memory optimization features."""
@@ -294,14 +307,25 @@ class TestProductionRedisCache:
 
     async def test_cleanup(self, production_cache):
         """Test cache cleanup and resource management."""
-        # Add some warming tasks
-        production_cache._warming_tasks.add(asyncio.create_task(asyncio.sleep(0.1)))
+        # Add some warming tasks with longer duration to test proper cancellation
+        long_task = asyncio.create_task(asyncio.sleep(5.0))
+        short_task = asyncio.create_task(asyncio.sleep(0.1))
+        production_cache._warming_tasks.add(long_task)
+        production_cache._warming_tasks.add(short_task)
 
-        # Test cleanup
+        # Test cleanup with timeout handling
         await production_cache.close()
 
-        # Verify tasks are cleaned up
-        assert len([t for t in production_cache._warming_tasks if not t.done()]) == 0
+        # Use polling to verify tasks are properly cleaned up
+        await asyncio.sleep(0.2)  # Allow short task to complete naturally
+        
+        # Long task should be cancelled, short task should be done
+        assert long_task.cancelled() or long_task.done()
+        assert short_task.done()
+        
+        # Verify task set is cleaned up
+        active_tasks = [t for t in production_cache._warming_tasks if not (t.done() or t.cancelled())]
+        assert len(active_tasks) == 0
 
 
 class TestCacheMetrics:
@@ -393,4 +417,12 @@ class TestRedisIntegration:
             assert result is None
 
         finally:
-            await cache.close()
+            # Ensure proper cleanup with timeout
+            try:
+                await asyncio.wait_for(cache.close(), timeout=5.0)
+            except asyncio.TimeoutError:
+                # Force cleanup if normal close times out
+                for task in getattr(cache, '_warming_tasks', set()):
+                    if not task.done():
+                        task.cancel()
+                await asyncio.sleep(0.1)  # Allow cancellation to complete

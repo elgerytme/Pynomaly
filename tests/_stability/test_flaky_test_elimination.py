@@ -174,7 +174,7 @@ class ResourceManager:
             "max_open_files": 100,
             "max_threads": 20,
         }
-        self.active_resources = {"open_files": [], "threads": [], "temp_objects": []}
+        self.active_resources = {"open_files": [], "threads": [], "async_tasks": [], "temp_objects": []}
 
     @contextmanager
     def managed_resources(self):
@@ -213,13 +213,40 @@ class ResourceManager:
             except:
                 pass
 
-        # Join threads
+        # Join threads with improved timeout handling
         for thread in self.active_resources["threads"]:
             try:
                 if thread.is_alive():
-                    thread.join(timeout=1.0)
-            except:
-                pass
+                    thread.join(timeout=2.0)  # Increased timeout
+                    if thread.is_alive():
+                        # Force terminate if thread doesn't respond to join
+                        import warnings
+                        warnings.warn(f"Thread {thread.name} did not terminate within timeout", 
+                                    ResourceWarning)
+                        # Note: Python threads cannot be forcibly terminated
+                        # We log this for debugging but continue cleanup
+            except Exception as e:
+                import warnings
+                warnings.warn(f"Error during thread cleanup: {e}", ResourceWarning)
+
+        # Cancel async tasks with timeout
+        import asyncio
+        for task in self.active_resources["async_tasks"]:
+            try:
+                if not task.done():
+                    task.cancel()
+                    # Give tasks a brief moment to handle cancellation
+                    try:
+                        loop = asyncio.get_event_loop()
+                        if loop.is_running():
+                            # Schedule cancellation check for later
+                            loop.call_later(0.1, lambda: None)
+                    except RuntimeError:
+                        # No event loop running, tasks will be cancelled anyway
+                        pass
+            except Exception as e:
+                import warnings
+                warnings.warn(f"Error during async task cleanup: {e}", ResourceWarning)
 
         # Clear temporary objects
         self.active_resources["temp_objects"].clear()
