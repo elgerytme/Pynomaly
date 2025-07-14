@@ -1,0 +1,268 @@
+{
+  "info": {
+    "name": "Pynomaly API",
+    "description": "Comprehensive API collection for Pynomaly anomaly detection platform",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{api_key}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://api.pynomaly.com",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "your-api-key-here",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detailed Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/detailed",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health",
+                "detailed"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Detectors",
+      "item": [
+        {
+          "name": "List Detectors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/detectors?limit=20&offset=0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "detectors"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Detector",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Detector\",\n  \"algorithm\": \"IsolationForest\",\n  \"parameters\": {\n    \"contamination\": 0.1,\n    \"n_estimators\": 100,\n    \"random_state\": 42\n  },\n  \"description\": \"Production anomaly detector\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/detectors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "detectors"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Detector",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "detectors",
+                "{{detector_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Detector",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Detector\",\n  \"parameters\": {\n    \"contamination\": 0.05,\n    \"n_estimators\": 200\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "detectors",
+                "{{detector_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Detector",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "detectors",
+                "{{detector_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Detection",
+      "item": [
+        {
+          "name": "Run Detection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    [\n      1.2,\n      3.4,\n      5.6\n    ],\n    [\n      2.3,\n      4.5,\n      6.7\n    ],\n    [\n      3.4,\n      5.6,\n      7.8\n    ]\n  ],\n  \"feature_names\": [\n    \"feature1\",\n    \"feature2\",\n    \"feature3\"\n  ],\n  \"return_explanations\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/detectors/{{detector_id}}/detect",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "detectors",
+                "{{detector_id}}",
+                "detect"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AutoML",
+      "item": [
+        {
+          "name": "Start AutoML Optimization",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dataset_id\": \"dataset_abc123\",\n  \"algorithms\": [\n    \"IsolationForest\",\n    \"LocalOutlierFactor\",\n    \"OneClassSVM\"\n  ],\n  \"objectives\": [\n    \"accuracy\",\n    \"speed\",\n    \"interpretability\"\n  ],\n  \"constraints\": {\n    \"max_time\": 3600,\n    \"max_trials\": 100,\n    \"max_memory\": 4096\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/automl/optimize",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "automl",
+                "optimize"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
