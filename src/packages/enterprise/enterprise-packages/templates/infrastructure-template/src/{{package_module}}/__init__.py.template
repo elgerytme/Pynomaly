@@ -1,0 +1,15 @@
+"""{{package_title}}.
+
+{{package_description}}
+"""
+
+from .config import {{package_module|title}}Config
+from .monitoring import {{package_module|title}}Monitor
+from .security import {{package_module|title}}Security
+
+__version__ = "0.1.0"
+__all__ = [
+    "{{package_module|title}}Config",
+    "{{package_module|title}}Monitor",
+    "{{package_module|title}}Security",
+]

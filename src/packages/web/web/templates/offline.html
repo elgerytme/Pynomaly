@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Offline - Pynomaly</title>
+    <link rel="stylesheet" href="/static/css/design-system.css" />
+    <link rel="stylesheet" href="/static/css/tailwind.css" />
+    <link rel="manifest" href="/static/manifest.json" />
+    <meta name="theme-color" content="#0ea5e9" />
+    <meta
+      name="description"
+      content="Pynomaly offline page - Continue working with cached data"
+    />
+
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Pynomaly" />
+
+    <!-- Icons -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/static/icons/icon-192x192.png"
+    />
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png" />
+
+    <style>
+      .offline-animation {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .connection-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: #ef4444;
+        animation: blink 1.5s infinite;
+      }
+
+      @keyframes blink {
+        0%,
+        50% {
+          opacity: 1;
+        }
+        51%,
+        100% {
+          opacity: 0.3;
+        }
+      }
+
+      .feature-card:hover {
+        transform: translateY(-2px);
+        transition: transform 0.2s ease-in-out;
+      }
+    </style>
+  </head>
+  <body class="bg-background min-h-screen">
+    <!-- Header -->
+    <header class="bg-surface border-b border-border">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img
+              src="/static/icons/icon-72x72.png"
+              alt="Pynomaly"
+              class="w-8 h-8"
+            />
+            <h1 class="heading-4 mb-0">Pynomaly</h1>
+          </div>
+          <div class="flex items-center gap-2 text-orange-600">
+            <div class="connection-indicator"></div>
+            <span class="caption">Offline Mode</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+      <!-- Offline Status Section -->
+      <div class="text-center mb-12">
+        <div class="offline-animation text-8xl mb-6">📡</div>
+        <h1 class="heading-1 mb-4">You're Currently Offline</h1>
+        <p class="body-large text-text-secondary mb-6 max-w-2xl mx-auto">
+          Don't worry! You can still access cached data and continue working.
+          Your changes will sync automatically when your connection returns.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <button onclick="checkConnection()" class="btn-base btn-primary">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                clip-rule="evenodd"
+              ></path>
+            </svg>
+            Check Connection
+          </button>
+          <a href="/dashboard" class="btn-base btn-secondary">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"
+              ></path>
+            </svg>
+            Go to Dashboard
+          </a>
+        </div>
+      </div>
+
+      <!-- Available Features -->
+      <div class="mb-12">
+        <h2 class="heading-2 text-center mb-8">Available Offline Features</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Cached Data -->
+          <div
+            class="card feature-card cursor-pointer"
+            onclick="navigateTo('/datasets')"
+          >
+            <div class="card-body text-center">
+              <div class="text-4xl mb-4">💾</div>
+              <h3 class="card-title">Cached Datasets</h3>
+              <p class="body-small text-text-secondary">
+                Access previously loaded datasets and analysis results
+              </p>
+            </div>
+          </div>
+
+          <!-- Offline Analysis -->
+          <div
+            class="card feature-card cursor-pointer"
+            onclick="navigateTo('/models')"
+          >
+            <div class="card-body text-center">
+              <div class="text-4xl mb-4">🔍</div>
+              <h3 class="card-title">Local Analysis</h3>
+              <p class="body-small text-text-secondary">
+                Run anomaly detection on cached data with local algorithms
+              </p>
+            </div>
+          </div>
+
+          <!-- Documentation -->
+          <div
+            class="card feature-card cursor-pointer"
+            onclick="navigateTo('/docs')"
+          >
+            <div class="card-body text-center">
+              <div class="text-4xl mb-4">📚</div>
+              <h3 class="card-title">Documentation</h3>
+              <p class="body-small text-text-secondary">
+                Browse cached user guides and API documentation
+              </p>
+            </div>
+          </div>
+
+          <!-- Settings -->
+          <div
+            class="card feature-card cursor-pointer"
+            onclick="navigateTo('/settings')"
+          >
+            <div class="card-body text-center">
+              <div class="text-4xl mb-4">⚙️</div>
+              <h3 class="card-title">Settings</h3>
+              <p class="body-small text-text-secondary">
+                Configure preferences and manage offline data
+              </p>
+            </div>
+          </div>
+
+          <!-- Export Tools -->
+          <div
+            class="card feature-card cursor-pointer"
+            onclick="navigateTo('/export')"
+          >
+            <div class="card-body text-center">
+              <div class="text-4xl mb-4">📤</div>
+              <h3 class="card-title">Export Data</h3>
+              <p class="body-small text-text-secondary">
+                Export analysis results and reports in various formats
+              </p>
+            </div>
+          </div>
+
+          <!-- Help Center -->
+          <div
+            class="card feature-card cursor-pointer"
+            onclick="navigateTo('/help')"
+          >
+            <div class="card-body text-center">
+              <div class="text-4xl mb-4">❓</div>
+              <h3 class="card-title">Help Center</h3>
+              <p class="body-small text-text-secondary">
+                Access offline help resources and troubleshooting guides
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sync Status -->
+      <div class="card bg-orange-50 border-orange-200">
+        <div class="card-body">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0">
+              <svg
+                class="w-6 h-6 text-orange-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </div>
+            <div class="flex-grow">
+              <h3 class="font-semibold text-orange-800 mb-2">
+                Pending Synchronization
+              </h3>
+              <p class="text-sm text-orange-700 mb-3">
+                Some actions are queued and will automatically sync when your
+                connection returns:
+              </p>
+              <ul
+                class="text-sm text-orange-700 space-y-1"
+                id="pending-actions"
+              >
+                <li class="flex items-center gap-2">
+                  <div class="w-2 h-2 bg-orange-400 rounded-full"></div>
+                  Dataset uploads waiting to complete
+                </li>
+                <li class="flex items-center gap-2">
+                  <div class="w-2 h-2 bg-orange-400 rounded-full"></div>
+                  Analysis results pending backup
+                </li>
+                <li class="flex items-center gap-2">
+                  <div class="w-2 h-2 bg-orange-400 rounded-full"></div>
+                  User preferences to be synchronized
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-border mt-16">
+      <div class="container mx-auto px-4 py-8">
+        <div class="text-center">
+          <p class="body-small text-text-muted">
+            Pynomaly continues to work offline thanks to Progressive Web App
+            technology
+          </p>
+          <div class="flex justify-center items-center gap-4 mt-4">
+            <span class="caption text-text-muted">Cache Status:</span>
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span class="caption text-green-700">Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Check connection status
+      function checkConnection() {
+        if (navigator.onLine) {
+          location.reload();
+        } else {
+          showConnectionStatus();
+        }
+      }
+
+      // Navigate to page with offline handling
+      function navigateTo(path) {
+        // Check if the page is likely to be cached
+        if (isPageCached(path)) {
+          window.location.href = path;
+        } else {
+          showOfflineAlert(path);
+        }
+      }
+
+      // Check if page is likely cached
+      function isPageCached(path) {
+        const cachedPaths = [
+          "/dashboard",
+          "/datasets",
+          "/models",
+          "/settings",
+          "/docs",
+          "/help",
+        ];
+        return cachedPaths.some((cached) => path.startsWith(cached));
+      }
+
+      // Show offline alert
+      function showOfflineAlert(path) {
+        const alert = document.createElement("div");
+        alert.className =
+          "fixed top-4 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
+        alert.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>This page requires an internet connection</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-orange-200 hover:text-white">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        document.body.appendChild(alert);
+
+        setTimeout(() => {
+          if (alert.parentNode) {
+            alert.remove();
+          }
+        }, 5000);
+      }
+
+      // Show connection status
+      function showConnectionStatus() {
+        const statusDiv = document.createElement("div");
+        statusDiv.className =
+          "fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
+        statusDiv.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Still offline - Please check your internet connection</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-2 text-red-200 hover:text-white">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        document.body.appendChild(statusDiv);
+
+        setTimeout(() => {
+          if (statusDiv.parentNode) {
+            statusDiv.remove();
+          }
+        }, 5000);
+      }
+
+      // Update connection status
+      function updateConnectionStatus() {
+        const indicator = document.querySelector(".connection-indicator");
+        const statusText = indicator.nextElementSibling;
+
+        if (navigator.onLine) {
+          indicator.style.backgroundColor = "#22c55e";
+          indicator.style.animation = "none";
+          statusText.textContent = "Online";
+          statusText.className = "caption text-green-600";
+
+          // Show reconnection message
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        } else {
+          indicator.style.backgroundColor = "#ef4444";
+          indicator.style.animation = "blink 1.5s infinite";
+          statusText.textContent = "Offline Mode";
+          statusText.className = "caption text-orange-600";
+        }
+      }
+
+      // Listen for connection changes
+      window.addEventListener("online", updateConnectionStatus);
+      window.addEventListener("offline", updateConnectionStatus);
+
+      // Update pending actions based on IndexedDB
+      async function updatePendingActions() {
+        try {
+          if ("serviceWorker" in navigator) {
+            const registration =
+              await navigator.serviceWorker.getRegistration();
+            if (registration) {
+              // Request sync queue status from service worker
+              registration.active?.postMessage({
+                type: "GET_SYNC_QUEUE_STATUS",
+              });
+            }
+          }
+        } catch (error) {
+          console.log("Could not fetch sync queue status:", error);
+        }
+      }
+
+      // Listen for service worker messages
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.addEventListener("message", (event) => {
+          if (event.data.type === "SYNC_QUEUE_STATUS") {
+            // Update pending actions list based on actual queue
+            const pendingList = document.getElementById("pending-actions");
+            const queueData = event.data.data;
+
+            if (queueData && queueData.length > 0) {
+              pendingList.innerHTML = queueData
+                .map(
+                  (item) => `
+                            <li class="flex items-center gap-2">
+                                <div class="w-2 h-2 bg-orange-400 rounded-full"></div>
+                                ${item.description || "Pending operation"}
+                            </li>
+                        `,
+                )
+                .join("");
+            }
+          }
+        });
+      }
+
+      // Initialize
+      updateConnectionStatus();
+      updatePendingActions();
+    </script>
+  </body>
+</html>

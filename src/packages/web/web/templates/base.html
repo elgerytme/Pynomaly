@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Pynomaly - State-of-the-art anomaly detection platform"
+    />
+
+    <!-- CSRF Token for Security -->
+    <meta name="csrf-token" content="{{ csrf_token or 'no-csrf-token' }}" />
+    <meta name="csrf-param" content="csrf_token" />
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3B82F6" />
+    <link rel="manifest" href="/static/manifest.json" />
+    <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
+    <link rel="icon" type="image/png" href="/static/img/favicon.png" />
+    <link rel="shortcut icon" href="/static/img/favicon.png" />
+
+    <title>{% block title %}Pynomaly{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3B82F6",
+              secondary: "#10B981",
+              accent: "#F59E0B",
+              error: "#EF4444",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+
+    <!-- Alpine.js for interactivity -->
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"
+    ></script>
+
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- Apache ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="/static/css/design-system.css" />
+    <link rel="stylesheet" href="/static/css/theme-system.css" />
+    <link rel="stylesheet" href="/static/css/tailwind.css" />
+
+    <!-- Custom CSS -->
+    <style>
+      .htmx-indicator {
+        opacity: 0;
+        transition: opacity 200ms ease-in;
+      }
+      .htmx-request .htmx-indicator {
+        opacity: 1;
+      }
+      .htmx-request.htmx-indicator {
+        opacity: 1;
+      }
+
+      /* Additional component styles */
+      .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        border: 1px solid;
+      }
+
+      .alert-success {
+        background-color: #f0fdf4;
+        border-color: #bbf7d0;
+        color: #166534;
+      }
+
+      .alert-error {
+        background-color: #fef2f2;
+        border-color: #fecaca;
+        color: #dc2626;
+      }
+
+      .alert-warning {
+        background-color: #fffbeb;
+        border-color: #fed7aa;
+        color: #d97706;
+      }
+
+      .alert-info {
+        background-color: #f0f9ff;
+        border-color: #bae6fd;
+        color: #0369a1;
+      }
+
+      .tooltip {
+        position: absolute;
+        z-index: 1000;
+        padding: 8px 12px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        border-radius: 4px;
+        font-size: 12px;
+        pointer-events: none;
+        max-width: 200px;
+        word-wrap: break-word;
+      }
+
+      .tooltip::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.8);
+      }
+
+      .card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
+      }
+
+      .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .card-header {
+        padding: 16px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #f8fafc;
+        border-radius: 8px 8px 0 0;
+      }
+
+      .card-body {
+        padding: 16px;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .badge-primary {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+
+      .badge-success {
+        background: #d1fae5;
+        color: #047857;
+      }
+
+      .badge-warning {
+        background: #fef3c7;
+        color: #d97706;
+      }
+
+      .badge-error {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e5e7eb;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      /* Dark mode support */
+      @media (prefers-color-scheme: dark) {
+        .card {
+          background: #1f2937;
+          border-color: #374151;
+        }
+
+        .card-header {
+          background: #111827;
+          border-color: #374151;
+        }
+
+        .tooltip {
+          background: rgba(31, 41, 55, 0.95);
+        }
+      }
+    </style>
+
+    {% block head %}{% endblock %}
+  </head>
+  <body class="bg-gray-50 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg" x-data="{ mobileMenuOpen: false }">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex">
+            <!-- Logo -->
+            <div class="flex-shrink-0 flex items-center">
+              <a href="/" class="text-2xl font-bold text-primary">
+                🔍 Pynomaly
+              </a>
+            </div>
+
+            <!-- Desktop Navigation - Streamlined -->
+            <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+              <a
+                href="/"
+                class="{% if request.url.path == '/' %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+              >
+                Dashboard
+              </a>
+              <div class="relative group">
+                <button
+                  class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                >
+                  Data & Models
+                  <svg
+                    class="ml-1 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50"
+                >
+                  <a
+                    href="/datasets"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >📁 Datasets</a
+                  >
+                  <a
+                    href="/detectors"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >🔍 Detectors</a
+                  >
+                  <a
+                    href="/detection"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >🎯 Detection</a
+                  >
+                  <a
+                    href="/ensemble"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >🤖 Ensemble</a
+                  >
+                </div>
+              </div>
+              <div class="relative group">
+                <button
+                  class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                >
+                  AutoML & Analysis
+                  <svg
+                    class="ml-1 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50"
+                >
+                  <a
+                    href="/automl"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >⚡ AutoML</a
+                  >
+                  <a
+                    href="/explainability"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >🔍 Explainability</a
+                  >
+                  <a
+                    href="/experiments"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >🧪 Experiments</a
+                  >
+                </div>
+              </div>
+              <div class="relative group">
+                <button
+                  class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                >
+                  Visualizations
+                  <svg
+                    class="ml-1 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50"
+                >
+                  <a
+                    href="/visualizations"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >📊 Standard Charts</a
+                  >
+                  <a
+                    href="/advanced-visualizations"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >📈 Advanced Viz</a
+                  >
+                  <a
+                    href="/monitoring"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >📡 Real-time Monitor</a
+                  >
+                </div>
+              </div>
+              <div class="relative group">
+                <button
+                  class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                >
+                  Tools
+                  <svg
+                    class="ml-1 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  class="hidden group-hover:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50"
+                >
+                  <a
+                    href="/workflows"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >🔄 Workflows</a
+                  >
+                  <a
+                    href="/exports"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >📤 Export Data</a
+                  >
+                  <a
+                    href="/collaboration"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >👥 Collaborate</a
+                  >
+                  {% if auth_enabled and current_user %}
+                  <a
+                    href="/users"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >👥 Users</a
+                  >
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right side navigation items -->
+          <div class="flex items-center space-x-4">
+            <!-- Theme toggle button (will be populated by ThemeManager) -->
+            <div id="theme-toggle-container"></div>
+
+            <!-- Mobile menu button -->
+          <div class="-mr-2 flex items-center sm:hidden">
+            <button
+              @click="mobileMenuOpen = !mobileMenuOpen"
+              class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+            >
+              <svg
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  x-show="!mobileMenuOpen"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+                <path
+                  x-show="mobileMenuOpen"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile menu -->
+      <div x-show="mobileMenuOpen" class="sm:hidden">
+        <div class="pt-2 pb-3 space-y-1">
+          <a
+            href="/"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if request.url.path == '/' %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            Dashboard
+          </a>
+          <a
+            href="/detectors"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/detectors' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            Detectors
+          </a>
+          <a
+            href="/datasets"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/datasets' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            Datasets
+          </a>
+          <a
+            href="/detection"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/detection' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            Detection
+          </a>
+          <a
+            href="/explainability"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/explainability' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            🔍 Explainability
+          </a>
+          <a
+            href="/monitoring"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/monitoring' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            📊 Monitoring
+          </a>
+          {% if auth_enabled and current_user %}
+          <a
+            href="/users"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/users' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            👥 Users
+          </a>
+          {% endif %}
+          <a
+            href="/experiments"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/experiments' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            Experiments
+          </a>
+          <a
+            href="/visualizations"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/visualizations' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            Visualizations
+          </a>
+          <a
+            href="/workflows"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/workflows' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            🔄 Workflows
+          </a>
+          <a
+            href="/collaboration"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/collaboration' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            👥 Collaborate
+          </a>
+          <a
+            href="/advanced-visualizations"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/advanced-visualizations' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            📊 Advanced Viz
+          </a>
+          <a
+            href="/exports"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/exports' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+          >
+            📤 Exports
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white mt-12">
+      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="text-center text-gray-500 text-sm">
+          © 2024 Pynomaly - State-of-the-art anomaly detection platform
+        </div>
+      </div>
+    </footer>
+
+    <!-- Theme Manager -->
+    <script type="module" src="/static/js/src/utils/theme-manager.js"></script>
+
+    <!-- Enhanced Dashboard JavaScript -->
+    <script src="/static/js/dashboard.js"></script>
+
+    <!-- Frontend Monitoring and Utilities -->
+    <script src="/static/js/src/utils/frontend-monitoring.js"></script>
+    <script src="/static/js/src/utils/performance-dashboard.js"></script>
+    <script src="/static/js/src/pynomaly-frontend.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/static/sw.js")
+            .then((registration) => console.log("SW registered:", registration))
+            .catch((error) => console.log("SW registration failed:", error));
+        });
+      }
+    </script>
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,15 @@
+"""{{package_title}}.
+
+{{package_description}}
+"""
+
+from .config import {{package_module|title}}Config
+from .adapter import {{package_module|title}}Adapter
+from .client import {{package_module|title}}Client
+
+__version__ = "0.1.0"
+__all__ = [
+    "{{package_module|title}}Config",
+    "{{package_module|title}}Adapter",
+    "{{package_module|title}}Client",
+]
