@@ -7,13 +7,30 @@ from pynomaly.shared.protocols import *
 
 # Domain-specific protocols
 from .audit_logger_protocol import AuditLevel, AuditLoggerProtocol, SecurityEventType
+from .training_protocols import (
+    DatasetRepositoryProtocol as TrainingDatasetRepositoryProtocol,
+    ExperimentTrackerProtocol,
+    ModelTrainerProtocol,
+    NotificationServiceProtocol,
+    OptimizationEngineProtocol,
+    ResourceManagerProtocol,
+    TrainingJobRepositoryProtocol,
+)
 
 __all__ = [
     "AdapterProtocol",
     # Domain-specific protocols
     "AuditLevel",
-    "AuditLoggerProtocol",
+    "AuditLoggerProtocol", 
     "SecurityEventType",
+    # Training protocols
+    "TrainingJobRepositoryProtocol",
+    "ModelTrainerProtocol",
+    "TrainingDatasetRepositoryProtocol",
+    "ExperimentTrackerProtocol",
+    "OptimizationEngineProtocol",
+    "NotificationServiceProtocol",
+    "ResourceManagerProtocol",
     # Re-export all shared protocols
     "DetectorProtocol",
     "ExplainableDetectorProtocol",
