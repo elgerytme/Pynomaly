@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from uuid import UUID
 
-from pynomaly.application.services.algorithm_adapter_registry import (
-    AlgorithmAdapterRegistry,
+from pynomaly.application.services.enhanced_algorithm_adapter_registry import (
+    EnhancedAlgorithmAdapterRegistry,
 )
 from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
 from pynomaly.domain.exceptions import DatasetError, DetectorNotFittedError
@@ -51,7 +51,7 @@ class DetectAnomaliesUseCase:
         self,
         detector_repository: DetectorRepositoryProtocol,
         feature_validator: FeatureValidator,
-        adapter_registry: AlgorithmAdapterRegistry | None = None,
+        adapter_registry: EnhancedAlgorithmAdapterRegistry | None = None,
     ):
         """Initialize the use case.
 
@@ -62,7 +62,7 @@ class DetectAnomaliesUseCase:
         """
         self.detector_repository = detector_repository
         self.feature_validator = feature_validator
-        self.adapter_registry = adapter_registry or AlgorithmAdapterRegistry()
+        self.adapter_registry = adapter_registry or EnhancedAlgorithmAdapterRegistry()
 
     async def execute(self, request: DetectAnomaliesRequest) -> DetectAnomaliesResponse:
         """Execute anomaly detection.
@@ -112,11 +112,11 @@ class DetectAnomaliesUseCase:
         start_time = time.time()
 
         try:
-            # Get scores and predictions from adapter
-            scores = self.adapter_registry.score_with_detector(
+            # Get scores and predictions from adapter (now async)
+            scores = await self.adapter_registry.score_with_detector(
                 detector, request.dataset
             )
-            predictions = self.adapter_registry.predict_with_detector(
+            predictions = await self.adapter_registry.predict_with_detector(
                 detector, request.dataset
             )
 

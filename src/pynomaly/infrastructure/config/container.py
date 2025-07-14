@@ -36,6 +36,22 @@ from pynomaly.infrastructure.repositories.memory_repository import (
 logger = logging.getLogger(__name__)
 
 
+def _create_enhanced_adapter_registry():
+    """Create enhanced algorithm adapter registry with MLOps persistence."""
+    try:
+        from pynomaly.application.services.enhanced_algorithm_adapter_registry import (
+            EnhancedAlgorithmAdapterRegistry,
+        )
+        return EnhancedAlgorithmAdapterRegistry()
+    except ImportError as e:
+        logger.warning(f"Failed to create enhanced adapter registry: {e}")
+        # Fallback to basic registry
+        from pynomaly.application.services.algorithm_adapter_registry import (
+            AlgorithmAdapterRegistry,
+        )
+        return AlgorithmAdapterRegistry()
+
+
 class OptionalServiceManager:
     """Manages optional service creation with graceful degradation."""
 
@@ -469,6 +485,11 @@ class Container(containers.DeclarativeContainer):
     threshold_calculator = providers.Singleton(ThresholdCalculator)
     feature_validator = providers.Singleton(FeatureValidator)
     ensemble_aggregator = providers.Singleton(EnsembleAggregator)
+    
+    # Algorithm adapter registry with MLOps persistence
+    algorithm_adapter_registry = providers.Singleton(
+        lambda: _create_enhanced_adapter_registry()
+    )
 
     # Repositories using unified creation logic
     detector_repository = providers.Singleton(
@@ -894,6 +915,7 @@ class Container(containers.DeclarativeContainer):
         TrainDetectorUseCase,
         detector_repository=detector_repository,
         feature_validator=feature_validator,
+        adapter_registry=algorithm_adapter_registry,
         min_samples=10,
     )
 

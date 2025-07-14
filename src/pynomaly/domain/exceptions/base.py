@@ -91,6 +91,37 @@ class InvalidValueError(ValidationError):
     pass
 
 
+class BusinessRuleViolation(DomainError):
+    """Exception raised when a business rule is violated."""
+
+    def __init__(
+        self,
+        message: str,
+        rule_name: str | None = None,
+        rule_description: str | None = None,
+        violation_context: dict[str, Any] | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize business rule violation error.
+
+        Args:
+            message: Error message
+            rule_name: Name of the violated business rule
+            rule_description: Description of the business rule
+            violation_context: Context information about the violation
+            **kwargs: Additional details
+        """
+        details = kwargs
+        if rule_name:
+            details["rule_name"] = rule_name
+        if rule_description:
+            details["rule_description"] = rule_description
+        if violation_context:
+            details.update(violation_context)
+
+        super().__init__(message, details)
+
+
 class NotFittedError(DomainError):
     """Exception raised when using an unfitted model."""
 

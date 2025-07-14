@@ -539,3 +539,281 @@ class CostOptimizationPlan:
         phase4 = [r for r in recommendations if r.risk_level == "high"]
 
         return [phase for phase in [phase1, phase2, phase3, phase4] if phase]
+
+
+@dataclass
+class CostOptimization:
+    """Main entity for cost optimization framework."""
+
+    id: UUID = field(default_factory=uuid4)
+    name: str = ""
+    description: str = ""
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=datetime.utcnow)
+    is_active: bool = True
+    
+    # Core optimization configuration
+    strategy: OptimizationStrategy = OptimizationStrategy.BALANCED
+    target_cost_reduction_percent: float = 20.0
+    max_performance_impact: str = "minimal"
+    max_risk_level: str = "medium"
+    
+    # Resources and scope
+    managed_resources: list[CloudResource] = field(default_factory=list)
+    optimization_plans: list[CostOptimizationPlan] = field(default_factory=list)
+    active_budgets: list[CostBudget] = field(default_factory=list)
+    
+    # Current optimization state
+    current_plan: CostOptimizationPlan | None = None
+    pending_recommendations: list[OptimizationRecommendation] = field(default_factory=list)
+    implemented_recommendations: list[OptimizationRecommendation] = field(default_factory=list)
+    
+    # Performance metrics
+    total_monthly_cost: float = 0.0
+    target_monthly_cost: float = 0.0
+    actual_monthly_savings: float = 0.0
+    projected_annual_savings: float = 0.0
+    
+    # Monitoring and automation
+    auto_optimization_enabled: bool = False
+    monitoring_enabled: bool = True
+    alert_thresholds: dict[str, float] = field(default_factory=lambda: {
+        "cost_increase": 0.15,  # 15% increase
+        "budget_utilization": 0.9,  # 90% of budget
+        "inefficiency_score": 0.7  # 70% inefficiency
+    })
+    
+    # Configuration and metadata
+    tenant_id: UUID | None = None
+    environments: set[str] = field(default_factory=lambda: {"production", "staging"})
+    configuration: dict[str, any] = field(default_factory=dict)
+    metadata: dict[str, any] = field(default_factory=dict)
+
+    def __post_init__(self):
+        """Validate cost optimization configuration."""
+        if not self.name:
+            self.name = f"CostOptimization-{self.id}"
+        
+        if not (0.0 <= self.target_cost_reduction_percent <= 100.0):
+            raise ValueError("Target cost reduction percent must be between 0.0 and 100.0")
+        
+        # Calculate target monthly cost if not set
+        if self.target_monthly_cost == 0.0 and self.total_monthly_cost > 0.0:
+            reduction_factor = 1.0 - (self.target_cost_reduction_percent / 100.0)
+            self.target_monthly_cost = self.total_monthly_cost * reduction_factor
+
+    def add_resource(self, resource: CloudResource) -> None:
+        """Add a resource to cost optimization management."""
+        self.managed_resources.append(resource)
+        self.total_monthly_cost += resource.cost_info.monthly_cost
+        self.updated_at = datetime.utcnow()
+
+    def remove_resource(self, resource_id: UUID) -> bool:
+        """Remove a resource from management."""
+        for i, resource in enumerate(self.managed_resources):
+            if resource.resource_id == resource_id:
+                self.total_monthly_cost -= resource.cost_info.monthly_cost
+                del self.managed_resources[i]
+                self.updated_at = datetime.utcnow()
+                return True
+        return False
+
+    def create_optimization_plan(self, name: str = "") -> CostOptimizationPlan:
+        """Create a new optimization plan."""
+        plan_name = name or f"Optimization Plan {len(self.optimization_plans) + 1}"
+        
+        plan = CostOptimizationPlan(
+            name=plan_name,
+            strategy=self.strategy,
+            tenant_id=self.tenant_id,
+            target_cost_reduction_percent=self.target_cost_reduction_percent,
+            max_performance_impact=self.max_performance_impact,
+            max_risk_level=self.max_risk_level
+        )
+        
+        self.optimization_plans.append(plan)
+        self.current_plan = plan
+        self.updated_at = datetime.utcnow()
+        
+        return plan
+
+    def add_recommendation(self, recommendation: OptimizationRecommendation) -> None:
+        """Add a new optimization recommendation."""
+        self.pending_recommendations.append(recommendation)
+        
+        # Auto-add to current plan if it exists
+        if self.current_plan:
+            self.current_plan.add_recommendation(recommendation)
+        
+        self.updated_at = datetime.utcnow()
+
+    def implement_recommendation(self, recommendation_id: UUID) -> bool:
+        """Mark a recommendation as implemented."""
+        for i, rec in enumerate(self.pending_recommendations):
+            if rec.recommendation_id == recommendation_id:
+                rec.status = "implemented"
+                self.implemented_recommendations.append(rec)
+                del self.pending_recommendations[i]
+                
+                # Update savings
+                self.actual_monthly_savings += rec.monthly_savings
+                self.projected_annual_savings += rec.annual_savings
+                
+                if self.current_plan:
+                    self.current_plan.implemented_recommendations += 1
+                    self.current_plan.actual_savings_to_date += rec.annual_savings
+                
+                self.updated_at = datetime.utcnow()
+                return True
+        return False
+
+    def get_underutilized_resources(self) -> list[CloudResource]:
+        """Get list of underutilized resources."""
+        return [
+            resource for resource in self.managed_resources
+            if resource.usage_metrics.is_underutilized()
+        ]
+
+    def get_idle_resources(self) -> list[CloudResource]:
+        """Get list of idle resources."""
+        return [
+            resource for resource in self.managed_resources
+            if resource.is_idle()
+        ]
+
+    def get_high_cost_resources(self, threshold_percentile: float = 0.8) -> list[CloudResource]:
+        """Get resources in the top cost percentile."""
+        if not self.managed_resources:
+            return []
+        
+        costs = [r.cost_info.monthly_cost for r in self.managed_resources]
+        costs.sort()
+        threshold_index = int(len(costs) * threshold_percentile)
+        
+        if threshold_index >= len(costs):
+            threshold_index = len(costs) - 1
+        
+        threshold_cost = costs[threshold_index]
+        
+        return [
+            resource for resource in self.managed_resources
+            if resource.cost_info.monthly_cost >= threshold_cost
+        ]
+
+    def calculate_potential_savings(self) -> float:
+        """Calculate total potential monthly savings."""
+        return sum(rec.monthly_savings for rec in self.pending_recommendations)
+
+    def get_cost_efficiency_score(self) -> float:
+        """Calculate overall cost efficiency score (0-1)."""
+        if not self.managed_resources:
+            return 1.0
+        
+        total_efficiency = sum(
+            resource.usage_metrics.get_efficiency_score() 
+            for resource in self.managed_resources
+        )
+        
+        return total_efficiency / len(self.managed_resources)
+
+    def get_budget_utilization(self) -> float:
+        """Get current budget utilization across all budgets."""
+        if not self.active_budgets:
+            return 0.0
+        
+        total_utilization = sum(
+            budget.get_monthly_utilization() for budget in self.active_budgets
+        )
+        
+        return total_utilization / len(self.active_budgets)
+
+    def needs_attention(self) -> bool:
+        """Check if cost optimization needs attention."""
+        # Check budget utilization
+        if self.get_budget_utilization() > self.alert_thresholds.get("budget_utilization", 0.9):
+            return True
+        
+        # Check cost efficiency
+        if self.get_cost_efficiency_score() < (1.0 - self.alert_thresholds.get("inefficiency_score", 0.7)):
+            return True
+        
+        # Check for high number of unimplemented recommendations
+        if len(self.pending_recommendations) > 10:
+            return True
+        
+        # Check cost trend
+        cost_increase = (self.total_monthly_cost - self.target_monthly_cost) / self.target_monthly_cost
+        if cost_increase > self.alert_thresholds.get("cost_increase", 0.15):
+            return True
+        
+        return False
+
+    def get_optimization_status(self) -> dict[str, any]:
+        """Get comprehensive optimization status."""
+        potential_savings = self.calculate_potential_savings()
+        cost_efficiency = self.get_cost_efficiency_score()
+        budget_utilization = self.get_budget_utilization()
+        
+        return {
+            "is_active": self.is_active,
+            "auto_optimization_enabled": self.auto_optimization_enabled,
+            "monitoring_enabled": self.monitoring_enabled,
+            "total_monthly_cost": self.total_monthly_cost,
+            "target_monthly_cost": self.target_monthly_cost,
+            "actual_monthly_savings": self.actual_monthly_savings,
+            "potential_monthly_savings": potential_savings,
+            "cost_efficiency_score": cost_efficiency,
+            "budget_utilization": budget_utilization,
+            "managed_resources_count": len(self.managed_resources),
+            "underutilized_resources_count": len(self.get_underutilized_resources()),
+            "idle_resources_count": len(self.get_idle_resources()),
+            "pending_recommendations_count": len(self.pending_recommendations),
+            "implemented_recommendations_count": len(self.implemented_recommendations),
+            "active_plans_count": len([p for p in self.optimization_plans if p.status == "active"]),
+            "needs_attention": self.needs_attention(),
+            "last_updated": self.updated_at.isoformat(),
+        }
+
+    def get_cost_breakdown_by_environment(self) -> dict[str, float]:
+        """Get cost breakdown by environment."""
+        breakdown = {}
+        for resource in self.managed_resources:
+            env = resource.environment
+            if env not in breakdown:
+                breakdown[env] = 0.0
+            breakdown[env] += resource.cost_info.monthly_cost
+        return breakdown
+
+    def get_cost_breakdown_by_resource_type(self) -> dict[str, float]:
+        """Get cost breakdown by resource type."""
+        breakdown = {}
+        for resource in self.managed_resources:
+            res_type = resource.resource_type.value
+            if res_type not in breakdown:
+                breakdown[res_type] = 0.0
+            breakdown[res_type] += resource.cost_info.monthly_cost
+        return breakdown
+
+    def generate_quick_wins_report(self) -> dict[str, any]:
+        """Generate a report of quick win opportunities."""
+        if not self.current_plan:
+            return {"quick_wins": [], "total_potential_savings": 0.0}
+        
+        quick_wins = self.current_plan.get_quick_wins()
+        total_savings = sum(rec.monthly_savings for rec in quick_wins)
+        
+        return {
+            "quick_wins": [
+                {
+                    "recommendation_id": str(rec.recommendation_id),
+                    "title": rec.title,
+                    "monthly_savings": rec.monthly_savings,
+                    "implementation_time": rec.estimated_implementation_time,
+                    "automation_possible": rec.automation_possible,
+                    "confidence_score": rec.confidence_score
+                }
+                for rec in quick_wins
+            ],
+            "total_potential_savings": total_savings,
+            "implementation_count": len(quick_wins)
+        }

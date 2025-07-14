@@ -11,6 +11,8 @@ from .alert import (
 )
 from .anomaly import Anomaly
 from .anomaly_point import AnomalyPoint
+from .continuous_learning import ContinuousLearning
+from .cost_optimization import CostOptimization
 from .dataset import Dataset
 from .detection_result import DetectionResult
 from .detector import Detector
@@ -29,6 +31,8 @@ from .pipeline import (
 __all__ = [
     "Anomaly",
     "AnomalyPoint",
+    "ContinuousLearning",
+    "CostOptimization",
     "Dataset",
     "Detector",
     "DetectionResult",

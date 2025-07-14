@@ -4,6 +4,7 @@
 from .base import (
     AuthenticationError,
     AuthorizationError,
+    BusinessRuleViolation,
     CacheError,
     ConfigurationError,
     DomainError,
@@ -75,6 +76,7 @@ __all__ = [
     "PynamolyError",
     "DomainError",
     "ValidationError",
+    "BusinessRuleViolation",
     "NotFittedError",
     "ConfigurationError",
     "InvalidConfigurationError",

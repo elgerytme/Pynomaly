@@ -7,8 +7,8 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pynomaly.application.services.algorithm_adapter_registry import (
-    AlgorithmAdapterRegistry,
+from pynomaly.application.services.enhanced_algorithm_adapter_registry import (
+    EnhancedAlgorithmAdapterRegistry,
 )
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.exceptions import FittingError, InsufficientDataError
@@ -91,7 +91,7 @@ class TrainDetectorUseCase:
         self,
         detector_repository: DetectorRepositoryProtocol,
         feature_validator: FeatureValidator,
-        adapter_registry: AlgorithmAdapterRegistry | None = None,
+        adapter_registry: EnhancedAlgorithmAdapterRegistry | None = None,
         min_samples: int = 10,
     ):
         """Initialize the use case.
@@ -104,7 +104,7 @@ class TrainDetectorUseCase:
         """
         self.detector_repository = detector_repository
         self.feature_validator = feature_validator
-        self.adapter_registry = adapter_registry or AlgorithmAdapterRegistry()
+        self.adapter_registry = adapter_registry or EnhancedAlgorithmAdapterRegistry()
         self.min_samples = min_samples
 
     async def execute(self, request: TrainDetectorRequest) -> TrainDetectorResponse:
@@ -207,9 +207,9 @@ class TrainDetectorUseCase:
                 f"Validation split {request.validation_split} requested but not implemented"
             )
 
-        # Train the detector using the adapter registry
+        # Train the detector using the enhanced adapter registry
         try:
-            self.adapter_registry.fit_detector(detector, training_dataset)
+            await self.adapter_registry.fit_detector(detector, training_dataset)
         except Exception as e:
             raise FittingError(
                 detector_name=detector.name,
