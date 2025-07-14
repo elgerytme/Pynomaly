@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 94  
+**Total Open Issues**: 95  
 **Completed**: 53 (Issue #113 - P1: Standardize Repository Async/Sync Patterns, Issue #128 - P2: Complete ADR Documentation Suite - Consolidated Tracking, Issue #28 - DOC-003: Architecture Decision Records (ADRs), Issue #97 - P2: Implement PyGOD Graph Anomaly Detection, Issue #86 - Phase 1: Critical Infrastructure Tests (Protocols & Shared Foundation), Issue #108 - P2: Create Production Deployment Guide, Issue #88 - Phase 2: Domain Layer Tests (Value Objects & Exceptions))  
 **In Progress**: 2  
-**Pending**: 27  
+**Pending**: 28  
 
 **Last Sync**: July 14, 2025 at 17:13 UTC
 
@@ -288,6 +288,18 @@
 
 - **Scope**: ## Problem  **Priority**: P1 - High (Critical Build Infrastructure Issue)  The project has conflicting build system configurations:  - **Dual Configuration**: Both Poetry and Hatch configurations in `...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/130)
+
+### **Issue #131: P1: Fix Circular Dependencies Between Packages**
+
+**Labels**: bug, Infrastructure, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: 🐛 Bug  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Problem  **Priority**: P1 - High (Critical Architecture Issue)  The project has circular dependencies between packages that violate Clean Architecture principles:  - **Core packages importing from ...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/131)
 
 ## 🔶 **P2-Medium Priority Issues**
 
