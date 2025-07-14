@@ -1,51 +1,81 @@
-"""Pipeline Entities
+"""MLOps Pipeline Domain Entity
 
-Domain entities for training and inference pipeline management with DAG support.
+Represents the core pipeline abstraction for MLOps workflows with advanced DAG-based execution,
+step dependencies, resource management, and comprehensive lifecycle orchestration.
 """
 
+from __future__ import annotations
+
+import asyncio
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import Dict, Any, Optional, List, Set
+from typing import Dict, Any, Optional, List, Set, Union
 from uuid import UUID, uuid4
 
+from pydantic import BaseModel, Field, validator
 
-class PipelineStatus(Enum):
-    """Pipeline execution status."""
+
+class PipelineStatus(str, Enum):
+    """Pipeline execution status enumeration."""
+    
     DRAFT = "draft"
-    ACTIVE = "active"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    PAUSED = "paused"
-    CANCELLED = "cancelled"
-    ARCHIVED = "archived"
-
-
-class PipelineStepStatus(Enum):
-    """Pipeline step execution status."""
-    PENDING = "pending"
+    VALIDATING = "validating"
     READY = "ready"
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
+    CANCELLED = "cancelled"
+    PAUSED = "paused"
+    ARCHIVED = "archived"
+
+
+class StepStatus(str, Enum):
+    """Pipeline step execution status enumeration."""
+    
+    PENDING = "pending"
+    WAITING = "waiting"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
     SKIPPED = "skipped"
+    RETRYING = "retrying"
     CANCELLED = "cancelled"
 
 
-class PipelineStepType(Enum):
-    """Pipeline step type classification."""
+class StepType(str, Enum):
+    """Pipeline step type enumeration."""
+    
     DATA_INGESTION = "data_ingestion"
     DATA_VALIDATION = "data_validation"
     DATA_PREPROCESSING = "data_preprocessing"
     FEATURE_ENGINEERING = "feature_engineering"
     MODEL_TRAINING = "model_training"
-    MODEL_VALIDATION = "model_validation"
     MODEL_EVALUATION = "model_evaluation"
-    MODEL_REGISTRATION = "model_registration"
-    DEPLOYMENT = "deployment"
+    MODEL_VALIDATION = "model_validation"
+    MODEL_DEPLOYMENT = "model_deployment"
+    MONITORING = "monitoring"
     NOTIFICATION = "notification"
     CUSTOM = "custom"
+
+
+class RetryPolicy(BaseModel):
+    """Retry policy configuration for pipeline steps."""
+    
+    max_attempts: int = Field(default=3, ge=1, le=10)
+    delay_seconds: float = Field(default=1.0, ge=0.1, le=3600.0)
+    backoff_multiplier: float = Field(default=2.0, ge=1.0, le=10.0)
+    max_delay_seconds: float = Field(default=300.0, ge=1.0, le=3600.0)
+
+
+class ResourceRequirements(BaseModel):
+    """Resource requirements for pipeline step execution."""
+    
+    cpu_cores: float = Field(default=1.0, ge=0.1, le=64.0)
+    memory_gb: float = Field(default=1.0, ge=0.1, le=512.0)
+    gpu_count: int = Field(default=0, ge=0, le=8)
+    disk_gb: float = Field(default=10.0, ge=1.0, le=1000.0)
+    timeout_minutes: int = Field(default=60, ge=1, le=1440)
 
 
 class ScheduleType(Enum):
@@ -56,329 +86,331 @@ class ScheduleType(Enum):
     EVENT_DRIVEN = "event_driven"
 
 
-@dataclass
-class PipelineStep:
-    """Pipeline step entity representing a single operation in a pipeline.
+class PipelineStep(BaseModel):
+    """Enhanced pipeline step with advanced resource management and execution tracking."""
     
-    Steps can have dependencies and form a Directed Acyclic Graph (DAG).
-    """
+    id: UUID = Field(default_factory=uuid4)
+    name: str = Field(..., min_length=1, max_length=100)
+    step_type: StepType
+    description: Optional[str] = Field(None, max_length=500)
     
-    # Identity
-    id: UUID = field(default_factory=uuid4)
-    name: str = field()
-    pipeline_id: UUID = field()
+    # Execution configuration
+    command: str = Field(..., min_length=1)
+    working_directory: Optional[str] = None
+    environment_variables: Dict[str, str] = Field(default_factory=dict)
+    parameters: Dict[str, Any] = Field(default_factory=dict)
     
-    # Step Configuration
-    step_type: PipelineStepType = field()
-    implementation: str = field()  # Class or function to execute
-    parameters: Dict[str, Any] = field(default_factory=dict)
-    environment_variables: Dict[str, str] = field(default_factory=dict)
+    # Dependencies and ordering
+    depends_on: Set[UUID] = Field(default_factory=set)
     
-    # Dependencies
-    depends_on: List[UUID] = field(default_factory=list)  # Step IDs this step depends on
+    # Resource and retry configuration
+    resource_requirements: ResourceRequirements = Field(default_factory=ResourceRequirements)
+    retry_policy: RetryPolicy = Field(default_factory=RetryPolicy)
     
-    # Execution
-    status: PipelineStepStatus = field(default=PipelineStepStatus.PENDING)
-    retry_count: int = field(default=0)
-    max_retries: int = field(default=3)
-    timeout_seconds: Optional[int] = field(default=None)
+    # Runtime state
+    status: StepStatus = Field(default=StepStatus.PENDING)
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    attempt_count: int = Field(default=0, ge=0)
     
-    # Execution History
-    started_at: Optional[datetime] = field(default=None)
-    completed_at: Optional[datetime] = field(default=None)
-    duration_seconds: Optional[float] = field(default=None)
-    
-    # Results
-    outputs: Dict[str, Any] = field(default_factory=dict)
-    artifacts: Dict[str, str] = field(default_factory=dict)
-    error_message: Optional[str] = field(default=None)
-    logs: List[str] = field(default_factory=list)
+    # Execution results
+    exit_code: Optional[int] = None
+    stdout: Optional[str] = None
+    stderr: Optional[str] = None
+    artifacts: Dict[str, str] = Field(default_factory=dict)
+    metrics: Dict[str, float] = Field(default_factory=dict)
     
     # Metadata
-    description: Optional[str] = field(default=None)
-    tags: List[str] = field(default_factory=list)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_by: Optional[str] = None
+    tags: Set[str] = Field(default_factory=set)
     
-    def __post_init__(self):
-        """Post-initialization validation."""
-        if not self.name:
-            raise ValueError("Pipeline step name cannot be empty")
-        
-        if not self.implementation:
-            raise ValueError("Pipeline step must have an implementation")
-        
-        # Ensure tags are unique
-        self.tags = list(set(self.tags))
+    class Config:
+        use_enum_values = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat(),
+            UUID: str,
+            set: list
+        }
     
-    def add_dependency(self, step_id: UUID) -> None:
-        """Add a dependency to this step."""
-        if step_id not in self.depends_on:
-            self.depends_on.append(step_id)
-    
-    def remove_dependency(self, step_id: UUID) -> None:
-        """Remove a dependency from this step."""
-        if step_id in self.depends_on:
-            self.depends_on.remove(step_id)
+    @validator('depends_on', pre=True)
+    def convert_depends_on_to_set(cls, v):
+        """Convert depends_on to set if provided as list."""
+        if isinstance(v, list):
+            return set(v)
+        return v
     
     def start_execution(self) -> None:
         """Mark step as started."""
-        self.status = PipelineStepStatus.RUNNING
-        self.started_at = datetime.utcnow()
+        self.status = StepStatus.RUNNING
+        self.started_at = datetime.now(timezone.utc)
+        self.attempt_count += 1
+        self.updated_at = datetime.now(timezone.utc)
     
-    def complete_execution(self, outputs: Optional[Dict[str, Any]] = None) -> None:
-        """Mark step as completed successfully."""
-        self.status = PipelineStepStatus.COMPLETED
-        self.completed_at = datetime.utcnow()
-        if self.started_at:
-            self.duration_seconds = (self.completed_at - self.started_at).total_seconds()
-        if outputs:
-            self.outputs.update(outputs)
+    def complete_execution(self, exit_code: int = 0, stdout: str = "", stderr: str = "") -> None:
+        """Mark step as completed."""
+        self.status = StepStatus.COMPLETED
+        self.completed_at = datetime.now(timezone.utc)
+        self.exit_code = exit_code
+        self.stdout = stdout
+        self.stderr = stderr
+        self.updated_at = datetime.now(timezone.utc)
     
-    def fail_execution(self, error_message: str) -> None:
+    def fail_execution(self, exit_code: int = 1, stdout: str = "", stderr: str = "") -> None:
         """Mark step as failed."""
-        self.status = PipelineStepStatus.FAILED
-        self.completed_at = datetime.utcnow()
-        self.error_message = error_message
-        if self.started_at:
-            self.duration_seconds = (self.completed_at - self.started_at).total_seconds()
+        self.status = StepStatus.FAILED
+        self.completed_at = datetime.now(timezone.utc)
+        self.exit_code = exit_code
+        self.stdout = stdout
+        self.stderr = stderr
+        self.updated_at = datetime.now(timezone.utc)
     
-    def retry_execution(self) -> bool:
-        """Attempt to retry step execution.
-        
-        Returns:
-            True if retry is allowed, False if max retries exceeded
-        """
-        if self.retry_count >= self.max_retries:
-            return False
-        
-        self.retry_count += 1
-        self.status = PipelineStepStatus.READY
-        self.error_message = None
-        return True
+    def should_retry(self) -> bool:
+        """Check if step should be retried based on retry policy."""
+        return (
+            self.status == StepStatus.FAILED and
+            self.attempt_count < self.retry_policy.max_attempts
+        )
     
-    def can_execute(self, completed_steps: Set[UUID]) -> bool:
-        """Check if step can execute based on dependencies.
-        
-        Args:
-            completed_steps: Set of completed step IDs
-            
-        Returns:
-            True if all dependencies are satisfied
-        """
-        return all(dep_id in completed_steps for dep_id in self.depends_on)
+    def get_retry_delay(self) -> float:
+        """Calculate retry delay based on retry policy."""
+        delay = self.retry_policy.delay_seconds * (
+            self.retry_policy.backoff_multiplier ** (self.attempt_count - 1)
+        )
+        return min(delay, self.retry_policy.max_delay_seconds)
     
     @property
-    def is_finished(self) -> bool:
-        """Check if step has finished execution."""
-        return self.status in [
-            PipelineStepStatus.COMPLETED,
-            PipelineStepStatus.FAILED,
-            PipelineStepStatus.SKIPPED,
-            PipelineStepStatus.CANCELLED
-        ]
+    def execution_duration(self) -> Optional[float]:
+        """Get execution duration in seconds."""
+        if self.started_at and self.completed_at:
+            return (self.completed_at - self.started_at).total_seconds()
+        return None
+    
+    @property
+    def is_terminal_status(self) -> bool:
+        """Check if step is in a terminal status."""
+        return self.status in {StepStatus.COMPLETED, StepStatus.FAILED, StepStatus.SKIPPED}
 
 
-@dataclass 
-class Pipeline:
-    """Pipeline entity for orchestrating ML workflows.
+class PipelineSchedule(BaseModel):
+    """Pipeline scheduling configuration."""
     
-    Represents a complete ML pipeline with steps organized as a DAG.
-    """
+    enabled: bool = False
+    cron_expression: Optional[str] = None
+    timezone: str = "UTC"
+    max_concurrent_runs: int = Field(default=1, ge=1, le=10)
     
-    # Identity
-    id: UUID = field(default_factory=uuid4)
-    name: str = field()
-    version: str = field(default="1.0.0")
+    @validator('cron_expression')
+    def validate_cron(cls, v):
+        """Basic cron expression validation."""
+        if v is not None:
+            parts = v.split()
+            if len(parts) != 5:
+                raise ValueError("Cron expression must have 5 parts")
+        return v
+
+
+class Pipeline(BaseModel):
+    """MLOps Pipeline for workflow orchestration with advanced DAG execution."""
     
-    # Pipeline Configuration
-    description: Optional[str] = field(default=None)
-    pipeline_type: str = field(default="training")  # training, inference, retraining
+    id: UUID = Field(default_factory=uuid4)
+    name: str = Field(..., min_length=1, max_length=100)
+    description: Optional[str] = Field(None, max_length=1000)
+    version: str = Field(default="1.0.0")
     
-    # Lifecycle
-    status: PipelineStatus = field(default=PipelineStatus.DRAFT)
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
-    created_by: str = field()
+    # Pipeline configuration
+    steps: Dict[UUID, PipelineStep] = Field(default_factory=dict)
+    schedule: Optional[PipelineSchedule] = None
     
-    # Execution Configuration
-    steps: List[PipelineStep] = field(default_factory=list)
-    global_parameters: Dict[str, Any] = field(default_factory=dict)
-    environment_config: Dict[str, Any] = field(default_factory=dict)
+    # Pipeline state
+    status: PipelineStatus = Field(default=PipelineStatus.DRAFT)
     
-    # Scheduling
-    schedule_type: ScheduleType = field(default=ScheduleType.MANUAL)
-    cron_expression: Optional[str] = field(default=None)
-    interval_minutes: Optional[int] = field(default=None)
-    next_run_at: Optional[datetime] = field(default=None)
-    
-    # Execution History
-    last_run_id: Optional[UUID] = field(default=None)
-    last_run_at: Optional[datetime] = field(default=None)
-    last_run_status: Optional[PipelineStatus] = field(default=None)
-    execution_count: int = field(default=0)
-    
-    # Settings
-    max_parallel_steps: int = field(default=5)
-    default_timeout_seconds: int = field(default=3600)  # 1 hour
-    retry_policy: Dict[str, Any] = field(default_factory=dict)
+    # Execution tracking
+    current_run_id: Optional[UUID] = None
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
     
     # Metadata
-    tags: List[str] = field(default_factory=list)
-    labels: Dict[str, str] = field(default_factory=dict)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_by: Optional[str] = None
+    tags: Set[str] = Field(default_factory=set)
     
-    def __post_init__(self):
-        """Post-initialization validation."""
-        if not self.name:
-            raise ValueError("Pipeline name cannot be empty")
-        
-        if not self.created_by:
-            raise ValueError("Pipeline must have a creator")
-        
-        # Ensure tags are unique
-        self.tags = list(set(self.tags))
-        
-        # Validate schedule configuration
-        if self.schedule_type == ScheduleType.CRON and not self.cron_expression:
-            raise ValueError("Cron schedule requires cron_expression")
-        
-        if self.schedule_type == ScheduleType.INTERVAL and not self.interval_minutes:
-            raise ValueError("Interval schedule requires interval_minutes")
+    # Configuration
+    max_parallel_steps: int = Field(default=5, ge=1, le=50)
+    global_timeout_minutes: int = Field(default=480, ge=1, le=2880)  # 8 hours default
+    
+    class Config:
+        use_enum_values = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat(),
+            UUID: str,
+            set: list
+        }
     
     def add_step(self, step: PipelineStep) -> None:
         """Add a step to the pipeline."""
-        step.pipeline_id = self.id
-        self.steps.append(step)
-        self.updated_at = datetime.utcnow()
+        self.steps[step.id] = step
+        self.updated_at = datetime.now(timezone.utc)
     
     def remove_step(self, step_id: UUID) -> None:
         """Remove a step from the pipeline."""
-        self.steps = [step for step in self.steps if step.id != step_id]
-        
-        # Remove dependencies on the removed step
-        for step in self.steps:
-            step.remove_dependency(step_id)
-        
-        self.updated_at = datetime.utcnow()
-    
-    def get_step(self, step_id: UUID) -> Optional[PipelineStep]:
-        """Get a step by ID."""
-        return next((step for step in self.steps if step.id == step_id), None)
+        if step_id in self.steps:
+            # Remove dependencies to this step from other steps
+            for step in self.steps.values():
+                step.depends_on.discard(step_id)
+            
+            del self.steps[step_id]
+            self.updated_at = datetime.now(timezone.utc)
     
     def validate_dag(self) -> List[str]:
-        """Validate that steps form a valid DAG.
-        
-        Returns:
-            List of validation errors
-        """
+        """Validate the pipeline forms a valid DAG (no cycles)."""
         errors = []
-        step_ids = {step.id for step in self.steps}
-        
-        # Check for invalid dependencies
-        for step in self.steps:
-            for dep_id in step.depends_on:
-                if dep_id not in step_ids:
-                    errors.append(f"Step {step.name} depends on non-existent step {dep_id}")
         
         # Check for cycles using DFS
         visited = set()
         rec_stack = set()
         
         def has_cycle(step_id: UUID) -> bool:
+            if step_id in rec_stack:
+                return True
+            if step_id in visited:
+                return False
+            
             visited.add(step_id)
             rec_stack.add(step_id)
             
-            step = self.get_step(step_id)
+            step = self.steps.get(step_id)
             if step:
                 for dep_id in step.depends_on:
-                    if dep_id not in visited:
-                        if has_cycle(dep_id):
-                            return True
-                    elif dep_id in rec_stack:
+                    if dep_id not in self.steps:
+                        errors.append(f"Step {step.name} depends on non-existent step {dep_id}")
+                        continue
+                    
+                    if has_cycle(dep_id):
                         return True
             
             rec_stack.remove(step_id)
             return False
         
-        for step in self.steps:
-            if step.id not in visited:
-                if has_cycle(step.id):
-                    errors.append(f"Circular dependency detected involving step {step.name}")
+        # Check each step for cycles
+        for step_id in self.steps:
+            if step_id not in visited:
+                if has_cycle(step_id):
+                    errors.append("Pipeline contains circular dependencies")
                     break
         
         return errors
     
-    def get_ready_steps(self, completed_steps: Set[UUID]) -> List[PipelineStep]:
-        """Get steps that are ready to execute.
+    def get_execution_order(self) -> List[List[UUID]]:
+        """Get step execution order as levels (parallel groups)."""
+        if not self.steps:
+            return []
         
-        Args:
-            completed_steps: Set of completed step IDs
+        # Calculate in-degree for each step
+        in_degree = {step_id: 0 for step_id in self.steps}
+        for step in self.steps.values():
+            for dep_id in step.depends_on:
+                if dep_id in in_degree:
+                    in_degree[dep_id] += 1
+        
+        execution_levels = []
+        remaining_steps = set(self.steps.keys())
+        
+        while remaining_steps:
+            # Find steps with no dependencies (in-degree 0)
+            ready_steps = [
+                step_id for step_id in remaining_steps
+                if in_degree[step_id] == 0
+            ]
             
-        Returns:
-            List of steps ready for execution
-        """
-        ready_steps = []
-        for step in self.steps:
-            if (step.status == PipelineStepStatus.PENDING and 
-                step.can_execute(completed_steps)):
-                ready_steps.append(step)
+            if not ready_steps:
+                # Should not happen if DAG is valid
+                break
+            
+            execution_levels.append(ready_steps)
+            
+            # Remove ready steps and update in-degrees
+            for step_id in ready_steps:
+                remaining_steps.remove(step_id)
+                step = self.steps[step_id]
+                for dep_id in step.depends_on:
+                    if dep_id in in_degree:
+                        in_degree[dep_id] -= 1
         
-        return ready_steps
+        return execution_levels
     
-    def activate(self) -> None:
-        """Activate the pipeline for scheduling."""
-        validation_errors = self.validate_dag()
-        if validation_errors:
-            raise ValueError(f"Cannot activate pipeline with validation errors: {validation_errors}")
-        
-        self.status = PipelineStatus.ACTIVE
-        self.updated_at = datetime.utcnow()
-        
-        # Schedule next run if applicable
-        if self.schedule_type == ScheduleType.INTERVAL and self.interval_minutes:
-            self.next_run_at = datetime.utcnow() + timedelta(minutes=self.interval_minutes)
+    def get_root_steps(self) -> List[UUID]:
+        """Get steps with no dependencies (can start immediately)."""
+        return [
+            step_id for step_id, step in self.steps.items()
+            if not step.depends_on
+        ]
     
-    def start_execution(self, run_id: UUID) -> None:
+    def get_leaf_steps(self) -> List[UUID]:
+        """Get steps that no other steps depend on."""
+        dependent_steps = set()
+        for step in self.steps.values():
+            dependent_steps.update(step.depends_on)
+        
+        return [
+            step_id for step_id in self.steps.keys()
+            if step_id not in dependent_steps
+        ]
+    
+    def can_start_step(self, step_id: UUID) -> bool:
+        """Check if a step can be started based on dependencies."""
+        step = self.steps.get(step_id)
+        if not step or step.status != StepStatus.PENDING:
+            return False
+        
+        # Check all dependencies are completed
+        for dep_id in step.depends_on:
+            dep_step = self.steps.get(dep_id)
+            if not dep_step or dep_step.status != StepStatus.COMPLETED:
+                return False
+        
+        return True
+    
+    def start_pipeline(self, run_id: Optional[UUID] = None) -> None:
         """Start pipeline execution."""
         self.status = PipelineStatus.RUNNING
-        self.last_run_id = run_id
-        self.last_run_at = datetime.utcnow()
-        self.execution_count += 1
+        self.current_run_id = run_id or uuid4()
+        self.started_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc)
         
         # Reset all steps to pending
-        for step in self.steps:
-            step.status = PipelineStepStatus.PENDING
-            step.retry_count = 0
-            step.error_message = None
+        for step in self.steps.values():
+            step.status = StepStatus.PENDING
+            step.started_at = None
+            step.completed_at = None
+            step.attempt_count = 0
     
-    def complete_execution(self) -> None:
-        """Mark pipeline execution as completed."""
+    def complete_pipeline(self) -> None:
+        """Mark pipeline as completed."""
         self.status = PipelineStatus.COMPLETED
-        self.last_run_status = PipelineStatus.COMPLETED
-        self.updated_at = datetime.utcnow()
-        
-        # Schedule next run if applicable
-        if self.schedule_type == ScheduleType.INTERVAL and self.interval_minutes:
-            self.next_run_at = datetime.utcnow() + timedelta(minutes=self.interval_minutes)
+        self.completed_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc)
     
-    def fail_execution(self, error_message: str) -> None:
-        """Mark pipeline execution as failed."""
+    def fail_pipeline(self) -> None:
+        """Mark pipeline as failed."""
         self.status = PipelineStatus.FAILED
-        self.last_run_status = PipelineStatus.FAILED
-        self.updated_at = datetime.utcnow()
+        self.completed_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc)
     
-    def pause(self) -> None:
-        """Pause the pipeline."""
-        self.status = PipelineStatus.PAUSED
-        self.updated_at = datetime.utcnow()
-    
-    def archive(self) -> None:
-        """Archive the pipeline."""
-        self.status = PipelineStatus.ARCHIVED
-        self.updated_at = datetime.utcnow()
+    def cancel_pipeline(self) -> None:
+        """Cancel pipeline execution."""
+        self.status = PipelineStatus.CANCELLED
+        self.completed_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc)
     
     @property
-    def is_active(self) -> bool:
-        """Check if pipeline is active."""
-        return self.status == PipelineStatus.ACTIVE
+    def execution_duration(self) -> Optional[float]:
+        """Get pipeline execution duration in seconds."""
+        if self.started_at and self.completed_at:
+            return (self.completed_at - self.started_at).total_seconds()
+        return None
     
     @property
     def is_running(self) -> bool:
@@ -386,36 +418,92 @@ class Pipeline:
         return self.status == PipelineStatus.RUNNING
     
     @property
-    def step_count(self) -> int:
-        """Get total number of steps."""
-        return len(self.steps)
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert pipeline to dictionary representation."""
-        return {
-            "id": str(self.id),
-            "name": self.name,
-            "version": self.version,
-            "description": self.description,
-            "pipeline_type": self.pipeline_type,
-            "status": self.status.value,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-            "created_by": self.created_by,
-            "steps": [step.id for step in self.steps],
-            "global_parameters": self.global_parameters,
-            "environment_config": self.environment_config,
-            "schedule_type": self.schedule_type.value,
-            "cron_expression": self.cron_expression,
-            "interval_minutes": self.interval_minutes,
-            "next_run_at": self.next_run_at.isoformat() if self.next_run_at else None,
-            "last_run_id": str(self.last_run_id) if self.last_run_id else None,
-            "last_run_at": self.last_run_at.isoformat() if self.last_run_at else None,
-            "last_run_status": self.last_run_status.value if self.last_run_status else None,
-            "execution_count": self.execution_count,
-            "max_parallel_steps": self.max_parallel_steps,
-            "default_timeout_seconds": self.default_timeout_seconds,
-            "retry_policy": self.retry_policy,
-            "tags": self.tags,
-            "labels": self.labels,
+    def is_terminal_status(self) -> bool:
+        """Check if pipeline is in a terminal status."""
+        return self.status in {
+            PipelineStatus.COMPLETED,
+            PipelineStatus.FAILED,
+            PipelineStatus.CANCELLED
         }
+    
+    def get_progress(self) -> Dict[str, Any]:
+        """Get pipeline execution progress."""
+        total_steps = len(self.steps)
+        if total_steps == 0:
+            return {"total_steps": 0, "completed_steps": 0, "progress_percentage": 100.0}
+        
+        completed_steps = sum(
+            1 for step in self.steps.values()
+            if step.status == StepStatus.COMPLETED
+        )
+        
+        failed_steps = sum(
+            1 for step in self.steps.values()
+            if step.status == StepStatus.FAILED
+        )
+        
+        running_steps = sum(
+            1 for step in self.steps.values()
+            if step.status == StepStatus.RUNNING
+        )
+        
+        progress_percentage = (completed_steps / total_steps) * 100.0
+        
+        return {
+            "total_steps": total_steps,
+            "completed_steps": completed_steps,
+            "failed_steps": failed_steps,
+            "running_steps": running_steps,
+            "progress_percentage": progress_percentage,
+            "status": self.status
+        }
+    
+
+
+class PipelineRun(BaseModel):
+    """Individual execution instance of a pipeline."""
+    
+    id: UUID = Field(default_factory=uuid4)
+    pipeline_id: UUID
+    pipeline_version: str
+    
+    # Execution tracking
+    status: PipelineStatus = Field(default=PipelineStatus.RUNNING)
+    started_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    completed_at: Optional[datetime] = None
+    
+    # Step execution state
+    step_runs: Dict[UUID, Dict[str, Any]] = Field(default_factory=dict)
+    
+    # Execution context
+    triggered_by: Optional[str] = None
+    trigger_type: str = "manual"  # manual, scheduled, webhook, etc.
+    parameters: Dict[str, Any] = Field(default_factory=dict)
+    
+    # Results
+    artifacts: Dict[str, str] = Field(default_factory=dict)
+    metrics: Dict[str, float] = Field(default_factory=dict)
+    
+    class Config:
+        use_enum_values = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat(),
+            UUID: str
+        }
+    
+    def complete_run(self) -> None:
+        """Mark run as completed."""
+        self.status = PipelineStatus.COMPLETED
+        self.completed_at = datetime.now(timezone.utc)
+    
+    def fail_run(self) -> None:
+        """Mark run as failed."""
+        self.status = PipelineStatus.FAILED
+        self.completed_at = datetime.now(timezone.utc)
+    
+    @property
+    def execution_duration(self) -> Optional[float]:
+        """Get run execution duration in seconds."""
+        if self.started_at and self.completed_at:
+            return (self.completed_at - self.started_at).total_seconds()
+        return None

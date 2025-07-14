@@ -10,14 +10,25 @@ build-backend = "hatchling.build"
 [project]
 name = "pynomaly"
 dynamic = ["version"]
-description = "State-of-the-art Python anomaly detection package with clean architecture"
+description = "Production-ready Python anomaly detection platform with clean architecture, AutoML, and 40+ algorithms"
 authors = [{name = "Pynomaly Team", email = "team@pynomaly.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
-keywords = ["anomaly-detection", "outlier-detection", "machine-learning", "clean-architecture"]
+keywords = [
+    "anomaly-detection", 
+    "outlier-detection", 
+    "machine-learning", 
+    "automl", 
+    "pyod", 
+    "clean-architecture",
+    "scikit-learn",
+    "production-ready",
+    "enterprise",
+    "mlops"
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
@@ -28,7 +39,11 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering",
+    "Framework :: FastAPI",
     "Typing :: Typed",
+    "Environment :: Console",
+    "Environment :: Web Environment",
 ]
 
 dependencies = [
@@ -43,11 +58,13 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/pynomaly/pynomaly"
-Repository = "https://github.com/pynomaly/pynomaly"
-Documentation = "https://pynomaly.readthedocs.io"
-Issues = "https://github.com/pynomaly/pynomaly/issues"
-Changelog = "https://github.com/pynomaly/pynomaly/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/elgerytme/Pynomaly"
+Repository = "https://github.com/elgerytme/Pynomaly"
+Documentation = "https://github.com/elgerytme/Pynomaly/blob/main/docs/"
+Issues = "https://github.com/elgerytme/Pynomaly/issues"
+Changelog = "https://github.com/elgerytme/Pynomaly/blob/main/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/elgerytme/Pynomaly/issues"
+"Source Code" = "https://github.com/elgerytme/Pynomaly"
 
 [project.optional-dependencies]
 # Core functionality extras

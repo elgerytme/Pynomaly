@@ -14,6 +14,8 @@ from pynomaly.infrastructure.config.container import Container
 from pynomaly.infrastructure.monitoring.enhanced_metrics_collector import EnhancedMetricsCollector
 from pynomaly.infrastructure.monitoring.realtime_websocket_manager import RealtimeWebSocketManager
 from pynomaly.infrastructure.monitoring.dashboard_service import DashboardService
+from pynomaly.infrastructure.monitoring.dashboard_integration import get_dashboard_integration
+from pynomaly.infrastructure.monitoring.error_tracking_integration import get_error_tracker, get_health_monitor
 from pynomaly.shared.logging import get_logger
 
 logger = get_logger(__name__)
@@ -32,6 +34,15 @@ class RealtimeMonitoringAPI:
         self.metrics_collector = metrics_collector
         self.websocket_manager = websocket_manager
         self.dashboard_service = dashboard_service
+        
+        # Initialize enhanced monitoring integration
+        self.dashboard_integration = get_dashboard_integration(
+            metrics_collector=metrics_collector,
+            websocket_manager=websocket_manager,
+            dashboard_service=dashboard_service
+        )
+        self.error_tracker = get_error_tracker()
+        self.health_monitor = get_health_monitor()
     
     async def get_metrics_summary(self, request: web.Request) -> web.Response:
         """Get real-time metrics summary."""
@@ -379,6 +390,105 @@ class RealtimeMonitoringAPI:
                 'timestamp': datetime.utcnow().isoformat(),
             }, status=500)
     
+    async def get_error_tracking_summary(self, request: web.Request) -> web.Response:
+        """Get error tracking summary."""
+        try:
+            time_window_param = request.query.get('time_window', '5m')
+            
+            # Parse time window
+            time_delta = self._parse_time_range(time_window_param)
+            error_summary = self.error_tracker.get_error_summary(time_delta)
+            
+            return web.json_response({
+                'success': True,
+                'data': error_summary,
+                'timestamp': datetime.utcnow().isoformat(),
+            })
+            
+        except Exception as e:
+            logger.error(f"Error getting error tracking summary: {e}")
+            self.error_tracker.track_error(e, component="api_monitoring", metadata={'endpoint': 'get_error_tracking_summary'})
+            return web.json_response({
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.utcnow().isoformat(),
+            }, status=500)
+    
+    async def get_recent_errors(self, request: web.Request) -> web.Response:
+        """Get recent error events."""
+        try:
+            limit = int(request.query.get('limit', '50'))
+            severity = request.query.get('severity')
+            
+            recent_errors = self.error_tracker.get_recent_errors(limit=limit, severity=severity)
+            
+            return web.json_response({
+                'success': True,
+                'data': recent_errors,
+                'count': len(recent_errors),
+                'timestamp': datetime.utcnow().isoformat(),
+            })
+            
+        except Exception as e:
+            logger.error(f"Error getting recent errors: {e}")
+            self.error_tracker.track_error(e, component="api_monitoring", metadata={'endpoint': 'get_recent_errors'})
+            return web.json_response({
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.utcnow().isoformat(),
+            }, status=500)
+    
+    async def get_enhanced_system_health(self, request: web.Request) -> web.Response:
+        """Get enhanced system health with error tracking integration."""
+        try:
+            # Run health checks
+            health_checks = await self.health_monitor.run_health_checks()
+            
+            # Get comprehensive health summary
+            health_summary = self.health_monitor.get_system_health_summary()
+            
+            # Get dashboard health status
+            dashboard_health = self.dashboard_integration.get_dashboard_health_status()
+            
+            return web.json_response({
+                'success': True,
+                'data': {
+                    'health_checks': health_checks,
+                    'health_summary': health_summary,
+                    'dashboard_health': dashboard_health,
+                },
+                'timestamp': datetime.utcnow().isoformat(),
+            })
+            
+        except Exception as e:
+            logger.error(f"Error getting enhanced system health: {e}")
+            self.error_tracker.track_error(e, component="api_monitoring", metadata={'endpoint': 'get_enhanced_system_health'})
+            return web.json_response({
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.utcnow().isoformat(),
+            }, status=500)
+    
+    async def get_comprehensive_dashboard_data(self, request: web.Request) -> web.Response:
+        """Get comprehensive dashboard data with error tracking and health monitoring."""
+        try:
+            dashboard_data = await self.dashboard_integration.get_comprehensive_dashboard_data()
+            
+            return web.json_response({
+                'success': True,
+                'data': dashboard_data,
+                'timestamp': datetime.utcnow().isoformat(),
+            })
+            
+        except Exception as e:
+            logger.error(f"Error getting comprehensive dashboard data: {e}")
+            self.error_tracker.track_error(e, component="api_monitoring", metadata={'endpoint': 'get_comprehensive_dashboard_data'})
+            return web.json_response({
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.utcnow().isoformat(),
+            }, status=500)
+    
     async def _get_predefined_dashboard_data(self, dashboard_id: str, time_range_override: Optional[str]) -> Dict[str, Any]:
         """Get data for predefined dashboard types."""
         summary = self.metrics_collector.get_metrics_summary()
@@ -470,6 +580,14 @@ def setup_monitoring_routes(app: web.Application, api: RealtimeMonitoringAPI):
     
     # System health endpoints
     app.router.add_get('/api/monitoring/health', api.get_system_health)
+    app.router.add_get('/api/monitoring/health/enhanced', api.get_enhanced_system_health)
+    
+    # Error tracking endpoints
+    app.router.add_get('/api/monitoring/errors/summary', api.get_error_tracking_summary)
+    app.router.add_get('/api/monitoring/errors/recent', api.get_recent_errors)
+    
+    # Enhanced dashboard endpoints
+    app.router.add_get('/api/monitoring/dashboard/comprehensive', api.get_comprehensive_dashboard_data)
     
     # Dashboard endpoints
     app.router.add_get('/api/monitoring/dashboards', api.get_dashboard_list)
@@ -480,7 +598,7 @@ def setup_monitoring_routes(app: web.Application, api: RealtimeMonitoringAPI):
     app.router.add_get('/api/monitoring/ws', api.websocket_handler)
     app.router.add_get('/api/monitoring/ws/stats', api.get_websocket_stats)
     
-    logger.info("Real-time monitoring API routes registered")
+    logger.info("Enhanced real-time monitoring API routes registered")
 
 
 # For backward compatibility
