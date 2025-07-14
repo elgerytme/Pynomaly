@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 102  
-**Completed**: 71 (Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup, Issue #137 - P1-High: Optimize Remaining Build System Conflicts)  
+**Total Open Issues**: 103  
+**Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 18  
+**Pending**: 19  
 
-**Last Sync**: July 14, 2025 at 19:06 UTC
+**Last Sync**: July 14, 2025 at 19:07 UTC
 
 ---
 
@@ -336,6 +336,18 @@
 
 - **Scope**: ## Overview Implement the foundational domain models and entities for the data_science package, establishing the core architecture and data structures needed for advanced analytics and machine learnin...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/138)
+
+### **Issue #139: Phase 1.2: Data Profiling Package - Core Implementation**
+
+**Labels**: enhancement, Domain, est:1w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Implement the core data profiling engine with automatic schema discovery, statistical analysis, and pattern recognition capabilities. This forms the foundation for intelligent data underst...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/139)
 
 ## 🔶 **P2-Medium Priority Issues**
 
@@ -1265,6 +1277,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 19:06 UTC  
+**Last Updated**: July 14, 2025 at 19:07 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
