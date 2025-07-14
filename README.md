@@ -11,9 +11,73 @@
 [![Bandit](https://img.shields.io/badge/security-bandit-yellow)](https://bandit.readthedocs.io/)
 [![Safety](https://img.shields.io/badge/safety-checked-green)](https://github.com/pyupio/safety)
 
-Python anomaly detection package targeting Python 3.11+ with clean architecture principles, integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified interface.
+Enterprise-ready anomaly detection platform with clean architecture, targeting Python 3.11+ and integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified interface.
 
-**Built with**: Hatch for build system and environment management, Ruff for linting and formatting, CI/CD pipeline with automated testing and deployment.
+**Built with**: Clean monorepo architecture, Hatch for build system and environment management, Ruff for linting and formatting, comprehensive CI/CD pipeline with automated testing and deployment.
+
+## 🏗️ Monorepo Structure
+
+This is a clean, enterprise-ready monorepo containing all Pynomaly packages, applications, and infrastructure organized for maximum modularity and maintainability.
+
+```
+src/
+├── packages/           # 🔴 Core packages (clean architecture)
+│   ├── core/          # Domain logic & business rules
+│   ├── infrastructure/# Technical infrastructure  
+│   ├── services/      # Application services
+│   ├── api/           # REST API server
+│   ├── cli/           # Command-line interface
+│   ├── web/           # Web UI & dashboard
+│   ├── enterprise/    # Enterprise features
+│   ├── algorithms/    # ML algorithm adapters
+│   ├── sdks/          # Client SDKs
+│   ├── testing/       # Testing utilities
+│   └── tools/         # Development tools
+├── apps/              # 📱 Standalone applications
+├── infrastructure/    # 🔧 Deployment & infrastructure
+├── documentation/     # 📚 All documentation
+├── development_scripts/# 🛠️ Build & utility scripts
+└── integration_tests/ # 🧪 Test suites
+```
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Install core functionality
+pip install pynomaly-core
+
+# Install with all features
+pip install pynomaly[all]
+
+# Install specific components
+pip install pynomaly-api pynomaly-cli pynomaly-web
+```
+
+### Basic Usage
+
+```python
+from pynomaly.core import detect_anomalies, Dataset, Detector
+
+# Load your data
+dataset = Dataset.from_csv("data.csv")
+
+# Create a detector
+detector = Detector.isolation_forest()
+
+# Detect anomalies
+result = detect_anomalies(dataset, detector)
+print(f"Found {len(result.anomalies)} anomalies")
+```
+
+## 🏢 Enterprise Features
+
+- **🔐 Security**: RBAC, audit logging, SOC2 compliance
+- **📊 Monitoring**: Prometheus metrics, distributed tracing
+- **🌐 Multi-tenancy**: Complete data isolation and resource quotas
+- **⚙️ MLOps**: Model lifecycle and lineage tracking
+- **🔄 CI/CD**: Automated testing, deployment, and monitoring
 
 ## Automation and Maintenance
 
