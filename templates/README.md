@@ -4,7 +4,7 @@ A complete collection of modern Python development templates following software 
 
 ## 🎯 Template Overview
 
-This collection provides **10 production-ready templates** covering the entire spectrum of modern Python development, from foundational packages to complete SaaS applications.
+This collection provides **15 production-ready templates** covering the entire spectrum of modern Python development, from foundational packages to complete SaaS applications and specialized architectures.
 
 ### 📦 Foundational Templates
 
@@ -34,6 +34,16 @@ This collection provides **10 production-ready templates** covering the entire s
 |----------|-------------|----------|
 | **[Authentication System](./auth-template/)** | Enterprise-grade auth with MFA | User management |
 | **[Application Security](./app-security-template/)** | Security framework and scanning | Security hardening |
+
+### 🔬 Specialized Architecture Templates
+
+| Template | Description | Use Case |
+|----------|-------------|----------|
+| **[Data Science & ML](./data-science-ml-template/)** | MLOps with Jupyter and pipelines | ML/AI applications |
+| **[Microservices](./microservices-template/)** | Service discovery and distributed patterns | Scalable microservices |
+| **[Event-Driven Architecture](./event-driven-architecture-template/)** | CQRS, event sourcing, message brokers | Event-driven systems |
+| **[GraphQL API](./graphql-api-template/)** | Schema-first API with advanced resolvers | Modern API development |
+| **[Desktop Application](./desktop-app-template/)** | Cross-platform GUI applications | Desktop software |
 
 ### 🚀 Enterprise Template
 
@@ -115,19 +125,23 @@ Each template includes:
 
 ## 📊 Template Comparison Matrix
 
-| Feature | Package | App | FastAPI | HTMX+Tailwind | Typer CLI | Testing | Auth | Security | SaaS |
-|---------|---------|-----|---------|---------------|-----------|---------|------|----------|------|
-| **Architecture** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Modern Python** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **CLI Interface** | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Web Interface** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **API Endpoints** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **Authentication** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **Database** | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **Security Features** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **Multi-tenancy** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Background Tasks** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| **Payment Processing** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Feature | Package | App | FastAPI | HTMX+Tailwind | Typer CLI | Testing | Auth | Security | SaaS | ML/DS | Microservices | Event-Driven | GraphQL | Desktop |
+|---------|---------|-----|---------|---------------|-----------|---------|------|----------|------|-------|---------------|--------------|---------|---------|
+| **Architecture** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Modern Python** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **CLI Interface** | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **Web Interface** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
+| **API Endpoints** | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
+| **Authentication** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ✅ | ❌ |
+| **Database** | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Security Features** | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ✅ | ❌ |
+| **Multi-tenancy** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| **Background Tasks** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **ML/AI Features** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Distributed Systems** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| **Real-time Features** | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| **Desktop GUI** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **Event Sourcing** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
 
 ## 🔧 Technology Stack
 
@@ -143,11 +157,27 @@ Each template includes:
 - **Tailwind CSS**: Utility-first styling
 - **Alpine.js**: Lightweight JavaScript
 - **Jinja2**: Template engine
+- **GraphQL**: Query language for APIs
+- **Tkinter/PyQt**: Desktop GUI frameworks
 
 ### CLI Technologies
 - **Typer**: Modern CLI framework
 - **Rich**: Beautiful terminal output
 - **Click**: Command-line utilities
+
+### Data Science & ML
+- **Jupyter**: Interactive development
+- **MLflow**: Experiment tracking
+- **Pandas/Polars**: Data manipulation
+- **Scikit-learn**: Machine learning
+- **PyTorch/TensorFlow**: Deep learning
+
+### Distributed Systems
+- **Apache Kafka**: Event streaming
+- **Redis**: Caching and messaging
+- **Consul**: Service discovery
+- **Jaeger**: Distributed tracing
+- **gRPC**: High-performance RPC
 
 ### Testing Technologies
 - **Pytest**: Testing framework
@@ -266,6 +296,36 @@ hatch publish
 - Quality assurance
 - CI/CD integration
 - Test automation
+
+### Choose **Data Science/ML Template** if you need:
+- Machine learning pipelines
+- Jupyter notebook integration
+- MLOps workflows
+- Experiment tracking
+
+### Choose **Microservices Template** if you need:
+- Distributed system architecture
+- Service discovery
+- Circuit breaker patterns
+- Inter-service communication
+
+### Choose **Event-Driven Architecture** if you need:
+- Event sourcing patterns
+- CQRS implementation
+- Message-driven architecture
+- Eventually consistent systems
+
+### Choose **GraphQL API Template** if you need:
+- Flexible query language
+- Real-time subscriptions
+- Schema-first development
+- Efficient data fetching
+
+### Choose **Desktop App Template** if you need:
+- Cross-platform desktop application
+- GUI interface
+- System integration
+- Offline functionality
 
 ## 🔄 Template Evolution
 

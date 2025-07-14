@@ -1,0 +1,327 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ml-project"
+dynamic = ["version"]
+description = "Production-ready Data Science & ML project template"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Your Name", email = "your.email@example.com" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ["machine-learning", "data-science", "mlops", "jupyter", "fastapi"]
+requires-python = ">=3.11"
+dependencies = [
+    # Core dependencies
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "polars>=0.19.0",
+    "pyarrow>=12.0.0",
+    
+    # ML frameworks
+    "scikit-learn>=1.3.0",
+    "xgboost>=1.7.0",
+    "lightgbm>=4.0.0",
+    
+    # MLOps and experiment tracking
+    "mlflow>=2.6.0",
+    "dvc[s3]>=3.0.0",
+    "optuna>=3.3.0",
+    "great-expectations>=0.17.0",
+    "evidently>=0.4.0",
+    
+    # API and serving
+    "fastapi>=0.103.0",
+    "uvicorn[standard]>=0.23.0",
+    "pydantic>=2.3.0",
+    "pydantic-settings>=2.0.0",
+    
+    # Data processing
+    "dask[complete]>=2023.8.0",
+    "joblib>=1.3.0",
+    
+    # CLI and utilities
+    "typer[all]>=0.9.0",
+    "rich>=13.5.0",
+    "click>=8.1.0",
+    
+    # Configuration
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+    "omegaconf>=2.3.0",
+    
+    # Monitoring and logging
+    "prometheus-client>=0.17.0",
+    "structlog>=23.1.0",
+    
+    # Serialization
+    "cloudpickle>=2.2.0",
+    "joblib>=1.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "jupyter>=1.0.0",
+    "jupyterlab>=4.0.0",
+    "ipywidgets>=8.0.0",
+    "notebook>=7.0.0",
+    
+    # Development tools
+    "hatch>=1.7.0",
+    "pre-commit>=3.3.0",
+    "ruff>=0.0.287",
+    "mypy>=1.5.0",
+    "black>=23.7.0",
+    "isort>=5.12.0",
+    
+    # Documentation
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.2.0",
+    "mkdocstrings[python]>=0.22.0",
+]
+
+ml = [
+    # Deep learning (optional)
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "tensorflow>=2.13.0",
+    
+    # Advanced ML
+    "catboost>=1.2.0",
+    "prophet>=1.1.0",
+    "statsmodels>=0.14.0",
+    
+    # Computer vision
+    "opencv-python>=4.8.0",
+    "pillow>=10.0.0",
+    
+    # NLP
+    "transformers>=4.30.0",
+    "spacy>=3.6.0",
+    "nltk>=3.8.0",
+    
+    # Time series
+    "tsfresh>=0.20.0",
+    "pmdarima>=2.0.0",
+]
+
+serving = [
+    # Production serving
+    "gunicorn>=21.2.0",
+    "prometheus-fastapi-instrumentator>=6.1.0",
+    
+    # Model serving
+    "tritonclient[all]>=2.36.0",
+    "bentoml>=1.1.0",
+    
+    # Deployment
+    "docker>=6.1.0",
+    "kubernetes>=27.2.0",
+]
+
+test = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.11.0",
+    "pytest-xdist>=3.3.0",
+    "pytest-timeout>=2.1.0",
+    "hypothesis>=6.82.0",
+    "factory-boy>=3.3.0",
+    "freezegun>=1.2.0",
+    "responses>=0.23.0",
+    "httpx>=0.24.0",
+]
+
+quality = [
+    "bandit[toml]>=1.7.5",
+    "safety>=2.3.0",
+    "vulture>=2.9.0",
+    "interrogate>=1.5.0",
+]
+
+all = [
+    "ml-project[dev,ml,serving,test,quality]",
+]
+
+[project.urls]
+Documentation = "https://github.com/username/ml-project#readme"
+Issues = "https://github.com/username/ml-project/issues"
+Source = "https://github.com/username/ml-project"
+
+[project.scripts]
+ml-project = "ml_project.cli.app:app"
+
+[tool.hatch.version]
+path = "src/ml_project/__about__.py"
+
+[tool.hatch.envs.default]
+dependencies = [
+    "ml-project[dev,test]",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "pytest --cov=src/ml_project --cov-report=term-missing {args:tests}"
+lint = "ruff check {args:src tests}"
+format = "ruff format {args:src tests}"
+type-check = "mypy {args:src/ml_project tests}"
+
+[tool.hatch.envs.ml]
+dependencies = [
+    "ml-project[dev,ml,test]",
+]
+
+[tool.hatch.envs.ml.scripts]
+train = "python -m ml_project.cli model train {args}"
+serve = "python -m ml_project.cli model serve {args}"
+pipeline = "python -m ml_project.cli pipeline run {args}"
+
+[tool.hatch.envs.docs]
+dependencies = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.2.0",
+    "mkdocstrings[python]>=0.22.0",
+]
+
+[tool.hatch.envs.docs.scripts]
+build = "mkdocs build --clean --strict"
+serve = "mkdocs serve --dev-addr localhost:8000"
+
+# Linting and formatting
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "ARG001", # unused-function-args
+    "SIM118", # key-in-dict
+]
+ignore = [
+    "E501",   # line too long
+    "B008",   # do not perform function calls in argument defaults
+    "W191",   # indentation contains tabs
+    "B904",   # Allow raise without from
+]
+
+[tool.ruff.per-file-ignores]
+"tests/**/*" = ["ARG", "S101"]
+"notebooks/**/*" = ["E402", "F401", "F811"]
+
+# Type checking
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+extra_checks = true
+
+[[tool.mypy.overrides]]
+module = [
+    "mlflow.*",
+    "dvc.*",
+    "optuna.*",
+    "great_expectations.*",
+    "evidently.*",
+    "sklearn.*",
+    "xgboost.*",
+    "lightgbm.*",
+    "catboost.*",
+    "torch.*",
+    "tensorflow.*",
+]
+ignore_missing_imports = true
+
+# Testing
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "--strict-markers --strict-config --tb=short --color=yes --durations=10"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*", "*Tests"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::FutureWarning",
+    "ignore::UserWarning:sklearn.*",
+    "ignore::UserWarning:mlflow.*",
+]
+markers = [
+    "slow: Slow running tests",
+    "integration: Integration tests",
+    "ml: Machine learning tests",
+    "data: Data pipeline tests",
+    "serving: Model serving tests",
+    "gpu: Tests requiring GPU",
+]
+
+[tool.coverage.run]
+source = ["src/ml_project"]
+branch = true
+omit = [
+    "src/ml_project/__about__.py",
+    "tests/*",
+    "notebooks/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+# Security
+[tool.bandit]
+exclude_dirs = ["tests", "notebooks"]
+skips = ["B101", "B601"]
+
+[tool.interrogate]
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = false
+ignore-semiprivate = false
+ignore-private = false
+ignore-property-decorators = false
+ignore-module = true
+ignore-nested-functions = false
+ignore-nested-classes = true
+ignore-setters = false
+fail-under = 80
+exclude = ["setup.py", "docs", "build", "tests", "notebooks"]
+verbose = 0
+quiet = false
+whitelist-regex = []
+color = true
