@@ -1,4 +1,4 @@
-"""Consolidated pytest configuration for stable testing - Primary conftest for all tests."""
+"""Consolidated pytest configuration for all Pynomaly tests."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-# Suppress warnings early
+# Suppress warnings early and comprehensively
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=PendingDeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -27,8 +27,8 @@ warnings.filterwarnings("ignore", category=UserWarning, module="scipy.*")
 warnings.filterwarnings("ignore", category=UserWarning, module="numpy.*")
 warnings.filterwarnings("ignore", category=UserWarning, module="pandas.*")
 
-# Add src to Python path ONCE
-project_root = Path(__file__).parent.parent.parent
+# Add src to Python path
+project_root = Path(__file__).parent.parent
 src_path = project_root / "src"
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
@@ -308,7 +308,7 @@ def performance_timer():
     return Timer
 
 
-# Deterministic test data
+# Test data generation
 @pytest.fixture(scope="session")
 def deterministic_data():
     """Create deterministic test data for reproducible tests."""
@@ -320,12 +320,11 @@ def deterministic_data():
     }
 
 
-# Skip decorators for missing dependencies
+# Dependency skip decorators
 def skip_if_no_torch():
     """Skip test if PyTorch not available."""
     try:
         import torch
-
         return pytest.mark.skipif(False, reason="")
     except ImportError:
         return pytest.mark.skipif(True, reason="PyTorch not available")
@@ -335,7 +334,6 @@ def skip_if_no_tensorflow():
     """Skip test if TensorFlow not available."""
     try:
         import tensorflow
-
         return pytest.mark.skipif(False, reason="")
     except ImportError:
         return pytest.mark.skipif(True, reason="TensorFlow not available")
@@ -345,7 +343,6 @@ def skip_if_no_fastapi():
     """Skip test if FastAPI not available."""
     try:
         import fastapi
-
         return pytest.mark.skipif(False, reason="")
     except ImportError:
         return pytest.mark.skipif(True, reason="FastAPI not available")
@@ -354,7 +351,7 @@ def skip_if_no_fastapi():
 # Export commonly used fixtures and utilities
 __all__ = [
     "event_loop",
-    "temp_dir",
+    "temp_dir", 
     "sample_data",
     "sample_dataset",
     "mock_detector",
