@@ -13,6 +13,7 @@ from .monitoring_settings import MonitoringSettings
 from .resilience_settings import ResilienceSettings
 from .security_auth_settings import SecurityAuthSettings
 from .storage_settings import StorageSettings
+from ..messaging.config.messaging_settings import MessagingSettings
 
 
 class SecuritySettings(SecurityAuthSettings):
@@ -80,6 +81,7 @@ class Settings(BaseSettings):
     monitoring: MonitoringSettings = Field(default_factory=MonitoringSettings)
     resilience: ResilienceSettings = Field(default_factory=ResilienceSettings)
     security: SecuritySettings = Field(default_factory=SecuritySettings)
+    messaging: MessagingSettings = Field(default_factory=MessagingSettings)
 
     @property
     def is_production(self) -> bool:
@@ -106,6 +108,19 @@ class Settings(BaseSettings):
     def cache_ttl(self) -> int:
         """Get cache TTL setting."""
         return self.storage.cache_ttl
+
+    def get_queue_url(self) -> str:
+        """Get message queue URL."""
+        if self.messaging.queue_url:
+            return self.messaging.queue_url
+        
+        # Default based on backend
+        if self.messaging.queue_backend == "redis":
+            return f"redis://localhost:6379/{self.messaging.redis_queue_db}"
+        elif self.messaging.queue_backend == "rabbitmq":
+            return "amqp://guest:guest@localhost:5672/"
+        else:
+            return "redis://localhost:6379/1"
 
 
 # Global settings instance

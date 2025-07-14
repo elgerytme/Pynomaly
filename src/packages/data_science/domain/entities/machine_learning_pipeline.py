@@ -112,7 +112,7 @@ class MachineLearningPipeline(BaseEntity):
     pipeline_type: PipelineType
     description: Optional[str] = Field(None, max_length=2000)
     status: PipelineStatus = Field(default=PipelineStatus.DRAFT)
-    version_number: str = Field(default="1.0.0", regex=r'^\d+\.\d+\.\d+$')
+    version_number: str = Field(default="1.0.0", pattern=r'^\d+\.\d+\.\d+$')
     
     # Pipeline definition
     steps: list[dict[str, Any]] = Field(default_factory=list)

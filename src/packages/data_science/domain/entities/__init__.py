@@ -8,6 +8,7 @@ from .analysis_job import AnalysisJob
 from .statistical_profile import StatisticalProfile
 from .machine_learning_pipeline import MachineLearningPipeline
 from .feature_store import FeatureStore
+from .statistical_analysis import StatisticalAnalysis
 
 __all__ = [
     "DataScienceModel",
@@ -15,4 +16,5 @@ __all__ = [
     "StatisticalProfile", 
     "MachineLearningPipeline",
     "FeatureStore",
+    "StatisticalAnalysis",
 ]

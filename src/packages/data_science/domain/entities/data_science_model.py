@@ -74,7 +74,7 @@ class DataScienceModel(BaseEntity):
     name: str = Field(..., min_length=1, max_length=255)
     model_type: ModelType
     algorithm: str = Field(..., min_length=1, max_length=100)
-    version_number: str = Field(..., regex=r'^\d+\.\d+\.\d+$')
+    version_number: str = Field(..., pattern=r'^\d+\.\d+\.\d+$')
     status: ModelStatus = Field(default=ModelStatus.DRAFT)
     description: Optional[str] = Field(None, max_length=2000)
     

@@ -1,0 +1,268 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pynomaly-data-quality"
+dynamic = ["version"]
+description = "Comprehensive data validation, cleansing, and quality monitoring capabilities"
+authors = [{name = "Pynomaly Team", email = "team@pynomaly.io"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["data-quality", "data-validation", "data-cleansing", "data-monitoring", "quality-assurance"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Database",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "pandas>=2.1.0",
+    "polars>=0.20.0",
+    "numpy>=1.24.0",
+    "scipy>=1.11.0",
+    "scikit-learn>=1.3.0",
+    "pydantic>=2.10.4",
+    "structlog>=24.4.0",
+    "dependency-injector>=4.42.0",
+    "pyarrow>=14.0.0",
+]
+
+[project.optional-dependencies]
+# Validation frameworks
+validation = [
+    "great-expectations>=0.18.0",
+    "pandera>=0.18.0",
+    "cerberus>=1.3.5",
+    "jsonschema>=4.20.0",
+    "pydantic-extra-types>=2.5.0",
+]
+
+# Data cleansing
+cleansing = [
+    "fuzzywuzzy>=0.18.0",
+    "python-levenshtein>=0.25.0",
+    "phonenumbers>=8.13.0",
+    "email-validator>=2.1.0",
+    "usaddress>=0.5.10",
+    "nameparser>=1.1.3",
+    "ftfy>=6.1.0",
+]
+
+# Quality monitoring
+monitoring = [
+    "evidently>=0.4.0",
+    "deepdiff>=6.7.0",
+    "prometheus-client>=0.19.0",
+    "grafana-api>=1.0.3",
+]
+
+# Machine learning for quality
+ml-quality = [
+    "scikit-learn>=1.3.0",
+    "xgboost>=2.0.0",
+    "isolation-forest>=0.1.0",
+    "pyod>=1.1.0",
+    "tensorflow>=2.15.0",
+    "torch>=2.1.0",
+]
+
+# Rule engines
+rules = [
+    "business-rule-engine>=0.2.1",
+    "python-rules>=1.3.0",
+    "durable-rules>=2.0.28",
+]
+
+# Database connectivity
+database = [
+    "sqlalchemy>=2.0.0",
+    "psycopg2-binary>=2.9.0",
+    "pymongo>=4.6.0",
+    "redis>=5.0.0",
+    "clickhouse-driver>=0.2.0",
+    "cx-oracle>=8.3.0",
+    "pyodbc>=5.0.0",
+]
+
+# NoSQL databases
+nosql = [
+    "pymongo>=4.6.0",
+    "cassandra-driver>=3.29.0",
+    "redis>=5.0.0",
+    "elasticsearch>=8.11.0",
+    "neo4j>=5.15.0",
+]
+
+# Cloud data warehouses
+cloud-warehouses = [
+    "snowflake-connector-python>=3.6.0",
+    "google-cloud-bigquery>=3.13.0",
+    "azure-storage-blob>=12.19.0",
+    "databricks-sql-connector>=3.0.0",
+]
+
+# Cloud storage
+cloud = [
+    "boto3>=1.34.0",
+    "google-cloud-storage>=2.10.0",
+    "azure-storage-blob>=12.19.0",
+    "s3fs>=2024.1.0",
+    "gcsfs>=2024.1.0",
+    "adlfs>=2024.1.0",
+]
+
+# Streaming processing
+streaming = [
+    "kafka-python>=2.0.2",
+    "aiokafka>=0.10.0",
+    "apache-beam[gcp]>=2.53.0",
+    "pyspark>=3.5.0",
+    "faust-streaming>=0.10.0",
+]
+
+# Distributed processing
+distributed = [
+    "dask[complete]>=2024.1.0",
+    "ray[data]>=2.8.0",
+    "pyspark>=3.5.0",
+    "modin[ray]>=0.25.0",
+]
+
+# Visualization and reporting
+visualization = [
+    "plotly>=5.17.0",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
+    "bokeh>=3.3.0",
+    "dash>=2.15.0",
+]
+
+# Alerting and notifications
+alerting = [
+    "slack-sdk>=3.26.0",
+    "pagerduty>=2.1.0",
+    "twilio>=8.11.0",
+    "sendgrid>=6.11.0",
+    "microsoft-teams>=0.1.0",
+]
+
+# Compliance and governance
+compliance = [
+    "apache-atlas-client>=1.0.0",
+    "collibra-core>=1.0.0",
+    "alation-sdk>=1.0.0",
+]
+
+# Enterprise integrations
+enterprise = [
+    "apache-airflow>=2.8.0",
+    "prefect>=2.14.0",
+    "dagster>=1.5.0",
+    "jenkins>=1.0.0",
+    "jira>=3.5.0",
+]
+
+# Security and encryption
+security = [
+    "cryptography>=41.0.0",
+    "pycryptodome>=3.19.0",
+    "hashlib-compat>=1.0.0",
+    "secrets>=1.0.0",
+]
+
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-benchmark>=4.0.0",
+    "hypothesis>=6.115.0",
+    "factory-boy>=3.3.1",
+    "faker>=33.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.8.0",
+    "pre-commit>=3.6.0",
+]
+
+test = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-benchmark>=4.0.0",
+    "hypothesis>=6.115.0",
+    "factory-boy>=3.3.1",
+    "faker>=33.1.0",
+]
+
+all = [
+    "pynomaly-data-quality[validation,cleansing,monitoring,ml-quality,rules,database,nosql,cloud-warehouses,cloud,streaming,distributed,visualization,alerting,compliance,enterprise,security]"
+]
+
+[tool.hatch.version]
+source = "vcs"
+root = "../../.."
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "SIM", "TCH"]
+ignore = ["B008", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "PLR2004", "ARG"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--verbose",
+    "--tb=short",
+    "--disable-warnings",
+    "--color=yes",
+    "--cov=.",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*", "*Tests"]
+python_functions = ["test_*"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "performance: Performance tests",
+    "slow: Slow running tests",
+    "validation: Data validation tests",
+    "cleansing: Data cleansing tests",
+    "monitoring: Quality monitoring tests",
+    "streaming: Streaming data quality tests",
+    "ml: Machine learning quality tests",
+    "compliance: Compliance tests",
+    "security: Security tests",
+]

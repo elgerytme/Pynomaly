@@ -2,18 +2,10 @@
 
 from __future__ import annotations
 
-import asyncio
-import os
-import shutil
 import sys
-import tempfile
 import warnings
-from collections.abc import Generator
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock
 
-import numpy as np
-import pandas as pd
 import pytest
 
 # Suppress warnings early and comprehensively
@@ -27,343 +19,44 @@ warnings.filterwarnings("ignore", category=UserWarning, module="scipy.*")
 warnings.filterwarnings("ignore", category=UserWarning, module="numpy.*")
 warnings.filterwarnings("ignore", category=UserWarning, module="pandas.*")
 
-# Add src to Python path
+# Add src to Python path - single authoritative path setup
 project_root = Path(__file__).parent.parent
 src_path = project_root / "src"
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
-
-# Core fixtures
-@pytest.fixture(scope="session")
-def event_loop():
-    """Create event loop for async tests."""
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    yield loop
-    loop.close()
+# Import shared test utilities and fixtures
+from tests.shared.fixtures import *  # noqa
+from tests.shared.factories import *  # noqa
 
 
-@pytest.fixture(scope="function")
-def temp_dir() -> Generator[Path, None, None]:
-    """Create temporary directory for testing."""
-    temp_path = Path(tempfile.mkdtemp())
-    try:
-        yield temp_path
-    finally:
-        shutil.rmtree(temp_path, ignore_errors=True)
-
-
-@pytest.fixture(scope="function")
-def sample_data() -> pd.DataFrame:
-    """Create deterministic sample dataset."""
-    np.random.seed(42)  # Fixed seed for reproducibility
-    n_samples = 100
-    n_features = 3
-
-    # Generate normal data
-    normal_data = np.random.normal(0, 1, (n_samples - 10, n_features))
-
-    # Generate anomalous data
-    anomalous_data = np.random.normal(3, 1, (10, n_features))
-
-    # Combine data
-    data = np.vstack([normal_data, anomalous_data])
-
-    return pd.DataFrame(data, columns=[f"feature_{i}" for i in range(n_features)])
-
-
-@pytest.fixture(scope="function")
-def sample_dataset(sample_data):
-    """Create sample dataset entity."""
-    try:
-        from pynomaly.domain.entities import Dataset
-
-        return Dataset(name="test_dataset", data=sample_data)
-    except ImportError:
-        # Return simple mock if entity not available
-        mock_dataset = MagicMock()
-        mock_dataset.name = "test_dataset"
-        mock_dataset.data = sample_data
-        return mock_dataset
-
-
-@pytest.fixture(scope="function")
-def mock_detector():
-    """Create mock detector."""
-    mock = MagicMock()
-    mock.id = "test-detector-id"
-    mock.name = "Test Detector"
-    mock.algorithm_name = "IsolationForest"
-    mock.is_fitted = True
-    mock.parameters = {"contamination": 0.1, "random_state": 42}
-    return mock
-
-
-@pytest.fixture(scope="function")
-def mock_async_repository():
-    """Create mock async repository."""
-    mock = AsyncMock()
-    mock.save.return_value = None
-    mock.find_by_id.return_value = None
-    return mock
-
-
-@pytest.fixture(scope="function")
-def mock_sync_repository():
-    """Create mock sync repository."""
-    mock = MagicMock()
-    mock.save.return_value = None
-    mock.find_by_id.return_value = None
-    return mock
-
-
-# Test isolation - Enhanced for stability
-@pytest.fixture(autouse=True)
-def isolate_tests():
-    """Isolate tests by cleaning up state and preventing interference."""
-    # Store original state
-    original_env = os.environ.copy()
-    original_cwd = os.getcwd()
-
-    # Set deterministic seeds before test
-    np.random.seed(42)
-
-    # Clear module cache for test modules only
-    test_modules_to_clear = [
-        mod
-        for mod in sys.modules.keys()
-        if "pynomaly" in mod
-        and any(test_path in mod for test_path in ["test_", "_test"])
-    ]
-
+# Test configuration and cleanup
+@pytest.fixture(scope="session", autouse=True)
+def test_session_setup():
+    """Session-level test setup and cleanup."""
+    # Session setup
+    print("\n🧪 Starting Pynomaly test session...")
+    
     yield
-
-    # After test - comprehensive cleanup
-    try:
-        # Restore environment completely
-        os.environ.clear()
-        os.environ.update(original_env)
-
-        # Restore working directory
-        try:
-            os.chdir(original_cwd)
-        except (OSError, FileNotFoundError):
-            pass  # Directory may not exist anymore
-
-        # Clear test module cache to prevent state bleeding
-        for mod_name in test_modules_to_clear:
-            if mod_name in sys.modules:
-                del sys.modules[mod_name]
-
-        # Reset random seed
-        np.random.seed(None)
-
-        # Force garbage collection
-        import gc
-
-        gc.collect()
-
-    except Exception:
-        # Don't let cleanup failures break the test run
-        pass
+    
+    # Session cleanup
+    print("\n✅ Pynomaly test session completed")
 
 
-# Error handling
-@pytest.fixture(scope="function")
-def suppress_warnings():
-    """Suppress common warnings during tests."""
-    import warnings
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", UserWarning)
-        warnings.simplefilter("ignore", DeprecationWarning)
-        warnings.simplefilter("ignore", PendingDeprecationWarning)
-        yield
-
-
-# Test markers and configuration
-def pytest_configure(config):
-    """Configure pytest with essential markers - MAIN configuration."""
-    # Only configure if not already configured to prevent conflicts
-    if hasattr(config, "_pynomaly_configured"):
-        return
-
-    config._pynomaly_configured = True
-
-    # Set timeout plugin if available
-    try:
-        import pytest_timeout
-
-        config.addinivalue_line("markers", "timeout: Timeout for test execution")
-    except ImportError:
-        pass
-
-    # Core markers for test organization
-    config.addinivalue_line("markers", "unit: Unit tests")
-    config.addinivalue_line("markers", "integration: Integration tests")
-    config.addinivalue_line("markers", "slow: Slow tests")
-    config.addinivalue_line("markers", "flaky: Potentially flaky tests")
-    config.addinivalue_line("markers", "stable: Tests requiring full stabilization")
-    config.addinivalue_line(
-        "markers", "isolation: Tests requiring environment isolation"
-    )
-    config.addinivalue_line("markers", "retry: Tests requiring retry logic")
-
-
-def pytest_collection_modifyitems(config, items):
-    """Modify test collection to handle flaky tests and add stability measures."""
-    # Only process if not already processed
-    if hasattr(config, "_pynomaly_items_processed"):
-        return
-
-    config._pynomaly_items_processed = True
-
-    for item in items:
-        # Skip timeout markers since pytest-timeout is not available
-        # Timeouts are configured globally in pytest.ini instead
-
-        # Auto-apply flaky marker to tests with flaky indicators in their names
-        if any(
-            indicator in item.name.lower()
-            for indicator in ["flaky", "unstable", "intermittent"]
-        ):
-            if not item.get_closest_marker("flaky"):
-                item.add_marker(pytest.mark.flaky)
-
-        # Auto-apply integration marker for integration test paths
-        if "integration" in str(item.fspath) and not item.get_closest_marker(
-            "integration"
-        ):
-            item.add_marker(pytest.mark.integration)
-
-
-# Retry mechanism for flaky tests
-@pytest.fixture(scope="function")
-def retry_on_failure():
-    """Provide retry mechanism for flaky operations."""
-
-    def retry(func, max_attempts=3, delay=0.1):
-        import time
-
-        for attempt in range(max_attempts):
-            try:
-                return func()
-            except Exception:
-                if attempt == max_attempts - 1:
-                    raise
-                time.sleep(delay * (2**attempt))  # Exponential backoff
-
-    return retry
-
-
-# Resource management
-@pytest.fixture(scope="function")
-def resource_manager():
-    """Manage test resources and cleanup."""
-    resources = []
-
-    def add_resource(resource):
-        resources.append(resource)
-        return resource
-
-    yield add_resource
-
-    # Cleanup resources
-    for resource in reversed(resources):
-        try:
-            if hasattr(resource, "close"):
-                resource.close()
-            elif hasattr(resource, "cleanup"):
-                resource.cleanup()
-        except Exception:
-            pass  # Ignore cleanup errors
-
-
-# Performance testing
-@pytest.fixture(scope="function")
-def performance_timer():
-    """Timer for performance testing."""
-    import time
-
-    class Timer:
-        def __init__(self):
-            self.start_time = None
-            self.end_time = None
-
-        def __enter__(self):
-            self.start_time = time.perf_counter()
-            return self
-
-        def __exit__(self, *args):
-            self.end_time = time.perf_counter()
-
-        @property
-        def elapsed(self):
-            if self.start_time is None:
-                return 0
-            end = self.end_time if self.end_time is not None else time.perf_counter()
-            return end - self.start_time
-
-    return Timer
-
-
-# Test data generation
-@pytest.fixture(scope="session")
-def deterministic_data():
-    """Create deterministic test data for reproducible tests."""
-    np.random.seed(42)
-    return {
-        "small": np.random.normal(0, 1, (50, 3)),
-        "medium": np.random.normal(0, 1, (500, 5)),
-        "large": np.random.normal(0, 1, (1000, 10)),
-    }
-
-
-# Dependency skip decorators
-def skip_if_no_torch():
-    """Skip test if PyTorch not available."""
-    try:
-        import torch
-        return pytest.mark.skipif(False, reason="")
-    except ImportError:
-        return pytest.mark.skipif(True, reason="PyTorch not available")
-
-
-def skip_if_no_tensorflow():
-    """Skip test if TensorFlow not available."""
-    try:
-        import tensorflow
-        return pytest.mark.skipif(False, reason="")
-    except ImportError:
-        return pytest.mark.skipif(True, reason="TensorFlow not available")
-
-
-def skip_if_no_fastapi():
-    """Skip test if FastAPI not available."""
-    try:
-        import fastapi
-        return pytest.mark.skipif(False, reason="")
-    except ImportError:
-        return pytest.mark.skipif(True, reason="FastAPI not available")
-
-
-# Export commonly used fixtures and utilities
-__all__ = [
-    "event_loop",
-    "temp_dir", 
-    "sample_data",
-    "sample_dataset",
-    "mock_detector",
-    "mock_async_repository",
-    "mock_sync_repository",
-    "isolate_tests",
-    "suppress_warnings",
-    "retry_on_failure",
-    "resource_manager",
-    "performance_timer",
-    "deterministic_data",
-    "skip_if_no_torch",
-    "skip_if_no_tensorflow",
-    "skip_if_no_fastapi",
-]
+@pytest.fixture(autouse=True)
+def test_isolation():
+    """Ensure test isolation by cleaning up after each test."""
+    yield
+    
+    # Clean up any global state that might leak between tests
+    import gc
+    gc.collect()
+    
+    # Clean up imported test modules
+    test_modules_to_clear = [
+        mod for mod in sys.modules.keys()
+        if "pynomaly" in mod and any(test_path in mod for test_path in ["test_", "_test"])
+    ]
+    
+    for module in test_modules_to_clear:
+        sys.modules.pop(module, None)

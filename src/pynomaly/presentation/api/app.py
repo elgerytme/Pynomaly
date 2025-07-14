@@ -117,6 +117,22 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
         # init_telemetry(settings)  # Temporarily disabled
         pass
 
+    # Initialize database if configured
+    if settings.database.database_configured:
+        from pynomaly.infrastructure.persistence.database import init_database
+
+        db_manager = init_database(
+            settings.database.database_url,
+            echo=settings.database.database_echo,
+        )
+        # Create tables
+        try:
+            db_manager.create_tables()
+            app.state.db_manager = db_manager
+            print("✅ Database initialized")
+        except Exception as e:
+            print(f"❌ Database initialization failed: {e}")
+
     yield
 
     # Shutdown
