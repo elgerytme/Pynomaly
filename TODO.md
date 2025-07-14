@@ -2,8 +2,8 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 101  
-**Completed**: 70 (Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup, Issue #137 - P1-High: Optimize Remaining Build System Conflicts)  
+**Total Open Issues**: 102  
+**Completed**: 71 (Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup, Issue #137 - P1-High: Optimize Remaining Build System Conflicts)  
 **In Progress**: 1  
 **Pending**: 18  
 
@@ -324,6 +324,18 @@
 
 - **Scope**: ## Priority: P1-High   **Issue Type**: Build System Optimization   **Timeline**: Next priority after PyPI release  ## Problem While the main build system has been standardized to Hatch, there are rema...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/137)
+
+### **Issue #138: Phase 1.1: Data Science Package - Domain Model Implementation**
+
+**Labels**: enhancement, Domain, est:1w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Implement the foundational domain models and entities for the data_science package, establishing the core architecture and data structures needed for advanced analytics and machine learnin...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/138)
 
 ## 🔶 **P2-Medium Priority Issues**
 
@@ -1209,7 +1221,7 @@
 
 **Labels**: enhancement, Presentation, P3-Low  
 **Priority**: 🟢 P3-Low  
-**Status**: ⏳ PENDING  
+**Status**: ✅ COMPLETED  
 **Category**: ✨ Enhancement  
 **Created**: Jul 09, 2025  
 **Updated**: Jul 14, 2025  
