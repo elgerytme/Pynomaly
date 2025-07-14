@@ -11,6 +11,7 @@
 // Core exports
 export { PynomalyClient, createClient } from './core/client';
 export { DataScienceAPI } from './core/dataScience';
+export { PynomalyWebSocketClient, createWebSocketClient } from './core/websocket';
 
 // Error exports
 export {

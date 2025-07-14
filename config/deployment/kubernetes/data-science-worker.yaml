@@ -1,0 +1,261 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-worker
+  namespace: pynomaly-data-science
+  labels:
+    app: pynomaly
+    component: worker
+    tier: processing
+spec:
+  replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: pynomaly
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: pynomaly
+        component: worker
+        tier: processing
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8001"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: pynomaly-worker
+        image: pynomaly:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8001
+          name: metrics
+          protocol: TCP
+        command:
+        - python
+        - -m
+        - pynomaly.workers.data_science_worker
+        env:
+        # Database configuration
+        - name: PYNOMALY_DATABASE_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-postgres-secret
+              key: postgres-url
+        
+        # Redis cache configuration
+        - name: PYNOMALY_STORAGE_REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-redis-secret
+              key: redis-url
+        
+        # InfluxDB metrics configuration
+        - name: PYNOMALY_METRICS_INFLUXDB_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-influxdb-secret
+              key: influxdb-url
+        - name: PYNOMALY_METRICS_INFLUXDB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-influxdb-secret
+              key: admin-token
+        - name: PYNOMALY_METRICS_INFLUXDB_ORG
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-influxdb-secret
+              key: organization
+        - name: PYNOMALY_METRICS_INFLUXDB_BUCKET
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-influxdb-secret
+              key: bucket
+        
+        # Security configuration
+        - name: PYNOMALY_SECURITY_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-api-secret
+              key: secret-key
+        
+        # Data Science configuration
+        - name: PYNOMALY_DATA_SCIENCE_ENABLED
+          value: "true"
+        - name: PYTHONPATH
+          value: "/app/src"
+        - name: PYNOMALY_WORKER_MODE
+          value: "true"
+        - name: PYNOMALY_ENV
+          value: "production"
+        
+        # Worker specific configuration
+        - name: WORKER_CONCURRENCY
+          value: "4"
+        - name: WORKER_MAX_TASKS_PER_CHILD
+          value: "1000"
+        - name: WORKER_PREFETCH_MULTIPLIER
+          value: "1"
+        - name: WORKER_LOG_LEVEL
+          value: "INFO"
+        
+        volumeMounts:
+        - name: data-storage
+          mountPath: /app/data
+        - name: logs-storage
+          mountPath: /app/logs
+        - name: models-storage
+          mountPath: /app/models
+        - name: artifacts-storage
+          mountPath: /app/artifacts
+        
+        resources:
+          requests:
+            memory: "8Gi"
+            cpu: "2"
+          limits:
+            memory: "32Gi"
+            cpu: "8"
+        
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import sys; sys.exit(0)"
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      
+      volumes:
+      - name: data-storage
+        emptyDir: {}
+      - name: logs-storage
+        emptyDir: {}
+      - name: models-storage
+        persistentVolumeClaim:
+          claimName: models-storage-pvc
+      - name: artifacts-storage
+        persistentVolumeClaim:
+          claimName: artifacts-storage-pvc
+      
+      # Pod Anti-Affinity for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - pynomaly
+                - key: component
+                  operator: In
+                  values:
+                  - worker
+              topologyKey: kubernetes.io/hostname
+      
+      # Tolerations for dedicated nodes
+      tolerations:
+      - key: "pynomaly.io/data-science"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      - key: "pynomaly.io/compute-intensive"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pynomaly-worker-service
+  namespace: pynomaly-data-science
+  labels:
+    app: pynomaly
+    component: worker
+    tier: processing
+spec:
+  selector:
+    app: pynomaly
+    component: worker
+  ports:
+  - port: 8001
+    targetPort: 8001
+    protocol: TCP
+    name: metrics
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pynomaly-worker-hpa
+  namespace: pynomaly-data-science
+  labels:
+    app: pynomaly
+    component: worker
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pynomaly-worker
+  minReplicas: 3
+  maxReplicas: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 75
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 85
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 2
+        periodSeconds: 15
+      selectPolicy: Max
+    scaleDown:
+      stabilizationWindowSeconds: 600
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+      - type: Pods
+        value: 1
+        periodSeconds: 60
+      selectPolicy: Min

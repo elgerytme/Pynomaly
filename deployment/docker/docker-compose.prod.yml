@@ -1,0 +1,203 @@
+version: '3.8'
+
+# Production Override for Docker Compose
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - /var/lib/pynomaly/postgres:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  redis:
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - /var/lib/pynomaly/redis:/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  api:
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      API_KEYS: ${API_KEYS}
+      SENTRY_DSN: ${SENTRY_DSN}
+      LOG_LEVEL: warning
+    volumes:
+      - /var/log/pynomaly/api:/app/logs
+      - /var/lib/pynomaly/uploads:/app/data
+    deploy:
+      replicas: 4
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  worker:
+    environment:
+      SENTRY_DSN: ${SENTRY_DSN}
+      LOG_LEVEL: warning
+      MAX_MEMORY_USAGE: 3G
+    volumes:
+      - /var/lib/pynomaly/models:/app/models
+      - /var/log/pynomaly/worker:/app/logs
+      - /tmp/pynomaly:/app/tmp
+    deploy:
+      replicas: 6
+      resources:
+        limits:
+          memory: 8G
+          cpus: '4.0'
+        reservations:
+          memory: 4G
+          cpus: '2.0'
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 5
+        window: 300s
+
+  scheduler:
+    environment:
+      SENTRY_DSN: ${SENTRY_DSN}
+      LOG_LEVEL: warning
+    volumes:
+      - /var/log/pynomaly/scheduler:/app/logs
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  monitoring:
+    environment:
+      SENTRY_DSN: ${SENTRY_DSN}
+    volumes:
+      - /var/lib/pynomaly/metrics:/app/metrics
+      - /var/log/pynomaly/monitoring:/app/logs
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  prometheus:
+    volumes:
+      - /var/lib/pynomaly/prometheus:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=50GB'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  grafana:
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+      GF_SMTP_ENABLED: true
+      GF_SMTP_HOST: ${SMTP_HOST}
+      GF_SMTP_USER: ${SMTP_USER}
+      GF_SMTP_PASSWORD: ${SMTP_PASSWORD}
+      GF_SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS}
+    volumes:
+      - /var/lib/pynomaly/grafana:/var/lib/grafana
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  nginx:
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/html:/var/www/html
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+# Production-specific volumes using host paths
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/pynomaly/postgres
+  redis_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/pynomaly/redis
+  model_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/pynomaly/models
+  prometheus_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/pynomaly/prometheus
+  grafana_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/pynomaly/grafana

@@ -1,0 +1,550 @@
+name: Performance Regression Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'tests/performance/**'
+      - 'scripts/ci/**'
+      - '.github/workflows/performance-regression-testing.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'tests/performance/**'
+      - 'scripts/ci/**'
+  schedule:
+    # Run performance regression tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_duration:
+        description: 'Test duration in seconds'
+        required: false
+        default: '30'
+        type: string
+      concurrent_users:
+        description: 'Number of concurrent users'
+        required: false
+        default: '5'
+        type: string
+      fail_on_regression:
+        description: 'Fail build on performance regression'
+        required: false
+        default: true
+        type: boolean
+      establish_baselines:
+        description: 'Establish new baselines from results'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.12'
+  NODE_VERSION: '18'
+
+jobs:
+  performance-regression-test:
+    name: Performance Regression Detection
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        test-scenario:
+          - name: 'API Performance'
+            config: 'api_performance'
+            timeout: 25
+          - name: 'Database Performance' 
+            config: 'database_performance'
+            timeout: 20
+          - name: 'System Resources'
+            config: 'system_resources'
+            timeout: 15
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2  # Need previous commit for comparison
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        
+        # Install performance testing dependencies
+        pip install aiohttp requests scipy matplotlib seaborn jinja2
+
+    - name: Install Node.js dependencies
+      run: |
+        npm ci
+        # Install k6 for load testing
+        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+
+    - name: Setup test environment
+      run: |
+        # Create necessary directories
+        mkdir -p performance_baselines
+        mkdir -p performance_reports
+        mkdir -p performance_results
+        
+        # Setup test database
+        python -c "
+        import sqlite3
+        import os
+        os.makedirs('performance_baselines', exist_ok=True)
+        conn = sqlite3.connect('performance_baselines/tracking.db')
+        conn.close()
+        "
+
+    - name: Start application services
+      run: |
+        # Start the Pynomaly server in background
+        python -m uvicorn src.pynomaly.presentation.api.main:app --host 0.0.0.0 --port 8000 &
+        
+        # Wait for server to be ready
+        timeout 120 bash -c 'until curl -f http://localhost:8000/health; do 
+          echo "Waiting for server..."
+          sleep 3
+        done'
+        
+        echo "✅ Application server is ready"
+        
+        # Verify server health
+        curl -f http://localhost:8000/health || exit 1
+
+    - name: Load historical baselines
+      run: |
+        # Download historical baseline data if available
+        if [ -f ".github/performance-baselines.json" ]; then
+          echo "Loading historical baselines..."
+          python scripts/ci/load_baselines.py .github/performance-baselines.json
+        else
+          echo "No historical baselines found, will establish new ones"
+        fi
+
+    - name: Run performance regression tests
+      id: regression-test
+      run: |
+        # Set test configuration
+        export PYNOMALY_TEST_URL="http://localhost:8000"
+        export PERF_TEST_DURATION="${{ github.event.inputs.test_duration || '30' }}"
+        export PERF_CONCURRENT_USERS="${{ github.event.inputs.concurrent_users || '5' }}"
+        export PERF_FAIL_ON_REGRESSION="${{ github.event.inputs.fail_on_regression || 'true' }}"
+        export GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}"
+        export GITHUB_REPOSITORY="${{ github.repository }}"
+        export GITHUB_PR_NUMBER="${{ github.event.number }}"
+        
+        # Create test configuration
+        cat > performance_test_config.json << EOF
+        {
+          "base_url": "http://localhost:8000",
+          "test_duration": $(echo "$PERF_TEST_DURATION"),
+          "concurrent_users": $(echo "$PERF_CONCURRENT_USERS"),
+          "regression_threshold": 20.0,
+          "fail_on_regression": $(echo "$PERF_FAIL_ON_REGRESSION" | tr '[:upper:]' '[:lower:]'),
+          "test_scenarios": [
+            {
+              "name": "health_check",
+              "type": "api",
+              "endpoint": "/health",
+              "method": "GET",
+              "concurrent_users": 2,
+              "duration": 10
+            },
+            {
+              "name": "version_endpoint",
+              "type": "api",
+              "endpoint": "/api/v1/version",
+              "method": "GET",
+              "concurrent_users": 3,
+              "duration": 15
+            },
+            {
+              "name": "system_resources",
+              "type": "system",
+              "duration": 10
+            }
+          ]
+        }
+        EOF
+        
+        # Run performance regression check
+        python scripts/ci/performance_regression_check.py \
+          --config performance_test_config.json \
+          --output "performance_results/regression_report_${{ matrix.test-scenario.config }}.json" \
+          --format json \
+          --verbose \
+          ${{ github.event.inputs.establish_baselines == 'true' && '--establish-baselines' || '' }}
+        
+        # Store exit code for later use
+        echo "regression_check_exit_code=$?" >> $GITHUB_OUTPUT
+
+    - name: Generate performance reports
+      if: always()
+      run: |
+        # Generate comprehensive reports
+        python -c "
+        import json
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, 'src')
+        
+        from pynomaly.infrastructure.performance.reporting_service import PerformanceReportGenerator
+        
+        # Find all regression reports
+        report_files = list(Path('performance_results').glob('*.json'))
+        
+        if report_files:
+            generator = PerformanceReportGenerator('performance_reports')
+            
+            for report_file in report_files:
+                with open(report_file) as f:
+                    data = json.load(f)
+                
+                # Generate HTML report
+                html_file = generator.generate_html_report(data)
+                print(f'Generated HTML report: {html_file}')
+                
+                # Generate CSV metrics
+                csv_file = generator.generate_csv_metrics(data) 
+                print(f'Generated CSV metrics: {csv_file}')
+        else:
+            print('No regression reports found')
+        "
+
+    - name: Analyze performance trends
+      if: always()
+      run: |
+        # Analyze performance trends over time
+        python -c "
+        import sys
+        sys.path.insert(0, 'src')
+        
+        from pynomaly.infrastructure.performance.baseline_tracker import AdaptiveBaselineTracker
+        
+        try:
+            tracker = AdaptiveBaselineTracker('performance_baselines/tracking.db')
+            status = tracker.get_all_baselines_status()
+            
+            print('📊 Performance Baseline Status:')
+            print(f'Total Metrics: {status[\"total_metrics\"]}')
+            print(f'Average Health Score: {status[\"average_health_score\"]:.2f}')
+            print(f'Healthy Baselines: {status[\"healthy_baselines\"]}')
+            print(f'Degraded Baselines: {status[\"degraded_baselines\"]}')
+            
+            # Save baseline status
+            import json
+            with open('performance_results/baseline_status.json', 'w') as f:
+                json.dump(status, f, indent=2, default=str)
+                
+        except Exception as e:
+            print(f'Failed to analyze baselines: {e}')
+        "
+
+    - name: Upload performance artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-results-${{ matrix.test-scenario.config }}
+        path: |
+          performance_results/
+          performance_reports/
+          performance_baselines/
+        retention-days: 30
+
+    - name: Update performance baselines
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        # Update stored baselines for main branch
+        if [ -f "performance_baselines/baselines.json" ]; then
+          cp performance_baselines/baselines.json .github/performance-baselines.json
+          
+          # Commit updated baselines
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .github/performance-baselines.json
+          
+          if git diff --staged --quiet; then
+            echo "No baseline changes to commit"
+          else
+            git commit -m "Update performance baselines [skip ci]"
+            git push
+          fi
+        fi
+
+    - name: Comment on PR with results
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          try {
+            // Find regression report
+            const resultsDir = 'performance_results';
+            const files = fs.readdirSync(resultsDir);
+            const reportFile = files.find(f => f.includes('regression_report'));
+            
+            if (reportFile) {
+              const reportPath = path.join(resultsDir, reportFile);
+              const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+              
+              // Generate markdown summary
+              const status = report.ci_status || 'UNKNOWN';
+              const statusIcon = {
+                'PASSED': '✅',
+                'WARNING': '⚠️',
+                'FAILED': '❌',
+                'UNKNOWN': '❓'
+              }[status] || '❓';
+              
+              const regressionSummary = report.regression_summary || {};
+              const baselineStatus = report.baseline_status || {};
+              
+              const comment = `
+              ## ${statusIcon} Performance Regression Test Results
+              
+              **Status:** ${status}  
+              **Test Scenario:** ${{ matrix.test-scenario.name }}  
+              **Duration:** ${(report.duration_seconds || 0).toFixed(1)}s
+              
+              ### 📊 Summary
+              
+              | Metric | Value |
+              |--------|-------|
+              | Total Tests | ${report.test_results?.total_tests || 0} |
+              | Successful Tests | ${report.test_results?.successful_tests || 0} |
+              | Regressions | ${regressionSummary.total_regressions || 0} |
+              | Critical Regressions | ${regressionSummary.regressions_by_severity?.critical || 0} |
+              | Improvements | ${regressionSummary.total_improvements || 0} |
+              | Baseline Health | ${(baselineStatus.average_health_score || 0).toFixed(2)} |
+              
+              ### 💡 Recommendations
+              
+              ${(report.recommendations || []).map(rec => `- ${rec}`).join('\n') || '- No specific recommendations'}
+              
+              ---
+              *Performance test completed at ${new Date().toISOString()}*
+              `;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+          } catch (error) {
+            console.log('Could not post performance results comment:', error.message);
+          }
+
+  performance-regression-summary:
+    name: Performance Regression Summary
+    runs-on: ubuntu-latest
+    needs: [performance-regression-test]
+    if: always()
+    
+    steps:
+    - name: Download all performance results
+      uses: actions/download-artifact@v4
+      with:
+        pattern: performance-results-*
+        path: all-performance-results/
+        merge-multiple: true
+
+    - name: Generate overall summary
+      run: |
+        # Combine all performance results
+        python3 -c "
+        import json
+        import glob
+        from pathlib import Path
+        
+        # Find all regression reports
+        report_files = glob.glob('all-performance-results/**/regression_report_*.json', recursive=True)
+        
+        if not report_files:
+            print('No regression reports found')
+            exit(0)
+        
+        total_tests = 0
+        total_regressions = 0
+        critical_regressions = 0
+        total_improvements = 0
+        scenarios = []
+        
+        for report_file in report_files:
+            try:
+                with open(report_file) as f:
+                    report = json.load(f)
+                
+                test_results = report.get('test_results', {})
+                regression_summary = report.get('regression_summary', {})
+                
+                total_tests += test_results.get('total_tests', 0)
+                total_regressions += regression_summary.get('total_regressions', 0)
+                critical_regressions += regression_summary.get('regressions_by_severity', {}).get('critical', 0)
+                total_improvements += regression_summary.get('total_improvements', 0)
+                
+                scenarios.append({
+                    'name': Path(report_file).stem.replace('regression_report_', ''),
+                    'status': report.get('ci_status', 'UNKNOWN'),
+                    'regressions': regression_summary.get('total_regressions', 0)
+                })
+                
+            except Exception as e:
+                print(f'Failed to process {report_file}: {e}')
+        
+        # Determine overall status
+        if critical_regressions > 0:
+            overall_status = 'FAILED'
+        elif total_regressions > 0:
+            overall_status = 'WARNING'
+        else:
+            overall_status = 'PASSED'
+        
+        summary = {
+            'overall_status': overall_status,
+            'total_tests': total_tests,
+            'total_regressions': total_regressions,
+            'critical_regressions': critical_regressions,
+            'total_improvements': total_improvements,
+            'scenarios': scenarios
+        }
+        
+        # Save summary
+        with open('performance_summary.json', 'w') as f:
+            json.dump(summary, f, indent=2)
+        
+        print('📊 PERFORMANCE REGRESSION SUMMARY')
+        print('=' * 50)
+        print(f'Overall Status: {overall_status}')
+        print(f'Total Tests: {total_tests}')
+        print(f'Total Regressions: {total_regressions}')
+        print(f'Critical Regressions: {critical_regressions}')
+        print(f'Total Improvements: {total_improvements}')
+        print(f'Test Scenarios: {len(scenarios)}')
+        
+        for scenario in scenarios:
+            print(f'  - {scenario[\"name\"]}: {scenario[\"status\"]} ({scenario[\"regressions\"]} regressions)')
+        
+        # Set exit code based on critical regressions
+        if critical_regressions > 0:
+            print('\\n❌ CRITICAL REGRESSIONS DETECTED - BUILD FAILED')
+            exit(1)
+        elif total_regressions > 0:
+            print('\\n⚠️ PERFORMANCE REGRESSIONS DETECTED - BUILD WARNING')
+        else:
+            print('\\n✅ NO PERFORMANCE REGRESSIONS DETECTED')
+        "
+
+    - name: Create performance summary comment
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const summary = JSON.parse(fs.readFileSync('performance_summary.json', 'utf8'));
+            
+            const statusIcon = {
+              'PASSED': '✅',
+              'WARNING': '⚠️', 
+              'FAILED': '❌',
+              'UNKNOWN': '❓'
+            }[summary.overall_status] || '❓';
+            
+            const comment = `
+            ## ${statusIcon} Performance Regression Test Summary
+            
+            **Overall Status:** ${summary.overall_status}
+            
+            ### 📊 Results Overview
+            
+            | Metric | Value |
+            |--------|-------|
+            | Total Tests | ${summary.total_tests} |
+            | Total Regressions | ${summary.total_regressions} |
+            | Critical Regressions | ${summary.critical_regressions} |
+            | Performance Improvements | ${summary.total_improvements} |
+            | Test Scenarios | ${summary.scenarios.length} |
+            
+            ### 🎯 Scenario Results
+            
+            ${summary.scenarios.map(s => {
+              const icon = s.status === 'PASSED' ? '✅' : s.status === 'WARNING' ? '⚠️' : '❌';
+              return `- ${icon} **${s.name}**: ${s.status} (${s.regressions} regressions)`;
+            }).join('\n')}
+            
+            ${summary.critical_regressions > 0 ? 
+              '🚨 **Critical regressions detected!** Please review and optimize before merging.' :
+              summary.total_regressions > 0 ?
+              '⚠️ **Performance regressions detected.** Consider reviewing affected components.' :
+              '🎉 **No performance regressions detected!** All tests passed successfully.'
+            }
+            
+            ---
+            *Performance regression testing completed at ${new Date().toISOString()}*
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.log('Could not create summary comment:', error.message);
+          }
+
+    - name: Upload combined results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-regression-summary
+        path: |
+          performance_summary.json
+          all-performance-results/
+        retention-days: 30
+
+    - name: Set job status
+      run: |
+        if [ -f "performance_summary.json" ]; then
+          status=$(python3 -c "import json; print(json.load(open('performance_summary.json'))['overall_status'])")
+          
+          if [ "$status" = "FAILED" ]; then
+            echo "❌ Performance regression tests FAILED"
+            exit 1
+          elif [ "$status" = "WARNING" ]; then
+            echo "⚠️ Performance regression tests completed with WARNINGS"
+            exit 0
+          else
+            echo "✅ Performance regression tests PASSED"
+            exit 0
+          fi
+        else
+          echo "❓ Performance summary not available"
+          exit 1
+        fi

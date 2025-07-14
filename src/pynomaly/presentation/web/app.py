@@ -94,6 +94,87 @@ async def onboarding_tour(request: Request) -> HTMLResponse:
     return templates.TemplateResponse("onboarding_tour.html", context)
 
 
+@router.get("/data-science-dashboard", response_class=HTMLResponse)
+async def data_science_dashboard(
+    request: Request,
+    container: Container = Depends(get_container),
+    current_user: str | None = Depends(get_current_user),
+) -> HTMLResponse:
+    """Interactive data science dashboard with real-time monitoring."""
+    settings = container.config()
+    
+    # Check if auth is enabled and user is not authenticated
+    if settings.auth_enabled and not current_user:
+        return RedirectResponse(url="/")
+    
+    context = {
+        "request": request,
+        "current_user": current_user,
+        "auth_enabled": settings.auth_enabled,
+        "page_title": "Data Science Dashboard",
+        "dashboard_type": "data-science",
+    }
+    
+    # Add CSRF token to context
+    context = add_csrf_to_context(request, context)
+    
+    return templates.TemplateResponse("data-science-dashboard.html", context)
+
+
+@router.get("/ml-pipeline-designer", response_class=HTMLResponse)
+async def ml_pipeline_designer(
+    request: Request,
+    container: Container = Depends(get_container),
+    current_user: str | None = Depends(get_current_user),
+) -> HTMLResponse:
+    """Visual ML pipeline designer interface."""
+    settings = container.config()
+    
+    # Check if auth is enabled and user is not authenticated
+    if settings.auth_enabled and not current_user:
+        return RedirectResponse(url="/")
+    
+    context = {
+        "request": request,
+        "current_user": current_user,
+        "auth_enabled": settings.auth_enabled,
+        "page_title": "ML Pipeline Designer",
+        "dashboard_type": "ml-pipeline",
+    }
+    
+    # Add CSRF token to context
+    context = add_csrf_to_context(request, context)
+    
+    return templates.TemplateResponse("ml-pipeline-designer.html", context)
+
+
+@router.get("/executive-dashboard", response_class=HTMLResponse)
+async def executive_dashboard(
+    request: Request,
+    container: Container = Depends(get_container),
+    current_user: str | None = Depends(get_current_user),
+) -> HTMLResponse:
+    """Executive dashboard for quality and analytics insights."""
+    settings = container.config()
+    
+    # Check if auth is enabled and user is not authenticated
+    if settings.auth_enabled and not current_user:
+        return RedirectResponse(url="/")
+    
+    context = {
+        "request": request,
+        "current_user": current_user,
+        "auth_enabled": settings.auth_enabled,
+        "page_title": "Executive Dashboard",
+        "dashboard_type": "executive",
+    }
+    
+    # Add CSRF token to context
+    context = add_csrf_to_context(request, context)
+    
+    return templates.TemplateResponse("executive-dashboard.html", context)
+
+
 @router.get("/security-dashboard", response_class=HTMLResponse)
 async def security_dashboard(
     request: Request,

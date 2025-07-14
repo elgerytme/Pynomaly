@@ -1,17 +1,40 @@
 # Pynomaly Helm Chart Values
-# Production-ready configuration for enterprise deployment
+# Enterprise-grade configuration for production deployment
 
 # Global configuration
 global:
-  imageRegistry: "ghcr.io"
+  imageRegistry: "docker.io"
   imagePullSecrets: []
   storageClass: "fast-ssd"
+  
+  # Multi-environment support
+  environment: production
+  region: us-west-2
+  
+  # Security settings
+  security:
+    podSecurityStandards: true
+    networkPolicies: true
+    rbac: true
 
-# Application configuration
-image:
-  repository: elgerytme/pynomaly
-  tag: "latest"
-  pullPolicy: IfNotPresent
+# Application images
+images:
+  api:
+    repository: pynomaly/api
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  worker:
+    repository: pynomaly/worker
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  scheduler:
+    repository: pynomaly/scheduler
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  monitoring:
+    repository: pynomaly/monitoring
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
 
 # Deployment configuration
 replicaCount: 3

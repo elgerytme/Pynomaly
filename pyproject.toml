@@ -416,6 +416,17 @@ run-contract = "pytest tests/contract/ -m contract {args}"
 # Coverage testing
 run-cov = "pytest --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 {args:tests}"
 run-cov-unit = "pytest tests/unit/ --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
+
+# Advanced coverage and quality testing
+coverage-full = "python scripts/coverage_setup.py"
+coverage-check = "python scripts/coverage_setup.py --check-only"
+quality-monitor = "python scripts/test_quality_monitor.py"
+mutation-test = "python scripts/mutation_testing.py"
+setup-hooks = "python scripts/coverage_setup.py --setup-hooks"
+
+# Comprehensive testing suite
+test-all = ["run-cov", "quality-monitor", "coverage-check"]
+quality-full = ["quality-monitor", "mutation-test", "coverage-full"]
 run-cov-integration = "pytest tests/integration/ --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
 
 # Parallel testing

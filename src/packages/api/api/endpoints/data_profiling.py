@@ -436,9 +436,94 @@ async def _execute_profiling_job(job_id: UUID, dataset_id: str, request: Profile
 
 
 async def _execute_correlation_analysis(job_id: UUID, request: CorrelationRequest):
-    """Execute correlation analysis in background."""
-    # TODO: Implement actual correlation analysis
-    pass
+    """Execute correlation analysis in background using statistical analysis service."""
+    try:
+        # Import statistical analysis service implementation
+        from packages.data_science.infrastructure.services.statistical_analysis_service_impl import StatisticalAnalysisServiceImpl
+        
+        # Initialize the statistical analysis service
+        stats_service = StatisticalAnalysisServiceImpl()
+        
+        # TODO: Load actual dataset based on request.dataset_id
+        # For now, create mock dataset for demonstration
+        import pandas as pd
+        import numpy as np
+        np.random.seed(42)
+        
+        # Create more realistic mock data based on features
+        n_samples = 1000
+        feature_data = {}
+        
+        if request.features:
+            for i, feature in enumerate(request.features):
+                # Create correlated features for demonstration
+                if i == 0:
+                    feature_data[feature] = np.random.normal(100, 15, n_samples)
+                else:
+                    # Make subsequent features correlated with previous ones
+                    correlation_strength = 0.3 + (i * 0.2)  # Increasing correlation
+                    base_feature = list(feature_data.values())[0]
+                    noise = np.random.normal(0, 10, n_samples)
+                    feature_data[feature] = base_feature * correlation_strength + noise
+        else:
+            # Default features if none specified
+            feature_data = {
+                'feature1': np.random.normal(100, 15, n_samples),
+                'feature2': np.random.normal(50, 10, n_samples),
+                'feature3': np.random.uniform(0, 100, n_samples),
+            }
+        
+        mock_dataset = pd.DataFrame(feature_data)
+        
+        # Perform correlation analysis using our service
+        correlation_result = await stats_service.perform_correlation_analysis(
+            dataset=mock_dataset,
+            features=request.features if request.features else list(feature_data.keys()),
+            method=request.method
+        )
+        
+        # Extract significant correlations if requested
+        significant_correlations = []
+        if hasattr(request, 'significance_level'):
+            correlation_matrix = correlation_result.correlation_matrix
+            p_value_matrix = correlation_result.p_value_matrix
+            features = correlation_result.features
+            
+            for i in range(len(features)):
+                for j in range(i + 1, len(features)):
+                    correlation_value = correlation_matrix[i][j]
+                    p_value = p_value_matrix[i][j]
+                    
+                    if p_value < request.significance_level:
+                        significant_correlations.append({
+                            "feature_pair": [features[i], features[j]],
+                            "correlation": round(correlation_value, 4),
+                            "p_value": round(p_value, 4),
+                            "is_significant": True
+                        })
+        
+        # Store results (in a real implementation, this would save to database)
+        analysis_results = {
+            "job_id": str(job_id),
+            "correlation_matrix": correlation_result.correlation_matrix,
+            "feature_names": correlation_result.features,
+            "p_value_matrix": correlation_result.p_value_matrix if hasattr(correlation_result, 'p_value_matrix') else None,
+            "significant_correlations": significant_correlations,
+            "multicollinearity_assessment": {
+                "condition_index": correlation_result.condition_index,
+                "determinant": correlation_result.determinant,
+                "average_correlation": correlation_result.average_correlation
+            },
+            "status": "completed",
+            "completed_at": "2025-01-01T00:05:00Z"
+        }
+        
+        # TODO: Save results to repository/database
+        print(f"Correlation analysis completed for job {job_id}")
+        
+    except Exception as e:
+        print(f"Correlation analysis failed for job {job_id}: {str(e)}")
+        # TODO: Update job status to failed in repository
 
 
 async def _execute_hypothesis_test(job_id: UUID, request: HypothesisTestRequest):

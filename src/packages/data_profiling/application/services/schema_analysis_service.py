@@ -51,6 +51,268 @@ class SchemaAnalysisService:
         )
         return schema_profile
     
+    def detect_advanced_relationships(self, df: pd.DataFrame) -> Dict[str, Any]:
+        """Detect advanced relationships between columns including functional dependencies."""
+        relationships = {
+            'functional_dependencies': self._detect_functional_dependencies(df),
+            'correlation_relationships': self._detect_correlation_relationships(df),
+            'hierarchical_relationships': self._detect_hierarchical_relationships(df),
+            'categorical_relationships': self._detect_categorical_relationships(df)
+        }
+        return relationships
+    
+    def _detect_functional_dependencies(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
+        """Detect functional dependencies (A -> B where A determines B)."""
+        functional_deps = []
+        column_names = list(df.columns)
+        
+        for i, col_a in enumerate(column_names):
+            for j, col_b in enumerate(column_names):
+                if i != j:
+                    # Check if col_a functionally determines col_b
+                    dependency_strength = self._calculate_functional_dependency_strength(df, col_a, col_b)
+                    
+                    if dependency_strength >= 0.95:  # Strong functional dependency
+                        functional_deps.append({
+                            'determinant': col_a,
+                            'dependent': col_b,
+                            'strength': dependency_strength,
+                            'type': 'strong' if dependency_strength >= 0.99 else 'weak'
+                        })
+        
+        return functional_deps
+    
+    def _calculate_functional_dependency_strength(self, df: pd.DataFrame, col_a: str, col_b: str) -> float:
+        """Calculate the strength of functional dependency A -> B."""
+        # Remove rows where either column is null
+        clean_df = df[[col_a, col_b]].dropna()
+        
+        if len(clean_df) == 0:
+            return 0.0
+        
+        # Group by col_a and check if col_b is consistent
+        grouped = clean_df.groupby(col_a)[col_b].nunique()
+        
+        # Count how many groups have exactly one unique value in col_b
+        single_value_groups = (grouped == 1).sum()
+        total_groups = len(grouped)
+        
+        if total_groups == 0:
+            return 0.0
+        
+        return single_value_groups / total_groups
+    
+    def _detect_correlation_relationships(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
+        """Detect correlation relationships between numeric columns."""
+        correlations = []
+        numeric_columns = df.select_dtypes(include=[np.number]).columns.tolist()
+        
+        if len(numeric_columns) >= 2:
+            corr_matrix = df[numeric_columns].corr()
+            
+            for i, col_a in enumerate(numeric_columns):
+                for j, col_b in enumerate(numeric_columns):
+                    if i < j:  # Avoid duplicates and self-correlation
+                        correlation = corr_matrix.loc[col_a, col_b]
+                        
+                        if abs(correlation) >= 0.7:  # Strong correlation
+                            correlations.append({
+                                'column_a': col_a,
+                                'column_b': col_b,
+                                'correlation': correlation,
+                                'strength': 'strong' if abs(correlation) >= 0.9 else 'moderate',
+                                'direction': 'positive' if correlation > 0 else 'negative'
+                            })
+        
+        return correlations
+    
+    def _detect_hierarchical_relationships(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
+        """Detect hierarchical relationships (parent-child) in data."""
+        hierarchical_rels = []
+        
+        # Look for columns that might represent hierarchical data
+        potential_hierarchy_patterns = [
+            ('category', 'subcategory'),
+            ('parent', 'child'),
+            ('group', 'item'),
+            ('department', 'section'),
+            ('country', 'state', 'city'),
+            ('year', 'month', 'day')
+        ]
+        
+        column_names = [col.lower() for col in df.columns]
+        
+        for pattern in potential_hierarchy_patterns:
+            if len(pattern) == 2:
+                parent_pattern, child_pattern = pattern
+                
+                # Find columns matching the pattern
+                parent_cols = [col for col in df.columns if parent_pattern in col.lower()]
+                child_cols = [col for col in df.columns if child_pattern in col.lower()]
+                
+                for parent_col in parent_cols:
+                    for child_col in child_cols:
+                        # Check if there's a hierarchical relationship
+                        hierarchy_strength = self._calculate_hierarchy_strength(df, parent_col, child_col)
+                        
+                        if hierarchy_strength >= 0.8:
+                            hierarchical_rels.append({
+                                'parent_column': parent_col,
+                                'child_column': child_col,
+                                'strength': hierarchy_strength,
+                                'type': 'hierarchical'
+                            })
+            
+            elif len(pattern) == 3:
+                # Handle three-level hierarchies
+                level1, level2, level3 = pattern
+                
+                level1_cols = [col for col in df.columns if level1 in col.lower()]
+                level2_cols = [col for col in df.columns if level2 in col.lower()]
+                level3_cols = [col for col in df.columns if level3 in col.lower()]
+                
+                if level1_cols and level2_cols and level3_cols:
+                    # Check the three-level hierarchy
+                    l1_col, l2_col, l3_col = level1_cols[0], level2_cols[0], level3_cols[0]
+                    
+                    # Check if level1 -> level2 -> level3 forms a hierarchy
+                    strength_1_2 = self._calculate_hierarchy_strength(df, l1_col, l2_col)
+                    strength_2_3 = self._calculate_hierarchy_strength(df, l2_col, l3_col)
+                    
+                    if strength_1_2 >= 0.8 and strength_2_3 >= 0.8:
+                        hierarchical_rels.append({
+                            'hierarchy_levels': [l1_col, l2_col, l3_col],
+                            'strength': min(strength_1_2, strength_2_3),
+                            'type': 'multi_level_hierarchy'
+                        })
+        
+        return hierarchical_rels
+    
+    def _calculate_hierarchy_strength(self, df: pd.DataFrame, parent_col: str, child_col: str) -> float:
+        """Calculate the strength of hierarchical relationship between two columns."""
+        # Remove null values
+        clean_df = df[[parent_col, child_col]].dropna()
+        
+        if len(clean_df) == 0:
+            return 0.0
+        
+        # For each parent value, count unique child values
+        child_counts = clean_df.groupby(parent_col)[child_col].nunique()
+        
+        # A strong hierarchy has consistent parent-child relationships
+        # Calculate consistency score
+        total_parent_values = len(child_counts)
+        avg_children_per_parent = child_counts.mean()
+        std_children_per_parent = child_counts.std()
+        
+        if total_parent_values == 0 or avg_children_per_parent == 0:
+            return 0.0
+        
+        # Lower standard deviation relative to mean indicates stronger hierarchy
+        coefficient_of_variation = std_children_per_parent / avg_children_per_parent if avg_children_per_parent > 0 else float('inf')
+        
+        # Convert to strength score (lower CV = higher strength)
+        if coefficient_of_variation == 0:
+            return 1.0
+        elif coefficient_of_variation < 0.5:
+            return 0.9
+        elif coefficient_of_variation < 1.0:
+            return 0.8
+        elif coefficient_of_variation < 2.0:
+            return 0.6
+        else:
+            return 0.3
+    
+    def _detect_categorical_relationships(self, df: pd.DataFrame) -> List[Dict[str, Any]]:
+        """Detect relationships between categorical columns."""
+        categorical_rels = []
+        
+        # Get categorical columns (strings and low-cardinality numerics)
+        categorical_cols = []
+        for col in df.columns:
+            if df[col].dtype == 'object':
+                categorical_cols.append(col)
+            elif df[col].dtype in ['int64', 'float64']:
+                unique_count = df[col].nunique()
+                total_count = len(df[col].dropna())
+                if unique_count <= 20 or unique_count / total_count <= 0.1:
+                    categorical_cols.append(col)
+        
+        # Check relationships between categorical columns
+        for i, col_a in enumerate(categorical_cols):
+            for j, col_b in enumerate(categorical_cols):
+                if i < j:
+                    relationship_type, strength = self._analyze_categorical_relationship(df, col_a, col_b)
+                    
+                    if strength >= 0.7:
+                        categorical_rels.append({
+                            'column_a': col_a,
+                            'column_b': col_b,
+                            'relationship_type': relationship_type,
+                            'strength': strength
+                        })
+        
+        return categorical_rels
+    
+    def _analyze_categorical_relationship(self, df: pd.DataFrame, col_a: str, col_b: str) -> Tuple[str, float]:
+        """Analyze the relationship between two categorical columns."""
+        # Create contingency table
+        contingency_table = pd.crosstab(df[col_a], df[col_b])
+        
+        # Calculate various relationship metrics
+        
+        # 1. Check for one-to-one mapping
+        if self._is_one_to_one_mapping(contingency_table):
+            return 'one_to_one', 0.95
+        
+        # 2. Check for one-to-many mapping
+        if self._is_one_to_many_mapping(contingency_table):
+            return 'one_to_many', 0.85
+        
+        # 3. Calculate mutual information / association strength
+        total_observations = contingency_table.sum().sum()
+        if total_observations == 0:
+            return 'no_relationship', 0.0
+        
+        # Calculate Cramér's V (measures association strength)
+        chi2 = 0
+        for i in range(contingency_table.shape[0]):
+            for j in range(contingency_table.shape[1]):
+                observed = contingency_table.iloc[i, j]
+                expected = (contingency_table.iloc[i, :].sum() * contingency_table.iloc[:, j].sum()) / total_observations
+                if expected > 0:
+                    chi2 += (observed - expected) ** 2 / expected
+        
+        cramers_v = np.sqrt(chi2 / (total_observations * (min(contingency_table.shape) - 1)))
+        
+        if cramers_v >= 0.7:
+            return 'strong_association', cramers_v
+        elif cramers_v >= 0.3:
+            return 'moderate_association', cramers_v
+        else:
+            return 'weak_association', cramers_v
+    
+    def _is_one_to_one_mapping(self, contingency_table: pd.DataFrame) -> bool:
+        """Check if contingency table represents one-to-one mapping."""
+        # One-to-one: each row and column should have exactly one non-zero value
+        return ((contingency_table > 0).sum(axis=1) == 1).all() and ((contingency_table > 0).sum(axis=0) == 1).all()
+    
+    def _is_one_to_many_mapping(self, contingency_table: pd.DataFrame) -> bool:
+        """Check if contingency table represents one-to-many mapping."""
+        # One-to-many: each row should have values in multiple columns, but each column should have values in only one row
+        row_coverage = (contingency_table > 0).sum(axis=1)
+        col_coverage = (contingency_table > 0).sum(axis=0)
+        
+        # Check if it's one-to-many from rows to columns
+        if (col_coverage == 1).all() and (row_coverage > 1).any():
+            return True
+        
+        # Check if it's one-to-many from columns to rows
+        if (row_coverage == 1).all() and (col_coverage > 1).any():
+            return True
+        
+        return False
+    
     def _analyze_column(self, series: pd.Series, column_name: str, total_rows: int) -> ColumnProfile:
         """Analyze a single column comprehensively."""
         null_count = int(series.isnull().sum())
@@ -251,16 +513,93 @@ class SchemaAnalysisService:
         return primary_keys
     
     def _detect_foreign_keys(self, df: pd.DataFrame, columns: List[ColumnProfile]) -> Dict[str, str]:
-        """Detect potential foreign key relationships."""
-        # This is a simplified implementation - in practice, you'd need reference to other tables
+        """Detect potential foreign key relationships using advanced heuristics."""
         foreign_keys = {}
         
         for column in columns:
             col_name = column.column_name
-            # Simple heuristic: columns ending with '_id' or 'Id' might be foreign keys
-            if col_name.lower().endswith('_id') or col_name.lower().endswith('id'):
-                # Would need actual reference table information to complete this
-                pass
+            series = df[col_name]
+            
+            # Advanced heuristic analysis for foreign key detection
+            potential_fk_score = 0
+            reference_table = None
+            
+            # 1. Naming convention analysis
+            if (col_name.lower().endswith('_id') or 
+                col_name.lower().endswith('id') or
+                col_name.lower().endswith('_key') or
+                col_name.lower().endswith('_ref')):
+                potential_fk_score += 30
+                
+                # Try to infer referenced table from column name
+                if col_name.lower().endswith('_id'):
+                    reference_table = col_name[:-3]  # Remove '_id'
+                elif col_name.lower().endswith('id'):
+                    reference_table = col_name[:-2]  # Remove 'id'
+                elif col_name.lower().endswith('_key'):
+                    reference_table = col_name[:-4]  # Remove '_key'
+                elif col_name.lower().endswith('_ref'):
+                    reference_table = col_name[:-4]  # Remove '_ref'
+            
+            # 2. Data type analysis
+            if column.data_type in [DataType.INTEGER, DataType.STRING]:
+                potential_fk_score += 20
+            
+            # 3. Cardinality analysis
+            uniqueness_ratio = column.distribution.unique_count / column.distribution.total_count
+            if 0.1 <= uniqueness_ratio <= 0.9:  # Not too unique, not too repetitive
+                potential_fk_score += 25
+            
+            # 4. Pattern analysis for IDs
+            if column.data_type == DataType.INTEGER:
+                # Check if values follow ID patterns (sequential, positive)
+                non_null_values = series.dropna()
+                if len(non_null_values) > 0:
+                    if (non_null_values > 0).all():  # All positive
+                        potential_fk_score += 15
+                    
+                    # Check for sequential-like patterns
+                    sorted_values = sorted(non_null_values.unique())
+                    if len(sorted_values) > 1:
+                        gaps = [sorted_values[i+1] - sorted_values[i] for i in range(len(sorted_values)-1)]
+                        avg_gap = sum(gaps) / len(gaps)
+                        if 1 <= avg_gap <= 10:  # Reasonable sequential gaps
+                            potential_fk_score += 10
+            
+            elif column.data_type == DataType.STRING:
+                # Check for UUID patterns, structured codes, etc.
+                non_null_values = series.dropna()
+                if len(non_null_values) > 0:
+                    sample_values = non_null_values.head(100)
+                    
+                    # UUID pattern detection
+                    uuid_pattern_count = sum(1 for val in sample_values 
+                                           if isinstance(val, str) and len(val) == 36 and val.count('-') == 4)
+                    if uuid_pattern_count / len(sample_values) > 0.5:
+                        potential_fk_score += 20
+                    
+                    # Code pattern detection (consistent length, alphanumeric)
+                    lengths = [len(str(val)) for val in sample_values]
+                    if len(set(lengths)) <= 2:  # Consistent length
+                        potential_fk_score += 10
+            
+            # 5. Check for null values (FKs often allow nulls)
+            if column.distribution.null_count > 0:
+                null_ratio = column.distribution.null_count / column.distribution.total_count
+                if 0.01 <= null_ratio <= 0.3:  # Some nulls but not too many
+                    potential_fk_score += 5
+            
+            # 6. Value distribution analysis
+            if column.distribution.unique_count < column.distribution.total_count * 0.8:
+                # Values are repeated, which is common for FKs
+                potential_fk_score += 15
+            
+            # Decision threshold
+            if potential_fk_score >= 60:
+                if reference_table:
+                    foreign_keys[col_name] = f"{reference_table}.id"
+                else:
+                    foreign_keys[col_name] = "unknown_table.id"
         
         return foreign_keys
     
@@ -274,6 +613,70 @@ class SchemaAnalysisService:
                 and column.distribution.total_count > 0):
                 unique_constraints.append([column.column_name])
         
-        # Could extend to detect multi-column unique constraints
+        # Multi-column unique constraints detection
+        self._detect_multi_column_unique_constraints(df, columns, unique_constraints)
         
         return unique_constraints
+    
+    def _detect_multi_column_unique_constraints(self, df: pd.DataFrame, columns: List[ColumnProfile], 
+                                               unique_constraints: List[List[str]]) -> None:
+        """Detect multi-column unique constraints."""
+        column_names = [col.column_name for col in columns]
+        
+        # Check pairs of columns first
+        for i in range(len(column_names)):
+            for j in range(i + 1, len(column_names)):
+                col1, col2 = column_names[i], column_names[j]
+                
+                # Skip if either column is already uniquely constrained individually
+                if [col1] in unique_constraints or [col2] in unique_constraints:
+                    continue
+                
+                # Check if combination is unique
+                combination_df = df[[col1, col2]].dropna()
+                if len(combination_df) > 0:
+                    unique_combinations = combination_df.drop_duplicates()
+                    if len(unique_combinations) == len(combination_df):
+                        unique_constraints.append([col1, col2])
+        
+        # Check triplets for smaller datasets or if there are strong candidates
+        if len(df) <= 10000:  # Only for reasonably sized datasets
+            self._detect_triplet_unique_constraints(df, column_names, unique_constraints)
+    
+    def _detect_triplet_unique_constraints(self, df: pd.DataFrame, column_names: List[str], 
+                                          unique_constraints: List[List[str]]) -> None:
+        """Detect three-column unique constraints for smaller datasets."""
+        # Look for triplets that might form unique constraints
+        # Focus on columns that seem related (similar names, data types)
+        
+        potential_triplets = []
+        
+        # Group columns by potential relationships
+        date_cols = [col for col in column_names if 'date' in col.lower() or 'time' in col.lower()]
+        id_cols = [col for col in column_names if col.lower().endswith('id') or col.lower().endswith('_id')]
+        name_cols = [col for col in column_names if 'name' in col.lower()]
+        
+        # Check meaningful combinations
+        for group in [date_cols, id_cols, name_cols]:
+            if len(group) >= 3:
+                # Check first 3 columns in each semantic group
+                potential_triplets.append(group[:3])
+        
+        # Also check mixed combinations that might make business sense
+        if len(date_cols) >= 1 and len(id_cols) >= 1 and len(name_cols) >= 1:
+            potential_triplets.append([date_cols[0], id_cols[0], name_cols[0]])
+        
+        for triplet in potential_triplets:
+            if len(triplet) == 3:
+                # Check if any pair is already uniquely constrained
+                if (any([triplet[i], triplet[j]] in unique_constraints 
+                       for i in range(3) for j in range(i+1, 3)) or
+                    any([col] in unique_constraints for col in triplet)):
+                    continue
+                
+                # Check if triplet combination is unique
+                combination_df = df[triplet].dropna()
+                if len(combination_df) > 0:
+                    unique_combinations = combination_df.drop_duplicates()
+                    if len(unique_combinations) == len(combination_df):
+                        unique_constraints.append(triplet)

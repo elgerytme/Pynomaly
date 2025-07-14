@@ -1,10 +1,26 @@
 """Data Profiling package dependency injection container."""
 
 import importlib
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Type
 import structlog
+from datetime import datetime
 
 from dependency_injector import containers, providers
+
+# Import application services
+from ...application.services.profiling_engine import ProfilingEngine, ProfilingConfig
+from ...application.services.schema_analysis_service import SchemaAnalysisService
+from ...application.services.statistical_profiling_service import StatisticalProfilingService
+from ...application.services.pattern_discovery_service import PatternDiscoveryService
+from ...application.services.quality_assessment_service import QualityAssessmentService
+from ...application.services.performance_optimizer import PerformanceOptimizer
+
+# Import use cases
+from ...application.use_cases.profile_dataset import ProfileDatasetUseCase
+from ...application.use_cases.execute_data_profiling import ExecuteDataProfilingUseCase
+
+# Import infrastructure adapters
+from ..adapters.in_memory_data_profile_repository import InMemoryDataProfileRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -90,33 +106,50 @@ class DataProfilingContainer(containers.DeclarativeContainer):
         lambda: None  # Will be overridden by infrastructure layer
     )
     
-    # Application services - will be implemented
-    profiling_orchestration_service = providers.Singleton(
-        lambda: None  # Will be implemented in application layer
+    # Repository implementations
+    data_profile_repository_impl = providers.Singleton(
+        InMemoryDataProfileRepository
+    )
+    
+    # Application services
+    performance_optimizer = providers.Singleton(
+        PerformanceOptimizer
     )
     
     schema_analysis_service = providers.Singleton(
-        lambda: None  # Will be implemented in application layer
+        SchemaAnalysisService
     )
     
     statistical_profiling_service = providers.Singleton(
-        lambda: None  # Will be implemented in application layer
-    )
-    
-    quality_assessment_service = providers.Singleton(
-        lambda: None  # Will be implemented in application layer
+        StatisticalProfilingService
     )
     
     pattern_discovery_service = providers.Singleton(
-        lambda: None  # Will be implemented in application layer
+        PatternDiscoveryService
     )
     
-    incremental_profiling_service = providers.Singleton(
-        lambda: None  # Will be implemented in application layer
+    quality_assessment_service = providers.Singleton(
+        QualityAssessmentService
     )
     
-    multi_source_profiling_service = providers.Singleton(
-        lambda: None  # Will be implemented in application layer
+    # Central profiling engine
+    profiling_config = providers.Singleton(
+        ProfilingConfig
+    )
+    
+    profiling_engine = providers.Singleton(
+        ProfilingEngine,
+        config=profiling_config
+    )
+    
+    # Use cases
+    profile_dataset_use_case = providers.Factory(
+        ProfileDatasetUseCase
+    )
+    
+    execute_data_profiling_use_case = providers.Factory(
+        ExecuteDataProfilingUseCase,
+        repository=data_profile_repository_impl
     )
 
 
@@ -145,31 +178,80 @@ class DataProfilingInfrastructureContainer:
     
     async def _setup_repositories(self) -> None:
         """Setup repository implementations."""
-        # This would be implemented with actual repository classes
         logger.info("Setting up data profiling repositories")
+        
+        # Initialize in-memory repository for now
+        repository = InMemoryDataProfileRepository()
+        self._service_cache["data_profile_repository"] = repository
+        
+        logger.info("Data profiling repositories initialized")
     
     async def _setup_data_connectors(self) -> None:
         """Setup data source connectors."""
-        # This would setup database, file system, streaming connectors
         logger.info("Setting up data source connectors")
+        
+        # Setup available data connectors
+        try:
+            # File system connector (basic implementation)
+            from ..adapters.file_adapter import FileAdapter
+            self._service_cache["file_adapter"] = FileAdapter()
+            logger.info("File adapter initialized")
+        except ImportError:
+            logger.warning("File adapter not available")
+        
+        try:
+            # Database connector (if available)
+            from ..adapters.database_adapter import DatabaseAdapter
+            self._service_cache["database_adapter"] = DatabaseAdapter()
+            logger.info("Database adapter initialized")
+        except ImportError:
+            logger.warning("Database adapter not available")
+        
+        try:
+            # Cloud storage connector (if available)
+            from ..adapters.cloud_storage_adapter import CloudStorageAdapter
+            self._service_cache["cloud_storage_adapter"] = CloudStorageAdapter()
+            logger.info("Cloud storage adapter initialized")
+        except ImportError:
+            logger.warning("Cloud storage adapter not available")
+        
+        logger.info("Data source connectors setup completed")
     
     async def _setup_processing_engines(self) -> None:
         """Setup processing engines for profiling."""
-        # This would setup statistical and pattern recognition engines
         logger.info("Setting up profiling processing engines")
+        
+        # Setup core processing services
+        self._service_cache["schema_analysis_service"] = SchemaAnalysisService()
+        self._service_cache["statistical_profiling_service"] = StatisticalProfilingService()
+        self._service_cache["pattern_discovery_service"] = PatternDiscoveryService()
+        self._service_cache["quality_assessment_service"] = QualityAssessmentService()
+        self._service_cache["performance_optimizer"] = PerformanceOptimizer()
+        
+        # Setup central profiling engine
+        profiling_config = ProfilingConfig()
+        self._service_cache["profiling_engine"] = ProfilingEngine(profiling_config)
+        
+        logger.info("Profiling processing engines initialized")
     
     async def health_check(self) -> Dict[str, Any]:
         """Perform health check on all services."""
         health_status = {
             "status": "healthy",
             "services": {},
-            "timestamp": None
+            "timestamp": datetime.utcnow().isoformat()
         }
         
-        # Add individual service health checks
-        health_status["services"]["repositories"] = "healthy"
-        health_status["services"]["data_connectors"] = "healthy"
-        health_status["services"]["processing_engines"] = "healthy"
+        # Check each service
+        for service_name, service in self._service_cache.items():
+            try:
+                if hasattr(service, 'health_check'):
+                    health_status["services"][service_name] = await service.health_check()
+                else:
+                    health_status["services"][service_name] = "healthy"
+            except Exception as e:
+                health_status["services"][service_name] = f"unhealthy: {str(e)}"
+                health_status["status"] = "degraded"
         
         return health_status
     
@@ -198,26 +280,73 @@ def create_data_profiling_container(testing: bool = False) -> DataProfilingConta
     if testing:
         # Override with test implementations
         logger.info("Creating test data profiling container")
+        # Override repositories with in-memory implementations for testing
+        container.data_profile_repository.override(
+            providers.Singleton(InMemoryDataProfileRepository)
+        )
     else:
         # Use production implementations
         logger.info("Creating production data profiling container")
+        # Use the configured repository implementation
+        container.data_profile_repository.override(
+            container.data_profile_repository_impl
+        )
     
-    # Wire the container to the application modules
-    container.wire(modules=[
-        "data_profiling.application.use_cases",
-        "data_profiling.presentation.api", 
-        "data_profiling.presentation.cli",
-    ])
+    # Configure services with proper dependencies
+    try:
+        # Wire the container to the application modules (using relative imports)
+        logger.info("Wiring data profiling container")
+        
+        # Manually wire key services for now since auto-wiring can be complex
+        container.profiling_engine.override(
+            providers.Singleton(
+                ProfilingEngine,
+                config=container.profiling_config
+            )
+        )
+        
+        logger.info("Data profiling container created successfully")
+    except Exception as e:
+        logger.error("Failed to wire data profiling container", error=str(e))
+        # Continue without wiring - services can still be accessed manually
     
     return container
 
 
-def setup_infrastructure_integration(
+async def setup_infrastructure_integration(
     container: DataProfilingContainer,
     infrastructure: DataProfilingInfrastructureContainer
 ) -> None:
     """Setup integration between application container and infrastructure."""
     
-    # Override container providers with infrastructure implementations
-    # This would be done when actual implementations are available
     logger.info("Setting up data profiling infrastructure integration")
+    
+    # Initialize infrastructure
+    await infrastructure.initialize()
+    
+    # Override container providers with infrastructure implementations
+    if infrastructure.get_service("data_profile_repository"):
+        container.data_profile_repository.override(
+            providers.Singleton(lambda: infrastructure.get_service("data_profile_repository"))
+        )
+    
+    if infrastructure.get_service("profiling_engine"):
+        container.profiling_engine.override(
+            providers.Singleton(lambda: infrastructure.get_service("profiling_engine"))
+        )
+    
+    logger.info("Data profiling infrastructure integration completed")
+
+
+def get_container() -> DataProfilingContainer:
+    """Get the global container instance."""
+    if not hasattr(get_container, '_container'):
+        get_container._container = create_data_profiling_container()
+    return get_container._container
+
+
+def get_infrastructure() -> DataProfilingInfrastructureContainer:
+    """Get the global infrastructure instance."""
+    if not hasattr(get_infrastructure, '_infrastructure'):
+        get_infrastructure._infrastructure = DataProfilingInfrastructureContainer()
+    return get_infrastructure._infrastructure

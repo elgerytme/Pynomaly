@@ -1,0 +1,197 @@
+{{- if .Values.api.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "pynomaly.fullname" . }}-api
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pynomaly.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "pynomaly.fullname" . }}-api
+  minReplicas: {{ .Values.api.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.api.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.api.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.api.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.api.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.api.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.api.autoscaling.customMetrics }}
+    {{- range .Values.api.autoscaling.customMetrics }}
+    - type: {{ .type }}
+      {{- if eq .type "Pods" }}
+      pods:
+        metric:
+          name: {{ .name }}
+        target:
+          type: AverageValue
+          averageValue: {{ .targetAverageValue | quote }}
+      {{- else if eq .type "Object" }}
+      object:
+        metric:
+          name: {{ .name }}
+          {{- if .selector }}
+          selector:
+            {{- toYaml .selector | nindent 12 }}
+          {{- end }}
+        target:
+          type: Value
+          value: {{ .targetValue | quote }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.api.autoscaling.behavior.scaleDown.stabilizationWindowSeconds | default 300 }}
+      policies:
+        - type: Percent
+          value: {{ .Values.api.autoscaling.behavior.scaleDown.percentPolicy | default 10 }}
+          periodSeconds: {{ .Values.api.autoscaling.behavior.scaleDown.periodSeconds | default 60 }}
+        - type: Pods
+          value: {{ .Values.api.autoscaling.behavior.scaleDown.podsPolicy | default 2 }}
+          periodSeconds: {{ .Values.api.autoscaling.behavior.scaleDown.periodSeconds | default 60 }}
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.api.autoscaling.behavior.scaleUp.stabilizationWindowSeconds | default 60 }}
+      policies:
+        - type: Percent
+          value: {{ .Values.api.autoscaling.behavior.scaleUp.percentPolicy | default 50 }}
+          periodSeconds: {{ .Values.api.autoscaling.behavior.scaleUp.periodSeconds | default 60 }}
+        - type: Pods
+          value: {{ .Values.api.autoscaling.behavior.scaleUp.podsPolicy | default 5 }}
+          periodSeconds: {{ .Values.api.autoscaling.behavior.scaleUp.periodSeconds | default 60 }}
+      selectPolicy: Max
+---
+{{- end }}
+{{- if .Values.worker.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "pynomaly.fullname" . }}-worker
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pynomaly.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: {{ include "pynomaly.fullname" . }}-worker
+  minReplicas: {{ .Values.worker.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.worker.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.worker.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.worker.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.worker.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.worker.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.worker.autoscaling.customMetrics }}
+    {{- range .Values.worker.autoscaling.customMetrics }}
+    - type: {{ .type }}
+      {{- if eq .type "Object" }}
+      object:
+        metric:
+          name: {{ .name }}
+          {{- if .selector }}
+          selector:
+            {{- toYaml .selector | nindent 12 }}
+          {{- end }}
+        target:
+          type: Value
+          value: {{ .targetValue | quote }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.worker.autoscaling.behavior.scaleDown.stabilizationWindowSeconds | default 600 }}
+      policies:
+        - type: Pods
+          value: {{ .Values.worker.autoscaling.behavior.scaleDown.podsPolicy | default 1 }}
+          periodSeconds: {{ .Values.worker.autoscaling.behavior.scaleDown.periodSeconds | default 120 }}
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.worker.autoscaling.behavior.scaleUp.stabilizationWindowSeconds | default 120 }}
+      policies:
+        - type: Percent
+          value: {{ .Values.worker.autoscaling.behavior.scaleUp.percentPolicy | default 100 }}
+          periodSeconds: {{ .Values.worker.autoscaling.behavior.scaleUp.periodSeconds | default 60 }}
+        - type: Pods
+          value: {{ .Values.worker.autoscaling.behavior.scaleUp.podsPolicy | default 3 }}
+          periodSeconds: {{ .Values.worker.autoscaling.behavior.scaleUp.periodSeconds | default 60 }}
+      selectPolicy: Max
+---
+{{- end }}
+{{- if .Values.scheduler.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "pynomaly.fullname" . }}-scheduler
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pynomaly.labels" . | nindent 4 }}
+    app.kubernetes.io/component: scheduler-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "pynomaly.fullname" . }}-scheduler
+  minReplicas: {{ .Values.scheduler.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.scheduler.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.scheduler.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.scheduler.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.scheduler.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.scheduler.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.scheduler.autoscaling.behavior.scaleDown.stabilizationWindowSeconds | default 300 }}
+      policies:
+        - type: Pods
+          value: {{ .Values.scheduler.autoscaling.behavior.scaleDown.podsPolicy | default 1 }}
+          periodSeconds: {{ .Values.scheduler.autoscaling.behavior.scaleDown.periodSeconds | default 120 }}
+    scaleUp:
+      stabilizationWindowSeconds: {{ .Values.scheduler.autoscaling.behavior.scaleUp.stabilizationWindowSeconds | default 60 }}
+      policies:
+        - type: Pods
+          value: {{ .Values.scheduler.autoscaling.behavior.scaleUp.podsPolicy | default 1 }}
+          periodSeconds: {{ .Values.scheduler.autoscaling.behavior.scaleUp.periodSeconds | default 60 }}
+{{- end }}

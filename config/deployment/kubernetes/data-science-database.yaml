@@ -1,0 +1,165 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pynomaly-postgres
+  namespace: pynomaly-data-science
+  labels:
+    app: pynomaly
+    component: postgres
+    tier: database
+spec:
+  serviceName: pynomaly-postgres-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pynomaly
+      component: postgres
+  template:
+    metadata:
+      labels:
+        app: pynomaly
+        component: postgres
+        tier: database
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5432"
+    spec:
+      securityContext:
+        fsGroup: 999
+        runAsUser: 999
+        runAsNonRoot: true
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+          name: postgres
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-postgres-secret
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-postgres-secret
+              key: password
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-postgres-secret
+              key: database
+        - name: POSTGRES_MULTIPLE_DATABASES
+          valueFrom:
+            configMapKeyRef:
+              name: pynomaly-postgres-config
+              key: POSTGRES_MULTIPLE_DATABASES
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        - name: postgres-config
+          mountPath: /etc/postgresql/postgresql.conf
+          subPath: postgresql.conf
+        - name: init-scripts
+          mountPath: /docker-entrypoint-initdb.d
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+          limits:
+            memory: "8Gi"
+            cpu: "2"
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-data-pvc
+      - name: postgres-config
+        configMap:
+          name: pynomaly-postgres-config
+      - name: init-scripts
+        configMap:
+          name: pynomaly-postgres-init-scripts
+          defaultMode: 0755
+  volumeClaimTemplates: []
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pynomaly-postgres-service
+  namespace: pynomaly-data-science
+  labels:
+    app: pynomaly
+    component: postgres
+    tier: database
+spec:
+  selector:
+    app: pynomaly
+    component: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgres
+  type: ClusterIP
+  clusterIP: None
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pynomaly-postgres-init-scripts
+  namespace: pynomaly-data-science
+  labels:
+    app: pynomaly
+    component: postgres
+data:
+  01-init-databases.sh: |
+    #!/bin/bash
+    set -e
+    
+    # Create multiple databases if specified
+    if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
+        echo "Creating additional databases: $POSTGRES_MULTIPLE_DATABASES"
+        for db in $(echo $POSTGRES_MULTIPLE_DATABASES | tr ',' ' '); do
+            echo "Creating database: $db"
+            psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+                CREATE DATABASE "$db";
+                GRANT ALL PRIVILEGES ON DATABASE "$db" TO "$POSTGRES_USER";
+            EOSQL
+        done
+        echo "Multiple databases created successfully"
+    fi
+  02-init-extensions.sql: |
+    -- Enable required PostgreSQL extensions
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
+    CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+    CREATE EXTENSION IF NOT EXISTS "btree_gin";
+    CREATE EXTENSION IF NOT EXISTS "btree_gist";
+    
+    -- Grant usage on extensions
+    GRANT USAGE ON SCHEMA public TO PUBLIC;
+    GRANT CREATE ON SCHEMA public TO PUBLIC;

@@ -44,6 +44,7 @@ else:
     from pynomaly.presentation.cli import config as config_cli
     from pynomaly.presentation.cli.export import export_app
     from pynomaly.presentation.cli.performance import performance_app
+    from pynomaly.presentation.cli.commands import profiling, stats, visualization
 
     # Configuration management CLI
     try:
@@ -79,6 +80,9 @@ else:
         (server.app, "server"),
         (performance_app, "perf"),
         (validation.app, "validate"),
+        (profiling.app, "profile"),
+        (stats.app, "stats"),
+        (visualization.app, "viz"),
     ]
 
     for subapp, name in subcommands:
