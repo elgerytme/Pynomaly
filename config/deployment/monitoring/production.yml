@@ -1,0 +1,147 @@
+# Pynomaly Production Monitoring Configuration
+
+# Dashboard configuration
+dashboard:
+  host: "0.0.0.0"
+  port: 8080
+  refresh_interval: 5  # seconds
+  websocket_heartbeat: 30  # seconds
+
+# Prometheus metrics configuration
+metrics:
+  port: 8000
+  retention_days: 30
+  scrape_interval: 15  # seconds
+
+# Health checks configuration
+health_checks:
+  enabled: true
+  interval: 30  # seconds
+  timeout: 10  # seconds
+  endpoints:
+    - name: "api"
+      url: "http://localhost:8000/health"
+      critical: true
+    - name: "database"
+      url: "postgresql://localhost:5432/pynomaly"
+      critical: true
+    - name: "redis"
+      url: "redis://localhost:6379"
+      critical: false
+
+# Performance monitoring
+performance:
+  enabled: true
+  cpu_threshold: 80  # percent
+  memory_threshold: 85  # percent
+  disk_threshold: 90  # percent
+  response_time_threshold: 2.0  # seconds
+
+# Notification channels
+notifications:
+  email:
+    enabled: false  # Set via environment variables
+    smtp_server: "${SMTP_SERVER}"
+    smtp_port: "${SMTP_PORT:-587}"
+    username: "${SMTP_USERNAME}"
+    password: "${SMTP_PASSWORD}"
+    from_email: "${ALERT_EMAIL_FROM}"
+    recipients: "${ALERT_EMAIL_TO}"
+    
+  slack:
+    enabled: false  # Set via environment variables
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    channel: "${SLACK_CHANNEL:-#alerts}"
+    username: "Pynomaly Alerts"
+    
+  webhook:
+    enabled: false  # Set via environment variables
+    url: "${WEBHOOK_URL}"
+    auth_header: "${WEBHOOK_AUTH_HEADER}"
+    timeout: 10  # seconds
+
+# Alert rules configuration
+alerting:
+  enabled: true
+  
+  # Default thresholds
+  thresholds:
+    error_rate: 0.10  # 10%
+    response_time_p95: 2.0  # seconds
+    cpu_usage: 80  # percent
+    memory_usage: 85  # percent
+    disk_usage: 90  # percent
+    anomaly_failure_rate: 5  # failures per hour
+    model_accuracy_min: 0.8  # 80%
+  
+  # Escalation settings
+  escalation:
+    enabled: true
+    levels:
+      - "team_lead"
+      - "manager"
+      - "on_call"
+      - "director"
+    delay_minutes: 30
+  
+  # Suppression settings
+  suppression:
+    default_duration: 60  # minutes
+    critical_duration: 30  # minutes
+    
+  # Alert correlation
+  correlation:
+    enabled: true
+    window_minutes: 5
+    similarity_threshold: 0.8
+
+# Monitoring data retention
+retention:
+  metrics_days: 30
+  alerts_days: 90
+  logs_days: 7
+
+# Security settings
+security:
+  enable_auth: true
+  jwt_secret: "${MONITORING_JWT_SECRET}"
+  api_keys:
+    - name: "admin"
+      key: "${MONITORING_API_KEY_ADMIN}"
+      permissions: ["read", "write", "admin"]
+    - name: "readonly"
+      key: "${MONITORING_API_KEY_READONLY}"
+      permissions: ["read"]
+
+# Feature flags
+features:
+  real_time_dashboard: true
+  advanced_alerting: true
+  performance_monitoring: true
+  distributed_tracing: false  # Future feature
+  log_aggregation: false  # Future feature
+  ml_based_alerting: false  # Future feature
+
+# Integration settings
+integrations:
+  prometheus:
+    enabled: true
+    external_url: "http://localhost:9090"
+    
+  grafana:
+    enabled: true
+    external_url: "http://localhost:3000"
+    admin_user: "admin"
+    admin_password: "${GRAFANA_ADMIN_PASSWORD:-admin}"
+    
+  alertmanager:
+    enabled: true
+    external_url: "http://localhost:9093"
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "/var/log/pynomaly/monitoring.log"
+  max_size_mb: 100
+  backup_count: 5

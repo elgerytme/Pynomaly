@@ -1,0 +1,308 @@
+# Pynomaly Disaster Recovery Configuration
+
+# General monitoring settings
+monitoring:
+  enabled: true
+  check_interval_minutes: 5
+  failure_threshold: 3
+  
+# Notification channels
+notification_channels:
+  email:
+    type: "email"
+    smtp_server: "${SMTP_SERVER}"
+    smtp_port: "${SMTP_PORT:-587}"
+    username: "${SMTP_USERNAME}"
+    password: "${SMTP_PASSWORD}"
+    from_email: "${DR_EMAIL_FROM}"
+    recipients:
+      - "${DR_EMAIL_TO}"
+      
+  slack:
+    type: "slack"
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    channel: "${SLACK_CHANNEL:-#disaster-recovery}"
+    
+  webhook:
+    type: "webhook"
+    webhook_url: "${DR_WEBHOOK_URL}"
+    auth_header: "${DR_WEBHOOK_AUTH}"
+
+# Recovery plans
+recovery_plans:
+  # Primary application recovery plan
+  primary_application:
+    name: "Primary Application Recovery"
+    description: "Recovery plan for main Pynomaly application and core services"
+    notification_channels: ["email", "slack"]
+    estimated_rto_minutes: 60
+    
+    pre_recovery_scripts:
+      - "/opt/pynomaly/scripts/pre_recovery_checks.sh"
+      - "/opt/pynomaly/scripts/backup_verification.sh"
+      
+    post_recovery_scripts:
+      - "/opt/pynomaly/scripts/post_recovery_validation.sh"
+      - "/opt/pynomaly/scripts/update_monitoring.sh"
+    
+    recovery_points:
+      - service_name: "postgresql"
+        rpo_minutes: 30
+        rto_minutes: 15
+        priority: "critical"
+        backup_frequency_minutes: 30
+        dependencies: []
+        health_check_url: "http://localhost:5432"
+        restart_command: "systemctl restart postgresql"
+        
+      - service_name: "redis"
+        rpo_minutes: 60
+        rto_minutes: 10
+        priority: "high"
+        backup_frequency_minutes: 60
+        dependencies: []
+        health_check_url: "http://localhost:6379"
+        restart_command: "systemctl restart redis"
+        
+      - service_name: "pynomaly_api"
+        rpo_minutes: 60
+        rto_minutes: 20
+        priority: "critical"
+        backup_frequency_minutes: 120
+        dependencies: ["postgresql", "redis"]
+        health_check_url: "http://localhost:8000/api/v1/health"
+        restart_command: "systemctl restart pynomaly-api"
+        
+      - service_name: "pynomaly_web"
+        rpo_minutes: 120
+        rto_minutes: 15
+        priority: "high"
+        backup_frequency_minutes: 240
+        dependencies: ["pynomaly_api"]
+        health_check_url: "http://localhost:3000/health"
+        restart_command: "systemctl restart pynomaly-web"
+        
+      - service_name: "nginx"
+        rpo_minutes: 240
+        rto_minutes: 5
+        priority: "medium"
+        backup_frequency_minutes: 480
+        dependencies: ["pynomaly_api", "pynomaly_web"]
+        health_check_url: "http://localhost:80/health"
+        restart_command: "systemctl restart nginx"
+
+  # Database-only recovery plan
+  database_recovery:
+    name: "Database Recovery"
+    description: "Focused recovery plan for database services only"
+    notification_channels: ["email"]
+    estimated_rto_minutes: 30
+    
+    pre_recovery_scripts:
+      - "/opt/pynomaly/scripts/db_pre_recovery.sh"
+      
+    post_recovery_scripts:
+      - "/opt/pynomaly/scripts/db_post_recovery.sh"
+    
+    recovery_points:
+      - service_name: "postgresql"
+        rpo_minutes: 15
+        rto_minutes: 15
+        priority: "critical"
+        backup_frequency_minutes: 15
+        dependencies: []
+        health_check_url: "http://localhost:5432"
+        restart_command: "systemctl restart postgresql"
+
+  # Monitoring services recovery
+  monitoring_recovery:
+    name: "Monitoring Services Recovery"
+    description: "Recovery plan for monitoring and observability stack"
+    notification_channels: ["webhook"]
+    estimated_rto_minutes: 45
+    
+    recovery_points:
+      - service_name: "prometheus"
+        rpo_minutes: 60
+        rto_minutes: 10
+        priority: "medium"
+        backup_frequency_minutes: 120
+        dependencies: []
+        health_check_url: "http://localhost:9090/-/healthy"
+        restart_command: "systemctl restart prometheus"
+        
+      - service_name: "grafana"
+        rpo_minutes: 120
+        rto_minutes: 15
+        priority: "medium"
+        backup_frequency_minutes: 240
+        dependencies: ["prometheus"]
+        health_check_url: "http://localhost:3000/api/health"
+        restart_command: "systemctl restart grafana-server"
+        
+      - service_name: "alertmanager"
+        rpo_minutes: 60
+        rto_minutes: 10
+        priority: "medium"
+        backup_frequency_minutes: 120
+        dependencies: ["prometheus"]
+        health_check_url: "http://localhost:9093/-/healthy"
+        restart_command: "systemctl restart alertmanager"
+
+# Service-specific configurations
+services:
+  postgresql:
+    backup_command: "pg_dump -h localhost -U postgres pynomaly"
+    restore_command: "psql -h localhost -U postgres -d pynomaly"
+    data_directory: "/var/lib/postgresql/data"
+    
+  redis:
+    backup_command: "redis-cli --rdb /tmp/redis_backup.rdb"
+    restore_command: "redis-cli --pipe < /tmp/redis_backup.rdb"
+    data_directory: "/var/lib/redis"
+    
+  pynomaly_api:
+    backup_paths:
+      - "/var/lib/pynomaly"
+      - "/etc/pynomaly"
+    restore_paths:
+      - "/var/lib/pynomaly"
+      - "/etc/pynomaly"
+    
+  pynomaly_web:
+    backup_paths:
+      - "/var/www/pynomaly"
+      - "/etc/nginx/sites-available/pynomaly"
+    restore_paths:
+      - "/var/www/pynomaly"
+      - "/etc/nginx/sites-available/pynomaly"
+
+# Failover configuration
+failover:
+  enabled: true
+  
+  # Primary site configuration
+  primary_site:
+    name: "primary"
+    status: "active"
+    endpoints:
+      api: "https://api.pynomaly.com"
+      web: "https://pynomaly.com"
+      monitoring: "https://monitoring.pynomaly.com"
+    
+  # Secondary site configuration  
+  secondary_site:
+    name: "secondary"
+    status: "standby"
+    endpoints:
+      api: "https://api-backup.pynomaly.com"
+      web: "https://backup.pynomaly.com"
+      monitoring: "https://monitoring-backup.pynomaly.com"
+    
+  # Failover triggers
+  triggers:
+    api_failures: 5
+    web_failures: 5
+    database_failures: 3
+    monitoring_failures: 10
+    
+  # Automatic failover settings
+  automatic_failover:
+    enabled: false  # Enable with caution
+    confirmation_required: true
+    rollback_enabled: true
+
+# Testing and validation
+testing:
+  # Recovery plan testing schedule
+  test_schedule:
+    frequency: "monthly"
+    day: 15  # 15th of each month
+    time: "02:00"
+    
+  # Test environments
+  test_environments:
+    staging:
+      enabled: true
+      database_clone: true
+      data_anonymization: true
+      
+    development:
+      enabled: true
+      minimal_restore: true
+      
+  # Validation checks
+  validation:
+    database_integrity: true
+    application_startup: true
+    api_endpoints: true
+    user_authentication: true
+    data_consistency: true
+
+# Compliance and reporting
+compliance:
+  # Audit requirements
+  audit_trail: true
+  audit_retention_days: 365
+  
+  # Reporting
+  reports:
+    monthly_summary: true
+    incident_reports: true
+    test_results: true
+    
+  # Compliance frameworks
+  frameworks:
+    - "SOC2"
+    - "ISO27001"
+    - "GDPR"
+
+# Emergency contacts
+emergency_contacts:
+  primary_oncall:
+    name: "Primary On-Call Engineer"
+    phone: "${PRIMARY_ONCALL_PHONE}"
+    email: "${PRIMARY_ONCALL_EMAIL}"
+    
+  secondary_oncall:
+    name: "Secondary On-Call Engineer"
+    phone: "${SECONDARY_ONCALL_PHONE}"
+    email: "${SECONDARY_ONCALL_EMAIL}"
+    
+  management:
+    name: "Engineering Manager"
+    phone: "${MANAGER_PHONE}"
+    email: "${MANAGER_EMAIL}"
+    
+  vendor_support:
+    name: "Cloud Provider Support"
+    phone: "${CLOUD_SUPPORT_PHONE}"
+    email: "${CLOUD_SUPPORT_EMAIL}"
+
+# Recovery time objectives (RTO) and recovery point objectives (RPO)
+objectives:
+  # Critical services
+  critical:
+    rto_minutes: 30
+    rpo_minutes: 15
+    
+  # Important services
+  high:
+    rto_minutes: 60
+    rpo_minutes: 30
+    
+  # Standard services
+  medium:
+    rto_minutes: 120
+    rpo_minutes: 60
+    
+  # Non-critical services
+  low:
+    rto_minutes: 240
+    rpo_minutes: 120
+
+# Documentation
+documentation:
+  runbook_path: "/opt/pynomaly/docs/disaster_recovery_runbook.md"
+  contact_list: "/opt/pynomaly/docs/emergency_contacts.md"
+  escalation_matrix: "/opt/pynomaly/docs/escalation_procedures.md"

@@ -1,0 +1,404 @@
+# Production Logging Configuration for Pynomaly
+# Comprehensive logging setup for production environments
+
+# Service configuration
+service:
+  name: "pynomaly"
+  version: "1.0.0"
+  environment: "production"
+
+# Global logging settings
+logging:
+  # Log level: TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+  
+  # Log format: json, text, structured
+  format: "json"
+  
+  # Enable/disable different logging outputs
+  console:
+    enabled: true
+    level: "INFO"
+    format: "json"  # json for containers, text for development
+  
+  file:
+    enabled: true
+    level: "DEBUG"
+    directory: "/var/log/pynomaly"
+    filename: "pynomaly.log"
+    max_size: "100MB"  # Maximum file size before rotation
+    backup_count: 10   # Number of backup files to keep
+    format: "json"
+  
+  # Syslog configuration
+  syslog:
+    enabled: false
+    host: "localhost"
+    port: 514
+    facility: "local0"
+    format: "json"
+  
+  # AWS CloudWatch Logs
+  cloudwatch:
+    enabled: false
+    region: "us-east-1"
+    log_group: "pynomaly-production"
+    log_stream: "application"
+    retention_days: 30
+    batch_size: 100
+    flush_interval: 5  # seconds
+  
+  # Elasticsearch/OpenSearch
+  elasticsearch:
+    enabled: false
+    hosts:
+      - "https://elasticsearch.company.com:9200"
+    index_prefix: "pynomaly-logs"
+    index_template: "pynomaly-logs-*"
+    batch_size: 50
+    flush_interval: 10  # seconds
+    ssl_verify: true
+    auth:
+      username: "${ELASTICSEARCH_USERNAME}"
+      password: "${ELASTICSEARCH_PASSWORD}"
+  
+  # Fluentd/Fluent Bit
+  fluentd:
+    enabled: false
+    host: "localhost"
+    port: 24224
+    tag: "pynomaly.application"
+    buffer_size: 1000
+  
+  # Datadog
+  datadog:
+    enabled: false
+    api_key: "${DATADOG_API_KEY}"
+    source: "pynomaly"
+    service: "pynomaly-production"
+    host: "${HOSTNAME}"
+  
+  # Splunk
+  splunk:
+    enabled: false
+    host: "splunk.company.com"
+    port: 8088
+    token: "${SPLUNK_HEC_TOKEN}"
+    index: "pynomaly-production"
+    source: "application"
+    sourcetype: "_json"
+
+# Structured logging configuration
+structured_logging:
+  enabled: true
+  
+  # Default context fields to include in every log
+  default_context:
+    service: "${SERVICE_NAME:pynomaly}"
+    version: "${SERVICE_VERSION:1.0.0}"
+    environment: "${ENVIRONMENT:production}"
+    datacenter: "${DATACENTER:us-east-1}"
+    availability_zone: "${AZ:us-east-1a}"
+    instance_id: "${INSTANCE_ID:unknown}"
+    container_id: "${CONTAINER_ID:unknown}"
+  
+  # Fields to extract from environment variables
+  env_fields:
+    - name: "kubernetes_pod"
+      env_var: "K8S_POD_NAME"
+    - name: "kubernetes_namespace"
+      env_var: "K8S_NAMESPACE"
+    - name: "kubernetes_node"
+      env_var: "K8S_NODE_NAME"
+    - name: "deployment_version"
+      env_var: "DEPLOYMENT_VERSION"
+
+# Logger-specific configuration
+loggers:
+  # Root logger
+  root:
+    level: "INFO"
+    handlers: ["console", "file", "metrics"]
+  
+  # Application loggers
+  "pynomaly":
+    level: "INFO"
+    propagate: true
+  
+  "pynomaly.api":
+    level: "INFO"
+    propagate: true
+  
+  "pynomaly.core":
+    level: "INFO"
+    propagate: true
+  
+  "pynomaly.ml":
+    level: "INFO"
+    propagate: true
+  
+  "pynomaly.infrastructure":
+    level: "INFO"
+    propagate: true
+  
+  # Third-party loggers
+  "uvicorn":
+    level: "INFO"
+    propagate: false
+  
+  "fastapi":
+    level: "INFO"
+    propagate: false
+  
+  "sqlalchemy":
+    level: "WARNING"
+    propagate: false
+  
+  "celery":
+    level: "INFO"
+    propagate: false
+  
+  "redis":
+    level: "WARNING"
+    propagate: false
+  
+  "boto3":
+    level: "WARNING"
+    propagate: false
+  
+  "botocore":
+    level: "WARNING"
+    propagate: false
+  
+  "urllib3":
+    level: "WARNING"
+    propagate: false
+  
+  "requests":
+    level: "WARNING"
+    propagate: false
+
+# Log filtering and sampling
+filtering:
+  # Health check endpoints (reduce noise)
+  health_checks:
+    enabled: true
+    paths: ["/health", "/ping", "/ready", "/live"]
+    sample_rate: 0.01  # Log only 1% of health check requests
+  
+  # Static assets
+  static_assets:
+    enabled: true
+    paths: ["/static/*", "/assets/*", "*.css", "*.js", "*.png", "*.jpg"]
+    sample_rate: 0.001  # Log only 0.1% of static asset requests
+  
+  # Rate limiting for high-frequency events
+  rate_limiting:
+    enabled: true
+    rules:
+      - pattern: "Database connection.*"
+        max_per_minute: 10
+      - pattern: "Cache.*hit"
+        max_per_minute: 60
+      - pattern: "Metrics.*collected"
+        max_per_minute: 6
+
+# Security and privacy
+security:
+  # Fields to redact from logs
+  redact_fields:
+    - "password"
+    - "token"
+    - "secret"
+    - "key"
+    - "authorization"
+    - "cookie"
+    - "x-api-key"
+    - "ssn"
+    - "social_security_number"
+    - "credit_card"
+    - "credit_card_number"
+    - "phone"
+    - "email"  # Only in debug mode
+  
+  # PII detection patterns
+  pii_patterns:
+    - name: "credit_card"
+      pattern: '\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b'
+      replacement: "****-****-****-XXXX"
+    - name: "ssn"
+      pattern: '\b\d{3}-\d{2}-\d{4}\b'
+      replacement: "XXX-XX-XXXX"
+    - name: "email"
+      pattern: '\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+      replacement: "[EMAIL_REDACTED]"
+    - name: "phone"
+      pattern: '\b\d{3}-\d{3}-\d{4}\b'
+      replacement: "XXX-XXX-XXXX"
+  
+  # Enable/disable sensitive data logging
+  log_sensitive_data: false
+  
+  # Log retention for different environments
+  retention:
+    production: "90d"
+    staging: "30d"
+    development: "7d"
+
+# Performance and monitoring
+performance:
+  # Async logging to prevent blocking
+  async_logging: true
+  
+  # Buffer size for async handlers
+  buffer_size: 1000
+  
+  # Queue timeout for async handlers
+  queue_timeout: 30  # seconds
+  
+  # Metrics collection
+  metrics:
+    enabled: true
+    
+    # Log volume metrics
+    volume:
+      enabled: true
+      window_size: "5m"  # 5 minute windows
+    
+    # Error rate metrics
+    error_rate:
+      enabled: true
+      window_size: "1m"
+      alert_threshold: 0.05  # 5% error rate
+    
+    # Performance metrics
+    latency:
+      enabled: true
+      percentiles: [50, 90, 95, 99]
+    
+    # Custom metrics
+    custom:
+      enabled: true
+      patterns:
+        - name: "api_requests"
+          pattern: "API request.*"
+          labels: ["method", "endpoint", "status_code"]
+        - name: "ml_predictions"
+          pattern: "ML prediction.*"
+          labels: ["model", "prediction_time"]
+        - name: "data_processing"
+          pattern: "Data processing.*"
+          labels: ["dataset", "processing_time"]
+
+# Log enrichment
+enrichment:
+  # Request tracing
+  tracing:
+    enabled: true
+    trace_id_header: "X-Trace-ID"
+    span_id_header: "X-Span-ID"
+    parent_span_header: "X-Parent-Span-ID"
+  
+  # Geographic data
+  geo:
+    enabled: false
+    ip_field: "client_ip"
+    add_country: true
+    add_city: true
+    add_timezone: true
+  
+  # User agent parsing
+  user_agent:
+    enabled: true
+    ua_field: "user_agent"
+    add_browser: true
+    add_os: true
+    add_device: true
+
+# Integration with external systems
+integrations:
+  # Prometheus metrics
+  prometheus:
+    enabled: false
+    endpoint: "/metrics"
+    namespace: "pynomaly"
+    subsystem: "logging"
+  
+  # StatsD metrics
+  statsd:
+    enabled: false
+    host: "localhost"
+    port: 8125
+    prefix: "pynomaly.logging"
+  
+  # Jaeger tracing
+  jaeger:
+    enabled: false
+    agent_host: "localhost"
+    agent_port: 6831
+    service_name: "pynomaly"
+  
+  # OpenTelemetry
+  opentelemetry:
+    enabled: false
+    endpoint: "http://localhost:4317"
+    service_name: "pynomaly"
+    service_version: "1.0.0"
+
+# Development and debugging
+development:
+  # Enable debug mode
+  debug: false
+  
+  # Pretty print JSON logs in development
+  pretty_print: false
+  
+  # Log configuration on startup
+  log_config_on_startup: true
+  
+  # Validate configuration
+  validate_config: true
+  
+  # Test logging setup
+  test_logging_on_startup: false
+
+# Environment-specific overrides
+environments:
+  development:
+    logging:
+      level: "DEBUG"
+      console:
+        format: "text"
+      file:
+        enabled: false
+    development:
+      debug: true
+      pretty_print: true
+      test_logging_on_startup: true
+    security:
+      log_sensitive_data: true
+  
+  staging:
+    logging:
+      level: "INFO"
+      cloudwatch:
+        enabled: true
+        log_group: "pynomaly-staging"
+    security:
+      retention: "30d"
+  
+  production:
+    logging:
+      level: "INFO"
+      cloudwatch:
+        enabled: true
+        log_group: "pynomaly-production"
+      elasticsearch:
+        enabled: true
+    security:
+      retention: "90d"
+      log_sensitive_data: false
+    performance:
+      async_logging: true
+      metrics:
+        enabled: true

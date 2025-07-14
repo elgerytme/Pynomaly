@@ -1,0 +1,22 @@
+global:
+  smtp_from: alerts@pynomaly.com
+  smtp_smarthost: localhost:587
+receivers:
+- email_configs:
+  - body: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+    subject: 'Pynomaly Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end
+      }}'
+    to: admin@pynomaly.com
+  name: web.hook
+  slack_configs:
+  - api_url: https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
+    channel: '#alerts'
+    text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+    title: Pynomaly Alert
+route:
+  group_by:
+  - alertname
+  group_interval: 10s
+  group_wait: 10s
+  receiver: web.hook
+  repeat_interval: 1h

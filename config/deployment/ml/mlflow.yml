@@ -1,0 +1,269 @@
+# MLflow Configuration for Pynomaly
+# Following AI/ML best practices from RULES.md
+
+# MLflow Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 5000
+  workers: 4
+  backend_store_uri: "postgresql://mlflow:${MLFLOW_DB_PASSWORD}@postgres:5432/mlflow"
+  default_artifact_root: "s3://pynomaly-mlflow-artifacts/"
+  
+# Tracking Configuration
+tracking:
+  # Experiment organization
+  experiments:
+    default_experiment: "pynomaly-default"
+    experiment_naming: "pynomaly_{algorithm}_{environment}_{timestamp}"
+    auto_create_experiments: true
+    
+  # Automatic logging
+  autolog:
+    sklearn: true
+    pytorch: true
+    tensorflow: false  # Set to true if using TensorFlow
+    enable_automatic_logging: true
+    log_input_examples: true
+    log_model_signatures: true
+    
+  # Run configuration
+  runs:
+    run_name_template: "{algorithm}_{dataset}_{timestamp}"
+    nested_runs: true  # Enable nested runs for hyperparameter tuning
+    tags:
+      default:
+        - "project:pynomaly"
+        - "environment:production"
+        - "team:data-science"
+
+# Model Registry Configuration
+model_registry:
+  # Model lifecycle stages
+  stages:
+    - "None"
+    - "Staging"
+    - "Production"
+    - "Archived"
+    
+  # Transition requirements
+  transition_requirements:
+    to_staging:
+      - validation_passed: true
+      - code_review_approved: true
+      - performance_threshold_met: true
+    to_production:
+      - staging_validation_passed: true
+      - security_scan_passed: true
+      - approval_count: 2
+      - performance_regression_check: true
+      
+  # Model versioning
+  versioning:
+    auto_increment: true
+    semantic_versioning: false
+    description_required: true
+    tags_required:
+      - "algorithm"
+      - "dataset"
+      - "performance_metric"
+
+# Artifact Storage Configuration
+artifacts:
+  # S3 Configuration
+  s3:
+    bucket: "pynomaly-mlflow-artifacts"
+    region: "us-west-2"
+    endpoint_url: null  # Use AWS S3 by default
+    access_key_id: "${AWS_ACCESS_KEY_ID}"
+    secret_access_key: "${AWS_SECRET_ACCESS_KEY}"
+    
+  # Artifact organization
+  organization:
+    by_experiment: true
+    by_run: true
+    by_model: true
+    compression: true
+    encryption: true
+    
+  # Artifact types
+  artifact_types:
+    models:
+      - "sklearn"
+      - "pytorch"
+      - "onnx"
+      - "joblib"
+    data:
+      - "datasets"
+      - "features"
+      - "predictions"
+    reports:
+      - "performance_reports"
+      - "bias_reports"
+      - "drift_reports"
+
+# Metrics and Parameters Tracking
+tracking_config:
+  # Metrics to track automatically
+  auto_metrics:
+    - "accuracy"
+    - "precision"
+    - "recall"
+    - "f1_score"
+    - "auc_roc"
+    - "training_time"
+    - "inference_time"
+    - "memory_usage"
+    
+  # Parameters to track automatically
+  auto_parameters:
+    - "algorithm"
+    - "contamination_rate"
+    - "random_state"
+    - "n_estimators"
+    - "max_features"
+    - "bootstrap"
+    
+  # Custom metrics for anomaly detection
+  anomaly_metrics:
+    - "anomaly_precision"
+    - "anomaly_recall"
+    - "false_positive_rate"
+    - "detection_latency"
+    - "model_size"
+
+# Integration Configuration
+integrations:
+  # Prometheus metrics
+  prometheus:
+    enabled: true
+    port: 9090
+    metrics_path: "/metrics"
+    export_interval: 30  # seconds
+    
+  # Kubernetes integration
+  kubernetes:
+    enabled: true
+    namespace: "mlflow"
+    service_account: "mlflow-sa"
+    
+  # Data validation
+  data_validation:
+    enabled: true
+    schema_validation: true
+    drift_detection: true
+    data_quality_checks: true
+
+# Security Configuration
+security:
+  # Authentication
+  authentication:
+    enabled: true
+    method: "basic"  # basic, ldap, or oauth
+    users_file: "/etc/mlflow/users.htpasswd"
+    
+  # Authorization
+  authorization:
+    enabled: true
+    permissions_file: "/etc/mlflow/permissions.yml"
+    role_based_access: true
+    
+  # Encryption
+  encryption:
+    at_rest: true
+    in_transit: true
+    artifact_encryption: true
+    
+  # Audit logging
+  audit:
+    enabled: true
+    log_file: "/var/log/mlflow/audit.log"
+    log_level: "INFO"
+
+# Performance Configuration
+performance:
+  # Database connection pooling
+  database:
+    pool_size: 20
+    max_overflow: 30
+    pool_timeout: 30
+    pool_recycle: 3600
+    
+  # Caching
+  caching:
+    enabled: true
+    cache_backend: "redis"
+    cache_ttl: 3600  # 1 hour
+    
+  # Async operations
+  async_operations:
+    enabled: true
+    max_concurrent_requests: 100
+    request_timeout: 30
+
+# Backup and Recovery
+backup:
+  # Database backup
+  database:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    retention_days: 30
+    backup_location: "s3://pynomaly-backups/mlflow-db/"
+    
+  # Artifact backup
+  artifacts:
+    enabled: true
+    schedule: "0 3 * * *"  # Daily at 3 AM
+    retention_days: 90
+    backup_location: "s3://pynomaly-backups/mlflow-artifacts/"
+    
+  # Recovery procedures
+  recovery:
+    automated_recovery: true
+    recovery_point_objective: "24h"
+    recovery_time_objective: "4h"
+
+# Monitoring and Alerting
+monitoring:
+  # Health checks
+  health_checks:
+    enabled: true
+    endpoint: "/health"
+    check_interval: 30
+    
+  # Metrics collection
+  metrics:
+    enabled: true
+    collection_interval: 15
+    retention_period: "30d"
+    
+  # Alerting
+  alerts:
+    enabled: true
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    email_recipients:
+      - "ml-team@company.com"
+    conditions:
+      - "server_down"
+      - "high_error_rate"
+      - "storage_full"
+      - "backup_failed"
+
+# Development and Testing
+development:
+  # Local development
+  local:
+    sqlite_backend: true
+    file_artifact_store: "./mlruns"
+    auto_create_db: true
+    
+  # Testing
+  testing:
+    test_experiment: "pynomaly-test"
+    mock_artifacts: true
+    in_memory_backend: true
+    
+  # Debugging
+  debugging:
+    log_level: "DEBUG"
+    verbose_logging: true
+    trace_requests: true

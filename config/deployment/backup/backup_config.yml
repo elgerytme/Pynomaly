@@ -1,0 +1,181 @@
+# Pynomaly Backup Configuration
+
+# Backup providers configuration
+providers:
+  # Local filesystem backup
+  local:
+    backup_directory: "/var/backups/pynomaly"
+    
+  # Amazon S3 backup (optional)
+  s3:
+    bucket_name: "${AWS_BACKUP_BUCKET}"
+    access_key_id: "${AWS_ACCESS_KEY_ID}"
+    secret_access_key: "${AWS_SECRET_ACCESS_KEY}"
+    region: "${AWS_DEFAULT_REGION:-us-east-1}"
+    
+  # SFTP backup (optional)
+  sftp:
+    hostname: "${BACKUP_SFTP_HOST}"
+    port: 22
+    username: "${BACKUP_SFTP_USER}"
+    password: "${BACKUP_SFTP_PASSWORD}"
+    # private_key_path: "/path/to/private/key"
+    remote_directory: "/backups/pynomaly"
+
+# Database backup configuration
+databases:
+  postgresql:
+    host: "${POSTGRES_HOST:-localhost}"
+    port: "${POSTGRES_PORT:-5432}"
+    username: "${POSTGRES_USER:-postgres}"
+    password: "${POSTGRES_PASSWORD}"
+    database: "${POSTGRES_DB:-pynomaly}"
+    
+  mysql:
+    host: "${MYSQL_HOST:-localhost}"
+    port: "${MYSQL_PORT:-3306}"
+    username: "${MYSQL_USER:-root}"
+    password: "${MYSQL_PASSWORD}"
+    database: "${MYSQL_DATABASE:-pynomaly}"
+    
+  mongodb:
+    host: "${MONGO_HOST:-localhost}"
+    port: "${MONGO_PORT:-27017}"
+    username: "${MONGO_USER}"
+    password: "${MONGO_PASSWORD}"
+    database: "${MONGO_DATABASE:-pynomaly}"
+
+# File backup configuration
+files:
+  # Encryption settings
+  encryption:
+    enabled: true
+    key_file: "/etc/pynomaly/backup_encryption.key"
+    
+  # Default compression
+  default_compression: "gzip"
+  
+  # Backup paths
+  paths:
+    - path: "/var/lib/pynomaly"
+      name: "application_data"
+      compression: "tar.gz"
+      encryption: true
+      retention_days: 90
+      
+    - path: "/etc/pynomaly"
+      name: "configuration"
+      compression: "zip"
+      encryption: true
+      retention_days: 365
+      
+    - path: "/var/log/pynomaly"
+      name: "logs"
+      compression: "tar.xz"
+      encryption: false
+      retention_days: 30
+
+# Backup schedules
+schedules:
+  # Database backups
+  database_full:
+    type: "full"
+    frequency: "daily"
+    time: "02:00"
+    retention_days: 30
+    
+  database_incremental:
+    type: "incremental"
+    frequency: "hourly"
+    retention_days: 7
+    
+  # File backups
+  files_full:
+    type: "full"
+    frequency: "weekly"
+    day: "sunday"
+    time: "01:00"
+    retention_days: 90
+    
+  files_incremental:
+    type: "incremental"
+    frequency: "daily"
+    time: "03:00"
+    retention_days: 14
+
+# Monitoring and alerting
+monitoring:
+  enabled: true
+  
+  # Health checks
+  health_checks:
+    - name: "backup_storage"
+      check_interval_minutes: 30
+      alert_on_failure: true
+      
+    - name: "encryption_keys"
+      check_interval_minutes: 60
+      alert_on_failure: true
+
+  # Alerts
+  alerts:
+    backup_failure:
+      enabled: true
+      channels: ["email", "slack"]
+      
+    storage_full:
+      enabled: true
+      threshold_percent: 90
+      channels: ["email", "slack"]
+      
+    encryption_key_missing:
+      enabled: true
+      channels: ["email", "slack", "webhook"]
+
+# Retention policies
+retention:
+  # Default retention periods
+  default_retention_days: 30
+  
+  # Automatic cleanup
+  auto_cleanup:
+    enabled: true
+    run_daily: true
+    time: "04:00"
+    
+  # Per-backup-type retention
+  by_type:
+    full: 90
+    incremental: 14
+    differential: 30
+    snapshot: 7
+
+# Performance settings
+performance:
+  # Compression settings
+  compression_level: 6
+  parallel_compression: true
+  
+  # Upload settings
+  parallel_uploads: true
+  max_concurrent_uploads: 3
+  upload_chunk_size_mb: 64
+  
+  # Verification
+  checksum_verification: true
+  integrity_checks: true
+
+# Security settings
+security:
+  # Encryption
+  encryption_algorithm: "AES-256"
+  key_rotation_days: 90
+  
+  # Access control
+  backup_user: "pynomaly-backup"
+  backup_group: "pynomaly"
+  file_permissions: "0600"
+  
+  # Audit logging
+  audit_logs: true
+  audit_log_path: "/var/log/pynomaly/backup_audit.log"

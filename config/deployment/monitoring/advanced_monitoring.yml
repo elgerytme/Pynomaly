@@ -1,0 +1,448 @@
+# Advanced Monitoring Configuration
+# This file configures the comprehensive monitoring and observability system
+
+# Global settings
+global:
+  service_name: "pynomaly"
+  environment: "production"  # development, staging, production
+  data_retention_days: 90
+  
+# Monitoring components configuration
+components:
+  # Anomaly detection settings
+  anomaly_detection:
+    enabled: true
+    algorithms:
+      - name: "isolation_forest"
+        contamination: 0.1
+        n_estimators: 100
+        max_samples: "auto"
+        enabled: true
+      - name: "dbscan"
+        eps: 0.5
+        min_samples: 5
+        enabled: false
+      - name: "statistical"
+        method: "z_score"
+        threshold: 3.0
+        enabled: true
+    
+    # Training configuration
+    training:
+      auto_retrain: true
+      retrain_interval_hours: 24
+      min_training_samples: 1000
+      validation_split: 0.2
+    
+    # Detection thresholds
+    thresholds:
+      anomaly_score: 0.8
+      confidence_threshold: 0.7
+      severity_mapping:
+        high: 0.9
+        medium: 0.7
+        low: 0.5
+    
+    # Metrics to monitor for anomalies
+    monitored_metrics:
+      - name: "response_time"
+        weight: 1.0
+        seasonal: true
+        seasonal_period: 24  # hours
+      - name: "error_rate"
+        weight: 1.5
+        seasonal: false
+      - name: "cpu_usage"
+        weight: 1.0
+        seasonal: true
+        seasonal_period: 24
+      - name: "memory_usage"
+        weight: 1.2
+        seasonal: false
+      - name: "throughput"
+        weight: 1.0
+        seasonal: true
+        seasonal_period: 168  # weekly pattern
+
+  # Alert correlation settings
+  alert_correlation:
+    enabled: true
+    correlation_window_minutes: 10
+    
+    # Correlation rules
+    rules:
+      - name: "service_related_alerts"
+        conditions:
+          source_pattern: "service"
+          label_overlap_min: 1
+          severity_difference_max: 2
+        action: "group"
+        
+      - name: "infrastructure_alerts"
+        conditions:
+          source_pattern: "infrastructure"
+          time_window_minutes: 5
+        action: "group"
+        
+      - name: "cascade_alerts"
+        conditions:
+          metric_correlation_threshold: 0.8
+        action: "suppress_downstream"
+    
+    # Suppression rules
+    suppression:
+      - name: "duplicate_suppression"
+        time_window_minutes: 5
+        max_similar_alerts: 1
+        similarity_threshold: 0.9
+        
+      - name: "maintenance_window"
+        enabled: false
+        schedule: "0 2 * * 0"  # Weekly maintenance (Sunday 2 AM)
+        duration_hours: 2
+
+  # SLO/SLI monitoring
+  slo_monitoring:
+    enabled: true
+    
+    # Default SLOs
+    slos:
+      - name: "api_availability"
+        description: "API availability SLO"
+        sli:
+          name: "http_success_rate"
+          type: "availability"
+          query: "rate(http_requests_total{status!~'5..'}[5m]) / rate(http_requests_total[5m])"
+          target_value: 0.99
+        target_percentage: 99.9
+        time_period: "30d"
+        burn_rate_thresholds:
+          critical: 10.0
+          high: 5.0
+          warning: 2.0
+          
+      - name: "api_latency"
+        description: "API response time SLO"
+        sli:
+          name: "http_latency_p95"
+          type: "latency"
+          query: "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"
+          target_value: 0.5  # 500ms
+        target_percentage: 95.0
+        time_period: "30d"
+        burn_rate_thresholds:
+          critical: 15.0
+          high: 8.0
+          warning: 3.0
+          
+      - name: "error_budget"
+        description: "Error budget SLO"
+        sli:
+          name: "error_rate"
+          type: "error_rate"
+          query: "rate(http_requests_total{status=~'5..'}[5m]) / rate(http_requests_total[5m])"
+          target_value: 0.01  # 1% error rate
+        target_percentage: 99.0
+        time_period: "30d"
+        burn_rate_thresholds:
+          critical: 20.0
+          high: 10.0
+          warning: 5.0
+
+  # Capacity planning
+  capacity_planning:
+    enabled: true
+    
+    # Prediction algorithms
+    algorithms:
+      - name: "linear_trend"
+        enabled: true
+        weight: 0.4
+        lookback_days: 30
+      - name: "seasonal_decomposition"
+        enabled: true
+        weight: 0.6
+        seasonal_period: 24
+        lookback_days: 60
+    
+    # Metrics for capacity planning
+    metrics:
+      - name: "cpu_usage"
+        thresholds:
+          warning: 70.0
+          critical: 85.0
+        forecast_days: 30
+        seasonal: true
+        
+      - name: "memory_usage"
+        thresholds:
+          warning: 75.0
+          critical: 90.0
+        forecast_days: 30
+        seasonal: false
+        
+      - name: "disk_usage"
+        thresholds:
+          warning: 80.0
+          critical: 95.0
+        forecast_days: 60
+        seasonal: false
+        
+      - name: "network_usage"
+        thresholds:
+          warning: 70.0
+          critical: 85.0
+        forecast_days: 30
+        seasonal: true
+        
+      - name: "api_throughput"
+        thresholds:
+          warning: 1000.0  # requests per minute
+          critical: 1200.0
+        forecast_days: 30
+        seasonal: true
+
+  # Business intelligence
+  business_intelligence:
+    enabled: true
+    
+    # KPIs configuration
+    kpis:
+      - name: "system_availability"
+        category: "reliability"
+        priority: 1
+        target: 99.9
+        unit: "%"
+        calculation: "uptime_percentage"
+        
+      - name: "api_response_time"
+        category: "performance"
+        priority: 1
+        target: 500.0
+        unit: "ms"
+        calculation: "p95_latency"
+        
+      - name: "error_rate"
+        category: "reliability"
+        priority: 1
+        target: 1.0
+        unit: "%"
+        calculation: "error_percentage"
+        
+      - name: "user_satisfaction"
+        category: "business"
+        priority: 2
+        target: 4.0
+        unit: "/5"
+        calculation: "survey_average"
+        
+      - name: "cost_efficiency"
+        category: "business"
+        priority: 2
+        target: 0.15
+        unit: "$/request"
+        calculation: "cost_per_request"
+
+# Data sources configuration
+data_sources:
+  prometheus:
+    url: "http://prometheus:9090"
+    timeout_seconds: 30
+    max_retries: 3
+    
+  elasticsearch:
+    hosts:
+      - "http://elasticsearch:9200"
+    timeout_seconds: 30
+    max_retries: 3
+    index_pattern: "pynomaly-logs-*"
+    
+  jaeger:
+    url: "http://jaeger:14268"
+    timeout_seconds: 30
+    
+  database:
+    url: "postgresql://pynomaly:password@postgres-monitoring:5432/pynomaly_monitoring"
+    pool_size: 10
+    max_overflow: 20
+    pool_timeout: 30
+
+# Alert routing and notifications
+alerting:
+  enabled: true
+  
+  # Default routing
+  default_route:
+    receiver: "default"
+    group_wait: "10s"
+    group_interval: "10s"
+    repeat_interval: "1h"
+    
+  # Routing rules
+  routes:
+    - match:
+        severity: "critical"
+      receiver: "critical_alerts"
+      group_wait: "0s"
+      repeat_interval: "15m"
+      
+    - match:
+        alertname: "SLOBurnRate"
+      receiver: "slo_alerts"
+      group_wait: "5s"
+      repeat_interval: "30m"
+      
+    - match:
+        source: "capacity_planner"
+      receiver: "capacity_alerts"
+      group_wait: "1m"
+      repeat_interval: "6h"
+  
+  # Notification channels
+  receivers:
+    - name: "default"
+      email_configs:
+        - to: "ops@pynomaly.com"
+          subject: "Pynomaly Alert: {{ .GroupLabels.alertname }}"
+          
+    - name: "critical_alerts"
+      email_configs:
+        - to: "oncall@pynomaly.com"
+          subject: "CRITICAL: {{ .GroupLabels.alertname }}"
+      slack_configs:
+        - api_url: "${SLACK_WEBHOOK_URL}"
+          channel: "#critical-alerts"
+          title: "Critical Alert"
+          
+    - name: "slo_alerts"
+      email_configs:
+        - to: "sre@pynomaly.com"
+          subject: "SLO Alert: {{ .GroupLabels.slo_name }}"
+          
+    - name: "capacity_alerts"
+      email_configs:
+        - to: "capacity@pynomaly.com"
+          subject: "Capacity Alert: {{ .GroupLabels.metric_name }}"
+
+# Security and compliance
+security:
+  authentication:
+    enabled: true
+    method: "jwt"  # jwt, oauth2, basic
+    token_expiry_hours: 24
+    
+  authorization:
+    rbac_enabled: true
+    roles:
+      - name: "admin"
+        permissions: ["read", "write", "delete", "admin"]
+      - name: "operator"
+        permissions: ["read", "write"]
+      - name: "viewer"
+        permissions: ["read"]
+        
+  audit:
+    enabled: true
+    log_level: "info"
+    retention_days: 365
+    
+  encryption:
+    data_at_rest: true
+    data_in_transit: true
+    key_rotation_days: 90
+
+# Performance and scaling
+performance:
+  # Caching configuration
+  caching:
+    enabled: true
+    backend: "redis"
+    ttl_seconds: 300
+    max_keys: 10000
+    
+  # Rate limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 1000
+    burst_size: 100
+    
+  # Resource limits
+  resources:
+    max_memory_mb: 2048
+    max_cpu_cores: 4
+    max_concurrent_requests: 500
+    
+  # Scaling configuration
+  auto_scaling:
+    enabled: false  # Enable for production
+    min_replicas: 2
+    max_replicas: 10
+    target_cpu_utilization: 70
+    target_memory_utilization: 80
+
+# Logging configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "json"  # json, text
+  output: "stdout"  # stdout, file, syslog
+  
+  # Log rotation (when output is file)
+  rotation:
+    max_size_mb: 100
+    max_files: 10
+    max_age_days: 30
+    
+  # Log filtering
+  filters:
+    - name: "health_check_filter"
+      pattern: "GET /health"
+      action: "drop"
+    - name: "metrics_filter"
+      pattern: "GET /metrics"
+      action: "sample"
+      sample_rate: 0.1
+
+# Development and testing
+development:
+  debug_mode: false
+  mock_data: false
+  test_mode: false
+  
+  # Test data generation
+  data_generation:
+    enabled: false
+    metrics_interval_seconds: 60
+    anomaly_injection_rate: 0.05
+    
+# Backup and disaster recovery
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention_days: 30
+  
+  targets:
+    - type: "s3"
+      bucket: "pynomaly-monitoring-backups"
+      region: "us-west-2"
+    - type: "local"
+      path: "/backup/monitoring"
+
+# Integration configurations
+integrations:
+  # GitHub integration for issue tracking
+  github:
+    enabled: false
+    repository: "pynomaly/pynomaly"
+    token: "${GITHUB_TOKEN}"
+    
+  # Slack integration
+  slack:
+    enabled: false
+    webhook_url: "${SLACK_WEBHOOK_URL}"
+    default_channel: "#monitoring"
+    
+  # PagerDuty integration
+  pagerduty:
+    enabled: false
+    api_key: "${PAGERDUTY_API_KEY}"
+    service_key: "${PAGERDUTY_SERVICE_KEY}"

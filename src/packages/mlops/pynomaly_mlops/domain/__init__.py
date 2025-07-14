@@ -6,13 +6,17 @@ for the MLOps platform following Domain-Driven Design principles.
 
 from pynomaly_mlops.domain.entities.model import Model, ModelStatus, ModelType
 from pynomaly_mlops.domain.entities.experiment import Experiment, ExperimentRun, ExperimentStatus, ExperimentRunStatus
-from pynomaly_mlops.domain.entities.pipeline import Pipeline, PipelineStep, PipelineStatus
+from pynomaly_mlops.domain.entities.pipeline import (
+    Pipeline, PipelineStep, PipelineRun, PipelineStatus, StepStatus, StepType,
+    PipelineSchedule, ResourceRequirements, RetryPolicy
+)
 from pynomaly_mlops.domain.entities.deployment import Deployment, DeploymentStatus, Environment
 from pynomaly_mlops.domain.value_objects.semantic_version import SemanticVersion
 from pynomaly_mlops.domain.value_objects.model_metrics import ModelMetrics
 from pynomaly_mlops.domain.value_objects.scaling_config import ScalingConfig
 from pynomaly_mlops.domain.repositories.model_repository import ModelRepository
 from pynomaly_mlops.domain.repositories.experiment_repository import ExperimentRepository
+from pynomaly_mlops.domain.repositories.pipeline_repository import PipelineRepository, PipelineRunRepository
 from pynomaly_mlops.domain.services.model_promotion_service import ModelPromotionService
 
 __all__ = [
@@ -24,8 +28,14 @@ __all__ = [
     "ExperimentStatus",
     "ExperimentRunStatus",
     "Pipeline",
-    "PipelineStep", 
+    "PipelineStep",
+    "PipelineRun", 
     "PipelineStatus",
+    "StepStatus",
+    "StepType",
+    "PipelineSchedule",
+    "ResourceRequirements",
+    "RetryPolicy",
     "Deployment",
     "DeploymentStatus",
     "Environment",
@@ -33,6 +43,8 @@ __all__ = [
     "ModelMetrics",
     "ScalingConfig",
     "ModelRepository",
-    "ExperimentRepository", 
+    "ExperimentRepository",
+    "PipelineRepository",
+    "PipelineRunRepository", 
     "ModelPromotionService",
 ]

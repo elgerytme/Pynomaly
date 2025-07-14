@@ -62,8 +62,7 @@ class ConfigMigrator:
         """Remove duplicate pytest configuration files."""
         pytest_files = [
             self.project_root / "pytest.ini",
-            self.project_root / "deployment" / "config_files" / "config" / "pytest.ini",
-            self.project_root / "deployment" / "config_files" / "config" / "pytest-bdd.ini"
+            self.project_root / "config" / "deployment" / "testing" / "pytest-bdd.ini"
         ]
         
         removed_files = []
@@ -148,7 +147,7 @@ class ConfigMigrator:
             self.project_root / "setup.cfg",
             self.project_root / ".flake8",
             self.project_root / "mypy.ini",
-            self.project_root / "deployment" / "config_files" / "config" / "tox.ini"
+            self.project_root / "config" / "deployment" / "testing" / "tox.ini"
         ]
         
         removed = 0
