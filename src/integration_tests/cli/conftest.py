@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 # Import all base fixtures from root conftest
-from tests.conftest import *
+from ..conftest import *
 from typer.testing import CliRunner
 
 

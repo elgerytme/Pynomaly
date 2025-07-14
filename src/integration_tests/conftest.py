@@ -28,7 +28,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="numpy.*")
 warnings.filterwarnings("ignore", category=UserWarning, module="pandas.*")
 
 # Add src to Python path ONCE
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).parent.parent.parent
 src_path = project_root / "src"
 if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
