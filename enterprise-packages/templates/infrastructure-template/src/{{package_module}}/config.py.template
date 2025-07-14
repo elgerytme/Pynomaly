@@ -1,0 +1,53 @@
+"""Configuration for {{package_title}}."""
+
+from typing import Dict, List, Optional
+from pydantic import BaseModel, Field
+from enterprise_core import BaseConfig
+
+
+class {{package_module|title}}Config(BaseConfig):
+    """Configuration for {{package_name}} infrastructure."""
+
+    # Monitoring configuration
+    metrics_enabled: bool = Field(default=True, description="Enable metrics collection")
+    prometheus_enabled: bool = Field(default=True, description="Enable Prometheus metrics")
+    prometheus_port: int = Field(default=9090, description="Prometheus metrics port")
+
+    # Tracing configuration
+    tracing_enabled: bool = Field(default=True, description="Enable distributed tracing")
+    jaeger_endpoint: Optional[str] = Field(default=None, description="Jaeger collector endpoint")
+    trace_sample_rate: float = Field(default=0.1, description="Trace sampling rate")
+
+    # Health check configuration
+    health_check_enabled: bool = Field(default=True, description="Enable health checks")
+    health_check_port: int = Field(default=8080, description="Health check port")
+    health_check_interval: int = Field(default=30, description="Health check interval in seconds")
+
+    # Security configuration
+    security_enabled: bool = Field(default=True, description="Enable security features")
+    encryption_key: Optional[str] = Field(default=None, description="Encryption key for sensitive data")
+    jwt_secret: Optional[str] = Field(default=None, description="JWT secret key")
+    jwt_algorithm: str = Field(default="HS256", description="JWT signing algorithm")
+
+    # Performance configuration
+    performance_monitoring: bool = Field(default=True, description="Enable performance monitoring")
+    slow_query_threshold: float = Field(default=1.0, description="Slow query threshold in seconds")
+    memory_threshold: float = Field(default=0.8, description="Memory usage threshold")
+    cpu_threshold: float = Field(default=0.8, description="CPU usage threshold")
+
+    # Alerting configuration
+    alerting_enabled: bool = Field(default=False, description="Enable alerting")
+    alert_endpoints: List[str] = Field(default_factory=list, description="Alert webhook endpoints")
+
+    # Resource limits
+    max_memory_mb: int = Field(default=1024, description="Maximum memory usage in MB")
+    max_cpu_percent: float = Field(default=80.0, description="Maximum CPU usage percentage")
+    max_connections: int = Field(default=100, description="Maximum concurrent connections")
+
+    # Cleanup configuration
+    cleanup_enabled: bool = Field(default=True, description="Enable automatic cleanup")
+    cleanup_interval: int = Field(default=3600, description="Cleanup interval in seconds")
+    log_retention_days: int = Field(default=30, description="Log retention period in days")
+
+    class Config:
+        env_prefix = "{{package_module|upper}}_INFRA_"

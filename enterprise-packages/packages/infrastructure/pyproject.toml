@@ -1,0 +1,152 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "enterprise-infrastructure"
+dynamic = ["version"]
+description = "Production infrastructure patterns for monitoring, security, and performance"
+authors = [{name = "Enterprise Packages Team", email = "team@enterprise-packages.io"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["enterprise", "infrastructure", "monitoring", "security", "performance"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Monitoring",
+    "Topic :: Security",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "enterprise-core",
+    "pydantic>=2.10.4",
+    "structlog>=24.4.0",
+    "httpx>=0.28.1",
+    "tenacity>=9.0.0",
+    "psutil>=6.1.1",
+]
+
+[project.optional-dependencies]
+# Monitoring dependencies
+monitoring = [
+    "prometheus-client>=0.21.1",
+    "opentelemetry-api>=1.29.0",
+    "opentelemetry-sdk>=1.29.0",
+    "opentelemetry-instrumentation>=0.50b0",
+    "opentelemetry-exporter-prometheus>=0.50b0",
+    "opentelemetry-exporter-jaeger>=1.27.0",
+]
+
+# Security dependencies
+security = [
+    "cryptography>=44.0.0",
+    "pyjwt>=2.10.1",
+    "passlib[bcrypt]>=1.7.4",
+    "python-jose>=3.3.0",
+    "pyotp>=2.9.0",
+]
+
+# Rate limiting dependencies
+rate_limiting = [
+    "slowapi>=0.1.9",
+    "limits>=3.14.0",
+]
+
+# Circuit breaker dependencies
+circuit_breaker = [
+    "circuitbreaker>=2.0.0",
+    "pybreaker>=1.0.2",
+]
+
+# Health check dependencies
+health = [
+    "httpx>=0.28.1",
+    "psutil>=6.1.1",
+]
+
+# All optional dependencies
+all = [
+    "prometheus-client>=0.21.1",
+    "opentelemetry-api>=1.29.0",
+    "opentelemetry-sdk>=1.29.0",
+    "opentelemetry-instrumentation>=0.50b0",
+    "cryptography>=44.0.0",
+    "pyjwt>=2.10.1",
+    "passlib[bcrypt]>=1.7.4",
+    "slowapi>=0.1.9",
+    "circuitbreaker>=2.0.0",
+    "httpx>=0.28.1",
+]
+
+# Development dependencies
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-mock>=3.14.0",
+    "hypothesis>=6.115.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/enterprise-packages/enterprise-infrastructure"
+Repository = "https://github.com/enterprise-packages/enterprise-infrastructure"
+Documentation = "https://enterprise-packages.readthedocs.io/infrastructure"
+Issues = "https://github.com/enterprise-packages/enterprise-infrastructure/issues"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/enterprise_infrastructure"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-mock>=3.14.0",
+    "hypothesis>=6.115.0",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "pytest --cov=enterprise_infrastructure --cov-report=term-missing {args:tests}"
+lint = "ruff check src tests"
+format = "ruff format src tests"
+type-check = "mypy src"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "S",  # flake8-bandit (security)
+]
+ignore = [
+    "E501", # line too long, handled by formatter
+    "B008", # do not perform function calls in argument defaults
+    "S101", # use of assert detected
+]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+warn_unused_ignores = true

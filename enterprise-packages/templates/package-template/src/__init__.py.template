@@ -1,0 +1,15 @@
+"""{{package_title}}.
+
+{{package_description}}
+"""
+
+{% for import_line in imports %}
+{{import_line}}
+{% endfor %}
+
+__version__ = "0.1.0"
+__all__ = [
+{% for export in exports %}
+    {{export}},
+{% endfor %}
+]
