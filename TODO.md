@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 110  
+**Total Open Issues**: 111  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 26  
+**Pending**: 27  
 
 **Last Sync**: July 14, 2025 at 19:10 UTC
 
@@ -1226,6 +1226,18 @@
 
 - **Scope**: ## Priority: P0-Critical **Issue Type**: Package Release Preparation   **Timeline**: Immediate (Ready for release)    ## Problem The Pynomaly package is production-ready with working end-to-end functi...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/136)
+
+### **Issue #147: Phase 2.6: Data Science Package - Data Visualization and Reporting**
+
+**Labels**: enhancement, Presentation, est:1w, P2-Medium  
+**Priority**: 🔶 P2-Medium  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Create comprehensive data visualization and reporting capabilities with interactive dashboards, statistical plots, and automated report generation. This provides visual insights and execut...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/147)
 
 ## 🟢 **P3-Low Priority Issues**
 
