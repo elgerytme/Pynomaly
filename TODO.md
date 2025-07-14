@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 119  
+**Total Open Issues**: 120  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 35  
+**Pending**: 36  
 
 **Last Sync**: July 14, 2025 at 19:14 UTC
 
@@ -504,6 +504,18 @@
 
 - **Scope**: ## Overview Implement comprehensive data lineage tracking with quality impact propagation, root cause analysis, and lineage-based quality optimization. This provides visibility into how quality issues...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/154)
+
+### **Issue #156: Phase 3.7: Data Quality Package - Enterprise Security and Compliance**
+
+**Labels**: enhancement, Infrastructure, est:1w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Implement comprehensive security and compliance features including data privacy protection, regulatory compliance automation, security monitoring, and enterprise-grade access controls. Thi...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/156)
 
 ## 🔶 **P2-Medium Priority Issues**
 
