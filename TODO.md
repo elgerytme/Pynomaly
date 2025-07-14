@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 118  
+**Total Open Issues**: 119  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 34  
+**Pending**: 35  
 
-**Last Sync**: July 14, 2025 at 19:13 UTC
+**Last Sync**: July 14, 2025 at 19:14 UTC
 
 ---
 
@@ -1323,6 +1323,18 @@
 - **Scope**: ## Overview Create comprehensive executive reporting and analytics capabilities with quality scorecards, business impact analysis, ROI tracking, and strategic quality insights. This provides C-level v...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/153)
 
+### **Issue #155: Phase 3.6: Data Quality Package - Self-Healing Data Pipeline Integration**
+
+**Labels**: enhancement, Domain, est:2w, P2-Medium  
+**Priority**: 🔶 P2-Medium  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Implement self-healing data pipeline capabilities with automated quality issue detection, intelligent remediation, and adaptive quality controls. This creates autonomous data quality manag...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/155)
+
 ## 🟢 **P3-Low Priority Issues**
 
 ### **Issue #16: I-005: Cloud Storage Adapters**
@@ -1457,6 +1469,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 19:13 UTC  
+**Last Updated**: July 14, 2025 at 19:14 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
