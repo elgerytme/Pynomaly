@@ -4,12 +4,17 @@ import pytest
 from datetime import datetime
 from uuid import uuid4
 
-from domain.entities import (
-    DataScienceModel, AnalysisJob, StatisticalProfile,
-    MachineLearningPipeline, FeatureStore
+from packages.data_science.domain.entities.data_science_model import (
+    DataScienceModel, ModelType, ModelStatus
 )
-from domain.entities.data_science_model import ModelType, ModelStatus
-from domain.entities.analysis_job import AnalysisType, JobStatus, Priority
+from packages.data_science.domain.entities.analysis_job import (
+    AnalysisJob, AnalysisType, JobStatus, Priority
+)
+from packages.data_science.domain.entities.statistical_profile import (
+    StatisticalProfile, ProfileType, ProfileScope
+)
+from packages.data_science.domain.entities.machine_learning_pipeline import MachineLearningPipeline
+from packages.data_science.domain.entities.feature_store import FeatureStore
 
 
 class TestDataScienceModel:
@@ -145,13 +150,13 @@ class TestAnalysisJob:
         job = AnalysisJob(
             name="correlation_analysis",
             analysis_type=AnalysisType.CORRELATION_ANALYSIS,
-            dataset_id="dataset_123",
-            configuration={"method": "pearson"}
+            dataset_ids=["dataset_123"],
+            parameters={"method": "pearson"}
         )
         
         assert job.name == "correlation_analysis"
         assert job.analysis_type == AnalysisType.CORRELATION_ANALYSIS
-        assert job.dataset_id == "dataset_123"
+        assert job.dataset_ids == ["dataset_123"]
         assert job.status == JobStatus.PENDING
         assert job.priority == Priority.NORMAL
     
@@ -160,68 +165,65 @@ class TestAnalysisJob:
         job = AnalysisJob(
             name="statistical_analysis",
             analysis_type=AnalysisType.STATISTICAL,
-            dataset_id="dataset_123",
-            configuration={}
+            dataset_ids=["dataset_123"],
+            parameters={}
         )
         
-        # Queue job
-        job.queue_job()
-        assert job.status == JobStatus.QUEUED
-        assert job.queued_at is not None
-        
         # Start execution
-        job.start_execution()
+        job.start_execution("executor_123")
         assert job.status == JobStatus.RUNNING
         assert job.started_at is not None
+        assert job.executor_id == "executor_123"
+        
+        # Update progress
+        job.update_progress(50.0, {"intermediate": "result"})
+        assert job.progress_percentage == 50.0
         
         # Complete job
-        results = {"mean": 10.5, "std": 2.3}
-        job.complete_job(results)
+        job.complete_successfully("s3://results/job_123", {"mean": 10.5, "std": 2.3})
         assert job.status == JobStatus.COMPLETED
         assert job.completed_at is not None
-        assert job.results == results
-        assert job.get_execution_duration() > 0
+        assert job.results_uri == "s3://results/job_123"
+        assert job.actual_duration_seconds is not None
     
     def test_job_failure_handling(self):
         """Test job failure handling."""
         job = AnalysisJob(
             name="failing_analysis",
             analysis_type=AnalysisType.STATISTICAL,
-            dataset_id="dataset_123",
-            configuration={}
+            dataset_ids=["dataset_123"],
+            parameters={}
         )
         
-        job.start_execution()
+        job.start_execution("executor_123")
         
         # Fail job
         error_msg = "Division by zero in statistical calculation"
-        job.fail_job(error_msg)
+        job.fail_with_error(error_msg, should_retry=False)
         
         assert job.status == JobStatus.FAILED
-        assert job.failed_at is not None
         assert job.error_message == error_msg
-        assert not job.can_be_restarted()
     
     def test_job_priority_and_scheduling(self):
         """Test job priority and scheduling features."""
         job = AnalysisJob(
             name="urgent_analysis",
             analysis_type=AnalysisType.STATISTICAL,
-            dataset_id="dataset_123",
-            configuration={},
+            dataset_ids=["dataset_123"],
+            parameters={},
             priority=Priority.URGENT
         )
         
         assert job.priority == Priority.URGENT
-        assert job.estimated_duration is None
+        assert job.estimated_duration_seconds is None
         
         # Set estimated duration
-        job.set_estimated_duration(300)  # 5 minutes
-        assert job.estimated_duration == 300
+        job.estimated_duration_seconds = 300  # 5 minutes
+        assert job.estimated_duration_seconds == 300
         
-        # Reschedule job
+        # Schedule job
         future_time = datetime.utcnow()
-        job.reschedule_job(future_time)
+        job.scheduled_at = future_time
         assert job.scheduled_at == future_time
 
 
@@ -231,67 +233,73 @@ class TestStatisticalProfile:
     def test_create_statistical_profile(self):
         """Test creating a statistical profile."""
         profile = StatisticalProfile(
+            name="basic_statistics",
+            profile_type=ProfileType.DESCRIPTIVE,
+            scope=ProfileScope.DATASET,
             dataset_id="dataset_123",
-            profile_name="basic_statistics",
-            feature_count=10,
-            row_count=1000
+            sample_size=1000,
+            feature_names=["feature1", "feature2", "feature3"]
         )
         
+        assert profile.name == "basic_statistics"
+        assert profile.profile_type == ProfileType.DESCRIPTIVE
+        assert profile.scope == ProfileScope.DATASET
         assert profile.dataset_id == "dataset_123"
-        assert profile.profile_name == "basic_statistics"
-        assert profile.feature_count == 10
-        assert profile.row_count == 1000
-        assert profile.statistical_metrics == {}
-        assert profile.correlation_matrix is None
+        assert profile.sample_size == 1000
+        assert len(profile.feature_names) == 3
+        assert profile.descriptive_statistics == {}
+        assert profile.correlation_analysis == {}
     
     def test_profile_metrics_management(self):
         """Test adding and retrieving statistical metrics."""
         profile = StatisticalProfile(
+            name="detailed_statistics",
+            profile_type=ProfileType.DESCRIPTIVE,
+            scope=ProfileScope.FEATURE,
             dataset_id="dataset_123",
-            profile_name="detailed_statistics",
-            feature_count=5,
-            row_count=500
+            sample_size=500,
+            feature_names=["feature1"]
         )
         
-        # Add feature metrics
-        feature_stats = {
-            "mean": 10.5,
-            "std": 2.3,
-            "min": 5.0,
-            "max": 18.0
-        }
-        profile.add_feature_statistics("feature1", feature_stats)
+        # Add descriptive statistics
+        profile.add_descriptive_statistic("mean", 10.5)
+        profile.add_descriptive_statistic("std", 2.3)
         
-        assert "feature1" in profile.statistical_metrics
-        assert profile.statistical_metrics["feature1"] == feature_stats
+        assert profile.descriptive_statistics["mean"] == 10.5
+        assert profile.descriptive_statistics["std"] == 2.3
         
-        # Get feature statistics
-        retrieved_stats = profile.get_feature_statistics("feature1")
-        assert retrieved_stats == feature_stats
+        # Add hypothesis test
+        profile.add_hypothesis_test("normality_test", 2.45, 0.03, {"test_type": "shapiro"})
         
-        # Get non-existent feature
-        assert profile.get_feature_statistics("nonexistent") is None
+        assert "normality_test" in profile.hypothesis_tests
+        assert profile.hypothesis_tests["normality_test"]["statistic"] == 2.45
+        assert profile.hypothesis_tests["normality_test"]["p_value"] == 0.03
+        assert profile.hypothesis_tests["normality_test"]["significant"] == True
     
     def test_profile_quality_assessment(self):
         """Test profile quality assessment."""
         profile = StatisticalProfile(
+            name="quality_test",
+            profile_type=ProfileType.DESCRIPTIVE,
+            scope=ProfileScope.DATASET,
             dataset_id="dataset_123",
-            profile_name="quality_test",
-            feature_count=3,
-            row_count=100
+            sample_size=1000,  # Large sample for good quality
+            feature_names=["feature1", "feature2", "feature3"]
         )
         
-        # Mark as high quality
-        profile.quality_score = 0.95
-        profile.completeness = 0.98
-        profile.validity = 0.92
+        # Add comprehensive analysis to increase completeness
+        profile.add_descriptive_statistic("mean", 10.5)
+        profile.add_hypothesis_test("normality", 2.45, 0.8, {})  # Non-significant
+        profile.add_correlation("feature1", "feature2", 0.85, 0.001)
+        profile.validate_assumption("normality", True)
         
-        assert profile.is_high_quality()
-        assert profile.is_complete()
+        # Calculate quality score
+        quality_score = profile.calculate_quality_score()
+        assert quality_score > 0.5  # Should be reasonably high
+        assert profile.quality_score == quality_score
         
-        # Mark as low quality
-        profile.quality_score = 0.45
-        assert not profile.is_high_quality()
+        # Check completeness increased
+        assert profile.completeness_percentage > 0
 
 
 if __name__ == "__main__":

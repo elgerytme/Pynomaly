@@ -8,6 +8,7 @@ from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
 from fastapi.responses import JSONResponse
 from uuid import UUID
+from datetime import datetime
 import logging
 
 from ....domain.entities.user import User

@@ -1,23 +1,197 @@
-from typing import Any, Dict, List, Callable
+"""Comprehensive data validation engine with advanced rule processing capabilities."""
+
+from abc import ABC, abstractmethod
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Callable, Optional, Set, Union, Tuple
+import asyncio
 import re
+import logging
+import time
+from uuid import UUID, uuid4
 
-class ValidationResult:
-    def __init__(self, rule_id: str, passed: bool, failed_records: int = 0, error_details: List[Dict[str, Any]] = None):
-        self.rule_id = rule_id
-        self.passed = passed
-        self.failed_records = failed_records
-        self.error_details = error_details or []
+from pydantic import BaseModel, Field, validator
+import pandas as pd
+import numpy as np
 
-class ValidationRule:
-    """Abstract base class for validation rules."""
-    def __init__(self, rule_id: str, description: str = '', severity: str = 'medium'):
+logger = logging.getLogger(__name__)
+
+
+class ValidationSeverity(str, Enum):
+    """Validation severity levels."""
+    INFO = "info"
+    WARNING = "warning"
+    ERROR = "error"
+    CRITICAL = "critical"
+
+
+class ValidationCategory(str, Enum):
+    """Validation rule categories."""
+    DATA_TYPE = "data_type"
+    COMPLETENESS = "completeness"
+    UNIQUENESS = "uniqueness"
+    CONSISTENCY = "consistency"
+    BUSINESS_RULE = "business_rule"
+    STATISTICAL = "statistical"
+    REFERENTIAL_INTEGRITY = "referential_integrity"
+    FORMAT = "format"
+    RANGE = "range"
+    CUSTOM = "custom"
+
+
+class ValidationContext(BaseModel):
+    """Validation execution context."""
+    dataset_name: str
+    dataset_id: Optional[UUID] = None
+    execution_id: UUID = Field(default_factory=uuid4)
+    started_at: datetime = Field(default_factory=datetime.utcnow)
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    
+    class Config:
+        use_enum_values = True
+
+
+class ValidationError(BaseModel):
+    """Individual validation error with detailed context."""
+    error_id: UUID = Field(default_factory=uuid4)
+    rule_id: str
+    row_index: Optional[int] = None
+    column_name: Optional[str] = None
+    invalid_value: Any = None
+    expected_value: Any = None
+    error_message: str
+    error_code: Optional[str] = None
+    severity: ValidationSeverity
+    category: ValidationCategory
+    context: Dict[str, Any] = Field(default_factory=dict)
+    
+    class Config:
+        use_enum_values = True
+        arbitrary_types_allowed = True
+
+
+class ValidationMetrics(BaseModel):
+    """Validation execution metrics."""
+    total_records: int
+    records_processed: int
+    records_passed: int
+    records_failed: int
+    pass_rate: float
+    execution_time_ms: float
+    memory_usage_mb: Optional[float] = None
+    cpu_usage_percent: Optional[float] = None
+    
+    @validator('pass_rate')
+    def validate_pass_rate(cls, v):
+        if not 0.0 <= v <= 1.0:
+            raise ValueError('Pass rate must be between 0.0 and 1.0')
+        return v
+
+
+class ValidationResult(BaseModel):
+    """Comprehensive validation result."""
+    validation_id: UUID = Field(default_factory=uuid4)
+    rule_id: str
+    rule_name: str
+    category: ValidationCategory
+    severity: ValidationSeverity
+    passed: bool
+    
+    # Metrics
+    metrics: ValidationMetrics
+    
+    # Error details
+    errors: List[ValidationError] = Field(default_factory=list)
+    
+    # Execution context
+    context: ValidationContext
+    executed_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    # Statistical information
+    statistics: Dict[str, Any] = Field(default_factory=dict)
+    
+    class Config:
+        use_enum_values = True
+
+class ValidationRule(ABC):
+    """Abstract base class for validation rules with advanced capabilities."""
+    
+    def __init__(
+        self,
+        rule_id: str,
+        name: str,
+        description: str = '',
+        severity: ValidationSeverity = ValidationSeverity.ERROR,
+        category: ValidationCategory = ValidationCategory.CUSTOM,
+        enabled: bool = True,
+        fail_fast: bool = False,
+        sample_errors: int = 100
+    ):
         self.rule_id = rule_id
+        self.name = name
         self.description = description
         self.severity = severity
-
-    def validate(self, record: Dict[str, Any]) -> bool:
-        """Validate a single record. Returns True if it passes, False otherwise."""
-        raise NotImplementedError
+        self.category = category
+        self.enabled = enabled
+        self.fail_fast = fail_fast
+        self.sample_errors = sample_errors
+        self._errors: List[ValidationError] = []
+    
+    @abstractmethod
+    def validate_record(self, record: Dict[str, Any], row_index: int) -> bool:
+        """Validate a single record."""
+        pass
+    
+    @abstractmethod
+    def validate_dataset(self, df: pd.DataFrame) -> bool:
+        """Validate entire dataset (for rules that need full context)."""
+        pass
+    
+    def get_applicable_columns(self, df: pd.DataFrame) -> List[str]:
+        """Get columns this rule applies to."""
+        return list(df.columns)
+    
+    def can_run_parallel(self) -> bool:
+        """Whether this rule can be executed in parallel."""
+        return True
+    
+    def reset(self) -> None:
+        """Reset rule state for new validation run."""
+        self._errors.clear()
+    
+    def add_error(
+        self,
+        row_index: Optional[int],
+        column_name: Optional[str],
+        invalid_value: Any,
+        message: str,
+        error_code: Optional[str] = None,
+        expected_value: Any = None,
+        context: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """Add validation error."""
+        if len(self._errors) >= self.sample_errors:
+            return
+            
+        error = ValidationError(
+            rule_id=self.rule_id,
+            row_index=row_index,
+            column_name=column_name,
+            invalid_value=invalid_value,
+            expected_value=expected_value,
+            error_message=message,
+            error_code=error_code,
+            severity=self.severity,
+            category=self.category,
+            context=context or {}
+        )
+        self._errors.append(error)
+    
+    def get_errors(self) -> List[ValidationError]:
+        """Get collected validation errors."""
+        return self._errors.copy()
 
 class RangeRule(ValidationRule):
     """Validate that a numeric field falls within a specified range."""

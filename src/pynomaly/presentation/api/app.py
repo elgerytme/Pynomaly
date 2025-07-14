@@ -55,6 +55,21 @@ from pynomaly.presentation.api.endpoints import (
     streaming,
     version,
 )
+
+# Import new data science API endpoints
+try:
+    from pynomaly.presentation.api.endpoints import (
+        statistical_analysis,
+        feature_engineering,
+        data_visualization,
+    )
+    DATA_SCIENCE_ENDPOINTS_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: Data Science endpoints not available: {e}")
+    DATA_SCIENCE_ENDPOINTS_AVAILABLE = False
+    statistical_analysis = None
+    feature_engineering = None
+    data_visualization = None
 from pynomaly.presentation.api.router_factory import apply_openapi_overrides
 
 # Enhanced AutoML endpoints
@@ -363,6 +378,22 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     # Security management endpoints
     app.include_router(security_management.router, tags=["security"])
+
+    # Data Science API endpoints
+    if DATA_SCIENCE_ENDPOINTS_AVAILABLE:
+        app.include_router(
+            statistical_analysis.router,
+            tags=["statistical_analysis"]
+        )
+        app.include_router(
+            feature_engineering.router,
+            tags=["feature_engineering"]
+        )
+        app.include_router(
+            data_visualization.router,
+            tags=["data_visualization"]
+        )
+        print("✅ Data Science API endpoints registered")
 
     # Distributed processing API removed for simplification
 

@@ -43,6 +43,16 @@ This directory contains all Architectural Decision Records (ADRs) for the Pynoma
 - **[ADR-009: Testing Strategy](ADR-009-testing-strategy.md)** - Comprehensive testing approach
 - **[ADR-010: Performance Optimization](ADR-010-performance-optimization.md)** - Performance optimization strategies
 
+### **Architecture Strategy & Organization**
+
+- **[ADR-020: Microservices vs Monolith Strategy](ADR-020-microservices-vs-monolith-strategy.md)** - Modular monolith approach with microservices readiness
+- **[ADR-021: Multi-Package Domain Organization](ADR-021-multi-package-domain-organization.md)** - Domain-driven design package organization
+- **[ADR-022: Asynchronous Processing Architecture](ADR-022-asynchronous-processing-architecture.md)** - Comprehensive async processing strategy
+
+### **ML Operations & Lifecycle**
+
+- **[ADR-023: ML Model Lifecycle Management](ADR-023-ml-model-lifecycle-management.md)** - Comprehensive MLOps pipeline and model governance
+
 ---
 
 ## 📚 ADR Templates & Standards
@@ -84,7 +94,7 @@ ADRs are interconnected and reference each other where decisions are related:
 | Status | Count | ADRs |
 |--------|-------|------|
 | **ACCEPTED** | 3 | ADR-001, ADR-002, ADR-013 |
-| **PROPOSED** | 6 | ADR-014, ADR-015, ADR-016, ADR-017, ADR-018, ADR-019 |
+| **PROPOSED** | 10 | ADR-014, ADR-015, ADR-016, ADR-017, ADR-018, ADR-019, ADR-020, ADR-021, ADR-022, ADR-023 |
 | **PLANNED** | 6 | ADR-004, ADR-005, ADR-006, ADR-008, ADR-009, ADR-010 |
 | **IMPLEMENTED** | 3 | ADR-003, ADR-007, ADR-011, ADR-012 |
 
@@ -112,6 +122,6 @@ ADRs are interconnected and reference each other where decisions are related:
 
 ---
 
-**Last Updated:** 2025-07-11  
+**Last Updated:** 2025-07-14  
 **Maintained By:** Architecture Team  
-**Next Review:** 2025-10-11
+**Next Review:** 2025-10-14
