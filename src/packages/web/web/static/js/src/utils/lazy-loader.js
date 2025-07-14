@@ -16,7 +16,7 @@ class LazyLoader {
       errorClass: 'lazy-error',
       ...options
     };
-    
+
     this.loadedComponents = new Set();
     this.loadingComponents = new Set();
     this.componentCache = new Map();
@@ -30,7 +30,7 @@ class LazyLoader {
       averageLoadTime: 0,
       cacheHits: 0
     };
-    
+
     this.initIntersectionObserver();
     this.initPerformanceMonitoring();
   }
@@ -71,11 +71,11 @@ class LazyLoader {
   // Queue component loading to avoid blocking the main thread
   queueComponentLoad(element) {
     const componentName = element.dataset.component;
-    
+
     if (this.loadingComponents.has(componentName) || this.loadedComponents.has(componentName)) {
       return;
     }
-    
+
     this.loadQueue.push({ element, componentName, timestamp: Date.now() });
     this.processLoadQueue();
   }
@@ -84,21 +84,21 @@ class LazyLoader {
     if (this.isProcessingQueue || this.loadQueue.length === 0) {
       return;
     }
-    
+
     this.isProcessingQueue = true;
-    
+
     // Process up to 2 components concurrently
     const batchSize = 2;
     const batch = this.loadQueue.splice(0, batchSize);
-    
-    const loadPromises = batch.map(({ element, componentName }) => 
+
+    const loadPromises = batch.map(({ element, componentName }) =>
       this.loadComponent(element, componentName)
     );
-    
+
     await Promise.allSettled(loadPromises);
-    
+
     this.isProcessingQueue = false;
-    
+
     // Process remaining queue
     if (this.loadQueue.length > 0) {
       setTimeout(() => this.processLoadQueue(), 10);
@@ -112,7 +112,7 @@ class LazyLoader {
 
     this.loadingComponents.add(componentName);
     const startTime = performance.now();
-    
+
     // Mark performance measurement start
     performance.mark(`component-load-${componentName}-start`);
 
@@ -123,14 +123,14 @@ class LazyLoader {
       // Check cache first
       let component = this.componentCache.get(componentName);
       let isCacheHit = false;
-      
+
       if (component) {
         this.performanceMetrics.cacheHits++;
         isCacheHit = true;
       } else {
         // Dynamic import based on component type
         component = await this.loadComponentModule(componentName);
-        
+
         // Cache the component module
         this.componentCache.set(componentName, component);
       }
@@ -145,7 +145,7 @@ class LazyLoader {
       this.loadedComponents.add(componentName);
       this.loadingComponents.delete(componentName);
       this.hideLoadingState(element);
-      
+
       // Add loaded class
       element.classList.add(this.options.loadedClass);
 
@@ -164,9 +164,9 @@ class LazyLoader {
 
       // Dispatch loaded event
       element.dispatchEvent(new CustomEvent('component-loaded', {
-        detail: { 
-          componentName, 
-          loadTime, 
+        detail: {
+          componentName,
+          loadTime,
           isCacheHit,
           performance: this.getPerformanceMetrics()
         }
@@ -182,22 +182,22 @@ class LazyLoader {
       this.showErrorState(element);
       this.loadingComponents.delete(componentName);
       this.performanceMetrics.failedLoads++;
-      
+
       // Add error class
       element.classList.add(this.options.errorClass);
-      
+
       // Dispatch error event
       element.dispatchEvent(new CustomEvent('component-error', {
         detail: { componentName, error: error.message }
       }));
     }
-    
+
     this.performanceMetrics.totalLoads++;
   }
 
   updatePerformanceMetrics(loadTime) {
     const { totalLoads, averageLoadTime } = this.performanceMetrics;
-    this.performanceMetrics.averageLoadTime = 
+    this.performanceMetrics.averageLoadTime =
       (averageLoadTime * totalLoads + loadTime) / (totalLoads + 1);
   }
 
@@ -248,7 +248,7 @@ class LazyLoader {
   // Prefetch related components based on usage patterns
   async prefetchRelatedComponents(componentName) {
     const relatedComponents = this.getRelatedComponents(componentName);
-    
+
     for (const relatedComponent of relatedComponents) {
       if (!this.componentCache.has(relatedComponent) && !this.loadingComponents.has(relatedComponent)) {
         try {
@@ -274,7 +274,7 @@ class LazyLoader {
       'data-uploader': ['dashboard', 'chart'],
       'anomaly-detector': ['dashboard', 'chart', 'real-time']
     };
-    
+
     return relationships[componentName] || [];
   }
 
@@ -298,7 +298,7 @@ class LazyLoader {
   async preloadBasedOnBehavior() {
     const userBehavior = this.getUserBehaviorData();
     const likelyComponents = this.predictLikelyComponents(userBehavior);
-    
+
     for (const componentName of likelyComponents) {
       if (!this.componentCache.has(componentName)) {
         try {
@@ -352,7 +352,7 @@ class LazyLoader {
   cleanupUnusedComponents() {
     const now = Date.now();
     const maxAge = 5 * 60 * 1000; // 5 minutes
-    
+
     this.componentCache.forEach((value, key) => {
       if (value._lastUsed && now - value._lastUsed > maxAge) {
         this.componentCache.delete(key);
@@ -363,16 +363,16 @@ class LazyLoader {
   // Resource hints for better loading performance
   addResourceHints() {
     if (!this.options.enablePreconnect) return;
-    
+
     const head = document.head;
-    
+
     // Add preconnect for CDN resources
     const preconnectLinks = [
       'https://cdn.jsdelivr.net',
       'https://unpkg.com',
       'https://cdnjs.cloudflare.com'
     ];
-    
+
     preconnectLinks.forEach(href => {
       if (!document.querySelector(`link[href="${href}"]`)) {
         const link = document.createElement('link');
@@ -391,7 +391,7 @@ const lazyLoader = new LazyLoader();
 document.addEventListener('DOMContentLoaded', () => {
   // Add resource hints
   lazyLoader.addResourceHints();
-  
+
   // Find all lazy-load elements
   const lazyElements = document.querySelectorAll('[data-component]');
 
@@ -401,12 +401,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Preload critical components
   lazyLoader.preloadCritical(['dashboard', 'chart']);
-  
+
   // Preload based on user behavior after a delay
   setTimeout(() => {
     lazyLoader.preloadBasedOnBehavior();
   }, 2000);
-  
+
   // Cleanup unused components periodically
   setInterval(() => {
     lazyLoader.cleanupUnusedComponents();

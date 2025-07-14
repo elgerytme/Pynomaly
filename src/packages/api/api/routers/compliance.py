@@ -18,9 +18,7 @@ from pynomaly.domain.entities.compliance import (
     RetentionPolicyStatus,
 )
 from pynomaly.domain.entities.user import User
-from pynomaly.shared.exceptions import (
-    ValidationError,
-)
+from pynomaly.shared.exceptions import ValidationError
 from pynomaly.shared.types import TenantId, UserId
 
 # Router setup

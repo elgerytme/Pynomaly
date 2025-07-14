@@ -18,7 +18,7 @@ class PerformanceDashboard {
             resources: [],
             errors: []
         };
-        
+
         this.dashboardElement = null;
         this.chartInstances = {};
         this.updateInterval = 5000; // 5 seconds
@@ -38,10 +38,10 @@ class PerformanceDashboard {
         this.dashboardElement.id = 'performance-dashboard';
         this.dashboardElement.className = 'performance-dashboard';
         this.dashboardElement.innerHTML = this.getDashboardHTML();
-        
+
         // Add styles
         this.addStyles();
-        
+
         // Initially hidden
         this.dashboardElement.style.display = 'none';
         document.body.appendChild(this.dashboardElement);
@@ -57,7 +57,7 @@ class PerformanceDashboard {
                     <button id="close-dashboard" class="btn btn-sm">×</button>
                 </div>
             </div>
-            
+
             <div class="dashboard-content">
                 <div class="metrics-grid">
                     <!-- Core Web Vitals -->
@@ -400,7 +400,7 @@ class PerformanceDashboard {
     collectNetworkInformation() {
         if ('connection' in navigator) {
             const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-            
+
             if (connection) {
                 document.getElementById('connection-type').textContent = connection.type || 'Unknown';
                 document.getElementById('effective-type').textContent = connection.effectiveType || 'Unknown';
@@ -446,17 +446,17 @@ class PerformanceDashboard {
 
     updateCoreWebVitals() {
         const vitals = this.metrics.coreWebVitals;
-        
+
         Object.entries(vitals).forEach(([metric, values]) => {
             if (values.length > 0) {
                 const latest = values[values.length - 1];
                 const element = document.getElementById(`${metric.toLowerCase()}-value`);
                 const statusElement = document.getElementById(`${metric.toLowerCase()}-status`);
-                
+
                 if (element) {
                     element.textContent = this.formatValue(latest.value, metric);
                 }
-                
+
                 if (statusElement) {
                     const status = this.getVitalStatus(metric, latest.value);
                     statusElement.textContent = status.text;
@@ -468,28 +468,28 @@ class PerformanceDashboard {
 
     updatePagePerformance() {
         const loads = this.metrics.pageLoads;
-        
+
         if (loads.length > 0) {
             const avgLoadTime = loads.reduce((sum, load) => sum + load.loadTime, 0) / loads.length;
             document.getElementById('avg-load-time').textContent = `${avgLoadTime.toFixed(0)}ms`;
         }
-        
+
         document.getElementById('total-requests').textContent = loads.length;
-        
+
         const failed = loads.filter(load => load.failed).length;
         document.getElementById('failed-requests').textContent = failed;
     }
 
     updateAPIPerformance() {
         const apiCalls = this.metrics.apiCalls;
-        
+
         if (apiCalls.length > 0) {
             const avgResponseTime = apiCalls.reduce((sum, call) => sum + call.responseTime, 0) / apiCalls.length;
             document.getElementById('avg-api-time').textContent = `${avgResponseTime.toFixed(0)}ms`;
         }
-        
+
         document.getElementById('api-calls').textContent = apiCalls.length;
-        
+
         const errors = apiCalls.filter(call => call.error).length;
         const errorRate = apiCalls.length > 0 ? (errors / apiCalls.length * 100).toFixed(1) : 0;
         document.getElementById('error-rate').textContent = `${errorRate}%`;
@@ -535,11 +535,11 @@ class PerformanceDashboard {
     updateVitalsChart() {
         const ctx = document.getElementById('vitals-chart').getContext('2d');
         const vitals = this.metrics.coreWebVitals;
-        
+
         if (this.chartInstances.vitals) {
             this.chartInstances.vitals.destroy();
         }
-        
+
         this.chartInstances.vitals = new Chart(ctx, {
             type: 'line',
             data: {

@@ -31,10 +31,9 @@ from .comprehensive_health_manager import (
 from .dashboard_service import DashboardMetrics, MonitoringDashboardService
 
 # Health checks
+from .health_checks import ComponentType, HealthChecker, HealthCheckResult
+from .health_checks import HealthStatus as HealthCheckStatus
 from .health_checks import (
-    ComponentType,
-    HealthChecker,
-    HealthCheckResult,
     ProbeResponse,
     SystemHealth,
     get_health_checker,
@@ -42,7 +41,6 @@ from .health_checks import (
     readiness_probe,
     register_health_check,
 )
-from .health_checks import HealthStatus as HealthCheckStatus
 from .health_service import HealthCheck, HealthService, HealthStatus, SystemMetrics
 from .performance_monitor import (
     PerformanceAlert,

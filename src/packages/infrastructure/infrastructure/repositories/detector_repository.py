@@ -19,10 +19,10 @@ class DetectorRepository(DetectorRepositoryProtocol):
         """Save detector."""
         self._items[entity.id] = entity
         # Update name index if detector has a name in metadata
-        if hasattr(entity, 'name') and entity.name:
+        if hasattr(entity, "name") and entity.name:
             self._name_index[entity.name] = entity.id
-        elif entity.metadata and entity.metadata.get('name'):
-            self._name_index[entity.metadata['name']] = entity.id
+        elif entity.metadata and entity.metadata.get("name"):
+            self._name_index[entity.metadata["name"]] = entity.id
 
     async def find_by_id(self, entity_id: UUID) -> Detector | None:
         """Find detector by ID."""
@@ -37,17 +37,19 @@ class DetectorRepository(DetectorRepositoryProtocol):
         if entity_id in self._items:
             detector = self._items[entity_id]
             del self._items[entity_id]
-            
+
             # Remove from name index
-            if hasattr(detector, 'name') and detector.name in self._name_index:
+            if hasattr(detector, "name") and detector.name in self._name_index:
                 del self._name_index[detector.name]
-            elif detector.metadata and detector.metadata.get('name') in self._name_index:
-                del self._name_index[detector.metadata['name']]
-            
+            elif (
+                detector.metadata and detector.metadata.get("name") in self._name_index
+            ):
+                del self._name_index[detector.metadata["name"]]
+
             # Remove model artifact if exists
             if entity_id in self._model_artifacts:
                 del self._model_artifacts[entity_id]
-            
+
             return True
         return False
 

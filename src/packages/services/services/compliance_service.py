@@ -20,9 +20,7 @@ from pynomaly.domain.entities.compliance import (
     EncryptionKey,
     GDPRRequest,
 )
-from pynomaly.shared.exceptions import (
-    ValidationError,
-)
+from pynomaly.shared.exceptions import ValidationError
 from pynomaly.shared.types import TenantId, UserId
 
 

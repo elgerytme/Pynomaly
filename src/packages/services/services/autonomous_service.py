@@ -19,9 +19,9 @@ from pynomaly.application.services.autonomous_data_profiler import (
     AutonomousDataProfiler,
 )
 from pynomaly.application.services.autonomous_detection_config import (
+    AlgorithmRecommendation,
     AutonomousConfig,
     DataProfile,
-    AlgorithmRecommendation,
 )
 from pynomaly.application.services.autonomous_preprocessing import (
     AutonomousPreprocessingOrchestrator,
@@ -98,7 +98,9 @@ class AutonomousDetectionService:
             )
 
             # Step 5: Auto-tune and run detection (simplified implementation)
-            results = await self._run_detection_pipeline(dataset, recommendations, config)
+            results = await self._run_detection_pipeline(
+                dataset, recommendations, config
+            )
 
             # Step 6: Post-process and export
             final_results = await self._finalize_results(
@@ -131,11 +133,11 @@ class AutonomousDetectionService:
         self, dataset: Dataset, config: AutonomousConfig
     ) -> tuple[Dataset, DataProfile]:
         """Assess data quality and preprocess if needed.
-        
+
         Args:
             dataset: Input dataset
             config: Configuration options
-            
+
         Returns:
             Tuple of (processed_dataset, initial_profile)
         """
@@ -143,7 +145,9 @@ class AutonomousDetectionService:
         initial_profile = DataProfile(
             n_samples=len(dataset.data),
             n_features=len(dataset.data.columns),
-            numeric_features=len(dataset.data.select_dtypes(include=["number"]).columns),
+            numeric_features=len(
+                dataset.data.select_dtypes(include=["number"]).columns
+            ),
             categorical_features=len(
                 dataset.data.select_dtypes(include=["object", "category"]).columns
             ),
@@ -164,15 +168,18 @@ class AutonomousDetectionService:
         return dataset, initial_profile
 
     async def _run_detection_pipeline(
-        self, dataset: Dataset, recommendations: list[AlgorithmRecommendation], config: AutonomousConfig
+        self,
+        dataset: Dataset,
+        recommendations: list[AlgorithmRecommendation],
+        config: AutonomousConfig,
     ) -> dict[str, Any]:
         """Run detection pipeline with recommended algorithms.
-        
+
         Args:
             dataset: Input dataset
             recommendations: Algorithm recommendations
             config: Configuration options
-            
+
         Returns:
             Detection results
         """
@@ -187,7 +194,7 @@ class AutonomousDetectionService:
 
         # For now, return a simplified result based on the first recommendation
         best_rec = recommendations[0]
-        
+
         return {
             "selected_algorithm": best_rec.algorithm,
             "anomalies_found": 1,
@@ -200,14 +207,14 @@ class AutonomousDetectionService:
         self, dataset, profile, recommendations, results, config: AutonomousConfig
     ) -> dict[str, Any]:
         """Post-process and finalize results.
-        
+
         Args:
             dataset: Input dataset
             profile: Data profile
             recommendations: Algorithm recommendations
             results: Detection results
             config: Configuration options
-            
+
         Returns:
             Final results dictionary
         """

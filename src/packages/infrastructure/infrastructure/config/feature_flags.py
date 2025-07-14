@@ -382,7 +382,7 @@ class FeatureFlagManager:
                 stage=FeatureStage.BETA,
                 dependencies={"real_time_dashboards"},
             ),
-            # Legacy AutoML support  
+            # Legacy AutoML support
             "automl": FeatureDefinition(
                 name="automl",
                 description="AutoML features (alias for advanced_automl)",
@@ -568,7 +568,9 @@ def is_advanced_analytics_enabled() -> bool:
 
 def is_automl_enabled() -> bool:
     """Check if AutoML features are enabled."""
-    return feature_flags.is_enabled("automl") or feature_flags.is_enabled("advanced_automl")
+    return feature_flags.is_enabled("automl") or feature_flags.is_enabled(
+        "advanced_automl"
+    )
 
 
 def get_feature_flags() -> FeatureFlags:

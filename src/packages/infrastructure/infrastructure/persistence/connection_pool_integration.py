@@ -13,9 +13,7 @@ from pynomaly.infrastructure.performance.connection_pooling import (
     PoolConfiguration,
     get_connection_pool_manager,
 )
-from pynomaly.infrastructure.repositories.repository_factory import (
-    RepositoryFactory,
-)
+from pynomaly.infrastructure.repositories.repository_factory import RepositoryFactory
 
 from .enhanced_database import EnhancedDatabaseManager
 from .production_database import (

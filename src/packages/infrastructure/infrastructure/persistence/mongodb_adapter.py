@@ -21,7 +21,7 @@ class MongoDBAdapter:
 
     def __init__(self, config: DatabaseConfig):
         """Initialize MongoDB adapter.
-        
+
         Args:
             config: Database configuration
         """
@@ -58,12 +58,12 @@ class MongoDBAdapter:
 
     async def ping(self) -> bool:
         """Test database connection.
-        
+
         Returns:
             True if connection is successful
         """
         try:
-            await self.client.admin.command('ping')
+            await self.client.admin.command("ping")
             return True
         except Exception as e:
             logger.error(f"MongoDB ping failed: {e}")
@@ -77,7 +77,7 @@ class MongoDBAdapter:
 
     async def get_database_info(self) -> dict[str, Any]:
         """Get database information.
-        
+
         Returns:
             Database information dictionary
         """
@@ -101,15 +101,15 @@ class MongoDBAdapter:
         self,
         collection_name: str,
         document: dict[str, Any],
-        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None
+        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None,
     ) -> motor.motor_asyncio.AsyncIOMotorCollection.InsertOneResult:
         """Insert a document into a collection.
-        
+
         Args:
             collection_name: Name of the collection
             document: Document to insert
             session: Optional transaction session
-            
+
         Returns:
             Insert result
         """
@@ -128,15 +128,15 @@ class MongoDBAdapter:
         self,
         collection_name: str,
         filter_dict: dict[str, Any],
-        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None
+        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None,
     ) -> dict[str, Any] | None:
         """Find a single document in a collection.
-        
+
         Args:
             collection_name: Name of the collection
             filter_dict: Query filter
             session: Optional transaction session
-            
+
         Returns:
             Found document or None
         """
@@ -155,10 +155,10 @@ class MongoDBAdapter:
         limit: int | None = None,
         skip: int | None = None,
         sort: list[tuple] | None = None,
-        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None
+        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None,
     ) -> list[dict[str, Any]]:
         """Find multiple documents in a collection.
-        
+
         Args:
             collection_name: Name of the collection
             filter_dict: Query filter
@@ -166,7 +166,7 @@ class MongoDBAdapter:
             skip: Number of documents to skip
             sort: Sort specification
             session: Optional transaction session
-            
+
         Returns:
             List of found documents
         """
@@ -192,22 +192,24 @@ class MongoDBAdapter:
         collection_name: str,
         filter_dict: dict[str, Any],
         update_dict: dict[str, Any],
-        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None
+        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None,
     ) -> motor.motor_asyncio.AsyncIOMotorCollection.UpdateResult:
         """Update a document in a collection.
-        
+
         Args:
             collection_name: Name of the collection
             filter_dict: Query filter
             update_dict: Update specification
             session: Optional transaction session
-            
+
         Returns:
             Update result
         """
         try:
             collection = self.database[collection_name]
-            result = await collection.update_one(filter_dict, update_dict, session=session)
+            result = await collection.update_one(
+                filter_dict, update_dict, session=session
+            )
             return result
         except Exception as e:
             logger.error(f"Failed to update document in {collection_name}: {e}")
@@ -217,15 +219,15 @@ class MongoDBAdapter:
         self,
         collection_name: str,
         filter_dict: dict[str, Any],
-        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None
+        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None,
     ) -> motor.motor_asyncio.AsyncIOMotorCollection.DeleteResult:
         """Delete a document from a collection.
-        
+
         Args:
             collection_name: Name of the collection
             filter_dict: Query filter
             session: Optional transaction session
-            
+
         Returns:
             Delete result
         """
@@ -241,15 +243,15 @@ class MongoDBAdapter:
         self,
         collection_name: str,
         pipeline: list[dict[str, Any]],
-        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None
+        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None,
     ) -> list[dict[str, Any]]:
         """Execute an aggregation pipeline.
-        
+
         Args:
             collection_name: Name of the collection
             pipeline: Aggregation pipeline
             session: Optional transaction session
-            
+
         Returns:
             Aggregation results
         """
@@ -267,25 +269,23 @@ class MongoDBAdapter:
         collection_name: str,
         keys: Any,
         unique: bool = False,
-        background: bool = True
+        background: bool = True,
     ) -> str:
         """Create an index on a collection.
-        
+
         Args:
             collection_name: Name of the collection
             keys: Index keys specification
             unique: Whether to create unique index
             background: Whether to create index in background
-            
+
         Returns:
             Index name
         """
         try:
             collection = self.database[collection_name]
             index_name = await collection.create_index(
-                keys,
-                unique=unique,
-                background=background
+                keys, unique=unique, background=background
             )
             return index_name
         except Exception as e:
@@ -294,10 +294,10 @@ class MongoDBAdapter:
 
     async def get_indexes(self, collection_name: str) -> list[dict[str, Any]]:
         """Get all indexes for a collection.
-        
+
         Args:
             collection_name: Name of the collection
-            
+
         Returns:
             List of index information
         """
@@ -310,9 +310,11 @@ class MongoDBAdapter:
             raise
 
     @asynccontextmanager
-    async def start_transaction(self) -> AsyncGenerator[motor.motor_asyncio.AsyncIOMotorClientSession, None]:
+    async def start_transaction(
+        self,
+    ) -> AsyncGenerator[motor.motor_asyncio.AsyncIOMotorClientSession, None]:
         """Start a database transaction.
-        
+
         Yields:
             Transaction session
         """
@@ -322,18 +324,20 @@ class MongoDBAdapter:
 
     def is_connected(self) -> bool:
         """Check if adapter is connected to database.
-        
+
         Returns:
             True if connected
         """
         return self._connected
 
-    def get_collection(self, collection_name: str) -> motor.motor_asyncio.AsyncIOMotorCollection:
+    def get_collection(
+        self, collection_name: str
+    ) -> motor.motor_asyncio.AsyncIOMotorCollection:
         """Get a collection reference.
-        
+
         Args:
             collection_name: Name of the collection
-            
+
         Returns:
             Collection reference
         """
@@ -345,15 +349,15 @@ class MongoDBAdapter:
         self,
         collection_name: str,
         filter_dict: dict[str, Any],
-        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None
+        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None,
     ) -> int:
         """Count documents in a collection.
-        
+
         Args:
             collection_name: Name of the collection
             filter_dict: Query filter
             session: Optional transaction session
-            
+
         Returns:
             Number of documents
         """
@@ -365,9 +369,11 @@ class MongoDBAdapter:
             logger.error(f"Failed to count documents in {collection_name}: {e}")
             raise
 
-    async def ensure_indexes(self, collection_name: str, indexes: list[IndexModel]) -> None:
+    async def ensure_indexes(
+        self, collection_name: str, indexes: list[IndexModel]
+    ) -> None:
         """Ensure indexes exist on a collection.
-        
+
         Args:
             collection_name: Name of the collection
             indexes: List of index models
@@ -385,15 +391,15 @@ class MongoDBAdapter:
         self,
         collection_name: str,
         operations: list[Any],
-        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None
+        session: motor.motor_asyncio.AsyncIOMotorClientSession | None = None,
     ) -> motor.motor_asyncio.AsyncIOMotorCollection.BulkWriteResult:
         """Execute bulk write operations.
-        
+
         Args:
             collection_name: Name of the collection
             operations: List of write operations
             session: Optional transaction session
-            
+
         Returns:
             Bulk write result
         """

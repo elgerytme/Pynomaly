@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Dict, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +19,7 @@ class ResourceMonitor:
         """Check if psutil is available."""
         try:
             import psutil
+
             return True
         except ImportError:
             logger.warning("psutil not available - resource monitoring disabled")
@@ -51,14 +52,14 @@ class ResourceMonitor:
             logger.warning(f"Failed to get CPU usage: {e}")
             return 0.0
 
-    def get_system_info(self) -> Dict[str, Any]:
+    def get_system_info(self) -> dict[str, Any]:
         """Get comprehensive system information."""
         if not self._psutil_available:
             return {
                 "memory_mb": 0.0,
                 "cpu_percent": 0.0,
                 "disk_usage_percent": 0.0,
-                "available": False
+                "available": False,
             }
 
         try:
@@ -66,10 +67,10 @@ class ResourceMonitor:
 
             # Memory information
             memory = psutil.virtual_memory()
-            
+
             # Disk information
-            disk = psutil.disk_usage('/')
-            
+            disk = psutil.disk_usage("/")
+
             # CPU information
             cpu_percent = psutil.cpu_percent(interval=0.1)
 
@@ -81,7 +82,7 @@ class ResourceMonitor:
                 "cpu_count": psutil.cpu_count(),
                 "disk_usage_percent": disk.percent,
                 "disk_free_gb": disk.free / (1024 * 1024 * 1024),
-                "available": True
+                "available": True,
             }
         except Exception as e:
             logger.error(f"Failed to get system info: {e}")
@@ -90,36 +91,46 @@ class ResourceMonitor:
                 "cpu_percent": 0.0,
                 "disk_usage_percent": 0.0,
                 "available": False,
-                "error": str(e)
+                "error": str(e),
             }
 
-    def check_resource_limits(self, max_memory_gb: float = 8.0, max_cpu_percent: float = 90.0) -> Dict[str, Any]:
+    def check_resource_limits(
+        self, max_memory_gb: float = 8.0, max_cpu_percent: float = 90.0
+    ) -> dict[str, Any]:
         """Check if current resource usage exceeds limits."""
         system_info = self.get_system_info()
-        
+
         if not system_info["available"]:
             return {
                 "within_limits": True,
                 "warnings": ["Resource monitoring not available"],
-                "violations": []
+                "violations": [],
             }
 
         warnings = []
         violations = []
-        
+
         # Check memory limit
         memory_gb = system_info["memory_mb"] / 1024
         if memory_gb > max_memory_gb:
-            violations.append(f"Memory usage ({memory_gb:.1f}GB) exceeds limit ({max_memory_gb}GB)")
+            violations.append(
+                f"Memory usage ({memory_gb:.1f}GB) exceeds limit ({max_memory_gb}GB)"
+            )
         elif memory_gb > max_memory_gb * 0.8:
-            warnings.append(f"Memory usage ({memory_gb:.1f}GB) approaching limit ({max_memory_gb}GB)")
+            warnings.append(
+                f"Memory usage ({memory_gb:.1f}GB) approaching limit ({max_memory_gb}GB)"
+            )
 
         # Check CPU limit
         cpu_percent = system_info["cpu_percent"]
         if cpu_percent > max_cpu_percent:
-            violations.append(f"CPU usage ({cpu_percent:.1f}%) exceeds limit ({max_cpu_percent}%)")
+            violations.append(
+                f"CPU usage ({cpu_percent:.1f}%) exceeds limit ({max_cpu_percent}%)"
+            )
         elif cpu_percent > max_cpu_percent * 0.8:
-            warnings.append(f"CPU usage ({cpu_percent:.1f}%) approaching limit ({max_cpu_percent}%)")
+            warnings.append(
+                f"CPU usage ({cpu_percent:.1f}%) approaching limit ({max_cpu_percent}%)"
+            )
 
         # Check disk space
         disk_percent = system_info["disk_usage_percent"]
@@ -132,5 +143,5 @@ class ResourceMonitor:
             "within_limits": len(violations) == 0,
             "warnings": warnings,
             "violations": violations,
-            "system_info": system_info
+            "system_info": system_info,
         }

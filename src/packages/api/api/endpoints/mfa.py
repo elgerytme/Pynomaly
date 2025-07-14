@@ -68,7 +68,7 @@ async def setup_totp(
 ):
     """
     Initialize TOTP (Time-based One-Time Password) setup.
-    
+
     Returns QR code and manual entry key for authenticator apps.
     """
     try:
@@ -81,7 +81,7 @@ async def setup_totp(
             user_email=current_user.email,
             secret=secret,
             app_name=request.app_name,
-            issuer=request.issuer
+            issuer=request.issuer,
         )
 
         audit_logger.log_security_event(
@@ -89,7 +89,7 @@ async def setup_totp(
             f"TOTP setup initiated for user {current_user.id}",
             level=AuditLevel.INFO,
             user_id=current_user.id,
-            details={"method": "totp", "app_name": request.app_name}
+            details={"method": "totp", "app_name": request.app_name},
         )
 
         return setup_response
@@ -101,11 +101,11 @@ async def setup_totp(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"method": "totp", "error": str(e)},
-            risk_score=20
+            risk_score=20,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to set up TOTP authentication"
+            detail="Failed to set up TOTP authentication",
         )
 
 
@@ -117,7 +117,7 @@ async def verify_totp_setup(
 ):
     """
     Verify TOTP setup by confirming the first code.
-    
+
     This confirms the TOTP setup and enables the method.
     """
     try:
@@ -127,7 +127,7 @@ async def verify_totp_setup(
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid TOTP code or setup not initiated"
+                detail="Invalid TOTP code or setup not initiated",
             )
 
         audit_logger.log_security_event(
@@ -135,7 +135,7 @@ async def verify_totp_setup(
             f"TOTP enabled for user {current_user.id}",
             level=AuditLevel.INFO,
             user_id=current_user.id,
-            details={"method": "totp", "enabled": True}
+            details={"method": "totp", "enabled": True},
         )
 
         return {"message": "TOTP authentication enabled successfully"}
@@ -149,11 +149,11 @@ async def verify_totp_setup(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"method": "totp", "error": str(e)},
-            risk_score=30
+            risk_score=30,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to verify TOTP code"
+            detail="Failed to verify TOTP code",
         )
 
 
@@ -165,7 +165,7 @@ async def setup_sms(
 ):
     """
     Set up SMS-based MFA.
-    
+
     Sends verification code to the provided phone number.
     """
     try:
@@ -175,7 +175,7 @@ async def setup_sms(
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to send SMS verification code"
+                detail="Failed to send SMS verification code",
             )
 
         return {"message": "SMS verification code sent successfully"}
@@ -189,11 +189,11 @@ async def setup_sms(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"method": "sms", "error": str(e)},
-            risk_score=20
+            risk_score=20,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to set up SMS authentication"
+            detail="Failed to set up SMS authentication",
         )
 
 
@@ -205,7 +205,7 @@ async def verify_sms_setup(
 ):
     """
     Verify SMS setup by confirming the SMS code.
-    
+
     This confirms the SMS setup and enables the method.
     """
     try:
@@ -215,7 +215,7 @@ async def verify_sms_setup(
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid SMS code or expired"
+                detail="Invalid SMS code or expired",
             )
 
         return {"message": "SMS authentication enabled successfully"}
@@ -229,11 +229,11 @@ async def verify_sms_setup(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"method": "sms", "error": str(e)},
-            risk_score=30
+            risk_score=30,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to verify SMS code"
+            detail="Failed to verify SMS code",
         )
 
 
@@ -244,7 +244,7 @@ async def setup_email(
 ):
     """
     Set up email-based MFA.
-    
+
     Sends verification code to the user's email address.
     """
     try:
@@ -254,7 +254,7 @@ async def setup_email(
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to send email verification code"
+                detail="Failed to send email verification code",
             )
 
         return {"message": "Email verification code sent successfully"}
@@ -268,11 +268,11 @@ async def setup_email(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"method": "email", "error": str(e)},
-            risk_score=20
+            risk_score=20,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to set up email authentication"
+            detail="Failed to set up email authentication",
         )
 
 
@@ -284,7 +284,7 @@ async def verify_email_setup(
 ):
     """
     Verify email setup by confirming the email code.
-    
+
     This confirms the email setup and enables the method.
     """
     try:
@@ -294,7 +294,7 @@ async def verify_email_setup(
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid email code or expired"
+                detail="Invalid email code or expired",
             )
 
         return {"message": "Email authentication enabled successfully"}
@@ -308,11 +308,11 @@ async def verify_email_setup(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"method": "email", "error": str(e)},
-            risk_score=30
+            risk_score=30,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to verify email code"
+            detail="Failed to verify email code",
         )
 
 
@@ -323,7 +323,7 @@ async def get_mfa_status(
 ):
     """
     Get the current MFA status for the user.
-    
+
     Returns active methods, pending methods, and availability of backup codes.
     """
     try:
@@ -348,7 +348,7 @@ async def get_mfa_status(
             active_methods=active_methods,
             pending_methods=pending_methods,
             primary_method=primary_method,
-            backup_codes_available=backup_codes_available
+            backup_codes_available=backup_codes_available,
         )
 
     except Exception as e:
@@ -358,11 +358,11 @@ async def get_mfa_status(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"error": str(e)},
-            risk_score=10
+            risk_score=10,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve MFA status"
+            detail="Failed to retrieve MFA status",
         )
 
 
@@ -374,7 +374,7 @@ async def enable_mfa(
 ):
     """
     Enable an MFA method after verification.
-    
+
     Requires verification code to confirm the method works.
     """
     try:
@@ -382,18 +382,26 @@ async def enable_mfa(
         success = False
 
         if request.method_type == MFAMethodType.TOTP:
-            success = mfa_service.confirm_totp_setup(current_user.id, request.verification_code)
+            success = mfa_service.confirm_totp_setup(
+                current_user.id, request.verification_code
+            )
         elif request.method_type == MFAMethodType.SMS:
-            success = mfa_service.verify_sms_code(current_user.id, request.verification_code)
+            success = mfa_service.verify_sms_code(
+                current_user.id, request.verification_code
+            )
         elif request.method_type == MFAMethodType.EMAIL:
-            success = mfa_service.verify_email_code(current_user.id, request.verification_code)
+            success = mfa_service.verify_email_code(
+                current_user.id, request.verification_code
+            )
         elif request.method_type == MFAMethodType.BACKUP_CODES:
-            success = mfa_service.verify_backup_code(current_user.id, request.verification_code)
+            success = mfa_service.verify_backup_code(
+                current_user.id, request.verification_code
+            )
 
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid verification code"
+                detail="Invalid verification code",
             )
 
         audit_logger.log_security_event(
@@ -404,8 +412,8 @@ async def enable_mfa(
             details={
                 "method": request.method_type.value,
                 "enabled": True,
-                "primary": request.set_as_primary
-            }
+                "primary": request.set_as_primary,
+            },
         )
 
         return {"message": f"{request.method_type.value} MFA enabled successfully"}
@@ -419,11 +427,11 @@ async def enable_mfa(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"method": request.method_type.value, "error": str(e)},
-            risk_score=20
+            risk_score=20,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to enable MFA method"
+            detail="Failed to enable MFA method",
         )
 
 
@@ -435,7 +443,7 @@ async def disable_mfa(
 ):
     """
     Disable an MFA method.
-    
+
     Requires verification code to confirm the action.
     """
     try:
@@ -448,21 +456,24 @@ async def disable_mfa(
 
         if not method_type:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid method ID"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid method ID"
             )
 
         # Verify the code first
         success = False
         if method_type == MFAMethodType.TOTP:
-            success = mfa_service.verify_totp_code(current_user.id, request.verification_code)
+            success = mfa_service.verify_totp_code(
+                current_user.id, request.verification_code
+            )
         elif method_type == MFAMethodType.BACKUP_CODES:
-            success = mfa_service.verify_backup_code(current_user.id, request.verification_code)
+            success = mfa_service.verify_backup_code(
+                current_user.id, request.verification_code
+            )
 
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid verification code"
+                detail="Invalid verification code",
             )
 
         # Disable the method
@@ -473,7 +484,7 @@ async def disable_mfa(
             f"MFA method {method_type.value} disabled for user {current_user.id}",
             level=AuditLevel.INFO,
             user_id=current_user.id,
-            details={"method": method_type.value, "disabled": True}
+            details={"method": method_type.value, "disabled": True},
         )
 
         return {"message": f"{method_type.value} MFA disabled successfully"}
@@ -487,11 +498,11 @@ async def disable_mfa(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"method_id": request.method_id, "error": str(e)},
-            risk_score=20
+            risk_score=20,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to disable MFA method"
+            detail="Failed to disable MFA method",
         )
 
 
@@ -505,7 +516,7 @@ async def verify_mfa_login(
 ):
     """
     Verify MFA during login process.
-    
+
     Used after initial username/password authentication.
     """
     try:
@@ -513,18 +524,25 @@ async def verify_mfa_login(
         success = False
 
         if request.method_type == MFAMethodType.TOTP:
-            success = mfa_service.verify_totp_code(current_user.id, request.verification_code)
+            success = mfa_service.verify_totp_code(
+                current_user.id, request.verification_code
+            )
         elif request.method_type == MFAMethodType.SMS:
-            success = mfa_service.verify_sms_code(current_user.id, request.verification_code)
+            success = mfa_service.verify_sms_code(
+                current_user.id, request.verification_code
+            )
         elif request.method_type == MFAMethodType.EMAIL:
-            success = mfa_service.verify_email_code(current_user.id, request.verification_code)
+            success = mfa_service.verify_email_code(
+                current_user.id, request.verification_code
+            )
         elif request.method_type == MFAMethodType.BACKUP_CODES:
-            success = mfa_service.verify_backup_code(current_user.id, request.verification_code)
+            success = mfa_service.verify_backup_code(
+                current_user.id, request.verification_code
+            )
 
         if not success:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid MFA code"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid MFA code"
             )
 
         # Generate access tokens
@@ -546,8 +564,8 @@ async def verify_mfa_login(
             details={
                 "method": request.method_type.value,
                 "device_remembered": device_remembered,
-                "success": True
-            }
+                "success": True,
+            },
         )
 
         return MFALoginResponse(
@@ -555,7 +573,7 @@ async def verify_mfa_login(
             refresh_token=refresh_token,
             token_type="bearer",
             expires_in=3600,  # 1 hour
-            device_remembered=device_remembered
+            device_remembered=device_remembered,
         )
 
     except HTTPException:
@@ -567,11 +585,11 @@ async def verify_mfa_login(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"method": request.method_type.value, "error": str(e)},
-            risk_score=40
+            risk_score=40,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="MFA verification failed"
+            detail="MFA verification failed",
         )
 
 
@@ -582,7 +600,7 @@ async def get_backup_codes(
 ):
     """
     Get backup codes for the user.
-    
+
     Returns remaining backup codes count.
     """
     try:
@@ -590,7 +608,7 @@ async def get_backup_codes(
 
         return BackupCodesResponse(
             backup_codes=[],  # Don't expose actual codes via API
-            codes_remaining=codes_remaining
+            codes_remaining=codes_remaining,
         )
 
     except Exception as e:
@@ -600,11 +618,11 @@ async def get_backup_codes(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"error": str(e)},
-            risk_score=10
+            risk_score=10,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve backup codes"
+            detail="Failed to retrieve backup codes",
         )
 
 
@@ -615,7 +633,7 @@ async def regenerate_backup_codes(
 ):
     """
     Regenerate backup codes for the user.
-    
+
     This invalidates all existing backup codes.
     """
     try:
@@ -627,12 +645,11 @@ async def regenerate_backup_codes(
             f"Backup codes regenerated for user {current_user.id}",
             level=AuditLevel.INFO,
             user_id=current_user.id,
-            details={"method": "backup_codes", "count": len(backup_codes)}
+            details={"method": "backup_codes", "count": len(backup_codes)},
         )
 
         return BackupCodesResponse(
-            backup_codes=backup_codes,
-            codes_remaining=len(backup_codes)
+            backup_codes=backup_codes, codes_remaining=len(backup_codes)
         )
 
     except Exception as e:
@@ -642,11 +659,11 @@ async def regenerate_backup_codes(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"error": str(e)},
-            risk_score=20
+            risk_score=20,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to regenerate backup codes"
+            detail="Failed to regenerate backup codes",
         )
 
 
@@ -659,7 +676,7 @@ async def recover_with_backup_code(
 ):
     """
     Recover account access using backup codes.
-    
+
     Used when primary MFA method is unavailable.
     """
     try:
@@ -668,8 +685,7 @@ async def recover_with_backup_code(
 
         if not success:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid backup code"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid backup code"
             )
 
         # Generate new access tokens
@@ -687,15 +703,15 @@ async def recover_with_backup_code(
             details={
                 "method": "backup_codes",
                 "remaining_codes": remaining_codes,
-                "success": True
-            }
+                "success": True,
+            },
         )
 
         return MFARecoveryResponse(
             message="Account recovery successful",
             access_token=access_token,
             refresh_token=refresh_token,
-            remaining_codes=remaining_codes
+            remaining_codes=remaining_codes,
         )
 
     except HTTPException:
@@ -707,11 +723,11 @@ async def recover_with_backup_code(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"error": str(e)},
-            risk_score=50
+            risk_score=50,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Account recovery failed"
+            detail="Account recovery failed",
         )
 
 
@@ -722,16 +738,13 @@ async def get_trusted_devices(
 ):
     """
     Get list of trusted devices for the user.
-    
+
     Returns devices that are remembered for MFA bypass.
     """
     try:
         devices = mfa_service.get_trusted_devices(current_user.id)
 
-        return TrustedDevicesResponse(
-            devices=devices,
-            total_devices=len(devices)
-        )
+        return TrustedDevicesResponse(devices=devices, total_devices=len(devices))
 
     except Exception as e:
         audit_logger.log_security_event(
@@ -740,11 +753,11 @@ async def get_trusted_devices(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"error": str(e)},
-            risk_score=10
+            risk_score=10,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve trusted devices"
+            detail="Failed to retrieve trusted devices",
         )
 
 
@@ -756,7 +769,7 @@ async def revoke_trusted_device(
 ):
     """
     Revoke a trusted device.
-    
+
     Removes device from trusted list, requiring MFA on next login.
     """
     try:
@@ -764,8 +777,7 @@ async def revoke_trusted_device(
 
         if not success:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Trusted device not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Trusted device not found"
             )
 
         audit_logger.log_security_event(
@@ -773,7 +785,7 @@ async def revoke_trusted_device(
             f"Trusted device revoked for user {current_user.id}",
             level=AuditLevel.INFO,
             user_id=current_user.id,
-            details={"device_id": request.device_id}
+            details={"device_id": request.device_id},
         )
 
         return {"message": "Trusted device revoked successfully"}
@@ -787,11 +799,11 @@ async def revoke_trusted_device(
             level=AuditLevel.ERROR,
             user_id=current_user.id,
             details={"device_id": request.device_id, "error": str(e)},
-            risk_score=20
+            risk_score=20,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to revoke trusted device"
+            detail="Failed to revoke trusted device",
         )
 
 
@@ -802,17 +814,21 @@ async def get_mfa_settings(
 ):
     """
     Get MFA settings for the organization.
-    
+
     Admin only endpoint.
     """
     try:
         # This would typically come from database settings
         return MFASettingsDTO(
             enforce_mfa=False,
-            allowed_methods=[MFAMethodType.TOTP, MFAMethodType.SMS, MFAMethodType.EMAIL],
+            allowed_methods=[
+                MFAMethodType.TOTP,
+                MFAMethodType.SMS,
+                MFAMethodType.EMAIL,
+            ],
             backup_codes_enabled=True,
             remember_device_duration=2592000,  # 30 days
-            max_trusted_devices=5
+            max_trusted_devices=5,
         )
 
     except Exception as e:
@@ -822,11 +838,11 @@ async def get_mfa_settings(
             level=AuditLevel.ERROR,
             user_id=current_admin.id if current_admin else None,
             details={"error": str(e)},
-            risk_score=10
+            risk_score=10,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve MFA settings"
+            detail="Failed to retrieve MFA settings",
         )
 
 
@@ -837,7 +853,7 @@ async def get_mfa_statistics(
 ):
     """
     Get MFA usage statistics.
-    
+
     Admin only endpoint.
     """
     try:
@@ -848,7 +864,7 @@ async def get_mfa_statistics(
             f"MFA statistics accessed by admin {current_admin.id if current_admin else 'unknown'}",
             level=AuditLevel.INFO,
             user_id=current_admin.id if current_admin else None,
-            details={"statistics": True}
+            details={"statistics": True},
         )
 
         return statistics
@@ -860,9 +876,9 @@ async def get_mfa_statistics(
             level=AuditLevel.ERROR,
             user_id=current_admin.id if current_admin else None,
             details={"error": str(e)},
-            risk_score=10
+            risk_score=10,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve MFA statistics"
+            detail="Failed to retrieve MFA statistics",
         )

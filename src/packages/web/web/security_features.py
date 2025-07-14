@@ -796,7 +796,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                 "max-age=31536000; includeSubDomains; preload"
             )
             response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-            
+
             # Enhanced Content Security Policy
             csp_directives = [
                 "default-src 'self'",
@@ -809,10 +809,10 @@ class SecurityMiddleware(BaseHTTPMiddleware):
                 "base-uri 'self'",
                 "form-action 'self'",
                 "object-src 'none'",
-                "upgrade-insecure-requests"
+                "upgrade-insecure-requests",
             ]
             response.headers["Content-Security-Policy"] = "; ".join(csp_directives)
-            
+
             # Additional security headers
             response.headers["Permissions-Policy"] = (
                 "geolocation=(), microphone=(), camera=(), payment=(), usb=(), "
@@ -822,10 +822,12 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             response.headers["Cross-Origin-Embedder-Policy"] = "require-corp"
             response.headers["Cross-Origin-Opener-Policy"] = "same-origin"
             response.headers["Cross-Origin-Resource-Policy"] = "same-origin"
-            
+
             # Cache control for security
             if path.startswith("/api/"):
-                response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, private"
+                response.headers["Cache-Control"] = (
+                    "no-store, no-cache, must-revalidate, private"
+                )
                 response.headers["Pragma"] = "no-cache"
                 response.headers["Expires"] = "0"
 

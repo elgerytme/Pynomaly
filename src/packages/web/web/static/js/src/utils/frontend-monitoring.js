@@ -33,7 +33,7 @@ class FrontendPerformanceMonitor {
                     }
                 }
             });
-            
+
             this.observer.observe({ entryTypes: ['navigation', 'resource'] });
         }
     }
@@ -168,14 +168,14 @@ class FrontendPerformanceMonitor {
         window.fetch = function(...args) {
             const start = performance.now();
             const url = args[0];
-            
+
             return originalFetch.apply(this, args).then(response => {
                 const duration = performance.now() - start;
-                
+
                 if (typeof url === 'string' && url.startsWith('/api/')) {
                     self.recordAPIResponseTime(url, duration);
                 }
-                
+
                 return response;
             });
         };
@@ -192,22 +192,22 @@ class FrontendPerformanceMonitor {
         XMLHttpRequest.prototype.send = function() {
             const start = performance.now();
             const url = this._url;
-            
+
             this.addEventListener('loadend', () => {
                 const duration = performance.now() - start;
-                
+
                 if (typeof url === 'string' && url.startsWith('/api/')) {
                     self.recordAPIResponseTime(url, duration);
                 }
             });
-            
+
             return originalXHRSend.apply(this, arguments);
         };
     }
 
     bufferMetric(metric) {
         this.metricsBuffer.push(metric);
-        
+
         // Flush if buffer is getting full
         if (this.metricsBuffer.length >= 50) {
             this.flushMetrics();
@@ -325,7 +325,7 @@ class FrontendPerformanceMonitor {
     // User interaction monitoring
     setupUserInteractionMonitoring() {
         const interactionTypes = ['click', 'keypress', 'scroll', 'touch'];
-        
+
         interactionTypes.forEach(type => {
             document.addEventListener(type, (event) => {
                 this.bufferMetric({
@@ -344,16 +344,16 @@ class FrontendPerformanceMonitor {
     startMonitoring() {
         this.setupErrorMonitoring();
         this.setupUserInteractionMonitoring();
-        
+
         // Record memory usage every 30 seconds
         setInterval(() => {
             this.recordMemoryUsage();
         }, 30000);
-        
+
         // Integrate with performance dashboard
         this.integrateWithDashboard();
     }
-    
+
     // Integrate with performance dashboard
     integrateWithDashboard() {
         if (window.performanceDashboard) {
@@ -361,7 +361,7 @@ class FrontendPerformanceMonitor {
             const originalBufferMetric = this.bufferMetric.bind(this);
             this.bufferMetric = (metric) => {
                 originalBufferMetric(metric);
-                
+
                 // Forward to dashboard
                 if (metric.type === 'core_web_vital') {
                     window.performanceDashboard.addMetric('core-web-vital', {
@@ -446,7 +446,7 @@ class FrontendSecurityMonitor {
 
     validateInput(input) {
         const value = input.value;
-        
+
         for (const [threatType, patterns] of Object.entries(this.threatPatterns)) {
             for (const pattern of patterns) {
                 if (pattern.test(value)) {
@@ -456,7 +456,7 @@ class FrontendSecurityMonitor {
                         pattern: pattern.toString(),
                         threat_type: threatType
                     });
-                    
+
                     // Optionally sanitize the input
                     if (threatType === 'xss') {
                         input.value = this.sanitizeXSS(value);
@@ -484,17 +484,17 @@ class FrontendSecurityMonitor {
 
     validateForm(form) {
         const formData = new FormData(form);
-        const csrfToken = formData.get('csrf_token') || 
+        const csrfToken = formData.get('csrf_token') ||
                          form.querySelector('input[name="csrf_token"]')?.value ||
                          document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        
+
         if (!csrfToken) {
             this.reportSecurityEvent('csrf_token_missing', {
                 form: form.action || form.id,
                 method: form.method
             });
         }
-        
+
         // Validate all form fields
         for (const [key, value] of formData.entries()) {
             if (typeof value === 'string' && value.length > 0) {
@@ -528,11 +528,11 @@ class FrontendSecurityMonitor {
                     'Content-Security-Policy',
                     'X-XSS-Protection'
                 ];
-                
-                const missingHeaders = requiredHeaders.filter(header => 
+
+                const missingHeaders = requiredHeaders.filter(header =>
                     !response.headers.has(header)
                 );
-                
+
                 if (missingHeaders.length > 0) {
                     this.reportSecurityEvent('missing_security_headers', {
                         missing_headers: missingHeaders,
@@ -549,17 +549,17 @@ class FrontendSecurityMonitor {
         const originalConsoleLog = console.log;
         const originalConsoleError = console.error;
         const originalConsoleWarn = console.warn;
-        
+
         console.log = (...args) => {
             this.checkConsoleUsage('log', args);
             return originalConsoleLog.apply(console, args);
         };
-        
+
         console.error = (...args) => {
             this.checkConsoleUsage('error', args);
             return originalConsoleError.apply(console, args);
         };
-        
+
         console.warn = (...args) => {
             this.checkConsoleUsage('warn', args);
             return originalConsoleWarn.apply(console, args);
@@ -568,7 +568,7 @@ class FrontendSecurityMonitor {
 
     checkConsoleUsage(level, args) {
         const message = args.join(' ');
-        
+
         // Check for potential security issues in console output
         if (message.includes('password') || message.includes('token') || message.includes('secret')) {
             this.reportSecurityEvent('sensitive_data_in_console', {
@@ -588,9 +588,9 @@ class FrontendSecurityMonitor {
             user_agent: navigator.userAgent,
             referrer: document.referrer
         };
-        
+
         this.securityEvents.push(event);
-        
+
         try {
             await fetch(this.apiEndpoint, {
                 method: 'POST',
@@ -613,16 +613,16 @@ class FrontendSecurityMonitor {
     // Session management
     setupSessionMonitoring() {
         let sessionWarned = false;
-        
+
         const checkSession = async () => {
             try {
                 const response = await fetch('/api/session/status');
                 const sessionData = await response.json();
-                
+
                 if (sessionData.expires_at) {
                     const now = Date.now() / 1000;
                     const timeUntilExpiry = sessionData.expires_at - now;
-                    
+
                     // Warn when 5 minutes left
                     if (timeUntilExpiry < 300 && !sessionWarned) {
                         sessionWarned = true;
@@ -630,7 +630,7 @@ class FrontendSecurityMonitor {
                             expires_at: sessionData.expires_at,
                             time_remaining: timeUntilExpiry
                         });
-                        
+
                         // Show user notification
                         this.showSessionWarning(timeUntilExpiry);
                     }
@@ -639,7 +639,7 @@ class FrontendSecurityMonitor {
                 console.error('Failed to check session status:', error);
             }
         };
-        
+
         // Check session every minute
         setInterval(checkSession, 60000);
     }
@@ -647,7 +647,7 @@ class FrontendSecurityMonitor {
     showSessionWarning(timeRemaining) {
         const minutes = Math.floor(timeRemaining / 60);
         const message = `Your session will expire in ${minutes} minute(s). Do you want to extend it?`;
-        
+
         if (confirm(message)) {
             this.extendSession();
         }
@@ -662,7 +662,7 @@ class FrontendSecurityMonitor {
                     'X-CSRF-Token': this.getCSRFToken()
                 }
             });
-            
+
             if (response.ok) {
                 this.reportSecurityEvent('session_extended', {
                     extended_at: Date.now()
@@ -689,7 +689,7 @@ class FrontendSecurityMonitor {
 document.addEventListener('DOMContentLoaded', () => {
     window.frontendMonitor = new FrontendPerformanceMonitor();
     window.securityMonitor = new FrontendSecurityMonitor();
-    
+
     // Start monitoring
     window.frontendMonitor.startMonitoring();
     window.securityMonitor.startMonitoring();

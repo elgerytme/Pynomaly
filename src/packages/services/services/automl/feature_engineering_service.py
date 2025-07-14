@@ -18,7 +18,7 @@ class FeatureEngineeringService:
 
     def __init__(self, max_feature_combinations: int = 20):
         """Initialize feature engineering service.
-        
+
         Args:
             max_feature_combinations: Maximum number of interaction features to create
         """
@@ -28,16 +28,16 @@ class FeatureEngineeringService:
         self, X: pd.DataFrame, y: pd.Series | None = None
     ) -> pd.DataFrame:
         """Perform comprehensive automated feature engineering.
-        
+
         Args:
             X: Input dataframe
             y: Optional target series
-            
+
         Returns:
             Engineered dataframe
         """
         logger.info("🔨 Performing feature engineering")
-        
+
         X_engineered = X.copy()
         original_features = list(X.columns)
         engineered_features = []
@@ -322,11 +322,11 @@ class FeatureEngineeringService:
         self, X: pd.DataFrame, y: pd.Series | None = None
     ) -> dict[str, float]:
         """Calculate feature importance using various methods.
-        
+
         Args:
             X: Input features
             y: Optional target
-            
+
         Returns:
             Dictionary mapping feature names to importance scores
         """
@@ -335,18 +335,20 @@ class FeatureEngineeringService:
         try:
             # Statistical importance for numeric features
             numeric_cols = X.select_dtypes(include=[np.number]).columns
-            
+
             if len(numeric_cols) > 0:
                 # Variance-based importance
                 variances = X[numeric_cols].var()
                 max_var = variances.max() if len(variances) > 0 else 1.0
-                
+
                 for col in numeric_cols:
-                    importance_scores[col] = variances[col] / max_var if max_var > 0 else 0.0
+                    importance_scores[col] = (
+                        variances[col] / max_var if max_var > 0 else 0.0
+                    )
 
             # Categorical feature importance (based on cardinality and distribution)
             categorical_cols = X.select_dtypes(include=["object", "category"]).columns
-            
+
             for col in categorical_cols:
                 unique_ratio = X[col].nunique() / len(X)
                 # Balanced cardinality is more important
@@ -370,22 +372,24 @@ class FeatureEngineeringService:
 
         return importance_scores
 
-    def create_feature_summary(self, X_original: pd.DataFrame, X_engineered: pd.DataFrame) -> dict[str, Any]:
+    def create_feature_summary(
+        self, X_original: pd.DataFrame, X_engineered: pd.DataFrame
+    ) -> dict[str, Any]:
         """Create a summary of feature engineering results.
-        
+
         Args:
             X_original: Original dataframe
             X_engineered: Engineered dataframe
-            
+
         Returns:
             Summary dictionary
         """
         original_features = set(X_original.columns)
         engineered_features = set(X_engineered.columns)
-        
+
         added_features = engineered_features - original_features
         removed_features = original_features - engineered_features
-        
+
         summary = {
             "original_feature_count": len(X_original.columns),
             "final_feature_count": len(X_engineered.columns),
@@ -395,11 +399,16 @@ class FeatureEngineeringService:
             "removed_feature_names": list(removed_features),
             "feature_types": {
                 "numeric": len(X_engineered.select_dtypes(include=[np.number]).columns),
-                "categorical": len(X_engineered.select_dtypes(include=["object", "category"]).columns),
-                "datetime": len(X_engineered.select_dtypes(include=["datetime64"]).columns),
+                "categorical": len(
+                    X_engineered.select_dtypes(include=["object", "category"]).columns
+                ),
+                "datetime": len(
+                    X_engineered.select_dtypes(include=["datetime64"]).columns
+                ),
             },
             "missing_values": X_engineered.isnull().sum().sum(),
-            "memory_usage_mb": X_engineered.memory_usage(deep=True).sum() / (1024 * 1024),
+            "memory_usage_mb": X_engineered.memory_usage(deep=True).sum()
+            / (1024 * 1024),
         }
-        
+
         return summary

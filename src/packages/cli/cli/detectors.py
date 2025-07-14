@@ -9,10 +9,7 @@ from rich.table import Table
 
 from pynomaly.domain.entities import Detector
 from pynomaly.presentation.cli.container import get_cli_container
-from pynomaly.presentation.cli.help_formatter import (
-    get_option_help,
-    get_standard_help,
-)
+from pynomaly.presentation.cli.help_formatter import get_option_help, get_standard_help
 from pynomaly.presentation.cli.ux_improvements import CLIErrorHandler, CLIHelpers
 
 # Get standardized help for this command group

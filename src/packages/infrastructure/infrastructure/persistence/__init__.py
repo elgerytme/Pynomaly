@@ -1,8 +1,6 @@
 """Persistence layer implementations."""
 
-from .connection_pool_integration import (
-    DatabaseConnectionIntegration,
-)
+from .connection_pool_integration import DatabaseConnectionIntegration
 from .database import (
     POSTGRESQL_LOCAL_URL,
     SQLITE_FILE_URL,

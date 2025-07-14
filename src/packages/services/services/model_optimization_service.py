@@ -7,7 +7,6 @@ import logging
 from typing import Any
 
 import pandas as pd
-from sklearn.base import BaseEstimator
 
 from pynomaly.application.services.advanced_model_optimization_service import (
     AdvancedModelOptimizationService,
@@ -27,7 +26,7 @@ class ModelOptimizationService:
 
     def _initialize_optimization_service(self) -> AdvancedModelOptimizationService:
         """Initialize the optimization service based on pipeline mode"""
-        
+
         if self.config.mode == PipelineMode.FAST:
             optimization_config = AdvancedOptimizationConfig(
                 n_trials=20, timeout_seconds=300, cv_folds=3
@@ -48,18 +47,18 @@ class ModelOptimizationService:
     ) -> dict[str, Any]:
         """
         Run complete model optimization pipeline
-        
+
         Returns:
             Dictionary containing optimization results
         """
-        
+
         # Select candidate models
         model_selection_result = await self.select_models(X, y)
         selected_models = model_selection_result["selected_models"]
-        
+
         # Optimize hyperparameters
         optimization_result = await self.optimize_hyperparameters(X, y, selected_models)
-        
+
         return {
             "model_selection": model_selection_result,
             "optimization": optimization_result,
@@ -72,7 +71,7 @@ class ModelOptimizationService:
         self, X: pd.DataFrame, y: pd.Series | None
     ) -> dict[str, Any]:
         """Select candidate models based on data characteristics"""
-        
+
         logger.info("🎯 Selecting candidate models")
 
         n_samples, n_features = X.shape
@@ -122,7 +121,9 @@ class ModelOptimizationService:
         model_candidates = list(dict.fromkeys(model_candidates))
         model_candidates = model_candidates[: self.config.max_models_to_evaluate]
 
-        logger.info(f"Selected {len(model_candidates)} candidate models: {model_candidates}")
+        logger.info(
+            f"Selected {len(model_candidates)} candidate models: {model_candidates}"
+        )
 
         return {
             "selected_models": model_candidates,
@@ -137,16 +138,18 @@ class ModelOptimizationService:
         self, X: pd.DataFrame, y: pd.Series | None, selected_models: list[str]
     ) -> dict[str, Any]:
         """Optimize hyperparameters for selected models"""
-        
+
         logger.info("🎯 Optimizing hyperparameters")
 
         try:
             # Run advanced optimization
-            optimization_result = await self.optimization_service.optimize_model_advanced(
-                X, y, selected_models
+            optimization_result = (
+                await self.optimization_service.optimize_model_advanced(
+                    X, y, selected_models
+                )
             )
 
-            logger.info(f"Optimization completed successfully")
+            logger.info("Optimization completed successfully")
             logger.info(
                 f"Best model: {optimization_result.best_params.get('model_type', 'unknown')}"
             )
@@ -163,7 +166,7 @@ class ModelOptimizationService:
 
         except Exception as e:
             logger.error(f"Hyperparameter optimization failed: {e}")
-            
+
             # Fallback to simple optimization
             return await self._fallback_optimization(X, y)
 
@@ -171,7 +174,7 @@ class ModelOptimizationService:
         self, X: pd.DataFrame, y: pd.Series | None
     ) -> dict[str, Any]:
         """Fallback optimization using simple methods"""
-        
+
         logger.info("Using fallback optimization")
 
         from sklearn.ensemble import IsolationForest
@@ -192,7 +195,7 @@ class ModelOptimizationService:
             # Calculate simple performance metric for supervised case
             y_pred = best_model.predict(X)
             from sklearn.metrics import f1_score
-            
+
             try:
                 best_performance = {"f1_score": f1_score(y, y_pred, average="weighted")}
             except:

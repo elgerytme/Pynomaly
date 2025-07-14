@@ -30,10 +30,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from plotly.subplots import make_subplots
 
-from .advanced_monitoring import (
-    AdvancedMonitoringOrchestrator,
-    AlertSeverity,
-)
+from .advanced_monitoring import AdvancedMonitoringOrchestrator, AlertSeverity
 
 logger = logging.getLogger(__name__)
 

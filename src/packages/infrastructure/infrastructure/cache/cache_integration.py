@@ -10,14 +10,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.shared.error_handling import (
-    ErrorCodes,
-    create_infrastructure_error,
-)
+from pynomaly.shared.error_handling import ErrorCodes, create_infrastructure_error
 
-from .decorators import (
-    set_cache_manager,
-)
+from .decorators import set_cache_manager
 from .intelligent_cache import IntelligentCacheManager, get_intelligent_cache_manager
 from .redis_cache import RedisCache, init_cache
 

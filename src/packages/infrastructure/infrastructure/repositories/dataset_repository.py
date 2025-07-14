@@ -1,6 +1,6 @@
 """Dataset repository implementations - DEPRECATED.
 
-This module is deprecated. Use DatasetRepositoryProtocol from 
+This module is deprecated. Use DatasetRepositoryProtocol from
 pynomaly.shared.protocols.repository_protocol instead.
 """
 
@@ -16,7 +16,7 @@ from pynomaly.domain.entities.dataset import Dataset
 
 class DatasetRepository(ABC):
     """Abstract dataset repository interface.
-    
+
     DEPRECATED: Use DatasetRepositoryProtocol from pynomaly.shared.protocols instead.
     This class exists only for backward compatibility and will be removed in v2.0.
     """
@@ -27,7 +27,7 @@ class DatasetRepository(ABC):
             "DatasetRepository is deprecated. Use DatasetRepositoryProtocol from "
             "pynomaly.shared.protocols.repository_protocol instead.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
 
     @abstractmethod

@@ -17,9 +17,7 @@ from pynomaly.infrastructure.monitoring.health_checks import (
     liveness_probe,
     readiness_probe,
 )
-from pynomaly.infrastructure.monitoring.prometheus_metrics import (
-    get_metrics_service,
-)
+from pynomaly.infrastructure.monitoring.prometheus_metrics import get_metrics_service
 from pynomaly.infrastructure.monitoring.telemetry import get_telemetry
 from pynomaly.presentation.api.docs.response_models import (
     HTTPResponses,

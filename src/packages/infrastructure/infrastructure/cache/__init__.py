@@ -21,10 +21,9 @@ from .cache_integration import (
     perform_cache_maintenance,
     warm_cache_with_critical_data,
 )
-from .decorators import (
+from .decorators import (  # CacheDecorator imported from cache_core above
     AsyncCacheDecorator,
     CacheConfig,
-    # CacheDecorator imported from cache_core above
     CacheInvalidator,
     CacheKeyGenerator,
     SyncCacheDecorator,

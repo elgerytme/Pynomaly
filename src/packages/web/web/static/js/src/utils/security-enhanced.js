@@ -16,7 +16,7 @@ class EnhancedSecurityManager {
       reportingEndpoint: '/api/security/report',
       ...options
     };
-    
+
     this.securityMetrics = {
       xssAttempts: 0,
       csrfViolations: 0,
@@ -24,17 +24,17 @@ class EnhancedSecurityManager {
       blockedRequests: 0,
       securityEvents: []
     };
-    
+
     this.cspNonce = this.generateNonce();
     this.trustedDomains = [
       window.location.origin,
       'https://cdn.jsdelivr.net',
       'https://unpkg.com'
     ];
-    
+
     this.init();
   }
-  
+
   init() {
     // Initialize security protections
     this.initXSSProtection();
@@ -44,36 +44,36 @@ class EnhancedSecurityManager {
     this.initActivityMonitoring();
     this.initThreatDetection();
     this.initSecurityHeaders();
-    
+
     // Setup security event listeners
     this.setupSecurityEventListeners();
-    
+
     // Start security monitoring
     this.startSecurityMonitoring();
-    
+
     console.log('🔒 Enhanced Security Manager initialized');
   }
-  
+
   generateNonce() {
     const array = new Uint8Array(16);
     crypto.getRandomValues(array);
     return btoa(String.fromCharCode.apply(null, array));
   }
-  
+
   // XSS Protection
   initXSSProtection() {
     if (!this.options.enableXSSProtection) return;
-    
+
     // Monitor dangerous DOM modifications
     this.setupDOMMonitoring();
-    
+
     // Sanitize user inputs
     this.setupInputSanitization();
-    
+
     // Monitor eval usage
     this.monitorEvalUsage();
   }
-  
+
   setupDOMMonitoring() {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -86,30 +86,30 @@ class EnhancedSecurityManager {
         }
       });
     });
-    
+
     observer.observe(document.body, {
       childList: true,
       subtree: true
     });
   }
-  
+
   validateElement(element) {
     // Check for dangerous scripts
     if (element.tagName === 'SCRIPT') {
       const src = element.src;
       const content = element.textContent;
-      
+
       if (src && !this.isTrustedDomain(src)) {
         this.blockElement(element, 'Untrusted script source');
         return;
       }
-      
+
       if (content && this.containsSuspiciousCode(content)) {
         this.blockElement(element, 'Suspicious script content');
         return;
       }
     }
-    
+
     // Check for dangerous attributes
     const dangerousAttrs = ['onclick', 'onload', 'onerror', 'onmouseover'];
     dangerousAttrs.forEach(attr => {
@@ -119,7 +119,7 @@ class EnhancedSecurityManager {
       }
     });
   }
-  
+
   containsSuspiciousCode(code) {
     const suspiciousPatterns = [
       /eval\s*\(/,
@@ -130,27 +130,27 @@ class EnhancedSecurityManager {
       /onload\s*=/,
       /onerror\s*=/
     ];
-    
+
     return suspiciousPatterns.some(pattern => pattern.test(code));
   }
-  
+
   blockElement(element, reason) {
     element.remove();
     this.securityMetrics.blockedRequests++;
     this.reportSecurityEvent('element_blocked', reason);
   }
-  
+
   isTrustedDomain(url) {
     try {
       const urlObj = new URL(url);
-      return this.trustedDomains.some(domain => 
+      return this.trustedDomains.some(domain =>
         urlObj.origin === domain || urlObj.hostname.endsWith(domain.replace('https://', ''))
       );
     } catch {
       return false;
     }
   }
-  
+
   setupInputSanitization() {
     // Monitor form inputs
     document.addEventListener('input', (event) => {
@@ -158,7 +158,7 @@ class EnhancedSecurityManager {
         this.sanitizeInput(event.target);
       }
     });
-    
+
     // Monitor paste events
     document.addEventListener('paste', (event) => {
       setTimeout(() => {
@@ -168,28 +168,28 @@ class EnhancedSecurityManager {
       }, 0);
     });
   }
-  
+
   sanitizeInput(input) {
     const originalValue = input.value;
     const sanitizedValue = this.sanitizeString(originalValue);
-    
+
     if (originalValue !== sanitizedValue) {
       input.value = sanitizedValue;
       this.securityMetrics.xssAttempts++;
       this.reportSecurityEvent('input_sanitized', 'XSS attempt detected and blocked');
     }
   }
-  
+
   sanitizeString(str) {
     // Remove script tags
     str = str.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-    
+
     // Remove dangerous protocols
     str = str.replace(/(javascript|vbscript|data):/gi, '');
-    
+
     // Remove event handlers
     str = str.replace(/on\w+\s*=/gi, '');
-    
+
     // Encode HTML entities
     str = str.replace(/[<>"'&]/g, (match) => {
       const entities = {
@@ -201,39 +201,39 @@ class EnhancedSecurityManager {
       };
       return entities[match];
     });
-    
+
     return str;
   }
-  
+
   monitorEvalUsage() {
     const originalEval = window.eval;
     window.eval = (...args) => {
       this.reportSecurityEvent('eval_usage', 'eval() function called');
       this.securityMetrics.suspiciousActivity++;
-      
+
       // In strict security mode, block eval
       if (this.options.blockEval) {
         throw new Error('eval() is blocked for security reasons');
       }
-      
+
       return originalEval.apply(this, args);
     };
   }
-  
+
   // CSRF Protection
   initCSRFProtection() {
     if (!this.options.enableCSRFProtection) return;
-    
+
     this.csrfToken = this.getCSRFToken();
     this.setupCSRFHeaders();
     this.validateCSRFTokens();
   }
-  
+
   getCSRFToken() {
     const metaTag = document.querySelector('meta[name="csrf-token"]');
     return metaTag ? metaTag.getAttribute('content') : null;
   }
-  
+
   setupCSRFHeaders() {
     // Intercept all AJAX requests to add CSRF token
     const originalFetch = window.fetch;
@@ -242,10 +242,10 @@ class EnhancedSecurityManager {
         options.headers = options.headers || {};
         options.headers['X-CSRFToken'] = this.csrfToken;
       }
-      
+
       return originalFetch(url, options);
     };
-    
+
     // Intercept XMLHttpRequest
     const originalOpen = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function(method, url, ...args) {
@@ -253,26 +253,26 @@ class EnhancedSecurityManager {
       this._method = method;
       return originalOpen.apply(this, [method, url, ...args]);
     };
-    
+
     const originalSend = XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.send = function(...args) {
-      if (this._url && this._method && 
+      if (this._url && this._method &&
           this.shouldAddCSRFToken && this.shouldAddCSRFToken(this._url, this._method)) {
         this.setRequestHeader('X-CSRFToken', this.csrfToken);
       }
       return originalSend.apply(this, args);
     };
   }
-  
+
   shouldAddCSRFToken(url, method) {
     // Only add CSRF token for state-changing requests to same origin
     const safeMethods = ['GET', 'HEAD', 'OPTIONS', 'TRACE'];
     const isSafeMethod = !method || safeMethods.includes(method.toUpperCase());
     const isSameOrigin = url.startsWith('/') || url.startsWith(window.location.origin);
-    
+
     return !isSafeMethod && isSameOrigin;
   }
-  
+
   validateCSRFTokens() {
     // Monitor form submissions
     document.addEventListener('submit', (event) => {
@@ -281,18 +281,18 @@ class EnhancedSecurityManager {
       }
     });
   }
-  
+
   validateFormCSRF(form) {
     const method = (form.method || 'GET').toUpperCase();
     const safeMethods = ['GET', 'HEAD'];
-    
+
     if (!safeMethods.includes(method)) {
       const csrfInput = form.querySelector('input[name="csrf_token"]');
-      
+
       if (!csrfInput || !csrfInput.value) {
         this.securityMetrics.csrfViolations++;
         this.reportSecurityEvent('csrf_violation', 'Form submitted without CSRF token');
-        
+
         // Add CSRF token if missing
         if (!csrfInput && this.csrfToken) {
           const hiddenInput = document.createElement('input');
@@ -304,30 +304,30 @@ class EnhancedSecurityManager {
       }
     }
   }
-  
+
   // Clickjacking Protection
   initClickjackingProtection() {
     if (!this.options.enableClickjackingProtection) return;
-    
+
     // Check if page is in iframe
     if (window !== window.top) {
       this.reportSecurityEvent('clickjacking_attempt', 'Page loaded in iframe');
-      
+
       // Optional: Break out of iframe
       if (this.options.breakoutOfFrames) {
         window.top.location = window.location;
       }
     }
-    
+
     // Monitor for overlay attacks
     this.monitorOverlayAttacks();
   }
-  
+
   monitorOverlayAttacks() {
     document.addEventListener('click', (event) => {
       const element = event.target;
       const rect = element.getBoundingClientRect();
-      
+
       // Check for elements with suspicious positioning
       const style = getComputedStyle(element);
       if (style.position === 'fixed' || style.position === 'absolute') {
@@ -337,16 +337,16 @@ class EnhancedSecurityManager {
       }
     });
   }
-  
+
   // Content Validation
   initContentValidation() {
     if (!this.options.enableContentValidation) return;
-    
+
     this.validateImages();
     this.validateLinks();
     this.validateForms();
   }
-  
+
   validateImages() {
     document.addEventListener('error', (event) => {
       if (event.target.tagName === 'IMG') {
@@ -358,18 +358,18 @@ class EnhancedSecurityManager {
       }
     }, true);
   }
-  
+
   validateLinks() {
     document.addEventListener('click', (event) => {
       if (event.target.matches('a[href]')) {
         const href = event.target.href;
-        
+
         // Check for dangerous protocols
         if (href.match(/^(javascript|vbscript|data):/i)) {
           event.preventDefault();
           this.reportSecurityEvent('dangerous_link', `Blocked dangerous link: ${href}`);
         }
-        
+
         // Check for external links
         if (!href.startsWith(window.location.origin) && !href.startsWith('/')) {
           // Add rel="noopener noreferrer" for external links
@@ -378,7 +378,7 @@ class EnhancedSecurityManager {
       }
     });
   }
-  
+
   validateForms() {
     document.addEventListener('submit', (event) => {
       const form = event.target;
@@ -392,11 +392,11 @@ class EnhancedSecurityManager {
       }
     });
   }
-  
+
   // Activity Monitoring
   initActivityMonitoring() {
     if (!this.options.enableActivityMonitoring) return;
-    
+
     this.activityData = {
       pageViews: 0,
       clicks: 0,
@@ -404,44 +404,44 @@ class EnhancedSecurityManager {
       mouseMoves: 0,
       suspiciousActivity: 0
     };
-    
+
     this.monitorUserActivity();
   }
-  
+
   monitorUserActivity() {
     document.addEventListener('click', () => {
       this.activityData.clicks++;
     });
-    
+
     document.addEventListener('keydown', () => {
       this.activityData.keystrokes++;
     });
-    
+
     document.addEventListener('mousemove', () => {
       this.activityData.mouseMoves++;
     });
-    
+
     // Report activity periodically
     setInterval(() => {
       this.reportActivityMetrics();
     }, 60000); // Every minute
   }
-  
+
   reportActivityMetrics() {
     if (this.activityData.clicks > 1000 || this.activityData.keystrokes > 10000) {
       this.reportSecurityEvent('suspicious_activity', 'Unusually high user activity detected');
     }
   }
-  
+
   // Threat Detection
   initThreatDetection() {
     if (!this.options.enableThreatDetection) return;
-    
+
     this.setupThreatPatterns();
     this.monitorNetworkRequests();
     this.detectAutomatedBehavior();
   }
-  
+
   setupThreatPatterns() {
     this.threatPatterns = {
       xss: [
@@ -465,7 +465,7 @@ class EnhancedSecurityManager {
       ]
     };
   }
-  
+
   monitorNetworkRequests() {
     // Monitor fetch requests
     const originalFetch = window.fetch;
@@ -475,10 +475,10 @@ class EnhancedSecurityManager {
       return originalFetch.apply(this, args);
     };
   }
-  
+
   analyzeRequest(url, options = {}) {
     const body = options.body;
-    
+
     if (body) {
       Object.values(this.threatPatterns).forEach(patterns => {
         patterns.forEach(pattern => {
@@ -490,11 +490,11 @@ class EnhancedSecurityManager {
       });
     }
   }
-  
+
   detectAutomatedBehavior() {
     let rapidClicks = 0;
     let lastClickTime = 0;
-    
+
     document.addEventListener('click', () => {
       const now = Date.now();
       if (now - lastClickTime < 100) { // Less than 100ms between clicks
@@ -508,15 +508,15 @@ class EnhancedSecurityManager {
       lastClickTime = now;
     });
   }
-  
+
   // Security Headers
   initSecurityHeaders() {
     if (!this.options.enableSecurityHeaders) return;
-    
+
     // Check for security headers
     this.validateSecurityHeaders();
   }
-  
+
   validateSecurityHeaders() {
     // This would typically be done server-side, but we can check for CSP
     const metaCsp = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
@@ -524,7 +524,7 @@ class EnhancedSecurityManager {
       this.reportSecurityEvent('missing_csp', 'Content Security Policy not found');
     }
   }
-  
+
   // Security Event Management
   setupSecurityEventListeners() {
     // Listen for CSP violations
@@ -535,7 +535,7 @@ class EnhancedSecurityManager {
         originalPolicy: event.originalPolicy
       });
     });
-    
+
     // Listen for unhandled errors that might indicate attacks
     window.addEventListener('error', (event) => {
       if (event.message.includes('Script error')) {
@@ -543,19 +543,19 @@ class EnhancedSecurityManager {
       }
     });
   }
-  
+
   startSecurityMonitoring() {
     // Periodic security checks
     setInterval(() => {
       this.performSecurityCheck();
     }, 30000); // Every 30 seconds
-    
+
     // Report metrics periodically
     setInterval(() => {
       this.reportSecurityMetrics();
     }, 300000); // Every 5 minutes
   }
-  
+
   performSecurityCheck() {
     // Check for suspicious DOM modifications
     const scripts = document.querySelectorAll('script');
@@ -564,7 +564,7 @@ class EnhancedSecurityManager {
         this.blockElement(script, 'Untrusted script detected during security check');
       }
     });
-    
+
     // Check for suspicious iframes
     const iframes = document.querySelectorAll('iframe');
     iframes.forEach(iframe => {
@@ -573,7 +573,7 @@ class EnhancedSecurityManager {
       }
     });
   }
-  
+
   reportSecurityEvent(type, details) {
     const event = {
       type,
@@ -582,30 +582,30 @@ class EnhancedSecurityManager {
       url: window.location.href,
       userAgent: navigator.userAgent
     };
-    
+
     this.securityMetrics.securityEvents.push(event);
-    
+
     // Limit stored events
     if (this.securityMetrics.securityEvents.length > 100) {
       this.securityMetrics.securityEvents = this.securityMetrics.securityEvents.slice(-50);
     }
-    
+
     // Report to server
     this.sendSecurityReport(event);
-    
+
     console.warn('🚨 Security Event:', event);
   }
-  
+
   reportSecurityMetrics() {
     const report = {
       ...this.securityMetrics,
       timestamp: new Date().toISOString(),
       url: window.location.href
     };
-    
+
     this.sendSecurityReport(report, 'metrics');
   }
-  
+
   async sendSecurityReport(data, type = 'event') {
     try {
       const response = await fetch(this.options.reportingEndpoint, {
@@ -620,7 +620,7 @@ class EnhancedSecurityManager {
           client_timestamp: Date.now()
         })
       });
-      
+
       if (!response.ok) {
         console.warn('Failed to send security report:', response.status);
       }
@@ -628,35 +628,35 @@ class EnhancedSecurityManager {
       console.warn('Error sending security report:', error);
     }
   }
-  
+
   // Public API
   getSecurityMetrics() {
     return { ...this.securityMetrics };
   }
-  
+
   addTrustedDomain(domain) {
     if (!this.trustedDomains.includes(domain)) {
       this.trustedDomains.push(domain);
     }
   }
-  
+
   removeTrustedDomain(domain) {
     const index = this.trustedDomains.indexOf(domain);
     if (index > -1) {
       this.trustedDomains.splice(index, 1);
     }
   }
-  
+
   updateCSRFToken(token) {
     this.csrfToken = token;
-    
+
     // Update meta tag
     const metaTag = document.querySelector('meta[name="csrf-token"]');
     if (metaTag) {
       metaTag.setAttribute('content', token);
     }
   }
-  
+
   // Cleanup
   destroy() {
     // Remove event listeners and restore original functions

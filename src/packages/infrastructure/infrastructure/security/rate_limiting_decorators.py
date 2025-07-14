@@ -9,10 +9,7 @@ from collections.abc import Callable
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 
-from pynomaly.shared.error_handling import (
-    ErrorContext,
-    create_external_service_error,
-)
+from pynomaly.shared.error_handling import ErrorContext, create_external_service_error
 
 from .rate_limiting import (
     RateLimitAlgorithm,

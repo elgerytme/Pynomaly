@@ -8,15 +8,11 @@ active learning sessions, sample selection, and feedback collection.
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
-from pynomaly.application.dto.active_learning_dto import (
-    CreateSessionRequest,
-)
+from pynomaly.application.dto.active_learning_dto import CreateSessionRequest
 from pynomaly.application.use_cases.manage_active_learning import (
     ManageActiveLearningUseCase,
 )
-from pynomaly.domain.entities.active_learning_session import (
-    SamplingStrategy,
-)
+from pynomaly.domain.entities.active_learning_session import SamplingStrategy
 from pynomaly.domain.entities.human_feedback import FeedbackConfidence, FeedbackType
 from pynomaly.domain.services.active_learning_service import ActiveLearningService
 

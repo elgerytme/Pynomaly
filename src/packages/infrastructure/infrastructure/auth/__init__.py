@@ -5,15 +5,17 @@ from .enhanced_dependencies import (
     cli_require_permissions,
     cli_require_roles,
     cli_require_superuser,
-    require_permissions,
-    require_permissions_or_api_key,
-    require_roles,
-    require_superuser,
 )
 from .enhanced_dependencies import (
     get_current_active_user as get_current_active_user_enhanced,
 )
 from .enhanced_dependencies import get_current_user as get_current_user_enhanced
+from .enhanced_dependencies import (
+    require_permissions,
+    require_permissions_or_api_key,
+    require_roles,
+    require_superuser,
+)
 from .jwt_auth import (
     JWTAuthService,
     TokenPayload,
@@ -22,10 +24,7 @@ from .jwt_auth import (
     get_auth,
     init_auth,
 )
-from .jwt_auth_enhanced import (
-    EnhancedJWTAuthService,
-    JWKSResponse,
-)
+from .jwt_auth_enhanced import EnhancedJWTAuthService, JWKSResponse
 from .jwt_auth_enhanced import UserModel as EnhancedUserModel
 from .jwt_auth_enhanced import get_auth as get_enhanced_auth
 from .jwt_auth_enhanced import init_auth as init_enhanced_auth

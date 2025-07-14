@@ -32,30 +32,30 @@ class PynominalyFrontend {
     async _performInit() {
         try {
             console.log('Initializing Pynomaly Frontend...');
-            
+
             // Load configuration
             await this.loadConfig();
-            
+
             // Initialize API client
             this.initializeAPIClient();
-            
+
             // Initialize monitoring systems
             this.initializeMonitoring();
-            
+
             // Setup UI enhancements
             this.setupUIEnhancements();
-            
+
             // Initialize features based on config
             this.initializeFeatures();
-            
+
             this.initialized = true;
             console.log('Pynomaly Frontend initialized successfully');
-            
+
             // Dispatch initialization event
             document.dispatchEvent(new CustomEvent('pynomaly:initialized', {
                 detail: { frontend: this }
             }));
-            
+
         } catch (error) {
             console.error('Failed to initialize Pynomaly Frontend:', error);
             throw error;
@@ -123,7 +123,7 @@ class PynominalyFrontend {
         if (this.config.performance_monitoring.enabled) {
             this.performanceMonitor = new FrontendPerformanceMonitor();
             this.performanceMonitor.startMonitoring();
-            
+
             // Setup performance dashboard integration
             this.setupPerformanceDashboard();
         }
@@ -133,7 +133,7 @@ class PynominalyFrontend {
             this.securityMonitor.startMonitoring();
         }
     }
-    
+
     /**
      * Setup performance dashboard
      */
@@ -147,11 +147,11 @@ class PynominalyFrontend {
                 }
             }
         });
-        
+
         // Add performance dashboard button to UI
         this.addPerformanceDashboardButton();
     }
-    
+
     /**
      * Add performance dashboard button to UI
      */
@@ -165,7 +165,7 @@ class PynominalyFrontend {
                 window.performanceDashboard.toggle();
             }
         };
-        
+
         button.style.cssText = `
             position: fixed;
             bottom: 80px;
@@ -182,12 +182,12 @@ class PynominalyFrontend {
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
         `;
-        
+
         button.addEventListener('mouseenter', () => {
             button.style.transform = 'scale(1.1)';
             button.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
         });
-        
+
         button.addEventListener('mouseleave', () => {
             button.style.transform = 'scale(1)';
             button.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
@@ -202,13 +202,13 @@ class PynominalyFrontend {
     setupUIEnhancements() {
         // Loading indicators
         this.setupLoadingIndicators();
-        
+
         // Form enhancements
         this.setupFormEnhancements();
-        
+
         // Navigation enhancements
         this.setupNavigationEnhancements();
-        
+
         // Error handling
         this.setupErrorHandling();
     }
@@ -244,7 +244,7 @@ class PynominalyFrontend {
             <div class="spinner"></div>
             <span>Loading...</span>
         `;
-        
+
         element.style.position = 'relative';
         element.appendChild(indicator);
     }
@@ -287,7 +287,7 @@ class PynominalyFrontend {
         const saveForm = () => {
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
-            
+
             localStorage.setItem(`autosave_${form.id}`, JSON.stringify({
                 data: data,
                 timestamp: Date.now()
@@ -304,7 +304,7 @@ class PynominalyFrontend {
         if (savedData) {
             const { data, timestamp } = JSON.parse(savedData);
             const age = Date.now() - timestamp;
-            
+
             // Only restore if less than 24 hours old
             if (age < 24 * 60 * 60 * 1000) {
                 Object.entries(data).forEach(([key, value]) => {
@@ -334,7 +334,7 @@ class PynominalyFrontend {
      */
     validateForm(form) {
         const errors = [];
-        
+
         // Required field validation
         form.querySelectorAll('[required]').forEach(field => {
             if (!field.value.trim()) {
@@ -417,14 +417,14 @@ class PynominalyFrontend {
         try {
             const response = await fetch('/api/session/status');
             const sessionData = await response.json();
-            
+
             if (sessionData.csrf_token) {
                 // Update meta tag
                 const metaTag = document.querySelector('meta[name="csrf-token"]');
                 if (metaTag) {
                     metaTag.setAttribute('content', sessionData.csrf_token);
                 }
-                
+
                 // Update all forms
                 document.querySelectorAll('form').forEach(form => {
                     this.updateCSRFTokenInForm(form, sessionData.csrf_token);
@@ -553,7 +553,7 @@ class PynominalyFrontend {
      */
     handleError(error, type = 'Error') {
         console.error(`${type}:`, error);
-        
+
         // Report to monitoring if available
         if (this.performanceMonitor) {
             this.performanceMonitor.recordError(error, type);
@@ -570,7 +570,7 @@ class PynominalyFrontend {
         const errorDiv = document.createElement('div');
         errorDiv.className = 'error-message alert alert-danger';
         errorDiv.textContent = message;
-        
+
         // Add close button
         const closeBtn = document.createElement('button');
         closeBtn.className = 'close';
@@ -623,7 +623,7 @@ class PynominalyFrontend {
         themeToggle.className = 'theme-toggle';
         themeToggle.innerHTML = '🌙';
         themeToggle.onclick = () => this.toggleTheme();
-        
+
         // Add to navigation or header
         const nav = document.querySelector('nav') || document.querySelector('header');
         if (nav) {
@@ -637,7 +637,7 @@ class PynominalyFrontend {
     toggleTheme() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
+
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
     }
@@ -651,17 +651,17 @@ class PynominalyFrontend {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const element = entry.target;
-                        
+
                         if (element.dataset.src) {
                             element.src = element.dataset.src;
                             element.removeAttribute('data-src');
                         }
-                        
+
                         if (element.dataset.srcset) {
                             element.srcset = element.dataset.srcset;
                             element.removeAttribute('data-srcset');
                         }
-                        
+
                         lazyObserver.unobserve(element);
                     }
                 });
@@ -686,7 +686,7 @@ class PynominalyFrontend {
         const originalFetch = window.fetch;
         window.fetch = async (url, options = {}) => {
             const method = options.method || 'GET';
-            
+
             if (method === 'GET' && typeof url === 'string') {
                 const cached = window.pynomaly.cache.get(url);
                 if (cached && (Date.now() - cached.timestamp) < 300000) { // 5 minutes
@@ -698,7 +698,7 @@ class PynominalyFrontend {
             }
 
             const response = await originalFetch(url, options);
-            
+
             if (method === 'GET' && response.ok && typeof url === 'string') {
                 const data = await response.clone().text();
                 window.pynomaly.cache.set(url, {
@@ -743,7 +743,7 @@ class PynominalyFrontend {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message alert alert-${type}`;
         messageDiv.textContent = message;
-        
+
         document.body.insertBefore(messageDiv, document.body.firstChild);
 
         setTimeout(() => {
@@ -779,7 +779,7 @@ class PynominalyAPIClient {
 
         try {
             const response = await fetch(url, config);
-            
+
             if (!response.ok) {
                 throw new Error(`API request failed: ${response.status} ${response.statusText}`);
             }
@@ -841,7 +841,7 @@ class PynominalyAPIClient {
         const meta = document.querySelector('meta[name="csrf-token"]');
         return meta ? meta.getAttribute('content') : null;
     }
-    
+
     /**
      * Report performance metric
      */
@@ -853,7 +853,7 @@ class PynominalyAPIClient {
             url: url
         });
     }
-    
+
     /**
      * Report security event
      */

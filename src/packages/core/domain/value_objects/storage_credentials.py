@@ -40,17 +40,17 @@ class StorageCredentials(BaseModel):
         secret_access_key: str,
         region: str = "us-east-1",
         session_token: str | None = None,
-        endpoint_url: str | None = None
+        endpoint_url: str | None = None,
     ) -> StorageCredentials:
         """Create access key credentials.
-        
+
         Args:
             access_key_id: AWS access key ID
             secret_access_key: AWS secret access key
             region: AWS region
             session_token: Optional session token
             endpoint_url: Optional custom endpoint URL
-            
+
         Returns:
             Storage credentials instance
         """
@@ -66,7 +66,7 @@ class StorageCredentials(BaseModel):
             auth_type=StorageAuthType.ACCESS_KEY,
             region=region,
             endpoint_url=endpoint_url,
-            credentials=credentials
+            credentials=credentials,
         )
 
     @classmethod
@@ -76,17 +76,17 @@ class StorageCredentials(BaseModel):
         region: str = "us-east-1",
         session_name: str | None = None,
         external_id: str | None = None,
-        endpoint_url: str | None = None
+        endpoint_url: str | None = None,
     ) -> StorageCredentials:
         """Create role-based credentials.
-        
+
         Args:
             role_arn: ARN of the IAM role to assume
             region: AWS region
             session_name: Optional session name
             external_id: Optional external ID
             endpoint_url: Optional custom endpoint URL
-            
+
         Returns:
             Storage credentials instance
         """
@@ -103,21 +103,19 @@ class StorageCredentials(BaseModel):
             auth_type=StorageAuthType.ROLE_BASED,
             region=region,
             endpoint_url=endpoint_url,
-            credentials=credentials
+            credentials=credentials,
         )
 
     @classmethod
     def create_anonymous_credentials(
-        cls,
-        region: str = "us-east-1",
-        endpoint_url: str | None = None
+        cls, region: str = "us-east-1", endpoint_url: str | None = None
     ) -> StorageCredentials:
         """Create anonymous credentials.
-        
+
         Args:
             region: AWS region
             endpoint_url: Optional custom endpoint URL
-            
+
         Returns:
             Storage credentials instance
         """
@@ -125,23 +123,20 @@ class StorageCredentials(BaseModel):
             auth_type=StorageAuthType.ANONYMOUS,
             region=region,
             endpoint_url=endpoint_url,
-            credentials={}
+            credentials={},
         )
 
     @classmethod
     def create_token_credentials(
-        cls,
-        token: str,
-        region: str = "us-east-1",
-        endpoint_url: str | None = None
+        cls, token: str, region: str = "us-east-1", endpoint_url: str | None = None
     ) -> StorageCredentials:
         """Create token-based credentials.
-        
+
         Args:
             token: Authentication token
             region: AWS region
             endpoint_url: Optional custom endpoint URL
-            
+
         Returns:
             Storage credentials instance
         """
@@ -149,15 +144,15 @@ class StorageCredentials(BaseModel):
             auth_type=StorageAuthType.TOKEN,
             region=region,
             endpoint_url=endpoint_url,
-            credentials={"token": token}
+            credentials={"token": token},
         )
 
     def get_credential_value(self, key: str) -> Any:
         """Get a credential value by key.
-        
+
         Args:
             key: Credential key
-            
+
         Returns:
             Credential value or None
         """
@@ -165,10 +160,10 @@ class StorageCredentials(BaseModel):
 
     def has_credential(self, key: str) -> bool:
         """Check if a credential exists.
-        
+
         Args:
             key: Credential key
-            
+
         Returns:
             True if credential exists
         """
@@ -176,7 +171,7 @@ class StorageCredentials(BaseModel):
 
     def to_boto3_kwargs(self) -> dict[str, Any]:
         """Convert to boto3 client kwargs.
-        
+
         Returns:
             Dictionary of boto3 client arguments
         """
@@ -201,14 +196,14 @@ class StorageCredentials(BaseModel):
 
     def is_valid(self) -> bool:
         """Check if credentials are valid.
-        
+
         Returns:
             True if credentials are valid
         """
         if self.auth_type == StorageAuthType.ACCESS_KEY:
             return (
-                self.credentials.get("access_key_id") is not None and
-                self.credentials.get("secret_access_key") is not None
+                self.credentials.get("access_key_id") is not None
+                and self.credentials.get("secret_access_key") is not None
             )
 
         elif self.auth_type == StorageAuthType.ROLE_BASED:

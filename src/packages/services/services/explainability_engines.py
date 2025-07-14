@@ -12,12 +12,12 @@ from pynomaly.application.services.explainability_core import (
     GlobalExplanation,
     LocalExplanation,
 )
-from pynomaly.domain.entities import Dataset
 from pynomaly.shared.protocols import DetectorProtocol
 
 # Optional explainability imports with fallbacks
 try:
     import shap
+
     SHAP_AVAILABLE = True
 except ImportError:
     shap = None
@@ -25,6 +25,7 @@ except ImportError:
 
 try:
     import lime
+
     LIME_AVAILABLE = True
 except ImportError:
     lime = None
@@ -32,6 +33,7 @@ except ImportError:
 
 try:
     from sklearn.inspection import permutation_importance
+
     SKLEARN_AVAILABLE = True
 except ImportError:
     permutation_importance = None
@@ -78,7 +80,7 @@ class LocalExplanationEngine(ExplanationEngine):
             indices = self._select_representative_samples(X, n_samples)
 
             for idx in indices:
-                sample = X[idx:idx + 1]
+                sample = X[idx : idx + 1]
                 prediction = detector.decision_function(sample)[0]
 
                 # Generate explanation using available methods
@@ -119,7 +121,11 @@ class LocalExplanationEngine(ExplanationEngine):
                     confidence=confidence,
                     feature_contributions=feature_contributions,
                     explanation_method=(
-                        "shap" if self.enable_shap else "lime" if self.enable_lime else "gradient"
+                        "shap"
+                        if self.enable_shap
+                        else "lime"
+                        if self.enable_lime
+                        else "gradient"
                     ),
                     metadata={"sample_index": int(idx)},
                 )
@@ -147,6 +153,7 @@ class LocalExplanationEngine(ExplanationEngine):
             cache_key = f"shap_{id(detector)}"
 
             if cache_key not in self.explainer_cache:
+
                 def predict_fn(x) -> Any:
                     return detector.decision_function(x)
 
@@ -435,6 +442,7 @@ class GlobalExplanationEngine(ExplanationEngine):
             cache_key = f"shap_global_{id(detector)}"
 
             if cache_key not in self.explainer_cache:
+
                 def predict_fn(x) -> Any:
                     return detector.decision_function(x)
 

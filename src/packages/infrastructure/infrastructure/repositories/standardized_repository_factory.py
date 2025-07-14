@@ -6,7 +6,7 @@ that all follow the standardized async RepositoryProtocol pattern.
 
 from __future__ import annotations
 
-from typing import Type, TypeVar
+from typing import TypeVar
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -31,40 +31,38 @@ T = TypeVar("T")
 
 class RepositoryType:
     """Enumeration of supported repository types."""
-    
+
     MEMORY = "memory"
     DATABASE = "database"
 
 
 class StandardizedRepositoryFactory:
     """Factory for creating standardized async repositories.
-    
+
     All repositories created by this factory follow the standardized
     async RepositoryProtocol pattern for consistency.
     """
 
     def __init__(
-        self, 
+        self,
         repository_type: str = RepositoryType.MEMORY,
-        session_factory: async_sessionmaker[AsyncSession] | None = None
+        session_factory: async_sessionmaker[AsyncSession] | None = None,
     ):
         """Initialize repository factory.
-        
+
         Args:
             repository_type: Type of repositories to create (memory or database)
             session_factory: Async session factory for database repositories
         """
         self.repository_type = repository_type
         self.session_factory = session_factory
-        
+
         if repository_type == RepositoryType.DATABASE and not session_factory:
-            raise ValueError(
-                "session_factory is required for database repository type"
-            )
+            raise ValueError("session_factory is required for database repository type")
 
     def create_detector_repository(self) -> DetectorRepositoryProtocol:
         """Create a detector repository.
-        
+
         Returns:
             Standardized async detector repository
         """
@@ -77,7 +75,7 @@ class StandardizedRepositoryFactory:
 
     def create_dataset_repository(self) -> DatasetRepositoryProtocol:
         """Create a dataset repository.
-        
+
         Returns:
             Standardized async dataset repository
         """
@@ -90,7 +88,7 @@ class StandardizedRepositoryFactory:
 
     def create_detection_result_repository(self) -> DetectionResultRepositoryProtocol:
         """Create a detection result repository.
-        
+
         Returns:
             Standardized async detection result repository
         """
@@ -103,7 +101,7 @@ class StandardizedRepositoryFactory:
 
     def create_all_repositories(self) -> dict[str, object]:
         """Create all standard repositories.
-        
+
         Returns:
             Dictionary mapping repository names to instances
         """
@@ -116,7 +114,7 @@ class StandardizedRepositoryFactory:
 
 def get_memory_repositories() -> dict[str, object]:
     """Convenience function to get in-memory repositories.
-    
+
     Returns:
         Dictionary of standardized in-memory repositories
     """
@@ -125,13 +123,13 @@ def get_memory_repositories() -> dict[str, object]:
 
 
 def get_database_repositories(
-    session_factory: async_sessionmaker[AsyncSession]
+    session_factory: async_sessionmaker[AsyncSession],
 ) -> dict[str, object]:
     """Convenience function to get database repositories.
-    
+
     Args:
         session_factory: Async session factory for database access
-        
+
     Returns:
         Dictionary of standardized database repositories
     """
@@ -142,18 +140,18 @@ def get_database_repositories(
 # Migration helpers for backward compatibility
 class RepositoryMigrationHelper:
     """Helper class for migrating from old repository patterns to standardized ones."""
-    
+
     @staticmethod
-    def wrap_legacy_repository(legacy_repo: object, protocol_class: Type[T]) -> T:
+    def wrap_legacy_repository(legacy_repo: object, protocol_class: type[T]) -> T:
         """Wrap a legacy repository to follow standardized protocol.
-        
+
         Args:
             legacy_repo: Legacy repository instance
             protocol_class: Target protocol class
-            
+
         Returns:
             Wrapped repository following the standardized protocol
-            
+
         Raises:
             ValueError: If repository cannot be wrapped
         """

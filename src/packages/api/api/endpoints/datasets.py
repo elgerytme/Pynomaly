@@ -8,10 +8,7 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Upload
 
 from pynomaly.application.dto import DataQualityReportDTO, DatasetDTO
 from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.auth import (
-    require_data_scientist,
-    require_viewer,
-)
+from pynomaly.infrastructure.auth import require_data_scientist, require_viewer
 from pynomaly.infrastructure.config import Container
 from pynomaly.presentation.api.auth_deps import get_container_simple
 

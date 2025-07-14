@@ -18,32 +18,32 @@ class PipelineConfigService:
 
     def get_optimization_config(self) -> dict:
         """Get optimization configuration based on pipeline mode"""
-        
+
         if self.config.mode == PipelineMode.FAST:
             return {
                 "n_trials": 20,
                 "timeout_seconds": 300,
                 "cv_folds": 3,
-                "max_models": 5
+                "max_models": 5,
             }
         elif self.config.mode == PipelineMode.THOROUGH:
             return {
                 "n_trials": 500,
                 "timeout_seconds": 3600,
                 "cv_folds": 10,
-                "max_models": 30
+                "max_models": 30,
             }
         else:  # BALANCED
             return {
                 "n_trials": 100,
                 "timeout_seconds": 1800,
                 "cv_folds": 5,
-                "max_models": 20
+                "max_models": 20,
             }
 
     def get_feature_engineering_config(self) -> dict:
         """Get feature engineering configuration"""
-        
+
         return {
             "enabled": self.config.enable_feature_engineering,
             "max_combinations": self.config.max_feature_combinations,
@@ -52,7 +52,7 @@ class PipelineConfigService:
 
     def get_resource_limits(self) -> dict:
         """Get resource limit configuration"""
-        
+
         return {
             "max_memory_gb": self.config.max_memory_usage_gb,
             "max_cpu_cores": self.config.max_cpu_cores,
@@ -61,14 +61,14 @@ class PipelineConfigService:
 
     def validate_config(self) -> dict:
         """Validate pipeline configuration and return issues if any"""
-        
+
         issues = []
         warnings = []
 
         # Check resource limits
         if self.config.max_memory_usage_gb < 1.0:
             warnings.append("Low memory limit may cause performance issues")
-        
+
         if self.config.max_cpu_cores < 1:
             issues.append("Invalid CPU core count")
 

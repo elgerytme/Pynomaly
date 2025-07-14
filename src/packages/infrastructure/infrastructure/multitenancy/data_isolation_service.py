@@ -8,11 +8,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.models.multitenancy import (
-    IsolationLevel,
-    Tenant,
-    TenantContext,
-)
+from pynomaly.domain.models.multitenancy import IsolationLevel, Tenant, TenantContext
 
 
 class DataIsolationService:

@@ -19,7 +19,7 @@ class MemoryRepository:
         Args:
             entity: Entity to save
         """
-        if hasattr(entity, 'id'):
+        if hasattr(entity, "id"):
             self._storage[str(entity.id)] = entity
         else:
             # Generate a simple key for entities without ID
@@ -50,7 +50,7 @@ class MemoryRepository:
 
         Args:
             entity_id: ID of entity to delete
-            
+
         Returns:
             True if entity was deleted, False if not found
         """

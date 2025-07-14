@@ -27,11 +27,7 @@ from sklearn.ensemble import (
     StackingClassifier,
     VotingClassifier,
 )
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    make_scorer,
-)
+from sklearn.metrics import accuracy_score, f1_score, make_scorer
 from sklearn.preprocessing import RobustScaler
 
 # Advanced optimization libraries

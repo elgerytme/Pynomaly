@@ -14,7 +14,7 @@ class CacheManager {
       compressionThreshold: 1024, // 1KB
       ...options
     };
-    
+
     this.memoryCache = new Map();
     this.memoryCacheSize = 0;
     this.pendingRequests = new Map();
@@ -25,7 +25,7 @@ class CacheManager {
       CHART_DATA: 'chart-data',
       MODEL_RESULTS: 'model-results'
     };
-    
+
     // Performance metrics
     this.metrics = {
       hits: 0,
@@ -35,17 +35,17 @@ class CacheManager {
       networkRequests: 0,
       cacheSize: 0
     };
-    
+
     this.compressionSupported = 'CompressionStream' in window;
     this.init();
   }
-  
+
   init() {
     // Setup automatic cleanup
     setInterval(() => {
       this.cleanupExpiredMemoryCache();
     }, 60000); // Every minute
-    
+
     // Setup periodic IndexedDB cleanup
     setInterval(() => {
       this.cleanupExpiredCache();

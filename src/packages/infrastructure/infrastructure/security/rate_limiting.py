@@ -11,10 +11,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from pynomaly.shared.error_handling import (
-    ErrorContext,
-    create_external_service_error,
-)
+from pynomaly.shared.error_handling import ErrorContext, create_external_service_error
 
 logger = logging.getLogger(__name__)
 

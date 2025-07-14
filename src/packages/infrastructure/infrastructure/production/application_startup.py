@@ -18,9 +18,7 @@ from pynomaly.infrastructure.config.settings import Settings
 from pynomaly.infrastructure.monitoring import get_comprehensive_health_manager
 from pynomaly.infrastructure.persistence import get_production_database_manager
 from pynomaly.infrastructure.security import get_rate_limit_manager
-from pynomaly.shared.error_handling import (
-    InfrastructureError,
-)
+from pynomaly.shared.error_handling import InfrastructureError
 
 from .production_config import Environment, get_production_config
 

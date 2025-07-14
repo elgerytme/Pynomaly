@@ -11,10 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.shared.error_handling import (
-    ErrorCodes,
-    create_infrastructure_error,
-)
+from pynomaly.shared.error_handling import ErrorCodes, create_infrastructure_error
 
 logger = logging.getLogger(__name__)
 

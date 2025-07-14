@@ -14,6 +14,7 @@ from io import BytesIO
 # Optional dependencies for MFA
 try:
     import pyotp
+
     PYOTP_AVAILABLE = True
 except ImportError:
     PYOTP_AVAILABLE = False
@@ -21,6 +22,7 @@ except ImportError:
 
 try:
     import qrcode
+
     QRCODE_AVAILABLE = True
 except ImportError:
     QRCODE_AVAILABLE = False
@@ -70,7 +72,7 @@ class MFAService:
             self.redis_client.setex(
                 f"mfa_totp_setup:{user_id}",
                 3600,  # 1 hour expiry
-                secret
+                secret,
             )
 
         self.audit_logger.log_security_event(
@@ -78,7 +80,7 @@ class MFAService:
             f"TOTP setup initiated for user {user_id}",
             level=AuditLevel.INFO,
             user_id=user_id,
-            details={"method": "totp"}
+            details={"method": "totp"},
         )
 
         return secret
@@ -89,7 +91,7 @@ class MFAService:
         user_email: str,
         secret: str,
         app_name: str = "Pynomaly",
-        issuer: str = "Pynomaly Security"
+        issuer: str = "Pynomaly Security",
     ) -> TOTPSetupResponse:
         """Create TOTP setup response with QR code and backup codes."""
         if not PYOTP_AVAILABLE:
@@ -97,8 +99,7 @@ class MFAService:
 
         # Create TOTP URI
         totp_uri = pyotp.totp.TOTP(secret).provisioning_uri(
-            name=user_email,
-            issuer_name=issuer
+            name=user_email, issuer_name=issuer
         )
 
         # Generate QR code if available
@@ -127,10 +128,12 @@ class MFAService:
             secret=secret,
             qr_code_url=qr_code_url,
             manual_entry_key=secret,
-            backup_codes=backup_codes
+            backup_codes=backup_codes,
         )
 
-    def verify_totp_code(self, user_id: str, totp_code: str, secret: str = None) -> bool:
+    def verify_totp_code(
+        self, user_id: str, totp_code: str, secret: str = None
+    ) -> bool:
         """Verify TOTP code for the user."""
         if not PYOTP_AVAILABLE:
             raise RuntimeError("TOTP functionality requires pyotp library")
@@ -141,7 +144,7 @@ class MFAService:
                 if self.redis_client:
                     secret = self.redis_client.get(f"mfa_totp_confirmed:{user_id}")
                     if secret:
-                        secret = secret.decode('utf-8')
+                        secret = secret.decode("utf-8")
 
                 if not secret:
                     return False
@@ -163,7 +166,7 @@ class MFAService:
                     f"TOTP verification successful for user {user_id}",
                     level=AuditLevel.INFO,
                     user_id=user_id,
-                    details={"method": "totp", "success": True}
+                    details={"method": "totp", "success": True},
                 )
             else:
                 self.audit_logger.log_security_event(
@@ -172,7 +175,7 @@ class MFAService:
                     level=AuditLevel.WARNING,
                     user_id=user_id,
                     details={"method": "totp", "success": False},
-                    risk_score=30
+                    risk_score=30,
                 )
 
             return is_valid
@@ -184,7 +187,7 @@ class MFAService:
                 level=AuditLevel.ERROR,
                 user_id=user_id,
                 details={"method": "totp", "error": str(e)},
-                risk_score=20
+                risk_score=20,
             )
             return False
 
@@ -198,12 +201,14 @@ class MFAService:
         if not secret:
             return False
 
-        secret = secret.decode('utf-8')
+        secret = secret.decode("utf-8")
 
         # Verify the code
         if self.verify_totp_code(user_id, totp_code, secret):
             # Move secret to confirmed storage
-            self.redis_client.setex(f"mfa_totp_confirmed:{user_id}", 86400 * 365, secret)
+            self.redis_client.setex(
+                f"mfa_totp_confirmed:{user_id}", 86400 * 365, secret
+            )
             self.redis_client.delete(f"mfa_totp_setup:{user_id}")
 
             self.audit_logger.log_security_event(
@@ -211,7 +216,7 @@ class MFAService:
                 f"TOTP setup confirmed for user {user_id}",
                 level=AuditLevel.INFO,
                 user_id=user_id,
-                details={"method": "totp", "enabled": True}
+                details={"method": "totp", "enabled": True},
             )
 
             return True
@@ -229,9 +234,7 @@ class MFAService:
         # Store code temporarily
         if self.redis_client:
             self.redis_client.setex(
-                f"mfa_sms_code:{user_id}",
-                self.sms_code_expiry,
-                sms_code
+                f"mfa_sms_code:{user_id}", self.sms_code_expiry, sms_code
             )
 
         # Send SMS
@@ -245,7 +248,10 @@ class MFAService:
                     f"SMS code sent to user {user_id}",
                     level=AuditLevel.INFO,
                     user_id=user_id,
-                    details={"method": "sms", "phone": phone_number[-4:]}  # Log last 4 digits
+                    details={
+                        "method": "sms",
+                        "phone": phone_number[-4:],
+                    },  # Log last 4 digits
                 )
 
             return success
@@ -257,7 +263,7 @@ class MFAService:
                 level=AuditLevel.ERROR,
                 user_id=user_id,
                 details={"method": "sms", "error": str(e)},
-                risk_score=10
+                risk_score=10,
             )
             return False
 
@@ -270,7 +276,7 @@ class MFAService:
         if not stored_code:
             return False
 
-        stored_code = stored_code.decode('utf-8')
+        stored_code = stored_code.decode("utf-8")
         is_valid = hmac.compare_digest(stored_code, sms_code)
 
         if is_valid:
@@ -282,7 +288,7 @@ class MFAService:
                 f"SMS verification successful for user {user_id}",
                 level=AuditLevel.INFO,
                 user_id=user_id,
-                details={"method": "sms", "success": True}
+                details={"method": "sms", "success": True},
             )
         else:
             self.audit_logger.log_security_event(
@@ -291,7 +297,7 @@ class MFAService:
                 level=AuditLevel.WARNING,
                 user_id=user_id,
                 details={"method": "sms", "success": False},
-                risk_score=30
+                risk_score=30,
             )
 
         return is_valid
@@ -307,9 +313,7 @@ class MFAService:
         # Store code temporarily
         if self.redis_client:
             self.redis_client.setex(
-                f"mfa_email_code:{user_id}",
-                self.email_code_expiry,
-                email_code
+                f"mfa_email_code:{user_id}", self.email_code_expiry, email_code
             )
 
         # Send email
@@ -317,9 +321,9 @@ class MFAService:
             subject = "Pynomaly Security Verification Code"
             message = f"""
             Your Pynomaly verification code is: {email_code}
-            
+
             This code expires in 10 minutes.
-            
+
             If you did not request this code, please contact support immediately.
             """
 
@@ -331,7 +335,7 @@ class MFAService:
                     f"Email code sent to user {user_id}",
                     level=AuditLevel.INFO,
                     user_id=user_id,
-                    details={"method": "email", "email": email}
+                    details={"method": "email", "email": email},
                 )
 
             return success
@@ -343,7 +347,7 @@ class MFAService:
                 level=AuditLevel.ERROR,
                 user_id=user_id,
                 details={"method": "email", "error": str(e)},
-                risk_score=10
+                risk_score=10,
             )
             return False
 
@@ -356,7 +360,7 @@ class MFAService:
         if not stored_code:
             return False
 
-        stored_code = stored_code.decode('utf-8')
+        stored_code = stored_code.decode("utf-8")
         is_valid = hmac.compare_digest(stored_code, email_code)
 
         if is_valid:
@@ -368,7 +372,7 @@ class MFAService:
                 f"Email verification successful for user {user_id}",
                 level=AuditLevel.INFO,
                 user_id=user_id,
-                details={"method": "email", "success": True}
+                details={"method": "email", "success": True},
             )
         else:
             self.audit_logger.log_security_event(
@@ -377,7 +381,7 @@ class MFAService:
                 level=AuditLevel.WARNING,
                 user_id=user_id,
                 details={"method": "email", "success": False},
-                risk_score=30
+                risk_score=30,
             )
 
         return is_valid
@@ -401,7 +405,7 @@ class MFAService:
             self.redis_client.setex(
                 f"mfa_backup_codes:{user_id}",
                 86400 * 365,  # 1 year
-                "|".join(hashed_codes)
+                "|".join(hashed_codes),
             )
 
         self.audit_logger.log_security_event(
@@ -409,7 +413,7 @@ class MFAService:
             f"Backup codes generated for user {user_id}",
             level=AuditLevel.INFO,
             user_id=user_id,
-            details={"method": "backup_codes", "count": len(backup_codes)}
+            details={"method": "backup_codes", "count": len(backup_codes)},
         )
 
         return backup_codes
@@ -423,7 +427,7 @@ class MFAService:
         if not stored_codes:
             return False
 
-        stored_codes = stored_codes.decode('utf-8').split('|')
+        stored_codes = stored_codes.decode("utf-8").split("|")
         code_hash = hashlib.sha256(backup_code.encode()).hexdigest()
 
         if code_hash in stored_codes:
@@ -432,9 +436,7 @@ class MFAService:
 
             if stored_codes:
                 self.redis_client.setex(
-                    f"mfa_backup_codes:{user_id}",
-                    86400 * 365,
-                    "|".join(stored_codes)
+                    f"mfa_backup_codes:{user_id}", 86400 * 365, "|".join(stored_codes)
                 )
             else:
                 self.redis_client.delete(f"mfa_backup_codes:{user_id}")
@@ -444,7 +446,7 @@ class MFAService:
                 f"Backup code used for user {user_id}",
                 level=AuditLevel.INFO,
                 user_id=user_id,
-                details={"method": "backup_codes", "remaining": len(stored_codes)}
+                details={"method": "backup_codes", "remaining": len(stored_codes)},
             )
 
             return True
@@ -455,7 +457,7 @@ class MFAService:
             level=AuditLevel.WARNING,
             user_id=user_id,
             details={"method": "backup_codes", "success": False},
-            risk_score=40
+            risk_score=40,
         )
 
         return False
@@ -469,7 +471,7 @@ class MFAService:
         if not stored_codes:
             return 0
 
-        return len(stored_codes.decode('utf-8').split('|'))
+        return len(stored_codes.decode("utf-8").split("|"))
 
     def remember_device(self, user_id: str, device_info: dict) -> str:
         """Remember a device for MFA bypass."""
@@ -484,13 +486,13 @@ class MFAService:
                 "user_agent": device_info.get("user_agent", ""),
                 "ip_address": device_info.get("ip_address", ""),
                 "created_at": datetime.now(UTC).isoformat(),
-                "last_used": datetime.now(UTC).isoformat()
+                "last_used": datetime.now(UTC).isoformat(),
             }
 
             self.redis_client.setex(
                 f"mfa_trusted_device:{device_id}",
                 self.device_remember_duration,
-                "|".join(f"{k}:{v}" for k, v in device_data.items())
+                "|".join(f"{k}:{v}" for k, v in device_data.items()),
             )
 
         self.audit_logger.log_security_event(
@@ -498,7 +500,10 @@ class MFAService:
             f"Device remembered for user {user_id}",
             level=AuditLevel.INFO,
             user_id=user_id,
-            details={"device_id": device_id, "device_name": device_info.get("device_name")}
+            details={
+                "device_id": device_id,
+                "device_name": device_info.get("device_name"),
+            },
         )
 
         return device_id
@@ -513,11 +518,11 @@ class MFAService:
             return False
 
         # Parse device data
-        device_data = device_data.decode('utf-8')
+        device_data = device_data.decode("utf-8")
         device_info = {}
-        for item in device_data.split('|'):
-            if ':' in item:
-                key, value = item.split(':', 1)
+        for item in device_data.split("|"):
+            if ":" in item:
+                key, value = item.split(":", 1)
                 device_info[key] = value
 
         # Verify device belongs to user
@@ -530,7 +535,7 @@ class MFAService:
         self.redis_client.setex(
             f"mfa_trusted_device:{device_id}",
             self.device_remember_duration,
-            updated_data
+            updated_data,
         )
 
         return True
@@ -551,7 +556,7 @@ class MFAService:
             f"Trusted device revoked for user {user_id}",
             level=AuditLevel.INFO,
             user_id=user_id,
-            details={"device_id": device_id}
+            details={"device_id": device_id},
         )
 
         return True
@@ -584,7 +589,7 @@ class MFAService:
             f"MFA method {method_type.value} disabled for user {user_id}",
             level=AuditLevel.INFO,
             user_id=user_id,
-            details={"method": method_type.value, "disabled": True}
+            details={"method": method_type.value, "disabled": True},
         )
 
         return True
@@ -598,26 +603,30 @@ class MFAService:
 
         # Check TOTP
         if self.redis_client.get(f"mfa_totp_confirmed:{user_id}"):
-            methods.append(MFAMethodDTO(
-                id=f"totp_{user_id}",
-                method_type=MFAMethodType.TOTP,
-                status=MFAMethodStatus.ACTIVE,
-                display_name="Authenticator App",
-                created_at=datetime.now(UTC),
-                is_primary=True
-            ))
+            methods.append(
+                MFAMethodDTO(
+                    id=f"totp_{user_id}",
+                    method_type=MFAMethodType.TOTP,
+                    status=MFAMethodStatus.ACTIVE,
+                    display_name="Authenticator App",
+                    created_at=datetime.now(UTC),
+                    is_primary=True,
+                )
+            )
 
         # Check backup codes
         backup_count = self.get_backup_codes_count(user_id)
         if backup_count > 0:
-            methods.append(MFAMethodDTO(
-                id=f"backup_{user_id}",
-                method_type=MFAMethodType.BACKUP_CODES,
-                status=MFAMethodStatus.ACTIVE,
-                display_name="Backup Codes",
-                created_at=datetime.now(UTC),
-                backup_codes_remaining=backup_count
-            ))
+            methods.append(
+                MFAMethodDTO(
+                    id=f"backup_{user_id}",
+                    method_type=MFAMethodType.BACKUP_CODES,
+                    status=MFAMethodStatus.ACTIVE,
+                    display_name="Backup Codes",
+                    created_at=datetime.now(UTC),
+                    backup_codes_remaining=backup_count,
+                )
+            )
 
         return methods
 
@@ -629,11 +638,6 @@ class MFAService:
             total_users=1000,
             mfa_enabled_users=650,
             mfa_adoption_rate=65.0,
-            method_usage={
-                "totp": 400,
-                "sms": 200,
-                "email": 50,
-                "backup_codes": 350
-            },
-            recent_authentications=1200
+            method_usage={"totp": 400, "sms": 200, "email": 50, "backup_codes": 350},
+            recent_authentications=1200,
         )

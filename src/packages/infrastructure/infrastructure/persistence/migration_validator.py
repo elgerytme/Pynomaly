@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 class MigrationSafetyError(Exception):
     """Exception raised when a migration fails safety checks."""
+
     pass
 
 
@@ -24,7 +25,7 @@ class MigrationValidator:
 
     def __init__(self, database_url: str):
         """Initialize migration validator.
-        
+
         Args:
             database_url: Database connection URL
         """
@@ -33,10 +34,10 @@ class MigrationValidator:
 
     def validate_migration_file(self, migration_file_path: str) -> dict[str, Any]:
         """Validate a migration file for safety issues.
-        
+
         Args:
             migration_file_path: Path to migration file
-            
+
         Returns:
             Validation result with warnings and errors
         """
@@ -50,13 +51,15 @@ class MigrationValidator:
         try:
             migration_path = Path(migration_file_path)
             if not migration_path.exists():
-                validation_result["errors"].append(f"Migration file not found: {migration_file_path}")
+                validation_result["errors"].append(
+                    f"Migration file not found: {migration_file_path}"
+                )
                 validation_result["valid"] = False
                 return validation_result
 
             # Read migration content
             migration_content = migration_path.read_text()
-            
+
             # Parse AST for analysis
             try:
                 tree = ast.parse(migration_content)
@@ -67,13 +70,15 @@ class MigrationValidator:
 
             # Check for dangerous patterns
             validation_result.update(self._check_dangerous_patterns(migration_content))
-            
+
             # Check migration structure
             validation_result.update(self._check_migration_structure(migration_content))
-            
+
             # Calculate final safety score
-            validation_result["safety_score"] = self._calculate_safety_score(validation_result)
-            
+            validation_result["safety_score"] = self._calculate_safety_score(
+                validation_result
+            )
+
             if validation_result["errors"]:
                 validation_result["valid"] = False
 
@@ -86,15 +91,15 @@ class MigrationValidator:
 
     def _analyze_migration_ast(self, tree: ast.AST) -> dict[str, Any]:
         """Analyze migration AST for potential issues.
-        
+
         Args:
             tree: Parsed AST of migration file
-            
+
         Returns:
             Analysis results
         """
         analysis = {"warnings": [], "errors": []}
-        
+
         class MigrationAnalyzer(ast.NodeVisitor):
             def __init__(self):
                 self.has_upgrade = False
@@ -117,7 +122,7 @@ class MigrationValidator:
                         self.dangerous_calls.append(func_name)
                     elif func_name in ["create_table", "add_column", "create_index"]:
                         self.table_operations.append(func_name)
-                        
+
                 self.generic_visit(node)
 
         analyzer = MigrationAnalyzer()
@@ -131,28 +136,35 @@ class MigrationValidator:
 
         # Check for dangerous operations
         if analyzer.dangerous_calls:
-            analysis["warnings"].extend([
-                f"Potentially destructive operation: {op}" 
-                for op in analyzer.dangerous_calls
-            ])
+            analysis["warnings"].extend(
+                [
+                    f"Potentially destructive operation: {op}"
+                    for op in analyzer.dangerous_calls
+                ]
+            )
 
         # Check for balanced operations
-        if "drop_table" in analyzer.dangerous_calls and "create_table" not in analyzer.table_operations:
-            analysis["warnings"].append("Drop table without corresponding create in same migration")
+        if (
+            "drop_table" in analyzer.dangerous_calls
+            and "create_table" not in analyzer.table_operations
+        ):
+            analysis["warnings"].append(
+                "Drop table without corresponding create in same migration"
+            )
 
         return analysis
 
     def _check_dangerous_patterns(self, content: str) -> dict[str, Any]:
         """Check for dangerous patterns in migration content.
-        
+
         Args:
             content: Migration file content
-            
+
         Returns:
             Pattern check results
         """
         checks = {"warnings": [], "errors": []}
-        
+
         # Define dangerous patterns
         dangerous_patterns = [
             (r"DROP\s+TABLE", "DROP TABLE statement found"),
@@ -161,7 +173,7 @@ class MigrationValidator:
             (r"DELETE\s+FROM.*WHERE", "DELETE with WHERE clause found"),
             (r"UPDATE.*SET.*WHERE", "UPDATE with WHERE clause found"),
         ]
-        
+
         risky_patterns = [
             (r"ALTER\s+TABLE.*DROP\s+COLUMN", "DROP COLUMN operation found"),
             (r"DROP\s+INDEX", "DROP INDEX operation found"),
@@ -183,16 +195,18 @@ class MigrationValidator:
         # Check for missing transaction handling
         if "BEGIN" not in content.upper() and "COMMIT" not in content.upper():
             if any(op in content.upper() for op in ["ALTER", "CREATE", "DROP"]):
-                checks["warnings"].append("Migration may benefit from explicit transaction handling")
+                checks["warnings"].append(
+                    "Migration may benefit from explicit transaction handling"
+                )
 
         return checks
 
     def _check_migration_structure(self, content: str) -> dict[str, Any]:
         """Check migration structure and best practices.
-        
+
         Args:
             content: Migration file content
-            
+
         Returns:
             Structure check results
         """
@@ -202,7 +216,7 @@ class MigrationValidator:
         revision_match = re.search(r'revision\s*=\s*["\']([^"\']+)["\']', content)
         if revision_match:
             revision_id = revision_match.group(1)
-            if not re.match(r'^[a-f0-9]{3,}$', revision_id):
+            if not re.match(r"^[a-f0-9]{3,}$", revision_id):
                 checks["warnings"].append("Revision ID should be a hexadecimal string")
         else:
             checks["errors"].append("No revision ID found in migration")
@@ -225,27 +239,27 @@ class MigrationValidator:
 
     def _calculate_safety_score(self, validation_result: dict[str, Any]) -> int:
         """Calculate overall safety score for migration.
-        
+
         Args:
             validation_result: Validation results
-            
+
         Returns:
             Safety score (0-100)
         """
         score = 100
-        
+
         # Deduct points for errors and warnings
         score -= len(validation_result.get("errors", [])) * 20
         score -= len(validation_result.get("warnings", [])) * 5
-        
+
         return max(0, score)
 
     def validate_schema_changes(self, migration_content: str) -> dict[str, Any]:
         """Validate schema changes for potential issues.
-        
+
         Args:
             migration_content: Migration content to validate
-            
+
         Returns:
             Schema validation results
         """
@@ -253,7 +267,7 @@ class MigrationValidator:
             "valid": True,
             "warnings": [],
             "errors": [],
-            "recommendations": []
+            "recommendations": [],
         }
 
         # Check for large table alterations
@@ -272,7 +286,9 @@ class MigrationValidator:
             )
 
         # Check for data migrations
-        if any(op in migration_content.upper() for op in ["INSERT", "UPDATE", "DELETE"]):
+        if any(
+            op in migration_content.upper() for op in ["INSERT", "UPDATE", "DELETE"]
+        ):
             validation["warnings"].append(
                 "Data migration detected - ensure proper backup before running"
             )
@@ -284,16 +300,11 @@ class MigrationValidator:
 
     def check_database_readiness(self) -> dict[str, Any]:
         """Check if database is ready for migrations.
-        
+
         Returns:
             Database readiness status
         """
-        readiness = {
-            "ready": False,
-            "issues": [],
-            "warnings": [],
-            "info": {}
-        }
+        readiness = {"ready": False, "issues": [], "warnings": [], "info": {}}
 
         try:
             with self.engine.connect() as conn:
@@ -307,7 +318,7 @@ class MigrationValidator:
                     if Path(db_path).exists():
                         stat = Path(db_path).stat()
                         readiness["info"]["database_size"] = stat.st_size
-                
+
                 # Check for existing alembic version table
                 try:
                     result = conn.execute(text("SELECT * FROM alembic_version LIMIT 1"))
@@ -335,29 +346,29 @@ class MigrationValidator:
 
     def get_migration_recommendations(self, migration_file: str) -> list[str]:
         """Get recommendations for migration execution.
-        
+
         Args:
             migration_file: Path to migration file
-            
+
         Returns:
             List of recommendations
         """
         recommendations = []
-        
+
         validation = self.validate_migration_file(migration_file)
-        
+
         if validation["safety_score"] < 80:
             recommendations.append("🔍 Review migration carefully before running")
-        
+
         if validation["safety_score"] < 60:
             recommendations.append("⚠️  Consider testing on staging environment first")
-        
+
         if any("DROP" in warning for warning in validation.get("warnings", [])):
             recommendations.append("📋 Create database backup before running")
-        
+
         if any("ALTER TABLE" in warning for warning in validation.get("warnings", [])):
             recommendations.append("⏰ Schedule during maintenance window")
-        
+
         if not validation.get("warnings") and validation["safety_score"] > 90:
             recommendations.append("✅ Migration appears safe to run")
 
@@ -369,20 +380,22 @@ class MigrationTestRunner:
 
     def __init__(self, test_database_url: str):
         """Initialize test runner.
-        
+
         Args:
             test_database_url: Test database URL
         """
         self.test_database_url = test_database_url
         self.engine = create_engine(test_database_url)
 
-    def test_migration_roundtrip(self, migration_manager, revision: str) -> dict[str, Any]:
+    def test_migration_roundtrip(
+        self, migration_manager, revision: str
+    ) -> dict[str, Any]:
         """Test migration upgrade and downgrade roundtrip.
-        
+
         Args:
             migration_manager: Migration manager instance
             revision: Revision to test
-            
+
         Returns:
             Test results
         """
@@ -391,7 +404,7 @@ class MigrationTestRunner:
             "upgrade_success": False,
             "downgrade_success": False,
             "errors": [],
-            "warnings": []
+            "warnings": [],
         }
 
         try:
@@ -413,8 +426,7 @@ class MigrationTestRunner:
                     test_results["errors"].append("Downgrade failed")
 
             test_results["success"] = (
-                test_results["upgrade_success"] and 
-                test_results["downgrade_success"]
+                test_results["upgrade_success"] and test_results["downgrade_success"]
             )
 
         except Exception as e:
@@ -425,15 +437,11 @@ class MigrationTestRunner:
 
     def validate_data_integrity(self) -> dict[str, Any]:
         """Validate data integrity after migration.
-        
+
         Returns:
             Data integrity check results
         """
-        integrity_results = {
-            "valid": True,
-            "checks": {},
-            "issues": []
-        }
+        integrity_results = {"valid": True, "checks": {}, "issues": []}
 
         try:
             with self.engine.connect() as conn:
@@ -446,7 +454,9 @@ class MigrationTestRunner:
                             f"Foreign key violations: {len(fk_violations)}"
                         )
                         integrity_results["valid"] = False
-                    integrity_results["checks"]["foreign_keys"] = len(fk_violations) == 0
+                    integrity_results["checks"]["foreign_keys"] = (
+                        len(fk_violations) == 0
+                    )
 
                 # Check for orphaned records (basic)
                 # This would be customized based on your schema
@@ -461,32 +471,32 @@ class MigrationTestRunner:
 
 def validate_migration_safety(migration_file: str, database_url: str) -> dict[str, Any]:
     """Comprehensive migration safety validation.
-    
+
     Args:
         migration_file: Path to migration file
         database_url: Database URL
-        
+
     Returns:
         Complete safety validation results
     """
     validator = MigrationValidator(database_url)
-    
+
     # File validation
     file_validation = validator.validate_migration_file(migration_file)
-    
+
     # Database readiness
     readiness = validator.check_database_readiness()
-    
+
     # Recommendations
     recommendations = validator.get_migration_recommendations(migration_file)
-    
+
     return {
         "file_validation": file_validation,
         "database_readiness": readiness,
         "recommendations": recommendations,
         "overall_safety": (
-            file_validation["valid"] and 
-            readiness["ready"] and 
-            file_validation["safety_score"] >= 70
-        )
+            file_validation["valid"]
+            and readiness["ready"]
+            and file_validation["safety_score"] >= 70
+        ),
     }

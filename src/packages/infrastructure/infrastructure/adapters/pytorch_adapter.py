@@ -138,10 +138,7 @@ except ImportError:
 
 
 from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.exceptions import (
-    AdapterError,
-    AlgorithmNotFoundError,
-)
+from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
 from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
 
 logger = logging.getLogger(__name__)
