@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 129  
+**Total Open Issues**: 130  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 45  
+**Pending**: 46  
 
-**Last Sync**: July 14, 2025 at 19:16 UTC
+**Last Sync**: July 14, 2025 at 19:17 UTC
 
 ---
 
@@ -1443,6 +1443,18 @@
 - **Scope**: ## Overview Develop JavaScript/TypeScript SDK for web application integration with data science capabilities.  ## Acceptance Criteria - [ ] TypeScript definitions and modern JavaScript support - [ ] P...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/163)
 
+### **Issue #166: Phase 7.1: Documentation - Comprehensive User Guides**
+
+**Labels**: documentation, est:1w, P2-Medium  
+**Priority**: 🔶 P2-Medium  
+**Status**: ⏳ PENDING  
+**Category**: 📚 Documentation  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Create comprehensive documentation including user guides, API references, tutorials, and best practices.  ## Acceptance Criteria - [ ] User guides for each data science package - [ ] API r...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/166)
+
 ## 🟢 **P3-Low Priority Issues**
 
 ### **Issue #16: I-005: Cloud Storage Adapters**
@@ -1589,6 +1601,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 19:16 UTC  
+**Last Updated**: July 14, 2025 at 19:17 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
