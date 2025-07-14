@@ -10,7 +10,10 @@ from unittest.mock import Mock, patch
 import pytest
 
 # Import all base fixtures from root conftest
-from ..conftest import *
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from conftest import *
 from typer.testing import CliRunner
 
 

@@ -62,7 +62,7 @@ jobs:
       run: |
         echo "::group::Project Structure Validation"
         find . -name "*.py" -path "./src/*" | head -5
-        find . -name "*.py" -path "./tests/*" | head -5
+        find . -name "*.py" -path "./src/integration_tests/*" | head -5
         echo "Structure validation passed"
         echo "::endgroup::"
 
@@ -192,7 +192,7 @@ jobs:
       if: matrix.test-category == 'unit-domain'
       run: |
         echo "::group::Unit and Domain Tests"
-        hatch env run test:run tests/unit/ tests/domain/ \
+        hatch env run test:run src/integration_tests/unit/ src/integration_tests/domain/ \
           --cov=src/pynomaly --cov-report=xml --cov-report=html \
           --junitxml=test-results-unit-domain.xml -v
         echo "::endgroup::"
@@ -201,7 +201,7 @@ jobs:
       if: matrix.test-category == 'integration-infra'
       run: |
         echo "::group::Integration and Infrastructure Tests"
-        hatch env run test:run tests/integration/ tests/infrastructure/ \
+        hatch env run test:run src/integration_tests/integration/ src/integration_tests/infrastructure/ \
           --cov=src/pynomaly --cov-report=xml --cov-report=html \
           --junitxml=test-results-integration-infra.xml -v
         echo "::endgroup::"
@@ -215,7 +215,7 @@ jobs:
         sleep 10
         curl -f http://localhost:8000/api/health/ready || echo "API not ready, continuing with security tests"
         
-        hatch env run test:run tests/security/ tests/api/ tests/presentation/api/ \
+        hatch env run test:run src/integration_tests/security/ src/integration_tests/api/ src/integration_tests/presentation/api/ \
           --junitxml=test-results-security-api.xml -v
         echo "::endgroup::"
 
@@ -223,7 +223,7 @@ jobs:
       if: matrix.test-category == 'performance-e2e'
       run: |
         echo "::group::Performance and E2E Tests"
-        hatch env run test:run tests/performance/ tests/e2e/ \
+        hatch env run test:run src/integration_tests/performance/ src/integration_tests/e2e/ \
           --junitxml=test-results-performance-e2e.xml -v
         echo "::endgroup::"
 
