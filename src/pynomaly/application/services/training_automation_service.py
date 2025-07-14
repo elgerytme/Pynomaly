@@ -22,7 +22,17 @@ from uuid import uuid4
 import pandas as pd
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly.domain.entities.training_job import (
+    TrainingJob,
+    TrainingStatus,
+)
 from pynomaly.domain.exceptions import TrainingError
+from pynomaly.domain.protocols.training_protocols import (
+    DatasetRepositoryProtocol,
+    ModelTrainerProtocol,
+    TrainingJobRepositoryProtocol,
+)
+from pynomaly.domain.value_objects.training_configuration import TrainingConfiguration
 
 # Optional dependencies with graceful fallback
 try:
@@ -52,17 +62,6 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class TrainingStatus(Enum):
-    """Training job status enumeration."""
-
-    QUEUED = "queued"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELLED = "cancelled"
-    PAUSED = "paused"
-
-
 class OptimizationStrategy(Enum):
     """Hyperparameter optimization strategies."""
 
@@ -80,45 +79,6 @@ class PruningStrategy(Enum):
     MEDIAN = "median"
     HYPERBAND = "hyperband"
     SUCCESSIVE_HALVING = "successive_halving"
-
-
-@dataclass
-class TrainingConfiguration:
-    """Configuration for automated training."""
-
-    # Basic settings
-    max_trials: int = 100
-    timeout_minutes: int | None = 60
-    optimization_strategy: OptimizationStrategy = OptimizationStrategy.TPE
-    pruning_strategy: PruningStrategy = PruningStrategy.MEDIAN
-
-    # Optimization objectives
-    primary_metric: str = "roc_auc"
-    secondary_metrics: list[str] = field(
-        default_factory=lambda: ["precision", "recall", "f1"]
-    )
-    optimization_direction: str = "maximize"  # or "minimize"
-
-    # Advanced settings
-    cross_validation_folds: int = 5
-    validation_split: float = 0.2
-    early_stopping_patience: int = 10
-    min_improvement_threshold: float = 0.001
-
-    # Resource constraints
-    max_memory_gb: float | None = None
-    max_cpu_cores: int | None = None
-    use_gpu: bool = False
-
-    # Experiment tracking
-    experiment_name: str | None = None
-    track_artifacts: bool = True
-    save_models: bool = True
-
-    # AutoML specific
-    algorithm_whitelist: list[str] | None = None
-    algorithm_blacklist: list[str] | None = None
-    ensemble_methods: list[str] = field(default_factory=lambda: ["voting", "stacking"])
 
 
 @dataclass
@@ -160,95 +120,19 @@ class HyperparameterSpace:
         return suggested
 
 
-@dataclass
-class TrainingJob:
-    """Represents a training job with full lifecycle tracking."""
-
-    job_id: str = field(default_factory=lambda: str(uuid4()))
-    name: str = ""
-    status: TrainingStatus = TrainingStatus.QUEUED
-
-    # Configuration
-    configuration: TrainingConfiguration = field(default_factory=TrainingConfiguration)
-    dataset_id: str = ""
-    target_algorithms: list[str] = field(default_factory=list)
-
-    # Execution tracking
-    created_at: datetime = field(default_factory=datetime.now)
-    started_at: datetime | None = None
-    completed_at: datetime | None = None
-    error_message: str | None = None
-
-    # Results
-    best_model: dict[str, Any] | None = None
-    best_score: float | None = None
-    best_parameters: dict[str, Any] | None = None
-    trial_history: list[dict[str, Any]] = field(default_factory=list)
-
-    # Metrics
-    total_trials: int = 0
-    successful_trials: int = 0
-    failed_trials: int = 0
-    execution_time_seconds: float = 0.0
-
-    # Artifacts
-    model_path: str | None = None
-    experiment_id: str | None = None
-    study_id: str | None = None
-
-
-class TrainingJobRepository(Protocol):
-    """Repository for training job persistence."""
-
-    async def save_job(self, job: TrainingJob) -> None:
-        """Save training job."""
-        ...
-
-    async def get_job(self, job_id: str) -> TrainingJob | None:
-        """Get training job by ID."""
-        ...
-
-    async def list_jobs(
-        self, status: TrainingStatus | None = None, limit: int = 100
-    ) -> list[TrainingJob]:
-        """List training jobs."""
-        ...
-
-    async def update_job_status(self, job_id: str, status: TrainingStatus) -> None:
-        """Update job status."""
-        ...
-
-
-class ModelTrainer(Protocol):
-    """Protocol for model training implementations."""
-
-    async def train(
-        self, detector: Detector, dataset: Dataset, parameters: dict[str, Any]
-    ) -> DetectionResult:
-        """Train model with given parameters."""
-        ...
-
-    async def evaluate(
-        self,
-        detector: Detector,
-        dataset: Dataset,
-        validation_data: Dataset | None = None,
-    ) -> dict[str, float]:
-        """Evaluate trained model."""
-        ...
-
-
 class TrainingAutomationService:
     """Enterprise-grade training automation service."""
 
     def __init__(
         self,
-        job_repository: TrainingJobRepository,
-        model_trainer: ModelTrainer,
+        job_repository: TrainingJobRepositoryProtocol,
+        model_trainer: ModelTrainerProtocol,
+        dataset_repository: DatasetRepositoryProtocol,
         storage_path: Path | None = None,
     ):
         self.job_repository = job_repository
         self.model_trainer = model_trainer
+        self.dataset_repository = dataset_repository
         self.storage_path = storage_path or Path("./training_artifacts")
         self.storage_path.mkdir(parents=True, exist_ok=True)
 
@@ -674,9 +558,10 @@ class TrainingAutomationService:
 
     async def _load_dataset(self, dataset_id: str) -> Dataset:
         """Load dataset by ID."""
-        # This would be implemented to load from the dataset repository
-        # For now, return a placeholder
-        return Dataset(name="placeholder", data=pd.DataFrame(), id=dataset_id)
+        dataset = await self.dataset_repository.get_dataset(dataset_id)
+        if not dataset:
+            raise TrainingError(f"Dataset {dataset_id} not found")
+        return dataset
 
     async def _save_best_model(self, job: TrainingJob, result: dict[str, Any]) -> Path:
         """Save the best trained model."""
@@ -768,79 +653,5 @@ class TrainingAutomationService:
 # Convenience functions for common training scenarios
 
 
-async def quick_optimize(
-    dataset_id: str,
-    algorithms: list[str] | None = None,
-    max_trials: int = 50,
-    timeout_minutes: int = 30,
-) -> TrainingJob:
-    """Quick optimization with sensible defaults."""
-    from pynomaly.infrastructure.adapters.model_trainer_adapter import (
-        ModelTrainerAdapter,
-    )
-    from pynomaly.infrastructure.persistence.training_job_repository import (
-        TrainingJobRepository,
-    )
-
-    repo = TrainingJobRepository()
-    trainer = ModelTrainerAdapter()
-    service = TrainingAutomationService(repo, trainer)
-
-    config = TrainingConfiguration(
-        max_trials=max_trials,
-        timeout_minutes=timeout_minutes,
-        optimization_strategy=OptimizationStrategy.TPE,
-        pruning_strategy=PruningStrategy.MEDIAN,
-    )
-
-    job = await service.create_training_job(
-        name=f"Quick optimization {datetime.now().strftime('%Y%m%d_%H%M%S')}",
-        dataset_id=dataset_id,
-        configuration=config,
-        target_algorithms=algorithms,
-    )
-
-    await service.start_training_job(job.job_id)
-    return job
-
-
-async def production_optimize(
-    dataset_id: str,
-    experiment_name: str,
-    algorithms: list[str] | None = None,
-    max_trials: int = 200,
-    timeout_hours: int = 4,
-) -> TrainingJob:
-    """Production-grade optimization with comprehensive tracking."""
-    from pynomaly.infrastructure.adapters.model_trainer_adapter import (
-        ModelTrainerAdapter,
-    )
-    from pynomaly.infrastructure.persistence.training_job_repository import (
-        TrainingJobRepository,
-    )
-
-    repo = TrainingJobRepository()
-    trainer = ModelTrainerAdapter()
-    service = TrainingAutomationService(repo, trainer)
-
-    config = TrainingConfiguration(
-        max_trials=max_trials,
-        timeout_minutes=timeout_hours * 60,
-        optimization_strategy=OptimizationStrategy.TPE,
-        pruning_strategy=PruningStrategy.HYPERBAND,
-        experiment_name=experiment_name,
-        track_artifacts=True,
-        save_models=True,
-        cross_validation_folds=5,
-        early_stopping_patience=20,
-    )
-
-    job = await service.create_training_job(
-        name=experiment_name,
-        dataset_id=dataset_id,
-        configuration=config,
-        target_algorithms=algorithms,
-    )
-
-    await service.start_training_job(job.job_id)
-    return job
+# Convenience functions moved to application layer factory
+# to avoid circular dependencies with infrastructure imports

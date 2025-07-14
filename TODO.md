@@ -2,11 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 18  
-**Completed**: 116  
-**In Progress**: 0  
+**Total Open Issues**: 99  
+**Completed**: 57 (Issue #5 - P1-Critical: Core Architecture & Foundation, Issue #6 - D-001: Enhanced Domain Entity Validation, Issue #1 - P2-High: API Development & Integration, Issue #84 - Achieve 100% Test Coverage - Comprehensive Implementation Plan, Issue #113 - P1: Standardize Repository Async/Sync Patterns, Issue #128 - P2: Complete ADR Documentation Suite - Consolidated Tracking, Issue #28 - DOC-003: Architecture Decision Records (ADRs))  
+**In Progress**: 2  
+**Pending**: 28  
 
-**Last Sync**: July 14, 2025 at 18:00 UTC
+**Last Sync**: July 14, 2025 at 17:52 UTC
 
 ---
 
@@ -33,10 +34,10 @@
 
 **Labels**: P1-High  
 **Priority**: 🔥 P1-High  
-**Status**: ⏳ PENDING  
+**Status**: ✅ COMPLETED  
 **Category**: 📋 General  
 **Created**: Jul 08, 2025  
-**Updated**: Jul 11, 2025  
+**Updated**: Jul 14, 2025  
 
 - **Scope**: API Development & Integration - REST API endpoints, authentication system, API documentation
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/1)
@@ -45,10 +46,10 @@
 
 **Labels**: P1-High  
 **Priority**: 🔥 P1-High  
-**Status**: ⏳ PENDING  
+**Status**: ✅ COMPLETED  
 **Category**: 📋 General  
 **Created**: Jul 08, 2025  
-**Updated**: Jul 11, 2025  
+**Updated**: Jul 14, 2025  
 
 - **Scope**: Enhanced Domain Entity Validation - implement advanced validation rules for AnomalyScore, ContaminationRate, and DetectionResult entities
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/6)
@@ -309,9 +310,9 @@
 
 ### **Issue #129: P1: Consolidate Duplicate Package Structures**
 
-**Labels**: bug, Infrastructure, P1-High  
+**Labels**: bug, Infrastructure, In-Progress, P1-High  
 **Priority**: 🔥 P1-High  
-**Status**: ⏳ PENDING  
+**Status**: 🔄 IN PROGRESS  
 **Category**: 🐛 Bug  
 **Created**: Jul 14, 2025  
 **Updated**: Jul 14, 2025  
@@ -342,6 +343,18 @@
 
 - **Scope**: ## Problem  **Priority**: P1 - High (Critical Architecture Issue)  The project has circular dependencies between packages that violate Clean Architecture principles:  - **Core packages importing from ...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/131)
+
+### **Issue #135: P1: Fix Model Persistence for End-to-End Anomaly Detection Workflow**
+
+**Labels**: bug, Infrastructure, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: 🐛 Bug  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: # P1: Fix Model Persistence for End-to-End Anomaly Detection Workflow  ## Issue Description  **Critical Issue**: The current implementation has a fundamental model persistence problem that prevents su...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/135)
 
 ## 🔶 **P2-Medium Priority Issues**
 
@@ -385,10 +398,10 @@
 
 **Labels**: P0-Critical  
 **Priority**: 🔶 P2-Medium  
-**Status**: ⏳ PENDING  
+**Status**: ✅ COMPLETED  
 **Category**: 📋 General  
 **Created**: Jul 08, 2025  
-**Updated**: Jul 11, 2025  
+**Updated**: Jul 14, 2025  
 
 - **Scope**: ## Priority: Critical (P1)    ### Owner: Agent-Alpha  ### Daily Sync: 9:00 AM UTC (15 minutes)    ### Objectives:  - Establish core system architecture  - Set up foundational components  - Implement b...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/5)
@@ -1223,6 +1236,18 @@
 - **Scope**: ## Summary Following the completion of Issue #89 (P0: Stabilize Flaky Test Suite), this issue tracks the remaining optimizations for timing dependencies and resource cleanup in the test infrastructure...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/127)
 
+### **Issue #134: P3: Implement Consistent Naming Conventions Across All Packages**
+
+**Labels**: enhancement, P3-Low  
+**Priority**: 🟢 P3-Low  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Problem  **Priority**: P3 - Low (Code Quality Issue)  The project has inconsistent naming conventions across packages, files, and code elements:  - **Mixed Naming Conventions**: kebab-case, snake_c...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/134)
+
 ---
 
 ## 🔧 **Automation Setup**
@@ -1247,6 +1272,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 17:15 UTC  
+**Last Updated**: July 14, 2025 at 17:52 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
