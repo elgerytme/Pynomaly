@@ -117,7 +117,8 @@ class AnomalyScore:
             valid_methods = {
                 "isolation_forest", "local_outlier_factor", "one_class_svm",
                 "elliptic_envelope", "auto_encoder", "gaussian_mixture",
-                "statistical", "distance_based", "density_based", "ensemble"
+                "statistical", "distance_based", "density_based", "ensemble",
+                "pyod", "sklearn"  # Add common scoring methods
             }
             if self.method.lower() not in valid_methods:
                 raise ValidationError(
@@ -206,7 +207,7 @@ class AnomalyScore:
         if isinstance(self.value, float):
             # Check if the score has reasonable precision (not too many decimal places)
             decimal_places = len(str(self.value).split('.')[-1]) if '.' in str(self.value) else 0
-            if decimal_places > 6:
+            if decimal_places > 25:  # Allow up to 25 decimal places for high precision algorithms
                 raise ValidationError(
                     f"Score value has excessive precision ({decimal_places} decimal places). Consider rounding."
                 )

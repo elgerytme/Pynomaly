@@ -909,6 +909,7 @@ class Container(containers.DeclarativeContainer):
         DetectAnomaliesUseCase,
         detector_repository=detector_repository,
         feature_validator=feature_validator,
+        adapter_registry=algorithm_adapter_registry,
     )
 
     train_detector_use_case = providers.Factory(

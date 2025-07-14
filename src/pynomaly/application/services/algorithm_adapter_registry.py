@@ -166,8 +166,19 @@ class BaseAlgorithmAdapter(ABC):
         # Normalize scores to [0, 1] range for AnomalyScore
         normalized_scores = self._normalize_scores(scores)
 
+        # Map algorithm names to valid scoring methods
+        method_mapping = {
+            "IsolationForest": "isolation_forest",
+            "LOF": "local_outlier_factor", 
+            "OneClassSVM": "one_class_svm",
+            "LocalOutlierFactor": "local_outlier_factor",
+            "EllipticEnvelope": "elliptic_envelope",
+        }
+        
+        method_name = method_mapping.get(detector.algorithm_name, detector.algorithm_name.lower().replace(" ", "_"))
+        
         return [
-            AnomalyScore(value=float(score), method=detector.algorithm_name)
+            AnomalyScore(value=round(float(score), 6), method=method_name)
             for score in normalized_scores
         ]
 
