@@ -26,7 +26,12 @@ except ImportError:
     QRCODE_AVAILABLE = False
     qrcode = None
 
-from pynomaly.application.dto.mfa_dto import (
+from pynomaly.domain.protocols.audit_logger_protocol import (
+    AuditLevel,
+    AuditLoggerProtocol,
+    SecurityEventType,
+)
+from pynomaly.domain.value_objects.mfa_types import (
     MFADeviceDTO,
     MFAMethodDTO,
     MFAMethodStatus,
@@ -34,22 +39,23 @@ from pynomaly.application.dto.mfa_dto import (
     MFAStatisticsDTO,
     TOTPSetupResponse,
 )
-from pynomaly.infrastructure.security.audit_logger import (
-    AuditLevel,
-    SecurityEventType,
-    get_audit_logger,
-)
 
 
 class MFAService:
     """Service for handling multi-factor authentication operations."""
 
-    def __init__(self, redis_client=None, email_service=None, sms_service=None):
-        """Initialize MFA service with optional dependencies."""
+    def __init__(
+        self, 
+        audit_logger: AuditLoggerProtocol,
+        redis_client=None, 
+        email_service=None, 
+        sms_service=None
+    ):
+        """Initialize MFA service with required audit logger and optional dependencies."""
+        self.audit_logger = audit_logger
         self.redis_client = redis_client
         self.email_service = email_service
         self.sms_service = sms_service
-        self.audit_logger = get_audit_logger()
 
         # Configuration
         self.totp_window = 1  # Allow 1 time step tolerance

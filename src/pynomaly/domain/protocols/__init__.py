@@ -5,8 +5,15 @@
 from pynomaly.shared.protocols import DetectorProtocol as AdapterProtocol
 from pynomaly.shared.protocols import *
 
+# Domain-specific protocols
+from .audit_logger_protocol import AuditLevel, AuditLoggerProtocol, SecurityEventType
+
 __all__ = [
     "AdapterProtocol",
+    # Domain-specific protocols
+    "AuditLevel",
+    "AuditLoggerProtocol",
+    "SecurityEventType",
     # Re-export all shared protocols
     "DetectorProtocol",
     "ExplainableDetectorProtocol",
