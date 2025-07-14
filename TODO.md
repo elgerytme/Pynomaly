@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 99  
+**Total Open Issues**: 100  
 **Completed**: 61 (Issue #135 - P1: Fix Model Persistence for End-to-End Anomaly Detection Workflow, Issue #21 - P-005: OpenAPI Schema Fixes, Issue #133 - P2: Consolidate and Improve Documentation Organization, Issue #129 - P1: Consolidate Duplicate Package Structures, Issue #5 - P1-Critical: Core Architecture & Foundation, Issue #6 - D-001: Enhanced Domain Entity Validation, Issue #1 - P2-High: API Development & Integration)  
 **In Progress**: 1  
-**Pending**: 25  
+**Pending**: 26  
 
 **Last Sync**: July 14, 2025 at 18:28 UTC
 
@@ -1082,6 +1082,18 @@
 
 - **Scope**: ## Problem  **Priority**: P2 - Medium (Documentation Management Issue)  The project has comprehensive documentation (360+ files) but suffers from organizational issues:  - **Content Duplication**: Sam...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/133)
+
+### **Issue #136: P0-Critical: Prepare PyPI Package Release**
+
+**Labels**: enhancement, Infrastructure, P0-Critical  
+**Priority**: 🔶 P2-Medium  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Priority: P0-Critical **Issue Type**: Package Release Preparation   **Timeline**: Immediate (Ready for release)    ## Problem The Pynomaly package is production-ready with working end-to-end functi...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/136)
 
 ## 🟢 **P3-Low Priority Issues**
 
