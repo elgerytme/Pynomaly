@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 106  
+**Total Open Issues**: 107  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 22  
+**Pending**: 23  
 
 **Last Sync**: July 14, 2025 at 19:08 UTC
 
@@ -384,6 +384,18 @@
 
 - **Scope**: ## Overview Implement comprehensive statistical analysis capabilities including descriptive statistics, inferential testing, distribution analysis, and advanced statistical modeling. This provides the...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/142)
+
+### **Issue #143: Phase 2.2: Data Science Package - Machine Learning Pipeline Framework**
+
+**Labels**: enhancement, Domain, est:2w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Build a comprehensive machine learning pipeline framework that supports model training, evaluation, hyperparameter optimization, and automated model selection. This provides end-to-end ML ...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/143)
 
 ## 🔶 **P2-Medium Priority Issues**
 
