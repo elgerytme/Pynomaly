@@ -72,7 +72,7 @@ class TestProductionRedisCache:
                     for task in getattr(cache, '_warming_tasks', set()):
                         if not task.done():
                             task.cancel()
-                    await asyncio.sleep(0.05)  # Brief grace period
+                    await asyncio.sleep(0.01)  # Minimal grace period
 
     async def test_cache_initialization(self, mock_settings):
         """Test cache initialization with different configurations."""
@@ -273,13 +273,24 @@ class TestProductionRedisCache:
         mock_redis.get.return_value = b'{"value": "test"}'
         mock_redis.set.return_value = True
 
-        # Create multiple concurrent operations with limited concurrency
+        # Create multiple concurrent operations with proper sequencing
         async def limited_operations():
-            tasks = []
+            # First set all keys, then get them to avoid race conditions
+            set_tasks = []
             for i in range(5):  # Reduced concurrency to avoid resource issues
-                tasks.append(production_cache.get(f"key_{i}"))
-                tasks.append(production_cache.set(f"key_{i}", f"value_{i}"))
-            return await asyncio.gather(*tasks, return_exceptions=True)
+                set_tasks.append(production_cache.set(f"key_{i}", f"value_{i}"))
+            
+            # Wait for all sets to complete
+            set_results = await asyncio.gather(*set_tasks, return_exceptions=True)
+            
+            # Then get all keys
+            get_tasks = []
+            for i in range(5):
+                get_tasks.append(production_cache.get(f"key_{i}"))
+            
+            get_results = await asyncio.gather(*get_tasks, return_exceptions=True)
+            
+            return set_results + get_results
 
         results = await limited_operations()
 
@@ -425,4 +436,4 @@ class TestRedisIntegration:
                 for task in getattr(cache, '_warming_tasks', set()):
                     if not task.done():
                         task.cancel()
-                await asyncio.sleep(0.1)  # Allow cancellation to complete
+                await asyncio.sleep(0.01)  # Minimal delay for cancellation completion

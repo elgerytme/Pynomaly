@@ -19,9 +19,9 @@ from pynomaly.application.services.autonomous_data_profiler import (
     AutonomousDataProfiler,
 )
 from pynomaly.application.services.autonomous_detection_config import (
+    AlgorithmRecommendation,
     AutonomousConfig,
     DataProfile,
-    AlgorithmRecommendation,
 )
 from pynomaly.application.services.autonomous_preprocessing import (
     AutonomousPreprocessingOrchestrator,
@@ -187,7 +187,7 @@ class AutonomousDetectionService:
 
         # For now, return a simplified result based on the first recommendation
         best_rec = recommendations[0]
-        
+
         return {
             "selected_algorithm": best_rec.algorithm,
             "anomalies_found": 1,

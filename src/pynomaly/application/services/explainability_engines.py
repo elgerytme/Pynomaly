@@ -12,7 +12,6 @@ from pynomaly.application.services.explainability_core import (
     GlobalExplanation,
     LocalExplanation,
 )
-from pynomaly.domain.entities import Dataset
 from pynomaly.shared.protocols import DetectorProtocol
 
 # Optional explainability imports with fallbacks

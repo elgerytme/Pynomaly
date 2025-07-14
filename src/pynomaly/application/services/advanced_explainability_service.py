@@ -343,7 +343,7 @@ class AdvancedExplainabilityService:
     def _create_fallback_global_explanation(self, feature_names: list[str]) -> GlobalExplanation:
         """Create fallback global explanation."""
         equal_importance = 1.0 / len(feature_names) if feature_names else 0.0
-        
+
         return GlobalExplanation(
             feature_importance=dict.fromkeys(feature_names, equal_importance),
             feature_interactions={},
@@ -356,25 +356,25 @@ class AdvancedExplainabilityService:
     def _generate_recommendations(self, trust_assessment) -> list[str]:
         """Generate recommendations based on trust assessment."""
         recommendations = []
-        
+
         if trust_assessment.overall_trust_score < 0.7:
             recommendations.append("Consider model retraining or hyperparameter tuning")
-            
+
         if trust_assessment.consistency_score < 0.7:
             recommendations.append("Improve model consistency through regularization")
-            
+
         if trust_assessment.stability_score < 0.7:
             recommendations.append("Enhance prediction stability with ensemble methods")
-            
+
         if trust_assessment.fidelity_score < 0.7:
             recommendations.append("Validate explanation fidelity with domain experts")
-            
+
         if trust_assessment.risk_assessment == "high":
             recommendations.append(
                 "Exercise caution when using model predictions for critical decisions"
             )
-            
+
         if not recommendations:
             recommendations.append("Model shows good explainability characteristics")
-            
+
         return recommendations

@@ -382,7 +382,7 @@ class FeatureFlagManager:
                 stage=FeatureStage.BETA,
                 dependencies={"real_time_dashboards"},
             ),
-            # Legacy AutoML support  
+            # Legacy AutoML support
             "automl": FeatureDefinition(
                 name="automl",
                 description="AutoML features (alias for advanced_automl)",

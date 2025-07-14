@@ -1,679 +1,652 @@
 /**
- * Enhanced Service Worker for Pynomaly Web UI Performance Optimization
- * Implements advanced caching strategies, image optimization, and performance monitoring
+ * Enhanced Service Worker for Pynomaly PWA
+ * 
+ * Provides advanced offline capabilities including:
+ * - Intelligent caching strategies
+ * - Background sync for data operations
+ * - Push notifications for anomaly alerts
+ * - Offline detection capabilities
+ * - Performance optimization
  */
 
 const CACHE_VERSION = 'v2.0.0';
-const STATIC_CACHE = `pynomaly-static-${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `pynomaly-dynamic-${CACHE_VERSION}`;
-const API_CACHE = `pynomaly-api-${CACHE_VERSION}`;
-const IMAGE_CACHE = `pynomaly-images-${CACHE_VERSION}`;
-
-// Performance-focused cache configuration
-const CACHE_CONFIG = {
-  // Static assets with long cache duration
-  static: {
-    maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
-    maxEntries: 100,
-    strategy: 'cacheFirst'
-  },
-
-  // Dynamic content with shorter cache
-  dynamic: {
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
-    maxEntries: 50,
-    strategy: 'staleWhileRevalidate'
-  },
-
-  // API responses with intelligent caching
-  api: {
-    maxAge: 5 * 60 * 1000, // 5 minutes
-    maxEntries: 100,
-    strategy: 'networkFirst'
-  },
-
-  // Images with compression and format optimization
-  images: {
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    maxEntries: 200,
-    strategy: 'cacheFirst'
-  }
+const CACHE_NAMES = {
+    static: `pynomaly-static-${CACHE_VERSION}`,
+    dynamic: `pynomaly-dynamic-${CACHE_VERSION}`,
+    api: `pynomaly-api-${CACHE_VERSION}`,
+    models: `pynomaly-models-${CACHE_VERSION}`,
+    datasets: `pynomaly-datasets-${CACHE_VERSION}`
 };
 
-// Static assets for immediate caching
-const CRITICAL_ASSETS = [
-  '/',
-  '/static/css/tailwind.css',
-  '/static/css/design-system.css',
-  '/static/js/dist/main.js',
-  '/static/js/dist/vendors/essential.js',
-  '/manifest.json',
-  '/static/img/icon-192.png',
-  '/static/img/icon-512.png',
-  '/offline.html'
+// URLs to cache immediately
+const STATIC_CACHE_URLS = [
+    '/',
+    '/static/css/design-system.css',
+    '/static/css/accessibility.css',
+    '/static/js/main.js',
+    '/static/js/components/d3-chart-library.js',
+    '/static/js/components/real-time-dashboard.js',
+    '/static/js/accessibility-enhancements.js',
+    '/static/js/voice-commands.js',
+    '/static/manifest.json',
+    '/static/icons/icon-192.png',
+    '/static/icons/icon-512.png',
+    '/offline.html'
 ];
 
-// Pre-cache resources for performance
-const PREFETCH_ASSETS = [
-  '/static/js/dist/features/dashboard.js',
-  '/static/js/dist/features/anomaly-detection.js',
-  '/static/css/app.css'
+// API endpoints that should be cached
+const API_CACHE_PATTERNS = [
+    /^\/api\/models/,
+    /^\/api\/datasets\/\w+$/,
+    /^\/api\/detection-results/,
+    /^\/api\/statistics/
 ];
 
-/**
- * Service Worker Installation with Performance Focus
- */
+// Background sync tags
+const SYNC_TAGS = {
+    UPLOAD_DATASET: 'upload-dataset',
+    SYNC_RESULTS: 'sync-detection-results',
+    SEND_ANALYTICS: 'send-analytics',
+    UPDATE_MODEL: 'update-model'
+};
+
+// Install event - cache static resources
 self.addEventListener('install', (event) => {
-  console.log('[SW Enhanced] Installing with performance optimizations...');
-
-  event.waitUntil(
-    Promise.all([
-      // Cache critical assets immediately
-      caches.open(STATIC_CACHE).then(cache => {
-        console.log('[SW Enhanced] Caching critical assets');
-        return cache.addAll(CRITICAL_ASSETS);
-      }),
-
-      // Prefetch non-critical assets
-      caches.open(DYNAMIC_CACHE).then(cache => {
-        console.log('[SW Enhanced] Prefetching assets');
-        return cache.addAll(PREFETCH_ASSETS).catch(error => {
-          console.warn('[SW Enhanced] Prefetch failed:', error);
-        });
-      }),
-
-      // Initialize performance monitoring
-      initializePerformanceMonitoring(),
-
-      // Skip waiting for immediate activation
-      self.skipWaiting()
-    ])
-  );
-});
-
-/**
- * Service Worker Activation with Cache Management
- */
-self.addEventListener('activate', (event) => {
-  console.log('[SW Enhanced] Activating with cache cleanup...');
-
-  event.waitUntil(
-    Promise.all([
-      // Clean up old caches
-      caches.keys().then(cacheNames => {
-        return Promise.all(
-          cacheNames.map(cacheName => {
-            if (!cacheName.includes(CACHE_VERSION)) {
-              console.log('[SW Enhanced] Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            }
-          })
-        );
-      }),
-
-      // Claim clients immediately
-      self.clients.claim(),
-
-      // Initialize IndexedDB for performance data
-      initializePerformanceDB()
-    ])
-  );
-});
-
-/**
- * Enhanced Fetch Handler with Performance Strategies
- */
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Skip non-GET requests (except for offline handling)
-  if (request.method !== 'GET') {
-    if (request.method === 'POST') {
-      event.respondWith(handlePostRequest(request));
-    }
-    return;
-  }
-
-  // Route to appropriate caching strategy
-  if (isStaticAsset(url.pathname)) {
-    event.respondWith(handleStaticAsset(request));
-  } else if (isImageAsset(url.pathname)) {
-    event.respondWith(handleImageAsset(request));
-  } else if (isAPIRequest(url.pathname)) {
-    event.respondWith(handleAPIRequest(request));
-  } else if (isHTMLRequest(request)) {
-    event.respondWith(handleHTMLRequest(request));
-  } else {
-    event.respondWith(handleDynamicContent(request));
-  }
-});
-
-/**
- * Performance-optimized Static Asset Handler
- */
-async function handleStaticAsset(request) {
-  const cache = await caches.open(STATIC_CACHE);
-
-  // Cache first with long-term storage
-  let response = await cache.match(request);
-
-  if (response) {
-    // Check if cache is stale (for development)
-    if (isDevelopment() && isCacheStale(response, CACHE_CONFIG.static.maxAge)) {
-      // Update in background but return cached version
-      fetch(request).then(networkResponse => {
-        if (networkResponse.ok) {
-          cache.put(request, networkResponse.clone());
-        }
-      }).catch(() => {}); // Ignore network errors
-    }
-
-    return response;
-  }
-
-  // Fetch from network and cache
-  try {
-    const networkResponse = await fetch(request);
-
-    if (networkResponse.ok) {
-      // Clone and cache with optimization
-      const optimizedResponse = await optimizeStaticAsset(networkResponse.clone());
-      cache.put(request, optimizedResponse);
-      return networkResponse;
-    }
-
-    return networkResponse;
-  } catch (error) {
-    console.warn('[SW Enhanced] Static asset fetch failed:', error);
-    return new Response('Asset not available offline', {
-      status: 503,
-      statusText: 'Service Unavailable'
-    });
-  }
-}
-
-/**
- * Image Asset Handler with Format Optimization
- */
-async function handleImageAsset(request) {
-  const cache = await caches.open(IMAGE_CACHE);
-  const url = new URL(request.url);
-
-  // Check for WebP support and create optimized cache key
-  const supportsWebP = request.headers.get('accept')?.includes('image/webp');
-  const cacheKey = supportsWebP ? `${request.url}?webp=1` : request.url;
-
-  // Try cache first
-  let response = await cache.match(cacheKey);
-  if (response) {
-    return response;
-  }
-
-  try {
-    // Fetch original image
-    const networkResponse = await fetch(request);
-
-    if (!networkResponse.ok) {
-      return networkResponse;
-    }
-
-    // Optimize image if possible
-    const optimizedResponse = await optimizeImage(networkResponse.clone(), supportsWebP);
-
-    // Cache both optimized and original
-    cache.put(cacheKey, optimizedResponse.clone());
-    if (cacheKey !== request.url) {
-      cache.put(request.url, networkResponse.clone());
-    }
-
-    return optimizedResponse;
-  } catch (error) {
-    console.warn('[SW Enhanced] Image fetch failed:', error);
-
-    // Return fallback image or error
-    return createFallbackImageResponse();
-  }
-}
-
-/**
- * API Request Handler with Intelligent Caching
- */
-async function handleAPIRequest(request) {
-  const cache = await caches.open(API_CACHE);
-  const url = new URL(request.url);
-
-  // Determine caching strategy based on endpoint
-  if (isCacheableAPI(url.pathname)) {
-    return staleWhileRevalidate(request, cache);
-  } else if (isStaticAPI(url.pathname)) {
-    return cacheFirst(request, cache);
-  } else {
-    return networkFirst(request, cache);
-  }
-}
-
-/**
- * HTML Request Handler with App Shell Strategy
- */
-async function handleHTMLRequest(request) {
-  const cache = await caches.open(DYNAMIC_CACHE);
-
-  try {
-    // Network first for HTML to get latest content
-    const networkResponse = await fetch(request);
-
-    if (networkResponse.ok) {
-      // Cache successful responses
-      cache.put(request, networkResponse.clone());
-      return networkResponse;
-    }
-
-    // If network fails, try cache
-    const cachedResponse = await cache.match(request);
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-
-    // Fallback to app shell or offline page
-    return getAppShellResponse();
-  } catch (error) {
-    console.warn('[SW Enhanced] HTML fetch failed:', error);
-
-    // Try cache first
-    const cachedResponse = await cache.match(request);
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-
-    // Return offline page
-    return getOfflinePageResponse();
-  }
-}
-
-/**
- * Dynamic Content Handler
- */
-async function handleDynamicContent(request) {
-  const cache = await caches.open(DYNAMIC_CACHE);
-  return staleWhileRevalidate(request, cache);
-}
-
-/**
- * POST Request Handler with Background Sync
- */
-async function handlePostRequest(request) {
-  try {
-    // Try network first
-    const response = await fetch(request);
-
-    if (response.ok) {
-      // Invalidate related caches
-      await invalidateRelatedCaches(request.url);
-      return response;
-    }
-
-    // If response not ok, still return it (let app handle errors)
-    return response;
-  } catch (error) {
-    // Network failed, queue for background sync
-    console.log('[SW Enhanced] POST request failed, queuing for sync');
-
-    const requestData = {
-      url: request.url,
-      method: request.method,
-      headers: Object.fromEntries(request.headers.entries()),
-      body: await request.clone().text(),
-      timestamp: Date.now()
-    };
-
-    await queueForBackgroundSync(requestData);
-
-    return new Response(
-      JSON.stringify({
-        success: false,
-        message: 'Request queued for background sync',
-        offline: true
-      }),
-      {
-        status: 202,
-        headers: { 'Content-Type': 'application/json' }
-      }
+    console.log('Enhanced Service Worker installing...');
+    
+    event.waitUntil(
+        Promise.all([
+            caches.open(CACHE_NAMES.static).then((cache) => {
+                return cache.addAll(STATIC_CACHE_URLS);
+            }),
+            // Initialize IndexedDB for offline data
+            initializeOfflineDB(),
+            // Skip waiting to activate immediately
+            self.skipWaiting()
+        ])
     );
-  }
-}
-
-// =====================================================
-// Caching Strategies
-// =====================================================
-
-/**
- * Cache First Strategy
- */
-async function cacheFirst(request, cache) {
-  const cachedResponse = await cache.match(request);
-
-  if (cachedResponse && !isCacheStale(cachedResponse, CACHE_CONFIG.static.maxAge)) {
-    return cachedResponse;
-  }
-
-  try {
-    const networkResponse = await fetch(request);
-
-    if (networkResponse.ok) {
-      cache.put(request, networkResponse.clone());
-    }
-
-    return networkResponse;
-  } catch (error) {
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    throw error;
-  }
-}
-
-/**
- * Network First Strategy
- */
-async function networkFirst(request, cache) {
-  try {
-    const networkResponse = await fetch(request);
-
-    if (networkResponse.ok) {
-      cache.put(request, networkResponse.clone());
-    }
-
-    return networkResponse;
-  } catch (error) {
-    const cachedResponse = await cache.match(request);
-
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-
-    throw error;
-  }
-}
-
-/**
- * Stale While Revalidate Strategy
- */
-async function staleWhileRevalidate(request, cache) {
-  const cachedResponse = await cache.match(request);
-
-  // Always fetch in background to update cache
-  const fetchPromise = fetch(request).then(networkResponse => {
-    if (networkResponse.ok) {
-      cache.put(request, networkResponse.clone());
-    }
-    return networkResponse;
-  }).catch(error => {
-    console.warn('[SW Enhanced] Background revalidation failed:', error);
-  });
-
-  // Return cached response immediately if available
-  if (cachedResponse) {
-    return cachedResponse;
-  }
-
-  // If no cache, wait for network
-  return fetchPromise;
-}
-
-// =====================================================
-// Optimization Functions
-// =====================================================
-
-/**
- * Optimize Static Assets
- */
-async function optimizeStaticAsset(response) {
-  const contentType = response.headers.get('content-type');
-
-  if (contentType?.includes('javascript')) {
-    // Add compression headers if not present
-    if (!response.headers.get('content-encoding')) {
-      // In a real implementation, you might compress here
-      return response;
-    }
-  }
-
-  return response;
-}
-
-/**
- * Image Optimization
- */
-async function optimizeImage(response, supportsWebP) {
-  const contentType = response.headers.get('content-type');
-
-  // For now, return original response
-  // In production, this would convert to WebP, resize, compress
-  if (supportsWebP && contentType?.includes('image/') && !contentType.includes('webp')) {
-    // Would convert to WebP here using a library like Sharp
-    // For demo, just return original
-    return response;
-  }
-
-  return response;
-}
-
-/**
- * Create Fallback Image Response
- */
-function createFallbackImageResponse() {
-  // Simple 1x1 transparent PNG
-  const fallbackImageData = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
-  const imageData = Uint8Array.from(atob(fallbackImageData), c => c.charCodeAt(0));
-
-  return new Response(imageData, {
-    headers: {
-      'Content-Type': 'image/png',
-      'Cache-Control': 'max-age=86400'
-    }
-  });
-}
-
-// =====================================================
-// Helper Functions
-// =====================================================
-
-function isStaticAsset(pathname) {
-  return pathname.match(/\.(js|css|woff2?|ttf|eot)$/) ||
-         pathname.startsWith('/static/js/') ||
-         pathname.startsWith('/static/css/');
-}
-
-function isImageAsset(pathname) {
-  return pathname.match(/\.(png|jpg|jpeg|gif|svg|webp|ico)$/);
-}
-
-function isAPIRequest(pathname) {
-  return pathname.startsWith('/api/');
-}
-
-function isHTMLRequest(request) {
-  return request.headers.get('accept')?.includes('text/html');
-}
-
-function isCacheableAPI(pathname) {
-  const cacheableEndpoints = [
-    '/api/datasets',
-    '/api/models',
-    '/api/algorithms',
-    '/api/configurations'
-  ];
-  return cacheableEndpoints.some(endpoint => pathname.startsWith(endpoint));
-}
-
-function isStaticAPI(pathname) {
-  const staticEndpoints = [
-    '/api/health',
-    '/api/version',
-    '/api/status'
-  ];
-  return staticEndpoints.some(endpoint => pathname.startsWith(endpoint));
-}
-
-function isDevelopment() {
-  return self.location.hostname === 'localhost' ||
-         self.location.hostname === '127.0.0.1';
-}
-
-function isCacheStale(response, maxAge) {
-  const dateHeader = response.headers.get('date');
-  if (!dateHeader) return true;
-
-  const responseDate = new Date(dateHeader);
-  const now = new Date();
-
-  return (now.getTime() - responseDate.getTime()) > maxAge;
-}
-
-async function invalidateRelatedCaches(url) {
-  const urlObj = new URL(url);
-
-  // Invalidate API cache for related endpoints
-  if (urlObj.pathname.includes('/api/')) {
-    const cache = await caches.open(API_CACHE);
-    const keys = await cache.keys();
-
-    // Remove related cached responses
-    const deletePromises = keys
-      .filter(request => {
-        const requestUrl = new URL(request.url);
-        return requestUrl.pathname.startsWith(urlObj.pathname.split('/').slice(0, -1).join('/'));
-      })
-      .map(request => cache.delete(request));
-
-    await Promise.all(deletePromises);
-  }
-}
-
-/**
- * App Shell Response
- */
-async function getAppShellResponse() {
-  const cache = await caches.open(STATIC_CACHE);
-  return cache.match('/') || createOfflineResponse('App shell not available');
-}
-
-/**
- * Offline Page Response
- */
-async function getOfflinePageResponse() {
-  const cache = await caches.open(STATIC_CACHE);
-  return cache.match('/offline.html') || createOfflineResponse('You are offline');
-}
-
-function createOfflineResponse(message) {
-  return new Response(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Offline - Pynomaly</title>
-      <style>
-        body { font-family: system-ui, sans-serif; text-align: center; padding: 2rem; }
-        .offline-container { max-width: 400px; margin: 0 auto; }
-        .offline-icon { font-size: 4rem; margin-bottom: 1rem; }
-        .retry-btn {
-          background: #3b82f6; color: white; border: none;
-          padding: 0.75rem 1.5rem; border-radius: 0.5rem;
-          cursor: pointer; margin-top: 1rem;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="offline-container">
-        <div class="offline-icon">📡</div>
-        <h1>You're Offline</h1>
-        <p>${message}</p>
-        <button class="retry-btn" onclick="location.reload()">Try Again</button>
-      </div>
-    </body>
-    </html>
-  `, {
-    status: 503,
-    headers: { 'Content-Type': 'text/html' }
-  });
-}
-
-// =====================================================
-// Performance Monitoring
-// =====================================================
-
-async function initializePerformanceMonitoring() {
-  // Initialize performance tracking
-  self.performanceMetrics = {
-    cacheHits: 0,
-    cacheMisses: 0,
-    networkRequests: 0,
-    backgroundSyncs: 0,
-    startTime: Date.now()
-  };
-}
-
-async function initializePerformanceDB() {
-  // Initialize IndexedDB for performance data storage
-  console.log('[SW Enhanced] Performance monitoring initialized');
-}
-
-async function queueForBackgroundSync(requestData) {
-  // Queue request for background sync when network is available
-  console.log('[SW Enhanced] Queuing request for background sync:', requestData.url);
-
-  // In a real implementation, this would store in IndexedDB
-  // and register for background sync
-}
-
-// =====================================================
-// Message Handling
-// =====================================================
-
-self.addEventListener('message', (event) => {
-  const { type, payload } = event.data;
-
-  switch (type) {
-    case 'SKIP_WAITING':
-      self.skipWaiting();
-      break;
-
-    case 'GET_PERFORMANCE_METRICS':
-      event.ports[0].postMessage(self.performanceMetrics);
-      break;
-
-    case 'CLEAR_CACHES':
-      event.waitUntil(clearAllCaches());
-      break;
-
-    case 'PRELOAD_RESOURCES':
-      event.waitUntil(preloadResources(payload.resources));
-      break;
-
-    case 'UPDATE_CACHE_STRATEGY':
-      updateCacheStrategy(payload.strategy);
-      break;
-  }
 });
 
-async function clearAllCaches() {
-  const cacheNames = await caches.keys();
-  await Promise.all(cacheNames.map(name => caches.delete(name)));
-  console.log('[SW Enhanced] All caches cleared');
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+    console.log('Enhanced Service Worker activating...');
+    
+    event.waitUntil(
+        Promise.all([
+            // Clean up old caches
+            cleanupOldCaches(),
+            // Take control of all pages
+            self.clients.claim(),
+            // Initialize background sync
+            initializeBackgroundSync()
+        ])
+    );
+});
+
+// Fetch event - implement caching strategies
+self.addEventListener('fetch', (event) => {
+    const { request } = event;
+    const url = new URL(request.url);
+    
+    // Handle different types of requests
+    if (url.pathname.startsWith('/api/')) {
+        event.respondWith(handleApiRequest(request));
+    } else if (url.pathname.startsWith('/static/')) {
+        event.respondWith(handleStaticRequest(request));
+    } else if (url.pathname.includes('detect') || url.pathname.includes('analyze')) {
+        event.respondWith(handleDetectionRequest(request));
+    } else {
+        event.respondWith(handleNavigationRequest(request));
+    }
+});
+
+// Background sync event
+self.addEventListener('sync', (event) => {
+    console.log('Background sync triggered:', event.tag);
+    
+    switch (event.tag) {
+        case SYNC_TAGS.UPLOAD_DATASET:
+            event.waitUntil(syncUploadedDatasets());
+            break;
+        case SYNC_TAGS.SYNC_RESULTS:
+            event.waitUntil(syncDetectionResults());
+            break;
+        case SYNC_TAGS.SEND_ANALYTICS:
+            event.waitUntil(syncAnalytics());
+            break;
+        case SYNC_TAGS.UPDATE_MODEL:
+            event.waitUntil(syncModelUpdates());
+            break;
+        default:
+            console.log('Unknown sync tag:', event.tag);
+    }
+});
+
+// Push notification event
+self.addEventListener('push', (event) => {
+    console.log('Push notification received');
+    
+    let notificationData = {};
+    
+    if (event.data) {
+        try {
+            notificationData = event.data.json();
+        } catch (error) {
+            notificationData = { title: 'Pynomaly', body: event.data.text() };
+        }
+    }
+    
+    const options = {
+        title: notificationData.title || 'Anomaly Detected',
+        body: notificationData.body || 'A new anomaly has been detected in your data.',
+        icon: '/static/icons/notification.png',
+        badge: '/static/icons/badge.png',
+        data: notificationData.data || {},
+        actions: [
+            {
+                action: 'view',
+                title: 'View Details'
+            },
+            {
+                action: 'dismiss',
+                title: 'Dismiss'
+            }
+        ],
+        requireInteraction: notificationData.severity === 'critical',
+        silent: false,
+        vibrate: notificationData.severity === 'critical' ? [200, 100, 200] : [100]
+    };
+    
+    event.waitUntil(
+        self.registration.showNotification(options.title, options)
+    );
+});
+
+// Notification click event
+self.addEventListener('notificationclick', (event) => {
+    console.log('Notification clicked:', event.action);
+    
+    event.notification.close();
+    
+    if (event.action === 'view') {
+        event.waitUntil(
+            clients.openWindow('/dashboard?notification=' + event.notification.data.id)
+        );
+    }
+    // Dismiss action doesn't need handling as notification is already closed
+});
+
+// Message event - communication with main thread
+self.addEventListener('message', (event) => {
+    const { type, payload } = event.data;
+    
+    switch (type) {
+        case 'SKIP_WAITING':
+            self.skipWaiting();
+            break;
+        case 'CACHE_DATASET':
+            cacheDataset(payload);
+            break;
+        case 'CACHE_MODEL':
+            cacheModel(payload);
+            break;
+        case 'CLEAR_CACHE':
+            clearCache(payload.cacheName);
+            break;
+        case 'GET_CACHE_SIZE':
+            getCacheSize().then(size => {
+                event.ports[0].postMessage({ type: 'CACHE_SIZE', size });
+            });
+            break;
+        case 'ENABLE_OFFLINE_MODE':
+            enableOfflineMode();
+            break;
+        case 'DISABLE_OFFLINE_MODE':
+            disableOfflineMode();
+            break;
+        default:
+            console.log('Unknown message type:', type);
+    }
+});
+
+// Caching strategy implementations
+async function handleApiRequest(request) {
+    const url = new URL(request.url);
+    
+    // Check if this API endpoint should be cached
+    const shouldCache = API_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname));
+    
+    if (shouldCache && request.method === 'GET') {
+        return cacheFirstStrategy(request, CACHE_NAMES.api);
+    } else if (request.method === 'POST' || request.method === 'PUT') {
+        return networkFirstWithOfflineFallback(request);
+    } else {
+        return networkOnlyStrategy(request);
+    }
 }
 
-async function preloadResources(resources) {
-  const cache = await caches.open(DYNAMIC_CACHE);
-  await cache.addAll(resources);
-  console.log('[SW Enhanced] Resources preloaded:', resources.length);
+async function handleStaticRequest(request) {
+    return cacheFirstStrategy(request, CACHE_NAMES.static);
 }
 
-function updateCacheStrategy(strategy) {
-  // Update caching strategy dynamically
-  console.log('[SW Enhanced] Cache strategy updated:', strategy);
+async function handleDetectionRequest(request) {
+    if (request.method === 'POST') {
+        return handleOfflineDetection(request);
+    } else {
+        return networkFirstStrategy(request, CACHE_NAMES.dynamic);
+    }
 }
 
-console.log('[SW Enhanced] Enhanced service worker loaded with performance optimizations');
+async function handleNavigationRequest(request) {
+    return networkFirstWithOfflineFallback(request, '/offline.html');
+}
+
+// Caching strategies
+async function cacheFirstStrategy(request, cacheName) {
+    try {
+        const cache = await caches.open(cacheName);
+        const cachedResponse = await cache.match(request);
+        
+        if (cachedResponse) {
+            // Update cache in background
+            fetch(request).then(response => {
+                if (response.ok) {
+                    cache.put(request, response.clone());
+                }
+            }).catch(() => {}); // Ignore network errors
+            
+            return cachedResponse;
+        }
+        
+        const networkResponse = await fetch(request);
+        if (networkResponse.ok) {
+            cache.put(request, networkResponse.clone());
+        }
+        
+        return networkResponse;
+    } catch (error) {
+        console.error('Cache first strategy failed:', error);
+        return new Response('Service unavailable', { status: 503 });
+    }
+}
+
+async function networkFirstStrategy(request, cacheName) {
+    try {
+        const networkResponse = await fetch(request);
+        
+        if (networkResponse.ok && cacheName) {
+            const cache = await caches.open(cacheName);
+            cache.put(request, networkResponse.clone());
+        }
+        
+        return networkResponse;
+    } catch (error) {
+        if (cacheName) {
+            const cache = await caches.open(cacheName);
+            const cachedResponse = await cache.match(request);
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+        }
+        
+        throw error;
+    }
+}
+
+async function networkFirstWithOfflineFallback(request, fallbackUrl = null) {
+    try {
+        return await fetch(request);
+    } catch (error) {
+        // Try to find cached version
+        const cache = await caches.open(CACHE_NAMES.dynamic);
+        const cachedResponse = await cache.match(request);
+        
+        if (cachedResponse) {
+            return cachedResponse;
+        }
+        
+        // Return offline fallback if available
+        if (fallbackUrl) {
+            return caches.match(fallbackUrl);
+        }
+        
+        // Store request for background sync if it's a mutation
+        if (request.method === 'POST' || request.method === 'PUT') {
+            await storeRequestForSync(request);
+        }
+        
+        return new Response('Offline', { 
+            status: 503, 
+            statusText: 'Service Unavailable' 
+        });
+    }
+}
+
+async function networkOnlyStrategy(request) {
+    return fetch(request);
+}
+
+// Offline detection capabilities
+async function handleOfflineDetection(request) {
+    try {
+        // Try network first
+        return await fetch(request);
+    } catch (error) {
+        // Perform offline detection
+        return performOfflineDetection(request);
+    }
+}
+
+async function performOfflineDetection(request) {
+    try {
+        const requestData = await request.json();
+        const db = await openOfflineDB();
+        
+        // Get offline models
+        const models = await getOfflineModels(db);
+        
+        if (models.length === 0) {
+            return new Response(JSON.stringify({
+                error: 'No offline models available',
+                offline: true
+            }), {
+                status: 503,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        
+        // Perform basic statistical anomaly detection
+        const results = await basicAnomalyDetection(requestData.data, models[0]);
+        
+        // Store results for later sync
+        await storeOfflineResults(db, results);
+        
+        return new Response(JSON.stringify({
+            results,
+            offline: true,
+            model: models[0].id,
+            timestamp: Date.now()
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch (error) {
+        console.error('Offline detection failed:', error);
+        return new Response(JSON.stringify({
+            error: 'Offline detection failed',
+            offline: true
+        }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+}
+
+async function basicAnomalyDetection(data, model) {
+    // Simple Z-score based anomaly detection for offline use
+    const threshold = model.threshold || 2.5;
+    const results = [];
+    
+    for (let i = 0; i < data.length; i++) {
+        const point = data[i];
+        const windowStart = Math.max(0, i - 50); // 50-point window
+        const window = data.slice(windowStart, i);
+        
+        if (window.length < 10) {
+            results.push({
+                index: i,
+                value: point,
+                score: 0,
+                isAnomaly: false,
+                confidence: 0
+            });
+            continue;
+        }
+        
+        const values = window.map(p => typeof p === 'number' ? p : p.value || 0);
+        const mean = values.reduce((a, b) => a + b, 0) / values.length;
+        const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
+        const stdDev = Math.sqrt(variance);
+        
+        const currentValue = typeof point === 'number' ? point : point.value || 0;
+        const zScore = stdDev === 0 ? 0 : Math.abs((currentValue - mean) / stdDev);
+        
+        results.push({
+            index: i,
+            value: currentValue,
+            score: zScore / threshold,
+            isAnomaly: zScore > threshold,
+            confidence: Math.min(zScore / threshold, 1.0)
+        });
+    }
+    
+    return results;
+}
+
+// Background sync implementations
+async function syncUploadedDatasets() {
+    const db = await openOfflineDB();
+    const transaction = db.transaction(['syncQueue'], 'readonly');
+    const store = transaction.objectStore('syncQueue');
+    const index = store.index('operation');
+    const request = index.getAll('upload-dataset');
+    
+    return new Promise((resolve, reject) => {
+        request.onsuccess = async () => {
+            const datasets = request.result;
+            
+            for (const item of datasets) {
+                try {
+                    await fetch('/api/datasets', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(item.data)
+                    });
+                    
+                    // Remove from sync queue
+                    await removeFromSyncQueue(db, item.id);
+                } catch (error) {
+                    console.error('Failed to sync dataset:', error);
+                }
+            }
+            
+            resolve();
+        };
+        
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function syncDetectionResults() {
+    const db = await openOfflineDB();
+    const transaction = db.transaction(['detectionResults'], 'readonly');
+    const store = transaction.objectStore('detectionResults');
+    const request = store.getAll();
+    
+    return new Promise((resolve, reject) => {
+        request.onsuccess = async () => {
+            const results = request.result.filter(r => r.offline && !r.synced);
+            
+            for (const result of results) {
+                try {
+                    await fetch('/api/detection-results', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(result)
+                    });
+                    
+                    // Mark as synced
+                    result.synced = true;
+                    await updateOfflineResult(db, result);
+                } catch (error) {
+                    console.error('Failed to sync detection result:', error);
+                }
+            }
+            
+            resolve();
+        };
+        
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function syncAnalytics() {
+    const db = await openOfflineDB();
+    const transaction = db.transaction(['offlineAnalytics'], 'readonly');
+    const store = transaction.objectStore('offlineAnalytics');
+    const request = store.getAll();
+    
+    return new Promise((resolve, reject) => {
+        request.onsuccess = async () => {
+            const analytics = request.result.filter(a => !a.synced);
+            
+            if (analytics.length > 0) {
+                try {
+                    await fetch('/api/analytics/offline', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(analytics)
+                    });
+                    
+                    // Mark all as synced
+                    for (const item of analytics) {
+                        item.synced = true;
+                        await updateAnalyticsItem(db, item);
+                    }
+                } catch (error) {
+                    console.error('Failed to sync analytics:', error);
+                }
+            }
+            
+            resolve();
+        };
+        
+        request.onerror = () => reject(request.error);
+    });
+}
+
+// IndexedDB operations
+async function initializeOfflineDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('PynomalyOfflineDB', 1);
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+        
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            
+            // Create object stores
+            if (!db.objectStoreNames.contains('datasets')) {
+                const datasetsStore = db.createObjectStore('datasets', { keyPath: 'id' });
+                datasetsStore.createIndex('timestamp', 'timestamp');
+            }
+            
+            if (!db.objectStoreNames.contains('detectionResults')) {
+                const resultsStore = db.createObjectStore('detectionResults', { keyPath: 'id' });
+                resultsStore.createIndex('timestamp', 'timestamp');
+                resultsStore.createIndex('offline', 'offline');
+            }
+            
+            if (!db.objectStoreNames.contains('models')) {
+                const modelsStore = db.createObjectStore('models', { keyPath: 'id' });
+                modelsStore.createIndex('type', 'type');
+            }
+            
+            if (!db.objectStoreNames.contains('syncQueue')) {
+                const syncStore = db.createObjectStore('syncQueue', { keyPath: 'id', autoIncrement: true });
+                syncStore.createIndex('operation', 'operation');
+                syncStore.createIndex('timestamp', 'timestamp');
+            }
+            
+            if (!db.objectStoreNames.contains('offlineAnalytics')) {
+                const analyticsStore = db.createObjectStore('offlineAnalytics', { keyPath: 'id', autoIncrement: true });
+                analyticsStore.createIndex('timestamp', 'timestamp');
+                analyticsStore.createIndex('synced', 'synced');
+            }
+        };
+    });
+}
+
+async function openOfflineDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('PynomalyOfflineDB', 1);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function storeRequestForSync(request) {
+    const db = await openOfflineDB();
+    const clonedRequest = request.clone();
+    const body = await clonedRequest.text();
+    
+    const syncItem = {
+        url: request.url,
+        method: request.method,
+        headers: Object.fromEntries(request.headers.entries()),
+        body: body,
+        timestamp: Date.now()
+    };
+    
+    const transaction = db.transaction(['syncQueue'], 'readwrite');
+    const store = transaction.objectStore('syncQueue');
+    await store.add(syncItem);
+}
+
+// Utility functions
+async function cleanupOldCaches() {
+    const cacheNames = await caches.keys();
+    const currentCaches = Object.values(CACHE_NAMES);
+    
+    return Promise.all(
+        cacheNames
+            .filter(cacheName => !currentCaches.includes(cacheName))
+            .map(cacheName => caches.delete(cacheName))
+    );
+}
+
+async function initializeBackgroundSync() {
+    // Register for background sync if supported
+    if ('sync' in self.registration) {
+        console.log('Background sync is supported');
+    }
+}
+
+async function getCacheSize() {
+    const cacheNames = await caches.keys();
+    let totalSize = 0;
+    
+    for (const cacheName of cacheNames) {
+        const cache = await caches.open(cacheName);
+        const keys = await cache.keys();
+        
+        for (const request of keys) {
+            const response = await cache.match(request);
+            if (response) {
+                const blob = await response.blob();
+                totalSize += blob.size;
+            }
+        }
+    }
+    
+    return totalSize;
+}
+
+// Send messages to clients
+function broadcastMessage(message) {
+    clients.matchAll().then(clients => {
+        clients.forEach(client => client.postMessage(message));
+    });
+}
+
+// Error handling
+self.addEventListener('error', (event) => {
+    console.error('Service Worker error:', event.error);
+});
+
+self.addEventListener('unhandledrejection', (event) => {
+    console.error('Service Worker unhandled rejection:', event.reason);
+});
+
+console.log('Enhanced Service Worker loaded successfully');

@@ -16,7 +16,7 @@ from pynomaly.domain.value_objects import AnomalyScore
 
 # Import MLOps infrastructure for model persistence
 try:
-    from pynomaly.mlops.model_registry import ModelRegistry, ModelType, ModelStatus
+    from pynomaly.mlops.model_registry import ModelRegistry, ModelStatus, ModelType
     MLOPS_AVAILABLE = True
 except ImportError:
     MLOPS_AVAILABLE = False
@@ -101,17 +101,16 @@ class BaseAlgorithmAdapter(ABC):
             # Save to MLOps registry for persistence (will be called from async context)
             if self._model_registry is not None:
                 try:
-                    import asyncio
-                    
+
                     model_type = self._get_model_type(detector.algorithm_name)
-                    
+
                     # Create a simple save task - we'll handle this in the calling context
                     detector.metadata["_fitted_algorithm"] = fitted_algorithm
                     detector.metadata["_needs_registry_save"] = True
                     detector.metadata["_model_type"] = model_type
-                    
+
                     logger.info(f"Model prepared for registry save: {detector.name}")
-                    
+
                 except Exception as e:
                     logger.warning(f"Failed to prepare model for registry: {e}")
 
@@ -124,11 +123,11 @@ class BaseAlgorithmAdapter(ABC):
         """Predict anomaly labels."""
         # Try to get fitted model from memory first
         algorithm = self._fitted_models.get(str(detector.id))
-        
+
         # If not in memory, try to load from registry
         if algorithm is None and self._model_registry is not None:
             algorithm = self._load_model_from_registry(detector)
-        
+
         # If still not found, raise error
         if algorithm is None:
             raise FittingError(
@@ -146,11 +145,11 @@ class BaseAlgorithmAdapter(ABC):
         """Calculate anomaly scores."""
         # Try to get fitted model from memory first
         algorithm = self._fitted_models.get(str(detector.id))
-        
+
         # If not in memory, try to load from registry
         if algorithm is None and self._model_registry is not None:
             algorithm = self._load_model_from_registry(detector)
-        
+
         # If still not found, raise error
         if algorithm is None:
             raise FittingError(
@@ -169,14 +168,14 @@ class BaseAlgorithmAdapter(ABC):
         # Map algorithm names to valid scoring methods
         method_mapping = {
             "IsolationForest": "isolation_forest",
-            "LOF": "local_outlier_factor", 
+            "LOF": "local_outlier_factor",
             "OneClassSVM": "one_class_svm",
             "LocalOutlierFactor": "local_outlier_factor",
             "EllipticEnvelope": "elliptic_envelope",
         }
-        
+
         method_name = method_mapping.get(detector.algorithm_name, detector.algorithm_name.lower().replace(" ", "_"))
-        
+
         return [
             AnomalyScore(value=round(float(score), 6), method=method_name)
             for score in normalized_scores
@@ -213,7 +212,7 @@ class BaseAlgorithmAdapter(ABC):
     def is_fitted(self, detector: Detector) -> bool:
         """Check if detector is fitted."""
         fitted_in_memory = str(detector.id) in self._fitted_models
-        
+
         # Also check if model exists in registry
         if not fitted_in_memory and self._model_registry is not None:
             model_registry_id = detector.metadata.get("model_registry_id")
@@ -223,41 +222,41 @@ class BaseAlgorithmAdapter(ABC):
                     return True
                 except:
                     pass
-        
+
         return fitted_in_memory
 
     def _load_model_from_registry(self, detector: Detector) -> Any:
         """Load model from MLOps registry."""
         if self._model_registry is None:
             return None
-            
+
         try:
             model_registry_id = detector.metadata.get("model_registry_id")
             if not model_registry_id:
                 logger.warning(f"No model registry ID found for detector {detector.name}")
                 return None
-            
+
             # This would need to be called from async context
             # For now, return None and let the sync methods handle it
             logger.info(f"Model loading from registry would happen here for {model_registry_id}")
             return None
-            
+
         except Exception as e:
             logger.warning(f"Failed to load model from registry: {e}")
             return None
 
-    def _get_model_type(self, algorithm_name: str) -> "ModelType":
+    def _get_model_type(self, algorithm_name: str) -> ModelType:
         """Map algorithm name to ModelType enum."""
         if not MLOPS_AVAILABLE:
             return None
-            
+
         # Simple mapping - can be expanded
         algorithm_mapping = {
             "IsolationForest": ModelType.ISOLATION_FOREST,
             "OneClassSVM": ModelType.ONE_CLASS_SVM,
             "LSTM": ModelType.LSTM_AUTOENCODER,
         }
-        
+
         return algorithm_mapping.get(algorithm_name, ModelType.CUSTOM)
 
 

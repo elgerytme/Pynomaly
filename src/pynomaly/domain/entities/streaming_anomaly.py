@@ -232,7 +232,7 @@ class StreamingAlert:
 
     # Timing
     triggered_at: datetime
-    
+
     # Data context
     triggering_data: dict[str, Any]
     window_data: list[Any] | None = None

@@ -9,7 +9,7 @@ from typing import Any
 
 class TrainingPriorityLevel(Enum):
     """Training priority levels."""
-    
+
     LOW = "low"
     NORMAL = "normal"
     HIGH = "high"
@@ -19,7 +19,7 @@ class TrainingPriorityLevel(Enum):
 @dataclass(frozen=True)
 class ResourceConstraints:
     """Resource constraints for training - domain value object."""
-    
+
     max_training_time_seconds: int | None = None
     max_time_per_trial: int | None = None
     max_memory_mb: int | None = None
@@ -33,7 +33,7 @@ class ResourceConstraints:
 @dataclass(frozen=True)
 class AutoMLConfiguration:
     """AutoML configuration - domain value object."""
-    
+
     enable_automl: bool = True
     optimization_objective: str = "auc"
     max_algorithms: int = 3
@@ -48,7 +48,7 @@ class AutoMLConfiguration:
 @dataclass(frozen=True)
 class ValidationConfiguration:
     """Validation configuration - domain value object."""
-    
+
     validation_strategy: str = "holdout"
     validation_split: float = 0.2
     cv_folds: int = 5
@@ -70,15 +70,15 @@ class TrainingConfiguration:
     This is a pure domain object with no dependencies on application or
     infrastructure layers, preventing circular dependencies.
     """
-    
+
     experiment_name: str | None = None
     description: str | None = None
     tags: list[str] = field(default_factory=list)
-    
+
     automl_config: AutoMLConfiguration = field(default_factory=AutoMLConfiguration)
     validation_config: ValidationConfiguration = field(default_factory=ValidationConfiguration)
     resource_constraints: ResourceConstraints = field(default_factory=ResourceConstraints)
-    
+
     schedule_cron: str | None = None
     schedule_enabled: bool = False
     performance_monitoring_enabled: bool = True
@@ -87,13 +87,13 @@ class TrainingConfiguration:
     auto_deploy_best_model: bool = False
     model_versioning_enabled: bool = True
     keep_model_versions: int = 5
-    
+
     enable_model_explainability: bool = True
     enable_drift_detection: bool = True
     enable_feature_selection: bool = True
-    
+
     priority: TrainingPriorityLevel = TrainingPriorityLevel.NORMAL
-    
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation."""
         return {
@@ -147,27 +147,27 @@ class TrainingConfiguration:
             "enable_feature_selection": self.enable_feature_selection,
             "priority": self.priority.value,
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> TrainingConfiguration:
         """Create from dictionary representation."""
         data = data.copy()
-        
+
         # Convert priority enum
         if "priority" in data:
             data["priority"] = TrainingPriorityLevel(data["priority"])
-        
+
         # Convert nested configurations
         if "automl_config" in data:
             automl_data = data["automl_config"]
             data["automl_config"] = AutoMLConfiguration(**automl_data)
-        
+
         if "validation_config" in data:
             validation_data = data["validation_config"]
             data["validation_config"] = ValidationConfiguration(**validation_data)
-        
+
         if "resource_constraints" in data:
             resource_data = data["resource_constraints"]
             data["resource_constraints"] = ResourceConstraints(**resource_data)
-        
+
         return cls(**data)

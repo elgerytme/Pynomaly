@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
-from typing import Any, Callable
+from collections.abc import Callable
+from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import event, text
 from sqlalchemy.engine import Engine
@@ -76,7 +77,7 @@ class MigrationHooks:
             **kwargs: Additional event data
         """
         event = {
-            "timestamp": datetime.now(timezone.utc),
+            "timestamp": datetime.now(UTC),
             "event_type": event_type,
             "revision": revision,
             **kwargs
@@ -194,7 +195,7 @@ class MigrationPerformanceMonitor:
             revision: Migration revision
         """
         self.migration_metrics[revision] = {
-            "start_time": datetime.now(timezone.utc),
+            "start_time": datetime.now(UTC),
             "memory_start": self._get_memory_usage(),
             "cpu_start": self._get_cpu_usage(),
         }
@@ -212,9 +213,9 @@ class MigrationPerformanceMonitor:
         if revision not in self.migration_metrics:
             return {}
 
-        end_time = datetime.now(timezone.utc)
+        end_time = datetime.now(UTC)
         metrics = self.migration_metrics[revision]
-        
+
         duration = (end_time - metrics["start_time"]).total_seconds()
         memory_end = self._get_memory_usage()
         cpu_end = self._get_cpu_usage()
@@ -263,16 +264,16 @@ class MigrationErrorHandler:
             error: Exception that occurred
         """
         error_info = {
-            "timestamp": datetime.now(timezone.utc),
+            "timestamp": datetime.now(UTC),
             "revision": revision,
             "error_type": type(error).__name__,
             "error_message": str(error),
             "traceback": self._get_traceback(error),
         }
-        
+
         self.error_log.append(error_info)
         logger.error(f"Migration {revision} failed: {error}")
-        
+
         # Send error notification
         self._send_error_notification(error_info)
 
@@ -295,7 +296,7 @@ class MigrationErrorHandler:
         Returns:
             List of recent errors
         """
-        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
+        cutoff_time = datetime.now(UTC) - timedelta(hours=hours)
         return [
             error for error in self.error_log
             if error["timestamp"] > cutoff_time
@@ -384,28 +385,28 @@ def enhanced_migration_runner(migration_manager, revision: str = "head") -> dict
         Migration results with metrics
     """
     lock_manager = MigrationLockManager(migration_manager.engine)
-    
+
     # Acquire lock
     if not lock_manager.acquire_migration_lock():
         raise RuntimeError("Could not acquire migration lock")
-    
+
     try:
         # Start monitoring
         performance_monitor.start_monitoring(revision)
-        
+
         # Execute pre-migration hooks
         migration_hooks.execute_pre_migration_hooks(revision, "upgrade")
-        
+
         # Run migration
         success = migration_manager.run_migrations(revision)
-        
+
         if success:
             # Execute post-migration hooks
             migration_hooks.execute_post_migration_hooks(revision, "upgrade")
-            
+
             # Get performance metrics
             metrics = performance_monitor.stop_monitoring(revision)
-            
+
             return {
                 "success": True,
                 "revision": revision,
@@ -414,7 +415,7 @@ def enhanced_migration_runner(migration_manager, revision: str = "head") -> dict
             }
         else:
             raise RuntimeError("Migration failed")
-            
+
     except Exception as e:
         error_handler.handle_migration_error(revision, e)
         raise

@@ -336,7 +336,7 @@ class UserFeedback:
         return sum(quality_factors) / len(quality_factors)
 
 
-@dataclass 
+@dataclass
 class DriftEvent:
     """Represents a detected drift event."""
 
@@ -389,26 +389,26 @@ class ContinuousLearning:
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
     is_active: bool = True
-    
+
     # Core learning configuration
     learning_strategy: LearningStrategy = LearningStrategy.INCREMENTAL
     convergence_criteria: ConvergenceCriteria = field(default_factory=ConvergenceCriteria)
     performance_baseline: PerformanceBaseline | None = None
-    
+
     # Learning sessions and evolution tracking
     current_session: LearningSession | None = None
     session_history: list[LearningSession] = field(default_factory=list)
-    
+
     # Drift detection and monitoring
     drift_events: list[DriftEvent] = field(default_factory=list)
     active_drift_monitoring: bool = True
     drift_detection_threshold: float = 0.05
-    
+
     # User feedback integration
     user_feedback: list[UserFeedback] = field(default_factory=list)
     feedback_integration_enabled: bool = True
     minimum_feedback_confidence: float = 0.8
-    
+
     # Configuration and metadata
     configuration: dict[str, Any] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
@@ -417,10 +417,10 @@ class ContinuousLearning:
         """Validate continuous learning configuration."""
         if not self.name:
             self.name = f"ContinuousLearning-{self.id}"
-        
+
         if not (0.0 <= self.drift_detection_threshold <= 1.0):
             raise ValueError("Drift detection threshold must be between 0.0 and 1.0")
-        
+
         if not (0.0 <= self.minimum_feedback_confidence <= 1.0):
             raise ValueError("Minimum feedback confidence must be between 0.0 and 1.0")
 
@@ -428,14 +428,14 @@ class ContinuousLearning:
         """Start a new learning session."""
         if self.current_session and self.current_session.is_active:
             raise ValueError("Cannot start new session while another is active")
-        
+
         strategy = learning_strategy or self.learning_strategy
         session = LearningSession(
             learning_strategy=strategy,
             performance_baseline=self.performance_baseline,
             convergence_criteria=self.convergence_criteria
         )
-        
+
         self.current_session = session
         self.updated_at = datetime.utcnow()
         return session
@@ -444,14 +444,14 @@ class ContinuousLearning:
         """End the current learning session."""
         if not self.current_session:
             return None
-        
+
         self.current_session.is_active = False
         self.session_history.append(self.current_session)
-        
+
         completed_session = self.current_session
         self.current_session = None
         self.updated_at = datetime.utcnow()
-        
+
         return completed_session
 
     def add_drift_event(self, drift_event: DriftEvent) -> None:
@@ -469,14 +469,14 @@ class ContinuousLearning:
         """Get drift events from recent days."""
         cutoff_date = datetime.utcnow() - timedelta(days=days)
         return [
-            event for event in self.drift_events 
+            event for event in self.drift_events
             if event.detected_at >= cutoff_date
         ]
 
     def get_unresolved_drift_events(self) -> list[DriftEvent]:
         """Get unresolved drift events."""
         return [
-            event for event in self.drift_events 
+            event for event in self.drift_events
             if event.resolution_status == "OPEN"
         ]
 
@@ -489,18 +489,18 @@ class ContinuousLearning:
     def get_adaptation_success_rate(self) -> float:
         """Get overall adaptation success rate."""
         all_adaptations = []
-        
+
         # Include current session
         if self.current_session:
             all_adaptations.extend(self.current_session.adaptation_history)
-        
+
         # Include historical sessions
         for session in self.session_history:
             all_adaptations.extend(session.adaptation_history)
-        
+
         if not all_adaptations:
             return 0.0
-        
+
         successful = sum(1 for adaptation in all_adaptations if adaptation.was_successful())
         return successful / len(all_adaptations)
 
@@ -508,16 +508,16 @@ class ContinuousLearning:
         """Check if continuous learning system needs attention."""
         # Check for critical drift events
         critical_drifts = [
-            event for event in self.drift_events 
+            event for event in self.drift_events
             if event.needs_immediate_attention()
         ]
         if critical_drifts:
             return True
-        
+
         # Check for low adaptation success rate
         if self.get_adaptation_success_rate() < 0.5:
             return True
-        
+
         return False
 
     def get_health_status(self) -> dict[str, Any]:

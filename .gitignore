@@ -445,3 +445,23 @@ dist/
 **/__pycache__/
 *.pyc
 *.pyo
+
+# Project Rules: Issue Tracking Policy
+# -------------------------------------
+# RULE: Use GitHub Issues exclusively for task and issue tracking
+# No local TODO.md files or alternative tracking systems allowed
+TODO.md
+todo.md
+TASKS.md
+tasks.md
+**/TODO.md
+**/todo.md
+**/TASKS.md
+**/tasks.md
+
+# No automation scripts for TODO.md synchronization
+**/automation/
+**/sync_github_issues_to_todo.py
+**/manual_sync.py
+**/issue-sync.yml
+scripts/automation/

@@ -14,7 +14,6 @@ from fastapi.templating import Jinja2Templates
 from pynomaly.infrastructure.config import Container
 
 from .csrf import add_csrf_to_context
-from .security.security_monitor import setup_security_monitoring
 
 
 # Local dependency functions to avoid circular import
@@ -1828,7 +1827,9 @@ def mount_web_ui(app):
 
     # Setup comprehensive security monitoring
     try:
-        from pynomaly.presentation.web.security.security_monitor import setup_security_monitoring
+        from pynomaly.presentation.web.security.security_monitor import (
+            setup_security_monitoring,
+        )
         setup_security_monitoring(
             app,
             config={

@@ -21,7 +21,7 @@ class PipelineResultService:
 
     async def save_pipeline_result(self, result: PipelineResult) -> str:
         """Save pipeline result to disk and return file path"""
-        
+
         results_path = self.artifacts_dir / f"{result.pipeline_id}_results.json"
 
         # Convert result to serializable format
@@ -57,14 +57,14 @@ class PipelineResultService:
 
     def get_pipeline_summary(self, pipeline_id: str) -> dict | None:
         """Get summary of a completed pipeline"""
-        
+
         results_path = self.artifacts_dir / f"{pipeline_id}_results.json"
-        
+
         if not results_path.exists():
             return None
 
         try:
-            with open(results_path, "r") as f:
+            with open(results_path) as f:
                 result_data = json.load(f)
 
             return {
@@ -82,14 +82,14 @@ class PipelineResultService:
 
     def list_pipeline_results(self) -> list[dict]:
         """List all saved pipeline results"""
-        
+
         results = []
-        
+
         for results_file in self.artifacts_dir.glob("*_results.json"):
             try:
-                with open(results_file, "r") as f:
+                with open(results_file) as f:
                     result_data = json.load(f)
-                
+
                 results.append({
                     "pipeline_id": result_data["pipeline_id"],
                     "final_stage": result_data["final_stage"],
@@ -97,7 +97,7 @@ class PipelineResultService:
                     "duration_seconds": result_data["total_duration_seconds"],
                     "production_readiness_score": result_data.get("production_readiness_score", 0.0),
                 })
-                
+
             except Exception as e:
                 logger.warning(f"Failed to read result file {results_file}: {e}")
                 continue

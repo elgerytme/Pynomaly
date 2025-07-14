@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -24,14 +23,14 @@ from pynomaly.infrastructure.config import Container
 router = APIRouter()
 
 
-@router.get("/", response_model=List[DetectorDTO])
+@router.get("/", response_model=list[DetectorDTO])
 async def list_detectors(
     algorithm: str | None = Query(None, description="Filter by algorithm"),
     is_fitted: bool | None = Query(None, description="Filter by fitted status"),
     limit: int = Query(100, ge=1, le=1000),
     current_user=Depends(require_viewer),
     container=Depends(lambda: Container()),
-) -> List[DetectorDTO]:
+) -> list[DetectorDTO]:
     """List all detectors."""
     detector_repo = container.detector_repository()
 

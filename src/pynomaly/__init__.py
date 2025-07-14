@@ -52,8 +52,8 @@ def create_detector(
     params.update(parameters)
 
     return Detector(
-        name=name, 
-        algorithm_name=algorithm, 
+        name=name,
+        algorithm_name=algorithm,
         contamination_rate=ContaminationRate(contamination),
         parameters=params
     )
@@ -120,7 +120,7 @@ async def detect_anomalies(
     # Save detector to repository and ensure it's trained
     detector_repository = container.detector_repository()
     await detector_repository.save(detector)
-    
+
     if not detector.is_fitted:
         train_use_case = container.train_detector_use_case()
         from pynomaly.application.use_cases import TrainDetectorRequest
@@ -132,7 +132,7 @@ async def detect_anomalies(
             save_model=True,
         )
         await train_use_case.execute(train_request)
-        
+
         # Refetch the detector to get the updated state
         detector = await detector_repository.find_by_id(detector.id)
 

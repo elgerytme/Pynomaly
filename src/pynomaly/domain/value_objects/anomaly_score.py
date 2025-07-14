@@ -40,13 +40,13 @@ class AnomalyScore:
 
         # Basic validation
         self._validate_basic_constraints()
-        
+
         # Advanced business rule validation
         self._validate_business_rules()
-        
+
         # Cross-field validation
         self._validate_field_relationships()
-        
+
         # Statistical validation
         self._validate_statistical_properties()
 
@@ -112,7 +112,7 @@ class AnomalyScore:
                 )
             if len(self.method.strip()) == 0:
                 raise ValidationError("Scoring method cannot be empty")
-            
+
             # Validate against known scoring methods
             valid_methods = {
                 "isolation_forest", "local_outlier_factor", "one_class_svm",
@@ -129,11 +129,11 @@ class AnomalyScore:
         if "algorithm" in self.metadata:
             if not isinstance(self.metadata["algorithm"], str):
                 raise ValidationError("Algorithm metadata must be a string")
-                
+
         if "feature_count" in self.metadata:
             if not isinstance(self.metadata["feature_count"], int) or self.metadata["feature_count"] <= 0:
                 raise ValidationError("Feature count must be a positive integer")
-                
+
         if "sample_size" in self.metadata:
             if not isinstance(self.metadata["sample_size"], int) or self.metadata["sample_size"] <= 0:
                 raise ValidationError("Sample size must be a positive integer")
@@ -153,7 +153,7 @@ class AnomalyScore:
             raise ValidationError(
                 f"Threshold too low ({self.threshold}). May result in too many false positives."
             )
-        
+
         if self.threshold > 0.9:
             raise ValidationError(
                 f"Threshold too high ({self.threshold}). May result in missed anomalies."
@@ -163,13 +163,13 @@ class AnomalyScore:
         if self.confidence_interval is not None:
             lower = self.confidence_interval.lower
             upper = self.confidence_interval.upper
-            
+
             # Confidence interval should be within valid score range
             if lower < 0.0 or upper > 1.0:
                 raise ValidationError(
                     f"Confidence interval [{lower}, {upper}] extends outside valid score range [0, 1]"
                 )
-            
+
             # Confidence interval width should be reasonable
             width = upper - lower
             if width < 0.01:  # Too narrow
@@ -193,7 +193,7 @@ class AnomalyScore:
                     raise ValidationError(
                         f"Very low anomaly score ({self.value}) combined with low model confidence ({model_confidence})"
                     )
-        
+
         if self.value > 0.999:
             # Very high scores should be treated with caution
             if "data_quality_score" in self.metadata:
@@ -365,7 +365,7 @@ class AnomalyScore:
         """Validate score within specific business context."""
         if not isinstance(context, dict):
             raise ValidationError("Business context must be a dictionary")
-        
+
         # Validate based on detection scenario
         scenario = context.get("scenario", "general")
         if scenario == "fraud_detection":
@@ -390,7 +390,7 @@ class AnomalyScore:
                     raise ValidationError(
                         f"Medical diagnosis requires higher confidence (interval width: {width})"
                     )
-        
+
         return True
 
     def is_statistically_significant(self, significance_level: float = 0.05) -> bool:
@@ -399,13 +399,13 @@ class AnomalyScore:
             raise ValidationError(
                 f"Significance level must be between 0 and 1, got {significance_level}"
             )
-        
+
         # If confidence interval is available, check if it excludes normal range
         if self.confidence_interval is not None:
             # Normal range is typically considered [0.0, 0.5] for anomaly scores
             normal_upper_bound = 0.5
             return self.confidence_interval.lower > normal_upper_bound
-        
+
         # Without confidence interval, use a simple threshold-based approach
         return self.value > (1.0 - significance_level)
 
@@ -413,7 +413,7 @@ class AnomalyScore:
         """Assess risk level based on anomaly score characteristics."""
         risk_level = "low"
         risk_factors = []
-        
+
         # High score indicates high risk
         if self.value > 0.8:
             risk_level = "high"
@@ -421,7 +421,7 @@ class AnomalyScore:
         elif self.value > 0.6:
             risk_level = "medium"
             risk_factors.append("moderate_anomaly_score")
-        
+
         # Wide confidence interval increases uncertainty
         if self.confidence_interval is not None:
             width = self.confidence_interval.upper - self.confidence_interval.lower
@@ -429,7 +429,7 @@ class AnomalyScore:
                 risk_factors.append("high_uncertainty")
                 if risk_level == "low":
                     risk_level = "medium"
-        
+
         # Low model confidence is a risk factor
         if "model_confidence" in self.metadata:
             model_confidence = self.metadata["model_confidence"]
@@ -437,7 +437,7 @@ class AnomalyScore:
                 risk_factors.append("low_model_confidence")
                 if risk_level == "low":
                     risk_level = "medium"
-        
+
         return {
             "risk_level": risk_level,
             "risk_factors": risk_factors,

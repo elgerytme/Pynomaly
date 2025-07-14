@@ -38,7 +38,7 @@ def handle_cli_errors(func: Callable) -> Callable:
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except typer.Exit as e:
+        except typer.Exit:
             # Allow typer.Exit to pass through with its exit code
             raise
         except KeyboardInterrupt:

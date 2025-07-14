@@ -54,7 +54,7 @@ async def get_current_user(
         # Fallback to global auth service
         from pynomaly.infrastructure.auth import get_auth
         auth_service = get_auth()
-        
+
     if not auth_service:
         # If auth is enabled but service unavailable, raise error for API endpoints
         # For web endpoints, we'll handle this gracefully

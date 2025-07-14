@@ -347,12 +347,11 @@ async def log_model(
     """Log a trained model with the specified run."""
     try:
         # Get ML service instance
-        from pynomaly.application.services.ml_service import MLService
         from pynomaly.infrastructure.config import get_container
-        
+
         container = get_container()
         ml_service_instance = container.get_ml_service()
-        
+
         # Convert request to model data
         model_data = {
             "name": request.model_name,
@@ -363,10 +362,10 @@ async def log_model(
             "metadata": request.metadata,
             "tags": request.tags,
         }
-        
+
         # Log model with the ML service
         model_id = await ml_service_instance.log_model(run_id, model_data)
-        
+
         return LogModelResponse(
             model_id=model_id,
             model_name=request.model_name,

@@ -4,13 +4,11 @@ Provides detailed logging, compliance reporting, and forensic capabilities
 """
 
 import asyncio
-import json
-import os
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -31,10 +29,10 @@ except ImportError:
                 compliance_mode=False
             )
         )
-    
+
     class AuthenticationMethod(Enum):
         PASSWORD = "password"
-    
+
     class UserRole(Enum):
         ADMIN = "admin"
 
@@ -49,14 +47,14 @@ class AuditEventType(Enum):
     USER_PASSWORD_CHANGED = "user_password_changed"
     USER_MFA_ENABLED = "user_mfa_enabled"
     USER_MFA_DISABLED = "user_mfa_disabled"
-    
+
     # Authorization events
     ACCESS_GRANTED = "access_granted"
     ACCESS_DENIED = "access_denied"
     PERMISSION_CHANGED = "permission_changed"
     ROLE_ASSIGNED = "role_assigned"
     ROLE_REMOVED = "role_removed"
-    
+
     # Data access events
     DATA_VIEWED = "data_viewed"
     DATA_CREATED = "data_created"
@@ -64,14 +62,14 @@ class AuditEventType(Enum):
     DATA_DELETED = "data_deleted"
     DATA_EXPORTED = "data_exported"
     DATA_IMPORTED = "data_imported"
-    
+
     # System events
     SYSTEM_CONFIG_CHANGED = "system_config_changed"
     SYSTEM_BACKUP_CREATED = "system_backup_created"
     SYSTEM_BACKUP_RESTORED = "system_backup_restored"
     SYSTEM_MAINTENANCE_START = "system_maintenance_start"
     SYSTEM_MAINTENANCE_END = "system_maintenance_end"
-    
+
     # Security events
     SECURITY_VIOLATION = "security_violation"
     SUSPICIOUS_ACTIVITY = "suspicious_activity"
@@ -79,13 +77,13 @@ class AuditEventType(Enum):
     MALICIOUS_REQUEST = "malicious_request"
     RATE_LIMIT_EXCEEDED = "rate_limit_exceeded"
     WAF_TRIGGERED = "waf_triggered"
-    
+
     # API events
     API_KEY_CREATED = "api_key_created"
     API_KEY_REVOKED = "api_key_revoked"
     API_ACCESS = "api_access"
     API_RATE_LIMITED = "api_rate_limited"
-    
+
     # Model events
     MODEL_TRAINED = "model_trained"
     MODEL_DEPLOYED = "model_deployed"
@@ -118,71 +116,71 @@ class AuditEvent:
     event_type: AuditEventType
     severity: AuditEventSeverity
     timestamp: datetime
-    
+
     # User context
-    user_id: Optional[str]
-    username: Optional[str]
-    user_email: Optional[str]
+    user_id: str | None
+    username: str | None
+    user_email: str | None
     user_roles: list[UserRole]
-    authentication_method: Optional[AuthenticationMethod]
-    session_id: Optional[str]
-    
+    authentication_method: AuthenticationMethod | None
+    session_id: str | None
+
     # Request context
     ip_address: str
     user_agent: str
     request_method: str
     request_path: str
-    request_id: Optional[str]
-    
+    request_id: str | None
+
     # Event details
-    resource_type: Optional[str]
-    resource_id: Optional[str]
+    resource_type: str | None
+    resource_id: str | None
     action: str
     result: str  # success, failure, error
-    
+
     # Additional data
     details: dict[str, Any]
-    before_values: Optional[dict[str, Any]]
-    after_values: Optional[dict[str, Any]]
-    
+    before_values: dict[str, Any] | None
+    after_values: dict[str, Any] | None
+
     # Compliance
     compliance_frameworks: list[ComplianceFramework]
     retention_required: bool
-    
+
     # Technical details
-    response_code: Optional[int]
-    execution_time_ms: Optional[float]
-    error_message: Optional[str]
-    
+    response_code: int | None
+    execution_time_ms: float | None
+    error_message: str | None
+
     # Geolocation (if available)
-    country: Optional[str]
-    region: Optional[str]
-    city: Optional[str]
+    country: str | None
+    region: str | None
+    city: str | None
 
 
 class AuditLogger:
     """Enhanced audit logging service"""
-    
+
     def __init__(self):
         self.settings = get_settings()
         self.logger = self._setup_logger()
         self.event_buffer: list[AuditEvent] = []
         self.buffer_size = 1000
-        
+
         # Compliance mappings
         self.compliance_mappings = self._setup_compliance_mappings()
-        
+
         # Start background tasks
         self.start_background_tasks()
-    
+
     def _setup_logger(self) -> structlog.stdlib.BoundLogger:
         """Setup structured audit logger"""
         # Configure audit-specific logger
         audit_log_file = self.settings.storage.log_path / "audit.log"
-        
+
         # Ensure log directory exists
         audit_log_file.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Configure structlog for audit logging
         structlog.configure(
             processors=[
@@ -197,9 +195,9 @@ class AuditLogger:
             wrapper_class=structlog.stdlib.BoundLogger,
             cache_logger_on_first_use=True,
         )
-        
+
         return structlog.get_logger("pynomaly.audit")
-    
+
     def _setup_compliance_mappings(self) -> dict[AuditEventType, list[ComplianceFramework]]:
         """Setup mappings between event types and compliance frameworks"""
         return {
@@ -207,24 +205,24 @@ class AuditLogger:
             AuditEventType.USER_LOGIN: [ComplianceFramework.SOX, ComplianceFramework.GDPR, ComplianceFramework.SOC2],
             AuditEventType.USER_LOGOUT: [ComplianceFramework.SOX, ComplianceFramework.GDPR, ComplianceFramework.SOC2],
             AuditEventType.USER_LOGIN_FAILED: [ComplianceFramework.SOX, ComplianceFramework.GDPR, ComplianceFramework.SOC2],
-            
+
             # Data access events - critical for data protection regulations
             AuditEventType.DATA_VIEWED: [ComplianceFramework.GDPR, ComplianceFramework.HIPAA],
             AuditEventType.DATA_CREATED: [ComplianceFramework.GDPR, ComplianceFramework.HIPAA, ComplianceFramework.SOX],
             AuditEventType.DATA_MODIFIED: [ComplianceFramework.GDPR, ComplianceFramework.HIPAA, ComplianceFramework.SOX],
             AuditEventType.DATA_DELETED: [ComplianceFramework.GDPR, ComplianceFramework.HIPAA, ComplianceFramework.SOX],
             AuditEventType.DATA_EXPORTED: [ComplianceFramework.GDPR, ComplianceFramework.HIPAA],
-            
+
             # System events - relevant for operational frameworks
             AuditEventType.SYSTEM_CONFIG_CHANGED: [ComplianceFramework.SOC2, ComplianceFramework.ISO27001],
             AuditEventType.PERMISSION_CHANGED: [ComplianceFramework.SOX, ComplianceFramework.SOC2, ComplianceFramework.ISO27001],
-            
+
             # Security events - critical for all frameworks
             AuditEventType.SECURITY_VIOLATION: [framework for framework in ComplianceFramework],
             AuditEventType.SUSPICIOUS_ACTIVITY: [framework for framework in ComplianceFramework],
             AuditEventType.BRUTE_FORCE_ATTEMPT: [framework for framework in ComplianceFramework],
         }
-    
+
     def start_background_tasks(self):
         """Start background audit tasks"""
         try:
@@ -233,7 +231,7 @@ class AuditLogger:
         except RuntimeError:
             # No event loop running
             pass
-    
+
     async def _flush_events_task(self):
         """Background task to flush buffered events"""
         while True:
@@ -244,7 +242,7 @@ class AuditLogger:
             except Exception as e:
                 print(f"Error in audit flush task: {e}")
                 await asyncio.sleep(60)
-    
+
     async def _cleanup_old_logs_task(self):
         """Background task to clean up old audit logs"""
         while True:
@@ -254,7 +252,7 @@ class AuditLogger:
             except Exception as e:
                 print(f"Error in audit cleanup task: {e}")
                 await asyncio.sleep(86400)
-    
+
     def log_event(
         self,
         event_type: AuditEventType,
@@ -264,41 +262,41 @@ class AuditLogger:
         user_agent: str = "unknown",
         request_method: str = "GET",
         request_path: str = "/",
-        user_id: Optional[str] = None,
-        username: Optional[str] = None,
-        user_email: Optional[str] = None,
-        user_roles: Optional[list[UserRole]] = None,
-        authentication_method: Optional[AuthenticationMethod] = None,
-        session_id: Optional[str] = None,
-        request_id: Optional[str] = None,
-        resource_type: Optional[str] = None,
-        resource_id: Optional[str] = None,
-        details: Optional[dict[str, Any]] = None,
-        before_values: Optional[dict[str, Any]] = None,
-        after_values: Optional[dict[str, Any]] = None,
-        response_code: Optional[int] = None,
-        execution_time_ms: Optional[float] = None,
-        error_message: Optional[str] = None,
-        severity: Optional[AuditEventSeverity] = None
+        user_id: str | None = None,
+        username: str | None = None,
+        user_email: str | None = None,
+        user_roles: list[UserRole] | None = None,
+        authentication_method: AuthenticationMethod | None = None,
+        session_id: str | None = None,
+        request_id: str | None = None,
+        resource_type: str | None = None,
+        resource_id: str | None = None,
+        details: dict[str, Any] | None = None,
+        before_values: dict[str, Any] | None = None,
+        after_values: dict[str, Any] | None = None,
+        response_code: int | None = None,
+        execution_time_ms: float | None = None,
+        error_message: str | None = None,
+        severity: AuditEventSeverity | None = None
     ) -> str:
         """Log audit event"""
         if not self.settings.audit.enabled:
             return ""
-        
+
         # Determine severity if not provided
         if severity is None:
             severity = self._determine_severity(event_type, result)
-        
+
         # Determine compliance frameworks
         compliance_frameworks = self.compliance_mappings.get(event_type, [])
-        
+
         # Create audit event
         event = AuditEvent(
             event_id=str(uuid4()),
             event_type=event_type,
             severity=severity,
             timestamp=datetime.utcnow(),
-            
+
             # User context
             user_id=user_id,
             username=username,
@@ -306,53 +304,53 @@ class AuditLogger:
             user_roles=user_roles or [],
             authentication_method=authentication_method,
             session_id=session_id,
-            
+
             # Request context
             ip_address=ip_address,
             user_agent=user_agent,
             request_method=request_method,
             request_path=request_path,
             request_id=request_id,
-            
+
             # Event details
             resource_type=resource_type,
             resource_id=resource_id,
             action=action,
             result=result,
-            
+
             # Additional data
             details=details or {},
             before_values=before_values,
             after_values=after_values,
-            
+
             # Compliance
             compliance_frameworks=compliance_frameworks,
             retention_required=len(compliance_frameworks) > 0,
-            
+
             # Technical details
             response_code=response_code,
             execution_time_ms=execution_time_ms,
             error_message=error_message,
-            
+
             # Geolocation (placeholder - would integrate with GeoIP service)
             country=None,
             region=None,
             city=None
         )
-        
+
         # Add to buffer
         self.event_buffer.append(event)
-        
+
         # Flush if buffer is full
         if len(self.event_buffer) >= self.buffer_size:
             asyncio.create_task(self._flush_events())
-        
+
         # Log immediately for critical events
         if severity == AuditEventSeverity.CRITICAL:
             self._log_event_immediately(event)
-        
+
         return event.event_id
-    
+
     def _determine_severity(self, event_type: AuditEventType, result: str) -> AuditEventSeverity:
         """Determine event severity based on type and result"""
         # Critical events
@@ -363,7 +361,7 @@ class AuditLogger:
             AuditEventType.SYSTEM_CONFIG_CHANGED,
             AuditEventType.DATA_DELETED
         ]
-        
+
         # High severity events
         high_events = [
             AuditEventType.USER_LOGIN_FAILED,
@@ -372,7 +370,7 @@ class AuditLogger:
             AuditEventType.DATA_EXPORTED,
             AuditEventType.PERMISSION_CHANGED
         ]
-        
+
         # Medium severity events
         medium_events = [
             AuditEventType.USER_LOGIN,
@@ -380,7 +378,7 @@ class AuditLogger:
             AuditEventType.API_KEY_CREATED,
             AuditEventType.MODEL_DEPLOYED
         ]
-        
+
         if event_type in critical_events or result == "failure":
             return AuditEventSeverity.CRITICAL
         elif event_type in high_events:
@@ -389,11 +387,11 @@ class AuditLogger:
             return AuditEventSeverity.MEDIUM
         else:
             return AuditEventSeverity.LOW
-    
+
     def _log_event_immediately(self, event: AuditEvent):
         """Log event immediately to audit log"""
         event_data = asdict(event)
-        
+
         # Convert enums to strings for JSON serialization
         event_data["event_type"] = event.event_type.value
         event_data["severity"] = event.severity.value
@@ -401,27 +399,27 @@ class AuditLogger:
         event_data["authentication_method"] = event.authentication_method.value if event.authentication_method else None
         event_data["compliance_frameworks"] = [fw.value for fw in event.compliance_frameworks]
         event_data["timestamp"] = event.timestamp.isoformat()
-        
+
         self.logger.info("Audit event", **event_data)
-    
+
     async def _flush_events(self):
         """Flush buffered events to audit log"""
         if not self.event_buffer:
             return
-        
+
         events_to_flush = self.event_buffer.copy()
         self.event_buffer.clear()
-        
+
         for event in events_to_flush:
             self._log_event_immediately(event)
-    
+
     async def _cleanup_old_logs(self):
         """Clean up old audit logs based on retention policy"""
         try:
             log_directory = self.settings.storage.log_path
             retention_days = getattr(self.settings.audit, 'retention_days', 365)
             cutoff_date = datetime.utcnow() - timedelta(days=retention_days)
-            
+
             # Find old log files
             for log_file in log_directory.glob("audit*.log*"):
                 if log_file.stat().st_mtime < cutoff_date.timestamp():
@@ -431,23 +429,23 @@ class AuditLogger:
                         await self._archive_log_file(log_file)
                     else:
                         log_file.unlink()
-        
+
         except Exception as e:
             print(f"Error cleaning up audit logs: {e}")
-    
+
     async def _archive_log_file(self, log_file: Path):
         """Archive old log file for compliance"""
         archive_dir = log_file.parent / "archived"
         archive_dir.mkdir(exist_ok=True)
-        
+
         archive_path = archive_dir / f"{log_file.name}.archived"
-        
+
         if self.settings.audit.encrypt_logs:
             # Encrypt archived logs (placeholder - would implement actual encryption)
             await self._encrypt_log_file(log_file, archive_path)
         else:
             log_file.rename(archive_path)
-    
+
     async def _encrypt_log_file(self, source: Path, destination: Path):
         """Encrypt log file for secure archival"""
         # Placeholder for log encryption implementation
@@ -455,18 +453,18 @@ class AuditLogger:
         import shutil
         shutil.copy2(source, destination)
         source.unlink()
-    
+
     def log_authentication_event(
         self,
         event_type: AuditEventType,
-        user_id: Optional[str],
-        username: Optional[str],
+        user_id: str | None,
+        username: str | None,
         ip_address: str,
         user_agent: str,
         result: str,
-        authentication_method: Optional[AuthenticationMethod] = None,
-        error_message: Optional[str] = None,
-        session_id: Optional[str] = None
+        authentication_method: AuthenticationMethod | None = None,
+        error_message: str | None = None,
+        session_id: str | None = None
     ) -> str:
         """Log authentication-specific event"""
         return self.log_event(
@@ -482,7 +480,7 @@ class AuditLogger:
             error_message=error_message,
             resource_type="authentication_system"
         )
-    
+
     def log_data_access_event(
         self,
         event_type: AuditEventType,
@@ -494,9 +492,9 @@ class AuditLogger:
         result: str,
         ip_address: str,
         request_path: str,
-        before_values: Optional[dict[str, Any]] = None,
-        after_values: Optional[dict[str, Any]] = None,
-        details: Optional[dict[str, Any]] = None
+        before_values: dict[str, Any] | None = None,
+        after_values: dict[str, Any] | None = None,
+        details: dict[str, Any] | None = None
     ) -> str:
         """Log data access event"""
         return self.log_event(
@@ -513,7 +511,7 @@ class AuditLogger:
             after_values=after_values,
             details=details
         )
-    
+
     def log_security_event(
         self,
         event_type: AuditEventType,
@@ -522,7 +520,7 @@ class AuditLogger:
         request_path: str,
         severity: AuditEventSeverity,
         details: dict[str, Any],
-        user_id: Optional[str] = None,
+        user_id: str | None = None,
         action: str = "security_check"
     ) -> str:
         """Log security event"""
@@ -538,7 +536,7 @@ class AuditLogger:
             details=details,
             resource_type="security_system"
         )
-    
+
     def log_system_event(
         self,
         event_type: AuditEventType,
@@ -546,9 +544,9 @@ class AuditLogger:
         result: str,
         user_id: str,
         username: str,
-        details: Optional[dict[str, Any]] = None,
-        before_values: Optional[dict[str, Any]] = None,
-        after_values: Optional[dict[str, Any]] = None
+        details: dict[str, Any] | None = None,
+        before_values: dict[str, Any] | None = None,
+        after_values: dict[str, Any] | None = None
     ) -> str:
         """Log system configuration event"""
         return self.log_event(
@@ -563,23 +561,23 @@ class AuditLogger:
             after_values=after_values,
             severity=AuditEventSeverity.HIGH
         )
-    
+
     def search_events(
         self,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        user_id: Optional[str] = None,
-        event_types: Optional[list[AuditEventType]] = None,
-        ip_address: Optional[str] = None,
-        resource_type: Optional[str] = None,
-        severity: Optional[AuditEventSeverity] = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+        user_id: str | None = None,
+        event_types: list[AuditEventType] | None = None,
+        ip_address: str | None = None,
+        resource_type: str | None = None,
+        severity: AuditEventSeverity | None = None,
         limit: int = 1000
     ) -> list[dict[str, Any]]:
         """Search audit events (simplified implementation)"""
         # In production, this would query a database or search service
         # For now, return recent buffered events that match criteria
         results = []
-        
+
         for event in self.event_buffer:
             # Apply filters
             if start_time and event.timestamp < start_time:
@@ -596,14 +594,14 @@ class AuditLogger:
                 continue
             if severity and event.severity != severity:
                 continue
-            
+
             results.append(asdict(event))
-            
+
             if len(results) >= limit:
                 break
-        
+
         return results
-    
+
     def generate_compliance_report(
         self,
         framework: ComplianceFramework,
@@ -613,12 +611,12 @@ class AuditLogger:
         """Generate compliance report for specific framework"""
         # Filter events relevant to the compliance framework
         relevant_events = []
-        
+
         for event in self.event_buffer:
-            if (framework in event.compliance_frameworks and 
+            if (framework in event.compliance_frameworks and
                 start_date <= event.timestamp <= end_date):
                 relevant_events.append(event)
-        
+
         # Generate report
         report = {
             "framework": framework.value,
@@ -634,38 +632,38 @@ class AuditLogger:
             "data_access_events": 0,
             "summary": {}
         }
-        
+
         # Analyze events
         for event in relevant_events:
             event_type = event.event_type.value
             severity = event.severity.value
-            
+
             # Count by type
             report["events_by_type"][event_type] = report["events_by_type"].get(event_type, 0) + 1
-            
+
             # Count by severity
             report["events_by_severity"][severity] = report["events_by_severity"].get(severity, 0) + 1
-            
+
             # Count specific categories
             if event.event_type in [AuditEventType.SECURITY_VIOLATION, AuditEventType.SUSPICIOUS_ACTIVITY]:
                 report["security_incidents"] += 1
-            
+
             if event.event_type == AuditEventType.ACCESS_DENIED:
                 report["access_violations"] += 1
-            
-            if event.event_type in [AuditEventType.DATA_VIEWED, AuditEventType.DATA_MODIFIED, 
+
+            if event.event_type in [AuditEventType.DATA_VIEWED, AuditEventType.DATA_MODIFIED,
                                    AuditEventType.DATA_DELETED, AuditEventType.DATA_EXPORTED]:
                 report["data_access_events"] += 1
-        
+
         # Generate summary
         report["summary"] = {
             "compliance_status": "compliant" if report["security_incidents"] == 0 else "review_required",
             "risk_level": "high" if report["security_incidents"] > 5 else "low",
             "recommendations": self._generate_compliance_recommendations(framework, report)
         }
-        
+
         return report
-    
+
     def _generate_compliance_recommendations(
         self,
         framework: ComplianceFramework,
@@ -673,24 +671,24 @@ class AuditLogger:
     ) -> list[str]:
         """Generate compliance recommendations based on report"""
         recommendations = []
-        
+
         if report["security_incidents"] > 0:
             recommendations.append("Review and investigate all security incidents")
-        
+
         if report["access_violations"] > 10:
             recommendations.append("Review access control policies and user permissions")
-        
+
         if framework == ComplianceFramework.GDPR and report["data_access_events"] > 100:
             recommendations.append("Implement additional data access monitoring and controls")
-        
+
         if not recommendations:
             recommendations.append("Continue current security practices")
-        
+
         return recommendations
 
 
 # Global audit logger instance
-_audit_logger: Optional[AuditLogger] = None
+_audit_logger: AuditLogger | None = None
 
 
 def get_audit_logger() -> AuditLogger:
@@ -702,7 +700,7 @@ def get_audit_logger() -> AuditLogger:
 
 
 # Convenience functions for common audit events
-def log_user_login(user_id: str, username: str, ip_address: str, user_agent: str, 
+def log_user_login(user_id: str, username: str, ip_address: str, user_agent: str,
                   method: AuthenticationMethod, session_id: str) -> str:
     """Log successful user login"""
     return get_audit_logger().log_authentication_event(
@@ -717,7 +715,7 @@ def log_user_login(user_id: str, username: str, ip_address: str, user_agent: str
     )
 
 
-def log_user_login_failed(username: str, ip_address: str, user_agent: str, 
+def log_user_login_failed(username: str, ip_address: str, user_agent: str,
                          reason: str) -> str:
     """Log failed user login"""
     return get_audit_logger().log_authentication_event(
@@ -731,8 +729,8 @@ def log_user_login_failed(username: str, ip_address: str, user_agent: str,
     )
 
 
-def log_data_access(user_id: str, username: str, resource_type: str, 
-                   resource_id: str, action: str, ip_address: str, 
+def log_data_access(user_id: str, username: str, resource_type: str,
+                   resource_id: str, action: str, ip_address: str,
                    request_path: str) -> str:
     """Log data access event"""
     event_type_map = {
@@ -742,9 +740,9 @@ def log_data_access(user_id: str, username: str, resource_type: str,
         "delete": AuditEventType.DATA_DELETED,
         "export": AuditEventType.DATA_EXPORTED
     }
-    
+
     event_type = event_type_map.get(action, AuditEventType.DATA_VIEWED)
-    
+
     return get_audit_logger().log_data_access_event(
         event_type=event_type,
         user_id=user_id,
@@ -758,7 +756,7 @@ def log_data_access(user_id: str, username: str, resource_type: str,
     )
 
 
-def log_security_violation(ip_address: str, user_agent: str, request_path: str, 
+def log_security_violation(ip_address: str, user_agent: str, request_path: str,
                           violation_type: str, details: dict[str, Any]) -> str:
     """Log security violation"""
     return get_audit_logger().log_security_event(

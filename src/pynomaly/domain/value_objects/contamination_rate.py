@@ -42,13 +42,13 @@ class ContaminationRate:
 
         # Basic validation
         self._validate_basic_constraints()
-        
+
         # Advanced business rule validation
         self._validate_business_rules()
-        
+
         # Statistical validation
         self._validate_statistical_properties()
-        
+
         # Context validation
         self._validate_context_appropriateness()
 
@@ -92,7 +92,7 @@ class ContaminationRate:
             "auto", "domain_knowledge", "statistical_analysis", "historical_data",
             "expert_opinion", "cross_validation", "grid_search", "heuristic"
         }
-        
+
         if self.source.lower() not in valid_sources:
             raise ValidationError(
                 f"Unknown contamination source: {self.source}. Valid sources: {valid_sources}"
@@ -119,7 +119,7 @@ class ContaminationRate:
     def _validate_domain_specific_rules(self, domain: str) -> None:
         """Validate contamination rate for specific domains."""
         domain_lower = domain.lower()
-        
+
         if domain_lower == "fraud_detection":
             # Fraud typically has very low contamination rates
             if self.value > 0.05:
@@ -152,14 +152,14 @@ class ContaminationRate:
     def _validate_sample_size_relationship(self, sample_size: int) -> None:
         """Validate contamination rate relative to sample size."""
         expected_anomalies = int(sample_size * self.value)
-        
+
         # Too few anomalies for reliable detection
         if expected_anomalies < 10:
             raise ValidationError(
                 f"Sample size ({sample_size}) with contamination rate ({self.value}) "
                 f"yields too few anomalies ({expected_anomalies}). Need at least 10 anomalies."
             )
-        
+
         # Very small datasets need higher contamination rates
         if sample_size < 100 and self.value < 0.05:
             raise ValidationError(
@@ -176,7 +176,7 @@ class ContaminationRate:
                     f"High-dimensional data ({feature_count} features) typically requires "
                     f"lower contamination rates. Consider rate < 0.1"
                 )
-        
+
         # Curse of dimensionality impact
         if feature_count > 1000 and self.value > 0.05:
             raise ValidationError(
@@ -225,7 +225,7 @@ class ContaminationRate:
     def _validate_algorithm_compatibility(self, algorithm: str) -> None:
         """Validate contamination rate compatibility with specific algorithms."""
         algorithm_lower = algorithm.lower()
-        
+
         # Isolation Forest works well with low contamination rates
         if "isolation" in algorithm_lower:
             if self.value > 0.3:
@@ -233,7 +233,7 @@ class ContaminationRate:
                     f"Isolation Forest typically performs better with contamination rates < 0.3, "
                     f"got {self.value}"
                 )
-        
+
         # LOF is sensitive to contamination rate
         if "lof" in algorithm_lower or "local_outlier" in algorithm_lower:
             if self.value > 0.2:
@@ -245,7 +245,7 @@ class ContaminationRate:
     def _validate_evaluation_context(self, context: str) -> None:
         """Validate contamination rate for evaluation context."""
         context_lower = context.lower()
-        
+
         if context_lower == "cross_validation":
             # Cross-validation requires consistent contamination rates
             if self.confidence_level < 0.7:
@@ -286,7 +286,7 @@ class ContaminationRate:
     def get_domain_recommendation(self, domain: str) -> float:
         """Get recommended contamination rate for specific domain."""
         domain_lower = domain.lower()
-        
+
         recommendations = {
             "fraud_detection": 0.02,
             "network_security": 0.10,
@@ -297,7 +297,7 @@ class ContaminationRate:
             "quality_control": 0.12,
             "general": 0.10
         }
-        
+
         return recommendations.get(domain_lower, 0.10)
 
     def confidence_assessment(self) -> dict[str, Any]:
@@ -307,21 +307,21 @@ class ContaminationRate:
             "source": self.source,
             "reliability": "unknown"
         }
-        
+
         # Assess reliability based on source
         source_reliability = {
             "domain_knowledge": "high",
             "statistical_analysis": "high",
-            "historical_data": "high", 
+            "historical_data": "high",
             "expert_opinion": "medium",
             "cross_validation": "high",
             "grid_search": "medium",
             "heuristic": "low",
             "auto": "low"
         }
-        
+
         assessment["reliability"] = source_reliability.get(self.source.lower(), "unknown")
-        
+
         # Add recommendations
         if self.confidence_level < 0.6:
             assessment["recommendation"] = "Consider gathering more data or expert input"
@@ -329,7 +329,7 @@ class ContaminationRate:
             assessment["recommendation"] = "Acceptable for most applications"
         else:
             assessment["recommendation"] = "High confidence - suitable for critical applications"
-        
+
         return assessment
 
     def __str__(self) -> str:

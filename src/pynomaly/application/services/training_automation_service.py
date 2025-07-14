@@ -12,16 +12,13 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Protocol
-from uuid import uuid4
+from typing import Any
 
-import pandas as pd
-
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.entities.training_job import (
     TrainingJob,
     TrainingStatus,

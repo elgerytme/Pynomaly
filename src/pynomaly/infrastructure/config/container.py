@@ -485,7 +485,7 @@ class Container(containers.DeclarativeContainer):
     threshold_calculator = providers.Singleton(ThresholdCalculator)
     feature_validator = providers.Singleton(FeatureValidator)
     ensemble_aggregator = providers.Singleton(EnsembleAggregator)
-    
+
     # Algorithm adapter registry with MLOps persistence
     algorithm_adapter_registry = providers.Singleton(
         lambda: _create_enhanced_adapter_registry()
@@ -728,7 +728,7 @@ class Container(containers.DeclarativeContainer):
                 "singleton",
                 detector_repository=cls.async_detector_repository,
                 dataset_repository=cls.async_dataset_repository,
-                adapter_registry=providers.Object("adapter_registry"),
+                adapter_registry=cls.algorithm_adapter_registry,
                 max_optimization_time=3600,
                 n_trials=100,
                 cv_folds=3,
@@ -745,7 +745,7 @@ class Container(containers.DeclarativeContainer):
                 "singleton",
                 detector_repository=cls.async_detector_repository,
                 dataset_repository=cls.async_dataset_repository,
-                adapter_registry=providers.Object("adapter_registry"),
+                adapter_registry=cls.algorithm_adapter_registry,
                 config=EnhancedAutoMLConfig(
                     max_optimization_time=(
                         cls.config.provided.automl_max_time
@@ -768,6 +768,50 @@ class Container(containers.DeclarativeContainer):
                     else Path("./automl_storage")
                 ),
             )
+
+        # AutoML Experiment Service with database persistence
+        try:
+            from pynomaly.application.services.automl_experiment_service import (
+                AutoMLExperimentService,
+            )
+
+            cls.automl_experiment_service = providers.Singleton(
+                AutoMLExperimentService,
+                automl_service=cls.automl_service if hasattr(cls, 'automl_service') else None,
+                experiment_tracking_service=cls.experiment_tracking_service,
+                experiment_repository=None,  # Would use actual experiment repository if available
+                storage_path=Path("./automl_experiments"),
+            )
+        except ImportError:
+            logger.debug("AutoML Experiment Service dependencies not available")
+
+        # Ray Tune Distributed Optimization
+        try:
+            from pynomaly.infrastructure.automl.ray_tune_optimizer import (
+                DistributedAutoMLService,
+                RayTuneConfig,
+                create_distributed_automl_service,
+            )
+
+            # Create Ray Tune configuration
+            ray_config = RayTuneConfig(
+                num_workers=4,
+                max_concurrent_trials=4,
+                max_total_trials=50,
+                max_training_time=1800,  # 30 minutes
+                search_algorithm="optuna",
+                scheduler="asha",
+                enable_early_stopping=True,
+                local_dir=Path("./ray_results"),
+            )
+
+            cls.distributed_automl_service = providers.Singleton(
+                DistributedAutoMLService,
+                automl_service=cls.automl_service if hasattr(cls, 'automl_service') else None,
+                ray_config=ray_config,
+            )
+        except ImportError:
+            logger.debug("Ray Tune distributed optimization not available")
 
         # Explainability services
         if service_manager.is_available("explainability_service"):

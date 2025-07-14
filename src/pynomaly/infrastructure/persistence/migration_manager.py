@@ -6,13 +6,13 @@ import logging
 import os
 from pathlib import Path
 
-from sqlalchemy import create_engine, text
-from sqlalchemy.exc import SQLAlchemyError
-
 from alembic import command
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.script import ScriptDirectory
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
+
 from pynomaly.infrastructure.config.settings import Settings
 
 logger = logging.getLogger(__name__)

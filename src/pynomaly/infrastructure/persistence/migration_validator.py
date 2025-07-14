@@ -56,7 +56,7 @@ class MigrationValidator:
 
             # Read migration content
             migration_content = migration_path.read_text()
-            
+
             # Parse AST for analysis
             try:
                 tree = ast.parse(migration_content)
@@ -67,13 +67,13 @@ class MigrationValidator:
 
             # Check for dangerous patterns
             validation_result.update(self._check_dangerous_patterns(migration_content))
-            
+
             # Check migration structure
             validation_result.update(self._check_migration_structure(migration_content))
-            
+
             # Calculate final safety score
             validation_result["safety_score"] = self._calculate_safety_score(validation_result)
-            
+
             if validation_result["errors"]:
                 validation_result["valid"] = False
 
@@ -94,7 +94,7 @@ class MigrationValidator:
             Analysis results
         """
         analysis = {"warnings": [], "errors": []}
-        
+
         class MigrationAnalyzer(ast.NodeVisitor):
             def __init__(self):
                 self.has_upgrade = False
@@ -117,7 +117,7 @@ class MigrationValidator:
                         self.dangerous_calls.append(func_name)
                     elif func_name in ["create_table", "add_column", "create_index"]:
                         self.table_operations.append(func_name)
-                        
+
                 self.generic_visit(node)
 
         analyzer = MigrationAnalyzer()
@@ -132,7 +132,7 @@ class MigrationValidator:
         # Check for dangerous operations
         if analyzer.dangerous_calls:
             analysis["warnings"].extend([
-                f"Potentially destructive operation: {op}" 
+                f"Potentially destructive operation: {op}"
                 for op in analyzer.dangerous_calls
             ])
 
@@ -152,7 +152,7 @@ class MigrationValidator:
             Pattern check results
         """
         checks = {"warnings": [], "errors": []}
-        
+
         # Define dangerous patterns
         dangerous_patterns = [
             (r"DROP\s+TABLE", "DROP TABLE statement found"),
@@ -161,7 +161,7 @@ class MigrationValidator:
             (r"DELETE\s+FROM.*WHERE", "DELETE with WHERE clause found"),
             (r"UPDATE.*SET.*WHERE", "UPDATE with WHERE clause found"),
         ]
-        
+
         risky_patterns = [
             (r"ALTER\s+TABLE.*DROP\s+COLUMN", "DROP COLUMN operation found"),
             (r"DROP\s+INDEX", "DROP INDEX operation found"),
@@ -233,11 +233,11 @@ class MigrationValidator:
             Safety score (0-100)
         """
         score = 100
-        
+
         # Deduct points for errors and warnings
         score -= len(validation_result.get("errors", [])) * 20
         score -= len(validation_result.get("warnings", [])) * 5
-        
+
         return max(0, score)
 
     def validate_schema_changes(self, migration_content: str) -> dict[str, Any]:
@@ -307,7 +307,7 @@ class MigrationValidator:
                     if Path(db_path).exists():
                         stat = Path(db_path).stat()
                         readiness["info"]["database_size"] = stat.st_size
-                
+
                 # Check for existing alembic version table
                 try:
                     result = conn.execute(text("SELECT * FROM alembic_version LIMIT 1"))
@@ -343,21 +343,21 @@ class MigrationValidator:
             List of recommendations
         """
         recommendations = []
-        
+
         validation = self.validate_migration_file(migration_file)
-        
+
         if validation["safety_score"] < 80:
             recommendations.append("🔍 Review migration carefully before running")
-        
+
         if validation["safety_score"] < 60:
             recommendations.append("⚠️  Consider testing on staging environment first")
-        
+
         if any("DROP" in warning for warning in validation.get("warnings", [])):
             recommendations.append("📋 Create database backup before running")
-        
+
         if any("ALTER TABLE" in warning for warning in validation.get("warnings", [])):
             recommendations.append("⏰ Schedule during maintenance window")
-        
+
         if not validation.get("warnings") and validation["safety_score"] > 90:
             recommendations.append("✅ Migration appears safe to run")
 
@@ -413,7 +413,7 @@ class MigrationTestRunner:
                     test_results["errors"].append("Downgrade failed")
 
             test_results["success"] = (
-                test_results["upgrade_success"] and 
+                test_results["upgrade_success"] and
                 test_results["downgrade_success"]
             )
 
@@ -470,23 +470,23 @@ def validate_migration_safety(migration_file: str, database_url: str) -> dict[st
         Complete safety validation results
     """
     validator = MigrationValidator(database_url)
-    
+
     # File validation
     file_validation = validator.validate_migration_file(migration_file)
-    
+
     # Database readiness
     readiness = validator.check_database_readiness()
-    
+
     # Recommendations
     recommendations = validator.get_migration_recommendations(migration_file)
-    
+
     return {
         "file_validation": file_validation,
         "database_readiness": readiness,
         "recommendations": recommendations,
         "overall_safety": (
-            file_validation["valid"] and 
-            readiness["ready"] and 
+            file_validation["valid"] and
+            readiness["ready"] and
             file_validation["safety_score"] >= 70
         )
     }

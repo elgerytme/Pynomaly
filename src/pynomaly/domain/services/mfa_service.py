@@ -45,10 +45,10 @@ class MFAService:
     """Service for handling multi-factor authentication operations."""
 
     def __init__(
-        self, 
+        self,
         audit_logger: AuditLoggerProtocol,
-        redis_client=None, 
-        email_service=None, 
+        redis_client=None,
+        email_service=None,
         sms_service=None
     ):
         """Initialize MFA service with required audit logger and optional dependencies."""

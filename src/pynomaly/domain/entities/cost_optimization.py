@@ -551,29 +551,29 @@ class CostOptimization:
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
     is_active: bool = True
-    
+
     # Core optimization configuration
     strategy: OptimizationStrategy = OptimizationStrategy.BALANCED
     target_cost_reduction_percent: float = 20.0
     max_performance_impact: str = "minimal"
     max_risk_level: str = "medium"
-    
+
     # Resources and scope
     managed_resources: list[CloudResource] = field(default_factory=list)
     optimization_plans: list[CostOptimizationPlan] = field(default_factory=list)
     active_budgets: list[CostBudget] = field(default_factory=list)
-    
+
     # Current optimization state
     current_plan: CostOptimizationPlan | None = None
     pending_recommendations: list[OptimizationRecommendation] = field(default_factory=list)
     implemented_recommendations: list[OptimizationRecommendation] = field(default_factory=list)
-    
+
     # Performance metrics
     total_monthly_cost: float = 0.0
     target_monthly_cost: float = 0.0
     actual_monthly_savings: float = 0.0
     projected_annual_savings: float = 0.0
-    
+
     # Monitoring and automation
     auto_optimization_enabled: bool = False
     monitoring_enabled: bool = True
@@ -582,7 +582,7 @@ class CostOptimization:
         "budget_utilization": 0.9,  # 90% of budget
         "inefficiency_score": 0.7  # 70% inefficiency
     })
-    
+
     # Configuration and metadata
     tenant_id: UUID | None = None
     environments: set[str] = field(default_factory=lambda: {"production", "staging"})
@@ -593,10 +593,10 @@ class CostOptimization:
         """Validate cost optimization configuration."""
         if not self.name:
             self.name = f"CostOptimization-{self.id}"
-        
+
         if not (0.0 <= self.target_cost_reduction_percent <= 100.0):
             raise ValueError("Target cost reduction percent must be between 0.0 and 100.0")
-        
+
         # Calculate target monthly cost if not set
         if self.target_monthly_cost == 0.0 and self.total_monthly_cost > 0.0:
             reduction_factor = 1.0 - (self.target_cost_reduction_percent / 100.0)
@@ -621,7 +621,7 @@ class CostOptimization:
     def create_optimization_plan(self, name: str = "") -> CostOptimizationPlan:
         """Create a new optimization plan."""
         plan_name = name or f"Optimization Plan {len(self.optimization_plans) + 1}"
-        
+
         plan = CostOptimizationPlan(
             name=plan_name,
             strategy=self.strategy,
@@ -630,21 +630,21 @@ class CostOptimization:
             max_performance_impact=self.max_performance_impact,
             max_risk_level=self.max_risk_level
         )
-        
+
         self.optimization_plans.append(plan)
         self.current_plan = plan
         self.updated_at = datetime.utcnow()
-        
+
         return plan
 
     def add_recommendation(self, recommendation: OptimizationRecommendation) -> None:
         """Add a new optimization recommendation."""
         self.pending_recommendations.append(recommendation)
-        
+
         # Auto-add to current plan if it exists
         if self.current_plan:
             self.current_plan.add_recommendation(recommendation)
-        
+
         self.updated_at = datetime.utcnow()
 
     def implement_recommendation(self, recommendation_id: UUID) -> bool:
@@ -654,15 +654,15 @@ class CostOptimization:
                 rec.status = "implemented"
                 self.implemented_recommendations.append(rec)
                 del self.pending_recommendations[i]
-                
+
                 # Update savings
                 self.actual_monthly_savings += rec.monthly_savings
                 self.projected_annual_savings += rec.annual_savings
-                
+
                 if self.current_plan:
                     self.current_plan.implemented_recommendations += 1
                     self.current_plan.actual_savings_to_date += rec.annual_savings
-                
+
                 self.updated_at = datetime.utcnow()
                 return True
         return False
@@ -685,16 +685,16 @@ class CostOptimization:
         """Get resources in the top cost percentile."""
         if not self.managed_resources:
             return []
-        
+
         costs = [r.cost_info.monthly_cost for r in self.managed_resources]
         costs.sort()
         threshold_index = int(len(costs) * threshold_percentile)
-        
+
         if threshold_index >= len(costs):
             threshold_index = len(costs) - 1
-        
+
         threshold_cost = costs[threshold_index]
-        
+
         return [
             resource for resource in self.managed_resources
             if resource.cost_info.monthly_cost >= threshold_cost
@@ -708,23 +708,23 @@ class CostOptimization:
         """Calculate overall cost efficiency score (0-1)."""
         if not self.managed_resources:
             return 1.0
-        
+
         total_efficiency = sum(
-            resource.usage_metrics.get_efficiency_score() 
+            resource.usage_metrics.get_efficiency_score()
             for resource in self.managed_resources
         )
-        
+
         return total_efficiency / len(self.managed_resources)
 
     def get_budget_utilization(self) -> float:
         """Get current budget utilization across all budgets."""
         if not self.active_budgets:
             return 0.0
-        
+
         total_utilization = sum(
             budget.get_monthly_utilization() for budget in self.active_budgets
         )
-        
+
         return total_utilization / len(self.active_budgets)
 
     def needs_attention(self) -> bool:
@@ -732,20 +732,20 @@ class CostOptimization:
         # Check budget utilization
         if self.get_budget_utilization() > self.alert_thresholds.get("budget_utilization", 0.9):
             return True
-        
+
         # Check cost efficiency
         if self.get_cost_efficiency_score() < (1.0 - self.alert_thresholds.get("inefficiency_score", 0.7)):
             return True
-        
+
         # Check for high number of unimplemented recommendations
         if len(self.pending_recommendations) > 10:
             return True
-        
+
         # Check cost trend
         cost_increase = (self.total_monthly_cost - self.target_monthly_cost) / self.target_monthly_cost
         if cost_increase > self.alert_thresholds.get("cost_increase", 0.15):
             return True
-        
+
         return False
 
     def get_optimization_status(self) -> dict[str, any]:
@@ -753,7 +753,7 @@ class CostOptimization:
         potential_savings = self.calculate_potential_savings()
         cost_efficiency = self.get_cost_efficiency_score()
         budget_utilization = self.get_budget_utilization()
-        
+
         return {
             "is_active": self.is_active,
             "auto_optimization_enabled": self.auto_optimization_enabled,
@@ -798,10 +798,10 @@ class CostOptimization:
         """Generate a report of quick win opportunities."""
         if not self.current_plan:
             return {"quick_wins": [], "total_potential_savings": 0.0}
-        
+
         quick_wins = self.current_plan.get_quick_wins()
         total_savings = sum(rec.monthly_savings for rec in quick_wins)
-        
+
         return {
             "quick_wins": [
                 {

@@ -6,7 +6,6 @@ from infrastructure implementations for training automation services.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from typing import Any, Protocol
 
 from pynomaly.domain.entities import Dataset, DetectionResult, Detector

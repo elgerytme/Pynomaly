@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 
 class AuditLevel(Enum):
     """Audit log levels."""
-    
+
     DEBUG = "debug"
     INFO = "info"
     WARNING = "warning"
@@ -19,7 +19,7 @@ class AuditLevel(Enum):
 
 class SecurityEventType(Enum):
     """Security event types."""
-    
+
     MFA_TOTP_SETUP_INITIATED = "mfa_totp_setup_initiated"
     MFA_TOTP_VERIFIED = "mfa_totp_verified"
     MFA_TOTP_FAILED = "mfa_totp_failed"
@@ -40,16 +40,16 @@ class SecurityEventType(Enum):
 
 class AuditLoggerProtocol(ABC):
     """Protocol for audit logging in domain layer."""
-    
+
     @abstractmethod
     def log_security_event(
         self,
         event_type: SecurityEventType,
         message: str,
         level: AuditLevel = AuditLevel.INFO,
-        user_id: Optional[str] = None,
-        details: Optional[dict[str, Any]] = None,
-        risk_score: Optional[int] = None,
+        user_id: str | None = None,
+        details: dict[str, Any] | None = None,
+        risk_score: int | None = None,
     ) -> None:
         """Log a security event."""
         pass

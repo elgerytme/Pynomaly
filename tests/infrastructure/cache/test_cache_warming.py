@@ -458,9 +458,9 @@ class TestCacheWarmingService:
 
     async def test_shutdown(self, warming_service):
         """Test service shutdown."""
-        # Add some mock tasks
-        task1 = asyncio.create_task(asyncio.sleep(1.0))  # Longer sleep to ensure proper cancellation
-        task2 = asyncio.create_task(asyncio.sleep(1.0))
+        # Add some mock tasks with minimal delay for testing
+        task1 = asyncio.create_task(asyncio.sleep(0.1))  # Reduced delay for faster testing
+        task2 = asyncio.create_task(asyncio.sleep(0.1))
         warming_service.warming_tasks.add(task1)
         warming_service.warming_tasks.add(task2)
 

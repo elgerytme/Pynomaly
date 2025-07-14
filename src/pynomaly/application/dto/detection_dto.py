@@ -165,7 +165,7 @@ class TrainingResultDTO(BaseModel):
     """DTO for training results."""
 
     model_config = ConfigDict(
-        from_attributes=True, 
+        from_attributes=True,
         extra="forbid",
         protected_namespaces=()  # Allow model_path field
     )

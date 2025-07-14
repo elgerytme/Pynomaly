@@ -37,7 +37,7 @@ class FeatureEngineeringService:
             Engineered dataframe
         """
         logger.info("🔨 Performing feature engineering")
-        
+
         X_engineered = X.copy()
         original_features = list(X.columns)
         engineered_features = []
@@ -335,18 +335,18 @@ class FeatureEngineeringService:
         try:
             # Statistical importance for numeric features
             numeric_cols = X.select_dtypes(include=[np.number]).columns
-            
+
             if len(numeric_cols) > 0:
                 # Variance-based importance
                 variances = X[numeric_cols].var()
                 max_var = variances.max() if len(variances) > 0 else 1.0
-                
+
                 for col in numeric_cols:
                     importance_scores[col] = variances[col] / max_var if max_var > 0 else 0.0
 
             # Categorical feature importance (based on cardinality and distribution)
             categorical_cols = X.select_dtypes(include=["object", "category"]).columns
-            
+
             for col in categorical_cols:
                 unique_ratio = X[col].nunique() / len(X)
                 # Balanced cardinality is more important
@@ -382,10 +382,10 @@ class FeatureEngineeringService:
         """
         original_features = set(X_original.columns)
         engineered_features = set(X_engineered.columns)
-        
+
         added_features = engineered_features - original_features
         removed_features = original_features - engineered_features
-        
+
         summary = {
             "original_feature_count": len(X_original.columns),
             "final_feature_count": len(X_engineered.columns),
@@ -401,5 +401,5 @@ class FeatureEngineeringService:
             "missing_values": X_engineered.isnull().sum().sum(),
             "memory_usage_mb": X_engineered.memory_usage(deep=True).sum() / (1024 * 1024),
         }
-        
+
         return summary

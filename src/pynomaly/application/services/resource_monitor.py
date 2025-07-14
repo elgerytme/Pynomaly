@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Dict, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class ResourceMonitor:
             logger.warning(f"Failed to get CPU usage: {e}")
             return 0.0
 
-    def get_system_info(self) -> Dict[str, Any]:
+    def get_system_info(self) -> dict[str, Any]:
         """Get comprehensive system information."""
         if not self._psutil_available:
             return {
@@ -66,10 +66,10 @@ class ResourceMonitor:
 
             # Memory information
             memory = psutil.virtual_memory()
-            
+
             # Disk information
             disk = psutil.disk_usage('/')
-            
+
             # CPU information
             cpu_percent = psutil.cpu_percent(interval=0.1)
 
@@ -93,10 +93,10 @@ class ResourceMonitor:
                 "error": str(e)
             }
 
-    def check_resource_limits(self, max_memory_gb: float = 8.0, max_cpu_percent: float = 90.0) -> Dict[str, Any]:
+    def check_resource_limits(self, max_memory_gb: float = 8.0, max_cpu_percent: float = 90.0) -> dict[str, Any]:
         """Check if current resource usage exceeds limits."""
         system_info = self.get_system_info()
-        
+
         if not system_info["available"]:
             return {
                 "within_limits": True,
@@ -106,7 +106,7 @@ class ResourceMonitor:
 
         warnings = []
         violations = []
-        
+
         # Check memory limit
         memory_gb = system_info["memory_mb"] / 1024
         if memory_gb > max_memory_gb:

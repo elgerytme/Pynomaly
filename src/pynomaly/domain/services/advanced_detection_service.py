@@ -1,885 +1,332 @@
-"""Advanced anomaly detection service with multiple algorithms and ensemble methods."""
+"""Domain service for advanced anomaly detection with clean architecture."""
 
 import logging
 import time
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any
 
 import numpy as np
-import pandas as pd
 
-try:
-    from sklearn.cluster import DBSCAN
-    from sklearn.covariance import EllipticEnvelope
-    from sklearn.decomposition import PCA
-    from sklearn.ensemble import IsolationForest
-    from sklearn.metrics import precision_recall_curve, roc_auc_score
-    from sklearn.neighbors import LocalOutlierFactor
-    from sklearn.preprocessing import RobustScaler, StandardScaler
-    from sklearn.svm import OneClassSVM
-
-    SKLEARN_AVAILABLE = True
-except ImportError:
-    SKLEARN_AVAILABLE = False
-
-try:
-    import pyod
-    from pyod.models.abod import ABOD
-    from pyod.models.auto_encoder import AutoEncoder
-    from pyod.models.copod import COPOD
-    from pyod.models.ecod import ECOD
-    from pyod.models.knn import KNN
-    from pyod.models.loda import LODA
-    from pyod.models.mcd import MCD
-    from pyod.models.ocsvm import OCSVM
-    from pyod.models.pca import PCA as PyOD_PCA
-    from pyod.models.vae import VAE
-
-    PYOD_AVAILABLE = True
-except ImportError:
-    PYOD_AVAILABLE = False
-
-from ..entities.anomaly import Anomaly
 from ..entities.dataset import Dataset
 from ..entities.detection_result import DetectionResult
-from ..value_objects.anomaly_score import AnomalyScore
-from ..value_objects.confidence_interval import ConfidenceInterval
-from ..value_objects.contamination_rate import ContaminationRate
-
-# from ...infrastructure.monitoring.opentelemetry_service import trace_anomaly_detection
-# from ...infrastructure.monitoring.distributed_tracing import trace_operation
-
-
-# Simple stubs for monitoring functions
-def trace_anomaly_detection(func):
-    """Simple decorator stub for monitoring."""
-    return func
-
-
-def trace_operation(name):
-    """Simple decorator stub for monitoring."""
-
-    def decorator(func):
-        return func
-
-    return decorator
-
+from ..protocols.detection_protocols import (
+    AdvancedDetectionService,
+    AlgorithmFactoryProtocol,
+    DetectionAlgorithm,
+    DetectionConfig,
+    DetectionMetrics,
+    EnsembleAggregatorProtocol,
+    EnsembleConfig,
+    EnsembleMethod,
+    PreprocessingMethod,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class DetectionAlgorithm(Enum):
-    """Available anomaly detection algorithms."""
+class DomainAdvancedDetectionService(AdvancedDetectionService):
+    """Domain service for advanced anomaly detection using dependency injection."""
 
-    # Classical algorithms
-    ISOLATION_FOREST = "isolation_forest"
-    LOCAL_OUTLIER_FACTOR = "local_outlier_factor"
-    ONE_CLASS_SVM = "one_class_svm"
-    ELLIPTIC_ENVELOPE = "elliptic_envelope"
-    DBSCAN = "dbscan"
+    def __init__(
+        self,
+        algorithm_factory: AlgorithmFactoryProtocol,
+        ensemble_aggregator: EnsembleAggregatorProtocol
+    ):
+        """Initialize the service with injected dependencies."""
+        super().__init__(algorithm_factory, ensemble_aggregator)
+        self.logger = logger
 
-    # PyOD algorithms
-    KNN = "knn"
-    ABOD = "abod"
-    AUTO_ENCODER = "auto_encoder"
-    VAE = "vae"
-    OCSVM = "ocsvm"
-    PCA = "pca"
-    MCD = "mcd"
-    LODA = "loda"
-    COPOD = "copod"
-    ECOD = "ecod"
-
-    # Ensemble methods
-    ENSEMBLE_VOTING = "ensemble_voting"
-    ENSEMBLE_AVERAGING = "ensemble_averaging"
-    ENSEMBLE_STACKING = "ensemble_stacking"
-    ENSEMBLE_BAGGING = "ensemble_bagging"
-
-
-class ScalingMethod(Enum):
-    """Data scaling methods."""
-
-    NONE = "none"
-    STANDARD = "standard"
-    ROBUST = "robust"
-    MIN_MAX = "min_max"
-
-
-@dataclass
-class AlgorithmConfig:
-    """Configuration for anomaly detection algorithms."""
-
-    algorithm: DetectionAlgorithm
-    contamination: float = 0.1
-    n_jobs: int = -1
-    random_state: int = 42
-
-    # Algorithm-specific parameters
-    parameters: dict[str, Any] = field(default_factory=dict)
-
-    # Data preprocessing
-    scaling_method: ScalingMethod = ScalingMethod.STANDARD
-    apply_pca: bool = False
-    pca_components: int | None = None
-
-    # Performance tuning
-    enable_gpu: bool = False
-    batch_size: int | None = None
-    memory_efficient: bool = True
-
-
-@dataclass
-class EnsembleConfig:
-    """Configuration for ensemble methods."""
-
-    algorithms: list[AlgorithmConfig]
-    combination_method: str = "average"  # "average", "voting", "stacking"
-    weights: list[float] | None = None
-    meta_learner: str | None = None  # For stacking
-    cross_validation_folds: int = 5
-
-
-@dataclass
-class DetectionMetrics:
-    """Metrics for detection performance."""
-
-    algorithm: str
-    execution_time: float
-    memory_usage: float
-
-    # Performance metrics (if ground truth available)
-    precision: float | None = None
-    recall: float | None = None
-    f1_score: float | None = None
-    auc_score: float | None = None
-
-    # Statistics
-    total_anomalies: int = 0
-    anomaly_rate: float = 0.0
-    confidence_mean: float = 0.0
-    confidence_std: float = 0.0
-
-
-class AdvancedDetectionService:
-    """Advanced anomaly detection service with multiple algorithms."""
-
-    def __init__(self):
-        """Initialize the advanced detection service."""
-        self.scalers = {}
-        self.pca_transformers = {}
-        self.fitted_models = {}
-
-        # Default configurations for each algorithm
-        self.default_configs = self._initialize_default_configs()
-
-        logger.info("Advanced detection service initialized")
-
-    def _initialize_default_configs(self) -> dict[DetectionAlgorithm, AlgorithmConfig]:
-        """Initialize default configurations for algorithms."""
-        configs = {}
-
-        # Isolation Forest
-        configs[DetectionAlgorithm.ISOLATION_FOREST] = AlgorithmConfig(
-            algorithm=DetectionAlgorithm.ISOLATION_FOREST,
-            contamination=0.1,
-            parameters={
-                "n_estimators": 100,
-                "max_samples": "auto",
-                "max_features": 1.0,
-                "bootstrap": False,
-            },
-        )
-
-        # Local Outlier Factor
-        configs[DetectionAlgorithm.LOCAL_OUTLIER_FACTOR] = AlgorithmConfig(
-            algorithm=DetectionAlgorithm.LOCAL_OUTLIER_FACTOR,
-            contamination=0.1,
-            parameters={
-                "n_neighbors": 20,
-                "algorithm": "auto",
-                "leaf_size": 30,
-                "metric": "minkowski",
-                "p": 2,
-            },
-        )
-
-        # One-Class SVM
-        configs[DetectionAlgorithm.ONE_CLASS_SVM] = AlgorithmConfig(
-            algorithm=DetectionAlgorithm.ONE_CLASS_SVM,
-            contamination=0.1,
-            parameters={
-                "kernel": "rbf",
-                "gamma": "scale",
-                "nu": 0.1,
-                "shrinking": True,
-                "cache_size": 200,
-            },
-        )
-
-        # DBSCAN
-        configs[DetectionAlgorithm.DBSCAN] = AlgorithmConfig(
-            algorithm=DetectionAlgorithm.DBSCAN,
-            parameters={
-                "eps": 0.5,
-                "min_samples": 5,
-                "metric": "euclidean",
-                "algorithm": "auto",
-                "leaf_size": 30,
-            },
-        )
-
-        # PyOD algorithms (if available)
-        if PYOD_AVAILABLE:
-            configs[DetectionAlgorithm.KNN] = AlgorithmConfig(
-                algorithm=DetectionAlgorithm.KNN,
-                contamination=0.1,
-                parameters={"n_neighbors": 5, "method": "largest"},
-            )
-
-            configs[DetectionAlgorithm.ABOD] = AlgorithmConfig(
-                algorithm=DetectionAlgorithm.ABOD,
-                contamination=0.1,
-                parameters={"n_neighbors": 10},
-            )
-
-            configs[DetectionAlgorithm.AUTO_ENCODER] = AlgorithmConfig(
-                algorithm=DetectionAlgorithm.AUTO_ENCODER,
-                contamination=0.1,
-                parameters={
-                    "hidden_neurons": [64, 32, 32, 64],
-                    "epochs": 100,
-                    "batch_size": 32,
-                    "dropout_rate": 0.2,
-                },
-            )
-
-        return configs
-
-    @trace_operation("advanced_detection")
-    async def detect_anomalies(
+    async def detect_anomalies_single(
         self,
         dataset: Dataset,
-        algorithm: DetectionAlgorithm,
-        config: AlgorithmConfig | None = None,
-        ground_truth: np.ndarray | None = None,
+        config: DetectionConfig
     ) -> DetectionResult:
-        """Detect anomalies using specified algorithm."""
-
+        """Detect anomalies using a single algorithm."""
         start_time = time.time()
 
         try:
-            # Use provided config or default
-            if config is None:
-                config = self.default_configs.get(algorithm)
-                if not config:
-                    raise ValueError(
-                        f"No default configuration for algorithm: {algorithm}"
-                    )
+            # Prepare data with preprocessing
+            processed_data, preprocessor = self._prepare_data(dataset, config.preprocessing)
 
-            # Prepare data
-            X = await self._prepare_data(dataset, config)
-
-            # Create and train model
-            model = await self._create_model(algorithm, config)
+            # Create algorithm adapter
+            algorithm = self.algorithm_factory.create_algorithm(config)
 
             # Fit and predict
-            predictions, scores = await self._fit_and_predict(
-                model, X, algorithm, config
+            algorithm.fit(processed_data)
+            predictions = algorithm.predict(processed_data)
+            scores = algorithm.decision_function(processed_data)
+
+            # Convert predictions to binary (1 for anomaly, 0 for normal)
+            # Most algorithms return -1 for anomaly, 1 for normal
+            if np.any(predictions == -1):
+                predictions = np.where(predictions == -1, 1, 0)
+
+            processing_time = time.time() - start_time
+
+            # Create and return detection result
+            return self._create_detection_result(
+                dataset, predictions, scores, config, processing_time
             )
-
-            # Calculate metrics
-            execution_time = time.time() - start_time
-            memory_usage = self._estimate_memory_usage(X)
-
-            # Create anomalies
-            anomalies = []
-            for i, (is_anomaly, score) in enumerate(
-                zip(predictions, scores, strict=False)
-            ):
-                if is_anomaly:
-                    anomaly = Anomaly(
-                        index=i,
-                        score=AnomalyScore(score),
-                        confidence=ConfidenceInterval(
-                            lower=max(0.0, score - 0.1),
-                            upper=min(1.0, score + 0.1),
-                            confidence_level=0.95,
-                        ),
-                        features=X.iloc[i].to_dict()
-                        if isinstance(X, pd.DataFrame)
-                        else {},
-                        timestamp=dataset.metadata.get("timestamp", None),
-                        explanation=f"Detected by {algorithm.value}",
-                    )
-                    anomalies.append(anomaly)
-
-            # Calculate performance metrics
-            metrics = await self._calculate_metrics(
-                algorithm.value,
-                execution_time,
-                memory_usage,
-                predictions,
-                scores,
-                ground_truth,
-            )
-
-            # Create detection result
-            result = DetectionResult(
-                dataset_id=getattr(dataset, "id", "unknown"),
-                algorithm=algorithm.value,
-                anomalies=anomalies,
-                total_samples=len(X),
-                anomaly_count=len(anomalies),
-                contamination_rate=ContaminationRate(len(anomalies) / len(X)),
-                execution_time=execution_time,
-                metadata={
-                    "algorithm_config": config.__dict__,
-                    "metrics": metrics.__dict__,
-                    "data_shape": X.shape,
-                    "scaling_method": config.scaling_method.value,
-                },
-            )
-
-            return result
 
         except Exception as e:
-            logger.error(f"Error in anomaly detection with {algorithm.value}: {e}")
+            self.logger.error(f"Error in single algorithm detection: {e}")
             raise
 
-    async def _prepare_data(
-        self, dataset: Dataset, config: AlgorithmConfig
-    ) -> np.ndarray | pd.DataFrame:
-        """Prepare data for anomaly detection."""
-
-        # Get data
-        if hasattr(dataset, "data"):
-            X = dataset.data
-        else:
-            raise ValueError("Dataset has no data attribute")
-
-        # Convert to pandas DataFrame if numpy array
-        if isinstance(X, np.ndarray):
-            X = pd.DataFrame(X)
-
-        # Handle missing values
-        X = X.fillna(X.mean())
-
-        # Select numeric columns only
-        numeric_columns = X.select_dtypes(include=[np.number]).columns
-        X = X[numeric_columns]
-
-        if X.empty:
-            raise ValueError("No numeric features found in dataset")
-
-        # Apply scaling
-        if config.scaling_method != ScalingMethod.NONE:
-            scaler_key = f"{config.algorithm.value}_{config.scaling_method.value}"
-
-            if scaler_key not in self.scalers:
-                if config.scaling_method == ScalingMethod.STANDARD:
-                    self.scalers[scaler_key] = StandardScaler()
-                elif config.scaling_method == ScalingMethod.ROBUST:
-                    self.scalers[scaler_key] = RobustScaler()
-                else:
-                    raise ValueError(
-                        f"Unsupported scaling method: {config.scaling_method}"
-                    )
-
-            scaler = self.scalers[scaler_key]
-            X_scaled = scaler.fit_transform(X)
-            X = pd.DataFrame(X_scaled, columns=X.columns, index=X.index)
-
-        # Apply PCA if requested
-        if config.apply_pca and SKLEARN_AVAILABLE:
-            pca_key = f"{config.algorithm.value}_pca"
-
-            if pca_key not in self.pca_transformers:
-                n_components = config.pca_components or min(X.shape[1], X.shape[0] // 2)
-                self.pca_transformers[pca_key] = PCA(n_components=n_components)
-
-            pca = self.pca_transformers[pca_key]
-            X_pca = pca.fit_transform(X)
-            X = pd.DataFrame(X_pca, index=X.index)
-
-        return X
-
-    async def _create_model(
-        self, algorithm: DetectionAlgorithm, config: AlgorithmConfig
-    ):
-        """Create model instance for the specified algorithm."""
-
-        if not SKLEARN_AVAILABLE and algorithm in [
-            DetectionAlgorithm.ISOLATION_FOREST,
-            DetectionAlgorithm.LOCAL_OUTLIER_FACTOR,
-            DetectionAlgorithm.ONE_CLASS_SVM,
-            DetectionAlgorithm.ELLIPTIC_ENVELOPE,
-            DetectionAlgorithm.DBSCAN,
-        ]:
-            raise ImportError("scikit-learn is required for classical algorithms")
-
-        if not PYOD_AVAILABLE and algorithm in [
-            DetectionAlgorithm.KNN,
-            DetectionAlgorithm.ABOD,
-            DetectionAlgorithm.AUTO_ENCODER,
-            DetectionAlgorithm.VAE,
-            DetectionAlgorithm.OCSVM,
-            DetectionAlgorithm.PCA,
-            DetectionAlgorithm.MCD,
-            DetectionAlgorithm.LODA,
-            DetectionAlgorithm.COPOD,
-            DetectionAlgorithm.ECOD,
-        ]:
-            raise ImportError("PyOD is required for advanced algorithms")
-
-        # Classical sklearn algorithms
-        if algorithm == DetectionAlgorithm.ISOLATION_FOREST:
-            return IsolationForest(
-                contamination=config.contamination,
-                n_jobs=config.n_jobs,
-                random_state=config.random_state,
-                **config.parameters,
-            )
-
-        elif algorithm == DetectionAlgorithm.LOCAL_OUTLIER_FACTOR:
-            return LocalOutlierFactor(
-                contamination=config.contamination,
-                n_jobs=config.n_jobs,
-                **config.parameters,
-            )
-
-        elif algorithm == DetectionAlgorithm.ONE_CLASS_SVM:
-            # Convert contamination to nu parameter
-            nu = min(0.5, max(0.01, config.contamination))
-            params = config.parameters.copy()
-            params["nu"] = nu
-            return OneClassSVM(**params)
-
-        elif algorithm == DetectionAlgorithm.ELLIPTIC_ENVELOPE:
-            return EllipticEnvelope(
-                contamination=config.contamination,
-                random_state=config.random_state,
-                **config.parameters,
-            )
-
-        elif algorithm == DetectionAlgorithm.DBSCAN:
-            return DBSCAN(**config.parameters)
-
-        # PyOD algorithms
-        elif algorithm == DetectionAlgorithm.KNN:
-            return KNN(contamination=config.contamination, **config.parameters)
-
-        elif algorithm == DetectionAlgorithm.ABOD:
-            return ABOD(contamination=config.contamination, **config.parameters)
-
-        elif algorithm == DetectionAlgorithm.AUTO_ENCODER:
-            return AutoEncoder(contamination=config.contamination, **config.parameters)
-
-        elif algorithm == DetectionAlgorithm.VAE:
-            return VAE(contamination=config.contamination, **config.parameters)
-
-        elif algorithm == DetectionAlgorithm.OCSVM:
-            return OCSVM(contamination=config.contamination, **config.parameters)
-
-        elif algorithm == DetectionAlgorithm.PCA:
-            return PyOD_PCA(contamination=config.contamination, **config.parameters)
-
-        elif algorithm == DetectionAlgorithm.MCD:
-            return MCD(contamination=config.contamination, **config.parameters)
-
-        elif algorithm == DetectionAlgorithm.LODA:
-            return LODA(contamination=config.contamination, **config.parameters)
-
-        elif algorithm == DetectionAlgorithm.COPOD:
-            return COPOD(contamination=config.contamination, **config.parameters)
-
-        elif algorithm == DetectionAlgorithm.ECOD:
-            return ECOD(contamination=config.contamination, **config.parameters)
-
-        else:
-            raise ValueError(f"Unsupported algorithm: {algorithm}")
-
-    async def _fit_and_predict(
-        self,
-        model,
-        X: np.ndarray | pd.DataFrame,
-        algorithm: DetectionAlgorithm,
-        config: AlgorithmConfig,
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """Fit model and generate predictions."""
-
-        # Convert to numpy if needed
-        if isinstance(X, pd.DataFrame):
-            X_array = X.values
-        else:
-            X_array = X
-
-        # Fit and predict based on algorithm type
-        if algorithm == DetectionAlgorithm.LOCAL_OUTLIER_FACTOR:
-            # LOF doesn't have separate fit/predict
-            predictions = model.fit_predict(X_array)
-            scores = -model.negative_outlier_factor_
-
-        elif algorithm == DetectionAlgorithm.DBSCAN:
-            # DBSCAN clustering-based anomaly detection
-            clusters = model.fit_predict(X_array)
-            predictions = (clusters == -1).astype(int)  # -1 indicates outliers
-            # Generate scores based on distance to nearest cluster
-            scores = self._calculate_dbscan_scores(X_array, clusters, model)
-
-        else:
-            # Standard fit/predict workflow
-            model.fit(X_array)
-
-            if hasattr(model, "predict"):
-                predictions = model.predict(X_array)
-            else:
-                # For models without predict method, use decision_function
-                scores = model.decision_function(X_array)
-                threshold = np.percentile(scores, (1 - config.contamination) * 100)
-                predictions = (scores < threshold).astype(int)
-
-            # Get anomaly scores
-            if hasattr(model, "decision_function"):
-                scores = model.decision_function(X_array)
-                scores = (scores - scores.min()) / (
-                    scores.max() - scores.min()
-                )  # Normalize
-            elif hasattr(model, "score_samples"):
-                scores = -model.score_samples(X_array)  # Negative log-likelihood
-                scores = (scores - scores.min()) / (scores.max() - scores.min())
-            else:
-                # Fallback: use binary predictions as scores
-                scores = predictions.astype(float)
-
-        # Convert predictions to binary (1 for anomaly, 0 for normal)
-        if algorithm not in [DetectionAlgorithm.LOCAL_OUTLIER_FACTOR]:
-            predictions = (predictions == -1).astype(int)
-        else:
-            predictions = (predictions == -1).astype(int)
-
-        # Ensure scores are between 0 and 1
-        scores = np.clip(scores, 0, 1)
-
-        return predictions, scores
-
-    def _calculate_dbscan_scores(
-        self, X: np.ndarray, clusters: np.ndarray, model
-    ) -> np.ndarray:
-        """Calculate anomaly scores for DBSCAN results."""
-        scores = np.zeros(len(X))
-
-        # Outliers (cluster -1) get high scores
-        outlier_mask = clusters == -1
-        scores[outlier_mask] = 0.8 + 0.2 * np.random.random(np.sum(outlier_mask))
-
-        # Core points get low scores
-        core_samples = model.core_sample_indices_
-        scores[core_samples] = 0.1 + 0.2 * np.random.random(len(core_samples))
-
-        # Border points get medium scores
-        border_mask = ~outlier_mask & ~np.isin(np.arange(len(X)), core_samples)
-        scores[border_mask] = 0.3 + 0.3 * np.random.random(np.sum(border_mask))
-
-        return scores
-
-    def _estimate_memory_usage(self, X: np.ndarray | pd.DataFrame) -> float:
-        """Estimate memory usage for the dataset."""
-        if isinstance(X, pd.DataFrame):
-            return X.memory_usage(deep=True).sum() / (1024 * 1024)  # MB
-        else:
-            return X.nbytes / (1024 * 1024)  # MB
-
-    async def _calculate_metrics(
-        self,
-        algorithm: str,
-        execution_time: float,
-        memory_usage: float,
-        predictions: np.ndarray,
-        scores: np.ndarray,
-        ground_truth: np.ndarray | None = None,
-    ) -> DetectionMetrics:
-        """Calculate detection performance metrics."""
-
-        total_anomalies = int(np.sum(predictions))
-        anomaly_rate = float(np.mean(predictions))
-        confidence_mean = float(np.mean(scores))
-        confidence_std = float(np.std(scores))
-
-        metrics = DetectionMetrics(
-            algorithm=algorithm,
-            execution_time=execution_time,
-            memory_usage=memory_usage,
-            total_anomalies=total_anomalies,
-            anomaly_rate=anomaly_rate,
-            confidence_mean=confidence_mean,
-            confidence_std=confidence_std,
-        )
-
-        # Calculate performance metrics if ground truth is available
-        if ground_truth is not None and len(ground_truth) == len(predictions):
-            try:
-                # Precision, Recall, F1
-                tp = np.sum((predictions == 1) & (ground_truth == 1))
-                fp = np.sum((predictions == 1) & (ground_truth == 0))
-                fn = np.sum((predictions == 0) & (ground_truth == 1))
-
-                precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-                recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-                f1_score = (
-                    2 * (precision * recall) / (precision + recall)
-                    if (precision + recall) > 0
-                    else 0.0
-                )
-
-                metrics.precision = precision
-                metrics.recall = recall
-                metrics.f1_score = f1_score
-
-                # AUC if we have probability scores
-                if len(np.unique(scores)) > 2:  # More than binary scores
-                    try:
-                        auc = roc_auc_score(ground_truth, scores)
-                        metrics.auc_score = auc
-                    except ValueError:
-                        pass  # AUC calculation failed
-
-            except Exception as e:
-                logger.warning(f"Failed to calculate performance metrics: {e}")
-
-        return metrics
-
-    @trace_operation("ensemble_detection")
     async def detect_anomalies_ensemble(
         self,
         dataset: Dataset,
-        ensemble_config: EnsembleConfig,
-        ground_truth: np.ndarray | None = None,
+        ensemble_config: EnsembleConfig
     ) -> DetectionResult:
-        """Detect anomalies using ensemble of multiple algorithms."""
-
+        """Detect anomalies using ensemble methods."""
         start_time = time.time()
 
         try:
-            results = []
             all_predictions = []
             all_scores = []
 
             # Run each algorithm in the ensemble
             for config in ensemble_config.algorithms:
-                result = await self.detect_anomalies(
-                    dataset, config.algorithm, config, ground_truth
-                )
-                results.append(result)
+                # Prepare data with preprocessing
+                processed_data, _ = self._prepare_data(dataset, config.preprocessing)
 
-                # Extract predictions and scores
-                predictions = np.zeros(result.total_samples)
-                scores = np.zeros(result.total_samples)
+                # Create algorithm adapter
+                algorithm = self.algorithm_factory.create_algorithm(config)
 
-                for anomaly in result.anomalies:
-                    predictions[anomaly.index] = 1
-                    scores[anomaly.index] = anomaly.score.value
+                # Fit and predict
+                algorithm.fit(processed_data)
+                predictions = algorithm.predict(processed_data)
+                scores = algorithm.decision_function(processed_data)
+
+                # Convert predictions to binary
+                if np.any(predictions == -1):
+                    predictions = np.where(predictions == -1, 1, 0)
 
                 all_predictions.append(predictions)
                 all_scores.append(scores)
 
-            # Combine predictions using specified method
-            combined_predictions, combined_scores = self._combine_ensemble_results(
-                all_predictions, all_scores, ensemble_config
+            # Aggregate results using ensemble method
+            ensemble_predictions = self.ensemble_aggregator.aggregate_predictions(
+                all_predictions,
+                ensemble_config.ensemble_method,
+                ensemble_config.weights
             )
 
-            # Create anomalies from combined results
-            anomalies = []
-            for i, (is_anomaly, score) in enumerate(
-                zip(combined_predictions, combined_scores, strict=False)
-            ):
-                if is_anomaly:
-                    anomaly = Anomaly(
-                        index=i,
-                        score=AnomalyScore(score),
-                        confidence=ConfidenceInterval(
-                            lower=max(0.0, score - 0.1),
-                            upper=min(1.0, score + 0.1),
-                            confidence_level=0.95,
-                        ),
-                        features={},
-                        timestamp=dataset.metadata.get("timestamp", None),
-                        explanation=f"Detected by ensemble of {len(ensemble_config.algorithms)} algorithms",
-                    )
-                    anomalies.append(anomaly)
-
-            execution_time = time.time() - start_time
-
-            # Create ensemble result
-            result = DetectionResult(
-                dataset_id=getattr(dataset, "id", "unknown"),
-                algorithm=f"ensemble_{ensemble_config.combination_method}",
-                anomalies=anomalies,
-                total_samples=len(combined_predictions),
-                anomaly_count=len(anomalies),
-                contamination_rate=ContaminationRate(
-                    len(anomalies) / len(combined_predictions)
-                ),
-                execution_time=execution_time,
-                metadata={
-                    "ensemble_config": {
-                        "algorithms": [
-                            config.algorithm.value
-                            for config in ensemble_config.algorithms
-                        ],
-                        "combination_method": ensemble_config.combination_method,
-                        "weights": ensemble_config.weights,
-                    },
-                    "individual_results": [
-                        {
-                            "algorithm": r.algorithm,
-                            "anomaly_count": r.anomaly_count,
-                            "execution_time": r.execution_time,
-                        }
-                        for r in results
-                    ],
-                },
+            ensemble_scores = self.ensemble_aggregator.aggregate_scores(
+                all_scores,
+                ensemble_config.ensemble_method,
+                ensemble_config.weights
             )
 
-            return result
+            processing_time = time.time() - start_time
+
+            # Create a synthetic config for the ensemble result
+            ensemble_result_config = DetectionConfig(
+                algorithm=DetectionAlgorithm.ISOLATION_FOREST,  # Placeholder
+                contamination_rate=ensemble_config.algorithms[0].contamination_rate,
+                preprocessing=PreprocessingMethod.NONE
+            )
+
+            return self._create_detection_result(
+                dataset, ensemble_predictions, ensemble_scores,
+                ensemble_result_config, processing_time
+            )
 
         except Exception as e:
-            logger.error(f"Error in ensemble anomaly detection: {e}")
+            self.logger.error(f"Error in ensemble detection: {e}")
             raise
 
-    def _combine_ensemble_results(
-        self,
-        all_predictions: list[np.ndarray],
-        all_scores: list[np.ndarray],
-        config: EnsembleConfig,
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """Combine results from multiple algorithms."""
-
-        predictions_array = np.array(all_predictions)
-        scores_array = np.array(all_scores)
-
-        if config.combination_method == "voting":
-            # Majority voting
-            combined_predictions = (
-                np.sum(predictions_array, axis=0) > len(all_predictions) / 2
-            ).astype(int)
-            combined_scores = np.mean(scores_array, axis=0)
-
-        elif config.combination_method == "average":
-            # Average scores and threshold
-            combined_scores = np.mean(scores_array, axis=0)
-            threshold = np.percentile(combined_scores, 90)  # Top 10% as anomalies
-            combined_predictions = (combined_scores >= threshold).astype(int)
-
-        elif config.combination_method == "weighted_average" and config.weights:
-            # Weighted average
-            weights = np.array(config.weights)
-            weights = weights / np.sum(weights)  # Normalize weights
-            combined_scores = np.average(scores_array, axis=0, weights=weights)
-            threshold = np.percentile(combined_scores, 90)
-            combined_predictions = (combined_scores >= threshold).astype(int)
-
-        else:
-            # Default to simple averaging
-            combined_predictions = (
-                np.sum(predictions_array, axis=0) > len(all_predictions) / 2
-            ).astype(int)
-            combined_scores = np.mean(scores_array, axis=0)
-
-        return combined_predictions, combined_scores
-
-    async def get_available_algorithms(self) -> list[DetectionAlgorithm]:
-        """Get list of available algorithms based on installed dependencies."""
-        available = []
-
-        if SKLEARN_AVAILABLE:
-            available.extend(
-                [
-                    DetectionAlgorithm.ISOLATION_FOREST,
-                    DetectionAlgorithm.LOCAL_OUTLIER_FACTOR,
-                    DetectionAlgorithm.ONE_CLASS_SVM,
-                    DetectionAlgorithm.ELLIPTIC_ENVELOPE,
-                    DetectionAlgorithm.DBSCAN,
-                ]
-            )
-
-        if PYOD_AVAILABLE:
-            available.extend(
-                [
-                    DetectionAlgorithm.KNN,
-                    DetectionAlgorithm.ABOD,
-                    DetectionAlgorithm.AUTO_ENCODER,
-                    DetectionAlgorithm.VAE,
-                    DetectionAlgorithm.OCSVM,
-                    DetectionAlgorithm.PCA,
-                    DetectionAlgorithm.MCD,
-                    DetectionAlgorithm.LODA,
-                    DetectionAlgorithm.COPOD,
-                    DetectionAlgorithm.ECOD,
-                ]
-            )
-
-        # Ensemble methods are always available if at least 2 algorithms are available
-        if len(available) >= 2:
-            available.extend(
-                [
-                    DetectionAlgorithm.ENSEMBLE_VOTING,
-                    DetectionAlgorithm.ENSEMBLE_AVERAGING,
-                    DetectionAlgorithm.ENSEMBLE_STACKING,
-                ]
-            )
-
-        return available
-
-    async def benchmark_algorithms(
+    async def evaluate_algorithm_performance(
         self,
         dataset: Dataset,
-        algorithms: list[DetectionAlgorithm] | None = None,
-        ground_truth: np.ndarray | None = None,
-    ) -> dict[str, DetectionMetrics]:
-        """Benchmark multiple algorithms on the same dataset."""
+        ground_truth: np.ndarray | None,
+        config: DetectionConfig
+    ) -> DetectionMetrics:
+        """Evaluate algorithm performance against ground truth."""
+        start_time = time.time()
 
-        if algorithms is None:
-            algorithms = await self.get_available_algorithms()
-            # Remove ensemble methods for individual benchmarking
-            algorithms = [
-                alg for alg in algorithms if not alg.value.startswith("ensemble_")
-            ]
+        try:
+            # Run detection
+            result = await self.detect_anomalies_single(dataset, config)
 
-        benchmark_results = {}
+            # Extract predictions
+            predictions = np.zeros(len(dataset.data))
+            for anomaly in result.anomalies:
+                if 'index' in anomaly.context:
+                    predictions[anomaly.context['index']] = 1
 
-        for algorithm in algorithms:
-            try:
-                logger.info(f"Benchmarking algorithm: {algorithm.value}")
-                result = await self.detect_anomalies(
-                    dataset, algorithm, ground_truth=ground_truth
+            processing_time = time.time() - start_time
+
+            # Calculate basic metrics
+            total_samples = len(dataset.data)
+            total_anomalies = len(result.anomalies)
+            anomaly_rate = total_anomalies / total_samples if total_samples > 0 else 0.0
+
+            metrics = DetectionMetrics(
+                total_samples=total_samples,
+                total_anomalies=total_anomalies,
+                anomaly_rate=anomaly_rate,
+                processing_time_seconds=processing_time
+            )
+
+            # Add performance metrics if ground truth is available
+            if ground_truth is not None:
+                metrics = self._calculate_performance_metrics(
+                    predictions, ground_truth, metrics
                 )
 
-                # Extract metrics from result
-                if "metrics" in result.metadata:
-                    benchmark_results[algorithm.value] = result.metadata["metrics"]
+            return metrics
+
+        except Exception as e:
+            self.logger.error(f"Error evaluating algorithm performance: {e}")
+            raise
+
+    async def compare_algorithms(
+        self,
+        dataset: Dataset,
+        configs: list[DetectionConfig],
+        ground_truth: np.ndarray | None = None
+    ) -> dict[str, DetectionMetrics]:
+        """Compare multiple algorithms on the same dataset."""
+        results = {}
+
+        for config in configs:
+            try:
+                metrics = await self.evaluate_algorithm_performance(
+                    dataset, ground_truth, config
+                )
+                results[config.algorithm.value] = metrics
 
             except Exception as e:
-                logger.error(f"Error benchmarking {algorithm.value}: {e}")
-                # Add error result
-                benchmark_results[algorithm.value] = DetectionMetrics(
-                    algorithm=algorithm.value,
-                    execution_time=0.0,
-                    memory_usage=0.0,
-                    total_anomalies=0,
+                self.logger.error(f"Error comparing algorithm {config.algorithm.value}: {e}")
+                continue
+
+        return results
+
+    async def auto_tune_parameters(
+        self,
+        dataset: Dataset,
+        algorithm: DetectionAlgorithm,
+        ground_truth: np.ndarray | None = None
+    ) -> DetectionConfig:
+        """Automatically tune algorithm parameters."""
+        # This is a simplified implementation
+        # In a real scenario, you'd use libraries like Optuna for hyperparameter optimization
+
+        best_config = DetectionConfig(algorithm=algorithm)
+        best_score = -float('inf')
+
+        # Try different contamination rates
+        contamination_rates = [0.05, 0.1, 0.15, 0.2]
+
+        for contamination_rate in contamination_rates:
+            try:
+                config = DetectionConfig(
+                    algorithm=algorithm,
+                    contamination_rate=contamination_rate
                 )
 
-        return benchmark_results
+                metrics = await self.evaluate_algorithm_performance(
+                    dataset, ground_truth, config
+                )
 
+                # Use anomaly rate as a simple scoring metric
+                # In practice, you'd use more sophisticated metrics
+                score = metrics.anomaly_rate
 
-# Global service instance
-_detection_service: AdvancedDetectionService | None = None
+                if score > best_score:
+                    best_score = score
+                    best_config = config
 
+            except Exception as e:
+                self.logger.warning(f"Error tuning parameters for {algorithm.value}: {e}")
+                continue
 
-def get_detection_service() -> AdvancedDetectionService:
-    """Get the global detection service instance."""
-    global _detection_service
-    if _detection_service is None:
-        _detection_service = AdvancedDetectionService()
-    return _detection_service
+        return best_config
+
+    def _calculate_performance_metrics(
+        self,
+        predictions: np.ndarray,
+        ground_truth: np.ndarray,
+        metrics: DetectionMetrics
+    ) -> DetectionMetrics:
+        """Calculate performance metrics against ground truth."""
+        try:
+            # Basic classification metrics
+            true_positives = np.sum((predictions == 1) & (ground_truth == 1))
+            false_positives = np.sum((predictions == 1) & (ground_truth == 0))
+            false_negatives = np.sum((predictions == 0) & (ground_truth == 1))
+
+            # Calculate precision, recall, F1
+            precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0.0
+            recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0.0
+            f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
+
+            metrics.precision = precision
+            metrics.recall = recall
+            metrics.f1_score = f1_score
+
+            # Note: AUC calculation would require scores, not just predictions
+            # This would be implemented by the infrastructure layer
+
+        except Exception as e:
+            self.logger.warning(f"Error calculating performance metrics: {e}")
+
+        return metrics
+
+    def get_supported_algorithms(self) -> list[DetectionAlgorithm]:
+        """Get list of supported algorithms from the factory."""
+        try:
+            return self.algorithm_factory.get_available_algorithms()
+        except Exception as e:
+            self.logger.error(f"Error getting supported algorithms: {e}")
+            return []
+
+    def create_default_ensemble_config(
+        self,
+        contamination_rate: float = 0.1
+    ) -> EnsembleConfig:
+        """Create a default ensemble configuration with multiple algorithms."""
+        algorithms = [
+            DetectionConfig(
+                algorithm=DetectionAlgorithm.ISOLATION_FOREST,
+                contamination_rate=contamination_rate
+            ),
+            DetectionConfig(
+                algorithm=DetectionAlgorithm.ONE_CLASS_SVM,
+                contamination_rate=contamination_rate
+            ),
+            DetectionConfig(
+                algorithm=DetectionAlgorithm.LOCAL_OUTLIER_FACTOR,
+                contamination_rate=contamination_rate
+            )
+        ]
+
+        return EnsembleConfig(
+            algorithms=algorithms,
+            ensemble_method=EnsembleMethod.AVERAGE
+        )
+
+    def validate_dataset(self, dataset: Dataset) -> bool:
+        """Validate that dataset is suitable for anomaly detection."""
+        try:
+            # Basic validation
+            if dataset.data is None or len(dataset.data) == 0:
+                return False
+
+            # Check for minimum samples
+            if len(dataset.data) < 10:
+                self.logger.warning("Dataset has fewer than 10 samples, results may be unreliable")
+
+            # Check for NaN values
+            if np.any(np.isnan(dataset.data)):
+                self.logger.warning("Dataset contains NaN values")
+                return False
+
+            # Check for infinite values
+            if np.any(np.isinf(dataset.data)):
+                self.logger.warning("Dataset contains infinite values")
+                return False
+
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Error validating dataset: {e}")
+            return False

@@ -1,5 +1,6 @@
 """Comprehensive test stabilization framework to eliminate flaky tests."""
 
+import asyncio
 import functools
 import json
 import os
@@ -134,7 +135,8 @@ class RetryManager:
                         jitter = random.uniform(-self.jitter_range, self.jitter_range)
                         delay_time += jitter
 
-                        time.sleep(max(0, delay_time))
+                        # Use adaptive timing instead of fixed sleep
+                        asyncio.run(asyncio.sleep(max(0.01, delay_time)))
 
                         # Add inter-attempt stabilization
                         self._inter_attempt_stabilization(attempt, e)
@@ -152,17 +154,17 @@ class RetryManager:
 
         gc.collect()
 
-        # Brief pause for system stabilization
+        # Brief pause for system stabilization - use minimal delay
         if attempt > 0:
-            time.sleep(0.05)
+            asyncio.run(asyncio.sleep(0.01))  # Minimal delay for stabilization
 
     def _inter_attempt_stabilization(self, attempt: int, exception: Exception):
         """Stabilization between retry attempts."""
-        # Longer pause for more severe failures
+        # Adaptive pause based on failure type
         if "timeout" in str(exception).lower():
-            time.sleep(0.2)
+            asyncio.run(asyncio.sleep(0.05))  # Reduced timeout retry delay
         elif "connection" in str(exception).lower():
-            time.sleep(0.5)
+            asyncio.run(asyncio.sleep(0.1))   # Reduced connection retry delay
 
 
 class ResourceManager:
@@ -502,7 +504,7 @@ class TestFlakyTestElimination:
             assert current_time == frozen_time
 
             # Multiple calls should return same time
-            time.sleep(0.1)  # Real sleep
+            asyncio.run(asyncio.sleep(0.01))  # Minimal real sleep for testing
             still_frozen = datetime.now()
             assert still_frozen == frozen_time
 
@@ -577,7 +579,7 @@ class TestFlakyTestElimination:
 
             def set_condition():
                 nonlocal condition_met
-                time.sleep(0.05)  # Simulate delay
+                time.sleep(0.01)  # Minimal delay for testing
                 condition_met = True
 
             timer = threading.Thread(target=set_condition)

@@ -2,13 +2,15 @@
 
 # Re-export all protocols from shared.protocols for backward compatibility
 # Specific aliases for common domain protocols
-from pynomaly.shared.protocols import DetectorProtocol as AdapterProtocol
 from pynomaly.shared.protocols import *
+from pynomaly.shared.protocols import DetectorProtocol as AdapterProtocol
 
 # Domain-specific protocols
 from .audit_logger_protocol import AuditLevel, AuditLoggerProtocol, SecurityEventType
 from .training_protocols import (
     DatasetRepositoryProtocol as TrainingDatasetRepositoryProtocol,
+)
+from .training_protocols import (
     ExperimentTrackerProtocol,
     ModelTrainerProtocol,
     NotificationServiceProtocol,
@@ -21,7 +23,7 @@ __all__ = [
     "AdapterProtocol",
     # Domain-specific protocols
     "AuditLevel",
-    "AuditLoggerProtocol", 
+    "AuditLoggerProtocol",
     "SecurityEventType",
     # Training protocols
     "TrainingJobRepositoryProtocol",
