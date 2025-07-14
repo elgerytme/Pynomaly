@@ -113,6 +113,14 @@ repos:
         pass_filenames: false
         stages: [commit, push]
 
+      # Check naming conventions
+      - id: check-naming-conventions
+        name: Check naming conventions
+        entry: python scripts/check_naming_conventions.py
+        language: system
+        pass_filenames: false
+        stages: [commit]
+
 # CI configuration
 ci:
   autofix_commit_msg: |
@@ -123,4 +131,4 @@ ci:
   autoupdate_branch: ''
   autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
   autoupdate_schedule: weekly
-  skip: [bandit, validate-structure]
+  skip: [bandit, validate-structure, check-naming-conventions]
