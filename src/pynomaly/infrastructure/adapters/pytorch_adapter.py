@@ -493,6 +493,89 @@ class DAGMM(BaseAnomalyModel):
         return scores
 
 
+class LSTMAutoEncoder(BaseAnomalyModel):
+    """LSTM-based AutoEncoder for time series anomaly detection."""
+
+    def __init__(
+        self,
+        input_dim: int,
+        hidden_dim: int = 64,
+        num_layers: int = 2,
+        sequence_length: int = 10,
+        dropout: float = 0.2,
+    ):
+        """Initialize LSTM AutoEncoder.
+        
+        Args:
+            input_dim: Number of input features
+            hidden_dim: LSTM hidden dimension
+            num_layers: Number of LSTM layers
+            sequence_length: Length of input sequences
+            dropout: Dropout rate
+        """
+        super().__init__()
+        
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+        self.sequence_length = sequence_length
+
+        # Encoder LSTM
+        self.encoder_lstm = nn.LSTM(
+            input_dim,
+            hidden_dim,
+            num_layers,
+            batch_first=True,
+            dropout=dropout if num_layers > 1 else 0,
+        )
+
+        # Decoder LSTM
+        self.decoder_lstm = nn.LSTM(
+            hidden_dim,
+            hidden_dim,
+            num_layers,
+            batch_first=True,
+            dropout=dropout if num_layers > 1 else 0,
+        )
+
+        # Output layer
+        self.output_layer = nn.Linear(hidden_dim, input_dim)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass for sequence reconstruction."""
+        batch_size, seq_len, _ = x.shape
+
+        # Encode
+        encoded, (hidden, cell) = self.encoder_lstm(x)
+
+        # Use the last hidden state for decoding
+        context = encoded[:, -1:, :]  # (batch_size, 1, hidden_dim)
+
+        # Decode
+        decoder_input = context.repeat(1, seq_len, 1)
+        decoded, _ = self.decoder_lstm(decoder_input, (hidden, cell))
+
+        # Output projection
+        output = self.output_layer(self.dropout(decoded))
+
+        return output
+
+    def loss_function(
+        self, x: torch.Tensor, recon: torch.Tensor, **kwargs
+    ) -> torch.Tensor:
+        """Calculate MSE loss for sequence reconstruction."""
+        return F.mse_loss(recon, x, reduction="mean")
+
+    def anomaly_score(self, x: torch.Tensor) -> torch.Tensor:
+        """Calculate anomaly scores based on reconstruction error."""
+        with torch.no_grad():
+            recon = self.forward(x)
+            # Calculate reconstruction error per sequence
+            scores = torch.mean(torch.mean((x - recon) ** 2, dim=2), dim=1)
+        return scores
+
+
 class PyTorchAdapter:
     """Adapter for PyTorch-based deep learning anomaly detection models.
 
@@ -505,6 +588,7 @@ class PyTorchAdapter:
         "VAE": VariationalAutoEncoder,
         "DeepSVDD": DeepSVDD,
         "DAGMM": DAGMM,
+        "LSTMAutoEncoder": LSTMAutoEncoder,
     }
 
     def __init__(
@@ -604,6 +688,14 @@ class PyTorchAdapter:
                 self._model = self._model_class(
                     input_dim, hidden_dims, latent_dim, n_gmm
                 )
+            elif self.algorithm_name == "LSTMAutoEncoder":
+                hidden_dim = params.get("hidden_dim", 64)
+                num_layers = params.get("num_layers", 2)
+                sequence_length = params.get("sequence_length", 10)
+                dropout = params.get("dropout", 0.2)
+                self._model = self._model_class(
+                    input_dim, hidden_dim, num_layers, sequence_length, dropout
+                )
             else:
                 self._model = self._model_class(input_dim, hidden_dims, latent_dim)
 
@@ -656,6 +748,18 @@ class PyTorchAdapter:
                         recon, z, gamma = self._model(batch_x)
                         self._model.compute_gmm_params(z, gamma)
                         loss = self._model.loss_function(batch_x, recon, z, gamma)
+
+                    elif isinstance(self._model, LSTMAutoEncoder):
+                        # For LSTM, need to reshape data to sequences
+                        sequence_length = self._model.sequence_length
+                        if batch_x.shape[0] >= sequence_length:
+                            # Create sequences from batch
+                            sequences = self._create_sequences(batch_x, sequence_length)
+                            recon = self._model(sequences)
+                            loss = self._model.loss_function(sequences, recon)
+                        else:
+                            # Skip if batch is too small
+                            continue
 
                     loss.backward()
                     optimizer.step()
@@ -929,6 +1033,139 @@ class PyTorchAdapter:
         else:
             return 0.5 + min((score - threshold) / threshold * 0.5, 0.5)
 
+    def _create_sequences(self, data: torch.Tensor, sequence_length: int) -> torch.Tensor:
+        """Create sequences for LSTM training.
+
+        Args:
+            data: Input data tensor of shape (batch_size, features)
+            sequence_length: Length of sequences to create
+
+        Returns:
+            Tensor of shape (num_sequences, sequence_length, features)
+        """
+        if data.shape[0] < sequence_length:
+            raise ValueError(f"Data length {data.shape[0]} is less than sequence length {sequence_length}")
+        
+        sequences = []
+        for i in range(data.shape[0] - sequence_length + 1):
+            sequences.append(data[i:i + sequence_length])
+        
+        return torch.stack(sequences)
+
+    def save_model(self, filepath: str) -> None:
+        """Save the trained model to a file.
+        
+        Args:
+            filepath: Path to save the model
+            
+        Raises:
+            AdapterError: If model is not fitted or save fails
+        """
+        if not self.is_fitted or self._model is None:
+            raise AdapterError("Model must be fitted before saving")
+        
+        try:
+            import pickle
+            from pathlib import Path
+            
+            save_path = Path(filepath)
+            save_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Save model state and metadata
+            save_data = {
+                'algorithm_name': self.algorithm_name,
+                'model_state_dict': self._model.state_dict(),
+                'model_class': self._model.__class__.__name__,
+                'parameters': self.parameters,
+                'contamination_rate': self.contamination_rate.value,
+                'device': str(self._device),
+                'threshold': getattr(self, 'threshold', None),
+            }
+            
+            # Add model-specific parameters for reconstruction
+            if hasattr(self._model, 'input_dim'):
+                save_data['input_dim'] = self._model.input_dim
+            if hasattr(self._model, 'hidden_dim'):
+                save_data['hidden_dim'] = self._model.hidden_dim
+            if hasattr(self._model, 'num_layers'):
+                save_data['num_layers'] = self._model.num_layers
+            if hasattr(self._model, 'sequence_length'):
+                save_data['sequence_length'] = self._model.sequence_length
+                
+            with open(save_path, 'wb') as f:
+                pickle.dump(save_data, f)
+                
+            logger.info(f"Model saved to {filepath}")
+            
+        except Exception as e:
+            raise AdapterError(f"Failed to save model: {e}")
+
+    def load_model(self, filepath: str) -> None:
+        """Load a trained model from a file.
+        
+        Args:
+            filepath: Path to load the model from
+            
+        Raises:
+            AdapterError: If loading fails
+        """
+        try:
+            import pickle
+            from pathlib import Path
+            
+            load_path = Path(filepath)
+            if not load_path.exists():
+                raise AdapterError(f"Model file not found: {filepath}")
+            
+            with open(load_path, 'rb') as f:
+                save_data = pickle.load(f)
+            
+            # Restore basic properties
+            self._algorithm_name = save_data['algorithm_name']
+            self._parameters = save_data['parameters']
+            self._contamination_rate = ContaminationRate(save_data['contamination_rate'])
+            self._device = torch.device(save_data.get('device', 'cpu'))
+            
+            # Recreate model
+            model_class = self._algorithm_map[self._algorithm_name]
+            
+            if self._algorithm_name == "DAGMM":
+                self._model = model_class(
+                    save_data['input_dim'],
+                    save_data['parameters'].get('hidden_dims', [128, 64, 32]),
+                    save_data['parameters'].get('latent_dim', 16),
+                    save_data['parameters'].get('n_gmm', 4)
+                )
+            elif self._algorithm_name == "LSTMAutoEncoder":
+                self._model = model_class(
+                    save_data['input_dim'],
+                    save_data.get('hidden_dim', 64),
+                    save_data.get('num_layers', 2),
+                    save_data.get('sequence_length', 10),
+                    save_data['parameters'].get('dropout', 0.2)
+                )
+            else:
+                self._model = model_class(
+                    save_data['input_dim'],
+                    save_data['parameters'].get('hidden_dims', [128, 64, 32]),
+                    save_data['parameters'].get('latent_dim', 16)
+                )
+            
+            # Load model state
+            self._model.load_state_dict(save_data['model_state_dict'])
+            self._model.to(self._device)
+            self._model.eval()
+            
+            # Restore training state
+            self._is_fitted = True
+            if 'threshold' in save_data:
+                setattr(self, 'threshold', save_data['threshold'])
+            
+            logger.info(f"Model loaded from {filepath}")
+            
+        except Exception as e:
+            raise AdapterError(f"Failed to load model: {e}")
+
     @classmethod
     def get_supported_algorithms(cls) -> list[str]:
         """Get list of supported PyTorch algorithms.
@@ -1105,6 +1342,46 @@ class PyTorchAdapter:
                 "suitable_for": ["multi_modal_data", "complex_anomaly_patterns"],
                 "pros": ["Captures multiple normal modes", "End-to-end learning"],
                 "cons": ["Complex architecture", "Computationally intensive"],
+            },
+            "LSTMAutoEncoder": {
+                "name": "LSTM AutoEncoder",
+                "type": "Deep Learning",
+                "description": "LSTM-based autoencoder for time series anomaly detection",
+                "parameters": {
+                    "hidden_dim": {
+                        "type": "int",
+                        "default": 64,
+                        "description": "LSTM hidden dimension",
+                    },
+                    "num_layers": {
+                        "type": "int",
+                        "default": 2,
+                        "description": "Number of LSTM layers",
+                    },
+                    "sequence_length": {
+                        "type": "int",
+                        "default": 10,
+                        "description": "Length of input sequences",
+                    },
+                    "dropout": {
+                        "type": "float",
+                        "default": 0.2,
+                        "description": "Dropout rate",
+                    },
+                    "epochs": {
+                        "type": "int",
+                        "default": 100,
+                        "description": "Training epochs",
+                    },
+                    "contamination": {
+                        "type": "float",
+                        "default": 0.1,
+                        "description": "Anomaly rate",
+                    },
+                },
+                "suitable_for": ["time_series", "sequential_data", "temporal_patterns"],
+                "pros": ["Captures temporal dependencies", "Good for sequential data"],
+                "cons": ["Requires sequence preparation", "More complex than feedforward"],
             },
         }
 

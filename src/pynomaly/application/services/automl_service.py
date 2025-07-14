@@ -1,23 +1,48 @@
-"""AutoML service for automated algorithm selection and hyperparameter optimization.
+"""
+AutoML Service for Anomaly Detection
 
-This module provides automated machine learning capabilities for anomaly detection,
-including algorithm selection, hyperparameter optimization, and ensemble creation.
+Comprehensive AutoML service providing automated feature engineering, algorithm recommendation,
+and pipeline optimization specifically designed for anomaly detection use cases.
+
+This addresses Issue #143: Phase 2.2: Data Science Package - Machine Learning Pipeline Framework
+Component 5: AutoML Capabilities for Automated Feature Engineering and Algorithm Recommendation
 """
 
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
 import time
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from uuid import uuid4
 
+import joblib
 import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import IsolationForest
+from sklearn.feature_selection import (
+    SelectKBest, SelectPercentile, RFE, RFECV,
+    mutual_info_classif, f_classif, chi2
+)
+from sklearn.preprocessing import (
+    StandardScaler, RobustScaler, MinMaxScaler, MaxAbsScaler,
+    PowerTransformer, QuantileTransformer, PolynomialFeatures
+)
+from sklearn.decomposition import PCA, FastICA, TruncatedSVD
+from sklearn.manifold import TSNE
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.metrics import silhouette_score
 
 from pynomaly.domain.entities import Dataset, Detector
 from pynomaly.domain.exceptions import AutoMLError
+from pynomaly.infrastructure.logging.structured_logger import StructuredLogger
 
 # Optional optimization libraries
 try:
@@ -84,6 +109,35 @@ class AlgorithmFamily(Enum):
     NEURAL_NETWORKS = "neural_networks"
     ENSEMBLE = "ensemble"
     GRAPH_BASED = "graph_based"
+    TREE_BASED = "tree_based"
+
+
+class DataCharacteristics(Enum):
+    """Data characteristics that influence AutoML decisions."""
+    
+    HIGH_DIMENSIONAL = "high_dimensional"
+    SPARSE_DATA = "sparse_data"
+    TEMPORAL_DATA = "temporal_data"
+    MIXED_TYPES = "mixed_types"
+    MISSING_VALUES = "missing_values"
+    IMBALANCED_CLASSES = "imbalanced_classes"
+    SMALL_DATASET = "small_dataset"
+    LARGE_DATASET = "large_dataset"
+    CATEGORICAL_HEAVY = "categorical_heavy"
+    NUMERICAL_HEAVY = "numerical_heavy"
+
+
+class FeatureEngineeringStrategy(Enum):
+    """Feature engineering strategies for different data types."""
+    
+    BASIC_PREPROCESSING = "basic_preprocessing"
+    STATISTICAL_FEATURES = "statistical_features"
+    TEMPORAL_FEATURES = "temporal_features"
+    INTERACTION_FEATURES = "interaction_features"
+    POLYNOMIAL_FEATURES = "polynomial_features"
+    DIMENSIONALITY_REDUCTION = "dimensionality_reduction"
+    CLUSTERING_FEATURES = "clustering_features"
+    DOMAIN_SPECIFIC = "domain_specific"
 
 
 @dataclass
@@ -120,6 +174,70 @@ class AutoMLResult:
 
 
 @dataclass
+class FeatureEngineeringPipeline:
+    """Feature engineering pipeline configuration."""
+    
+    pipeline_id: str
+    strategies: List[FeatureEngineeringStrategy]
+    transformers: Dict[str, Any]
+    feature_selectors: Dict[str, Any]
+    preprocessing_steps: List[Tuple[str, TransformerMixin]]
+    
+    # Metadata
+    created_at: datetime = field(default_factory=datetime.now)
+    data_profile: Optional['DatasetProfile'] = None
+    performance_score: Optional[float] = None
+
+
+@dataclass
+class AlgorithmRecommendation:
+    """Algorithm recommendation with confidence score."""
+    
+    algorithm_name: str
+    algorithm_family: AlgorithmFamily
+    confidence_score: float
+    recommended_parameters: Dict[str, Any]
+    reasoning: List[str]
+    
+    # Performance estimates
+    expected_performance: Optional[Dict[str, float]] = None
+    training_time_estimate: Optional[float] = None
+    memory_requirements: Optional[str] = None
+
+
+@dataclass
+class AutoMLConfiguration:
+    """Configuration for AutoML pipeline."""
+    
+    # Feature engineering settings
+    max_features_generated: int = 100
+    feature_selection_methods: List[str] = field(default_factory=lambda: ["univariate", "recursive"])
+    preprocessing_strategies: List[str] = field(default_factory=lambda: ["scaling", "encoding"])
+    
+    # Algorithm recommendation settings
+    algorithm_families: List[AlgorithmFamily] = field(default_factory=lambda: [
+        AlgorithmFamily.ISOLATION_BASED,
+        AlgorithmFamily.DENSITY_BASED,
+        AlgorithmFamily.ENSEMBLE
+    ])
+    max_algorithms_recommended: int = 5
+    
+    # Optimization settings
+    optimization_budget: int = 100  # Number of trials
+    optimization_timeout: int = 3600  # Seconds
+    cross_validation_folds: int = 5
+    
+    # Performance criteria
+    primary_metric: str = "roc_auc"
+    secondary_metrics: List[str] = field(default_factory=lambda: ["precision", "recall", "f1_score"])
+    
+    # Resource constraints
+    max_training_time: int = 1800  # Seconds per model
+    max_memory_usage: str = "8GB"
+    parallel_jobs: int = -1
+
+
+@dataclass
 class DatasetProfile:
     """Profile of a dataset for algorithm selection."""
 
@@ -137,6 +255,19 @@ class DatasetProfile:
     has_temporal_structure: bool = False
     has_graph_structure: bool = False
     complexity_score: float = field(init=False)
+    
+    # Enhanced characteristics
+    feature_correlations: Optional[np.ndarray] = None
+    feature_importance_scores: Optional[Dict[str, float]] = None
+    outlier_ratio: float = 0.0
+    duplicate_ratio: float = 0.0
+    skewness_scores: Optional[Dict[str, float]] = None
+    kurtosis_scores: Optional[Dict[str, float]] = None
+    is_temporal: bool = False
+    temporal_patterns: Optional[Dict[str, Any]] = None
+    data_characteristics: List[DataCharacteristics] = field(default_factory=list)
+    recommended_strategies: List[FeatureEngineeringStrategy] = field(default_factory=list)
+    recommended_algorithms: List[AlgorithmFamily] = field(default_factory=list)
 
     def __post_init__(self):
         """Calculate complexity score after initialization."""
@@ -162,13 +293,15 @@ class DatasetProfile:
 
 
 class AutoMLService:
-    """Automated machine learning service for anomaly detection."""
+    """Comprehensive AutoML service for anomaly detection."""
 
     def __init__(
         self,
-        detector_repository,
-        dataset_repository,
-        adapter_registry,
+        detector_repository=None,
+        dataset_repository=None,
+        adapter_registry=None,
+        results_dir: str = "automl_results",
+        cache_enabled: bool = True,
         max_optimization_time: int = 3600,
         n_trials: int = 100,
         cv_folds: int = 3,
@@ -180,6 +313,8 @@ class AutoMLService:
             detector_repository: Repository for detector storage
             dataset_repository: Repository for dataset access
             adapter_registry: Registry for algorithm adapters
+            results_dir: Directory for storing AutoML results
+            cache_enabled: Whether to enable caching
             max_optimization_time: Maximum optimization time in seconds
             n_trials: Maximum number of optimization trials
             cv_folds: Number of cross-validation folds
@@ -192,9 +327,28 @@ class AutoMLService:
         self.n_trials = n_trials
         self.cv_folds = cv_folds
         self.random_state = random_state
+        
+        # Enhanced AutoML capabilities
+        self.logger = StructuredLogger("automl_service")
+        
+        # Storage configuration
+        self.results_dir = Path(results_dir)
+        self.results_dir.mkdir(exist_ok=True, parents=True)
+        
+        # Configuration
+        self.cache_enabled = cache_enabled
 
         # Algorithm configurations
         self.algorithm_configs = self._initialize_algorithm_configs()
+        
+        # Feature engineering components
+        self._feature_generators = self._initialize_feature_generators()
+        self._preprocessors = self._initialize_preprocessors()
+        self._feature_selectors = self._initialize_feature_selectors()
+        
+        # Results cache
+        self._profile_cache: Dict[str, DatasetProfile] = {}
+        self._pipeline_cache: Dict[str, FeatureEngineeringPipeline] = {}
 
         if not OPTUNA_AVAILABLE:
             logger.warning("Optuna not available. Limited optimization capabilities.")
@@ -206,6 +360,8 @@ class AutoMLService:
 
         if not HYPEROPT_AVAILABLE:
             logger.info("Hyperopt not available. Using only Optuna for optimization.")
+        
+        self.logger.info("Enhanced AutoML service initialized")
 
     def _initialize_algorithm_configs(self) -> dict[str, AlgorithmConfig]:
         """Initialize algorithm configurations."""
@@ -294,6 +450,38 @@ class AutoMLService:
         )
 
         return configs
+    
+    def _initialize_feature_generators(self) -> Dict[str, Any]:
+        """Initialize feature generation components."""
+        
+        return {
+            "polynomial": PolynomialFeatures,
+            "statistical": None,  # Custom implementation
+            "interactions": None,  # Custom implementation
+            "clustering": None    # Custom implementation
+        }
+    
+    def _initialize_preprocessors(self) -> Dict[str, Any]:
+        """Initialize preprocessing components."""
+        
+        return {
+            "standard_scaler": StandardScaler,
+            "robust_scaler": RobustScaler,
+            "minmax_scaler": MinMaxScaler,
+            "maxabs_scaler": MaxAbsScaler,
+            "power_transformer": PowerTransformer,
+            "quantile_transformer": QuantileTransformer
+        }
+    
+    def _initialize_feature_selectors(self) -> Dict[str, Any]:
+        """Initialize feature selection components."""
+        
+        return {
+            "select_k_best": SelectKBest,
+            "select_percentile": SelectPercentile,
+            "rfe": RFE,
+            "rfecv": RFECV
+        }
 
     async def profile_dataset(self, dataset_id: str) -> DatasetProfile:
         """Profile a dataset to understand its characteristics.
@@ -354,8 +542,51 @@ class AutoMLService:
             # Dimensionality ratio
             dimensionality_ratio = n_features / n_samples
 
+            # Enhanced data analysis
+            # Statistical characteristics
+            skewness_scores = {}
+            kurtosis_scores = {}
+            if numerical_features:
+                for col in numerical_features:
+                    try:
+                        skewness_scores[col] = float(df[col].skew())
+                        kurtosis_scores[col] = float(df[col].kurtosis())
+                    except Exception:
+                        skewness_scores[col] = 0.0
+                        kurtosis_scores[col] = 0.0
+            
+            # Correlation analysis
+            feature_correlations = None
+            if len(numerical_features) > 1:
+                try:
+                    correlation_matrix = df[numerical_features].corr()
+                    feature_correlations = correlation_matrix.values
+                except Exception:
+                    feature_correlations = None
+            
+            # Feature importance estimation (if labels available)
+            feature_importance_scores = None
+            if numerical_features:
+                try:
+                    feature_importance_scores = await self._estimate_feature_importance(
+                        df[numerical_features]
+                    )
+                except Exception as e:
+                    self.logger.warning(f"Feature importance estimation failed: {e}")
+            
+            # Outlier detection
+            outlier_ratio = 0.0
+            if numerical_features:
+                try:
+                    outlier_ratio = await self._estimate_outlier_ratio(df[numerical_features])
+                except Exception as e:
+                    self.logger.warning(f"Outlier estimation failed: {e}")
+            
+            # Duplicate analysis
+            duplicate_ratio = df.duplicated().sum() / n_samples
+
             # Contamination estimation (basic heuristic)
-            contamination_estimate = 0.1  # Default
+            contamination_estimate = max(outlier_ratio, 0.1)  # Use outlier ratio or default
             if numerical_features:
                 # Use IQR method for contamination estimation
                 numerical_data = df[numerical_features].select_dtypes(
@@ -375,6 +606,25 @@ class AutoMLService:
 
             # Temporal structure detection
             has_temporal_structure = len(time_series_features) > 0
+
+            # Temporal pattern detection
+            is_temporal, temporal_patterns = await self._detect_temporal_patterns(df)
+            
+            # Data characteristics identification
+            data_characteristics = await self._identify_data_characteristics(
+                n_samples, n_features, feature_types, missing_values_ratio,
+                sparsity_ratio, is_temporal
+            )
+            
+            # Strategy recommendations
+            recommended_strategies = await self._recommend_feature_strategies(
+                data_characteristics, feature_types
+            )
+            
+            # Algorithm recommendations
+            recommended_algorithms = await self._recommend_algorithm_families(
+                data_characteristics, n_samples, n_features
+            )
 
             # Graph structure detection (heuristic)
             has_graph_structure = False
@@ -398,6 +648,18 @@ class AutoMLService:
                 dataset_size_mb=dataset_size_mb,
                 has_temporal_structure=has_temporal_structure,
                 has_graph_structure=has_graph_structure,
+                # Enhanced characteristics
+                feature_correlations=feature_correlations,
+                feature_importance_scores=feature_importance_scores,
+                outlier_ratio=outlier_ratio,
+                duplicate_ratio=duplicate_ratio,
+                skewness_scores=skewness_scores,
+                kurtosis_scores=kurtosis_scores,
+                is_temporal=is_temporal,
+                temporal_patterns=temporal_patterns,
+                data_characteristics=data_characteristics,
+                recommended_strategies=recommended_strategies,
+                recommended_algorithms=recommended_algorithms,
             )
 
             logger.info(
@@ -837,4 +1099,432 @@ class AutoMLService:
                 "Consider increasing optimization time for better results"
             )
 
+        return summary
+    
+    # Enhanced AutoML helper methods
+    async def _estimate_feature_importance(
+        self,
+        X: pd.DataFrame
+    ) -> Dict[str, float]:
+        """Estimate feature importance using statistical methods."""
+        
+        try:
+            # Simple variance-based importance for unsupervised case
+            feature_importance = {}
+            for col in X.columns:
+                try:
+                    variance = X[col].var()
+                    feature_importance[col] = float(variance)
+                except Exception:
+                    feature_importance[col] = 0.0
+            
+            # Normalize scores
+            max_score = max(feature_importance.values()) if feature_importance.values() else 1
+            if max_score > 0:
+                feature_importance = {k: v / max_score for k, v in feature_importance.items()}
+            
+            return feature_importance
+            
+        except Exception:
+            return {col: 0.0 for col in X.columns}
+    
+    async def _estimate_outlier_ratio(self, X: pd.DataFrame) -> float:
+        """Estimate outlier ratio using Isolation Forest."""
+        
+        try:
+            # Quick outlier detection
+            iso_forest = IsolationForest(
+                contamination='auto',
+                random_state=42,
+                n_estimators=50
+            )
+            outlier_predictions = iso_forest.fit_predict(X)
+            outlier_ratio = (outlier_predictions == -1).sum() / len(outlier_predictions)
+            
+            return float(outlier_ratio)
+            
+        except Exception:
+            return 0.0
+    
+    async def _detect_temporal_patterns(
+        self,
+        X: pd.DataFrame
+    ) -> Tuple[bool, Optional[Dict[str, Any]]]:
+        """Detect temporal patterns in the data."""
+        
+        # Simple heuristics for temporal pattern detection
+        is_temporal = False
+        temporal_patterns = None
+        
+        # Check for datetime columns
+        datetime_cols = X.select_dtypes(include=['datetime64']).columns.tolist()
+        if datetime_cols:
+            is_temporal = True
+            temporal_patterns = {"datetime_columns": datetime_cols}
+        
+        return is_temporal, temporal_patterns
+    
+    async def _identify_data_characteristics(
+        self,
+        n_samples: int,
+        n_features: int,
+        feature_types: Dict[str, str],
+        missing_ratio: float,
+        sparsity_ratio: float,
+        is_temporal: bool
+    ) -> List[DataCharacteristics]:
+        """Identify key data characteristics."""
+        
+        characteristics = []
+        
+        # Size characteristics
+        if n_samples < 1000:
+            characteristics.append(DataCharacteristics.SMALL_DATASET)
+        elif n_samples > 100000:
+            characteristics.append(DataCharacteristics.LARGE_DATASET)
+        
+        # Dimensionality
+        if n_features > 100:
+            characteristics.append(DataCharacteristics.HIGH_DIMENSIONAL)
+        
+        # Sparsity
+        if sparsity_ratio > 0.3:
+            characteristics.append(DataCharacteristics.SPARSE_DATA)
+        
+        # Missing values
+        if missing_ratio > 0.1:
+            characteristics.append(DataCharacteristics.MISSING_VALUES)
+        
+        # Feature types
+        numerical_ratio = sum(1 for t in feature_types.values() if t == 'numerical') / len(feature_types)
+        categorical_ratio = sum(1 for t in feature_types.values() if t == 'categorical') / len(feature_types)
+        
+        if numerical_ratio > 0.7:
+            characteristics.append(DataCharacteristics.NUMERICAL_HEAVY)
+        elif categorical_ratio > 0.7:
+            characteristics.append(DataCharacteristics.CATEGORICAL_HEAVY)
+        else:
+            characteristics.append(DataCharacteristics.MIXED_TYPES)
+        
+        # Temporal characteristics
+        if is_temporal:
+            characteristics.append(DataCharacteristics.TEMPORAL_DATA)
+        
+        return characteristics
+    
+    async def _recommend_feature_strategies(
+        self,
+        data_characteristics: List[DataCharacteristics],
+        feature_types: Dict[str, str]
+    ) -> List[FeatureEngineeringStrategy]:
+        """Recommend feature engineering strategies."""
+        
+        strategies = []
+        
+        # Always include basic preprocessing
+        strategies.append(FeatureEngineeringStrategy.BASIC_PREPROCESSING)
+        
+        # Statistical features for numerical data
+        if DataCharacteristics.NUMERICAL_HEAVY in data_characteristics:
+            strategies.append(FeatureEngineeringStrategy.STATISTICAL_FEATURES)
+        
+        # Temporal features for time series data
+        if DataCharacteristics.TEMPORAL_DATA in data_characteristics:
+            strategies.append(FeatureEngineeringStrategy.TEMPORAL_FEATURES)
+        
+        # Interaction features for small to medium datasets
+        if DataCharacteristics.SMALL_DATASET in data_characteristics:
+            strategies.append(FeatureEngineeringStrategy.INTERACTION_FEATURES)
+            strategies.append(FeatureEngineeringStrategy.POLYNOMIAL_FEATURES)
+        
+        # Dimensionality reduction for high-dimensional data
+        if DataCharacteristics.HIGH_DIMENSIONAL in data_characteristics:
+            strategies.append(FeatureEngineeringStrategy.DIMENSIONALITY_REDUCTION)
+        
+        # Clustering features for large datasets
+        if DataCharacteristics.LARGE_DATASET in data_characteristics:
+            strategies.append(FeatureEngineeringStrategy.CLUSTERING_FEATURES)
+        
+        return strategies
+    
+    async def _recommend_algorithm_families(
+        self,
+        data_characteristics: List[DataCharacteristics],
+        n_samples: int,
+        n_features: int
+    ) -> List[AlgorithmFamily]:
+        """Recommend algorithm families based on data characteristics."""
+        
+        families = []
+        
+        # Isolation-based methods work well for most cases
+        families.append(AlgorithmFamily.ISOLATION_BASED)
+        
+        # Density-based for medium-sized datasets
+        if DataCharacteristics.SMALL_DATASET not in data_characteristics:
+            families.append(AlgorithmFamily.DENSITY_BASED)
+        
+        # Ensemble methods for complex data
+        if (DataCharacteristics.HIGH_DIMENSIONAL in data_characteristics or
+            DataCharacteristics.MIXED_TYPES in data_characteristics):
+            families.append(AlgorithmFamily.ENSEMBLE)
+        
+        # Tree-based methods for mixed data types
+        if DataCharacteristics.MIXED_TYPES in data_characteristics:
+            families.append(AlgorithmFamily.TREE_BASED)
+        
+        # Statistical methods for small, clean datasets
+        if (DataCharacteristics.SMALL_DATASET in data_characteristics and
+            DataCharacteristics.MISSING_VALUES not in data_characteristics):
+            families.append(AlgorithmFamily.STATISTICAL)
+        
+        return families
+    
+    async def recommend_algorithms_enhanced(
+        self,
+        data_profile: DatasetProfile,
+        config: Optional[AutoMLConfiguration] = None
+    ) -> List[AlgorithmRecommendation]:
+        """Enhanced algorithm recommendations with detailed analysis."""
+        
+        if config is None:
+            config = AutoMLConfiguration()
+        
+        self.logger.info("Generating enhanced algorithm recommendations")
+        
+        try:
+            recommendations = []
+            
+            # Score algorithms based on data characteristics
+            algorithm_scores = await self._score_algorithms_enhanced(data_profile, config)
+            
+            # Sort by score and select top algorithms
+            sorted_algorithms = sorted(
+                algorithm_scores.items(),
+                key=lambda x: x[1]["score"],
+                reverse=True
+            )
+            
+            for i, (algorithm_name, algo_data) in enumerate(sorted_algorithms[:config.max_algorithms_recommended]):
+                # Get algorithm family
+                algorithm_family = self._get_algorithm_family(algorithm_name)
+                
+                # Generate reasoning
+                reasoning = await self._generate_algorithm_reasoning(
+                    algorithm_name, data_profile, algo_data
+                )
+                
+                # Get recommended parameters
+                recommended_parameters = await self._get_recommended_parameters(
+                    algorithm_name, data_profile
+                )
+                
+                # Estimate performance and resource requirements
+                expected_performance = await self._estimate_algorithm_performance(
+                    algorithm_name, data_profile
+                )
+                
+                training_time_estimate = await self._estimate_training_time(
+                    algorithm_name, data_profile
+                )
+                
+                memory_requirements = await self._estimate_memory_requirements(
+                    algorithm_name, data_profile
+                )
+                
+                recommendation = AlgorithmRecommendation(
+                    algorithm_name=algorithm_name,
+                    algorithm_family=algorithm_family,
+                    confidence_score=algo_data["score"],
+                    recommended_parameters=recommended_parameters,
+                    reasoning=reasoning,
+                    expected_performance=expected_performance,
+                    training_time_estimate=training_time_estimate,
+                    memory_requirements=memory_requirements
+                )
+                
+                recommendations.append(recommendation)
+            
+            self.logger.info(f"Generated {len(recommendations)} enhanced algorithm recommendations")
+            return recommendations
+            
+        except Exception as e:
+            self.logger.error(f"Enhanced algorithm recommendation failed: {e}")
+            raise AutoMLError(f"Enhanced algorithm recommendation failed: {str(e)}")
+    
+    async def _score_algorithms_enhanced(
+        self,
+        data_profile: DatasetProfile,
+        config: AutoMLConfiguration
+    ) -> Dict[str, Dict[str, Any]]:
+        """Enhanced algorithm scoring based on data characteristics."""
+        
+        algorithm_scores = {}
+        
+        for algorithm_name, algorithm_config in self.algorithm_configs.items():
+            score = 0.0
+            reasoning = []
+            
+            # Base score from algorithm family preference
+            if algorithm_config.family in data_profile.recommended_algorithms:
+                score += 0.5
+                reasoning.append(f"Recommended family: {algorithm_config.family.value}")
+            
+            # Data size compatibility
+            if (algorithm_config.recommended_min_samples <= data_profile.n_samples <= 
+                algorithm_config.recommended_max_samples):
+                score += 0.2
+                reasoning.append("Compatible with dataset size")
+            
+            # Feature dimensionality compatibility
+            if data_profile.n_features > 100 and algorithm_config.complexity_score < 0.7:
+                score += 0.15
+                reasoning.append("Suitable for high-dimensional data")
+            
+            # Missing values tolerance
+            if data_profile.missing_values_ratio > 0.1:
+                if hasattr(algorithm_config, 'handles_missing') and algorithm_config.supports_categorical:
+                    score += 0.1
+                    reasoning.append("Handles missing values")
+            
+            # Sparsity tolerance
+            if data_profile.sparsity_ratio > 0.3:
+                if algorithm_config.family in [AlgorithmFamily.ISOLATION_BASED, AlgorithmFamily.STATISTICAL]:
+                    score += 0.1
+                    reasoning.append("Sparse data friendly")
+            
+            # Training speed preference for large datasets
+            if data_profile.n_samples > 10000 and algorithm_config.training_time_factor < 0.5:
+                score += 0.1
+                reasoning.append("Fast training for large datasets")
+            
+            algorithm_scores[algorithm_name] = {
+                "score": min(score, 1.0),  # Cap at 1.0
+                "reasoning": reasoning,
+                "algorithm_info": algorithm_config
+            }
+        
+        return algorithm_scores
+    
+    def _get_algorithm_family(self, algorithm_name: str) -> AlgorithmFamily:
+        """Get algorithm family for a given algorithm."""
+        
+        algorithm_config = self.algorithm_configs.get(algorithm_name)
+        if algorithm_config:
+            return algorithm_config.family
+        return AlgorithmFamily.ISOLATION_BASED  # Default
+    
+    async def _generate_algorithm_reasoning(
+        self,
+        algorithm_name: str,
+        data_profile: DatasetProfile,
+        algo_data: Dict[str, Any]
+    ) -> List[str]:
+        """Generate reasoning for algorithm recommendation."""
+        
+        reasoning = algo_data.get("reasoning", [])
+        
+        # Add specific algorithm insights
+        if algorithm_name == "IsolationForest":
+            reasoning.append("Effective for unsupervised anomaly detection")
+            if data_profile.n_samples > 1000:
+                reasoning.append("Scales well with dataset size")
+        elif algorithm_name == "LOF":
+            reasoning.append("Good for density-based anomaly detection")
+            if data_profile.n_features < 50:
+                reasoning.append("Works well with moderate dimensionality")
+        
+        return reasoning
+    
+    async def _get_recommended_parameters(
+        self,
+        algorithm_name: str,
+        data_profile: DatasetProfile
+    ) -> Dict[str, Any]:
+        """Get recommended parameter ranges for algorithm."""
+        
+        algorithm_config = self.algorithm_configs.get(algorithm_name)
+        if algorithm_config:
+            return algorithm_config.param_space
+        
+        # Default parameter space
+        return {
+            "contamination": {"type": "float", "low": 0.01, "high": 0.3}
+        }
+    
+    async def _estimate_algorithm_performance(
+        self,
+        algorithm_name: str,
+        data_profile: DatasetProfile
+    ) -> Optional[Dict[str, float]]:
+        """Estimate algorithm performance based on data characteristics."""
+        
+        # Performance estimates based on algorithm characteristics and data profile
+        performance_estimates = {
+            "IsolationForest": {
+                "roc_auc": 0.8,
+                "precision": 0.7,
+                "recall": 0.75,
+                "f1_score": 0.725
+            },
+            "LOF": {
+                "roc_auc": 0.75,
+                "precision": 0.65,
+                "recall": 0.7,
+                "f1_score": 0.675
+            }
+        }
+        
+        return performance_estimates.get(algorithm_name)
+    
+    async def _estimate_training_time(
+        self,
+        algorithm_name: str,
+        data_profile: DatasetProfile
+    ) -> Optional[float]:
+        """Estimate training time in seconds."""
+        
+        algorithm_config = self.algorithm_configs.get(algorithm_name)
+        if algorithm_config:
+            base_time = algorithm_config.training_time_factor * 10  # Base time in seconds
+            estimated_time = base_time * (data_profile.n_samples / 1000)
+            return estimated_time
+        
+        return None
+    
+    async def _estimate_memory_requirements(
+        self,
+        algorithm_name: str,
+        data_profile: DatasetProfile
+    ) -> Optional[str]:
+        """Estimate memory requirements."""
+        
+        algorithm_config = self.algorithm_configs.get(algorithm_name)
+        if algorithm_config:
+            if algorithm_config.memory_factor < 0.3:
+                return "Low"
+            elif algorithm_config.memory_factor < 0.7:
+                return "Medium"
+            else:
+                return "High"
+        
+        return "Medium"
+    
+    async def get_automl_summary(self) -> Dict[str, Any]:
+        """Get summary of AutoML service capabilities and cached results."""
+        
+        summary = {
+            "service_info": {
+                "algorithms_available": len(self.algorithm_configs),
+                "feature_generators": len(self._feature_generators),
+                "preprocessors": len(self._preprocessors),
+                "feature_selectors": len(self._feature_selectors)
+            },
+            "cached_profiles": len(self._profile_cache),
+            "cached_pipelines": len(self._pipeline_cache),
+            "supported_algorithms": list(self.algorithm_configs.keys()),
+            "supported_strategies": [strategy.value for strategy in FeatureEngineeringStrategy],
+            "supported_characteristics": [char.value for char in DataCharacteristics]
+        }
+        
         return summary

@@ -315,6 +315,16 @@ def create_app(container: Container | None = None) -> FastAPI:
     #         enhanced_automl.router, prefix="/api/v1", tags=["enhanced_automl"]
     #     )  # Temporarily disabled
 
+    # Data Science Package API Endpoints
+    try:
+        from .endpoints import data_profiling, data_quality, ml_pipelines
+        app.include_router(data_profiling.router, prefix="/api/v1", tags=["data_profiling"])
+        app.include_router(data_quality.router, prefix="/api/v1", tags=["data_quality"])  
+        app.include_router(ml_pipelines.router, prefix="/api/v1", tags=["ml_pipelines"])
+        print("✅ Data science API endpoints loaded successfully")
+    except ImportError as e:
+        print(f"⚠️  Data science endpoints not available: {e}")
+
     from pynomaly.presentation.api.endpoints import ensemble, explainability
     app.include_router(ensemble.router, prefix="/api/v1/ensemble", tags=["ensemble"])
     app.include_router(

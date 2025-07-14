@@ -2,51 +2,52 @@
 
 from __future__ import annotations
 
-# Removed ABC and abstractmethod - Detector is a concrete domain entity
-from dataclasses import dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
-from uuid import UUID, uuid4
+from uuid import UUID
 
+from pydantic import Field
+
+from pynomaly.domain.abstractions import BaseEntity
 from pynomaly.domain.value_objects import ContaminationRate
 
 if TYPE_CHECKING:
     pass
 
 
-@dataclass
-class Detector:
+class Detector(BaseEntity):
     """Domain entity for anomaly detectors.
 
     This is a concrete domain entity that represents the concept of an anomaly detector,
     independent of any specific implementation or algorithm.
 
     Attributes:
-        id: Unique identifier for the detector
         name: Name of the detector
         algorithm_name: Name of the underlying algorithm
         contamination_rate: Expected proportion of anomalies
         parameters: Algorithm-specific parameters
-        metadata: Additional metadata
-        created_at: When the detector was created
         trained_at: When the detector was last trained
         is_fitted: Whether the detector has been fitted
     """
 
     name: str
     algorithm_name: str
-    contamination_rate: ContaminationRate = field(
+    contamination_rate: ContaminationRate = Field(
         default_factory=ContaminationRate.auto
     )
-    id: UUID = field(default_factory=uuid4)
-    parameters: dict[str, Any] = field(default_factory=dict)
-    metadata: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    parameters: dict[str, Any] = Field(default_factory=dict)
     trained_at: datetime | None = None
     is_fitted: bool = False
 
-    def __post_init__(self) -> None:
-        """Validate detector after initialization."""
+    def __init__(self, **data: Any) -> None:
+        """Initialize detector with validation."""
+        super().__init__(**data)
+        self.validate_invariants()
+
+    def validate_invariants(self) -> None:
+        """Validate detector invariants."""
+        super().validate_invariants()
+        
         if not self.name:
             raise ValueError("Detector name cannot be empty")
 
@@ -91,6 +92,7 @@ class Detector:
     def update_metadata(self, key: str, value: Any) -> None:
         """Update detector metadata."""
         self.metadata[key] = value
+        self.mark_as_updated()
 
     def update_parameters(self, **params: Any) -> None:
         """Update algorithm parameters."""
@@ -98,6 +100,7 @@ class Detector:
         # Reset fitted state when parameters change
         self.is_fitted = False
         self.trained_at = None
+        self.mark_as_updated()
 
     def get_info(self) -> dict[str, Any]:
         """Get comprehensive information about the detector."""
@@ -108,6 +111,8 @@ class Detector:
             "contamination_rate": self.contamination_rate.value,
             "is_fitted": self.is_fitted,
             "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "version": self.version,
             "trained_at": self.trained_at.isoformat() if self.trained_at else None,
             "parameters": self.parameters,
             "metadata": self.metadata,
@@ -122,11 +127,13 @@ class Detector:
         """Mark the detector as fitted."""
         self.is_fitted = True
         self.trained_at = datetime.utcnow()
+        self.mark_as_updated()
 
     def mark_as_unfitted(self) -> None:
         """Mark the detector as not fitted."""
         self.is_fitted = False
         self.trained_at = None
+        self.mark_as_updated()
 
     def validate_for_detection(self) -> None:
         """Validate that the detector is ready for detection.

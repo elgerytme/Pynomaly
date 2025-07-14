@@ -8,6 +8,8 @@ from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
+from packages.core.domain.abstractions import BaseEntity
+
 
 @dataclass(frozen=True)
 class RuleId:
@@ -170,7 +172,7 @@ class RuleMetadata(BaseModel):
         frozen = True
 
 
-class QualityRule(BaseModel):
+class QualityRule(BaseEntity):
     """Quality rule aggregate root."""
     
     rule_id: RuleId
@@ -192,7 +194,7 @@ class QualityRule(BaseModel):
     schedule: Optional[RuleSchedule] = None
     
     # Metadata
-    metadata: RuleMetadata
+    rule_metadata: RuleMetadata
     
     # Execution history (last N results)
     recent_results: List[ValidationResult] = Field(default_factory=list)
@@ -201,11 +203,6 @@ class QualityRule(BaseModel):
     created_by: UserId
     approved_by: Optional[UserId] = None
     approved_at: Optional[datetime] = None
-    
-    # Audit fields
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-    version: int = 1
     
     class Config:
         use_enum_values = True
@@ -219,8 +216,7 @@ class QualityRule(BaseModel):
         self.status = RuleStatus.ACTIVE
         self.approved_by = approved_by
         self.approved_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
-        self.version += 1
+        self.mark_as_updated()
         
     def deactivate(self) -> None:
         """Deactivate the rule."""
@@ -228,14 +224,12 @@ class QualityRule(BaseModel):
             raise ValueError("Cannot deactivate rule in current status")
             
         self.status = RuleStatus.INACTIVE
-        self.updated_at = datetime.utcnow()
-        self.version += 1
+        self.mark_as_updated()
         
     def deprecate(self) -> None:
         """Deprecate the rule."""
         self.status = RuleStatus.DEPRECATED
-        self.updated_at = datetime.utcnow()
-        self.version += 1
+        self.mark_as_updated()
         
     def update_validation_logic(self, logic: ValidationLogic) -> None:
         """Update the validation logic."""
@@ -244,8 +238,7 @@ class QualityRule(BaseModel):
             self.status = RuleStatus.DRAFT
             
         self.validation_logic = logic
-        self.updated_at = datetime.utcnow()
-        self.version += 1
+        self.mark_as_updated()
         
     def add_validation_result(self, result: ValidationResult) -> None:
         """Add a new validation result."""
@@ -254,7 +247,7 @@ class QualityRule(BaseModel):
         if len(self.recent_results) > 10:
             self.recent_results.pop(0)
             
-        self.updated_at = datetime.utcnow()
+        self.mark_as_updated()
         
     def get_latest_result(self) -> Optional[ValidationResult]:
         """Get the most recent validation result."""

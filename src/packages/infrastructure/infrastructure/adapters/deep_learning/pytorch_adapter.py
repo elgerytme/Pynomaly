@@ -316,24 +316,24 @@ if PYTORCH_AVAILABLE:
             self.output_layer = nn.Linear(config.hidden_dim, config.input_dim)
             self.dropout = nn.Dropout(config.dropout)
 
-    def forward(self, x):
-        """Forward pass for sequence reconstruction."""
-        batch_size, seq_len, _ = x.shape
+        def forward(self, x):
+            """Forward pass for sequence reconstruction."""
+            batch_size, seq_len, _ = x.shape
 
-        # Encode
-        encoded, (hidden, cell) = self.encoder_lstm(x)
+            # Encode
+            encoded, (hidden, cell) = self.encoder_lstm(x)
 
-        # Use the last hidden state for decoding
-        context = encoded[:, -1:, :]  # (batch_size, 1, hidden_dim)
+            # Use the last hidden state for decoding
+            context = encoded[:, -1:, :]  # (batch_size, 1, hidden_dim)
 
-        # Decode
-        decoder_input = context.repeat(1, seq_len, 1)
-        decoded, _ = self.decoder_lstm(decoder_input, (hidden, cell))
+            # Decode
+            decoder_input = context.repeat(1, seq_len, 1)
+            decoded, _ = self.decoder_lstm(decoder_input, (hidden, cell))
 
-        # Output projection
-        output = self.output_layer(self.dropout(decoded))
+            # Output projection
+            output = self.output_layer(self.dropout(decoded))
 
-        return output
+            return output
 
 else:
     # Fallback classes when PyTorch is not available

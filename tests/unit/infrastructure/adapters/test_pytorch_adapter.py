@@ -59,7 +59,7 @@ class TestPyTorchAdapter:
         """Test getting supported algorithms."""
         algorithms = PyTorchAdapter.get_supported_algorithms()
 
-        expected = ["AutoEncoder", "VAE", "DeepSVDD", "DAGMM"]
+        expected = ["AutoEncoder", "VAE", "DeepSVDD", "DAGMM", "LSTMAutoEncoder"]
         assert all(alg in algorithms for alg in expected)
 
     @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch not available")
@@ -179,6 +179,36 @@ class TestPyTorchAdapter:
 
         result = adapter.detect(sample_dataset)
         assert len(result.scores) == len(sample_dataset.data)
+
+    @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch not available")
+    def test_lstm_autoencoder_algorithm(self, sample_dataset):
+        """Test LSTM AutoEncoder algorithm specifically."""
+        adapter = PyTorchAdapter(
+            algorithm_name="LSTMAutoEncoder",
+            epochs=3,
+            hidden_dim=16,
+            num_layers=1,
+            sequence_length=5,
+            dropout=0.1,
+        )
+
+        adapter.fit(sample_dataset)
+        assert adapter.is_fitted
+
+        result = adapter.detect(sample_dataset)
+        assert len(result.scores) == len(sample_dataset.data)
+
+    @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch not available")
+    def test_lstm_algorithm_info(self):
+        """Test getting LSTM algorithm information."""
+        info = PyTorchAdapter.get_algorithm_info("LSTMAutoEncoder")
+
+        assert info["name"] == "LSTM AutoEncoder"
+        assert info["type"] == "Deep Learning"
+        assert "parameters" in info
+        assert "hidden_dim" in info["parameters"]
+        assert "sequence_length" in info["parameters"]
+        assert "temporal_patterns" in info["suitable_for"]
 
     def test_prepare_data_method(self, sample_dataset):
         """Test data preparation method works without PyTorch."""

@@ -463,6 +463,144 @@
   box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
 }
 
+/* Enhanced mobile navigation system */
+.mobile-nav-wrapper {
+  position: relative;
+  z-index: 1000;
+}
+
+/* Slide-out navigation drawer */
+.mobile-nav-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background-color: var(--mobile-surface);
+  border-right: 1px solid var(--mobile-border);
+  transform: translateX(-100%);
+  transition: transform 0.3s var(--mobile-bezier);
+  z-index: 1001;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-nav-drawer.open {
+  transform: translateX(0);
+}
+
+.mobile-nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s var(--mobile-bezier);
+  z-index: 1000;
+}
+
+.mobile-nav-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.nav-drawer-header {
+  padding: var(--mobile-spacing-large);
+  border-bottom: 1px solid var(--mobile-border);
+  background-color: var(--mobile-surface-variant);
+}
+
+.nav-drawer-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.nav-drawer-content {
+  padding: var(--mobile-spacing);
+}
+
+.nav-section {
+  margin-bottom: var(--mobile-spacing-large);
+}
+
+.nav-section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--mobile-text-secondary);
+  margin-bottom: var(--mobile-spacing-small);
+  padding: 0 var(--mobile-spacing);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--mobile-spacing);
+  padding: var(--mobile-spacing);
+  color: var(--mobile-text);
+  text-decoration: none;
+  border-radius: var(--mobile-radius-small);
+  transition: var(--mobile-transition);
+  min-height: var(--mobile-touch-target);
+}
+
+.nav-item:hover,
+.nav-item:focus {
+  background-color: var(--mobile-surface-variant);
+  outline: none;
+}
+
+.nav-item.active {
+  background-color: var(--mobile-primary);
+  color: white;
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Breadcrumb navigation */
+.mobile-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--mobile-spacing-small);
+  padding: var(--mobile-spacing);
+  background-color: var(--mobile-surface-variant);
+  border-bottom: 1px solid var(--mobile-border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: var(--mobile-spacing-small);
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.breadcrumb-item:not(:last-child)::after {
+  content: ">";
+  color: var(--mobile-text-secondary);
+  margin-left: var(--mobile-spacing-small);
+}
+
+.breadcrumb-link {
+  color: var(--mobile-primary);
+  text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+
 /* Tab bar (bottom navigation) */
 .tab-bar {
   position: fixed;
@@ -493,6 +631,7 @@
   transition: var(--mobile-transition);
   position: relative;
   overflow: hidden;
+  min-height: var(--mobile-touch-target);
 }
 
 .tab-button.active {
@@ -507,6 +646,55 @@
 .tab-button span {
   font-size: 0.75rem;
   font-weight: 500;
+}
+
+/* Enhanced tab button with badge support */
+.tab-button .badge {
+  position: absolute;
+  top: 6px;
+  right: 20%;
+  background-color: var(--mobile-error);
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+  line-height: 1;
+}
+
+/* Floating action button */
+.fab {
+  position: fixed;
+  bottom: calc(var(--mobile-tab-bar-height) + var(--mobile-spacing));
+  right: var(--mobile-spacing);
+  width: 56px;
+  height: 56px;
+  background-color: var(--mobile-primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  box-shadow: var(--mobile-shadow-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--mobile-transition);
+  z-index: 999;
+}
+
+.fab:hover {
+  transform: scale(1.05);
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+.fab svg {
+  width: 24px;
+  height: 24px;
 }
 
 /* Touch feedback for tab buttons */
@@ -597,10 +785,27 @@
   line-height: 1;
 }
 
-/* Responsive layout adjustments */
+/* Enhanced responsive layout adjustments */
+@media (min-width: 480px) {
+  /* Large mobile improvements */
+  .mobile-dashboard .tab-button span {
+    font-size: 0.8rem;
+  }
+  
+  .mobile-dashboard .header-title {
+    font-size: 1.375rem;
+  }
+  
+  .mobile-dashboard .widget {
+    min-height: 200px;
+  }
+}
+
 @media (min-width: 768px) {
+  /* Tablet layout */
   .mobile-dashboard.tablet .panel-content {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--mobile-spacing-large);
   }
 
   .mobile-dashboard.tablet .tab-bar {
@@ -609,16 +814,75 @@
 
   .mobile-dashboard.tablet .content-area {
     margin-bottom: 0;
+    padding: var(--mobile-spacing-large);
+  }
+  
+  .mobile-dashboard.tablet .dashboard-tabs {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .mobile-dashboard.tablet .widget {
+    min-height: 250px;
+  }
+  
+  /* Horizontal navigation for tablets */
+  .mobile-dashboard.tablet .tab-panels {
+    display: block;
+  }
+  
+  .mobile-dashboard.tablet .tab-panel {
+    position: relative;
+    display: none;
+    width: 100%;
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .mobile-dashboard.tablet .tab-panel.active {
+    display: block;
   }
 }
 
 @media (min-width: 1024px) {
+  /* Desktop layout */
   .mobile-dashboard.desktop .panel-content {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: var(--mobile-spacing-large);
   }
 
   .mobile-dashboard.desktop .content-area {
     padding: var(--mobile-spacing-large);
+  }
+  
+  .mobile-dashboard.desktop .widget {
+    min-height: 300px;
+  }
+  
+  /* Multi-column layout for large screens */
+  .mobile-dashboard.desktop .tab-panel {
+    display: block;
+  }
+  
+  .mobile-dashboard.desktop .tab-panels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--mobile-spacing-large);
+  }
+}
+
+@media (min-width: 1440px) {
+  /* Large desktop optimizations */
+  .mobile-dashboard.desktop .panel-content {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  }
+  
+  .mobile-dashboard.desktop .content-area {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--mobile-spacing-large) calc(var(--mobile-spacing-large) * 2);
   }
 }
 
@@ -745,4 +1009,185 @@
 
 .swipe-indicator.show {
   opacity: 0.6;
+}
+
+/* Enhanced touch interactions and progressive enhancement */
+.enhanced-touch-target {
+  min-height: 48px;
+  min-width: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.enhanced-touch-target::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background-color: currentColor;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  z-index: -1;
+}
+
+.enhanced-touch-target:active::before {
+  width: 100%;
+  height: 100%;
+  opacity: 0.1;
+}
+
+/* Container queries for responsive widgets */
+@container (min-width: 300px) {
+  .widget-content {
+    padding: var(--mobile-spacing-large);
+  }
+  
+  .metric-value {
+    font-size: 3rem;
+  }
+}
+
+@container (min-width: 400px) {
+  .widget {
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+  
+  .chart-container {
+    min-height: 200px;
+  }
+}
+
+/* Progressive enhancement - advanced features */
+@supports (backdrop-filter: blur(10px)) {
+  .mobile-header,
+  .tab-bar {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  
+  [data-theme="dark"] .mobile-header,
+  [data-theme="dark"] .tab-bar {
+    background-color: rgba(30, 41, 59, 0.8);
+  }
+}
+
+@supports (display: grid) {
+  .enhanced-grid-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--mobile-spacing);
+    container-type: inline-size;
+  }
+}
+
+/* Improved focus management for keyboard navigation */
+.focus-trap {
+  position: relative;
+}
+
+.focus-trap:focus-within {
+  outline: 2px solid var(--mobile-primary);
+  outline-offset: 2px;
+}
+
+/* Enhanced loading states with better UX */
+.progressive-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.progressive-loading::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Adaptive typography using clamp() */
+.adaptive-text {
+  font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+  line-height: clamp(1.4, 2.5vw + 1rem, 1.6);
+}
+
+.adaptive-heading {
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  line-height: clamp(1.2, 3vw + 1rem, 1.4);
+}
+
+/* Modern layout with logical properties */
+.modern-layout {
+  padding-inline: var(--mobile-spacing);
+  padding-block: var(--mobile-spacing-small);
+  margin-inline: auto;
+  border-inline-start: 2px solid var(--mobile-primary);
+}
+
+/* High-performance animations with will-change */
+.optimized-animation {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.optimized-animation.animate {
+  animation: slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Advanced touch gesture support */
+.gesture-zone {
+  touch-action: pan-x pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.swipe-enabled {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.swipe-enabled > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* Modern CSS features - prefer logical properties */
+@supports (inset: 0) {
+  .modern-positioning {
+    inset: var(--mobile-spacing);
+  }
 }

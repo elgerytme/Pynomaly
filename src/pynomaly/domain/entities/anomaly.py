@@ -2,28 +2,34 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import UUID
 
+from pydantic import Field
+
+from pynomaly.domain.abstractions import BaseEntity
 from pynomaly.domain.value_objects import AnomalyScore
 
 
-@dataclass
-class Anomaly:
+class Anomaly(BaseEntity):
     """Simple anomaly entity."""
 
     score: float | AnomalyScore
     data_point: dict[str, Any]
     detector_name: str
-    id: UUID = field(default_factory=uuid4)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
-    metadata: dict[str, Any] = field(default_factory=dict)
-    explanation: str | None = None
+    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    explanation: str | dict[str, Any] | None = None
 
-    def __post_init__(self) -> None:
-        """Validate anomaly after initialization."""
+    def __init__(self, **data: Any) -> None:
+        """Initialize anomaly with validation."""
+        super().__init__(**data)
+        self.validate_invariants()
+
+    def validate_invariants(self) -> None:
+        """Validate anomaly invariants."""
+        super().validate_invariants()
+        
         if not isinstance(self.score, (int, float, AnomalyScore)):
             raise TypeError(
                 f"Score must be a number or AnomalyScore, got {type(self.score)}"
@@ -57,6 +63,7 @@ class Anomaly:
     def add_metadata(self, key: str, value: Any) -> None:
         """Add metadata to the anomaly."""
         self.metadata[key] = value
+        self.mark_as_updated()
 
     def to_dict(self) -> dict[str, Any]:
         """Convert anomaly to dictionary representation."""
@@ -74,14 +81,7 @@ class Anomaly:
             "metadata": self.metadata,
             "severity": self.severity,
             "explanation": self.explanation,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "version": self.version,
         }
-
-    def __eq__(self, other: object) -> bool:
-        """Check equality based on ID."""
-        if not isinstance(other, Anomaly):
-            return NotImplemented
-        return self.id == other.id
-
-    def __hash__(self) -> int:
-        """Hash based on ID."""
-        return hash(self.id)

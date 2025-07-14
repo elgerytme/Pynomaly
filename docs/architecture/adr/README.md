@@ -53,6 +53,11 @@ This directory contains all Architectural Decision Records (ADRs) for the Pynoma
 
 - **[ADR-023: ML Model Lifecycle Management](ADR-023-ml-model-lifecycle-management.md)** - Comprehensive MLOps pipeline and model governance
 
+### **Data & Integration Architecture**
+
+- **[ADR-024: Data Storage and Persistence Strategy](ADR-024-data-storage-persistence-strategy.md)** - Polyglot persistence architecture for diverse data types
+- **[ADR-025: Plugin and Adapter Architecture](ADR-025-plugin-adapter-architecture.md)** - Extensible plugin framework for algorithms and integrations
+
 ---
 
 ## 📚 ADR Templates & Standards
@@ -94,7 +99,7 @@ ADRs are interconnected and reference each other where decisions are related:
 | Status | Count | ADRs |
 |--------|-------|------|
 | **ACCEPTED** | 3 | ADR-001, ADR-002, ADR-013 |
-| **PROPOSED** | 10 | ADR-014, ADR-015, ADR-016, ADR-017, ADR-018, ADR-019, ADR-020, ADR-021, ADR-022, ADR-023 |
+| **PROPOSED** | 12 | ADR-014, ADR-015, ADR-016, ADR-017, ADR-018, ADR-019, ADR-020, ADR-021, ADR-022, ADR-023, ADR-024, ADR-025 |
 | **PLANNED** | 6 | ADR-004, ADR-005, ADR-006, ADR-008, ADR-009, ADR-010 |
 | **IMPLEMENTED** | 3 | ADR-003, ADR-007, ADR-011, ADR-012 |
 
