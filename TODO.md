@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 108  
+**Total Open Issues**: 109  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 24  
+**Pending**: 25  
 
 **Last Sync**: July 14, 2025 at 19:09 UTC
 
@@ -408,6 +408,18 @@
 
 - **Scope**: ## Overview Enhance data profiling with advanced pattern discovery, semantic type classification, and machine learning-powered data understanding. This builds intelligent pattern recognition capabilit...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/144)
+
+### **Issue #145: Phase 2.4: Data Science Package - Feature Engineering Framework**
+
+**Labels**: enhancement, Domain, est:1w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Implement a comprehensive feature engineering framework with automated feature generation, selection, and transformation capabilities. This provides intelligent feature engineering that ad...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/145)
 
 ## 🔶 **P2-Medium Priority Issues**
 
