@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 100  
+**Total Open Issues**: 101  
 **Completed**: 61 (Issue #135 - P1: Fix Model Persistence for End-to-End Anomaly Detection Workflow, Issue #21 - P-005: OpenAPI Schema Fixes, Issue #133 - P2: Consolidate and Improve Documentation Organization, Issue #129 - P1: Consolidate Duplicate Package Structures, Issue #5 - P1-Critical: Core Architecture & Foundation, Issue #6 - D-001: Enhanced Domain Entity Validation, Issue #1 - P2-High: API Development & Integration)  
 **In Progress**: 1  
-**Pending**: 26  
+**Pending**: 27  
 
-**Last Sync**: July 14, 2025 at 18:28 UTC
+**Last Sync**: July 14, 2025 at 18:29 UTC
 
 ---
 
@@ -312,6 +312,18 @@
 
 - **Scope**: # P1: Fix Model Persistence for End-to-End Anomaly Detection Workflow  ## Issue Description  **Critical Issue**: The current implementation has a fundamental model persistence problem that prevents su...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/135)
+
+### **Issue #137: P1-High: Optimize Remaining Build System Conflicts**
+
+**Labels**: enhancement, Infrastructure, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Priority: P1-High   **Issue Type**: Build System Optimization   **Timeline**: Next priority after PyPI release  ## Problem While the main build system has been standardized to Hatch, there are rema...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/137)
 
 ## 🔶 **P2-Medium Priority Issues**
 
@@ -1241,6 +1253,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 18:28 UTC  
+**Last Updated**: July 14, 2025 at 18:29 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
