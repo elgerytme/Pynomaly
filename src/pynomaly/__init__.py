@@ -51,7 +51,12 @@ def create_detector(
     params = {"contamination": contamination}
     params.update(parameters)
 
-    return Detector(name=name, algorithm=algorithm, parameters=params)
+    return Detector(
+        name=name, 
+        algorithm_name=algorithm, 
+        contamination_rate=ContaminationRate(contamination),
+        parameters=params
+    )
 
 
 def load_dataset(
@@ -112,20 +117,26 @@ async def detect_anomalies(
     if container is None:
         container = create_container()
 
-    # Ensure detector is trained
+    # Save detector to repository and ensure it's trained
+    detector_repository = container.detector_repository()
+    await detector_repository.save(detector)
+    
     if not detector.is_fitted:
         train_use_case = container.train_detector_use_case()
         from pynomaly.application.use_cases import TrainDetectorRequest
 
         train_request = TrainDetectorRequest(
             detector_id=detector.id,
-            dataset=dataset,
+            training_data=dataset,
             validate_data=True,
             save_model=True,
         )
         await train_use_case.execute(train_request)
+        
+        # Refetch the detector to get the updated state
+        detector = await detector_repository.find_by_id(detector.id)
 
-    # Run detection
+    # Run detection - use the updated detector
     detect_use_case = container.detect_anomalies_use_case()
     from pynomaly.application.use_cases import DetectAnomaliesRequest
 

@@ -65,7 +65,7 @@ class EvaluateModelUseCase:
             ValueError: If detector not found or dataset lacks labels
         """
         # Load detector
-        detector = self.detector_repository.find_by_id(request.detector_id)
+        detector = await self.detector_repository.find_by_id(request.detector_id)
         if detector is None:
             raise ValueError(f"Detector {request.detector_id} not found")
 

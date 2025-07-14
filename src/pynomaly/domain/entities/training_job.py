@@ -10,8 +10,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from pynomaly.application.dto.training_dto import TrainingConfigDTO
 from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet
+from pynomaly.domain.value_objects.training_configuration import TrainingConfiguration
 
 
 class TrainingStatus(Enum):
@@ -129,7 +129,7 @@ class TrainingJob:
 
     # Configuration
     algorithms: list[str] = field(default_factory=list)
-    config: TrainingConfigDTO | None = None
+    config: TrainingConfiguration | None = None
     priority: TrainingPriority = TrainingPriority.NORMAL
 
     # Status tracking

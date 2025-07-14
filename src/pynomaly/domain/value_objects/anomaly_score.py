@@ -29,7 +29,7 @@ class AnomalyScore:
     method: str | None = None
 
     def __post_init__(self) -> None:
-        """Validate score after initialization."""
+        """Validate score after initialization with advanced business rules."""
         if self.metadata is None:
             object.__setattr__(self, "metadata", {})
         else:
@@ -38,6 +38,20 @@ class AnomalyScore:
 
             object.__setattr__(self, "metadata", copy.deepcopy(self.metadata))
 
+        # Basic validation
+        self._validate_basic_constraints()
+        
+        # Advanced business rule validation
+        self._validate_business_rules()
+        
+        # Cross-field validation
+        self._validate_field_relationships()
+        
+        # Statistical validation
+        self._validate_statistical_properties()
+
+    def _validate_basic_constraints(self) -> None:
+        """Validate basic type and range constraints."""
         # Validate value
         if not isinstance(self.value, (int, float)):
             raise ValidationError(
@@ -86,6 +100,115 @@ class AnomalyScore:
                 raise ValidationError(
                     f"Score value ({self.value}) must be within confidence interval "
                     f"[{self.confidence_interval.lower}, {self.confidence_interval.upper}]"
+                )
+
+    def _validate_business_rules(self) -> None:
+        """Validate advanced business rules for anomaly scoring."""
+        # Validate scoring method if provided
+        if self.method is not None:
+            if not isinstance(self.method, str):
+                raise ValidationError(
+                    f"Scoring method must be a string, got {type(self.method)}"
+                )
+            if len(self.method.strip()) == 0:
+                raise ValidationError("Scoring method cannot be empty")
+            
+            # Validate against known scoring methods
+            valid_methods = {
+                "isolation_forest", "local_outlier_factor", "one_class_svm",
+                "elliptic_envelope", "auto_encoder", "gaussian_mixture",
+                "statistical", "distance_based", "density_based", "ensemble"
+            }
+            if self.method.lower() not in valid_methods:
+                raise ValidationError(
+                    f"Unknown scoring method: {self.method}. Valid methods: {valid_methods}"
+                )
+
+        # Validate metadata structure for required fields
+        if "algorithm" in self.metadata:
+            if not isinstance(self.metadata["algorithm"], str):
+                raise ValidationError("Algorithm metadata must be a string")
+                
+        if "feature_count" in self.metadata:
+            if not isinstance(self.metadata["feature_count"], int) or self.metadata["feature_count"] <= 0:
+                raise ValidationError("Feature count must be a positive integer")
+                
+        if "sample_size" in self.metadata:
+            if not isinstance(self.metadata["sample_size"], int) or self.metadata["sample_size"] <= 0:
+                raise ValidationError("Sample size must be a positive integer")
+
+        # Validate business rule: very high scores should have high confidence
+        if self.value > 0.9 and self.confidence_interval is not None:
+            width = self.confidence_interval.upper - self.confidence_interval.lower
+            if width > 0.3:  # Wide confidence interval for high scores is suspicious
+                raise ValidationError(
+                    f"High anomaly score ({self.value}) has suspiciously wide confidence interval (width: {width})"
+                )
+
+    def _validate_field_relationships(self) -> None:
+        """Validate relationships between fields."""
+        # Threshold should be reasonable for the detection context
+        if self.threshold < 0.1:
+            raise ValidationError(
+                f"Threshold too low ({self.threshold}). May result in too many false positives."
+            )
+        
+        if self.threshold > 0.9:
+            raise ValidationError(
+                f"Threshold too high ({self.threshold}). May result in missed anomalies."
+            )
+
+        # If confidence intervals are present, validate their consistency
+        if self.confidence_interval is not None:
+            lower = self.confidence_interval.lower
+            upper = self.confidence_interval.upper
+            
+            # Confidence interval should be within valid score range
+            if lower < 0.0 or upper > 1.0:
+                raise ValidationError(
+                    f"Confidence interval [{lower}, {upper}] extends outside valid score range [0, 1]"
+                )
+            
+            # Confidence interval width should be reasonable
+            width = upper - lower
+            if width < 0.01:  # Too narrow
+                raise ValidationError(
+                    f"Confidence interval too narrow (width: {width}). May indicate overconfidence."
+                )
+            if width > 0.8:  # Too wide
+                raise ValidationError(
+                    f"Confidence interval too wide (width: {width}). May indicate poor model performance."
+                )
+
+    def _validate_statistical_properties(self) -> None:
+        """Validate statistical properties of the anomaly score."""
+        # Check for extreme values that might indicate data quality issues
+        if self.value < 0.001:
+            # Very low scores might indicate normal behavior but could also indicate
+            # model issues or data preprocessing problems
+            if "model_confidence" in self.metadata:
+                model_confidence = self.metadata["model_confidence"]
+                if isinstance(model_confidence, (int, float)) and model_confidence < 0.7:
+                    raise ValidationError(
+                        f"Very low anomaly score ({self.value}) combined with low model confidence ({model_confidence})"
+                    )
+        
+        if self.value > 0.999:
+            # Very high scores should be treated with caution
+            if "data_quality_score" in self.metadata:
+                quality_score = self.metadata["data_quality_score"]
+                if isinstance(quality_score, (int, float)) and quality_score < 0.8:
+                    raise ValidationError(
+                        f"Very high anomaly score ({self.value}) but low data quality score ({quality_score})"
+                    )
+
+        # Validate precision for the score value
+        if isinstance(self.value, float):
+            # Check if the score has reasonable precision (not too many decimal places)
+            decimal_places = len(str(self.value).split('.')[-1]) if '.' in str(self.value) else 0
+            if decimal_places > 6:
+                raise ValidationError(
+                    f"Score value has excessive precision ({decimal_places} decimal places). Consider rounding."
                 )
 
     def is_anomaly(self) -> bool:
@@ -236,3 +359,88 @@ class AnomalyScore:
     def exceeds_threshold(self, threshold: float) -> bool:
         """Check if score exceeds a given threshold."""
         return self.value > threshold
+
+    def validate_business_context(self, context: dict[str, Any]) -> bool:
+        """Validate score within specific business context."""
+        if not isinstance(context, dict):
+            raise ValidationError("Business context must be a dictionary")
+        
+        # Validate based on detection scenario
+        scenario = context.get("scenario", "general")
+        if scenario == "fraud_detection":
+            # Fraud detection requires higher confidence
+            if self.value > 0.8 and self.confidence_interval is None:
+                raise ValidationError(
+                    "High-risk fraud detection scores require confidence intervals"
+                )
+        elif scenario == "network_security":
+            # Network security should have rapid response capability
+            if "response_time_ms" in context:
+                response_time = context["response_time_ms"]
+                if isinstance(response_time, (int, float)) and response_time > 1000:
+                    raise ValidationError(
+                        f"Network security detection too slow (response time: {response_time}ms)"
+                    )
+        elif scenario == "medical_diagnosis":
+            # Medical diagnosis requires very high confidence
+            if self.value > 0.7 and self.confidence_interval is not None:
+                width = self.confidence_interval.upper - self.confidence_interval.lower
+                if width > 0.1:
+                    raise ValidationError(
+                        f"Medical diagnosis requires higher confidence (interval width: {width})"
+                    )
+        
+        return True
+
+    def is_statistically_significant(self, significance_level: float = 0.05) -> bool:
+        """Check if anomaly score is statistically significant."""
+        if not (0.0 < significance_level < 1.0):
+            raise ValidationError(
+                f"Significance level must be between 0 and 1, got {significance_level}"
+            )
+        
+        # If confidence interval is available, check if it excludes normal range
+        if self.confidence_interval is not None:
+            # Normal range is typically considered [0.0, 0.5] for anomaly scores
+            normal_upper_bound = 0.5
+            return self.confidence_interval.lower > normal_upper_bound
+        
+        # Without confidence interval, use a simple threshold-based approach
+        return self.value > (1.0 - significance_level)
+
+    def risk_assessment(self) -> dict[str, Any]:
+        """Assess risk level based on anomaly score characteristics."""
+        risk_level = "low"
+        risk_factors = []
+        
+        # High score indicates high risk
+        if self.value > 0.8:
+            risk_level = "high"
+            risk_factors.append("high_anomaly_score")
+        elif self.value > 0.6:
+            risk_level = "medium"
+            risk_factors.append("moderate_anomaly_score")
+        
+        # Wide confidence interval increases uncertainty
+        if self.confidence_interval is not None:
+            width = self.confidence_interval.upper - self.confidence_interval.lower
+            if width > 0.4:
+                risk_factors.append("high_uncertainty")
+                if risk_level == "low":
+                    risk_level = "medium"
+        
+        # Low model confidence is a risk factor
+        if "model_confidence" in self.metadata:
+            model_confidence = self.metadata["model_confidence"]
+            if isinstance(model_confidence, (int, float)) and model_confidence < 0.7:
+                risk_factors.append("low_model_confidence")
+                if risk_level == "low":
+                    risk_level = "medium"
+        
+        return {
+            "risk_level": risk_level,
+            "risk_factors": risk_factors,
+            "score": self.value,
+            "threshold": self.threshold,
+            "requires_manual_review": len(risk_factors) > 1 or risk_level == "high"
+        }

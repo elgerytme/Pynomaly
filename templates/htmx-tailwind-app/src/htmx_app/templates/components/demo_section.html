@@ -1,0 +1,149 @@
+<!-- Interactive Demo Section -->
+<div class="card animate-fade-in">
+    <div class="card-header">
+        <h3 class="card-title">🚀 Interactive HTMX Demo</h3>
+        <p class="text-sm text-gray-600 mt-1">See HTMX in action with these live examples</p>
+    </div>
+    <div class="card-body space-y-6">
+        
+        <!-- Live Counter -->
+        <div class="border border-gray-200 rounded-lg p-4">
+            <h4 class="font-semibold text-gray-900 mb-3">Live Counter</h4>
+            <div class="flex items-center space-x-4">
+                <button 
+                    hx-post="/api/data/counter"
+                    hx-target="#counter-value"
+                    hx-swap="innerHTML"
+                    class="btn btn-primary btn-sm">
+                    Increment
+                </button>
+                <span id="counter-value" class="text-2xl font-bold text-primary-600">0</span>
+                <button 
+                    hx-delete="/api/data/counter"
+                    hx-target="#counter-value"
+                    hx-swap="innerHTML"
+                    class="btn btn-secondary btn-sm">
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Loading -->
+        <div class="border border-gray-200 rounded-lg p-4">
+            <h4 class="font-semibold text-gray-900 mb-3">Dynamic Content Loading</h4>
+            <div class="space-y-3">
+                <div class="flex space-x-2">
+                    <button 
+                        hx-get="/api/components/user-card/1"
+                        hx-target="#dynamic-content"
+                        hx-swap="innerHTML"
+                        class="btn btn-outline btn-sm">
+                        Load User Card
+                    </button>
+                    <button 
+                        hx-get="/api/components/stats-widget"
+                        hx-target="#dynamic-content"
+                        hx-swap="innerHTML"
+                        class="btn btn-outline btn-sm">
+                        Load Stats
+                    </button>
+                    <button 
+                        hx-get="/api/components/notification"
+                        hx-target="#dynamic-content"
+                        hx-swap="innerHTML"
+                        class="btn btn-outline btn-sm">
+                        Load Notification
+                    </button>
+                </div>
+                <div id="dynamic-content" class="min-h-32 bg-gray-50 rounded-md p-4 flex items-center justify-center text-gray-500">
+                    Click a button above to load content dynamically
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Search -->
+        <div class="border border-gray-200 rounded-lg p-4">
+            <h4 class="font-semibold text-gray-900 mb-3">Live Search</h4>
+            <div class="space-y-3">
+                <input 
+                    type="text"
+                    placeholder="Search documentation..."
+                    hx-post="/api/forms/search"
+                    hx-target="#search-results"
+                    hx-trigger="keyup changed delay:300ms"
+                    hx-swap="innerHTML"
+                    class="form-input w-full">
+                <div id="search-results" class="space-y-2">
+                    <p class="text-gray-500 text-sm">Start typing to search...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form with Validation -->
+        <div class="border border-gray-200 rounded-lg p-4">
+            <h4 class="font-semibold text-gray-900 mb-3">Form with Validation</h4>
+            <form 
+                hx-post="/api/forms/newsletter"
+                hx-target="#newsletter-demo-result"
+                hx-swap="innerHTML"
+                class="space-y-3">
+                
+                <div class="flex space-x-2">
+                    <input 
+                        type="email" 
+                        name="email" 
+                        placeholder="your@email.com"
+                        required
+                        class="form-input flex-1">
+                    <button type="submit" class="btn btn-primary">
+                        Subscribe
+                        <span class="htmx-indicator loading-spinner ml-2"></span>
+                    </button>
+                </div>
+                
+                <div id="newsletter-demo-result"></div>
+            </form>
+        </div>
+
+        <!-- Real-time Updates -->
+        <div class="border border-gray-200 rounded-lg p-4">
+            <h4 class="font-semibold text-gray-900 mb-3">Real-time Status</h4>
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">System Status:</span>
+                <div 
+                    hx-get="/api/data/status"
+                    hx-trigger="every 3s"
+                    hx-swap="innerHTML"
+                    id="status-indicator">
+                    <span class="loading-spinner"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infinite Scroll Preview -->
+        <div class="border border-gray-200 rounded-lg p-4">
+            <h4 class="font-semibold text-gray-900 mb-3">Infinite Scroll Preview</h4>
+            <div class="max-h-48 overflow-y-auto space-y-2" id="infinite-scroll-demo">
+                <div 
+                    hx-get="/api/components/infinite-scroll-items?page=1"
+                    hx-trigger="load"
+                    hx-swap="innerHTML">
+                    <div class="text-center py-4">
+                        <span class="loading-spinner"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="card-footer">
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-gray-500">
+                ✨ All interactions powered by HTMX
+            </span>
+            <a href="/examples" class="btn btn-primary btn-sm">
+                View More Examples
+            </a>
+        </div>
+    </div>
+</div>

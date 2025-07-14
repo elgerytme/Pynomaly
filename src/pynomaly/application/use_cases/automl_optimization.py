@@ -113,7 +113,7 @@ class AutoMLOptimizationUseCase:
             logger.info(f"Profiling dataset {dataset_id}")
 
             # Validate dataset exists
-            dataset = self.dataset_repository.find_by_id(dataset_id)
+            dataset = await self.dataset_repository.find_by_id(dataset_id)
             if not dataset:
                 raise DomainError(f"Dataset {dataset_id} not found")
 

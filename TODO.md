@@ -2,12 +2,27 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 97  
-**Completed**: 54 (Issue #84 - Achieve 100% Test Coverage - Comprehensive Implementation Plan, Issue #113 - P1: Standardize Repository Async/Sync Patterns, Issue #128 - P2: Complete ADR Documentation Suite - Consolidated Tracking, Issue #28 - DOC-003: Architecture Decision Records (ADRs), Issue #97 - P2: Implement PyGOD Graph Anomaly Detection, Issue #86 - Phase 1: Critical Infrastructure Tests (Protocols & Shared Foundation), Issue #108 - P2: Create Production Deployment Guide)  
+**Total Open Issues**: 19  
+**Completed**: 115  
 **In Progress**: 1  
-**Pending**: 30  
 
-**Last Sync**: July 14, 2025 at 17:15 UTC
+**Last Sync**: July 14, 2025 at 17:30 UTC
+
+---
+
+## 🔥 **P0-Critical Priority Issues**
+
+### **Issue #5: P1-Critical: Core Architecture & Foundation**
+
+**Labels**: P0-Critical  
+**Priority**: 🚨 P0-Critical  
+**Status**: ⏳ PENDING  
+**Category**: 📋 General  
+**Created**: Jul 08, 2025  
+**Updated**: Jul 11, 2025  
+
+- **Scope**: Core architecture and foundation implementation requirements
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/5)
 
 ---
 
@@ -22,7 +37,7 @@
 **Created**: Jul 08, 2025  
 **Updated**: Jul 11, 2025  
 
-- **Scope**: ## Priority: High (P2)    ### Owner: Agent-Beta  ### Daily Sync: 9:15 AM UTC (15 minutes)    ### Objectives:  - Develop REST API endpoints  - Implement authentication system  - Create API documentatio...
+- **Scope**: API Development & Integration - REST API endpoints, authentication system, API documentation
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/1)
 
 ### **Issue #6: D-001: Enhanced Domain Entity Validation**
@@ -34,20 +49,48 @@
 **Created**: Jul 08, 2025  
 **Updated**: Jul 11, 2025  
 
-- **Scope**: ## Priority: High  ### Owner: TBD  ### Estimate: 3 days  ### Dependencies: None  ### Description: Implement advanced validation rules for AnomalyScore, ContaminationRate, and DetectionResult entities ...
+- **Scope**: Enhanced Domain Entity Validation - implement advanced validation rules for AnomalyScore, ContaminationRate, and DetectionResult entities
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/6)
 
-### **Issue #57: ⚠️ HIGH: Multi-modal Detection Implementation Gap**
+### **Issue #129: P1: Consolidate Duplicate Package Structures**
 
-**Labels**: enhancement, P1-High  
+**Labels**: bug, Infrastructure, P1-High  
 **Priority**: 🔥 P1-High  
-**Status**: ✅ COMPLETED  
-**Category**: ✨ Enhancement  
-**Created**: Jul 08, 2025  
-**Updated**: Jul 11, 2025  
+**Status**: ⏳ PENDING  
+**Category**: 🐛 Bug  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
 
-- **Scope**: **Priority**: P1 - High  **Problem**:  Documentation claims multi-modal anomaly detection (time-series, tabular, graph, text) but implementation is very limited.  **Current State**: - ✅ Time-series ad...
-- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/57)
+- **Scope**: Consolidate Duplicate Package Structures - fix infrastructure layer package duplication
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/129)
+
+### **Issue #130: P1: Resolve Build System Conflicts (Poetry vs Hatch)**
+
+**Labels**: Infrastructure, CI/CD, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: 🏗️ Infrastructure  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: Resolve Build System Conflicts - standardize on single build system (Poetry vs Hatch)
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/130)
+
+### **Issue #131: P1: Fix Circular Dependencies Between Packages**
+
+**Labels**: bug, Infrastructure, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: 🐛 Bug  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: Fix Circular Dependencies Between Packages - resolve circular import issues in infrastructure layer
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/131)
+
+---
+
+## ✅ **Recently Completed P0/P1 Issues**
 
 ### **Issue #84: Achieve 100% Test Coverage - Comprehensive Implementation Plan**
 
@@ -58,7 +101,7 @@
 **Created**: Jul 09, 2025  
 **Updated**: Jul 14, 2025  
 
-- **Scope**: # Achieve 100% Test Coverage - Comprehensive Implementation Plan  ## Executive Summary  **Current Status**: 97.4% test coverage (580/603 files missing tests) **Target**: 100% test coverage **Timeline*...
+- **Scope**: Achieve 100% Test Coverage - comprehensive testing implementation for all modules
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/84)
 
 ### **Issue #86: Phase 1: Critical Infrastructure Tests (Protocols & Shared Foundation)**
@@ -70,7 +113,7 @@
 **Created**: Jul 09, 2025  
 **Updated**: Jul 11, 2025  
 
-- **Scope**: # Phase 1: Critical Infrastructure Tests - Protocols & Shared Foundation  **Parent Issue**: #84 (100% Test Coverage Plan) **Timeline**: Weeks 1-2 **Priority**: HIGHEST - Critical system contracts  ## ...
+- **Scope**: Phase 1: Critical Infrastructure Tests - protocols and shared foundation testing
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/86)
 
 ### **Issue #88: Phase 2: Domain Layer Tests (Value Objects & Exceptions)**
@@ -82,22 +125,20 @@
 **Created**: Jul 09, 2025  
 **Updated**: Jul 11, 2025  
 
-- **Scope**: # Phase 2: Domain Layer Tests - Value Objects & Exceptions  **Parent Issue**: #84 (100% Test Coverage Plan) **Timeline**: Weeks 3-4 **Priority**: HIGH - Core business logic validation **Depends On**: ...
+- **Scope**: Phase 2: Domain Layer Tests - value objects and exceptions testing
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/88)
 
-### **Issue #90: P1: Implement Database Migration System**
+### **Issue #113: P1: Standardize Repository Async/Sync Patterns**
 
 **Labels**: enhancement, Infrastructure, est:1w, P1-High  
 **Priority**: 🔥 P1-High  
 **Status**: ✅ COMPLETED  
 **Category**: ✨ Enhancement  
 **Created**: Jul 09, 2025  
-**Updated**: Jul 10, 2025  
+**Updated**: Jul 14, 2025  
 
-- **Scope**: ## Problem The project lacks a proper database migration system, making schema changes and production deployments risky and manual.  ## Impact - Database schema changes are not version-controlled - Pr...
-- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/90)
-
-### **Issue #91: Phase 3: Application Layer Tests (DTOs & Services)**
+- **Scope**: Standardize Repository Async/Sync Patterns - infrastructure repository pattern standardization
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/113)
 
 **Labels**: In-Progress, P1-High  
 **Priority**: 🔥 P1-High  
