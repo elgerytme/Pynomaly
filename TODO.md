@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 107  
+**Total Open Issues**: 108  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 23  
+**Pending**: 24  
 
-**Last Sync**: July 14, 2025 at 19:08 UTC
+**Last Sync**: July 14, 2025 at 19:09 UTC
 
 ---
 
@@ -396,6 +396,18 @@
 
 - **Scope**: ## Overview Build a comprehensive machine learning pipeline framework that supports model training, evaluation, hyperparameter optimization, and automated model selection. This provides end-to-end ML ...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/143)
+
+### **Issue #144: Phase 2.3: Data Profiling Package - Advanced Pattern Discovery**
+
+**Labels**: enhancement, Domain, est:1w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Enhance data profiling with advanced pattern discovery, semantic type classification, and machine learning-powered data understanding. This builds intelligent pattern recognition capabilit...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/144)
 
 ## 🔶 **P2-Medium Priority Issues**
 
@@ -1325,6 +1337,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 19:08 UTC  
+**Last Updated**: July 14, 2025 at 19:09 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
