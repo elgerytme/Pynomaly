@@ -58,6 +58,9 @@
     <link rel="stylesheet" href="/static/css/design-system.css" />
     <link rel="stylesheet" href="/static/css/theme-system.css" />
     <link rel="stylesheet" href="/static/css/tailwind.css" />
+    
+    <!-- Accessibility Enhancement Styles -->
+    <link rel="stylesheet" href="/static/css/accessibility.css" />
 
     <!-- Custom CSS -->
     <style>
@@ -235,9 +238,38 @@
 
     {% block head %}{% endblock %}
   </head>
-  <body class="bg-gray-50 transition-colors duration-300">
+  <body class="bg-gray-50 transition-colors duration-300" data-accessibility-enhanced="true">
+    <!-- Skip Links for Accessibility -->
+    <div class="skip-links">
+      <a href="#main-content" class="skip-link">Skip to main content</a>
+      <a href="#navigation" class="skip-link">Skip to navigation</a>
+      <a href="#footer" class="skip-link">Skip to footer</a>
+    </div>
+
+    <!-- Live Regions for Screen Reader Announcements -->
+    <div id="live-region-polite" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <div id="live-region-assertive" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+    <!-- Accessibility Toolbar -->
+    <div id="accessibility-toolbar" class="sr-only-focusable" role="toolbar" aria-label="Accessibility options">
+      <button id="high-contrast-toggle" class="btn btn-sm" aria-pressed="false" title="Toggle high contrast mode">
+        <span class="sr-only">Toggle high contrast mode</span>
+        <span aria-hidden="true">🎨</span>
+      </button>
+      <button id="font-size-increase" class="btn btn-sm" aria-label="Increase font size" title="Increase font size">
+        <span aria-hidden="true">A+</span>
+      </button>
+      <button id="font-size-decrease" class="btn btn-sm" aria-label="Decrease font size" title="Decrease font size">
+        <span aria-hidden="true">A-</span>
+      </button>
+      <button id="voice-commands-toggle" class="btn btn-sm" aria-pressed="false" title="Toggle voice commands">
+        <span class="sr-only">Toggle voice commands</span>
+        <span aria-hidden="true">🎤</span>
+      </button>
+    </div>
+
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg" x-data="{ mobileMenuOpen: false }">
+    <nav id="navigation" class="bg-white shadow-lg" x-data="{ mobileMenuOpen: false }" role="navigation" aria-label="Main navigation">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex">
@@ -553,12 +585,12 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <main id="main-content" class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8" role="main" tabindex="-1">
       {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white mt-12">
+    <footer id="footer" class="bg-white mt-12" role="contentinfo">
       <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         <div class="text-center text-gray-500 text-sm">
           © 2024 Pynomaly - State-of-the-art anomaly detection platform
@@ -571,6 +603,11 @@
 
     <!-- Enhanced Dashboard JavaScript -->
     <script src="/static/js/dashboard.js"></script>
+
+    <!-- Accessibility Enhancement Scripts -->
+    <script src="/static/js/accessibility.js"></script>
+    <script type="module" src="/static/js/voice-commands.js"></script>
+    <script src="/static/js/accessibility-testing.js"></script>
 
     <!-- Frontend Monitoring and Utilities -->
     <script src="/static/js/src/utils/frontend-monitoring.js"></script>
