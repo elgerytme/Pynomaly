@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 127  
+**Total Open Issues**: 129  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 43  
+**Pending**: 45  
 
 **Last Sync**: July 14, 2025 at 19:16 UTC
 
@@ -528,6 +528,30 @@
 
 - **Scope**: ## Overview Optimize the complete data quality framework for enterprise-scale performance with distributed processing, intelligent caching, resource optimization, and horizontal scaling capabilities. ...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/157)
+
+### **Issue #164: Phase 6.1: Integration Testing - End-to-End Validation**
+
+**Labels**: enhancement, Infrastructure, est:1w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Implement comprehensive integration testing suite covering all data science packages and their interactions.  ## Acceptance Criteria - [ ] End-to-end workflow testing - [ ] Performance and...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/164)
+
+### **Issue #165: Phase 6.2: Production Deployment - Enterprise Orchestration**
+
+**Labels**: enhancement, Infrastructure, est:1w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Create production-ready deployment orchestration with Kubernetes, monitoring, and operational runbooks.  ## Acceptance Criteria - [ ] Kubernetes deployment manifests and Helm charts - [ ] ...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/165)
 
 ## 🔶 **P2-Medium Priority Issues**
 
