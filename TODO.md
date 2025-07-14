@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 92  
+**Total Open Issues**: 93  
 **Completed**: 53 (Issue #113 - P1: Standardize Repository Async/Sync Patterns, Issue #128 - P2: Complete ADR Documentation Suite - Consolidated Tracking, Issue #28 - DOC-003: Architecture Decision Records (ADRs), Issue #97 - P2: Implement PyGOD Graph Anomaly Detection, Issue #86 - Phase 1: Critical Infrastructure Tests (Protocols & Shared Foundation), Issue #108 - P2: Create Production Deployment Guide, Issue #88 - Phase 2: Domain Layer Tests (Value Objects & Exceptions))  
 **In Progress**: 2  
-**Pending**: 25  
+**Pending**: 26  
 
-**Last Sync**: July 14, 2025 at 17:06 UTC
+**Last Sync**: July 14, 2025 at 17:12 UTC
 
 ---
 
@@ -264,6 +264,18 @@
 
 - **Scope**: # Web API Improvement Plan - 8-Day Implementation  ## Overview Comprehensive plan to achieve 100% test coverage and 100% passing rate for Web API functionality.  ## Phase 1: Critical Infrastructure Fi...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/123)
+
+### **Issue #129: P1: Consolidate Duplicate Package Structures**
+
+**Labels**: bug, Infrastructure, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: 🐛 Bug  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Problem  **Priority**: P1 - High (Critical Structural Issue)  The project has duplicate directories serving similar purposes, creating confusion and maintenance overhead:  - `src/infrastructure/` v...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/129)
 
 ## 🔶 **P2-Medium Priority Issues**
 
@@ -1145,6 +1157,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 17:06 UTC  
+**Last Updated**: July 14, 2025 at 17:12 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
