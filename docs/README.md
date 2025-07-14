@@ -9,11 +9,18 @@ Welcome to the comprehensive documentation for **Pynomaly** - an advanced anomal
 - [Quick Start Tutorial](./getting-started/quick-start.md)
 - [First Detection Example](./getting-started/first-detection.md)
 
+### 📚 [Tutorials](./tutorials/)
+**Learn by doing** with our comprehensive tutorial collection.
+- [Getting Started Tutorial](./tutorials/getting-started-tutorial.md) - Complete beginner's guide
+- [Best Practices Guide](./tutorials/best-practices.md) - Production deployment and optimization
+
 ### 👥 [User Guides](./user-guides/)
-- [Basic Usage](./user-guides/basic-usage.md)
-- [Advanced Features](./user-guides/advanced-features.md)
-- [CLI Reference](./user-guides/cli-reference.md)
-- [Web Interface](./user-guides/web-interface.md)
+**Package-specific comprehensive guides** for each data science component.
+- [Basic Usage](./user-guides/basic-usage.md) - Fundamental concepts and workflows
+- [Data Profiling Guide](./user-guides/data-profiling-guide.md) - Comprehensive data analysis and profiling
+- [Data Quality Guide](./user-guides/data-quality-guide.md) - Data validation and quality monitoring  
+- [Data Science Guide](./user-guides/data-science-guide.md) - Statistical analysis and ML pipelines
+- [Data Transformation Guide](./user-guides/data-transformation-guide.md) - Data preprocessing and feature engineering
 
 ### 🛠️ [Developer Guides](./developer-guides/)
 - [Contributing Guide](./developer-guides/contributing.md)
@@ -22,10 +29,12 @@ Welcome to the comprehensive documentation for **Pynomaly** - an advanced anomal
 - [Testing Guidelines](./developer-guides/testing-guidelines.md)
 
 ### 📚 [API Reference](./api-reference/)
-- [Core API](./api-reference/core-api.md)
-- [REST API](./api-reference/rest-api.md)
-- [Python SDK](./api-reference/python-sdk.md)
-- [CLI Commands](./api-reference/cli-commands.md)
+**Complete technical reference** for all APIs and comprehensive examples.
+- [Core API](./api-reference/core-api.md) - Main anomaly detection APIs
+- [REST API](./api-reference/rest-api.md) - HTTP API documentation
+- [Python SDK](./api-reference/python-sdk.md) - Python SDK reference
+- [CLI Commands](./api-reference/cli-commands.md) - Command-line interface
+- [Comprehensive Examples](./api-reference/comprehensive-examples.md) - End-to-end API usage examples
 
 ### 🚀 [Deployment](./deployment/)
 - [Production Deployment](./deployment/production.md)
@@ -52,10 +61,11 @@ Welcome to the comprehensive documentation for **Pynomaly** - an advanced anomal
 - [Clean Architecture Implementation](./architecture/clean-architecture.md)
 
 ### 🔧 [Troubleshooting](./troubleshooting/)
-- [Common Issues](./troubleshooting/common-issues.md)
-- [Performance Problems](./troubleshooting/performance.md)
-- [Installation Problems](./troubleshooting/installation.md)
-- [FAQ](./troubleshooting/faq.md)
+**Problem-solving and support** for common issues and questions.
+- [Common Issues](./troubleshooting/common-issues.md) - Frequent problems and solutions
+- [Performance Problems](./troubleshooting/performance.md) - Performance optimization
+- [Installation Problems](./troubleshooting/installation.md) - Installation troubleshooting
+- [FAQ](./troubleshooting/faq.md) - Frequently asked questions with detailed answers
 
 ### 📂 [Archive](./archive/)
 - Historical documentation and legacy guides
