@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 117  
+**Total Open Issues**: 118  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 33  
+**Pending**: 34  
 
 **Last Sync**: July 14, 2025 at 19:13 UTC
 
@@ -492,6 +492,18 @@
 
 - **Scope**: ## Overview Implement a comprehensive data quality governance framework with policy management, compliance tracking, audit trails, and governance workflow automation. This provides enterprise-grade go...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/152)
+
+### **Issue #154: Phase 3.5: Data Quality Package - Data Lineage and Impact Tracking**
+
+**Labels**: enhancement, Domain, est:1w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Implement comprehensive data lineage tracking with quality impact propagation, root cause analysis, and lineage-based quality optimization. This provides visibility into how quality issues...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/154)
 
 ## 🔶 **P2-Medium Priority Issues**
 
