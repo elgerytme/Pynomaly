@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 109  
+**Total Open Issues**: 110  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 25  
+**Pending**: 26  
 
-**Last Sync**: July 14, 2025 at 19:09 UTC
+**Last Sync**: July 14, 2025 at 19:10 UTC
 
 ---
 
@@ -420,6 +420,18 @@
 
 - **Scope**: ## Overview Implement a comprehensive feature engineering framework with automated feature generation, selection, and transformation capabilities. This provides intelligent feature engineering that ad...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/145)
+
+### **Issue #146: Phase 2.5: Data Profiling Package - Real-time Streaming Profiling**
+
+**Labels**: enhancement, Domain, est:1w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Implement real-time streaming data profiling capabilities with incremental updates, live quality monitoring, and streaming pattern detection. This enables continuous data understanding for...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/146)
 
 ## 🔶 **P2-Medium Priority Issues**
 
@@ -1349,6 +1361,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 19:09 UTC  
+**Last Updated**: July 14, 2025 at 19:10 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
