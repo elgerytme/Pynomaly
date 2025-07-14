@@ -64,14 +64,10 @@ class TestAlgorithmRecommendationRequestDTO:
         """Test max_recommendations validation bounds."""
         # Test invalid values
         with pytest.raises(ValidationError):
-            AlgorithmRecommendationRequestDTO(
-                dataset_id="test", max_recommendations=0
-            )
+            AlgorithmRecommendationRequestDTO(dataset_id="test", max_recommendations=0)
 
         with pytest.raises(ValidationError):
-            AlgorithmRecommendationRequestDTO(
-                dataset_id="test", max_recommendations=21
-            )
+            AlgorithmRecommendationRequestDTO(dataset_id="test", max_recommendations=21)
 
         # Test valid values
         for max_recs in [1, 10, 20]:
@@ -274,7 +270,9 @@ class TestAutoMLRequestDTO:
 
         # Test valid values
         for time_limit in [60, 3600, 86400]:
-            request = AutoMLRequestDTO(dataset_id="test", max_optimization_time=time_limit)
+            request = AutoMLRequestDTO(
+                dataset_id="test", max_optimization_time=time_limit
+            )
             assert request.max_optimization_time == time_limit
 
     def test_n_trials_validation(self):
@@ -761,7 +759,9 @@ class TestAutoMLIntegration:
         # Verify optimization workflow
         assert opt_response.success is True
         assert opt_response.trials_completed == len(trials)
-        assert abs(opt_response.optimization_history[2].score - 0.82) < 0.001  # Best trial (floating point tolerance)
+        assert (
+            abs(opt_response.optimization_history[2].score - 0.82) < 0.001
+        )  # Best trial (floating point tolerance)
 
 
 if __name__ == "__main__":

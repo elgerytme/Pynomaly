@@ -56,7 +56,12 @@ class TestAlertLevel:
 
     def test_alert_level_ordering(self):
         """Test alert level severity ordering."""
-        levels = [AlertLevel.INFO, AlertLevel.WARNING, AlertLevel.ERROR, AlertLevel.CRITICAL]
+        levels = [
+            AlertLevel.INFO,
+            AlertLevel.WARNING,
+            AlertLevel.ERROR,
+            AlertLevel.CRITICAL,
+        ]
         level_values = [level.value for level in levels]
         expected_order = ["info", "warning", "error", "critical"]
         assert level_values == expected_order
@@ -190,11 +195,7 @@ class TestMetricSeries:
         custom_timestamp = datetime(2024, 1, 1, 10, 0, 0)
         labels = {"source": "test"}
 
-        series.add_data_point(
-            value=75.5,
-            timestamp=custom_timestamp,
-            labels=labels
-        )
+        series.add_data_point(value=75.5, timestamp=custom_timestamp, labels=labels)
 
         assert len(series.data_points) == 1
         point = series.data_points[0]
@@ -488,7 +489,12 @@ class TestAlertMessage:
     def test_different_alert_levels(self):
         """Test different alert levels."""
         alert_id = uuid4()
-        levels = [AlertLevel.INFO, AlertLevel.WARNING, AlertLevel.ERROR, AlertLevel.CRITICAL]
+        levels = [
+            AlertLevel.INFO,
+            AlertLevel.WARNING,
+            AlertLevel.ERROR,
+            AlertLevel.CRITICAL,
+        ]
 
         for level in levels:
             alert = AlertMessage(
@@ -772,8 +778,7 @@ class TestMonitoringIntegration:
         # Add some historical data
         for i in range(10):
             cpu_series.add_data_point(
-                value=70.0 + i,
-                timestamp=datetime.utcnow() - timedelta(minutes=10-i)
+                value=70.0 + i, timestamp=datetime.utcnow() - timedelta(minutes=10 - i)
             )
 
         # Step 5: Create alerts
@@ -833,7 +838,7 @@ class TestMonitoringIntegration:
         # Add data points
         base_time = datetime.utcnow()
         for i in range(5):
-            timestamp = base_time - timedelta(minutes=5-i)
+            timestamp = base_time - timedelta(minutes=5 - i)
 
             cpu_series.add_data_point(value=50.0 + i * 5, timestamp=timestamp)
             memory_series.add_data_point(value=60.0 + i * 3, timestamp=timestamp)
@@ -851,12 +856,14 @@ class TestMonitoringIntegration:
         assert len(dashboard.metric_series) == 3
         assert dashboard.metric_series[0].get_latest_value() == 70.0  # CPU
         assert dashboard.metric_series[1].get_latest_value() == 72.0  # Memory
-        assert dashboard.metric_series[2].get_latest_value() == 8.0   # Detection
+        assert dashboard.metric_series[2].get_latest_value() == 8.0  # Detection
 
         # Test serialization
         dashboard_dict = dashboard.to_dict()
         assert len(dashboard_dict["metric_series"]) == 3
-        assert all("latest_value" in series for series in dashboard_dict["metric_series"])
+        assert all(
+            "latest_value" in series for series in dashboard_dict["metric_series"]
+        )
 
 
 if __name__ == "__main__":

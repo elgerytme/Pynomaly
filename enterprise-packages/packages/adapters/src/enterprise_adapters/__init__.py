@@ -25,29 +25,24 @@ __all__ = [
     "AdapterFactory",
     "AdapterRegistry",
     "AdapterConfiguration",
-
     # Database adapters
     "DatabaseAdapter",
     "SQLAlchemyAdapter",
     "MongoDBAdapter",
-
     # Cache adapters
     "CacheAdapter",
     "RedisAdapter",
     "MemcachedAdapter",
-
     # Messaging adapters
     "MessageQueueAdapter",
     "RabbitMQAdapter",
     "KafkaAdapter",
     "SQSAdapter",
-
     # Storage adapters
     "StorageAdapter",
     "S3Adapter",
     "AzureBlobAdapter",
     "GCSAdapter",
-
     # ML framework adapters
     "MLFrameworkAdapter",
     "SklearnAdapter",

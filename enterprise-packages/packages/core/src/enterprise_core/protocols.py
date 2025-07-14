@@ -7,17 +7,7 @@ infrastructure components while keeping the domain layer independent.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import (
-    Any,
-    Dict,
-    Generic,
-    List,
-    Optional,
-    Protocol,
-    TypeVar,
-    runtime_checkable,
-)
-from uuid import UUID
+from typing import Any, Generic, Protocol, TypeVar, runtime_checkable
 
 from .domain import BaseEntity, DomainEvent
 
@@ -37,11 +27,11 @@ class Repository(Protocol, Generic[Entity, EntityId]):
         """Save an entity to the repository."""
         ...
 
-    async def find_by_id(self, entity_id: EntityId) -> Optional[Entity]:
+    async def find_by_id(self, entity_id: EntityId) -> Entity | None:
         """Find an entity by its ID."""
         ...
 
-    async def find_all(self) -> List[Entity]:
+    async def find_all(self) -> list[Entity]:
         """Find all entities."""
         ...
 
@@ -98,7 +88,7 @@ class EventBus(Protocol):
         """Publish a domain event."""
         ...
 
-    async def publish_many(self, events: List[DomainEvent]) -> None:
+    async def publish_many(self, events: list[DomainEvent]) -> None:
         """Publish multiple domain events."""
         ...
 
@@ -149,11 +139,11 @@ class Logger(Protocol):
 class Cache(Protocol):
     """Cache protocol for data caching."""
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get a value from the cache."""
         ...
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set a value in the cache with optional TTL."""
         ...
 
@@ -174,11 +164,11 @@ class Cache(Protocol):
 class MessageQueue(Protocol):
     """Message queue protocol for asynchronous messaging."""
 
-    async def send(self, queue: str, message: Dict[str, Any]) -> None:
+    async def send(self, queue: str, message: dict[str, Any]) -> None:
         """Send a message to a queue."""
         ...
 
-    async def receive(self, queue: str) -> Optional[Dict[str, Any]]:
+    async def receive(self, queue: str) -> dict[str, Any] | None:
         """Receive a message from a queue."""
         ...
 
@@ -191,7 +181,7 @@ class MessageQueue(Protocol):
 class MessageHandler(Protocol):
     """Message handler protocol for processing queue messages."""
 
-    async def handle(self, message: Dict[str, Any]) -> None:
+    async def handle(self, message: dict[str, Any]) -> None:
         """Handle a queue message."""
         ...
 
@@ -212,7 +202,7 @@ class HealthStatus:
         self,
         status: str,
         message: str,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         self.status = status  # "healthy", "degraded", "unhealthy"
         self.message = message
@@ -224,15 +214,21 @@ class HealthStatus:
 class Metrics(Protocol):
     """Metrics protocol for application monitoring."""
 
-    def counter(self, name: str, value: float = 1, tags: Optional[Dict[str, str]] = None) -> None:
+    def counter(
+        self, name: str, value: float = 1, tags: dict[str, str] | None = None
+    ) -> None:
         """Increment a counter metric."""
         ...
 
-    def gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+    def gauge(
+        self, name: str, value: float, tags: dict[str, str] | None = None
+    ) -> None:
         """Set a gauge metric."""
         ...
 
-    def histogram(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+    def histogram(
+        self, name: str, value: float, tags: dict[str, str] | None = None
+    ) -> None:
         """Record a histogram metric."""
         ...
 
@@ -262,7 +258,7 @@ class ConfigurationProvider(Protocol):
         """Get a configuration value."""
         ...
 
-    def get_section(self, section: str) -> Dict[str, Any]:
+    def get_section(self, section: str) -> dict[str, Any]:
         """Get a configuration section."""
         ...
 
@@ -275,11 +271,11 @@ class ConfigurationProvider(Protocol):
 class SecretProvider(Protocol):
     """Secret provider protocol for accessing sensitive configuration."""
 
-    async def get_secret(self, key: str) -> Optional[str]:
+    async def get_secret(self, key: str) -> str | None:
         """Get a secret value."""
         ...
 
-    async def list_secrets(self) -> List[str]:
+    async def list_secrets(self) -> list[str]:
         """List available secret keys."""
         ...
 
@@ -288,11 +284,11 @@ class SecretProvider(Protocol):
 class FeatureFlag(Protocol):
     """Feature flag protocol for controlling feature rollouts."""
 
-    def is_enabled(self, flag: str, context: Optional[Dict[str, Any]] = None) -> bool:
+    def is_enabled(self, flag: str, context: dict[str, Any] | None = None) -> bool:
         """Check if a feature flag is enabled."""
         ...
 
-    def get_variant(self, flag: str, context: Optional[Dict[str, Any]] = None) -> str:
+    def get_variant(self, flag: str, context: dict[str, Any] | None = None) -> str:
         """Get the variant of a feature flag."""
         ...
 
@@ -304,7 +300,7 @@ class ServiceAdapter(ABC):
     while hiding implementation details.
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
+    def __init__(self, config: dict[str, Any]) -> None:
         self.config = config
         self._is_healthy = True
 

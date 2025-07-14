@@ -37,7 +37,7 @@ class TestRunDTO:
             dataset_name="credit_fraud",
             parameters=parameters,
             metrics=metrics,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         assert run.id == run_id
@@ -57,7 +57,7 @@ class TestRunDTO:
         artifacts = {
             "model_path": "/models/run_123/model.pkl",
             "confusion_matrix": "/models/run_123/confusion_matrix.png",
-            "feature_importance": "/models/run_123/feature_importance.json"
+            "feature_importance": "/models/run_123/feature_importance.json",
         }
 
         run = RunDTO(
@@ -67,7 +67,7 @@ class TestRunDTO:
             parameters=parameters,
             metrics=metrics,
             artifacts=artifacts,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         assert run.artifacts == artifacts
@@ -84,7 +84,7 @@ class TestRunDTO:
             dataset_name="test_dataset",
             parameters={},
             metrics={},
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         assert run.parameters == {}
@@ -99,14 +99,14 @@ class TestRunDTO:
             "ensemble_config": {
                 "algorithms": ["isolation_forest", "one_class_svm"],
                 "voting_strategy": "weighted_average",
-                "weights": [0.6, 0.4]
+                "weights": [0.6, 0.4],
             },
             "preprocessing": {
                 "scaling": "standard",
                 "feature_selection": True,
-                "n_features": 10
+                "n_features": 10,
             },
-            "random_state": 42
+            "random_state": 42,
         }
 
         # Metrics must be simple float values per the DTO definition
@@ -117,7 +117,7 @@ class TestRunDTO:
             "auc_score": 0.912,
             "accuracy": 0.856,
             "cv_mean_f1": 0.838,
-            "cv_std_f1": 0.019
+            "cv_std_f1": 0.019,
         }
 
         run = RunDTO(
@@ -126,10 +126,12 @@ class TestRunDTO:
             dataset_name="complex_dataset",
             parameters=complex_parameters,
             metrics=metrics,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
-        assert run.parameters["ensemble_config"]["voting_strategy"] == "weighted_average"
+        assert (
+            run.parameters["ensemble_config"]["voting_strategy"] == "weighted_average"
+        )
         assert run.metrics["f1_score"] == 0.842
         assert run.metrics["cv_mean_f1"] == 0.838
         assert len(run.metrics) == 7
@@ -144,7 +146,7 @@ class TestRunDTO:
                 parameters={},
                 metrics={},
                 timestamp=datetime.utcnow(),
-                extra_field="not_allowed"  # type: ignore
+                extra_field="not_allowed",  # type: ignore
             )
 
 
@@ -161,7 +163,7 @@ class TestExperimentDTO:
             id=experiment_id,
             name="fraud_detection_experiment",
             created_at=created_at,
-            updated_at=updated_at
+            updated_at=updated_at,
         )
 
         assert experiment.id == experiment_id
@@ -186,7 +188,7 @@ class TestExperimentDTO:
                 dataset_name="credit_fraud",
                 parameters={"n_estimators": 100},
                 metrics={"f1_score": 0.85},
-                timestamp=datetime.utcnow()
+                timestamp=datetime.utcnow(),
             ),
             RunDTO(
                 id=str(uuid4()),
@@ -194,14 +196,14 @@ class TestExperimentDTO:
                 dataset_name="credit_fraud",
                 parameters={"gamma": "auto"},
                 metrics={"f1_score": 0.82},
-                timestamp=datetime.utcnow()
-            )
+                timestamp=datetime.utcnow(),
+            ),
         ]
 
         metadata = {
             "project": "anomaly_detection",
             "owner": "data_science_team",
-            "environment": "production"
+            "environment": "production",
         }
 
         experiment = ExperimentDTO(
@@ -211,7 +213,7 @@ class TestExperimentDTO:
             runs=runs,
             created_at=created_at,
             updated_at=updated_at,
-            metadata=metadata
+            metadata=metadata,
         )
 
         assert experiment.description == "Comprehensive fraud detection experiment"
@@ -228,7 +230,12 @@ class TestExperimentDTO:
 
         # Create multiple runs for different algorithms
         runs = []
-        algorithms = ["isolation_forest", "one_class_svm", "local_outlier_factor", "elliptic_envelope"]
+        algorithms = [
+            "isolation_forest",
+            "one_class_svm",
+            "local_outlier_factor",
+            "elliptic_envelope",
+        ]
 
         for i, algorithm in enumerate(algorithms):
             for trial in range(3):  # 3 trials per algorithm
@@ -238,7 +245,7 @@ class TestExperimentDTO:
                     dataset_name="benchmark_dataset",
                     parameters={"trial": trial, "random_state": i * 10 + trial},
                     metrics={"f1_score": 0.8 + (i * 0.02) + (trial * 0.01)},
-                    timestamp=datetime.utcnow()
+                    timestamp=datetime.utcnow(),
                 )
                 runs.append(run)
 
@@ -248,7 +255,7 @@ class TestExperimentDTO:
             description="Comparison of different anomaly detection algorithms",
             runs=runs,
             created_at=created_at,
-            updated_at=updated_at
+            updated_at=updated_at,
         )
 
         assert len(experiment.runs) == 12  # 4 algorithms * 3 trials
@@ -266,7 +273,7 @@ class TestExperimentDTO:
             id=experiment_id,
             name="evolving_experiment",
             created_at=created_at,
-            updated_at=created_at
+            updated_at=created_at,
         )
         assert len(initial_experiment.runs) == 0
 
@@ -277,7 +284,7 @@ class TestExperimentDTO:
             dataset_name="test_data",
             parameters={"baseline": True},
             metrics={"f1_score": 0.75},
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
 
         updated_experiment = ExperimentDTO(
@@ -285,7 +292,7 @@ class TestExperimentDTO:
             name="evolving_experiment",
             runs=[first_run],
             created_at=created_at,
-            updated_at=datetime.utcnow()
+            updated_at=datetime.utcnow(),
         )
         assert len(updated_experiment.runs) == 1
 
@@ -297,7 +304,7 @@ class TestExperimentDTO:
                 dataset_name="test_data",
                 parameters={"improvement": "v1"},
                 metrics={"f1_score": 0.82},
-                timestamp=datetime.utcnow()
+                timestamp=datetime.utcnow(),
             ),
             RunDTO(
                 id=str(uuid4()),
@@ -305,8 +312,8 @@ class TestExperimentDTO:
                 dataset_name="test_data",
                 parameters={"optimization": "hyperparameter_tuning"},
                 metrics={"f1_score": 0.89},
-                timestamp=datetime.utcnow()
-            )
+                timestamp=datetime.utcnow(),
+            ),
         ]
 
         final_experiment = ExperimentDTO(
@@ -314,7 +321,7 @@ class TestExperimentDTO:
             name="evolving_experiment",
             runs=[first_run] + additional_runs,
             created_at=created_at,
-            updated_at=datetime.utcnow()
+            updated_at=datetime.utcnow(),
         )
         assert len(final_experiment.runs) == 3
         # Verify performance improvement over time
@@ -327,9 +334,7 @@ class TestCreateExperimentDTO:
 
     def test_basic_creation(self):
         """Test basic create experiment DTO creation."""
-        create_dto = CreateExperimentDTO(
-            name="new_experiment"
-        )
+        create_dto = CreateExperimentDTO(name="new_experiment")
 
         assert create_dto.name == "new_experiment"
         assert create_dto.description is None  # Default
@@ -340,17 +345,19 @@ class TestCreateExperimentDTO:
         metadata = {
             "priority": "high",
             "tags": ["production", "critical"],
-            "budget": 1000
+            "budget": 1000,
         }
 
         create_dto = CreateExperimentDTO(
             name="comprehensive_experiment",
             description="A comprehensive experiment for anomaly detection",
-            metadata=metadata
+            metadata=metadata,
         )
 
         assert create_dto.name == "comprehensive_experiment"
-        assert create_dto.description == "A comprehensive experiment for anomaly detection"
+        assert (
+            create_dto.description == "A comprehensive experiment for anomaly detection"
+        )
         assert create_dto.metadata == metadata
 
     def test_name_validation(self):
@@ -375,17 +382,11 @@ class TestCreateExperimentDTO:
         # Test maximum length
         long_description = "x" * 501  # 501 characters
         with pytest.raises(ValidationError):
-            CreateExperimentDTO(
-                name="test",
-                description=long_description
-            )
+            CreateExperimentDTO(name="test", description=long_description)
 
         # Test valid description
         valid_description = "x" * 500  # Exactly 500 characters
-        dto = CreateExperimentDTO(
-            name="test",
-            description=valid_description
-        )
+        dto = CreateExperimentDTO(name="test", description=valid_description)
         assert len(dto.description) == 500
 
         # Test None description
@@ -394,10 +395,7 @@ class TestCreateExperimentDTO:
 
     def test_empty_metadata(self):
         """Test with empty metadata."""
-        dto = CreateExperimentDTO(
-            name="test_experiment",
-            metadata={}
-        )
+        dto = CreateExperimentDTO(name="test_experiment", metadata={})
         assert dto.metadata == {}
 
     def test_complex_metadata(self):
@@ -406,24 +404,20 @@ class TestCreateExperimentDTO:
             "project_info": {
                 "name": "anomaly_detection_v2",
                 "version": "2.1.0",
-                "team": "ml_engineering"
+                "team": "ml_engineering",
             },
             "experiment_config": {
                 "max_runs": 100,
                 "timeout_hours": 24,
-                "auto_stop": True
+                "auto_stop": True,
             },
-            "resources": {
-                "compute_type": "gpu",
-                "memory_gb": 16,
-                "storage_gb": 100
-            }
+            "resources": {"compute_type": "gpu", "memory_gb": 16, "storage_gb": 100},
         }
 
         dto = CreateExperimentDTO(
             name="advanced_experiment",
             description="Advanced experiment with complex configuration",
-            metadata=complex_metadata
+            metadata=complex_metadata,
         )
 
         assert dto.metadata["project_info"]["name"] == "anomaly_detection_v2"
@@ -435,7 +429,7 @@ class TestCreateExperimentDTO:
         with pytest.raises(ValidationError):
             CreateExperimentDTO(
                 name="test",
-                extra_field="not_allowed"  # type: ignore
+                extra_field="not_allowed",  # type: ignore
             )
 
 
@@ -456,7 +450,7 @@ class TestLeaderboardEntryDTO:
             dataset_name="fraud_detection",
             score=0.92,
             metric_name="f1_score",
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         assert entry.rank == 1
@@ -474,11 +468,7 @@ class TestLeaderboardEntryDTO:
         experiment_id = str(uuid4())
         run_id = str(uuid4())
         timestamp = datetime.utcnow()
-        parameters = {
-            "n_estimators": 200,
-            "contamination": 0.05,
-            "random_state": 42
-        }
+        parameters = {"n_estimators": 200, "contamination": 0.05, "random_state": 42}
 
         entry = LeaderboardEntryDTO(
             rank=3,
@@ -489,7 +479,7 @@ class TestLeaderboardEntryDTO:
             score=0.88,
             metric_name="auc_score",
             parameters=parameters,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         assert entry.rank == 3
@@ -510,7 +500,7 @@ class TestLeaderboardEntryDTO:
                 dataset_name="benchmark",
                 score=0.95,
                 metric_name="f1_score",
-                timestamp=base_timestamp
+                timestamp=base_timestamp,
             ),
             LeaderboardEntryDTO(
                 rank=2,
@@ -520,7 +510,7 @@ class TestLeaderboardEntryDTO:
                 dataset_name="benchmark",
                 score=0.91,
                 metric_name="f1_score",
-                timestamp=base_timestamp
+                timestamp=base_timestamp,
             ),
             LeaderboardEntryDTO(
                 rank=3,
@@ -530,8 +520,8 @@ class TestLeaderboardEntryDTO:
                 dataset_name="benchmark",
                 score=0.87,
                 metric_name="f1_score",
-                timestamp=base_timestamp
-            )
+                timestamp=base_timestamp,
+            ),
         ]
 
         # Verify ranking order
@@ -548,7 +538,7 @@ class TestLeaderboardEntryDTO:
             ("precision", 0.92),
             ("recall", 0.80),
             ("auc_score", 0.89),
-            ("accuracy", 0.87)
+            ("accuracy", 0.87),
         ]
 
         entries = []
@@ -561,7 +551,7 @@ class TestLeaderboardEntryDTO:
                 dataset_name="multi_metric_dataset",
                 score=score,
                 metric_name=metric_name,
-                timestamp=timestamp
+                timestamp=timestamp,
             )
             entries.append(entry)
 
@@ -582,7 +572,7 @@ class TestLeaderboardEntryDTO:
                 score=0.5,
                 metric_name="test",
                 timestamp=datetime.utcnow(),
-                extra_field="not_allowed"  # type: ignore
+                extra_field="not_allowed",  # type: ignore
             )
 
 
@@ -599,7 +589,7 @@ class TestExperimentResponseDTO:
             id=experiment_id,
             name="response_experiment",
             created_at=created_at,
-            updated_at=updated_at
+            updated_at=updated_at,
         )
 
         assert response.id == experiment_id
@@ -621,7 +611,7 @@ class TestExperimentResponseDTO:
         metadata = {
             "total_compute_hours": 15.5,
             "cost_usd": 45.30,
-            "best_run_id": str(uuid4())
+            "best_run_id": str(uuid4()),
         }
 
         response = ExperimentResponseDTO(
@@ -634,7 +624,7 @@ class TestExperimentResponseDTO:
             best_metric="f1_score",
             created_at=created_at,
             updated_at=updated_at,
-            metadata=metadata
+            metadata=metadata,
         )
 
         assert response.description == "Complete experiment response"
@@ -658,7 +648,7 @@ class TestExperimentResponseDTO:
                 name="status_test",
                 status=status,
                 created_at=created_at,
-                updated_at=updated_at
+                updated_at=updated_at,
             )
             assert response.status == status
 
@@ -674,7 +664,7 @@ class TestExperimentResponseDTO:
             status="active",
             total_runs=0,
             created_at=created_at,
-            updated_at=created_at
+            updated_at=created_at,
         )
         assert initial_response.total_runs == 0
         assert initial_response.best_score is None
@@ -688,7 +678,7 @@ class TestExperimentResponseDTO:
             best_score=0.82,
             best_metric="f1_score",
             created_at=created_at,
-            updated_at=datetime.utcnow()
+            updated_at=datetime.utcnow(),
         )
         assert progress_response.total_runs == 5
         assert progress_response.best_score == 0.82
@@ -703,7 +693,7 @@ class TestExperimentResponseDTO:
             best_metric="f1_score",
             created_at=created_at,
             updated_at=datetime.utcnow(),
-            metadata={"completion_reason": "max_runs_reached"}
+            metadata={"completion_reason": "max_runs_reached"},
         )
         assert completed_response.status == "completed"
         assert completed_response.total_runs == 15
@@ -718,7 +708,7 @@ class TestExperimentResponseDTO:
                 name="test",
                 created_at=datetime.utcnow(),
                 updated_at=datetime.utcnow(),
-                extra_field="not_allowed"  # type: ignore
+                extra_field="not_allowed",  # type: ignore
             )
 
 
@@ -734,8 +724,8 @@ class TestExperimentDTOIntegration:
             metadata={
                 "project": "financial_security",
                 "budget": 5000,
-                "priority": "high"
-            }
+                "priority": "high",
+            },
         )
 
         # Step 2: Simulate experiment creation
@@ -748,7 +738,7 @@ class TestExperimentDTOIntegration:
             description=create_request.description,
             created_at=created_at,
             updated_at=created_at,
-            metadata=create_request.metadata
+            metadata=create_request.metadata,
         )
 
         # Step 3: Add runs to experiment
@@ -763,18 +753,18 @@ class TestExperimentDTOIntegration:
                 parameters={
                     "random_state": 42,
                     "contamination": 0.1,
-                    "algorithm_specific": f"param_{i}"
+                    "algorithm_specific": f"param_{i}",
                 },
                 metrics={
                     "f1_score": 0.8 + (i * 0.03),
                     "precision": 0.85 + (i * 0.02),
-                    "recall": 0.78 + (i * 0.04)
+                    "recall": 0.78 + (i * 0.04),
                 },
                 artifacts={
                     "model_path": f"/models/{algorithm}/model.pkl",
-                    "report_path": f"/reports/{algorithm}/report.html"
+                    "report_path": f"/reports/{algorithm}/report.html",
                 },
-                timestamp=datetime.utcnow()
+                timestamp=datetime.utcnow(),
             )
             runs.append(run)
 
@@ -786,7 +776,7 @@ class TestExperimentDTOIntegration:
             runs=runs,
             created_at=experiment.created_at,
             updated_at=datetime.utcnow(),
-            metadata=experiment.metadata
+            metadata=experiment.metadata,
         )
 
         # Step 4: Create leaderboard entries
@@ -801,7 +791,7 @@ class TestExperimentDTOIntegration:
                 score=run.metrics["f1_score"],
                 metric_name="f1_score",
                 parameters=run.parameters,
-                timestamp=run.timestamp
+                timestamp=run.timestamp,
             )
             leaderboard_entries.append(entry)
 
@@ -821,15 +811,17 @@ class TestExperimentDTOIntegration:
             metadata={
                 **updated_experiment.metadata,
                 "best_algorithm": best_run.detector_name,
-                "total_experiments": len(runs)
-            }
+                "total_experiments": len(runs),
+            },
         )
 
         # Verify workflow consistency
         assert response.name == create_request.name
         assert response.description == create_request.description
         assert response.total_runs == 3
-        assert abs(response.best_score - 0.86) < 0.001  # local_outlier_factor with highest score (with floating point tolerance)
+        assert (
+            abs(response.best_score - 0.86) < 0.001
+        )  # local_outlier_factor with highest score (with floating point tolerance)
         assert response.metadata["best_algorithm"] == "local_outlier_factor"
         assert len(leaderboard_entries) == 3
         assert leaderboard_entries[0].rank == 1  # Best performer first
@@ -852,7 +844,7 @@ class TestExperimentDTOIntegration:
                     dataset_name=f"dataset_{i}",
                     parameters={"experiment": i, "run": j},
                     metrics={"f1_score": 0.75 + (i * 0.05) + (j * 0.02)},
-                    timestamp=base_timestamp
+                    timestamp=base_timestamp,
                 )
                 runs.append(run)
 
@@ -862,7 +854,7 @@ class TestExperimentDTOIntegration:
                 description=f"Description for experiment {i}",
                 runs=runs,
                 created_at=base_timestamp,
-                updated_at=base_timestamp
+                updated_at=base_timestamp,
             )
             experiments.append(experiment)
 
@@ -880,7 +872,7 @@ class TestExperimentDTOIntegration:
                 best_score=best_run.metrics["f1_score"],
                 best_metric="f1_score",
                 created_at=experiment.created_at,
-                updated_at=experiment.updated_at
+                updated_at=experiment.updated_at,
             )
             responses.append(response)
 
@@ -888,8 +880,10 @@ class TestExperimentDTOIntegration:
         assert len(responses) == 3
         best_scores = [response.best_score for response in responses]
         expected_scores = [0.77, 0.82, 0.87]
-        for actual, expected in zip(best_scores, expected_scores):
-            assert abs(actual - expected) < 0.001  # Improving scores with floating point tolerance
+        for actual, expected in zip(best_scores, expected_scores, strict=False):
+            assert (
+                abs(actual - expected) < 0.001
+            )  # Improving scores with floating point tolerance
 
         # Find overall best experiment
         best_experiment = max(responses, key=lambda r: r.best_score)
@@ -904,7 +898,7 @@ class TestExperimentDTOIntegration:
             ("exp_1", "run_2", "one_class_svm", "dataset_a", 0.85),
             ("exp_2", "run_3", "local_outlier_factor", "dataset_b", 0.92),
             ("exp_2", "run_4", "ensemble", "dataset_b", 0.94),
-            ("exp_3", "run_5", "isolation_forest", "dataset_c", 0.87)
+            ("exp_3", "run_5", "isolation_forest", "dataset_c", 0.87),
         ]
 
         leaderboard_entries = []
@@ -917,12 +911,14 @@ class TestExperimentDTOIntegration:
                 dataset_name=dataset,
                 score=score,
                 metric_name="f1_score",
-                timestamp=datetime.utcnow()
+                timestamp=datetime.utcnow(),
             )
             leaderboard_entries.append(entry)
 
         # Sort by score (descending) and update ranks
-        sorted_entries = sorted(leaderboard_entries, key=lambda x: x.score, reverse=True)
+        sorted_entries = sorted(
+            leaderboard_entries, key=lambda x: x.score, reverse=True
+        )
         for i, entry in enumerate(sorted_entries):
             entry.rank = i + 1
 

@@ -34,8 +34,13 @@ class TestExplanationMethod:
     def test_explanation_method_completeness(self):
         """Test that all expected explanation methods are present."""
         expected_methods = {
-            "shap", "lime", "permutation", "integrated_gradients",
-            "gradcam", "anchors", "captum"
+            "shap",
+            "lime",
+            "permutation",
+            "integrated_gradients",
+            "gradcam",
+            "anchors",
+            "captum",
         }
         actual_methods = {method.value for method in ExplanationMethod}
         assert actual_methods == expected_methods
@@ -70,8 +75,12 @@ class TestExplanationType:
 
     def test_explanation_type_ordering(self):
         """Test explanation type logical ordering."""
-        types = [ExplanationType.LOCAL, ExplanationType.GLOBAL,
-                ExplanationType.COHORT, ExplanationType.COMPARATIVE]
+        types = [
+            ExplanationType.LOCAL,
+            ExplanationType.GLOBAL,
+            ExplanationType.COHORT,
+            ExplanationType.COMPARATIVE,
+        ]
         type_values = [exp_type.value for exp_type in types]
         expected_order = ["local", "global", "cohort", "comparative"]
         assert type_values == expected_order
@@ -92,8 +101,12 @@ class TestBiasMetric:
     def test_bias_metric_completeness(self):
         """Test that all expected bias metrics are present."""
         expected_metrics = {
-            "demographic_parity", "equalized_odds", "statistical_parity",
-            "individual_fairness", "counterfactual_fairness", "calibration"
+            "demographic_parity",
+            "equalized_odds",
+            "statistical_parity",
+            "individual_fairness",
+            "counterfactual_fairness",
+            "calibration",
         }
         actual_metrics = {metric.value for metric in BiasMetric}
         assert actual_metrics == expected_metrics
@@ -104,13 +117,13 @@ class TestBiasMetric:
         group_fairness = {
             BiasMetric.DEMOGRAPHIC_PARITY,
             BiasMetric.EQUALIZED_ODDS,
-            BiasMetric.STATISTICAL_PARITY
+            BiasMetric.STATISTICAL_PARITY,
         }
 
         # Individual bias metrics
         individual_fairness = {
             BiasMetric.INDIVIDUAL_FAIRNESS,
-            BiasMetric.COUNTERFACTUAL_FAIRNESS
+            BiasMetric.COUNTERFACTUAL_FAIRNESS,
         }
 
         # Calibration metrics
@@ -154,8 +167,7 @@ class TestCohortExplanationRequestDTO:
     def test_basic_creation(self):
         """Test basic cohort explanation request creation."""
         request = CohortExplanationRequestDTO(
-            detector_id="detector_123",
-            dataset_id="dataset_456"
+            detector_id="detector_123", dataset_id="dataset_456"
         )
 
         assert request.detector_id == "detector_123"
@@ -177,7 +189,7 @@ class TestCohortExplanationRequestDTO:
             dataset_id="dataset_123",
             cohort_indices=indices,
             explanation_method="lime",
-            max_features=15
+            max_features=15,
         )
 
         assert request.cohort_indices == indices
@@ -189,14 +201,14 @@ class TestCohortExplanationRequestDTO:
         definitions = [
             {"age": {">=": 30, "<=": 60}},
             {"gender": {"==": "female"}},
-            {"income": {">": 50000}}
+            {"income": {">": 50000}},
         ]
 
         request = CohortExplanationRequestDTO(
             detector_id="detector_def",
             dataset_id="dataset_def",
             cohort_definitions=definitions,
-            explanation_method="permutation"
+            explanation_method="permutation",
         )
 
         assert request.cohort_definitions == definitions
@@ -204,13 +216,17 @@ class TestCohortExplanationRequestDTO:
 
     def test_creation_with_multiple_explanation_methods(self):
         """Test creation with multiple explanation methods."""
-        methods = [ExplanationMethod.SHAP, ExplanationMethod.LIME, ExplanationMethod.PERMUTATION]
+        methods = [
+            ExplanationMethod.SHAP,
+            ExplanationMethod.LIME,
+            ExplanationMethod.PERMUTATION,
+        ]
 
         request = CohortExplanationRequestDTO(
             detector_id="detector_multi",
             dataset_id="dataset_multi",
             explanation_methods=methods,
-            include_statistics=False
+            include_statistics=False,
         )
 
         assert request.explanation_methods == methods
@@ -223,22 +239,20 @@ class TestCohortExplanationRequestDTO:
             CohortExplanationRequestDTO(
                 detector_id="test",
                 dataset_id="test",
-                max_features=0  # Below minimum
+                max_features=0,  # Below minimum
             )
 
         with pytest.raises(ValidationError):
             CohortExplanationRequestDTO(
                 detector_id="test",
                 dataset_id="test",
-                max_features=51  # Above maximum
+                max_features=51,  # Above maximum
             )
 
         # Test valid boundary values
         for max_features in [1, 25, 50]:
             request = CohortExplanationRequestDTO(
-                detector_id="test",
-                dataset_id="test",
-                max_features=max_features
+                detector_id="test", dataset_id="test", max_features=max_features
             )
             assert request.max_features == max_features
 
@@ -248,7 +262,7 @@ class TestCohortExplanationRequestDTO:
             detector_id="detector_compare",
             dataset_id="dataset_compare",
             comparison_baseline="global_average",
-            explanation_method="integrated_gradients"
+            explanation_method="integrated_gradients",
         )
 
         assert request.comparison_baseline == "global_average"
@@ -269,7 +283,7 @@ class TestCohortExplanationRequestDTO:
             explanation_methods=methods,
             max_features=20,
             comparison_baseline="median",
-            include_statistics=True
+            include_statistics=True,
         )
 
         assert request.detector_id == "detector_complete"
@@ -285,9 +299,7 @@ class TestCohortExplanationRequestDTO:
     def test_empty_cohort_indices(self):
         """Test with empty cohort indices list."""
         request = CohortExplanationRequestDTO(
-            detector_id="detector_empty",
-            dataset_id="dataset_empty",
-            cohort_indices=[]
+            detector_id="detector_empty", dataset_id="dataset_empty", cohort_indices=[]
         )
 
         assert request.cohort_indices == []
@@ -297,7 +309,7 @@ class TestCohortExplanationRequestDTO:
         request = CohortExplanationRequestDTO(
             detector_id="detector_empty_def",
             dataset_id="dataset_empty_def",
-            cohort_definitions=[]
+            cohort_definitions=[],
         )
 
         assert request.cohort_definitions == []
@@ -307,7 +319,7 @@ class TestCohortExplanationRequestDTO:
         request = CohortExplanationRequestDTO(
             detector_id="detector_empty_methods",
             dataset_id="dataset_empty_methods",
-            explanation_methods=[]
+            explanation_methods=[],
         )
 
         assert request.explanation_methods == []
@@ -321,7 +333,7 @@ class TestCohortExplanationRequestDTO:
             detector_id="detector_mixed",
             dataset_id="dataset_mixed",
             cohort_indices=indices,
-            cohort_definitions=definitions
+            cohort_definitions=definitions,
         )
 
         # Both should be preserved
@@ -336,7 +348,7 @@ class TestCohortExplanationRequestDTO:
             detector_id="detector_large",
             dataset_id="dataset_large",
             cohort_indices=large_indices,
-            max_features=50
+            max_features=50,
         )
 
         assert len(request.cohort_indices) == 1000
@@ -348,19 +360,16 @@ class TestCohortExplanationRequestDTO:
             {
                 "age": {">=": 25, "<=": 65},
                 "income": {">": 30000},
-                "education": {"in": ["bachelor", "master", "phd"]}
+                "education": {"in": ["bachelor", "master", "phd"]},
             },
-            {
-                "location": {"startswith": "US"},
-                "experience": {">=": 5}
-            }
+            {"location": {"startswith": "US"}, "experience": {">=": 5}},
         ]
 
         request = CohortExplanationRequestDTO(
             detector_id="detector_complex",
             dataset_id="dataset_complex",
             cohort_definitions=complex_definitions,
-            explanation_method="gradcam"
+            explanation_method="gradcam",
         )
 
         assert request.cohort_definitions == complex_definitions
@@ -374,7 +383,7 @@ class TestCohortExplanationRequestDTO:
             request = CohortExplanationRequestDTO(
                 detector_id="detector_baseline",
                 dataset_id="dataset_baseline",
-                comparison_baseline=baseline
+                comparison_baseline=baseline,
             )
             assert request.comparison_baseline == baseline
 
@@ -387,13 +396,13 @@ class TestCohortExplanationRequestDTO:
             ExplanationMethod.INTEGRATED_GRADIENTS,
             ExplanationMethod.GRADCAM,
             ExplanationMethod.ANCHORS,
-            ExplanationMethod.CAPTUM
+            ExplanationMethod.CAPTUM,
         ]
 
         request = CohortExplanationRequestDTO(
             detector_id="detector_all_methods",
             dataset_id="dataset_all_methods",
-            explanation_methods=all_methods
+            explanation_methods=all_methods,
         )
 
         assert len(request.explanation_methods) == 7
@@ -405,7 +414,7 @@ class TestCohortExplanationRequestDTO:
             CohortExplanationRequestDTO(
                 detector_id="test",
                 dataset_id="test",
-                extra_field="not_allowed"  # type: ignore
+                extra_field="not_allowed",  # type: ignore
             )
 
 
@@ -416,10 +425,7 @@ class TestExplainabilityDTOIntegration:
         """Test complete cohort explanation workflow."""
         # Step 1: Define cohorts using both indices and definitions
         high_risk_indices = [5, 15, 25, 35, 45]
-        demographic_definitions = [
-            {"age": {">=": 50}},
-            {"risk_score": {">=": 0.8}}
-        ]
+        demographic_definitions = [{"age": {">=": 50}}, {"risk_score": {">=": 0.8}}]
 
         # Step 2: Create explanation request with multiple methods
         request = CohortExplanationRequestDTO(
@@ -431,11 +437,11 @@ class TestExplainabilityDTOIntegration:
             explanation_methods=[
                 ExplanationMethod.SHAP,
                 ExplanationMethod.LIME,
-                ExplanationMethod.PERMUTATION
+                ExplanationMethod.PERMUTATION,
             ],
             max_features=25,
             comparison_baseline="global_median",
-            include_statistics=True
+            include_statistics=True,
         )
 
         # Verify workflow configuration
@@ -452,7 +458,7 @@ class TestExplainabilityDTOIntegration:
         fairness_metrics = [
             BiasMetric.DEMOGRAPHIC_PARITY,
             BiasMetric.EQUALIZED_ODDS,
-            BiasMetric.INDIVIDUAL_FAIRNESS
+            BiasMetric.INDIVIDUAL_FAIRNESS,
         ]
 
         # Test trust-focused analysis
@@ -460,7 +466,7 @@ class TestExplainabilityDTOIntegration:
             TrustMetric.CONSISTENCY,
             TrustMetric.STABILITY,
             TrustMetric.FIDELITY,
-            TrustMetric.ROBUSTNESS
+            TrustMetric.ROBUSTNESS,
         ]
 
         # Verify metric categories
@@ -477,14 +483,14 @@ class TestExplainabilityDTOIntegration:
         model_agnostic = [
             ExplanationMethod.SHAP,
             ExplanationMethod.LIME,
-            ExplanationMethod.PERMUTATION
+            ExplanationMethod.PERMUTATION,
         ]
 
         # Deep learning methods
         deep_learning = [
             ExplanationMethod.INTEGRATED_GRADIENTS,
             ExplanationMethod.GRADCAM,
-            ExplanationMethod.CAPTUM
+            ExplanationMethod.CAPTUM,
         ]
 
         # Rule-based methods
@@ -494,15 +500,22 @@ class TestExplainabilityDTOIntegration:
         scenarios = [
             ("tabular_data", model_agnostic + rule_based),
             ("image_data", deep_learning + [ExplanationMethod.LIME]),
-            ("text_data", [ExplanationMethod.SHAP, ExplanationMethod.LIME, ExplanationMethod.ANCHORS]),
-            ("comprehensive", model_agnostic + deep_learning + rule_based)
+            (
+                "text_data",
+                [
+                    ExplanationMethod.SHAP,
+                    ExplanationMethod.LIME,
+                    ExplanationMethod.ANCHORS,
+                ],
+            ),
+            ("comprehensive", model_agnostic + deep_learning + rule_based),
         ]
 
         for scenario_name, methods in scenarios:
             request = CohortExplanationRequestDTO(
                 detector_id=f"detector_{scenario_name}",
                 dataset_id=f"dataset_{scenario_name}",
-                explanation_methods=methods
+                explanation_methods=methods,
             )
 
             assert len(request.explanation_methods) == len(methods)
@@ -514,14 +527,14 @@ class TestExplainabilityDTOIntegration:
         numerical_cohorts = [
             {"age": {">=": 18, "<=": 65}},
             {"income": {">": 50000, "<=": 200000}},
-            {"credit_score": {">=": 700}}
+            {"credit_score": {">=": 700}},
         ]
 
         # Categorical patterns
         categorical_cohorts = [
             {"gender": {"==": "female"}},
             {"education": {"in": ["bachelor", "master", "phd"]}},
-            {"occupation": {"not_in": ["student", "retired"]}}
+            {"occupation": {"not_in": ["student", "retired"]}},
         ]
 
         # Complex combined patterns
@@ -529,7 +542,7 @@ class TestExplainabilityDTOIntegration:
             {
                 "age": {">=": 30, "<=": 50},
                 "income": {">": 75000},
-                "location": {"startswith": "US"}
+                "location": {"startswith": "US"},
             }
         ]
 
@@ -537,14 +550,14 @@ class TestExplainabilityDTOIntegration:
         pattern_tests = [
             ("numerical", numerical_cohorts),
             ("categorical", categorical_cohorts),
-            ("complex", complex_cohorts)
+            ("complex", complex_cohorts),
         ]
 
         for pattern_name, cohort_defs in pattern_tests:
             request = CohortExplanationRequestDTO(
                 detector_id=f"detector_{pattern_name}",
                 dataset_id=f"dataset_{pattern_name}",
-                cohort_definitions=cohort_defs
+                cohort_definitions=cohort_defs,
             )
 
             assert request.cohort_definitions == cohort_defs
@@ -554,17 +567,13 @@ class TestExplainabilityDTOIntegration:
         """Test explanation request edge cases."""
         # Edge case 1: Minimum max_features
         min_features_request = CohortExplanationRequestDTO(
-            detector_id="detector_min",
-            dataset_id="dataset_min",
-            max_features=1
+            detector_id="detector_min", dataset_id="dataset_min", max_features=1
         )
         assert min_features_request.max_features == 1
 
         # Edge case 2: Maximum max_features
         max_features_request = CohortExplanationRequestDTO(
-            detector_id="detector_max",
-            dataset_id="dataset_max",
-            max_features=50
+            detector_id="detector_max", dataset_id="dataset_max", max_features=50
         )
         assert max_features_request.max_features == 50
 
@@ -572,7 +581,7 @@ class TestExplainabilityDTOIntegration:
         single_index_request = CohortExplanationRequestDTO(
             detector_id="detector_single",
             dataset_id="dataset_single",
-            cohort_indices=[42]
+            cohort_indices=[42],
         )
         assert len(single_index_request.cohort_indices) == 1
         assert single_index_request.cohort_indices[0] == 42
@@ -581,7 +590,7 @@ class TestExplainabilityDTOIntegration:
         single_method_request = CohortExplanationRequestDTO(
             detector_id="detector_single_method",
             dataset_id="dataset_single_method",
-            explanation_methods=[ExplanationMethod.SHAP]
+            explanation_methods=[ExplanationMethod.SHAP],
         )
         assert len(single_method_request.explanation_methods) == 1
         assert single_method_request.explanation_methods[0] == ExplanationMethod.SHAP
@@ -591,28 +600,21 @@ class TestExplainabilityDTOIntegration:
         # Valid scenarios that should not raise exceptions
         valid_scenarios = [
             # Minimal request
-            {
-                "detector_id": "det1",
-                "dataset_id": "data1"
-            },
+            {"detector_id": "det1", "dataset_id": "data1"},
             # Indices-based cohort
-            {
-                "detector_id": "det2",
-                "dataset_id": "data2",
-                "cohort_indices": [1, 2, 3]
-            },
+            {"detector_id": "det2", "dataset_id": "data2", "cohort_indices": [1, 2, 3]},
             # Definition-based cohort
             {
                 "detector_id": "det3",
                 "dataset_id": "data3",
-                "cohort_definitions": [{"category": {"==": "A"}}]
+                "cohort_definitions": [{"category": {"==": "A"}}],
             },
             # Multiple methods
             {
                 "detector_id": "det4",
                 "dataset_id": "data4",
-                "explanation_methods": [ExplanationMethod.SHAP, ExplanationMethod.LIME]
-            }
+                "explanation_methods": [ExplanationMethod.SHAP, ExplanationMethod.LIME],
+            },
         ]
 
         for scenario in valid_scenarios:

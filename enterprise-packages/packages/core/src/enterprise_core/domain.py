@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import uuid
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from datetime import UTC, datetime
+from typing import Any, Generic, TypeVar
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -39,10 +39,10 @@ class DomainEvent(BaseValueObject):
     """
 
     event_id: UUID = Field(default_factory=uuid.uuid4)
-    occurred_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    occurred_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     event_type: str = Field(..., description="Type of the domain event")
     version: int = Field(default=1, description="Event schema version")
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class BaseEntity(BaseModel, Generic[EntityId]):
@@ -59,23 +59,22 @@ class BaseEntity(BaseModel, Generic[EntityId]):
 
     id: EntityId = Field(..., description="Unique identifier for the entity")
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
-        description="When the entity was created"
+        default_factory=lambda: datetime.now(UTC),
+        description="When the entity was created",
     )
-    updated_at: Optional[datetime] = Field(
-        default=None,
-        description="When the entity was last updated"
+    updated_at: datetime | None = Field(
+        default=None, description="When the entity was last updated"
     )
     version: int = Field(default=1, description="Version for optimistic concurrency")
 
     # Domain events that occurred on this entity
-    _domain_events: List[DomainEvent] = Field(default_factory=list, exclude=True)
+    _domain_events: list[DomainEvent] = Field(default_factory=list, exclude=True)
 
     def __eq__(self, other: object) -> bool:
         """Two entities are equal if they have the same type and ID."""
         if not isinstance(other, BaseEntity):
             return False
-        return type(self) == type(other) and self.id == other.id
+        return type(self) is type(other) and self.id == other.id
 
     def __hash__(self) -> int:
         """Hash based on entity type and ID."""
@@ -85,7 +84,7 @@ class BaseEntity(BaseModel, Generic[EntityId]):
         """Add a domain event to this entity."""
         self._domain_events.append(event)
 
-    def clear_domain_events(self) -> List[DomainEvent]:
+    def clear_domain_events(self) -> list[DomainEvent]:
         """Clear and return all domain events."""
         events = self._domain_events.copy()
         self._domain_events.clear()
@@ -93,7 +92,7 @@ class BaseEntity(BaseModel, Generic[EntityId]):
 
     def mark_as_updated(self) -> None:
         """Mark the entity as updated with current timestamp."""
-        self.updated_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(UTC)
         self.version += 1
 
 
@@ -165,23 +164,31 @@ class Specification(ABC, Generic[EntityId]):
 class AndSpecification(Specification[EntityId]):
     """Specification that combines two specifications with AND logic."""
 
-    def __init__(self, left: Specification[EntityId], right: Specification[EntityId]) -> None:
+    def __init__(
+        self, left: Specification[EntityId], right: Specification[EntityId]
+    ) -> None:
         self.left = left
         self.right = right
 
     def is_satisfied_by(self, candidate: BaseEntity[EntityId]) -> bool:
-        return self.left.is_satisfied_by(candidate) and self.right.is_satisfied_by(candidate)
+        return self.left.is_satisfied_by(candidate) and self.right.is_satisfied_by(
+            candidate
+        )
 
 
 class OrSpecification(Specification[EntityId]):
     """Specification that combines two specifications with OR logic."""
 
-    def __init__(self, left: Specification[EntityId], right: Specification[EntityId]) -> None:
+    def __init__(
+        self, left: Specification[EntityId], right: Specification[EntityId]
+    ) -> None:
         self.left = left
         self.right = right
 
     def is_satisfied_by(self, candidate: BaseEntity[EntityId]) -> bool:
-        return self.left.is_satisfied_by(candidate) or self.right.is_satisfied_by(candidate)
+        return self.left.is_satisfied_by(candidate) or self.right.is_satisfied_by(
+            candidate
+        )
 
 
 class NotSpecification(Specification[EntityId]):

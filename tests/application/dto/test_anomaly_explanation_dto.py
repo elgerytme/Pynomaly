@@ -20,7 +20,7 @@ class TestAnomalyExplanationDTO:
             sample_id=123,
             anomaly_score=0.85,
             explanation_confidence=0.9,
-            explanation_method="shap"
+            explanation_method="shap",
         )
 
         assert dto.sample_id == 123
@@ -42,7 +42,7 @@ class TestAnomalyExplanationDTO:
             normal_range_deviations={"feature1": 2.5, "feature2": -1.8},
             similar_normal_samples=[1, 5, 10],
             explanation_confidence=0.95,
-            explanation_method="lime"
+            explanation_method="lime",
         )
 
         assert dto.sample_id == 456
@@ -62,7 +62,7 @@ class TestAnomalyExplanationDTO:
                 sample_id=1,
                 anomaly_score=0.5,
                 explanation_confidence=-0.1,  # Below minimum
-                explanation_method="shap"
+                explanation_method="shap",
             )
 
         with pytest.raises(ValidationError):
@@ -70,7 +70,7 @@ class TestAnomalyExplanationDTO:
                 sample_id=1,
                 anomaly_score=0.5,
                 explanation_confidence=1.1,  # Above maximum
-                explanation_method="shap"
+                explanation_method="shap",
             )
 
         # Test valid boundary values
@@ -79,7 +79,7 @@ class TestAnomalyExplanationDTO:
                 sample_id=1,
                 anomaly_score=0.5,
                 explanation_confidence=confidence,
-                explanation_method="shap"
+                explanation_method="shap",
             )
             assert dto.explanation_confidence == confidence
 
@@ -91,7 +91,7 @@ class TestAnomalyExplanationDTO:
             anomaly_score=0.8,
             contributing_features={"temp": 0.5, "pressure": 0.3, "humidity": 0.2},
             explanation_confidence=0.9,
-            explanation_method="permutation"
+            explanation_method="permutation",
         )
 
         assert all(value > 0 for value in dto_positive.contributing_features.values())
@@ -102,7 +102,7 @@ class TestAnomalyExplanationDTO:
             anomaly_score=0.7,
             contributing_features={"temp": 0.6, "pressure": -0.2, "humidity": 0.1},
             explanation_confidence=0.85,
-            explanation_method="shap"
+            explanation_method="shap",
         )
 
         assert dto_mixed.contributing_features["temp"] > 0
@@ -116,15 +116,17 @@ class TestAnomalyExplanationDTO:
             anomaly_score=0.95,
             normal_range_deviations={
                 "temperature": 3.2,  # Significantly above normal
-                "humidity": -2.1,    # Significantly below normal
-                "pressure": 0.1      # Within normal range
+                "humidity": -2.1,  # Significantly below normal
+                "pressure": 0.1,  # Within normal range
             },
             explanation_confidence=0.92,
-            explanation_method="lime"
+            explanation_method="lime",
         )
 
-        assert dto.normal_range_deviations["temperature"] > 3.0  # High positive deviation
-        assert dto.normal_range_deviations["humidity"] < -2.0   # High negative deviation
+        assert (
+            dto.normal_range_deviations["temperature"] > 3.0
+        )  # High positive deviation
+        assert dto.normal_range_deviations["humidity"] < -2.0  # High negative deviation
         assert abs(dto.normal_range_deviations["pressure"]) < 0.5  # Low deviation
 
     def test_similar_normal_samples_utility(self):
@@ -135,11 +137,14 @@ class TestAnomalyExplanationDTO:
             anomaly_score=0.6,
             similar_normal_samples=[10, 25, 67, 89, 123],
             explanation_confidence=0.8,
-            explanation_method="permutation"
+            explanation_method="permutation",
         )
 
         assert len(dto_multiple.similar_normal_samples) == 5
-        assert all(isinstance(sample_id, int) for sample_id in dto_multiple.similar_normal_samples)
+        assert all(
+            isinstance(sample_id, int)
+            for sample_id in dto_multiple.similar_normal_samples
+        )
 
         # Test with no similar samples
         dto_no_similar = AnomalyExplanationDTO(
@@ -147,21 +152,29 @@ class TestAnomalyExplanationDTO:
             anomaly_score=0.99,  # Very anomalous, no similar normal samples
             similar_normal_samples=[],
             explanation_confidence=0.95,
-            explanation_method="shap"
+            explanation_method="shap",
         )
 
         assert len(dto_no_similar.similar_normal_samples) == 0
 
     def test_multiple_explanation_methods(self):
         """Test creation with different explanation methods."""
-        methods = ["shap", "lime", "permutation", "integrated_gradients", "gradcam", "anchors", "captum"]
+        methods = [
+            "shap",
+            "lime",
+            "permutation",
+            "integrated_gradients",
+            "gradcam",
+            "anchors",
+            "captum",
+        ]
 
         for method in methods:
             dto = AnomalyExplanationDTO(
                 sample_id=1,
                 anomaly_score=0.8,
                 explanation_confidence=0.9,
-                explanation_method=method
+                explanation_method=method,
             )
             assert dto.explanation_method == method
 
@@ -174,7 +187,7 @@ class TestAnomalyExplanationDTO:
             feature_importances={},
             normal_range_deviations={},
             explanation_confidence=0.7,
-            explanation_method="shap"
+            explanation_method="shap",
         )
 
         assert dto.contributing_features == {}
@@ -195,7 +208,7 @@ class TestAnomalyExplanationDTO:
             feature_importances=large_importances,
             normal_range_deviations=large_deviations,
             explanation_confidence=0.85,
-            explanation_method="lime"
+            explanation_method="lime",
         )
 
         assert len(dto.contributing_features) == 100
@@ -210,7 +223,7 @@ class TestAnomalyExplanationDTO:
                 anomaly_score=0.8,
                 explanation_confidence=0.9,
                 explanation_method="shap",
-                extra_field="not_allowed"  # type: ignore
+                extra_field="not_allowed",  # type: ignore
             )
 
 
@@ -229,15 +242,15 @@ class TestExplainabilityIntegration:
                 contributing_features={
                     "temperature": 0.4 + (i * 0.1),
                     "pressure": 0.3 - (i * 0.05),
-                    "humidity": 0.2 + (i * 0.02)
+                    "humidity": 0.2 + (i * 0.02),
                 },
                 feature_importances={
                     "temperature": 0.6,
                     "pressure": 0.25,
-                    "humidity": 0.15
+                    "humidity": 0.15,
                 },
                 explanation_confidence=0.8 + (i * 0.02),
-                explanation_method="shap"
+                explanation_method="shap",
             )
             explanations.append(explanation)
 
@@ -252,5 +265,13 @@ class TestExplainabilityIntegration:
 
         # Verify feature consistency
         for exp in explanations:
-            assert set(exp.contributing_features.keys()) == {"temperature", "pressure", "humidity"}
-            assert set(exp.feature_importances.keys()) == {"temperature", "pressure", "humidity"}
+            assert set(exp.contributing_features.keys()) == {
+                "temperature",
+                "pressure",
+                "humidity",
+            }
+            assert set(exp.feature_importances.keys()) == {
+                "temperature",
+                "pressure",
+                "humidity",
+            }

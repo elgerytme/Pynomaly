@@ -207,7 +207,9 @@ class TestCreateDetectorDTO:
         # Test whitespace-only names
         whitespace_names = ["   ", "\t\n", "  \t  "]
         for name in whitespace_names:
-            with pytest.raises(ValueError, match="Name cannot be empty or whitespace only"):
+            with pytest.raises(
+                ValueError, match="Name cannot be empty or whitespace only"
+            ):
                 CreateDetectorDTO(name=name, algorithm_name="test")
 
         # Test name with leading/trailing whitespace gets trimmed
@@ -231,24 +233,18 @@ class TestCreateDetectorDTO:
         # Test invalid values
         with pytest.raises(ValidationError):
             CreateDetectorDTO(
-                name="test",
-                algorithm_name="test",
-                contamination_rate=-0.1
+                name="test", algorithm_name="test", contamination_rate=-0.1
             )
 
         with pytest.raises(ValidationError):
             CreateDetectorDTO(
-                name="test",
-                algorithm_name="test",
-                contamination_rate=1.1
+                name="test", algorithm_name="test", contamination_rate=1.1
             )
 
         # Test valid values
         for rate in [0.0, 0.1, 0.5, 1.0]:
             dto = CreateDetectorDTO(
-                name="test",
-                algorithm_name="test",
-                contamination_rate=rate
+                name="test", algorithm_name="test", contamination_rate=rate
             )
             assert dto.contamination_rate == rate
 
@@ -258,7 +254,7 @@ class TestCreateDetectorDTO:
             CreateDetectorDTO(
                 name="test",
                 algorithm_name="test",
-                extra_field="not_allowed"  # type: ignore
+                extra_field="not_allowed",  # type: ignore
             )
 
 
@@ -606,7 +602,8 @@ class TestDetectorDTOIntegration:
             id=detector.id,
             name=update_request.name or detector.name,
             algorithm_name=detector.algorithm_name,
-            contamination_rate=update_request.contamination_rate or detector.contamination_rate,
+            contamination_rate=update_request.contamination_rate
+            or detector.contamination_rate,
             is_fitted=True,  # Assume it got trained
             created_at=detector.created_at,
             trained_at=datetime.utcnow(),
@@ -722,7 +719,7 @@ class TestDetectorDTOIntegration:
         )
 
         # Pattern 2: Batch processing
-        batch_data = [[float(i), float(i+1), float(i+2)] for i in range(100)]
+        batch_data = [[float(i), float(i + 1), float(i + 2)] for i in range(100)]
         batch_request = DetectionRequestDTO(
             detector_id=detector_id,
             data=batch_data,

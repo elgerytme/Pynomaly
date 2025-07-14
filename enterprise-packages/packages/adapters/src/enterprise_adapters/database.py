@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import logging
 from abc import abstractmethod
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
-from enterprise_core import HealthStatus, InfrastructureError
+from enterprise_core import InfrastructureError
 from pydantic import Field
 
 from .base import AdapterConfiguration, BaseAdapter, adapter
@@ -24,7 +24,9 @@ class DatabaseConfiguration(AdapterConfiguration):
     adapter_type: str = Field(..., description="Database adapter type")
     database: str = Field(..., description="Database name")
     echo: bool = Field(default=False, description="Enable SQL echoing")
-    pool_pre_ping: bool = Field(default=True, description="Enable connection pool pre-ping")
+    pool_pre_ping: bool = Field(
+        default=True, description="Enable connection pool pre-ping"
+    )
     pool_recycle: int = Field(default=3600, description="Pool recycle time in seconds")
 
 
@@ -36,22 +38,30 @@ class DatabaseAdapter(BaseAdapter):
         self.db_config = config
 
     @abstractmethod
-    async def execute_query(self, query: str, parameters: Optional[Dict[str, Any]] = None) -> Any:
+    async def execute_query(
+        self, query: str, parameters: dict[str, Any] | None = None
+    ) -> Any:
         """Execute a database query."""
         pass
 
     @abstractmethod
-    async def execute_many(self, query: str, parameters_list: List[Dict[str, Any]]) -> Any:
+    async def execute_many(
+        self, query: str, parameters_list: list[dict[str, Any]]
+    ) -> Any:
         """Execute a query with multiple parameter sets."""
         pass
 
     @abstractmethod
-    async def fetch_one(self, query: str, parameters: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
+    async def fetch_one(
+        self, query: str, parameters: dict[str, Any] | None = None
+    ) -> dict[str, Any] | None:
         """Fetch a single row from a query."""
         pass
 
     @abstractmethod
-    async def fetch_all(self, query: str, parameters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    async def fetch_all(
+        self, query: str, parameters: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
         """Fetch all rows from a query."""
         pass
 
@@ -77,8 +87,8 @@ class SQLAlchemyAdapter(DatabaseAdapter):
 
     def __init__(self, config: DatabaseConfiguration) -> None:
         super().__init__(config)
-        self._engine: Optional[Any] = None
-        self._session_factory: Optional[Any] = None
+        self._engine: Any | None = None
+        self._session_factory: Any | None = None
 
     async def _create_connection(self) -> Any:
         """Create SQLAlchemy engine and session factory."""
@@ -88,7 +98,7 @@ class SQLAlchemyAdapter(DatabaseAdapter):
             raise InfrastructureError(
                 "SQLAlchemy not installed. Install with: pip install 'enterprise-adapters[database]'",
                 error_code="DEPENDENCY_MISSING",
-            )
+            ) from None
 
         # Build connection URL
         if self.config.connection_string:
@@ -139,15 +149,20 @@ class SQLAlchemyAdapter(DatabaseAdapter):
         except Exception:
             return False
 
-    async def execute_query(self, query: str, parameters: Optional[Dict[str, Any]] = None) -> Any:
+    async def execute_query(
+        self, query: str, parameters: dict[str, Any] | None = None
+    ) -> Any:
         """Execute a database query."""
         if not self._session_factory:
-            raise InfrastructureError("Database not connected", error_code="NOT_CONNECTED")
+            raise InfrastructureError(
+                "Database not connected", error_code="NOT_CONNECTED"
+            )
 
         async with self.with_retry():
             async with self._session_factory() as session:
                 try:
                     from sqlalchemy import text
+
                     result = await session.execute(text(query), parameters or {})
                     await session.commit()
                     return result
@@ -158,17 +173,22 @@ class SQLAlchemyAdapter(DatabaseAdapter):
                         error_code="QUERY_FAILED",
                         details={"query": query, "parameters": parameters},
                         cause=e,
-                    )
+                    ) from e
 
-    async def execute_many(self, query: str, parameters_list: List[Dict[str, Any]]) -> Any:
+    async def execute_many(
+        self, query: str, parameters_list: list[dict[str, Any]]
+    ) -> Any:
         """Execute a query with multiple parameter sets."""
         if not self._session_factory:
-            raise InfrastructureError("Database not connected", error_code="NOT_CONNECTED")
+            raise InfrastructureError(
+                "Database not connected", error_code="NOT_CONNECTED"
+            )
 
         async with self.with_retry():
             async with self._session_factory() as session:
                 try:
                     from sqlalchemy import text
+
                     result = await session.execute(text(query), parameters_list)
                     await session.commit()
                     return result
@@ -177,17 +197,24 @@ class SQLAlchemyAdapter(DatabaseAdapter):
                     raise InfrastructureError(
                         f"Database bulk query failed: {e}",
                         error_code="BULK_QUERY_FAILED",
-                        details={"query": query, "parameter_count": len(parameters_list)},
+                        details={
+                            "query": query,
+                            "parameter_count": len(parameters_list),
+                        },
                         cause=e,
-                    )
+                    ) from e
 
-    async def fetch_one(self, query: str, parameters: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
+    async def fetch_one(
+        self, query: str, parameters: dict[str, Any] | None = None
+    ) -> dict[str, Any] | None:
         """Fetch a single row from a query."""
         result = await self.execute_query(query, parameters)
         row = result.fetchone()
         return dict(row) if row else None
 
-    async def fetch_all(self, query: str, parameters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    async def fetch_all(
+        self, query: str, parameters: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
         """Fetch all rows from a query."""
         result = await self.execute_query(query, parameters)
         rows = result.fetchall()
@@ -196,7 +223,9 @@ class SQLAlchemyAdapter(DatabaseAdapter):
     async def begin_transaction(self) -> Any:
         """Begin a database transaction."""
         if not self._session_factory:
-            raise InfrastructureError("Database not connected", error_code="NOT_CONNECTED")
+            raise InfrastructureError(
+                "Database not connected", error_code="NOT_CONNECTED"
+            )
 
         session = self._session_factory()
         transaction = await session.begin()
@@ -213,7 +242,7 @@ class SQLAlchemyAdapter(DatabaseAdapter):
                 f"Transaction commit failed: {e}",
                 error_code="COMMIT_FAILED",
                 cause=e,
-            )
+            ) from e
 
     async def rollback_transaction(self, transaction: Any) -> None:
         """Rollback a database transaction."""
@@ -226,7 +255,7 @@ class SQLAlchemyAdapter(DatabaseAdapter):
                 f"Transaction rollback failed: {e}",
                 error_code="ROLLBACK_FAILED",
                 cause=e,
-            )
+            ) from e
 
 
 @adapter("mongodb")
@@ -235,8 +264,8 @@ class MongoDBAdapter(DatabaseAdapter):
 
     def __init__(self, config: DatabaseConfiguration) -> None:
         super().__init__(config)
-        self._client: Optional[Any] = None
-        self._database: Optional[Any] = None
+        self._client: Any | None = None
+        self._database: Any | None = None
 
     async def _create_connection(self) -> Any:
         """Create MongoDB client and database connection."""
@@ -246,7 +275,7 @@ class MongoDBAdapter(DatabaseAdapter):
             raise InfrastructureError(
                 "Motor (MongoDB async driver) not installed. Install with: pip install 'enterprise-adapters[database]'",
                 error_code="DEPENDENCY_MISSING",
-            )
+            ) from None
 
         # Build connection URL
         if self.config.connection_string:
@@ -290,26 +319,44 @@ class MongoDBAdapter(DatabaseAdapter):
         except Exception:
             return False
 
-    async def execute_query(self, query: str, parameters: Optional[Dict[str, Any]] = None) -> Any:
+    async def execute_query(
+        self, query: str, parameters: dict[str, Any] | None = None
+    ) -> Any:
         """Execute a MongoDB operation (not applicable for traditional queries)."""
-        raise NotImplementedError("MongoDB uses collection-based operations, not SQL queries")
+        raise NotImplementedError(
+            "MongoDB uses collection-based operations, not SQL queries"
+        )
 
-    async def execute_many(self, query: str, parameters_list: List[Dict[str, Any]]) -> Any:
+    async def execute_many(
+        self, query: str, parameters_list: list[dict[str, Any]]
+    ) -> Any:
         """Execute multiple MongoDB operations."""
-        raise NotImplementedError("MongoDB uses collection-based operations, not SQL queries")
+        raise NotImplementedError(
+            "MongoDB uses collection-based operations, not SQL queries"
+        )
 
-    async def fetch_one(self, query: str, parameters: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
+    async def fetch_one(
+        self, query: str, parameters: dict[str, Any] | None = None
+    ) -> dict[str, Any] | None:
         """Fetch a single document (not applicable for traditional queries)."""
-        raise NotImplementedError("MongoDB uses collection-based operations, not SQL queries")
+        raise NotImplementedError(
+            "MongoDB uses collection-based operations, not SQL queries"
+        )
 
-    async def fetch_all(self, query: str, parameters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    async def fetch_all(
+        self, query: str, parameters: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
         """Fetch all documents (not applicable for traditional queries)."""
-        raise NotImplementedError("MongoDB uses collection-based operations, not SQL queries")
+        raise NotImplementedError(
+            "MongoDB uses collection-based operations, not SQL queries"
+        )
 
     async def begin_transaction(self) -> Any:
         """Begin a MongoDB transaction."""
         if not self._client:
-            raise InfrastructureError("Database not connected", error_code="NOT_CONNECTED")
+            raise InfrastructureError(
+                "Database not connected", error_code="NOT_CONNECTED"
+            )
 
         session = await self._client.start_session()
         session.start_transaction()
@@ -326,7 +373,7 @@ class MongoDBAdapter(DatabaseAdapter):
                 f"Transaction commit failed: {e}",
                 error_code="COMMIT_FAILED",
                 cause=e,
-            )
+            ) from e
 
     async def rollback_transaction(self, transaction: Any) -> None:
         """Rollback a MongoDB transaction."""
@@ -339,20 +386,24 @@ class MongoDBAdapter(DatabaseAdapter):
                 f"Transaction rollback failed: {e}",
                 error_code="ROLLBACK_FAILED",
                 cause=e,
-            )
+            ) from e
 
     # MongoDB-specific methods
     def get_collection(self, collection_name: str) -> Any:
         """Get a MongoDB collection."""
         if not self._database:
-            raise InfrastructureError("Database not connected", error_code="NOT_CONNECTED")
+            raise InfrastructureError(
+                "Database not connected", error_code="NOT_CONNECTED"
+            )
 
         return self._database[collection_name]
 
-    async def insert_document(self, collection: str, document: Dict[str, Any]) -> str:
+    async def insert_document(self, collection: str, document: dict[str, Any]) -> str:
         """Insert a document into a collection."""
         if not self._database:
-            raise InfrastructureError("Database not connected", error_code="NOT_CONNECTED")
+            raise InfrastructureError(
+                "Database not connected", error_code="NOT_CONNECTED"
+            )
 
         async with self.with_retry():
             try:
@@ -364,17 +415,19 @@ class MongoDBAdapter(DatabaseAdapter):
                     error_code="INSERT_FAILED",
                     details={"collection": collection},
                     cause=e,
-                )
+                ) from e
 
     async def find_documents(
         self,
         collection: str,
-        filter_dict: Optional[Dict[str, Any]] = None,
-        limit: Optional[int] = None,
-    ) -> List[Dict[str, Any]]:
+        filter_dict: dict[str, Any] | None = None,
+        limit: int | None = None,
+    ) -> list[dict[str, Any]]:
         """Find documents in a collection."""
         if not self._database:
-            raise InfrastructureError("Database not connected", error_code="NOT_CONNECTED")
+            raise InfrastructureError(
+                "Database not connected", error_code="NOT_CONNECTED"
+            )
 
         async with self.with_retry():
             try:
@@ -395,4 +448,4 @@ class MongoDBAdapter(DatabaseAdapter):
                     error_code="FIND_FAILED",
                     details={"collection": collection, "filter": filter_dict},
                     cause=e,
-                )
+                ) from e

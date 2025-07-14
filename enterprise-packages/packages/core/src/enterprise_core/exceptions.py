@@ -6,7 +6,7 @@ enterprise applications with structured error information.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class EnterpriseError(Exception):
@@ -19,9 +19,9 @@ class EnterpriseError(Exception):
     def __init__(
         self,
         message: str,
-        error_code: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
-        cause: Optional[Exception] = None,
+        error_code: str | None = None,
+        details: dict[str, Any] | None = None,
+        cause: Exception | None = None,
     ) -> None:
         super().__init__(message)
         self.message = message
@@ -29,7 +29,7 @@ class EnterpriseError(Exception):
         self.details = details or {}
         self.cause = cause
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert the exception to a dictionary representation."""
         return {
             "error_type": self.__class__.__name__,
@@ -51,6 +51,7 @@ class DomainError(EnterpriseError):
 
     Raised when business rules are violated or domain invariants are broken.
     """
+
     pass
 
 
@@ -59,6 +60,7 @@ class ValidationError(DomainError):
 
     Raised when input validation fails or entity state is invalid.
     """
+
     pass
 
 
@@ -67,6 +69,7 @@ class BusinessRuleViolationError(DomainError):
 
     Raised when a business rule is violated during domain operations.
     """
+
     pass
 
 
@@ -80,14 +83,16 @@ class EntityNotFoundError(DomainError):
         self,
         entity_type: str,
         entity_id: Any,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         message = f"{entity_type} with ID '{entity_id}' not found"
         details = details or {}
-        details.update({
-            "entity_type": entity_type,
-            "entity_id": str(entity_id),
-        })
+        details.update(
+            {
+                "entity_type": entity_type,
+                "entity_id": str(entity_id),
+            }
+        )
         super().__init__(message, "ENTITY_NOT_FOUND", details)
 
 
@@ -101,14 +106,16 @@ class EntityAlreadyExistsError(DomainError):
         self,
         entity_type: str,
         entity_id: Any,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         message = f"{entity_type} with ID '{entity_id}' already exists"
         details = details or {}
-        details.update({
-            "entity_type": entity_type,
-            "entity_id": str(entity_id),
-        })
+        details.update(
+            {
+                "entity_type": entity_type,
+                "entity_id": str(entity_id),
+            }
+        )
         super().__init__(message, "ENTITY_ALREADY_EXISTS", details)
 
 
@@ -124,16 +131,18 @@ class ConcurrencyError(DomainError):
         entity_id: Any,
         expected_version: int,
         actual_version: int,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         message = f"Concurrency conflict for {entity_type} '{entity_id}': expected version {expected_version}, actual version {actual_version}"
         details = details or {}
-        details.update({
-            "entity_type": entity_type,
-            "entity_id": str(entity_id),
-            "expected_version": expected_version,
-            "actual_version": actual_version,
-        })
+        details.update(
+            {
+                "entity_type": entity_type,
+                "entity_id": str(entity_id),
+                "expected_version": expected_version,
+                "actual_version": actual_version,
+            }
+        )
         super().__init__(message, "CONCURRENCY_CONFLICT", details)
 
 
@@ -143,6 +152,7 @@ class InfrastructureError(EnterpriseError):
     Raised when external dependencies fail or infrastructure components
     are unavailable.
     """
+
     pass
 
 
@@ -151,6 +161,7 @@ class RepositoryError(InfrastructureError):
 
     Raised when data persistence operations fail.
     """
+
     pass
 
 
@@ -165,31 +176,38 @@ class ExternalServiceError(InfrastructureError):
         service_name: str,
         operation: str,
         message: str,
-        status_code: Optional[int] = None,
-        details: Optional[Dict[str, Any]] = None,
+        status_code: int | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
-        full_message = f"External service '{service_name}' failed during '{operation}': {message}"
+        full_message = (
+            f"External service '{service_name}' failed during '{operation}': {message}"
+        )
         details = details or {}
-        details.update({
-            "service_name": service_name,
-            "operation": operation,
-            "status_code": status_code,
-        })
+        details.update(
+            {
+                "service_name": service_name,
+                "operation": operation,
+                "status_code": status_code,
+            }
+        )
         super().__init__(full_message, "EXTERNAL_SERVICE_ERROR", details)
 
 
 class CacheError(InfrastructureError):
     """Exception for cache operation errors."""
+
     pass
 
 
 class MessageQueueError(InfrastructureError):
     """Exception for message queue operation errors."""
+
     pass
 
 
 class DatabaseError(InfrastructureError):
     """Exception for database operation errors."""
+
     pass
 
 
@@ -203,7 +221,7 @@ class ConfigurationError(EnterpriseError):
         self,
         config_key: str,
         message: str,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         full_message = f"Configuration error for '{config_key}': {message}"
         details = details or {}
@@ -216,6 +234,7 @@ class SecurityError(EnterpriseError):
 
     Raised when security checks fail or unauthorized access is attempted.
     """
+
     pass
 
 
@@ -225,7 +244,7 @@ class AuthenticationError(SecurityError):
     def __init__(
         self,
         message: str = "Authentication failed",
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(message, "AUTHENTICATION_FAILED", details)
 
@@ -237,19 +256,21 @@ class AuthorizationError(SecurityError):
         self,
         resource: str,
         action: str,
-        user: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
+        user: str | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         message = f"Access denied to {action} {resource}"
         if user:
             message += f" for user '{user}'"
 
         details = details or {}
-        details.update({
-            "resource": resource,
-            "action": action,
-            "user": user,
-        })
+        details.update(
+            {
+                "resource": resource,
+                "action": action,
+                "user": user,
+            }
+        )
         super().__init__(message, "ACCESS_DENIED", details)
 
 
@@ -259,11 +280,13 @@ class ApplicationError(EnterpriseError):
     Raised when use case execution fails or application services
     encounter errors.
     """
+
     pass
 
 
 class UseCaseError(ApplicationError):
     """Exception for use case execution errors."""
+
     pass
 
 
@@ -274,7 +297,7 @@ class ServiceUnavailableError(ApplicationError):
         self,
         service_name: str,
         message: str = "Service is currently unavailable",
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         full_message = f"Service '{service_name}' is unavailable: {message}"
         details = details or {}
@@ -290,15 +313,17 @@ class RateLimitExceededError(ApplicationError):
         resource: str,
         limit: int,
         window: str,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         message = f"Rate limit exceeded for {resource}: {limit} requests per {window}"
         details = details or {}
-        details.update({
-            "resource": resource,
-            "limit": limit,
-            "window": window,
-        })
+        details.update(
+            {
+                "resource": resource,
+                "limit": limit,
+                "window": window,
+            }
+        )
         super().__init__(message, "RATE_LIMIT_EXCEEDED", details)
 
 
@@ -309,12 +334,14 @@ class TimeoutError(ApplicationError):
         self,
         operation: str,
         timeout_seconds: float,
-        details: Optional[Dict[str, Any]] = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         message = f"Operation '{operation}' timed out after {timeout_seconds} seconds"
         details = details or {}
-        details.update({
-            "operation": operation,
-            "timeout_seconds": timeout_seconds,
-        })
+        details.update(
+            {
+                "operation": operation,
+                "timeout_seconds": timeout_seconds,
+            }
+        )
         super().__init__(message, "OPERATION_TIMEOUT", details)

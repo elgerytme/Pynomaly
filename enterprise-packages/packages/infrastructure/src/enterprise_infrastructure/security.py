@@ -9,23 +9,18 @@ from __future__ import annotations
 import hashlib
 import hmac
 import secrets
-import time
-from abc import ABC, abstractmethod
-from datetime import datetime, timedelta, timezone
+from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
-from enterprise_core import (
-    AuthenticationError,
-    AuthorizationError,
-    ConfigurationError,
-    SecurityError,
-)
+from enterprise_core import AuthenticationError, AuthorizationError, ConfigurationError
 from pydantic import BaseModel, Field
 
 
 class Permission(str, Enum):
     """Standard permissions enum."""
+
     READ = "read"
     WRITE = "write"
     DELETE = "delete"
@@ -34,37 +29,41 @@ class Permission(str, Enum):
 
 class Role(BaseModel):
     """Role model with permissions."""
+
     name: str
-    permissions: List[Permission]
-    description: Optional[str] = None
+    permissions: list[Permission]
+    description: str | None = None
 
 
 class User(BaseModel):
     """User model for authentication and authorization."""
+
     id: str
     username: str
     email: str
-    roles: List[str] = Field(default_factory=list)
+    roles: list[str] = Field(default_factory=list)
     is_active: bool = True
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    last_login: Optional[datetime] = None
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    last_login: datetime | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class TokenClaims(BaseModel):
     """JWT token claims."""
+
     sub: str  # Subject (user ID)
     iss: str  # Issuer
     aud: str  # Audience
     exp: int  # Expiration time
     iat: int  # Issued at
     jti: str  # JWT ID
-    scope: List[str] = Field(default_factory=list)
-    roles: List[str] = Field(default_factory=list)
+    scope: list[str] = Field(default_factory=list)
+    roles: list[str] = Field(default_factory=list)
 
 
 class SecurityConfiguration(BaseModel):
     """Security configuration."""
+
     secret_key: str = Field(..., min_length=32)
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
@@ -78,7 +77,7 @@ class SecurityConfiguration(BaseModel):
     lockout_duration_minutes: int = 15
     session_timeout_minutes: int = 60
     require_mfa: bool = False
-    allowed_origins: List[str] = Field(default_factory=list)
+    allowed_origins: list[str] = Field(default_factory=list)
 
 
 class EncryptionManager:
@@ -91,6 +90,7 @@ class EncryptionManager:
         """Hash a password using bcrypt."""
         try:
             from passlib.context import CryptContext
+
             pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
             return pwd_context.hash(password)
         except ImportError:
@@ -103,6 +103,7 @@ class EncryptionManager:
         """Verify a password against its hash."""
         try:
             from passlib.context import CryptContext
+
             pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
             return pwd_context.verify(plain_password, hashed_password)
         except ImportError:
@@ -115,6 +116,7 @@ class EncryptionManager:
         """Encrypt data using Fernet symmetric encryption."""
         try:
             from cryptography.fernet import Fernet
+
             key = hashlib.sha256(self.secret_key).digest()
             key_b64 = base64.urlsafe_b64encode(key)
             fernet = Fernet(key_b64)
@@ -131,6 +133,7 @@ class EncryptionManager:
             import base64
 
             from cryptography.fernet import Fernet
+
             key = hashlib.sha256(self.secret_key).digest()
             key_b64 = base64.urlsafe_b64encode(key)
             fernet = Fernet(key_b64)
@@ -147,11 +150,7 @@ class EncryptionManager:
 
     def generate_hmac_signature(self, data: str) -> str:
         """Generate HMAC signature for data integrity."""
-        return hmac.new(
-            self.secret_key,
-            data.encode(),
-            hashlib.sha256
-        ).hexdigest()
+        return hmac.new(self.secret_key, data.encode(), hashlib.sha256).hexdigest()
 
     def verify_hmac_signature(self, data: str, signature: str) -> bool:
         """Verify HMAC signature."""
@@ -166,7 +165,9 @@ class TokenManager:
         self.config = config
         self.encryption = EncryptionManager(config.secret_key)
 
-    def create_access_token(self, user: User, additional_claims: Optional[Dict[str, Any]] = None) -> str:
+    def create_access_token(
+        self, user: User, additional_claims: dict[str, Any] | None = None
+    ) -> str:
         """Create a JWT access token."""
         try:
             import jwt
@@ -174,9 +175,9 @@ class TokenManager:
             raise ConfigurationError(
                 "PyJWT not installed. Install with: pip install 'enterprise-infrastructure[security]'",
                 error_code="DEPENDENCY_MISSING",
-            )
+            ) from None
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expire = now + timedelta(minutes=self.config.access_token_expire_minutes)
 
         claims = TokenClaims(
@@ -193,7 +194,9 @@ class TokenManager:
         if additional_claims:
             payload.update(additional_claims)
 
-        return jwt.encode(payload, self.config.secret_key, algorithm=self.config.algorithm)
+        return jwt.encode(
+            payload, self.config.secret_key, algorithm=self.config.algorithm
+        )
 
     def create_refresh_token(self, user: User) -> str:
         """Create a JWT refresh token."""
@@ -203,9 +206,9 @@ class TokenManager:
             raise ConfigurationError(
                 "PyJWT not installed. Install with: pip install 'enterprise-infrastructure[security]'",
                 error_code="DEPENDENCY_MISSING",
-            )
+            ) from None
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expire = now + timedelta(days=self.config.refresh_token_expire_days)
 
         payload = {
@@ -216,7 +219,9 @@ class TokenManager:
             "jti": self.encryption.generate_secure_token(16),
         }
 
-        return jwt.encode(payload, self.config.secret_key, algorithm=self.config.algorithm)
+        return jwt.encode(
+            payload, self.config.secret_key, algorithm=self.config.algorithm
+        )
 
     def verify_token(self, token: str) -> TokenClaims:
         """Verify and decode a JWT token."""
@@ -226,7 +231,7 @@ class TokenManager:
             raise ConfigurationError(
                 "PyJWT not installed. Install with: pip install 'enterprise-infrastructure[security]'",
                 error_code="DEPENDENCY_MISSING",
-            )
+            ) from None
 
         try:
             payload = jwt.decode(
@@ -250,7 +255,7 @@ class TokenManager:
             raise ConfigurationError(
                 "PyJWT not installed. Install with: pip install 'enterprise-infrastructure[security]'",
                 error_code="DEPENDENCY_MISSING",
-            )
+            ) from None
 
         try:
             payload = jwt.decode(
@@ -280,26 +285,36 @@ class AuthenticationManager:
         self.config = config
         self.encryption = EncryptionManager(config.secret_key)
         self.token_manager = TokenManager(config)
-        self._login_attempts: Dict[str, List[datetime]] = {}
-        self._locked_accounts: Dict[str, datetime] = {}
+        self._login_attempts: dict[str, list[datetime]] = {}
+        self._locked_accounts: dict[str, datetime] = {}
 
-    def validate_password_strength(self, password: str) -> List[str]:
+    def validate_password_strength(self, password: str) -> list[str]:
         """Validate password strength and return list of issues."""
         issues = []
 
         if len(password) < self.config.password_min_length:
-            issues.append(f"Password must be at least {self.config.password_min_length} characters")
+            issues.append(
+                f"Password must be at least {self.config.password_min_length} characters"
+            )
 
-        if self.config.password_require_uppercase and not any(c.isupper() for c in password):
+        if self.config.password_require_uppercase and not any(
+            c.isupper() for c in password
+        ):
             issues.append("Password must contain at least one uppercase letter")
 
-        if self.config.password_require_lowercase and not any(c.islower() for c in password):
+        if self.config.password_require_lowercase and not any(
+            c.islower() for c in password
+        ):
             issues.append("Password must contain at least one lowercase letter")
 
-        if self.config.password_require_digits and not any(c.isdigit() for c in password):
+        if self.config.password_require_digits and not any(
+            c.isdigit() for c in password
+        ):
             issues.append("Password must contain at least one digit")
 
-        if self.config.password_require_special and not any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password):
+        if self.config.password_require_special and not any(
+            c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password
+        ):
             issues.append("Password must contain at least one special character")
 
         return issues
@@ -312,7 +327,7 @@ class AuthenticationManager:
         lockout_time = self._locked_accounts[username]
         lockout_duration = timedelta(minutes=self.config.lockout_duration_minutes)
 
-        if datetime.now(timezone.utc) > lockout_time + lockout_duration:
+        if datetime.now(UTC) > lockout_time + lockout_duration:
             # Lockout period has expired
             del self._locked_accounts[username]
             return False
@@ -321,7 +336,7 @@ class AuthenticationManager:
 
     def record_login_attempt(self, username: str, success: bool) -> None:
         """Record a login attempt."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         if success:
             # Clear failed attempts on successful login
@@ -338,21 +353,25 @@ class AuthenticationManager:
         # Remove attempts older than lockout duration
         cutoff = now - timedelta(minutes=self.config.lockout_duration_minutes)
         self._login_attempts[username] = [
-            attempt for attempt in self._login_attempts[username]
-            if attempt > cutoff
+            attempt for attempt in self._login_attempts[username] if attempt > cutoff
         ]
 
         # Check if account should be locked
         if len(self._login_attempts[username]) >= self.config.max_login_attempts:
             self._locked_accounts[username] = now
 
-    async def authenticate_user(self, username: str, password: str, user_loader: Callable[[str], User]) -> User:
+    async def authenticate_user(
+        self, username: str, password: str, user_loader: Callable[[str], User]
+    ) -> User:
         """Authenticate a user with username and password."""
         # Check if account is locked
         if self.is_account_locked(username):
             raise AuthenticationError(
                 "Account is temporarily locked due to too many failed login attempts",
-                details={"username": username, "lockout_duration": self.config.lockout_duration_minutes}
+                details={
+                    "username": username,
+                    "lockout_duration": self.config.lockout_duration_minutes,
+                },
             )
 
         try:
@@ -367,7 +386,7 @@ class AuthenticationManager:
 
             # Record successful login
             self.record_login_attempt(username, True)
-            user.last_login = datetime.now(timezone.utc)
+            user.last_login = datetime.now(UTC)
 
             return user
 
@@ -382,8 +401,8 @@ class AuthorizationManager:
     """Role-based access control manager."""
 
     def __init__(self) -> None:
-        self._roles: Dict[str, Role] = {}
-        self._user_roles: Dict[str, List[str]] = {}
+        self._roles: dict[str, Role] = {}
+        self._user_roles: dict[str, list[str]] = {}
 
     def define_role(self, role: Role) -> None:
         """Define a role with permissions."""
@@ -396,7 +415,7 @@ class AuthorizationManager:
                 f"Role '{role_name}' not found",
                 resource="role",
                 action="assign",
-                details={"role": role_name, "user_id": user_id}
+                details={"role": role_name, "user_id": user_id},
             )
 
         if user_id not in self._user_roles:
@@ -409,11 +428,12 @@ class AuthorizationManager:
         """Remove a role from a user."""
         if user_id in self._user_roles:
             self._user_roles[user_id] = [
-                role for role in self._user_roles[user_id]
-                if role != role_name
+                role for role in self._user_roles[user_id] if role != role_name
             ]
 
-    def user_has_permission(self, user_id: str, permission: Permission, resource: Optional[str] = None) -> bool:
+    def user_has_permission(
+        self, user_id: str, permission: Permission, resource: str | None = None
+    ) -> bool:
         """Check if a user has a specific permission."""
         user_roles = self._user_roles.get(user_id, [])
 
@@ -424,17 +444,19 @@ class AuthorizationManager:
 
         return False
 
-    def require_permission(self, user_id: str, permission: Permission, resource: str = "resource") -> None:
+    def require_permission(
+        self, user_id: str, permission: Permission, resource: str = "resource"
+    ) -> None:
         """Require a user to have a specific permission, raise exception if not."""
         if not self.user_has_permission(user_id, permission):
             raise AuthorizationError(
                 resource=resource,
                 action=permission.value,
                 user=user_id,
-                details={"required_permission": permission.value}
+                details={"required_permission": permission.value},
             )
 
-    def get_user_permissions(self, user_id: str) -> List[Permission]:
+    def get_user_permissions(self, user_id: str) -> list[Permission]:
         """Get all permissions for a user."""
         permissions = set()
         user_roles = self._user_roles.get(user_id, [])
@@ -456,36 +478,39 @@ class SecurityManager:
         self.token_manager = TokenManager(config)
         self.auth_manager = AuthenticationManager(config)
         self.authz_manager = AuthorizationManager()
-        self._active_sessions: Dict[str, Dict[str, Any]] = {}
+        self._active_sessions: dict[str, dict[str, Any]] = {}
 
     def setup_default_roles(self) -> None:
         """Set up default roles and permissions."""
         # Admin role with all permissions
         admin_role = Role(
             name="admin",
-            permissions=[Permission.READ, Permission.WRITE, Permission.DELETE, Permission.ADMIN],
-            description="Full system access"
+            permissions=[
+                Permission.READ,
+                Permission.WRITE,
+                Permission.DELETE,
+                Permission.ADMIN,
+            ],
+            description="Full system access",
         )
 
         # Editor role with read/write permissions
         editor_role = Role(
             name="editor",
             permissions=[Permission.READ, Permission.WRITE],
-            description="Read and write access"
+            description="Read and write access",
         )
 
         # Viewer role with read-only permissions
         viewer_role = Role(
-            name="viewer",
-            permissions=[Permission.READ],
-            description="Read-only access"
+            name="viewer", permissions=[Permission.READ], description="Read-only access"
         )
 
         self.authz_manager.define_role(admin_role)
         self.authz_manager.define_role(editor_role)
         self.authz_manager.define_role(viewer_role)
 
-    def create_session(self, user: User) -> Dict[str, str]:
+    def create_session(self, user: User) -> dict[str, str]:
         """Create a new user session with access and refresh tokens."""
         access_token = self.token_manager.create_access_token(user)
         refresh_token = self.token_manager.create_refresh_token(user)
@@ -493,8 +518,8 @@ class SecurityManager:
         session_id = self.encryption.generate_secure_token(32)
         self._active_sessions[session_id] = {
             "user_id": user.id,
-            "created_at": datetime.now(timezone.utc),
-            "last_activity": datetime.now(timezone.utc),
+            "created_at": datetime.now(UTC),
+            "last_activity": datetime.now(UTC),
             "access_token": access_token,
         }
 
@@ -515,13 +540,13 @@ class SecurityManager:
         last_activity = session["last_activity"]
         timeout = timedelta(minutes=self.config.session_timeout_minutes)
 
-        if datetime.now(timezone.utc) > last_activity + timeout:
+        if datetime.now(UTC) > last_activity + timeout:
             # Session has timed out
             del self._active_sessions[session_id]
             return False
 
         # Update last activity
-        session["last_activity"] = datetime.now(timezone.utc)
+        session["last_activity"] = datetime.now(UTC)
         return True
 
     def terminate_session(self, session_id: str) -> None:

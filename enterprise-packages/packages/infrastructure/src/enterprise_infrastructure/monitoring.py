@@ -6,25 +6,21 @@ distributed tracing, health checks, and performance monitoring.
 
 from __future__ import annotations
 
-import asyncio
 import logging
 import time
 from abc import ABC, abstractmethod
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 import psutil
 from enterprise_core import (
-    ConfigurationError,
     HealthCheck,
     HealthStatus,
     InfrastructureError,
     Metrics,
     TimerContext,
 )
-from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -32,21 +28,24 @@ logger = logging.getLogger(__name__)
 @dataclass
 class MetricPoint:
     """A single metric data point."""
+
     name: str
     value: float
-    tags: Dict[str, str] = field(default_factory=dict)
+    tags: dict[str, str] = field(default_factory=dict)
     timestamp: float = field(default_factory=time.time)
 
 
 class MetricsCollector(Metrics):
     """Base metrics collector with pluggable backends."""
 
-    def __init__(self, backend: Optional[MetricsBackend] = None) -> None:
+    def __init__(self, backend: MetricsBackend | None = None) -> None:
         self._backend = backend or InMemoryMetricsBackend()
-        self._counters: Dict[str, float] = {}
-        self._gauges: Dict[str, float] = {}
+        self._counters: dict[str, float] = {}
+        self._gauges: dict[str, float] = {}
 
-    def counter(self, name: str, value: float = 1, tags: Optional[Dict[str, str]] = None) -> None:
+    def counter(
+        self, name: str, value: float = 1, tags: dict[str, str] | None = None
+    ) -> None:
         """Increment a counter metric."""
         full_name = self._build_metric_name(name, "counter")
         self._counters[full_name] = self._counters.get(full_name, 0) + value
@@ -54,7 +53,9 @@ class MetricsCollector(Metrics):
         metric = MetricPoint(name=full_name, value=value, tags=tags or {})
         self._backend.record_metric(metric)
 
-    def gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+    def gauge(
+        self, name: str, value: float, tags: dict[str, str] | None = None
+    ) -> None:
         """Set a gauge metric."""
         full_name = self._build_metric_name(name, "gauge")
         self._gauges[full_name] = value
@@ -62,7 +63,9 @@ class MetricsCollector(Metrics):
         metric = MetricPoint(name=full_name, value=value, tags=tags or {})
         self._backend.record_metric(metric)
 
-    def histogram(self, name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+    def histogram(
+        self, name: str, value: float, tags: dict[str, str] | None = None
+    ) -> None:
         """Record a histogram metric."""
         full_name = self._build_metric_name(name, "histogram")
         metric = MetricPoint(name=full_name, value=value, tags=tags or {})
@@ -76,7 +79,7 @@ class MetricsCollector(Metrics):
         """Build a full metric name with type prefix."""
         return f"{metric_type}.{name}"
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get all collected metrics."""
         return {
             "counters": dict(self._counters),
@@ -91,7 +94,7 @@ class MetricTimerContext:
     def __init__(self, collector: MetricsCollector, name: str) -> None:
         self.collector = collector
         self.name = name
-        self.start_time: Optional[float] = None
+        self.start_time: float | None = None
 
     def __enter__(self) -> MetricTimerContext:
         """Start the timer."""
@@ -114,7 +117,7 @@ class MetricsBackend(ABC):
         pass
 
     @abstractmethod
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get all recorded metrics."""
         pass
 
@@ -123,13 +126,13 @@ class InMemoryMetricsBackend(MetricsBackend):
     """In-memory metrics backend for development and testing."""
 
     def __init__(self) -> None:
-        self._metrics: List[MetricPoint] = []
+        self._metrics: list[MetricPoint] = []
 
     def record_metric(self, metric: MetricPoint) -> None:
         """Record a metric point in memory."""
         self._metrics.append(metric)
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get all recorded metrics."""
         return {
             "total_metrics": len(self._metrics),
@@ -151,6 +154,7 @@ class PrometheusMetrics(MetricsBackend):
     def __init__(self, registry=None, namespace: str = "enterprise") -> None:
         try:
             from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram
+
             self._Counter = Counter
             self._Gauge = Gauge
             self._Histogram = Histogram
@@ -158,13 +162,13 @@ class PrometheusMetrics(MetricsBackend):
             raise InfrastructureError(
                 "Prometheus client not installed. Install with: pip install 'enterprise-infrastructure[monitoring]'",
                 error_code="DEPENDENCY_MISSING",
-            )
+            ) from None
 
         self._registry = registry or CollectorRegistry()
         self._namespace = namespace
-        self._counters: Dict[str, Any] = {}
-        self._gauges: Dict[str, Any] = {}
-        self._histograms: Dict[str, Any] = {}
+        self._counters: dict[str, Any] = {}
+        self._gauges: dict[str, Any] = {}
+        self._histograms: dict[str, Any] = {}
 
     def record_metric(self, metric: MetricPoint) -> None:
         """Record a metric point in Prometheus."""
@@ -202,7 +206,7 @@ class PrometheusMetrics(MetricsBackend):
                 )
             self._histograms[metric_name].labels(*label_values).observe(metric.value)
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """Get Prometheus metrics summary."""
         return {
             "counters": len(self._counters),
@@ -215,7 +219,7 @@ class PrometheusMetrics(MetricsBackend):
 class OpenTelemetryTracing:
     """OpenTelemetry distributed tracing setup."""
 
-    def __init__(self, service_name: str, jaeger_endpoint: Optional[str] = None) -> None:
+    def __init__(self, service_name: str, jaeger_endpoint: str | None = None) -> None:
         self.service_name = service_name
         self.jaeger_endpoint = jaeger_endpoint
         self._tracer = None
@@ -245,6 +249,7 @@ class OpenTelemetryTracing:
         if self.jaeger_endpoint:
             try:
                 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+
                 jaeger_exporter = JaegerExporter(
                     agent_host_name="localhost",
                     agent_port=6831,
@@ -258,7 +263,9 @@ class OpenTelemetryTracing:
         self._tracer = trace.get_tracer(__name__)
         self._initialized = True
 
-        logger.info(f"OpenTelemetry tracing initialized for service: {self.service_name}")
+        logger.info(
+            f"OpenTelemetry tracing initialized for service: {self.service_name}"
+        )
 
     @asynccontextmanager
     async def trace_async(self, operation_name: str, **attributes):
@@ -287,7 +294,7 @@ class HealthCheckManager:
     """Manager for application health checks."""
 
     def __init__(self) -> None:
-        self._checks: Dict[str, HealthCheck] = {}
+        self._checks: dict[str, HealthCheck] = {}
 
     def register_check(self, name: str, check: HealthCheck) -> None:
         """Register a health check."""
@@ -299,7 +306,9 @@ class HealthCheckManager:
         self._checks.pop(name, None)
         logger.debug(f"Removed health check: {name}")
 
-    async def check_health(self, check_name: Optional[str] = None) -> Dict[str, HealthStatus]:
+    async def check_health(
+        self, check_name: str | None = None
+    ) -> dict[str, HealthStatus]:
         """Perform health checks."""
         if check_name:
             if check_name not in self._checks:
@@ -445,10 +454,10 @@ class SystemHealthCheck(HealthCheck):
 class PerformanceMonitor:
     """Performance monitoring and profiling."""
 
-    def __init__(self, metrics_collector: Optional[MetricsCollector] = None) -> None:
+    def __init__(self, metrics_collector: MetricsCollector | None = None) -> None:
         self.metrics = metrics_collector or MetricsCollector()
         self._active_requests = 0
-        self._request_times: List[float] = []
+        self._request_times: list[float] = []
 
     @asynccontextmanager
     async def monitor_request(self, operation: str):
@@ -482,7 +491,7 @@ class PerformanceMonitor:
             if len(self._request_times) > 1000:
                 self._request_times = self._request_times[-1000:]
 
-    def get_performance_stats(self) -> Dict[str, Any]:
+    def get_performance_stats(self) -> dict[str, Any]:
         """Get current performance statistics."""
         if not self._request_times:
             return {

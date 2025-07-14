@@ -7,9 +7,9 @@ including factory patterns, registry management, and common utilities.
 from __future__ import annotations
 
 import logging
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from contextlib import asynccontextmanager
-from typing import Any, Dict, Generic, List, Optional, Protocol, Type, TypeVar
+from typing import Any, TypeVar
 
 from enterprise_core import (
     ConfigurationError,
@@ -26,20 +26,24 @@ class AdapterConfiguration(BaseModel):
     """Configuration model for adapters."""
 
     adapter_type: str = Field(..., description="Type of adapter")
-    connection_string: Optional[str] = Field(None, description="Connection string")
-    host: Optional[str] = Field(None, description="Host address")
-    port: Optional[int] = Field(None, description="Port number")
-    username: Optional[str] = Field(None, description="Username for authentication")
-    password: Optional[str] = Field(None, description="Password for authentication")
-    database: Optional[str] = Field(None, description="Database name")
+    connection_string: str | None = Field(None, description="Connection string")
+    host: str | None = Field(None, description="Host address")
+    port: int | None = Field(None, description="Port number")
+    username: str | None = Field(None, description="Username for authentication")
+    password: str | None = Field(None, description="Password for authentication")
+    database: str | None = Field(None, description="Database name")
     timeout: int = Field(default=30, description="Connection timeout in seconds")
     pool_size: int = Field(default=10, description="Connection pool size")
     max_overflow: int = Field(default=20, description="Maximum pool overflow")
     retry_attempts: int = Field(default=3, description="Number of retry attempts")
-    retry_delay: float = Field(default=1.0, description="Delay between retries in seconds")
+    retry_delay: float = Field(
+        default=1.0, description="Delay between retries in seconds"
+    )
     ssl_enabled: bool = Field(default=False, description="Enable SSL/TLS")
     ssl_verify: bool = Field(default=True, description="Verify SSL certificates")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Additional metadata")
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Additional metadata"
+    )
 
 
 AdapterType = TypeVar("AdapterType", bound="BaseAdapter")
@@ -55,7 +59,7 @@ class BaseAdapter(ServiceAdapter):
     def __init__(self, config: AdapterConfiguration) -> None:
         super().__init__(config.model_dump())
         self.config = config
-        self._connection: Optional[Any] = None
+        self._connection: Any | None = None
         self._is_connected = False
         self._retry_count = 0
 
@@ -104,7 +108,7 @@ class BaseAdapter(ServiceAdapter):
                 error_code="CONNECTION_FAILED",
                 details={"adapter_type": self.adapter_type, "error": str(e)},
                 cause=e,
-            )
+            ) from e
 
     async def disconnect(self) -> None:
         """Disconnect from the external service."""
@@ -190,7 +194,7 @@ class BaseAdapter(ServiceAdapter):
         try:
             adapter = await _execute_with_retry()
             yield adapter
-        except Exception as e:
+        except Exception:
             self._is_healthy = False
             raise
 
@@ -198,10 +202,10 @@ class BaseAdapter(ServiceAdapter):
 class AdapterFactory:
     """Factory for creating adapter instances."""
 
-    _adapters: Dict[str, Type[BaseAdapter]] = {}
+    _adapters: dict[str, type[BaseAdapter]] = {}
 
     @classmethod
-    def register(cls, adapter_type: str, adapter_class: Type[BaseAdapter]) -> None:
+    def register(cls, adapter_type: str, adapter_class: type[BaseAdapter]) -> None:
         """Register an adapter class with the factory."""
         cls._adapters[adapter_type] = adapter_class
         logger.debug(f"Registered adapter: {adapter_type}")
@@ -225,7 +229,7 @@ class AdapterFactory:
         return adapter_class(config)
 
     @classmethod
-    def list_adapters(cls) -> List[str]:
+    def list_adapters(cls) -> list[str]:
         """List all registered adapter types."""
         return list(cls._adapters.keys())
 
@@ -234,8 +238,8 @@ class AdapterRegistry:
     """Registry for managing adapter instances."""
 
     def __init__(self) -> None:
-        self._adapters: Dict[str, BaseAdapter] = {}
-        self._configurations: Dict[str, AdapterConfiguration] = {}
+        self._adapters: dict[str, BaseAdapter] = {}
+        self._configurations: dict[str, AdapterConfiguration] = {}
 
     def register(self, name: str, adapter: BaseAdapter) -> None:
         """Register an adapter instance."""
@@ -243,7 +247,7 @@ class AdapterRegistry:
         self._configurations[name] = adapter.config
         logger.debug(f"Registered adapter instance: {name}")
 
-    def get(self, name: str) -> Optional[BaseAdapter]:
+    def get(self, name: str) -> BaseAdapter | None:
         """Get an adapter instance by name."""
         return self._adapters.get(name)
 
@@ -268,13 +272,14 @@ class AdapterRegistry:
             # Clean up the adapter
             if hasattr(adapter, "cleanup"):
                 import asyncio
+
                 asyncio.create_task(adapter.cleanup())
 
             del self._adapters[name]
             del self._configurations[name]
             logger.debug(f"Removed adapter instance: {name}")
 
-    def list_adapters(self) -> List[str]:
+    def list_adapters(self) -> list[str]:
         """List all registered adapter names."""
         return list(self._adapters.keys())
 
@@ -297,7 +302,7 @@ class AdapterRegistry:
             except Exception as e:
                 logger.warning(f"Error cleaning up adapter {name}: {e}")
 
-    async def health_check_all(self) -> Dict[str, HealthStatus]:
+    async def health_check_all(self) -> dict[str, HealthStatus]:
         """Perform health checks on all adapters."""
         results = {}
         for name, adapter in self._adapters.items():
@@ -314,9 +319,11 @@ class AdapterRegistry:
 
 def adapter(adapter_type: str) -> callable:
     """Decorator to register an adapter class with the factory."""
-    def decorator(cls: Type[BaseAdapter]) -> Type[BaseAdapter]:
+
+    def decorator(cls: type[BaseAdapter]) -> type[BaseAdapter]:
         AdapterFactory.register(adapter_type, cls)
         return cls
+
     return decorator
 
 

@@ -12,30 +12,15 @@ import pytest
 from pydantic import ValidationError
 
 from pynomaly.application.dto.ensemble_dto import (
-    AlgorithmCompatibilityDTO,
     DiversityMetricsDTO,
-    DynamicEnsembleDTO,
-    EnsembleBenchmarkDTO,
     EnsembleConfigurationDTO,
     EnsembleDetectionRequestDTO,
     EnsembleDetectionResponseDTO,
     EnsembleDetectorOptimizationRequestDTO,
     EnsembleDetectorOptimizationResponseDTO,
-    EnsembleEvolutionDTO,
-    EnsembleExplanationDTO,
-    EnsembleMetricsResponseDTO,
-    EnsembleMonitoringDTO,
-    EnsembleOptimizationRequestDTO,
-    EnsembleOptimizationResponseDTO,
     EnsemblePerformanceDTO,
-    EnsembleReportDTO,
-    EnsembleStatusResponseDTO,
     EnsembleStrategyDTO,
-    EnsembleValidationDTO,
-    MetaFeatureDTO,
-    MetaLearningInsightsDTO,
     MetaLearningKnowledgeDTO,
-    StakingConfigurationDTO,
     create_default_ensemble_config,
     create_diversity_metrics_from_dict,
     create_ensemble_performance_from_dict,
@@ -48,8 +33,7 @@ class TestEnsembleStrategyDTO:
     def test_basic_creation(self):
         """Test basic ensemble strategy creation."""
         strategy = EnsembleStrategyDTO(
-            name="voting",
-            description="Simple majority voting strategy"
+            name="voting", description="Simple majority voting strategy"
         )
 
         assert strategy.name == "voting"
@@ -67,7 +51,7 @@ class TestEnsembleStrategyDTO:
             requires_training=True,
             supports_weights=False,
             complexity="high",
-            interpretability=0.3
+            interpretability=0.3,
         )
 
         assert strategy.requires_training is True
@@ -82,22 +66,20 @@ class TestEnsembleStrategyDTO:
             EnsembleStrategyDTO(
                 name="test",
                 description="test",
-                interpretability=-0.1  # Below minimum
+                interpretability=-0.1,  # Below minimum
             )
 
         with pytest.raises(ValidationError):
             EnsembleStrategyDTO(
                 name="test",
                 description="test",
-                interpretability=1.1  # Above maximum
+                interpretability=1.1,  # Above maximum
             )
 
         # Test valid boundary values
         for interp in [0.0, 0.5, 1.0]:
             strategy = EnsembleStrategyDTO(
-                name="test",
-                description="test",
-                interpretability=interp
+                name="test", description="test", interpretability=interp
             )
             assert strategy.interpretability == interp
 
@@ -107,7 +89,7 @@ class TestEnsembleStrategyDTO:
             EnsembleStrategyDTO(
                 name="test",
                 description="test",
-                extra_field="not_allowed"  # type: ignore
+                extra_field="not_allowed",  # type: ignore
             )
 
 
@@ -123,7 +105,7 @@ class TestDiversityMetricsDTO:
             correlation_coefficient=0.25,
             kappa_statistic=0.4,
             entropy_measure=0.8,
-            overall_diversity=0.5
+            overall_diversity=0.5,
         )
 
         assert metrics.disagreement_measure == 0.45
@@ -144,7 +126,7 @@ class TestDiversityMetricsDTO:
             correlation_coefficient=-0.3,  # Can be negative
             kappa_statistic=-0.1,  # Can be negative
             entropy_measure=0.0,
-            overall_diversity=0.0
+            overall_diversity=0.0,
         )
 
         assert metrics.q_statistic == -0.5
@@ -160,7 +142,7 @@ class TestDiversityMetricsDTO:
             correlation_coefficient=0.1,  # Low correlation indicates diversity
             kappa_statistic=0.1,  # Low kappa indicates diversity
             entropy_measure=0.95,
-            overall_diversity=0.85
+            overall_diversity=0.85,
         )
 
         assert metrics.overall_diversity == 0.85
@@ -187,7 +169,7 @@ class TestMetaLearningKnowledgeDTO:
             optimal_weights=weights,
             diversity_requirements=diversity_req,
             performance_metrics=perf_metrics,
-            confidence_score=0.85
+            confidence_score=0.85,
         )
 
         assert knowledge.dataset_characteristics == characteristics
@@ -211,7 +193,7 @@ class TestMetaLearningKnowledgeDTO:
             diversity_requirements={},
             performance_metrics={},
             confidence_score=0.5,
-            timestamp=custom_time
+            timestamp=custom_time,
         )
 
         assert knowledge.timestamp == custom_time
@@ -225,7 +207,7 @@ class TestMetaLearningKnowledgeDTO:
             optimal_weights={},
             diversity_requirements={},
             performance_metrics={},
-            confidence_score=0.0
+            confidence_score=0.0,
         )
 
         assert knowledge.ensemble_composition == []
@@ -240,9 +222,7 @@ class TestEnsembleConfigurationDTO:
         """Test basic ensemble configuration creation."""
         algorithms = ["isolation_forest", "one_class_svm"]
 
-        config = EnsembleConfigurationDTO(
-            base_algorithms=algorithms
-        )
+        config = EnsembleConfigurationDTO(base_algorithms=algorithms)
 
         assert config.base_algorithms == algorithms
         assert config.ensemble_strategy == "voting"  # Default
@@ -265,7 +245,7 @@ class TestEnsembleConfigurationDTO:
             weight_optimization=False,
             diversity_weighting=0.7,
             cross_validation_folds=5,
-            meta_learning_enabled=False
+            meta_learning_enabled=False,
         )
 
         assert config.ensemble_strategy == "weighted_voting"
@@ -284,20 +264,19 @@ class TestEnsembleConfigurationDTO:
         with pytest.raises(ValidationError):
             EnsembleConfigurationDTO(
                 base_algorithms=algorithms,
-                max_ensemble_size=1  # Below minimum
+                max_ensemble_size=1,  # Below minimum
             )
 
         with pytest.raises(ValidationError):
             EnsembleConfigurationDTO(
                 base_algorithms=algorithms,
-                max_ensemble_size=11  # Above maximum
+                max_ensemble_size=11,  # Above maximum
             )
 
         # Test valid boundary values
         for size in [2, 5, 10]:
             config = EnsembleConfigurationDTO(
-                base_algorithms=algorithms,
-                max_ensemble_size=size
+                base_algorithms=algorithms, max_ensemble_size=size
             )
             assert config.max_ensemble_size == size
 
@@ -308,8 +287,7 @@ class TestEnsembleConfigurationDTO:
         # Test valid boundary values
         for threshold in [0.0, 0.5, 1.0]:
             config = EnsembleConfigurationDTO(
-                base_algorithms=algorithms,
-                min_diversity_threshold=threshold
+                base_algorithms=algorithms, min_diversity_threshold=threshold
             )
             assert config.min_diversity_threshold == threshold
 
@@ -320,8 +298,7 @@ class TestEnsembleConfigurationDTO:
         # Test valid boundary values
         for weighting in [0.0, 0.5, 1.0]:
             config = EnsembleConfigurationDTO(
-                base_algorithms=algorithms,
-                diversity_weighting=weighting
+                base_algorithms=algorithms, diversity_weighting=weighting
             )
             assert config.diversity_weighting == weighting
 
@@ -333,20 +310,19 @@ class TestEnsembleConfigurationDTO:
         with pytest.raises(ValidationError):
             EnsembleConfigurationDTO(
                 base_algorithms=algorithms,
-                cross_validation_folds=1  # Below minimum
+                cross_validation_folds=1,  # Below minimum
             )
 
         with pytest.raises(ValidationError):
             EnsembleConfigurationDTO(
                 base_algorithms=algorithms,
-                cross_validation_folds=11  # Above maximum
+                cross_validation_folds=11,  # Above maximum
             )
 
         # Test valid boundary values
         for folds in [2, 5, 10]:
             config = EnsembleConfigurationDTO(
-                base_algorithms=algorithms,
-                cross_validation_folds=folds
+                base_algorithms=algorithms, cross_validation_folds=folds
             )
             assert config.cross_validation_folds == folds
 
@@ -359,10 +335,7 @@ class TestEnsembleDetectionRequestDTO:
         detector_ids = ["detector_1", "detector_2"]
         data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
 
-        request = EnsembleDetectionRequestDTO(
-            detector_ids=detector_ids,
-            data=data
-        )
+        request = EnsembleDetectionRequestDTO(detector_ids=detector_ids, data=data)
 
         assert request.detector_ids == detector_ids
         assert request.data == data
@@ -392,7 +365,7 @@ class TestEnsembleDetectionRequestDTO:
             consensus_threshold=0.7,
             max_processing_time=30.0,
             enable_caching=False,
-            return_individual_results=True
+            return_individual_results=True,
         )
 
         assert request.voting_strategy == "weighted_average"
@@ -413,24 +386,18 @@ class TestEnsembleDetectionRequestDTO:
         with pytest.raises(ValidationError):
             EnsembleDetectionRequestDTO(
                 detector_ids=["single_detector"],  # Only one detector
-                data=data
+                data=data,
             )
 
         # Test maximum detector count
         too_many_detectors = [f"detector_{i}" for i in range(21)]  # 21 detectors
         with pytest.raises(ValidationError):
-            EnsembleDetectionRequestDTO(
-                detector_ids=too_many_detectors,
-                data=data
-            )
+            EnsembleDetectionRequestDTO(detector_ids=too_many_detectors, data=data)
 
         # Test valid counts
         for count in [2, 10, 20]:
             detector_ids = [f"detector_{i}" for i in range(count)]
-            request = EnsembleDetectionRequestDTO(
-                detector_ids=detector_ids,
-                data=data
-            )
+            request = EnsembleDetectionRequestDTO(detector_ids=detector_ids, data=data)
             assert len(request.detector_ids) == count
 
     def test_voting_strategy_validation(self):
@@ -441,24 +408,28 @@ class TestEnsembleDetectionRequestDTO:
         # Test invalid strategy
         with pytest.raises(ValidationError):
             EnsembleDetectionRequestDTO(
-                detector_ids=detector_ids,
-                data=data,
-                voting_strategy="invalid_strategy"
+                detector_ids=detector_ids, data=data, voting_strategy="invalid_strategy"
             )
 
         # Test valid strategies
         valid_strategies = [
-            "simple_average", "weighted_average", "bayesian_model_averaging",
-            "rank_aggregation", "consensus_voting", "dynamic_selection",
-            "uncertainty_weighted", "performance_weighted", "diversity_weighted",
-            "adaptive_threshold", "robust_aggregation", "cascaded_voting"
+            "simple_average",
+            "weighted_average",
+            "bayesian_model_averaging",
+            "rank_aggregation",
+            "consensus_voting",
+            "dynamic_selection",
+            "uncertainty_weighted",
+            "performance_weighted",
+            "diversity_weighted",
+            "adaptive_threshold",
+            "robust_aggregation",
+            "cascaded_voting",
         ]
 
         for strategy in valid_strategies:
             request = EnsembleDetectionRequestDTO(
-                detector_ids=detector_ids,
-                data=data,
-                voting_strategy=strategy
+                detector_ids=detector_ids, data=data, voting_strategy=strategy
             )
             assert request.voting_strategy == strategy
 
@@ -468,16 +439,12 @@ class TestEnsembleDetectionRequestDTO:
 
         # Test empty data
         with pytest.raises(ValidationError):
-            EnsembleDetectionRequestDTO(
-                detector_ids=detector_ids,
-                data=[]
-            )
+            EnsembleDetectionRequestDTO(detector_ids=detector_ids, data=[])
 
         # Test valid list of lists
         valid_data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
         request = EnsembleDetectionRequestDTO(
-            detector_ids=detector_ids,
-            data=valid_data
+            detector_ids=detector_ids, data=valid_data
         )
         assert request.data == valid_data
 
@@ -485,7 +452,7 @@ class TestEnsembleDetectionRequestDTO:
         with pytest.raises(ValidationError):
             EnsembleDetectionRequestDTO(
                 detector_ids=detector_ids,
-                data=[[1.0, 2.0], [3.0, 4.0, 5.0]]  # Different feature counts
+                data=[[1.0, 2.0], [3.0, 4.0, 5.0]],  # Different feature counts
             )
 
     def test_data_validation_list_of_dicts(self):
@@ -495,11 +462,10 @@ class TestEnsembleDetectionRequestDTO:
         # Test valid list of dicts
         valid_data = [
             {"feature1": 1.0, "feature2": 2.0},
-            {"feature1": 3.0, "feature2": 4.0}
+            {"feature1": 3.0, "feature2": 4.0},
         ]
         request = EnsembleDetectionRequestDTO(
-            detector_ids=detector_ids,
-            data=valid_data
+            detector_ids=detector_ids, data=valid_data
         )
         assert request.data == valid_data
 
@@ -509,8 +475,8 @@ class TestEnsembleDetectionRequestDTO:
                 detector_ids=detector_ids,
                 data=[
                     {"feature1": 1.0, "feature2": 2.0},
-                    {"feature1": 3.0, "feature3": 4.0}  # Different keys
-                ]
+                    {"feature1": 3.0, "feature3": 4.0},  # Different keys
+                ],
             )
 
     def test_threshold_validation(self):
@@ -524,7 +490,7 @@ class TestEnsembleDetectionRequestDTO:
                 detector_ids=detector_ids,
                 data=data,
                 confidence_threshold=threshold,
-                consensus_threshold=threshold
+                consensus_threshold=threshold,
             )
             assert request.confidence_threshold == threshold
             assert request.consensus_threshold == threshold
@@ -539,14 +505,12 @@ class TestEnsembleDetectionRequestDTO:
             EnsembleDetectionRequestDTO(
                 detector_ids=detector_ids,
                 data=data,
-                max_processing_time=0.0  # Must be positive
+                max_processing_time=0.0,  # Must be positive
             )
 
         # Test valid processing time
         request = EnsembleDetectionRequestDTO(
-            detector_ids=detector_ids,
-            data=data,
-            max_processing_time=60.0
+            detector_ids=detector_ids, data=data, max_processing_time=60.0
         )
         assert request.max_processing_time == 60.0
 
@@ -556,9 +520,7 @@ class TestEnsembleDetectionResponseDTO:
 
     def test_basic_creation(self):
         """Test basic ensemble detection response creation."""
-        response = EnsembleDetectionResponseDTO(
-            success=True
-        )
+        response = EnsembleDetectionResponseDTO(success=True)
 
         assert response.success is True
         assert response.predictions == []  # Default
@@ -582,7 +544,10 @@ class TestEnsembleDetectionResponseDTO:
         confidence_scores = [0.9, 0.95, 0.85, 0.92]
         uncertainty_scores = [0.1, 0.05, 0.15, 0.08]
         consensus_scores = [0.8, 0.9, 0.7, 0.95]
-        individual_results = {"det1": [0.1, 0.7, 0.2, 0.8], "det2": [0.3, 0.9, 0.4, 1.0]}
+        individual_results = {
+            "det1": [0.1, 0.7, 0.2, 0.8],
+            "det2": [0.3, 0.9, 0.4, 1.0],
+        }
         detector_weights = [0.6, 0.4]
         ensemble_metrics = {"diversity": 0.7, "agreement": 0.85}
         explanations = [{"top_feature": "feature1"}, {"top_feature": "feature2"}]
@@ -601,7 +566,7 @@ class TestEnsembleDetectionResponseDTO:
             ensemble_metrics=ensemble_metrics,
             explanations=explanations,
             processing_time=5.2,
-            warnings=warnings
+            warnings=warnings,
         )
 
         assert response.predictions == predictions
@@ -621,23 +586,24 @@ class TestEnsembleDetectionResponseDTO:
         """Test failed ensemble detection response."""
         response = EnsembleDetectionResponseDTO(
             success=False,
-            error_message="Ensemble detection failed due to invalid input"
+            error_message="Ensemble detection failed due to invalid input",
         )
 
         assert response.success is False
-        assert response.error_message == "Ensemble detection failed due to invalid input"
+        assert (
+            response.error_message == "Ensemble detection failed due to invalid input"
+        )
 
     def test_response_with_individual_results(self):
         """Test response with individual detector results."""
         individual_results = {
             "isolation_forest": [0.1, 0.8, 0.3],
             "one_class_svm": [0.2, 0.9, 0.4],
-            "local_outlier_factor": [0.15, 0.85, 0.35]
+            "local_outlier_factor": [0.15, 0.85, 0.35],
         }
 
         response = EnsembleDetectionResponseDTO(
-            success=True,
-            individual_results=individual_results
+            success=True, individual_results=individual_results
         )
 
         assert response.individual_results == individual_results
@@ -652,8 +618,7 @@ class TestEnsembleDetectorOptimizationRequestDTO:
         detector_ids = ["det1", "det2", "det3"]
 
         request = EnsembleDetectorOptimizationRequestDTO(
-            detector_ids=detector_ids,
-            validation_dataset_id="validation_dataset_123"
+            detector_ids=detector_ids, validation_dataset_id="validation_dataset_123"
         )
 
         assert request.detector_ids == detector_ids
@@ -684,7 +649,7 @@ class TestEnsembleDetectorOptimizationRequestDTO:
             enable_weight_optimization=False,
             cross_validation_folds=3,
             optimization_timeout=600.0,
-            random_state=123
+            random_state=123,
         )
 
         assert request.optimization_objective == "auc_score"
@@ -703,13 +668,12 @@ class TestEnsembleDetectorOptimizationRequestDTO:
         with pytest.raises(ValidationError):
             EnsembleDetectorOptimizationRequestDTO(
                 detector_ids=["single_detector"],
-                validation_dataset_id="validation_data"
+                validation_dataset_id="validation_data",
             )
 
         # Test valid minimum
         request = EnsembleDetectorOptimizationRequestDTO(
-            detector_ids=["det1", "det2"],
-            validation_dataset_id="validation_data"
+            detector_ids=["det1", "det2"], validation_dataset_id="validation_data"
         )
         assert len(request.detector_ids) == 2
 
@@ -722,20 +686,27 @@ class TestEnsembleDetectorOptimizationRequestDTO:
             EnsembleDetectorOptimizationRequestDTO(
                 detector_ids=detector_ids,
                 validation_dataset_id="validation_data",
-                optimization_objective="invalid_objective"
+                optimization_objective="invalid_objective",
             )
 
         # Test valid objectives
         valid_objectives = [
-            "accuracy", "precision", "recall", "f1_score", "auc_score",
-            "balanced_accuracy", "diversity", "stability", "efficiency"
+            "accuracy",
+            "precision",
+            "recall",
+            "f1_score",
+            "auc_score",
+            "balanced_accuracy",
+            "diversity",
+            "stability",
+            "efficiency",
         ]
 
         for objective in valid_objectives:
             request = EnsembleDetectorOptimizationRequestDTO(
                 detector_ids=detector_ids,
                 validation_dataset_id="validation_data",
-                optimization_objective=objective
+                optimization_objective=objective,
             )
             assert request.optimization_objective == objective
 
@@ -748,18 +719,21 @@ class TestEnsembleDetectorOptimizationRequestDTO:
             EnsembleDetectorOptimizationRequestDTO(
                 detector_ids=detector_ids,
                 validation_dataset_id="validation_data",
-                target_voting_strategies=["invalid_strategy"]
+                target_voting_strategies=["invalid_strategy"],
             )
 
         # Test valid strategies
         valid_strategies = [
-            "simple_average", "weighted_average", "consensus_voting", "dynamic_selection"
+            "simple_average",
+            "weighted_average",
+            "consensus_voting",
+            "dynamic_selection",
         ]
 
         request = EnsembleDetectorOptimizationRequestDTO(
             detector_ids=detector_ids,
             validation_dataset_id="validation_data",
-            target_voting_strategies=valid_strategies
+            target_voting_strategies=valid_strategies,
         )
         assert request.target_voting_strategies == valid_strategies
 
@@ -772,14 +746,14 @@ class TestEnsembleDetectorOptimizationRequestDTO:
             EnsembleDetectorOptimizationRequestDTO(
                 detector_ids=detector_ids,
                 validation_dataset_id="validation_data",
-                max_ensemble_size=1  # Below minimum
+                max_ensemble_size=1,  # Below minimum
             )
 
         with pytest.raises(ValidationError):
             EnsembleDetectorOptimizationRequestDTO(
                 detector_ids=detector_ids,
                 validation_dataset_id="validation_data",
-                max_ensemble_size=11  # Above maximum
+                max_ensemble_size=11,  # Above maximum
             )
 
         # Test cross_validation_folds bounds
@@ -787,7 +761,7 @@ class TestEnsembleDetectorOptimizationRequestDTO:
             EnsembleDetectorOptimizationRequestDTO(
                 detector_ids=detector_ids,
                 validation_dataset_id="validation_data",
-                cross_validation_folds=1  # Below minimum
+                cross_validation_folds=1,  # Below minimum
             )
 
         # Test optimization_timeout bounds
@@ -795,7 +769,7 @@ class TestEnsembleDetectorOptimizationRequestDTO:
             EnsembleDetectorOptimizationRequestDTO(
                 detector_ids=detector_ids,
                 validation_dataset_id="validation_data",
-                optimization_timeout=0.0  # Must be positive
+                optimization_timeout=0.0,  # Must be positive
             )
 
 
@@ -807,7 +781,11 @@ class TestUtilityFunctions:
         config = create_default_ensemble_config()
 
         assert isinstance(config, EnsembleConfigurationDTO)
-        assert config.base_algorithms == ["IsolationForest", "LocalOutlierFactor", "OneClassSVM"]
+        assert config.base_algorithms == [
+            "IsolationForest",
+            "LocalOutlierFactor",
+            "OneClassSVM",
+        ]
         assert config.ensemble_strategy == "voting"
         assert config.max_ensemble_size == 5
         assert config.min_diversity_threshold == 0.3
@@ -825,7 +803,7 @@ class TestUtilityFunctions:
             "correlation_coefficient": 0.2,
             "kappa_statistic": 0.4,
             "entropy_measure": 0.8,
-            "overall_diversity": 0.6
+            "overall_diversity": 0.6,
         }
 
         metrics = create_diversity_metrics_from_dict(data)
@@ -841,10 +819,7 @@ class TestUtilityFunctions:
 
     def test_create_diversity_metrics_from_incomplete_dict(self):
         """Test diversity metrics creation from incomplete dictionary."""
-        data = {
-            "disagreement_measure": 0.5,
-            "overall_diversity": 0.6
-        }
+        data = {"disagreement_measure": 0.5, "overall_diversity": 0.6}
 
         metrics = create_diversity_metrics_from_dict(data)
 
@@ -860,7 +835,7 @@ class TestUtilityFunctions:
             "diversity_score": 0.7,
             "estimated_ensemble_performance": 0.92,
             "performance_improvement": 0.07,
-            "confidence_score": 0.88
+            "confidence_score": 0.88,
         }
 
         performance = create_ensemble_performance_from_dict(data)
@@ -874,10 +849,7 @@ class TestUtilityFunctions:
 
     def test_create_ensemble_performance_from_incomplete_dict(self):
         """Test ensemble performance creation from incomplete dictionary."""
-        data = {
-            "diversity_score": 0.7,
-            "performance_improvement": 0.05
-        }
+        data = {"diversity_score": 0.7, "performance_improvement": 0.05}
 
         performance = create_ensemble_performance_from_dict(data)
 
@@ -893,7 +865,12 @@ class TestEnsembleDTOIntegration:
     def test_complete_ensemble_optimization_workflow(self):
         """Test complete ensemble optimization workflow."""
         # Step 1: Create optimization request
-        detector_ids = ["isolation_forest", "one_class_svm", "local_outlier_factor", "elliptic_envelope"]
+        detector_ids = [
+            "isolation_forest",
+            "one_class_svm",
+            "local_outlier_factor",
+            "elliptic_envelope",
+        ]
 
         optimization_request = EnsembleDetectorOptimizationRequestDTO(
             detector_ids=detector_ids,
@@ -905,7 +882,7 @@ class TestEnsembleDTOIntegration:
             enable_pruning=True,
             enable_weight_optimization=True,
             cross_validation_folds=5,
-            optimization_timeout=600.0
+            optimization_timeout=600.0,
         )
 
         # Step 2: Create diversity metrics
@@ -916,14 +893,18 @@ class TestEnsembleDTOIntegration:
             "correlation_coefficient": 0.3,
             "kappa_statistic": 0.45,
             "entropy_measure": 0.85,
-            "overall_diversity": 0.65
+            "overall_diversity": 0.65,
         }
         diversity_metrics = create_diversity_metrics_from_dict(diversity_data)
 
         # Step 3: Create optimization response
         optimization_response = EnsembleDetectorOptimizationResponseDTO(
             success=True,
-            optimized_detector_ids=["isolation_forest", "local_outlier_factor", "one_class_svm"],
+            optimized_detector_ids=[
+                "isolation_forest",
+                "local_outlier_factor",
+                "one_class_svm",
+            ],
             optimal_voting_strategy="dynamic_selection",
             optimal_weights=[0.4, 0.35, 0.25],
             ensemble_performance={"f1_score": 0.89, "precision": 0.91, "recall": 0.87},
@@ -931,10 +912,13 @@ class TestEnsembleDTOIntegration:
             optimization_history=[
                 {"iteration": 1, "f1_score": 0.82, "ensemble_size": 4},
                 {"iteration": 2, "f1_score": 0.85, "ensemble_size": 3},
-                {"iteration": 3, "f1_score": 0.89, "ensemble_size": 3}
+                {"iteration": 3, "f1_score": 0.89, "ensemble_size": 3},
             ],
-            recommendations=["Consider increasing diversity threshold", "Monitor for concept drift"],
-            optimization_time=487.3
+            recommendations=[
+                "Consider increasing diversity threshold",
+                "Monitor for concept drift",
+            ],
+            optimization_time=487.3,
         )
 
         # Verify workflow consistency
@@ -942,17 +926,20 @@ class TestEnsembleDTOIntegration:
         assert optimization_response.optimal_voting_strategy == "dynamic_selection"
         assert len(optimization_response.optimal_weights) == 3
         assert optimization_response.ensemble_performance["f1_score"] == 0.89
-        assert optimization_response.optimization_time < optimization_request.optimization_timeout
+        assert (
+            optimization_response.optimization_time
+            < optimization_request.optimization_timeout
+        )
 
     def test_ensemble_detection_workflow(self):
         """Test ensemble detection workflow."""
         # Step 1: Create detection request
-        detector_ids = ["optimized_detector_1", "optimized_detector_2", "optimized_detector_3"]
-        data = [
-            [2.5, -1.0, 0.8, 1.2],
-            [0.1, 0.3, -0.5, 2.1],
-            [1.8, 0.9, 1.5, -0.3]
+        detector_ids = [
+            "optimized_detector_1",
+            "optimized_detector_2",
+            "optimized_detector_3",
         ]
+        data = [[2.5, -1.0, 0.8, 1.2], [0.1, 0.3, -0.5, 2.1], [1.8, 0.9, 1.5, -0.3]]
 
         detection_request = EnsembleDetectionRequestDTO(
             detector_ids=detector_ids,
@@ -963,7 +950,7 @@ class TestEnsembleDTOIntegration:
             enable_explanation=True,
             confidence_threshold=0.8,
             consensus_threshold=0.7,
-            return_individual_results=True
+            return_individual_results=True,
         )
 
         # Step 2: Create detection response
@@ -977,7 +964,7 @@ class TestEnsembleDTOIntegration:
             individual_results={
                 "optimized_detector_1": [0.2, 0.8, 0.3],
                 "optimized_detector_2": [0.35, 0.9, 0.45],
-                "optimized_detector_3": [0.25, 0.85, 0.4]
+                "optimized_detector_3": [0.25, 0.85, 0.4],
             },
             detector_weights=[0.4, 0.35, 0.25],
             voting_strategy_used="dynamic_selection",
@@ -985,9 +972,9 @@ class TestEnsembleDTOIntegration:
             explanations=[
                 {"prediction": 0, "top_features": ["feature_1", "feature_3"]},
                 {"prediction": 1, "top_features": ["feature_2", "feature_4"]},
-                {"prediction": 0, "top_features": ["feature_1", "feature_2"]}
+                {"prediction": 0, "top_features": ["feature_1", "feature_2"]},
             ],
-            processing_time=2.1
+            processing_time=2.1,
         )
 
         # Verify detection workflow
@@ -996,45 +983,67 @@ class TestEnsembleDTOIntegration:
         assert len(detection_response.confidence_scores) == len(data)
         assert len(detection_response.explanations) == len(data)
         assert len(detection_response.individual_results) == len(detector_ids)
-        assert all(score >= detection_request.confidence_threshold for score in detection_response.confidence_scores)
+        assert all(
+            score >= detection_request.confidence_threshold
+            for score in detection_response.confidence_scores
+        )
 
     def test_meta_learning_knowledge_evolution(self):
         """Test meta-learning knowledge evolution."""
         # Initial knowledge
         initial_knowledge = MetaLearningKnowledgeDTO(
-            dataset_characteristics={"n_samples": 1000, "n_features": 20, "contamination": 0.1},
+            dataset_characteristics={
+                "n_samples": 1000,
+                "n_features": 20,
+                "contamination": 0.1,
+            },
             algorithm_performance={"isolation_forest": 0.82, "one_class_svm": 0.78},
             ensemble_composition=["isolation_forest", "one_class_svm"],
             optimal_weights={"isolation_forest": 0.6, "one_class_svm": 0.4},
             diversity_requirements={"min_disagreement": 0.3},
             performance_metrics={"f1_score": 0.85, "precision": 0.88},
-            confidence_score=0.75
+            confidence_score=0.75,
         )
 
         # Updated knowledge after more data
         updated_knowledge = MetaLearningKnowledgeDTO(
-            dataset_characteristics={"n_samples": 2000, "n_features": 25, "contamination": 0.08},
+            dataset_characteristics={
+                "n_samples": 2000,
+                "n_features": 25,
+                "contamination": 0.08,
+            },
             algorithm_performance={
                 "isolation_forest": 0.85,
                 "one_class_svm": 0.81,
-                "local_outlier_factor": 0.83
+                "local_outlier_factor": 0.83,
             },
-            ensemble_composition=["isolation_forest", "local_outlier_factor", "one_class_svm"],
+            ensemble_composition=[
+                "isolation_forest",
+                "local_outlier_factor",
+                "one_class_svm",
+            ],
             optimal_weights={
                 "isolation_forest": 0.45,
                 "local_outlier_factor": 0.35,
-                "one_class_svm": 0.2
+                "one_class_svm": 0.2,
             },
             diversity_requirements={"min_disagreement": 0.4, "max_correlation": 0.6},
             performance_metrics={"f1_score": 0.89, "precision": 0.92, "recall": 0.87},
-            confidence_score=0.92
+            confidence_score=0.92,
         )
 
         # Verify knowledge evolution
-        assert len(updated_knowledge.algorithm_performance) > len(initial_knowledge.algorithm_performance)
-        assert len(updated_knowledge.ensemble_composition) > len(initial_knowledge.ensemble_composition)
+        assert len(updated_knowledge.algorithm_performance) > len(
+            initial_knowledge.algorithm_performance
+        )
+        assert len(updated_knowledge.ensemble_composition) > len(
+            initial_knowledge.ensemble_composition
+        )
         assert updated_knowledge.confidence_score > initial_knowledge.confidence_score
-        assert updated_knowledge.performance_metrics["f1_score"] > initial_knowledge.performance_metrics["f1_score"]
+        assert (
+            updated_knowledge.performance_metrics["f1_score"]
+            > initial_knowledge.performance_metrics["f1_score"]
+        )
 
     def test_ensemble_strategy_comparison(self):
         """Test comparison of different ensemble strategies."""
@@ -1045,7 +1054,7 @@ class TestEnsembleDTOIntegration:
                 requires_training=False,
                 supports_weights=False,
                 complexity="low",
-                interpretability=0.9
+                interpretability=0.9,
             ),
             EnsembleStrategyDTO(
                 name="weighted_voting",
@@ -1053,7 +1062,7 @@ class TestEnsembleDTOIntegration:
                 requires_training=True,
                 supports_weights=True,
                 complexity="medium",
-                interpretability=0.7
+                interpretability=0.7,
             ),
             EnsembleStrategyDTO(
                 name="meta_learning",
@@ -1061,8 +1070,8 @@ class TestEnsembleDTOIntegration:
                 requires_training=True,
                 supports_weights=True,
                 complexity="high",
-                interpretability=0.4
-            )
+                interpretability=0.4,
+            ),
         ]
 
         # Verify strategy characteristics
@@ -1070,7 +1079,11 @@ class TestEnsembleDTOIntegration:
         weighted_strategy = strategies[1]
         meta_strategy = strategies[2]
 
-        assert simple_strategy.interpretability > weighted_strategy.interpretability > meta_strategy.interpretability
+        assert (
+            simple_strategy.interpretability
+            > weighted_strategy.interpretability
+            > meta_strategy.interpretability
+        )
         assert not simple_strategy.requires_training
         assert weighted_strategy.requires_training
         assert meta_strategy.requires_training
