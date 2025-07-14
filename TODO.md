@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 105  
+**Total Open Issues**: 106  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 21  
+**Pending**: 22  
 
-**Last Sync**: July 14, 2025 at 19:07 UTC
+**Last Sync**: July 14, 2025 at 19:08 UTC
 
 ---
 
@@ -372,6 +372,18 @@
 
 - **Scope**: ## Overview Establish the foundational infrastructure, API layer, and development environment for the data science packages ecosystem. This includes containerization, database setup, authentication, a...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/141)
+
+### **Issue #142: Phase 2.1: Data Science Package - Statistical Analysis Engine**
+
+**Labels**: enhancement, Domain, est:1w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Implement comprehensive statistical analysis capabilities including descriptive statistics, inferential testing, distribution analysis, and advanced statistical modeling. This provides the...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/142)
 
 ## 🔶 **P2-Medium Priority Issues**
 
@@ -1301,6 +1313,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 19:07 UTC  
+**Last Updated**: July 14, 2025 at 19:08 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
