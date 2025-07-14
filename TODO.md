@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 98  
+**Total Open Issues**: 99  
 **Completed**: 56 (Issue #6 - D-001: Enhanced Domain Entity Validation, Issue #1 - P2-High: API Development & Integration, Issue #84 - Achieve 100% Test Coverage - Comprehensive Implementation Plan, Issue #113 - P1: Standardize Repository Async/Sync Patterns, Issue #128 - P2: Complete ADR Documentation Suite - Consolidated Tracking, Issue #28 - DOC-003: Architecture Decision Records (ADRs), Issue #97 - P2: Implement PyGOD Graph Anomaly Detection)  
 **In Progress**: 2  
-**Pending**: 28  
+**Pending**: 29  
 
-**Last Sync**: July 14, 2025 at 17:26 UTC
+**Last Sync**: July 14, 2025 at 17:41 UTC
 
 ---
 
@@ -300,6 +300,18 @@
 
 - **Scope**: ## Problem  **Priority**: P1 - High (Critical Architecture Issue)  The project has circular dependencies between packages that violate Clean Architecture principles:  - **Core packages importing from ...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/131)
+
+### **Issue #135: P1: Fix Model Persistence for End-to-End Anomaly Detection Workflow**
+
+**Labels**: bug, Infrastructure, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: 🐛 Bug  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: # P1: Fix Model Persistence for End-to-End Anomaly Detection Workflow  ## Issue Description  **Critical Issue**: The current implementation has a fundamental model persistence problem that prevents su...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/135)
 
 ## 🔶 **P2-Medium Priority Issues**
 
@@ -1217,6 +1229,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 17:26 UTC  
+**Last Updated**: July 14, 2025 at 17:41 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
