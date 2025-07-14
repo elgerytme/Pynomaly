@@ -1095,6 +1095,18 @@
 - **Scope**: ## Problem  **Priority**: P2 - Medium (Documentation Management Issue)  The project has comprehensive documentation (360+ files) but suffers from organizational issues:  - **Content Duplication**: Sam...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/133)
 
+### **Issue #134: P3: Implement Consistent Naming Conventions Across All Packages**
+
+**Labels**: enhancement  
+**Priority**: 🔶 P2-Medium  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Problem  **Priority**: P3 - Low (Code Quality Issue)  The project has inconsistent naming conventions across packages, files, and code elements:  - **Mixed Naming Conventions**: kebab-case, snake_c...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/134)
+
 ### **Issue #136: P0-Critical: Prepare PyPI Package Release**
 
 **Labels**: enhancement, Infrastructure, P0-Critical  
@@ -1216,18 +1228,6 @@
 
 - **Scope**: ## Summary Following the completion of Issue #89 (P0: Stabilize Flaky Test Suite), this issue tracks the remaining optimizations for timing dependencies and resource cleanup in the test infrastructure...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/127)
-
-### **Issue #134: P3: Implement Consistent Naming Conventions Across All Packages**
-
-**Labels**: enhancement, P3-Low  
-**Priority**: 🟢 P3-Low  
-**Status**: ⏳ PENDING  
-**Category**: ✨ Enhancement  
-**Created**: Jul 14, 2025  
-**Updated**: Jul 14, 2025  
-
-- **Scope**: ## Problem  **Priority**: P3 - Low (Code Quality Issue)  The project has inconsistent naming conventions across packages, files, and code elements:  - **Mixed Naming Conventions**: kebab-case, snake_c...
-- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/134)
 
 ---
 
