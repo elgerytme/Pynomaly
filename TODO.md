@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 104  
+**Total Open Issues**: 105  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 20  
+**Pending**: 21  
 
 **Last Sync**: July 14, 2025 at 19:07 UTC
 
@@ -360,6 +360,18 @@
 
 - **Scope**: ## Overview Implement the core data quality validation engine with rule-based validation, automated cleansing, and comprehensive quality scoring. This establishes the foundation for enterprise-grade d...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/140)
+
+### **Issue #141: Phase 1.4: Infrastructure and API Foundation**
+
+**Labels**: enhancement, Infrastructure, est:1w, P1-High  
+**Priority**: 🔥 P1-High  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Establish the foundational infrastructure, API layer, and development environment for the data science packages ecosystem. This includes containerization, database setup, authentication, a...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/141)
 
 ## 🔶 **P2-Medium Priority Issues**
 
