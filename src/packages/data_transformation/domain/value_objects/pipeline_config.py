@@ -63,6 +63,16 @@ class FeatureSelectionMethod(str, Enum):
     CORRELATION = "correlation"
 
 
+class OutputFormat(str, Enum):
+    """Output format options."""
+    PANDAS = "pandas"
+    POLARS = "polars"
+    NUMPY = "numpy"
+    CSV = "csv"
+    PARQUET = "parquet"
+    JSON = "json"
+
+
 class PipelineConfig(BaseModel):
     """
     Configuration value object for transformation pipelines.
@@ -85,7 +95,7 @@ class PipelineConfig(BaseModel):
     
     # Preprocessing configuration
     scaling_method: ScalingMethod = ScalingMethod.STANDARD
-    encoding_strategy: EncodingStrategy = EncodingStrategy.AUTO
+    encoding_strategy: EncodingStrategy = EncodingStrategy.ONEHOT
     handle_categorical_na: str = "mode"  # mode, constant, drop
     handle_numerical_na: str = "median"  # mean, median, mode, constant, drop
     
@@ -174,7 +184,7 @@ class PipelineConfig(BaseModel):
             source_path=source_path,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.AUTO,
+            encoding_strategy=EncodingStrategy.ONEHOT,
             feature_engineering=True,
             polynomial_features=True,
             interaction_features=True,

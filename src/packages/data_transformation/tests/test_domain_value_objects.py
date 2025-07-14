@@ -17,13 +17,13 @@ class TestPipelineConfig:
             source_type=SourceType.CSV,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.ONE_HOT
+            encoding_strategy=EncodingStrategy.ONEHOT
         )
         
         assert config.source_type == SourceType.CSV
         assert config.cleaning_strategy == CleaningStrategy.AUTO
         assert config.scaling_method == ScalingMethod.STANDARD
-        assert config.encoding_strategy == EncodingStrategy.ONE_HOT
+        assert config.encoding_strategy == EncodingStrategy.ONEHOT
         assert config.feature_engineering is True
         assert config.output_format == OutputFormat.PANDAS
 
@@ -55,7 +55,7 @@ class TestPipelineConfig:
             source_type=SourceType.CSV,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.ONE_HOT
+            encoding_strategy=EncodingStrategy.ONEHOT
         )
         
         validation_result = config.validate()
@@ -67,7 +67,7 @@ class TestPipelineConfig:
             source_type=SourceType.CSV,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.ONE_HOT,
+            encoding_strategy=EncodingStrategy.ONEHOT,
             parallel_processing=True,
             chunk_size=0  # Invalid chunk size
         )
@@ -81,21 +81,21 @@ class TestPipelineConfig:
             source_type=SourceType.CSV,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.ONE_HOT
+            encoding_strategy=EncodingStrategy.ONEHOT
         )
         
         config_dict = config.to_dict()
         assert config_dict["source_type"] == "csv"
         assert config_dict["cleaning_strategy"] == "auto"
         assert config_dict["scaling_method"] == "standard"
-        assert config_dict["encoding_strategy"] == "one_hot"
+        assert config_dict["encoding_strategy"] == "onehot"
 
     def test_config_from_dict(self):
         config_dict = {
             "source_type": "csv",
             "cleaning_strategy": "auto",
             "scaling_method": "standard",
-            "encoding_strategy": "one_hot",
+            "encoding_strategy": "onehot",
             "feature_engineering": True,
             "output_format": "pandas"
         }
@@ -104,7 +104,7 @@ class TestPipelineConfig:
         assert config.source_type == SourceType.CSV
         assert config.cleaning_strategy == CleaningStrategy.AUTO
         assert config.scaling_method == ScalingMethod.STANDARD
-        assert config.encoding_strategy == EncodingStrategy.ONE_HOT
+        assert config.encoding_strategy == EncodingStrategy.ONEHOT
 
     def test_enum_values(self):
         assert SourceType.CSV.value == "csv"
@@ -120,7 +120,7 @@ class TestPipelineConfig:
         assert ScalingMethod.MINMAX.value == "minmax"
         assert ScalingMethod.ROBUST.value == "robust"
         
-        assert EncodingStrategy.ONE_HOT.value == "one_hot"
+        assert EncodingStrategy.ONEHOT.value == "onehot"
         assert EncodingStrategy.LABEL.value == "label"
         assert EncodingStrategy.TARGET.value == "target"
 

@@ -2,6 +2,7 @@
 """Integration layer for real-time monitoring dashboard with error tracking and health monitoring."""
 
 import asyncio
+import logging
 from datetime import datetime
 from typing import Any, Dict, Optional
 
@@ -9,9 +10,8 @@ from pynomaly.infrastructure.monitoring.error_tracking_integration import (
     get_error_tracker,
     get_health_monitor
 )
-from pynomaly.shared.logging import get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class MonitoringDashboardIntegration:

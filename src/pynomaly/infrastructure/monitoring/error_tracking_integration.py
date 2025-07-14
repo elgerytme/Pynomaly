@@ -2,13 +2,12 @@
 """Error tracking integration for real-time monitoring dashboard."""
 
 import asyncio
+import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
-from pynomaly.shared.logging import get_logger
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ErrorEvent:

@@ -16,7 +16,7 @@ class TestDataPipelineUseCase:
             source_type=SourceType.CSV,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.ONE_HOT,
+            encoding_strategy=EncodingStrategy.ONEHOT,
             feature_engineering=True
         )
         self.use_case = DataPipelineUseCase(self.config)
@@ -58,7 +58,7 @@ class TestDataPipelineUseCase:
             source_type=SourceType.CSV,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.ONE_HOT,
+            encoding_strategy=EncodingStrategy.ONEHOT,
             feature_engineering=True,
             validation_enabled=True
         )
@@ -74,7 +74,7 @@ class TestDataPipelineUseCase:
             source_type=SourceType.CSV,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.ONE_HOT,
+            encoding_strategy=EncodingStrategy.ONEHOT,
             feature_engineering=True,
             cache_enabled=True
         )
@@ -89,7 +89,7 @@ class TestDataPipelineUseCase:
             source_type=SourceType.CSV,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.ONE_HOT,
+            encoding_strategy=EncodingStrategy.ONEHOT,
             feature_engineering=True,
             parallel_processing=True
         )
@@ -169,7 +169,7 @@ class TestDataPipelineUseCase:
             source_type=SourceType.CSV,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.ONE_HOT,
+            encoding_strategy=EncodingStrategy.ONEHOT,
             feature_engineering=False
         )
         
@@ -194,7 +194,7 @@ class TestDataPipelineUseCase:
             source_type=SourceType.JSON,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.ONE_HOT
+            encoding_strategy=EncodingStrategy.ONEHOT
         )
         
         use_case = DataPipelineUseCase(config)
@@ -211,7 +211,7 @@ class TestDataPipelineUseCase:
             source_type=SourceType.CSV,
             cleaning_strategy=CleaningStrategy.AUTO,
             scaling_method=ScalingMethod.STANDARD,
-            encoding_strategy=EncodingStrategy.ONE_HOT,
+            encoding_strategy=EncodingStrategy.ONEHOT,
             memory_efficient=True
         )
         

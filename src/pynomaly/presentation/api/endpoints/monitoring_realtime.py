@@ -3,6 +3,7 @@
 
 import asyncio
 import json
+import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
@@ -16,9 +17,7 @@ from pynomaly.infrastructure.monitoring.realtime_websocket_manager import Realti
 from pynomaly.infrastructure.monitoring.dashboard_service import DashboardService
 from pynomaly.infrastructure.monitoring.dashboard_integration import get_dashboard_integration
 from pynomaly.infrastructure.monitoring.error_tracking_integration import get_error_tracker, get_health_monitor
-from pynomaly.shared.logging import get_logger
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class RealtimeMonitoringAPI:

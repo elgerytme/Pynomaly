@@ -47,7 +47,7 @@ def basic_pipeline_config():
         source_type=SourceType.CSV,
         cleaning_strategy=CleaningStrategy.AUTO,
         scaling_method=ScalingMethod.STANDARD,
-        encoding_strategy=EncodingStrategy.ONE_HOT,
+        encoding_strategy=EncodingStrategy.ONEHOT,
         feature_engineering=True,
         output_format='pandas'
     )
