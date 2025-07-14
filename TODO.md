@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 121  
+**Total Open Issues**: 123  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 37  
+**Pending**: 39  
 
 **Last Sync**: July 14, 2025 at 19:15 UTC
 
@@ -1358,6 +1358,30 @@
 
 - **Scope**: ## Overview Implement self-healing data pipeline capabilities with automated quality issue detection, intelligent remediation, and adaptive quality controls. This creates autonomous data quality manag...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/155)
+
+### **Issue #158: Phase 4.1: API Layer - RESTful Data Science APIs**
+
+**Labels**: enhancement, Presentation, est:1w, P2-Medium  
+**Priority**: 🔶 P2-Medium  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Create comprehensive RESTful APIs for all data science packages with OpenAPI documentation, authentication, rate limiting, and enterprise-grade API management. This provides programmatic a...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/158)
+
+### **Issue #159: Phase 4.2: CLI Interface - Data Science Command Line Tools**
+
+**Labels**: enhancement, Presentation, est:1w, P2-Medium  
+**Priority**: 🔶 P2-Medium  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Build comprehensive command-line interface tools for data science operations, providing scriptable access to profiling, quality management, and analytics capabilities with advanced CLI fea...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/159)
 
 ## 🟢 **P3-Low Priority Issues**
 
