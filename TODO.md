@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 123  
+**Total Open Issues**: 125  
 **Completed**: 71 (Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #127 - Test Infrastructure: Optimize Remaining Timing Dependencies and Resource Cleanup)  
 **In Progress**: 1  
-**Pending**: 39  
+**Pending**: 41  
 
-**Last Sync**: July 14, 2025 at 19:15 UTC
+**Last Sync**: July 14, 2025 at 19:16 UTC
 
 ---
 
@@ -1383,6 +1383,18 @@
 - **Scope**: ## Overview Build comprehensive command-line interface tools for data science operations, providing scriptable access to profiling, quality management, and analytics capabilities with advanced CLI fea...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/159)
 
+### **Issue #160: Phase 4.3: Web UI - Interactive Data Science Dashboard**
+
+**Labels**: enhancement, Presentation, est:2w, P2-Medium  
+**Priority**: 🔶 P2-Medium  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Create modern, responsive web interface for data science operations with interactive dashboards, drag-and-drop functionality, and real-time updates. This provides user-friendly access to a...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/160)
+
 ## 🟢 **P3-Low Priority Issues**
 
 ### **Issue #16: I-005: Cloud Storage Adapters**
@@ -1493,6 +1505,18 @@
 - **Scope**: ## Summary Following the completion of Issue #89 (P0: Stabilize Flaky Test Suite), this issue tracks the remaining optimizations for timing dependencies and resource cleanup in the test infrastructure...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/127)
 
+### **Issue #161: Phase 4.4: Mobile App - Data Quality Monitoring**
+
+**Labels**: enhancement, Presentation, est:1w, P3-Low  
+**Priority**: 🟢 P3-Low  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Overview Develop mobile application for data quality monitoring and alerts, enabling on-the-go access to critical quality metrics and incident management.  ## Acceptance Criteria - [ ] Real-time qu...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/161)
+
 ---
 
 ## 🔧 **Automation Setup**
@@ -1517,6 +1541,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 19:15 UTC  
+**Last Updated**: July 14, 2025 at 19:16 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
