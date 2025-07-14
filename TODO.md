@@ -2,12 +2,12 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 95  
+**Total Open Issues**: 96  
 **Completed**: 53 (Issue #113 - P1: Standardize Repository Async/Sync Patterns, Issue #128 - P2: Complete ADR Documentation Suite - Consolidated Tracking, Issue #28 - DOC-003: Architecture Decision Records (ADRs), Issue #97 - P2: Implement PyGOD Graph Anomaly Detection, Issue #86 - Phase 1: Critical Infrastructure Tests (Protocols & Shared Foundation), Issue #108 - P2: Create Production Deployment Guide, Issue #88 - Phase 2: Domain Layer Tests (Value Objects & Exceptions))  
 **In Progress**: 2  
-**Pending**: 28  
+**Pending**: 29  
 
-**Last Sync**: July 14, 2025 at 17:13 UTC
+**Last Sync**: July 14, 2025 at 17:14 UTC
 
 ---
 
@@ -1047,6 +1047,18 @@
 - **Scope**: ## Consolidation of ADR Issues  This issue consolidates all Architecture Decision Record (ADR) creation issues into a single tracking item.  ## Consolidated ADRs to Complete: - [ ] ADR-003: Clean Arch...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/128)
 
+### **Issue #132: P2: Standardize Configuration Management and Reduce Config Sprawl**
+
+**Labels**: enhancement, Infrastructure, P2-Medium  
+**Priority**: 🔶 P2-Medium  
+**Status**: ⏳ PENDING  
+**Category**: ✨ Enhancement  
+**Created**: Jul 14, 2025  
+**Updated**: Jul 14, 2025  
+
+- **Scope**: ## Problem  **Priority**: P2 - Medium (Configuration Management Issue)  The project has excessive configuration complexity with 20+ configuration files scattered across multiple directories:  - **Mult...
+- **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/132)
+
 ## 🟢 **P3-Low Priority Issues**
 
 ### **Issue #16: I-005: Cloud Storage Adapters**
@@ -1181,6 +1193,6 @@
 
 ---
 
-**Last Updated**: July 14, 2025 at 17:13 UTC  
+**Last Updated**: July 14, 2025 at 17:14 UTC  
 **Sync Status**: ✅ Active (Auto-synced on issue changes)  
 **Next Manual Review**: As needed for strategic planning
