@@ -26,6 +26,7 @@ classifiers = [
 
 dependencies = [
     "pynomaly-core>=0.1.1",
+    "pynomaly-data-transformation>=0.1.0",
     "pyod>=2.0.5",
     "numpy>=1.26.0,<2.2.0",
     "pandas>=2.2.3",

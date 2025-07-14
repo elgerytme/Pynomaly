@@ -26,6 +26,8 @@ class CleaningStrategy(str, Enum):
     """Data cleaning strategies."""
     NONE = "none"
     AUTO = "auto"
+    MANUAL = "manual"
+    STATISTICAL = "statistical"
     CONSERVATIVE = "conservative"
     AGGRESSIVE = "aggressive"
     CUSTOM = "custom"

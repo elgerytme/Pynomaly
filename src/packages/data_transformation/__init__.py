@@ -10,15 +10,19 @@ __author__ = "Pynomaly Team"
 __email__ = "team@pynomaly.io"
 
 from .application.use_cases.data_pipeline import DataPipelineUseCase
-from .application.use_cases.feature_engineering import FeatureEngineeringUseCase
 from .domain.entities.transformation_pipeline import TransformationPipeline
-from .domain.value_objects.pipeline_config import PipelineConfig
+from .domain.value_objects.pipeline_config import (
+    PipelineConfig, SourceType, CleaningStrategy, ScalingMethod, EncodingStrategy
+)
 from .infrastructure.adapters.data_source_adapter import DataSourceAdapter
 
 __all__ = [
     "DataPipelineUseCase",
-    "FeatureEngineeringUseCase", 
     "TransformationPipeline",
     "PipelineConfig",
+    "SourceType",
+    "CleaningStrategy", 
+    "ScalingMethod",
+    "EncodingStrategy",
     "DataSourceAdapter",
 ]
