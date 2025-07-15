@@ -1,15 +1,33 @@
 """Domain entities for the Domain Library package."""
 
 from .domain_entity import DomainEntity
-from .business_logic_template import BusinessLogicTemplate
-from .entity_relationship import EntityRelationship
-from .domain_catalog import DomainCatalog
-from .entity_version import EntityVersion
+from .business_logic_template import (
+    BusinessLogicTemplate, 
+    BusinessLogicInstance,
+    TemplateParameter
+)
+from .entity_relationship import (
+    EntityRelationship,
+    RelationshipType,
+    CascadeAction,
+    RelationshipConstraint
+)
+from .domain_catalog import (
+    DomainCatalog,
+    CatalogIndex,
+    CatalogStatistics
+)
 
 __all__ = [
     "DomainEntity",
-    "BusinessLogicTemplate", 
+    "BusinessLogicTemplate",
+    "BusinessLogicInstance", 
+    "TemplateParameter",
     "EntityRelationship",
+    "RelationshipType",
+    "CascadeAction",
+    "RelationshipConstraint",
     "DomainCatalog",
-    "EntityVersion"
+    "CatalogIndex",
+    "CatalogStatistics"
 ]

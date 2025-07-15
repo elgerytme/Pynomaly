@@ -1,0 +1,33 @@
+# Buck2 Build Configuration for Algorithms Package
+# ML algorithm adapters in domain layer
+
+load("//tools/buck:python.bzl", "pynomaly_workspace_package")
+load("//tools/buck:testing.bzl", "pynomaly_comprehensive_tests")
+
+# ==========================================
+# Algorithms Package
+# ==========================================
+
+pynomaly_workspace_package(
+    name = "algorithms",
+    layer = "domain",
+    package_type = "algorithms",
+    dependencies = [
+        "//src/packages/core:core",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# Test Suite
+# ==========================================
+
+pynomaly_comprehensive_tests(
+    package_name = "algorithms",
+    deps = [
+        "//src/packages/core:core",
+    ],
+    include_property = True,
+    include_performance = True,
+    include_security = False,
+)

@@ -15,9 +15,16 @@ __email__ = "team@pynomaly.io"
 
 from .domain.entities import (
     DomainEntity,
-    BusinessLogicTemplate, 
+    BusinessLogicTemplate,
+    BusinessLogicInstance,
+    TemplateParameter,
     EntityRelationship,
-    DomainCatalog
+    RelationshipType,
+    CascadeAction,
+    RelationshipConstraint,
+    DomainCatalog,
+    CatalogIndex,
+    CatalogStatistics
 )
 
 from .application.services import (
@@ -29,8 +36,15 @@ from .application.services import (
 __all__ = [
     "DomainEntity",
     "BusinessLogicTemplate",
-    "EntityRelationship", 
+    "BusinessLogicInstance",
+    "TemplateParameter",
+    "EntityRelationship",
+    "RelationshipType", 
+    "CascadeAction",
+    "RelationshipConstraint",
     "DomainCatalog",
+    "CatalogIndex",
+    "CatalogStatistics",
     "CatalogService",
     "EntityService",
     "SearchService"
