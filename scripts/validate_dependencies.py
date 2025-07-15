@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-import pkg_resources
+from packaging import version as pkg_version
 
 
 class DependencyValidator:
@@ -80,7 +80,7 @@ class DependencyValidator:
                 
                 if version:
                     try:
-                        if pkg_resources.parse_version(version) < pkg_resources.parse_version(min_version):
+                        if pkg_version.parse(version) < pkg_version.parse(min_version):
                             return False, f"Version {version} < required {min_version}"
                     except Exception:
                         return True, f"Import successful, version check skipped: {version}"
