@@ -51,7 +51,7 @@ dependencies = [
     "numpy>=1.26.0,<2.2.0",
     "pandas>=2.2.3",
     "polars>=1.19.0",
-    "pydantic>=2.10.4",
+    "pydantic>=2.9.0",
     "structlog>=24.4.0",
     "dependency-injector>=4.42.0",
     "networkx>=3.0",
@@ -59,7 +59,7 @@ dependencies = [
     "pyyaml>=6.0",
     "pydantic-settings>=2.8.0",
     # Security and validation
-    "cryptography>=45.0.0",
+    "cryptography>=41.0.0",
     "email-validator>=2.2.0",
 ]
 

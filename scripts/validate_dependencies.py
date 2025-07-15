@@ -23,13 +23,13 @@ class DependencyValidator:
             ("numpy", "1.26.0"),
             ("pandas", "2.2.3"),
             ("polars", "1.19.0"),
-            ("pydantic", "2.10.4"),
+            ("pydantic", "2.9.0"),
             ("structlog", "24.4.0"),
             ("dependency_injector", "4.42.0"),
             ("networkx", "3.0"),
             ("yaml", "6.0"),
             ("pydantic_settings", "2.8.0"),
-            ("cryptography", "45.0.0"),
+            ("cryptography", "41.0.0"),
             ("email_validator", "2.2.0"),
         ]
         
