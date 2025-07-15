@@ -23,9 +23,7 @@ from .domain.entities import (
 from .domain.value_objects import (
     StatisticalMetrics,
     ModelPerformanceMetrics,
-    FeatureImportance,
-    DataDistribution,
-    CorrelationMatrix,
+    PerformanceDegradationMetrics,
 )
 
 __all__ = [
@@ -38,7 +36,5 @@ __all__ = [
     # Value objects
     "StatisticalMetrics",
     "ModelPerformanceMetrics",
-    "FeatureImportance",
-    "DataDistribution",
-    "CorrelationMatrix",
+    "PerformanceDegradationMetrics",
 ]
