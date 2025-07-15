@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\entities\anomaly_event.py
-# hypothesis_version: 6.135.26
-
-[0.0, 1.0, 100.0, 100, 'UTC', 'acknowledged', 'acknowledgment_notes', 'anomaly_detected', 'anomaly_escalated', 'anomaly_resolved', 'asc', 'batch_completed', 'correlation', 'critical', 'custom', 'data_quality_issue', 'decreasing', 'desc', 'event_time', 'failed', 'frequency', 'high', 'ignore_reason', 'ignored', 'ignored_at', 'ignored_by', 'increasing', 'info', 'low', 'medium', 'model_drift_detected', 'pattern_change', 'pending', 'processed', 'processing', 'resolved', 'sequence', 'session_started', 'session_stopped', 'stable', 'system_alert', 'threshold_breach']

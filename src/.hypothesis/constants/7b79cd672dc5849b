@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\ensemble.py
-# hypothesis_version: 6.135.26
-
-[0.0, 0.02, 0.15, 0.85, '/detect', '/ensemble', '/metrics', '/optimize', '/status', '99.9%', 'Area under ROC curve', 'accuracy', 'auc_score', 'average_f1_score', 'cache_hit_rate', 'cache_size', 'cached_predictions', 'complexity', 'description', 'detector_count', 'detector_ids', 'ensemble', 'error_rate', 'f1_score', 'focus', 'high', 'last_updated', 'low', 'max_detectors', 'medium', 'min_detectors', 'name', 'optimization_history', 'optimization_runs', 'optimization_time', 'performance', 'performance_trackers', 'precision', 'processing_time', 'recall', 'request', 'response', 'robustness', 'speed', 'stability_score', 'success', 'supported_objectives', 'supported_strategies', 'supports_caching', 'supports_explanation', 'supports_weights', 'timestamp', 'uptime']

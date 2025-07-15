@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\logging\log_aggregator.py
-# hypothesis_version: 6.135.26
-
-[5.0, 100, 300, 1000, '%Y%m%d_%H%M%S', 'CRITICAL', 'ERROR', 'INFO', 'aggregated', 'aggregations_count', 'aggregator_stats', 'batch', 'batch_buffer_size', 'buffer_size', 'context', 'end_time', 'entries_filtered', 'entries_processed', 'error_patterns', 'filtered', 'id', 'last_entry_time', 'level', 'level_counts', 'logger_counts', 'logger_name', 'message', 'name', 'persistence_errors', 'realtime', 'source', 'start_time', 'streams', 'streams_count', 'subscribers_count', 'tag_counts', 'tags', 'time_window_seconds', 'timestamp', 'total_entries', 'type', 'w']

@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\preprocessing\preprocessing_pipeline.py
-# hypothesis_version: 6.135.26
-
-[0.001, 0.01, 0.1, 0.5, 1.5, 3.0, 'after_shape', 'basic_preprocessing', 'before_shape', 'columns', 'convert_types', 'degree', 'description', 'drop_first', 'duplicates', 'enabled', 'encode_categorical', 'encoding', 'feature_selection', 'fill_value', 'first', 'fit', 'fit_dataset_id', 'handle_infinites', 'handle_outliers', 'handle_unknown', 'handle_zeros', 'ignore', 'include_bias', 'infer_types', 'infinites', 'interaction_only', 'iqr', 'k', 'keep', 'method', 'missing_values', 'name', 'operation', 'optimize_memory', 'original_dataset_id', 'outliers', 'parameters', 'pipeline_steps', 'polynomial', 'polynomial_features', 'remove_duplicates', 'replace', 'replacement_value', 'scale_features', 'scaling', 'select_features', 'step', 'steps', 'strategy', 'subset', 'threshold', 'type_conversion', 'type_mapping', 'w', 'zeros']

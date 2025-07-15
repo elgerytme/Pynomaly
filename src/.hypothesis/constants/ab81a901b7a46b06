@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\application\use_cases\automl_use_case.py
-# hypothesis_version: 6.135.26
-
-[3600, 'auc', 'balanced_accuracy', 'detection_rate', 'f1', 'precision', 'recall']

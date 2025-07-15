@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\monitoring\alerting_service.py
-# hypothesis_version: 6.135.26
-
-[587, '#17a2b8', '#36a64f', '#6c757d', '#6f42c1', '#800080', '#808080', '#dc3545', '#ff0000', '#ff9f00', '#ffc107', ', ', 'Description', 'From', 'Metrics', 'Severity', 'Source', 'Status', 'Subject', 'Time', 'To', 'active', 'attachments', 'color', 'created_at', 'critical', 'description', 'duration', 'emergency', 'fields', 'html', 'id', 'info', 'metrics', 'pynomaly', 'resolved', 'resolved_at', 'severity', 'short', 'source', 'status', 'suppressed', 'tags', 'text', 'title', 'value', 'warning']

@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\security\input_sanitizer.py
-# hypothesis_version: 6.135.26
-
-[100, 10000, '\x00', "'\\s*(?:OR|AND)\\s*'", '(\\|\\||&&)', '--', '..', '...', '/\\*.*?\\*/', '<[^>]+>', 'Invalid URL format', 'Invalid email format', 'Null byte in path', 'URLs not allowed', 'Unsafe URL scheme', '[;&|`$(){}[\\]<>*?!]', '\\.\\.[\\\\/]', '\\.\\.[\\\\/]{2,}', 'blocked_patterns', 'custom_patterns', 'data:', 'dict_key', 'email', 'file:', 'file_path', 'javascript:', 'moderate', 'permissive', 'strict', 'url', 'vbscript:']

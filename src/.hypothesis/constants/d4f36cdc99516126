@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\services\ensemble_aggregator.py
-# hypothesis_version: 6.135.26
-
-[1.0, 'any', 'average', 'ensemble_average', 'ensemble_max', 'ensemble_median', 'ensemble_weighted', 'majority', 'max', 'median', 'unanimous', 'weighted']

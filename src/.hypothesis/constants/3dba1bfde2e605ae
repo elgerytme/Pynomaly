@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\data_loaders\json_loader.py
-# hypothesis_version: 6.135.26
-
-[100, 1024, 10000, 100000, '.json', '.jsonl', 'Invalid JSON format', 'JSON file is empty', 'JSONLoader', 'batch_index', 'batch_size', 'columns', 'data_type', 'encoding', 'error', 'estimated_rows', 'file_size_mb', 'format', 'is_batch', 'json', 'jsonl', 'lines', 'lines_format', 'loader', 'normalized', 'object', 'sample_columns', 'source', 'target_column', 'unknown', 'utf-8']

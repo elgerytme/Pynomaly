@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\value_objects\hyperparameters.py
-# hypothesis_version: 6.135.26
-
-['HyperparameterRange', 'HyperparameterSet', 'HyperparameterSpace', 'boolean', 'categorical', 'choices', 'default_value', 'description', 'dimensionality', 'discrete', 'discrete_uniform', 'distribution', 'estimated_grid_size', 'float', 'grid_size', 'high', 'int', 'log', 'log_normal', 'log_uniform', 'low', 'name', 'normal', 'parameter_count', 'parameter_types', 'parameters', 'space_name', 'step', 'type', 'uniform']

@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\logging\tracing_manager.py
-# hypothesis_version: 6.135.26
-
-[1.0, 1000, 14268, '%Y%m%d_%H%M%S', '1.0.0', 'attributes', 'baggage', 'component', 'current_span', 'duration_ms', 'end_time', 'error', 'error.message', 'error.stack', 'error.type', 'events', 'export_errors', 'flags', 'function.module', 'function.name', 'internal', 'level', 'localhost', 'logs', 'message', 'name', 'ok', 'operation_name', 'parent_span_id', 'pynomaly', 'service.name', 'service.version', 'service_name', 'span.kind', 'span_count', 'span_id', 'span_kind', 'spans', 'spans_created', 'spans_exported', 'spans_finished', 'spans_in_memory', 'start_time', 'status', 'status_message', 'timestamp', 'trace_count', 'trace_id', 'traces', 'traces_created', 'unknown', 'unset', 'w', 'x-parent-span-id', 'x-service-name', 'x-span-id', 'x-trace-id']

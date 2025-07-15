@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\performance\connection_pooling.py
-# hypothesis_version: 6.135.26
-
-[0.0, 1.0, 2.0, 30.0, 300, 3600, 'Closed pool', 'Created HTTP pool', 'Created Redis pool', 'Database pool closed', 'HTTP client error', 'HTTP pool closed', 'Health check error', 'Redis pool closed', 'SELECT 1', 'checked_in', 'checked_out', 'commit', 'config', 'configuration', 'created_connections', 'database', 'http', 'in_use_connections', 'invalid', 'is_closed', 'keepalive_expiry', 'limits', 'max_connections', 'name', 'overflow', 'pool_info', 'pool_size', 'redis', 'size', 'stats', 'type']

@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\entities\model_performance.py
-# hypothesis_version: 6.135.26
-
-[0.0, 2.0, '1.0.0', 'accuracy', 'created_at', 'dataset_id', 'description', 'f1_score', 'false_negative_rate', 'false_positive_rate', 'id', 'inference_time', 'max_value', 'mean', 'memory_usage', 'metadata', 'min_value', 'model_id', 'pct_thresholds', 'precision', 'recall', 'roc_auc', 'sensitivity', 'specificity', 'std', 'timestamp', 'training_time', 'updated_at', 'version']

@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\__init__.py
-# hypothesis_version: 6.135.26
-
-[0.1, '.csv', '.parquet', '.pq', '0.1.0', 'Anomaly', 'AnomalyScore', 'ContaminationRate', 'Dataset', 'DetectionResult', 'Detector', 'IsolationForest', 'MIT', 'Pynomaly Team', 'Settings', '__version__', 'contamination', 'create_container', 'create_detector', 'detect_anomalies', 'load_dataset', 'team@pynomaly.io']

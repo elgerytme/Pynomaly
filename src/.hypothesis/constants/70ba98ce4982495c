@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\data_loaders\csv_loader.py
-# hypothesis_version: 6.135.26
-
-[1000, 1024, ',', '.csv', '.tsv', '.txt', 'CSV file is empty', 'CSVLoader', 'batch_index', 'batch_size', 'chunksize', 'columns', 'csv', 'delimiter', 'encoding', 'error', 'estimated_rows', 'file_size_mb', 'is_batch', 'loader', 'low_memory', 'memory_usage_mb', 'number', 'numeric_columns', 'parse_dates', 'sample_dtypes', 'source', 'target_column', 'tsv', 'txt', 'unknown', 'utf-8']

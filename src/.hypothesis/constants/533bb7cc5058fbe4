@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\distributed\result_aggregator.py
-# hypothesis_version: 6.135.26
-
-[0.0, 'aggregated_result', 'count', 'ensemble_voting', 'simple_merge', 'strategy', 'weighted_average']

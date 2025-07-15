@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\entities\dataset.py
-# hypothesis_version: 6.135.26
-
-[0.2, 1024, 'categorical_features', 'created_at', 'description', 'float16', 'float32', 'float64', 'has_target', 'id', 'int16', 'int32', 'int64', 'memory_usage_mb', 'n_features', 'n_samples', 'name', 'numeric_features', 'object', 'parent_dataset_id', 'shape', 'split', 'test', 'train']

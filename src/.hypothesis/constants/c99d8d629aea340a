@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\value_objects\anomaly_type.py
-# hypothesis_version: 6.135.26
-
-['AnomalyType', 'behavioral', 'business_rule', 'collective', 'concept_drift', 'contextual', 'data_quality', 'drift', 'network', 'outlier', 'pattern', 'performance', 'point', 'seasonal', 'security', 'spatial', 'statistical', 'system', 'temporal', 'trend', 'unknown']

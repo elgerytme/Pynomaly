@@ -1,1 +1,0 @@
-"""Value objects for data transformation."""

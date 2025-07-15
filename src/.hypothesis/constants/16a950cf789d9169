@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\auth_deps.py
-# hypothesis_version: 6.135.26
-
-['Bearer', 'WWW-Authenticate', 'admin', 'read', 'write']

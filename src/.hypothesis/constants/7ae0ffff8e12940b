@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\application\services\experiment_tracking_service.py
-# hypothesis_version: 6.135.26
-
-['\n## All Runs\n\n', '-inf', 'artifacts', 'auc_roc', 'comparison.csv', 'created_at', 'dataset', 'dataset_name', 'description', 'detector', 'detector_name', 'experiment', 'experiment.json', 'experiments.json', 'f1', 'id', 'inf', 'metrics', 'name', 'parameters', 'precision', 'rank', 'recall', 'report.md', 'run.json', 'run_id', 'runs', 'tags', 'timestamp', 'w']

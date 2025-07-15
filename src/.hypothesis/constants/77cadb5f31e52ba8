@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\application\services\event_processing_service.py
-# hypothesis_version: 6.135.26
-
-[0.0, 0.8, 1.0, 1000, 3600, 10000, 'all', 'correlation', 'data_source', 'detector_id', 'email', 'end', 'event_count', 'event_type', 'frequency', 'min_count', 'sequence', 'severity', 'slack', 'start', 'unknown']

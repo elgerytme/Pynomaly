@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\adapters\tensorflow_adapter.py
-# hypothesis_version: 6.135.26
-
-[-0.5, 0.0, 0.001, 0.1, 0.2, 0.5, 1.0, 100, 'Activation function', 'AutoEncoder', 'CPU', 'DeepSVDD', 'GPU', 'Neural Network', 'Training batch size', 'VAE', '__getitem__', 'activation', 'algorithm', 'batch_size', 'best_val_loss', 'beta', 'description', 'device', 'dropout_rate', 'encoding_dim', 'epochs', 'final_loss', 'gpu_support', 'has_tensorflow', 'hidden_layers', 'inf', 'input_dim', 'is_fitted', 'latent_dim', 'learning_rate', 'linear', 'loss', 'mse', 'output_dim', 'parameters', 'relu', 'threshold', 'total_params', 'trainable_params', 'training_epochs', 'type', 'unsupervised', 'val_loss', 'validation_split']

@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\logging\metrics_collector.py
-# hypothesis_version: 6.135.26
-
-[-1000, 100, 1000, 1024, 10000, '%Y%m%d_%H%M%S', ',', '/', 'collection_errors', 'counter', 'counters_count', 'description', 'flush_errors', 'gauge', 'gauges_count', 'histogram', 'histograms_count', 'labels', 'last_flush_time', 'metrics', 'metrics_collected', 'metrics_count', 'metrics_flushed', 'metrics_in_memory', 'milliseconds', 'name', 'p50', 'p75', 'p90', 'p95', 'p99', 'process.cpu.percent', 'process.num_threads', 'summary', 'system.disk.free_gb', 'timer', 'timers_count', 'timestamp', 'type', 'unit', 'value', 'w']

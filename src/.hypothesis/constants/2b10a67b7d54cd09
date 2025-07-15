@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\config\config_manager.py
-# hypothesis_version: 6.135.26
-
-['***REDACTED***', '.', '.json', '.yaml', '.yml', '/metrics', 'ENVIRONMENT', 'File not found', 'T', 'backend', 'class', 'config', 'config_file', 'console', 'database_url', 'debug', 'default_ttl', 'development', 'echo', 'echo_pool', 'enabled', 'environment', 'file', 'file_format', 'file_template', 'filename', 'format', 'handlers', 'level', 'logging.FileHandler', 'max_overflow', 'memory', 'metrics_path', 'migrations', 'model_storage_path', 'pool_recycle', 'pool_size', 'pool_timeout', 'port', 'production', 'pynomaly.log', 'redis', 'redis_url', 'script_location', 'secret_key', 'settings', 'sqlalchemy.url', 'storage_path', 'test', 'testing', 'url', 'utf-8', 'validation_errors', 'yaml, yml, or json']
