@@ -1,0 +1,243 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pynomaly-python-sdk"
+version = "1.0.0"
+description = "Comprehensive Python SDK for the Pynomaly anomaly detection platform"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Pynomaly Team", email = "support@pynomaly.com"},
+]
+maintainers = [
+    {name = "Pynomaly Team", email = "support@pynomaly.com"},
+]
+keywords = [
+    "anomaly-detection",
+    "machine-learning",
+    "outlier-detection",
+    "data-science",
+    "sdk",
+    "clean-architecture"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Data Scientists",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.19.0",
+    "scikit-learn>=1.0.0",
+    "click>=8.0.0",
+    "asyncio-compat>=0.1.0",
+]
+
+[project.optional-dependencies]
+# Core ML dependencies
+ml = [
+    "pyod>=1.0.0",
+    "pandas>=1.3.0",
+    "scipy>=1.7.0",
+]
+
+# Deep learning dependencies
+deep-learning = [
+    "tensorflow>=2.8.0",
+    "torch>=1.11.0",
+    "pyod[dl]>=1.0.0",
+]
+
+# Development dependencies
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "isort>=5.10.0",
+    "flake8>=4.0.0",
+    "mypy>=0.950",
+    "pre-commit>=2.17.0",
+]
+
+# Testing dependencies
+test = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.7.0",
+    "factory-boy>=3.2.0",
+]
+
+# Documentation dependencies
+docs = [
+    "sphinx>=4.5.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "sphinx-autodoc-typehints>=1.17.0",
+    "myst-parser>=0.17.0",
+]
+
+# All optional dependencies
+all = [
+    "pynomaly-python-sdk[ml,deep-learning,dev,test,docs]"
+]
+
+[project.urls]
+Homepage = "https://github.com/pynomaly/python-sdk"
+Documentation = "https://docs.pynomaly.com/python-sdk"
+Repository = "https://github.com/pynomaly/python-sdk"
+"Bug Tracker" = "https://github.com/pynomaly/python-sdk/issues"
+Changelog = "https://github.com/pynomaly/python-sdk/blob/main/CHANGELOG.md"
+
+[project.scripts]
+pynomaly-sdk = "python_sdk.presentation.cli.detection_cli:cli"
+
+[tool.hatch.build.targets.wheel]
+packages = ["python_sdk"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/python_sdk",
+    "/tests",
+    "/docs",
+    "/README.md",
+    "/LICENSE",
+    "/CHANGELOG.md",
+]
+
+[tool.hatch.version]
+path = "python_sdk/__init__.py"
+
+# Testing configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=python_sdk",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "e2e: End-to-end tests",
+    "slow: Slow running tests",
+]
+asyncio_mode = "auto"
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["python_sdk"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/migrations/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+# Code formatting with Black
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | migrations
+)/
+'''
+
+# Import sorting with isort
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+src_paths = ["python_sdk", "tests"]
+
+# Type checking with mypy
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "pyod.*",
+    "sklearn.*",
+    "pandas.*",
+    "numpy.*",
+    "scipy.*",
+]
+ignore_missing_imports = true
+
+# Linting with flake8 (configuration in setup.cfg or .flake8)
+[tool.flake8]
+max-line-length = 100
+extend-ignore = [
+    "E203",  # whitespace before ':'
+    "E501",  # line too long (handled by black)
+    "W503",  # line break before binary operator
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "docs",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg",
+]

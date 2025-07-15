@@ -121,6 +121,7 @@ lazy_commands = [
     ("perf", "pynomaly.presentation.cli.performance", "performance_app"),
     ("validate", "pynomaly.presentation.cli.validation", "app"),
     ("migrate", "pynomaly.presentation.cli.migrations", "app"),
+    ("health", "pynomaly.presentation.cli.health_check", "app"),
 ]
 
 for cmd_name, module_path, attr_name in lazy_commands:
