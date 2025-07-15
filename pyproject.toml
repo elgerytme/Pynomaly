@@ -99,6 +99,10 @@ server = [
     "scipy>=1.15.0",
     "pyarrow>=18.1.0"
 ]
+graphql = [
+    "strawberry-graphql[fastapi]>=0.218.0",
+    "strawberry-graphql[pydantic]>=0.218.0"
+]
 
 # Infrastructure extras
 auth = ["pyjwt>=2.10.1", "passlib[bcrypt]>=1.7.4"]
@@ -115,6 +119,15 @@ infrastructure = [
     "tenacity>=9.0.0",
     "circuitbreaker>=2.0.0",
     "pydantic-settings>=2.8.0"
+]
+cloud-storage = [
+    "boto3>=1.34.0",
+    "botocore>=1.34.0",
+    "azure-storage-blob>=12.19.0",
+    "azure-identity>=1.15.0",
+    "google-cloud-storage>=2.10.0",
+    "google-auth>=2.25.0",
+    "minio>=7.2.0"
 ]
 
 # Data processing extras
@@ -158,7 +171,9 @@ production = [
     "pydantic-settings>=2.8.0",
     "pyjwt>=2.10.1",
     "passlib[bcrypt]>=1.7.4",
-    "prometheus-fastapi-instrumentator>=7.0.0"
+    "prometheus-fastapi-instrumentator>=7.0.0",
+    "boto3>=1.34.0",
+    "botocore>=1.34.0"
 ]
 
 # Development extras
