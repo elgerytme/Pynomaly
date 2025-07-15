@@ -235,7 +235,8 @@
       "Bash(./test_all_environments.sh:*)",
       "Bash(./quick_test_env.sh:*)",
       "Bash(tree:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(git check-ignore:*)"
     ],
     "deny": []
   }
