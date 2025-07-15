@@ -1,4 +1,4 @@
-name: Performance Testing
+name: Comprehensive Integration Testing - GitHub Issue #164
 
 on:
   push:
@@ -6,20 +6,35 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    # Run performance tests daily at 2 AM UTC
+    # Run comprehensive tests daily at 2 AM UTC
     - cron: '0 2 * * *'
   workflow_dispatch:
     inputs:
       test_type:
-        description: 'Type of performance test'
+        description: 'Type of comprehensive test'
         required: true
-        default: 'benchmark'
+        default: 'comprehensive'
         type: choice
         options:
         - benchmark
         - load
-        - regression
+        - stress
+        - endurance
+        - security
+        - multi_tenant
+        - disaster_recovery
+        - api_contract
         - comprehensive
+      test_intensity:
+        description: 'Test intensity level'
+        required: false
+        default: 'medium'
+        type: choice
+        options:
+        - light
+        - medium
+        - heavy
+        - extreme
       baseline_update:
         description: 'Update performance baselines'
         required: false
@@ -28,11 +43,130 @@ on:
 
 env:
   PYTHON_VERSION: '3.11'
+  PYNOMALY_ENV: testing
 
 jobs:
+  comprehensive-integration-testing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.event.inputs.test_type == 'comprehensive' || github.event_name == 'schedule' || github.event_name == 'push'
+    
+    strategy:
+      matrix:
+        test-suite: [end_to_end, performance, security, multi_tenant, disaster_recovery, api_contract]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[test,monitoring,security]
+        pip install psutil memory-profiler pytest-benchmark pytest-asyncio
+    
+    - name: Set test intensity parameters
+      run: |
+        case "${{ github.event.inputs.test_intensity || 'medium' }}" in
+          light)
+            echo "TEST_DURATION=30" >> $GITHUB_ENV
+            echo "TEST_USERS=5" >> $GITHUB_ENV
+            echo "TEST_ITERATIONS=50" >> $GITHUB_ENV
+            ;;
+          medium)
+            echo "TEST_DURATION=60" >> $GITHUB_ENV
+            echo "TEST_USERS=10" >> $GITHUB_ENV
+            echo "TEST_ITERATIONS=100" >> $GITHUB_ENV
+            ;;
+          heavy)
+            echo "TEST_DURATION=180" >> $GITHUB_ENV
+            echo "TEST_USERS=25" >> $GITHUB_ENV
+            echo "TEST_ITERATIONS=200" >> $GITHUB_ENV
+            ;;
+          extreme)
+            echo "TEST_DURATION=600" >> $GITHUB_ENV
+            echo "TEST_USERS=50" >> $GITHUB_ENV
+            echo "TEST_ITERATIONS=500" >> $GITHUB_ENV
+            ;;
+        esac
+    
+    - name: Run comprehensive integration tests
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${PWD}/src"
+        
+        # Run specific test suite based on matrix
+        case "${{ matrix.test-suite }}" in
+          end_to_end)
+            pytest -v -m "end_to_end" \
+              tests/integration/test_integration_workflows.py::TestIntegrationWorkflows::test_comprehensive_workflow_validation \
+              --tb=short --timeout=300
+            ;;
+          performance)
+            pytest -v -m "performance" \
+              tests/integration/test_integration_workflows.py::TestIntegrationWorkflows::test_performance_and_load_validation \
+              tests/performance/test_performance_framework.py \
+              --tb=short --timeout=600
+            ;;
+          security)
+            pytest -v -m "security" \
+              tests/integration/test_integration_workflows.py::TestIntegrationWorkflows::test_security_compliance_validation \
+              --tb=short --timeout=300
+            ;;
+          multi_tenant)
+            pytest -v -m "multi_tenant" \
+              tests/integration/test_integration_workflows.py::TestIntegrationWorkflows::test_multi_tenant_isolation_validation \
+              --tb=short --timeout=300
+            ;;
+          disaster_recovery)
+            pytest -v -m "disaster_recovery" \
+              tests/integration/test_integration_workflows.py::TestIntegrationWorkflows::test_disaster_recovery_validation \
+              --tb=short --timeout=300
+            ;;
+          api_contract)
+            pytest -v -m "api_contract" \
+              tests/integration/test_integration_workflows.py::TestIntegrationWorkflows::test_api_contract_validation \
+              --tb=short --timeout=300
+            ;;
+        esac
+    
+    - name: Generate test reports
+      if: always()
+      run: |
+        # Create comprehensive test report
+        mkdir -p reports/integration
+        
+        # Generate JSON report for each test suite
+        echo "{" > reports/integration/${{ matrix.test-suite }}-report.json
+        echo "  \"test_suite\": \"${{ matrix.test-suite }}\"," >> reports/integration/${{ matrix.test-suite }}-report.json
+        echo "  \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"," >> reports/integration/${{ matrix.test-suite }}-report.json
+        echo "  \"github_run_id\": \"${{ github.run_id }}\"," >> reports/integration/${{ matrix.test-suite }}-report.json
+        echo "  \"commit_sha\": \"${{ github.sha }}\"," >> reports/integration/${{ matrix.test-suite }}-report.json
+        echo "  \"test_intensity\": \"${{ github.event.inputs.test_intensity || 'medium' }}\"," >> reports/integration/${{ matrix.test-suite }}-report.json
+        echo "  \"status\": \"completed\"" >> reports/integration/${{ matrix.test-suite }}-report.json
+        echo "}" >> reports/integration/${{ matrix.test-suite }}-report.json
+    
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: integration-test-results-${{ matrix.test-suite }}
+        path: |
+          reports/integration/
+          pytest-reports/
+        retention-days: 30
+
   performance-benchmarks:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    if: github.event.inputs.test_type == 'benchmark' || github.event.inputs.test_type == 'comprehensive'
     
     strategy:
       matrix:

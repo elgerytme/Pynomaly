@@ -8,6 +8,9 @@ from .analysis_job import AnalysisJob
 from .statistical_profile import StatisticalProfile
 from .machine_learning_pipeline import MachineLearningPipeline
 from .feature_store import FeatureStore
+from .experiment import Experiment
+from .dataset_profile import DatasetProfile
+from .algorithm_configuration import AlgorithmConfiguration
 
 __all__ = [
     "DataScienceModel",
@@ -15,4 +18,7 @@ __all__ = [
     "StatisticalProfile", 
     "MachineLearningPipeline",
     "FeatureStore",
+    "Experiment",
+    "DatasetProfile",
+    "AlgorithmConfiguration",
 ]

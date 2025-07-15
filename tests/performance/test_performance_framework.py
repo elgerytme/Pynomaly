@@ -1,20 +1,107 @@
-"""Performance testing framework for integration testing."""
+"""Enhanced Performance testing framework for GitHub Issue #164: Phase 6.1 Integration Testing - End-to-End Validation."""
 
 import pytest
 import asyncio
 import time
 import psutil
 import numpy as np
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass
-from concurrent.futures import ThreadPoolExecutor
 import threading
+import statistics
+from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Callable, Tuple
+from dataclasses import dataclass, field
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import asynccontextmanager
+import gc
+import json
 
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.services.advanced_classification_service import AdvancedClassificationService
 from pynomaly.domain.services.threshold_severity_classifier import ThresholdSeverityClassifier
 from pynomaly.domain.value_objects import ContaminationRate
+
+
+@dataclass
+class PerformanceBenchmark:
+    """Performance benchmark thresholds and criteria."""
+    
+    max_latency_ms: float = 1000.0
+    max_memory_mb: float = 500.0
+    max_cpu_percent: float = 80.0
+    min_throughput_ops_per_sec: float = 100.0
+    max_error_rate_percent: float = 1.0
+    max_p95_latency_ms: float = 2000.0
+    max_p99_latency_ms: float = 5000.0
+    memory_leak_threshold_mb: float = 50.0
+
+
+@dataclass
+class LoadTestScenario:
+    """Load testing scenario configuration."""
+    
+    name: str
+    concurrent_users: int
+    duration_seconds: int
+    ramp_up_seconds: int
+    operations_per_user: int
+    data_size_per_operation: int
+    expected_throughput: float
+    failure_tolerance_percent: float = 5.0
+
+
+@dataclass
+class DetailedPerformanceMetrics:
+    """Comprehensive performance metrics collection."""
+    
+    test_name: str
+    execution_time_ms: float
+    memory_usage_mb: float
+    peak_memory_mb: float
+    cpu_usage_percent: float
+    throughput_ops_per_sec: float
+    latency_measurements: List[float] = field(default_factory=list)
+    error_count: int = 0
+    success_count: int = 0
+    gc_collections: int = 0
+    cache_hit_rate: Optional[float] = None
+    
+    @property
+    def p50_latency_ms(self) -> float:
+        """50th percentile latency."""
+        return statistics.median(self.latency_measurements) if self.latency_measurements else 0.0
+    
+    @property
+    def p95_latency_ms(self) -> float:
+        """95th percentile latency."""
+        return statistics.quantiles(self.latency_measurements, n=20)[18] if len(self.latency_measurements) > 20 else 0.0
+    
+    @property
+    def p99_latency_ms(self) -> float:
+        """99th percentile latency."""
+        return statistics.quantiles(self.latency_measurements, n=100)[98] if len(self.latency_measurements) > 100 else 0.0
+    
+    @property
+    def error_rate_percent(self) -> float:
+        """Error rate percentage."""
+        total_operations = self.success_count + self.error_count
+        return (self.error_count / total_operations * 100) if total_operations > 0 else 0.0
+    
+    @property
+    def success_rate_percent(self) -> float:
+        """Success rate percentage."""
+        return 100.0 - self.error_rate_percent
+
+
+@dataclass
+class StressTestResult:
+    """Stress testing result analysis."""
+    
+    breaking_point_users: int
+    max_stable_throughput: float
+    degradation_threshold_users: int
+    memory_stability: bool
+    cpu_stability: bool
+    error_escalation_point: int
 
 
 @dataclass
@@ -107,12 +194,401 @@ class PerformanceMonitor:
         )
 
 
-class PerformanceTestFramework:
-    """Performance testing framework."""
+class EnhancedPerformanceTestFramework:
+    """Comprehensive performance testing framework for GitHub Issue #164."""
     
-    def __init__(self):
+    def __init__(self, benchmark: Optional[PerformanceBenchmark] = None):
         self.monitor = PerformanceMonitor()
-        self.results: List[PerformanceMetrics] = []
+        self.results: List[DetailedPerformanceMetrics] = []
+        self.benchmark = benchmark or PerformanceBenchmark()
+        self.stress_test_results: List[StressTestResult] = []
+        self.load_test_scenarios: List[LoadTestScenario] = []
+    
+    async def run_comprehensive_performance_suite(
+        self,
+        test_function: Callable,
+        test_name: str,
+        scenarios: List[LoadTestScenario],
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Run comprehensive performance test suite including load, stress, and endurance tests."""
+        
+        suite_results = {
+            "test_name": test_name,
+            "timestamp": datetime.utcnow().isoformat(),
+            "benchmark_criteria": self.benchmark,
+            "scenario_results": {},
+            "stress_test_results": [],
+            "performance_grade": "F",
+            "recommendations": []
+        }
+        
+        # Run baseline performance test
+        baseline_metrics = await self.run_baseline_performance_test(
+            test_function, f"{test_name}_baseline", **kwargs
+        )
+        suite_results["baseline_performance"] = baseline_metrics
+        
+        # Run load test scenarios
+        for scenario in scenarios:
+            scenario_result = await self.run_load_test_scenario(
+                test_function, scenario, **kwargs
+            )
+            suite_results["scenario_results"][scenario.name] = scenario_result
+        
+        # Run stress testing to find breaking points
+        stress_result = await self.run_stress_test(
+            test_function, f"{test_name}_stress", **kwargs
+        )
+        suite_results["stress_test_results"] = stress_result
+        
+        # Run endurance testing
+        endurance_result = await self.run_endurance_test(
+            test_function, f"{test_name}_endurance", duration_minutes=10, **kwargs
+        )
+        suite_results["endurance_test"] = endurance_result
+        
+        # Generate performance grade and recommendations
+        performance_grade = self._calculate_comprehensive_grade(suite_results)
+        recommendations = self._generate_performance_recommendations(suite_results)
+        
+        suite_results["performance_grade"] = performance_grade
+        suite_results["recommendations"] = recommendations
+        
+        return suite_results
+    
+    async def run_baseline_performance_test(
+        self,
+        test_function: Callable,
+        test_name: str,
+        iterations: int = 100,
+        warmup_iterations: int = 10,
+        **kwargs
+    ) -> DetailedPerformanceMetrics:
+        """Run baseline performance test to establish performance characteristics."""
+        
+        print(f"🏁 Running baseline performance test: {test_name}")
+        
+        # Warmup phase
+        for _ in range(warmup_iterations):
+            try:
+                await test_function(**kwargs)
+            except Exception:
+                pass
+        
+        # Force garbage collection before test
+        gc.collect()
+        initial_gc_count = len(gc.get_objects())
+        
+        # Start monitoring
+        self.monitor.start_monitoring()
+        latency_measurements = []
+        
+        start_time = time.perf_counter()
+        success_count = 0
+        error_count = 0
+        
+        for i in range(iterations):
+            operation_start = time.perf_counter()
+            try:
+                await test_function(**kwargs)
+                operation_end = time.perf_counter()
+                latency_measurements.append((operation_end - operation_start) * 1000)
+                success_count += 1
+            except Exception as e:
+                error_count += 1
+                if error_count > iterations * 0.1:  # More than 10% errors
+                    print(f"⚠️ High error rate detected: {error_count}/{i+1}")
+                    break
+        
+        end_time = time.perf_counter()
+        
+        # Stop monitoring and collect metrics
+        monitor_metrics = self.monitor.stop_monitoring()
+        final_gc_count = len(gc.get_objects())
+        
+        total_time = end_time - start_time
+        throughput = success_count / total_time if total_time > 0 else 0.0
+        
+        metrics = DetailedPerformanceMetrics(
+            test_name=test_name,
+            execution_time_ms=total_time * 1000,
+            memory_usage_mb=monitor_metrics.memory_usage_mb,
+            peak_memory_mb=monitor_metrics.peak_memory_mb,
+            cpu_usage_percent=monitor_metrics.cpu_usage_percent,
+            throughput_ops_per_sec=throughput,
+            latency_measurements=latency_measurements,
+            error_count=error_count,
+            success_count=success_count,
+            gc_collections=final_gc_count - initial_gc_count
+        )
+        
+        self.results.append(metrics)
+        self._print_baseline_results(metrics)
+        
+        return metrics
+    
+    async def run_load_test_scenario(
+        self,
+        test_function: Callable,
+        scenario: LoadTestScenario,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Run specific load test scenario with concurrent users."""
+        
+        print(f"🔥 Running load test scenario: {scenario.name}")
+        print(f"   Users: {scenario.concurrent_users}, Duration: {scenario.duration_seconds}s")
+        
+        scenario_results = {
+            "scenario": scenario,
+            "start_time": datetime.utcnow(),
+            "user_results": [],
+            "aggregate_metrics": {},
+            "performance_degradation": {}
+        }
+        
+        # Start system monitoring
+        self.monitor.start_monitoring()
+        
+        # Create and start user tasks with ramp-up
+        user_tasks = []
+        for user_id in range(scenario.concurrent_users):
+            # Stagger user start times for ramp-up
+            if scenario.ramp_up_seconds > 0:
+                delay = (user_id / scenario.concurrent_users) * scenario.ramp_up_seconds
+                await asyncio.sleep(delay / scenario.concurrent_users)
+            
+            task = asyncio.create_task(
+                self._run_load_test_user_session(
+                    test_function,
+                    scenario,
+                    user_id,
+                    **kwargs
+                )
+            )
+            user_tasks.append(task)
+        
+        # Wait for all user sessions to complete
+        user_results = await asyncio.gather(*user_tasks, return_exceptions=True)
+        
+        # Stop monitoring
+        system_metrics = self.monitor.stop_monitoring()
+        
+        # Process and analyze results
+        successful_results = [r for r in user_results if not isinstance(r, Exception)]
+        failed_results = [r for r in user_results if isinstance(r, Exception)]
+        
+        if successful_results:
+            aggregate_metrics = self._calculate_aggregate_load_metrics(
+                successful_results, system_metrics, scenario
+            )
+        else:
+            aggregate_metrics = {"error": "All users failed"}
+        
+        scenario_results.update({
+            "user_results": successful_results,
+            "failed_users": len(failed_results),
+            "aggregate_metrics": aggregate_metrics,
+            "end_time": datetime.utcnow(),
+            "system_metrics": system_metrics
+        })
+        
+        self._print_load_test_results(scenario, aggregate_metrics)
+        
+        return scenario_results
+    
+    async def run_stress_test(
+        self,
+        test_function: Callable,
+        test_name: str,
+        max_users: int = 100,
+        step_size: int = 10,
+        step_duration: int = 30,
+        **kwargs
+    ) -> StressTestResult:
+        """Run stress test to find system breaking points."""
+        
+        print(f"🔬 Running stress test: {test_name}")
+        print(f"   Max users: {max_users}, Step size: {step_size}")
+        
+        stress_metrics = []
+        current_users = step_size
+        breaking_point_users = max_users
+        degradation_threshold_users = max_users
+        
+        while current_users <= max_users:
+            print(f"   Testing with {current_users} users...")
+            
+            # Create stress test scenario
+            stress_scenario = LoadTestScenario(
+                name=f"stress_{current_users}_users",
+                concurrent_users=current_users,
+                duration_seconds=step_duration,
+                ramp_up_seconds=5,
+                operations_per_user=10,
+                data_size_per_operation=1000,
+                expected_throughput=current_users * 2,
+                failure_tolerance_percent=10.0
+            )
+            
+            try:
+                scenario_result = await self.run_load_test_scenario(
+                    test_function, stress_scenario, **kwargs
+                )
+                
+                metrics = scenario_result["aggregate_metrics"]
+                stress_metrics.append({
+                    "users": current_users,
+                    "metrics": metrics,
+                    "stable": self._is_performance_stable(metrics)
+                })
+                
+                # Check for performance degradation
+                if not self._is_performance_stable(metrics):
+                    if degradation_threshold_users == max_users:
+                        degradation_threshold_users = current_users
+                
+                # Check for system failure
+                if metrics.get("error_rate_percent", 0) > 20:
+                    breaking_point_users = current_users
+                    break
+                
+            except Exception as e:
+                print(f"   💥 System failure at {current_users} users: {e}")
+                breaking_point_users = current_users
+                break
+            
+            current_users += step_size
+        
+        # Analyze stress test results
+        max_stable_throughput = max(
+            (m["metrics"].get("throughput_ops_per_sec", 0) for m in stress_metrics),
+            default=0
+        )
+        
+        memory_stability = all(
+            m["metrics"].get("peak_memory_mb", 0) < self.benchmark.max_memory_mb
+            for m in stress_metrics
+        )
+        
+        cpu_stability = all(
+            m["metrics"].get("avg_cpu_percent", 0) < self.benchmark.max_cpu_percent
+            for m in stress_metrics
+        )
+        
+        error_escalation_point = next(
+            (m["users"] for m in stress_metrics 
+             if m["metrics"].get("error_rate_percent", 0) > self.benchmark.max_error_rate_percent),
+            max_users
+        )
+        
+        result = StressTestResult(
+            breaking_point_users=breaking_point_users,
+            max_stable_throughput=max_stable_throughput,
+            degradation_threshold_users=degradation_threshold_users,
+            memory_stability=memory_stability,
+            cpu_stability=cpu_stability,
+            error_escalation_point=error_escalation_point
+        )
+        
+        self.stress_test_results.append(result)
+        self._print_stress_test_results(result)
+        
+        return result
+    
+    async def run_endurance_test(
+        self,
+        test_function: Callable,
+        test_name: str,
+        duration_minutes: int = 30,
+        user_count: int = 10,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Run endurance test to detect memory leaks and performance degradation over time."""
+        
+        print(f"⏰ Running endurance test: {test_name}")
+        print(f"   Duration: {duration_minutes} minutes, Users: {user_count}")
+        
+        endurance_scenario = LoadTestScenario(
+            name=f"endurance_{duration_minutes}m",
+            concurrent_users=user_count,
+            duration_seconds=duration_minutes * 60,
+            ramp_up_seconds=30,
+            operations_per_user=1000,
+            data_size_per_operation=500,
+            expected_throughput=user_count * 5,
+            failure_tolerance_percent=5.0
+        )
+        
+        # Track metrics over time for trend analysis
+        time_series_metrics = []
+        start_time = time.time()
+        
+        result = await self.run_load_test_scenario(
+            test_function, endurance_scenario, **kwargs
+        )
+        
+        # Analyze for memory leaks and performance degradation
+        memory_trend = self._analyze_memory_trend(result)
+        performance_trend = self._analyze_performance_trend(result)
+        
+        endurance_analysis = {
+            "test_name": test_name,
+            "duration_minutes": duration_minutes,
+            "result": result,
+            "memory_trend": memory_trend,
+            "performance_trend": performance_trend,
+            "memory_leak_detected": memory_trend.get("leak_detected", False),
+            "performance_degradation": performance_trend.get("degradation_detected", False)
+        }
+        
+        self._print_endurance_test_results(endurance_analysis)
+        
+        return endurance_analysis
+    
+    def _calculate_comprehensive_grade(self, suite_results: Dict[str, Any]) -> str:
+        """Calculate comprehensive performance grade based on all test results."""
+        
+        scores = []
+        
+        # Baseline performance score (30%)
+        baseline = suite_results.get("baseline_performance")
+        if baseline:
+            baseline_score = self._score_baseline_performance(baseline)
+            scores.append(("baseline", baseline_score, 0.3))
+        
+        # Load test scenarios score (40%)
+        scenario_results = suite_results.get("scenario_results", {})
+        if scenario_results:
+            load_score = self._score_load_test_results(scenario_results)
+            scores.append(("load", load_score, 0.4))
+        
+        # Stress test score (20%)
+        stress_results = suite_results.get("stress_test_results")
+        if stress_results:
+            stress_score = self._score_stress_test_results(stress_results)
+            scores.append(("stress", stress_score, 0.2))
+        
+        # Endurance test score (10%)
+        endurance_results = suite_results.get("endurance_test")
+        if endurance_results:
+            endurance_score = self._score_endurance_test_results(endurance_results)
+            scores.append(("endurance", endurance_score, 0.1))
+        
+        # Calculate weighted average
+        if scores:
+            weighted_score = sum(score * weight for _, score, weight in scores)
+            total_weight = sum(weight for _, _, weight in scores)
+            final_score = weighted_score / total_weight if total_weight > 0 else 0
+        else:
+            final_score = 0
+        
+        # Convert to letter grade
+        if final_score >= 90: return "A"
+        elif final_score >= 80: return "B"
+        elif final_score >= 70: return "C"
+        elif final_score >= 60: return "D"
+        else: return "F"
 
     async def run_performance_test(
         self,

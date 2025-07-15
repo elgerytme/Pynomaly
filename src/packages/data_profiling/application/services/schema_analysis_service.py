@@ -1,9 +1,12 @@
 import pandas as pd
 import numpy as np
-from typing import List, Dict, Optional, Tuple, Any
+import re
+from typing import List, Dict, Optional, Tuple, Any, Set
+from datetime import datetime
 from ...domain.entities.data_profile import (
     SchemaProfile, ColumnProfile, ValueDistribution, StatisticalSummary,
-    DataType, CardinalityLevel, QualityIssue, QualityIssueType
+    DataType, CardinalityLevel, SemanticType, TableRelationship, Constraint,
+    IndexInfo, SizeMetrics, SchemaEvolution, Pattern
 )
 
 
@@ -20,6 +23,25 @@ class SchemaAnalysisService:
             'datetime64[ns]': DataType.DATETIME,
             'object': DataType.STRING
         }
+        
+        # PII detection patterns
+        self.pii_patterns = {
+            SemanticType.PII_EMAIL: re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'),
+            SemanticType.PII_PHONE: re.compile(r'^\+?1?[-\s\.]?\(?[0-9]{3}\)?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4}$'),
+            SemanticType.PII_SSN: re.compile(r'^\d{3}-\d{2}-\d{4}$'),
+            SemanticType.URL: re.compile(r'^https?:\/\/[\w\-\.]+\.[a-zA-Z]{2,}([\/\w\-\._~:/?#[\]@!$&\'()*+,;=]*)?$'),
+            SemanticType.IP_ADDRESS: re.compile(r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$')
+        }
+        
+        # Semantic type indicators
+        self.semantic_indicators = {
+            SemanticType.FINANCIAL_AMOUNT: ['amount', 'price', 'cost', 'value', 'salary', 'revenue', 'profit'],
+            SemanticType.GEOGRAPHIC_LOCATION: ['country', 'state', 'city', 'zip', 'postal', 'region'],
+            SemanticType.IDENTIFIER: ['id', 'key', 'code', 'number', 'ref'],
+            SemanticType.TIMESTAMP: ['created', 'updated', 'modified', 'timestamp', 'date', 'time'],
+            SemanticType.PII_NAME: ['name', 'firstname', 'lastname', 'fullname', 'username'],
+            SemanticType.PII_ADDRESS: ['address', 'street', 'location', 'residence']
+        }
     
     def infer(self, df: pd.DataFrame) -> SchemaProfile:
         """Infer comprehensive schema profile from DataFrame."""
@@ -33,22 +55,34 @@ class SchemaAnalysisService:
         # Detect relationships and constraints
         primary_keys = self._detect_primary_keys(df, columns)
         foreign_keys = self._detect_foreign_keys(df, columns)
-        unique_constraints = self._detect_unique_constraints(df, columns)
+        relationships = self._detect_table_relationships(df, columns)
+        constraints = self._detect_constraints(df, columns)
+        indexes = self._recommend_indexes(df, columns)
         
-        # Calculate size metrics
-        estimated_size_bytes = int(df.memory_usage(deep=True).sum())
+        # Calculate comprehensive size metrics
+        size_metrics = self._calculate_size_metrics(df)
+        
+        # Create schema evolution tracking
+        schema_evolution = SchemaEvolution(
+            current_version="1.0.0",
+            changes_detected=[],
+            breaking_changes=[],
+            last_change_date=datetime.now()
+        )
         
         schema_profile = SchemaProfile(
-            table_name="dataset",
+            total_tables=1,
             total_columns=len(columns),
             total_rows=total_rows,
             columns=columns,
+            relationships=relationships,
+            constraints=constraints,
+            indexes=indexes,
+            size_metrics=size_metrics,
+            schema_evolution=schema_evolution,
             primary_keys=primary_keys,
-            foreign_keys=foreign_keys,
-            unique_constraints=unique_constraints,
-            check_constraints=[],
-            estimated_size_bytes=estimated_size_bytes,
-            compression_ratio=None
+            foreign_keys=[f"{k}:{v}" for k, v in foreign_keys.items()],
+            estimated_size_bytes=size_metrics.estimated_size_bytes if size_metrics else None
         )
         return schema_profile
     
@@ -401,7 +435,6 @@ class SchemaAnalysisService:
         # Infer data types
         pandas_dtype = str(series.dtype)
         data_type = self._infer_data_type(series, pandas_dtype)
-        inferred_type = self._infer_semantic_type(series)
         
         # Calculate cardinality
         cardinality = self._calculate_cardinality(unique_count, total_rows)
@@ -409,27 +442,32 @@ class SchemaAnalysisService:
         # Create value distribution
         distribution = self._create_value_distribution(series, null_count, total_rows)
         
-        # Statistical summary for numeric columns
-        statistical_summary = None
-        if pd.api.types.is_numeric_dtype(series):
-            statistical_summary = self._create_statistical_summary(series)
+        # Discover patterns
+        patterns = self._discover_column_patterns(series, column_name)
+        
+        # Infer semantic type
+        semantic_type = self._infer_semantic_type(series, column_name)
+        
+        # Infer constraints
+        inferred_constraints = self._infer_column_constraints(series, column_name)
         
         # Quality assessment
-        quality_score, quality_issues = self._assess_column_quality(series, column_name)
+        quality_score = self._calculate_quality_score(series, semantic_type)
         
         return ColumnProfile(
             column_name=column_name,
             data_type=data_type,
-            inferred_type=inferred_type,
             nullable=null_count > 0,
-            distribution=distribution,
+            unique_count=unique_count,
+            null_count=null_count,
+            total_count=total_rows,
+            completeness_ratio=completeness_ratio,
             cardinality=cardinality,
-            statistical_summary=statistical_summary,
-            patterns=[],
-            quality_score=quality_score,
-            quality_issues=quality_issues,
-            semantic_type=None,
-            business_meaning=None
+            distribution=distribution,
+            patterns=patterns,
+            semantic_type=semantic_type,
+            inferred_constraints=inferred_constraints,
+            quality_score=quality_score
         )
     
     def _infer_data_type(self, series: pd.Series, pandas_dtype: str) -> DataType:
@@ -459,11 +497,332 @@ class SchemaAnalysisService:
         
         return DataType.UNKNOWN
     
-    def _infer_semantic_type(self, series: pd.Series) -> Optional[DataType]:
-        """Infer semantic type for better understanding."""
-        if pd.api.types.is_categorical_dtype(series):
-            return DataType.CATEGORICAL
+    def _infer_semantic_type(self, series: pd.Series, column_name: str) -> Optional[SemanticType]:
+        """Infer semantic type using patterns and column name analysis."""
+        # Clean and get sample values
+        non_null_values = series.dropna()
+        if len(non_null_values) == 0:
+            return SemanticType.UNKNOWN
+        
+        sample_values = non_null_values.head(100).astype(str)
+        
+        # Check PII patterns
+        for semantic_type, pattern in self.pii_patterns.items():
+            if sum(1 for val in sample_values if pattern.match(val)) > len(sample_values) * 0.7:
+                return semantic_type
+        
+        # Check column name indicators
+        col_lower = column_name.lower()
+        for semantic_type, indicators in self.semantic_indicators.items():
+            if any(indicator in col_lower for indicator in indicators):
+                return semantic_type
+        
+        # Check data characteristics
+        if series.dtype in ['int64', 'float64']:
+            if col_lower in ['count', 'quantity', 'number', 'total']:
+                return SemanticType.COUNT
+            elif col_lower in ['amount', 'price', 'cost', 'value', 'salary']:
+                return SemanticType.FINANCIAL_AMOUNT
+            elif col_lower in ['lat', 'latitude', 'lng', 'longitude']:
+                return SemanticType.GEOGRAPHIC_COORDINATE
+            else:
+                return SemanticType.MEASUREMENT
+        
+        # Check for categorical data
+        if series.dtype == 'object':
+            unique_ratio = series.nunique() / len(series)
+            if unique_ratio < 0.1:  # Low cardinality suggests categorical
+                return SemanticType.CATEGORICAL
+        
+        return SemanticType.UNKNOWN
+    
+    def _discover_column_patterns(self, series: pd.Series, column_name: str) -> List[Pattern]:
+        """Discover patterns in column data."""
+        patterns = []
+        non_null_values = series.dropna()
+        
+        if len(non_null_values) == 0:
+            return patterns
+        
+        # Convert to string for pattern analysis
+        string_values = non_null_values.astype(str)
+        unique_values = string_values.unique()[:100]  # Sample for pattern analysis
+        
+        # Common patterns to detect
+        pattern_definitions = [
+            ("UUID", r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'),
+            ("Email", r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'),
+            ("Phone", r'^\+?1?[-\s\.]?\(?[0-9]{3}\)?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4}$'),
+            ("Credit Card", r'^[0-9]{4}[-\s]?[0-9]{4}[-\s]?[0-9]{4}[-\s]?[0-9]{4}$'),
+            ("Date YYYY-MM-DD", r'^\d{4}-\d{2}-\d{2}$'),
+            ("Time HH:MM:SS", r'^\d{2}:\d{2}:\d{2}$'),
+            ("IPv4", r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$'),
+            ("URL", r'^https?://[^\s/$.?#].[^\s]*$'),
+            ("Alphanumeric Code", r'^[A-Z0-9]{3,20}$'),
+            ("Numeric Code", r'^\d{3,20}$')
+        ]
+        
+        for pattern_name, regex in pattern_definitions:
+            compiled_pattern = re.compile(regex, re.IGNORECASE)
+            matches = sum(1 for val in unique_values if compiled_pattern.match(val))
+            
+            if matches > 0:
+                percentage = (matches / len(unique_values)) * 100
+                confidence = min(percentage / 100, 1.0)
+                
+                if percentage >= 50:  # At least 50% of values match
+                    examples = [val for val in unique_values[:5] if compiled_pattern.match(val)]
+                    
+                    patterns.append(Pattern(
+                        pattern_type=pattern_name,
+                        regex=regex,
+                        frequency=matches,
+                        percentage=percentage,
+                        examples=examples,
+                        confidence=confidence,
+                        description=f"{pattern_name} pattern detected in {percentage:.1f}% of values"
+                    ))
+        
+        return patterns
+    
+    def _infer_column_constraints(self, series: pd.Series, column_name: str) -> List[str]:
+        """Infer constraints for a column."""
+        constraints = []
+        
+        # Not null constraint
+        if series.isnull().sum() == 0:
+            constraints.append("NOT NULL")
+        
+        # Unique constraint
+        if series.nunique() == len(series):
+            constraints.append("UNIQUE")
+        
+        # Check constraint for numeric ranges
+        if pd.api.types.is_numeric_dtype(series):
+            non_null_values = series.dropna()
+            if len(non_null_values) > 0:
+                min_val = non_null_values.min()
+                max_val = non_null_values.max()
+                
+                # Positive values constraint
+                if min_val >= 0:
+                    constraints.append("CHECK (value >= 0)")
+                
+                # Range constraint if reasonable
+                if min_val >= 0 and max_val <= 1:
+                    constraints.append("CHECK (value BETWEEN 0 AND 1)")
+                elif min_val >= 0 and max_val <= 100:
+                    constraints.append("CHECK (value BETWEEN 0 AND 100)")
+        
+        # String length constraints
+        elif series.dtype == 'object':
+            non_null_values = series.dropna().astype(str)
+            if len(non_null_values) > 0:
+                max_length = non_null_values.str.len().max()
+                min_length = non_null_values.str.len().min()
+                
+                if min_length == max_length:
+                    constraints.append(f"CHECK (LENGTH(value) = {max_length})")
+                elif min_length > 0:
+                    constraints.append(f"CHECK (LENGTH(value) BETWEEN {min_length} AND {max_length})")
+        
+        return constraints
+    
+    def _calculate_quality_score(self, series: pd.Series, semantic_type: Optional[SemanticType]) -> float:
+        """Calculate overall quality score for a column."""
+        score = 1.0
+        
+        # Completeness factor
+        completeness = 1 - (series.isnull().sum() / len(series))
+        score *= completeness
+        
+        # Consistency factor (based on pattern adherence)
+        if semantic_type and semantic_type in self.pii_patterns:
+            pattern = self.pii_patterns[semantic_type]
+            non_null_values = series.dropna().astype(str)
+            if len(non_null_values) > 0:
+                matches = sum(1 for val in non_null_values if pattern.match(val))
+                consistency = matches / len(non_null_values)
+                score *= consistency
+        
+        # Uniqueness factor (for identifier types)
+        if semantic_type in [SemanticType.IDENTIFIER, SemanticType.PII_EMAIL]:
+            uniqueness = series.nunique() / len(series.dropna()) if len(series.dropna()) > 0 else 0
+            score *= uniqueness
+        
+        return max(0.0, min(1.0, score))
+    
+    def _detect_table_relationships(self, df: pd.DataFrame, columns: List[ColumnProfile]) -> List[TableRelationship]:
+        """Detect relationships between columns that suggest table relationships."""
+        relationships = []
+        
+        # Look for foreign key relationships
+        for column in columns:
+            if column.semantic_type == SemanticType.IDENTIFIER or column.column_name.lower().endswith('_id'):
+                # This could be a foreign key
+                target_table = self._infer_target_table(column.column_name)
+                if target_table:
+                    confidence = self._calculate_relationship_confidence(df[column.column_name])
+                    
+                    relationships.append(TableRelationship(
+                        source_table="current_table",
+                        source_column=column.column_name,
+                        target_table=target_table,
+                        target_column="id",
+                        relationship_type="foreign_key",
+                        confidence=confidence,
+                        cardinality="many_to_one"
+                    ))
+        
+        return relationships
+    
+    def _infer_target_table(self, column_name: str) -> Optional[str]:
+        """Infer target table from foreign key column name."""
+        col_lower = column_name.lower()
+        
+        if col_lower.endswith('_id'):
+            return col_lower[:-3]  # Remove '_id'
+        elif col_lower.endswith('id') and len(col_lower) > 2:
+            return col_lower[:-2]  # Remove 'id'
+        
         return None
+    
+    def _calculate_relationship_confidence(self, series: pd.Series) -> float:
+        """Calculate confidence level for a relationship."""
+        # Base confidence on data characteristics
+        confidence = 0.5
+        
+        # Higher confidence for integer IDs
+        if pd.api.types.is_integer_dtype(series):
+            confidence += 0.2
+        
+        # Higher confidence for reasonable cardinality
+        uniqueness = series.nunique() / len(series.dropna()) if len(series.dropna()) > 0 else 0
+        if 0.1 <= uniqueness <= 0.9:
+            confidence += 0.2
+        
+        # Higher confidence for positive values
+        if pd.api.types.is_numeric_dtype(series):
+            non_null_values = series.dropna()
+            if len(non_null_values) > 0 and (non_null_values > 0).all():
+                confidence += 0.1
+        
+        return min(1.0, confidence)
+    
+    def _detect_constraints(self, df: pd.DataFrame, columns: List[ColumnProfile]) -> List[Constraint]:
+        """Detect database constraints."""
+        constraints = []
+        
+        # Primary key constraints
+        for column in columns:
+            if (column.unique_count == column.total_count and 
+                column.null_count == 0 and column.total_count > 0):
+                constraints.append(Constraint(
+                    constraint_type="primary_key",
+                    table_name="current_table",
+                    column_names=[column.column_name],
+                    definition=f"PRIMARY KEY ({column.column_name})",
+                    is_enforced=True
+                ))
+        
+        # Unique constraints
+        for column in columns:
+            if (column.unique_count == column.total_count - column.null_count and 
+                column.total_count > 0):
+                constraints.append(Constraint(
+                    constraint_type="unique",
+                    table_name="current_table",
+                    column_names=[column.column_name],
+                    definition=f"UNIQUE ({column.column_name})",
+                    is_enforced=True
+                ))
+        
+        # Not null constraints
+        for column in columns:
+            if column.null_count == 0 and column.total_count > 0:
+                constraints.append(Constraint(
+                    constraint_type="not_null",
+                    table_name="current_table",
+                    column_names=[column.column_name],
+                    definition=f"{column.column_name} NOT NULL",
+                    is_enforced=True
+                ))
+        
+        return constraints
+    
+    def _recommend_indexes(self, df: pd.DataFrame, columns: List[ColumnProfile]) -> List[IndexInfo]:
+        """Recommend indexes based on column characteristics."""
+        indexes = []
+        
+        for column in columns:
+            # Primary key index
+            if (column.unique_count == column.total_count and 
+                column.null_count == 0):
+                indexes.append(IndexInfo(
+                    index_name=f"pk_{column.column_name}",
+                    table_name="current_table",
+                    column_names=[column.column_name],
+                    index_type="btree",
+                    is_unique=True,
+                    is_primary=True
+                ))
+            
+            # Foreign key index
+            elif column.semantic_type == SemanticType.IDENTIFIER:
+                indexes.append(IndexInfo(
+                    index_name=f"idx_{column.column_name}",
+                    table_name="current_table",
+                    column_names=[column.column_name],
+                    index_type="btree",
+                    is_unique=False,
+                    is_primary=False
+                ))
+            
+            # High cardinality columns that might benefit from indexing
+            elif column.cardinality in [CardinalityLevel.HIGH, CardinalityLevel.UNIQUE]:
+                indexes.append(IndexInfo(
+                    index_name=f"idx_{column.column_name}",
+                    table_name="current_table",
+                    column_names=[column.column_name],
+                    index_type="btree",
+                    is_unique=column.cardinality == CardinalityLevel.UNIQUE,
+                    is_primary=False
+                ))
+        
+        return indexes
+    
+    def _calculate_size_metrics(self, df: pd.DataFrame) -> SizeMetrics:
+        """Calculate comprehensive size metrics."""
+        total_rows = len(df)
+        total_columns = len(df.columns)
+        
+        # Calculate memory usage
+        memory_usage = df.memory_usage(deep=True)
+        total_bytes = memory_usage.sum()
+        average_row_size = total_bytes / total_rows if total_rows > 0 else 0
+        
+        # Estimate compressed size (rough approximation)
+        # Text columns typically compress better
+        text_columns = df.select_dtypes(include=['object']).columns
+        numeric_columns = df.select_dtypes(include=['number']).columns
+        
+        text_compression_ratio = 0.3  # Assume 70% compression for text
+        numeric_compression_ratio = 0.8  # Assume 20% compression for numbers
+        
+        text_size = sum(memory_usage[col] for col in text_columns)
+        numeric_size = sum(memory_usage[col] for col in numeric_columns)
+        
+        compressed_size = int(text_size * text_compression_ratio + numeric_size * numeric_compression_ratio)
+        storage_efficiency = compressed_size / total_bytes if total_bytes > 0 else 0
+        
+        return SizeMetrics(
+            total_rows=total_rows,
+            total_columns=total_columns,
+            estimated_size_bytes=int(total_bytes),
+            compressed_size_bytes=compressed_size,
+            average_row_size_bytes=average_row_size,
+            storage_efficiency=storage_efficiency
+        )
     
     def _calculate_cardinality(self, unique_count: int, total_count: int) -> CardinalityLevel:
         """Calculate cardinality level based on unique/total ratio."""

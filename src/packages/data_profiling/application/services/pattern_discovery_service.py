@@ -941,3 +941,17 @@ class PatternDiscoveryService:
             
         except Exception:
             return 0.0
+    def generate_pattern_report(self, df: pd.DataFrame) -> Dict[str, Any]:
+        """Generate a comprehensive pattern analysis report."""
+        try:
+            report = {
+                "column_patterns": self.discover(df),
+                "data_relationships": self.analyze_data_relationships(df),
+                "pattern_summary": {
+                    "total_columns": len(df.columns),
+                    "columns_analyzed": len([col for col in df.columns if not df[col].dropna().empty])
+                }
+            }
+            return report
+        except Exception as e:
+            return {"error": str(e)}

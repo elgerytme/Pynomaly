@@ -195,6 +195,17 @@ test = [
     "httpx>=0.28.1",
     "requests-mock>=1.11.0"
 ]
+performance-test = [
+    "pytest-benchmark>=4.0.0",
+    "memray>=1.8.0",
+    "memory-profiler>=0.61.0",
+    "pympler>=0.9",
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
+    "pandas>=2.2.3",
+    "locust>=2.14.0",
+    "psutil>=6.1.1"
+]
 ui-test = [
     "playwright>=1.40.0",
     "pytest-playwright>=0.4.3",

@@ -1,0 +1,570 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Memory Analysis Report</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .header { background-color: #f0f0f0; padding: 10px; border-radius: 5px; }
+                .section { margin: 20px 0; }
+                .warning { color: #ff6600; }
+                .critical { color: #ff0000; }
+                .success { color: #00aa00; }
+                table { border-collapse: collapse; width: 100%; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                .code { background-color: #f4f4f4; padding: 10px; border-radius: 3px; font-family: monospace; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>Memory Analysis Report</h1>
+                <p>Generated: 2025-07-15T11:18:39.634262</p>
+                <p>Process ID: 112748</p>
+            </div>
+        
+            <div class="section">
+                <h2>Memory Snapshots</h2>
+                <table>
+                    <tr>
+                        <th>Label</th>
+                        <th>RSS (MB)</th>
+                        <th>VMS (MB)</th>
+                        <th>Memory %</th>
+                    </tr>
+        
+                    <tr>
+                        <td>initial</td>
+                        <td>15.1</td>
+                        <td>20.2</td>
+                        <td>0.0%</td>
+                    </tr>
+            
+                    <tr>
+                        <td>iteration_0</td>
+                        <td>15.4</td>
+                        <td>20.3</td>
+                        <td>0.0%</td>
+                    </tr>
+            
+                    <tr>
+                        <td>iteration_3</td>
+                        <td>16.2</td>
+                        <td>20.8</td>
+                        <td>0.0%</td>
+                    </tr>
+            
+                    <tr>
+                        <td>iteration_6</td>
+                        <td>17.2</td>
+                        <td>22.3</td>
+                        <td>0.0%</td>
+                    </tr>
+            
+                    <tr>
+                        <td>iteration_9</td>
+                        <td>18.2</td>
+                        <td>23.9</td>
+                        <td>0.0%</td>
+                    </tr>
+            
+                    <tr>
+                        <td>final</td>
+                        <td>19.0</td>
+                        <td>23.9</td>
+                        <td>0.0%</td>
+                    </tr>
+            
+                </table>
+            </div>
+        
+            <div class="section">
+                <h2>Recommendations</h2>
+                <ul>
+        
+                </ul>
+            </div>
+        
+                <div class="section">
+                    <h2>Memory Growth Analysis</h2>
+            
+                    <h3>initial_to_iteration_0</h3>
+                    <p>Total Size: 0.0MB</p>
+                    <p>Total Diff: 0.0MB</p>
+                    <h4>Top Memory Consumers:</h4>
+                    <table>
+                        <tr>
+                            <th>File</th>
+                            <th>Size (MB)</th>
+                            <th>Size Diff (MB)</th>
+                            <th>Count</th>
+                            <th>Count Diff</th>
+                        </tr>
+                
+                        <tr>
+                            <td>    test_data.append([j for j in range(1000)])</td>
+                            <td>0.03</td>
+                            <td>0.03</td>
+                            <td>745</td>
+                            <td>745</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return Snapshot(traces, traceback_limit)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>2</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.traces = _Traces(traces)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>2</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return open(fname, "rb", buffering=FILE_READ_BUFFER_SIZE)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>3</td>
+                            <td>3</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    print("📊 Running memory-intensive operations...")</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>2</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.report_data["memory_snapshots"].append({</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>2</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    "timestamp": datetime.now().isoformat(),</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    with open_binary('%s/meminfo' % get_procfs_path()) as f:</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    test_data = []</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.take_snapshot(f"iteration_{i}")</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                    
+                    </table>
+                
+                    <h3>iteration_0_to_iteration_3</h3>
+                    <p>Total Size: 0.1MB</p>
+                    <p>Total Diff: 0.1MB</p>
+                    <h4>Top Memory Consumers:</h4>
+                    <table>
+                        <tr>
+                            <th>File</th>
+                            <th>Size (MB)</th>
+                            <th>Size Diff (MB)</th>
+                            <th>Count</th>
+                            <th>Count Diff</th>
+                        </tr>
+                
+                        <tr>
+                            <td>    test_data.append([j for j in range(1000)])</td>
+                            <td>0.12</td>
+                            <td>0.09</td>
+                            <td>2978</td>
+                            <td>2233</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return Snapshot(traces, traceback_limit)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>4</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.traces = _Traces(traces)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>4</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>  File "<string>", line 1</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>2</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    traces = _get_traces()</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>2</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return open(fname, "rb", buffering=FILE_READ_BUFFER_SIZE)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>4</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return pmem(rss, vms, shared, text, lib, data, dirty)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    "timestamp": datetime.now().isoformat(),</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>2</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.report_data["memory_snapshots"].append({</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>3</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    with open_binary("%s/%s/statm" % (self._procfs_path, self.pid)) as f:</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                    
+                    </table>
+                
+                    <h3>iteration_3_to_iteration_6</h3>
+                    <p>Total Size: 0.2MB</p>
+                    <p>Total Diff: 0.1MB</p>
+                    <h4>Top Memory Consumers:</h4>
+                    <table>
+                        <tr>
+                            <th>File</th>
+                            <th>Size (MB)</th>
+                            <th>Size Diff (MB)</th>
+                            <th>Count</th>
+                            <th>Count Diff</th>
+                        </tr>
+                
+                        <tr>
+                            <td>    test_data.append([j for j in range(1000)])</td>
+                            <td>0.22</td>
+                            <td>0.09</td>
+                            <td>5211</td>
+                            <td>2233</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return Snapshot(traces, traceback_limit)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>6</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.traces = _Traces(traces)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>6</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    traces = _get_traces()</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>6</td>
+                            <td>4</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return open(fname, "rb", buffering=FILE_READ_BUFFER_SIZE)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>6</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    "timestamp": datetime.now().isoformat(),</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>3</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.snapshots.append((label, snapshot))</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>3</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.take_snapshot(f"iteration_{i}")</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>3</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    "vms_mb": memory_info.vms / 1024 / 1024,</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>3</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return (value / float(total_phymem)) * 100</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>3</td>
+                            <td>1</td>
+                        </tr>
+                    
+                    </table>
+                
+                    <h3>iteration_6_to_iteration_9</h3>
+                    <p>Total Size: 0.3MB</p>
+                    <p>Total Diff: 0.1MB</p>
+                    <h4>Top Memory Consumers:</h4>
+                    <table>
+                        <tr>
+                            <th>File</th>
+                            <th>Size (MB)</th>
+                            <th>Size Diff (MB)</th>
+                            <th>Count</th>
+                            <th>Count Diff</th>
+                        </tr>
+                
+                        <tr>
+                            <td>    test_data.append([j for j in range(1000)])</td>
+                            <td>0.31</td>
+                            <td>0.09</td>
+                            <td>7445</td>
+                            <td>2234</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    traces = _get_traces()</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>11</td>
+                            <td>5</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return Snapshot(traces, traceback_limit)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>8</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.traces = _Traces(traces)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>8</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return open(fname, "rb", buffering=FILE_READ_BUFFER_SIZE)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>7</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    "timestamp": datetime.now().isoformat(),</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>4</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.report_data["memory_snapshots"].append({</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>4</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.snapshots.append((label, snapshot))</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>4</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.take_snapshot(f"iteration_{i}")</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>4</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    "vms_mb": memory_info.vms / 1024 / 1024,</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>4</td>
+                            <td>1</td>
+                        </tr>
+                    
+                    </table>
+                
+                    <h3>iteration_9_to_final</h3>
+                    <p>Total Size: 0.3MB</p>
+                    <p>Total Diff: 0.0MB</p>
+                    <h4>Top Memory Consumers:</h4>
+                    <table>
+                        <tr>
+                            <th>File</th>
+                            <th>Size (MB)</th>
+                            <th>Size Diff (MB)</th>
+                            <th>Count</th>
+                            <th>Count Diff</th>
+                        </tr>
+                
+                        <tr>
+                            <td>    traces = _get_traces()</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>16</td>
+                            <td>5</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return Snapshot(traces, traceback_limit)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>10</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.traces = _Traces(traces)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>10</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    return open(fname, "rb", buffering=FILE_READ_BUFFER_SIZE)</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>8</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    int(x) * PAGESIZE for x in f.readline().split()[:7]</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>2</td>
+                            <td>2</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.report_data["memory_snapshots"].append({</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>5</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    self.snapshots.append((label, snapshot))</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>5</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    "timestamp": datetime.now().isoformat(),</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>5</td>
+                            <td>1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    for i in range(10):</td>
+                            <td>0.00</td>
+                            <td>-0.00</td>
+                            <td>0</td>
+                            <td>-1</td>
+                        </tr>
+                    
+                        <tr>
+                            <td>    "vms_mb": memory_info.vms / 1024 / 1024,</td>
+                            <td>0.00</td>
+                            <td>0.00</td>
+                            <td>5</td>
+                            <td>1</td>
+                        </tr>
+                    
+                    </table>
+                
+                </div>
+            
+        </body>
+        </html>
+        

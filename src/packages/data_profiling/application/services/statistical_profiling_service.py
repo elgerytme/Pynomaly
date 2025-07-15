@@ -543,3 +543,19 @@ class StatisticalProfilingService:
             return {'error': 'statsmodels not available'}
         except Exception as e:
             return {'error': str(e)}
+    def generate_statistical_report(self, df: pd.DataFrame) -> Dict[str, Any]:
+        """Generate a comprehensive statistical report."""
+        try:
+            report = {
+                "dataset_overview": {
+                    "shape": df.shape,
+                    "memory_usage_mb": float(df.memory_usage(deep=True).sum() / 1024 / 1024),
+                    "dtypes": df.dtypes.value_counts().to_dict()
+                },
+                "statistical_analysis": self.analyze(df),
+                "correlation_analysis": self.correlation_analysis(df),
+                "recommendations": []
+            }
+            return report
+        except Exception as e:
+            return {"error": str(e)}
