@@ -144,7 +144,7 @@ spark = ["pyspark>=3.5.4"]
 # ML backend extras
 torch = ["torch>=2.5.1"]
 tensorflow = ["tensorflow>=2.18.0,<2.20.0", "keras>=3.8.0"]
-jax = ["jax>=0.4.37", "jaxlib>=0.4.37", "optax>=0.2.4"]
+jax = ["jax>=0.4.37", "jaxlib>=0.4.37", "optax>=0.2.4", "flax>=0.10.0"]
 
 # Specialized ML extras
 graph = ["pygod>=1.1.0", "torch-geometric>=2.6.1"]

@@ -10,11 +10,9 @@ This module provides comprehensive security features including:
 """
 
 from .advanced_threat_detection import (
-    AdvancedSOC,
-    MLThreatDetector,
-    ThreatAlert,
     ThreatIndicator,
-    ThreatIntelligencePlatform,
+    ThreatAnalysis,
+    SecurityIncident,
 )
 from .audit_logger import (
     AuditEvent,
@@ -139,12 +137,9 @@ __all__ = [
     "encrypt_sensitive_data",
     "decrypt_sensitive_data",
     # Advanced Threat Detection
-    "AdvancedBehaviorAnalyzer",
-    "ThreatIntelligenceDetector",
-    "DataExfiltrationDetector",
-    "ThreatIntelligence",
-    "BehaviorProfile",
-    "create_advanced_threat_detectors",
+    "ThreatIndicator",
+    "ThreatAnalysis",
+    "SecurityIncident",
     # Rate Limiting
     "RateLimitAlgorithm",
     "RateLimitConfig",

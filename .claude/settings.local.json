@@ -232,7 +232,8 @@
       "Bash(do gh issue view $i --json number,title,state)",
       "Bash(ln:*)",
       "Bash(pynomaly:*)",
-      "Bash(./test_all_environments.sh:*)"
+      "Bash(./test_all_environments.sh:*)",
+      "Bash(./quick_test_env.sh:*)"
     ],
     "deny": []
   }

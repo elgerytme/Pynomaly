@@ -142,6 +142,17 @@ class ComplianceFramework(Enum):
     NIST = "nist"  # NIST Cybersecurity Framework
 
 
+class SecurityFramework(Enum):
+    """Security frameworks and standards."""
+    
+    OWASP = "owasp"  # OWASP Security Framework
+    NIST_CSF = "nist_csf"  # NIST Cybersecurity Framework
+    ISO27001 = "iso27001"  # ISO/IEC 27001
+    CIS_CONTROLS = "cis_controls"  # CIS Critical Security Controls
+    SANS_TOP25 = "sans_top25"  # SANS Top 25 Software Errors
+    ZERO_TRUST = "zero_trust"  # Zero Trust Architecture
+
+
 @dataclass
 class User:
     """User entity with security attributes."""

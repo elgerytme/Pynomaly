@@ -114,6 +114,34 @@ class LSTMConfig(BaseModel):
     )
 
 
+class GRUConfig(BaseModel):
+    """Configuration for GRU-based anomaly detection."""
+
+    input_dim: int = Field(description="Input feature dimension")
+    sequence_length: int = Field(
+        default=10, ge=1, description="Sequence length for time series"
+    )
+    hidden_dim: int = Field(default=64, ge=1, description="GRU hidden dimension")
+    num_layers: int = Field(default=2, ge=1, description="Number of GRU layers")
+    dropout: float = Field(default=0.2, ge=0.0, le=0.9, description="Dropout rate")
+    bidirectional: bool = Field(default=False, description="Use bidirectional GRU")
+
+    # Training parameters
+    learning_rate: float = Field(default=0.001, gt=0.0, description="Learning rate")
+    epochs: int = Field(default=100, ge=1, description="Training epochs")
+    batch_size: int = Field(default=32, ge=1, description="Batch size")
+    gradient_clip_norm: float = Field(default=1.0, description="Gradient clipping norm")
+
+    # Detection parameters
+    contamination: float = Field(
+        default=0.1, gt=0.0, lt=1.0, description="Contamination rate"
+    )
+    prediction_window: int = Field(
+        default=1, ge=1, description="Prediction window size"
+    )
+    use_attention: bool = Field(default=False, description="Use attention mechanism")
+
+
 if PYTORCH_AVAILABLE:
 
     class AutoEncoder(nn.Module):
@@ -335,12 +363,92 @@ if PYTORCH_AVAILABLE:
 
         return output
 
+    class GRUAutoEncoder(nn.Module):
+        """GRU-based AutoEncoder for sequence anomaly detection."""
+
+        def __init__(self, config: GRUConfig):
+            super().__init__()
+            if not PYTORCH_AVAILABLE:
+                raise ImportError("PyTorch is required for GRUAutoEncoder")
+
+            self.config = config
+            self.bidirectional = config.bidirectional
+            
+            # Encoder GRU
+            self.encoder_gru = nn.GRU(
+                config.input_dim,
+                config.hidden_dim,
+                config.num_layers,
+                batch_first=True,
+                dropout=config.dropout if config.num_layers > 1 else 0,
+                bidirectional=config.bidirectional,
+            )
+
+            # Decoder GRU
+            decoder_input_dim = config.hidden_dim * (2 if config.bidirectional else 1)
+            self.decoder_gru = nn.GRU(
+                decoder_input_dim,
+                config.hidden_dim,
+                config.num_layers,
+                batch_first=True,
+                dropout=config.dropout if config.num_layers > 1 else 0,
+            )
+
+            # Attention mechanism (optional)
+            if config.use_attention:
+                self.attention = nn.MultiheadAttention(
+                    embed_dim=config.hidden_dim,
+                    num_heads=8,
+                    dropout=config.dropout,
+                    batch_first=True
+                )
+
+            # Output layer
+            self.output_layer = nn.Linear(config.hidden_dim, config.input_dim)
+            self.dropout = nn.Dropout(config.dropout)
+
+        def forward(self, x):
+            """Forward pass for sequence reconstruction."""
+            batch_size, seq_len, _ = x.shape
+
+            # Encode
+            encoded, hidden = self.encoder_gru(x)
+            
+            # Handle bidirectional hidden state
+            if self.bidirectional:
+                # Concatenate forward and backward hidden states
+                hidden = hidden.view(self.config.num_layers, 2, batch_size, -1)
+                hidden = torch.cat([hidden[:, 0, :, :], hidden[:, 1, :, :]], dim=2)
+            
+            # Apply attention if configured
+            if self.config.use_attention:
+                attended, _ = self.attention(encoded, encoded, encoded)
+                context = attended[:, -1:, :]
+            else:
+                # Use the last hidden state for decoding
+                context = encoded[:, -1:, :]  # (batch_size, 1, hidden_dim)
+
+            # Decode
+            decoder_input = context.repeat(1, seq_len, 1)
+            decoded, _ = self.decoder_gru(decoder_input, hidden)
+
+            # Output projection
+            output = self.output_layer(self.dropout(decoded))
+
+            return output
+
 else:
     # Fallback classes when PyTorch is not available
     class LSTMAutoEncoder:
         def __init__(self, *args, **kwargs):
             raise ImportError(
                 "PyTorch is required for LSTMAutoEncoder. Install with: pip install torch"
+            )
+    
+    class GRUAutoEncoder:
+        def __init__(self, *args, **kwargs):
+            raise ImportError(
+                "PyTorch is required for GRUAutoEncoder. Install with: pip install torch"
             )
 
 
@@ -360,7 +468,7 @@ class PyTorchAdapter(DetectorProtocol):
         """Initialize PyTorch adapter.
 
         Args:
-            algorithm_name: Deep learning algorithm ('autoencoder', 'vae', 'lstm')
+            algorithm_name: Deep learning algorithm ('autoencoder', 'vae', 'lstm', 'gru')
             name: Name for this detector instance
             contamination_rate: Expected contamination rate
             device: PyTorch device ('cpu', 'cuda', 'auto')
@@ -475,6 +583,8 @@ class PyTorchAdapter(DetectorProtocol):
                 self._fit_vae(X_tensor)
             elif self.algorithm == "lstm":
                 self._fit_lstm(X_tensor)
+            elif self.algorithm == "gru":
+                self._fit_gru(X_tensor)
             else:
                 raise ValueError(f"Unknown algorithm: {self.algorithm}")
 
@@ -513,6 +623,8 @@ class PyTorchAdapter(DetectorProtocol):
                 scores = self._vae_scores(X_tensor)
             elif self.algorithm == "lstm":
                 scores = self._lstm_scores(X_tensor)
+            elif self.algorithm == "gru":
+                scores = self._gru_scores(X_tensor)
             else:
                 raise ValueError(f"Unknown algorithm: {self.algorithm}")
 
@@ -672,6 +784,50 @@ class PyTorchAdapter(DetectorProtocol):
                     f"LSTM Epoch {epoch + 1}/{config.epochs}, Loss: {avg_loss:.6f}"
                 )
 
+    def _fit_gru(self, X_tensor: torch.Tensor):
+        """Train GRU model for time series."""
+        model_config = self.model_config.copy()
+        model_config["contamination"] = model_config.get(
+            "contamination", self._contamination_rate
+        )
+        config = GRUConfig(input_dim=X_tensor.shape[1], **model_config)
+
+        # Reshape for time series
+        X_sequences = self._create_sequences(X_tensor, config.sequence_length)
+
+        self.model = GRUAutoEncoder(config).to(self.device)
+        optimizer = optim.Adam(self.model.parameters(), lr=config.learning_rate)
+        criterion = nn.MSELoss()
+
+        dataset = TensorDataset(X_sequences, X_sequences)
+        dataloader = DataLoader(dataset, batch_size=config.batch_size, shuffle=True)
+
+        self.model.train()
+        for epoch in range(config.epochs):
+            epoch_loss = 0.0
+
+            for batch_x, batch_y in dataloader:
+                optimizer.zero_grad()
+
+                # Forward pass
+                reconstructed = self.model(batch_x)
+                loss = criterion(reconstructed, batch_y)
+
+                # Gradient clipping
+                if config.gradient_clip_norm > 0:
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), config.gradient_clip_norm)
+
+                loss.backward()
+                optimizer.step()
+
+                epoch_loss += loss.item()
+
+            if (epoch + 1) % 10 == 0:
+                avg_loss = epoch_loss / len(dataloader)
+                logger.debug(
+                    f"GRU Epoch {epoch + 1}/{config.epochs}, Loss: {avg_loss:.6f}"
+                )
+
     def _create_sequences(self, X: torch.Tensor, sequence_length: int) -> torch.Tensor:
         """Create sequences for LSTM training."""
         sequences = []
@@ -720,6 +876,25 @@ class PyTorchAdapter(DetectorProtocol):
 
         return scores
 
+    def _gru_scores(self, X_tensor: torch.Tensor) -> torch.Tensor:
+        """Calculate prediction error for GRU."""
+        config = self.model.config
+
+        # Create sequences
+        X_sequences = self._create_sequences(X_tensor, config.sequence_length)
+
+        # Get reconstruction
+        reconstructed = self.model(X_sequences)
+
+        # Calculate reconstruction error
+        scores = torch.mean((X_sequences - reconstructed) ** 2, dim=(1, 2))
+
+        # Pad scores to match original length
+        padding = torch.zeros(config.sequence_length - 1, device=self.device)
+        scores = torch.cat([padding, scores])
+
+        return scores
+
     def _calculate_threshold(self, X_tensor: torch.Tensor):
         """Calculate anomaly threshold based on training data."""
         # Calculate scores directly without using decision_function to avoid circular dependency
@@ -731,6 +906,8 @@ class PyTorchAdapter(DetectorProtocol):
                 scores = self._vae_scores(X_tensor)
             elif self.algorithm == "lstm":
                 scores = self._lstm_scores(X_tensor)
+            elif self.algorithm == "gru":
+                scores = self._gru_scores(X_tensor)
             else:
                 raise ValueError(f"Unknown algorithm: {self.algorithm}")
 
@@ -812,6 +989,9 @@ class PyTorchAdapter(DetectorProtocol):
         elif self.algorithm == "lstm":
             config = LSTMConfig(**self.model_config)
             self.model = LSTMAutoEncoder(config).to(self.device)
+        elif self.algorithm == "gru":
+            config = GRUConfig(**self.model_config)
+            self.model = GRUAutoEncoder(config).to(self.device)
 
         self.model.load_state_dict(checkpoint["model_state_dict"])
         self.is_trained = True
