@@ -38,7 +38,11 @@ class SessionData(BaseModel, ConfigDict):
     csrf_token: str | None = None
     login_method: str | None = None  # jwt, api_key, oauth, etc.
     security_level: str = "standard"  # standard, elevated, admin
-    concurrent_session_count: int = 1        json_encoders = {datetime: lambda v: v.isoformat(), UUID: lambda v: str(v)}
+    concurrent_session_count: int = 1
+
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat(), UUID: lambda v: str(v)}
+    )
 
 
 class SessionSecurityEvent(BaseModel):

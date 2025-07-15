@@ -55,7 +55,10 @@ class TransformationPipeline(BaseModel):
     # Metadata
     metadata: Dict[str, Any] = Field(default_factory=dict)
     tags: List[str] = Field(default_factory=list)        """Pydantic configuration."""
-        arbitrary_types_allowed = True
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True
+    )
         use_enum_values = True
     
     def add_step(self, step: TransformationStep) -> None:

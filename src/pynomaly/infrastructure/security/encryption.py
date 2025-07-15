@@ -94,7 +94,11 @@ class EncryptionKey(BaseModel):
     created_at: float  # Unix timestamp
     expires_at: float | None = None
     is_active: bool = True
-    metadata: dict[str, Any] = Field(default_factory=dict)        arbitrary_types_allowed = True
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True
+    )
 
 
 class EncryptionService:

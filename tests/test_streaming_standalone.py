@@ -36,8 +36,9 @@ class RealTimeMetrics(BaseModel):
     uptime_seconds: float = 0.0
     status: str = "active"
 
-    class Config:
-        json_encoders = {datetime: lambda v: v.isoformat()}
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat()}
+    )
 
 
 # Define MetricsPublisher for testing

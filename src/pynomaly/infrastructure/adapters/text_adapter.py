@@ -172,7 +172,7 @@ class TextEncoder:
 
     def transform(self, texts: list[str]) -> np.ndarray:
         """Transform texts using fitted encoder."""
-        if not self._is_fitted:
+        if not self.is_fitted:
             raise ValueError("Encoder must be fitted before transform")
         features = self.encoder.transform(texts)
         return features.toarray() if hasattr(features, 'toarray') else features
@@ -213,7 +213,7 @@ class Doc2VecEncoder:
 
     def transform(self, texts: list[str]) -> np.ndarray:
         """Transform texts using fitted model."""
-        if not self._is_fitted:
+        if not self.is_fitted:
             raise ValueError("Model must be fitted before transform")
 
         # Infer vectors for new documents
@@ -271,7 +271,7 @@ class Word2VecEncoder:
 
     def transform(self, texts: list[str]) -> np.ndarray:
         """Transform texts using fitted model."""
-        if not self._is_fitted:
+        if not self.is_fitted:
             raise ValueError("Model must be fitted before transform")
 
         vectors = []
@@ -321,7 +321,7 @@ class BERTEncoder:
 
     def transform(self, texts: list[str]) -> np.ndarray:
         """Transform texts using BERT."""
-        if not self._is_fitted:
+        if not self.is_fitted:
             raise ValueError("Model must be fitted before transform")
 
         return self._encode_texts(texts)
@@ -402,7 +402,7 @@ class TopicDriftDetector:
 
     def detect_topic_drift(self, texts: list[str]) -> list[bool]:
         """Detect topic drift in new texts."""
-        if not self._is_fitted:
+        if not self.is_fitted:
             raise ValueError("Topic model must be fitted before detection")
 
         # Process new texts
@@ -586,6 +586,9 @@ class TextAnomalyDetector(DetectorProtocol):
         self.encoder = TextEncoder(self.config)
         self.sentiment_analyzer = SentimentAnalyzer(self.config)
         self.topic_detector = TopicDriftDetector(self.config) if self.config.enable_topic_detection else None
+        self.similarity_analyzer = TextSimilarityAnalyzer(self.config)
+        self.ner = NamedEntityRecognizer(self.config)
+        self.advanced_encoder = AdvancedTextEncoder(self.config)
         self.detector = None
         self._is_fitted = False
 
@@ -680,10 +683,334 @@ class TextAnomalyDetector(DetectorProtocol):
         else:
             raise NotImplementedError(f"Algorithm {self.config.algorithm} not implemented")
 
-    def fit(self, data, **kwargs) -> TextAnomalyDetector:
-        """Fit the text anomaly detector."""
-        # Handle different input types
-        texts = self._extract_texts(data)
+
+class TextSimilarityAnalyzer:
+    """Advanced text similarity algorithms for anomaly detection."""
+
+    def __init__(self, config: TextDetectionConfig):
+        self.config = config
+        self._vectorizer = None
+        self._is_fitted = False
+
+    def fit(self, texts: list[str]) -> None:
+        """Fit similarity analyzer on text corpus."""
+        try:
+            from sklearn.feature_extraction.text import TfidfVectorizer
+            self._vectorizer = TfidfVectorizer(
+                max_features=self.config.max_features,
+                stop_words='english' if self.config.remove_stopwords else None
+            )
+            self._vectorizer.fit(texts)
+            self.is_fitted = True
+        except ImportError:
+            raise ImportError("scikit-learn is required for text similarity analysis")
+
+    def cosine_similarity(self, text1: str, text2: str) -> float:
+        """Calculate cosine similarity between two texts."""
+        if not self.is_fitted:
+            raise ValueError("Analyzer must be fitted before calculating similarity")
+        
+        try:
+            from sklearn.metrics.pairwise import cosine_similarity
+            import numpy as np
+            
+            # Vectorize texts
+            vectors = self._vectorizer.transform([text1, text2])
+            
+            # Calculate cosine similarity
+            similarity = cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
+            return float(similarity)
+        except ImportError:
+            raise ImportError("scikit-learn is required for cosine similarity")
+
+    def jaccard_similarity(self, text1: str, text2: str) -> float:
+        """Calculate Jaccard similarity between two texts."""
+        # Tokenize texts
+        words1 = set(text1.lower().split())
+        words2 = set(text2.lower().split())
+        
+        # Calculate Jaccard similarity
+        intersection = len(words1.intersection(words2))
+        union = len(words1.union(words2))
+        
+        return intersection / union if union > 0 else 0.0
+
+    def edit_distance(self, text1: str, text2: str) -> int:
+        """Calculate edit distance (Levenshtein distance) between two texts."""
+        try:
+            import textdistance
+            return textdistance.levenshtein(text1, text2)
+        except ImportError:
+            # Fallback implementation
+            return self._levenshtein_distance(text1, text2)
+
+    def _levenshtein_distance(self, s1: str, s2: str) -> int:
+        """Fallback implementation of Levenshtein distance."""
+        if len(s1) < len(s2):
+            return self._levenshtein_distance(s2, s1)
+
+        if len(s2) == 0:
+            return len(s1)
+
+        previous_row = list(range(len(s2) + 1))
+        for i, c1 in enumerate(s1):
+            current_row = [i + 1]
+            for j, c2 in enumerate(s2):
+                insertions = previous_row[j + 1] + 1
+                deletions = current_row[j] + 1
+                substitutions = previous_row[j] + (c1 != c2)
+                current_row.append(min(insertions, deletions, substitutions))
+            previous_row = current_row
+
+        return previous_row[-1]
+
+    def semantic_similarity(self, text1: str, text2: str) -> float:
+        """Calculate semantic similarity using word embeddings."""
+        try:
+            from sentence_transformers import SentenceTransformer
+            import numpy as np
+            from sklearn.metrics.pairwise import cosine_similarity
+            
+            # Load pre-trained sentence transformer
+            model = SentenceTransformer('all-MiniLM-L6-v2')
+            
+            # Get embeddings
+            embeddings = model.encode([text1, text2])
+            
+            # Calculate cosine similarity
+            similarity = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
+            return float(similarity)
+        except ImportError:
+            # Fallback to TF-IDF cosine similarity
+            return self.cosine_similarity(text1, text2)
+
+    def fuzzy_similarity(self, text1: str, text2: str) -> float:
+        """Calculate fuzzy string similarity."""
+        try:
+            from fuzzywuzzy import fuzz
+            return fuzz.ratio(text1, text2) / 100.0
+        except ImportError:
+            # Fallback to Jaccard similarity
+            return self.jaccard_similarity(text1, text2)
+
+    def n_gram_similarity(self, text1: str, text2: str, n: int = 3) -> float:
+        """Calculate n-gram similarity between texts."""
+        def get_ngrams(text: str, n: int) -> set:
+            """Extract n-grams from text."""
+            text = text.lower()
+            return set([text[i:i+n] for i in range(len(text) - n + 1)])
+        
+        ngrams1 = get_ngrams(text1, n)
+        ngrams2 = get_ngrams(text2, n)
+        
+        intersection = len(ngrams1.intersection(ngrams2))
+        union = len(ngrams1.union(ngrams2))
+        
+        return intersection / union if union > 0 else 0.0
+
+    def calculate_similarity_matrix(self, texts: list[str], method: str = "cosine") -> np.ndarray:
+        """Calculate similarity matrix for a list of texts."""
+        n_texts = len(texts)
+        similarity_matrix = np.zeros((n_texts, n_texts))
+        
+        for i in range(n_texts):
+            for j in range(i, n_texts):
+                if i == j:
+                    similarity = 1.0
+                else:
+                    if method == "cosine":
+                        similarity = self.cosine_similarity(texts[i], texts[j])
+                    elif method == "jaccard":
+                        similarity = self.jaccard_similarity(texts[i], texts[j])
+                    elif method == "semantic":
+                        similarity = self.semantic_similarity(texts[i], texts[j])
+                    elif method == "fuzzy":
+                        similarity = self.fuzzy_similarity(texts[i], texts[j])
+                    elif method == "ngram":
+                        similarity = self.n_gram_similarity(texts[i], texts[j])
+                    else:
+                        raise ValueError(f"Unknown similarity method: {method}")
+                
+                similarity_matrix[i][j] = similarity
+                similarity_matrix[j][i] = similarity
+        
+        return similarity_matrix
+
+    def detect_duplicate_anomalies(self, texts: list[str], threshold: float = 0.9) -> list[bool]:
+        """Detect anomalously similar (duplicate) texts."""
+        similarity_matrix = self.calculate_similarity_matrix(texts, method="cosine")
+        
+        # Find texts with high similarity to others (excluding self-similarity)
+        anomalies = []
+        for i in range(len(texts)):
+            max_similarity = np.max([similarity_matrix[i][j] for j in range(len(texts)) if i != j])
+            anomalies.append(max_similarity > threshold)
+        
+        return anomalies
+
+
+class NamedEntityRecognizer:
+    """Named Entity Recognition for text anomaly detection."""
+
+    def __init__(self, config: TextDetectionConfig):
+        self.config = config
+        self._nlp = None
+        self._is_fitted = False
+
+    def _load_nlp_model(self):
+        """Load spaCy NLP model."""
+        try:
+            import spacy
+            try:
+                self._nlp = spacy.load("en_core_web_sm")
+            except OSError:
+                # Fallback to basic English model
+                logger.warning("en_core_web_sm model not found, using simple tokenizer")
+                self._nlp = None
+        except ImportError:
+            logger.warning("spaCy not available, NER features disabled")
+            self._nlp = None
+
+    def extract_entities(self, text: str) -> dict[str, list[str]]:
+        """Extract named entities from text."""
+        if self._nlp is None:
+            self._load_nlp_model()
+        
+        if self._nlp is None:
+            # Fallback: return empty entities
+            return {"PERSON": [], "ORG": [], "GPE": [], "MONEY": [], "DATE": []}
+        
+        doc = self._nlp(text)
+        entities = {"PERSON": [], "ORG": [], "GPE": [], "MONEY": [], "DATE": []}
+        
+        for ent in doc.ents:
+            if ent.label_ in entities:
+                entities[ent.label_].append(ent.text)
+        
+        return entities
+
+    def detect_entity_anomalies(self, texts: list[str]) -> list[bool]:
+        """Detect anomalies based on named entity patterns."""
+        all_entities = [self.extract_entities(text) for text in texts]
+        
+        # Calculate entity statistics
+        entity_counts = {}
+        for entities in all_entities:
+            for entity_type, entity_list in entities.items():
+                if entity_type not in entity_counts:
+                    entity_counts[entity_type] = []
+                entity_counts[entity_type].append(len(entity_list))
+        
+        # Detect anomalies based on entity count deviations
+        anomalies = []
+        for i, entities in enumerate(all_entities):
+            is_anomaly = False
+            
+            for entity_type, entity_list in entities.items():
+                if entity_type in entity_counts and len(entity_counts[entity_type]) > 1:
+                    count = len(entity_list)
+                    mean_count = np.mean(entity_counts[entity_type])
+                    std_count = np.std(entity_counts[entity_type])
+                    
+                    # Anomaly if count is more than 2 standard deviations from mean
+                    if std_count > 0 and abs(count - mean_count) > 2 * std_count:
+                        is_anomaly = True
+                        break
+            
+            anomalies.append(is_anomaly)
+        
+        return anomalies
+
+
+class AdvancedTextEncoder:
+    """Advanced text encoding methods for anomaly detection."""
+
+    def __init__(self, config: TextDetectionConfig):
+        self.config = config
+        self._encoder = None
+        self._is_fitted = False
+
+    def advanced_encoding(self, texts: list[str], method: str = "transformer") -> np.ndarray:
+        """Implement advanced text encoding methods."""
+        if method == "transformer":
+            return self._transformer_encoding(texts)
+        elif method == "universal_sentence_encoder":
+            return self._use_encoding(texts)
+        elif method == "fasttext":
+            return self._fasttext_encoding(texts)
+        elif method == "glove":
+            return self._glove_encoding(texts)
+        else:
+            raise ValueError(f"Unknown encoding method: {method}")
+
+    def _transformer_encoding(self, texts: list[str]) -> np.ndarray:
+        """Encode texts using transformer models."""
+        try:
+            from sentence_transformers import SentenceTransformer
+            model = SentenceTransformer('all-MiniLM-L6-v2')
+            embeddings = model.encode(texts)
+            return embeddings
+        except ImportError:
+            raise ImportError("sentence-transformers is required for transformer encoding. Install with: pip install sentence-transformers")
+
+    def _use_encoding(self, texts: list[str]) -> np.ndarray:
+        """Encode texts using Universal Sentence Encoder."""
+        try:
+            import tensorflow_hub as hub
+            import tensorflow as tf
+            
+            # Load Universal Sentence Encoder
+            embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/4")
+            embeddings = embed(texts)
+            return embeddings.numpy()
+        except ImportError:
+            raise ImportError("tensorflow and tensorflow-hub are required for USE encoding")
+
+    def _fasttext_encoding(self, texts: list[str]) -> np.ndarray:
+        """Encode texts using FastText."""
+        try:
+            import fasttext
+            import tempfile
+            import os
+            
+            # Create temporary file for training
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+                for text in texts:
+                    f.write(text.replace('\n', ' ') + '\n')
+                temp_file = f.name
+            
+            try:
+                # Train FastText model
+                model = fasttext.train_unsupervised(temp_file, model='cbow', dim=100)
+                
+                # Get sentence embeddings by averaging word vectors
+                embeddings = []
+                for text in texts:
+                    words = text.split()
+                    if words:
+                        word_vectors = [model.get_word_vector(word) for word in words]
+                        sentence_vector = np.mean(word_vectors, axis=0)
+                    else:
+                        sentence_vector = np.zeros(100)
+                    embeddings.append(sentence_vector)
+                
+                return np.array(embeddings)
+            finally:
+                os.unlink(temp_file)
+        except ImportError:
+            raise ImportError("fasttext is required for FastText encoding. Install with: pip install fasttext")
+
+    def _glove_encoding(self, texts: list[str]) -> np.ndarray:
+        """Encode texts using GloVe embeddings."""
+        # This would require pre-trained GloVe vectors
+        # For now, fallback to TF-IDF
+        try:
+            from sklearn.feature_extraction.text import TfidfVectorizer
+            vectorizer = TfidfVectorizer(max_features=self.config.max_features)
+            embeddings = vectorizer.fit_transform(texts)
+            return embeddings.toarray()
+        except ImportError:
+            raise ImportError("scikit-learn is required for GloVe fallback encoding")
 
         logger.info(f"Fitting text anomaly detector with {len(texts)} documents")
 
@@ -701,14 +1028,17 @@ class TextAnomalyDetector(DetectorProtocol):
         if self.topic_detector:
             self.topic_detector.fit(processed_texts)
 
-        self._is_fitted = True
+        # Fit similarity analyzer
+        self.similarity_analyzer.fit(processed_texts)
+
+        self.is_fitted = True
         logger.info("Text anomaly detector fitted successfully")
 
         return self
 
     def predict(self, texts: list[str]) -> list[bool]:
         """Predict anomalies in texts."""
-        if not self._is_fitted:
+        if not self.is_fitted:
             raise ValueError("Detector must be fitted before prediction")
 
         # Preprocess texts
@@ -734,11 +1064,19 @@ class TextAnomalyDetector(DetectorProtocol):
             topic_anomalies = self.topic_detector.detect_topic_drift(processed_texts)
             anomalies = [a or t for a, t in zip(anomalies, topic_anomalies, strict=False)]
 
+        # Combine with similarity-based anomalies (duplicate detection)
+        similarity_anomalies = self.similarity_analyzer.detect_duplicate_anomalies(texts)
+        anomalies = [a or s for a, s in zip(anomalies, similarity_anomalies, strict=False)]
+
+        # Combine with NER-based anomalies
+        ner_anomalies = self.ner.detect_entity_anomalies(texts)
+        anomalies = [a or n for a, n in zip(anomalies, ner_anomalies, strict=False)]
+
         return anomalies
 
     def score(self, texts: list[str]) -> list[float]:
         """Calculate anomaly scores for texts."""
-        if not self._is_fitted:
+        if not self.is_fitted:
             raise ValueError("Detector must be fitted before scoring")
 
         # Preprocess texts

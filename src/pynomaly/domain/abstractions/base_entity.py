@@ -17,13 +17,15 @@ class BaseEntity(BaseModel, Generic[T], ABC):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     version: int = Field(default=1)
-    metadata: dict[str, Any] = Field(default_factory=dict)        """Pydantic configuration."""
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
-        allow_mutation = True
-        json_encoders = {
+    model_config = ConfigDict(
+        allow_mutation=True,
+        json_encoders={
             datetime: lambda v: v.isoformat(),
             UUID: lambda v: str(v),
         }
+    )
 
     def __init__(self, **data: Any) -> None:
         """Initialize entity."""

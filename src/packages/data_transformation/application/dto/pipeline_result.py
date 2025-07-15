@@ -77,7 +77,10 @@ class PipelineResult(BaseModel):
     validation_results: Optional[ValidationResult] = None
     metrics: Optional[ExecutionMetrics] = None
     error_message: Optional[str] = None        """Pydantic configuration."""
-        arbitrary_types_allowed = True
+
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True
+    )
         
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""

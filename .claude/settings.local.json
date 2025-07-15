@@ -243,7 +243,9 @@
       "Bash(npx jest:*)",
       "Bash(npm install:*)",
       "Bash(git pull:*)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm outdated)"
     ],
     "deny": []
   }

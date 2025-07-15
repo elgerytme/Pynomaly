@@ -3,13 +3,15 @@
 from abc import ABC
 from typing import Any
 
-from pydantic import ABC, BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
-class BaseValueObject(BaseModel, ConfigDict):
-    """Base value object interface."""        """Pydantic configuration."""
+class BaseValueObject(BaseModel, ABC):
+    """Base value object interface."""
 
-        allow_mutation = False
+    model_config = ConfigDict(
+        allow_mutation=False
+    )
 
     def __hash__(self) -> int:
         """Hash based on all field values."""

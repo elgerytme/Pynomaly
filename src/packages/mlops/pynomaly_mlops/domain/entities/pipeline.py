@@ -125,11 +125,12 @@ class PipelineStep(BaseModel):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: Optional[str] = None
     tags: Set[str] = Field(default_factory=set)        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
+
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat(),
             UUID: str,
-            set: list
-        }
+            set: list}
+    )
     
     @validator('depends_on', pre=True)
     def convert_depends_on_to_set(cls, v):
@@ -237,11 +238,12 @@ class Pipeline(BaseModel):
     # Configuration
     max_parallel_steps: int = Field(default=5, ge=1, le=50)
     global_timeout_minutes: int = Field(default=480, ge=1, le=2880)  # 8 hours default        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
+
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat(),
             UUID: str,
-            set: list
-        }
+            set: list}
+    )
     
     def add_step(self, step: PipelineStep) -> None:
         """Add a step to the pipeline."""
@@ -477,10 +479,11 @@ class PipelineRun(BaseModel):
     # Results
     artifacts: Dict[str, str] = Field(default_factory=dict)
     metrics: Dict[str, float] = Field(default_factory=dict)        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            UUID: str
-        }
+
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat(),
+            UUID: str}
+    )
     
     def complete_run(self) -> None:
         """Mark run as completed."""

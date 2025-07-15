@@ -11,9 +11,8 @@ from typing import Any, Dict, List, Optional
 
 from ...domain.entities.quality_entity import (
     QualityRule, ValidationResult, ValidationStatus, ValidationError,
-    LogicType, Severity, DatasetId, ValidationId
+    LogicType, Severity, DatasetId, ValidationId, ValidationLogic
 )
-from ...domain.value_objects.validation_logic import ValidationLogic
 from ...infrastructure.config.quality_config import ValidationEngineConfig
 from ...infrastructure.logging.quality_logger import get_logger
 

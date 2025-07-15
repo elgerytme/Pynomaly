@@ -201,7 +201,11 @@ class SecurityEvent(BaseModel):
     # Technical details
     source_component: str | None = None
     error_code: str | None = None
-    stack_trace: str | None = None        json_encoders = {datetime: lambda v: v.isoformat()}
+    stack_trace: str | None = None
+
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat()}
+    )
 
 
 class AuditEvent(BaseModel):
@@ -228,7 +232,11 @@ class AuditEvent(BaseModel):
 
     # Compliance
     compliance_standards: list[ComplianceStandard] | None = None
-    retention_period_days: int | None = None        json_encoders = {datetime: lambda v: v.isoformat()}
+    retention_period_days: int | None = None
+
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat()}
+    )
 
 
 class AuditLogger:

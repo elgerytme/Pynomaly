@@ -40,10 +40,12 @@ class VideoTutorial(BaseModel):
     is_published: bool = Field(default=False)
     view_count: int = Field(default=0)
     average_rating: float = Field(default=0.0)
-    completion_rate: float = Field(default=0.0)        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            UUID: lambda v: str(v)
-        }
+    completion_rate: float = Field(default=0.0)
+
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat(),
+            UUID: lambda v: str(v)}
+    )
 
 
 class VideoSeries(BaseModel):
@@ -60,10 +62,12 @@ class VideoSeries(BaseModel):
     videos: List[VideoTutorial] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_published: bool = Field(default=False)
-    completion_certificate: Optional[str] = None        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            UUID: lambda v: str(v)
-        }
+    completion_certificate: Optional[str] = None
+
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat(),
+            UUID: lambda v: str(v)}
+    )
 
 
 class UserProgress(BaseModel):
@@ -83,10 +87,12 @@ class UserProgress(BaseModel):
     rating: Optional[float] = None
     feedback: Optional[str] = None
     started_at: datetime = Field(default_factory=datetime.utcnow)
-    last_updated: datetime = Field(default_factory=datetime.utcnow)        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            UUID: lambda v: str(v)
-        }
+    last_updated: datetime = Field(default_factory=datetime.utcnow)
+
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat(),
+            UUID: lambda v: str(v)}
+    )
 
 
 class VideoAnalytics(BaseModel):
@@ -105,10 +111,12 @@ class VideoAnalytics(BaseModel):
     quality_preferences: Dict[str, int] = Field(default_factory=dict)
     loading_times: List[float] = Field(default_factory=list)
     error_events: List[Dict] = Field(default_factory=list)
-    last_updated: datetime = Field(default_factory=datetime.utcnow)        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            UUID: lambda v: str(v)
-        }
+    last_updated: datetime = Field(default_factory=datetime.utcnow)
+
+    model_config = ConfigDict(
+        json_encoders={datetime: lambda v: v.isoformat(),
+            UUID: lambda v: str(v)}
+    )
 
 
 class VideoTutorialService:
