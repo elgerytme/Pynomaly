@@ -2,11 +2,13 @@
  * Pynomaly TypeScript Client Implementation
  *
  * This module provides the main client class for interacting with the Pynomaly API.
- * Includes comprehensive functionality with TypeScript type safety.
+ * Includes comprehensive functionality with TypeScript type safety, WebSocket support,
+ * and modern Promise-based async/await API.
  */
 
-import { AuthManager } from './auth';
+import { AuthManager, SessionManager } from './auth';
 import { RateLimiter } from './rate-limiter';
+import { WebSocketClient, StreamingManager } from './websocket';
 import {
     PynomaliError,
     AuthenticationError,
@@ -14,7 +16,8 @@ import {
     ValidationError,
     ServerError,
     NetworkError,
-    RateLimitError
+    RateLimitError,
+    ErrorHandler
 } from './errors';
 import {
     ClientConfig,
@@ -27,11 +30,23 @@ import {
     DatasetInfo,
     HealthStatus,
     HttpMethod,
-    RequestOptions
+    RequestOptions,
+    StreamConfig,
+    StreamEventHandlers,
+    PaginationOptions,
+    PaginatedResponse,
+    FilterOptions,
+    ExplanationRequest,
+    ExplanationResult,
+    SystemMetrics,
+    LoginCredentials,
+    UserProfile
 } from './types';
 
 /**
  * Main Pynomali client for TypeScript/JavaScript applications.
+ * Provides comprehensive API access with modern async/await support,
+ * WebSocket streaming, and enhanced error handling.
  */
 export class PynomaliClient {
     private readonly baseUrl: string;
@@ -39,7 +54,11 @@ export class PynomaliClient {
     private readonly maxRetries: number;
     private readonly userAgent: string;
     private readonly authManager: AuthManager;
+    private readonly sessionManager: SessionManager;
     private readonly rateLimiter: RateLimiter;
+    private readonly wsClient?: WebSocketClient;
+    private readonly streamingManager?: StreamingManager;
+    private readonly debug: boolean;
 
     // API modules
     public readonly auth: AuthAPI;
@@ -56,15 +75,40 @@ export class PynomaliClient {
         this.timeout = config.timeout || 30000;
         this.maxRetries = config.maxRetries || 3;
         this.userAgent = config.userAgent || `pynomaly-typescript-sdk/1.0.0`;
+        this.debug = config.debug || false;
 
-        // Initialize auth manager
-        this.authManager = new AuthManager(config.apiKey);
+        // Initialize auth and session managers
+        this.authManager = new AuthManager({
+            apiKey: config.apiKey,
+            autoRefresh: true,
+        });
+        this.sessionManager = new SessionManager();
 
         // Initialize rate limiter
-        this.rateLimiter = new RateLimiter(
-            config.rateLimitRequests || 100,
-            config.rateLimitPeriod || 60000
-        );
+        this.rateLimiter = new RateLimiter({
+            maxRequests: config.rateLimitRequests || 100,
+            windowMs: config.rateLimitPeriod || 60000,
+            adaptive: true,
+        });
+
+        // Initialize WebSocket client if enabled
+        if (config.websocket?.enabled) {
+            const wsUrl = config.websocket.url || this.buildWebSocketUrl();
+            this.wsClient = new WebSocketClient({
+                ...config.websocket,
+                url: wsUrl,
+                authToken: this.authManager.getJwtToken(),
+                apiKey: config.apiKey,
+            });
+
+            // Initialize streaming manager
+            this.streamingManager = new StreamingManager(this.wsClient);
+        }
+
+        // Set up token refresh callback
+        this.authManager.setTokenRefreshCallback(async () => {
+            await this.refreshAuthToken();
+        });
 
         // Initialize API modules
         this.auth = new AuthAPI(this);
@@ -78,21 +122,38 @@ export class PynomaliClient {
     }
 
     /**
-     * Make HTTP request with error handling and rate limiting.
+     * Make HTTP request with enhanced error handling, rate limiting, and debugging.
      */
     public async request<T = any>(
         method: HttpMethod,
         endpoint: string,
         options: RequestOptions = {}
     ): Promise<T> {
-        // Rate limiting
-        await this.rateLimiter.waitIfNeeded();
+        // Check authentication if required
+        if (!this.authManager.isAuthenticated() && this.requiresAuth(endpoint)) {
+            throw new AuthenticationError('Authentication required for this endpoint');
+        }
 
-        const url = this.buildUrl(endpoint);
+        // Refresh token if needed
+        if (this.authManager.needsRefresh()) {
+            await this.refreshAuthToken();
+        }
+
+        // Rate limiting (skip if requested)
+        if (!options.skipRateLimit) {
+            await this.rateLimiter.waitIfNeeded();
+        }
+
+        const url = this.buildUrl(endpoint, options.params);
         const headers = this.getHeaders(options.headers);
         const requestTimeout = options.timeout || this.timeout;
 
-        console.debug(`Making ${method} request to ${url}`);
+        if (this.debug) {
+            console.debug(`[Pynomaly SDK] ${method} ${url}`, {
+                headers,
+                data: options.data,
+            });
+        }
 
         const requestOptions: RequestInit = {
             method,
@@ -106,13 +167,23 @@ export class PynomaliClient {
 
         try {
             const response = await this.fetchWithRetry(url, requestOptions);
-            return await this.handleResponse<T>(response);
+            const result = await this.handleResponse<T>(response);
+            
+            if (this.debug) {
+                console.debug(`[Pynomaly SDK] Response:`, result);
+            }
+            
+            return result;
         } catch (error) {
+            if (this.debug) {
+                console.error(`[Pynomaly SDK] Error:`, error);
+            }
+            
             if (error instanceof DOMException && error.name === 'TimeoutError') {
-                throw new NetworkError(`Request timeout after ${requestTimeout}ms`);
+                throw new NetworkError(`Request timeout after ${requestTimeout}ms`, true);
             }
             if (error instanceof TypeError) {
-                throw new NetworkError('Network error: ' + error.message);
+                throw new NetworkError('Network error: ' + error.message, false, !navigator.onLine);
             }
             throw error;
         }
@@ -163,37 +234,53 @@ export class PynomaliClient {
     }
 
     /**
-     * Handle HTTP response and raise appropriate exceptions.
+     * Handle HTTP response with comprehensive error mapping.
      */
     private async handleResponse<T>(response: Response): Promise<T> {
         const status = response.status;
+        const requestId = response.headers.get('X-Request-ID') || undefined;
 
-        if (status === 401) {
-            throw new AuthenticationError('Authentication failed');
-        } else if (status === 403) {
-            throw new AuthorizationError('Access forbidden');
-        } else if (status === 400) {
-            const errorData = await this.safeJsonParse(response);
-            throw new ValidationError(errorData?.message || 'Validation error');
-        } else if (status === 429) {
-            const retryAfter = response.headers.get('Retry-After') || '60';
-            throw new RateLimitError(`Rate limit exceeded. Retry after ${retryAfter} seconds`);
-        } else if (status >= 500) {
-            throw new ServerError(`Server error: ${status}`);
-        } else if (status < 200 || status >= 300) {
-            throw new PynomaliError(`Unexpected status code: ${status}`);
+        // Try to parse response data for error details
+        let responseData: any = null;
+        try {
+            if (response.headers.get('content-type')?.includes('application/json')) {
+                responseData = await response.json();
+            }
+        } catch {
+            // Ignore JSON parsing errors for non-JSON responses
         }
 
-        // Parse JSON response
-        if (response.headers.get('content-length') !== '0') {
+        if (status >= 400) {
+            const error = ErrorHandler.fromHttpResponse(status, responseData, requestId);
+            throw error;
+        }
+
+        if (status < 200 || status >= 300) {
+            throw new PynomaliError(`Unexpected status code: ${status}`, 'HTTP_ERROR', status, responseData, requestId);
+        }
+
+        // Return parsed JSON or empty response
+        if (responseData !== null) {
+            return responseData;
+        }
+
+        // Handle empty responses
+        if (response.headers.get('content-length') === '0' || status === 204) {
+            return undefined as any;
+        }
+
+        // Try to parse response body
+        try {
+            return await response.json();
+        } catch (error) {
+            // For non-JSON responses, return as text
             try {
-                return await response.json();
-            } catch (error) {
-                throw new PynomaliError('Invalid JSON response');
+                const text = await response.text();
+                return text as any;
+            } catch {
+                return undefined as any;
             }
         }
-
-        return undefined as any;
     }
 
     /**
@@ -208,10 +295,22 @@ export class PynomaliClient {
     }
 
     /**
-     * Build full URL from endpoint.
+     * Build full URL from endpoint with query parameters.
      */
-    private buildUrl(endpoint: string): string {
-        return `${this.baseUrl}/${endpoint.replace(/^\//, '')}`;
+    private buildUrl(endpoint: string, params?: Record<string, any>): string {
+        const baseUrl = `${this.baseUrl}/${endpoint.replace(/^\//, '')}`;
+        
+        if (params && Object.keys(params).length > 0) {
+            const searchParams = new URLSearchParams();
+            for (const [key, value] of Object.entries(params)) {
+                if (value !== undefined && value !== null) {
+                    searchParams.append(key, String(value));
+                }
+            }
+            return `${baseUrl}?${searchParams.toString()}`;
+        }
+        
+        return baseUrl;
     }
 
     /**
@@ -251,40 +350,238 @@ export class PynomaliClient {
      */
     public clearToken(): void {
         this.authManager.clearToken();
+        this.sessionManager.endSession();
+    }
+
+    /**
+     * Get WebSocket client for real-time updates.
+     */
+    public getWebSocketClient(): WebSocketClient | undefined {
+        return this.wsClient;
+    }
+
+    /**
+     * Get streaming manager for real-time data processing.
+     */
+    public getStreamingManager(): StreamingManager | undefined {
+        return this.streamingManager;
+    }
+
+    /**
+     * Connect to WebSocket for real-time updates.
+     */
+    public async connectWebSocket(eventHandlers?: Partial<StreamEventHandlers>): Promise<void> {
+        if (!this.wsClient) {
+            throw new PynomaliError('WebSocket not enabled. Enable in client config.');
+        }
+
+        if (eventHandlers) {
+            this.wsClient.setEventHandlers(eventHandlers);
+        }
+
+        await this.wsClient.connect();
+    }
+
+    /**
+     * Disconnect from WebSocket.
+     */
+    public disconnectWebSocket(): void {
+        this.wsClient?.disconnect();
+    }
+
+    /**
+     * Get client configuration and status.
+     */
+    public getClientInfo(): {
+        baseUrl: string;
+        userAgent: string;
+        isAuthenticated: boolean;
+        isConnected: boolean;
+        rateLimitStatus: any;
+        sessionInfo?: UserProfile;
+    } {
+        return {
+            baseUrl: this.baseUrl,
+            userAgent: this.userAgent,
+            isAuthenticated: this.authManager.isAuthenticated(),
+            isConnected: this.wsClient?.getConnectionState() === 'connected',
+            rateLimitStatus: this.rateLimiter.getStatus(),
+            sessionInfo: this.sessionManager.getUserProfile(),
+        };
+    }
+
+    /**
+     * Check if endpoint requires authentication.
+     */
+    private requiresAuth(endpoint: string): boolean {
+        // Public endpoints that don't require authentication
+        const publicEndpoints = ['/health', '/metrics', '/auth/login', '/auth/register'];
+        return !publicEndpoints.some(path => endpoint.startsWith(path));
+    }
+
+    /**
+     * Build WebSocket URL from base URL.
+     */
+    private buildWebSocketUrl(): string {
+        const wsProtocol = this.baseUrl.startsWith('https://') ? 'wss://' : 'ws://';
+        const baseWithoutProtocol = this.baseUrl.replace(/^https?:\/\//, '');
+        return `${wsProtocol}${baseWithoutProtocol}/ws`;
+    }
+
+    /**
+     * Refresh authentication token.
+     */
+    private async refreshAuthToken(): Promise<void> {
+        const refreshToken = this.authManager.getRefreshToken();
+        if (!refreshToken) {
+            throw new AuthenticationError('No refresh token available');
+        }
+
+        try {
+            const newToken = await this.auth.refreshToken(refreshToken);
+            this.authManager.setAuthToken(newToken);
+        } catch (error) {
+            this.authManager.clearToken();
+            throw new AuthenticationError('Failed to refresh token');
+        }
     }
 }
 
 /**
- * Authentication API methods.
+ * Authentication API methods with enhanced session management.
  */
 export class AuthAPI {
     constructor(private client: PynomaliClient) {}
 
-    async login(username: string, password: string): Promise<AuthToken> {
-        const response = await this.client.request<AuthToken>('POST', '/auth/login', {
-            data: { username, password }
+    /**
+     * Login with username and password.
+     */
+    async login(credentials: LoginCredentials): Promise<{ token: AuthToken; user: UserProfile }>;
+    async login(username: string, password: string, mfaCode?: string): Promise<{ token: AuthToken; user: UserProfile }>;
+    async login(
+        credentialsOrUsername: LoginCredentials | string,
+        password?: string,
+        mfaCode?: string
+    ): Promise<{ token: AuthToken; user: UserProfile }> {
+        let loginData: LoginCredentials;
+
+        if (typeof credentialsOrUsername === 'string') {
+            loginData = {
+                username: credentialsOrUsername,
+                password: password!,
+                mfaCode,
+            };
+        } else {
+            loginData = credentialsOrUsername;
+        }
+
+        const response = await this.client.request<{ token: AuthToken; user: UserProfile }>('POST', '/auth/login', {
+            data: loginData,
+            skipRateLimit: false,
         });
 
-        // Store token in client
-        this.client.setAccessToken(response.accessToken);
+        // Store token and user session
+        this.client.setAccessToken(response.token.accessToken);
+        (this.client as any).authManager.setAuthToken(response.token);
+        (this.client as any).sessionManager.startSession(response.user);
 
         return response;
     }
 
+    /**
+     * Refresh authentication token.
+     */
     async refreshToken(refreshToken: string): Promise<AuthToken> {
         const response = await this.client.request<AuthToken>('POST', '/auth/refresh', {
-            data: { refreshToken }
+            data: { refreshToken },
+            skipRateLimit: true,
         });
 
-        // Store token in client
+        // Update stored token
         this.client.setAccessToken(response.accessToken);
+        (this.client as any).authManager.setAuthToken(response);
 
         return response;
     }
 
+    /**
+     * Logout and clear session.
+     */
     async logout(): Promise<void> {
-        await this.client.request('POST', '/auth/logout');
+        try {
+            await this.client.request('POST', '/auth/logout', {
+                skipRateLimit: true,
+            });
+        } catch (error) {
+            // Continue with logout even if server request fails
+            console.warn('Logout request failed, clearing local session:', error);
+        }
+
         this.client.clearToken();
+        this.client.disconnectWebSocket();
+    }
+
+    /**
+     * Get current user profile.
+     */
+    async getCurrentUser(): Promise<UserProfile> {
+        return await this.client.request<UserProfile>('GET', '/auth/me');
+    }
+
+    /**
+     * Update user profile.
+     */
+    async updateProfile(updates: Partial<UserProfile>): Promise<UserProfile> {
+        return await this.client.request<UserProfile>('PATCH', '/auth/me', {
+            data: updates,
+        });
+    }
+
+    /**
+     * Change password.
+     */
+    async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+        await this.client.request('POST', '/auth/change-password', {
+            data: {
+                currentPassword,
+                newPassword,
+            },
+        });
+    }
+
+    /**
+     * Request password reset.
+     */
+    async requestPasswordReset(email: string): Promise<void> {
+        await this.client.request('POST', '/auth/password-reset', {
+            data: { email },
+            skipRateLimit: false,
+        });
+    }
+
+    /**
+     * Verify email address.
+     */
+    async verifyEmail(token: string): Promise<void> {
+        await this.client.request('POST', '/auth/verify-email', {
+            data: { token },
+        });
+    }
+
+    /**
+     * Enable two-factor authentication.
+     */
+    async enableMFA(): Promise<{ qrCode: string; backupCodes: string[] }> {
+        return await this.client.request('POST', '/auth/mfa/enable');
+    }
+
+    /**
+     * Disable two-factor authentication.
+     */
+    async disableMFA(mfaCode: string): Promise<void> {
+        await this.client.request('POST', '/auth/mfa/disable', {
+            data: { mfaCode },
+        });
     }
 }
 
