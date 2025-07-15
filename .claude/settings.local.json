@@ -233,7 +233,9 @@
       "Bash(ln:*)",
       "Bash(pynomaly:*)",
       "Bash(./test_all_environments.sh:*)",
-      "Bash(./quick_test_env.sh:*)"
+      "Bash(./quick_test_env.sh:*)",
+      "Bash(tree:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": []
   }
