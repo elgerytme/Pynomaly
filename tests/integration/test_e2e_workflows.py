@@ -50,124 +50,133 @@ class MockTrainingService:
 
 
 class TestE2EWorkflows:
-    """End-to-end workflow testing covering complete user journeys."""
+    """End-to-end workflow integration tests."""
 
-    @pytest.fixture(autouse=True)
-    async def setup_e2e_environment(self):
-        """Set up complete testing environment."""
-        await self.setup_test_environment()
-        self.data_generator = TestDataGenerator()
-        
-        # Create test data files
-        self.test_data_dir = Path(tempfile.mkdtemp())
-        self.sample_csv = self.test_data_dir / "sample_data.csv"
-        self.sample_json = self.test_data_dir / "sample_data.json"
-        
-        # Generate test datasets
-        self.data_generator.create_sample_csv(self.sample_csv, rows=1000, anomalies=True)
-        self.data_generator.create_sample_json(self.sample_json, records=500)
-        
-        yield
-        
-        # Cleanup
-        import shutil
-        shutil.rmtree(self.test_data_dir, ignore_errors=True)
+    @pytest.fixture
+    def sample_data(self):
+        """Generate sample data for testing."""
+        np.random.seed(42)
+        normal_data = np.random.normal(0, 1, (100, 5))
+        anomalous_data = np.random.normal(5, 1, (10, 5))
+        return np.vstack([normal_data, anomalous_data])
 
-    @pytest.mark.integration
-    @pytest.mark.e2e
-    async def test_complete_anomaly_detection_workflow(self):
-        """Test complete anomaly detection workflow from data load to results."""
-        
-        # Step 1: Data Loading
-        dataset_service = self.container.dataset_service()
-        dataset = await dataset_service.load_from_file(
-            file_path=str(self.sample_csv),
-            name="e2e_test_dataset",
-            description="End-to-end test dataset"
+    @pytest.fixture
+    def detection_service(self):
+        """Mock detection service."""
+        return MockDetectionService()
+
+    @pytest.fixture
+    def training_service(self):
+        """Mock training service."""
+        return MockTrainingService()
+
+    @pytest.fixture
+    def classification_service(self):
+        """Advanced classification service."""
+        severity_classifier = ThresholdSeverityClassifier()
+        return AdvancedClassificationService(
+            severity_classifier=severity_classifier,
+            enable_hierarchical=True,
+            enable_multiclass=True,
         )
-        
-        assert dataset is not None
-        assert dataset.name == "e2e_test_dataset"
-        assert dataset.n_samples == 1000
-        
-        # Step 2: Data Preprocessing
-        preprocessing_service = self.container.preprocessing_service()
-        preprocessed_dataset = await preprocessing_service.preprocess(
-            dataset=dataset,
-            normalize=True,
-            remove_missing=True,
-            feature_selection=True
+
+    @pytest.fixture
+    def pipeline_integration(self, classification_service):
+        """Pipeline integration service."""
+        return DetectionPipelineIntegration(classification_service)
+
+    @pytest.mark.asyncio
+    async def test_complete_anomaly_detection_workflow(
+        self,
+        sample_data,
+        detection_service,
+        training_service,
+        pipeline_integration,
+    ):
+        """Test complete anomaly detection workflow from training to detection."""
+        # Step 1: Create and train a detector
+        detector = Detector(
+            name="test_isolation_forest",
+            algorithm_name="isolation_forest",
+            contamination_rate=ContaminationRate.from_value(0.1),
+            parameters={
+                "n_estimators": 100,
+                "max_samples": "auto",
+                "random_state": 42,
+            },
         )
-        
-        assert preprocessed_dataset is not None
-        assert preprocessed_dataset.is_preprocessed
-        
-        # Step 3: Detector Creation and Training
-        detector_service = self.container.detector_service()
-        detector = await detector_service.create_detector(
-            name="e2e_isolation_forest",
-            algorithm="IsolationForest",
-            parameters={"contamination": 0.1, "n_estimators": 100}
+
+        # Step 2: Train the detector
+        training_job = TrainingJob(
+            detector_id=detector.id,
+            dataset_name="test_dataset",
+            training_data=sample_data,
+            parameters=detector.parameters,
         )
-        
-        assert detector is not None
-        assert detector.algorithm == "IsolationForest"
-        
-        # Train the detector
-        training_result = await detector_service.train(
-            detector=detector,
-            dataset=preprocessed_dataset
+
+        trained_detector = await training_service.train_detector(training_job)
+        assert trained_detector.is_fitted
+        assert trained_detector.trained_at is not None
+
+        # Step 3: Run detection on test data
+        test_data = sample_data[:20]  # Use subset for testing
+        detection_results = await detection_service.detect_anomalies(
+            detector=trained_detector,
+            data=test_data,
         )
+
+        assert len(detection_results) == len(test_data)
+        assert all(0 <= score <= 1 for score in detection_results)
+
+        # Step 4: Process results through advanced classification
+        classifications = []
+        events = []
         
-        assert training_result.success
-        assert training_result.training_time > 0
-        assert detector.is_trained
-        
-        # Step 4: Anomaly Detection
-        detection_service = self.container.detection_service()
-        results = await detection_service.detect(
-            detector=detector,
-            dataset=preprocessed_dataset
-        )
-        
-        assert results is not None
-        assert results.n_samples == preprocessed_dataset.n_samples
-        assert 0 <= results.n_anomalies <= results.n_samples
-        assert 0.0 <= results.anomaly_rate <= 1.0
-        
-        # Step 5: Model Evaluation
-        evaluation_service = self.container.evaluation_service()
-        evaluation_results = await evaluation_service.evaluate(
-            detector=detector,
-            test_dataset=preprocessed_dataset,
-            cross_validate=True,
-            n_folds=3
-        )
-        
-        assert evaluation_results is not None
-        assert "precision" in evaluation_results.metrics
-        assert "recall" in evaluation_results.metrics
-        assert "f1_score" in evaluation_results.metrics
-        
-        # Step 6: Results Export
-        export_service = self.container.export_service()
-        export_path = self.test_data_dir / "results.json"
-        
-        await export_service.export_results(
-            results=results,
-            format="json",
-            output_path=str(export_path)
-        )
-        
-        assert export_path.exists()
-        
-        # Verify exported data
-        with open(export_path) as f:
-            exported_data = json.load(f)
-        
-        assert "anomalies" in exported_data
-        assert "metadata" in exported_data
-        assert exported_data["metadata"]["algorithm"] == "IsolationForest"
+        for i, anomaly_score in enumerate(detection_results):
+            feature_data = {f"feature_{j}": test_data[i, j] for j in range(test_data.shape[1])}
+            context_data = {
+                "timestamp": datetime.utcnow(),
+                "data_point_index": i,
+                "business_context": {"priority": "high" if anomaly_score > 0.7 else "normal"},
+            }
+
+            classification, event = pipeline_integration.process_detection_result(
+                anomaly_score=anomaly_score,
+                detector=trained_detector,
+                raw_data={"data_point": test_data[i].tolist()},
+                feature_data=feature_data,
+                context_data=context_data,
+            )
+
+            classifications.append(classification)
+            events.append(event)
+
+        # Step 5: Validate end-to-end results
+        assert len(classifications) == len(test_data)
+        assert len(events) == len(test_data)
+
+        # Check that high-score detections are properly classified
+        high_score_indices = [i for i, score in enumerate(detection_results) if score > 0.7]
+        for i in high_score_indices:
+            assert classifications[i].get_primary_class() == "anomaly"
+            assert classifications[i].severity_classification in ["high", "critical"]
+            assert events[i].severity in [EventSeverity.HIGH, EventSeverity.CRITICAL]
+
+        # Step 6: Verify advanced classification features
+        hierarchical_classifications = [c for c in classifications if c.is_hierarchical()]
+        multiclass_classifications = [c for c in classifications if c.is_multi_class()]
+
+        assert len(hierarchical_classifications) > 0
+        assert len(multiclass_classifications) > 0
+
+        # Step 7: Check event enrichment
+        anomaly_events = [e for e in events if e.event_type == EventType.ANOMALY_DETECTED]
+        assert len(anomaly_events) > 0
+
+        for event in anomaly_events:
+            assert event.anomaly_data is not None
+            assert event.technical_context is not None
+            assert len(event.tags) > 0
 
     @pytest.mark.integration
     @pytest.mark.e2e

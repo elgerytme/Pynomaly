@@ -2,10 +2,10 @@
 
 **Auto-Synchronized GitHub Issues List**
 
-**Total Open Issues**: 130  
-**Completed**: 74 (Issue #141 - P1: Infrastructure and API Foundation, Issue #106 - P2: Consolidate Test Configuration and Setup, Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #4 - P2: DevOps & Deployment)  
+**Total Open Issues**: 129  
+**Completed**: 75 (Issue #141 - P1: Infrastructure and API Foundation, Issue #106 - P2: Consolidate Test Configuration and Setup, Issue #126 - P3: Real-time Monitoring and Analytics Dashboard, Issue #136 - P0-Critical: Prepare PyPI Package Release, Issue #132 - P2: Standardize Configuration Management and Reduce Config Sprawl, Issue #130 - P1: Resolve Build System Conflicts (Poetry vs Hatch), Issue #131 - P1: Fix Circular Dependencies Between Packages, Issue #114 - P2: Implement Advanced Web UI Features, Issue #4 - P2: DevOps & Deployment, Issue #7 - P2: Advanced Anomaly Classification)  
 **In Progress**: 1  
-**Pending**: 44  
+**Pending**: 43  
 
 **Last Sync**: July 15, 2025 at 09:30 UTC
 
@@ -607,10 +607,10 @@
 
 **Labels**: P2-Medium  
 **Priority**: 🔶 P2-Medium  
-**Status**: ⏳ PENDING  
+**Status**: ✅ COMPLETED  
 **Category**: 📋 General  
 **Created**: Jul 08, 2025  
-**Updated**: Jul 11, 2025  
+**Updated**: Jul 15, 2025  
 
 - **Scope**: ## Priority: Medium  ### Owner: TBD  ### Estimate: 5 days  ### Dependencies: None  ### Description: Extend anomaly types beyond binary classification to support severity levels and categorical anomali...
 - **GitHub**: [View Issue](https://github.com/elgerytme/Pynomaly/issues/7)
