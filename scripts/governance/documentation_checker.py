@@ -238,6 +238,77 @@ class DocumentationChecker:
         
         return violations
     
+    def check_changelog_format(self) -> List[Dict]:
+        """Check changelog format compliance with Keep a Changelog."""
+        violations = []
+        
+        # Check main repository changelog
+        main_changelog = self.repo_root / "CHANGELOG.md"
+        if main_changelog.exists():
+            changelog_violations = self._validate_changelog_format(main_changelog, "main")
+            violations.extend(changelog_violations)
+        
+        # Check package changelogs
+        if self.packages_dir.exists():
+            for package_path in self.packages_dir.glob("*"):
+                if not package_path.is_dir():
+                    continue
+                    
+                changelog_path = package_path / "CHANGELOG.md"
+                if changelog_path.exists():
+                    package_name = package_path.name
+                    changelog_violations = self._validate_changelog_format(changelog_path, package_name)
+                    violations.extend(changelog_violations)
+        
+        return violations
+    
+    def _validate_changelog_format(self, changelog_path: Path, context: str) -> List[Dict]:
+        """Validate individual changelog format."""
+        violations = []
+        
+        try:
+            content = changelog_path.read_text(encoding='utf-8')
+        except Exception as e:
+            violations.append({
+                "type": "changelog_read_error",
+                "context": context,
+                "error": str(e),
+                "severity": "error"
+            })
+            return violations
+        
+        # Check for Keep a Changelog format requirements
+        required_patterns = {
+            r'# Changelog': "Main title should be '# Changelog'",
+            r'## \[Unreleased\]': "Should have Unreleased section",
+            r'### Added|### Changed|### Deprecated|### Removed|### Fixed|### Security': "Should use standard subsections",
+            r'https://keepachangelog\.com': "Should reference Keep a Changelog"
+        }
+        
+        for pattern, description in required_patterns.items():
+            if not re.search(pattern, content, re.MULTILINE | re.IGNORECASE):
+                violations.append({
+                    "type": "changelog_format_violation",
+                    "context": context,
+                    "missing_pattern": pattern,
+                    "description": description,
+                    "severity": "warning"
+                })
+        
+        # Check for semantic versioning patterns
+        version_pattern = r'## \[(\d+\.\d+\.\d+)\]'
+        versions = re.findall(version_pattern, content)
+        
+        if not versions and context != "main":
+            violations.append({
+                "type": "missing_version_entries",
+                "context": context,
+                "description": "Changelog should have versioned releases",
+                "severity": "info"
+            })
+        
+        return violations
+
     def check_api_documentation(self) -> List[Dict]:
         """Check for API documentation completeness.""" 
         violations = []
@@ -292,6 +363,7 @@ class DocumentationChecker:
         violations.extend(self.check_repository_documentation())
         violations.extend(self.check_package_documentation())
         violations.extend(self.check_documentation_consistency())
+        violations.extend(self.check_changelog_format())
         violations.extend(self.check_api_documentation())
         
         if violations:
@@ -339,6 +411,12 @@ class DocumentationChecker:
             print(f"  • {violation['package']}: Contains placeholder '{violation['placeholder']}'")
         elif violation_type == "low_api_documentation_coverage":
             print(f"  • API documentation coverage: {violation['coverage']} ({violation['documented_files']}/{violation['total_files']})")
+        elif violation_type == "changelog_format_violation":
+            print(f"  • {violation['context']}: {violation['description']}")
+        elif violation_type == "missing_version_entries":
+            print(f"  • {violation['context']}: {violation['description']}")
+        elif violation_type == "changelog_read_error":
+            print(f"  • {violation['context']}: Error reading changelog - {violation['error']}")
         else:
             print(f"  • {violation}")
 

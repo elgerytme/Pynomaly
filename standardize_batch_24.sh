@@ -1,0 +1,8 @@
+gh issue edit 221 --remove-label "priority:high"
+gh issue edit 221 --add-label "P1-High"
+gh issue edit 220 --remove-label "priority:high"
+gh issue edit 220 --add-label "P1-High"
+gh issue edit 218 --remove-label "priority:high"
+gh issue edit 218 --add-label "P1-High"
+gh issue edit 217 --remove-label "priority:high"
+gh issue edit 217 --add-label "P1-High"
