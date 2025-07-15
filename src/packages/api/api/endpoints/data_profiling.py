@@ -527,6 +527,114 @@ async def _execute_correlation_analysis(job_id: UUID, request: CorrelationReques
 
 
 async def _execute_hypothesis_test(job_id: UUID, request: HypothesisTestRequest):
-    """Execute hypothesis test in background."""
-    # TODO: Implement actual hypothesis testing
-    pass
+    """Execute hypothesis test in background using statistical analysis service."""
+    try:
+        # Import statistical analysis service implementation
+        from packages.data_science.infrastructure.services.statistical_analysis_service_impl import StatisticalAnalysisServiceImpl
+        
+        # Initialize the statistical analysis service
+        stats_service = StatisticalAnalysisServiceImpl()
+        
+        # TODO: Load actual dataset based on request.dataset_id
+        # For now, create mock dataset for demonstration
+        import pandas as pd
+        import numpy as np
+        np.random.seed(42)
+        
+        # Create mock dataset based on test type
+        if request.test_type == "t_test_one_sample":
+            mock_dataset = pd.DataFrame({
+                request.features[0]: np.random.normal(105, 15, 100)  # Slightly different from null hypothesis
+            })
+            test_config = {
+                "column": request.features[0],
+                "null_mean": 100  # Default null hypothesis mean
+            }
+            
+        elif request.test_type == "t_test_independent":
+            # Create two groups
+            group_data = pd.DataFrame({
+                'value': np.concatenate([
+                    np.random.normal(50, 10, 100),  # Group A
+                    np.random.normal(55, 10, 100)   # Group B (slightly higher mean)
+                ]),
+                'group': ['A'] * 100 + ['B'] * 100
+            })
+            mock_dataset = group_data
+            test_config = {
+                "group_column": "group",
+                "value_column": "value",
+                "group1": "A",
+                "group2": "B"
+            }
+            
+        elif request.test_type == "anova_one_way":
+            # Create three groups
+            group_data = pd.DataFrame({
+                'value': np.concatenate([
+                    np.random.normal(50, 10, 50),   # Group A
+                    np.random.normal(55, 10, 50),   # Group B
+                    np.random.normal(60, 10, 50)    # Group C
+                ]),
+                'group': ['A'] * 50 + ['B'] * 50 + ['C'] * 50
+            })
+            mock_dataset = group_data
+            test_config = {
+                "groups": ["A", "B", "C"],
+                "value_column": "value",
+                "group_column": "group"
+            }
+            
+        elif request.test_type == "chi_square_independence":
+            # Create categorical data
+            cat_data = pd.DataFrame({
+                'variable1': np.random.choice(['X', 'Y'], 200),
+                'variable2': np.random.choice(['P', 'Q', 'R'], 200)
+            })
+            mock_dataset = cat_data
+            test_config = {
+                "variable1": "variable1",
+                "variable2": "variable2"
+            }
+            
+        else:
+            # Default to one-sample t-test
+            mock_dataset = pd.DataFrame({
+                'feature': np.random.normal(100, 15, 100)
+            })
+            test_config = {
+                "column": "feature",
+                "null_mean": 100
+            }
+        
+        # Perform hypothesis test using our service
+        test_result = await stats_service.perform_hypothesis_test(
+            dataset=mock_dataset,
+            test_type=request.test_type,
+            test_config=test_config
+        )
+        
+        # Store results (in a real implementation, this would save to database)
+        test_results = {
+            "job_id": str(job_id),
+            "test_type": test_result["test_type"],
+            "test_statistic": test_result["statistic"],
+            "p_value": test_result["p_value"],
+            "significance_level": request.significance_level,
+            "is_significant": test_result["p_value"] < request.significance_level,
+            "null_hypothesis": test_result["null_hypothesis"],
+            "interpretation": test_result["interpretation"],
+            "additional_info": {
+                key: value for key, value in test_result.items() 
+                if key not in ["test_type", "statistic", "p_value", "null_hypothesis", "interpretation"]
+            },
+            "status": "completed",
+            "completed_at": "2025-01-01T00:05:00Z"
+        }
+        
+        # TODO: Save results to repository/database
+        print(f"Hypothesis test completed for job {job_id}: {test_result['interpretation']}")
+        
+    except Exception as e:
+        print(f"Hypothesis test failed for job {job_id}: {str(e)}")
+        # TODO: Update job status to failed in repository

@@ -1,5 +1,6 @@
 """Advanced validation engine with comprehensive rule types and execution capabilities."""
 
+import os
 import pandas as pd
 import numpy as np
 from typing import Dict, Any, List, Optional, Union, Callable, Set, Tuple

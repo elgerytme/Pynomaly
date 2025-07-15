@@ -61,6 +61,32 @@ from .redis_cache import (
     get_cache,
     init_cache,
 )
+# Issue #99: Enhanced Redis Caching Implementation
+from .redis_enhanced import (
+    EnhancedRedisCache,
+    CachePerformanceMetrics,
+    CacheCompressionConfig,
+    CacheSecurityConfig,
+    get_enhanced_redis_cache,
+    close_enhanced_redis_cache,
+)
+from .cache_monitoring_dashboard import (
+    CacheMonitoringDashboard,
+    AlertRule,
+    Alert,
+    MetricSnapshot,
+    get_cache_monitoring_dashboard,
+    close_cache_monitoring_dashboard,
+)
+from .redis_issue_99_integration import (
+    RedisCachingConfiguration,
+    EnhancedRedisCachingSystem,
+    get_enhanced_redis_caching_system,
+    close_enhanced_redis_caching_system,
+    enhanced_redis_caching_context,
+    demonstrate_issue_99_completion,
+    validate_issue_99_requirements,
+)
 
 __all__ = [
     # Core cache classes
@@ -119,4 +145,24 @@ __all__ = [
     "get_cache_statistics",
     "perform_cache_maintenance",
     "warm_cache_with_critical_data",
+    # Issue #99: Enhanced Redis Caching Implementation
+    "EnhancedRedisCache",
+    "CachePerformanceMetrics",
+    "CacheCompressionConfig",
+    "CacheSecurityConfig",
+    "get_enhanced_redis_cache",
+    "close_enhanced_redis_cache",
+    "CacheMonitoringDashboard",
+    "AlertRule",
+    "Alert",
+    "MetricSnapshot",
+    "get_cache_monitoring_dashboard",
+    "close_cache_monitoring_dashboard",
+    "RedisCachingConfiguration",
+    "EnhancedRedisCachingSystem",
+    "get_enhanced_redis_caching_system",
+    "close_enhanced_redis_caching_system",
+    "enhanced_redis_caching_context",
+    "demonstrate_issue_99_completion",
+    "validate_issue_99_requirements",
 ]

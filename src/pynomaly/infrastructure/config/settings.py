@@ -8,6 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from .api_settings import APISettings
 from .app_settings import AppSettings
 from .database_settings import DatabaseSettings
+from .explainability_settings import ExplainabilitySettings
 from .ml_settings import MLSettings
 from .monitoring_settings import MonitoringSettings
 from .resilience_settings import ResilienceSettings
@@ -80,6 +81,7 @@ class Settings(BaseSettings):
     monitoring: MonitoringSettings = Field(default_factory=MonitoringSettings)
     resilience: ResilienceSettings = Field(default_factory=ResilienceSettings)
     security: SecuritySettings = Field(default_factory=SecuritySettings)
+    explainability: ExplainabilitySettings = Field(default_factory=ExplainabilitySettings)
 
     @property
     def is_production(self) -> bool:

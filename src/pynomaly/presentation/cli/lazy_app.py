@@ -121,6 +121,7 @@ lazy_commands = [
     ("validate", "pynomaly.presentation.cli.validation", "app"),
     ("migrate", "pynomaly.presentation.cli.migrations", "app"),
     ("profile", "pynomaly.presentation.cli.commands.profiling", "app"),
+    ("quality", "pynomaly.presentation.cli.commands.quality", "app"),
     ("stats", "pynomaly.presentation.cli.commands.stats", "app"),
     ("viz", "pynomaly.presentation.cli.commands.visualization", "app"),
 ]
