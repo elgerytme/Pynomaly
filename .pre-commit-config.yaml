@@ -103,6 +103,14 @@ repos:
         language: system
         files: '^[^/]+$'  # Files in root directory only
         stages: [commit]
+        
+      - id: documentation-completeness
+        name: Documentation Completeness Check
+        entry: python3 scripts/governance/documentation_checker.py
+        language: system
+        pass_filenames: false
+        files: '\.md$'  # Run on markdown files
+        stages: [commit]
 
       # Project structure validation
       - id: validate-structure

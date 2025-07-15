@@ -20,24 +20,49 @@ Enterprise-ready anomaly detection platform with clean architecture, targeting P
 This is a clean, enterprise-ready monorepo containing all Pynomaly packages, applications, and infrastructure organized for maximum modularity and maintainability.
 
 ```
-src/
-├── packages/           # 🔴 Core packages (clean architecture)
-│   ├── core/          # Domain logic & business rules
-│   ├── infrastructure/# Technical infrastructure  
-│   ├── services/      # Application services
-│   ├── api/           # REST API server
-│   ├── cli/           # Command-line interface
-│   ├── web/           # Web UI & dashboard
-│   ├── enterprise/    # Enterprise features
-│   ├── algorithms/    # ML algorithm adapters
-│   ├── sdks/          # Client SDKs
-│   ├── testing/       # Testing utilities
-│   └── tools/         # Development tools
-├── apps/              # 📱 Standalone applications
-├── infrastructure/    # 🔧 Deployment & infrastructure
-├── documentation/     # 📚 All documentation
-├── development_scripts/# 🛠️ Build & utility scripts
-└── integration_tests/ # 🧪 Test suites
+pynomaly/
+├── src/packages/           # 🎯 Core packages (clean architecture)
+│   ├── core/              # Domain logic & business rules  
+│   ├── algorithms/         # ML algorithm adapters
+│   ├── infrastructure/     # Technical infrastructure adapters
+│   ├── services/          # Application services
+│   ├── data_platform/     # Data processing pipeline
+│   ├── mlops/            # ML operations and monitoring
+│   ├── enterprise/       # Enterprise features
+│   ├── interfaces/       # User interfaces (CLI, API, Web)
+│   └── testing/          # Testing utilities
+├── scripts/              # 🛠️ Development & automation scripts
+│   ├── governance/       # Repository organization enforcement
+│   ├── analysis/         # Analysis and debugging tools
+│   └── cleanup/          # Cleanup automation
+├── templates/            # 📋 Standardized templates
+│   └── package/         # Package structure templates
+├── reports/             # 📊 Analysis reports
+│   └── analysis/        # Repository analysis results
+├── deployment/          # 🚀 Deployment configurations
+├── configs/            # ⚙️ Configuration files
+├── docs/               # 📚 Project documentation
+└── tests/              # 🧪 Integration test suites
+```
+
+### 📦 Package Organization
+
+All packages follow **Clean Architecture** principles with standardized structure:
+
+- **Domain Layer** (`core/`): Pure business logic, entities, value objects
+- **Application Layer** (`services/`): Use cases, application services
+- **Infrastructure Layer** (`infrastructure/`, `data_platform/`): External adapters
+- **Interface Layer** (`interfaces/`): CLI, API, Web UI
+
+Each package contains:
+```
+package_name/
+├── package_name/     # Source code
+├── tests/           # Package-specific tests
+├── docs/            # Package documentation
+├── README.md        # Package overview
+├── pyproject.toml   # Package configuration
+└── BUCK            # Build configuration
 ```
 
 ## 🚀 Quick Start
@@ -294,36 +319,34 @@ Pynomaly is designed to work seamlessly across different operating systems and e
 
 ## Quick Start
 
-### Verified Run Scripts
+### Getting Started Commands
 
-All run scripts in `scripts/run/` are tested and working:
+After installation, use these commands to get started:
 
 ```bash
-# CLI Interface
-python scripts/run/cli.py --help                    # Main CLI interface  ✅
-python scripts/run/run_pynomaly.py --help          # Alternative CLI entry  ✅
-python scripts/run/run_cli.py --help               # Streamlined CLI  ✅
+# Core functionality
+pynomaly --help                    # Main CLI interface
+pynomaly version                   # Show version information
+pynomaly status                    # System status check
 
-# API Server
-python scripts/run/run_api.py --help               # FastAPI server  ✅
-python scripts/run/run_api.py --port 8080          # Run on custom port
-python scripts/run/run_api.py --reload             # Development mode
+# Dataset operations
+pynomaly dataset list              # List available datasets
+pynomaly dataset create            # Create new dataset
+pynomaly dataset analyze           # Analyze dataset properties
 
-# Web Application
-python scripts/run/run_app.py --help               # Complete app runner  ✅
-python scripts/run/run_app.py --mode api           # API only
-python scripts/run/run_app.py --mode cli detect    # CLI mode
+# Detector operations
+pynomaly detector list             # List available detectors
+pynomaly detector create           # Create new detector
+pynomaly detector detect           # Run anomaly detection
 
-# Web UI
-python scripts/run/run_web_app.py --help           # Combined web app  ✅
-python scripts/run/run_web_ui.py --help            # UI server only  ✅
-python scripts/run/run_web_ui.py --dev             # Development mode
+# Web interface (if installed with [server])
+pynomaly server start --port 8000 # Start web server
+# Then visit: http://localhost:8000
 
-# Legacy CLI (Full-featured)
-python scripts/run/pynomaly_cli.py help            # Comprehensive CLI tools  ✅
+# API server (if installed with [server])
+pynomaly api start --reload       # Start API with auto-reload
+# API docs: http://localhost:8000/docs
 ```
-
-**Status**: All scripts tested and verified working in both current and fresh environments.
 
 ### CLI Usage
 
@@ -570,9 +593,30 @@ source environments/.venv/bin/activate  # Linux/macOS
 # Install development dependencies
 pip install -e ".[dev,test]"
 
-# Install pre-commit hooks (optional)
-pip install pre-commit
+# Install pre-commit hooks for code quality
 pre-commit install
+
+# Verify setup
+python -c "import pynomaly; print('Setup successful')"
+```
+
+#### Repository Organization
+
+The repository includes automated governance to maintain organization:
+
+```bash
+# Run structure validation
+python3 scripts/governance/package_structure_enforcer.py
+
+# Check for build artifacts
+python3 scripts/governance/build_artifacts_checker.py
+
+# Validate root directory organization  
+python3 scripts/governance/root_directory_checker.py
+
+# Auto-fix common issues
+python3 scripts/governance/package_structure_enforcer.py --fix
+python3 scripts/governance/root_directory_checker.py --fix
 ```
 
 #### Code Quality & Testing
