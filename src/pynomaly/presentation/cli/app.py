@@ -59,17 +59,21 @@ else:
         from pynomaly.presentation.cli.security_typer import app as security_app
         from pynomaly.presentation.cli.dashboard_typer import app as dashboard_app
         from pynomaly.presentation.cli.governance_typer import app as governance_app
+        from pynomaly.presentation.cli.video_tutorial_cli import app as video_tutorial_app
 
         SECURITY_CLI_AVAILABLE = True
         DASHBOARD_CLI_AVAILABLE = True
         GOVERNANCE_CLI_AVAILABLE = True
+        VIDEO_TUTORIAL_CLI_AVAILABLE = True
     except ImportError:
         security_app = None
         dashboard_app = None
         governance_app = None
+        video_tutorial_app = None
         SECURITY_CLI_AVAILABLE = False
         DASHBOARD_CLI_AVAILABLE = False
         GOVERNANCE_CLI_AVAILABLE = False
+        VIDEO_TUTORIAL_CLI_AVAILABLE = False
 
     # Create Typer app
     app = typer.Typer(
@@ -153,6 +157,13 @@ else:
             governance_app,
             name="governance",
             help="🏛️ Governance framework and audit management",
+        )
+    
+    if VIDEO_TUTORIAL_CLI_AVAILABLE:
+        app.add_typer(
+            video_tutorial_app,
+            name="tutorial",
+            help="🎬 Video tutorial management and learning tools",
         )
 
 from pynomaly.presentation.cli.container import get_cli_container
