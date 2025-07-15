@@ -82,6 +82,28 @@ repos:
   # Local hooks for project-specific validations
   - repo: local
     hooks:
+      # Repository organization enforcement
+      - id: package-structure-check
+        name: Package Structure Validation
+        entry: python3 scripts/governance/package_structure_enforcer.py
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        
+      - id: no-build-artifacts
+        name: Prevent Build Artifacts Commit
+        entry: python3 scripts/governance/build_artifacts_checker.py
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        
+      - id: root-directory-organization
+        name: Root Directory Organization Check
+        entry: python3 scripts/governance/root_directory_checker.py
+        language: system
+        files: '^[^/]+$'  # Files in root directory only
+        stages: [commit]
+
       # Project structure validation
       - id: validate-structure
         name: Validate Project Structure
