@@ -393,6 +393,27 @@ app.include_router(
     dependencies=[Depends(get_current_user_token)],
 )
 
+# Include data profiling router
+from .endpoints import data_profiling
+app.include_router(
+    data_profiling.router,
+    dependencies=[Depends(get_current_user_token)]
+)
+
+# Include data quality router
+from .endpoints import data_quality
+app.include_router(
+    data_quality.router,
+    dependencies=[Depends(get_current_user_token)]
+)
+
+# Include ML pipelines router
+from .endpoints import ml_pipelines
+app.include_router(
+    ml_pipelines.router,
+    dependencies=[Depends(get_current_user_token)]
+)
+
 # Include WAF management router
 app.include_router(
     waf_management.router, dependencies=[Depends(get_current_user_token)]

@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Dict, List, Any
 from unittest.mock import AsyncMock, MagicMock
 
-from tests.integration.integration_test_base import IntegrationTestBase
+from tests.integration.framework.integration_test_base import IntegrationTestBase
 from tests.common.test_data_generator import TestDataGenerator
 
 
