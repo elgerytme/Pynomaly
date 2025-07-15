@@ -1,0 +1,31 @@
+# <type>: <subject>
+#
+# <body>
+#
+# <footer>
+
+# Type should be one of:
+# feat: A new feature
+# fix: A bug fix
+# docs: Documentation only changes
+# style: Changes that do not affect the meaning of the code
+# refactor: A code change that neither fixes a bug nor adds a feature
+# perf: A code change that improves performance
+# test: Adding missing tests or correcting existing tests
+# chore: Changes to the build process or auxiliary tools
+# ci: Changes to CI configuration files and scripts
+# revert: Reverts a previous commit
+
+# Subject line:
+# - Use imperative mood ("Add feature" not "Added feature")
+# - No period at the end
+# - Max 50 characters
+
+# Body (optional):
+# - Separate with blank line from subject
+# - Wrap at 72 characters
+# - Explain what and why, not how
+
+# Footer (optional):
+# - Reference issues: "Fixes #123" or "Closes #456"
+# - Breaking changes: "BREAKING CHANGE: description"

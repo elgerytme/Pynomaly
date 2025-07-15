@@ -132,18 +132,48 @@ class SecurityMonitoringService:
         # Traffic analysis
         self.traffic_analyzer = TrafficAnalyzer()
 
-        # Start background tasks
-        self.start_monitoring_tasks()
+        # Background tasks will be started later when event loop is available
+        self._tasks_started = False
+        self._background_tasks = []
 
     def start_monitoring_tasks(self):
-        """Start background monitoring tasks"""
+        """Start background monitoring tasks if event loop is available"""
+        if self._tasks_started:
+            return
+            
         try:
-            asyncio.create_task(self._collect_metrics_task())
-            asyncio.create_task(self._analyze_threats_task())
-            asyncio.create_task(self._cleanup_old_data_task())
+            loop = asyncio.get_running_loop()
+            self._background_tasks.append(loop.create_task(self._collect_metrics_task()))
+            self._background_tasks.append(loop.create_task(self._analyze_threats_task()))
+            self._background_tasks.append(loop.create_task(self._cleanup_old_data_task()))
+            self._tasks_started = True
         except RuntimeError:
-            # No event loop running
+            # No event loop running, tasks will be started later
             pass
+    
+    async def ensure_tasks_started(self):
+        """Ensure background tasks are started (call from async context)"""
+        if not self._tasks_started:
+            try:
+                self._background_tasks.append(asyncio.create_task(self._collect_metrics_task()))
+                self._background_tasks.append(asyncio.create_task(self._analyze_threats_task()))
+                self._background_tasks.append(asyncio.create_task(self._cleanup_old_data_task()))
+                self._tasks_started = True
+            except RuntimeError:
+                # Still no event loop, skip for now
+                pass
+    
+    async def stop_monitoring_tasks(self):
+        """Stop background monitoring tasks"""
+        for task in self._background_tasks:
+            if not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
+        self._background_tasks.clear()
+        self._tasks_started = False
 
     async def _collect_metrics_task(self):
         """Background task to collect security metrics"""

@@ -85,6 +85,52 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         """Check if running in production mode."""
         return self.app.is_production
+    
+    # Compatibility properties for CLI flat attribute access
+    @property
+    def app_name(self) -> str:
+        """Get application name."""
+        return self.app.name
+    
+    @property
+    def version(self) -> str:
+        """Get application version."""
+        return self.app.version
+    
+    @property
+    def debug(self) -> bool:
+        """Get debug mode."""
+        return self.app.debug
+    
+    @property
+    def storage_path(self) -> str:
+        """Get storage path."""
+        return str(self.storage.storage_path)
+    
+    @property
+    def api_host(self) -> str:
+        """Get API host."""
+        return self.api.api_host
+    
+    @property
+    def api_port(self) -> int:
+        """Get API port."""
+        return self.api.api_port
+    
+    @property
+    def max_dataset_size_mb(self) -> int:
+        """Get max dataset size in MB."""
+        return self.ml.max_dataset_size_mb
+    
+    @property
+    def default_contamination_rate(self) -> float:
+        """Get default contamination rate."""
+        return self.ml.default_contamination_rate
+    
+    @property
+    def gpu_enabled(self) -> bool:
+        """Get GPU enabled status."""
+        return self.ml.gpu_enabled
 
     def get_database_config(self):
         """Get database configuration."""
