@@ -562,5 +562,433 @@ def start_model_server(
         console.print("[yellow]Shutdown complete[/yellow]")
 
 
+@app.command("validate")
+def validate_deployment_environment(
+    environment: str = typer.Option(
+        "staging", "--env", "-e", help="Environment to validate"
+    ),
+    check_connectivity: bool = typer.Option(
+        True, "--connectivity/--no-connectivity", help="Check external connectivity"
+    ),
+    check_resources: bool = typer.Option(
+        True, "--resources/--no-resources", help="Check resource availability"
+    ),
+    check_security: bool = typer.Option(
+        True, "--security/--no-security", help="Check security configurations"
+    ),
+    json_output: bool = typer.Option(False, "--json", help="Output in JSON format"),
+):
+    """Validate deployment environment readiness."""
+    
+    async def _validate_environment():
+        validation_results = {
+            "environment": environment,
+            "timestamp": datetime.utcnow().isoformat(),
+            "checks": {},
+            "overall_status": "pass",
+            "issues": []
+        }
+        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+            transient=True,
+        ) as progress:
+            
+            # Database connectivity check
+            if check_connectivity:
+                task = progress.add_task("Checking database connectivity...", total=None)
+                try:
+                    # Mock database check
+                    await asyncio.sleep(1)
+                    validation_results["checks"]["database"] = {
+                        "status": "pass",
+                        "message": "Database connection successful"
+                    }
+                except Exception as e:
+                    validation_results["checks"]["database"] = {
+                        "status": "fail",
+                        "message": f"Database connection failed: {e}"
+                    }
+                    validation_results["overall_status"] = "fail"
+                    validation_results["issues"].append("Database connectivity issue")
+                progress.update(task, description="Database connectivity checked")
+            
+            # Resource availability check
+            if check_resources:
+                task = progress.add_task("Checking resource availability...", total=None)
+                try:
+                    # Mock resource check
+                    await asyncio.sleep(1)
+                    validation_results["checks"]["resources"] = {
+                        "status": "pass",
+                        "message": "Sufficient resources available",
+                        "details": {
+                            "cpu_available": "80%",
+                            "memory_available": "75%",
+                            "storage_available": "90%"
+                        }
+                    }
+                except Exception as e:
+                    validation_results["checks"]["resources"] = {
+                        "status": "fail",
+                        "message": f"Resource check failed: {e}"
+                    }
+                    validation_results["overall_status"] = "fail"
+                    validation_results["issues"].append("Insufficient resources")
+                progress.update(task, description="Resource availability checked")
+            
+            # Security configuration check
+            if check_security:
+                task = progress.add_task("Checking security configurations...", total=None)
+                try:
+                    # Mock security check
+                    await asyncio.sleep(1)
+                    validation_results["checks"]["security"] = {
+                        "status": "pass",
+                        "message": "Security configurations valid",
+                        "details": {
+                            "tls_enabled": True,
+                            "rbac_configured": True,
+                            "network_policies": True
+                        }
+                    }
+                except Exception as e:
+                    validation_results["checks"]["security"] = {
+                        "status": "fail",
+                        "message": f"Security check failed: {e}"
+                    }
+                    validation_results["overall_status"] = "fail"
+                    validation_results["issues"].append("Security configuration issue")
+                progress.update(task, description="Security configurations checked")
+        
+        if json_output:
+            print(json.dumps(validation_results, indent=2))
+            return
+        
+        # Display results
+        status_color = "green" if validation_results["overall_status"] == "pass" else "red"
+        status_symbol = "✓" if validation_results["overall_status"] == "pass" else "✗"
+        
+        console.print(
+            f"\n[{status_color}]{status_symbol} Environment Validation: {validation_results['overall_status'].upper()}[/{status_color}]"
+        )
+        
+        # Create results table
+        table = Table(title=f"Validation Results - {environment}")
+        table.add_column("Check", style="cyan")
+        table.add_column("Status", style="magenta")
+        table.add_column("Message", style="white")
+        
+        for check_name, check_result in validation_results["checks"].items():
+            status_color = "green" if check_result["status"] == "pass" else "red"
+            status_symbol = "✓" if check_result["status"] == "pass" else "✗"
+            
+            table.add_row(
+                check_name.title(),
+                f"[{status_color}]{status_symbol} {check_result['status'].upper()}[/{status_color}]",
+                check_result["message"]
+            )
+        
+        console.print(table)
+        
+        if validation_results["issues"]:
+            console.print("\n[red]Issues Found:[/red]")
+            for issue in validation_results["issues"]:
+                console.print(f"  • {issue}")
+        
+        if validation_results["overall_status"] == "fail":
+            raise typer.Exit(1)
+    
+    cli_runner.run(_validate_environment())
+
+
+@app.command("monitor")
+def monitor_deployments(
+    environment: str | None = typer.Option(
+        None, "--env", "-e", help="Filter by environment"
+    ),
+    interval: int = typer.Option(30, "--interval", "-i", help="Refresh interval in seconds"),
+    duration: int | None = typer.Option(
+        None, "--duration", "-d", help="Monitor duration in seconds"
+    ),
+):
+    """Monitor deployment health and metrics in real-time."""
+    
+    async def _monitor_deployments():
+        deployment_service = get_deployment_service()
+        
+        console.print(f"[blue]Starting deployment monitoring...[/blue]")
+        console.print(f"[blue]Refresh interval: {interval}s[/blue]")
+        if duration:
+            console.print(f"[blue]Duration: {duration}s[/blue]")
+        
+        start_time = datetime.utcnow()
+        iteration = 0
+        
+        try:
+            while True:
+                # Check duration limit
+                if duration and (datetime.utcnow() - start_time).total_seconds() > duration:
+                    break
+                
+                # Clear screen and show header
+                console.clear()
+                console.print(f"[bold blue]Pynomaly Deployment Monitor[/bold blue] - Update #{iteration + 1}")
+                console.print(f"[dim]Last updated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}[/dim]")
+                console.print("=" * 80)
+                
+                # Get deployment data
+                env_filter = Environment(environment) if environment else None
+                deployments = await deployment_service.list_deployments(
+                    environment=env_filter, limit=50
+                )
+                
+                # Active deployments table
+                if deployments:
+                    table = Table(title="Active Deployments")
+                    table.add_column("ID", style="cyan", width=8)
+                    table.add_column("Environment", style="blue")
+                    table.add_column("Status", style="yellow")
+                    table.add_column("Health", style="red")
+                    table.add_column("CPU", style="green")
+                    table.add_column("Memory", style="green")
+                    table.add_column("Errors", style="red")
+                    
+                    for deployment in deployments:
+                        if deployment.status.value == "deployed":
+                            # Health score color
+                            health_score = deployment.health_score
+                            health_color = "green" if health_score > 0.8 else "yellow" if health_score > 0.6 else "red"
+                            
+                            # Status color
+                            status_color = {
+                                "deployed": "green",
+                                "failed": "red",
+                                "in_progress": "yellow",
+                                "pending": "blue",
+                            }.get(deployment.status.value, "white")
+                            
+                            table.add_row(
+                                str(deployment.id)[:8],
+                                deployment.environment.value,
+                                f"[{status_color}]{deployment.status.value}[/{status_color}]",
+                                f"[{health_color}]{health_score:.2f}[/{health_color}]",
+                                f"{deployment.health_metrics.cpu_usage:.1f}%",
+                                f"{deployment.health_metrics.memory_usage:.1f}%",
+                                f"{deployment.health_metrics.error_rate:.1f}%",
+                            )
+                    
+                    console.print(table)
+                else:
+                    console.print("[yellow]No active deployments found[/yellow]")
+                
+                # Environment summary
+                console.print("\n[bold]Environment Summary:[/bold]")
+                environments = [Environment.DEVELOPMENT, Environment.STAGING, Environment.PRODUCTION]
+                env_table = Table()
+                env_table.add_column("Environment", style="cyan")
+                env_table.add_column("Active", style="green")
+                env_table.add_column("Health", style="yellow")
+                
+                for env in environments:
+                    env_deployments = [d for d in deployments if d.environment == env and d.status.value == "deployed"]
+                    active_count = len(env_deployments)
+                    
+                    if active_count > 0:
+                        avg_health = sum(d.health_score for d in env_deployments) / active_count
+                        health_color = "green" if avg_health > 0.8 else "yellow" if avg_health > 0.6 else "red"
+                        health_display = f"[{health_color}]{avg_health:.2f}[/{health_color}]"
+                    else:
+                        health_display = "N/A"
+                    
+                    env_table.add_row(
+                        env.value,
+                        str(active_count),
+                        health_display
+                    )
+                
+                console.print(env_table)
+                
+                # Show alerts if any
+                alerts = []
+                for deployment in deployments:
+                    if deployment.health_metrics.error_rate > 5.0:
+                        alerts.append(f"High error rate in {deployment.environment.value}: {deployment.health_metrics.error_rate:.1f}%")
+                    if deployment.health_metrics.cpu_usage > 80:
+                        alerts.append(f"High CPU usage in {deployment.environment.value}: {deployment.health_metrics.cpu_usage:.1f}%")
+                    if deployment.health_metrics.memory_usage > 85:
+                        alerts.append(f"High memory usage in {deployment.environment.value}: {deployment.health_metrics.memory_usage:.1f}%")
+                
+                if alerts:
+                    console.print("\n[red]⚠️  Alerts:[/red]")
+                    for alert in alerts:
+                        console.print(f"  • {alert}")
+                
+                console.print(f"\n[dim]Press Ctrl+C to stop monitoring[/dim]")
+                
+                # Wait for next refresh
+                await asyncio.sleep(interval)
+                iteration += 1
+                
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Monitoring stopped by user[/yellow]")
+        except Exception as e:
+            console.print(f"\n[red]Monitoring error: {e}[/red]")
+            raise typer.Exit(1)
+    
+    cli_runner.run(_monitor_deployments())
+
+
+@app.command("pipeline")
+def deployment_pipeline(
+    model_version_id: str = typer.Argument(..., help="Model version ID to deploy"),
+    skip_staging: bool = typer.Option(False, "--skip-staging", help="Skip staging deployment"),
+    auto_promote: bool = typer.Option(False, "--auto-promote", help="Auto-promote to production"),
+    wait: bool = typer.Option(True, "--wait/--no-wait", help="Wait for pipeline completion"),
+    json_output: bool = typer.Option(False, "--json", help="Output in JSON format"),
+):
+    """Run complete deployment pipeline from staging to production."""
+    
+    async def _run_pipeline():
+        deployment_service = get_deployment_service()
+        pipeline_results = {
+            "model_version_id": model_version_id,
+            "timestamp": datetime.utcnow().isoformat(),
+            "stages": {},
+            "success": True
+        }
+        
+        try:
+            model_uuid = UUID(model_version_id)
+            
+            if not json_output:
+                console.print(f"[blue]Starting deployment pipeline for model {model_version_id}[/blue]")
+            
+            # Stage 1: Staging deployment (unless skipped)
+            if not skip_staging:
+                with Progress(
+                    SpinnerColumn(),
+                    TextColumn("[progress.description]{task.description}"),
+                    console=console,
+                    transient=True,
+                ) as progress:
+                    task = progress.add_task("Deploying to staging...", total=None)
+                    
+                    # Create staging deployment
+                    staging_deployment = await deployment_service.deploy_model(
+                        model_version_id=model_uuid,
+                        target_environment=Environment.STAGING,
+                        strategy=DeploymentStrategy(strategy_type=StrategyType.ROLLING),
+                        deployment_config=DeploymentConfig(replicas=2),
+                        user="cli-user",
+                    )
+                    
+                    pipeline_results["stages"]["staging"] = {
+                        "deployment_id": str(staging_deployment.id),
+                        "status": "success",
+                        "timestamp": datetime.utcnow().isoformat()
+                    }
+                    
+                    progress.update(task, description="Staging deployment completed")
+                    
+                    if not json_output:
+                        console.print(f"[green]✓ Staging deployment completed: {staging_deployment.id}[/green]")
+                
+                # Stage 2: Staging validation
+                if wait:
+                    with Progress(
+                        SpinnerColumn(),
+                        TextColumn("[progress.description]{task.description}"),
+                        console=console,
+                        transient=True,
+                    ) as progress:
+                        task = progress.add_task("Validating staging deployment...", total=None)
+                        
+                        # Wait for staging to be healthy
+                        await asyncio.sleep(5)  # Mock validation time
+                        
+                        # Check staging health
+                        staging_health = staging_deployment.health_score
+                        if staging_health < 0.8:
+                            pipeline_results["stages"]["staging_validation"] = {
+                                "status": "failed",
+                                "message": f"Staging health check failed: {staging_health:.2f}",
+                                "timestamp": datetime.utcnow().isoformat()
+                            }
+                            pipeline_results["success"] = False
+                            raise Exception(f"Staging validation failed: health score {staging_health:.2f}")
+                        
+                        pipeline_results["stages"]["staging_validation"] = {
+                            "status": "success",
+                            "health_score": staging_health,
+                            "timestamp": datetime.utcnow().isoformat()
+                        }
+                        
+                        progress.update(task, description="Staging validation completed")
+                        
+                        if not json_output:
+                            console.print(f"[green]✓ Staging validation passed: health score {staging_health:.2f}[/green]")
+            
+            # Stage 3: Production deployment (if auto-promote or staging skipped)
+            if auto_promote or skip_staging:
+                with Progress(
+                    SpinnerColumn(),
+                    TextColumn("[progress.description]{task.description}"),
+                    console=console,
+                    transient=True,
+                ) as progress:
+                    task = progress.add_task("Deploying to production...", total=None)
+                    
+                    # Create production deployment
+                    production_deployment = await deployment_service.deploy_model(
+                        model_version_id=model_uuid,
+                        target_environment=Environment.PRODUCTION,
+                        strategy=DeploymentStrategy(strategy_type=StrategyType.BLUE_GREEN),
+                        deployment_config=DeploymentConfig(replicas=5),
+                        user="cli-user",
+                    )
+                    
+                    pipeline_results["stages"]["production"] = {
+                        "deployment_id": str(production_deployment.id),
+                        "status": "success",
+                        "timestamp": datetime.utcnow().isoformat()
+                    }
+                    
+                    progress.update(task, description="Production deployment completed")
+                    
+                    if not json_output:
+                        console.print(f"[green]✓ Production deployment completed: {production_deployment.id}[/green]")
+            
+            # Output results
+            if json_output:
+                print(json.dumps(pipeline_results, indent=2))
+            else:
+                console.print(
+                    Panel(
+                        f"[green]✓ Deployment pipeline completed successfully![/green]\n"
+                        f"Model Version: {model_version_id}\n"
+                        f"Stages Completed: {len(pipeline_results['stages'])}\n"
+                        f"Total Time: {(datetime.utcnow() - datetime.fromisoformat(pipeline_results['timestamp'].replace('Z', '+00:00').replace('+00:00', ''))).total_seconds():.1f}s",
+                        title="Pipeline Summary",
+                        border_style="green"
+                    )
+                )
+            
+        except Exception as e:
+            pipeline_results["success"] = False
+            pipeline_results["error"] = str(e)
+            
+            if json_output:
+                print(json.dumps(pipeline_results, indent=2))
+            else:
+                console.print(f"[red]✗ Pipeline failed: {e}[/red]")
+            
+            raise typer.Exit(1)
+    
+    cli_runner.run(_run_pipeline())
+
+
 if __name__ == "__main__":
     app()

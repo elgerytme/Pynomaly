@@ -13,11 +13,8 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from pynomaly.presentation.cli.ux_improvements import CLIHelpers
-
 app = typer.Typer(help="🏥 Health check and dependency validation commands")
 console = Console()
-cli_helpers = CLIHelpers()
 
 
 @app.command()
@@ -43,7 +40,8 @@ def dependencies(
 ) -> None:
     """Validate Pynomaly dependencies and installation health."""
     
-    cli_helpers.print_header("Pynomaly Health Check", "🏥")
+    console.print("🏥 [bold blue]Pynomaly Health Check[/bold blue]", style="bold")
+    console.print("=" * 50)
     
     # Find and run the validation script
     script_path = Path(__file__).parent.parent.parent.parent.parent / "scripts" / "validate_dependencies.py"
@@ -106,7 +104,8 @@ def system(
 ) -> None:
     """Check system compatibility and environment."""
     
-    cli_helpers.print_header("System Health Check", "🖥️")
+    console.print("🖥️ [bold blue]System Health Check[/bold blue]", style="bold")
+    console.print("=" * 50)
     
     # Create system info table
     table = Table(title="System Information")
@@ -177,7 +176,8 @@ def connectivity(
 ) -> None:
     """Check network connectivity for package installation."""
     
-    cli_helpers.print_header("Connectivity Health Check", "🌐")
+    console.print("🌐 [bold blue]Connectivity Health Check[/bold blue]", style="bold")
+    console.print("=" * 50)
     
     # Test connections to package repositories
     test_urls = [
@@ -253,7 +253,8 @@ def full(
 ) -> None:
     """Run complete health check (system + dependencies + connectivity)."""
     
-    cli_helpers.print_header("Complete Pynomaly Health Check", "🔬")
+    console.print("🔬 [bold blue]Complete Pynomaly Health Check[/bold blue]", style="bold")
+    console.print("=" * 50)
     
     all_passed = True
     

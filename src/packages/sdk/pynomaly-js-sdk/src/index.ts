@@ -22,6 +22,9 @@ export { Environment } from './utils/environment';
 export { StorageFactory, TimerUtils, CryptoUtils, HTTPUtils, EventUtils, CompatibilityChecker } from './utils/compatibility';
 export { setupPolyfills, checkPolyfillsNeeded } from './utils/polyfills';
 
+// Framework integration exports
+export * as Frameworks from './frameworks';
+
 // Type exports
 export type * from './types';
 
