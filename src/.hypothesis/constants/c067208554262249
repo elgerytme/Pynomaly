@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\security\threat_detection_config.py
-# hypothesis_version: 6.135.26
-
-[0.1, 0.6, 0.7, 0.8, 1.0, 100.0, 10000.0, 100, 300, 500, 1000, 2000, 3600, 10000, 86400, 100000, 'Cleanup interval', 'Feed update interval', 'advanced_behavior', 'alert_threshold', 'anomalous_access', 'anomaly_threshold', 'auto_mitigation', 'block_duration', 'brute_force', 'burp', 'confidence_threshold', 'config', 'data_exfiltration', 'detector_settings', 'dirb', 'dirbuster', 'enabled', 'ffuf', 'global_config', 'gobuster', 'injection_attack', 'learning_period_days', 'masscan', 'max_attempts', 'nikto', 'nmap', 'nuclei', 'priority', 'size_threshold_mb', 'sqlmap', 'threat_intelligence', 'time_window', 'time_window_seconds', 'update_interval', 'w3af', 'wpscan', 'zap']

@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\distributed\cluster_coordinator.py
-# hypothesis_version: 6.135.26
-
-['coordinator', 'degraded', 'healthy', 'metrics', 'nodes', 'observer', 'offline', 'status', 'unhealthy', 'worker']

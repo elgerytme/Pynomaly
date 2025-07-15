@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\auth\jwt_auth.py
-# hypothesis_version: 6.135.26
-
-['Admin User', 'Invalid API key', 'Invalid token type', 'Token has expired', 'User already exists', 'User not found', 'access', 'admin', 'admin123', 'admin@pynomaly.io', 'auto', 'bcrypt', 'bearer', 'datasets:delete', 'datasets:read', 'datasets:write', 'detectors:delete', 'detectors:read', 'detectors:write', 'dev-api-key-123', 'development', 'exp', 'experiments:delete', 'experiments:read', 'experiments:write', 'refresh', 'rotated_key', 'settings:read', 'settings:write', 'type', 'user', 'users:delete', 'users:read', 'users:write', 'viewer']

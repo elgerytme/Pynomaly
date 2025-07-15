@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\data_loaders\parquet_loader.py
-# hypothesis_version: 6.135.26
-
-[1024, '.parquet', '.pq', 'ParquetLoader', 'batch_index', 'batch_size', 'columns', 'compressed_size', 'compression', 'created_by', 'double', 'error', 'estimated_memory_mb', 'fastparquet', 'file_size_mb', 'float', 'format_version', 'int', 'is_batch', 'loader', 'num_columns', 'num_row_groups', 'num_rows', 'numeric_columns', 'parquet', 'pq', 'pyarrow', 'row_group', 'row_groups', 'rows_read', 'schema', 'source', 'target_column', 'total_byte_size', 'total_rows']

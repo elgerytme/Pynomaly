@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\entities\lineage_record.py
-# hypothesis_version: 6.135.26
-
-['Additional metadata', 'Algorithm used', 'Artifact identifier', 'Artifact metadata', 'Artifact name', 'Artifact version', 'Creation timestamp', 'Edge metadata', 'Filter by creator', 'Filter by tags', 'Graph edges', 'Lineage tags', 'Model identifier', 'Model name', 'Model version', 'Node metadata', 'Relationship type', 'Transformation type', 'custom', 'data_augmentation', 'derived_from', 'distillation', 'distilled_from', 'ensemble', 'ensemble_of', 'feature_engineering', 'federated_from', 'federated_learning', 'fine_tuned_from', 'fine_tuning', 'merged_from', 'model_merging', 'pruned_from', 'pruning', 'quantization', 'quantized_from', 'retrained_from', 'training', 'transfer_learning']

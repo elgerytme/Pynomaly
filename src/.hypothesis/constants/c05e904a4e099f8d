@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\__init__.py
-# hypothesis_version: 6.135.26
-
-['Anomaly', 'AnomalyScore', 'ConfidenceInterval', 'ContaminationRate', 'Dataset', 'DetectionResult', 'Detector']

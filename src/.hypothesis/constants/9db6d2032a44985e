@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\entities\detection_result.py
-# hypothesis_version: 6.135.26
-
-[0.0, 0.95, 'anomaly_rate', 'ci_lower', 'ci_upper', 'ci_width', 'dataset_id', 'detector_id', 'execution_time_ms', 'id', 'label', 'lower', 'max', 'mean', 'median', 'metadata', 'min', 'n_anomalies', 'n_samples', 'q25', 'q75', 'score', 'score_statistics', 'std', 'threshold', 'timestamp', 'upper']

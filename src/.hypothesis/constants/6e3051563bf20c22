@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\security\rbac_service.py
-# hypothesis_version: 6.135.26
-
-[100, 100000, 'Account inactive', 'Account locked', 'CRITICAL', 'HS256', 'INFO', 'IP not allowed', 'Invalid JWT token', 'Invalid password', 'JWT token expired', 'Requester not found', 'User not found', 'WARNING', 'access_request', 'access_requests', 'action', 'active', 'approval_comments', 'approved', 'authentication', 'average_per_user', 'exp', 'expiry', 'granted', 'iat', 'justification', 'locked', 'locked_percentage', 'pending', 'permission', 'reason', 'rejected', 'requested', 'requester', 'revoked', 'role', 'roles', 'security', 'session', 'session_id', 'sessions', 'status', 'target_user', 'total', 'user', 'user_id', 'username', 'users']

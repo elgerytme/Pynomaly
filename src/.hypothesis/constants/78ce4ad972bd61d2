@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\app.py
-# hypothesis_version: 6.135.26
-
-['/', '/api/v1', '/api/v1/admin', '/api/v1/auth', '/api/v1/automl', '/api/v1/autonomous', '/api/v1/datasets', '/api/v1/detection', '/api/v1/detectors', '/api/v1/docs', '/api/v1/ensemble', '/api/v1/experiments', '/api/v1/health', '/api/v1/openapi.json', '/api/v1/performance', '/api/v1/redoc', '/api/v1/version', '/metrics', 'MIT', 'Pynomaly API', 'Pynomaly Team', 'Shutting down...', 'administration', 'api_version', 'authentication', 'automl', 'autonomous', 'datasets', 'detection', 'detectors', 'docs', 'documentation', 'email', 'enhanced_automl', 'ensemble', 'events', 'experiments', 'explainability', 'export', 'health', 'http', 'message', 'model_lineage', 'name', 'performance', 'streaming', 'team@pynomaly.io', 'url', 'user_management', 'v1', 'version', 'version_info']

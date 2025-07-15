@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\performance\query_optimizer.py
-# hypothesis_version: 6.135.26
-
-[0.0, 0.1, 500, 1000, 1024, 3600, 10000, 'agg', 'aggregate', 'ascending', 'avg_time_ms', 'by', 'cache_size', 'cache_stats', 'cached', 'cached_at', 'category', 'columns', 'conditions', 'end', 'evictions', 'execution_count', 'execution_time_ms', 'expires_at', 'filter', 'filter_reordering', 'float', 'float64', 'groupby', 'hit_rate', 'hits', 'how', 'inf', 'inner', 'int64', 'integer', 'join', 'memory_usage_bytes', 'memory_usage_mb', 'message', 'misses', 'object', 'on', 'operation', 'operation_counts', 'optimization_counts', 'query_hash', 'query_method', 'result', 'right', 'select', 'sort', 'start', 'time_range', 'timestamp', 'total_queries', 'total_time_ms']

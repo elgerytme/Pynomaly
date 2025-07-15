@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\application\use_cases\train_detector.py
-# hypothesis_version: 6.135.26
-
-[0.0, 1000, 'best_parameters', 'constant_features', 'dataset_summary', 'features_count', 'issues', 'missing_values', 'numeric_features', 'quality_score', 'training', 'training_samples', 'training_time', 'validation_results', 'validation_score']

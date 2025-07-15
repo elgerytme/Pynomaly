@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\application\services\ensemble_service.py
-# hypothesis_version: 6.135.26
-
-[0.0, 0.25, 0.5, 0.75, 1.0, 'aggregation_method', 'agreement_rate', 'agrees_with_ensemble', 'average', 'average_correlation', 'consensus', 'correlation_matrix', 'detector_opinions', 'detector_rankings', 'disagreement', 'ensemble_label', 'ensemble_score', 'ensemble_size', 'f1', 'find_by_id', 'label', 'majority', 'max', 'mean', 'min', 'precision', 'recall', 'score', 'std']

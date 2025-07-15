@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\application\use_cases\detect_anomalies.py
-# hypothesis_version: 6.135.26
-
-[0.0, 0.8, 1000, 'algorithm', 'dataset_name', 'detect', 'detection', 'execution_time_ms', 'operation', 'quality_score', 'saved']

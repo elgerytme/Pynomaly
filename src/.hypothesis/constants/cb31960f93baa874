@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\data_loaders\excel_loader.py
-# hypothesis_version: 6.135.26
-
-[100, 1024, '.xls', '.xlsb', '.xlsm', '.xlsx', 'Excel file is empty', 'ExcelLoader', 'Unnamed', 'all', 'batch_index', 'batch_size', 'cleaned', 'columns', 'error', 'estimated_rows', 'file_size_mb', 'header', 'is_batch', 'loader', 'main_sheet', 'memory_usage_mb', 'number', 'numeric_columns', 'openpyxl', 'parent_dataset', 'sample_dtypes', 'sheet_count', 'sheet_name', 'sheet_names', 'sheets_available', 'skiprows', 'source', 'target_column', 'unknown', 'xlrd', 'xls', 'xlsb', 'xlsm', 'xlsx']

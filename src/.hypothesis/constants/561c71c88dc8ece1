@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\application\dto\automl_dto.py
-# hypothesis_version: 6.135.26
-
-[0.0, 0.2, 0.8, 1.0, 100, 1000, 3600, 86400, 'Algorithm family', 'Algorithm weights', 'Best achieved score', 'Best hyperparameters', 'Best score achieved', 'Data sparsity ratio', 'Dataset profile', 'Ensemble method', 'Feature type mapping', 'ID of the dataset', 'Number of CV folds', 'Optimization summary', 'Optimization time', 'Random state', 'Response message', 'Total execution time', 'Trial history', 'Trial number', 'Trial parameters', 'Trial score', 'Voting strategy', 'auc', 'maximize']

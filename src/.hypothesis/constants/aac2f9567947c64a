@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\persistence\database.py
-# hypothesis_version: 6.135.26
-
-['check_same_thread', 'connect', 'postgresql:', 'sqlite:', 'sqlite:///:memory:']

@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\entities\model.py
-# hypothesis_version: 6.135.26
-
-['No use cases defined', 'algorithm_family', 'archived', 'business_impact', 'created_at', 'created_by', 'current_version_id', 'data_requirements', 'data_validation', 'deep_learning', 'description', 'development', 'ensemble', 'from', 'has_current_version', 'id', 'is_in_production', 'last_stage_update', 'last_updated', 'last_updated_by', 'latest_version_id', 'metadata', 'model_type', 'name', 'performance_baseline', 'production', 'promoted_at', 'promoted_by', 'semi_supervised', 'stage', 'stage_transitions', 'staging', 'supervised', 'system', 'tags', 'team', 'time_series', 'timestamp', 'to', 'unsupervised', 'updated_by', 'use_cases', 'version_count']

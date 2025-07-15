@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\persistence\training_repository.py
-# hypothesis_version: 6.135.26
-
-[100, 1000, './data/training', '.tmp', 'active_jobs', 'cancelled_jobs', 'completed_jobs', 'connection_string', 'detector_id', 'failed_jobs', 'file', 'memory', 'sql', 'storage_path', 'storage_type', 'total_jobs', 'training_jobs.json', 'w']

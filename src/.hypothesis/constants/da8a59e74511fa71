@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\entities\detector.py
-# hypothesis_version: 6.135.26
-
-[0.0, 0.1, 0.5, 1.0, 1000, 'Dataset', 'DetectionResult', 'TrainingResult', 'algorithm', 'contamination_rate', 'created_at', 'detection_time', 'detector_id', 'error', 'id', 'index', 'is_fitted', 'max_score', 'mean_score', 'metadata', 'min_score', 'n_features', 'n_samples', 'name', 'parameters', 'requires_fitting', 'space_complexity', 'supports_streaming', 'time_complexity', 'trained_at', 'training_time']

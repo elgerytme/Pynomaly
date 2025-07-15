@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\exceptions\detector_exceptions.py
-# hypothesis_version: 6.135.26
-
-['algorithm_name', 'available_algorithms', 'dataset_name', 'detect', 'detector_name', 'reason']

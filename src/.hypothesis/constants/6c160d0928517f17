@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\version.py
-# hypothesis_version: 6.135.26
-
-['/', '/api/v1/auth', '/api/v1/datasets', '/api/v1/detection', '/api/v1/detectors', '/api/v1/docs', '/api/v1/health', '/api/v1/openapi.json', '/api/v1/redoc', '/version', 'Pynomaly API', 'auth', 'datasets', 'default_version', 'deprecated_versions', 'detection', 'detectors', 'documentation', 'endpoints', 'health', 'interactive', 'message', 'openapi', 'redoc', 'supported_versions', 'v1', 'version_info']

@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\infrastructure\performance\__init__.py
-# hypothesis_version: 6.135.26
-
-['DatabasePool', 'HTTPConnectionPool', 'IndexManager', 'PerformanceService', 'PoolConfiguration', 'PoolStats', 'QueryAnalyzer', 'QueryCache', 'QueryOptimizer', 'RedisPool', 'get_query_optimizer']

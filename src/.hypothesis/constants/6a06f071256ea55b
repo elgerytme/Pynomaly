@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\application\services\streaming_service.py
-# hypothesis_version: 6.135.26
-
-[0.0, 0.5, 0.7, 0.9, 100, 1000, 'A', 'B', 'C', 'Session expired', 'anomaly_score', 'avg_throughput', 'confidence', 'database', 'explanation', 'feature1', 'feature2', 'feature3', 'input_data', 'is_anomaly', 'kafka', 'kafka_data', 'kinesis', 'kinesis_data', 'medium', 'mock', 'processed_data', 'session_id', 'timestamp', 'value', 'websocket', 'websocket_data']

@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\entities\model_version.py
-# hypothesis_version: 6.135.26
-
-['accuracy', 'archived', 'created_at', 'created_by', 'deployed', 'deprecated', 'description', 'detector_id', 'draft', 'f1_score', 'id', 'inference_time', 'last_updated', 'metadata', 'model_id', 'parent_version_id', 'performance_metrics', 'precision', 'recall', 'status', 'status_updated_at', 'storage_info', 'tags', 'training_time', 'validated', 'version']

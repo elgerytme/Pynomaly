@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\shared\error_handling.py
-# hypothesis_version: 6.135.26
-
-[0.0, 1.0, '.csv', '.json', '.parquet', '.xls', '.xlsx', '0.0 < rate < 1.0', 'ConnectionError', 'Data type mismatch', 'Details:', 'FileNotFoundError', 'ImportError', 'KeyError', 'MemoryError', 'Operation timed out', 'PermissionError', 'TimeoutError', 'TypeError', 'Unexpected API error', 'ValueError', 'absolute_path', 'available_algorithms', 'csv', 'current_features', 'current_samples', 'data_shape', 'data_type', 'details', 'detected_format', 'directory', 'error', 'error_type', 'excel', 'file_path', 'import_error', 'json', 'message', 'minimum_required', 'module_name', 'original_error', 'other', 'parquet', 'path_type', 'permission_denied', 'requested_algorithm', 'shape', 'suggestion', 'supported_formats', 'type', 'valid_range', 'value']

@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\streaming.py
-# hypothesis_version: 6.135.26
-
-[1.0, 100, 201, 400, 401, 403, 404, 500, '/sessions', '/streaming', 'Alert description', 'Alert name', 'Alert severity', 'Create Session Alert', 'Filter by creator', 'Get Session Metrics', 'Get Session Summary', 'Metric to monitor', 'Real-time Streaming', 'Result offset', 'Session description', 'Session name', 'Session tags', 'anomalies_detected', 'anomaly_rate', 'avg_processing_time', 'connected', 'cpu_usage', 'error', 'error_rate', 'medium', 'memory_usage', 'message', 'messages_per_second', 'messages_processed', 'metrics', 'p95_latency', 'payload', 'session_id', 'session_name', 'status', 'timestamp', 'type']

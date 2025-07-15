@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\application\use_cases\evaluate_model.py
-# hypothesis_version: 6.135.26
-
-[0.0, 0.5, 'accuracy', 'auc_pr', 'auc_roc', 'f1', 'precision', 'recall', 'specificity', 'thresholds']

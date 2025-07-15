@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\datasets.py
-# hypothesis_version: 6.135.26
-
-[0.1, 0.2, 0.5, 100, 400, 404, 413, 1000, 1024, '.', '.csv', '.parquet', '.pq', '.tsv', '.txt', '/', '/upload', '/{dataset_id}', '/{dataset_id}/sample', '/{dataset_id}/split', 'Dataset deleted', 'Dataset not found', 'columns', 'constant_features', 'data', 'dataset:delete', 'dataset:read', 'dataset:write', 'dataset_id', 'dataset_name', 'duplicate_rows', 'file_size_mb', 'infinite_values', 'message', 'missing_values', 'n_features', 'n_samples', 'original_filename', 'quality_score', 'records', 'sample_size', 'source', 'success', 'test_dataset_id', 'test_name', 'test_size', 'total_rows', 'train_dataset_id', 'train_name', 'train_size', 'upload']

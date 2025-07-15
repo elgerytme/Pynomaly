@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\presentation\api\endpoints\auth.py
-# hypothesis_version: 6.135.26
-
-['/api-keys', '/api-keys/{api_key}', '/login', '/logout', '/me', '/refresh', '/register', 'API key not found', 'Bearer', 'WWW-Authenticate', 'message']

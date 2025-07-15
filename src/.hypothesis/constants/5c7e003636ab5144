@@ -1,4 +1,0 @@
-# file: C:\Users\andre\Pynomaly\src\pynomaly\domain\exceptions\dataset_exceptions.py
-# hypothesis_version: 6.135.26
-
-['actual_features', 'actual_type', 'dataset_name', 'expected_features', 'expected_type', 'extra_features', 'feature', 'min_required', 'missing_features', 'n_samples', 'operation']
