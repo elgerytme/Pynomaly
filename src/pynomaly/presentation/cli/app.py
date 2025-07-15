@@ -54,6 +54,23 @@ else:
         recommendation = None
         RECOMMENDATION_CLI_AVAILABLE = False
 
+    # Additional CLI modules for enhanced functionality
+    try:
+        from pynomaly.presentation.cli.security_typer import app as security_app
+        from pynomaly.presentation.cli.dashboard_typer import app as dashboard_app
+        from pynomaly.presentation.cli.governance_typer import app as governance_app
+
+        SECURITY_CLI_AVAILABLE = True
+        DASHBOARD_CLI_AVAILABLE = True
+        GOVERNANCE_CLI_AVAILABLE = True
+    except ImportError:
+        security_app = None
+        dashboard_app = None
+        governance_app = None
+        SECURITY_CLI_AVAILABLE = False
+        DASHBOARD_CLI_AVAILABLE = False
+        GOVERNANCE_CLI_AVAILABLE = False
+
     # Create Typer app
     app = typer.Typer(
         name="pynomaly",
@@ -114,6 +131,28 @@ else:
             recommendation.app,
             name="recommend",
             help="🧠 Intelligent configuration recommendations",
+        )
+
+    # Additional CLI modules for enhanced functionality
+    if SECURITY_CLI_AVAILABLE:
+        app.add_typer(
+            security_app,
+            name="security",
+            help="🔐 Security and compliance management",
+        )
+    
+    if DASHBOARD_CLI_AVAILABLE:
+        app.add_typer(
+            dashboard_app,
+            name="dashboard",
+            help="📊 Visualization dashboard management",
+        )
+    
+    if GOVERNANCE_CLI_AVAILABLE:
+        app.add_typer(
+            governance_app,
+            name="governance",
+            help="🏛️ Governance framework and audit management",
         )
 
 from pynomaly.presentation.cli.container import get_cli_container

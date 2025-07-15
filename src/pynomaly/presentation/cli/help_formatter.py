@@ -188,6 +188,36 @@ STANDARD_HELP_TEXTS = {
             "pynomaly migrate rollback",
         ],
     },
+    "security": {
+        "help": "🔐 Security and compliance management",
+        "description": "Manage security compliance, data encryption, and GDPR compliance. "
+        "Supports multiple regulatory frameworks and privacy protection.",
+        "examples": [
+            "pynomaly security assess-compliance --frameworks gdpr soc2",
+            "pynomaly security encrypt-data --data-file sensitive.csv",
+            "pynomaly security gdpr-request --subject-id uuid --request-type access",
+        ],
+    },
+    "dashboard": {
+        "help": "📊 Visualization dashboard management",
+        "description": "Generate and manage visualization dashboards for anomaly detection results. "
+        "Supports real-time monitoring and executive reporting.",
+        "examples": [
+            "pynomaly dashboard generate --type executive --format html",
+            "pynomaly dashboard monitor --interval 5 --websocket-endpoint ws://localhost:8000/ws",
+            "pynomaly dashboard export --dashboard-id uuid --format pdf",
+        ],
+    },
+    "governance": {
+        "help": "🏛️ Governance framework and audit management",
+        "description": "Manage governance policies, risk assessments, and compliance tracking. "
+        "Provides comprehensive audit trails and change management.",
+        "examples": [
+            "pynomaly governance audit-report --start-date 2024-01-01 --format csv",
+            "pynomaly governance create-policy --policy-name 'Data Retention' --policy-type data_governance",
+            "pynomaly governance assess-risk --risk-category 'Data Privacy' --likelihood high --impact medium",
+        ],
+    },
 }
 
 # Standard option help texts
