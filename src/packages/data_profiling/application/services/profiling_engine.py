@@ -16,6 +16,7 @@ from .statistical_profiling_service import StatisticalProfilingService
 from .pattern_discovery_service import PatternDiscoveryService
 from .quality_assessment_service import QualityAssessmentService
 from .performance_optimizer import PerformanceOptimizer
+from .advanced_profiling_orchestrator import AdvancedProfilingOrchestrator
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +76,12 @@ class ProfilingEngine:
         self.quality_service = QualityAssessmentService()
         self.performance_optimizer = PerformanceOptimizer()
         
+        # Initialize advanced orchestrator
+        self.advanced_orchestrator = AdvancedProfilingOrchestrator(
+            max_workers=self.config.max_workers,
+            enable_ml_features=self.config.enable_ml_clustering
+        )
+        
         # Initialize cache
         self.cache = {} if self.config.enable_caching else None
         
@@ -83,8 +90,13 @@ class ProfilingEngine:
     def profile_dataset(self, df: pd.DataFrame, 
                        dataset_id: str = None,
                        source_type: str = "dataframe",
-                       source_connection: Dict[str, Any] = None) -> DataProfile:
+                       source_connection: Dict[str, Any] = None,
+                       use_advanced_orchestrator: bool = False) -> DataProfile:
         """Profile a complete dataset."""
+        
+        # Use advanced orchestrator if requested
+        if use_advanced_orchestrator:
+            return self._profile_with_advanced_orchestrator(df, dataset_id, source_type, source_connection)
         
         # Generate IDs
         profile_id = ProfileId()
@@ -518,3 +530,37 @@ class ProfilingEngine:
             'cache_size': len(self.cache),
             'cache_keys': list(self.cache.keys())[:10]  # Show first 10 keys
         }
+    
+    async def _profile_with_advanced_orchestrator(self, df: pd.DataFrame, 
+                                                 dataset_id: str = None,
+                                                 source_type: str = "dataframe",
+                                                 source_connection: Dict[str, Any] = None) -> DataProfile:
+        """Profile using the advanced orchestrator."""
+        try:
+            # Convert profiling config to options
+            profiling_options = {
+                'enable_advanced_analysis': self.config.enable_advanced_patterns,
+                'enable_relationship_analysis': self.config.enable_relationship_analysis,
+                'max_rows': self.config.sample_size if self.config.enable_sampling else None,
+                'sample_size': self.config.sample_size
+            }
+            
+            # Prepare source metadata
+            source_metadata = {
+                'type': source_type,
+                'connection': source_connection or {}
+            }
+            
+            # Run advanced profiling
+            profile = await self.advanced_orchestrator.profile_dataset_comprehensive(
+                df=df,
+                dataset_name=dataset_id or "dataset",
+                source_metadata=source_metadata,
+                profiling_options=profiling_options
+            )
+            
+            return profile
+            
+        except Exception as e:
+            logger.error(f"Advanced profiling failed: {str(e)}")
+            raise
