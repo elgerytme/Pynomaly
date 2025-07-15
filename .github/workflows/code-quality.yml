@@ -1,0 +1,314 @@
+name: Code Quality and Review
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - "src/**/*.py"
+      - "tests/**/*.py"
+      - "scripts/**/*.py"
+      - "**/*.yml"
+      - "**/*.yaml"
+      - "**/*.toml"
+      - "requirements*.txt"
+      - "**.md"
+      - "docs/**"
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - "src/**/*.py"
+      - "tests/**/*.py"
+      - "scripts/**/*.py"
+      - "**/*.yml"
+      - "**/*.yaml"
+      - "**/*.toml"
+      - "requirements*.txt"
+      - "**.md"
+      - "docs/**"
+  schedule:
+    # Run daily at 9:00 AM UTC for date validation
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      review_type:
+        description: 'Type of review to perform'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - code_only
+          - docs_only
+          - dates_only
+          - full
+      fix_dates:
+        description: 'Automatically fix incorrect dates'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+  id-token: write
+
+jobs:
+  code-review:
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.modified, '.py') ||
+      contains(github.event.head_commit.added, '.py') ||
+      github.event_name == 'pull_request' ||
+      github.event.inputs.review_type == 'code_only' ||
+      github.event.inputs.review_type == 'full'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code Review
+        id: claude-review
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          
+          # Direct prompt for automated review
+          direct_prompt: |
+            Please review this pull request for the Pynomaly anomaly detection platform and provide feedback on:
+            - Python code quality and PEP 8 compliance
+            - Clean Architecture pattern adherence
+            - Type hints and documentation
+            - Potential bugs or issues
+            - Performance considerations
+            - Security concerns
+            - Test coverage and test quality
+            - Dependency management
+            
+            Be constructive and helpful in your feedback. Focus on maintainability and following the established patterns in the codebase.
+          
+          # Add specific tools for running Python tests and linting
+          allowed_tools: "Bash(python -m pytest),Bash(python -m ruff check),Bash(python -m mypy),Bash(python comprehensive_test_runner.py)"
+
+  documentation-validation:
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.modified, '.md') ||
+      contains(github.event.head_commit.modified, 'docs/') ||
+      github.event_name == 'schedule' ||
+      github.event.inputs.review_type == 'docs_only' ||
+      github.event.inputs.review_type == 'dates_only' ||
+      github.event.inputs.review_type == 'full'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install python-dateutil
+
+      - name: Make validation script executable
+        run: |
+          chmod +x scripts/automation/validate_dates.py
+
+      - name: Validate dates (check only)
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.fix_dates != 'true'
+        run: |
+          python scripts/automation/validate_dates.py
+        continue-on-error: true
+        id: validate-only
+
+      - name: Validate and fix dates
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.fix_dates == 'true'
+        run: |
+          python scripts/automation/validate_dates.py --fix
+        id: validate-fix
+
+      - name: Check for changes after fix
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.fix_dates == 'true'
+        id: git-check
+        run: |
+          git diff --exit-code || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit fixed dates
+        if: steps.git-check.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git commit -m "🤖 Auto-fix documentation dates to current local timezone
+
+          Fixed incorrect dates in documentation files that were off by days,
+          months, or years. All dates now reflect the current local timezone.
+          
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+          
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+          git push
+
+      - name: Create issue for date validation failures
+        if: failure() && (github.event_name == 'push' || github.event_name == 'schedule')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = "📅 Documentation Date Validation Failed";
+            const body = `## Date Validation Issues Found
+
+            The automated date validation workflow found incorrect dates in documentation files.
+
+            ### Details
+            - **Workflow**: ${context.workflow}
+            - **Run ID**: ${context.runId}
+            - **Commit**: ${context.sha}
+            - **Branch**: ${context.ref}
+
+            ### What happened?
+            Documentation files contain dates that are significantly off from the current date (more than 30 days). This could indicate:
+            - Outdated documentation
+            - Incorrect timezone handling
+            - Copy-paste errors from old documents
+
+            ### How to fix
+            1. **Automatic fix**: Run the workflow manually with "fix_dates" set to true
+            2. **Manual fix**: Run locally: \`python scripts/automation/validate_dates.py --fix\`
+            3. **Review**: Check the specific files mentioned in the workflow logs
+
+            ### Prevention
+            - Use the pre-commit hook to catch date issues before committing
+            - Follow the documentation date standards in our style guide
+            - Review dates when updating documentation
+
+            This issue was automatically created by the date validation workflow.
+            `;
+
+            // Check if similar issue already exists
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: ['automation', 'documentation']
+            });
+
+            const existingIssue = existingIssues.data.find(issue => 
+              issue.title.includes('Documentation Date Validation Failed')
+            );
+
+            if (!existingIssue) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['automation', 'documentation', 'P2-Medium']
+              });
+            }
+
+      - name: Comment on PR with validation results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let comment = "## 📅 Documentation Date Validation\n\n";
+            
+            if (process.env.GITHUB_JOB_STATUS === 'success') {
+              comment += "✅ **All documentation dates are correct!**\n\n";
+              comment += "All dates in documentation files are within reasonable range of the current date.";
+            } else {
+              comment += "❌ **Date validation issues found**\n\n";
+              comment += "Some documentation files contain dates that are significantly off from the current date.\n\n";
+              comment += "### How to fix:\n";
+              comment += "1. Run locally: `python scripts/automation/validate_dates.py --fix`\n";
+              comment += "2. Or trigger the workflow manually with auto-fix enabled\n\n";
+              comment += "### Guidelines:\n";
+              comment += "- Use current dates when updating documentation\n";
+              comment += "- Check timezone settings if dates appear incorrect\n";
+              comment += "- Review the workflow logs for specific files and issues";
+            }
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  claude-integration:
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && 
+        (github.event.action == 'opened' || 
+         github.event.action == 'assigned' ||
+         contains(github.event.issue.body, '@claude') || 
+         contains(github.event.issue.title, '@claude') ||
+         contains(github.event.issue.labels.*.name, 'needs-claude-review')))
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code
+        id: claude
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          
+          # Trigger when specific user is assigned to an issue
+          assignee_trigger: "claude-bot"
+          
+          # Custom instructions for Claude to customize its behavior for this project
+          custom_instructions: |
+            This is the Pynomaly anomaly detection platform repository.
+            - Follow Python coding standards (PEP 8)
+            - Ensure all new code has tests
+            - Use type hints for function signatures
+            - Follow the Clean Architecture pattern used in this codebase
+            - For complex changes, create todo items and track progress
+            - Test changes with the comprehensive test runner before finalizing
+
+  quality-summary:
+    runs-on: ubuntu-latest
+    needs: [code-review, documentation-validation, claude-integration]
+    if: always()
+    steps:
+      - name: Generate quality summary
+        run: |
+          echo "# Code Quality Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.code-review.result }}" = "success" ] || [ "${{ needs.code-review.result }}" = "skipped" ]; then
+            echo "✅ **Code Review**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Code Review**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.documentation-validation.result }}" = "success" ] || [ "${{ needs.documentation-validation.result }}" = "skipped" ]; then
+            echo "✅ **Documentation**: Validated" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Documentation**: Issues Found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.claude-integration.result }}" = "success" ] || [ "${{ needs.claude-integration.result }}" = "skipped" ]; then
+            echo "✅ **Claude Integration**: Working" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Claude Integration**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi

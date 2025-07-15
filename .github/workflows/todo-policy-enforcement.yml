@@ -1,0 +1,164 @@
+name: TODO.md Policy Enforcement
+
+on:
+  pull_request:
+    paths:
+      - 'TODO.md'
+  push:
+    branches:
+      - main
+    paths:
+      - 'TODO.md'
+
+jobs:
+  validate-todo-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate TODO.md Policy Compliance
+        run: |
+          echo "🔍 Validating TODO.md policy compliance..."
+          
+          # Check if TODO.md exists
+          if [ ! -f "TODO.md" ]; then
+            echo "❌ ERROR: TODO.md file is missing"
+            exit 1
+          fi
+          
+          # Define prohibited terms that indicate issue tracking
+          PROHIBITED_TERMS=(
+            "✅ COMPLETED"
+            "⏳ PENDING"
+            "🔄 IN PROGRESS"
+            "🚫 BLOCKED"
+            "🔒 CLOSED"
+            "Issue #[0-9]"
+            "**Status**:"
+            "**Priority**:"
+            "**Labels**:"
+            "**Total Open Issues**:"
+            "**Completed**:"
+            "**In Progress**:"
+            "**Pending**:"
+            "P1-High"
+            "P2-Medium"
+            "P3-Low"
+            "P0-Critical"
+            "GitHub Issues List"
+            "Auto-Synchronized"
+            "Last Sync"
+            "TODO:"
+            "- [ ]"
+            "- [x]"
+          )
+          
+          # Check for prohibited content
+          VIOLATIONS=0
+          for term in "${PROHIBITED_TERMS[@]}"; do
+            if grep -q "$term" TODO.md; then
+              echo "❌ VIOLATION: Found prohibited term '$term' in TODO.md"
+              VIOLATIONS=$((VIOLATIONS + 1))
+            fi
+          done
+          
+          # Check for required content
+          REQUIRED_TERMS=(
+            "GitHub CLI"
+            "gh issue list"
+            "gh issue create"
+            "No TODOs or Issue Tracking"
+            "Repository Rule"
+          )
+          
+          MISSING_REQUIRED=0
+          for term in "${REQUIRED_TERMS[@]}"; do
+            if ! grep -q "$term" TODO.md; then
+              echo "❌ MISSING: Required term '$term' not found in TODO.md"
+              MISSING_REQUIRED=$((MISSING_REQUIRED + 1))
+            fi
+          done
+          
+          # Check file size (should be relatively small for reference only)
+          FILE_SIZE=$(wc -c < TODO.md)
+          MAX_SIZE=10000  # 10KB limit for reference documentation
+          
+          if [ $FILE_SIZE -gt $MAX_SIZE ]; then
+            echo "❌ ERROR: TODO.md is too large ($FILE_SIZE bytes). Max allowed: $MAX_SIZE bytes"
+            echo "This suggests it contains issue tracking content."
+            VIOLATIONS=$((VIOLATIONS + 1))
+          fi
+          
+          # Summary
+          echo ""
+          echo "📊 Validation Summary:"
+          echo "- Policy violations: $VIOLATIONS"
+          echo "- Missing required content: $MISSING_REQUIRED"
+          echo "- File size: $FILE_SIZE bytes (max: $MAX_SIZE bytes)"
+          
+          if [ $VIOLATIONS -gt 0 ] || [ $MISSING_REQUIRED -gt 0 ]; then
+            echo ""
+            echo "❌ TODO.md POLICY VIOLATION DETECTED!"
+            echo ""
+            echo "🔒 Repository Rule: TODO.md is ONLY for GitHub CLI reference documentation."
+            echo "🚫 Prohibited: Issue tracking, TODO lists, project status updates"
+            echo "✅ Required: GitHub CLI usage instructions and repository policy"
+            echo ""
+            echo "📋 To fix this violation:"
+            echo "1. Remove all issue tracking content from TODO.md"
+            echo "2. Keep only GitHub CLI reference documentation"
+            echo "3. Use 'gh issue list' for viewing issues"
+            echo "4. Use 'gh issue create' for creating new issues"
+            echo ""
+            echo "📚 See .github/REPOSITORY_RULES.md for full policy details"
+            exit 1
+          fi
+          
+          echo ""
+          echo "✅ TODO.md policy compliance validated successfully!"
+          echo "✅ File contains only GitHub CLI reference documentation"
+          echo "✅ No issue tracking content detected"
+
+      - name: Policy Compliance Report
+        if: success()
+        run: |
+          echo "## ✅ TODO.md Policy Compliance Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: ✅ COMPLIANT" >> $GITHUB_STEP_SUMMARY
+          echo "**File Purpose**: GitHub CLI reference documentation only" >> $GITHUB_STEP_SUMMARY
+          echo "**Policy**: No issue tracking content permitted" >> $GITHUB_STEP_SUMMARY
+          echo "**Validation**: All checks passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Reminder" >> $GITHUB_STEP_SUMMARY
+          echo "- Use \`gh issue list\` to view issues" >> $GITHUB_STEP_SUMMARY
+          echo "- Use \`gh issue create\` to create new issues" >> $GITHUB_STEP_SUMMARY
+          echo "- Use \`gh issue close\` to close issues" >> $GITHUB_STEP_SUMMARY
+          echo "- All project management must be done through GitHub Issues" >> $GITHUB_STEP_SUMMARY
+
+      - name: Policy Violation Report
+        if: failure()
+        run: |
+          echo "## ❌ TODO.md Policy Violation Detected" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: ❌ VIOLATION" >> $GITHUB_STEP_SUMMARY
+          echo "**Issue**: TODO.md contains prohibited issue tracking content" >> $GITHUB_STEP_SUMMARY
+          echo "**Action Required**: Remove all issue tracking content" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔒 Repository Rule" >> $GITHUB_STEP_SUMMARY
+          echo "TODO.md is **EXCLUSIVELY** for GitHub CLI reference documentation." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ❌ Prohibited Content" >> $GITHUB_STEP_SUMMARY
+          echo "- Issue tracking or TODO lists" >> $GITHUB_STEP_SUMMARY
+          echo "- Project status updates" >> $GITHUB_STEP_SUMMARY
+          echo "- Issue summaries or duplicated GitHub data" >> $GITHUB_STEP_SUMMARY
+          echo "- Development task lists" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Required Content" >> $GITHUB_STEP_SUMMARY
+          echo "- GitHub CLI installation instructions" >> $GITHUB_STEP_SUMMARY
+          echo "- GitHub CLI usage examples" >> $GITHUB_STEP_SUMMARY
+          echo "- Repository policy explanations" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📚 Resources" >> $GITHUB_STEP_SUMMARY
+          echo "- See \`.github/REPOSITORY_RULES.md\` for full policy" >> $GITHUB_STEP_SUMMARY
+          echo "- Use \`gh issue list\` to view current issues" >> $GITHUB_STEP_SUMMARY
