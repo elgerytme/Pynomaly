@@ -11,6 +11,29 @@ from uuid import UUID, uuid4
 import numpy as np
 
 
+class AuditEventType(Enum):
+    """Types of audit events."""
+    
+    USER_LOGIN = "user_login"
+    USER_LOGOUT = "user_logout"
+    MODEL_TRAINING = "model_training"
+    MODEL_INFERENCE = "model_inference"
+    DATA_ACCESS = "data_access"
+    CONFIG_CHANGE = "config_change"
+    PERMISSION_CHANGE = "permission_change"
+    SECURITY_VIOLATION = "security_violation"
+    SYSTEM_ERROR = "system_error"
+
+
+class SecuritySeverity(Enum):
+    """Security severity levels."""
+    
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
 class PermissionType(Enum):
     """Types of permissions in the system."""
     

@@ -1,23 +1,55 @@
-"""
-Comprehensive End-to-End Workflow Testing
+"""End-to-end workflow integration tests."""
 
-Tests complete user journeys and system workflows to ensure all components
-work together correctly in realistic scenarios.
-"""
-
-import asyncio
-import json
 import pytest
-import tempfile
-from pathlib import Path
+import asyncio
+import numpy as np
+from datetime import datetime, timedelta
 from typing import Dict, List, Any
-from unittest.mock import AsyncMock, MagicMock
+from uuid import uuid4
 
-from tests.integration.framework.integration_test_base import IntegrationTestBase
-from tests.common.test_data_generator import TestDataGenerator
+from pynomaly.domain.entities.detector import Detector
+from pynomaly.domain.entities.training_job import TrainingJob
+from pynomaly.domain.entities.anomaly_event import AnomalyEvent, EventType, EventSeverity
+from pynomaly.domain.services.advanced_classification_service import AdvancedClassificationService
+from pynomaly.domain.services.detection_pipeline_integration import DetectionPipelineIntegration
+from pynomaly.domain.services.threshold_severity_classifier import ThresholdSeverityClassifier
+from pynomaly.domain.value_objects import ContaminationRate
 
 
-class TestE2EWorkflows(IntegrationTestBase):
+class MockDetectionService:
+    """Mock detection service for testing."""
+    
+    async def detect_anomalies(self, detector: Detector, data: np.ndarray) -> List[float]:
+        """Mock anomaly detection."""
+        # Simulate anomaly scores based on data variance
+        scores = []
+        for row in data:
+            variance = np.var(row)
+            # Higher variance = higher anomaly score
+            score = min(variance / 10.0, 1.0)
+            scores.append(score)
+        return scores
+
+
+class MockTrainingService:
+    """Mock training service for testing."""
+    
+    async def train_detector(self, training_job: TrainingJob) -> Detector:
+        """Mock detector training."""
+        # Create a fitted detector
+        detector = Detector(
+            id=training_job.detector_id,
+            name=f"trained_{training_job.detector_id}",
+            algorithm_name="mock_algorithm",
+            contamination_rate=ContaminationRate.from_value(0.1),
+            parameters=training_job.parameters,
+            is_fitted=True,
+            trained_at=datetime.utcnow(),
+        )
+        return detector
+
+
+class TestE2EWorkflows:
     """End-to-end workflow testing covering complete user journeys."""
 
     @pytest.fixture(autouse=True)

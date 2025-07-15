@@ -1,0 +1,427 @@
+# Performance Regression Testing Workflow
+name: Performance Regression Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      baseline_update:
+        description: 'Update baselines after successful tests'
+        required: false
+        default: 'false'
+        type: boolean
+      test_scope:
+        description: 'Test scope (all, algorithms, api)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - algorithms
+          - api
+
+env:
+  PYTHON_VERSION: '3.11'
+  PERFORMANCE_TEST_TIMEOUT: 30
+  BASELINE_UPDATE_THRESHOLD: 5.0
+
+jobs:
+  performance-regression-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    strategy:
+      matrix:
+        test-suite: [algorithms, api]
+        
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pynomaly_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          libpq-dev \
+          python3-dev \
+          curl \
+          jq
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[test,performance,cloud-storage]
+        pip install pytest-benchmark pytest-timeout psutil
+    
+    - name: Create performance test directories
+      run: |
+        mkdir -p tests/performance/data/baselines
+        mkdir -p tests/performance/data/history
+        mkdir -p tests/performance/reports
+    
+    - name: Download previous baselines
+      continue-on-error: true
+      run: |
+        # Download baselines from previous runs (if available)
+        if [ -f ".github/performance-baselines.json" ]; then
+          cp .github/performance-baselines.json tests/performance/data/baselines/
+        fi
+    
+    - name: Run performance regression tests - ${{ matrix.test-suite }}
+      id: perf-test
+      run: |
+        set -e
+        
+        # Set environment variables
+        export PYNOMALY_ENVIRONMENT=test
+        export PERFORMANCE_TEST_MODE=regression
+        export BASELINE_PATH=tests/performance/data/baselines
+        export HISTORY_PATH=tests/performance/data/history
+        
+        # Run tests based on matrix
+        if [ "${{ matrix.test-suite }}" == "algorithms" ]; then
+          pytest tests/performance/test_performance_regression.py::TestPerformanceRegression::test_algorithm_performance_regression \
+            -v \
+            --tb=short \
+            --timeout=${{ env.PERFORMANCE_TEST_TIMEOUT }}0 \
+            --junit-xml=tests/performance/reports/regression-algorithms-results.xml
+        elif [ "${{ matrix.test-suite }}" == "api" ]; then
+          pytest tests/performance/test_performance_regression.py::TestPerformanceRegression::test_api_performance_regression \
+            -v \
+            --tb=short \
+            --timeout=${{ env.PERFORMANCE_TEST_TIMEOUT }}0 \
+            --junit-xml=tests/performance/reports/regression-api-results.xml
+        fi
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+    
+    - name: Run baseline health check
+      if: always()
+      run: |
+        pytest tests/performance/test_performance_regression.py::TestPerformanceRegression::test_baseline_health \
+          -v \
+          --tb=short \
+          --timeout=300 \
+          --junit-xml=tests/performance/reports/baseline-health-results.xml
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+    
+    - name: Generate performance report
+      if: always()
+      run: |
+        python -c "
+        import json
+        import sys
+        from pathlib import Path
+        from datetime import datetime
+        
+        sys.path.insert(0, 'src')
+        
+        from tests.performance.test_performance_regression import PerformanceRegressionTestSuite
+        
+        # Create test suite
+        suite = PerformanceRegressionTestSuite()
+        
+        # Generate comprehensive report
+        report = {
+            'timestamp': datetime.now().isoformat(),
+            'github_run_id': '${{ github.run_id }}',
+            'github_sha': '${{ github.sha }}',
+            'test_suite': '${{ matrix.test-suite }}',
+            'baseline_health': suite.baseline_manager.get_baseline_health_report(),
+            'available_baselines': suite.detector.list_available_baselines()
+        }
+        
+        # Save report
+        with open('tests/performance/reports/performance-report-${{ matrix.test-suite }}.json', 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        print(f'Performance report generated for ${{ matrix.test-suite }}')
+        print(f'Healthy baselines: {sum(1 for h in report[\"baseline_health\"].values() if h.get(\"status\") == \"HEALTHY\")}')
+        "
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+    
+    - name: Check for regressions
+      id: regression-check
+      run: |
+        # Parse test results for regressions
+        python -c "
+        import json
+        import sys
+        from pathlib import Path
+        
+        report_file = Path('tests/performance/reports/performance-report-${{ matrix.test-suite }}.json')
+        if report_file.exists():
+            with open(report_file, 'r') as f:
+                report = json.load(f)
+            
+            # Check baseline health
+            unhealthy_baselines = [
+                name for name, health in report['baseline_health'].items()
+                if health.get('status') in ['ERROR', 'STALE']
+            ]
+            
+            if unhealthy_baselines:
+                print(f'::warning::Unhealthy baselines detected: {unhealthy_baselines}')
+            
+            # Set outputs
+            print(f'::set-output name=unhealthy_count::{len(unhealthy_baselines)}')
+            print(f'::set-output name=total_baselines::{len(report[\"baseline_health\"])}')
+        else:
+            print('::error::Performance report not found')
+            sys.exit(1)
+        "
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+    
+    - name: Upload performance reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-reports-${{ matrix.test-suite }}
+        path: tests/performance/reports/
+        retention-days: 30
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-test-results-${{ matrix.test-suite }}
+        path: tests/performance/reports/*.xml
+        retention-days: 30
+    
+    - name: Comment on PR with results
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = require('path');
+          
+          const reportPath = `tests/performance/reports/performance-report-${{ matrix.test-suite }}.json`;
+          
+          if (fs.existsSync(reportPath)) {
+            const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            
+            const healthyCount = Object.values(report.baseline_health).filter(h => h.status === 'HEALTHY').length;
+            const totalCount = Object.keys(report.baseline_health).length;
+            
+            const comment = `
+          ## Performance Regression Test Results (${{ matrix.test-suite }})
+          
+          **Baseline Health**: ${healthyCount}/${totalCount} healthy
+          
+          **Test Suite**: ${{ matrix.test-suite }}
+          **Timestamp**: ${report.timestamp}
+          **Commit**: ${{ github.sha }}
+          
+          ${healthyCount < totalCount ? '⚠️ Some baselines need attention' : '✅ All baselines healthy'}
+          
+          [View detailed results](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
+    
+    - name: Update baselines (if requested)
+      if: |
+        github.event_name == 'schedule' || 
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.baseline_update == 'true')
+      run: |
+        python -c "
+        import sys
+        sys.path.insert(0, 'src')
+        
+        from tests.performance.test_performance_regression import PerformanceRegressionTestSuite
+        
+        suite = PerformanceRegressionTestSuite()
+        
+        # Update baselines with recent data
+        update_results = suite.baseline_manager.batch_update_baselines(
+            days=7,
+            min_samples=10,
+            improvement_threshold=${{ env.BASELINE_UPDATE_THRESHOLD }}
+        )
+        
+        successful_updates = [r for r in update_results if r.success]
+        
+        print(f'Updated {len(successful_updates)} baselines')
+        
+        # Create backup
+        backup_path = suite.baseline_manager.backup_baselines()
+        print(f'Created backup: {backup_path}')
+        "
+      env:
+        PYTHONPATH: ${{ github.workspace }}/src
+    
+    - name: Cache performance data
+      uses: actions/cache@v3
+      with:
+        path: |
+          tests/performance/data/baselines
+          tests/performance/data/history
+        key: performance-data-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          performance-data-${{ runner.os }}-
+    
+    - name: Fail on critical regressions
+      if: steps.regression-check.outputs.unhealthy_count > 5
+      run: |
+        echo "::error::Too many unhealthy baselines: ${{ steps.regression-check.outputs.unhealthy_count }}"
+        exit 1
+
+  performance-summary:
+    runs-on: ubuntu-latest
+    needs: performance-regression-test
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download all performance reports
+      uses: actions/download-artifact@v4
+      with:
+        pattern: performance-reports-*
+        path: performance-reports/
+        merge-multiple: true
+    
+    - name: Generate summary report
+      run: |
+        python -c "
+        import json
+        import glob
+        from datetime import datetime
+        
+        # Collect all reports
+        reports = {}
+        for report_file in glob.glob('performance-reports/performance-report-*.json'):
+            with open(report_file, 'r') as f:
+                report = json.load(f)
+                suite_name = report['test_suite']
+                reports[suite_name] = report
+        
+        # Generate summary
+        summary = {
+            'timestamp': datetime.now().isoformat(),
+            'github_run_id': '${{ github.run_id }}',
+            'github_sha': '${{ github.sha }}',
+            'suites': reports,
+            'overall_health': {}
+        }
+        
+        # Calculate overall health
+        all_baselines = {}
+        for suite_name, report in reports.items():
+            all_baselines.update(report['baseline_health'])
+        
+        summary['overall_health'] = {
+            'total_baselines': len(all_baselines),
+            'healthy': sum(1 for h in all_baselines.values() if h.get('status') == 'HEALTHY'),
+            'unhealthy': sum(1 for h in all_baselines.values() if h.get('status') in ['ERROR', 'STALE', 'INSUFFICIENT_DATA'])
+        }
+        
+        # Save summary
+        with open('performance-summary.json', 'w') as f:
+            json.dump(summary, f, indent=2)
+        
+        print('Performance summary generated')
+        print(f'Overall health: {summary[\"overall_health\"]}')
+        "
+    
+    - name: Upload summary report
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-summary
+        path: performance-summary.json
+        retention-days: 90
+    
+    - name: Update GitHub Pages (if on main)
+      if: github.ref == 'refs/heads/main'
+      run: |
+        # This would update GitHub Pages with performance dashboard
+        echo "Would update performance dashboard on GitHub Pages"
+        # Implementation would depend on your GitHub Pages setup
+
+  performance-notification:
+    runs-on: ubuntu-latest
+    needs: [performance-regression-test, performance-summary]
+    if: failure() && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Send Slack notification
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        custom_payload: |
+          {
+            text: "Performance regression detected in ${{ github.repository }}",
+            attachments: [{
+              color: 'danger',
+              fields: [{
+                title: 'Repository',
+                value: '${{ github.repository }}',
+                short: true
+              }, {
+                title: 'Branch',
+                value: '${{ github.ref }}',
+                short: true
+              }, {
+                title: 'Commit',
+                value: '${{ github.sha }}',
+                short: true
+              }, {
+                title: 'Action',
+                value: 'Performance Regression Test',
+                short: true
+              }]
+            }]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
