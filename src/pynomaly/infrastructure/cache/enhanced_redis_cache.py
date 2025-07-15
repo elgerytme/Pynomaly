@@ -466,12 +466,23 @@ class EnhancedRedisCache:
             
             elif self.config.redis_cluster_nodes:
                 # Use Redis Cluster for horizontal scaling
-                from rediscluster import RedisCluster
-                return RedisCluster(
-                    startup_nodes=self.config.redis_cluster_nodes,
-                    decode_responses=False,
-                    password=self.config.redis_password
-                )
+                try:
+                    from rediscluster import RedisCluster
+                    return RedisCluster(
+                        startup_nodes=self.config.redis_cluster_nodes,
+                        decode_responses=False,
+                        password=self.config.redis_password
+                    )
+                except ImportError:
+                    logger.warning("rediscluster not available, falling back to single instance")
+                    return redis.from_url(
+                        self.config.redis_url,
+                        decode_responses=False,
+                        socket_timeout=self.config.socket_timeout,
+                        password=self.config.redis_password,
+                        ssl=self.config.enable_ssl,
+                        ssl_cert_reqs=None if not self.config.enable_ssl else 'required'
+                    )
             
             else:
                 # Single Redis instance
@@ -800,7 +811,15 @@ class EnhancedRedisCache:
         
         # Close Redis connection
         if self.redis_client:
-            await self.redis_client.close()
+            try:
+                # Redis client close() is not always async
+                if hasattr(self.redis_client, 'close'):
+                    if asyncio.iscoroutinefunction(self.redis_client.close):
+                        await self.redis_client.close()
+                    else:
+                        self.redis_client.close()
+            except Exception as e:
+                logger.warning(f"Error closing Redis connection: {e}")
         
         logger.info("Enhanced Redis cache closed")
 

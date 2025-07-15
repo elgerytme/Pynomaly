@@ -74,13 +74,25 @@ jobs:
         hatch env run lint:fmt || echo "Format check warning"
         echo "::endgroup::"
 
-    # SECURITY SCANNING
+    # ENHANCED SECURITY SCANNING
     - name: Security scanning
       run: |
-        echo "::group::Security Scanning"
-        pip install bandit safety
+        echo "::group::Enhanced Security Scanning"
+        pip install bandit safety semgrep
+        
+        echo "Running Bandit - Python security linter..."
         bandit -r src/ -f json -o bandit-report.json || true
+        bandit -r src/ -f txt -o bandit-summary.txt || true
+        
+        echo "Running Safety - Dependency vulnerability scanner..."
         safety check --json --output safety-report.json || true
+        safety check --output safety-summary.txt || true
+        
+        echo "Running Semgrep - Code security analysis..."
+        semgrep --config=auto src/ --json -o semgrep-report.json || true
+        semgrep --config=auto src/ --text -o semgrep-summary.txt || true
+        
+        echo "Security scanning completed - reports generated"
         echo "::endgroup::"
 
     # BUILD AND PACKAGE
@@ -107,7 +119,11 @@ jobs:
         path: |
           dist/
           bandit-report.json
+          bandit-summary.txt
           safety-report.json
+          safety-summary.txt
+          semgrep-report.json
+          semgrep-summary.txt
         retention-days: 30
 
     - name: Set status outputs
