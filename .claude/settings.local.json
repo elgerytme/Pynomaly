@@ -237,7 +237,11 @@
       "Bash(tree:*)",
       "Bash(git fetch:*)",
       "Bash(git check-ignore:*)",
-      "Bash(pip show:*)"
+      "Bash(pip show:*)",
+      "Bash(sed:*)",
+      "Bash(npm test)",
+      "Bash(npx jest:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }

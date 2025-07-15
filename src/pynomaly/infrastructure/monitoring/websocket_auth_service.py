@@ -86,4 +86,499 @@ class WebSocketAuthService:
         self.config = config
         
         # In-memory storage (in production, use persistent storage)
-        self.users: Dict[UUID, User] = {}\n        self.roles: Dict[str, Role] = {}\n        self.sessions: Dict[str, WebSocketSession] = {}  # connection_id -> session\n        self.user_sessions: Dict[UUID, Set[str]] = {}  # user_id -> connection_ids\n        \n        # Initialize default roles\n        self._initialize_default_roles()\n        \n        self.logger.info(\"WebSocket authentication service initialized\")\n    \n    def _initialize_default_roles(self):\n        \"\"\"Initialize default roles and permissions.\"\"\"\n        \n        # Admin role with full permissions\n        admin_role = Role(\n            name=\"admin\",\n            description=\"Full system administrator\",\n            permissions=[\n                Permission(resource=\"*\", action=\"*\"),\n            ],\n            is_system_role=True\n        )\n        \n        # Dashboard viewer role\n        viewer_role = Role(\n            name=\"viewer\",\n            description=\"Dashboard viewer with read-only access\",\n            permissions=[\n                Permission(resource=\"dashboard\", action=\"read\"),\n                Permission(resource=\"metrics\", action=\"read\"),\n                Permission(resource=\"dashboard\", action=\"subscribe\"),\n                Permission(resource=\"metrics\", action=\"subscribe\"),\n            ],\n            is_system_role=True\n        )\n        \n        # Dashboard editor role\n        editor_role = Role(\n            name=\"editor\",\n            description=\"Dashboard editor with read/write access\",\n            permissions=[\n                Permission(resource=\"dashboard\", action=\"read\"),\n                Permission(resource=\"dashboard\", action=\"write\"),\n                Permission(resource=\"dashboard\", action=\"subscribe\"),\n                Permission(resource=\"metrics\", action=\"read\"),\n                Permission(resource=\"metrics\", action=\"subscribe\"),\n                Permission(resource=\"alerts\", action=\"read\"),\n                Permission(resource=\"alerts\", action=\"subscribe\"),\n            ],\n            is_system_role=True\n        )\n        \n        # System monitor role\n        monitor_role = Role(\n            name=\"monitor\",\n            description=\"System monitoring with alerts management\",\n            permissions=[\n                Permission(resource=\"dashboard\", action=\"read\"),\n                Permission(resource=\"dashboard\", action=\"subscribe\"),\n                Permission(resource=\"metrics\", action=\"read\"),\n                Permission(resource=\"metrics\", action=\"subscribe\"),\n                Permission(resource=\"alerts\", action=\"read\"),\n                Permission(resource=\"alerts\", action=\"write\"),\n                Permission(resource=\"alerts\", action=\"subscribe\"),\n                Permission(resource=\"system\", action=\"read\"),\n            ],\n            is_system_role=True\n        )\n        \n        # Store roles\n        self.roles[\"admin\"] = admin_role\n        self.roles[\"viewer\"] = viewer_role\n        self.roles[\"editor\"] = editor_role\n        self.roles[\"monitor\"] = monitor_role\n    \n    async def authenticate_token(self, token: str) -> Optional[Dict[str, Any]]:\n        \"\"\"Authenticate JWT token and return user claims.\"\"\"\n        try:\n            payload = jwt.decode(\n                token,\n                self.config.jwt_secret,\n                algorithms=[self.config.jwt_algorithm]\n            )\n            \n            # Check token expiration\n            exp = payload.get(\"exp\")\n            if exp and datetime.utcfromtimestamp(exp) < datetime.utcnow():\n                return None\n            \n            return payload\n            \n        except jwt.InvalidTokenError as e:\n            self.logger.debug(f\"Invalid JWT token: {e}\")\n            return None\n        except Exception as e:\n            self.logger.error(f\"Error authenticating token: {e}\")\n            return None\n    \n    async def create_session(\n        self,\n        connection_id: str,\n        token: Optional[str] = None,\n        ip_address: Optional[str] = None,\n        user_agent: Optional[str] = None\n    ) -> Optional[WebSocketSession]:\n        \"\"\"Create a new WebSocket session.\"\"\"\n        \n        session = WebSocketSession(\n            connection_id=connection_id,\n            ip_address=ip_address,\n            user_agent=user_agent\n        )\n        \n        # Handle authentication\n        if token:\n            claims = await self.authenticate_token(token)\n            if claims:\n                user_id_str = claims.get(\"user_id\")\n                if user_id_str:\n                    try:\n                        user_id = UUID(user_id_str)\n                        user = self.users.get(user_id)\n                        \n                        if user and user.is_active:\n                            # Check connection limits\n                            user_connections = self.user_sessions.get(user_id, set())\n                            if len(user_connections) >= self.config.max_connections_per_user:\n                                self.logger.warning(f\"User {user.username} exceeded connection limit\")\n                                return None\n                            \n                            # Set up authenticated session\n                            session.user_id = user_id\n                            session.username = user.username\n                            session.roles = user.roles.copy()\n                            session.permissions = self._get_user_permissions(user)\n                            session.is_authenticated = True\n                            \n                            # Update user's last login\n                            user.last_login = datetime.utcnow()\n                            \n                            # Track user sessions\n                            if user_id not in self.user_sessions:\n                                self.user_sessions[user_id] = set()\n                            self.user_sessions[user_id].add(connection_id)\n                            \n                            self.logger.info(f\"Authenticated session for user {user.username}\")\n                        else:\n                            self.logger.warning(f\"User {user_id} not found or inactive\")\n                            return None\n                    except ValueError:\n                        self.logger.warning(f\"Invalid user_id in token: {user_id_str}\")\n                        return None\n        \n        # Handle anonymous access if allowed\n        elif self.config.allow_anonymous_read:\n            session.roles = [\"viewer\"]\n            session.permissions = self._get_role_permissions(\"viewer\")\n            self.logger.debug(\"Created anonymous session with viewer permissions\")\n        \n        # Reject if authentication required but not provided\n        elif self.config.require_authentication:\n            self.logger.debug(\"Authentication required but not provided\")\n            return None\n        \n        # Store session\n        self.sessions[connection_id] = session\n        \n        return session\n    \n    async def close_session(self, connection_id: str) -> bool:\n        \"\"\"Close a WebSocket session.\"\"\"\n        \n        if connection_id not in self.sessions:\n            return False\n        \n        session = self.sessions[connection_id]\n        \n        # Remove from user sessions tracking\n        if session.user_id and session.user_id in self.user_sessions:\n            self.user_sessions[session.user_id].discard(connection_id)\n            if not self.user_sessions[session.user_id]:\n                del self.user_sessions[session.user_id]\n        \n        # Remove session\n        del self.sessions[connection_id]\n        \n        self.logger.debug(f\"Closed session for connection {connection_id}\")\n        return True\n    \n    async def check_permission(\n        self,\n        connection_id: str,\n        resource: str,\n        action: str,\n        scope: Optional[str] = None\n    ) -> bool:\n        \"\"\"Check if a session has permission for a specific action.\"\"\"\n        \n        if connection_id not in self.sessions:\n            return False\n        \n        session = self.sessions[connection_id]\n        \n        # Update activity timestamp\n        session.last_activity = datetime.utcnow()\n        \n        # Check session timeout\n        if self._is_session_expired(session):\n            await self.close_session(connection_id)\n            return False\n        \n        # Check rate limiting\n        if not self._check_rate_limit(session):\n            return False\n        \n        # Check permissions\n        for permission in session.permissions:\n            if self._permission_matches(permission, resource, action, scope):\n                return True\n        \n        return False\n    \n    def _permission_matches(\n        self,\n        permission: Permission,\n        resource: str,\n        action: str,\n        scope: Optional[str] = None\n    ) -> bool:\n        \"\"\"Check if a permission matches the requested access.\"\"\"\n        \n        # Check wildcard permissions\n        if permission.resource == \"*\" and permission.action == \"*\":\n            return True\n        \n        # Check resource match\n        if permission.resource != \"*\" and permission.resource != resource:\n            return False\n        \n        # Check action match\n        if permission.action != \"*\" and permission.action != action:\n            return False\n        \n        # Check scope if specified\n        if permission.scope and scope:\n            if permission.scope != scope and not scope.startswith(permission.scope):\n                return False\n        \n        return True\n    \n    def _get_user_permissions(self, user: User) -> List[Permission]:\n        \"\"\"Get all permissions for a user based on their roles.\"\"\"\n        permissions = []\n        \n        for role_name in user.roles:\n            role = self.roles.get(role_name)\n            if role:\n                permissions.extend(role.permissions)\n        \n        # Add admin permissions if user is admin\n        if user.is_admin:\n            admin_role = self.roles.get(\"admin\")\n            if admin_role:\n                permissions.extend(admin_role.permissions)\n        \n        return permissions\n    \n    def _get_role_permissions(self, role_name: str) -> List[Permission]:\n        \"\"\"Get permissions for a specific role.\"\"\"\n        role = self.roles.get(role_name)\n        return role.permissions if role else []\n    \n    def _is_session_expired(self, session: WebSocketSession) -> bool:\n        \"\"\"Check if a session has expired.\"\"\"\n        timeout = timedelta(minutes=self.config.session_timeout_minutes)\n        return datetime.utcnow() - session.last_activity > timeout\n    \n    def _check_rate_limit(self, session: WebSocketSession) -> bool:\n        \"\"\"Check and update rate limiting for a session.\"\"\"\n        now = datetime.utcnow()\n        \n        # Refill rate limit tokens based on time elapsed\n        time_elapsed = (now - session.rate_limit_last_refill).total_seconds()\n        tokens_to_add = int(time_elapsed * self.config.rate_limit_requests_per_minute / 60)\n        \n        if tokens_to_add > 0:\n            session.rate_limit_tokens = min(\n                session.rate_limit_tokens + tokens_to_add,\n                self.config.rate_limit_requests_per_minute\n            )\n            session.rate_limit_last_refill = now\n        \n        # Check if request is allowed\n        if session.rate_limit_tokens > 0:\n            session.rate_limit_tokens -= 1\n            return True\n        \n        return False\n    \n    async def subscribe_to_topic(\n        self,\n        connection_id: str,\n        topic: str\n    ) -> bool:\n        \"\"\"Subscribe a session to a topic with permission check.\"\"\"\n        \n        # Check subscription permission\n        if not await self.check_permission(connection_id, topic, \"subscribe\"):\n            return False\n        \n        if connection_id in self.sessions:\n            session = self.sessions[connection_id]\n            session.subscriptions.add(topic)\n            self.logger.debug(f\"Session {connection_id} subscribed to {topic}\")\n            return True\n        \n        return False\n    \n    async def unsubscribe_from_topic(\n        self,\n        connection_id: str,\n        topic: str\n    ) -> bool:\n        \"\"\"Unsubscribe a session from a topic.\"\"\"\n        \n        if connection_id in self.sessions:\n            session = self.sessions[connection_id]\n            session.subscriptions.discard(topic)\n            self.logger.debug(f\"Session {connection_id} unsubscribed from {topic}\")\n            return True\n        \n        return False\n    \n    async def get_session_info(self, connection_id: str) -> Optional[Dict[str, Any]]:\n        \"\"\"Get session information.\"\"\"\n        \n        if connection_id not in self.sessions:\n            return None\n        \n        session = self.sessions[connection_id]\n        \n        return {\n            \"session_id\": str(session.session_id),\n            \"connection_id\": session.connection_id,\n            \"user_id\": str(session.user_id) if session.user_id else None,\n            \"username\": session.username,\n            \"roles\": session.roles,\n            \"is_authenticated\": session.is_authenticated,\n            \"connected_at\": session.connected_at.isoformat(),\n            \"last_activity\": session.last_activity.isoformat(),\n            \"subscriptions\": list(session.subscriptions),\n            \"rate_limit_tokens\": session.rate_limit_tokens\n        }\n    \n    async def create_user(\n        self,\n        username: str,\n        email: Optional[str] = None,\n        roles: Optional[List[str]] = None,\n        is_admin: bool = False,\n        metadata: Optional[Dict[str, Any]] = None\n    ) -> User:\n        \"\"\"Create a new user.\"\"\"\n        \n        user = User(\n            user_id=uuid4(),\n            username=username,\n            email=email,\n            roles=roles or [\"viewer\"],\n            is_admin=is_admin,\n            metadata=metadata or {}\n        )\n        \n        self.users[user.user_id] = user\n        \n        self.logger.info(f\"Created user {username} with roles {user.roles}\")\n        return user\n    \n    async def generate_token(self, user_id: UUID) -> Optional[str]:\n        \"\"\"Generate JWT token for a user.\"\"\"\n        \n        user = self.users.get(user_id)\n        if not user or not user.is_active:\n            return None\n        \n        try:\n            payload = {\n                \"user_id\": str(user_id),\n                \"username\": user.username,\n                \"roles\": user.roles,\n                \"is_admin\": user.is_admin,\n                \"iat\": datetime.utcnow(),\n                \"exp\": datetime.utcnow() + timedelta(hours=self.config.jwt_expiration_hours)\n            }\n            \n            token = jwt.encode(\n                payload,\n                self.config.jwt_secret,\n                algorithm=self.config.jwt_algorithm\n            )\n            \n            return token\n            \n        except Exception as e:\n            self.logger.error(f\"Error generating token for user {user_id}: {e}\")\n            return None\n    \n    async def cleanup_expired_sessions(self):\n        \"\"\"Clean up expired sessions.\"\"\"\n        \n        expired_connections = []\n        \n        for connection_id, session in self.sessions.items():\n            if self._is_session_expired(session):\n                expired_connections.append(connection_id)\n        \n        for connection_id in expired_connections:\n            await self.close_session(connection_id)\n        \n        if expired_connections:\n            self.logger.info(f\"Cleaned up {len(expired_connections)} expired sessions\")\n    \n    async def get_user_sessions(self, user_id: UUID) -> List[Dict[str, Any]]:\n        \"\"\"Get all active sessions for a user.\"\"\"\n        \n        user_connections = self.user_sessions.get(user_id, set())\n        sessions_info = []\n        \n        for connection_id in user_connections:\n            session_info = await self.get_session_info(connection_id)\n            if session_info:\n                sessions_info.append(session_info)\n        \n        return sessions_info\n    \n    async def revoke_user_sessions(self, user_id: UUID) -> int:\n        \"\"\"Revoke all sessions for a user.\"\"\"\n        \n        user_connections = self.user_sessions.get(user_id, set()).copy()\n        revoked_count = 0\n        \n        for connection_id in user_connections:\n            if await self.close_session(connection_id):\n                revoked_count += 1\n        \n        self.logger.info(f\"Revoked {revoked_count} sessions for user {user_id}\")\n        return revoked_count\n    \n    async def get_security_summary(self) -> Dict[str, Any]:\n        \"\"\"Get security and authentication summary.\"\"\"\n        \n        active_sessions = len(self.sessions)\n        authenticated_sessions = sum(\n            1 for session in self.sessions.values() \n            if session.is_authenticated\n        )\n        \n        unique_users = len(self.user_sessions)\n        \n        return {\n            \"authentication_config\": {\n                \"require_authentication\": self.config.require_authentication,\n                \"allow_anonymous_read\": self.config.allow_anonymous_read,\n                \"session_timeout_minutes\": self.config.session_timeout_minutes,\n                \"max_connections_per_user\": self.config.max_connections_per_user,\n                \"rate_limit_per_minute\": self.config.rate_limit_requests_per_minute\n            },\n            \"current_status\": {\n                \"total_sessions\": active_sessions,\n                \"authenticated_sessions\": authenticated_sessions,\n                \"anonymous_sessions\": active_sessions - authenticated_sessions,\n                \"unique_users_connected\": unique_users,\n                \"total_users\": len(self.users),\n                \"total_roles\": len(self.roles)\n            },\n            \"security_metrics\": {\n                \"authentication_rate\": authenticated_sessions / max(active_sessions, 1),\n                \"average_connections_per_user\": active_sessions / max(unique_users, 1)\n            },\n            \"timestamp\": datetime.utcnow().isoformat()\n        }\n\n\n# Convenience function for creating auth service\ndef create_websocket_auth_service(\n    jwt_secret: Optional[str] = None,\n    require_authentication: bool = True\n) -> WebSocketAuthService:\n    \"\"\"Create and configure WebSocket authentication service.\"\"\"\n    \n    config = AuthenticationConfig(\n        jwt_secret=jwt_secret or secrets.token_urlsafe(32),\n        require_authentication=require_authentication\n    )\n    \n    return WebSocketAuthService(config)
+        self.users: Dict[UUID, User] = {}
+        self.roles: Dict[str, Role] = {}
+        self.sessions: Dict[str, WebSocketSession] = {}  # connection_id -> session
+        self.user_sessions: Dict[UUID, Set[str]] = {}  # user_id -> connection_ids
+        
+        # Initialize default roles
+        self._initialize_default_roles()
+        
+        self.logger.info("WebSocket authentication service initialized")
+    
+    def _initialize_default_roles(self):
+        """Initialize default roles and permissions."""
+        
+        # Admin role with full permissions
+        admin_role = Role(
+            name="admin",
+            description="Full system administrator",
+            permissions=[
+                Permission(resource="*", action="*"),
+            ],
+            is_system_role=True
+        )
+        
+        # Dashboard viewer role
+        viewer_role = Role(
+            name="viewer",
+            description="Dashboard viewer with read-only access",
+            permissions=[
+                Permission(resource="dashboard", action="read"),
+                Permission(resource="metrics", action="read"),
+                Permission(resource="dashboard", action="subscribe"),
+                Permission(resource="metrics", action="subscribe"),
+            ],
+            is_system_role=True
+        )
+        
+        # Dashboard editor role
+        editor_role = Role(
+            name="editor",
+            description="Dashboard editor with read/write access",
+            permissions=[
+                Permission(resource="dashboard", action="read"),
+                Permission(resource="dashboard", action="write"),
+                Permission(resource="dashboard", action="subscribe"),
+                Permission(resource="metrics", action="read"),
+                Permission(resource="metrics", action="subscribe"),
+                Permission(resource="alerts", action="read"),
+                Permission(resource="alerts", action="subscribe"),
+            ],
+            is_system_role=True
+        )
+        
+        # System monitor role
+        monitor_role = Role(
+            name="monitor",
+            description="System monitoring with alerts management",
+            permissions=[
+                Permission(resource="dashboard", action="read"),
+                Permission(resource="dashboard", action="subscribe"),
+                Permission(resource="metrics", action="read"),
+                Permission(resource="metrics", action="subscribe"),
+                Permission(resource="alerts", action="read"),
+                Permission(resource="alerts", action="write"),
+                Permission(resource="alerts", action="subscribe"),
+                Permission(resource="system", action="read"),
+            ],
+            is_system_role=True
+        )
+        
+        # Store roles
+        self.roles["admin"] = admin_role
+        self.roles["viewer"] = viewer_role
+        self.roles["editor"] = editor_role
+        self.roles["monitor"] = monitor_role
+    
+    async def authenticate_token(self, token: str) -> Optional[Dict[str, Any]]:
+        """Authenticate JWT token and return user claims."""
+        try:
+            payload = jwt.decode(
+                token,
+                self.config.jwt_secret,
+                algorithms=[self.config.jwt_algorithm]
+            )
+            
+            # Check token expiration
+            exp = payload.get("exp")
+            if exp and datetime.utcfromtimestamp(exp) < datetime.utcnow():
+                return None
+            
+            return payload
+            
+        except jwt.InvalidTokenError as e:
+            self.logger.debug(f"Invalid JWT token: {e}")
+            return None
+        except Exception as e:
+            self.logger.error(f"Error authenticating token: {e}")
+            return None
+    
+    async def create_session(
+        self,
+        connection_id: str,
+        token: Optional[str] = None,
+        ip_address: Optional[str] = None,
+        user_agent: Optional[str] = None
+    ) -> Optional[WebSocketSession]:
+        """Create a new WebSocket session."""
+        
+        session = WebSocketSession(
+            connection_id=connection_id,
+            ip_address=ip_address,
+            user_agent=user_agent
+        )
+        
+        # Handle authentication
+        if token:
+            claims = await self.authenticate_token(token)
+            if claims:
+                user_id_str = claims.get("user_id")
+                if user_id_str:
+                    try:
+                        user_id = UUID(user_id_str)
+                        user = self.users.get(user_id)
+                        
+                        if user and user.is_active:
+                            # Check connection limits
+                            user_connections = self.user_sessions.get(user_id, set())
+                            if len(user_connections) >= self.config.max_connections_per_user:
+                                self.logger.warning(f"User {user.username} exceeded connection limit")
+                                return None
+                            
+                            # Set up authenticated session
+                            session.user_id = user_id
+                            session.username = user.username
+                            session.roles = user.roles.copy()
+                            session.permissions = self._get_user_permissions(user)
+                            session.is_authenticated = True
+                            
+                            # Update user's last login
+                            user.last_login = datetime.utcnow()
+                            
+                            # Track user sessions
+                            if user_id not in self.user_sessions:
+                                self.user_sessions[user_id] = set()
+                            self.user_sessions[user_id].add(connection_id)
+                            
+                            self.logger.info(f"Authenticated session for user {user.username}")
+                        else:
+                            self.logger.warning(f"User {user_id} not found or inactive")
+                            return None
+                    except ValueError:
+                        self.logger.warning(f"Invalid user_id in token: {user_id_str}")
+                        return None
+        
+        # Handle anonymous access if allowed
+        elif self.config.allow_anonymous_read:
+            session.roles = ["viewer"]
+            session.permissions = self._get_role_permissions("viewer")
+            self.logger.debug("Created anonymous session with viewer permissions")
+        
+        # Reject if authentication required but not provided
+        elif self.config.require_authentication:
+            self.logger.debug("Authentication required but not provided")
+            return None
+        
+        # Store session
+        self.sessions[connection_id] = session
+        
+        return session
+    
+    async def close_session(self, connection_id: str) -> bool:
+        """Close a WebSocket session."""
+        
+        if connection_id not in self.sessions:
+            return False
+        
+        session = self.sessions[connection_id]
+        
+        # Remove from user sessions tracking
+        if session.user_id and session.user_id in self.user_sessions:
+            self.user_sessions[session.user_id].discard(connection_id)
+            if not self.user_sessions[session.user_id]:
+                del self.user_sessions[session.user_id]
+        
+        # Remove session
+        del self.sessions[connection_id]
+        
+        self.logger.debug(f"Closed session for connection {connection_id}")
+        return True
+    
+    async def check_permission(
+        self,
+        connection_id: str,
+        resource: str,
+        action: str,
+        scope: Optional[str] = None
+    ) -> bool:
+        """Check if a session has permission for a specific action."""
+        
+        if connection_id not in self.sessions:
+            return False
+        
+        session = self.sessions[connection_id]
+        
+        # Update activity timestamp
+        session.last_activity = datetime.utcnow()
+        
+        # Check session timeout
+        if self._is_session_expired(session):
+            await self.close_session(connection_id)
+            return False
+        
+        # Check rate limiting
+        if not self._check_rate_limit(session):
+            return False
+        
+        # Check permissions
+        for permission in session.permissions:
+            if self._permission_matches(permission, resource, action, scope):
+                return True
+        
+        return False
+    
+    def _permission_matches(
+        self,
+        permission: Permission,
+        resource: str,
+        action: str,
+        scope: Optional[str] = None
+    ) -> bool:
+        """Check if a permission matches the requested access."""
+        
+        # Check wildcard permissions
+        if permission.resource == "*" and permission.action == "*":
+            return True
+        
+        # Check resource match
+        if permission.resource != "*" and permission.resource != resource:
+            return False
+        
+        # Check action match
+        if permission.action != "*" and permission.action != action:
+            return False
+        
+        # Check scope if specified
+        if permission.scope and scope:
+            if permission.scope != scope and not scope.startswith(permission.scope):
+                return False
+        
+        return True
+    
+    def _get_user_permissions(self, user: User) -> List[Permission]:
+        """Get all permissions for a user based on their roles."""
+        permissions = []
+        
+        for role_name in user.roles:
+            role = self.roles.get(role_name)
+            if role:
+                permissions.extend(role.permissions)
+        
+        # Add admin permissions if user is admin
+        if user.is_admin:
+            admin_role = self.roles.get("admin")
+            if admin_role:
+                permissions.extend(admin_role.permissions)
+        
+        return permissions
+    
+    def _get_role_permissions(self, role_name: str) -> List[Permission]:
+        """Get permissions for a specific role."""
+        role = self.roles.get(role_name)
+        return role.permissions if role else []
+    
+    def _is_session_expired(self, session: WebSocketSession) -> bool:
+        """Check if a session has expired."""
+        timeout = timedelta(minutes=self.config.session_timeout_minutes)
+        return datetime.utcnow() - session.last_activity > timeout
+    
+    def _check_rate_limit(self, session: WebSocketSession) -> bool:
+        """Check and update rate limiting for a session."""
+        now = datetime.utcnow()
+        
+        # Refill rate limit tokens based on time elapsed
+        time_elapsed = (now - session.rate_limit_last_refill).total_seconds()
+        tokens_to_add = int(time_elapsed * self.config.rate_limit_requests_per_minute / 60)
+        
+        if tokens_to_add > 0:
+            session.rate_limit_tokens = min(
+                session.rate_limit_tokens + tokens_to_add,
+                self.config.rate_limit_requests_per_minute
+            )
+            session.rate_limit_last_refill = now
+        
+        # Check if request is allowed
+        if session.rate_limit_tokens > 0:
+            session.rate_limit_tokens -= 1
+            return True
+        
+        return False
+    
+    async def subscribe_to_topic(
+        self,
+        connection_id: str,
+        topic: str
+    ) -> bool:
+        """Subscribe a session to a topic with permission check."""
+        
+        # Check subscription permission
+        if not await self.check_permission(connection_id, topic, "subscribe"):
+            return False
+        
+        if connection_id in self.sessions:
+            session = self.sessions[connection_id]
+            session.subscriptions.add(topic)
+            self.logger.debug(f"Session {connection_id} subscribed to {topic}")
+            return True
+        
+        return False
+    
+    async def unsubscribe_from_topic(
+        self,
+        connection_id: str,
+        topic: str
+    ) -> bool:
+        """Unsubscribe a session from a topic."""
+        
+        if connection_id in self.sessions:
+            session = self.sessions[connection_id]
+            session.subscriptions.discard(topic)
+            self.logger.debug(f"Session {connection_id} unsubscribed from {topic}")
+            return True
+        
+        return False
+    
+    async def get_session_info(self, connection_id: str) -> Optional[Dict[str, Any]]:
+        """Get session information."""
+        
+        if connection_id not in self.sessions:
+            return None
+        
+        session = self.sessions[connection_id]
+        
+        return {
+            "session_id": str(session.session_id),
+            "connection_id": session.connection_id,
+            "user_id": str(session.user_id) if session.user_id else None,
+            "username": session.username,
+            "roles": session.roles,
+            "is_authenticated": session.is_authenticated,
+            "connected_at": session.connected_at.isoformat(),
+            "last_activity": session.last_activity.isoformat(),
+            "subscriptions": list(session.subscriptions),
+            "rate_limit_tokens": session.rate_limit_tokens
+        }
+    
+    async def create_user(
+        self,
+        username: str,
+        email: Optional[str] = None,
+        roles: Optional[List[str]] = None,
+        is_admin: bool = False,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> User:
+        """Create a new user."""
+        
+        user = User(
+            user_id=uuid4(),
+            username=username,
+            email=email,
+            roles=roles or ["viewer"],
+            is_admin=is_admin,
+            metadata=metadata or {}
+        )
+        
+        self.users[user.user_id] = user
+        
+        self.logger.info(f"Created user {username} with roles {user.roles}")
+        return user
+    
+    async def generate_token(self, user_id: UUID) -> Optional[str]:
+        """Generate JWT token for a user."""
+        
+        user = self.users.get(user_id)
+        if not user or not user.is_active:
+            return None
+        
+        try:
+            payload = {
+                "user_id": str(user_id),
+                "username": user.username,
+                "roles": user.roles,
+                "is_admin": user.is_admin,
+                "iat": datetime.utcnow(),
+                "exp": datetime.utcnow() + timedelta(hours=self.config.jwt_expiration_hours)
+            }
+            
+            token = jwt.encode(
+                payload,
+                self.config.jwt_secret,
+                algorithm=self.config.jwt_algorithm
+            )
+            
+            return token
+            
+        except Exception as e:
+            self.logger.error(f"Error generating token for user {user_id}: {e}")
+            return None
+    
+    async def cleanup_expired_sessions(self):
+        """Clean up expired sessions."""
+        
+        expired_connections = []
+        
+        for connection_id, session in self.sessions.items():
+            if self._is_session_expired(session):
+                expired_connections.append(connection_id)
+        
+        for connection_id in expired_connections:
+            await self.close_session(connection_id)
+        
+        if expired_connections:
+            self.logger.info(f"Cleaned up {len(expired_connections)} expired sessions")
+    
+    async def get_user_sessions(self, user_id: UUID) -> List[Dict[str, Any]]:
+        """Get all active sessions for a user."""
+        
+        user_connections = self.user_sessions.get(user_id, set())
+        sessions_info = []
+        
+        for connection_id in user_connections:
+            session_info = await self.get_session_info(connection_id)
+            if session_info:
+                sessions_info.append(session_info)
+        
+        return sessions_info
+    
+    async def revoke_user_sessions(self, user_id: UUID) -> int:
+        """Revoke all sessions for a user."""
+        
+        user_connections = self.user_sessions.get(user_id, set()).copy()
+        revoked_count = 0
+        
+        for connection_id in user_connections:
+            if await self.close_session(connection_id):
+                revoked_count += 1
+        
+        self.logger.info(f"Revoked {revoked_count} sessions for user {user_id}")
+        return revoked_count
+    
+    async def get_security_summary(self) -> Dict[str, Any]:
+        """Get security and authentication summary."""
+        
+        active_sessions = len(self.sessions)
+        authenticated_sessions = sum(
+            1 for session in self.sessions.values() 
+            if session.is_authenticated
+        )
+        
+        unique_users = len(self.user_sessions)
+        
+        return {
+            "authentication_config": {
+                "require_authentication": self.config.require_authentication,
+                "allow_anonymous_read": self.config.allow_anonymous_read,
+                "session_timeout_minutes": self.config.session_timeout_minutes,
+                "max_connections_per_user": self.config.max_connections_per_user,
+                "rate_limit_per_minute": self.config.rate_limit_requests_per_minute
+            },
+            "current_status": {
+                "total_sessions": active_sessions,
+                "authenticated_sessions": authenticated_sessions,
+                "anonymous_sessions": active_sessions - authenticated_sessions,
+                "unique_users_connected": unique_users,
+                "total_users": len(self.users),
+                "total_roles": len(self.roles)
+            },
+            "security_metrics": {
+                "authentication_rate": authenticated_sessions / max(active_sessions, 1),
+                "average_connections_per_user": active_sessions / max(unique_users, 1)
+            },
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+
+# Convenience function for creating auth service
+def create_websocket_auth_service(
+    jwt_secret: Optional[str] = None,
+    require_authentication: bool = True
+) -> WebSocketAuthService:
+    """Create and configure WebSocket authentication service."""
+    
+    config = AuthenticationConfig(
+        jwt_secret=jwt_secret or secrets.token_urlsafe(32),
+        require_authentication=require_authentication
+    )
+    
+    return WebSocketAuthService(config)

@@ -2,7 +2,12 @@
  * Jest test setup configuration
  */
 
-import 'jest-extended';
+// Import jest-extended if available
+try {
+  require('jest-extended');
+} catch (e) {
+  // jest-extended not available, continue without it
+}
 
 // Mock WebSocket for Node.js environment
 if (typeof global !== 'undefined' && !global.WebSocket) {
