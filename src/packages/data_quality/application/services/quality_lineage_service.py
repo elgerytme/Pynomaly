@@ -14,6 +14,15 @@ from collections import defaultdict, deque
 from enum import Enum
 import json
 import time
+import asyncio
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+import threading
+from functools import lru_cache, wraps
+import sqlite3
+import pickle
+import gzip
+import os
+from pathlib import Path
 
 from ...domain.entities.quality_lineage import (
     QualityLineageGraph, LineageNode, LineageEdge, QualityImpactAnalysis,
@@ -44,9 +53,22 @@ class LineageServiceConfig:
     enable_impact_scoring: bool = True
     
     # Performance optimizations
-    max_nodes_per_analysis: int = 10000
+    max_nodes_per_analysis: int = 1000000  # Support up to 1 million nodes
     enable_caching: bool = True
     cache_ttl_hours: int = 24
+    enable_parallel_processing: bool = True
+    max_workers: int = 4
+    batch_size: int = 1000
+    
+    # Advanced caching
+    enable_persistent_cache: bool = True
+    cache_compression: bool = True
+    cache_partitioning: bool = True
+    
+    # Memory optimization
+    enable_memory_optimization: bool = True
+    lazy_loading: bool = True
+    node_attribute_compression: bool = True
     
     # Lineage building
     auto_discover_relationships: bool = True
@@ -88,10 +110,144 @@ class QualityLineageService:
         self._lineage_graphs: Dict[str, QualityLineageGraph] = {}
         self._impact_cache: Dict[str, QualityImpactAnalysis] = {}
         
+        # Performance optimizations
+        self._thread_pool = ThreadPoolExecutor(max_workers=self.config.max_workers) if self.config.enable_parallel_processing else None
+        self._cache_lock = threading.RLock()
+        self._persistent_cache_db = None
+        
+        # Initialize persistent cache if enabled
+        if self.config.enable_persistent_cache:
+            self._initialize_persistent_cache()
+        
         # Define default propagation rules
         self._propagation_rules = self._initialize_propagation_rules()
         
-        logger.info("Quality Lineage Service initialized")
+        # Advanced caching structures
+        self._node_cache: Dict[str, Any] = {}
+        self._edge_cache: Dict[str, Any] = {}
+        self._path_cache: Dict[str, List[List[LineageNodeId]]] = {}
+        
+        logger.info("Quality Lineage Service initialized with performance optimizations")
+    
+    def _initialize_persistent_cache(self):
+        """Initialize persistent cache using SQLite."""
+        try:
+            cache_dir = Path.home() / ".pynomaly" / "cache"
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            
+            cache_file = cache_dir / "lineage_cache.db"
+            self._persistent_cache_db = sqlite3.connect(str(cache_file), check_same_thread=False)
+            
+            # Create tables
+            self._persistent_cache_db.execute('''
+                CREATE TABLE IF NOT EXISTS impact_cache (
+                    cache_key TEXT PRIMARY KEY,
+                    analysis_data BLOB,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    expires_at TIMESTAMP
+                )
+            ''')
+            
+            self._persistent_cache_db.execute('''
+                CREATE TABLE IF NOT EXISTS path_cache (
+                    cache_key TEXT PRIMARY KEY,
+                    path_data BLOB,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            
+            self._persistent_cache_db.commit()
+            
+        except Exception as e:
+            logger.warning(f"Failed to initialize persistent cache: {e}")
+            self._persistent_cache_db = None
+    
+    def _get_from_persistent_cache(self, cache_key: str, table: str = "impact_cache") -> Optional[Any]:
+        """Get item from persistent cache."""
+        if not self._persistent_cache_db:
+            return None
+        
+        try:
+            cursor = self._persistent_cache_db.cursor()
+            if table == "impact_cache":
+                cursor.execute(
+                    "SELECT analysis_data FROM impact_cache WHERE cache_key = ? AND expires_at > datetime('now')",
+                    (cache_key,)
+                )
+            else:
+                cursor.execute(
+                    "SELECT path_data FROM path_cache WHERE cache_key = ?",
+                    (cache_key,)
+                )
+            
+            row = cursor.fetchone()
+            if row:
+                data = pickle.loads(gzip.decompress(row[0]) if self.config.cache_compression else row[0])
+                return data
+                
+        except Exception as e:
+            logger.warning(f"Failed to retrieve from persistent cache: {e}")
+        
+        return None
+    
+    def _save_to_persistent_cache(self, cache_key: str, data: Any, table: str = "impact_cache"):
+        """Save item to persistent cache."""
+        if not self._persistent_cache_db:
+            return
+        
+        try:
+            serialized_data = pickle.dumps(data)
+            if self.config.cache_compression:
+                serialized_data = gzip.compress(serialized_data)
+            
+            cursor = self._persistent_cache_db.cursor()
+            if table == "impact_cache":
+                expires_at = datetime.now() + timedelta(hours=self.config.cache_ttl_hours)
+                cursor.execute(
+                    "INSERT OR REPLACE INTO impact_cache (cache_key, analysis_data, expires_at) VALUES (?, ?, ?)",
+                    (cache_key, serialized_data, expires_at)
+                )
+            else:
+                cursor.execute(
+                    "INSERT OR REPLACE INTO path_cache (cache_key, path_data) VALUES (?, ?)",
+                    (cache_key, serialized_data)
+                )
+            
+            self._persistent_cache_db.commit()
+            
+        except Exception as e:
+            logger.warning(f"Failed to save to persistent cache: {e}")
+    
+    def _batch_process_nodes(self, nodes: List[LineageNode], processor_func, batch_size: int = None) -> List[Any]:
+        """Process nodes in batches for performance."""
+        batch_size = batch_size or self.config.batch_size
+        results = []
+        
+        if self._thread_pool and self.config.enable_parallel_processing:
+            # Parallel processing
+            futures = []
+            for i in range(0, len(nodes), batch_size):
+                batch = nodes[i:i + batch_size]
+                future = self._thread_pool.submit(processor_func, batch)
+                futures.append(future)
+            
+            for future in as_completed(futures):
+                try:
+                    batch_results = future.result()
+                    results.extend(batch_results)
+                except Exception as e:
+                    logger.warning(f"Batch processing failed: {e}")
+        else:
+            # Sequential processing
+            for i in range(0, len(nodes), batch_size):
+                batch = nodes[i:i + batch_size]
+                try:
+                    batch_results = processor_func(batch)
+                    results.extend(batch_results)
+                except Exception as e:
+                    logger.warning(f"Batch processing failed: {e}")
+        
+        return results
     
     def _initialize_propagation_rules(self) -> List[ImpactPropagationRule]:
         """Initialize default impact propagation rules."""
@@ -415,14 +571,32 @@ class QualityLineageService:
         """
         start_time = time.time()
         
-        # Check cache if enabled
+        # Check cache if enabled (both in-memory and persistent)
         cache_key = f"{graph.graph_id}:{root_node_id}:{impact_scope}"
-        if self.config.enable_caching and cache_key in self._impact_cache:
-            cached_analysis = self._impact_cache[cache_key]
-            cache_age = datetime.now() - cached_analysis.analysis_date
-            if cache_age.total_seconds() < (self.config.cache_ttl_hours * 3600):
-                logger.debug(f"Returning cached impact analysis: {cache_key}")
+        
+        # Check in-memory cache first
+        if self.config.enable_caching:
+            with self._cache_lock:
+                if cache_key in self._impact_cache:
+                    cached_analysis = self._impact_cache[cache_key]
+                    cache_age = datetime.now() - cached_analysis.analysis_date
+                    if cache_age.total_seconds() < (self.config.cache_ttl_hours * 3600):
+                        logger.debug(f"Returning cached impact analysis: {cache_key}")
+                        return cached_analysis
+        
+        # Check persistent cache
+        if self.config.enable_persistent_cache:
+            cached_analysis = self._get_from_persistent_cache(cache_key)
+            if cached_analysis:
+                logger.debug(f"Returning persistent cached impact analysis: {cache_key}")
+                with self._cache_lock:
+                    self._impact_cache[cache_key] = cached_analysis
                 return cached_analysis
+        
+        # Validate graph size for performance
+        if len(graph.nodes) > self.config.max_nodes_per_analysis:
+            logger.warning(f"Graph has {len(graph.nodes)} nodes, exceeding max of {self.config.max_nodes_per_analysis}")
+            return self._analyze_quality_impact_large_graph(graph, root_node_id, impact_scope, quality_issue)
         
         analysis = QualityImpactAnalysis(
             root_node_id=root_node_id,
@@ -454,10 +628,82 @@ class QualityLineageService:
         
         # Cache results if enabled
         if self.config.enable_caching:
-            self._impact_cache[cache_key] = analysis
+            with self._cache_lock:
+                self._impact_cache[cache_key] = analysis
+        
+        if self.config.enable_persistent_cache:
+            self._save_to_persistent_cache(cache_key, analysis)
         
         logger.info(f"Completed impact analysis for {root_node.name}: "
-                   f"{len(analysis.impacted_nodes)} impacted nodes")
+                   f"{len(analysis.impacted_nodes)} impacted nodes in {analysis.analysis_duration_seconds:.2f}s")
+        
+        return analysis
+    
+    def _analyze_quality_impact_large_graph(self,
+                                           graph: QualityLineageGraph,
+                                           root_node_id: LineageNodeId,
+                                           impact_scope: str,
+                                           quality_issue: Optional[QualityAnomaly] = None) -> QualityImpactAnalysis:
+        """Analyze quality impact for large graphs using optimized algorithms."""
+        start_time = time.time()
+        
+        analysis = QualityImpactAnalysis(
+            root_node_id=root_node_id,
+            impact_scope=impact_scope
+        )
+        
+        root_node = graph.get_node(root_node_id)
+        if not root_node:
+            raise ValueError(f"Root node not found: {root_node_id}")
+        
+        # Use breadth-first search with limited depth for large graphs
+        visited_nodes = set()
+        nodes_to_process = deque([(root_node, 0, 1.0)])  # (node, depth, impact_score)
+        
+        while nodes_to_process and len(analysis.impacted_nodes) < self.config.max_nodes_per_analysis:
+            current_node, depth, current_impact = nodes_to_process.popleft()
+            
+            if depth >= self.config.max_propagation_depth:
+                continue
+            
+            current_node_str = str(current_node.node_id)
+            if current_node_str in visited_nodes:
+                continue
+            
+            visited_nodes.add(current_node_str)
+            
+            # Process current node
+            if current_node != root_node and current_impact >= self.config.min_impact_threshold:
+                impact_severity = self._calculate_impact_severity(current_impact, current_node)
+                analysis.add_impacted_node(
+                    node_id=current_node.node_id,
+                    node_name=current_node.name,
+                    impact_severity=impact_severity,
+                    impact_type=ImpactType.CASCADING,
+                    impact_score=current_impact,
+                    propagation_path=[root_node_id, current_node.node_id]
+                )
+            
+            # Add neighbors to queue
+            if impact_scope in ["downstream", "both"]:
+                for downstream_node in graph.get_downstream_nodes(current_node.node_id):
+                    if str(downstream_node.node_id) not in visited_nodes:
+                        propagated_impact = current_impact * 0.8  # Simplified propagation
+                        nodes_to_process.append((downstream_node, depth + 1, propagated_impact))
+            
+            if impact_scope in ["upstream", "both"]:
+                for upstream_node in graph.get_upstream_nodes(current_node.node_id):
+                    if str(upstream_node.node_id) not in visited_nodes:
+                        propagated_impact = current_impact * 0.8  # Simplified propagation
+                        nodes_to_process.append((upstream_node, depth + 1, propagated_impact))
+        
+        # Calculate analysis summary
+        analysis.total_nodes_analyzed = len(visited_nodes)
+        analysis.analysis_duration_seconds = time.time() - start_time
+        analysis.calculate_summary()
+        
+        logger.info(f"Completed large graph impact analysis for {root_node.name}: "
+                   f"{len(analysis.impacted_nodes)} impacted nodes in {analysis.analysis_duration_seconds:.2f}s")
         
         return analysis
     
@@ -886,6 +1132,212 @@ class QualityLineageService:
             recommendations.append(f"Review {orphaned} orphaned nodes that may indicate missing relationships")
         
         return recommendations[:self.config.max_recommendations]
+    
+    def perform_root_cause_analysis(self,
+                                   graph: QualityLineageGraph,
+                                   quality_issue_node_id: LineageNodeId,
+                                   analysis_depth: int = 5) -> Dict[str, Any]:
+        """Perform advanced root cause analysis for quality issues.
+        
+        Args:
+            graph: Lineage graph to analyze
+            quality_issue_node_id: Node where quality issue was detected
+            analysis_depth: Maximum depth to search for root causes
+            
+        Returns:
+            Root cause analysis results
+        """
+        start_time = time.time()
+        
+        issue_node = graph.get_node(quality_issue_node_id)
+        if not issue_node:
+            raise ValueError(f"Quality issue node not found: {quality_issue_node_id}")
+        
+        # Initialize analysis results
+        root_causes = []
+        contributing_factors = []
+        confidence_scores = {}
+        
+        # Perform backward traversal to find potential root causes
+        visited_nodes = set()
+        candidates = deque([(issue_node, 0, 1.0)])  # (node, depth, confidence)
+        
+        while candidates:
+            current_node, depth, confidence = candidates.popleft()
+            
+            if depth >= analysis_depth:
+                continue
+            
+            current_node_str = str(current_node.node_id)
+            if current_node_str in visited_nodes:
+                continue
+            
+            visited_nodes.add(current_node_str)
+            
+            # Analyze node for root cause potential
+            root_cause_score = self._calculate_root_cause_score(current_node, issue_node, depth)
+            
+            if root_cause_score > 0.7:  # High confidence root cause
+                root_causes.append({
+                    'node_id': str(current_node.node_id),
+                    'node_name': current_node.name,
+                    'node_type': current_node.node_type.value,
+                    'confidence_score': root_cause_score,
+                    'distance_from_issue': depth,
+                    'quality_score': current_node.quality_score,
+                    'contributing_factors': self._identify_contributing_factors(current_node)
+                })
+            elif root_cause_score > 0.4:  # Contributing factor
+                contributing_factors.append({
+                    'node_id': str(current_node.node_id),
+                    'node_name': current_node.name,
+                    'node_type': current_node.node_type.value,
+                    'contribution_score': root_cause_score,
+                    'distance_from_issue': depth
+                })
+            
+            # Add upstream nodes for further analysis
+            for upstream_node in graph.get_upstream_nodes(current_node.node_id):
+                if str(upstream_node.node_id) not in visited_nodes:
+                    # Calculate propagated confidence
+                    propagated_confidence = confidence * 0.9  # Slight decay
+                    candidates.append((upstream_node, depth + 1, propagated_confidence))
+        
+        # Rank root causes by confidence
+        root_causes.sort(key=lambda x: x['confidence_score'], reverse=True)
+        contributing_factors.sort(key=lambda x: x['contribution_score'], reverse=True)
+        
+        # Generate recommendations
+        recommendations = self._generate_root_cause_recommendations(root_causes, contributing_factors)
+        
+        analysis_duration = time.time() - start_time
+        
+        return {
+            'issue_node': {
+                'node_id': str(quality_issue_node_id),
+                'node_name': issue_node.name,
+                'node_type': issue_node.node_type.value,
+                'quality_score': issue_node.quality_score,
+                'quality_issues': issue_node.quality_issues
+            },
+            'root_causes': root_causes,
+            'contributing_factors': contributing_factors,
+            'analysis_summary': {
+                'total_nodes_analyzed': len(visited_nodes),
+                'root_causes_found': len(root_causes),
+                'contributing_factors_found': len(contributing_factors),
+                'analysis_duration_seconds': analysis_duration,
+                'confidence_threshold': 0.7,
+                'analysis_depth': analysis_depth
+            },
+            'recommendations': recommendations,
+            'next_steps': self._generate_next_steps(root_causes, contributing_factors)
+        }
+    
+    def _calculate_root_cause_score(self, candidate_node: LineageNode, issue_node: LineageNode, depth: int) -> float:
+        """Calculate root cause confidence score for a candidate node."""
+        score = 0.0
+        
+        # Distance penalty (closer nodes are more likely to be root causes)
+        distance_score = max(0, 1.0 - (depth * 0.15))
+        score += distance_score * 0.3
+        
+        # Quality score factor (lower quality = higher root cause probability)
+        if candidate_node.quality_score is not None:
+            quality_factor = 1.0 - candidate_node.quality_score
+            score += quality_factor * 0.4
+        
+        # Node type factor (data sources and transformations are more likely root causes)
+        type_weights = {
+            LineageNodeType.DATA_SOURCE: 0.9,
+            LineageNodeType.TRANSFORMATION: 0.8,
+            LineageNodeType.DATASET: 0.6,
+            LineageNodeType.COLUMN: 0.5,
+            LineageNodeType.QUALITY_RULE: 0.7,
+            LineageNodeType.API_ENDPOINT: 0.3,
+            LineageNodeType.REPORT: 0.2,
+            LineageNodeType.DASHBOARD: 0.1
+        }
+        
+        type_weight = type_weights.get(candidate_node.node_type, 0.5)
+        score += type_weight * 0.2
+        
+        # Quality issues factor
+        if candidate_node.quality_issues:
+            issues_factor = min(1.0, len(candidate_node.quality_issues) * 0.2)
+            score += issues_factor * 0.1
+        
+        return min(score, 1.0)
+    
+    def _identify_contributing_factors(self, node: LineageNode) -> List[str]:
+        """Identify contributing factors for a potential root cause."""
+        factors = []
+        
+        if node.quality_score is not None and node.quality_score < 0.7:
+            factors.append("Low quality score")
+        
+        if node.quality_issues:
+            factors.append(f"Has {len(node.quality_issues)} quality issues")
+        
+        if node.node_type == LineageNodeType.DATA_SOURCE:
+            factors.append("External data source - potential upstream issues")
+        
+        if node.node_type == LineageNodeType.TRANSFORMATION:
+            factors.append("Data transformation - potential processing issues")
+        
+        # Check for recent updates
+        if node.updated_at and (datetime.now() - node.updated_at).days <= 7:
+            factors.append("Recent changes detected")
+        
+        return factors
+    
+    def _generate_root_cause_recommendations(self, root_causes: List[Dict], contributing_factors: List[Dict]) -> List[str]:
+        """Generate recommendations based on root cause analysis."""
+        recommendations = []
+        
+        if not root_causes:
+            recommendations.append("No high-confidence root causes found - consider expanding analysis depth")
+            return recommendations
+        
+        # Address top root causes
+        for i, root_cause in enumerate(root_causes[:3]):  # Top 3 root causes
+            node_name = root_cause['node_name']
+            node_type = root_cause['node_type']
+            
+            if node_type == 'data_source':
+                recommendations.append(f"Investigate data source '{node_name}' - validate data quality at origin")
+            elif node_type == 'transformation':
+                recommendations.append(f"Review transformation logic in '{node_name}' - check for processing errors")
+            elif node_type == 'dataset':
+                recommendations.append(f"Validate dataset '{node_name}' - run comprehensive quality checks")
+            else:
+                recommendations.append(f"Investigate '{node_name}' ({node_type}) - address quality issues")
+        
+        # Address contributing factors
+        if contributing_factors:
+            recommendations.append("Address contributing factors to prevent future issues")
+        
+        return recommendations
+    
+    def _generate_next_steps(self, root_causes: List[Dict], contributing_factors: List[Dict]) -> List[str]:
+        """Generate actionable next steps."""
+        next_steps = []
+        
+        if root_causes:
+            next_steps.append("Prioritize investigation of identified root causes")
+            next_steps.append("Implement monitoring for root cause nodes")
+            next_steps.append("Develop remediation plan for top root causes")
+        
+        if contributing_factors:
+            next_steps.append("Monitor contributing factors for early warning")
+        
+        next_steps.extend([
+            "Set up alerts for quality degradation in critical paths",
+            "Consider implementing data quality gates",
+            "Review and update quality rules based on findings"
+        ])
+        
+        return next_steps
     
     def export_lineage_graph(self, 
                            graph: QualityLineageGraph,
