@@ -1,0 +1,91 @@
+name: Release to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Publish target'
+        required: true
+        default: 'testpypi'
+        type: choice
+        options:
+          - testpypi
+          - pypi
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Change to pynomaly-detection directory
+      run: cd pynomaly-detection
+    
+    - name: Install dependencies and test
+      run: |
+        cd pynomaly-detection
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov numpy pandas scikit-learn scipy
+        pip install -e .
+        
+        # Run quick tests
+        python -c "
+import pynomaly_detection
+import numpy as np
+detector = pynomaly_detection.AnomalyDetector()
+X = np.random.randn(100, 5)
+detector.fit(X)
+predictions = detector.predict(X)
+print(f'✅ Basic functionality test passed: {predictions.sum()} anomalies detected')
+        "
+    
+    - name: Build package
+      run: |
+        cd pynomaly-detection
+        pip install build twine
+        python -m build
+        twine check dist/*
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: python-package-distributions
+        path: pynomaly-detection/dist/
+
+  publish:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.target || 'pypi' }}
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: python-package-distributions
+        path: pynomaly-detection/dist/
+    
+    - name: Publish to TestPyPI
+      if: ${{ github.event.inputs.target == 'testpypi' || github.event_name == 'workflow_dispatch' }}
+      run: |
+        pip install twine
+        twine upload --repository testpypi dist/* --non-interactive
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+    
+    - name: Publish to PyPI
+      if: ${{ github.event.inputs.target == 'pypi' || github.event_name == 'release' }}
+      run: |
+        pip install twine
+        twine upload dist/* --non-interactive
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
