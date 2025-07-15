@@ -1,0 +1,743 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: namespace
+    environment: production
+  annotations:
+    kubernetes.io/managed-by: "pynomaly-platform"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pynomaly-config
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: config
+data:
+  # Application configuration
+  PYNOMALY_ENV: "production"
+  PYNOMALY_LOG_LEVEL: "INFO"
+  PYNOMALY_LOG_FORMAT: "json"
+
+  # Python optimizations
+  PYTHONOPTIMIZE: "2"
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  OMP_NUM_THREADS: "2"
+
+  # Database configuration
+  DATABASE_HOST: "postgres-service"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "pynomaly_prod"
+  DATABASE_SSL_MODE: "require"
+  DATABASE_POOL_SIZE: "20"
+  DATABASE_MAX_OVERFLOW: "10"
+  DATABASE_POOL_RECYCLE: "3600"
+
+  # Redis configuration
+  REDIS_HOST: "redis-service"
+  REDIS_PORT: "6379"
+  REDIS_DB: "0"
+  REDIS_SSL_ENABLED: "true"
+  REDIS_POOL_SIZE: "20"
+
+  # Monitoring and observability
+  METRICS_ENABLED: "true"
+  METRICS_PORT: "9090"
+  METRICS_PATH: "/metrics"
+  TRACING_ENABLED: "true"
+  JAEGER_ENDPOINT: "http://jaeger-collector:14268/api/traces"
+
+  # Security configuration
+  SECURE_HEADERS_ENABLED: "true"
+  CORS_ENABLED: "false"
+  RATE_LIMITING_ENABLED: "true"
+  AUTH_ENABLED: "true"
+
+  # Performance optimization
+  CACHING_ENABLED: "true"
+  CACHE_TTL: "3600"
+  ASYNC_WORKERS: "4"
+  MAX_CONCURRENT_REQUESTS: "100"
+
+  # ML-specific configuration
+  MODEL_CACHE_SIZE: "10"
+  BATCH_PROCESSING_ENABLED: "true"
+  STREAMING_ENABLED: "true"
+  GPU_ENABLED: "false"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pynomaly-secrets
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: secret
+type: Opaque
+stringData:
+  # Database credentials (to be replaced with actual values)
+  DATABASE_USER: "pynomaly_user"
+  DATABASE_PASSWORD: "REPLACE_WITH_VAULT_SECRET"
+
+  # Redis credentials
+  REDIS_PASSWORD: "REPLACE_WITH_VAULT_SECRET"
+
+  # JWT and API secrets
+  JWT_SECRET_KEY: "REPLACE_WITH_VAULT_SECRET"
+  API_SECRET_KEY: "REPLACE_WITH_VAULT_SECRET"
+  ENCRYPTION_KEY: "REPLACE_WITH_VAULT_SECRET"
+
+  # Third-party service keys
+  OPENAI_API_KEY: "REPLACE_WITH_VAULT_SECRET"
+  AWS_ACCESS_KEY_ID: "REPLACE_WITH_VAULT_SECRET"
+  AWS_SECRET_ACCESS_KEY: "REPLACE_WITH_VAULT_SECRET"
+
+  # TLS certificates
+  TLS_CERT: "REPLACE_WITH_CERT"
+  TLS_KEY: "REPLACE_WITH_KEY"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-api
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: api
+    app.kubernetes.io/version: "1.0.0"
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+      app.kubernetes.io/instance: production
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pynomaly
+        app.kubernetes.io/instance: production
+        app.kubernetes.io/component: api
+        app.kubernetes.io/version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+        config/checksum: "${CONFIG_CHECKSUM}"
+    spec:
+      serviceAccountName: pynomaly-service-account
+      automountServiceAccountToken: false
+
+      # Security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+        supplementalGroups: [1000]
+
+      # Init containers for setup and health checks
+      initContainers:
+      - name: database-ready
+        image: postgres:15-alpine
+        command: ['sh', '-c', 'until pg_isready -h $DATABASE_HOST -p $DATABASE_PORT; do sleep 2; done']
+        envFrom:
+        - configMapRef:
+            name: pynomaly-config
+        - secretRef:
+            name: pynomaly-secrets
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+
+      - name: redis-ready
+        image: redis:7-alpine
+        command: ['sh', '-c', 'until redis-cli -h $REDIS_HOST -p $REDIS_PORT ping; do sleep 2; done']
+        envFrom:
+        - configMapRef:
+            name: pynomaly-config
+        - secretRef:
+            name: pynomaly-secrets
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+
+      containers:
+      - name: pynomaly-api
+        image: pynomaly:production-1.0.0
+        imagePullPolicy: IfNotPresent
+
+        command: ["gunicorn"]
+        args:
+          - "--config"
+          - "/app/gunicorn.conf.py"
+          - "pynomaly.presentation.api.app:app"
+
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+
+        envFrom:
+        - configMapRef:
+            name: pynomaly-config
+        - secretRef:
+            name: pynomaly-secrets
+
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: DEPLOYMENT_VERSION
+          value: "1.0.0"
+
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+            ephemeral-storage: "1Gi"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+            ephemeral-storage: "5Gi"
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          capabilities:
+            drop: ["ALL"]
+
+        # Enhanced health checks
+        livenessProbe:
+          httpGet:
+            path: /api/health/live
+            port: http
+            scheme: HTTP
+            httpHeaders:
+            - name: User-Agent
+              value: "k8s-liveness-probe"
+          initialDelaySeconds: 90
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+
+        readinessProbe:
+          httpGet:
+            path: /api/health/ready
+            port: http
+            scheme: HTTP
+            httpHeaders:
+            - name: User-Agent
+              value: "k8s-readiness-probe"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+
+        startupProbe:
+          httpGet:
+            path: /api/health
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 12
+          successThreshold: 1
+
+        volumeMounts:
+        - name: storage
+          mountPath: /app/storage
+          readOnly: false
+        - name: logs
+          mountPath: /app/logs
+          readOnly: false
+        - name: temp
+          mountPath: /app/temp
+          readOnly: false
+        - name: tmp
+          mountPath: /tmp
+          readOnly: false
+        - name: config-volume
+          mountPath: /app/config
+          readOnly: true
+        - name: gunicorn-config
+          mountPath: /app/gunicorn.conf.py
+          subPath: gunicorn.conf.py
+          readOnly: true
+
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 15"]
+
+      # Sidecar for log forwarding
+      - name: log-forwarder
+        image: fluent/fluent-bit:2.0
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+          readOnly: true
+        - name: fluent-bit-config
+          mountPath: /fluent-bit/etc
+          readOnly: true
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
+
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: pynomaly-storage-pvc
+      - name: logs
+        emptyDir:
+          sizeLimit: 2Gi
+      - name: temp
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: tmp
+        emptyDir:
+          sizeLimit: 500Mi
+      - name: config-volume
+        configMap:
+          name: pynomaly-app-config
+      - name: gunicorn-config
+        configMap:
+          name: pynomaly-gunicorn-config
+      - name: fluent-bit-config
+        configMap:
+          name: fluent-bit-config
+
+      # Advanced scheduling
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values: ["pynomaly"]
+              - key: app.kubernetes.io/component
+                operator: In
+                values: ["api"]
+            topologyKey: "kubernetes.io/hostname"
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: workload-type
+                operator: In
+                values: ["ml", "general"]
+              - key: kubernetes.io/arch
+                operator: In
+                values: ["amd64"]
+
+      tolerations:
+      - key: "workload"
+        operator: "Equal"
+        value: "ml"
+        effect: "NoSchedule"
+      - key: "dedicated"
+        operator: "Equal"
+        value: "pynomaly"
+        effect: "NoSchedule"
+
+      # Topology spread constraints
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: pynomaly
+            app.kubernetes.io/component: api
+
+      # Priority and preemption
+      priorityClassName: "high-priority"
+
+      # DNS configuration
+      dnsPolicy: ClusterFirst
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "2"
+        - name: edns0
+
+      # Termination grace period
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-worker
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+      app.kubernetes.io/instance: production
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pynomaly
+        app.kubernetes.io/instance: production
+        app.kubernetes.io/component: worker
+        app.kubernetes.io/version: "1.0.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9091"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: pynomaly-service-account
+      automountServiceAccountToken: false
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+      - name: pynomaly-worker
+        image: pynomaly:production-1.0.0
+        imagePullPolicy: IfNotPresent
+
+        command: ["celery"]
+        args:
+          - "worker"
+          - "-A"
+          - "pynomaly.infrastructure.celery_app"
+          - "--loglevel=info"
+          - "--concurrency=4"
+          - "--max-tasks-per-child=1000"
+          - "--pool=prefork"
+          - "--without-gossip"
+          - "--without-mingle"
+          - "--without-heartbeat"
+
+        ports:
+        - name: metrics
+          containerPort: 9091
+          protocol: TCP
+
+        envFrom:
+        - configMapRef:
+            name: pynomaly-config
+        - secretRef:
+            name: pynomaly-secrets
+
+        env:
+        - name: CELERY_WORKER_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: C_FORCE_ROOT
+          value: "1"
+
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+            ephemeral-storage: "2Gi"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"
+            ephemeral-storage: "10Gi"
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          capabilities:
+            drop: ["ALL"]
+
+        livenessProbe:
+          exec:
+            command:
+            - "celery"
+            - "inspect"
+            - "ping"
+            - "-A"
+            - "pynomaly.infrastructure.celery_app"
+            - "-d"
+            - "celery@$(hostname)"
+          initialDelaySeconds: 60
+          periodSeconds: 60
+          timeoutSeconds: 30
+          failureThreshold: 3
+
+        readinessProbe:
+          exec:
+            command:
+            - "celery"
+            - "inspect"
+            - "active"
+            - "-A"
+            - "pynomaly.infrastructure.celery_app"
+            - "-d"
+            - "celery@$(hostname)"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 20
+          failureThreshold: 3
+
+        volumeMounts:
+        - name: storage
+          mountPath: /app/storage
+        - name: temp
+          mountPath: /app/temp
+        - name: tmp
+          mountPath: /tmp
+        - name: models-cache
+          mountPath: /app/models-cache
+
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          claimName: pynomaly-storage-pvc
+      - name: temp
+        emptyDir:
+          sizeLimit: 5Gi
+      - name: tmp
+        emptyDir:
+          sizeLimit: 2Gi
+      - name: models-cache
+        emptyDir:
+          sizeLimit: 10Gi
+
+      tolerations:
+      - key: "workload"
+        operator: "Equal"
+        value: "ml"
+        effect: "NoSchedule"
+      - key: "dedicated"
+        operator: "Equal"
+        value: "pynomaly"
+        effect: "NoSchedule"
+
+      nodeSelector:
+        workload-type: "ml"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pynomaly-gunicorn-config
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: config
+data:
+  gunicorn.conf.py: |
+    import multiprocessing
+
+    # Server socket
+    bind = "0.0.0.0:8000"
+    backlog = 2048
+
+    # Worker processes
+    workers = multiprocessing.cpu_count() * 2 + 1
+    worker_class = "uvicorn.workers.UvicornWorker"
+    worker_connections = 1000
+    max_requests = 1000
+    max_requests_jitter = 50
+    preload_app = True
+
+    # Timeout settings
+    timeout = 30
+    keepalive = 2
+    graceful_timeout = 30
+
+    # Logging
+    loglevel = "info"
+    accesslog = "-"
+    errorlog = "-"
+    access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s'
+
+    # Process naming
+    proc_name = "pynomaly-api"
+
+    # Server mechanics
+    daemon = False
+    pidfile = None
+    tmp_upload_dir = "/app/temp"
+
+    # SSL (if needed)
+    # keyfile = "/app/ssl/private.key"
+    # certfile = "/app/ssl/certificate.crt"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: pynomaly-network-policy
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: security
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+      app.kubernetes.io/instance: production
+  policyTypes:
+  - Ingress
+  - Egress
+
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: pynomaly-production
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 8000
+    - protocol: TCP
+      port: 9090
+
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL
+    - protocol: TCP
+      port: 6379  # Redis
+    - protocol: TCP
+      port: 443   # HTTPS
+    - protocol: TCP
+      port: 53    # DNS
+    - protocol: UDP
+      port: 53    # DNS
+---
+apiVersion: policy/v1
+kind: PodSecurityPolicy
+metadata:
+  name: pynomaly-psp
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: security
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+  - ALL
+  volumes:
+  - 'configMap'
+  - 'emptyDir'
+  - 'projected'
+  - 'secret'
+  - 'downwardAPI'
+  - 'persistentVolumeClaim'
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  seLinux:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'
+  readOnlyRootFilesystem: true
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: pynomaly-metrics
+  namespace: pynomaly-production
+  labels:
+    app.kubernetes.io/name: pynomaly
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/component: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pynomaly
+      app.kubernetes.io/instance: production
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    honorLabels: true
+  namespaceSelector:
+    matchNames:
+    - pynomaly-production

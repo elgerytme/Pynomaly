@@ -1,0 +1,162 @@
+# Multi-stage Dockerfile for Pynomaly Staging Environment
+# Optimized for staging deployment with debugging capabilities
+
+# Build stage
+FROM python:3.11-slim as builder
+
+# Build arguments
+ARG ENV=staging
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION
+
+# Set labels
+LABEL maintainer="Pynomaly Team <team@pynomaly.com>" \
+      org.label-schema.name="pynomaly" \
+      org.label-schema.description="Pynomaly Anomaly Detection Platform - Staging" \
+      org.label-schema.url="https://pynomaly.com" \
+      org.label-schema.vcs-url="https://github.com/pynomaly/pynomaly" \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.version=$VERSION \
+      org.label-schema.schema-version="1.0"
+
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        curl \
+        git \
+        gcc \
+        g++ \
+        pkg-config \
+        libpq-dev \
+        libssl-dev \
+        libffi-dev \
+        libblas-dev \
+        liblapack-dev \
+        libatlas-base-dev \
+        gfortran \
+        libhdf5-dev \
+        libopenblas-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set work directory
+WORKDIR /build
+
+# Copy requirements
+COPY requirements.txt requirements-dev.txt ./
+COPY pyproject.toml setup.py ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir -r requirements-dev.txt
+
+# Copy source code
+COPY src/ ./src/
+COPY tests/ ./tests/
+COPY config/ ./config/
+COPY scripts/ ./scripts/
+
+# Install the package
+RUN pip install -e .
+
+# Runtime stage
+FROM python:3.11-slim as runtime
+
+# Build arguments
+ARG ENV=staging
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION
+
+# Set labels
+LABEL maintainer="Pynomaly Team <team@pynomaly.com>" \
+      org.label-schema.name="pynomaly" \
+      org.label-schema.description="Pynomaly Anomaly Detection Platform - Staging" \
+      org.label-schema.url="https://pynomaly.com" \
+      org.label-schema.vcs-url="https://github.com/pynomaly/pynomaly" \
+      org.label-schema.build-date=$BUILD_DATE \
+      org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.version=$VERSION \
+      org.label-schema.schema-version="1.0"
+
+# Create non-root user
+RUN groupadd -r pynomaly \
+    && useradd -r -g pynomaly -d /app -s /bin/bash pynomaly
+
+# Install runtime dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        curl \
+        ca-certificates \
+        libpq5 \
+        libssl1.1 \
+        libffi6 \
+        libblas3 \
+        liblapack3 \
+        libatlas3-base \
+        libhdf5-103 \
+        libopenblas0 \
+        postgresql-client \
+        redis-tools \
+        net-tools \
+        procps \
+        htop \
+        vim \
+        jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set work directory
+WORKDIR /app
+
+# Copy Python packages from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY --from=builder /build/src ./src
+COPY --from=builder /build/config ./config
+COPY --from=builder /build/scripts ./scripts
+
+# Copy additional staging-specific files
+COPY docker/staging/entrypoint.sh ./
+COPY docker/staging/healthcheck.sh ./
+COPY docker/staging/wait-for-it.sh ./
+
+# Make scripts executable
+RUN chmod +x entrypoint.sh healthcheck.sh wait-for-it.sh
+
+# Create necessary directories
+RUN mkdir -p /app/data /app/logs /app/tmp /app/test-data \
+    && chown -R pynomaly:pynomaly /app
+
+# Set environment variables
+ENV PYTHONPATH=/app/src \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYNOMALY_ENV=staging \
+    PYNOMALY_LOG_LEVEL=DEBUG \
+    PYNOMALY_API_HOST=0.0.0.0 \
+    PYNOMALY_API_PORT=8000 \
+    PROMETHEUS_ENABLED=true \
+    ENABLE_SWAGGER=true \
+    ENABLE_DEBUG_ENDPOINTS=true \
+    LOAD_TEST_MODE=true
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD ./healthcheck.sh
+
+# Switch to non-root user
+USER pynomaly
+
+# Set entrypoint
+ENTRYPOINT ["./entrypoint.sh"]
+
+# Default command (can be overridden)
+CMD ["uvicorn", "pynomaly.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]

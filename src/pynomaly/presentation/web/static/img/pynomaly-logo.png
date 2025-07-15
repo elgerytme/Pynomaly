@@ -1,0 +1,4 @@
+# This would be a binary PNG file, but for now creating placeholder
+# Convert the SVG to PNG using: 
+# convert favicon.svg -resize 32x32 favicon.png
+# convert logo.svg -resize 200x60 pynomaly-logo.png

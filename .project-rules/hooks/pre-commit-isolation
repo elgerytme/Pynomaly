@@ -1,0 +1,151 @@
+#!/bin/bash
+
+# Pre-commit hook for Pynomaly isolation system
+# Automatically triggers isolation for qualifying changes
+
+set -euo pipefail
+
+# Configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+CONFIG_FILE="$PROJECT_ROOT/.project-rules/isolation-config.yaml"
+
+# Check if isolation is enabled
+if ! grep -q "enabled: true" "$CONFIG_FILE" 2>/dev/null; then
+    # Isolation disabled, allow normal commit
+    exit 0
+fi
+
+# Get current branch
+CURRENT_BRANCH=$(git branch --show-current)
+
+# Check if we should trigger isolation based on branch pattern
+TRIGGER_PATTERNS=$(grep -A 10 "triggers:" "$CONFIG_FILE" | grep "branch_pattern:" | cut -d'"' -f2 || echo "")
+
+if [ -n "$TRIGGER_PATTERNS" ]; then
+    SHOULD_ISOLATE=false
+    IFS='|' read -ra PATTERNS <<< "$TRIGGER_PATTERNS"
+    for pattern in "${PATTERNS[@]}"; do
+        pattern=$(echo "$pattern" | xargs)  # Trim whitespace
+        if [[ "$CURRENT_BRANCH" == $pattern ]]; then
+            SHOULD_ISOLATE=true
+            break
+        fi
+    done
+
+    if [ "$SHOULD_ISOLATE" = "false" ]; then
+        # Branch doesn't match isolation patterns
+        exit 0
+    fi
+fi
+
+# Get staged files
+STAGED_FILES=$(git diff --cached --name-only)
+
+if [ -z "$STAGED_FILES" ]; then
+    # No staged files
+    exit 0
+fi
+
+# Check if staged files match isolation patterns
+SHOULD_ISOLATE=false
+
+# Get file patterns that should trigger isolation
+while IFS= read -r pattern; do
+    if [ -n "$pattern" ]; then
+        for file in $STAGED_FILES; do
+            if [[ "$file" == $pattern ]]; then
+                SHOULD_ISOLATE=true
+                break 2
+            fi
+        done
+    fi
+done < <(grep -A 20 "file_patterns:" "$CONFIG_FILE" | grep -E "^\s*-\s*" | sed 's/^\s*-\s*//' | tr -d '"' || true)
+
+# Check exclude patterns
+if [ "$SHOULD_ISOLATE" = "true" ]; then
+    while IFS= read -r pattern; do
+        if [ -n "$pattern" ]; then
+            for file in $STAGED_FILES; do
+                if [[ "$file" == $pattern ]]; then
+                    SHOULD_ISOLATE=false
+                    break 2
+                fi
+            done
+        fi
+    done < <(grep -A 20 "exclude_patterns:" "$CONFIG_FILE" | grep -E "^\s*-\s*" | sed 's/^\s*-\s*//' | tr -d '"' || true)
+fi
+
+if [ "$SHOULD_ISOLATE" = "false" ]; then
+    # Files don't match isolation criteria
+    exit 0
+fi
+
+# Check if we're already in an isolation environment
+if [ "${ISOLATION_MODE:-}" = "true" ]; then
+    # Already in isolation, allow commit
+    exit 0
+fi
+
+# Check if direct main commits are prevented
+if grep -q "prevent_direct_main_commits: true" "$CONFIG_FILE" 2>/dev/null; then
+    if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "master" ]; then
+        echo "❌ Direct commits to main branch are not allowed"
+        echo "Please create a feature branch and use isolation:"
+        echo "  git checkout -b feature/my-feature"
+        echo "  .project-rules/scripts/isolate.sh create"
+        exit 1
+    fi
+fi
+
+# Offer to create isolation environment
+echo "🔒 Isolation Required"
+echo "===================="
+echo "The following files trigger automatic isolation:"
+for file in $STAGED_FILES; do
+    echo "  - $file"
+done
+echo ""
+echo "Options:"
+echo "  1. Create isolation environment automatically"
+echo "  2. Continue without isolation (not recommended)"
+echo "  3. Cancel commit"
+echo ""
+
+# In non-interactive mode, create isolation automatically
+if [ ! -t 0 ]; then
+    echo "Non-interactive mode: Creating isolation environment automatically..."
+    "$PROJECT_ROOT/.project-rules/scripts/isolate.sh" create container development
+    echo ""
+    echo "🔒 Isolation environment created!"
+    echo "Please switch to the isolation environment to continue development:"
+    echo "  cd .isolated-work/container-*/  # Navigate to isolation"
+    echo "  docker-compose exec pynomaly-isolated /bin/bash  # Enter isolation"
+    echo ""
+    echo "Commit cancelled. Please retry in isolation environment."
+    exit 1
+fi
+
+# Interactive mode
+read -p "Choose option (1-3): " choice
+
+case $choice in
+    1)
+        echo "Creating isolation environment..."
+        "$PROJECT_ROOT/.project-rules/scripts/isolate.sh" create container development
+        echo ""
+        echo "🔒 Isolation environment created!"
+        echo "Please switch to the isolation environment to continue development."
+        echo "Commit cancelled. Please retry in isolation environment."
+        exit 1
+        ;;
+    2)
+        echo "⚠️  Proceeding without isolation (not recommended)"
+        echo "Please be extra careful with your changes."
+        exit 0
+        ;;
+    3|*)
+        echo "Commit cancelled."
+        exit 1
+        ;;
+esac

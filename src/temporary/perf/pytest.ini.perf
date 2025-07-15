@@ -1,0 +1,52 @@
+[tool:pytest]
+# Pytest configuration for performance testing
+python_files = test_*.py *_test.py
+python_classes = Test*
+python_functions = test_*
+
+# Test directories
+testpaths = perf/tests
+
+# Performance testing markers
+markers =
+    performance: Performance benchmark tests
+    baseline: Baseline comparison tests
+    regression: Performance regression tests
+    stress: Stress tests
+    memory: Memory usage tests
+    cpu: CPU usage tests
+    slow: Slow performance tests
+
+# Benchmark configuration
+addopts =
+    -v
+    --strict-markers
+    --strict-config
+    --tb=short
+    --benchmark-only
+    --benchmark-warmup=on
+    --benchmark-warmup-iterations=5
+    --benchmark-min-rounds=10
+    --benchmark-max-time=300
+    --benchmark-sort=median
+    --benchmark-save-data
+    --benchmark-json=perf/results/benchmark_results.json
+    --benchmark-compare-fail=mean:20%,median:20%
+
+# Disable warnings for cleaner output
+filterwarnings =
+    ignore::UserWarning
+    ignore::DeprecationWarning
+    ignore::PendingDeprecationWarning
+
+# Timeout for long-running performance tests
+timeout = 600
+
+# Environment variables for performance testing
+env =
+    PERF_TESTING = true
+    PYTHONPATH = /app/src
+    PYTHONUNBUFFERED = 1
+    PYTHONDONTWRITEBYTECODE = 1
+    PYTHONOPTIMIZE = 1
+    PYTHONHASHSEED = 0

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Dashboard - Pynomaly</title>
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <script src="https://unpkg.com/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <style>
+        .security-alert {
+            animation: pulse 2s infinite;
+        }
+        .threat-indicator {
+            transition: all 0.3s ease;
+        }
+        .security-metric {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans" x-data="securityDashboard()">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <i class="fas fa-shield-alt text-blue-600 text-2xl mr-3"></i>
+                    <h1 class="text-2xl font-bold text-gray-900">Security Dashboard</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-circle text-green-500 mr-2"></i>
+                        <span>All Systems Operational</span>
+                    </div>
+                    <button
+                        @click="refreshDashboard()"
+                        class="btn-primary"
+                        :disabled="isLoading"
+                    >
+                        <i class="fas fa-sync-alt mr-2" :class="{'animate-spin': isLoading}"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Security Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Threat Level -->
+            <div class="security-metric rounded-lg p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Threat Level</p>
+                        <p class="text-3xl font-bold" :class="threatLevelColor" x-text="threatLevel"></p>
+                    </div>
+                    <div class="threat-indicator p-3 rounded-full" :class="threatIndicatorClass">
+                        <i class="fas fa-exclamation-triangle text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-arrow-down text-green-500 mr-1"></i>
+                        <span>2% from yesterday</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Sessions -->
+            <div class="security-metric rounded-lg p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Active Sessions</p>
+                        <p class="text-3xl font-bold text-blue-600" x-text="activeSessions"></p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-arrow-up text-green-500 mr-1"></i>
+                        <span x-text="sessionGrowth + '% from last hour'"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blocked Threats -->
+            <div class="security-metric rounded-lg p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Blocked Threats</p>
+                        <p class="text-3xl font-bold text-red-600" x-text="blockedThreats"></p>
+                    </div>
+                    <div class="bg-red-100 p-3 rounded-full">
+                        <i class="fas fa-ban text-red-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-arrow-up text-red-500 mr-1"></i>
+                        <span>15% from yesterday</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Score -->
+            <div class="security-metric rounded-lg p-6 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Security Score</p>
+                        <p class="text-3xl font-bold text-green-600" x-text="securityScore + '%'"></p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full">
+                        <i class="fas fa-shield-check text-green-600 text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-600 h-2 rounded-full" :style="`width: ${securityScore}%`"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Detailed Information -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+
+            <!-- Threat Timeline Chart -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Threat Activity (24h)</h3>
+                    <div class="flex space-x-2">
+                        <button
+                            @click="chartTimeframe = '1h'"
+                            :class="chartTimeframe === '1h' ? 'btn-primary-small' : 'btn-secondary-small'"
+                        >1H</button>
+                        <button
+                            @click="chartTimeframe = '24h'"
+                            :class="chartTimeframe === '24h' ? 'btn-primary-small' : 'btn-secondary-small'"
+                        >24H</button>
+                        <button
+                            @click="chartTimeframe = '7d'"
+                            :class="chartTimeframe === '7d' ? 'btn-primary-small' : 'btn-secondary-small'"
+                        >7D</button>
+                    </div>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="threatTimelineChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Threat Types Distribution -->
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Threat Types Distribution</h3>
+                <div class="relative h-64">
+                    <canvas id="threatTypesChart"></canvas>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <template x-for="threat in threatTypes" :key="threat.type">
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full mr-2" :style="`background-color: ${threat.color}`"></div>
+                                <span x-text="threat.type"></span>
+                            </div>
+                            <span class="font-medium" x-text="threat.count"></span>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Security Events -->
+        <div class="bg-white rounded-lg shadow-sm mb-8">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Recent Security Events</h3>
+                    <button
+                        @click="refreshEvents()"
+                        class="btn-secondary-small"
+                    >
+                        <i class="fas fa-sync-alt mr-1"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Source IP</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Severity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <template x-for="event in securityEvents" :key="event.id">
+                            <tr :class="event.severity === 'critical' ? 'bg-red-50' : ''">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="formatTime(event.timestamp)"></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <i :class="getEventIcon(event.type)" class="mr-2"></i>
+                                        <span class="text-sm text-gray-900" x-text="event.type"></span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="event.source_ip"></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span :class="getSeverityClass(event.severity)" class="px-2 py-1 text-xs font-medium rounded-full" x-text="event.severity"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <button
+                                        @click="viewEventDetails(event)"
+                                        class="text-blue-600 hover:text-blue-800 font-medium"
+                                    >
+                                        View Details
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Active Sessions Management -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Active Sessions Management</h3>
+            </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login Time</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Activity</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="session in activeSessons" :key="session.id">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                                <i class="fas fa-user text-blue-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900" x-text="session.user_email"></div>
+                                                <div class="text-sm text-gray-500" x-text="session.user_role"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="session.ip_address"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="formatTime(session.created_at)"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="formatTime(session.last_accessed)"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">Active</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                                        <button
+                                            @click="viewSessionDetails(session)"
+                                            class="text-blue-600 hover:text-blue-800 font-medium"
+                                        >
+                                            Details
+                                        </button>
+                                        <button
+                                            @click="terminateSession(session.id)"
+                                            class="text-red-600 hover:text-red-800 font-medium"
+                                        >
+                                            Terminate
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Event Details Modal -->
+    <div x-show="showEventModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" @click="showEventModal = false"></div>
+            <div class="relative bg-white rounded-lg max-w-lg w-full p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Security Event Details</h3>
+                    <button @click="showEventModal = false" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div x-show="selectedEvent" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Event Type</label>
+                        <p class="text-sm text-gray-900" x-text="selectedEvent?.type"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Timestamp</label>
+                        <p class="text-sm text-gray-900" x-text="formatTime(selectedEvent?.timestamp)"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Source IP</label>
+                        <p class="text-sm text-gray-900" x-text="selectedEvent?.source_ip"></p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Details</label>
+                        <pre class="text-sm text-gray-900 bg-gray-50 p-3 rounded" x-text="JSON.stringify(selectedEvent?.details, null, 2)"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function securityDashboard() {
+            return {
+                isLoading: false,
+                threatLevel: 'LOW',
+                activeSessions: 23,
+                blockedThreats: 156,
+                securityScore: 92,
+                sessionGrowth: 5,
+                chartTimeframe: '24h',
+                showEventModal: false,
+                selectedEvent: null,
+
+                threatTypes: [
+                    { type: 'SQL Injection', count: 45, color: '#ef4444' },
+                    { type: 'XSS', count: 32, color: '#f97316' },
+                    { type: 'CSRF', count: 28, color: '#eab308' },
+                    { type: 'Brute Force', count: 21, color: '#84cc16' },
+                    { type: 'Path Traversal', count: 15, color: '#06b6d4' },
+                    { type: 'Code Injection', count: 10, color: '#8b5cf6' }
+                ],
+
+                securityEvents: [
+                    {
+                        id: 1,
+                        timestamp: new Date(Date.now() - 300000),
+                        type: 'Failed Login Attempt',
+                        source_ip: '192.168.1.100',
+                        severity: 'warning',
+                        details: { attempts: 3, user: 'admin' }
+                    },
+                    {
+                        id: 2,
+                        timestamp: new Date(Date.now() - 600000),
+                        type: 'SQL Injection Blocked',
+                        source_ip: '10.0.0.45',
+                        severity: 'critical',
+                        details: { payload: 'UNION SELECT * FROM users', endpoint: '/api/search' }
+                    },
+                    {
+                        id: 3,
+                        timestamp: new Date(Date.now() - 900000),
+                        type: 'Session Created',
+                        source_ip: '172.16.0.22',
+                        severity: 'info',
+                        details: { user_id: 'user123', login_method: 'jwt' }
+                    }
+                ],
+
+                activeSessons: [
+                    {
+                        id: 'sess_001',
+                        user_email: 'john.doe@company.com',
+                        user_role: 'Data Scientist',
+                        ip_address: '192.168.1.100',
+                        created_at: new Date(Date.now() - 7200000),
+                        last_accessed: new Date(Date.now() - 300000)
+                    },
+                    {
+                        id: 'sess_002',
+                        user_email: 'jane.smith@company.com',
+                        user_role: 'Admin',
+                        ip_address: '10.0.0.45',
+                        created_at: new Date(Date.now() - 3600000),
+                        last_accessed: new Date(Date.now() - 120000)
+                    }
+                ],
+
+                get threatLevelColor() {
+                    const colors = {
+                        'LOW': 'text-green-600',
+                        'MEDIUM': 'text-yellow-600',
+                        'HIGH': 'text-red-600',
+                        'CRITICAL': 'text-red-800'
+                    };
+                    return colors[this.threatLevel] || 'text-gray-600';
+                },
+
+                get threatIndicatorClass() {
+                    const classes = {
+                        'LOW': 'bg-green-100',
+                        'MEDIUM': 'bg-yellow-100',
+                        'HIGH': 'bg-red-100',
+                        'CRITICAL': 'bg-red-200'
+                    };
+                    return classes[this.threatLevel] || 'bg-gray-100';
+                },
+
+                init() {
+                    this.initCharts();
+                    this.startRealTimeUpdates();
+                },
+
+                initCharts() {
+                    // Threat Timeline Chart
+                    const ctx1 = document.getElementById('threatTimelineChart').getContext('2d');
+                    new Chart(ctx1, {
+                        type: 'line',
+                        data: {
+                            labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                            datasets: [{
+                                label: 'Threats Detected',
+                                data: [12, 19, 8, 15, 25, 18],
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+
+                    // Threat Types Chart
+                    const ctx2 = document.getElementById('threatTypesChart').getContext('2d');
+                    new Chart(ctx2, {
+                        type: 'doughnut',
+                        data: {
+                            labels: this.threatTypes.map(t => t.type),
+                            datasets: [{
+                                data: this.threatTypes.map(t => t.count),
+                                backgroundColor: this.threatTypes.map(t => t.color)
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                },
+
+                refreshDashboard() {
+                    this.isLoading = true;
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.activeSessions = Math.floor(Math.random() * 50) + 20;
+                        this.blockedThreats = Math.floor(Math.random() * 100) + 100;
+                        this.securityScore = Math.floor(Math.random() * 15) + 85;
+                        this.isLoading = false;
+                    }, 1000);
+                },
+
+                refreshEvents() {
+                    // Simulate loading new events
+                    console.log('Refreshing security events...');
+                },
+
+                viewEventDetails(event) {
+                    this.selectedEvent = event;
+                    this.showEventModal = true;
+                },
+
+                viewSessionDetails(session) {
+                    console.log('Viewing session details:', session);
+                },
+
+                terminateSession(sessionId) {
+                    if (confirm('Are you sure you want to terminate this session?')) {
+                        console.log('Terminating session:', sessionId);
+                    }
+                },
+
+                startRealTimeUpdates() {
+                    // Simulate real-time updates every 30 seconds
+                    setInterval(() => {
+                        this.refreshDashboard();
+                    }, 30000);
+                },
+
+                formatTime(timestamp) {
+                    return new Date(timestamp).toLocaleString();
+                },
+
+                getEventIcon(eventType) {
+                    const icons = {
+                        'Failed Login Attempt': 'fas fa-user-times text-yellow-500',
+                        'SQL Injection Blocked': 'fas fa-database text-red-500',
+                        'Session Created': 'fas fa-sign-in-alt text-green-500',
+                        'XSS Blocked': 'fas fa-code text-orange-500',
+                        'CSRF Detected': 'fas fa-shield-alt text-red-500'
+                    };
+                    return icons[eventType] || 'fas fa-exclamation-circle text-gray-500';
+                },
+
+                getSeverityClass(severity) {
+                    const classes = {
+                        'info': 'bg-blue-100 text-blue-800',
+                        'warning': 'bg-yellow-100 text-yellow-800',
+                        'critical': 'bg-red-100 text-red-800'
+                    };
+                    return classes[severity] || 'bg-gray-100 text-gray-800';
+                }
+            }
+        }
+    </script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+
+        .btn-primary {
+            @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+        }
+
+        .btn-secondary {
+            @apply bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+        }
+
+        .btn-primary-small {
+            @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded text-sm transition-colors duration-200;
+        }
+
+        .btn-secondary-small {
+            @apply bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-1 px-3 rounded text-sm transition-colors duration-200;
+        }
+    </style>
+</body>
+</html>

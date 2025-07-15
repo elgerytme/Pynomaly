@@ -1,0 +1,522 @@
+# SDK Generator Configuration for Pynomaly API
+# This file configures the multi-language client SDK generation
+
+metadata:
+  name: "Pynomaly SDK Generator Configuration"
+  version: "1.0.0"
+  description: "Configuration for generating client SDKs from OpenAPI specification"
+  created_at: "2024-07-10T00:00:00Z"
+
+# Global SDK configuration
+global:
+  # OpenAPI specification source
+  openapi_spec: "docs/api/openapi.yaml"
+  
+  # Output directory for all SDKs
+  output_directory: "sdks"
+  
+  # Common package information
+  package:
+    vendor: "pynomaly"
+    name: "pynomaly-client"
+    version: "1.0.0"
+    description: "Client SDK for Pynomaly anomaly detection API"
+    homepage: "https://github.com/pynomaly/client-sdks"
+    license: "MIT"
+    author:
+      name: "Pynomaly Team"
+      email: "support@pynomaly.com"
+      url: "https://pynomaly.com"
+  
+  # API configuration
+  api:
+    base_url: "https://api.pynomaly.com"
+    staging_url: "https://staging-api.pynomaly.com"
+    development_url: "http://localhost:8000"
+    version: "v1"
+  
+  # Documentation links
+  documentation:
+    api_docs: "https://docs.pynomaly.com/api"
+    user_guide: "https://docs.pynomaly.com/user-guide"
+    examples: "https://docs.pynomaly.com/examples"
+    support: "https://support.pynomaly.com"
+
+# Language-specific configurations
+languages:
+  python:
+    enabled: true
+    generator: "python"
+    
+    package:
+      name: "pynomaly_client"
+      pypi_name: "pynomaly-client"
+      import_name: "pynomaly_client"
+      
+    configuration:
+      python_version: "3.8"
+      library: "requests"  # requests, aiohttp, httpx
+      async_support: true
+      type_hints: true
+      
+    additional_properties:
+      packageName: "pynomaly_client"
+      projectName: "pynomaly-python-client"
+      packageVersion: "1.0.0"
+      packageUrl: "https://github.com/pynomaly/python-client"
+      pythonAtLeast: "3.8"
+      library: "requests"
+      generateSourceCodeOnly: "false"
+      asyncSupport: "true"
+      typeHints: "true"
+    
+    features:
+      async_support: true
+      retry_logic: true
+      rate_limiting: true
+      logging: true
+      testing: true
+      documentation: true
+      examples: true
+      ci_cd: true
+    
+    dependencies:
+      runtime:
+        - "requests>=2.28.0"
+        - "pydantic>=1.10.0"
+        - "typing-extensions>=4.0.0"
+      development:
+        - "pytest>=7.0.0"
+        - "pytest-cov>=4.0.0"
+        - "pytest-asyncio>=0.21.0"
+        - "black>=22.0.0"
+        - "flake8>=5.0.0"
+        - "mypy>=1.0.0"
+        - "isort>=5.0.0"
+
+  typescript:
+    enabled: true
+    generator: "typescript-fetch"
+    
+    package:
+      name: "@pynomaly/client"
+      npm_scope: "@pynomaly"
+      
+    configuration:
+      typescript_version: "4.8"
+      target: "ES2020"
+      module: "ESNext"
+      lib: ["ES2020", "DOM"]
+      
+    additional_properties:
+      npmName: "@pynomaly/client"
+      npmVersion: "1.0.0"
+      npmRepository: "https://registry.npmjs.org"
+      typescriptThreePlus: "true"
+      withInterfaces: "true"
+      supportsES6: "true"
+      platform: "node"
+    
+    features:
+      type_definitions: true
+      async_support: true
+      retry_logic: true
+      rate_limiting: true
+      logging: true
+      testing: true
+      documentation: true
+      examples: true
+      ci_cd: true
+    
+    dependencies:
+      runtime:
+        - "node-fetch@^3.0.0"
+        - "form-data@^4.0.0"
+      development:
+        - "@types/node@^18.0.0"
+        - "@types/jest@^29.0.0"
+        - "typescript@^4.8.0"
+        - "jest@^29.0.0"
+        - "ts-jest@^29.0.0"
+        - "eslint@^8.0.0"
+        - "@typescript-eslint/parser@^5.0.0"
+        - "@typescript-eslint/eslint-plugin@^5.0.0"
+
+  java:
+    enabled: true
+    generator: "java"
+    
+    package:
+      group_id: "com.pynomaly"
+      artifact_id: "pynomaly-client"
+      
+    configuration:
+      java_version: "11"
+      library: "okhttp-gson"  # okhttp-gson, retrofit2, native
+      
+    additional_properties:
+      groupId: "com.pynomaly"
+      artifactId: "pynomaly-client"
+      artifactVersion: "1.0.0"
+      library: "okhttp-gson"
+      java8: "false"
+      java11: "true"
+      dateLibrary: "java8"
+      serializationLibrary: "gson"
+    
+    features:
+      maven_support: true
+      gradle_support: true
+      async_support: true
+      retry_logic: true
+      rate_limiting: true
+      logging: true
+      testing: true
+      documentation: true
+      examples: true
+      ci_cd: true
+    
+    dependencies:
+      runtime:
+        - "com.squareup.okhttp3:okhttp:4.10.0"
+        - "com.google.code.gson:gson:2.10.1"
+        - "io.gsonfire:gson-fire:1.8.5"
+      test:
+        - "junit:junit:4.13.2"
+        - "org.mockito:mockito-core:4.6.1"
+
+  go:
+    enabled: true
+    generator: "go"
+    
+    package:
+      name: "pynomaly"
+      module: "github.com/pynomaly/go-client"
+      
+    configuration:
+      go_version: "1.19"
+      
+    additional_properties:
+      packageName: "pynomaly"
+      packageVersion: "1.0.0"
+      packageUrl: "github.com/pynomaly/go-client"
+      withGoCodegenComment: "true"
+      goModule: "github.com/pynomaly/go-client"
+    
+    features:
+      context_support: true
+      retry_logic: true
+      rate_limiting: true
+      logging: true
+      testing: true
+      documentation: true
+      examples: true
+      ci_cd: true
+
+  csharp:
+    enabled: true
+    generator: "csharp"
+    
+    package:
+      name: "Pynomaly.Client"
+      nuget_id: "Pynomaly.Client"
+      
+    configuration:
+      dotnet_version: "6.0"
+      framework: "net6.0"
+      
+    additional_properties:
+      packageName: "Pynomaly.Client"
+      packageVersion: "1.0.0"
+      packageCompany: "Pynomaly"
+      packageTitle: "Pynomaly API Client"
+      packageDescription: "C# client library for Pynomaly API"
+      targetFramework: "net6.0"
+      clientPackage: "Pynomaly.Client"
+    
+    features:
+      async_support: true
+      retry_logic: true
+      rate_limiting: true
+      logging: true
+      testing: true
+      documentation: true
+      examples: true
+      ci_cd: true
+
+  php:
+    enabled: true
+    generator: "php"
+    
+    package:
+      name: "pynomaly/client"
+      vendor: "pynomaly"
+      
+    configuration:
+      php_version: "8.0"
+      
+    additional_properties:
+      packageName: "pynomaly/client"
+      packageVersion: "1.0.0"
+      invokerPackage: "Pynomaly\\Client"
+      composerVendorName: "pynomaly"
+      composerProjectName: "client"
+      phpVersion: "8.0"
+    
+    features:
+      composer_support: true
+      psr4_autoloading: true
+      retry_logic: true
+      rate_limiting: true
+      logging: true
+      testing: true
+      documentation: true
+      examples: true
+      ci_cd: true
+
+  ruby:
+    enabled: true
+    generator: "ruby"
+    
+    package:
+      name: "pynomaly_client"
+      gem_name: "pynomaly_client"
+      
+    configuration:
+      ruby_version: "3.0"
+      
+    additional_properties:
+      gemName: "pynomaly_client"
+      gemVersion: "1.0.0"
+      gemHomepage: "https://github.com/pynomaly/ruby-client"
+      gemSummary: "Ruby client library for Pynomaly API"
+      gemDescription: "Ruby client library for Pynomaly anomaly detection API"
+      gemAuthor: "Pynomaly Team"
+      gemAuthorEmail: "support@pynomaly.com"
+      gemLicense: "MIT"
+      rubyVersion: "3.0"
+    
+    features:
+      bundler_support: true
+      retry_logic: true
+      rate_limiting: true
+      logging: true
+      testing: true
+      documentation: true
+      examples: true
+      ci_cd: true
+
+  rust:
+    enabled: true
+    generator: "rust"
+    
+    package:
+      name: "pynomaly_client"
+      crate_name: "pynomaly_client"
+      
+    configuration:
+      rust_edition: "2021"
+      
+    additional_properties:
+      packageName: "pynomaly_client"
+      packageVersion: "1.0.0"
+      packageAuthors: "Pynomaly Team <support@pynomaly.com>"
+      supportAsync: "true"
+      library: "reqwest"
+      edition: "2021"
+    
+    features:
+      async_support: true
+      tokio_runtime: true
+      retry_logic: true
+      rate_limiting: true
+      logging: true
+      testing: true
+      documentation: true
+      examples: true
+      ci_cd: true
+
+# Code generation templates and customizations
+templates:
+  # Custom templates for specific files
+  overrides:
+    - language: "python"
+      file: "README.md"
+      template: "templates/python/README.md.mustache"
+    
+    - language: "typescript"
+      file: "package.json"
+      template: "templates/typescript/package.json.mustache"
+    
+    - language: "java"
+      file: "pom.xml"
+      template: "templates/java/pom.xml.mustache"
+
+# Post-generation customizations
+post_generation:
+  # Files to add after generation
+  additional_files:
+    - source: "templates/common/CONTRIBUTING.md"
+      destination: "CONTRIBUTING.md"
+      languages: ["python", "typescript", "java", "go"]
+    
+    - source: "templates/common/LICENSE"
+      destination: "LICENSE"
+      languages: "all"
+    
+    - source: "templates/common/.gitignore"
+      destination: ".gitignore"
+      languages: "all"
+  
+  # Scripts to run after generation
+  scripts:
+    python:
+      - "python -m black ."
+      - "python -m isort ."
+      - "python -m mypy --install-types --non-interactive"
+    
+    typescript:
+      - "npm install"
+      - "npm run lint:fix"
+      - "npm run build"
+    
+    java:
+      - "mvn clean compile"
+    
+    go:
+      - "go mod tidy"
+      - "go fmt ./..."
+
+# Quality gates and validation
+quality_gates:
+  # Minimum requirements for generated SDKs
+  requirements:
+    - name: "authentication_support"
+      description: "Must support JWT and API key authentication"
+      mandatory: true
+    
+    - name: "error_handling"
+      description: "Must include comprehensive error handling"
+      mandatory: true
+    
+    - name: "rate_limiting"
+      description: "Must handle rate limiting with backoff"
+      mandatory: true
+    
+    - name: "async_support"
+      description: "Should support asynchronous operations"
+      mandatory: false
+    
+    - name: "retry_logic"
+      description: "Should include retry logic for failed requests"
+      mandatory: false
+    
+    - name: "comprehensive_tests"
+      description: "Must include unit tests for core functionality"
+      mandatory: true
+    
+    - name: "documentation"
+      description: "Must include API documentation and examples"
+      mandatory: true
+  
+  # Validation checks to run
+  validation:
+    - name: "compile_check"
+      description: "Generated code must compile without errors"
+    
+    - name: "test_execution"
+      description: "Basic tests must pass"
+    
+    - name: "linting"
+      description: "Code must pass linting checks"
+    
+    - name: "security_scan"
+      description: "No security vulnerabilities in dependencies"
+
+# CI/CD integration
+ci_cd:
+  # GitHub Actions workflows to generate
+  github_actions:
+    - name: "ci"
+      description: "Continuous integration workflow"
+      triggers: ["push", "pull_request"]
+      languages: "all"
+    
+    - name: "publish"
+      description: "Package publishing workflow"
+      triggers: ["release"]
+      languages: "all"
+    
+    - name: "security"
+      description: "Security scanning workflow"
+      triggers: ["schedule"]
+      languages: "all"
+  
+  # Package registry configuration
+  registries:
+    python:
+      - name: "PyPI"
+        url: "https://pypi.org/"
+        auth_token_secret: "PYPI_API_TOKEN"
+    
+    typescript:
+      - name: "npm"
+        url: "https://registry.npmjs.org/"
+        auth_token_secret: "NPM_TOKEN"
+    
+    java:
+      - name: "Maven Central"
+        url: "https://oss.sonatype.org/"
+        auth_token_secret: "MAVEN_GPG_PASSPHRASE"
+    
+    csharp:
+      - name: "NuGet"
+        url: "https://api.nuget.org/v3/index.json"
+        auth_token_secret: "NUGET_API_KEY"
+
+# Documentation generation
+documentation:
+  # API documentation to generate
+  formats:
+    - "markdown"
+    - "html"
+    - "pdf"
+  
+  # Examples to include
+  examples:
+    - name: "basic_usage"
+      description: "Basic authentication and anomaly detection"
+      languages: "all"
+    
+    - name: "advanced_features"
+      description: "Advanced features like batch processing and model training"
+      languages: ["python", "typescript", "java"]
+    
+    - name: "error_handling"
+      description: "Comprehensive error handling examples"
+      languages: "all"
+    
+    - name: "async_operations"
+      description: "Asynchronous operation examples"
+      languages: ["python", "typescript", "go", "csharp", "rust"]
+
+# Monitoring and analytics
+monitoring:
+  # SDK usage analytics
+  analytics:
+    enabled: true
+    provider: "mixpanel"  # mixpanel, amplitude, custom
+    
+  # Error tracking
+  error_tracking:
+    enabled: true
+    provider: "sentry"  # sentry, bugsnag, custom
+    
+  # Performance monitoring
+  performance:
+    enabled: true
+    metrics:
+      - "request_duration"
+      - "error_rate"
+      - "retry_rate"
+      - "rate_limit_hits"

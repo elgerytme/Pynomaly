@@ -1,0 +1,380 @@
+# Production Configuration for Pynomaly
+# This configuration is optimized for production deployment
+
+# Application Settings
+app:
+  name: "Pynomaly"
+  version: "1.0.0"
+  environment: "production"
+  debug: false
+  testing: false
+  
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  worker_class: "uvicorn.workers.UvicornWorker"
+  max_requests: 1000
+  max_requests_jitter: 100
+  timeout: 30
+  keep_alive: 2
+  backlog: 2048
+  
+# Database Configuration
+database:
+  url: "${DATABASE_URL}"
+  pool_size: 20
+  max_overflow: 30
+  pool_timeout: 30
+  pool_recycle: 3600
+  pool_pre_ping: true
+  echo: false
+  
+  # Connection parameters
+  connect_args:
+    sslmode: "require"
+    connect_timeout: 10
+    command_timeout: 30
+    server_settings:
+      jit: "off"
+      
+# Redis Configuration
+redis:
+  url: "${REDIS_URL}"
+  max_connections: 100
+  retry_on_timeout: true
+  health_check_interval: 30
+  socket_timeout: 5
+  socket_connect_timeout: 5
+  
+  # Cluster configuration
+  cluster:
+    enabled: true
+    nodes:
+      - host: "redis-node-1"
+        port: 6379
+      - host: "redis-node-2"
+        port: 6379
+      - host: "redis-node-3"
+        port: 6379
+    max_connections_per_node: 50
+    
+# Caching Configuration
+cache:
+  default_ttl: 3600  # 1 hour
+  max_entries: 10000
+  
+  # Feature cache settings
+  feature_cache:
+    ttl: 1800  # 30 minutes
+    max_size: 5000
+    
+  # Model cache settings
+  model_cache:
+    ttl: 86400  # 24 hours
+    max_size: 100
+    
+  # Result cache settings
+  result_cache:
+    ttl: 7200  # 2 hours
+    max_size: 1000
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "json"
+  
+  # Log files
+  files:
+    app: "/app/logs/app.log"
+    access: "/app/logs/access.log"
+    error: "/app/logs/error.log"
+    audit: "/app/logs/audit.log"
+    
+  # Log rotation
+  rotation:
+    max_size: "100MB"
+    backup_count: 10
+    
+  # Structured logging
+  structured:
+    enabled: true
+    include_trace_id: true
+    include_span_id: true
+    
+  # External logging
+  external:
+    elasticsearch:
+      enabled: true
+      host: "elasticsearch:9200"
+      index: "pynomaly-logs"
+      
+# Security Configuration
+security:
+  secret_key: "${SECRET_KEY}"
+  access_token_expire_minutes: 30
+  refresh_token_expire_days: 7
+  
+  # Rate limiting
+  rate_limiting:
+    enabled: true
+    global_limit: 10000  # requests per hour
+    per_user_limit: 1000  # requests per hour
+    per_ip_limit: 500    # requests per hour
+    
+  # CORS settings
+  cors:
+    allow_origins: ["https://yourdomain.com"]
+    allow_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allow_headers: ["*"]
+    allow_credentials: true
+    
+  # Input validation
+  validation:
+    max_request_size: 50  # MB
+    max_file_size: 100    # MB
+    allowed_file_types: [".csv", ".json", ".parquet", ".xlsx"]
+    
+# API Configuration
+api:
+  title: "Pynomaly API"
+  description: "Production Anomaly Detection API"
+  version: "1.0.0"
+  
+  # API versioning
+  versioning:
+    default_version: "v1"
+    supported_versions: ["v1", "v2"]
+    
+  # OpenAPI settings
+  openapi:
+    generate_docs: true
+    docs_url: "/docs"
+    redoc_url: "/redoc"
+    
+  # Pagination
+  pagination:
+    default_limit: 100
+    max_limit: 1000
+    
+# Real-time Processing Configuration
+streaming:
+  # Buffer settings
+  buffer_size: 50000
+  batch_size: 500
+  batch_timeout: 5.0
+  
+  # Processing settings
+  workers: 8
+  processing_mode: "real_time"
+  enable_backpressure: true
+  max_memory_mb: 2048
+  
+  # Kafka settings
+  kafka:
+    bootstrap_servers: ["kafka:9092"]
+    topics:
+      anomaly_events: "anomaly-events"
+      model_updates: "model-updates"
+      system_metrics: "system-metrics"
+    
+    # Consumer settings
+    consumer:
+      group_id: "pynomaly-consumers"
+      auto_offset_reset: "latest"
+      max_poll_records: 500
+      
+    # Producer settings
+    producer:
+      acks: "all"
+      retries: 3
+      batch_size: 16384
+      linger_ms: 10
+      
+  # Monitoring
+  monitoring:
+    heartbeat_interval: 30
+    health_check_timeout: 10
+    metrics_collection_interval: 60
+    
+# Model Management Configuration
+model_management:
+  # Model registry
+  registry:
+    path: "/app/models"
+    backend: "filesystem"
+    versioning: "semantic"
+    
+  # Model deployment
+  deployment:
+    max_concurrent_deployments: 3
+    deployment_timeout: 300
+    health_check_interval: 30
+    
+  # Model monitoring
+  monitoring:
+    drift_detection_threshold: 0.1
+    performance_monitoring_interval: 300
+    alert_thresholds:
+      accuracy_drop: 0.05
+      latency_increase: 100  # ms
+      
+# Feature Engineering Configuration
+feature_engineering:
+  # Storage
+  storage:
+    path: "/app/features"
+    backend: "filesystem"
+    
+  # Processing
+  processing:
+    max_workers: 4
+    chunk_size: 10000
+    enable_caching: true
+    
+  # Feature store
+  feature_store:
+    enabled: true
+    retention_days: 90
+    
+# Analytics Configuration
+analytics:
+  # Time series analysis
+  time_series:
+    default_window_size: 24
+    seasonality_detection: true
+    trend_analysis: true
+    
+  # Pattern detection
+  pattern_detection:
+    enabled: true
+    min_pattern_length: 3
+    max_pattern_length: 100
+    
+  # Explainability
+  explainability:
+    enabled: true
+    max_features: 10
+    cache_explanations: true
+    
+# Monitoring and Observability
+monitoring:
+  # Prometheus metrics
+  prometheus:
+    enabled: true
+    port: 9090
+    metrics_path: "/metrics"
+    
+  # Health checks
+  health_checks:
+    enabled: true
+    endpoint: "/health"
+    detailed_endpoint: "/health/detailed"
+    
+  # Performance monitoring
+  performance:
+    enabled: true
+    sample_rate: 0.1
+    trace_requests: true
+    
+  # Alerting
+  alerting:
+    enabled: true
+    channels:
+      - type: "webhook"
+        url: "${ALERT_WEBHOOK_URL}"
+      - type: "email"
+        recipients: ["admin@yourdomain.com"]
+        
+# Backup and Recovery
+backup:
+  # Database backup
+  database:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    retention_days: 30
+    
+  # Model backup
+  models:
+    enabled: true
+    schedule: "0 3 * * *"  # Daily at 3 AM
+    retention_days: 90
+    
+  # Configuration backup
+  config:
+    enabled: true
+    schedule: "0 4 * * 0"  # Weekly on Sunday at 4 AM
+    retention_weeks: 12
+    
+# Deployment Configuration
+deployment:
+  # Container settings
+  container:
+    memory_limit: "2G"
+    cpu_limit: "2.0"
+    restart_policy: "unless-stopped"
+    
+  # Scaling
+  scaling:
+    min_replicas: 2
+    max_replicas: 10
+    target_cpu_utilization: 70
+    target_memory_utilization: 80
+    
+  # Load balancing
+  load_balancer:
+    algorithm: "round_robin"
+    health_check_path: "/health"
+    health_check_interval: 30
+    
+# Feature Flags
+feature_flags:
+  # Advanced features
+  advanced_analytics: true
+  real_time_processing: true
+  auto_scaling: true
+  
+  # Experimental features
+  experimental_algorithms: false
+  beta_api_endpoints: false
+  
+  # Maintenance mode
+  maintenance_mode: false
+  read_only_mode: false
+  
+# Integrations
+integrations:
+  # External APIs
+  external_apis:
+    timeout: 30
+    retry_attempts: 3
+    
+  # Third-party services
+  third_party:
+    mlflow:
+      enabled: true
+      tracking_uri: "http://mlflow:5000"
+      
+    grafana:
+      enabled: true
+      url: "http://grafana:3000"
+      
+    kibana:
+      enabled: true
+      url: "http://kibana:5601"
+      
+# Environment Variables
+environment:
+  required:
+    - DATABASE_URL
+    - REDIS_URL
+    - SECRET_KEY
+    - POSTGRES_PASSWORD
+    - GRAFANA_PASSWORD
+    
+  optional:
+    - ALERT_WEBHOOK_URL
+    - SENTRY_DSN
+    - AWS_ACCESS_KEY_ID
+    - AWS_SECRET_ACCESS_KEY

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pynomaly
+  labels:
+    name: pynomaly
+    app: pynomaly
+    version: v1
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pynomaly-monitoring
+  labels:
+    name: pynomaly-monitoring
+    app: pynomaly
+    component: monitoring

@@ -1,0 +1,428 @@
+# Production Docker Compose configuration for Pynomaly
+# Complete hardened stack with monitoring, workers, and production services
+
+version: '3.8'
+
+x-common-environment: &common-environment
+  PYNOMALY_ENVIRONMENT: production
+  PYNOMALY_LOG_LEVEL: INFO
+  PYTHONOPTIMIZE: "2"
+  PYTHONUNBUFFERED: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+  MALLOC_TRIM_THRESHOLD_: "0"
+  TZ: UTC
+
+x-security-options: &security-options
+  security_opt:
+    - no-new-privileges:true
+    - seccomp:unconfined
+  cap_drop:
+    - ALL
+  cap_add:
+    - NET_BIND_SERVICE
+  read_only: true
+  tmpfs:
+    - /tmp:noexec,nosuid,size=100m
+    - /var/tmp:noexec,nosuid,size=50m
+
+x-logging: &logging
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "3"
+      tag: "{{.ImageName}}|{{.Name}}|{{.ImageFullID}}|{{.FullID}}"
+
+services:
+  #=============================================================================
+  # Core Application Services
+  #=============================================================================
+
+  # Main API Server
+  pynomaly-api:
+    build:
+      context: ../../
+      dockerfile: Dockerfile.production
+      target: production
+      args:
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        VERSION: ${VERSION:-latest}
+        VCS_REF: ${VCS_REF:-$(git rev-parse HEAD)}
+    image: pynomaly/api:${VERSION:-latest}
+    container_name: pynomaly-api
+    hostname: pynomaly-api
+    restart: unless-stopped
+    user: "65532:65532"
+    <<: *logging
+    <<: *security-options
+    ports:
+      - "${API_PORT:-8000}:8000"
+      - "${METRICS_PORT:-9090}:9090"
+    environment:
+      <<: *common-environment
+      PYNOMALY_API_HOST: 0.0.0.0
+      PYNOMALY_API_PORT: 8000
+      PYNOMALY_STORAGE_PATH: /app/storage
+      PYNOMALY_LOG_PATH: /app/logs
+      PYNOMALY_CONFIG_PATH: /app/config
+      DATABASE_URL: postgresql://pynomaly:${POSTGRES_PASSWORD:-pynomaly_secret}@postgres:5432/pynomaly
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379/0
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379/0
+      PROMETHEUS_METRICS_PORT: 9090
+      OPENTELEMETRY_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      SECRET_KEY: ${SECRET_KEY:-super_secret_key_for_production_2024!}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-jwt_secret_key_for_production_2024!}
+    volumes:
+      - pynomaly_storage:/app/storage
+      - pynomaly_logs:/app/logs
+      - pynomaly_config:/app/config
+      - ./config/production:/app/config:ro
+    networks:
+      - pynomaly-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health/ready', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # Web UI Server
+  pynomaly-web:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.production
+      target: frontend-builder
+    image: pynomaly/web:${VERSION:-latest}
+    container_name: pynomaly-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    environment:
+      - PYNOMALY_ENVIRONMENT=production
+      - PYNOMALY_API_URL=http://pynomaly-api:8000
+    volumes:
+      - pynomaly_web_assets:/app/static
+    networks:
+      - pynomaly-network
+    depends_on:
+      - pynomaly-api
+    command: ["python", "-m", "http.server", "8080", "--directory", "/app/static"]
+
+  #=============================================================================
+  # Worker Services
+  #=============================================================================
+
+  # Training Worker
+  pynomaly-worker-training:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.worker
+      target: training-worker
+    image: pynomaly/worker-training:${VERSION:-latest}
+    container_name: pynomaly-worker-training
+    restart: unless-stopped
+    environment:
+      - PYNOMALY_ENVIRONMENT=production
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql://pynomaly:${POSTGRES_PASSWORD}@postgres:5432/pynomaly
+      - WORKER_CONCURRENCY=4
+      - WORKER_QUEUE=model_training,anomaly_detection
+    volumes:
+      - pynomaly_storage:/app/storage
+      - pynomaly_logs:/app/logs
+    networks:
+      - pynomaly-network
+    depends_on:
+      - redis
+      - postgres
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+
+  # Drift Monitoring Worker
+  pynomaly-worker-drift:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.worker
+      target: drift-worker
+    image: pynomaly/worker-drift:${VERSION:-latest}
+    container_name: pynomaly-worker-drift
+    restart: unless-stopped
+    environment:
+      - PYNOMALY_ENVIRONMENT=production
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql://pynomaly:${POSTGRES_PASSWORD}@postgres:5432/pynomaly
+      - WORKER_CONCURRENCY=2
+      - WORKER_QUEUE=drift_monitoring,alert_processing
+      - DRIFT_CHECK_INTERVAL=3600
+    volumes:
+      - pynomaly_storage:/app/storage
+      - pynomaly_logs:/app/logs
+    networks:
+      - pynomaly-network
+    depends_on:
+      - redis
+      - postgres
+
+  # Celery Scheduler
+  pynomaly-scheduler:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.worker
+      target: scheduler-worker
+    image: pynomaly/scheduler:${VERSION:-latest}
+    container_name: pynomaly-scheduler
+    restart: unless-stopped
+    environment:
+      - PYNOMALY_ENVIRONMENT=production
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DATABASE_URL=postgresql://pynomaly:${POSTGRES_PASSWORD}@postgres:5432/pynomaly
+    volumes:
+      - pynomaly_storage:/app/storage
+      - pynomaly_logs:/app/logs
+    networks:
+      - pynomaly-network
+    depends_on:
+      - redis
+      - postgres
+
+  # Flower Monitoring
+  pynomaly-flower:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.worker
+      target: flower-monitor
+    image: pynomaly/flower:${VERSION:-latest}
+    container_name: pynomaly-flower
+    restart: unless-stopped
+    ports:
+      - "${FLOWER_PORT:-5555}:5555"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - FLOWER_BASIC_AUTH=${FLOWER_USER:-admin}:${FLOWER_PASSWORD:-flower_secret}
+    networks:
+      - pynomaly-network
+    depends_on:
+      - redis
+
+  #=============================================================================
+  # Monitoring Services
+  #=============================================================================
+
+  # Prometheus
+  prometheus:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.monitoring
+      target: prometheus
+    image: pynomaly/prometheus:${VERSION:-latest}
+    container_name: pynomaly-prometheus
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./config/prometheus:/etc/prometheus:ro
+    networks:
+      - pynomaly-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+
+  # Grafana
+  grafana:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.monitoring
+      target: grafana
+    image: pynomaly/grafana:${VERSION:-latest}
+    container_name: pynomaly-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-grafana_secret}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_DOMAIN=${GRAFANA_DOMAIN:-localhost}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana:/etc/grafana/provisioning:ro
+    networks:
+      - pynomaly-network
+    depends_on:
+      - prometheus
+
+  # OpenTelemetry Collector
+  otel-collector:
+    build:
+      context: ../../
+      dockerfile: deploy/docker/Dockerfile.monitoring
+      target: otel-collector
+    image: pynomaly/otel-collector:${VERSION:-latest}
+    container_name: pynomaly-otel-collector
+    restart: unless-stopped
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "8889:8889"   # Prometheus metrics
+    volumes:
+      - ./config/otel:/etc/otelcol-contrib:ro
+    networks:
+      - pynomaly-network
+    depends_on:
+      - prometheus
+
+  #=============================================================================
+  # Infrastructure Services
+  #=============================================================================
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: pynomaly-postgres
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_DB=pynomaly
+      - POSTGRES_USER=pynomaly
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pynomaly_secret}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init/postgres:/docker-entrypoint-initdb.d:ro
+    networks:
+      - pynomaly-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pynomaly -d pynomaly"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: pynomaly-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_secret}
+    volumes:
+      - redis_data:/data
+      - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - pynomaly-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.25'
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: pynomaly-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certs:/etc/nginx/certs:ro
+      - pynomaly_web_assets:/var/www/static:ro
+    networks:
+      - pynomaly-network
+    depends_on:
+      - pynomaly-api
+      - pynomaly-web
+      - grafana
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+#=============================================================================
+# Networks and Volumes
+#=============================================================================
+
+networks:
+  pynomaly-network:
+    driver: bridge
+    name: pynomaly-production
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  # Application data
+  pynomaly_storage:
+    name: pynomaly_storage
+    driver: local
+  pynomaly_logs:
+    name: pynomaly_logs
+    driver: local
+  pynomaly_config:
+    name: pynomaly_config
+    driver: local
+  pynomaly_web_assets:
+    name: pynomaly_web_assets
+    driver: local
+
+  # Database storage
+  postgres_data:
+    name: pynomaly_postgres_data
+    driver: local
+  redis_data:
+    name: pynomaly_redis_data
+    driver: local
+
+  # Monitoring data
+  prometheus_data:
+    name: pynomaly_prometheus_data
+    driver: local
+  grafana_data:
+    name: pynomaly_grafana_data
+    driver: local

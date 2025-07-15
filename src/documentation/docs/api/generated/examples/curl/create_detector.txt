@@ -1,0 +1,14 @@
+# Create detector
+curl -X POST "https://api.pynomaly.com/api/v1/detectors" \
+  -H "X-API-Key: your-api-key-here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "My Detector",
+    "algorithm": "IsolationForest",
+    "parameters": {
+      "contamination": 0.1,
+      "n_estimators": 100,
+      "random_state": 42
+    },
+    "description": "Production anomaly detector"
+  }'

@@ -1,0 +1,336 @@
+# Pynomaly Helm Chart Values
+# Enterprise-grade configuration for production deployment
+
+# Global configuration
+global:
+  imageRegistry: "docker.io"
+  imagePullSecrets: []
+  storageClass: "fast-ssd"
+  
+  # Multi-environment support
+  environment: production
+  region: us-west-2
+  
+  # Security settings
+  security:
+    podSecurityStandards: true
+    networkPolicies: true
+    rbac: true
+
+# Application images
+images:
+  api:
+    repository: pynomaly/api
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  worker:
+    repository: pynomaly/worker
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  scheduler:
+    repository: pynomaly/scheduler
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  monitoring:
+    repository: pynomaly/monitoring
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+
+# Deployment configuration
+replicaCount: 3
+
+# Auto-scaling configuration
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Resource allocation
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+# Health checks
+healthChecks:
+  livenessProbe:
+    enabled: true
+    path: /health
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    enabled: true
+    path: /ready
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8000
+  targetPort: 8000
+  annotations: {}
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: api.pynomaly.ai
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: pynomaly-tls
+      hosts:
+        - api.pynomaly.ai
+
+# Environment configuration
+environment: production
+
+# Application settings
+config:
+  # Database settings
+  database:
+    host: "pynomaly-postgresql"
+    port: 5432
+    name: "pynomaly"
+    username: "pynomaly"
+    # Password should be set in secrets
+    ssl_mode: "require"
+    pool_size: 20
+    max_overflow: 30
+    pool_timeout: 30
+    pool_recycle: 3600
+
+  # Redis settings
+  redis:
+    host: "pynomaly-redis-master"
+    port: 6379
+    db: 0
+    # Password should be set in secrets
+    ssl: true
+    ssl_cert_reqs: "required"
+    connection_pool_max_connections: 50
+
+  # Security settings
+  security:
+    secret_key: "" # Set in secrets
+    jwt_algorithm: "HS256"
+    jwt_expiration: 3600
+    cors_origins: ["https://app.pynomaly.ai", "https://dashboard.pynomaly.ai"]
+    rate_limit_enabled: true
+    rate_limit_requests_per_minute: 100
+
+  # Application settings
+  app:
+    debug: false
+    log_level: "INFO"
+    workers: 4
+    max_connections: 1000
+    timeout: 30
+    keep_alive: 65
+
+# Secrets (should be set externally)
+secrets:
+  database_password: ""
+  redis_password: ""
+  secret_key: ""
+  jwt_secret: ""
+
+# PostgreSQL dependency configuration
+postgresql:
+  enabled: true
+  auth:
+    username: pynomaly
+    database: pynomaly
+    # Password set via secrets
+  primary:
+    persistence:
+      enabled: true
+      size: 100Gi
+      storageClass: "fast-ssd"
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+    pgHBAConfiguration: |
+      local all all trust
+      host all all 127.0.0.1/32 md5
+      host all all ::1/128 md5
+      host all all 0.0.0.0/0 md5
+    configuration:
+      max_connections: 200
+      shared_buffers: 256MB
+      effective_cache_size: 1GB
+      maintenance_work_mem: 64MB
+      checkpoint_completion_target: 0.9
+      wal_buffers: 16MB
+      default_statistics_target: 100
+      random_page_cost: 1.1
+      effective_io_concurrency: 200
+
+# Redis dependency configuration
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    # Password set via secrets
+  master:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: "fast-ssd"
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+  replica:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: "fast-ssd"
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      interval: 15s
+      path: /metrics
+    alerting:
+      enabled: true
+      rules:
+        - alert: PynomalyHighErrorRate
+          expr: rate(pynomaly_requests_total{status=~"5.."}[5m]) > 0.1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High error rate detected"
+            description: "Error rate is {{ $value }} requests per second"
+        
+        - alert: PynomalyHighMemoryUsage
+          expr: process_resident_memory_bytes / 1024 / 1024 > 3000
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High memory usage"
+            description: "Memory usage is {{ $value }}MB"
+
+  grafana:
+    enabled: true
+    dashboards:
+      enabled: true
+      configMapName: pynomaly-dashboards
+
+# Security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+podSecurityContext:
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+# Node affinity and tolerations
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - pynomaly
+          topologyKey: kubernetes.io/hostname
+
+# Persistent volumes
+persistence:
+  enabled: true
+  storageClass: "fast-ssd"
+  accessMode: ReadWriteOnce
+  size: 10Gi
+  mountPath: /app/data
+
+# Backup configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention: "30d"
+  storage:
+    type: "s3"
+    bucket: "pynomaly-backups"
+    region: "us-west-2"
+
+# Network policies
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+  egress:
+    - to: []  # Allow all egress by default
+
+# Service mesh (Istio) configuration
+serviceMesh:
+  enabled: false
+  istio:
+    virtualService:
+      enabled: false
+    destinationRule:
+      enabled: false
+    peerAuthentication:
+      enabled: false

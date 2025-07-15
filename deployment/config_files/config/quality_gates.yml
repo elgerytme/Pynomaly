@@ -1,0 +1,93 @@
+# Quality Gates Configuration
+# Defines the quality gates that must pass before deployment
+
+quality_gates:
+  # Test Coverage Gate
+  - name: test_coverage
+    type: test_coverage
+    threshold: 90.0
+    operator: ">="
+    description: "Minimum test coverage percentage required"
+    blocking: true
+    timeout: 300
+
+  # Security Vulnerabilities Gate
+  - name: security_vulnerabilities
+    type: security_scan
+    threshold: 0
+    operator: "=="
+    description: "No high or critical security vulnerabilities allowed"
+    blocking: true
+    timeout: 600
+
+  # Code Quality Gate
+  - name: code_quality_score
+    type: code_quality
+    threshold: 8.0
+    operator: ">="
+    description: "Minimum code quality score (1-10 scale)"
+    blocking: true
+    timeout: 300
+
+  # Performance Regression Gate
+  - name: performance_regression
+    type: performance
+    threshold: 10.0
+    operator: "<="
+    description: "Maximum allowed performance regression percentage"
+    blocking: true
+    timeout: 900
+
+  # Build Success Gate
+  - name: build_success
+    type: build
+    threshold: 1
+    operator: "=="
+    description: "Build must complete successfully"
+    blocking: true
+    timeout: 1200
+
+  # Documentation Coverage Gate (Non-blocking)
+  - name: documentation_coverage
+    type: test_coverage
+    threshold: 80.0
+    operator: ">="
+    description: "Documentation coverage target"
+    blocking: false
+    timeout: 180
+
+  # API Response Time Gate
+  - name: api_response_time
+    type: performance
+    threshold: 2.0
+    operator: "<="
+    description: "Maximum API response time in seconds"
+    blocking: true
+    timeout: 300
+
+  # Database Migration Gate
+  - name: database_migration
+    type: build
+    threshold: 1
+    operator: "=="
+    description: "Database migrations must run successfully"
+    blocking: true
+    timeout: 600
+
+  # Dependency Vulnerabilities Gate
+  - name: dependency_vulnerabilities
+    type: security_scan
+    threshold: 3
+    operator: "<="
+    description: "Maximum number of medium-severity dependency vulnerabilities"
+    blocking: false
+    timeout: 300
+
+  # Container Security Gate
+  - name: container_security
+    type: security_scan
+    threshold: 0
+    operator: "=="
+    description: "Container images must pass security scan"
+    blocking: true
+    timeout: 900

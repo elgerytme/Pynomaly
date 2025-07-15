@@ -1,0 +1,671 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-staging
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: prometheus
+    environment: staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pynomaly
+      component: prometheus
+      environment: staging
+  template:
+    metadata:
+      labels:
+        app: pynomaly
+        component: prometheus
+        environment: staging
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        ports:
+        - containerPort: 9090
+          name: prometheus
+        args:
+        - --config.file=/etc/prometheus/prometheus.yml
+        - --storage.tsdb.path=/prometheus
+        - --storage.tsdb.retention.time=7d
+        - --storage.tsdb.retention.size=5GB
+        - --web.console.libraries=/etc/prometheus/console_libraries
+        - --web.console.templates=/etc/prometheus/consoles
+        - --web.enable-lifecycle
+        - --web.external-url=http://prometheus-staging.pynomaly.local
+        volumeMounts:
+        - name: prometheus-staging-config
+          mountPath: /etc/prometheus
+        - name: prometheus-staging-storage
+          mountPath: /prometheus
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: prometheus-staging-config
+        configMap:
+          name: prometheus-staging-config
+      - name: prometheus-staging-storage
+        persistentVolumeClaim:
+          claimName: prometheus-staging-storage
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-staging-service
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: prometheus
+    environment: staging
+spec:
+  selector:
+    app: pynomaly
+    component: prometheus
+    environment: staging
+  ports:
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+    name: prometheus
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-staging-storage
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: prometheus
+    environment: staging
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: fast-ssd
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-staging
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: grafana
+    environment: staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pynomaly
+      component: grafana
+      environment: staging
+  template:
+    metadata:
+      labels:
+        app: pynomaly
+        component: grafana
+        environment: staging
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        ports:
+        - containerPort: 3000
+          name: grafana
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-staging-secrets
+              key: GRAFANA_ADMIN_PASSWORD
+        - name: GF_INSTALL_PLUGINS
+          value: "grafana-piechart-panel,grafana-worldmap-panel"
+        volumeMounts:
+        - name: grafana-staging-storage
+          mountPath: /var/lib/grafana
+        - name: grafana-staging-config
+          mountPath: /etc/grafana
+        - name: grafana-staging-dashboards
+          mountPath: /var/lib/grafana/dashboards
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: grafana-staging-config
+        configMap:
+          name: grafana-staging-config
+      - name: grafana-staging-dashboards
+        configMap:
+          name: grafana-staging-dashboards
+      - name: grafana-staging-storage
+        persistentVolumeClaim:
+          claimName: grafana-staging-storage
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-staging-service
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: grafana
+    environment: staging
+spec:
+  selector:
+    app: pynomaly
+    component: grafana
+    environment: staging
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: grafana
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-staging-storage
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: grafana
+    environment: staging
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: fast-ssd
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-staging-config
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: prometheus
+    environment: staging
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      external_labels:
+        cluster: 'pynomaly-staging'
+        environment: 'staging'
+    
+    rule_files:
+    - "staging_rules.yml"
+    
+    alerting:
+      alertmanagers:
+      - static_configs:
+        - targets:
+          - alertmanager-staging-service:9093
+    
+    scrape_configs:
+    # Prometheus self-monitoring
+    - job_name: 'prometheus'
+      static_configs:
+      - targets: ['localhost:9090']
+    
+    # Pynomaly application metrics
+    - job_name: 'pynomaly-staging'
+      kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+          - pynomaly-staging
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name
+    
+    # Database metrics
+    - job_name: 'postgres-staging'
+      static_configs:
+      - targets: ['postgres-staging-service:5432']
+      metrics_path: /metrics
+      params:
+        format: [prometheus]
+    
+    - job_name: 'redis-staging'
+      static_configs:
+      - targets: ['redis-staging-service:6379']
+      metrics_path: /metrics
+    
+    - job_name: 'mongodb-staging'
+      static_configs:
+      - targets: ['mongodb-staging-service:27017']
+      metrics_path: /metrics
+    
+    # Kubernetes cluster metrics
+    - job_name: 'kubernetes-pods'
+      kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+          - pynomaly-staging
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name
+    
+    # Node metrics
+    - job_name: 'kubernetes-nodes'
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - target_label: __address__
+        replacement: kubernetes.default.svc:443
+      - source_labels: [__meta_kubernetes_node_name]
+        regex: (.+)
+        target_label: __metrics_path__
+        replacement: /api/v1/nodes/${1}/proxy/metrics
+  
+  staging_rules.yml: |
+    groups:
+    - name: pynomaly-staging-alerts
+      rules:
+      - alert: PynomaliStagingHighCPU
+        expr: rate(container_cpu_usage_seconds_total{namespace="pynomaly-staging"}[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          environment: staging
+        annotations:
+          summary: "High CPU usage in staging"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has high CPU usage"
+      
+      - alert: PynomaliStagingHighMemory
+        expr: container_memory_usage_bytes{namespace="pynomaly-staging"} / container_spec_memory_limit_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          environment: staging
+        annotations:
+          summary: "High memory usage in staging"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has high memory usage"
+      
+      - alert: PynomaliStagingPodRestarts
+        expr: increase(kube_pod_container_status_restarts_total{namespace="pynomaly-staging"}[1h]) > 3
+        for: 0m
+        labels:
+          severity: warning
+          environment: staging
+        annotations:
+          summary: "Pod restarting frequently in staging"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has restarted {{ $value }} times in the last hour"
+      
+      - alert: PynomaliStagingDatabaseDown
+        expr: up{job="postgres-staging"} == 0 or up{job="redis-staging"} == 0 or up{job="mongodb-staging"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          environment: staging
+        annotations:
+          summary: "Database service down in staging"
+          description: "Database service {{ $labels.job }} is down in staging environment"
+      
+      - alert: PynomaliStagingAppDown
+        expr: up{job="pynomaly-staging"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          environment: staging
+        annotations:
+          summary: "Pynomaly application down in staging"
+          description: "Pynomaly application is down in staging environment"
+      
+      - alert: PynomaliStagingHighErrorRate
+        expr: rate(http_requests_total{job="pynomaly-staging",status=~"5.."}[5m]) / rate(http_requests_total{job="pynomaly-staging"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          environment: staging
+        annotations:
+          summary: "High error rate in staging"
+          description: "Error rate is {{ $value | humanizePercentage }} in staging environment"
+      
+      - alert: PynomaliStagingHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="pynomaly-staging"}[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          environment: staging
+        annotations:
+          summary: "High latency in staging"
+          description: "95th percentile latency is {{ $value }}s in staging environment"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-staging-config
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: grafana
+    environment: staging
+data:
+  grafana.ini: |
+    [server]
+    http_port = 3000
+    root_url = http://grafana-staging.pynomaly.local
+    
+    [database]
+    type = sqlite3
+    path = /var/lib/grafana/grafana.db
+    
+    [security]
+    admin_user = admin
+    # admin_password set via environment variable
+    secret_key = SW2YcwTIb9zpOOhoPsMm
+    
+    [users]
+    allow_sign_up = false
+    auto_assign_org = true
+    auto_assign_org_id = 1
+    auto_assign_org_role = Viewer
+    
+    [auth.anonymous]
+    enabled = false
+    
+    [auth.github]
+    enabled = false
+    
+    [auth.google]
+    enabled = false
+    
+    [snapshots]
+    external_enabled = false
+    
+    [dashboards]
+    default_home_dashboard_path = /var/lib/grafana/dashboards/pynomaly-staging.json
+    
+    [alerting]
+    enabled = true
+    
+    [metrics]
+    enabled = true
+    
+    [log]
+    mode = console
+    level = info
+    
+    [panels]
+    enable_alpha = true
+    
+    [feature_toggles]
+    enable = publicDashboards
+    
+    [unified_alerting]
+    enabled = true
+    
+    [live]
+    allowed_origins = http://grafana-staging.pynomaly.local
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-staging-dashboards
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: grafana
+    environment: staging
+data:
+  pynomaly-staging.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Pynomaly Staging Dashboard",
+        "tags": ["pynomaly", "staging", "monitoring"],
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Request Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"pynomaly-staging\"}[5m])",
+                "legendFormat": "RPS"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Requests/sec",
+                "min": 0
+              }
+            ],
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 8
+          },
+          {
+            "id": 2,
+            "title": "Error Rate",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{job=\"pynomaly-staging\",status=~\"5..\"}[5m])",
+                "legendFormat": "5xx Errors"
+              },
+              {
+                "expr": "rate(http_requests_total{job=\"pynomaly-staging\",status=~\"4..\"}[5m])",
+                "legendFormat": "4xx Errors"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Errors/sec",
+                "min": 0
+              }
+            ],
+            "x": 12,
+            "y": 0,
+            "w": 12,
+            "h": 8
+          },
+          {
+            "id": 3,
+            "title": "Response Time",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"pynomaly-staging\"}[5m]))",
+                "legendFormat": "95th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"pynomaly-staging\"}[5m]))",
+                "legendFormat": "50th percentile"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Seconds",
+                "min": 0
+              }
+            ],
+            "x": 0,
+            "y": 8,
+            "w": 12,
+            "h": 8
+          },
+          {
+            "id": 4,
+            "title": "CPU Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "rate(container_cpu_usage_seconds_total{namespace=\"pynomaly-staging\"}[5m])",
+                "legendFormat": "{{ pod }}"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "CPU Usage",
+                "min": 0,
+                "max": 1
+              }
+            ],
+            "x": 12,
+            "y": 8,
+            "w": 12,
+            "h": 8
+          },
+          {
+            "id": 5,
+            "title": "Memory Usage",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "container_memory_usage_bytes{namespace=\"pynomaly-staging\"}",
+                "legendFormat": "{{ pod }}"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Bytes",
+                "min": 0
+              }
+            ],
+            "x": 0,
+            "y": 16,
+            "w": 12,
+            "h": 8
+          },
+          {
+            "id": 6,
+            "title": "Database Connections",
+            "type": "graph",
+            "targets": [
+              {
+                "expr": "pg_stat_activity_count{datname=\"pynomaly_staging\"}",
+                "legendFormat": "PostgreSQL"
+              },
+              {
+                "expr": "redis_connected_clients{job=\"redis-staging\"}",
+                "legendFormat": "Redis"
+              },
+              {
+                "expr": "mongodb_connections{job=\"mongodb-staging\"}",
+                "legendFormat": "MongoDB"
+              }
+            ],
+            "yAxes": [
+              {
+                "label": "Connections",
+                "min": 0
+              }
+            ],
+            "x": 12,
+            "y": 16,
+            "w": 12,
+            "h": 8
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "refresh": "5s",
+        "schemaVersion": 16,
+        "version": 1
+      }
+    }

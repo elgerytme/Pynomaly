@@ -1,0 +1,4 @@
+# List detectors
+curl -X GET "https://api.pynomaly.com/api/v1/detectors?limit=10" \
+  -H "X-API-Key: your-api-key-here" \
+  -H "Content-Type: application/json"

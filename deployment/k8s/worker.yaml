@@ -1,0 +1,201 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pynomaly-worker
+  namespace: pynomaly
+  labels:
+    app: pynomaly-worker
+spec:
+  selector:
+    app: pynomaly-worker
+  ports:
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+  type: ClusterIP
+  clusterIP: None  # Headless service for StatefulSet
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: model-storage-pvc
+  namespace: pynomaly
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: shared-storage
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pynomaly-worker
+  namespace: pynomaly
+  labels:
+    app: pynomaly-worker
+spec:
+  serviceName: pynomaly-worker
+  replicas: 3
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: pynomaly-worker
+  template:
+    metadata:
+      labels:
+        app: pynomaly-worker
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: pynomaly-worker
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: worker
+          image: pynomaly/worker:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9090
+              name: metrics
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: pynomaly-config
+                  key: database-url
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: pynomaly-config
+                  key: redis-url
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: pynomaly-config
+                  key: environment
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: pynomaly-config
+                  key: log-level
+            - name: WORKER_CONCURRENCY
+              valueFrom:
+                configMapKeyRef:
+                  name: pynomaly-config
+                  key: worker-concurrency
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pynomaly-secrets
+                  key: postgres-password
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pynomaly-secrets
+                  key: redis-password
+            - name: WORKER_TYPE
+              value: "training"
+            - name: MAX_MEMORY_USAGE
+              value: "6G"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: model-storage
+              mountPath: /app/models
+            - name: temp-storage
+              mountPath: /app/tmp
+            - name: logs
+              mountPath: /app/logs
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - "import pynomaly; print('Worker healthy')"
+            initialDelaySeconds: 120
+            periodSeconds: 60
+            timeoutSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - "import pynomaly; print('Worker ready')"
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 15
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2Gi
+            limits:
+              cpu: 4000m
+              memory: 8Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: model-storage-pvc
+        - name: temp-storage
+          emptyDir:
+            sizeLimit: 10Gi
+        - name: logs
+          emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - pynomaly-worker
+                topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: node-type
+                    operator: In
+                    values:
+                      - compute-optimized
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pynomaly-worker
+  namespace: pynomaly
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pynomaly-worker-pdb
+  namespace: pynomaly
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: pynomaly-worker

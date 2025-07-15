@@ -1,0 +1,421 @@
+name: Pynomaly CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ published ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # Security and Code Quality
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Bandit security linter
+        run: |
+          pip install bandit[toml]
+          bandit -r src/ -f json -o bandit-results.json || true
+
+      - name: Upload Bandit results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: bandit-results
+          path: bandit-results.json
+
+  # Code Quality and Linting
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/development.txt
+
+      - name: Run Black formatter check
+        run: black --check src/ tests/
+
+      - name: Run isort import sorting check
+        run: isort --check-only src/ tests/
+
+      - name: Run flake8 linting
+        run: flake8 src/ tests/
+
+      - name: Run mypy type checking
+        run: mypy src/
+
+      - name: Run pylint
+        run: pylint src/
+
+  # Unit and Integration Tests
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pynomaly_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements/*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements/development.txt
+          pip install -r requirements/test.txt
+
+      - name: Run unit tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pynomaly_test
+          REDIS_URL: redis://localhost:6379/0
+          ENVIRONMENT: test
+        run: |
+          pytest tests/unit/ -v --cov=src --cov-report=xml --cov-report=html
+
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pynomaly_test
+          REDIS_URL: redis://localhost:6379/0
+          ENVIRONMENT: test
+        run: |
+          pytest tests/integration/ -v --maxfail=5
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        if: matrix.python-version == '3.11'
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  # SDK Tests
+  sdk-test:
+    name: SDK Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Test Python SDK
+        run: |
+          cd src/packages/sdk
+          pip install -e .
+          pytest tests/ -v
+
+      - name: Test JavaScript SDK
+        run: |
+          cd src/packages/sdk/pynomaly-js-sdk
+          npm ci
+          npm run test
+          npm run build
+
+  # End-to-End Tests
+  e2e-test:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: github.event_name == 'push' || github.event_name == 'release'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Start services with Docker Compose
+        run: |
+          cp .env.example .env
+          docker-compose -f deployment/docker/docker-compose.yml up -d
+          
+      - name: Wait for services to be ready
+        run: |
+          timeout 300 bash -c 'until curl -f http://localhost:8000/api/v1/health; do sleep 5; done'
+
+      - name: Run E2E tests
+        run: |
+          pytest tests/integration/e2e/ -v --maxfail=3
+
+      - name: Collect service logs
+        if: failure()
+        run: |
+          docker-compose -f deployment/docker/docker-compose.yml logs > e2e-logs.txt
+
+      - name: Upload E2E logs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-logs
+          path: e2e-logs.txt
+
+  # Build and Push Images
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    needs: [security-scan, code-quality, test, sdk-test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        service: [api, worker, scheduler, monitoring]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: deployment/docker/Dockerfile.${{ matrix.service }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  # Helm Chart Testing
+  helm-test:
+    name: Helm Chart Tests
+    runs-on: ubuntu-latest
+    needs: [build-and-push]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.4.0
+
+      - name: Lint Helm charts
+        run: |
+          ct lint --chart-dirs deployment/helm --validate-maintainers=false
+
+      - name: Set up kind cluster
+        uses: helm/kind-action@v1.7.0
+        with:
+          cluster_name: pynomaly-test
+
+      - name: Test Helm chart installation
+        run: |
+          ct install --chart-dirs deployment/helm
+
+  # Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-and-push, helm-test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: staging
+      url: https://staging.pynomaly.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.STAGING_KUBECONFIG }}
+
+      - name: Deploy to staging
+        run: |
+          helm upgrade --install pynomaly-staging deployment/helm/pynomaly \
+            --namespace pynomaly-staging --create-namespace \
+            --values deployment/helm/pynomaly/values-staging.yaml \
+            --set images.api.tag=${{ github.sha }} \
+            --set images.worker.tag=${{ github.sha }} \
+            --set images.scheduler.tag=${{ github.sha }} \
+            --set images.monitoring.tag=${{ github.sha }} \
+            --wait --timeout=600s
+
+      - name: Run smoke tests
+        run: |
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=pynomaly-staging -n pynomaly-staging --timeout=300s
+          kubectl exec -n pynomaly-staging deployment/pynomaly-staging-api -- curl -f http://localhost:8000/api/v1/health
+
+  # Deploy to Production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    environment:
+      name: production
+      url: https://api.pynomaly.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.PRODUCTION_KUBECONFIG }}
+
+      - name: Deploy to production
+        run: |
+          helm upgrade --install pynomaly deployment/helm/pynomaly \
+            --namespace pynomaly --create-namespace \
+            --values deployment/helm/pynomaly/values-production.yaml \
+            --set images.api.tag=${{ github.event.release.tag_name }} \
+            --set images.worker.tag=${{ github.event.release.tag_name }} \
+            --set images.scheduler.tag=${{ github.event.release.tag_name }} \
+            --set images.monitoring.tag=${{ github.event.release.tag_name }} \
+            --wait --timeout=900s
+
+      - name: Run production health checks
+        run: |
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/instance=pynomaly -n pynomaly --timeout=600s
+          kubectl exec -n pynomaly deployment/pynomaly-api -- curl -f http://localhost:8000/api/v1/health
+
+      - name: Notify deployment success
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#deployments'
+          text: |
+            🚀 Pynomaly ${{ github.event.release.tag_name }} successfully deployed to production!
+            
+            Release Notes: ${{ github.event.release.html_url }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Security Monitoring
+  security-monitoring:
+    name: Post-Deploy Security Monitoring
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    
+    steps:
+      - name: Run security scan on deployed images
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-api:${{ github.event.release.tag_name }}
+
+      - name: Monitor for vulnerabilities
+        run: |
+          echo "Setting up post-deployment security monitoring..."
+          # Add vulnerability monitoring setup here

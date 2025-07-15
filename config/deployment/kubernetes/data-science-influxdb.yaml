@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pynomaly-influxdb
+  namespace: pynomaly-data-science
+  labels:
+    app: pynomaly
+    component: influxdb
+    tier: metrics
+spec:
+  serviceName: pynomaly-influxdb-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pynomaly
+      component: influxdb
+  template:
+    metadata:
+      labels:
+        app: pynomaly
+        component: influxdb
+        tier: metrics
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8086"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
+      containers:
+      - name: influxdb
+        image: influxdb:2.7-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8086
+          name: http
+        env:
+        - name: DOCKER_INFLUXDB_INIT_MODE
+          value: "setup"
+        - name: DOCKER_INFLUXDB_INIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-influxdb-secret
+              key: username
+        - name: DOCKER_INFLUXDB_INIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-influxdb-secret
+              key: password
+        - name: DOCKER_INFLUXDB_INIT_ORG
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-influxdb-secret
+              key: organization
+        - name: DOCKER_INFLUXDB_INIT_BUCKET
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-influxdb-secret
+              key: bucket
+        - name: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-influxdb-secret
+              key: admin-token
+        volumeMounts:
+        - name: influxdb-data
+          mountPath: /var/lib/influxdb2
+        - name: influxdb-config
+          mountPath: /etc/influxdb2
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "500m"
+          limits:
+            memory: "16Gi"
+            cpu: "4"
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+      volumes:
+      - name: influxdb-data
+        persistentVolumeClaim:
+          claimName: influxdb-data-pvc
+      - name: influxdb-config
+        emptyDir: {}
+  volumeClaimTemplates: []
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pynomaly-influxdb-service
+  namespace: pynomaly-data-science
+  labels:
+    app: pynomaly
+    component: influxdb
+    tier: metrics
+spec:
+  selector:
+    app: pynomaly
+    component: influxdb
+  ports:
+  - port: 8086
+    targetPort: 8086
+    protocol: TCP
+    name: http
+  type: ClusterIP
+  clusterIP: None

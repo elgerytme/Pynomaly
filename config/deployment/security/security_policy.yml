@@ -1,0 +1,403 @@
+# Security Policy Configuration for Pynomaly
+# Following security best practices from RULES.md
+
+# General Security Settings
+security:
+  # Security levels: low, medium, high, critical
+  level: "high"
+  
+  # Security scanning
+  scanning:
+    enabled: true
+    schedule: "daily"
+    tools:
+      - bandit      # Python security linter
+      - safety      # Dependency vulnerability scanner
+      - semgrep     # Code security analysis
+      - trivy       # Container security scanner
+    
+  # Threat modeling
+  threat_model:
+    stride_analysis: true
+    attack_surface_analysis: true
+    risk_assessment_frequency: "quarterly"
+
+# Authentication and Authorization
+auth:
+  # Authentication methods
+  methods:
+    jwt:
+      enabled: true
+      algorithm: "RS256"
+      access_token_ttl: 900    # 15 minutes
+      refresh_token_ttl: 86400 # 24 hours
+      issuer: "pynomaly-api"
+      audience: "pynomaly-users"
+      
+    basic:
+      enabled: false  # Disabled in production
+      
+    oauth2:
+      enabled: true
+      providers:
+        - google
+        - github
+        - azure_ad
+        
+  # Password policies
+  password_policy:
+    min_length: 12
+    require_uppercase: true
+    require_lowercase: true
+    require_numbers: true
+    require_symbols: true
+    max_age_days: 90
+    history_count: 5
+    
+  # Multi-factor authentication
+  mfa:
+    enabled: true
+    methods:
+      - totp
+      - sms
+      - email
+    backup_codes: true
+    
+  # Session management
+  session:
+    secure_cookies: true
+    httponly_cookies: true
+    samesite: "Strict"
+    session_timeout: 3600  # 1 hour
+    concurrent_sessions: 3
+
+# Authorization and Access Control
+authorization:
+  # Role-based access control
+  rbac:
+    enabled: true
+    default_role: "viewer"
+    roles:
+      admin:
+        permissions:
+          - "*"
+      data_scientist:
+        permissions:
+          - "dataset:read"
+          - "dataset:write"
+          - "detector:read"
+          - "detector:write"
+          - "model:read"
+          - "model:train"
+          - "results:read"
+      viewer:
+        permissions:
+          - "dataset:read"
+          - "detector:read"
+          - "results:read"
+          
+  # Attribute-based access control
+  abac:
+    enabled: true
+    policies:
+      - name: "data_access_control"
+        rule: "user.department == resource.department"
+      - name: "time_based_access"
+        rule: "current_time.hour >= 9 AND current_time.hour <= 17"
+        
+  # API rate limiting
+  rate_limiting:
+    enabled: true
+    global_limit: "1000/hour"
+    per_user_limit: "100/hour"
+    per_endpoint_limits:
+      "/api/detect": "10/minute"
+      "/api/train": "5/hour"
+      "/api/upload": "20/hour"
+
+# Data Protection and Privacy
+data_protection:
+  # Encryption
+  encryption:
+    at_rest:
+      enabled: true
+      algorithm: "AES-256-GCM"
+      key_rotation_days: 90
+      
+    in_transit:
+      enabled: true
+      tls_version: "1.3"
+      cipher_suites:
+        - "TLS_AES_256_GCM_SHA384"
+        - "TLS_CHACHA20_POLY1305_SHA256"
+        
+    field_level:
+      enabled: true
+      fields:
+        - "email"
+        - "phone"
+        - "ssn"
+        - "credit_card"
+        
+  # Data classification
+  classification:
+    levels:
+      public: {}
+      internal:
+        access_controls: true
+      confidential:
+        access_controls: true
+        encryption_required: true
+      restricted:
+        access_controls: true
+        encryption_required: true
+        audit_logging: true
+        
+  # Privacy controls
+  privacy:
+    gdpr_compliance: true
+    ccpa_compliance: true
+    data_retention_days: 2555  # 7 years
+    right_to_be_forgotten: true
+    data_portability: true
+    consent_management: true
+    
+  # Data masking and anonymization
+  masking:
+    enabled: true
+    techniques:
+      - "tokenization"
+      - "pseudonymization"
+      - "k_anonymity"
+      - "differential_privacy"
+
+# Input Validation and Sanitization
+input_validation:
+  # General validation
+  validation:
+    enabled: true
+    strict_mode: true
+    max_request_size: "10MB"
+    max_file_size: "100MB"
+    allowed_file_types:
+      - "csv"
+      - "json"
+      - "parquet"
+      - "xlsx"
+      
+  # SQL injection prevention
+  sql_injection:
+    parameterized_queries: true
+    input_sanitization: true
+    query_whitelisting: true
+    
+  # XSS prevention
+  xss_prevention:
+    output_encoding: true
+    csp_headers: true
+    content_type_validation: true
+    
+  # CSRF protection
+  csrf_protection:
+    enabled: true
+    token_validation: true
+    samesite_cookies: true
+
+# Security Headers and Hardening
+security_headers:
+  # HTTP security headers
+  headers:
+    strict_transport_security:
+      enabled: true
+      max_age: 31536000
+      include_subdomains: true
+      preload: true
+      
+    content_security_policy:
+      enabled: true
+      policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+      
+    x_frame_options: "DENY"
+    x_content_type_options: "nosniff"
+    x_xss_protection: "1; mode=block"
+    referrer_policy: "strict-origin-when-cross-origin"
+    
+  # API security
+  api_security:
+    cors:
+      enabled: true
+      allowed_origins:
+        - "https://app.pynomaly.com"
+        - "https://admin.pynomaly.com"
+      allowed_methods: ["GET", "POST", "PUT", "DELETE"]
+      allowed_headers: ["Authorization", "Content-Type"]
+      credentials: true
+      
+    versioning:
+      enabled: true
+      deprecation_warnings: true
+      sunset_headers: true
+
+# Vulnerability Management
+vulnerability_management:
+  # Dependency scanning
+  dependency_scanning:
+    enabled: true
+    frequency: "daily"
+    tools:
+      - "safety"
+      - "pip-audit"
+      - "snyk"
+    auto_update_security_patches: true
+    
+  # Static code analysis
+  static_analysis:
+    enabled: true
+    tools:
+      - "bandit"
+      - "semgrep"
+      - "codeql"
+    severity_threshold: "medium"
+    
+  # Dynamic analysis
+  dynamic_analysis:
+    enabled: true
+    tools:
+      - "zap"
+      - "burp"
+    schedule: "weekly"
+    
+  # Penetration testing
+  penetration_testing:
+    enabled: true
+    frequency: "quarterly"
+    scope:
+      - "web_application"
+      - "api_endpoints"
+      - "infrastructure"
+
+# Incident Response
+incident_response:
+  # Detection and monitoring
+  detection:
+    security_monitoring: true
+    anomaly_detection: true
+    threat_intelligence: true
+    
+  # Response procedures
+  response:
+    automated_response: true
+    escalation_matrix:
+      low: "security_team"
+      medium: "security_team,devops_team"
+      high: "security_team,devops_team,management"
+      critical: "all_hands,external_experts"
+      
+  # Recovery and forensics
+  recovery:
+    backup_systems: true
+    forensic_imaging: true
+    evidence_preservation: true
+    
+  # Communication
+  communication:
+    internal_notifications: true
+    external_notifications: true  # If required by regulation
+    media_response_plan: true
+
+# Compliance and Auditing
+compliance:
+  # Regulatory compliance
+  regulations:
+    gdpr: true
+    ccpa: true
+    hipaa: false  # Set to true if handling health data
+    sox: false    # Set to true if financial data
+    pci_dss: false # Set to true if payment data
+    
+  # Security frameworks
+  frameworks:
+    nist_cybersecurity: true
+    iso_27001: true
+    owasp_top_10: true
+    
+  # Audit logging
+  audit_logging:
+    enabled: true
+    events:
+      - "authentication"
+      - "authorization"
+      - "data_access"
+      - "configuration_changes"
+      - "security_events"
+    retention_days: 2555  # 7 years
+    immutable_logs: true
+    log_integrity_verification: true
+    
+  # Compliance monitoring
+  monitoring:
+    automated_compliance_checks: true
+    compliance_dashboards: true
+    regular_assessments: true
+
+# Security Training and Awareness
+security_training:
+  # Developer training
+  developer_training:
+    secure_coding: true
+    threat_modeling: true
+    security_testing: true
+    frequency: "quarterly"
+    
+  # General awareness
+  awareness:
+    phishing_simulation: true
+    security_newsletters: true
+    incident_lessons_learned: true
+    
+  # Certification requirements
+  certifications:
+    required_for_developers: ["OWASP", "Secure Coding"]
+    required_for_security_team: ["CISSP", "CEH", "GSEC"]
+
+# Security Architecture
+security_architecture:
+  # Defense in depth
+  defense_in_depth:
+    network_security: true
+    application_security: true
+    data_security: true
+    endpoint_security: true
+    
+  # Zero trust model
+  zero_trust:
+    verify_explicitly: true
+    least_privilege_access: true
+    assume_breach: true
+    
+  # Security by design
+  security_by_design:
+    threat_modeling: true
+    security_requirements: true
+    secure_defaults: true
+    privacy_by_design: true
+
+# Emergency Procedures
+emergency_procedures:
+  # Security incident response
+  incident_response:
+    detection_time_sla: "15 minutes"
+    response_time_sla: "30 minutes"
+    resolution_time_sla: "4 hours"
+    
+  # Business continuity
+  business_continuity:
+    backup_systems: true
+    disaster_recovery: true
+    communication_plans: true
+    
+  # Breach notification
+  breach_notification:
+    internal_notification: "immediate"
+    customer_notification: "72 hours"
+    regulatory_notification: "as_required"

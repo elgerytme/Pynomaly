@@ -1,0 +1,1326 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Advanced Form Components Demo - Multi-step forms with state management"
+    />
+    <title>Pynomaly - Advanced Form Components Demo</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="../static/css/design-tokens.css" as="style" />
+    <link
+      rel="preload"
+      href="../static/css/advanced-components.css"
+      as="style"
+    />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      as="style"
+    />
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../static/css/design-tokens.css" />
+    <link rel="stylesheet" href="../static/css/advanced-components.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    />
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background: var(--color-bg-secondary);
+        color: var(--color-text-primary);
+        line-height: var(--line-height-normal);
+      }
+
+      .demo-header {
+        background: var(--color-bg-primary);
+        padding: var(--spacing-6) var(--spacing-8);
+        box-shadow: var(--shadow-sm);
+        border-bottom: 1px solid var(--color-border-light);
+      }
+
+      .demo-title {
+        font-size: var(--font-size-3xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-text-primary);
+        margin: 0 0 var(--spacing-2) 0;
+      }
+
+      .demo-subtitle {
+        font-size: var(--font-size-lg);
+        color: var(--color-text-secondary);
+        margin: 0;
+      }
+
+      .demo-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--spacing-8);
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: var(--spacing-8);
+      }
+
+      .main-content {
+        background: var(--color-bg-primary);
+        border-radius: var(--border-radius-xl);
+        box-shadow: var(--shadow-md);
+        padding: var(--spacing-8);
+      }
+
+      .sidebar {
+        background: var(--color-bg-primary);
+        border-radius: var(--border-radius-xl);
+        box-shadow: var(--shadow-md);
+        padding: var(--spacing-6);
+        height: fit-content;
+        position: sticky;
+        top: var(--spacing-8);
+      }
+
+      .sidebar-section {
+        margin-bottom: var(--spacing-6);
+      }
+
+      .sidebar-title {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+        margin: 0 0 var(--spacing-4) 0;
+      }
+
+      .state-display {
+        background: var(--color-bg-secondary);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-4);
+        font-family: var(--font-family-mono);
+        font-size: var(--font-size-sm);
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+
+      .debug-panel {
+        background: var(--color-bg-secondary);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-4);
+      }
+
+      .debug-actions {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-2);
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: var(--spacing-6);
+        right: var(--spacing-6);
+        z-index: var(--z-index-toast);
+      }
+
+      .form-examples {
+        display: grid;
+        gap: var(--spacing-6);
+      }
+
+      .example-section {
+        border: 1px solid var(--color-border-light);
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+      }
+
+      .example-header {
+        background: var(--color-bg-secondary);
+        padding: var(--spacing-4);
+        border-bottom: 1px solid var(--color-border-light);
+      }
+
+      .example-title {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-text-primary);
+        margin: 0 0 var(--spacing-1) 0;
+      }
+
+      .example-description {
+        font-size: var(--font-size-sm);
+        color: var(--color-text-secondary);
+        margin: 0;
+      }
+
+      .example-content {
+        padding: var(--spacing-6);
+      }
+
+      .component-showcase {
+        display: grid;
+        gap: var(--spacing-4);
+        margin-bottom: var(--spacing-6);
+      }
+
+      .performance-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: var(--spacing-3);
+        margin-bottom: var(--spacing-4);
+      }
+
+      .metric-item {
+        text-align: center;
+        padding: var(--spacing-3);
+        background: var(--color-bg-secondary);
+        border-radius: var(--border-radius-md);
+      }
+
+      .metric-value {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-primary-600);
+        display: block;
+      }
+
+      .metric-label {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: var(--letter-spacing-wide);
+      }
+
+      @media (max-width: 1024px) {
+        .demo-container {
+          grid-template-columns: 1fr;
+          padding: var(--spacing-4);
+          gap: var(--spacing-4);
+        }
+
+        .sidebar {
+          position: static;
+          order: -1;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .demo-header {
+          padding: var(--spacing-4);
+        }
+
+        .demo-title {
+          font-size: var(--font-size-2xl);
+        }
+
+        .main-content {
+          padding: var(--spacing-4);
+        }
+
+        .performance-metrics {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Accessibility Skip Link -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-500 focus:text-white focus:rounded"
+    >
+      Skip to main content
+    </a>
+
+    <!-- Theme Toggle -->
+    <button
+      class="theme-toggle btn btn--secondary"
+      onclick="toggleTheme()"
+      aria-label="Toggle dark/light theme"
+    >
+      <span id="theme-icon">🌙</span>
+    </button>
+
+    <!-- Header -->
+    <header class="demo-header">
+      <h1 class="demo-title">Advanced Form Components</h1>
+      <p class="demo-subtitle">
+        Multi-step forms with state management, validation, and accessibility
+      </p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="demo-container">
+      <main id="main-content" class="main-content">
+        <div class="form-examples">
+          <!-- Multi-Step Form Example -->
+          <section class="example-section">
+            <div class="example-header">
+              <h2 class="example-title">Dataset Upload Wizard</h2>
+              <p class="example-description">
+                Complete multi-step form for anomaly detection dataset
+                configuration with validation and state management
+              </p>
+            </div>
+            <div class="example-content">
+              <div id="dataset-upload-form"></div>
+            </div>
+          </section>
+
+          <!-- Advanced Input Components -->
+          <section class="example-section">
+            <div class="example-header">
+              <h2 class="example-title">Advanced Input Components</h2>
+              <p class="example-description">
+                Showcase of specialized input components with rich interactions
+              </p>
+            </div>
+            <div class="example-content">
+              <div class="component-showcase">
+                <div class="form-field">
+                  <label class="form-label">File Upload with Drag & Drop</label>
+                  <div id="file-upload-demo"></div>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">Date Range Picker</label>
+                  <div id="date-range-demo"></div>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">Multi-Select with Search</label>
+                  <div id="multi-select-demo"></div>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-label">Dynamic Fieldset</label>
+                  <div id="dynamic-fieldset-demo"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Validation Examples -->
+          <section class="example-section">
+            <div class="example-header">
+              <h2 class="example-title">Validation Showcase</h2>
+              <p class="example-description">
+                Real-time validation with custom rules and accessibility
+                features
+              </p>
+            </div>
+            <div class="example-content">
+              <div id="validation-demo"></div>
+            </div>
+          </section>
+
+          <!-- Performance Test -->
+          <section class="example-section">
+            <div class="example-header">
+              <h2 class="example-title">Performance Test</h2>
+              <p class="example-description">
+                Large form with many fields to test rendering and validation
+                performance
+              </p>
+            </div>
+            <div class="example-content">
+              <div class="performance-metrics">
+                <div class="metric-item">
+                  <span class="metric-value" id="render-time">--</span>
+                  <span class="metric-label">Render Time (ms)</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-value" id="validation-time">--</span>
+                  <span class="metric-label">Validation Time (ms)</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-value" id="field-count">--</span>
+                  <span class="metric-label">Field Count</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-value" id="memory-usage">--</span>
+                  <span class="metric-label">Memory (MB)</span>
+                </div>
+              </div>
+              <div id="performance-test-form"></div>
+              <button class="btn btn--secondary" onclick="runPerformanceTest()">
+                Run Performance Test
+              </button>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">Form State</h3>
+          <div id="form-state-display" class="state-display">
+            No active form
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">Global State</h3>
+          <div id="global-state-display" class="state-display">Loading...</div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">Debug Panel</h3>
+          <div class="debug-panel">
+            <div class="debug-actions">
+              <button
+                class="btn btn--sm btn--outline"
+                onclick="exportFormState()"
+              >
+                Export State
+              </button>
+              <button
+                class="btn btn--sm btn--outline"
+                onclick="clearFormState()"
+              >
+                Clear State
+              </button>
+              <button
+                class="btn btn--sm btn--outline"
+                onclick="simulateError()"
+              >
+                Simulate Error
+              </button>
+              <button
+                class="btn btn--sm btn--outline"
+                onclick="toggleDebugMode()"
+              >
+                Toggle Debug
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3 class="sidebar-title">Accessibility</h3>
+          <div class="debug-panel">
+            <div class="debug-actions">
+              <label>
+                <input
+                  type="checkbox"
+                  id="high-contrast"
+                  onchange="toggleHighContrast(this.checked)"
+                />
+                High Contrast
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  id="reduced-motion"
+                  onchange="toggleReducedMotion(this.checked)"
+                />
+                Reduced Motion
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  id="screen-reader"
+                  onchange="toggleScreenReaderMode(this.checked)"
+                />
+                Screen Reader Mode
+              </label>
+              <button
+                class="btn btn--sm btn--outline"
+                onclick="showKeyboardHelp()"
+              >
+                Keyboard Help
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Status Bar -->
+    <div
+      id="status-bar"
+      class="sr-only"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <!-- Scripts -->
+    <script src="../static/js/store/anomalyStore.js"></script>
+    <script src="../static/js/components/AdvancedFormComponents.js"></script>
+    <script src="../static/js/components/FormInputComponents.js"></script>
+
+    <script>
+      // Global variables
+      let formComponents = null;
+      let activeForm = null;
+      let debugMode = false;
+      let performanceData = {};
+
+      // Initialize demo
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeDemo();
+        initializeStateManagement();
+        setupPerformanceMonitoring();
+        setupAccessibility();
+      });
+
+      function initializeDemo() {
+        // Initialize form components
+        formComponents = new AdvancedFormComponents({
+          validateOnChange: true,
+          validateOnBlur: true,
+          debounceMs: 300,
+          accessibility: {
+            announceErrors: true,
+            liveValidation: true,
+          },
+        });
+
+        // Create dataset upload wizard
+        createDatasetUploadForm();
+
+        // Create individual component demos
+        createComponentDemos();
+
+        // Create validation demo
+        createValidationDemo();
+
+        // Start state monitoring
+        startStateMonitoring();
+      }
+
+      function createDatasetUploadForm() {
+        const container = document.getElementById("dataset-upload-form");
+
+        const formConfig = {
+          title: "Dataset Upload & Configuration",
+          steps: [
+            {
+              title: "Dataset Information",
+              description: "Provide basic information about your dataset",
+              fields: [
+                {
+                  name: "datasetName",
+                  label: "Dataset Name",
+                  type: "text",
+                  required: true,
+                  placeholder: "Enter dataset name",
+                  validators: ["required", { name: "minLength", minLength: 3 }],
+                  helpText: "Choose a descriptive name for your dataset",
+                },
+                {
+                  name: "description",
+                  label: "Description",
+                  type: "textarea",
+                  placeholder: "Describe your dataset...",
+                  rows: 4,
+                  validators: [{ name: "maxLength", maxLength: 500 }],
+                  helpText: "Optional description (max 500 characters)",
+                },
+                {
+                  name: "dataType",
+                  label: "Data Type",
+                  type: "select",
+                  required: true,
+                  placeholder: "Select data type",
+                  options: [
+                    { value: "timeseries", label: "Time Series" },
+                    { value: "tabular", label: "Tabular" },
+                    { value: "text", label: "Text" },
+                    { value: "image", label: "Image" },
+                    { value: "mixed", label: "Mixed" },
+                  ],
+                  validators: ["required"],
+                },
+                {
+                  name: "tags",
+                  label: "Tags",
+                  type: "multi-select",
+                  options: [
+                    { value: "finance", label: "Finance" },
+                    { value: "healthcare", label: "Healthcare" },
+                    { value: "iot", label: "IoT" },
+                    { value: "network", label: "Network Security" },
+                    { value: "fraud", label: "Fraud Detection" },
+                    { value: "manufacturing", label: "Manufacturing" },
+                  ],
+                  helpText: "Select relevant tags for categorization",
+                },
+              ],
+            },
+            {
+              title: "File Upload",
+              description: "Upload your dataset files",
+              fields: [
+                {
+                  name: "dataFiles",
+                  label: "Data Files",
+                  type: "file",
+                  required: true,
+                  accept: ".csv,.json,.xlsx,.parquet",
+                  maxFiles: 5,
+                  maxSize: 100 * 1024 * 1024, // 100MB
+                  validators: ["required"],
+                  helpText:
+                    "Upload CSV, JSON, Excel, or Parquet files (max 100MB each)",
+                },
+                {
+                  name: "hasHeaders",
+                  label: "File has headers",
+                  type: "checkbox-group",
+                  options: [
+                    {
+                      value: "headers",
+                      label: "First row contains column headers",
+                    },
+                  ],
+                },
+                {
+                  name: "dateRange",
+                  label: "Data Date Range",
+                  type: "date-range",
+                  helpText: "Optional: specify the date range of your data",
+                },
+              ],
+            },
+            {
+              title: "Detection Configuration",
+              description: "Configure anomaly detection parameters",
+              fields: [
+                {
+                  name: "algorithms",
+                  label: "Detection Algorithms",
+                  type: "checkbox-group",
+                  required: true,
+                  options: [
+                    { value: "isolation_forest", label: "Isolation Forest" },
+                    {
+                      value: "local_outlier_factor",
+                      label: "Local Outlier Factor",
+                    },
+                    { value: "one_class_svm", label: "One-Class SVM" },
+                    { value: "autoencoder", label: "Autoencoder" },
+                    { value: "lstm", label: "LSTM (Time Series)" },
+                  ],
+                  validators: ["required"],
+                  helpText: "Select one or more algorithms to use",
+                },
+                {
+                  name: "contamination",
+                  label: "Contamination Rate",
+                  type: "number",
+                  min: 0.01,
+                  max: 0.5,
+                  step: 0.01,
+                  defaultValue: 0.1,
+                  validators: ["required", "number"],
+                  helpText: "Expected proportion of anomalies (0.01 - 0.5)",
+                },
+                {
+                  name: "sensitivity",
+                  label: "Sensitivity Level",
+                  type: "radio-group",
+                  required: true,
+                  options: [
+                    { value: "low", label: "Low - Fewer false positives" },
+                    { value: "medium", label: "Medium - Balanced" },
+                    { value: "high", label: "High - Catch more anomalies" },
+                  ],
+                  defaultValue: "medium",
+                  validators: ["required"],
+                },
+              ],
+            },
+            {
+              title: "Review & Submit",
+              description: "Review your configuration and submit",
+              fields: [
+                {
+                  name: "notifications",
+                  label: "Notification Preferences",
+                  type: "checkbox-group",
+                  options: [
+                    { value: "email", label: "Email notifications" },
+                    { value: "slack", label: "Slack notifications" },
+                    { value: "webhook", label: "Webhook notifications" },
+                  ],
+                },
+                {
+                  name: "autoProcess",
+                  label: "Processing Options",
+                  type: "checkbox-group",
+                  options: [
+                    {
+                      value: "auto_start",
+                      label: "Start processing immediately",
+                    },
+                    {
+                      value: "save_config",
+                      label: "Save configuration as template",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          onSubmit: (data, form) => {
+            handleFormSubmit(data, form);
+          },
+          onSaveDraft: (data, form) => {
+            handleSaveDraft(data, form);
+          },
+        };
+
+        activeForm = formComponents.createMultiStepForm(container, formConfig);
+      }
+
+      function createComponentDemos() {
+        // File upload demo
+        formComponents.createFileUpload(
+          document.getElementById("file-upload-demo"),
+          {
+            accept: ".csv,.json,.xlsx",
+            maxFiles: 3,
+            maxSize: 50 * 1024 * 1024,
+            onFileChange: (files) => {
+              updateFormState("fileUploadDemo", {
+                files: files.map((f) => f.name),
+              });
+              announceToUser(`${files.length} files selected`);
+            },
+          },
+        );
+
+        // Date range picker demo
+        formComponents.createDateRangePicker(
+          document.getElementById("date-range-demo"),
+          {
+            name: "demoDateRange",
+            onDateChange: (range) => {
+              updateFormState("dateRangeDemo", range);
+              announceToUser(
+                `Date range selected: ${range.start || "none"} to ${range.end || "none"}`,
+              );
+            },
+          },
+        );
+
+        // Multi-select demo
+        formComponents.createMultiSelect(
+          document.getElementById("multi-select-demo"),
+          {
+            options: [
+              { value: "cpu", label: "CPU Usage" },
+              { value: "memory", label: "Memory Usage" },
+              { value: "disk", label: "Disk I/O" },
+              { value: "network", label: "Network Traffic" },
+              { value: "temperature", label: "Temperature" },
+              { value: "power", label: "Power Consumption" },
+              { value: "latency", label: "Response Latency" },
+              { value: "throughput", label: "Throughput" },
+            ],
+            placeholder: "Select metrics to monitor...",
+            searchable: true,
+            maxSelections: 5,
+            onSelectionChange: (selected) => {
+              updateFormState("multiSelectDemo", { selected });
+              announceToUser(`${selected.length} metrics selected`);
+            },
+          },
+        );
+
+        // Dynamic fieldset demo
+        formComponents.createDynamicFieldset(
+          document.getElementById("dynamic-fieldset-demo"),
+          {
+            minItems: 1,
+            maxItems: 5,
+            addButtonText: "Add Feature",
+            template: {
+              fields: [
+                {
+                  name: "featureName",
+                  label: "Feature Name",
+                  type: "text",
+                  required: true,
+                  placeholder: "Enter feature name",
+                },
+                {
+                  name: "featureType",
+                  label: "Type",
+                  type: "select",
+                  required: true,
+                  options: [
+                    { value: "numeric", label: "Numeric" },
+                    { value: "categorical", label: "Categorical" },
+                    { value: "boolean", label: "Boolean" },
+                    { value: "datetime", label: "DateTime" },
+                  ],
+                },
+                {
+                  name: "description",
+                  label: "Description",
+                  type: "textarea",
+                  placeholder: "Optional description",
+                },
+              ],
+            },
+            onItemsChange: (items) => {
+              updateFormState("dynamicFieldsetDemo", { items });
+              announceToUser(`${items.length} features configured`);
+            },
+          },
+        );
+      }
+
+      function createValidationDemo() {
+        const container = document.getElementById("validation-demo");
+
+        // Add custom validator
+        formComponents.addValidator("strongPassword", (value) => {
+          if (!value) return null;
+
+          const requirements = [
+            { test: /.{8,}/, message: "at least 8 characters" },
+            { test: /[A-Z]/, message: "an uppercase letter" },
+            { test: /[a-z]/, message: "a lowercase letter" },
+            { test: /\d/, message: "a number" },
+            { test: /[!@#$%^&*]/, message: "a special character" },
+          ];
+
+          const failed = requirements.filter((req) => !req.test.test(value));
+          if (failed.length > 0) {
+            return `Password must contain ${failed.map((f) => f.message).join(", ")}`;
+          }
+
+          return null;
+        });
+
+        container.innerHTML = `
+                <div class="form-field">
+                    <label for="email-validation" class="form-label required">Email Address</label>
+                    <input type="email"
+                           id="email-validation"
+                           name="email"
+                           class="form-input"
+                           placeholder="Enter your email"
+                           required>
+                    <div class="form-help">We'll use this for notifications</div>
+                </div>
+
+                <div class="form-field">
+                    <label for="password-validation" class="form-label required">Strong Password</label>
+                    <input type="password"
+                           id="password-validation"
+                           name="password"
+                           class="form-input"
+                           placeholder="Create a strong password"
+                           required>
+                    <div class="form-help">Must contain uppercase, lowercase, number, and special character</div>
+                </div>
+
+                <div class="form-field">
+                    <label for="confirm-password" class="form-label required">Confirm Password</label>
+                    <input type="password"
+                           id="confirm-password"
+                           name="confirmPassword"
+                           class="form-input"
+                           placeholder="Confirm your password"
+                           required>
+                </div>
+
+                <div class="form-field">
+                    <label for="age-validation" class="form-label">Age</label>
+                    <input type="number"
+                           id="age-validation"
+                           name="age"
+                           class="form-input"
+                           min="18"
+                           max="120"
+                           placeholder="Enter your age">
+                    <div class="form-help">Must be between 18 and 120</div>
+                </div>
+            `;
+
+        // Setup validation
+        const validationFields = [
+          { name: "email", validators: ["required", "email"] },
+          { name: "password", validators: ["required", "strongPassword"] },
+          { name: "confirmPassword", validators: ["required"] },
+          { name: "age", validators: ["number"] },
+        ];
+
+        container.querySelectorAll("input").forEach((input) => {
+          const fieldConfig = validationFields.find(
+            (f) => f.name === input.name,
+          );
+          if (!fieldConfig) return;
+
+          const validateField = formComponents.debounce(() => {
+            let value = input.value;
+
+            // Special case for confirm password
+            if (input.name === "confirmPassword") {
+              const password =
+                container.querySelector('[name="password"]').value;
+              if (value && value !== password) {
+                showFieldError(input, "Passwords do not match");
+                return;
+              }
+            }
+
+            const errors = formComponents.validateField(value, fieldConfig);
+
+            if (errors.length > 0) {
+              showFieldError(input, errors[0]);
+            } else {
+              showFieldSuccess(input);
+            }
+          }, 300);
+
+          input.addEventListener("input", validateField);
+          input.addEventListener("blur", validateField);
+        });
+      }
+
+      function showFieldError(input, message) {
+        input.classList.add("error");
+        input.classList.remove("success");
+        input.setAttribute("aria-invalid", "true");
+
+        // Remove existing feedback
+        const existingError = input.parentNode.querySelector(".form-error");
+        const existingSuccess = input.parentNode.querySelector(".form-success");
+        if (existingError) existingError.remove();
+        if (existingSuccess) existingSuccess.remove();
+
+        // Add error message
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "form-error";
+        errorDiv.setAttribute("role", "alert");
+        errorDiv.innerHTML = `<span aria-hidden="true">⚠</span> ${message}`;
+        input.parentNode.appendChild(errorDiv);
+      }
+
+      function showFieldSuccess(input) {
+        input.classList.remove("error");
+        input.classList.add("success");
+        input.setAttribute("aria-invalid", "false");
+
+        // Remove existing feedback
+        const existingError = input.parentNode.querySelector(".form-error");
+        const existingSuccess = input.parentNode.querySelector(".form-success");
+        if (existingError) existingError.remove();
+        if (existingSuccess) existingSuccess.remove();
+
+        // Add success message
+        const successDiv = document.createElement("div");
+        successDiv.className = "form-success";
+        successDiv.innerHTML = `<span aria-hidden="true">✓</span> Valid`;
+        input.parentNode.appendChild(successDiv);
+      }
+
+      function initializeStateManagement() {
+        // Initialize global store
+        anomalyStore.setState({
+          formData: {},
+          preferences: {
+            theme: "light",
+            accessibility: {
+              highContrast: false,
+              reducedMotion: false,
+              screenReader: false,
+            },
+          },
+        });
+
+        // Subscribe to state changes
+        anomalyStore.subscribe((state) => {
+          updateGlobalStateDisplay(state);
+        });
+      }
+
+      function startStateMonitoring() {
+        setInterval(() => {
+          updatePerformanceMetrics();
+        }, 1000);
+      }
+
+      function updateFormState(component, data) {
+        const state = anomalyStore.getState();
+        const newFormData = {
+          ...state.formData,
+          [component]: {
+            ...state.formData[component],
+            ...data,
+            timestamp: Date.now(),
+          },
+        };
+
+        anomalyStore.setState({ formData: newFormData });
+        updateFormStateDisplay(newFormData);
+      }
+
+      function updateFormStateDisplay(formData) {
+        const display = document.getElementById("form-state-display");
+        display.textContent = JSON.stringify(formData, null, 2);
+      }
+
+      function updateGlobalStateDisplay(state) {
+        const display = document.getElementById("global-state-display");
+        const filteredState = {
+          preferences: state.preferences,
+          loading: state.loading,
+          errors: state.errors,
+          performance: state.performance,
+        };
+        display.textContent = JSON.stringify(filteredState, null, 2);
+      }
+
+      function updatePerformanceMetrics() {
+        const state = anomalyStore.getState();
+        const metrics = state.getPerformanceMetrics();
+
+        document.getElementById("render-time").textContent =
+          metrics.averageRenderTime
+            ? metrics.averageRenderTime.toFixed(2)
+            : "--";
+
+        document.getElementById("validation-time").textContent =
+          metrics.averageDataUpdateTime
+            ? metrics.averageDataUpdateTime.toFixed(2)
+            : "--";
+
+        document.getElementById("field-count").textContent =
+          document.querySelectorAll("input, select, textarea").length;
+
+        if (performance.memory) {
+          const memoryMB = (
+            performance.memory.usedJSHeapSize /
+            1024 /
+            1024
+          ).toFixed(1);
+          document.getElementById("memory-usage").textContent = memoryMB;
+          anomalyStore.setState((state) => ({
+            performance: {
+              ...state.performance,
+              memoryUsage: parseFloat(memoryMB),
+            },
+          }));
+        }
+      }
+
+      function setupPerformanceMonitoring() {
+        // Monitor form operations
+        const originalSetState = anomalyStore.setState.bind(anomalyStore);
+        anomalyStore.setState = function (partial, replace) {
+          const startTime = performance.now();
+          const result = originalSetState(partial, replace);
+          const endTime = performance.now();
+
+          const state = anomalyStore.getState();
+          anomalyStore.setState({
+            performance: {
+              ...state.performance,
+              renderTimes: {
+                ...state.performance.renderTimes,
+                stateUpdate: endTime - startTime,
+              },
+            },
+          });
+
+          return result;
+        };
+      }
+
+      function setupAccessibility() {
+        // Detect user preferences
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          document.getElementById("reduced-motion").checked = true;
+          toggleReducedMotion(true);
+        }
+
+        if (window.matchMedia("(prefers-contrast: high)").matches) {
+          document.getElementById("high-contrast").checked = true;
+          toggleHighContrast(true);
+        }
+
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          toggleTheme();
+        }
+      }
+
+      // Event handlers
+      function handleFormSubmit(data, form) {
+        announceToUser("Form submitted successfully");
+
+        // Update global state
+        anomalyStore.setState((state) => ({
+          formData: { ...state.formData, submission: data },
+        }));
+
+        // Simulate API call
+        setTimeout(() => {
+          announceToUser("Dataset processing started");
+        }, 1000);
+      }
+
+      function handleSaveDraft(data, form) {
+        announceToUser("Draft saved");
+
+        // Save to local storage
+        localStorage.setItem("pynomaly-form-draft", JSON.stringify(data));
+      }
+
+      function runPerformanceTest() {
+        const startTime = performance.now();
+
+        // Create a large form with many fields
+        const container = document.getElementById("performance-test-form");
+        const fieldCount = 100;
+
+        let formHTML =
+          '<div class="form-field-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">';
+
+        for (let i = 0; i < fieldCount; i++) {
+          formHTML += `
+                    <div class="form-field">
+                        <label for="field-${i}" class="form-label">Field ${i + 1}</label>
+                        <input type="text"
+                               id="field-${i}"
+                               name="field-${i}"
+                               class="form-input"
+                               placeholder="Enter value ${i + 1}">
+                    </div>
+                `;
+        }
+
+        formHTML += "</div>";
+        container.innerHTML = formHTML;
+
+        const renderTime = performance.now() - startTime;
+
+        // Test validation performance
+        const validationStartTime = performance.now();
+        container.querySelectorAll("input").forEach((input, index) => {
+          const errors = formComponents.validateField(`test-value-${index}`, {
+            name: input.name,
+            validators: ["required"],
+          });
+        });
+        const validationTime = performance.now() - validationStartTime;
+
+        // Update metrics
+        document.getElementById("render-time").textContent =
+          renderTime.toFixed(2);
+        document.getElementById("validation-time").textContent =
+          validationTime.toFixed(2);
+        document.getElementById("field-count").textContent = fieldCount;
+
+        announceToUser(
+          `Performance test completed: ${fieldCount} fields rendered in ${renderTime.toFixed(2)}ms`,
+        );
+      }
+
+      // Accessibility functions
+      function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+        html.setAttribute("data-theme", newTheme);
+        document.getElementById("theme-icon").textContent =
+          newTheme === "dark" ? "☀️" : "🌙";
+
+        // Update state
+        anomalyStore.setState((state) => ({
+          preferences: { ...state.preferences, theme: newTheme },
+        }));
+
+        announceToUser(`Theme changed to ${newTheme} mode`);
+      }
+
+      function toggleHighContrast(enabled) {
+        document.documentElement.style.setProperty(
+          "--contrast-mode",
+          enabled ? "high" : "normal",
+        );
+
+        // Update state
+        anomalyStore.setState((state) => ({
+          preferences: {
+            ...state.preferences,
+            accessibility: {
+              ...state.preferences.accessibility,
+              highContrast: enabled,
+            },
+          },
+        }));
+
+        announceToUser(`High contrast ${enabled ? "enabled" : "disabled"}`);
+      }
+
+      function toggleReducedMotion(enabled) {
+        document.documentElement.style.setProperty(
+          "--animation-duration",
+          enabled ? "0ms" : "300ms",
+        );
+
+        // Update state
+        anomalyStore.setState((state) => ({
+          preferences: {
+            ...state.preferences,
+            accessibility: {
+              ...state.preferences.accessibility,
+              reducedMotion: enabled,
+            },
+          },
+        }));
+
+        announceToUser(`Reduced motion ${enabled ? "enabled" : "disabled"}`);
+      }
+
+      function toggleScreenReaderMode(enabled) {
+        // Update state
+        anomalyStore.setState((state) => ({
+          preferences: {
+            ...state.preferences,
+            accessibility: {
+              ...state.preferences.accessibility,
+              screenReader: enabled,
+            },
+          },
+        }));
+
+        // Update form components accessibility
+        if (formComponents) {
+          formComponents.options.accessibility.announcements = enabled;
+        }
+
+        announceToUser(
+          `Screen reader mode ${enabled ? "enabled" : "disabled"}`,
+        );
+      }
+
+      function showKeyboardHelp() {
+        const helpText = `
+                Keyboard Navigation Help:
+
+                Form Navigation:
+                • Tab: Move to next field
+                • Shift+Tab: Move to previous field
+                • Enter: Submit form or activate button
+                • Space: Toggle checkboxes/radio buttons
+                • Arrow Keys: Navigate radio button groups
+                • Escape: Close dropdowns/modals
+
+                Multi-Step Forms:
+                • Ctrl+Right: Next step (if valid)
+                • Ctrl+Left: Previous step
+                • Ctrl+S: Save draft
+
+                Special Components:
+                • File Upload: Space/Enter to open file dialog
+                • Multi-Select: Enter to open, Arrow keys to navigate
+                • Date Picker: Arrow keys to navigate dates
+
+                Accessibility:
+                • Alt+T: Toggle theme
+                • Alt+C: Toggle high contrast
+                • Alt+M: Toggle reduced motion
+            `;
+
+        alert(helpText);
+      }
+
+      // Debug functions
+      function exportFormState() {
+        const state = useAnomalyStore.export();
+        const blob = new Blob([state], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "form-state-export.json";
+        link.click();
+        URL.revokeObjectURL(url);
+
+        announceToUser("Form state exported");
+      }
+
+      function clearFormState() {
+        useAnomalyStore.reset();
+        document.getElementById("form-state-display").textContent =
+          "No active form";
+        announceToUser("Form state cleared");
+      }
+
+      function simulateError() {
+        anomalyStore.setState((state) => ({
+          errors: {
+            ...state.errors,
+            simulation: "Simulated error for testing",
+          },
+        }));
+
+        announceToUser("Error simulated");
+      }
+
+      function toggleDebugMode() {
+        debugMode = !debugMode;
+
+        if (debugMode) {
+          document.body.style.outline = "2px dashed red";
+          console.log("Debug mode enabled");
+        } else {
+          document.body.style.outline = "none";
+          console.log("Debug mode disabled");
+        }
+
+        announceToUser(`Debug mode ${debugMode ? "enabled" : "disabled"}`);
+      }
+
+      // Utility functions
+      function announceToUser(message) {
+        const statusBar = document.getElementById("status-bar");
+        statusBar.textContent = message;
+
+        console.log("Announcement:", message);
+      }
+
+      // Error handling
+      window.addEventListener("error", function (event) {
+        console.error("JavaScript error:", event.error);
+        announceToUser("An error occurred. Check the console for details.");
+
+        // Update error state
+        anomalyStore.setState((state) => ({
+          errors: { ...state.errors, global: event.error.message },
+        }));
+      });
+
+      // Performance monitoring
+      if ("performance" in window) {
+        window.addEventListener("load", function () {
+          setTimeout(() => {
+            const perfData = performance.getEntriesByType("navigation")[0];
+            console.log(
+              "Page load time:",
+              perfData.loadEventEnd - perfData.fetchStart,
+              "ms",
+            );
+          }, 0);
+        });
+      }
+    </script>
+  </body>
+</html>

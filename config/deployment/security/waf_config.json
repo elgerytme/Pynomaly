@@ -1,0 +1,148 @@
+{
+  "blocking_enabled": true,
+  "monitoring_enabled": true,
+  "ip_reputation_enabled": true,
+  "anomaly_detection_enabled": true,
+  "auto_block_threshold": 5,
+  "block_duration": 3600,
+  "whitelist_ips": [
+    "127.0.0.1",
+    "::1",
+    "192.168.1.0/24",
+    "10.0.0.0/8"
+  ],
+  "blacklist_ips": [],
+  "rate_limit_requests": 100,
+  "rate_limit_window": 60,
+  "max_request_size": 10485760,
+  "allowed_extensions": [
+    ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp",
+    ".css", ".js", ".json", ".xml", ".html", ".htm",
+    ".pdf", ".txt", ".csv", ".zip", ".tar", ".gz"
+  ],
+  "blocked_extensions": [
+    ".exe", ".bat", ".cmd", ".com", ".scr", ".pif",
+    ".sh", ".bash", ".zsh", ".fish", ".csh", ".tcsh",
+    ".php", ".asp", ".aspx", ".jsp", ".cfm", ".cgi",
+    ".pl", ".py", ".rb", ".lua", ".vbs", ".ps1"
+  ],
+  "sensitive_paths": [
+    "/admin",
+    "/administrator",
+    "/config",
+    "/configuration",
+    "/backup",
+    "/backups",
+    "/test",
+    "/testing",
+    "/dev",
+    "/development",
+    "/staging",
+    "/phpmyadmin",
+    "/mysql",
+    "/database",
+    "/db",
+    "/wp-admin",
+    "/wp-config",
+    "/.env",
+    "/.git",
+    "/.svn",
+    "/node_modules",
+    "/vendor"
+  ],
+  "threat_response": {
+    "low": {
+      "action": "monitor",
+      "block_after": 10,
+      "block_duration": 300
+    },
+    "medium": {
+      "action": "throttle",
+      "block_after": 5,
+      "block_duration": 900
+    },
+    "high": {
+      "action": "block",
+      "block_after": 3,
+      "block_duration": 1800
+    },
+    "critical": {
+      "action": "block",
+      "block_after": 1,
+      "block_duration": 3600
+    }
+  },
+  "notification_settings": {
+    "email_alerts": {
+      "enabled": false,
+      "recipients": [],
+      "min_threat_level": "high"
+    },
+    "webhook_alerts": {
+      "enabled": false,
+      "url": "",
+      "min_threat_level": "medium"
+    },
+    "slack_alerts": {
+      "enabled": false,
+      "webhook_url": "",
+      "min_threat_level": "high"
+    }
+  },
+  "learning_mode": {
+    "enabled": false,
+    "duration_hours": 24,
+    "min_requests": 100,
+    "auto_whitelist": true
+  },
+  "geo_blocking": {
+    "enabled": false,
+    "blocked_countries": [],
+    "allowed_countries": []
+  },
+  "advanced_features": {
+    "ml_anomaly_detection": false,
+    "behavioral_analysis": false,
+    "threat_intelligence": false,
+    "honeypot_detection": false
+  },
+  "performance": {
+    "signature_cache_size": 1000,
+    "ip_cache_size": 10000,
+    "request_timeout": 30,
+    "max_concurrent_analysis": 100
+  },
+  "rules": [
+    {
+      "name": "Admin Path Protection",
+      "enabled": true,
+      "action": "block",
+      "conditions": [
+        "path_starts_with:/admin",
+        "not_authenticated:true"
+      ],
+      "priority": 100
+    },
+    {
+      "name": "API Rate Limiting",
+      "enabled": true,
+      "action": "throttle",
+      "conditions": [
+        "path_starts_with:/api",
+        "rate_limit_exceeded:true"
+      ],
+      "priority": 90
+    },
+    {
+      "name": "File Upload Protection",
+      "enabled": true,
+      "action": "block",
+      "conditions": [
+        "method:POST",
+        "content_type:multipart/form-data",
+        "file_extension_blocked:true"
+      ],
+      "priority": 95
+    }
+  ]
+}

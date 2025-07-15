@@ -1,0 +1,88 @@
+# Production Environment Overrides
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.production.yml up
+
+version: '3.8'
+
+services:
+  pynomaly-api:
+    image: pynomaly:latest
+    environment:
+      - PYNOMALY_ENV=production
+      - PYNOMALY_DEBUG=false
+      - PYNOMALY_API_RELOAD=false
+      - PYNOMALY_LOG_LEVEL=INFO
+      - PYNOMALY_API_WORKERS=4
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  redis:
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+  postgres:
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    environment:
+      - POSTGRES_DB=${PYNOMALY_DB_NAME}
+      - POSTGRES_USER=${PYNOMALY_DB_USER}
+      - POSTGRES_PASSWORD=${PYNOMALY_DB_PASSWORD}
+    command: postgres -c max_connections=100 -c shared_buffers=256MB -c effective_cache_size=1GB
+
+  # Production monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ../monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+
+volumes:
+  prometheus_data:
+  grafana_data:

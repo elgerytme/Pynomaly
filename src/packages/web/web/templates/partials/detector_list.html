@@ -1,0 +1,63 @@
+<div class="bg-white shadow overflow-hidden sm:rounded-md">
+  <ul class="divide-y divide-gray-200">
+    {% if detectors %} {% for detector in detectors %}
+    <li>
+      <a href="/detectors/{{ detector.id }}" class="block hover:bg-gray-50">
+        <div class="px-4 py-4 sm:px-6">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div
+                  class="h-10 w-10 rounded-full bg-primary flex items-center justify-center"
+                >
+                  <svg
+                    class="h-6 w-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    ></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">
+                  {{ detector.name }}
+                </div>
+                <div class="text-sm text-gray-500">
+                  {{ detector.algorithm }} {% if detector.description %} • {{
+                  detector.description[:50] }}{% if detector.description|length
+                  > 50 %}...{% endif %} {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center space-x-4">
+              {% if detector.is_fitted %}
+              <span class="badge-success">Trained</span>
+              {% else %}
+              <span class="badge-warning">Not Trained</span>
+              {% endif %}
+              <div class="text-sm text-gray-500">
+                Created {{ detector.created_at.strftime('%Y-%m-%d') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </li>
+    {% endfor %} {% else %}
+    <li class="px-4 py-8 text-center text-gray-500">
+      No detectors found. Create your first detector to get started.
+    </li>
+    {% endif %}
+  </ul>
+</div>
+
+{% if message %}
+<div class="mt-4 alert alert-success animate-fade-in">{{ message }}</div>
+{% endif %}

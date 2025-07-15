@@ -1,0 +1,599 @@
+{% extends "base.html" %} {% block title %}User Management - Pynomaly{% endblock
+%} {% block content %}
+<div class="px-4 py-6 sm:px-0">
+  <!-- Header -->
+  <div class="mb-8 flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">👥 User Management</h1>
+      <p class="mt-2 text-gray-600">Manage users, roles, and permissions</p>
+    </div>
+    <div class="flex space-x-3">
+      <button
+        onclick="showCreateUserModal()"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+      >
+        <svg
+          class="-ml-1 mr-2 h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+          />
+        </svg>
+        Create User
+      </button>
+      <button
+        onclick="refreshUsers()"
+        class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+      >
+        <svg
+          class="-ml-1 mr-2 h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          />
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- User Statistics -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div
+      id="total-users-card"
+      hx-get="/htmx/user-stats-total"
+      hx-trigger="load, every 30s"
+      class="bg-white overflow-hidden shadow rounded-lg"
+    >
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-6 w-6 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Total Users
+              </dt>
+              <dd class="text-lg font-medium text-gray-900">Loading...</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="active-users-card"
+      hx-get="/htmx/user-stats-active"
+      hx-trigger="load, every 30s"
+      class="bg-white overflow-hidden shadow rounded-lg"
+    >
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-6 w-6 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Active Users
+              </dt>
+              <dd class="text-lg font-medium text-gray-900">Loading...</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="admin-users-card"
+      hx-get="/htmx/user-stats-admins"
+      hx-trigger="load, every 30s"
+      class="bg-white overflow-hidden shadow rounded-lg"
+    >
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-6 w-6 text-purple-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Admin Users
+              </dt>
+              <dd class="text-lg font-medium text-gray-900">Loading...</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="api-keys-card"
+      hx-get="/htmx/user-stats-api-keys"
+      hx-trigger="load, every 30s"
+      class="bg-white overflow-hidden shadow rounded-lg"
+    >
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-6 w-6 text-yellow-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+              />
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                API Keys
+              </dt>
+              <dd class="text-lg font-medium text-gray-900">Loading...</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">👥 Users</h3>
+
+      <!-- Filters -->
+      <div class="mb-4 flex space-x-4">
+        <div>
+          <label
+            for="role-filter"
+            class="block text-sm font-medium text-gray-700"
+            >Filter by Role</label
+          >
+          <select
+            id="role-filter"
+            onchange="filterUsers()"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+          >
+            <option value="">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="user">User</option>
+            <option value="viewer">Viewer</option>
+          </select>
+        </div>
+        <div>
+          <label
+            for="status-filter"
+            class="block text-sm font-medium text-gray-700"
+            >Filter by Status</label
+          >
+          <select
+            id="status-filter"
+            onchange="filterUsers()"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
+          >
+            <option value="">All Status</option>
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="users-table" hx-get="/htmx/users-list" hx-trigger="load">
+        <div class="animate-pulse">
+          <div class="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+          <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+          <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Roles and Permissions -->
+  <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Roles -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+          🔑 Roles
+        </h3>
+        <div id="roles-list" hx-get="/htmx/roles-list" hx-trigger="load">
+          <div class="animate-pulse">
+            <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
+            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Permissions -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+          🛡️ Permissions
+        </h3>
+        <div
+          id="permissions-list"
+          hx-get="/htmx/permissions-list"
+          hx-trigger="load"
+        >
+          <div class="animate-pulse">
+            <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
+            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create User Modal -->
+<div
+  id="create-user-modal"
+  class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50"
+>
+  <div
+    class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
+  >
+    <div class="mt-3">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Create New User</h3>
+      <form
+        hx-post="/htmx/users-create"
+        hx-target="#create-user-result"
+        hx-indicator="#create-user-spinner"
+      >
+        <div class="mb-4">
+          <label
+            for="new-username"
+            class="block text-sm font-medium text-gray-700"
+            >Username</label
+          >
+          <input
+            type="text"
+            id="new-username"
+            name="username"
+            required
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="new-email" class="block text-sm font-medium text-gray-700"
+            >Email</label
+          >
+          <input
+            type="email"
+            id="new-email"
+            name="email"
+            required
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="new-password"
+            class="block text-sm font-medium text-gray-700"
+            >Password</label
+          >
+          <input
+            type="password"
+            id="new-password"
+            name="password"
+            required
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label
+            for="new-full-name"
+            class="block text-sm font-medium text-gray-700"
+            >Full Name</label
+          >
+          <input
+            type="text"
+            id="new-full-name"
+            name="full_name"
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="new-roles" class="block text-sm font-medium text-gray-700"
+            >Roles</label
+          >
+          <select
+            id="new-roles"
+            name="roles"
+            multiple
+            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+          >
+            <option value="user" selected>User</option>
+            <option value="admin">Admin</option>
+            <option value="viewer">Viewer</option>
+          </select>
+          <p class="mt-1 text-sm text-gray-500">
+            Hold Ctrl/Cmd to select multiple roles
+          </p>
+        </div>
+
+        <div class="mb-4">
+          <div class="flex items-center">
+            <input
+              id="new-is-active"
+              name="is_active"
+              type="checkbox"
+              checked
+              class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+            />
+            <label for="new-is-active" class="ml-2 block text-sm text-gray-900"
+              >Active user</label
+            >
+          </div>
+        </div>
+
+        <div id="create-user-result" class="mb-4"></div>
+
+        <div class="flex justify-end space-x-3">
+          <button
+            type="button"
+            onclick="hideCreateUserModal()"
+            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 border border-gray-300 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 text-sm font-medium text-white bg-primary border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            <span id="create-user-spinner" class="htmx-indicator">
+              <svg
+                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            </span>
+            Create User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // User Management JavaScript Functions
+
+  function showCreateUserModal() {
+    document.getElementById("create-user-modal").classList.remove("hidden");
+  }
+
+  function hideCreateUserModal() {
+    document.getElementById("create-user-modal").classList.add("hidden");
+    // Reset form
+    document.querySelector("#create-user-modal form").reset();
+    document.getElementById("create-user-result").innerHTML = "";
+  }
+
+  function refreshUsers() {
+    htmx.trigger("#users-table", "refresh");
+    htmx.trigger("#total-users-card", "refresh");
+    htmx.trigger("#active-users-card", "refresh");
+    htmx.trigger("#admin-users-card", "refresh");
+    htmx.trigger("#api-keys-card", "refresh");
+  }
+
+  function filterUsers() {
+    const roleFilter = document.getElementById("role-filter").value;
+    const statusFilter = document.getElementById("status-filter").value;
+
+    let url = "/htmx/users-list";
+    const params = new URLSearchParams();
+
+    if (roleFilter) params.append("role", roleFilter);
+    if (statusFilter) params.append("is_active", statusFilter);
+
+    if (params.toString()) {
+      url += "?" + params.toString();
+    }
+
+    htmx.ajax("GET", url, { target: "#users-table" });
+  }
+
+  function editUser(userId) {
+    // Create edit modal dynamically
+    htmx.ajax("GET", `/web/htmx/users-edit-form/${userId}`, {
+      target: "body",
+      swap: "beforeend",
+    });
+  }
+
+  function deleteUser(userId, username) {
+    if (
+      confirm(
+        `Are you sure you want to delete user "${username}"? This action cannot be undone.`,
+      )
+    ) {
+      htmx
+        .ajax("DELETE", `/web/htmx/users-delete/${userId}`, {
+          target: "#users-table",
+          swap: "outerHTML",
+        })
+        .then(() => {
+          refreshUsers();
+          showNotification(`User "${username}" has been deleted.`, "success");
+        });
+    }
+  }
+
+  function toggleUserStatus(userId, currentStatus) {
+    const action = currentStatus ? "deactivate" : "activate";
+    if (confirm(`Are you sure you want to ${action} this user?`)) {
+      htmx
+        .ajax("PATCH", `/web/htmx/users-toggle-status/${userId}`, {
+          target: "#users-table",
+          swap: "outerHTML",
+        })
+        .then(() => {
+          refreshUsers();
+          showNotification(`User has been ${action}d.`, "success");
+        });
+    }
+  }
+
+  function createApiKey(userId, username) {
+    const keyName = prompt(`Enter a name for the new API key for ${username}:`);
+    if (keyName) {
+      htmx.ajax("POST", `/web/htmx/users-create-api-key/${userId}`, {
+        values: { key_name: keyName },
+        target: "body",
+        swap: "beforeend",
+      });
+    }
+  }
+
+  function revokeApiKey(apiKey) {
+    if (
+      confirm(
+        "Are you sure you want to revoke this API key? This action cannot be undone.",
+      )
+    ) {
+      htmx
+        .ajax("DELETE", `/web/htmx/api-keys-revoke/${apiKey}`, {
+          target: "#users-table",
+          swap: "outerHTML",
+        })
+        .then(() => {
+          refreshUsers();
+          showNotification("API key has been revoked.", "success");
+        });
+    }
+  }
+
+  function showUserPermissions(userId) {
+    htmx.ajax("GET", `/web/htmx/users-permissions/${userId}`, {
+      target: "body",
+      swap: "beforeend",
+    });
+  }
+
+  function showNotification(message, type = "info") {
+    const colors = {
+      info: "bg-blue-50 border-blue-200 text-blue-800",
+      success: "bg-green-50 border-green-200 text-green-800",
+      warning: "bg-yellow-50 border-yellow-200 text-yellow-800",
+      error: "bg-red-50 border-red-200 text-red-800",
+    };
+
+    const notification = document.createElement("div");
+    notification.className = `fixed top-4 right-4 p-4 border rounded-lg ${colors[type]} z-50`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <p class="text-sm font-medium">${message}</p>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-sm underline">Dismiss</button>
+        </div>
+    `;
+    document.body.appendChild(notification);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentElement) {
+        notification.remove();
+      }
+    }, 5000);
+  }
+
+  // Close modal when clicking outside
+  document.addEventListener("click", function (event) {
+    const modal = document.getElementById("create-user-modal");
+    if (event.target === modal) {
+      hideCreateUserModal();
+    }
+  });
+
+  // Handle successful user creation
+  document.body.addEventListener("htmx:afterRequest", function (event) {
+    if (
+      event.detail.xhr.status === 200 &&
+      event.detail.elt.closest("#create-user-modal")
+    ) {
+      hideCreateUserModal();
+      refreshUsers();
+      showNotification("User created successfully!", "success");
+    }
+  });
+</script>
+{% endblock %}

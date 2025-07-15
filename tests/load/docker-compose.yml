@@ -1,0 +1,335 @@
+# Docker Compose configuration for distributed load testing
+version: '3.8'
+
+services:
+  # Load testing master node
+  locust-master:
+    build:
+      context: .
+      dockerfile: Dockerfile.locust
+    container_name: pynomaly-locust-master
+    ports:
+      - "8089:8089"  # Locust Web UI
+      - "5557:5557"  # Master node port
+    volumes:
+      - ./locustfile.py:/locust/locustfile.py
+      - ./config:/locust/config
+      - ../../reports/load_tests:/locust/reports
+    environment:
+      - LOCUST_MODE=master
+      - LOCUST_HOST=http://pynomaly-staging-app:8000
+      - LOCUST_EXPECT_WORKERS=4
+      - LOCUST_WEB_PORT=8089
+      - LOCUST_MASTER_PORT=5557
+      - LOCUST_LOGLEVEL=INFO
+    command: >
+      locust
+      --master
+      --web-port=8089
+      --expect-workers=4
+      --host=http://pynomaly-staging-app:8000
+      --loglevel=INFO
+    networks:
+      - load-test-network
+    depends_on:
+      - prometheus
+      - grafana
+  
+  # Load testing worker nodes
+  locust-worker-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.locust
+    container_name: pynomaly-locust-worker-1
+    volumes:
+      - ./locustfile.py:/locust/locustfile.py
+      - ./config:/locust/config
+    environment:
+      - LOCUST_MODE=worker
+      - LOCUST_MASTER_HOST=locust-master
+      - LOCUST_MASTER_PORT=5557
+      - LOCUST_LOGLEVEL=INFO
+      - WORKER_ID=worker-1
+    command: >
+      locust
+      --worker
+      --master-host=locust-master
+      --master-port=5557
+      --loglevel=INFO
+    networks:
+      - load-test-network
+    depends_on:
+      - locust-master
+  
+  locust-worker-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.locust
+    container_name: pynomaly-locust-worker-2
+    volumes:
+      - ./locustfile.py:/locust/locustfile.py
+      - ./config:/locust/config
+    environment:
+      - LOCUST_MODE=worker
+      - LOCUST_MASTER_HOST=locust-master
+      - LOCUST_MASTER_PORT=5557
+      - LOCUST_LOGLEVEL=INFO
+      - WORKER_ID=worker-2
+    command: >
+      locust
+      --worker
+      --master-host=locust-master
+      --master-port=5557
+      --loglevel=INFO
+    networks:
+      - load-test-network
+    depends_on:
+      - locust-master
+  
+  locust-worker-3:
+    build:
+      context: .
+      dockerfile: Dockerfile.locust
+    container_name: pynomaly-locust-worker-3
+    volumes:
+      - ./locustfile.py:/locust/locustfile.py
+      - ./config:/locust/config
+    environment:
+      - LOCUST_MODE=worker
+      - LOCUST_MASTER_HOST=locust-master
+      - LOCUST_MASTER_PORT=5557
+      - LOCUST_LOGLEVEL=INFO
+      - WORKER_ID=worker-3
+    command: >
+      locust
+      --worker
+      --master-host=locust-master
+      --master-port=5557
+      --loglevel=INFO
+    networks:
+      - load-test-network
+    depends_on:
+      - locust-master
+  
+  locust-worker-4:
+    build:
+      context: .
+      dockerfile: Dockerfile.locust
+    container_name: pynomaly-locust-worker-4
+    volumes:
+      - ./locustfile.py:/locust/locustfile.py
+      - ./config:/locust/config
+    environment:
+      - LOCUST_MODE=worker
+      - LOCUST_MASTER_HOST=locust-master
+      - LOCUST_MASTER_PORT=5557
+      - LOCUST_LOGLEVEL=INFO
+      - WORKER_ID=worker-4
+    command: >
+      locust
+      --worker
+      --master-host=locust-master
+      --master-port=5557
+      --loglevel=INFO
+    networks:
+      - load-test-network
+    depends_on:
+      - locust-master
+  
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: pynomaly-load-test-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=24h'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - load-test-network
+  
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: pynomaly-load-test-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    networks:
+      - load-test-network
+    depends_on:
+      - prometheus
+  
+  # InfluxDB for time series data (optional)
+  influxdb:
+    image: influxdb:2.7
+    container_name: pynomaly-load-test-influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=password
+      - DOCKER_INFLUXDB_INIT_ORG=pynomaly
+      - DOCKER_INFLUXDB_INIT_BUCKET=load-test
+    networks:
+      - load-test-network
+  
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: pynomaly-load-test-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - load-test-network
+  
+  # Elasticsearch for log aggregation (optional)
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: pynomaly-load-test-elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    networks:
+      - load-test-network
+  
+  # Kibana for log visualization (optional)
+  kibana:
+    image: kibana:8.11.0
+    container_name: pynomaly-load-test-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - load-test-network
+    depends_on:
+      - elasticsearch
+  
+  # Jaeger for distributed tracing (optional)
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: pynomaly-load-test-jaeger
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - load-test-network
+  
+  # Test data generator service
+  test-data-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile.data-generator
+    container_name: pynomaly-test-data-generator
+    volumes:
+      - ./data:/data
+      - ./config:/config
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATA_OUTPUT_DIR=/data
+    networks:
+      - load-test-network
+    depends_on:
+      - redis
+  
+  # Results processor service
+  results-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile.results-processor
+    container_name: pynomaly-results-processor
+    volumes:
+      - ../../reports/load_tests:/results
+      - ./config:/config
+    environment:
+      - RESULTS_DIR=/results
+      - PROMETHEUS_URL=http://prometheus:9090
+      - GRAFANA_URL=http://grafana:3000
+    networks:
+      - load-test-network
+    depends_on:
+      - prometheus
+      - grafana
+  
+  # Load balancer (nginx)
+  nginx:
+    image: nginx:alpine
+    container_name: pynomaly-load-test-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    networks:
+      - load-test-network
+    depends_on:
+      - locust-master
+  
+  # Health check service
+  health-check:
+    image: curlimages/curl:latest
+    container_name: pynomaly-health-check
+    volumes:
+      - ./scripts:/scripts
+    command: >
+      /bin/sh -c "
+        while true; do
+          curl -f http://locust-master:8089/stats/requests || echo 'Health check failed';
+          sleep 30;
+        done
+      "
+    networks:
+      - load-test-network
+    depends_on:
+      - locust-master
+
+# Network configuration
+networks:
+  load-test-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Volume configuration
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  influxdb-data:
+    driver: local
+  redis-data:
+    driver: local
+  elasticsearch-data:
+    driver: local

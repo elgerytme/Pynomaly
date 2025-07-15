@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pynomaly API Documentation</title>
+    <link rel="stylesheet" type="text/css"
+          href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin:0;
+            background: #fafafa;
+        }
+        .swagger-ui .topbar {
+            background-color: #2E3440;
+        }
+        .swagger-ui .topbar .link {
+            color: #ECEFF4;
+        }
+    </style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js">
+    </script>
+    <script
+        src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-standalone-preset.js">
+    </script>
+    <script>
+        window.onload = function() {
+            const ui = SwaggerUIBundle({
+                url: './openapi.json',
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                docExpansion: "none",
+                defaultModelExpandDepth: 1,
+                defaultModelsExpandDepth: 1,
+                showExtensions: true,
+                showCommonExtensions: true,
+                tryItOutEnabled: true,
+                requestInterceptor: function(request) {
+                    // Add API key if available
+                    const apiKey = localStorage.getItem('pynomaly_api_key');
+                    if (apiKey) {
+                        request.headers['X-API-Key'] = apiKey;
+                    }
+                    return request;
+                }
+            });
+
+            // Add API key input
+            setTimeout(() => {
+                const topbar = document.querySelector('.topbar');
+                if (topbar) {
+                    const apiKeyInput = document.createElement('input');
+                    apiKeyInput.type = 'text';
+                    apiKeyInput.placeholder = 'Enter API Key';
+                    apiKeyInput.style.marginLeft = '20px';
+                    apiKeyInput.style.padding = '5px';
+                    apiKeyInput.style.borderRadius = '3px';
+                    apiKeyInput.style.border = '1px solid #ccc';
+
+                    const savedKey = localStorage.getItem('pynomaly_api_key');
+                    if (savedKey) {
+                        apiKeyInput.value = savedKey;
+                    }
+
+                    apiKeyInput.addEventListener('change', function() {
+                        localStorage.setItem('pynomaly_api_key', this.value);
+                    });
+
+                    topbar.appendChild(apiKeyInput);
+                }
+            }, 1000);
+        };
+    </script>
+</body>
+</html>

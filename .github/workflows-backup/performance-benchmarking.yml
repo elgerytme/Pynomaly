@@ -1,0 +1,700 @@
+name: Performance Benchmarking and Analysis
+
+on:
+  schedule:
+    # Run performance benchmarks nightly
+    - cron: '0 3 * * *'
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'tests/performance/**'
+      - '.github/workflows/performance-benchmarking.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'tests/performance/**'
+  workflow_dispatch:
+    inputs:
+      benchmark_suite:
+        description: 'Benchmark suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - detection
+          - training
+          - api
+          - memory
+          - throughput
+      comparison_baseline:
+        description: 'Baseline commit/tag for comparison'
+        required: false
+        default: 'main'
+        type: string
+      run_detailed_profiling:
+        description: 'Run detailed profiling analysis'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.11'
+  BENCHMARK_SUITE: ${{ github.event.inputs.benchmark_suite || 'all' }}
+  BASELINE: ${{ github.event.inputs.comparison_baseline || 'main' }}
+  DETAILED_PROFILING: ${{ github.event.inputs.run_detailed_profiling || 'false' }}
+
+jobs:
+  # Performance baseline establishment
+  establish-baseline:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-perf-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-perf-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-benchmark psutil memory-profiler line-profiler
+          pip install -e .[test,performance]
+
+      - name: Run baseline benchmarks
+        run: |
+          # Create performance baseline
+          python << 'EOF'
+          import json
+          import time
+          import psutil
+          import sys
+          from pathlib import Path
+          
+          # System info
+          system_info = {
+              'timestamp': time.time(),
+              'commit': '${{ github.sha }}',
+              'python_version': sys.version,
+              'cpu_count': psutil.cpu_count(),
+              'memory_total': psutil.virtual_memory().total,
+              'platform': sys.platform
+          }
+          
+          # Save baseline info
+          baseline_dir = Path('performance-baselines')
+          baseline_dir.mkdir(exist_ok=True)
+          
+          with open(baseline_dir / 'system-info.json', 'w') as f:
+              json.dump(system_info, f, indent=2)
+          
+          print(f"Baseline established for commit {system_info['commit']}")
+          EOF
+
+      - name: Upload baseline
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-baseline
+          path: performance-baselines/
+          retention-days: 90
+
+  # Core performance benchmarks
+  performance-benchmarks:
+    runs-on: ubuntu-latest
+    needs: [establish-baseline]
+    if: always()
+    
+    strategy:
+      matrix:
+        benchmark_category:
+          - detection-algorithms
+          - training-performance
+          - api-throughput
+          - memory-usage
+          - concurrent-load
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-perf-${{ hashFiles('**/requirements*.txt') }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-benchmark psutil memory-profiler line-profiler
+          pip install -e .[test,performance]
+
+      - name: Download baseline (if available)
+        uses: actions/download-artifact@v3
+        with:
+          name: performance-baseline
+          path: performance-baselines/
+        continue-on-error: true
+
+      - name: Run detection algorithm benchmarks
+        if: matrix.benchmark_category == 'detection-algorithms'
+        run: |
+          pytest tests/performance/test_detection_benchmarks.py \
+            --benchmark-only \
+            --benchmark-json=benchmark-detection.json \
+            --benchmark-columns=min,max,mean,stddev,median \
+            --benchmark-sort=mean \
+            -v
+
+      - name: Run training performance benchmarks
+        if: matrix.benchmark_category == 'training-performance'
+        run: |
+          pytest tests/performance/test_training_benchmarks.py \
+            --benchmark-only \
+            --benchmark-json=benchmark-training.json \
+            --benchmark-columns=min,max,mean,stddev,median \
+            --benchmark-sort=mean \
+            -v
+
+      - name: Run API throughput benchmarks
+        if: matrix.benchmark_category == 'api-throughput'
+        run: |
+          # Start API server in background
+          python -m pynomaly.presentation.api.app &
+          API_PID=$!
+          sleep 10
+          
+          # Run API benchmarks
+          pytest tests/performance/test_api_benchmarks.py \
+            --benchmark-only \
+            --benchmark-json=benchmark-api.json \
+            --benchmark-columns=min,max,mean,stddev,median \
+            --benchmark-sort=mean \
+            -v
+          
+          # Cleanup
+          kill $API_PID || true
+
+      - name: Run memory usage benchmarks
+        if: matrix.benchmark_category == 'memory-usage'
+        run: |
+          pytest tests/performance/test_memory_benchmarks.py \
+            --benchmark-only \
+            --benchmark-json=benchmark-memory.json \
+            --benchmark-columns=min,max,mean,stddev,median \
+            --benchmark-sort=mean \
+            -v
+
+      - name: Run concurrent load benchmarks
+        if: matrix.benchmark_category == 'concurrent-load'
+        run: |
+          pytest tests/performance/test_concurrent_benchmarks.py \
+            --benchmark-only \
+            --benchmark-json=benchmark-concurrent.json \
+            --benchmark-columns=min,max,mean,stddev,median \
+            --benchmark-sort=mean \
+            -v
+
+      - name: Generate performance report
+        run: |
+          python << 'EOF'
+          import json
+          import glob
+          from pathlib import Path
+          from datetime import datetime
+          
+          # Collect all benchmark results
+          benchmark_files = glob.glob('benchmark-*.json')
+          
+          report = {
+              'timestamp': datetime.now().isoformat(),
+              'category': '${{ matrix.benchmark_category }}',
+              'commit': '${{ github.sha }}',
+              'benchmarks': {}
+          }
+          
+          for file in benchmark_files:
+              with open(file, 'r') as f:
+                  data = json.load(f)
+                  report['benchmarks'][file] = data
+          
+          # Generate summary
+          if report['benchmarks']:
+              all_benchmarks = []
+              for file_data in report['benchmarks'].values():
+                  all_benchmarks.extend(file_data.get('benchmarks', []))
+              
+              if all_benchmarks:
+                  total_tests = len(all_benchmarks)
+                  avg_time = sum(b['stats']['mean'] for b in all_benchmarks) / total_tests
+                  slowest = max(all_benchmarks, key=lambda x: x['stats']['mean'])
+                  fastest = min(all_benchmarks, key=lambda x: x['stats']['mean'])
+                  
+                  report['summary'] = {
+                      'total_benchmarks': total_tests,
+                      'average_time_seconds': avg_time,
+                      'slowest_test': {
+                          'name': slowest['name'],
+                          'time': slowest['stats']['mean']
+                      },
+                      'fastest_test': {
+                          'name': fastest['name'],
+                          'time': fastest['stats']['mean']
+                      }
+                  }
+          
+          # Save detailed report
+          with open(f'performance-report-{report["category"]}.json', 'w') as f:
+              json.dump(report, f, indent=2)
+          
+          # Generate markdown summary
+          with open(f'performance-summary-{report["category"]}.md', 'w') as f:
+              f.write(f"# Performance Report: {report['category']}\n\n")
+              f.write(f"**Generated**: {report['timestamp']}\n")
+              f.write(f"**Commit**: {report['commit']}\n\n")
+              
+              if 'summary' in report:
+                  s = report['summary']
+                  f.write(f"## Summary\n\n")
+                  f.write(f"- **Total Benchmarks**: {s['total_benchmarks']}\n")
+                  f.write(f"- **Average Time**: {s['average_time_seconds']:.3f}s\n")
+                  f.write(f"- **Slowest Test**: {s['slowest_test']['name']} ({s['slowest_test']['time']:.3f}s)\n")
+                  f.write(f"- **Fastest Test**: {s['fastest_test']['name']} ({s['fastest_test']['time']:.3f}s)\n\n")
+              
+              if all_benchmarks:
+                  f.write(f"## Detailed Results\n\n")
+                  f.write(f"| Test | Mean (s) | Min (s) | Max (s) | StdDev |\n")
+                  f.write(f"|------|----------|---------|---------|--------|\n")
+                  
+                  for benchmark in sorted(all_benchmarks, key=lambda x: x['stats']['mean']):
+                      stats = benchmark['stats']
+                      f.write(f"| {benchmark['name']} | {stats['mean']:.3f} | {stats['min']:.3f} | {stats['max']:.3f} | {stats['stddev']:.3f} |\n")
+          
+          print(f"Performance report generated for {report['category']}")
+          if 'summary' in report:
+              print(f"Total benchmarks: {report['summary']['total_benchmarks']}")
+              print(f"Average time: {report['summary']['average_time_seconds']:.3f}s")
+          EOF
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmark-results-${{ matrix.benchmark_category }}
+          path: |
+            benchmark-*.json
+            performance-report-*.json
+            performance-summary-*.md
+          retention-days: 30
+
+  # Detailed profiling analysis (optional)
+  profiling-analysis:
+    runs-on: ubuntu-latest
+    needs: [performance-benchmarks]
+    if: github.event.inputs.run_detailed_profiling == 'true'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install profiling tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-benchmark psutil memory-profiler line-profiler py-spy
+          pip install -e .[test,performance]
+
+      - name: Run memory profiling
+        run: |
+          python -m memory_profiler -T 0.1 << 'EOF'
+          # Profile memory usage of core operations
+          from pynomaly.domain.entities import Detector
+          from pynomaly.infrastructure.adapters.pyod_adapter import PyodAdapter
+          import numpy as np
+          
+          @profile
+          def profile_detector_creation():
+              detector = Detector(
+                  name="memory_test",
+                  algorithm="IsolationForest",
+                  parameters={"contamination": 0.1}
+              )
+              return detector
+          
+          @profile  
+          def profile_data_processing():
+              data = np.random.random((1000, 10))
+              adapter = PyodAdapter()
+              return adapter._validate_data(data)
+          
+          # Run profiled functions
+          for i in range(10):
+              profile_detector_creation()
+              profile_data_processing()
+          EOF
+          
+          # Save memory profile
+          mv mprofile_*.dat memory-profile.dat
+
+      - name: Run CPU profiling with py-spy
+        run: |
+          # Start a background process to profile
+          python -c "
+          import time
+          import numpy as np
+          from pynomaly.infrastructure.adapters.pyod_adapter import PyodAdapter
+          
+          adapter = PyodAdapter()
+          
+          # Simulate workload
+          for i in range(100):
+              data = np.random.random((1000, 10))
+              try:
+                  adapter._validate_data(data)
+              except:
+                  pass
+              time.sleep(0.1)
+          " &
+          
+          PYTHON_PID=$!
+          
+          # Profile for 30 seconds
+          timeout 30 py-spy record -o cpu-profile.svg -d 30 -p $PYTHON_PID || true
+          
+          # Cleanup
+          kill $PYTHON_PID || true
+
+      - name: Generate profiling report
+        run: |
+          python << 'EOF'
+          import json
+          from datetime import datetime
+          from pathlib import Path
+          
+          report = {
+              'timestamp': datetime.now().isoformat(),
+              'commit': '${{ github.sha }}',
+              'profiling_type': 'detailed',
+              'files_generated': []
+          }
+          
+          # Check what profiling files were generated
+          profile_files = [
+              'memory-profile.dat',
+              'cpu-profile.svg'
+          ]
+          
+          for file in profile_files:
+              if Path(file).exists():
+                  report['files_generated'].append(file)
+          
+          with open('profiling-report.json', 'w') as f:
+              json.dump(report, f, indent=2)
+          
+          print(f"Profiling completed. Files generated: {report['files_generated']}")
+          EOF
+
+      - name: Upload profiling results
+        uses: actions/upload-artifact@v3
+        with:
+          name: profiling-analysis
+          path: |
+            memory-profile.dat
+            cpu-profile.svg
+            profiling-report.json
+          retention-days: 30
+
+  # Performance comparison and regression detection
+  performance-analysis:
+    runs-on: ubuntu-latest
+    needs: [performance-benchmarks]
+    if: always() && needs.performance-benchmarks.result == 'success'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all benchmark results
+        uses: actions/download-artifact@v3
+        with:
+          path: benchmark-results/
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install analysis tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas matplotlib seaborn numpy scipy
+
+      - name: Analyze performance trends
+        run: |
+          python << 'EOF'
+          import json
+          import pandas as pd
+          import matplotlib.pyplot as plt
+          import numpy as np
+          from pathlib import Path
+          from datetime import datetime
+          import glob
+          
+          # Collect all benchmark results
+          results_dir = Path('benchmark-results')
+          all_reports = []
+          
+          for report_file in results_dir.glob('**/performance-report-*.json'):
+              try:
+                  with open(report_file, 'r') as f:
+                      data = json.load(f)
+                      all_reports.append(data)
+              except Exception as e:
+                  print(f"Error reading {report_file}: {e}")
+          
+          if not all_reports:
+              print("No performance reports found")
+              exit(0)
+          
+          # Extract benchmark data
+          benchmark_data = []
+          
+          for report in all_reports:
+              category = report.get('category', 'unknown')
+              timestamp = report.get('timestamp', '')
+              commit = report.get('commit', '')
+              
+              for file_data in report.get('benchmarks', {}).values():
+                  for benchmark in file_data.get('benchmarks', []):
+                      benchmark_data.append({
+                          'category': category,
+                          'timestamp': timestamp,
+                          'commit': commit,
+                          'test_name': benchmark['name'],
+                          'mean_time': benchmark['stats']['mean'],
+                          'min_time': benchmark['stats']['min'],
+                          'max_time': benchmark['stats']['max'],
+                          'stddev': benchmark['stats']['stddev']
+                      })
+          
+          if not benchmark_data:
+              print("No benchmark data found")
+              exit(0)
+          
+          df = pd.DataFrame(benchmark_data)
+          
+          # Generate analysis
+          analysis = {
+              'timestamp': datetime.now().isoformat(),
+              'total_benchmarks': len(df),
+              'categories': df['category'].unique().tolist(),
+              'performance_summary': {}
+          }
+          
+          # Performance summary by category
+          for category in df['category'].unique():
+              cat_data = df[df['category'] == category]
+              analysis['performance_summary'][category] = {
+                  'total_tests': len(cat_data),
+                  'avg_time': float(cat_data['mean_time'].mean()),
+                  'fastest_test': cat_data.loc[cat_data['mean_time'].idxmin()]['test_name'],
+                  'slowest_test': cat_data.loc[cat_data['mean_time'].idxmax()]['test_name'],
+                  'performance_variance': float(cat_data['mean_time'].std())
+              }
+          
+          # Detect potential regressions
+          regressions = []
+          improvements = []
+          
+          # Group by test name to compare across categories/runs
+          for test_name in df['test_name'].unique():
+              test_data = df[df['test_name'] == test_name]
+              if len(test_data) > 1:
+                  latest_time = test_data.iloc[-1]['mean_time']
+                  baseline_time = test_data.iloc[0]['mean_time']
+                  
+                  # Calculate percentage change
+                  change_pct = ((latest_time - baseline_time) / baseline_time) * 100
+                  
+                  if change_pct > 20:  # 20% slower
+                      regressions.append({
+                          'test_name': test_name,
+                          'baseline_time': baseline_time,
+                          'current_time': latest_time,
+                          'change_percent': change_pct
+                      })
+                  elif change_pct < -20:  # 20% faster
+                      improvements.append({
+                          'test_name': test_name,
+                          'baseline_time': baseline_time,
+                          'current_time': latest_time,
+                          'change_percent': change_pct
+                      })
+          
+          analysis['regressions'] = regressions
+          analysis['improvements'] = improvements
+          
+          # Save analysis
+          with open('performance-analysis.json', 'w') as f:
+              json.dump(analysis, f, indent=2)
+          
+          # Generate performance charts
+          plt.figure(figsize=(12, 8))
+          
+          # Performance by category
+          plt.subplot(2, 2, 1)
+          category_means = df.groupby('category')['mean_time'].mean()
+          category_means.plot(kind='bar')
+          plt.title('Average Performance by Category')
+          plt.ylabel('Time (seconds)')
+          plt.xticks(rotation=45)
+          
+          # Performance distribution
+          plt.subplot(2, 2, 2)
+          plt.hist(df['mean_time'], bins=20, alpha=0.7)
+          plt.title('Performance Distribution')
+          plt.xlabel('Time (seconds)')
+          plt.ylabel('Frequency')
+          
+          # Top 10 slowest tests
+          plt.subplot(2, 2, 3)
+          slowest = df.nlargest(10, 'mean_time')
+          plt.barh(range(len(slowest)), slowest['mean_time'])
+          plt.yticks(range(len(slowest)), [name[:30] + '...' if len(name) > 30 else name for name in slowest['test_name']])
+          plt.title('Top 10 Slowest Tests')
+          plt.xlabel('Time (seconds)')
+          
+          # Performance variance by category
+          plt.subplot(2, 2, 4)
+          category_std = df.groupby('category')['mean_time'].std()
+          category_std.plot(kind='bar')
+          plt.title('Performance Variance by Category')
+          plt.ylabel('Standard Deviation (seconds)')
+          plt.xticks(rotation=45)
+          
+          plt.tight_layout()
+          plt.savefig('performance-analysis.png', dpi=300, bbox_inches='tight')
+          plt.close()
+          
+          # Generate markdown report
+          with open('performance-analysis.md', 'w') as f:
+              f.write("# Performance Analysis Report\n\n")
+              f.write(f"**Generated**: {analysis['timestamp']}\n")
+              f.write(f"**Total Benchmarks**: {analysis['total_benchmarks']}\n")
+              f.write(f"**Categories**: {', '.join(analysis['categories'])}\n\n")
+              
+              # Performance summary
+              f.write("## Performance Summary by Category\n\n")
+              f.write("| Category | Tests | Avg Time (s) | Fastest Test | Slowest Test | Variance |\n")
+              f.write("|----------|-------|--------------|--------------|--------------|----------|\n")
+              
+              for cat, summary in analysis['performance_summary'].items():
+                  f.write(f"| {cat} | {summary['total_tests']} | {summary['avg_time']:.3f} | {summary['fastest_test'][:30]}... | {summary['slowest_test'][:30]}... | {summary['performance_variance']:.3f} |\n")
+              
+              # Regressions
+              if regressions:
+                  f.write(f"\n## ⚠️ Performance Regressions ({len(regressions)} found)\n\n")
+                  f.write("| Test | Baseline (s) | Current (s) | Change (%) |\n")
+                  f.write("|------|--------------|-------------|------------|\n")
+                  
+                  for reg in regressions:
+                      f.write(f"| {reg['test_name'][:50]}... | {reg['baseline_time']:.3f} | {reg['current_time']:.3f} | +{reg['change_percent']:.1f}% |\n")
+              
+              # Improvements
+              if improvements:
+                  f.write(f"\n## ✅ Performance Improvements ({len(improvements)} found)\n\n")
+                  f.write("| Test | Baseline (s) | Current (s) | Change (%) |\n")
+                  f.write("|------|--------------|-------------|------------|\n")
+                  
+                  for imp in improvements:
+                      f.write(f"| {imp['test_name'][:50]}... | {imp['baseline_time']:.3f} | {imp['current_time']:.3f} | {imp['change_percent']:.1f}% |\n")
+              
+              f.write("\n## Performance Charts\n\n")
+              f.write("![Performance Analysis](performance-analysis.png)\n\n")
+          
+          print(f"Performance analysis completed")
+          print(f"Total benchmarks analyzed: {analysis['total_benchmarks']}")
+          print(f"Categories: {', '.join(analysis['categories'])}")
+          print(f"Regressions found: {len(regressions)}")
+          print(f"Improvements found: {len(improvements)}")
+          EOF
+
+      - name: Upload analysis results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-analysis
+          path: |
+            performance-analysis.json
+            performance-analysis.md
+            performance-analysis.png
+          retention-days: 90
+
+      - name: Add analysis to job summary
+        run: |
+          if [ -f performance-analysis.md ]; then
+            cat performance-analysis.md >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Comment PR with performance analysis
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            if (fs.existsSync('performance-analysis.md')) {
+              const analysis = fs.readFileSync('performance-analysis.md', 'utf8');
+              
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## 🚀 Performance Analysis\n\n${analysis}`
+              });
+            }
+
+      - name: Fail on significant regressions
+        run: |
+          if [ -f performance-analysis.json ]; then
+            python << 'EOF'
+            import json
+            
+            with open('performance-analysis.json', 'r') as f:
+                analysis = json.load(f)
+            
+            regressions = analysis.get('regressions', [])
+            significant_regressions = [r for r in regressions if r['change_percent'] > 50]  # 50% slower
+            
+            if significant_regressions:
+                print(f"❌ Significant performance regressions detected:")
+                for reg in significant_regressions:
+                    print(f"  - {reg['test_name']}: {reg['change_percent']:.1f}% slower")
+                exit(1)
+            else:
+                print("✅ No significant performance regressions detected")
+            EOF
+          fi

@@ -1,0 +1,362 @@
+{% extends "base.html" %} {% block title %}Dashboard - Pynomaly{% endblock %} {%
+block head %}
+<style>
+  .metric-card {
+    transition: all 0.2s ease;
+  }
+  .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
+  .quick-action-card {
+    transition: all 0.2s ease;
+  }
+  .quick-action-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--primary-color, #3b82f6);
+  }
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .status-online {
+    background-color: #10b981;
+  }
+  .status-warning {
+    background-color: #f59e0b;
+  }
+  .status-offline {
+    background-color: #ef4444;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="px-4 py-6 sm:px-0">
+  <!-- Enhanced Header with System Status -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">
+          Anomaly Detection Dashboard
+        </h1>
+        <p class="mt-2 text-gray-600">
+          Monitor and analyze anomalies in your data streams
+        </p>
+      </div>
+      <div class="text-right">
+        <div class="status-indicator text-green-600">
+          <span class="status-dot status-online"></span>
+          System Healthy
+        </div>
+        <p class="text-sm text-gray-500 mt-1">
+          Last updated: <span id="last-updated">now</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+    <!-- Detectors Card -->
+    <div class="metric-card bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <div class="p-2 bg-blue-100 rounded-lg">
+              <svg
+                class="h-6 w-6 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Active Detectors
+              </dt>
+              <dd class="text-2xl font-bold text-gray-900">
+                {{ detector_count }}
+              </dd>
+              <dd class="text-xs text-green-600 font-medium">+2 this week</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <div class="text-sm">
+          <a
+            href="/web/detectors"
+            class="font-medium text-blue-600 hover:text-blue-700 flex items-center"
+          >
+            View all
+            <svg
+              class="ml-1 h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datasets Card -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-6 w-6 text-secondary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+              ></path>
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Datasets
+              </dt>
+              <dd class="text-lg font-semibold text-gray-900">
+                {{ dataset_count }}
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <div class="text-sm">
+          <a
+            href="/web/datasets"
+            class="font-medium text-secondary hover:text-green-700"
+          >
+            View all
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Card -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="p-5">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-6 w-6 text-accent"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              ></path>
+            </svg>
+          </div>
+          <div class="ml-5 w-0 flex-1">
+            <dl>
+              <dt class="text-sm font-medium text-gray-500 truncate">
+                Detection Results
+              </dt>
+              <dd class="text-lg font-semibold text-gray-900">
+                {{ result_count }}
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-5 py-3">
+        <div class="text-sm">
+          <a
+            href="/web/detection"
+            class="font-medium text-accent hover:text-amber-700"
+          >
+            Run detection
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-medium text-gray-900">
+          Recent Detection Results
+        </h2>
+        <button
+          hx-get="/web/htmx/results-table"
+          hx-target="#results-table"
+          hx-trigger="click"
+          class="text-sm text-primary hover:text-blue-700"
+        >
+          <svg
+            class="h-4 w-4 inline"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            ></path>
+          </svg>
+          Refresh
+        </button>
+      </div>
+
+      <div id="results-table">{% include "partials/results_table.html" %}</div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <a
+      href="/web/detectors"
+      class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400"
+    >
+      <div class="flex-shrink-0">
+        <svg
+          class="h-10 w-10 text-primary"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          ></path>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <span class="absolute inset-0" aria-hidden="true"></span>
+        <p class="text-sm font-medium text-gray-900">Create Detector</p>
+        <p class="text-sm text-gray-500">Add new algorithm</p>
+      </div>
+    </a>
+
+    <a
+      href="/web/datasets"
+      class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400"
+    >
+      <div class="flex-shrink-0">
+        <svg
+          class="h-10 w-10 text-secondary"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+          ></path>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <span class="absolute inset-0" aria-hidden="true"></span>
+        <p class="text-sm font-medium text-gray-900">Upload Dataset</p>
+        <p class="text-sm text-gray-500">Import CSV/Parquet</p>
+      </div>
+    </a>
+
+    <a
+      href="/web/detection"
+      class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400"
+    >
+      <div class="flex-shrink-0">
+        <svg
+          class="h-10 w-10 text-accent"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          ></path>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <span class="absolute inset-0" aria-hidden="true"></span>
+        <p class="text-sm font-medium text-gray-900">Run Detection</p>
+        <p class="text-sm text-gray-500">Find anomalies</p>
+      </div>
+    </a>
+
+    <a
+      href="/web/visualizations"
+      class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400"
+    >
+      <div class="flex-shrink-0">
+        <svg
+          class="h-10 w-10 text-error"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          ></path>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <span class="absolute inset-0" aria-hidden="true"></span>
+        <p class="text-sm font-medium text-gray-900">View Charts</p>
+        <p class="text-sm text-gray-500">Analyze results</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- Auto-refresh recent results every 30 seconds -->
+  <div
+    hx-get="/web/htmx/results-table?limit=5"
+    hx-trigger="every 30s"
+    hx-target="#results-table"
+    hx-swap="outerHTML"
+  ></div>
+</div>
+{% endblock %}

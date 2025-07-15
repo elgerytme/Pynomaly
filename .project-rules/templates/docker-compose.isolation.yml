@@ -1,0 +1,205 @@
+# Docker Compose Template for Pynomaly Isolation Environment
+# Provides complete isolated development environment with supporting services
+
+version: '3.8'
+
+services:
+  # Main isolation environment
+  pynomaly-isolated:
+    build:
+      context: ../..
+      dockerfile: .project-rules/templates/Dockerfile.isolation
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.11}
+    container_name: pynomaly-isolated-${ISOLATION_ID:-default}
+    hostname: pynomaly-isolated
+    networks:
+      - isolation-network
+    volumes:
+      # Mount source code (read-write for development)
+      - ../..:/workspace:rw
+      # Mount isolated Python packages
+      - isolation-python-packages:/home/pynomaly/.venv
+      # Mount isolated Git configuration
+      - isolation-git-config:/home/pynomaly/.gitconfig
+      # Mount Docker socket for nested containers (if needed)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - ISOLATION_ID=${ISOLATION_ID:-default}
+      - PYNOMALY_ENV=isolated
+      - PYTHONPATH=/workspace/src
+      - DATABASE_URL=postgresql://pynomaly:isolated@postgres-isolated:5432/pynomaly_isolated
+      - REDIS_URL=redis://redis-isolated:6379/0
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
+      - DEVELOPMENT_MODE=true
+    ports:
+      - "${HOST_API_PORT:-8000}:8000"    # FastAPI
+      - "${HOST_DOCS_PORT:-8001}:8001"   # Documentation
+      - "${HOST_DEBUG_PORT:-5678}:5678"  # Debug port
+    depends_on:
+      - postgres-isolated
+      - redis-isolated
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    
+  # Isolated PostgreSQL database
+  postgres-isolated:
+    image: postgres:15-alpine
+    container_name: postgres-isolated-${ISOLATION_ID:-default}
+    hostname: postgres-isolated
+    networks:
+      - isolation-network
+    environment:
+      POSTGRES_DB: pynomaly_isolated
+      POSTGRES_USER: pynomaly
+      POSTGRES_PASSWORD: isolated
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - isolation-postgres-data:/var/lib/postgresql/data
+      - ../../scripts/database/init-isolated.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "${HOST_DB_PORT:-5432}:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pynomaly -d pynomaly_isolated"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  # Isolated Redis cache
+  redis-isolated:
+    image: redis:7-alpine
+    container_name: redis-isolated-${ISOLATION_ID:-default}
+    hostname: redis-isolated
+    networks:
+      - isolation-network
+    command: redis-server --appendonly yes --appendfsync everysec
+    volumes:
+      - isolation-redis-data:/data
+    ports:
+      - "${HOST_REDIS_PORT:-6379}:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      
+  # Isolated test runner (optional)
+  test-runner:
+    build:
+      context: ../..
+      dockerfile: .project-rules/templates/Dockerfile.isolation
+    container_name: test-runner-${ISOLATION_ID:-default}
+    hostname: test-runner
+    networks:
+      - isolation-network
+    volumes:
+      - ../..:/workspace:ro
+      - isolation-test-results:/workspace/test-results
+    environment:
+      - ISOLATION_ID=${ISOLATION_ID:-default}
+      - PYNOMALY_ENV=test
+      - PYTHONPATH=/workspace/src
+      - DATABASE_URL=postgresql://pynomaly:isolated@postgres-isolated:5432/pynomaly_test
+      - REDIS_URL=redis://redis-isolated:6379/1
+    depends_on:
+      - postgres-isolated
+      - redis-isolated
+    command: /workspace/.isolation/scripts/run-tests.sh
+    profiles:
+      - testing
+      
+  # Isolation monitor (tracks resource usage)
+  isolation-monitor:
+    image: prom/node-exporter:latest
+    container_name: isolation-monitor-${ISOLATION_ID:-default}
+    hostname: isolation-monitor
+    networks:
+      - isolation-network
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - "${HOST_MONITOR_PORT:-9100}:9100"
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+networks:
+  isolation-network:
+    name: pynomaly-isolation-${ISOLATION_ID:-default}
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    internal: false
+
+volumes:
+  # Persistent volumes for isolation environment
+  isolation-python-packages:
+    name: pynomaly-isolation-python-${ISOLATION_ID:-default}
+    driver: local
+    
+  isolation-postgres-data:
+    name: pynomaly-isolation-postgres-${ISOLATION_ID:-default}
+    driver: local
+    
+  isolation-redis-data:
+    name: pynomaly-isolation-redis-${ISOLATION_ID:-default}
+    driver: local
+    
+  isolation-git-config:
+    name: pynomaly-isolation-git-${ISOLATION_ID:-default}
+    driver: local
+    
+  isolation-test-results:
+    name: pynomaly-isolation-test-results-${ISOLATION_ID:-default}
+    driver: local
+
+# Additional services that can be enabled with profiles
+x-optional-services:
+  # Jupyter notebook for experimentation
+  jupyter:
+    build:
+      context: ../..
+      dockerfile: .project-rules/templates/Dockerfile.isolation
+    container_name: jupyter-${ISOLATION_ID:-default}
+    hostname: jupyter
+    networks:
+      - isolation-network
+    volumes:
+      - ../..:/workspace:rw
+      - isolation-jupyter-data:/home/pynomaly/.jupyter
+    environment:
+      - ISOLATION_ID=${ISOLATION_ID:-default}
+      - JUPYTER_ENABLE_LAB=yes
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
+    ports:
+      - "${HOST_JUPYTER_PORT:-8888}:8888"
+    profiles:
+      - experimentation
+      
+  # Documentation server
+  docs:
+    build:
+      context: ../..
+      dockerfile: .project-rules/templates/Dockerfile.isolation
+    container_name: docs-${ISOLATION_ID:-default}
+    hostname: docs
+    networks:
+      - isolation-network
+    volumes:
+      - ../../docs:/workspace/docs:rw
+    command: mkdocs serve --dev-addr=0.0.0.0:8000
+    ports:
+      - "${HOST_DOCS_PORT:-8080}:8000"
+    profiles:
+      - documentation

@@ -1,0 +1,106 @@
+{% if datasets %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {% for dataset in datasets %}
+  <div class="card hover:shadow-md transition-shadow">
+    <div class="card-header">
+      <h3 class="card-title truncate">{{ dataset.name }}</h3>
+      <div class="text-xs text-gray-500">
+        {{ dataset.created_at.strftime('%Y-%m-%d') }}
+      </div>
+    </div>
+    <div class="card-content">
+      {% if dataset.description %}
+      <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+        {{ dataset.description }}
+      </p>
+      {% endif %}
+
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="text-center">
+          <div class="text-lg font-semibold text-blue-600">
+            {{ dataset.data.shape[0] }}
+          </div>
+          <div class="text-xs text-gray-500">Rows</div>
+        </div>
+        <div class="text-center">
+          <div class="text-lg font-semibold text-green-600">
+            {{ dataset.data.shape[1] }}
+          </div>
+          <div class="text-xs text-gray-500">Columns</div>
+        </div>
+      </div>
+
+      {% if dataset.target_column %}
+      <div class="mb-4">
+        <span
+          class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800"
+        >
+          🏷️ {{ dataset.target_column }}
+        </span>
+      </div>
+      {% endif %}
+
+      <div class="flex space-x-2">
+        <a
+          href="/web/datasets/{{ dataset.id }}"
+          class="btn btn-outline btn-sm flex-1"
+        >
+          📊 View
+        </a>
+        <a
+          href="/web/detection?dataset={{ dataset.id }}"
+          class="btn btn-primary btn-sm flex-1"
+        >
+          🔍 Use
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Quick Stats -->
+<div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div class="metric-card">
+    <div class="metric-icon bg-blue-100 text-blue-600">📊</div>
+    <div>
+      <div class="metric-label">Total Datasets</div>
+      <div class="metric-value">{{ datasets|length }}</div>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon bg-green-100 text-green-600">📈</div>
+    <div>
+      <div class="metric-label">Total Rows</div>
+      <div class="metric-value">
+        {% set total_rows = datasets|sum(attribute='data.shape.0') %} {{
+        "{:,}".format(total_rows) }}
+      </div>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon bg-purple-100 text-purple-600">🏷️</div>
+    <div>
+      <div class="metric-label">With Labels</div>
+      <div class="metric-value">
+        {% set labeled_count = datasets|selectattr('target_column')|list|length
+        %} {{ labeled_count }}
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+<!-- Empty State -->
+<div class="text-center py-12">
+  <div class="text-6xl mb-4">📊</div>
+  <h3 class="text-xl font-semibold text-gray-900 mb-2">No Datasets Yet</h3>
+  <p class="text-gray-600 mb-6">
+    Upload your first dataset to start performing anomaly detection.
+  </p>
+  <button onclick="showUploadModal()" class="btn btn-primary">
+    📁 Upload Dataset
+  </button>
+</div>
+{% endif %}

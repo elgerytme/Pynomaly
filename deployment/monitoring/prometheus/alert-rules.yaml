@@ -1,0 +1,289 @@
+groups:
+  - name: pynomaly.api
+    rules:
+      - alert: PynomalyAPIHighErrorRate
+        expr: |
+          (
+            sum(rate(pynomaly_http_requests_total{status_code=~"5.."}[5m])) /
+            sum(rate(pynomaly_http_requests_total[5m]))
+          ) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          service: pynomaly-api
+          component: api
+        annotations:
+          summary: "Pynomaly API has high error rate"
+          description: "API error rate is {{ $value | humanizePercentage }} over the last 5 minutes"
+          runbook_url: "https://docs.pynomaly.com/runbooks/api-high-error-rate"
+
+      - alert: PynomalyAPIHighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(pynomaly_http_request_duration_seconds_bucket[5m])) by (le)
+          ) > 2.0
+        for: 5m
+        labels:
+          severity: warning
+          service: pynomaly-api
+          component: api
+        annotations:
+          summary: "Pynomaly API has high latency"
+          description: "95th percentile latency is {{ $value }}s over the last 5 minutes"
+          runbook_url: "https://docs.pynomaly.com/runbooks/api-high-latency"
+
+      - alert: PynomalyAPILowRequestRate
+        expr: |
+          sum(rate(pynomaly_http_requests_total[5m])) < 1.0
+        for: 10m
+        labels:
+          severity: warning
+          service: pynomaly-api
+          component: api
+        annotations:
+          summary: "Pynomaly API has unusually low request rate"
+          description: "Request rate is {{ $value }} requests/sec, which may indicate an issue"
+          runbook_url: "https://docs.pynomaly.com/runbooks/api-low-traffic"
+
+  - name: pynomaly.workers
+    rules:
+      - alert: PynomalyWorkerDown
+        expr: |
+          up{job="pynomaly-worker"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: pynomaly-worker
+          component: worker
+        annotations:
+          summary: "Pynomaly worker is down"
+          description: "Worker {{ $labels.instance }} has been down for more than 1 minute"
+          runbook_url: "https://docs.pynomaly.com/runbooks/worker-down"
+
+      - alert: PynomalyWorkerHighMemory
+        expr: |
+          (process_resident_memory_bytes{job="pynomaly-worker"} / 1024 / 1024 / 1024) > 6
+        for: 5m
+        labels:
+          severity: warning
+          service: pynomaly-worker
+          component: worker
+        annotations:
+          summary: "Pynomaly worker using high memory"
+          description: "Worker {{ $labels.instance }} is using {{ $value }}GB of memory"
+          runbook_url: "https://docs.pynomaly.com/runbooks/worker-high-memory"
+
+      - alert: PynomalyTrainingJobsStuck
+        expr: |
+          pynomaly_training_jobs_pending > 5
+        for: 15m
+        labels:
+          severity: warning
+          service: pynomaly-worker
+          component: scheduler
+        annotations:
+          summary: "Training jobs are stuck in pending state"
+          description: "{{ $value }} training jobs have been pending for more than 15 minutes"
+          runbook_url: "https://docs.pynomaly.com/runbooks/jobs-stuck"
+
+      - alert: PynomalyTrainingJobFailureRate
+        expr: |
+          (
+            sum(rate(pynomaly_training_jobs_total{status="failed"}[15m])) /
+            sum(rate(pynomaly_training_jobs_total[15m]))
+          ) > 0.2
+        for: 10m
+        labels:
+          severity: warning
+          service: pynomaly-worker
+          component: training
+        annotations:
+          summary: "High training job failure rate"
+          description: "{{ $value | humanizePercentage }} of training jobs are failing"
+          runbook_url: "https://docs.pynomaly.com/runbooks/training-failures"
+
+  - name: pynomaly.infrastructure
+    rules:
+      - alert: PynomalyDatabaseConnectionsHigh
+        expr: |
+          pynomaly_database_connections_active > 150
+        for: 5m
+        labels:
+          severity: warning
+          service: pynomaly-database
+          component: postgresql
+        annotations:
+          summary: "High number of database connections"
+          description: "{{ $value }} active database connections"
+          runbook_url: "https://docs.pynomaly.com/runbooks/db-connections-high"
+
+      - alert: PynomalyDatabaseDown
+        expr: |
+          up{job="postgresql"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: pynomaly-database
+          component: postgresql
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "PostgreSQL database has been unreachable for more than 1 minute"
+          runbook_url: "https://docs.pynomaly.com/runbooks/database-down"
+
+      - alert: PynomalyRedisDown
+        expr: |
+          up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: pynomaly-redis
+          component: redis
+        annotations:
+          summary: "Redis is down"
+          description: "Redis has been unreachable for more than 1 minute"
+          runbook_url: "https://docs.pynomaly.com/runbooks/redis-down"
+
+      - alert: PynomalyRedisMemoryHigh
+        expr: |
+          (redis_memory_used_bytes / redis_memory_max_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: pynomaly-redis
+          component: redis
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis is using {{ $value | humanizePercentage }} of available memory"
+          runbook_url: "https://docs.pynomaly.com/runbooks/redis-memory-high"
+
+  - name: pynomaly.business
+    rules:
+      - alert: PynomalyAnomalyDetectionRateLow
+        expr: |
+          sum(rate(pynomaly_anomaly_detections_total[15m])) < 0.1
+        for: 20m
+        labels:
+          severity: info
+          service: pynomaly-api
+          component: detection
+        annotations:
+          summary: "Low anomaly detection rate"
+          description: "Anomaly detection rate is {{ $value }} detections/sec over the last 15 minutes"
+          runbook_url: "https://docs.pynomaly.com/runbooks/low-detection-rate"
+
+      - alert: PynomalyModelAccuracyDrop
+        expr: |
+          pynomaly_model_accuracy < 0.85
+        for: 5m
+        labels:
+          severity: warning
+          service: pynomaly-api
+          component: ml-model
+        annotations:
+          summary: "Model accuracy has dropped"
+          description: "Model {{ $labels.model_id }} accuracy is {{ $value | humanizePercentage }}"
+          runbook_url: "https://docs.pynomaly.com/runbooks/model-accuracy-drop"
+
+      - alert: PynomalyDetectorCreationFailures
+        expr: |
+          (
+            sum(rate(pynomaly_detector_operations_total{operation="create",status="failed"}[10m])) /
+            sum(rate(pynomaly_detector_operations_total{operation="create"}[10m]))
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: pynomaly-api
+          component: detector-management
+        annotations:
+          summary: "High detector creation failure rate"
+          description: "{{ $value | humanizePercentage }} of detector creations are failing"
+          runbook_url: "https://docs.pynomaly.com/runbooks/detector-creation-failures"
+
+  - name: pynomaly.security
+    rules:
+      - alert: PynomalyUnauthorizedAccess
+        expr: |
+          sum(rate(pynomaly_http_requests_total{status_code="401"}[5m])) > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: pynomaly-api
+          component: security
+        annotations:
+          summary: "High rate of unauthorized access attempts"
+          description: "{{ $value }} unauthorized requests per second"
+          runbook_url: "https://docs.pynomaly.com/runbooks/unauthorized-access"
+
+      - alert: PynomalyRateLimitExceeded
+        expr: |
+          sum(rate(pynomaly_http_requests_total{status_code="429"}[5m])) > 5
+        for: 5m
+        labels:
+          severity: info
+          service: pynomaly-api
+          component: rate-limiting
+        annotations:
+          summary: "High rate of rate-limited requests"
+          description: "{{ $value }} requests per second are being rate limited"
+          runbook_url: "https://docs.pynomaly.com/runbooks/rate-limit-exceeded"
+
+      - alert: PynomalySuspiciousActivity
+        expr: |
+          sum(rate(pynomaly_security_events_total{event_type="suspicious"}[10m])) > 1
+        for: 1m
+        labels:
+          severity: critical
+          service: pynomaly-api
+          component: security
+        annotations:
+          summary: "Suspicious security activity detected"
+          description: "{{ $value }} suspicious security events detected"
+          runbook_url: "https://docs.pynomaly.com/runbooks/suspicious-activity"
+
+  - name: pynomaly.performance
+    rules:
+      - alert: PynomalyHighCPUUsage
+        expr: |
+          (
+            avg(rate(process_cpu_seconds_total{job=~"pynomaly.*"}[5m])) * 100
+          ) > 80
+        for: 10m
+        labels:
+          severity: warning
+          service: pynomaly
+          component: performance
+        annotations:
+          summary: "High CPU usage across Pynomaly services"
+          description: "Average CPU usage is {{ $value }}%"
+          runbook_url: "https://docs.pynomaly.com/runbooks/high-cpu"
+
+      - alert: PynomalyHighMemoryUsage
+        expr: |
+          (
+            avg(process_resident_memory_bytes{job=~"pynomaly.*"}) / 1024 / 1024 / 1024
+          ) > 4
+        for: 10m
+        labels:
+          severity: warning
+          service: pynomaly
+          component: performance
+        annotations:
+          summary: "High memory usage across Pynomaly services"
+          description: "Average memory usage is {{ $value }}GB"
+          runbook_url: "https://docs.pynomaly.com/runbooks/high-memory"
+
+      - alert: PynomalyDiskSpaceLow
+        expr: |
+          (
+            (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100
+          ) < 10
+        for: 5m
+        labels:
+          severity: critical
+          service: pynomaly
+          component: infrastructure
+        annotations:
+          summary: "Low disk space"
+          description: "Only {{ $value }}% disk space remaining on {{ $labels.instance }}"
+          runbook_url: "https://docs.pynomaly.com/runbooks/low-disk-space"
