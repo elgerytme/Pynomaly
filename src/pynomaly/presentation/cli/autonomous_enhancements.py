@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -23,6 +22,7 @@ from pynomaly.infrastructure.data_loaders.excel_loader import ExcelLoader
 from pynomaly.infrastructure.data_loaders.json_loader import JSONLoader
 from pynomaly.infrastructure.data_loaders.parquet_loader import ParquetLoader
 from pynomaly.presentation.cli.container import get_cli_container
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 app = typer.Typer()
 console = Console()
@@ -263,7 +263,7 @@ def _run_enhanced_autonomous_detection(
 
         try:
             # Enhanced autonomous detection
-            results = asyncio.run(
+            results = cli_runner.run(
                 autonomous_service.detect_autonomous(data_source, config)
             )
 
@@ -373,15 +373,15 @@ def _explain_algorithm_choices(
 
         try:
             # Load and profile data
-            dataset = asyncio.run(
+            dataset = cli_runner.run(
                 autonomous_service._auto_load_data(data_source, config)
             )
 
             progress.update(task, description="Profiling dataset...")
-            profile = asyncio.run(autonomous_service._profile_data(dataset, config))
+            profile = cli_runner.run(autonomous_service._profile_data(dataset, config))
 
             progress.update(task, description="Analyzing algorithm suitability...")
-            recommendations = asyncio.run(
+            recommendations = cli_runner.run(
                 autonomous_service._recommend_algorithms(profile, config)
             )
 

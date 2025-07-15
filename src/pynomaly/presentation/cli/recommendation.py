@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 from pathlib import Path
 from typing import Any
@@ -19,6 +18,7 @@ from pynomaly.application.dto.configuration_dto import (
 )
 from pynomaly.infrastructure.config.feature_flags import require_feature
 from pynomaly.presentation.cli.container import get_cli_container
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 # Create Typer app
 app = typer.Typer(
@@ -119,7 +119,7 @@ def recommend_for_dataset(
         # Show dataset characteristics
         _display_dataset_characteristics(dataset_characteristics)
 
-    asyncio.run(run_recommendation())
+    cli_runner.run(run_recommendation())
 
 
 @app.command("similar")
@@ -171,7 +171,7 @@ def recommend_similar(
             console.print(f"Similarity threshold: {similarity_threshold}")
             console.print(f"Max results: {max_results}")
 
-    asyncio.run(run_similar_recommendation())
+    cli_runner.run(run_similar_recommendation())
 
 
 @app.command("predict")
@@ -239,7 +239,7 @@ def predict_performance(
         # Display results
         _display_performance_predictions(configuration, predictions, format, output)
 
-    asyncio.run(run_prediction())
+    cli_runner.run(run_prediction())
 
 
 @app.command("train")
@@ -316,7 +316,7 @@ def train_models(
 
                 console.print(importance_table)
 
-    asyncio.run(run_training())
+    cli_runner.run(run_training())
 
 
 @app.command("analyze")
@@ -350,7 +350,7 @@ def analyze_patterns(
         # Display analysis results
         _display_pattern_analysis(analysis, format, output)
 
-    asyncio.run(run_analysis())
+    cli_runner.run(run_analysis())
 
 
 @app.command("stats")
@@ -444,7 +444,7 @@ def show_statistics():
 
         console.print(cache_table)
 
-    asyncio.run(get_stats())
+    cli_runner.run(get_stats())
 
 
 # Helper functions

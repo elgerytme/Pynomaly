@@ -4,7 +4,6 @@ This module provides command-line interface for enterprise dashboard operations,
 alerting management, and business intelligence reporting.
 """
 
-import asyncio
 import json
 import time
 from datetime import datetime
@@ -18,6 +17,8 @@ from rich.live import Live
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.services.enterprise_dashboard_service import (
     AlertPriority,
@@ -484,7 +485,7 @@ def integration_status():
         config = IntegrationConfig()
 
         with console.status("Initializing enterprise integration..."):
-            integration_service = asyncio.run(initialize_enterprise_integration(config))
+            integration_service = cli_runner.run(initialize_enterprise_integration(config))
 
         status = integration_service.get_integration_status()
 
@@ -526,7 +527,7 @@ Last Update: {status["metrics"]["last_update"] or "Never"}""",
         console.print(metrics_panel)
 
         # Shutdown integration service
-        asyncio.run(integration_service.shutdown())
+        cli_runner.run(integration_service.shutdown())
 
     except Exception as e:
         console.print(f"❌ Error: {e}", style="red")

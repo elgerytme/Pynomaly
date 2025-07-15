@@ -25,6 +25,7 @@ from pynomaly.infrastructure.preprocessing.preprocessing_pipeline import (
     PreprocessingPipeline,
 )
 from pynomaly.presentation.cli.container import get_cli_container
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 app = typer.Typer()
 console = Console()

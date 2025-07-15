@@ -13,6 +13,8 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.tree import Tree
 
+from pynomaly.presentation.cli.async_utils import cli_runner
+
 from pynomaly.application.dto.configuration_dto import (
     ConfigurationCaptureRequestDTO,
     ConfigurationExportRequestDTO,
@@ -89,9 +91,8 @@ def capture_configuration(
         )
 
         # Capture configuration
-        import asyncio
-
-        response = asyncio.run(capture_service.capture_configuration(request))
+        
+        response = cli_runner.run(capture_service.capture_configuration(request))
 
         if response.success:
             config = response.configuration
@@ -182,9 +183,8 @@ def export_configurations(
         )
 
         # Export configurations
-        import asyncio
-
-        response = asyncio.run(capture_service.export_configurations(request))
+        
+        response = cli_runner.run(capture_service.export_configurations(request))
 
         if response.success:
             rprint(f"[green]✓[/green] Exported {len(parsed_ids)} configurations")
@@ -254,9 +254,8 @@ def import_configurations(
 
         else:
             # Perform import
-            import asyncio
-
-            imported_count = asyncio.run(
+            
+            imported_count = cli_runner.run(
                 repository.import_configurations(import_file, overwrite)
             )
 
@@ -299,9 +298,8 @@ def list_configurations(
         source_filter = ConfigurationSource(source.lower()) if source else None
 
         # Load configurations
-        import asyncio
-
-        configurations = asyncio.run(
+        
+        configurations = cli_runner.run(
             repository.list_configurations(source=source_filter, limit=limit)
         )
 
@@ -407,9 +405,8 @@ def search_configurations(
         )
 
         # Perform search
-        import asyncio
-
-        results = asyncio.run(repository.search_configurations(request))
+        
+        results = cli_runner.run(repository.search_configurations(request))
 
         if not results:
             rprint(
@@ -485,9 +482,8 @@ def show_configuration(
         repository = ConfigurationRepository(repo_path)
 
         # Load configuration
-        import asyncio
-
-        config = asyncio.run(repository.load_configuration(parsed_id))
+        
+        config = cli_runner.run(repository.load_configuration(parsed_id))
 
         if not config:
             rprint(f"[red]Error:[/red] Configuration not found: {config_id}")

@@ -9,7 +9,6 @@ This module provides comprehensive CLI commands for:
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 from datetime import datetime
@@ -20,6 +19,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.services.training_automation_service import (
     OptimizationStrategy,
@@ -161,7 +162,7 @@ def create_training_job(
             console.print(f"[red]Error creating training job: {e}[/red]")
             raise typer.Exit(1)
 
-    asyncio.run(_create_job())
+    cli_runner.run(_create_job())
 
 
 @app.command("start")
@@ -198,7 +199,7 @@ def start_training_job(
             console.print(f"[red]Error starting training job: {e}[/red]")
             raise typer.Exit(1)
 
-    asyncio.run(_start_job())
+    cli_runner.run(_start_job())
 
 
 @app.command("status")
@@ -317,7 +318,7 @@ def get_job_status(
             console.print(f"[red]Error getting job status: {e}[/red]")
             raise typer.Exit(1)
 
-    asyncio.run(_get_status())
+    cli_runner.run(_get_status())
 
 
 @app.command("list")
@@ -399,7 +400,7 @@ def list_training_jobs(
             console.print(f"[red]Error listing training jobs: {e}[/red]")
             raise typer.Exit(1)
 
-    asyncio.run(_list_jobs())
+    cli_runner.run(_list_jobs())
 
 
 @app.command("cancel")
@@ -438,7 +439,7 @@ def cancel_training_job(
             console.print(f"[red]Error cancelling training job: {e}[/red]")
             raise typer.Exit(1)
 
-    asyncio.run(_cancel_job())
+    cli_runner.run(_cancel_job())
 
 
 @app.command("quick")
@@ -505,7 +506,7 @@ def quick_optimize(
             console.print(f"[red]Error starting quick optimization: {e}[/red]")
             raise typer.Exit(1)
 
-    asyncio.run(_quick_optimize())
+    cli_runner.run(_quick_optimize())
 
 
 @app.command("algorithms")
@@ -571,7 +572,7 @@ def cleanup_old_jobs(
             console.print(f"[red]Error during cleanup: {e}[/red]")
             raise typer.Exit(1)
 
-    asyncio.run(_cleanup())
+    cli_runner.run(_cleanup())
 
 
 async def _monitor_job(service: TrainingAutomationService, job_id: str):

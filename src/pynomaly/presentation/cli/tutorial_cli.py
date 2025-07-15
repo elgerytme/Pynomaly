@@ -5,6 +5,8 @@ CLI commands for interactive tutorials.
 import typer
 from rich.console import Console
 
+from pynomaly.presentation.cli.async_utils import cli_runner
+
 from pynomaly.presentation.cli.tutorials import tutorial_manager
 
 console = Console()

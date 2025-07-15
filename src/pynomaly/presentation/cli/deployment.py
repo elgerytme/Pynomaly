@@ -12,6 +12,8 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from pynomaly.presentation.cli.async_utils import cli_runner
+
 from pynomaly.application.services.deployment_orchestration_service import (
     DeploymentOrchestrationService,
 )
@@ -124,7 +126,7 @@ def list_deployments(
 
         console.print(table)
 
-    asyncio.run(_list_deployments())
+    cli_runner.run(_list_deployments())
 
 
 @app.command("deploy")
@@ -233,7 +235,7 @@ def deploy_model(
             console.print(f"[red]Deployment failed: {e}[/red]")
             raise typer.Exit(1)
 
-    asyncio.run(_deploy_model())
+    cli_runner.run(_deploy_model())
 
 
 @app.command("status")
@@ -308,7 +310,7 @@ def deployment_status(
             console.print(f"[red]Error: {e}[/red]")
             raise typer.Exit(1)
 
-    asyncio.run(_get_status())
+    cli_runner.run(_get_status())
 
 
 @app.command("rollback")
@@ -375,7 +377,7 @@ def rollback_deployment(
             console.print(f"[red]Rollback failed: {e}[/red]")
             raise typer.Exit(1)
 
-    asyncio.run(_rollback())
+    cli_runner.run(_rollback())
 
 
 @app.command("promote")
@@ -442,7 +444,7 @@ def promote_to_production(
             console.print(f"[red]Promotion failed: {e}[/red]")
             raise typer.Exit(1)
 
-    asyncio.run(_promote())
+    cli_runner.run(_promote())
 
 
 @app.command("environments")
@@ -503,7 +505,7 @@ def list_environments(
 
         console.print(table)
 
-    asyncio.run(_list_environments())
+    cli_runner.run(_list_environments())
 
 
 @app.command("serve")
@@ -555,7 +557,7 @@ def start_model_server(
             raise typer.Exit(1)
 
     try:
-        asyncio.run(_start_server())
+        cli_runner.run(_start_server())
     except KeyboardInterrupt:
         console.print("[yellow]Shutdown complete[/yellow]")
 

@@ -12,6 +12,8 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from pynomaly.presentation.cli.async_utils import cli_runner
+
 from pynomaly.infrastructure.config.tdd_config import TDDSettings, get_tdd_config
 from pynomaly.infrastructure.persistence.tdd_repository import FileTDDRepository
 from pynomaly.infrastructure.tdd.enforcement import TDDEnforcementEngine

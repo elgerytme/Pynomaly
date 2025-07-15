@@ -5,7 +5,6 @@ This module provides CLI commands for performance benchmarking, monitoring,
 and optimization of the Pynomaly anomaly detection system.
 """
 
-import asyncio
 import json
 import sys
 from pathlib import Path
@@ -171,7 +170,7 @@ def benchmark(
 
     # Run async benchmark
     try:
-        results = asyncio.run(run_benchmark())
+        results = cli_runner.run(run_benchmark())
         click.echo("✅ Benchmark completed successfully!")
         return results
     except Exception as e:
@@ -240,7 +239,7 @@ def scalability(algorithm, base_size, max_size, steps, output_dir):
         return results
 
     try:
-        results = asyncio.run(run_scalability())
+        results = cli_runner.run(run_scalability())
         return results
     except Exception as e:
         click.echo(f"❌ Scalability test failed: {str(e)}", err=True)
@@ -306,7 +305,7 @@ def stress_test(algorithm, max_memory, duration, output_dir):
         return results
 
     try:
-        results = asyncio.run(run_stress())
+        results = cli_runner.run(run_stress())
         return results
     except Exception as e:
         click.echo(f"❌ Stress test failed: {str(e)}", err=True)
@@ -401,7 +400,7 @@ def compare(algorithms, dataset_sizes, metrics, output_dir):
         return results
 
     try:
-        results = asyncio.run(run_comparison())
+        results = cli_runner.run(run_comparison())
         return results
     except Exception as e:
         click.echo(f"❌ Comparison failed: {str(e)}", err=True)
@@ -499,7 +498,7 @@ def monitor(start, stop, status, alerts, severity):
                     )
 
     try:
-        asyncio.run(run_monitor())
+        cli_runner.run(run_monitor())
     except Exception as e:
         click.echo(f"❌ Monitoring command failed: {str(e)}", err=True)
         sys.exit(1)
@@ -573,7 +572,7 @@ def report(time_period, service, format, output_dir, include_charts):
         return report_path
 
     try:
-        report_path = asyncio.run(generate_report())
+        report_path = cli_runner.run(generate_report())
         return report_path
     except Exception as e:
         click.echo(f"❌ Report generation failed: {str(e)}", err=True)

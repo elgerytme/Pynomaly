@@ -1,6 +1,5 @@
 """CLI commands for governance framework and audit management."""
 
-import asyncio
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -11,6 +10,8 @@ from rich.layout import Layout
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.services.governance_framework_service import (
     GovernanceAction,
@@ -129,7 +130,7 @@ def audit_report(
                 console.print(f"[red]Error generating audit report: {e}[/red]")
                 return
 
-    asyncio.run(run_audit_report())
+    cli_runner.run(run_audit_report())
 
 
 @governance_commands.command()
@@ -242,7 +243,7 @@ def create_policy(
                 console.print(f"[red]Error creating policy: {e}[/red]")
                 return
 
-    asyncio.run(run_create_policy())
+    cli_runner.run(run_create_policy())
 
 
 @governance_commands.command()
@@ -334,7 +335,7 @@ def assess_risk(
                 console.print(f"[red]Error conducting risk assessment: {e}[/red]")
                 return
 
-    asyncio.run(run_risk_assessment())
+    cli_runner.run(run_risk_assessment())
 
 
 @governance_commands.command()
@@ -423,7 +424,7 @@ def submit_change(
                 console.print(f"[red]Error submitting change request: {e}[/red]")
                 return
 
-    asyncio.run(run_submit_change())
+    cli_runner.run(run_submit_change())
 
 
 @governance_commands.command()
@@ -485,7 +486,7 @@ def approve_change(request_id: str, decision: str, comments: str | None):
                 console.print(f"[red]Error processing approval: {e}[/red]")
                 return
 
-    asyncio.run(run_approve_change())
+    cli_runner.run(run_approve_change())
 
 
 @governance_commands.command()
@@ -576,7 +577,7 @@ def track_compliance(
                 console.print(f"[red]Error tracking compliance metric: {e}[/red]")
                 return
 
-    asyncio.run(run_track_compliance())
+    cli_runner.run(run_track_compliance())
 
 
 @governance_commands.command()
@@ -611,7 +612,7 @@ def dashboard():
                 console.print(f"[red]Error generating governance dashboard: {e}[/red]")
                 return
 
-    asyncio.run(run_dashboard())
+    cli_runner.run(run_dashboard())
 
 
 @governance_commands.command()
@@ -714,7 +715,7 @@ def log_event(
                 console.print(f"[red]Error logging audit event: {e}[/red]")
                 return
 
-    asyncio.run(run_log_event())
+    cli_runner.run(run_log_event())
 
 
 # Helper functions for display

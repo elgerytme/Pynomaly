@@ -1,6 +1,5 @@
 """CLI commands for explainable AI functionality."""
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -11,6 +10,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.services.explainable_ai_service import (
     ExplainableAIService,
@@ -211,7 +212,7 @@ def predict(
                 console.print(f"[red]Error generating explanation: {e}[/red]")
                 return
 
-    asyncio.run(run_explanation())
+    cli_runner.run(run_explanation())
 
 
 @explain_commands.command()
@@ -294,7 +295,7 @@ def analyze_bias(
                 console.print(f"[red]Error analyzing bias: {e}[/red]")
                 return
 
-    asyncio.run(run_bias_analysis())
+    cli_runner.run(run_bias_analysis())
 
 
 @explain_commands.command()
@@ -388,7 +389,7 @@ def feature_importance(
                 console.print(f"[red]Error analyzing feature importance: {e}[/red]")
                 return
 
-    asyncio.run(run_feature_analysis())
+    cli_runner.run(run_feature_analysis())
 
 
 @explain_commands.command()
@@ -496,7 +497,7 @@ def validate_explanations(
                 console.print(f"[red]Error validating explanations: {e}[/red]")
                 return
 
-    asyncio.run(run_validation())
+    cli_runner.run(run_validation())
 
 
 @explain_commands.command()
@@ -547,7 +548,7 @@ def summary(model_id: str | None, time_window: int, output_path: str | None):
                 console.print(f"[red]Error generating summary: {e}[/red]")
                 return
 
-    asyncio.run(run_summary())
+    cli_runner.run(run_summary())
 
 
 # Helper functions for display

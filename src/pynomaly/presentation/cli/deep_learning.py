@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 import sys
 import time
@@ -14,6 +13,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 # Application imports
 from pynomaly.application.services.deep_learning_integration_service import (
@@ -128,7 +129,7 @@ def train(
             start_time = time.time()
 
             # Create detector
-            detector = asyncio.run(
+            detector = cli_runner.run(
                 dl_service.create_deep_learning_detector(
                     dataset=dataset,
                     algorithm=algorithm,
@@ -227,7 +228,7 @@ def benchmark(
 
         # Run benchmark
         model_config = {"epochs": epochs}
-        results = asyncio.run(
+        results = cli_runner.run(
             dl_service.benchmark_frameworks(
                 dataset=dataset,
                 algorithm=algorithm,

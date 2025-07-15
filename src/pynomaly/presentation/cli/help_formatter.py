@@ -13,6 +13,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
+from pynomaly.presentation.cli.async_utils import cli_runner
+
 
 class HelpFormatter:
     """Standardized help text formatter for CLI commands."""

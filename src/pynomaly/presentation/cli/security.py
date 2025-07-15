@@ -1,6 +1,5 @@
 """CLI commands for security and compliance functionality."""
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -9,6 +8,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.services.security_compliance_service import (
     EncryptionContext,
@@ -90,7 +91,7 @@ def assess_compliance(
                 console.print(f"[red]Error during compliance assessment: {e}[/red]")
                 return
 
-    asyncio.run(run_assessment())
+    cli_runner.run(run_assessment())
 
 
 @security_commands.command()
@@ -182,7 +183,7 @@ def encrypt_data(
                 console.print(f"[red]Error during encryption: {e}[/red]")
                 return
 
-    asyncio.run(run_encryption())
+    cli_runner.run(run_encryption())
 
 
 @security_commands.command()
@@ -247,7 +248,7 @@ def register_data_subject(
                 console.print(f"[red]Error during data subject registration: {e}[/red]")
                 return
 
-    asyncio.run(run_registration())
+    cli_runner.run(run_registration())
 
 
 @security_commands.command()
@@ -318,7 +319,7 @@ def gdpr_request(subject_id: str, request_type: str, output_file: str | None):
                 console.print(f"[red]Error processing GDPR request: {e}[/red]")
                 return
 
-    asyncio.run(run_gdpr_request())
+    cli_runner.run(run_gdpr_request())
 
 
 @security_commands.command()
@@ -375,7 +376,7 @@ def detect_breach(access_logs: str, output_file: str | None, alert_threshold: in
                 console.print(f"[red]Error during breach detection: {e}[/red]")
                 return
 
-    asyncio.run(run_breach_detection())
+    cli_runner.run(run_breach_detection())
 
 
 @security_commands.command()
@@ -438,7 +439,7 @@ def anonymize_data(data_file: str, rules_file: str, output_file: str | None):
                 console.print(f"[red]Error during anonymization: {e}[/red]")
                 return
 
-    asyncio.run(run_anonymization())
+    cli_runner.run(run_anonymization())
 
 
 @security_commands.command()
@@ -492,7 +493,7 @@ def status(config_file: str | None, output_file: str | None):
                 console.print(f"[red]Error getting security status: {e}[/red]")
                 return
 
-    asyncio.run(run_status_check())
+    cli_runner.run(run_status_check())
 
 
 @security_commands.command()
@@ -584,7 +585,7 @@ def cleanup(dry_run: bool, force: bool):
                 console.print(f"[red]Error during cleanup: {e}[/red]")
                 return
 
-    asyncio.run(run_cleanup())
+    cli_runner.run(run_cleanup())
 
 
 # Helper functions for display

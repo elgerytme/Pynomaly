@@ -1,6 +1,5 @@
 """CLI commands for multi-tenant management."""
 
-import asyncio
 import json
 from uuid import UUID
 
@@ -10,6 +9,8 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.prompt import Confirm
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.services.multi_tenant_service import MultiTenantService
 from pynomaly.domain.entities.tenant import SubscriptionTier, TenantStatus
@@ -115,7 +116,7 @@ def create(
                 console.print(f"[red]Error creating tenant: {e}[/red]")
                 return
 
-    asyncio.run(create_tenant())
+    cli_runner.run(create_tenant())
 
 
 @tenant_commands.command()
@@ -139,7 +140,7 @@ def activate(tenant_id: str):
         else:
             console.print(f"[red]Error: Could not activate tenant {tenant_id}[/red]")
 
-    asyncio.run(activate_tenant())
+    cli_runner.run(activate_tenant())
 
 
 @tenant_commands.command()
@@ -171,7 +172,7 @@ def suspend(tenant_id: str, reason: str | None):
         else:
             console.print(f"[red]Error: Could not suspend tenant {tenant_id}[/red]")
 
-    asyncio.run(suspend_tenant())
+    cli_runner.run(suspend_tenant())
 
 
 @tenant_commands.command()
@@ -204,7 +205,7 @@ def deactivate(tenant_id: str):
         else:
             console.print(f"[red]Error: Could not deactivate tenant {tenant_id}[/red]")
 
-    asyncio.run(deactivate_tenant())
+    cli_runner.run(deactivate_tenant())
 
 
 @tenant_commands.command()
@@ -252,7 +253,7 @@ def list(status: str | None, tier: str | None, limit: int, output_format: str):
         else:
             _display_tenants_table(tenants)
 
-    asyncio.run(list_tenants())
+    cli_runner.run(list_tenants())
 
 
 @tenant_commands.command()
@@ -284,7 +285,7 @@ def show(tenant_identifier: str):
         if usage_summary:
             _display_usage_summary(usage_summary)
 
-    asyncio.run(show_tenant())
+    cli_runner.run(show_tenant())
 
 
 @tenant_commands.command()
@@ -338,7 +339,7 @@ def upgrade(tenant_identifier: str, new_tier: str):
         else:
             console.print("[red]Error upgrading tenant subscription[/red]")
 
-    asyncio.run(upgrade_tenant())
+    cli_runner.run(upgrade_tenant())
 
 
 @tenant_commands.command()
@@ -370,7 +371,7 @@ def usage(tenant_identifier: str):
 
         _display_tenant_metrics(metrics)
 
-    asyncio.run(show_usage())
+    cli_runner.run(show_usage())
 
 
 @tenant_commands.command()
@@ -405,7 +406,7 @@ def reset_quotas(tenant_identifier: str):
         else:
             console.print("[red]Error resetting quotas[/red]")
 
-    asyncio.run(reset_tenant_quotas())
+    cli_runner.run(reset_tenant_quotas())
 
 
 @tenant_commands.command()
@@ -451,7 +452,7 @@ def stats():
 
         _display_tenant_stats(stats)
 
-    asyncio.run(show_stats())
+    cli_runner.run(show_stats())
 
 
 # Helper functions for display

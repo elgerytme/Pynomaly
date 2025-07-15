@@ -12,6 +12,8 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from pynomaly.presentation.cli.async_utils import cli_runner
+
 from pynomaly.application.services.visualization_dashboard_service import (
     DashboardType,
     RealTimeMetrics,
@@ -164,7 +166,7 @@ def generate(
                 console.print(f"[red]Error generating dashboard: {e}[/red]")
                 return
 
-    asyncio.run(run_generation())
+    cli_runner.run(run_generation())
 
 
 @dashboard_commands.command()
@@ -206,7 +208,7 @@ def status(dashboard_id: str | None, detailed: bool):
             if dashboard_service.dashboard_cache:
                 _display_cached_dashboards(dashboard_service.dashboard_cache, detailed)
 
-    asyncio.run(run_status())
+    cli_runner.run(run_status())
 
 
 @dashboard_commands.command()
@@ -280,7 +282,7 @@ def monitor(interval: int, websocket_endpoint: str, duration: int | None):
             except KeyboardInterrupt:
                 console.print("\n[yellow]Monitoring stopped by user[/yellow]")
 
-    asyncio.run(run_monitoring())
+    cli_runner.run(run_monitoring())
 
 
 @dashboard_commands.command()
@@ -333,7 +335,7 @@ def compare(dashboard_type: str, metrics: list[str], time_period: int):
                 metrics or list(comparison_data["current_period"].keys()),
             )
 
-    asyncio.run(run_comparison())
+    cli_runner.run(run_comparison())
 
 
 @dashboard_commands.command()
@@ -408,7 +410,7 @@ def export(dashboard_id: str, export_format: str, output: str, config_file: str 
             except Exception as e:
                 console.print(f"[red]Export failed: {e}[/red]")
 
-    asyncio.run(run_export())
+    cli_runner.run(run_export())
 
 
 @dashboard_commands.command()
@@ -468,7 +470,7 @@ def cleanup(clear_cache: bool, reset_metrics: bool, force: bool):
                 )
             )
 
-    asyncio.run(run_cleanup())
+    cli_runner.run(run_cleanup())
 
 
 # Helper functions for display

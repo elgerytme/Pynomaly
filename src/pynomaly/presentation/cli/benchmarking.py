@@ -1,6 +1,5 @@
 """CLI commands for performance testing and benchmarking."""
 
-import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
@@ -16,6 +15,8 @@ from rich.progress import (
     TextColumn,
 )
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.services.performance_benchmarking_service import (
     BenchmarkConfig,
@@ -153,7 +154,7 @@ def comprehensive(
                 console.print(f"[red]Error running benchmark: {e}[/red]")
                 return
 
-    asyncio.run(run_comprehensive_benchmark())
+    cli_runner.run(run_comprehensive_benchmark())
 
 
 @benchmark_commands.command()
@@ -215,7 +216,7 @@ def scalability(
                 console.print(f"[red]Error running scalability test: {e}[/red]")
                 return
 
-    asyncio.run(run_scalability_test())
+    cli_runner.run(run_scalability_test())
 
 
 @benchmark_commands.command()
@@ -271,7 +272,7 @@ def memory_stress(
                 console.print(f"[red]Error running memory stress test: {e}[/red]")
                 return
 
-    asyncio.run(run_memory_stress())
+    cli_runner.run(run_memory_stress())
 
 
 @benchmark_commands.command()
@@ -337,7 +338,7 @@ def throughput(
                 console.print(f"[red]Error running throughput test: {e}[/red]")
                 return
 
-    asyncio.run(run_throughput_test())
+    cli_runner.run(run_throughput_test())
 
 
 @benchmark_commands.command()
@@ -410,7 +411,7 @@ def compare(
                 console.print(f"[red]Error running algorithm comparison: {e}[/red]")
                 return
 
-    asyncio.run(run_algorithm_comparison())
+    cli_runner.run(run_algorithm_comparison())
 
 
 @benchmark_commands.command()
@@ -459,7 +460,7 @@ def trends(algorithm: str | None, days: int, output_file: str | None):
                 console.print(f"[red]Error running trend analysis: {e}[/red]")
                 return
 
-    asyncio.run(run_trend_analysis())
+    cli_runner.run(run_trend_analysis())
 
 
 @benchmark_commands.command()

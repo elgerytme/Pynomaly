@@ -18,6 +18,8 @@ from rich.prompt import Confirm
 from rich.syntax import Syntax
 from rich.table import Table
 
+from pynomaly.presentation.cli.async_utils import cli_runner
+
 from pynomaly.presentation.cli.ux_improvements import ProgressIndicator
 
 console = Console()

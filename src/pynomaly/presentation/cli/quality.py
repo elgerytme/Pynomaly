@@ -9,6 +9,8 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from pynomaly.presentation.cli.async_utils import cli_runner
+
 from ...infrastructure.quality.quality_gates import (
     QualityGateType,
     QualityGateValidator,

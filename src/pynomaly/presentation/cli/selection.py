@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 import sys
 import time
@@ -13,6 +12,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.dto.selection_dto import (
     AlgorithmPerformanceDTO,
@@ -114,7 +115,7 @@ def recommend(
             start_time = time.time()
 
             # Get recommendations
-            recommendation = asyncio.run(
+            recommendation = cli_runner.run(
                 selection_service.recommend_algorithm(
                     dataset=dataset, constraints=constraints
                 )
@@ -197,7 +198,7 @@ def benchmark(
             start_time = time.time()
 
             # Run benchmarks
-            benchmarks = asyncio.run(
+            benchmarks = cli_runner.run(
                 selection_service.benchmark_algorithms(
                     dataset=dataset,
                     algorithms=algorithm_list,
@@ -284,7 +285,7 @@ def learn(
         console.print(f"Performance score: {performance_score:.3f}")
 
         # Learn from result
-        asyncio.run(
+        cli_runner.run(
             selection_service.learn_from_result(
                 dataset=dataset,
                 algorithm=algorithm,
@@ -331,7 +332,7 @@ def insights(
             task = progress.add_task("Generating learning insights...", total=None)
 
             # Get insights
-            insights = asyncio.run(
+            insights = cli_runner.run(
                 selection_service.get_learning_insights(min_samples=min_samples)
             )
 
@@ -389,7 +390,7 @@ def predict_performance(
             )
 
             # Get recommendation which includes performance prediction
-            recommendation = asyncio.run(
+            recommendation = cli_runner.run(
                 selection_service.recommend_algorithm(dataset=dataset)
             )
 

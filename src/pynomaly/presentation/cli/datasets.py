@@ -10,6 +10,7 @@ from rich.table import Table
 
 from pynomaly.domain.entities import Dataset
 from pynomaly.presentation.cli.container import get_cli_container
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 app = typer.Typer()
 console = Console()

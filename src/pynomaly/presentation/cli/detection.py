@@ -10,6 +10,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 from pynomaly.presentation.cli.container import get_cli_container
+from pynomaly.presentation.cli.async_utils import cli_runner
 from pynomaly.shared.error_handling import handle_cli_errors, print_error, print_success
 
 app = typer.Typer()
@@ -92,9 +93,7 @@ def train_detector(
                 save_model=save_model,
             )
 
-            import asyncio
-
-            response = asyncio.run(train_use_case.execute(request))
+            response = cli_runner.run_use_case(train_use_case, request)
 
             progress.update(task, completed=True)
 

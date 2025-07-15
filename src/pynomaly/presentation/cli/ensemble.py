@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 import sys
 import time
@@ -13,6 +12,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 # Application imports
 from pynomaly.application.services.advanced_ensemble_service import (
@@ -147,7 +148,7 @@ def create(
             start_time = time.time()
 
             algorithms_list = list(algorithms) if algorithms else None
-            ensemble_detectors, ensemble_report = asyncio.run(
+            ensemble_detectors, ensemble_report = cli_runner.run(
                 ensemble_service.create_intelligent_ensemble(
                     dataset=dataset, algorithms=algorithms_list, config=config
                 )
@@ -250,7 +251,7 @@ def compare(
                 )
 
                 start_time = time.time()
-                ensemble_detectors, ensemble_report = asyncio.run(
+                ensemble_detectors, ensemble_report = cli_runner.run(
                     ensemble_service.create_intelligent_ensemble(
                         dataset=dataset, algorithms=list(algorithms), config=config
                     )
@@ -370,7 +371,7 @@ def predict_performance(
         dataset_chars = ensemble_service._analyze_dataset_for_ensemble(dataset)
 
         # Predict performance
-        prediction = asyncio.run(
+        prediction = cli_runner.run(
             ensemble_service.predict_ensemble_performance(
                 dataset_chars, list(algorithms)
             )

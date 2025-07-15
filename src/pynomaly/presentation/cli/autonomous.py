@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -27,6 +26,7 @@ from pynomaly.infrastructure.data_loaders.excel_loader import ExcelLoader
 from pynomaly.infrastructure.data_loaders.json_loader import JSONLoader
 from pynomaly.infrastructure.data_loaders.parquet_loader import ParquetLoader
 from pynomaly.presentation.cli.container import get_cli_container
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 app = typer.Typer()
 console = Console()
@@ -149,7 +149,7 @@ def autonomous_detect(
             progress.update(main_task, description="🔍 Detecting and loading data...")
 
             # Step 2-5: Run autonomous detection
-            results = asyncio.run(
+            results = cli_runner.run(
                 autonomous_service.detect_autonomous(data_source, config)
             )
 
@@ -216,15 +216,15 @@ def profile_data(
 
         try:
             # Load data
-            dataset = asyncio.run(
+            dataset = cli_runner.run(
                 autonomous_service._auto_load_data(data_source, config)
             )
 
             # Profile data
-            profile = asyncio.run(autonomous_service._profile_data(dataset, config))
+            profile = cli_runner.run(autonomous_service._profile_data(dataset, config))
 
             # Get recommendations
-            recommendations = asyncio.run(
+            recommendations = cli_runner.run(
                 autonomous_service._recommend_algorithms(profile, config)
             )
 
@@ -292,7 +292,7 @@ def quick_detect(
         task = progress.add_task("Running quick detection...", total=None)
 
         try:
-            results = asyncio.run(
+            results = cli_runner.run(
                 autonomous_service.detect_autonomous(data_source, config)
             )
 

@@ -1,6 +1,5 @@
 """Enhanced AutoML CLI commands with advanced optimization features."""
 
-import asyncio
 import json
 
 import click
@@ -9,6 +8,8 @@ from rich.json import JSON
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.services.enhanced_automl_service import EnhancedAutoMLConfig
 from pynomaly.infrastructure.config.container import create_container
@@ -149,7 +150,7 @@ def optimize(
             _save_result_to_file(result, output)
             console.print(f"[green]Results saved to {output}[/green]")
 
-    asyncio.run(run_optimization())
+    cli_runner.run(run_optimization())
 
 
 @enhanced_automl_cli.command()
@@ -260,7 +261,7 @@ def auto_optimize(
             _save_result_to_file(result, output)
             console.print(f"[green]Results saved to {output}[/green]")
 
-    asyncio.run(run_auto_optimization())
+    cli_runner.run(run_auto_optimization())
 
 
 @enhanced_automl_cli.command()
@@ -379,7 +380,7 @@ def multi_objective(
             _save_pareto_front(best_result.pareto_front, output)
             console.print(f"[green]Pareto front saved to {output}[/green]")
 
-    asyncio.run(run_multi_objective())
+    cli_runner.run(run_multi_objective())
 
 
 @enhanced_automl_cli.command()

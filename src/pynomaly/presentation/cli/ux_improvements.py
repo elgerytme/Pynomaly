@@ -908,6 +908,8 @@ class ProgressIndicator:
         from rich.layout import Layout
         from rich.text import Text
 
+from pynomaly.presentation.cli.async_utils import cli_runner
+
         layout = Layout()
 
         with Live(layout, refresh_per_second=2, console=self.console) as live:

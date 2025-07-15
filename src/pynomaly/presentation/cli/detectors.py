@@ -9,6 +9,7 @@ from rich.table import Table
 
 from pynomaly.domain.entities import Detector
 from pynomaly.presentation.cli.container import get_cli_container
+from pynomaly.presentation.cli.async_utils import cli_runner
 from pynomaly.presentation.cli.help_formatter import (
     get_option_help,
     get_standard_help,

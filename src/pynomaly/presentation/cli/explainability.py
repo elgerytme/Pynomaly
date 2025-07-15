@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 import sys
 import time
@@ -13,6 +12,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 # Application imports
 from pynomaly.application.services.advanced_explainability_service import (
@@ -131,7 +132,7 @@ def explain(
             start_time = time.time()
 
             # Generate explanation report
-            report = asyncio.run(
+            report = cli_runner.run(
                 explainability_service.generate_comprehensive_explanation(
                     detector=detector, dataset=dataset, config=config
                 )
@@ -228,7 +229,7 @@ def analyze_bias(
             task = progress.add_task("Performing bias analysis...", total=None)
 
             # Run bias analysis
-            bias_results = asyncio.run(
+            bias_results = cli_runner.run(
                 explainability_service.analyze_bias(
                     detector=detector, dataset=dataset, config=config
                 )
@@ -317,7 +318,7 @@ def assess_trust(
             predictions = detector.decision_function(X)
 
             # Run trust assessment
-            trust_result = asyncio.run(
+            trust_result = cli_runner.run(
                 explainability_service._assess_trust_score(
                     detector=detector, X=X, predictions=predictions, config=config
                 )
@@ -388,13 +389,13 @@ def feature_importance(
 
             # Compute feature importance based on method
             if method == "permutation":
-                importance = asyncio.run(
+                importance = cli_runner.run(
                     explainability_service._compute_permutation_importance(
                         detector, X, feature_names
                     )
                 )
             elif method == "shap":
-                importance = asyncio.run(
+                importance = cli_runner.run(
                     explainability_service._compute_shap_global_importance(
                         detector, X, feature_names
                     )
@@ -616,7 +617,7 @@ def counterfactuals(
                 )
             else:
                 # Use advanced explainability service
-                counterfactuals = asyncio.run(
+                counterfactuals = cli_runner.run(
                     explainability_service.generate_counterfactual_explanations(
                         detector=detector,
                         instance=instance,
@@ -711,7 +712,7 @@ def interactions(
             else:
                 # Use advanced explainability service
                 explainability_service = AdvancedExplainabilityService()
-                interactions = asyncio.run(
+                interactions = cli_runner.run(
                     explainability_service.analyze_feature_interactions(
                         detector=detector,
                         X=X,
@@ -778,7 +779,7 @@ def dashboard(
             task = progress.add_task("Preparing dashboard data...", total=None)
 
             # Generate dashboard data
-            dashboard_data = asyncio.run(
+            dashboard_data = cli_runner.run(
                 explainability_service.generate_explanation_dashboard_data(
                     detector=detector,
                     dataset=dataset,

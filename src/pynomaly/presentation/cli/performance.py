@@ -1,6 +1,5 @@
 """CLI commands for performance testing and benchmarking."""
 
-import asyncio
 import json
 from datetime import datetime
 from pathlib import Path
@@ -11,6 +10,8 @@ from rich.layout import Layout
 from rich.panel import Panel
 from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.services.performance_testing_service import (
     PerformanceTestingService,
@@ -153,7 +154,7 @@ def benchmark(
                 console.print(f"[red]Benchmark failed: {e}[/red]")
                 return
 
-    asyncio.run(run_benchmark())
+    cli_runner.run(run_benchmark())
 
 
 @performance_app.command()
@@ -233,7 +234,7 @@ def scalability(
                 console.print(f"[red]Scalability analysis failed: {e}[/red]")
                 return
 
-    asyncio.run(run_scalability())
+    cli_runner.run(run_scalability())
 
 
 @performance_app.command()
@@ -316,7 +317,7 @@ def stress_test(
                 console.print(f"[red]Stress test failed: {e}[/red]")
                 return
 
-    asyncio.run(run_stress_test())
+    cli_runner.run(run_stress_test())
 
 
 @performance_app.command()
@@ -425,7 +426,7 @@ def compare(
                 console.print(f"[red]Algorithm comparison failed: {e}[/red]")
                 return
 
-    asyncio.run(run_comparison())
+    cli_runner.run(run_comparison())
 
 
 @performance_app.command()

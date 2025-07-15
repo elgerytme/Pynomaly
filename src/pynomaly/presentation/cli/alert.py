@@ -1,6 +1,5 @@
 """CLI commands for intelligent alert management."""
 
-import asyncio
 import json
 from datetime import datetime
 from uuid import UUID
@@ -10,6 +9,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.services.intelligent_alert_service import (
     IntelligentAlertService,
@@ -193,7 +194,7 @@ def create(
                 console.print(f"[red]Error creating alert: {e}[/red]")
                 return
 
-    asyncio.run(create_alert())
+    cli_runner.run(create_alert())
 
 
 @alert_commands.command()
@@ -278,7 +279,7 @@ def list(
         else:
             _display_alerts_table(alerts)
 
-    asyncio.run(list_alerts())
+    cli_runner.run(list_alerts())
 
 
 @alert_commands.command()
@@ -304,7 +305,7 @@ def show(alert_id: str):
         # Display detailed alert information
         _display_alert_detail(alert)
 
-    asyncio.run(show_alert())
+    cli_runner.run(show_alert())
 
 
 @alert_commands.command()
@@ -332,7 +333,7 @@ def acknowledge(alert_id: str, user: str, note: str | None):
         else:
             console.print(f"[red]Error: Could not acknowledge alert {alert_id}[/red]")
 
-    asyncio.run(acknowledge_alert())
+    cli_runner.run(acknowledge_alert())
 
 
 @alert_commands.command()
@@ -369,7 +370,7 @@ def resolve(alert_id: str, user: str, note: str | None, quality: float | None):
         else:
             console.print(f"[red]Error: Could not resolve alert {alert_id}[/red]")
 
-    asyncio.run(resolve_alert())
+    cli_runner.run(resolve_alert())
 
 
 @alert_commands.command()
@@ -402,7 +403,7 @@ def suppress(alert_id: str, user: str, reason: str | None, duration: int | None)
         else:
             console.print(f"[red]Error: Could not suppress alert {alert_id}[/red]")
 
-    asyncio.run(suppress_alert())
+    cli_runner.run(suppress_alert())
 
 
 @alert_commands.command()
@@ -430,7 +431,7 @@ def escalate(alert_id: str, user: str, reason: str | None):
         else:
             console.print(f"[red]Error: Could not escalate alert {alert_id}[/red]")
 
-    asyncio.run(escalate_alert())
+    cli_runner.run(escalate_alert())
 
 
 @alert_commands.command()
@@ -461,7 +462,7 @@ def analytics(days: int, output_format: str, output_file: str | None):
         else:
             _display_analytics(analytics_data, days)
 
-    asyncio.run(show_analytics())
+    cli_runner.run(show_analytics())
 
 
 @alert_commands.command()
@@ -514,7 +515,7 @@ def check_escalations(status: str):
 
         console.print(escalation_table)
 
-    asyncio.run(check_alert_escalations())
+    cli_runner.run(check_alert_escalations())
 
 
 # Helper functions for display

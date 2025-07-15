@@ -1,6 +1,5 @@
 """CLI commands for cost optimization and resource management."""
 
-import asyncio
 import json
 from uuid import UUID
 
@@ -9,6 +8,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
+
+from pynomaly.presentation.cli.async_utils import cli_runner
 
 from pynomaly.application.services.cost_optimization_service import (
     CostOptimizationService,
@@ -80,7 +81,7 @@ def analyze(
             else:
                 _display_cost_analysis(analysis, days)
 
-    asyncio.run(run_analysis())
+    cli_runner.run(run_analysis())
 
 
 @cost_commands.command()
@@ -171,7 +172,7 @@ def optimize(
                         f"[green]Auto-implemented {len(quick_wins)} recommendations[/green]"
                     )
 
-    asyncio.run(run_optimization())
+    cli_runner.run(run_optimization())
 
 
 @cost_commands.command()
@@ -315,7 +316,7 @@ def implement(
 
             console.print("[green]Implementation completed![/green]")
 
-    asyncio.run(run_implementation())
+    cli_runner.run(run_implementation())
 
 
 @cost_commands.command()
@@ -379,7 +380,7 @@ def create_budget(
         else:
             console.print("[red]Error creating budget[/red]")
 
-    asyncio.run(create_new_budget())
+    cli_runner.run(create_new_budget())
 
 
 @cost_commands.command()
@@ -440,7 +441,7 @@ def list_budgets(tenant_id: str | None, output_format: str):
                     f"  • {alert['budget_name']}: {alert['current_utilization'] * 100:.1f}% of budget used"
                 )
 
-    asyncio.run(list_all_budgets())
+    cli_runner.run(list_all_budgets())
 
 
 @cost_commands.command()
@@ -498,7 +499,7 @@ def resources(
         else:
             _display_resource_summary(summary)
 
-    asyncio.run(list_resources())
+    cli_runner.run(list_resources())
 
 
 @cost_commands.command()
@@ -567,7 +568,7 @@ def alerts(tenant_id: str | None):
 
         console.print(alerts_table)
 
-    asyncio.run(check_alerts())
+    cli_runner.run(check_alerts())
 
 
 @cost_commands.command()
@@ -594,7 +595,7 @@ def metrics():
             )
         )
 
-    asyncio.run(show_metrics())
+    cli_runner.run(show_metrics())
 
 
 # Helper functions for display
