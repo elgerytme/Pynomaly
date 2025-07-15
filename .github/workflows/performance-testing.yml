@@ -3,176 +3,116 @@ name: Performance Testing
 on:
   push:
     branches: [ main, develop ]
-    paths:
-      - 'src/pynomaly/presentation/web/**'
-      - 'tests/ui/performance/**'
-      - 'package.json'
-      - '.github/workflows/performance-testing.yml'
   pull_request:
-    branches: [ main, develop ]
-    paths:
-      - 'src/pynomaly/presentation/web/**'
-      - 'tests/ui/performance/**'
-      - 'package.json'
+    branches: [ main ]
   schedule:
-    # Run performance tests daily at 3 AM UTC
-    - cron: '0 3 * * *'
+    # Run performance tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
   workflow_dispatch:
     inputs:
       test_type:
-        description: 'Type of performance test to run'
+        description: 'Type of performance test'
         required: true
-        default: 'all'
+        default: 'benchmark'
         type: choice
         options:
-        - all
-        - core-web-vitals
-        - mobile
-        - slow-network
-      performance_budget:
-        description: 'Enable performance budget checks'
+        - benchmark
+        - load
+        - regression
+        - comprehensive
+      baseline_update:
+        description: 'Update performance baselines'
         required: false
-        default: true
+        default: false
         type: boolean
 
+env:
+  PYTHON_VERSION: '3.11'
+
 jobs:
-  performance-test:
-    name: Performance Testing
+  performance-benchmarks:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     
     strategy:
-      fail-fast: false
       matrix:
-        test-type: 
-          - core-web-vitals
-          - mobile
-          - slow-network
-        include:
-          - test-type: core-web-vitals
-            project: performance-chrome
-            timeout: 20
-          - test-type: mobile
-            project: performance-mobile-chrome
-            timeout: 25
-          - test-type: slow-network
-            project: performance-slow-network
-            timeout: 30
-
+        test-suite: [core, algorithms, api, infrastructure]
+    
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
       with:
-        node-version: '18'
-        cache: 'npm'
-
-    - name: Setup Python
+        fetch-depth: 0  # Full history for performance comparison
+    
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
-
+    
     - name: Install dependencies
       run: |
-        npm ci
-        pip install -r requirements.txt
-
-    - name: Install Playwright Browsers
-      run: npx playwright install chromium firefox webkit --with-deps
-
-    - name: Build application
-      run: |
-        npm run build
-        echo "Build completed successfully"
-
-    - name: Start application server
-      run: |
-        # Start the Pynomaly server in the background
-        python -m uvicorn src.pynomaly.presentation.api.main:app --host 0.0.0.0 --port 8000 &
-        
-        # Wait for server to be ready
-        timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
-        echo "Server is ready"
-
-    - name: Run Performance Tests
-      run: |
-        if [ "${{ github.event.inputs.test_type }}" = "all" ] || [ "${{ github.event.inputs.test_type }}" = "" ]; then
-          npx playwright test --config=tests/ui/performance/playwright.config.ts --project=${{ matrix.project }}
-        else
-          npx playwright test --config=tests/ui/performance/playwright.config.ts --project=${{ matrix.project }} --grep="${{ github.event.inputs.test_type }}"
-        fi
-      timeout-minutes: ${{ matrix.timeout }}
-      env:
-        BASE_URL: http://localhost:8000
-        CI: true
-
-    - name: Generate Performance Report
-      if: always()
-      run: |
-        # Create performance summary
-        mkdir -p reports/performance
-        
-        # Extract performance metrics from test results
-        if [ -f "test-results/performance/results.json" ]; then
-          node -e "
-            const fs = require('fs');
-            const results = JSON.parse(fs.readFileSync('test-results/performance/results.json', 'utf8'));
-            
-            const summary = {
-              testType: '${{ matrix.test-type }}',
-              timestamp: new Date().toISOString(),
-              totalTests: results.suites.reduce((acc, suite) => acc + suite.specs.length, 0),
-              passedTests: results.suites.reduce((acc, suite) => 
-                acc + suite.specs.filter(spec => spec.tests.every(test => test.status === 'passed')).length, 0),
-              failedTests: results.suites.reduce((acc, suite) => 
-                acc + suite.specs.filter(spec => spec.tests.some(test => test.status === 'failed')).length, 0),
-              duration: results.stats?.duration || 0
-            };
-            
-            fs.writeFileSync('reports/performance/summary-${{ matrix.test-type }}.json', JSON.stringify(summary, null, 2));
-            console.log('Performance Summary for ${{ matrix.test-type }}:');
-            console.log(JSON.stringify(summary, null, 2));
-          "
-        fi
-
-    - name: Upload Performance Results
-      if: always()
-      uses: actions/upload-artifact@v4
+        python -m pip install --upgrade pip
+        pip install -e .[test,monitoring]
+    
+    - name: Cache performance baselines
+      uses: actions/cache@v3
       with:
-        name: performance-results-${{ matrix.test-type }}
+        path: tests/performance/baselines/
+        key: performance-baselines-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          performance-baselines-${{ runner.os }}-
+    
+    - name: Run performance benchmarks
+      run: |
+        pytest -v -m "benchmark and ${{ matrix.test-suite }}" \
+          --benchmark-json=benchmark-${{ matrix.test-suite }}.json \
+          --benchmark-min-rounds=5 \
+          --benchmark-max-time=300 \
+          --benchmark-warmup=on \
+          --benchmark-histogram=benchmark-${{ matrix.test-suite }}-histogram.svg \
+          tests/performance/
+    
+    - name: Performance regression detection
+      run: |
+        python tests/performance/regression/performance_regression_detector.py \
+          --input benchmark-${{ matrix.test-suite }}.json \
+          --suite ${{ matrix.test-suite }} \
+          --threshold 0.15 \
+          --output regression-report-${{ matrix.test-suite }}.json
+    
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v3
+      with:
+        name: benchmark-results-${{ matrix.test-suite }}
         path: |
-          test-results/performance/
-          reports/performance/
+          benchmark-${{ matrix.test-suite }}.json
+          benchmark-${{ matrix.test-suite }}-histogram.svg
+          regression-report-${{ matrix.test-suite }}.json
         retention-days: 30
-
-    - name: Comment Performance Results on PR
-      if: github.event_name == 'pull_request' && always()
-      uses: actions/github-script@v7
+    
+    - name: Comment PR with performance results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
       with:
         script: |
           const fs = require('fs');
-          const path = 'reports/performance/summary-${{ matrix.test-type }}.json';
-          
-          if (fs.existsSync(path)) {
-            const summary = JSON.parse(fs.readFileSync(path, 'utf8'));
+          try {
+            const benchmark = JSON.parse(fs.readFileSync('benchmark-${{ matrix.test-suite }}.json', 'utf8'));
+            const regression = JSON.parse(fs.readFileSync('regression-report-${{ matrix.test-suite }}.json', 'utf8'));
             
-            const comment = `
-            ## 🚀 Performance Test Results (${{ matrix.test-type }})
+            let comment = `## Performance Test Results - ${{ matrix.test-suite }}\n\n`;
+            comment += `**Tests Run:** ${benchmark.tests.length}\n`;
+            comment += `**Average Performance:** ${benchmark.benchmarks[0]?.stats?.mean || 'N/A'}\n\n`;
             
-            | Metric | Value |
-            |--------|-------|
-            | Total Tests | ${summary.totalTests} |
-            | Passed | ✅ ${summary.passedTests} |
-            | Failed | ❌ ${summary.failedTests} |
-            | Duration | ${Math.round(summary.duration / 1000)}s |
-            | Test Type | ${{ matrix.test-type }} |
-            | Timestamp | ${summary.timestamp} |
-            
-            ${summary.failedTests > 0 ? '⚠️ Some performance tests failed. Please review the results.' : '✅ All performance tests passed!'}
-            `;
+            if (regression.regressions && regression.regressions.length > 0) {
+              comment += `⚠️ **Performance Regressions Detected:**\n`;
+              regression.regressions.forEach(reg => {
+                comment += `- ${reg.test}: ${reg.change_percent}% slower\n`;
+              });
+            } else {
+              comment += `✅ **No performance regressions detected**\n`;
+            }
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
@@ -180,265 +120,230 @@ jobs:
               repo: context.repo.repo,
               body: comment
             });
+          } catch (error) {
+            console.log('Could not post performance results:', error);
           }
 
-  lighthouse-audit:
-    name: Lighthouse Performance Audit
+  load-testing:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
+    if: github.event.inputs.test_type == 'load' || github.event.inputs.test_type == 'comprehensive' || github.event_name == 'schedule'
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pynomaly_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-
-    - name: Setup Python
+    
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
+        python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
-
+    
     - name: Install dependencies
       run: |
-        npm ci
-        pip install -r requirements.txt
-
-    - name: Build application
-      run: npm run build
-
-    - name: Start application server
+        python -m pip install --upgrade pip
+        pip install -e .[test,server,production]
+    
+    - name: Install k6
       run: |
-        python -m uvicorn src.pynomaly.presentation.api.main:app --host 0.0.0.0 --port 8000 &
-        timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
-
-    - name: Run Lighthouse CI
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+    
+    - name: Start Pynomaly API
       run: |
-        # Create lighthouse configuration
-        cat > lighthouserc.json << EOF
-        {
-          "ci": {
-            "collect": {
-              "url": ["http://localhost:8000/", "http://localhost:8000/login", "http://localhost:8000/dashboard"],
-              "numberOfRuns": 3,
-              "settings": {
-                "chromeFlags": "--no-sandbox --disable-dev-shm-usage"
-              }
-            },
-            "assert": {
-              "preset": "lighthouse:recommended",
-              "assertions": {
-                "categories:performance": ["error", {"minScore": 0.8}],
-                "categories:accessibility": ["error", {"minScore": 0.9}],
-                "categories:best-practices": ["error", {"minScore": 0.9}],
-                "categories:seo": ["error", {"minScore": 0.8}],
-                "first-contentful-paint": ["error", {"maxNumericValue": 2000}],
-                "largest-contentful-paint": ["error", {"maxNumericValue": 2500}],
-                "cumulative-layout-shift": ["error", {"maxNumericValue": 0.1}]
-              }
-            },
-            "upload": {
-              "target": "temporary-public-storage"
-            }
-          }
-        }
-        EOF
-        
-        npx lhci autorun
-
-    - name: Upload Lighthouse Results
-      if: always()
-      uses: actions/upload-artifact@v4
+        export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/pynomaly_test
+        export REDIS_URL=redis://localhost:6379
+        uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 &
+        sleep 10
+      env:
+        PYNOMALY_ENVIRONMENT: testing
+    
+    - name: Health check
+      run: |
+        curl -f http://localhost:8000/api/health/ || exit 1
+    
+    - name: Run k6 load test
+      run: |
+        k6 run --out json=k6-results.json tests/performance/load_test.js
+    
+    - name: Run Locust load test
+      run: |
+        cd tests/load
+        locust -f locustfile.py --host=http://localhost:8000 \
+          --users 50 --spawn-rate 5 --run-time 5m \
+          --html=locust-report.html --csv=locust-results \
+          --headless
+    
+    - name: Upload load test results
+      uses: actions/upload-artifact@v3
       with:
-        name: lighthouse-results
-        path: .lighthouseci/
+        name: load-test-results
+        path: |
+          k6-results.json
+          tests/load/locust-report.html
+          tests/load/locust-results_*.csv
+        retention-days: 30
+
+  memory-profiling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event.inputs.test_type == 'comprehensive' || github.event_name == 'schedule'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
+    - name: Install dependencies with profiling tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[test]
+        pip install memray memory-profiler pympler
+    
+    - name: Run memory profiling tests
+      run: |
+        python -m pytest -v -m "memory" tests/performance/ \
+          --profile-svg --profile --profile-restrict=10
+    
+    - name: Generate memory reports
+      run: |
+        python tests/performance/memory_analysis.py
+    
+    - name: Upload memory analysis
+      uses: actions/upload-artifact@v3
+      with:
+        name: memory-analysis
+        path: |
+          prof/
+          memory_analysis_*.html
         retention-days: 30
 
   performance-regression:
-    name: Performance Regression Detection
     runs-on: ubuntu-latest
-    needs: [performance-test]
-    if: github.event_name == 'pull_request'
+    timeout-minutes: 15
+    needs: [performance-benchmarks]
+    if: always() && (needs.performance-benchmarks.result == 'success' || needs.performance-benchmarks.result == 'failure')
     
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Download Performance Results
-      uses: actions/download-artifact@v4
-      with:
-        pattern: performance-results-*
-        path: performance-results/
-        merge-multiple: true
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-
-    - name: Analyze Performance Regression
-      run: |
-        node -e "
-          const fs = require('fs');
-          const path = require('path');
-          
-          // Read all performance summaries
-          const resultsDir = 'performance-results';
-          const summaries = [];
-          
-          if (fs.existsSync(resultsDir)) {
-            const files = fs.readdirSync(resultsDir, { recursive: true });
-            
-            files.forEach(file => {
-              if (file.endsWith('.json') && file.includes('summary-')) {
-                const filePath = path.join(resultsDir, file);
-                try {
-                  const summary = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-                  summaries.push(summary);
-                } catch (e) {
-                  console.log('Could not parse:', filePath);
-                }
-              }
-            });
-          }
-          
-          // Performance regression analysis
-          const totalTests = summaries.reduce((acc, s) => acc + s.totalTests, 0);
-          const totalFailed = summaries.reduce((acc, s) => acc + s.failedTests, 0);
-          const averageDuration = summaries.reduce((acc, s) => acc + s.duration, 0) / summaries.length;
-          
-          const regressionReport = {
-            timestamp: new Date().toISOString(),
-            totalTests,
-            totalFailed,
-            successRate: ((totalTests - totalFailed) / totalTests * 100).toFixed(2),
-            averageDuration: Math.round(averageDuration / 1000),
-            testTypes: summaries.map(s => s.testType),
-            hasRegression: totalFailed > 0
-          };
-          
-          console.log('Performance Regression Report:');
-          console.log(JSON.stringify(regressionReport, null, 2));
-          
-          // Write report
-          fs.writeFileSync('performance-regression-report.json', JSON.stringify(regressionReport, null, 2));
-          
-          // Exit with error if regressions detected
-          if (regressionReport.hasRegression) {
-            console.error('Performance regressions detected!');
-            process.exit(1);
-          }
-        "
-
-    - name: Comment Regression Analysis on PR
-      if: always()
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const fs = require('fs');
-          
-          if (fs.existsSync('performance-regression-report.json')) {
-            const report = JSON.parse(fs.readFileSync('performance-regression-report.json', 'utf8'));
-            
-            const statusIcon = report.hasRegression ? '❌' : '✅';
-            const statusText = report.hasRegression ? 'Performance regressions detected!' : 'No performance regressions detected';
-            
-            const comment = `
-            ## 📊 Performance Regression Analysis
-            
-            ${statusIcon} **${statusText}**
-            
-            | Metric | Value |
-            |--------|-------|
-            | Total Tests | ${report.totalTests} |
-            | Success Rate | ${report.successRate}% |
-            | Average Duration | ${report.averageDuration}s |
-            | Test Types | ${report.testTypes.join(', ')} |
-            | Analysis Time | ${report.timestamp} |
-            
-            ${report.hasRegression ? 
-              '⚠️ **Action Required**: Performance tests are failing. Please review and optimize before merging.' : 
-              '🎉 **Great!**: All performance tests are passing. No regressions detected.'}
-            `;
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
-          }
-
-  performance-budget:
-    name: Performance Budget Check
-    runs-on: ubuntu-latest
-    if: github.event.inputs.performance_budget == 'true' || github.event.inputs.performance_budget == ''
     
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
+    - name: Download all benchmark results
+      uses: actions/download-artifact@v3
       with:
-        node-version: '18'
-        cache: 'npm'
-
+        path: benchmark-artifacts/
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+    
     - name: Install dependencies
-      run: npm ci
-
-    - name: Build and Analyze Bundle
       run: |
-        npm run build
-        npm run analyze-bundle
-        
-        # Create performance budget report
-        node -e "
-          const fs = require('fs');
-          
-          // Performance budget thresholds
-          const budget = {
-            javascript: 1024 * 1024,  // 1MB
-            css: 256 * 1024,         // 256KB
-            images: 2 * 1024 * 1024, // 2MB
-            total: 3 * 1024 * 1024   // 3MB
-          };
-          
-          // This would read actual bundle analysis results
-          // For now, we'll create a mock report
-          const budgetReport = {
-            timestamp: new Date().toISOString(),
-            budget,
-            actual: {
-              javascript: 800 * 1024,
-              css: 150 * 1024,
-              images: 1500 * 1024,
-              total: 2450 * 1024
-            },
-            status: 'PASSED'
-          };
-          
-          // Check if budget is exceeded
-          Object.keys(budget).forEach(key => {
-            if (budgetReport.actual[key] > budget[key]) {
-              budgetReport.status = 'FAILED';
-            }
-          });
-          
-          fs.writeFileSync('performance-budget-report.json', JSON.stringify(budgetReport, null, 2));
-          console.log('Performance Budget Report:');
-          console.log(JSON.stringify(budgetReport, null, 2));
-        "
-
-    - name: Upload Budget Report
-      uses: actions/upload-artifact@v4
+        python -m pip install --upgrade pip
+        pip install -e .[test]
+        pip install pandas matplotlib seaborn
+    
+    - name: Comprehensive regression analysis
+      run: |
+        python tests/performance/regression/comprehensive_analysis.py \
+          --input-dir benchmark-artifacts/ \
+          --output comprehensive-regression-report.json \
+          --generate-plots
+    
+    - name: Update baselines
+      if: github.event.inputs.baseline_update == 'true' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      run: |
+        python tests/performance/regression/update_baselines.py \
+          --input-dir benchmark-artifacts/ \
+          --commit-hash ${{ github.sha }}
+    
+    - name: Create performance summary
+      run: |
+        python tests/performance/generate_summary.py \
+          --results-dir benchmark-artifacts/ \
+          --output performance-summary.md
+    
+    - name: Upload final analysis
+      uses: actions/upload-artifact@v3
       with:
-        name: performance-budget-report
-        path: performance-budget-report.json
-        retention-days: 30
+        name: performance-analysis
+        path: |
+          comprehensive-regression-report.json
+          performance-summary.md
+          performance-plots/
+        retention-days: 90
+    
+    - name: Performance gate check
+      run: |
+        python tests/performance/performance_gate.py \
+          --report comprehensive-regression-report.json \
+          --max-regression 20 \
+          --max-failures 5
+
+  performance-summary:
+    runs-on: ubuntu-latest
+    needs: [performance-benchmarks, load-testing, memory-profiling, performance-regression]
+    if: always()
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: all-artifacts/
+    
+    - name: Create unified performance report
+      run: |
+        echo "# Performance Test Summary" > performance-report.md
+        echo "- **Date**: $(date)" >> performance-report.md
+        echo "- **Commit**: ${{ github.sha }}" >> performance-report.md
+        echo "- **Branch**: ${{ github.ref_name }}" >> performance-report.md
+        echo "" >> performance-report.md
+        
+        # Add results from each job
+        if [ -d "all-artifacts/benchmark-results-core" ]; then
+          echo "✅ Core benchmarks completed" >> performance-report.md
+        fi
+        if [ -d "all-artifacts/load-test-results" ]; then
+          echo "✅ Load testing completed" >> performance-report.md
+        fi
+        if [ -d "all-artifacts/memory-analysis" ]; then
+          echo "✅ Memory profiling completed" >> performance-report.md
+        fi
+        if [ -d "all-artifacts/performance-analysis" ]; then
+          echo "✅ Regression analysis completed" >> performance-report.md
+        fi
+    
+    - name: Upload final report
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-final-report
+        path: performance-report.md
+        retention-days: 180
