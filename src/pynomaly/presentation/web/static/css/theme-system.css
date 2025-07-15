@@ -1,0 +1,384 @@
+/**
+ * Enhanced Theme System CSS
+ * Dark Mode, High Contrast, and Theme Transitions
+ */
+
+/* ================================
+   Theme Toggle Button
+   ================================ */
+
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  background-color: var(--color-surface, #ffffff);
+  color: var(--color-text-primary, #1e293b);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--color-primary-50, #f0f9ff);
+  border-color: var(--color-primary-200, #bae6fd);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15);
+}
+
+.theme-toggle-btn:focus,
+.theme-toggle-btn:focus-visible {
+  outline: 2px solid var(--color-primary-500, #0ea5e9);
+  outline-offset: 2px;
+}
+
+.theme-toggle-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle-btn svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* ================================
+   Theme Classes
+   ================================ */
+
+/* Light Theme (Default) */
+.theme-light {
+  --color-background: #ffffff;
+  --color-surface: #f8fafc;
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-text-muted: #94a3b8;
+  --color-border: #e2e8f0;
+  --color-primary: #3b82f6;
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+}
+
+/* Dark Theme */
+.theme-dark {
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #64748b;
+  --color-border: #334155;
+  --color-primary: #60a5fa;
+  --color-primary-50: #1e293b;
+  --color-primary-100: #334155;
+  --color-primary-200: #475569;
+  --color-primary-500: #60a5fa;
+  --color-primary-600: #3b82f6;
+  --color-primary-700: #2563eb;
+}
+
+/* High Contrast Theme */
+.theme-highContrast {
+  --color-background: #ffffff;
+  --color-surface: #ffffff;
+  --color-text-primary: #000000;
+  --color-text-secondary: #000000;
+  --color-text-muted: #333333;
+  --color-border: #000000;
+  --color-primary: #0000ff;
+  --color-primary-50: #ffffff;
+  --color-primary-100: #ffffff;
+  --color-primary-200: #cccccc;
+  --color-primary-500: #0000ff;
+  --color-primary-600: #0000cc;
+  --color-primary-700: #000099;
+}
+
+/* ================================
+   Global Theme Application
+   ================================ */
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Navigation theming */
+nav {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+nav a {
+  color: var(--color-text-secondary) !important;
+}
+
+nav a:hover {
+  color: var(--color-text-primary) !important;
+  background-color: var(--color-primary-50) !important;
+}
+
+/* Card theming */
+.card {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.card-header {
+  background-color: var(--color-primary-50) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* Form theming */
+input, textarea, select {
+  background-color: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--color-primary-500) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Button theming */
+.btn-primary {
+  background-color: var(--color-primary-500) !important;
+  border-color: var(--color-primary-500) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-600) !important;
+  border-color: var(--color-primary-600) !important;
+}
+
+/* Alert theming */
+.alert-success {
+  background-color: var(--color-secondary-50, #f0fdf4) !important;
+  border-color: var(--color-secondary-200, #bbf7d0) !important;
+  color: var(--color-secondary-800, #166534) !important;
+}
+
+.alert-error {
+  background-color: var(--color-accent-50, #fef2f2) !important;
+  border-color: var(--color-accent-200, #fecaca) !important;
+  color: var(--color-accent-800, #991b1b) !important;
+}
+
+.alert-warning {
+  background-color: #fffbeb !important;
+  border-color: #fed7aa !important;
+  color: #d97706 !important;
+}
+
+.alert-info {
+  background-color: var(--color-primary-50) !important;
+  border-color: var(--color-primary-200) !important;
+  color: var(--color-primary-700) !important;
+}
+
+/* Badge theming */
+.badge-primary {
+  background-color: var(--color-primary-100) !important;
+  color: var(--color-primary-700) !important;
+}
+
+.badge-success {
+  background-color: var(--color-secondary-100, #dcfce7) !important;
+  color: var(--color-secondary-700, #15803d) !important;
+}
+
+/* Table theming */
+table {
+  background-color: var(--color-surface) !important;
+}
+
+th {
+  background-color: var(--color-primary-50) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+td {
+  border-color: var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+}
+
+/* ================================
+   Dark Theme Specific Styles
+   ================================ */
+
+.theme-dark .bg-white {
+  background-color: var(--color-surface) !important;
+}
+
+.theme-dark .bg-gray-50 {
+  background-color: var(--color-background) !important;
+}
+
+.theme-dark .text-gray-900 {
+  color: var(--color-text-primary) !important;
+}
+
+.theme-dark .text-gray-500 {
+  color: var(--color-text-secondary) !important;
+}
+
+.theme-dark .text-gray-600 {
+  color: var(--color-text-secondary) !important;
+}
+
+.theme-dark .border-gray-300 {
+  border-color: var(--color-border) !important;
+}
+
+.theme-dark .shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ================================
+   High Contrast Theme Specific
+   ================================ */
+
+.theme-highContrast * {
+  border-width: 2px !important;
+}
+
+.theme-highContrast button {
+  border: 2px solid var(--color-text-primary) !important;
+  font-weight: bold !important;
+}
+
+.theme-highContrast a {
+  text-decoration: underline !important;
+  font-weight: bold !important;
+}
+
+.theme-highContrast .card {
+  border: 3px solid var(--color-text-primary) !important;
+}
+
+.theme-highContrast input:focus,
+.theme-highContrast textarea:focus,
+.theme-highContrast select:focus {
+  box-shadow: 0 0 0 4px rgba(0, 0, 255, 0.3) !important;
+}
+
+/* ================================
+   Accessibility Features
+   ================================ */
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle-btn,
+  .theme-toggle-btn svg,
+  body,
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Focus indicators */
+*:focus-visible {
+  outline: 2px solid var(--color-primary-500) !important;
+  outline-offset: 2px !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .theme-toggle-btn {
+    border-width: 2px;
+    font-weight: bold;
+  }
+}
+
+/* ================================
+   Chart Theme Integration
+   ================================ */
+
+/* Chart containers inherit theme colors */
+[data-chart] {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+/* ================================
+   Mobile Responsive Theme Toggle
+   ================================ */
+
+@media (max-width: 640px) {
+  .theme-toggle-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .theme-toggle-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* ================================
+   Print Styles
+   ================================ */
+
+@media print {
+  .theme-toggle-btn {
+    display: none !important;
+  }
+
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+
+  .card {
+    border: 1px solid black !important;
+    box-shadow: none !important;
+  }
+}
+
+/* ================================
+   Theme Transition Animations
+   ================================ */
+
+.theme-transition {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+/* Apply transitions to all themed elements */
+body,
+nav,
+.card,
+input,
+textarea,
+select,
+button,
+.alert {
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}

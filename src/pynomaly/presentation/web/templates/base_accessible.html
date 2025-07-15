@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Pynomaly - State-of-the-art anomaly detection platform with full accessibility support"
+    />
+
+    <!-- CSRF Token for Security -->
+    <meta name="csrf-token" content="{{ csrf_token or 'no-csrf-token' }}" />
+    <meta name="csrf-param" content="csrf_token" />
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3B82F6" />
+    <link rel="manifest" href="/static/manifest.json" />
+    <link rel="apple-touch-icon" href="/static/img/icon-192.png" />
+    <link rel="icon" type="image/png" href="/static/img/favicon.png" />
+    <link rel="shortcut icon" href="/static/img/favicon.png" />
+
+    <title>{% block title %}Pynomaly{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3B82F6",
+              secondary: "#10B981",
+              accent: "#F59E0B",
+              error: "#EF4444",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+
+    <!-- Alpine.js for interactivity -->
+    <script
+      defer
+      src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"
+    ></script>
+
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <!-- Apache ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="/static/css/design-system.css" />
+    <link rel="stylesheet" href="/static/css/theme-system.css" />
+    <link rel="stylesheet" href="/static/css/tailwind.css" />
+    
+    <!-- Accessibility Enhancement CSS -->
+    <link rel="stylesheet" href="/static/css/accessibility.css" />
+
+    <!-- Custom CSS -->
+    <style>
+      /* Enhanced HTMX indicators with accessibility */
+      .htmx-indicator {
+        opacity: 0;
+        transition: opacity 200ms ease-in;
+      }
+      .htmx-request .htmx-indicator {
+        opacity: 1;
+      }
+      .htmx-request.htmx-indicator {
+        opacity: 1;
+      }
+
+      /* Ensure consistent focus styles */
+      .nav-dropdown:focus-within .dropdown-menu {
+        display: block;
+      }
+
+      /* High contrast mode adjustments */
+      @media (prefers-contrast: high) {
+        .nav-link:hover,
+        .nav-link:focus {
+          background-color: #ffffff !important;
+          color: #000000 !important;
+          border: 2px solid #000000 !important;
+        }
+      }
+
+      /* Reduced motion preferences */
+      @media (prefers-reduced-motion: reduce) {
+        .nav-link,
+        .card,
+        .btn {
+          transition: none !important;
+        }
+      }
+    </style>
+
+    {% block head %}{% endblock %}
+  </head>
+  <body class="bg-gray-50 transition-colors duration-300" data-keyboard-nav="false">
+    <!-- Skip Links for Screen Readers and Keyboard Users -->
+    <div class="skip-links">
+      <a href="#main-content" class="skip-link">Skip to main content</a>
+      <a href="#primary-navigation" class="skip-link">Skip to navigation</a>
+      <a href="#search" class="skip-link">Skip to search</a>
+      <a href="#footer" class="skip-link">Skip to footer</a>
+    </div>
+
+    <!-- Live Region for Dynamic Announcements -->
+    <div id="live-announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <div id="live-alerts" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg" role="navigation" aria-label="Main navigation" x-data="{ mobileMenuOpen: false }">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex">
+            <!-- Logo -->
+            <div class="flex-shrink-0 flex items-center">
+              <a href="/" class="text-2xl font-bold text-primary" aria-label="Pynomaly home">
+                <span aria-hidden="true">🔍</span> Pynomaly
+              </a>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <div id="primary-navigation" class="hidden sm:ml-6 sm:flex sm:space-x-8" role="menubar">
+              <a
+                href="/"
+                class="{% if request.url.path == '/' %}border-primary text-gray-900{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                role="menuitem"
+                {% if request.url.path == '/' %}aria-current="page"{% endif %}
+              >
+                Dashboard
+              </a>
+              
+              <!-- Data & Models Dropdown -->
+              <div class="relative group nav-dropdown" role="menuitem" aria-haspopup="true">
+                <button
+                  class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  aria-expanded="false"
+                  aria-controls="data-models-menu"
+                  id="data-models-button"
+                >
+                  Data & Models
+                  <svg
+                    class="ml-1 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  id="data-models-menu"
+                  class="dropdown-menu hidden group-hover:block group-focus-within:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50"
+                  role="menu"
+                  aria-labelledby="data-models-button"
+                >
+                  <a
+                    href="/datasets"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+                    role="menuitem"
+                    tabindex="-1"
+                  >
+                    <span aria-hidden="true">📁</span> Datasets
+                  </a>
+                  <a
+                    href="/detectors"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+                    role="menuitem"
+                    tabindex="-1"
+                  >
+                    <span aria-hidden="true">🔍</span> Detectors
+                  </a>
+                  <a
+                    href="/detection"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+                    role="menuitem"
+                    tabindex="-1"
+                  >
+                    <span aria-hidden="true">🎯</span> Detection
+                  </a>
+                  <a
+                    href="/ensemble"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+                    role="menuitem"
+                    tabindex="-1"
+                  >
+                    <span aria-hidden="true">🤖</span> Ensemble
+                  </a>
+                </div>
+              </div>
+
+              <!-- AutoML & Analysis Dropdown -->
+              <div class="relative group nav-dropdown" role="menuitem" aria-haspopup="true">
+                <button
+                  class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                  aria-expanded="false"
+                  aria-controls="automl-menu"
+                  id="automl-button"
+                >
+                  AutoML & Analysis
+                  <svg
+                    class="ml-1 h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  id="automl-menu"
+                  class="dropdown-menu hidden group-hover:block group-focus-within:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50"
+                  role="menu"
+                  aria-labelledby="automl-button"
+                >
+                  <a
+                    href="/automl"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+                    role="menuitem"
+                    tabindex="-1"
+                  >
+                    <span aria-hidden="true">⚡</span> AutoML
+                  </a>
+                  <a
+                    href="/explainability"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+                    role="menuitem"
+                    tabindex="-1"
+                  >
+                    <span aria-hidden="true">🔍</span> Explainability
+                  </a>
+                  <a
+                    href="/experiments"
+                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+                    role="menuitem"
+                    tabindex="-1"
+                  >
+                    <span aria-hidden="true">🧪</span> Experiments
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right side navigation items -->
+          <div class="flex items-center space-x-4">
+            <!-- Search -->
+            <div id="search" class="relative hidden sm:block">
+              <label for="global-search" class="sr-only">Search</label>
+              <input
+                type="search"
+                id="global-search"
+                name="search"
+                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
+                placeholder="Search..."
+                aria-describedby="search-help"
+              />
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div id="search-help" class="sr-only">Use this field to search across datasets, detectors, and results</div>
+            </div>
+
+            <!-- Accessibility Controls -->
+            <div class="flex items-center space-x-2">
+              <!-- High Contrast Toggle -->
+              <button
+                id="high-contrast-toggle"
+                class="p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                aria-label="Toggle high contrast mode"
+                title="Toggle high contrast mode"
+              >
+                <span class="sr-only">Toggle high contrast mode</span>
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </button>
+
+              <!-- Font Size Controls -->
+              <div class="flex items-center space-x-1" role="group" aria-label="Font size controls">
+                <button
+                  id="decrease-font-size"
+                  class="p-1 text-xs text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  aria-label="Decrease font size"
+                  title="Decrease font size"
+                >
+                  A-
+                </button>
+                <button
+                  id="reset-font-size"
+                  class="p-1 text-sm text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  aria-label="Reset font size"
+                  title="Reset font size"
+                >
+                  A
+                </button>
+                <button
+                  id="increase-font-size"
+                  class="p-1 text-lg text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  aria-label="Increase font size"
+                  title="Increase font size"
+                >
+                  A+
+                </button>
+              </div>
+
+              <!-- Theme toggle -->
+              <div id="theme-toggle-container">
+                <button
+                  id="theme-toggle"
+                  class="p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                  aria-label="Toggle dark mode"
+                  title="Toggle dark mode"
+                >
+                  <span class="sr-only">Toggle theme</span>
+                  <svg class="h-5 w-5 theme-icon-light" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                  <svg class="h-5 w-5 theme-icon-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Mobile menu button -->
+            <div class="-mr-2 flex items-center sm:hidden">
+              <button
+                @click="mobileMenuOpen = !mobileMenuOpen"
+                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
+                aria-expanded="false"
+                :aria-expanded="mobileMenuOpen"
+                aria-controls="mobile-menu"
+                aria-label="Open main menu"
+              >
+                <span class="sr-only">Open main menu</span>
+                <svg
+                  class="h-6 w-6"
+                  :class="{ 'hidden': mobileMenuOpen, 'block': !mobileMenuOpen }"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <svg
+                  class="h-6 w-6"
+                  :class="{ 'block': mobileMenuOpen, 'hidden': !mobileMenuOpen }"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile menu -->
+      <div 
+        id="mobile-menu"
+        x-show="mobileMenuOpen" 
+        class="sm:hidden"
+        role="menu"
+        aria-orientation="vertical"
+        aria-labelledby="mobile-menu-button"
+      >
+        <div class="pt-2 pb-3 space-y-1" role="none">
+          <a
+            href="/"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if request.url.path == '/' %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+            role="menuitem"
+            {% if request.url.path == '/' %}aria-current="page"{% endif %}
+          >
+            Dashboard
+          </a>
+          <a
+            href="/detectors"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/detectors' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+            role="menuitem"
+          >
+            <span aria-hidden="true">🔍</span> Detectors
+          </a>
+          <a
+            href="/datasets"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/datasets' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+            role="menuitem"
+          >
+            <span aria-hidden="true">📁</span> Datasets
+          </a>
+          <a
+            href="/detection"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/detection' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+            role="menuitem"
+          >
+            <span aria-hidden="true">🎯</span> Detection
+          </a>
+          <a
+            href="/explainability"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/explainability' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+            role="menuitem"
+          >
+            <span aria-hidden="true">🔍</span> Explainability
+          </a>
+          <a
+            href="/monitoring"
+            class="block pl-3 pr-4 py-2 border-l-4 {% if '/monitoring' in request.url.path %}border-primary bg-blue-50 text-primary{% else %}border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800{% endif %} text-base font-medium"
+            role="menuitem"
+          >
+            <span aria-hidden="true">📊</span> Monitoring
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content" class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8" role="main">
+      <!-- Breadcrumb Navigation -->
+      {% if breadcrumbs %}
+      <nav aria-label="Breadcrumb" class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm">
+          {% for crumb in breadcrumbs %}
+          <li class="flex items-center">
+            {% if not loop.last %}
+            <a href="{{ crumb.url }}" class="text-gray-500 hover:text-gray-700">{{ crumb.title }}</a>
+            <svg class="ml-2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+            {% else %}
+            <span class="text-gray-900 font-medium" aria-current="page">{{ crumb.title }}</span>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ol>
+      </nav>
+      {% endif %}
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="mb-6" role="alert" aria-live="polite">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} mb-4" role="alert">
+          <div class="alert-content">
+            <strong class="sr-only">{{ category|title }}:</strong>
+            {{ message }}
+          </div>
+          <button type="button" class="alert-close" aria-label="Close alert">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="bg-white mt-12 border-t border-gray-200" role="contentinfo">
+      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="text-center md:text-left text-gray-500 text-sm mb-4 md:mb-0">
+            © 2024 Pynomaly - State-of-the-art anomaly detection platform
+          </div>
+          <div class="flex space-x-6">
+            <a href="/accessibility" class="text-gray-400 hover:text-gray-500 text-sm">Accessibility</a>
+            <a href="/privacy" class="text-gray-400 hover:text-gray-500 text-sm">Privacy</a>
+            <a href="/help" class="text-gray-400 hover:text-gray-500 text-sm">Help</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="fixed top-4 right-4 z-50 space-y-2" aria-live="polite"></div>
+
+    <!-- Scripts -->
+    <!-- Theme Manager -->
+    <script type="module" src="/static/js/src/utils/theme-manager.js"></script>
+
+    <!-- Accessibility Enhancement Script -->
+    <script>
+      // Accessibility enhancements
+      (function() {
+        'use strict';
+
+        // Keyboard navigation detection
+        let keyboardNavigation = false;
+
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Tab') {
+            keyboardNavigation = true;
+            document.body.setAttribute('data-keyboard-nav', 'true');
+            document.body.classList.add('keyboard-nav-active');
+          }
+        });
+
+        document.addEventListener('mousedown', function() {
+          keyboardNavigation = false;
+          document.body.setAttribute('data-keyboard-nav', 'false');
+          document.body.classList.remove('keyboard-nav-active');
+        });
+
+        // High contrast mode toggle
+        const highContrastToggle = document.getElementById('high-contrast-toggle');
+        if (highContrastToggle) {
+          highContrastToggle.addEventListener('click', function() {
+            document.documentElement.classList.toggle('high-contrast');
+            const isHighContrast = document.documentElement.classList.contains('high-contrast');
+            localStorage.setItem('high-contrast', isHighContrast);
+            announceToScreenReader(isHighContrast ? 'High contrast mode enabled' : 'High contrast mode disabled');
+          });
+
+          // Apply saved high contrast preference
+          if (localStorage.getItem('high-contrast') === 'true') {
+            document.documentElement.classList.add('high-contrast');
+          }
+        }
+
+        // Font size controls
+        let currentFontSize = 100; // percentage
+        const fontSizeControls = {
+          decrease: document.getElementById('decrease-font-size'),
+          reset: document.getElementById('reset-font-size'),
+          increase: document.getElementById('increase-font-size')
+        };
+
+        if (fontSizeControls.decrease) {
+          fontSizeControls.decrease.addEventListener('click', function() {
+            if (currentFontSize > 75) {
+              currentFontSize -= 25;
+              applyFontSize();
+              announceToScreenReader(`Font size decreased to ${currentFontSize}%`);
+            }
+          });
+        }
+
+        if (fontSizeControls.reset) {
+          fontSizeControls.reset.addEventListener('click', function() {
+            currentFontSize = 100;
+            applyFontSize();
+            announceToScreenReader('Font size reset to normal');
+          });
+        }
+
+        if (fontSizeControls.increase) {
+          fontSizeControls.increase.addEventListener('click', function() {
+            if (currentFontSize < 200) {
+              currentFontSize += 25;
+              applyFontSize();
+              announceToScreenReader(`Font size increased to ${currentFontSize}%`);
+            }
+          });
+        }
+
+        function applyFontSize() {
+          document.documentElement.style.fontSize = currentFontSize + '%';
+          localStorage.setItem('font-size', currentFontSize);
+        }
+
+        // Apply saved font size preference
+        const savedFontSize = localStorage.getItem('font-size');
+        if (savedFontSize) {
+          currentFontSize = parseInt(savedFontSize);
+          applyFontSize();
+        }
+
+        // Screen reader announcements
+        function announceToScreenReader(message) {
+          const liveRegion = document.getElementById('live-announcements');
+          if (liveRegion) {
+            liveRegion.textContent = message;
+            setTimeout(() => {
+              liveRegion.textContent = '';
+            }, 1000);
+          }
+        }
+
+        // Enhanced dropdown keyboard navigation
+        const dropdowns = document.querySelectorAll('.nav-dropdown');
+        dropdowns.forEach(dropdown => {
+          const button = dropdown.querySelector('button');
+          const menu = dropdown.querySelector('[role="menu"]');
+          const menuItems = menu.querySelectorAll('[role="menuitem"]');
+
+          button.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              menu.classList.remove('hidden');
+              button.setAttribute('aria-expanded', 'true');
+              menuItems[0].focus();
+            }
+          });
+
+          menuItems.forEach((item, index) => {
+            item.addEventListener('keydown', function(e) {
+              switch (e.key) {
+                case 'ArrowDown':
+                  e.preventDefault();
+                  const nextIndex = index < menuItems.length - 1 ? index + 1 : 0;
+                  menuItems[nextIndex].focus();
+                  break;
+                case 'ArrowUp':
+                  e.preventDefault();
+                  const prevIndex = index > 0 ? index - 1 : menuItems.length - 1;
+                  menuItems[prevIndex].focus();
+                  break;
+                case 'Escape':
+                  e.preventDefault();
+                  menu.classList.add('hidden');
+                  button.setAttribute('aria-expanded', 'false');
+                  button.focus();
+                  break;
+                case 'Tab':
+                  menu.classList.add('hidden');
+                  button.setAttribute('aria-expanded', 'false');
+                  break;
+              }
+            });
+          });
+
+          // Close dropdown when clicking outside
+          document.addEventListener('click', function(e) {
+            if (!dropdown.contains(e.target)) {
+              menu.classList.add('hidden');
+              button.setAttribute('aria-expanded', 'false');
+            }
+          });
+        });
+
+        // Alert close button functionality
+        document.addEventListener('click', function(e) {
+          if (e.target.classList.contains('alert-close') || e.target.parentElement.classList.contains('alert-close')) {
+            const alert = e.target.closest('.alert');
+            if (alert) {
+              alert.remove();
+              announceToScreenReader('Alert dismissed');
+            }
+          }
+        });
+
+        // Form validation enhancements
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+          form.addEventListener('submit', function(e) {
+            const invalidFields = form.querySelectorAll(':invalid');
+            if (invalidFields.length > 0) {
+              e.preventDefault();
+              const firstInvalid = invalidFields[0];
+              firstInvalid.focus();
+              announceToScreenReader(`Form has ${invalidFields.length} error${invalidFields.length !== 1 ? 's' : ''}. Please check your input.`);
+            }
+          });
+        });
+
+        // Enhanced error announcements for HTMX
+        document.addEventListener('htmx:responseError', function(e) {
+          announceToScreenReader('An error occurred while processing your request. Please try again.');
+        });
+
+        document.addEventListener('htmx:afterSwap', function(e) {
+          // Announce content changes
+          if (e.detail.target.getAttribute('aria-live')) {
+            const newContent = e.detail.target.textContent.trim();
+            if (newContent) {
+              announceToScreenReader('Content updated');
+            }
+          }
+        });
+
+      })();
+    </script>
+
+    <!-- Enhanced Dashboard JavaScript -->
+    <script src="/static/js/dashboard.js"></script>
+
+    <!-- Frontend Monitoring and Utilities -->
+    <script src="/static/js/src/utils/frontend-monitoring.js"></script>
+    <script src="/static/js/src/utils/performance-dashboard.js"></script>
+    <script src="/static/js/src/pynomaly-frontend.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/static/sw.js")
+            .then((registration) => console.log("SW registered:", registration))
+            .catch((error) => console.log("SW registration failed:", error));
+        });
+      }
+    </script>
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,126 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pynomaly-infrastructure"
+dynamic = ["version"]
+description = "Infrastructure layer for Pynomaly with adapters, persistence, and monitoring"
+authors = [{name = "Pynomaly Team", email = "team@pynomaly.io"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["anomaly-detection", "infrastructure", "adapters", "monitoring"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "pynomaly-core>=0.1.1",
+    "pynomaly-data-transformation>=0.1.0",
+    "pyod>=2.0.5",
+    "numpy>=1.26.0,<2.2.0",
+    "pandas>=2.2.3",
+    "polars>=1.19.0",
+    "redis>=5.2.1",
+    "sqlalchemy>=2.0.36",
+    "prometheus-client>=0.21.1",
+    "psutil>=6.1.1",
+]
+
+[project.optional-dependencies]
+# ML backends
+sklearn = ["scikit-learn>=1.6.0", "scipy>=1.15.0"]
+torch = ["torch>=2.5.1"]
+tensorflow = ["tensorflow>=2.18.0,<2.20.0", "keras>=3.8.0"]
+graph = ["pygod>=1.1.0", "torch-geometric>=2.6.1"]
+
+# Database backends
+postgres = ["psycopg2-binary>=2.9.10"]
+mongodb = ["pymongo>=4.8.0"]
+
+# Caching
+redis = ["redis>=5.2.1"]
+
+# Monitoring
+monitoring = [
+    "opentelemetry-api>=1.29.0",
+    "opentelemetry-sdk>=1.29.0",
+    "prometheus-client>=0.21.1",
+    "psutil>=6.1.1",
+]
+
+# Security
+security = [
+    "cryptography>=43.0.0",
+    "pyjwt>=2.10.1",
+    "passlib[bcrypt]>=1.7.4",
+]
+
+# Development
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-mock>=3.12.0",
+    "factory-boy>=3.3.1",
+    "faker>=33.1.0",
+    "responses>=0.24.0",
+    "httpx>=0.28.1",
+]
+
+all = [
+    "pynomaly-infrastructure[sklearn,torch,tensorflow,graph,postgres,mongodb,redis,monitoring,security]"
+]
+
+[tool.hatch.version]
+source = "vcs"
+root = "../../.."
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--verbose",
+    "--tb=short",
+    "--disable-warnings",
+    "--color=yes",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*", "*Tests"]
+python_functions = ["test_*"]
+markers = [
+    "integration: Integration tests",
+    "database: Tests that require database",
+    "redis: Tests that require Redis",
+    "external: Tests that require external services",
+]

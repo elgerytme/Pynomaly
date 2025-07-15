@@ -1,0 +1,34 @@
+include README.md
+include LICENSE
+include pyproject.toml
+include requirements.txt
+include CHANGELOG.md
+include TODO.md
+include CLAUDE.md
+
+# Include all web templates and static files
+recursive-include src/pynomaly/presentation/web/templates *.html
+recursive-include src/pynomaly/presentation/web/static *.css *.js *.json *.png *.svg
+
+# Include test files for reference
+recursive-include tests *.py
+
+# Include documentation
+recursive-include docs *.md
+
+# Include examples
+recursive-include examples *.py *.md *.json *.csv
+
+# Exclude build artifacts
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.orig
+global-exclude *.rej
+global-exclude *~
+global-exclude .git*
+global-exclude __pycache__
+global-exclude .pytest_cache
+global-exclude .coverage
+global-exclude build
+global-exclude dist
+global-exclude *.egg-info

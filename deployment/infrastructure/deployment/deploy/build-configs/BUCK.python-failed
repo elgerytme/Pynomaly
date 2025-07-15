@@ -1,0 +1,227 @@
+# Buck2 Build Configuration for Pynomaly (Python-only version for Phase 2)
+# Simplified build system focusing on Python components
+
+load("@prelude//python:defs.bzl", "python_binary", "python_library", "python_test")
+
+# ==========================================
+# Python Package Definitions by Architecture Layer
+# ==========================================
+
+# Domain Layer - Pure business logic with no external dependencies
+python_library(
+    name = "domain",
+    srcs = glob([
+        "src/pynomaly/domain/**/*.py",
+    ]),
+    deps = [],
+    visibility = ["//src/pynomaly/..."],
+)
+
+# Application Layer - Use cases and application services
+python_library(
+    name = "application",
+    srcs = glob([
+        "src/pynomaly/application/**/*.py",
+    ]),
+    deps = [
+        ":domain",
+    ],
+    visibility = ["//src/pynomaly/..."],
+)
+
+# Infrastructure Layer - External integrations and adapters
+python_library(
+    name = "infrastructure",
+    srcs = glob([
+        "src/pynomaly/infrastructure/**/*.py",
+    ]),
+    deps = [
+        ":domain",
+        ":application",
+    ],
+    visibility = ["//src/pynomaly/..."],
+)
+
+# Presentation Layer - APIs, CLI, and Web UI
+python_library(
+    name = "presentation",
+    srcs = glob([
+        "src/pynomaly/presentation/**/*.py",
+    ]),
+    deps = [
+        ":domain",
+        ":application",
+        ":infrastructure",
+    ],
+    visibility = ["//src/pynomaly/..."],
+)
+
+# Shared Utilities - Common utilities across layers
+python_library(
+    name = "shared",
+    srcs = glob([
+        "src/pynomaly/shared/**/*.py",
+    ]),
+    deps = [],
+    visibility = ["//src/pynomaly/..."],
+)
+
+# ==========================================
+# Complete Pynomaly Package
+# ==========================================
+
+python_library(
+    name = "pynomaly-lib",
+    srcs = glob([
+        "src/pynomaly/*.py",
+    ]),
+    deps = [
+        ":domain",
+        ":application",
+        ":infrastructure",
+        ":presentation",
+        ":shared",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# Binary Targets
+# ==========================================
+
+# Main CLI Binary
+python_binary(
+    name = "pynomaly-cli",
+    main = "src/pynomaly/__main__.py",
+    deps = [":pynomaly-lib"],
+    visibility = ["PUBLIC"],
+)
+
+# API Server Binary
+python_binary(
+    name = "pynomaly-api",
+    main = "scripts/run_api.py",
+    deps = [":pynomaly-lib"],
+    visibility = ["PUBLIC"],
+)
+
+# Web UI Server Binary
+python_binary(
+    name = "pynomaly-web",
+    main = "scripts/run_web_ui.py",
+    deps = [":pynomaly-lib"],
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# Test Targets
+# ==========================================
+
+# Domain Layer Tests
+python_test(
+    name = "test-domain",
+    srcs = glob([
+        "tests/domain/**/*.py",
+    ]),
+    deps = [
+        ":domain",
+        ":test-utils",
+    ],
+)
+
+# Application Layer Tests
+python_test(
+    name = "test-application",
+    srcs = glob([
+        "tests/application/**/*.py",
+    ]),
+    deps = [
+        ":application",
+        ":domain",
+        ":test-utils",
+    ],
+)
+
+# Infrastructure Layer Tests
+python_test(
+    name = "test-infrastructure",
+    srcs = glob([
+        "tests/infrastructure/**/*.py",
+    ]),
+    deps = [
+        ":infrastructure",
+        ":application",
+        ":domain",
+        ":test-utils",
+    ],
+)
+
+# Presentation Layer Tests
+python_test(
+    name = "test-presentation",
+    srcs = glob([
+        "tests/presentation/**/*.py",
+    ]),
+    deps = [
+        ":presentation",
+        ":infrastructure",
+        ":application",
+        ":domain",
+        ":test-utils",
+    ],
+)
+
+# Integration Tests
+python_test(
+    name = "test-integration",
+    srcs = glob([
+        "tests/integration/**/*.py",
+        "tests/e2e/**/*.py",
+    ]),
+    deps = [
+        ":pynomaly-lib",
+        ":test-utils",
+    ],
+)
+
+# Test Utilities
+python_library(
+    name = "test-utils",
+    srcs = glob([
+        "tests/conftest.py",
+        "tests/plugins/**/*.py",
+        "tests/utils/**/*.py",
+    ]),
+    deps = [":pynomaly-lib"],
+)
+
+# ==========================================
+# Development and Utility Targets
+# ==========================================
+
+# All Tests
+genrule(
+    name = "test-all",
+    srcs = [],
+    out = "test-results.txt",
+    cmd = "echo 'All tests completed' > $OUT",
+    deps = [
+        ":test-domain",
+        ":test-application",
+        ":test-infrastructure",
+        ":test-presentation",
+        ":test-integration",
+    ],
+)
+
+# Development Target
+genrule(
+    name = "dev",
+    srcs = [],
+    out = "dev-ready.txt",
+    cmd = "echo 'Development environment ready' > $OUT",
+    deps = [
+        ":pynomaly-lib",
+        ":test-utils",
+    ],
+)

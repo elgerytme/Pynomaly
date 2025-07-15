@@ -1,0 +1,180 @@
+<!-- AutoML & Analysis Dropdown -->
+<div class="relative group" role="menuitem" aria-haspopup="true">
+  <button
+    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
+    aria-expanded="false"
+    aria-controls="automl-menu"
+    id="automl-button"
+  >
+    AutoML & Analysis
+    <svg
+      class="ml-1 h-4 w-4 transition-transform"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 9l-7 7-7-7"
+      />
+    </svg>
+  </button>
+  <div
+    id="automl-menu"
+    class="hidden group-hover:block group-focus-within:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50"
+    role="menu"
+    aria-labelledby="automl-button"
+  >
+    <a
+      href="/automl"
+      role="menuitem"
+      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+    >
+      <span aria-hidden="true">⚡</span> AutoML
+      <span class="sr-only"> - Automated machine learning</span>
+    </a>
+    <a
+      href="/explainability"
+      role="menuitem"
+      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+    >
+      <span aria-hidden="true">🔍</span> Explainability
+      <span class="sr-only"> - Model explanation tools</span>
+    </a>
+    <a
+      href="/experiments"
+      role="menuitem"
+      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+    >
+      <span aria-hidden="true">🧪</span> Experiments
+      <span class="sr-only"> - Experiment tracking</span>
+    </a>
+  </div>
+</div>
+
+<!-- Visualizations Dropdown -->
+<div class="relative group" role="menuitem" aria-haspopup="true">
+  <button
+    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
+    aria-expanded="false"
+    aria-controls="viz-menu"
+    id="viz-button"
+  >
+    Visualizations
+    <svg
+      class="ml-1 h-4 w-4 transition-transform"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 9l-7 7-7-7"
+      />
+    </svg>
+  </button>
+  <div
+    id="viz-menu"
+    class="hidden group-hover:block group-focus-within:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50"
+    role="menu"
+    aria-labelledby="viz-button"
+  >
+    <a
+      href="/visualizations"
+      role="menuitem"
+      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+    >
+      <span aria-hidden="true">📊</span> Standard Charts
+      <span class="sr-only"> - Basic visualization charts</span>
+    </a>
+    <a
+      href="/advanced-visualizations"
+      role="menuitem"
+      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+    >
+      <span aria-hidden="true">📈</span> Advanced Viz
+      <span class="sr-only"> - Advanced interactive visualizations</span>
+    </a>
+    <a
+      href="/monitoring"
+      role="menuitem"
+      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+    >
+      <span aria-hidden="true">📡</span> Real-time Monitor
+      <span class="sr-only"> - Real-time monitoring dashboard</span>
+    </a>
+  </div>
+</div>
+
+<!-- Tools Dropdown -->
+<div class="relative group" role="menuitem" aria-haspopup="true">
+  <button
+    class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors"
+    aria-expanded="false"
+    aria-controls="tools-menu"
+    id="tools-button"
+  >
+    Tools
+    <svg
+      class="ml-1 h-4 w-4 transition-transform"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 9l-7 7-7-7"
+      />
+    </svg>
+  </button>
+  <div
+    id="tools-menu"
+    class="hidden group-hover:block group-focus-within:block absolute top-full left-0 bg-white shadow-lg rounded-md mt-1 min-w-48 z-50"
+    role="menu"
+    aria-labelledby="tools-button"
+  >
+    <a
+      href="/workflows"
+      role="menuitem"
+      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+    >
+      <span aria-hidden="true">🔄</span> Workflows
+      <span class="sr-only"> - Automated workflow management</span>
+    </a>
+    <a
+      href="/exports"
+      role="menuitem"
+      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+    >
+      <span aria-hidden="true">📤</span> Export Data
+      <span class="sr-only"> - Export detection results</span>
+    </a>
+    <a
+      href="/collaboration"
+      role="menuitem"
+      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+    >
+      <span aria-hidden="true">👥</span> Collaborate
+      <span class="sr-only"> - Team collaboration tools</span>
+    </a>
+    {% if auth_enabled and current_user %}
+    <a
+      href="/users"
+      role="menuitem"
+      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+    >
+      <span aria-hidden="true">👥</span> Users
+      <span class="sr-only"> - User management</span>
+    </a>
+    {% endif %}
+  </div>
+</div>

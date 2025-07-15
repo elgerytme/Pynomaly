@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Advanced Interactive Anomaly Detection Dashboard with Real-time Analytics">
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#3B82F6">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" href="/static/img/favicon.png">
+
+    <title>Advanced Interactive Dashboard - Pynomaly</title>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/crossfilter2@1.5.4/crossfilter.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/static/css/design-system.css">
+    <link rel="stylesheet" href="/static/css/advanced-interactive-visualizations.css">
+    <link rel="stylesheet" href="/static/css/theme-system.css">
+
+    <!-- Critical CSS for above-the-fold content -->
+    <style>
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--color-background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .connection-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 9998;
+            transition: all 0.3s ease;
+        }
+
+        .connection-indicator.online {
+            background: var(--color-secondary-100);
+            color: var(--color-secondary-800);
+        }
+
+        .connection-indicator.offline {
+            background: var(--color-accent-100);
+            color: var(--color-accent-800);
+        }
+
+        .pwa-install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-4);
+            box-shadow: var(--shadow-lg);
+            z-index: 9997;
+            display: none;
+        }
+
+        .sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-2) var(--spacing-3);
+            font-size: var(--font-size-xs);
+            z-index: 9996;
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 transition-colors duration-300" x-data="dashboardApp()">
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="text-center">
+            <div class="spinner mb-4"></div>
+            <h2 class="text-xl font-semibold text-gray-800">Loading Advanced Dashboard...</h2>
+            <p class="text-sm text-gray-600 mt-2">Initializing interactive features</p>
+        </div>
+    </div>
+
+    <!-- Connection Indicator -->
+    <div id="connection-indicator" class="connection-indicator online">
+        <span class="connection-status">● Online</span>
+    </div>
+
+    <!-- PWA Install Prompt -->
+    <div id="pwa-install-prompt" class="pwa-install-prompt">
+        <div class="flex items-center gap-4">
+            <div>
+                <h3 class="font-semibold">Install Pynomaly</h3>
+                <p class="text-sm text-gray-600">Get the full experience with offline capabilities</p>
+            </div>
+            <div class="flex gap-2">
+                <button id="install-button" class="btn-base btn-primary btn-sm">Install</button>
+                <button onclick="this.parentElement.parentElement.parentElement.style.display='none'" class="btn-base btn-secondary btn-sm">Later</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sync Status -->
+    <div id="sync-status" class="sync-status">
+        <span class="sync-message">Syncing data...</span>
+    </div>
+
+    <!-- Skip Links for Accessibility -->
+    <div class="skip-links">
+        <a href="#main-content" class="skip-links">Skip to main content</a>
+        <a href="#navigation" class="skip-links">Skip to navigation</a>
+        <a href="#dashboard-controls" class="skip-links">Skip to controls</a>
+    </div>
+
+    <!-- Voice Command Indicator -->
+    <div id="voice-command-indicator" class="voice-command-indicator">
+        🎤 Listening...
+    </div>
+
+    <!-- Main Navigation -->
+    <nav id="navigation" class="bg-white shadow-lg" role="navigation" aria-label="Main navigation">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <a href="/" class="text-2xl font-bold text-primary">
+                            🔍 Pynomaly
+                        </a>
+                    </div>
+
+                    <!-- Dashboard Navigation -->
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <button class="nav-tab active" data-tab="overview" aria-selected="true">
+                            📊 Overview
+                        </button>
+                        <button class="nav-tab" data-tab="investigation" aria-selected="false">
+                            🔍 Investigation
+                        </button>
+                        <button class="nav-tab" data-tab="real-time" aria-selected="false">
+                            📈 Real-time
+                        </button>
+                        <button class="nav-tab" data-tab="collaboration" aria-selected="false">
+                            👥 Collaborate
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Controls -->
+                <div id="dashboard-controls" class="flex items-center space-x-4">
+                    <!-- Time Range Selector -->
+                    <select id="time-range" class="form-select text-sm" aria-label="Select time range">
+                        <option value="1h">Last Hour</option>
+                        <option value="6h">Last 6 Hours</option>
+                        <option value="1d" selected>Last Day</option>
+                        <option value="1w">Last Week</option>
+                        <option value="1m">Last Month</option>
+                    </select>
+
+                    <!-- View Mode Toggle -->
+                    <div class="flex bg-gray-100 rounded-lg p-1">
+                        <button id="grid-view" class="view-toggle active" data-view="grid" aria-pressed="true">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                            </svg>
+                        </button>
+                        <button id="list-view" class="view-toggle" data-view="list" aria-pressed="false">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <div id="theme-toggle-container"></div>
+
+                    <!-- Settings Dropdown -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="btn-icon-only btn-secondary" aria-label="Settings">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </button>
+
+                        <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-50">
+                            <div class="py-1">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    🔍 Investigation Mode
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    📊 Drill-down Mode
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    👥 Collaboration
+                                </a>
+                                <div class="border-t border-gray-100"></div>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    ⚙️ Preferences
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    ♿ Accessibility
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content" class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8" role="main" aria-label="Dashboard content">
+
+        <!-- Dashboard Tabs -->
+        <div class="dashboard-tabs mb-6">
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-panel active">
+                <!-- Key Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="metric-card">
+                        <div class="metric-value" x-text="metrics.totalAnomalies">--</div>
+                        <div class="metric-label">Total Anomalies</div>
+                        <div class="metric-change positive" x-text="metrics.anomalyChange">--</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value" x-text="metrics.detectionAccuracy">--</div>
+                        <div class="metric-label">Detection Accuracy</div>
+                        <div class="metric-change positive" x-text="metrics.accuracyChange">--</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value" x-text="metrics.processingTime">--</div>
+                        <div class="metric-label">Avg Processing Time</div>
+                        <div class="metric-change negative" x-text="metrics.timeChange">--</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value" x-text="metrics.dataPoints">--</div>
+                        <div class="metric-label">Data Points Analyzed</div>
+                        <div class="metric-change positive" x-text="metrics.pointsChange">--</div>
+                    </div>
+                </div>
+
+                <!-- Main Charts Grid -->
+                <div class="charts-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Anomaly Timeline Chart -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Anomaly Timeline</h3>
+                            <div class="chart-controls">
+                                <button class="btn-tool" data-action="fullscreen" aria-label="Fullscreen">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 1v4m0 0h-4m4 0l-5-5"/>
+                                    </svg>
+                                </button>
+                                <button class="btn-tool" data-action="download" aria-label="Download">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="timeline-chart" class="chart-content" style="height: 400px;"></div>
+                    </div>
+
+                    <!-- Correlation Matrix -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Feature Correlation Matrix</h3>
+                            <div class="chart-controls">
+                                <button class="btn-tool" data-action="settings" aria-label="Chart settings">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="correlation-matrix" class="chart-content" style="height: 400px;"></div>
+                    </div>
+
+                    <!-- Algorithm Performance -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Algorithm Performance</h3>
+                        </div>
+                        <div id="performance-chart" class="chart-content" style="height: 300px;"></div>
+                    </div>
+
+                    <!-- Real-time Metrics -->
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Real-time Detection Stream</h3>
+                            <div class="stream-status">
+                                <span class="status-indicator online"></span>
+                                <span class="status-text">Live</span>
+                            </div>
+                        </div>
+                        <div id="realtime-stream" class="chart-content" style="height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investigation Tab -->
+            <div id="investigation-tab" class="tab-panel">
+                <div id="investigation-dashboard-container"></div>
+            </div>
+
+            <!-- Real-time Tab -->
+            <div id="real-time-tab" class="tab-panel">
+                <div class="real-time-dashboard">
+                    <div class="real-time-controls mb-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <button id="start-stream" class="btn-base btn-primary">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m2-10h.01M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    Start Real-time Monitoring
+                                </button>
+                                <select id="stream-source" class="form-select">
+                                    <option value="demo">Demo Data Stream</option>
+                                    <option value="mqtt">MQTT Source</option>
+                                    <option value="websocket">WebSocket Feed</option>
+                                    <option value="kafka">Kafka Topic</option>
+                                </select>
+                            </div>
+
+                            <div class="stream-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Rate:</span>
+                                    <span class="stat-value" id="stream-rate">0/s</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Latency:</span>
+                                    <span class="stat-value" id="stream-latency">0ms</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="real-time-charts grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="chart-container">
+                            <h3 class="chart-title">Live Data Stream</h3>
+                            <div id="live-stream-chart" style="height: 400px;"></div>
+                        </div>
+
+                        <div class="chart-container">
+                            <h3 class="chart-title">Anomaly Detection</h3>
+                            <div id="live-anomaly-chart" style="height: 400px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collaboration Tab -->
+            <div id="collaboration-tab" class="tab-panel">
+                <div class="collaboration-dashboard">
+                    <div class="collaboration-header mb-6">
+                        <h2 class="text-2xl font-bold">Collaborative Analysis</h2>
+                        <div class="collaboration-controls">
+                            <button class="btn-base btn-primary" id="start-collaboration">
+                                Start Collaboration Session
+                            </button>
+                            <button class="btn-base btn-secondary" id="share-dashboard">
+                                Share Dashboard
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="collaboration-content grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="chart-container">
+                                <h3 class="chart-title">Shared Analysis View</h3>
+                                <div id="collaboration-chart" style="height: 500px;"></div>
+                            </div>
+                        </div>
+
+                        <div class="collaboration-sidebar">
+                            <div class="panel">
+                                <h4 class="panel-title">Active Users</h4>
+                                <div id="active-users" class="user-list"></div>
+                            </div>
+
+                            <div class="panel">
+                                <h4 class="panel-title">Annotations</h4>
+                                <div id="annotations-list" class="annotation-list"></div>
+                            </div>
+
+                            <div class="panel">
+                                <h4 class="panel-title">Chat</h4>
+                                <div id="collaboration-chat" class="chat-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Offline Data Manager -->
+    <div id="offline-manager" class="fixed bottom-4 left-4 max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg p-4" style="display: none;">
+        <h4 class="font-semibold mb-2">Offline Data</h4>
+        <div class="text-sm text-gray-600 mb-3">
+            <div>Datasets: <span id="offline-datasets-count">0</span></div>
+            <div>Pending Sync: <span id="offline-pending-count">0</span></div>
+        </div>
+        <div class="flex gap-2">
+            <button class="btn-sm btn-primary" onclick="window.pwaManager.performSync()">Sync Now</button>
+            <button class="btn-sm btn-secondary" onclick="this.parentElement.parentElement.style.display='none'">Close</button>
+        </div>
+    </div>
+
+    <!-- ARIA Live Regions for Screen Reader Announcements -->
+    <div id="aria-live-polite" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+    <div id="aria-live-assertive" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+
+    <!-- Context Menu -->
+    <div id="context-menu" class="context-menu" style="display: none;">
+        <div class="context-menu-content">
+            <!-- Dynamic context menu items will be inserted here -->
+        </div>
+    </div>
+
+    <!-- JavaScript Modules -->
+    <script type="module">
+        // Import all the advanced features
+        import { EnhancedPWAManager } from '/static/js/src/utils/enhanced-pwa-manager.js';
+        import { AdvancedInteractiveVisualizations } from '/static/js/src/components/advanced-interactive-visualizations.js';
+        import EnhancedWebSocketService from '/static/js/services/enhanced-websocket-service.js';
+
+        // Initialize dashboard application
+        window.dashboardApp = function() {
+            return {
+                // Reactive data
+                metrics: {
+                    totalAnomalies: 0,
+                    detectionAccuracy: '0%',
+                    processingTime: '0ms',
+                    dataPoints: 0,
+                    anomalyChange: '+0%',
+                    accuracyChange: '+0%',
+                    timeChange: '0%',
+                    pointsChange: '+0%'
+                },
+
+                currentTab: 'overview',
+                isOnline: navigator.onLine,
+                syncStatus: 'idle',
+
+                // Initialize the dashboard
+                async init() {
+                    console.log('[Dashboard] Initializing advanced interactive dashboard...');
+
+                    try {
+                        // Initialize PWA Manager
+                        window.pwaManager = new EnhancedPWAManager({
+                            enableOfflineDetection: true,
+                            enableDataSync: true,
+                            enableNotifications: true,
+                            enableInstallPrompt: true
+                        });
+
+                        // Initialize WebSocket Service
+                        window.wsService = EnhancedWebSocketService.getInstance({
+                            url: this.getWebSocketURL()
+                        });
+
+                        // Initialize Advanced Visualizations
+                        window.visualizations = new AdvancedInteractiveVisualizations();
+
+                        // Setup event listeners
+                        this.setupEventListeners();
+
+                        // Setup charts
+                        await this.setupCharts();
+
+                        // Load initial data
+                        await this.loadInitialData();
+
+                        // Setup real-time updates
+                        this.setupRealTimeUpdates();
+
+                        // Setup collaboration features
+                        this.setupCollaboration();
+
+                        // Hide loading screen
+                        this.hideLoadingScreen();
+
+                        console.log('[Dashboard] Initialization complete');
+
+                    } catch (error) {
+                        console.error('[Dashboard] Initialization failed:', error);
+                        this.showError('Failed to initialize dashboard', error.message);
+                    }
+                },
+
+                getWebSocketURL() {
+                    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const host = window.location.host;
+                    return `${protocol}//${host}/ws/connect`;
+                },
+
+                setupEventListeners() {
+                    // Tab navigation
+                    document.querySelectorAll('.nav-tab').forEach(tab => {
+                        tab.addEventListener('click', (e) => {
+                            this.switchTab(e.target.dataset.tab);
+                        });
+                    });
+
+                    // Connection status
+                    document.addEventListener('connection-change', (e) => {
+                        this.handleConnectionChange(e.detail);
+                    });
+
+                    // Data updates
+                    document.addEventListener('anomaly-detected', (e) => {
+                        this.handleAnomalyDetected(e.detail);
+                    });
+
+                    // Sync status
+                    document.addEventListener('sync-status-change', (e) => {
+                        this.handleSyncStatusChange(e.detail);
+                    });
+                },
+
+                async setupCharts() {
+                    // Timeline Chart
+                    this.timelineChart = window.visualizations.createAnomalyTimelineChart(
+                        '#timeline-chart',
+                        [], // Initial empty data
+                        {
+                            title: 'Anomaly Detection Timeline',
+                            showAnomalies: true,
+                            showConfidenceBands: true,
+                            enableInvestigation: true
+                        }
+                    );
+
+                    // Correlation Matrix
+                    this.correlationChart = window.visualizations.createCorrelationMatrix(
+                        '#correlation-matrix',
+                        [], // Initial empty data
+                        {
+                            title: 'Feature Correlation Analysis',
+                            enableFeatureImportance: true,
+                            enableClusterAnalysis: true
+                        }
+                    );
+
+                    // Investigation Dashboard
+                    this.investigationDashboard = window.visualizations.createInvestigationDashboard(
+                        '#investigation-dashboard-container',
+                        [], // Initial empty data
+                        {
+                            enableAdvancedFeatures: true
+                        }
+                    );
+                },
+
+                async loadInitialData() {
+                    try {
+                        // Load data from API or offline storage
+                        const data = await this.fetchDashboardData();
+
+                        // Update metrics
+                        this.updateMetrics(data.metrics);
+
+                        // Update charts
+                        this.timelineChart.setData(data.anomalies || []);
+                        this.correlationChart.setData(data.correlations || []);
+                        this.investigationDashboard.setData(data.anomalies || []);
+
+                    } catch (error) {
+                        console.error('[Dashboard] Failed to load initial data:', error);
+
+                        // Try to load offline data
+                        const offlineData = await this.loadOfflineData();
+                        if (offlineData) {
+                            this.updateMetrics(offlineData.metrics);
+                            this.timelineChart.setData(offlineData.anomalies || []);
+                        }
+                    }
+                },
+
+                async fetchDashboardData() {
+                    const response = await fetch('/api/dashboard/data', {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    return await response.json();
+                },
+
+                async loadOfflineData() {
+                    if (window.pwaManager) {
+                        const capabilities = window.pwaManager.getOfflineCapabilities();
+
+                        return {
+                            metrics: {
+                                totalAnomalies: capabilities.detections,
+                                detectionAccuracy: '85%',
+                                processingTime: '1.2s',
+                                dataPoints: capabilities.datasets * 1000
+                            },
+                            anomalies: [] // Would load from offline storage
+                        };
+                    }
+                    return null;
+                },
+
+                updateMetrics(metrics) {
+                    this.metrics = { ...this.metrics, ...metrics };
+                },
+
+                setupRealTimeUpdates() {
+                    if (window.wsService) {
+                        // Subscribe to real-time anomaly detection
+                        window.wsService.subscribe('anomaly_detection', (data) => {
+                            this.handleRealTimeAnomaly(data);
+                        });
+
+                        // Subscribe to system metrics
+                        window.wsService.subscribe('system_metrics', (data) => {
+                            this.handleSystemMetrics(data);
+                        });
+                    }
+                },
+
+                setupCollaboration() {
+                    if (window.wsService) {
+                        // Subscribe to collaboration events
+                        window.wsService.subscribe('collaboration', (data) => {
+                            this.handleCollaborationEvent(data);
+                        });
+                    }
+                },
+
+                switchTab(tabName) {
+                    // Update active tab
+                    document.querySelectorAll('.nav-tab').forEach(tab => {
+                        tab.classList.remove('active');
+                        tab.setAttribute('aria-selected', 'false');
+                    });
+
+                    document.querySelectorAll('.tab-panel').forEach(panel => {
+                        panel.classList.remove('active');
+                    });
+
+                    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+                    document.querySelector(`[data-tab="${tabName}"]`).setAttribute('aria-selected', 'true');
+                    document.querySelector(`#${tabName}-tab`).classList.add('active');
+
+                    this.currentTab = tabName;
+
+                    // Trigger chart redraws if needed
+                    if (tabName === 'investigation') {
+                        this.investigationDashboard.render();
+                    }
+                },
+
+                handleConnectionChange(detail) {
+                    this.isOnline = detail.isOnline;
+
+                    const indicator = document.getElementById('connection-indicator');
+                    if (this.isOnline) {
+                        indicator.className = 'connection-indicator online';
+                        indicator.innerHTML = '<span class="connection-status">● Online</span>';
+                    } else {
+                        indicator.className = 'connection-indicator offline';
+                        indicator.innerHTML = '<span class="connection-status">● Offline</span>';
+
+                        // Show offline manager
+                        document.getElementById('offline-manager').style.display = 'block';
+                    }
+                },
+
+                handleAnomalyDetected(anomaly) {
+                    // Update timeline chart
+                    this.timelineChart.addDataPoint(anomaly);
+
+                    // Update metrics
+                    this.metrics.totalAnomalies++;
+
+                    // Show notification for high severity
+                    if (anomaly.severity === 'high') {
+                        this.showNotification('High Severity Anomaly Detected', {
+                            body: `Anomaly score: ${anomaly.anomalyScore.toFixed(3)}`,
+                            requireInteraction: true
+                        });
+                    }
+                },
+
+                handleRealTimeAnomaly(data) {
+                    this.handleAnomalyDetected(data);
+
+                    // Update real-time charts if on real-time tab
+                    if (this.currentTab === 'real-time') {
+                        this.updateRealTimeCharts(data);
+                    }
+                },
+
+                handleSystemMetrics(data) {
+                    // Update system health indicators
+                    this.updateSystemHealth(data);
+                },
+
+                handleCollaborationEvent(data) {
+                    // Handle collaboration events
+                    switch (data.type) {
+                        case 'user_joined':
+                            this.addCollaborator(data.user);
+                            break;
+                        case 'annotation_added':
+                            this.addAnnotation(data.annotation);
+                            break;
+                        case 'chat_message':
+                            this.addChatMessage(data.message);
+                            break;
+                    }
+                },
+
+                hideLoadingScreen() {
+                    const loadingScreen = document.getElementById('loading-screen');
+                    loadingScreen.classList.add('hidden');
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
+                },
+
+                showError(title, message) {
+                    console.error(`[Dashboard] ${title}:`, message);
+
+                    // Show user-friendly error
+                    this.showNotification(title, {
+                        body: message,
+                        type: 'error'
+                    });
+                },
+
+                showNotification(title, options = {}) {
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification(title, {
+                            icon: '/static/icons/icon-192x192.png',
+                            ...options
+                        });
+                    }
+                }
+            };
+        };
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.Alpine) {
+                // Alpine.js is available, initialization will happen automatically
+                console.log('[Dashboard] Waiting for Alpine.js initialization...');
+            } else {
+                // Fallback initialization
+                console.log('[Dashboard] Initializing without Alpine.js...');
+                window.dashboardInstance = window.dashboardApp();
+                window.dashboardInstance.init();
+            }
+        });
+    </script>
+
+    <!-- Accessibility Features -->
+    <script type="module" src="/static/js/src/utils/accessibility.js"></script>
+
+    <!-- Theme Manager -->
+    <script type="module" src="/static/js/src/utils/theme-manager.js"></script>
+
+    <!-- Performance Monitoring -->
+    <script src="/static/js/src/utils/performance-monitor.js"></script>
+
+    <!-- Enhanced Chart Styles -->
+    <style>
+        .nav-tab {
+            @apply px-4 py-2 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors;
+        }
+
+        .nav-tab.active {
+            @apply text-blue-600 border-blue-500;
+        }
+
+        .tab-panel {
+            @apply hidden;
+        }
+
+        .tab-panel.active {
+            @apply block;
+        }
+
+        .view-toggle {
+            @apply p-2 text-gray-500 hover:text-gray-700 transition-colors;
+        }
+
+        .view-toggle.active {
+            @apply text-blue-600 bg-white rounded shadow-sm;
+        }
+
+        .chart-header {
+            @apply flex items-center justify-between p-4 border-b border-gray-200;
+        }
+
+        .chart-title {
+            @apply text-lg font-semibold text-gray-800;
+        }
+
+        .chart-controls {
+            @apply flex items-center gap-2;
+        }
+
+        .chart-content {
+            @apply p-4;
+        }
+
+        .stream-status {
+            @apply flex items-center gap-2;
+        }
+
+        .status-indicator {
+            @apply w-2 h-2 rounded-full;
+        }
+
+        .status-indicator.online {
+            @apply bg-green-500;
+        }
+
+        .status-indicator.offline {
+            @apply bg-red-500;
+        }
+
+        .status-text {
+            @apply text-xs font-medium text-gray-600;
+        }
+
+        .stream-stats {
+            @apply flex items-center gap-4;
+        }
+
+        .stat-item {
+            @apply text-xs;
+        }
+
+        .stat-label {
+            @apply text-gray-500;
+        }
+
+        .stat-value {
+            @apply font-mono font-semibold text-gray-700;
+        }
+
+        .panel {
+            @apply bg-white border border-gray-200 rounded-lg p-4 mb-4;
+        }
+
+        .panel-title {
+            @apply font-semibold text-gray-800 mb-3;
+        }
+
+        .context-menu {
+            @apply fixed bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50;
+        }
+
+        .context-menu-content {
+            @apply min-w-48;
+        }
+    </style>
+</body>
+</html>

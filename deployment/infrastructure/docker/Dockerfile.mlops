@@ -1,0 +1,72 @@
+# MLOps Dockerfile for Pynomaly
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# Create non-root user
+RUN groupadd -r pynomaly && useradd -r -g pynomaly pynomaly
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    gcc \
+    g++ \
+    git \
+    libpq-dev \
+    libssl-dev \
+    libffi-dev \
+    pkg-config \
+    build-essential \
+    procps \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Set work directory
+WORKDIR /app
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt requirements-mlops.txt ./
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -r requirements-mlops.txt 2>/dev/null || \
+    pip install --no-cache-dir fastapi uvicorn redis psycopg2-binary pandas numpy scikit-learn psutil
+
+# Copy application code
+COPY src/ ./src/
+COPY mlops/ ./mlops/
+COPY data/ ./data/
+
+# Create necessary directories
+RUN mkdir -p /app/storage/data \
+    /app/storage/logs \
+    /app/storage/models \
+    /app/storage/cache \
+    /app/mlops/model_registry \
+    /app/mlops/deployments \
+    /app/mlops/experiments \
+    /app/mlops/monitoring \
+    && chown -R pynomaly:pynomaly /app
+
+# Install the application
+COPY setup.py pyproject.toml ./
+RUN pip install -e .
+
+# Set proper permissions
+RUN chown -R pynomaly:pynomaly /app
+
+# Switch to non-root user
+USER pynomaly
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:8000/health')" || exit 1
+
+# Expose ports
+EXPOSE 8000 8001
+
+# Default command - can be overridden by docker-compose
+CMD ["python", "-m", "pynomaly.mlops.model_serving"]

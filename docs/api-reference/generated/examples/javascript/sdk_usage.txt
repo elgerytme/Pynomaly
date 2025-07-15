@@ -1,0 +1,24 @@
+// Using the Pynomaly JavaScript SDK
+import { PynomalyClient } from 'pynomaly-js';
+
+// Initialize client
+const client = new PynomalyClient('your-api-key-here');
+
+// Create detector
+const detector = await client.detectors.create({
+    name: 'My Detector',
+    algorithm: 'IsolationForest',
+    parameters: {
+        contamination: 0.1,
+        n_estimators: 100
+    }
+});
+
+// Run detection
+const results = await client.detectors.detect({
+    detectorId: detector.id,
+    data: [[1.2, 3.4, 5.6], [2.3, 4.5, 6.7]],
+    featureNames: ['feature1', 'feature2', 'feature3']
+});
+
+console.log(`Anomalies detected: ${results.summary.anomaliesDetected}`);

@@ -1,0 +1,443 @@
+# Environment-specific configurations for Pynomaly deployment
+# This file contains environment variables and settings for different deployment targets
+
+# Development Environment
+development:
+  metadata:
+    name: "development"
+    description: "Local development environment"
+    maintainer: "development-team"
+
+  application:
+    debug: true
+    log_level: "DEBUG"
+    log_format: "text"
+    reload: true
+    workers: 1
+
+  database:
+    host: "localhost"
+    port: 5432
+    name: "pynomaly_dev"
+    user: "dev_user"
+    ssl_mode: "disable"
+    pool_size: 5
+    max_overflow: 5
+    echo: true
+
+  redis:
+    host: "localhost"
+    port: 6379
+    db: 0
+    ssl_enabled: false
+    pool_size: 5
+
+  security:
+    auth_enabled: false
+    rate_limiting_enabled: false
+    cors_enabled: true
+    cors_origins: ["http://localhost:3000", "http://localhost:8080"]
+    secure_headers: false
+
+  monitoring:
+    metrics_enabled: true
+    tracing_enabled: false
+    prometheus_enabled: false
+    log_requests: true
+
+  performance:
+    caching_enabled: false
+    async_workers: 2
+    max_concurrent_requests: 50
+    batch_size: 100
+
+  storage:
+    base_path: "/tmp/pynomaly"
+    models_path: "/tmp/pynomaly/models"
+    data_path: "/tmp/pynomaly/data"
+    logs_path: "/tmp/pynomaly/logs"
+
+# Testing Environment
+testing:
+  metadata:
+    name: "testing"
+    description: "Automated testing environment"
+    maintainer: "qa-team"
+
+  application:
+    debug: false
+    log_level: "INFO"
+    log_format: "json"
+    reload: false
+    workers: 2
+
+  database:
+    host: "postgres-test"
+    port: 5432
+    name: "pynomaly_test"
+    user: "test_user"
+    ssl_mode: "require"
+    pool_size: 10
+    max_overflow: 5
+    echo: false
+
+  redis:
+    host: "redis-test"
+    port: 6379
+    db: 1
+    ssl_enabled: true
+    pool_size: 10
+
+  security:
+    auth_enabled: true
+    rate_limiting_enabled: true
+    cors_enabled: false
+    secure_headers: true
+
+  monitoring:
+    metrics_enabled: true
+    tracing_enabled: true
+    prometheus_enabled: true
+    log_requests: true
+
+  performance:
+    caching_enabled: true
+    cache_ttl: 300
+    async_workers: 4
+    max_concurrent_requests: 100
+    batch_size: 500
+
+  storage:
+    base_path: "/app/storage"
+    models_path: "/app/storage/models"
+    data_path: "/app/storage/data"
+    logs_path: "/app/logs"
+
+# Staging Environment
+staging:
+  metadata:
+    name: "staging"
+    description: "Pre-production staging environment"
+    maintainer: "platform-team"
+
+  application:
+    debug: false
+    log_level: "INFO"
+    log_format: "json"
+    reload: false
+    workers: 3
+
+  database:
+    host: "postgres-staging.internal"
+    port: 5432
+    name: "pynomaly_staging"
+    user: "staging_user"
+    ssl_mode: "require"
+    pool_size: 20
+    max_overflow: 10
+    echo: false
+    connection_timeout: 30
+    query_timeout: 60
+
+  redis:
+    host: "redis-staging.internal"
+    port: 6379
+    db: 0
+    ssl_enabled: true
+    pool_size: 20
+    connection_timeout: 10
+
+  security:
+    auth_enabled: true
+    rate_limiting_enabled: true
+    cors_enabled: false
+    secure_headers: true
+    jwt_expiration: 3600
+    session_timeout: 1800
+
+  monitoring:
+    metrics_enabled: true
+    tracing_enabled: true
+    prometheus_enabled: true
+    jaeger_enabled: true
+    log_requests: true
+    health_check_interval: 30
+
+  performance:
+    caching_enabled: true
+    cache_ttl: 1800
+    async_workers: 4
+    max_concurrent_requests: 200
+    batch_size: 1000
+    memory_limit: "2Gi"
+    cpu_limit: "1000m"
+
+  storage:
+    base_path: "/app/storage"
+    models_path: "/app/storage/models"
+    data_path: "/app/storage/data"
+    logs_path: "/app/logs"
+    backup_enabled: true
+    backup_schedule: "0 2 * * *"
+
+  autoscaling:
+    enabled: true
+    min_replicas: 2
+    max_replicas: 6
+    cpu_threshold: 70
+    memory_threshold: 80
+
+# Production Environment
+production:
+  metadata:
+    name: "production"
+    description: "Live production environment"
+    maintainer: "sre-team"
+    version: "1.0.0"
+
+  application:
+    debug: false
+    log_level: "WARNING"
+    log_format: "json"
+    reload: false
+    workers: 4
+    preload: true
+    graceful_timeout: 30
+
+  database:
+    host: "postgres-prod.internal"
+    port: 5432
+    name: "pynomaly_production"
+    user: "prod_user"
+    ssl_mode: "require"
+    pool_size: 50
+    max_overflow: 20
+    pool_recycle: 3600
+    echo: false
+    connection_timeout: 60
+    query_timeout: 120
+
+    # Read replica configuration
+    read_replica:
+      enabled: true
+      host: "postgres-read-replica.internal"
+      weight: 0.3
+
+    # Connection pooling
+    pgbouncer:
+      enabled: true
+      pool_mode: "transaction"
+      max_client_conn: 200
+
+  redis:
+    host: "redis-prod.internal"
+    port: 6379
+    db: 0
+    ssl_enabled: true
+    pool_size: 50
+    connection_timeout: 30
+    socket_timeout: 30
+
+    # Redis cluster configuration
+    cluster:
+      enabled: true
+      nodes:
+        - "redis-prod-1.internal:6379"
+        - "redis-prod-2.internal:6379"
+        - "redis-prod-3.internal:6379"
+
+    # Redis Sentinel for HA
+    sentinel:
+      enabled: true
+      master_name: "pynomaly-master"
+      sentinels:
+        - "redis-sentinel-1.internal:26379"
+        - "redis-sentinel-2.internal:26379"
+        - "redis-sentinel-3.internal:26379"
+
+  security:
+    auth_enabled: true
+    rate_limiting_enabled: true
+    cors_enabled: false
+    secure_headers: true
+    jwt_expiration: 7200
+    session_timeout: 3600
+
+    # Enhanced security settings
+    tls:
+      enabled: true
+      min_version: "1.2"
+      cipher_suites: "ECDHE+AESGCM:ECDHE+CHACHA20:DHE+AESGCM:DHE+CHACHA20:!aNULL:!MD5:!DSS"
+
+    encryption:
+      algorithm: "AES256"
+      key_rotation_days: 30
+
+    audit:
+      enabled: true
+      retention_days: 365
+
+    waf:
+      enabled: true
+      rules: "OWASP_TOP_10"
+
+  monitoring:
+    metrics_enabled: true
+    tracing_enabled: true
+    prometheus_enabled: true
+    jaeger_enabled: true
+    log_requests: false  # Only errors in production
+    health_check_interval: 15
+
+    # Advanced monitoring
+    apm:
+      enabled: true
+      service_name: "pynomaly-api"
+      environment: "production"
+
+    alerts:
+      enabled: true
+      channels: ["slack", "pagerduty"]
+      thresholds:
+        error_rate: 0.01
+        response_time_p95: 2000
+        memory_usage: 0.85
+        cpu_usage: 0.80
+
+  performance:
+    caching_enabled: true
+    cache_ttl: 3600
+    async_workers: 8
+    max_concurrent_requests: 500
+    batch_size: 2000
+    memory_limit: "4Gi"
+    cpu_limit: "2000m"
+
+    # Connection limits
+    max_connections: 1000
+    keepalive_timeout: 65
+
+    # Optimization settings
+    compression:
+      enabled: true
+      algorithm: "gzip"
+      level: 6
+
+    cdn:
+      enabled: true
+      provider: "cloudflare"
+      cache_static_assets: true
+
+  storage:
+    base_path: "/app/storage"
+    models_path: "/app/storage/models"
+    data_path: "/app/storage/data"
+    logs_path: "/app/logs"
+
+    # Backup configuration
+    backup_enabled: true
+    backup_schedule: "0 1 * * *"  # Daily at 1 AM
+    backup_retention_days: 30
+    backup_compression: true
+
+    # Storage classes and persistence
+    storage_class: "ssd"
+    persistence:
+      enabled: true
+      size: "100Gi"
+      access_mode: "ReadWriteMany"
+
+  autoscaling:
+    enabled: true
+    min_replicas: 3
+    max_replicas: 15
+    cpu_threshold: 70
+    memory_threshold: 80
+
+    # Custom metrics scaling
+    custom_metrics:
+      - name: "requests_per_second"
+        target: 1000
+      - name: "queue_length"
+        target: 100
+
+    # Horizontal Pod Autoscaler behavior
+    behavior:
+      scale_up:
+        stabilization_window_seconds: 60
+        policies:
+          - type: "Pods"
+            value: 2
+            period_seconds: 60
+      scale_down:
+        stabilization_window_seconds: 300
+        policies:
+          - type: "Percent"
+            value: 50
+            period_seconds: 60
+
+  disaster_recovery:
+    enabled: true
+
+    # Multi-region setup
+    regions:
+      primary: "us-west-2"
+      secondary: "us-east-1"
+
+    # RTO/RPO targets
+    rto_minutes: 15  # Recovery Time Objective
+    rpo_minutes: 5   # Recovery Point Objective
+
+    # Backup strategies
+    database_backup:
+      frequency: "hourly"
+      retention: "30d"
+      cross_region: true
+
+    application_backup:
+      frequency: "daily"
+      retention: "90d"
+      include_models: true
+
+  compliance:
+    enabled: true
+    standards: ["SOC2", "ISO27001", "GDPR"]
+
+    data_retention:
+      logs: "1y"
+      metrics: "2y"
+      user_data: "7y"
+
+    encryption:
+      at_rest: true
+      in_transit: true
+      key_management: "aws-kms"
+
+# Shared configurations that apply to all environments
+shared:
+  application:
+    name: "pynomaly"
+    version: "1.0.0"
+    description: "Python anomaly detection platform"
+
+  feature_flags:
+    new_ui: false
+    beta_algorithms: false
+    advanced_visualization: true
+
+  limits:
+    max_file_size: "100MB"
+    max_batch_size: 10000
+    request_timeout: 300
+
+  ml_config:
+    default_algorithms: ["IsolationForest", "OneClassSVM", "LocalOutlierFactor"]
+    model_formats: ["pickle", "joblib", "onnx"]
+    supported_data_types: ["csv", "json", "parquet"]
+
+  api:
+    version: "v1"
+    docs_enabled: true
+    rate_limit_default: "1000/hour"
+    pagination_default: 50
+    pagination_max: 1000

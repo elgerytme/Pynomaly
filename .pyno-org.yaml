@@ -1,0 +1,210 @@
+# Pynomaly File Organization Configuration
+# This file defines how files should be categorized and organized
+
+# Define patterns for automatic deletion (artifacts)
+delete_patterns:
+  # Build artifacts
+  - "dist/"
+  - "build/"
+  - "*.egg-info"
+  - "__pycache__/"
+  - "*.pyc"
+  - "*.pyo"
+  - "*.pyd"
+  - ".pytest_cache/"
+  
+  # Log files
+  - "*.log"
+  - "*.log.*"
+  - "logs/"
+  
+  # Temporary files
+  - "*.tmp"
+  - "*.temp"
+  - "*~"
+  - "*.bak"
+  - "*.backup"
+  
+  # Editor swap files
+  - ".*.swp"
+  - ".*.swo"
+  - ".*.swn"
+  - "*.swp"
+  - "*.swo"
+  - ".#*"
+  - "#*#"
+  
+  # OS generated files
+  - ".DS_Store"
+  - "Thumbs.db"
+  - "desktop.ini"
+  
+  # Development artifacts
+  - ".coverage"
+  - ".tox/"
+  - ".mypy_cache/"
+  - ".pytest_cache/"
+  - "htmlcov/"
+  - "coverage.xml"
+  - "*.cover"
+  - ".hypothesis/"
+  
+  # Virtual environments (common patterns)
+  - "venv/"
+  - ".venv/"
+  - "env/"
+  - ".env"
+
+# Allowlist for files/directories that should NOT be deleted
+# even if they match delete patterns
+allowlist:
+  # Example: Keep specific build artifacts
+  - "docs/build/"  # Keep documentation build
+  - "examples/logs/"  # Keep example logs
+  - "templates/build/"  # Keep template builds
+  
+  # Keep configuration files that match temp patterns
+  - "*.log.config"
+  - "logging.yaml"
+  - "*.tmp.example"
+
+# Define patterns for file movement (non-artifacts)
+move_patterns:
+  # Testing files
+  testing:
+    patterns:
+      - "test_*"
+      - "*_test.py"
+      - "testing/*"
+      - "*testing*"
+    target: "tests/"
+  
+  # Scripts
+  scripts:
+    patterns:
+      - "*.py"
+      - "*.sh"
+      - "*.ps1"
+      - "*.bat"
+    target: "scripts/"
+    excludes:
+      - "test_*"
+      - "*_test.py"
+      - "src/*"
+      - "setup.py"
+  
+  # Documentation
+  documentation:
+    patterns:
+      - "*.md"
+      - "*.rst"
+      - "*.txt"
+    target: "docs/"
+    excludes:
+      - "README.md"
+      - "LICENSE"
+      - "CHANGELOG.md"
+      - "CONTRIBUTING.md"
+      - "TODO.md"
+      - "CLAUDE.md"
+  
+  # Reports
+  reports:
+    patterns:
+      - "*report*"
+      - "*summary*"
+      - "*analysis*"
+    target: "reports/"
+  
+  # Configuration files
+  configuration:
+    patterns:
+      - "*.json"
+      - "*.yaml"
+      - "*.yml"
+      - "*.ini"
+      - "*.toml"
+      - "*.cfg"
+    target: "config/"
+    excludes:
+      - "pyproject.toml"
+      - "setup.cfg"
+      - "package.json"
+      - "package-lock.json"
+      - ".pre-commit-config.yaml"
+
+# Define allowed files in root directory
+allowed_root_files:
+  - "README.md"
+  - "LICENSE"
+  - "CHANGELOG.md"
+  - "TODO.md"
+  - "CLAUDE.md"
+  - "CONTRIBUTING.md"
+  - "MANIFEST.in"
+  - "Makefile"
+  - "pyproject.toml"
+  - "setup.py"
+  - "setup.cfg"
+  - "requirements*.txt"
+  - "package.json"
+  - "package-lock.json"
+  - "Pynomaly.code-workspace"
+  - ".gitignore"
+  - ".gitattributes"
+  - ".pre-commit-config.yaml"
+  - ".pyno-org.yaml"
+  - "docker-compose*.yml"
+  - "docker-compose*.yaml"
+
+# Define allowed directories in root
+allowed_root_directories:
+  - "src"
+  - "tests"
+  - "docs"
+  - "examples"
+  - "scripts"
+  - "deploy"
+  - "config"
+  - "reports"
+  - "storage"
+  - "templates"
+  - "analytics"
+  - "screenshots"
+  - "environments"
+  - "baseline_outputs"
+  - "test_reports"
+  - ".github"
+  - ".git"
+  - "node_modules"
+
+# Safety settings
+safety:
+  # Require confirmation for deletion operations
+  confirm_deletions: true
+  
+  # Maximum file size to delete without confirmation (in bytes)
+  max_auto_delete_size: 10485760  # 10MB
+  
+  # Always backup before deletion
+  backup_before_delete: true
+  
+  # Backup directory
+  backup_directory: ".pyno-org-backup"
+  
+  # Dry run by default
+  dry_run_default: true
+
+# Output settings
+output:
+  # Verbosity level (0=quiet, 1=normal, 2=verbose)
+  verbosity: 1
+  
+  # Show progress for long operations
+  show_progress: true
+  
+  # Generate reports
+  generate_reports: true
+  
+  # Report output directory
+  report_directory: "reports/file-organization"

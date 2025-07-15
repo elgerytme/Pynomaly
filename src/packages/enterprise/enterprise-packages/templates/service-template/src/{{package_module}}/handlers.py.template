@@ -1,0 +1,117 @@
+"""Request handlers for {{package_title}}."""
+
+from typing import Any, Dict, Optional
+import structlog
+from enterprise_core import BaseHandler, DomainEvent
+from .service import {{package_module|title}}Service
+from .config import {{package_module|title}}Config
+
+
+logger = structlog.get_logger(__name__)
+
+
+class {{package_module|title}}Handler(BaseHandler):
+    """Handler for {{package_name}} requests."""
+
+    def __init__(
+        self,
+        service: {{package_module|title}}Service,
+        config: Optional[{{package_module|title}}Config] = None,
+    ) -> None:
+        self._service = service
+        self._config = config or {{package_module|title}}Config()
+
+    async def handle_request(
+        self,
+        request_type: str,
+        data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Handle incoming request based on type.
+
+        Args:
+            request_type: Type of request to handle
+            data: Request data
+
+        Returns:
+            Response data
+
+        Raises:
+            ValueError: If request type is not supported
+        """
+        logger.info(
+            "Handling request",
+            request_type=request_type,
+            request_id=data.get("id", "unknown")
+        )
+
+        # Route to appropriate handler method
+        handler_method = getattr(self, f"_handle_{request_type}", None)
+        if not handler_method:
+            raise ValueError(f"Unsupported request type: {request_type}")
+
+        try:
+            result = await handler_method(data)
+            logger.info(
+                "Request handled successfully",
+                request_type=request_type,
+                request_id=data.get("id", "unknown")
+            )
+            return result
+
+        except Exception as e:
+            logger.error(
+                "Failed to handle request",
+                request_type=request_type,
+                request_id=data.get("id", "unknown"),
+                error=str(e)
+            )
+            raise
+
+    async def handle_event(self, event: DomainEvent) -> None:
+        """Handle domain events.
+
+        Args:
+            event: Domain event to handle
+        """
+        logger.info("Handling domain event", event_name=event.name)
+
+        # Route to appropriate event handler
+        handler_method = getattr(self, f"_on_{event.name.replace('.', '_')}", None)
+        if handler_method:
+            await handler_method(event)
+        else:
+            logger.debug("No handler for event", event_name=event.name)
+
+    async def _handle_process(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle process request."""
+        return await self._service.process_request(data)
+
+    async def _handle_status(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle status request."""
+        return await self._service.health_check()
+
+    async def _handle_metrics(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle metrics request."""
+        return await self._service.get_metrics()
+
+    async def _on_{{package_module}}_data_processed(self, event: DomainEvent) -> None:
+        """Handle data processed event."""
+        logger.info(
+            "Data processing completed",
+            aggregate_id=event.aggregate_id,
+            timestamp=event.timestamp
+        )
+
+        # Add custom event handling logic here
+        # For example: send notifications, update caches, etc.
+
+    async def _on_{{package_module}}_error_occurred(self, event: DomainEvent) -> None:
+        """Handle error event."""
+        logger.error(
+            "Service error occurred",
+            aggregate_id=event.aggregate_id,
+            error_data=event.data
+        )
+
+        # Add custom error handling logic here
+        # For example: send alerts, cleanup resources, etc.

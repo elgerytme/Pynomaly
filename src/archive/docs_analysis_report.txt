@@ -1,0 +1,1047 @@
+# Documentation Analysis Report
+==================================================
+Total markdown files: 191
+Broken links found: 667
+Orphaned files found: 97
+
+## CRITICAL ISSUES REQUIRING IMMEDIATE ATTENTION
+==================================================
+### 1. BROKEN LINKS
+These links point to non-existent files:
+
+**CROSS_LINKING_IMPLEMENTATION_STRATEGY.md:**
+  - [Dataset Analysis Guide](../../user-guides/advanced-features/dataset-analysis-guide.md) -> mnt/c/Users/andre/user-guides/advanced-features/dataset-analysis-guide.md
+  - [Algorithm Selection](../../reference/algorithms/README.md) -> mnt/c/Users/andre/reference/algorithms/README.md
+  - [Banking Fraud Detection](../../examples/banking/Banking_Anomaly_Detection_Guide.md) -> mnt/c/Users/andre/examples/banking/Banking_Anomaly_Detection_Guide.md
+  - [Autonomous Mode](../../user-guides/basic-usage/autonomous-mode.md) -> mnt/c/Users/andre/user-guides/basic-usage/autonomous-mode.md
+  - [Algorithm Selection Tutorial](../../examples/tutorials/05-algorithm-rationale-selection-guide.md) -> mnt/c/Users/andre/examples/tutorials/05-algorithm-rationale-selection-guide.md
+  - [Core Algorithms Reference](../../reference/algorithms/core-algorithms.md) -> mnt/c/Users/andre/reference/algorithms/core-algorithms.md
+  - [First Detection](quickstart.md) -> quickstart.md
+  - [Basic Usage Guide](../user-guides/basic-usage/) -> mnt/c/Users/andre/Pynomaly/user-guides/basic-usage
+  - [Example Walkthrough](../examples/tutorials/README.md) -> mnt/c/Users/andre/Pynomaly/examples/tutorials/README.md
+  - [Autonomous Mode](../user-guides/basic-usage/autonomous-mode.md) -> mnt/c/Users/andre/Pynomaly/user-guides/basic-usage/autonomous-mode.md
+  - [Dataset Management](../user-guides/basic-usage/datasets.md) -> mnt/c/Users/andre/Pynomaly/user-guides/basic-usage/datasets.md
+  - [Banking Example](../examples/banking/Banking_Anomaly_Detection_Guide.md) -> mnt/c/Users/andre/Pynomaly/examples/banking/Banking_Anomaly_Detection_Guide.md
+  - [Quick Start Guide](quickstart.md) -> quickstart.md
+  - [CLI Reference](../cli/command-reference.md) -> mnt/c/Users/andre/Pynomaly/cli/command-reference.md
+  - [Troubleshooting](../user-guides/troubleshooting/troubleshooting.md) -> mnt/c/Users/andre/Pynomaly/user-guides/troubleshooting/troubleshooting.md
+  - [Performance Tuning](../advanced-features/performance-tuning.md) -> mnt/c/Users/andre/Pynomaly/advanced-features/performance-tuning.md
+  - [Deployment Guide](../../deployment/production-deployment.md) -> mnt/c/Users/andre/deployment/production-deployment.md
+  - [API Integration](../../developer-guides/api-integration/rest-api.md) -> mnt/c/Users/andre/developer-guides/api-integration/rest-api.md
+  - [Troubleshooting](../troubleshooting/troubleshooting.md) -> mnt/c/Users/andre/Pynomaly/troubleshooting/troubleshooting.md
+  - [Real-time Dashboards](../progressive-web-app.md) -> mnt/c/Users/andre/Pynomaly/progressive-web-app.md
+  - [Alert Configuration](../advanced-features/performance.md) -> mnt/c/Users/andre/Pynomaly/advanced-features/performance.md
+  - [From Getting Started](../getting-started/README.md) -> mnt/c/Users/andre/Pynomaly/getting-started/README.md
+  - [To Developer Guides](../developer-guides/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/README.md
+  - [To Deployment](../deployment/README.md) -> mnt/c/Users/andre/Pynomaly/deployment/README.md
+  - [Model Persistence](model-persistence-framework.md) -> model-persistence-framework.md
+  - [Continuous Learning](continuous-learning-framework.md) -> continuous-learning-framework.md
+  - [Deployment Pipeline](deployment-pipeline-framework.md) -> deployment-pipeline-framework.md
+  - [PWA Architecture](pwa-architecture.md) -> pwa-architecture.md
+  - [Contributing Guide](../contributing/CONTRIBUTING.md) -> mnt/c/Users/andre/Pynomaly/contributing/CONTRIBUTING.md
+  - [API Integration](../api-integration/rest-api.md) -> mnt/c/Users/andre/Pynomaly/api-integration/rest-api.md
+  - [Testing Strategy](../contributing/COMPREHENSIVE_TEST_ANALYSIS.md) -> mnt/c/Users/andre/Pynomaly/contributing/COMPREHENSIVE_TEST_ANALYSIS.md
+  - [Basic Usage](../../user-guides/basic-usage/) -> mnt/c/Users/andre/user-guides/basic-usage
+  - [Advanced Features](../../user-guides/advanced-features/) -> mnt/c/Users/andre/user-guides/advanced-features
+  - [Web API Setup](WEB_API_SETUP_GUIDE.md) -> WEB_API_SETUP_GUIDE.md
+  - [Python SDK Usage](python-sdk.md) -> python-sdk.md
+  - [REST API Reference](rest-api.md) -> rest-api.md
+  - [Production Security](../../deployment/security.md) -> mnt/c/Users/andre/deployment/security.md
+  - [User Management Example](../../examples/tutorials/README.md) -> mnt/c/Users/andre/examples/tutorials/README.md
+  - [Architecture Overview](../architecture/overview.md) -> mnt/c/Users/andre/Pynomaly/architecture/overview.md
+  - [Business Analysts](banking/Banking_Anomaly_Detection_Guide.md) -> banking/Banking_Anomaly_Detection_Guide.md
+  - [Dataset Analysis](../user-guides/advanced-features/dataset-analysis-guide.md) -> mnt/c/Users/andre/Pynomaly/user-guides/advanced-features/dataset-analysis-guide.md
+  - [Data Scientists](tutorials/README.md) -> tutorials/README.md
+  - [Algorithm Reference](../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [Developers](Data_Quality_Anomaly_Detection_Guide.md) -> Data_Quality_Anomaly_Detection_Guide.md
+  - [API Integration](../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Financial Fraud](banking/) -> banking
+  - [Performance Tuning](../user-guides/advanced-features/performance-tuning.md) -> mnt/c/Users/andre/Pynomaly/user-guides/advanced-features/performance-tuning.md
+  - [Data Quality](Data_Quality_Anomaly_Detection_Guide.md) -> Data_Quality_Anomaly_Detection_Guide.md
+  - [Explainability](../user-guides/advanced-features/explainability.md) -> mnt/c/Users/andre/Pynomaly/user-guides/advanced-features/explainability.md
+  - [Getting Started](../getting-started/README.md) -> mnt/c/Users/andre/Pynomaly/getting-started/README.md
+  - [Basic Usage](../user-guides/basic-usage/) -> mnt/c/Users/andre/Pynomaly/user-guides/basic-usage
+  - [Troubleshooting](../user-guides/troubleshooting/) -> mnt/c/Users/andre/Pynomaly/user-guides/troubleshooting
+  - [Dataset Analysis Guide](../../user-guides/advanced-features/dataset-analysis-guide.md) -> mnt/c/Users/andre/user-guides/advanced-features/dataset-analysis-guide.md
+  - [Algorithm Selection](../../reference/CLASSIFIER_SELECTION_GUIDE.md) -> mnt/c/Users/andre/reference/CLASSIFIER_SELECTION_GUIDE.md
+  - [Performance Optimization](../../user-guides/advanced-features/performance-tuning.md) -> mnt/c/Users/andre/user-guides/advanced-features/performance-tuning.md
+  - [Advanced Features](../../user-guides/advanced-features/) -> mnt/c/Users/andre/user-guides/advanced-features
+  - [Deployment Guide](../../deployment/production-deployment.md) -> mnt/c/Users/andre/deployment/production-deployment.md
+  - [Monitoring Setup](../../user-guides/basic-usage/monitoring.md) -> mnt/c/Users/andre/user-guides/basic-usage/monitoring.md
+  - [Autonomous Mode](../../user-guides/basic-usage/autonomous-mode.md) -> mnt/c/Users/andre/user-guides/basic-usage/autonomous-mode.md
+  - [Algorithm Selection Tutorial](../../examples/tutorials/05-algorithm-rationale-selection-guide.md) -> mnt/c/Users/andre/examples/tutorials/05-algorithm-rationale-selection-guide.md
+  - [Performance Comparison](algorithm-comparison.md) -> algorithm-comparison.md
+  - [Getting Started](../../getting-started/quickstart.md) -> mnt/c/Users/andre/getting-started/quickstart.md
+  - [Advanced Usage](../../user-guides/advanced-features/) -> mnt/c/Users/andre/user-guides/advanced-features
+  - [Developer Integration](../../developer-guides/api-integration/) -> mnt/c/Users/andre/developer-guides/api-integration
+  - [Banking Fraud Detection](../../examples/banking/Banking_Anomaly_Detection_Guide.md) -> mnt/c/Users/andre/examples/banking/Banking_Anomaly_Detection_Guide.md
+  - [Autonomous Selection](../../examples/tutorials/09-autonomous-classifier-selection-guide.md) -> mnt/c/Users/andre/examples/tutorials/09-autonomous-classifier-selection-guide.md
+  - [Performance Tuning](../../user-guides/advanced-features/performance-tuning.md) -> mnt/c/Users/andre/user-guides/advanced-features/performance-tuning.md
+  - [Dataset Analysis](../../user-guides/advanced-features/dataset-analysis-guide.md) -> mnt/c/Users/andre/user-guides/advanced-features/dataset-analysis-guide.md
+  - [Basic Usage](./basic-usage/autonomous-mode.md) -> basic-usage/autonomous-mode.md
+  - [Architecture](./architecture/overview.md) -> architecture/overview.md
+  - [Bad Example](../../../other-section/file.md) -> mnt/c/Users/other-section/file.md
+  - [Click here](some-file.md) -> some-file.md
+  - [Documentation](other-file.md) -> other-file.md
+  - [Installation Guide](../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Basic Concepts](../user-guides/basic-usage/) -> mnt/c/Users/andre/Pynomaly/user-guides/basic-usage
+  - [Advanced Features](../user-guides/advanced-features/) -> mnt/c/Users/andre/Pynomaly/user-guides/advanced-features
+  - [API Documentation](../developer-guides/api-integration/) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration
+  - [Algorithm Guide](../reference/algorithms/) -> mnt/c/Users/andre/Pynomaly/reference/algorithms
+  - [Getting Started](../getting-started/README.md) -> mnt/c/Users/andre/Pynomaly/getting-started/README.md
+  - [Basic Usage](../user-guides/basic-usage/) -> mnt/c/Users/andre/Pynomaly/user-guides/basic-usage
+  - [Advanced Features](../user-guides/advanced-features/) -> mnt/c/Users/andre/Pynomaly/user-guides/advanced-features
+
+**DOCUMENTATION_CROSS_LINKING_ANALYSIS_REPORT.md:**
+  - [Basic Usage](./basic-usage/autonomous-mode.md) -> basic-usage/autonomous-mode.md
+  - [Troubleshooting](./troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**api/API_DOCUMENTATION_SUMMARY.md:**
+  - [/api/v1/redoc](/api/v1/redoc) -> api/v1/redoc
+  - [/api/v1/docs](/api/v1/docs) -> api/v1/docs
+  - [/api/v1/health](/api/v1/health) -> api/v1/health
+
+**archive/historical-project-docs/AUTONOMOUS_MODE_ANALYSIS_REPORT.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/historical-project-docs/FINAL_TESTING_EXCELLENCE_ACHIEVEMENT.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/historical-project-docs/PRESENTATION_COMPONENTS_TESTING_REPORT.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/historical-project-docs/README.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/historical-project-docs/SCRIPT_TESTING_SUMMARY.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/historical-project-docs/SETUP_SIMPLE_TESTING_REPORT.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/historical-project-docs/TESTING_INFRASTRUCTURE_COMPLETION_SUMMARY.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/historical-project-docs/TESTING_INFRASTRUCTURE_OPTIMIZATION_COMPLETE.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/historical-project-docs/UI_TESTING_EXECUTION_SUMMARY.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/historical-project-docs/ULTIMATE_TESTING_TRANSCENDENCE_COMPLETE.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/legacy-algorithm-docs/03-algorithm-options-functionality.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/legacy-algorithm-docs/algorithms-comprehensive.md:**
+  - [Home](../index.md) -> archive/index.md
+  - [Algorithm Comparison Studies](../examples/algorithm-comparison.md) -> archive/examples/algorithm-comparison.md
+  - [Performance Benchmarks](../examples/performance-benchmarking.md) -> archive/examples/performance-benchmarking.md
+  - [Plugin Development Guide](../development/plugin-development.md) -> archive/development/plugin-development.md
+
+**archive/legacy-algorithm-docs/algorithms.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**archive/legacy-algorithm-docs/README.md:**
+  - [Home](../index.md) -> archive/index.md
+
+**cli/preprocessing.md:**
+  - [preprocessing examples](../examples/preprocessing_cli_examples.py) -> examples/preprocessing_cli_examples.py
+  - [anomaly detection workflow guide](workflow.md) -> cli/workflow.md
+
+**deployment/advanced-deployment.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**deployment/BUCK2_INCREMENTAL_TESTING.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**deployment/BUCK2_INTEGRATION_GUIDE.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**deployment/deployment.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**deployment/DOCKER_DEPLOYMENT_GUIDE.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**deployment/kubernetes.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**deployment/production-deployment.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**deployment/PRODUCTION_DEPLOYMENT.md:**
+  - [User Guide](docs/user-guide.md) -> deployment/docs/user-guide.md
+  - [Development Setup](docs/development.md) -> deployment/docs/development.md
+
+**deployment/PRODUCTION_DEPLOYMENT_GUIDE.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**deployment/PRODUCTION_READINESS_SUMMARY.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**deployment/README.md:**
+  - [docs/](../README.md) -> README.md
+
+**deployment/SECURITY.md:**
+  - [docs/](../README.md) -> README.md
+
+**deployment/SECURITY_INTEGRATION.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**developer-guides/enhanced-validation.md:**
+  - [Pre-commit Configuration](../contributing/pre-commit-setup.md) -> contributing/pre-commit-setup.md
+  - [CI/CD Integration](../cicd/github-actions.md) -> cicd/github-actions.md
+  - [Quality Gates](../quality/quality-gates.md) -> quality/quality-gates.md
+  - [Developer Setup](../contributing/development-setup.md) -> contributing/development-setup.md
+
+**developer-guides/README.md:**
+  - [Configuration Reference](../reference/configuration/) -> reference/configuration
+
+**developer-guides/api-integration/API_QUICK_REFERENCE.md:**
+  - [API Integration](README.md) -> developer-guides/api-integration/README.md
+
+**developer-guides/api-integration/authentication.md:**
+  - [API Integration](README.md) -> developer-guides/api-integration/README.md
+
+**developer-guides/api-integration/cli.md:**
+  - [API Integration](README.md) -> developer-guides/api-integration/README.md
+
+**developer-guides/api-integration/domain.md:**
+  - [API Integration](README.md) -> developer-guides/api-integration/README.md
+
+**developer-guides/api-integration/python-sdk.md:**
+  - [API Integration](README.md) -> developer-guides/api-integration/README.md
+
+**developer-guides/api-integration/reference.md:**
+  - [API Integration](README.md) -> developer-guides/api-integration/README.md
+
+**developer-guides/api-integration/rest-api.md:**
+  - [API Integration](README.md) -> developer-guides/api-integration/README.md
+
+**developer-guides/api-integration/rest.md:**
+  - [API Integration](README.md) -> developer-guides/api-integration/README.md
+
+**developer-guides/api-integration/WEB_API_SETUP_GUIDE.md:**
+  - [API Integration](README.md) -> developer-guides/api-integration/README.md
+
+**developer-guides/architecture/continuous-learning-framework.md:**
+  - [Architecture](README.md) -> developer-guides/architecture/README.md
+
+**developer-guides/architecture/deployment-pipeline-framework.md:**
+  - [Architecture](README.md) -> developer-guides/architecture/README.md
+
+**developer-guides/architecture/model-persistence-framework.md:**
+  - [Architecture](README.md) -> developer-guides/architecture/README.md
+
+**developer-guides/architecture/overview.md:**
+  - [Architecture](README.md) -> developer-guides/architecture/README.md
+
+**developer-guides/architecture/pwa-architecture.md:**
+  - [Architecture](README.md) -> developer-guides/architecture/README.md
+  - [type](options) -> developer-guides/architecture/options
+  - [Security Guidelines](../security/overview.md) -> developer-guides/security/overview.md
+
+**developer-guides/architecture/adr/ADR-001-core-architecture-patterns.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+  - [System Design Documentation](../system-design.md) -> developer-guides/architecture/system-design.md
+  - [Architecture Overview](../README.md) -> developer-guides/architecture/README.md
+  - [Testing Strategy](../../testing/README.md) -> developer-guides/testing/README.md
+  - [Code Quality](../../quality/README.md) -> developer-guides/quality/README.md
+  - [Documentation Standards](../../contributing/documentation.md) -> developer-guides/contributing/documentation.md
+
+**developer-guides/architecture/adr/ADR-002-data-pipeline-architecture.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+  - [Data Processing Requirements](../data-processing.md) -> developer-guides/architecture/data-processing.md
+  - [Anomaly Detection Algorithms](../algorithms.md) -> developer-guides/architecture/algorithms.md
+  - [Architecture Overview](../README.md) -> developer-guides/architecture/README.md
+  - [Data Architecture](../data-architecture.md) -> developer-guides/architecture/data-architecture.md
+  - [Data Processing Guide](../../data/processing.md) -> developer-guides/data/processing.md
+  - [Performance Guidelines](../../performance/README.md) -> developer-guides/performance/README.md
+  - [Monitoring Guide](../../operations/monitoring.md) -> developer-guides/operations/monitoring.md
+  - [Deployment Guide](../../operations/deployment.md) -> developer-guides/operations/deployment.md
+  - [Troubleshooting Guide](../../operations/troubleshooting.md) -> developer-guides/operations/troubleshooting.md
+
+**developer-guides/architecture/adr/ADR-003.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+  - [Algorithm Comparison Document](../../reference/algorithms/algorithm-comparison.md) -> developer-guides/reference/algorithms/algorithm-comparison.md
+
+**developer-guides/architecture/adr/ADR-004-api-design-and-versioning.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+  - [RESTful API Guidelines](../restful-guidelines.md) -> developer-guides/architecture/restful-guidelines.md
+  - [API Design Principles](../api-design.md) -> developer-guides/architecture/api-design.md
+  - [Architecture Overview](../README.md) -> developer-guides/architecture/README.md
+  - [API Architecture](../api-architecture.md) -> developer-guides/architecture/api-architecture.md
+  - [API Implementation Guide](../../api/implementation.md) -> developer-guides/api/implementation.md
+  - [Security Guidelines](../../security/README.md) -> developer-guides/security/README.md
+  - [Testing Strategy](../../testing/README.md) -> developer-guides/testing/README.md
+  - [Code Quality](../../quality/README.md) -> developer-guides/quality/README.md
+  - [Documentation Standards](../../contributing/documentation.md) -> developer-guides/contributing/documentation.md
+
+**developer-guides/architecture/adr/ADR-005-security-architecture.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+  - [Security Best Practices](../../security/README.md) -> developer-guides/security/README.md
+  - [Compliance Requirements](../../security/compliance.md) -> developer-guides/security/compliance.md
+  - [Architecture Overview](../README.md) -> developer-guides/architecture/README.md
+  - [Security Architecture](../security-architecture.md) -> developer-guides/architecture/security-architecture.md
+  - [Security Guidelines](../../security/README.md) -> developer-guides/security/README.md
+  - [Threat Modeling](../../security/threat-modeling.md) -> developer-guides/security/threat-modeling.md
+  - [Incident Response](../../security/incident-response.md) -> developer-guides/security/incident-response.md
+  - [Compliance Guide](../../security/compliance.md) -> developer-guides/security/compliance.md
+  - [Audit Trail](../../security/audit-trail.md) -> developer-guides/security/audit-trail.md
+  - [Data Protection](../../security/data-protection.md) -> developer-guides/security/data-protection.md
+
+**developer-guides/architecture/adr/ADR-006-deployment-strategy.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+  - [Deployment Best Practices](../../operations/deployment.md) -> developer-guides/operations/deployment.md
+  - [Infrastructure as Code](../../operations/infrastructure.md) -> developer-guides/operations/infrastructure.md
+  - [Architecture Overview](../README.md) -> developer-guides/architecture/README.md
+  - [Deployment Architecture](../deployment-architecture.md) -> developer-guides/architecture/deployment-architecture.md
+  - [Deployment Guide](../../operations/deployment.md) -> developer-guides/operations/deployment.md
+  - [Infrastructure Guide](../../operations/infrastructure.md) -> developer-guides/operations/infrastructure.md
+  - [Monitoring Guide](../../operations/monitoring.md) -> developer-guides/operations/monitoring.md
+  - [CI/CD Pipeline](../../operations/ci-cd.md) -> developer-guides/operations/ci-cd.md
+  - [Environment Management](../../operations/environments.md) -> developer-guides/operations/environments.md
+  - [Rollback Procedures](../../operations/rollback.md) -> developer-guides/operations/rollback.md
+
+**developer-guides/architecture/adr/ADR-007-production-hardening-roadmap.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+  - [Security Best Practices](../../security/security-guidelines.md) -> developer-guides/security/security-guidelines.md
+  - [Performance Optimization Guide](../../performance/optimization-guide.md) -> developer-guides/performance/optimization-guide.md
+  - [Monitoring and Observability](../../operations/monitoring-guide.md) -> developer-guides/operations/monitoring-guide.md
+  - [Deployment Strategies](../../operations/deployment-guide.md) -> developer-guides/operations/deployment-guide.md
+  - [Security Guidelines](../../security/security-guidelines.md) -> developer-guides/security/security-guidelines.md
+  - [Deployment Guide](../../operations/deployment-guide.md) -> developer-guides/operations/deployment-guide.md
+  - [Monitoring Guide](../../operations/monitoring-guide.md) -> developer-guides/operations/monitoring-guide.md
+  - [Troubleshooting Guide](../../operations/troubleshooting-guide.md) -> developer-guides/operations/troubleshooting-guide.md
+
+**developer-guides/architecture/adr/ADR-008-monitoring-observability.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+  - [Monitoring Best Practices](../../operations/monitoring.md) -> developer-guides/operations/monitoring.md
+  - [Observability Guidelines](../../operations/observability.md) -> developer-guides/operations/observability.md
+  - [Architecture Overview](../README.md) -> developer-guides/architecture/README.md
+  - [Monitoring Architecture](../monitoring-architecture.md) -> developer-guides/architecture/monitoring-architecture.md
+  - [Monitoring Guide](../../operations/monitoring.md) -> developer-guides/operations/monitoring.md
+  - [Alerting Guide](../../operations/alerting.md) -> developer-guides/operations/alerting.md
+  - [Incident Response](../../operations/incident-response.md) -> developer-guides/operations/incident-response.md
+  - [SRE Practices](../../sre/README.md) -> developer-guides/sre/README.md
+  - [Performance Monitoring](../../sre/performance.md) -> developer-guides/sre/performance.md
+  - [Troubleshooting](../../sre/troubleshooting.md) -> developer-guides/sre/troubleshooting.md
+
+**developer-guides/architecture/adr/ADR-009-testing-strategy.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+  - [Testing Best Practices](../../testing/README.md) -> developer-guides/testing/README.md
+  - [Quality Assurance Guidelines](../../testing/qa-guidelines.md) -> developer-guides/testing/qa-guidelines.md
+  - [Architecture Overview](../README.md) -> developer-guides/architecture/README.md
+  - [Testing Architecture](../testing-architecture.md) -> developer-guides/architecture/testing-architecture.md
+  - [Testing Guide](../../testing/README.md) -> developer-guides/testing/README.md
+  - [Test Automation](../../testing/automation.md) -> developer-guides/testing/automation.md
+  - [Quality Gates](../../testing/quality-gates.md) -> developer-guides/testing/quality-gates.md
+  - [Code Quality](../../quality/README.md) -> developer-guides/quality/README.md
+  - [Coverage Requirements](../../quality/coverage.md) -> developer-guides/quality/coverage.md
+  - [Performance Testing](../../quality/performance.md) -> developer-guides/quality/performance.md
+
+**developer-guides/architecture/adr/ADR-010-performance-optimization.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+  - [Performance Best Practices](../../performance/README.md) -> developer-guides/performance/README.md
+  - [Optimization Guidelines](../../performance/optimization.md) -> developer-guides/performance/optimization.md
+  - [Architecture Overview](../README.md) -> developer-guides/architecture/README.md
+  - [Performance Architecture](../performance-architecture.md) -> developer-guides/architecture/performance-architecture.md
+  - [Performance Guide](../../performance/README.md) -> developer-guides/performance/README.md
+  - [Benchmarking](../../performance/benchmarking.md) -> developer-guides/performance/benchmarking.md
+  - [Profiling](../../performance/profiling.md) -> developer-guides/performance/profiling.md
+  - [Code Optimization](../../optimization/code.md) -> developer-guides/optimization/code.md
+  - [Database Optimization](../../optimization/database.md) -> developer-guides/optimization/database.md
+  - [System Optimization](../../optimization/system.md) -> developer-guides/optimization/system.md
+
+**developer-guides/architecture/adr/ADR-011-streaming-engine-architecture.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+
+**developer-guides/architecture/adr/ADR-012-production-database-integration.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+
+**developer-guides/architecture/adr/adr-template.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+
+**developer-guides/architecture/adr/README.md:**
+  - [Home](../../index.md) -> developer-guides/index.md
+  - [Developer Guides](../README.md) -> developer-guides/architecture/README.md
+
+**developer-guides/architecture/adr/template.md:**
+  - [Architecture](../README.md) -> developer-guides/architecture/README.md
+  - [Architecture Overview](../README.md) -> developer-guides/architecture/README.md
+  - [Architecture Overview](../README.md) -> developer-guides/architecture/README.md
+
+**developer-guides/contributing/autonomous-mode-developer-guide.md:**
+  - [API Reference](../api/autonomous-mode-api.md) -> developer-guides/api/autonomous-mode-api.md
+  - [Troubleshooting Guide](../troubleshooting/autonomous-mode-troubleshooting.md) -> developer-guides/troubleshooting/autonomous-mode-troubleshooting.md
+
+**developer-guides/contributing/ENVIRONMENT_MANAGEMENT_MIGRATION.md:**
+  - [Environment README](../environments/README.md) -> developer-guides/environments/README.md
+  - [Development Setup](../docs/development/README.md) -> developer-guides/docs/development/README.md
+  - [CLAUDE.md](../CLAUDE.md) -> developer-guides/CLAUDE.md
+  - [Installation Guide](../docs/getting-started/installation.md) -> developer-guides/docs/getting-started/installation.md
+
+**developer-guides/contributing/FILE_ORGANIZATION_STANDARDS.md:**
+  - [Contributing Guidelines](../CONTRIBUTING.md) -> developer-guides/CONTRIBUTING.md
+  - [Development Setup](./development-setup.md) -> developer-guides/contributing/development-setup.md
+  - [CI/CD Pipeline](./cicd-pipeline.md) -> developer-guides/contributing/cicd-pipeline.md
+  - [Code Quality Standards](./code-quality.md) -> developer-guides/contributing/code-quality.md
+
+**developer-guides/contributing/troubleshooting/SYSTEM_RECOVERY_SUCCESS_REPORT.md:**
+  - [Home](../index.md) -> developer-guides/contributing/index.md
+  - [Developer-Guides](README.md) -> developer-guides/contributing/troubleshooting/README.md
+  - [Contributing Guidelines](../contributing/CONTRIBUTING.md) -> developer-guides/contributing/contributing/CONTRIBUTING.md
+  - [Development Setup](../contributing/README.md) -> developer-guides/contributing/contributing/README.md
+  - [Architecture Overview](../architecture/overview.md) -> developer-guides/contributing/architecture/overview.md
+  - [Implementation Guide](../contributing/IMPLEMENTATION_GUIDE.md) -> developer-guides/contributing/contributing/IMPLEMENTATION_GUIDE.md
+  - [REST API](../api-integration/rest-api.md) -> developer-guides/contributing/api-integration/rest-api.md
+  - [Python SDK](../api-integration/python-sdk.md) -> developer-guides/contributing/api-integration/python-sdk.md
+  - [CLI Reference](../api-integration/cli.md) -> developer-guides/contributing/api-integration/cli.md
+  - [Authentication](../api-integration/authentication.md) -> developer-guides/contributing/api-integration/authentication.md
+  - [User Guides](../../user-guides/README.md) -> developer-guides/user-guides/README.md
+  - [Getting Started](../../getting-started/README.md) -> developer-guides/getting-started/README.md
+  - [Examples](../../examples/README.md) -> developer-guides/examples/README.md
+  - [Production Deployment](../../deployment/README.md) -> developer-guides/deployment/README.md
+  - [Security Setup](../../deployment/SECURITY.md) -> developer-guides/deployment/SECURITY.md
+  - [Monitoring](../../user-guides/basic-usage/monitoring.md) -> developer-guides/user-guides/basic-usage/monitoring.md
+  - [Development Troubleshooting](../contributing/troubleshooting/) -> developer-guides/contributing/contributing/troubleshooting
+  - [Contributing Guidelines](../contributing/CONTRIBUTING.md) -> developer-guides/contributing/contributing/CONTRIBUTING.md
+
+**examples/Data_Quality_Anomaly_Detection_Guide.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**examples/banking/Banking_Anomaly_Detection_Guide.md:**
+  - [Banking](README.md) -> examples/banking/README.md
+  - [Basic Usage](../basic-usage/README.md) -> examples/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> examples/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> examples/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> examples/troubleshooting/troubleshooting.md
+
+**examples/tutorials/01-pynomaly-process-guide.md:**
+  - [Home](../index.md) -> examples/index.md
+  - [Basic Usage](../basic-usage/README.md) -> examples/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> examples/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> examples/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> examples/troubleshooting/troubleshooting.md
+
+**examples/tutorials/02-pynomaly-architecture-guide.md:**
+  - [Home](../index.md) -> examples/index.md
+  - [Basic Usage](../basic-usage/README.md) -> examples/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> examples/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> examples/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> examples/troubleshooting/troubleshooting.md
+
+**examples/tutorials/04-autonomous-mode-guide.md:**
+  - [Home](../index.md) -> examples/index.md
+  - [Basic Usage](../basic-usage/README.md) -> examples/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> examples/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> examples/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> examples/troubleshooting/troubleshooting.md
+
+**examples/tutorials/05-algorithm-rationale-selection-guide.md:**
+  - [Home](../index.md) -> examples/index.md
+  - [Basic Usage](../basic-usage/README.md) -> examples/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> examples/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> examples/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> examples/troubleshooting/troubleshooting.md
+
+**examples/tutorials/06-business-user-monthly-testing-procedures.md:**
+  - [Home](../index.md) -> examples/index.md
+  - [Basic Usage](../basic-usage/README.md) -> examples/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> examples/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> examples/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> examples/troubleshooting/troubleshooting.md
+
+**examples/tutorials/09-autonomous-classifier-selection-guide.md:**
+  - [Home](../index.md) -> examples/index.md
+  - [Basic Usage](../basic-usage/README.md) -> examples/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> examples/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> examples/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> examples/troubleshooting/troubleshooting.md
+
+**examples/tutorials/advanced-usage.md:**
+  - [Home](../index.md) -> examples/index.md
+  - [Basic Usage](../basic-usage/README.md) -> examples/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> examples/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> examples/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> examples/troubleshooting/troubleshooting.md
+
+**examples/tutorials/advanced.md:**
+  - [Home](../index.md) -> examples/index.md
+  - [Basic Usage](../basic-usage/README.md) -> examples/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> examples/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> examples/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> examples/troubleshooting/troubleshooting.md
+
+**examples/tutorials/README.md:**
+  - [Home](../index.md) -> examples/index.md
+  - [03-algorithm-options-functionality.md](03-algorithm-options-functionality.md) -> examples/tutorials/03-algorithm-options-functionality.md
+
+**getting-started/FEATURE_INSTALLATION_GUIDE.md:**
+  - [docs/](../README.md) -> README.md
+
+**getting-started/installation.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**getting-started/quickstart.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**getting-started/README_SIMPLE_SETUP.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**getting-started/SETUP_CLI.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**getting-started/web-interface-quickstart.md:**
+  - [Installation Guide](../../getting-started/installation.md) -> mnt/c/Users/andre/Pynomaly/getting-started/installation.md
+  - [Quick Start](../../getting-started/quickstart.md) -> mnt/c/Users/andre/Pynomaly/getting-started/quickstart.md
+  - [Platform Setup](../../getting-started/platform-specific/) -> mnt/c/Users/andre/Pynomaly/getting-started/platform-specific
+  - [Basic Usage](../basic-usage/README.md) -> basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> troubleshooting/README.md
+  - [Algorithm Reference](../../reference/algorithms/README.md) -> mnt/c/Users/andre/Pynomaly/reference/algorithms/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> mnt/c/Users/andre/Pynomaly/reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> mnt/c/Users/andre/Pynomaly/examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> troubleshooting/troubleshooting.md
+
+**getting-started/platform-specific/MULTI_PYTHON_VERSIONS.md:**
+  - [Platform Setup](README.md) -> getting-started/platform-specific/README.md
+
+**getting-started/platform-specific/WINDOWS_SETUP_GUIDE.md:**
+  - [Platform Setup](README.md) -> getting-started/platform-specific/README.md
+  - [Basic Usage](../basic-usage/README.md) -> getting-started/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> getting-started/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> getting-started/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+  - [Troubleshooting Guide](../troubleshooting/troubleshooting.md) -> getting-started/troubleshooting/troubleshooting.md
+
+**performance/performance-best-practices.md:**
+  - [\\/](d3|echarts|chart\.js) -> performance/d3|echarts|chart\.js
+
+**project/DEVELOPMENT_ROADMAP.md:**
+  - [Home](../docs/index.md) -> docs/index.md
+  - [Project](README.md) -> project/README.md
+  - [Implementation Plan](../reports/07_roadmap.md) -> reports/07_roadmap.md
+  - [12-Week Action Plan](../reports/07_roadmap.md) -> reports/07_roadmap.md
+  - [Architecture Overview](../docs/developer-guides/architecture/overview.md) -> docs/developer-guides/architecture/overview.md
+  - [ADR Repository](../docs/developer-guides/architecture/adr/README.md) -> docs/developer-guides/architecture/adr/README.md
+  - [Development Setup](../docs/developer-guides/DEVELOPMENT_SETUP.md) -> docs/developer-guides/DEVELOPMENT_SETUP.md
+  - [Testing Strategy](../docs/testing/TESTING_STRATEGY.md) -> docs/testing/TESTING_STRATEGY.md
+  - [Test Coverage Report](../docs/testing/TEST_COVERAGE_ANALYSIS_REPORT.md) -> docs/testing/TEST_COVERAGE_ANALYSIS_REPORT.md
+  - [Quality Standards](../docs/developer-guides/contributing/CONTRIBUTING.md) -> docs/developer-guides/contributing/CONTRIBUTING.md
+  - [Architecture Team](../docs/developer-guides/contributing/CONTRIBUTING.md#team-structure) -> docs/developer-guides/contributing/CONTRIBUTING.md
+
+**project/PROJECT_VISION_AND_REQUIREMENTS.md:**
+  - [Home](../../index.md) -> mnt/c/Users/andre/Pynomaly/index.md
+  - [Project](README.md) -> project/README.md
+
+**project/plans/BUCK2_HATCH_INTEGRATION_PLAN.md:**
+  - [Home](../index.md) -> project/index.md
+
+**project/plans/DOCUMENTATION_IMPROVEMENT_PLAN.md:**
+  - [Home](../index.md) -> project/index.md
+
+**project/plans/TESTING_IMPROVEMENT_PLAN.md:**
+  - [Home](../index.md) -> project/index.md
+
+**project/prompts/MASTER_PROMPT.md:**
+  - [Home](../index.md) -> project/index.md
+
+**project/requirements/REQUIREMENTS.md:**
+  - [Home](../../docs/index.md) -> docs/index.md
+  - [Project](../README.md) -> project/README.md
+
+**project/standards/COMMIT_BASED_DOCUMENTATION_RULES.md:**
+  - [Home](../index.md) -> project/index.md
+
+**project/standards/DOCUMENTATION_MAINTENANCE_RULES.md:**
+  - [Home](../index.md) -> project/index.md
+
+**reference/algorithm-comparison.md:**
+  - [Reference](README.md) -> reference/README.md
+  - [Basic Usage](../../user-guides/basic-usage/README.md) -> mnt/c/Users/andre/Pynomaly/user-guides/basic-usage/README.md
+  - [Advanced Features](../../user-guides/advanced-features/README.md) -> mnt/c/Users/andre/Pynomaly/user-guides/advanced-features/README.md
+  - [Autonomous Mode](../../user-guides/basic-usage/autonomous-mode.md) -> mnt/c/Users/andre/Pynomaly/user-guides/basic-usage/autonomous-mode.md
+  - [Performance Benchmarks](../../examples/performance/) -> mnt/c/Users/andre/Pynomaly/examples/performance
+  - [Use Case Examples](../../examples/tutorials/) -> mnt/c/Users/andre/Pynomaly/examples/tutorials
+  - [API Integration](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Custom Algorithms](../../developer-guides/contributing/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/contributing/README.md
+  - [Testing](../../developer-guides/contributing/COMPREHENSIVE_TEST_ANALYSIS.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/contributing/COMPREHENSIVE_TEST_ANALYSIS.md
+  - [Algorithm Selection Guide](README.md) -> reference/README.md
+  - [Performance Tuning](../../user-guides/advanced-features/performance-tuning.md) -> mnt/c/Users/andre/Pynomaly/user-guides/advanced-features/performance-tuning.md
+  - [Troubleshooting](../../user-guides/troubleshooting/README.md) -> mnt/c/Users/andre/Pynomaly/user-guides/troubleshooting/README.md
+
+**reference/CLASSIFIER_SELECTION_GUIDE.md:**
+  - [Reference](README.md) -> reference/README.md
+  - [Basic Usage](../../user-guides/basic-usage/README.md) -> mnt/c/Users/andre/Pynomaly/user-guides/basic-usage/README.md
+  - [Advanced Features](../../user-guides/advanced-features/README.md) -> mnt/c/Users/andre/Pynomaly/user-guides/advanced-features/README.md
+  - [Autonomous Mode](../../user-guides/basic-usage/autonomous-mode.md) -> mnt/c/Users/andre/Pynomaly/user-guides/basic-usage/autonomous-mode.md
+  - [Performance Benchmarks](../../examples/performance/) -> mnt/c/Users/andre/Pynomaly/examples/performance
+  - [Use Case Examples](../../examples/tutorials/) -> mnt/c/Users/andre/Pynomaly/examples/tutorials
+  - [API Integration](../../developer-guides/api-integration/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/api-integration/README.md
+  - [Custom Algorithms](../../developer-guides/contributing/README.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/contributing/README.md
+  - [Testing](../../developer-guides/contributing/COMPREHENSIVE_TEST_ANALYSIS.md) -> mnt/c/Users/andre/Pynomaly/developer-guides/contributing/COMPREHENSIVE_TEST_ANALYSIS.md
+  - [Algorithm Selection Guide](README.md) -> reference/README.md
+  - [Performance Tuning](../../user-guides/advanced-features/performance-tuning.md) -> mnt/c/Users/andre/Pynomaly/user-guides/advanced-features/performance-tuning.md
+  - [Troubleshooting](../../user-guides/troubleshooting/README.md) -> mnt/c/Users/andre/Pynomaly/user-guides/troubleshooting/README.md
+
+**reference/algorithms/algorithm-comparison.md:**
+  - [Reference](../README.md) -> reference/README.md
+
+**reference/algorithms/core-algorithms.md:**
+  - [Reference](../README.md) -> reference/README.md
+  - [Autonomous Mode Guide](../../comprehensive/09-autonomous-classifier-selection-guide.md) -> comprehensive/09-autonomous-classifier-selection-guide.md
+
+**reference/algorithms/experimental-algorithms.md:**
+  - [Reference](../README.md) -> reference/README.md
+  - [AutoML Guide](../../guides/automl-guide.md) -> guides/automl-guide.md
+  - [Deep Learning Guide](../../guides/deep-learning-anomaly-detection.md) -> guides/deep-learning-anomaly-detection.md
+
+**reference/algorithms/README.md:**
+  - [Reference](../README.md) -> reference/README.md
+  - [Performance Benchmarks](../../examples/performance-benchmarking.md) -> examples/performance-benchmarking.md
+  - [Autonomous Mode Guide](../../comprehensive/09-autonomous-classifier-selection-guide.md) -> comprehensive/09-autonomous-classifier-selection-guide.md
+  - [Plugin Development Guide](../../development/plugin-development.md) -> development/plugin-development.md
+  - [Documentation Standards](../../project/standards/documentation-standards.md) -> project/standards/documentation-standards.md
+  - [Autonomous Mode](../../comprehensive/09-autonomous-classifier-selection-guide.md) -> comprehensive/09-autonomous-classifier-selection-guide.md
+
+**reference/algorithms/specialized-algorithms.md:**
+  - [Reference](../README.md) -> reference/README.md
+  - [Time Series Guide](../../guides/time-series-anomaly-detection.md) -> guides/time-series-anomaly-detection.md
+
+**reference/api/pwa-api-reference.md:**
+  - [Home](../index.md) -> reference/index.md
+  - [Reference](README.md) -> reference/api/README.md
+  - [REST API Reference](./rest-api.md) -> reference/api/rest-api.md
+  - [Python SDK Reference](./python-sdk.md) -> reference/api/python-sdk.md
+
+**security/pynomaly-iam-guide.md:**
+  - [Authentication Guide](authentication.md) -> security/authentication.md
+  - [Encryption Configuration](encryption.md) -> security/encryption.md
+  - [Audit Logging](audit-logging.md) -> security/audit-logging.md
+  - [docs/](../README.md) -> README.md
+
+**security/checklists/testing-checklist.md:**
+  - [Implementation Phase Checklist](implementation-checklist.md) -> security/checklists/implementation-checklist.md
+  - [Deployment Phase Checklist](deployment-checklist.md) -> security/checklists/deployment-checklist.md
+  - [Testing Documentation](../../developer-guides/testing/README.md) -> developer-guides/testing/README.md
+
+**testing/README_INTEGRATION_TESTING.md:**
+  - [CLAUDE.md](CLAUDE.md) -> testing/CLAUDE.md
+
+**user/autonomous-mode-guide.md:**
+  - [Developer Guide](../development/autonomous-mode-developer-guide.md) -> development/autonomous-mode-developer-guide.md
+  - [API Reference](../api/autonomous-mode-api.md) -> api/autonomous-mode-api.md
+
+**user-guides/progressive-web-app.md:**
+  - [User Interface Guide](./basic-usage/dashboard.md) -> user-guides/basic-usage/dashboard.md
+
+**user-guides/README.md:**
+  - [Configuration](../reference/configuration/) -> reference/configuration
+
+**user-guides/advanced-features/automl-and-intelligence.md:**
+  - [Advanced Features](README.md) -> user-guides/advanced-features/README.md
+  - [Custom Algorithm Development](../development/custom-algorithms.md) -> user-guides/development/custom-algorithms.md
+  - [Ensemble Methods](../guides/ensemble-methods.md) -> user-guides/guides/ensemble-methods.md
+  - [Streaming AutoML](../guides/streaming-automl.md) -> user-guides/guides/streaming-automl.md
+  - [Distributed AutoML](../guides/distributed-automl.md) -> user-guides/guides/distributed-automl.md
+  - [AutoML API Reference](../api/automl-reference.md) -> user-guides/api/automl-reference.md
+  - [Contributing Guide](../development/contributing.md) -> user-guides/development/contributing.md
+
+**user-guides/advanced-features/dataset-analysis-guide.md:**
+  - [Advanced Features](README.md) -> user-guides/advanced-features/README.md
+  - [Basic Usage](../basic-usage/README.md) -> user-guides/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> user-guides/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> user-guides/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+
+**user-guides/advanced-features/explainability.md:**
+  - [Advanced Features](README.md) -> user-guides/advanced-features/README.md
+  - [Algorithm-Specific Explanation Guides](../reference/algorithm-explanations.md) -> user-guides/reference/algorithm-explanations.md
+  - [Business Use Case Examples](../examples/explanation-use-cases.md) -> user-guides/examples/explanation-use-cases.md
+  - [Contributing Guide](../development/contributing.md) -> user-guides/development/contributing.md
+  - [Basic Usage](../basic-usage/README.md) -> user-guides/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> user-guides/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> user-guides/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+
+**user-guides/advanced-features/performance-tuning.md:**
+  - [Advanced Features](README.md) -> user-guides/advanced-features/README.md
+  - [Basic Usage](../basic-usage/README.md) -> user-guides/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> user-guides/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> user-guides/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+
+**user-guides/advanced-features/performance.md:**
+  - [Advanced Features](README.md) -> user-guides/advanced-features/README.md
+  - [Basic Usage](../basic-usage/README.md) -> user-guides/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> user-guides/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> user-guides/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+
+**user-guides/basic-usage/autonomous-mode.md:**
+  - [Basic Usage](README.md) -> user-guides/basic-usage/README.md
+  - [Basic Usage](../basic-usage/README.md) -> user-guides/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> user-guides/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> user-guides/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+
+**user-guides/basic-usage/datasets.md:**
+  - [Basic Usage](README.md) -> user-guides/basic-usage/README.md
+  - [Basic Usage](../basic-usage/README.md) -> user-guides/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> user-guides/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> user-guides/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+
+**user-guides/basic-usage/monitoring.md:**
+  - [Basic Usage](README.md) -> user-guides/basic-usage/README.md
+  - [Basic Usage](../basic-usage/README.md) -> user-guides/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> user-guides/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> user-guides/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+
+**user-guides/troubleshooting/troubleshooting-guide.md:**
+  - [Troubleshooting](README.md) -> user-guides/troubleshooting/README.md
+  - [Basic Usage](../basic-usage/README.md) -> user-guides/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> user-guides/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> user-guides/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+
+**user-guides/troubleshooting/troubleshooting.md:**
+  - [Troubleshooting](README.md) -> user-guides/troubleshooting/README.md
+  - [Basic Usage](../basic-usage/README.md) -> user-guides/basic-usage/README.md
+  - [Advanced Features](../advanced-features/README.md) -> user-guides/advanced-features/README.md
+  - [Troubleshooting](../troubleshooting/README.md) -> user-guides/troubleshooting/README.md
+  - [API Documentation](../../developer-guides/api-integration/README.md) -> developer-guides/api-integration/README.md
+  - [Configuration](../../reference/configuration/) -> reference/configuration
+  - [Notebooks](../../examples/notebooks/) -> examples/notebooks
+
+### 2. ORPHANED FILES
+These files are not referenced by any other documentation:
+
+- CROSS_LINKING_IMPLEMENTATION_STRATEGY.md
+- DOCUMENTATION_CROSS_LINKING_ANALYSIS_REPORT.md
+- DOCUMENTATION_CROSS_LINKING_EXECUTIVE_SUMMARY.md
+- STEP2_COMPLETION_SUMMARY.md
+- accessibility/Accessibility_Testing_Checklist.md
+- accessibility/WCAG_2.1_AA_Compliance_Guide.md
+- api/API_DOCUMENTATION_SUMMARY.md
+- api_routes.md
+- archive/DEPLOYMENT_READINESS_CHECKLIST.md
+- archive/FINAL_AUTONOMOUS_SUMMARY.md
+- archive/historical-project-docs/AUTONOMOUS_MODE_ANALYSIS_REPORT.md
+- archive/historical-project-docs/FINAL_TESTING_EXCELLENCE_ACHIEVEMENT.md
+- archive/historical-project-docs/PRESENTATION_COMPONENTS_TESTING_REPORT.md
+- archive/historical-project-docs/SCRIPT_TESTING_SUMMARY.md
+- archive/historical-project-docs/SETUP_SIMPLE_TESTING_REPORT.md
+- archive/historical-project-docs/TESTING_INFRASTRUCTURE_COMPLETION_SUMMARY.md
+- archive/historical-project-docs/TESTING_INFRASTRUCTURE_OPTIMIZATION_COMPLETE.md
+- archive/historical-project-docs/UI_TESTING_EXECUTION_SUMMARY.md
+- archive/historical-project-docs/ULTIMATE_TESTING_TRANSCENDENCE_COMPLETE.md
+- archive/legacy-algorithm-docs/03-algorithm-options-functionality.md
+- archive/legacy-algorithm-docs/algorithms-comprehensive.md
+- archive/legacy-algorithm-docs/algorithms.md
+- audit/ui_ux_2024-Q2.md
+- autonomous/preprocessing-integration.md
+- cli/command-reference.md
+- cli/preprocessing-implementation-summary.md
+- cli/preprocessing.md
+- deployment/PRODUCTION_DEPLOYMENT.md
+- design-system/accessibility-implementation-guide.md
+- design-system/component-guidelines.md
+- design-system/design-tokens.md
+- design-system/performance-best-practices.md
+- developer-guides/api-integration/reference.md
+- developer-guides/api-integration/rest.md
+- developer-guides/architecture/adr/ADR-001-core-architecture-patterns.md
+- developer-guides/architecture/adr/ADR-002-data-pipeline-architecture.md
+- developer-guides/architecture/adr/ADR-004-api-design-and-versioning.md
+- developer-guides/architecture/adr/ADR-005-security-architecture.md
+- developer-guides/architecture/adr/ADR-006-deployment-strategy.md
+- developer-guides/architecture/adr/ADR-007-production-hardening-roadmap.md
+- developer-guides/architecture/adr/ADR-008-monitoring-observability.md
+- developer-guides/architecture/adr/ADR-009-testing-strategy.md
+- developer-guides/architecture/adr/ADR-010-performance-optimization.md
+- developer-guides/architecture/adr/ADR-011-streaming-engine-architecture.md
+- developer-guides/architecture/adr/ADR-012-production-database-integration.md
+- developer-guides/architecture/adr/adr-template.md
+- developer-guides/architecture/adr/template.md
+- developer-guides/architecture/erd.md
+- developer-guides/architecture/pwa-architecture.md
+- developer-guides/automatic-artifact-cleanup.md
+- developer-guides/contributing/DEPENDENCY_RESTRUCTURING_SUMMARY.md
+- developer-guides/contributing/DEPENDENCY_UPDATE_SUMMARY.md
+- developer-guides/contributing/RECOVERY_SUCCESS_REPORT.md
+- developer-guides/contributing/REMEDIATION_PLAN.md
+- developer-guides/contributing/autonomous-mode-developer-guide.md
+- developer-guides/contributing/changelog-automation-guide.md
+- developer-guides/contributing/troubleshooting/SYSTEM_RECOVERY_SUCCESS_REPORT.md
+- developer-guides/enhanced-validation.md
+- development/FILE_ORGANIZATION_STANDARDS.md
+- examples/tutorials/09-autonomous-classifier-selection-guide.md
+- examples/tutorials/advanced-usage.md
+- examples/tutorials/advanced.md
+- getting-started/FEATURE_INSTALLATION_GUIDE.md
+- maintenance/BRANCH_STASH_CLEANUP.md
+- maintenance/MAINTENANCE_SYSTEM.md
+- performance/performance-best-practices.md
+- project/CLAUDE.local.md
+- project/CLAUDE.md
+- project/DEVELOPMENT_ROADMAP.md
+- project/MIGRATION_AUTO_SKLEARN2.md
+- project/PACKAGE_FIX_SUMMARY.md
+- project/PDF_Generation_Instructions.md
+- project/PROJECT_ORGANIZATION_PLAN.md
+- project/ROOT_DIRECTORY_AUDIT.md
+- project/ROOT_DIRECTORY_CLEANUP_SUMMARY.md
+- project/TODO.md
+- project/plans/BUCK2_HATCH_INTEGRATION_PLAN.md
+- project/plans/DOCUMENTATION_IMPROVEMENT_PLAN.md
+- project/plans/TESTING_IMPROVEMENT_PLAN.md
+- project/prompts/MASTER_PROMPT.md
+- project/standards/COMMIT_BASED_DOCUMENTATION_RULES.md
+- project/standards/DOCUMENTATION_MAINTENANCE_RULES.md
+- reference/algorithm-comparison.md
+- requirements_analysis_report.md
+- rfc7807_error_handling.md
+- security/C-004-container-security.md
+- security/IAM_policy_examples.md
+- security/pynomaly-iam-guide.md
+- stash_audit_2025-07-09.md
+- testing/README_INTEGRATION_TESTING.md
+- testing/README_TESTING_REPORT.md
+- testing/SCRIPT_TESTING_REPORT.md
+- testing/TEST_COVERAGE_ANALYSIS_REPORT.md
+- testing/TEST_IMPROVEMENT_PLAN_100_PERCENT.md
+- testing/test_results_final.md
+- tutorials/QUICK_START_TUTORIAL.md
+- user/autonomous-mode-guide.md
+
+### 3. NAVIGATION STRUCTURE ISSUES
+
+**Missing Key Navigation Files:**
+- reference/README.md
+
+### 4. LINK PATTERNS ANALYSIS
+
+- Missing README.md files: 270
+- Missing regular files: 151
+- Directory links without index: 47
+
+## PRIORITY RECOMMENDATIONS
+==================================================
+1. **FIX BROKEN LINKS** - Immediate navigation failures
+2. **CREATE MISSING README FILES** - Critical navigation structure
+3. **INTEGRATE ORPHANED FILES** - Content accessibility
+
+## DETAILED ANALYSIS
+==================================================
+### Files with Most Issues:
+- CROSS_LINKING_IMPLEMENTATION_STRATEGY.md: 81 broken links
+- developer-guides/contributing/troubleshooting/SYSTEM_RECOVERY_SUCCESS_REPORT.md: 18 broken links
+- reference/algorithm-comparison.md: 12 broken links
+- reference/CLASSIFIER_SELECTION_GUIDE.md: 12 broken links
+- deployment/advanced-deployment.md: 11 broken links
+- deployment/BUCK2_INCREMENTAL_TESTING.md: 11 broken links
+- deployment/BUCK2_INTEGRATION_GUIDE.md: 11 broken links
+- deployment/deployment.md: 11 broken links
+- deployment/DOCKER_DEPLOYMENT_GUIDE.md: 11 broken links
+- deployment/kubernetes.md: 11 broken links

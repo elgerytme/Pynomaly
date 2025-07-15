@@ -1,0 +1,112 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "{{package_name}}"
+dynamic = ["version"]
+description = "{{package_description}}"
+authors = [{name = "{{author_name}}", email = "{{author_email}}"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = {{keywords}}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "enterprise-core",
+{% for dep in base_dependencies %}
+    {{dep}},
+{% endfor %}
+]
+
+[project.optional-dependencies]
+{% for extra, deps in optional_dependencies.items() %}
+{{extra}} = [
+{% for dep in deps %}
+    {{dep}},
+{% endfor %}
+]
+{% endfor %}
+
+# Development dependencies
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-mock>=3.14.0",
+    "hypothesis>=6.115.0",
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+# All optional dependencies
+all = [
+{% for extra, deps in optional_dependencies.items() %}
+{% for dep in deps %}
+    {{dep}},
+{% endfor %}
+{% endfor %}
+]
+
+[project.urls]
+Homepage = "{{repository_url}}"
+Repository = "{{repository_url}}"
+Documentation = "{{documentation_url}}"
+Issues = "{{repository_url}}/issues"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/{{package_module}}"]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-mock>=3.14.0",
+    "hypothesis>=6.115.0",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "pytest --cov={{package_module}} --cov-report=term-missing {args:tests}"
+lint = "ruff check src tests"
+format = "ruff format src tests"
+type-check = "mypy src"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long, handled by formatter
+    "B008", # do not perform function calls in argument defaults
+]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+warn_unused_ignores = true

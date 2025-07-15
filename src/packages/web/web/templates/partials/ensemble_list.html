@@ -1,0 +1,118 @@
+{% if ensembles %}
+<div
+  class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg"
+>
+  <table class="min-w-full divide-y divide-gray-300">
+    <thead class="bg-gray-50">
+      <tr>
+        <th
+          scope="col"
+          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+        >
+          Name
+        </th>
+        <th
+          scope="col"
+          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+        >
+          Type
+        </th>
+        <th
+          scope="col"
+          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+        >
+          Base Detectors
+        </th>
+        <th
+          scope="col"
+          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+        >
+          Status
+        </th>
+        <th
+          scope="col"
+          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+        >
+          Actions
+        </th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      {% for ensemble in ensembles %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="flex items-center">
+            <div class="text-sm font-medium text-gray-900">
+              {{ ensemble.name }}
+            </div>
+          </div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+          >
+            {{ ensemble.aggregation_method|default('Ensemble') }}
+          </span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+          {{ ensemble.base_detectors|length if ensemble.base_detectors else 0 }}
+          detectors
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          {% if ensemble.is_fitted %}
+          <span
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+          >
+            ✓ Trained
+          </span>
+          {% else %}
+          <span
+            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+          >
+            ⏳ Pending
+          </span>
+          {% endif %}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <a
+            href="/ensemble/{{ ensemble.id }}"
+            class="text-primary hover:text-blue-900"
+            >View</a
+          >
+          <span class="text-gray-300 mx-2">|</span>
+          <button
+            onclick="deleteEnsemble('{{ ensemble.id }}')"
+            class="text-red-600 hover:text-red-900"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="text-center py-12">
+  <div class="text-6xl mb-4">🤖</div>
+  <h3 class="text-lg font-medium text-gray-900 mb-2">No ensembles yet</h3>
+  <p class="text-gray-500 mb-4">
+    Create your first ensemble to combine multiple detectors
+  </p>
+  <button
+    onclick="window.location='/ensemble/create'"
+    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-blue-700"
+  >
+    Create Ensemble
+  </button>
+</div>
+{% endif %}
+
+<script>
+  function deleteEnsemble(ensembleId) {
+    if (confirm("Are you sure you want to delete this ensemble?")) {
+      // In a real implementation, this would make an HTMX DELETE request
+      alert("Delete functionality would be implemented here");
+    }
+  }
+</script>

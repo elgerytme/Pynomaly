@@ -1,0 +1,494 @@
+name: Production CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, release/*]
+    tags: [v*]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # Security and Code Quality
+  security-scan:
+    name: Security & Code Quality
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' || github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for better analysis
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry config virtualenvs.create false
+        poetry install --with dev,test
+
+    - name: Run security scans
+      run: |
+        # Bandit for security issues
+        bandit -r src/ -f json -o bandit-report.json || true
+
+        # Safety for known vulnerabilities
+        safety check --json --output safety-report.json || true
+
+        # Semgrep for SAST
+        pip install semgrep
+        semgrep --config=auto --json --output=semgrep-report.json src/ || true
+
+    - name: Code quality analysis
+      run: |
+        # MyPy type checking
+        mypy src/ --json-report mypy-report || true
+
+        # Flake8 linting
+        flake8 src/ --format=json --output-file=flake8-report.json || true
+
+        # Black formatting check
+        black --check --diff src/ > black-report.txt || true
+
+        # isort import sorting check
+        isort --check-only --diff src/ > isort-report.txt || true
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          *-report.json
+          *-report.txt
+        retention-days: 30
+
+    - name: Fail on critical security issues
+      run: |
+        # Check for critical security issues
+        if [ -f bandit-report.json ]; then
+          HIGH_SEVERITY=$(jq '.results[] | select(.issue_severity == "HIGH" or .issue_severity == "MEDIUM")' bandit-report.json | wc -l)
+          if [ "$HIGH_SEVERITY" -gt 0 ]; then
+            echo "❌ Found $HIGH_SEVERITY high/medium severity security issues"
+            exit 1
+          fi
+        fi
+
+  # Unit and Integration Tests
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+        test-type: ['unit', 'integration', 'performance']
+      fail-fast: false
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pynomaly_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry config virtualenvs.create false
+        poetry install --with dev,test
+
+    - name: Set up test environment
+      run: |
+        # Create test configuration
+        cat > test.env << EOF
+        PYNOMALY_ENV=test
+        DATABASE_URL=postgresql://postgres:postgres@localhost:5432/pynomaly_test
+        REDIS_URL=redis://localhost:6379/0
+        SECRET_KEY=test-secret-key-not-for-production
+        JWT_SECRET_KEY=test-jwt-secret
+        TESTING=true
+        EOF
+
+    - name: Run ${{ matrix.test-type }} tests
+      env:
+        PYNOMALY_ENV: test
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pynomaly_test
+        REDIS_URL: redis://localhost:6379/0
+      run: |
+        case "${{ matrix.test-type }}" in
+          unit)
+            python3 scripts/testing/run_comprehensive_tests.py --type unit --verbose
+            ;;
+          integration)
+            python3 scripts/testing/run_comprehensive_tests.py --type integration --verbose
+            ;;
+          performance)
+            python3 scripts/testing/run_comprehensive_tests.py --type performance --verbose
+            ;;
+        esac
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.python-version }}-${{ matrix.test-type }}
+        path: |
+          reports/
+          .coverage
+        retention-days: 30
+
+    - name: Upload coverage to Codecov
+      if: matrix.test-type == 'unit' && matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./reports/coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  # Build and Push Container Images
+  build:
+    name: Build & Push Images
+    runs-on: ubuntu-latest
+    needs: [security-scan, test]
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=sha,prefix={{branch}}-
+
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./deploy/docker/Dockerfile.production
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          PYTHON_VERSION=${{ env.PYTHON_VERSION }}
+          BUILD_DATE=${{ github.event.head_commit.timestamp }}
+          VCS_REF=${{ github.sha }}
+          VERSION=${{ steps.meta.outputs.version }}
+
+    - name: Generate SBOM
+      uses: anchore/sbom-action@v0
+      with:
+        image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+        format: spdx-json
+        output-file: sbom.spdx.json
+
+    - name: Scan image for vulnerabilities
+      uses: anchore/scan-action@v3
+      with:
+        image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+        fail-build: true
+        severity-cutoff: high
+
+    - name: Upload SBOM and scan results
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-artifacts
+        path: |
+          sbom.spdx.json
+          vulnerability-report.json
+
+  # Infrastructure Validation
+  infrastructure-test:
+    name: Infrastructure Tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'push'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Kubernetes tools
+      run: |
+        # Install kubectl
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+
+        # Install helm
+        curl https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz | tar -xz
+        sudo mv linux-amd64/helm /usr/local/bin/
+
+        # Install kubeval for validation
+        wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+        tar xf kubeval-linux-amd64.tar.gz
+        sudo mv kubeval /usr/local/bin/
+
+    - name: Validate Kubernetes manifests
+      run: |
+        # Validate all Kubernetes YAML files
+        find deploy/kubernetes -name "*.yaml" -exec kubeval {} \;
+
+    - name: Lint Helm charts
+      run: |
+        if [ -d deploy/helm/pynomaly ]; then
+          helm lint deploy/helm/pynomaly
+        fi
+
+    - name: Test Kubernetes deployment
+      run: |
+        # Create a local kind cluster for testing
+        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+        chmod +x ./kind
+        sudo mv ./kind /usr/local/bin/kind
+
+        # Start kind cluster
+        kind create cluster --name pynomaly-test
+
+        # Deploy to test cluster
+        kubectl apply -f deploy/kubernetes/namespace.yaml
+        kubectl apply -f deploy/kubernetes/configmap.yaml
+        kubectl apply -f deploy/kubernetes/secrets.yaml
+
+        # Verify deployment is valid
+        kubectl apply --dry-run=server -f deploy/kubernetes/production-deployment.yaml
+
+  # Staging Deployment
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, infrastructure-test]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: staging
+      url: https://staging.pynomaly.io
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Set up kubectl
+      run: |
+        aws eks update-kubeconfig --region us-west-2 --name pynomaly-staging
+
+    - name: Deploy to staging
+      run: |
+        # Update image tag in deployment
+        sed -i "s/pynomaly:production-latest/${{ needs.build.outputs.image-tag }}/g" deploy/kubernetes/staging/deployment.yaml
+
+        # Apply staging configuration
+        kubectl apply -f deploy/kubernetes/staging/
+
+        # Wait for rollout to complete
+        kubectl rollout status deployment/pynomaly-api -n pynomaly-staging --timeout=600s
+
+    - name: Run smoke tests
+      run: |
+        # Wait for service to be ready
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly-staging --timeout=300s
+
+        # Get service URL
+        STAGING_URL=$(kubectl get svc pynomaly-api-service -n pynomaly-staging -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+
+        # Run health check
+        curl -f "http://${STAGING_URL}/api/health" || exit 1
+
+        # Run basic API tests
+        python scripts/testing/test_api_smoke.py --url "http://${STAGING_URL}"
+
+  # Production Deployment
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: startsWith(github.ref, 'refs/tags/v') || (github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[deploy-prod]'))
+    environment:
+      name: production
+      url: https://api.pynomaly.io
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-west-2
+
+    - name: Set up kubectl
+      run: |
+        aws eks update-kubeconfig --region us-west-2 --name pynomaly-production
+
+    - name: Pre-deployment backup
+      run: |
+        # Trigger backup job
+        kubectl create job --from=cronjob/pynomaly-backup pynomaly-backup-pre-deploy -n pynomaly-production
+
+        # Wait for backup to complete
+        kubectl wait --for=condition=complete job/pynomaly-backup-pre-deploy -n pynomaly-production --timeout=1800s
+
+    - name: Deploy to production
+      run: |
+        # Update image tag in deployment
+        sed -i "s/pynomaly:production-latest/${{ needs.build.outputs.image-tag }}/g" deploy/kubernetes/production-deployment.yaml
+
+        # Apply production configuration
+        kubectl apply -f deploy/kubernetes/production-deployment.yaml
+        kubectl apply -f deploy/kubernetes/production-enhanced.yaml
+
+        # Perform rolling update
+        kubectl rollout status deployment/pynomaly-api -n pynomaly-production --timeout=900s
+        kubectl rollout status deployment/pynomaly-worker -n pynomaly-production --timeout=900s
+
+    - name: Post-deployment verification
+      run: |
+        # Wait for all pods to be ready
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=pynomaly -n pynomaly-production --timeout=600s
+
+        # Verify API health
+        kubectl exec -n pynomaly-production deployment/pynomaly-api -- curl -f http://localhost:8000/api/health
+
+        # Check metrics endpoint
+        kubectl exec -n pynomaly-production deployment/pynomaly-api -- curl -f http://localhost:9090/metrics
+
+        # Run comprehensive health checks
+        python scripts/testing/test_production_health.py
+
+    - name: Update deployment status
+      if: always()
+      run: |
+        # Update deployment status in monitoring
+        STATUS=${{ job.status }}
+        COMMIT_SHA=${{ github.sha }}
+
+        curl -X POST "${{ secrets.WEBHOOK_URL }}" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"deployment\": \"production\",
+            \"status\": \"$STATUS\",
+            \"commit\": \"$COMMIT_SHA\",
+            \"timestamp\": \"$(date -Iseconds)\",
+            \"image\": \"${{ needs.build.outputs.image-tag }}\"
+          }"
+
+  # Cleanup
+  cleanup:
+    name: Cleanup Resources
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [security-scan, test, build, infrastructure-test, deploy-staging, deploy-production]
+
+    steps:
+    - name: Clean up Docker images
+      run: |
+        # Clean up old Docker images (keep last 10)
+        docker image prune -f
+
+    - name: Clean up test clusters
+      run: |
+        # Clean up kind clusters if they exist
+        if command -v kind &> /dev/null; then
+          kind delete cluster --name pynomaly-test || true
+        fi
+
+    - name: Notify deployment status
+      if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+      run: |
+        # Send notification about deployment status
+        STATUS="✅ Success"
+        if [ "${{ needs.deploy-production.result }}" != "success" ]; then
+          STATUS="❌ Failed"
+        fi
+
+        curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"text\": \"Pynomaly Deployment $STATUS\",
+            \"attachments\": [{
+              \"color\": \"${{ needs.deploy-production.result == 'success' && 'good' || 'danger' }}\",
+              \"fields\": [
+                {\"title\": \"Environment\", \"value\": \"Production\", \"short\": true},
+                {\"title\": \"Commit\", \"value\": \"${{ github.sha }}\", \"short\": true},
+                {\"title\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"short\": true},
+                {\"title\": \"Actor\", \"value\": \"${{ github.actor }}\", \"short\": true}
+              ]
+            }]
+          }"

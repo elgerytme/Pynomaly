@@ -1,0 +1,179 @@
+# Worker-specific Dockerfile for background tasks and model training
+# Optimized for CPU/GPU intensive anomaly detection workloads
+
+#=============================================================================
+# Base Worker Stage
+#=============================================================================
+FROM python:3.11-slim as worker-base
+
+# Install worker dependencies including GPU support
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+        gcc \
+        g++ \
+        build-essential \
+        curl \
+        ca-certificates \
+        libgomp1 \
+        && rm -rf /var/lib/apt/lists/* \
+        && apt-get clean
+
+# Create worker user
+RUN groupadd -r -g 1003 worker && \
+    useradd -r -g worker -u 1003 -m -s /bin/bash worker
+
+# Set worker environment
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH="/app/src" \
+    WORKER_CONCURRENCY=4 \
+    WORKER_QUEUE=anomaly_detection \
+    CELERY_BROKER_URL=redis://redis:6379/0 \
+    CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+WORKDIR /app
+
+#=============================================================================
+# GPU Worker Stage (Optional)
+#=============================================================================
+FROM nvidia/cuda:12.1-runtime-ubuntu22.04 as gpu-worker
+
+# Install Python and dependencies
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+        python3.11 \
+        python3.11-dev \
+        python3-pip \
+        gcc \
+        g++ \
+        build-essential \
+        curl \
+        ca-certificates \
+        && rm -rf /var/lib/apt/lists/* \
+        && apt-get clean
+
+# Create symbolic links for Python
+RUN ln -s /usr/bin/python3.11 /usr/bin/python && \
+    ln -s /usr/bin/python3.11 /usr/bin/python3
+
+# Create worker user
+RUN groupadd -r -g 1003 worker && \
+    useradd -r -g worker -u 1003 -m -s /bin/bash worker
+
+# Set GPU environment
+ENV CUDA_VISIBLE_DEVICES=all \
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+WORKDIR /app
+
+#=============================================================================
+# Training Worker Stage
+#=============================================================================
+FROM worker-base as training-worker
+
+# Copy application dependencies
+COPY --from=runtime /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=runtime /usr/local/bin /usr/local/bin
+
+# Copy worker-specific source code
+COPY --chown=worker:worker src/ ./src/
+COPY --chown=worker:worker pyproject.toml ./
+
+# Copy worker configuration
+COPY --chown=worker:worker deploy/docker/config/celery/ ./config/celery/
+COPY --chown=worker:worker deploy/docker/workers/ ./workers/
+
+# Create worker directories
+RUN mkdir -p \
+        /app/storage/models \
+        /app/storage/datasets \
+        /app/storage/training \
+        /app/logs/workers \
+        /app/temp/training && \
+    chown -R worker:worker /app
+
+# Install application
+RUN pip install -e .
+
+# Switch to worker user
+USER worker
+
+# Health check for worker
+HEALTHCHECK --interval=60s --timeout=10s --start-period=120s --retries=3 \
+    CMD python -c "import celery; print('Worker healthy')" || exit 1
+
+# Default command - Celery worker
+CMD ["celery", "-A", "pynomaly.infrastructure.tasks.celery_app", "worker", \
+     "--loglevel=info", \
+     "--concurrency=4", \
+     "--queues=anomaly_detection,model_training,drift_monitoring", \
+     "--hostname=worker@%h"]
+
+#=============================================================================
+# Drift Monitoring Worker Stage
+#=============================================================================
+FROM training-worker as drift-worker
+
+# Copy drift-specific configuration
+COPY --chown=worker:worker deploy/docker/config/drift/ ./config/drift/
+
+# Set drift monitoring environment
+ENV WORKER_QUEUE=drift_monitoring \
+    DRIFT_CHECK_INTERVAL=3600 \
+    DRIFT_BATCH_SIZE=1000
+
+# Health check for drift worker
+HEALTHCHECK --interval=60s --timeout=10s --start-period=120s --retries=3 \
+    CMD python -c "from pynomaly.application.services.drift_detection_service import DriftDetectionService; print('Drift worker healthy')" || exit 1
+
+# Drift monitoring command
+CMD ["celery", "-A", "pynomaly.infrastructure.tasks.celery_app", "worker", \
+     "--loglevel=info", \
+     "--concurrency=2", \
+     "--queues=drift_monitoring,alert_processing", \
+     "--hostname=drift-worker@%h"]
+
+#=============================================================================
+# Scheduler Worker Stage
+#=============================================================================
+FROM training-worker as scheduler-worker
+
+# Copy scheduler configuration
+COPY --chown=worker:worker deploy/docker/config/scheduler/ ./config/scheduler/
+
+# Set scheduler environment
+ENV CELERY_BEAT_SCHEDULE_FILENAME=/app/storage/celerybeat-schedule
+
+# Health check for scheduler
+HEALTHCHECK --interval=60s --timeout=10s --start-period=60s --retries=3 \
+    CMD python -c "import celery.bin.beat; print('Scheduler healthy')" || exit 1
+
+# Celery beat scheduler command
+CMD ["celery", "-A", "pynomaly.infrastructure.tasks.celery_app", "beat", \
+     "--loglevel=info", \
+     "--schedule=/app/storage/celerybeat-schedule", \
+     "--pidfile=/app/temp/celerybeat.pid"]
+
+#=============================================================================
+# Flower Monitoring Stage
+#=============================================================================
+FROM training-worker as flower-monitor
+
+# Install Flower for Celery monitoring
+RUN pip install flower==1.2.0
+
+# Expose Flower port
+EXPOSE 5555
+
+# Health check for Flower
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:5555 || exit 1
+
+# Flower monitoring command
+CMD ["celery", "-A", "pynomaly.infrastructure.tasks.celery_app", "flower", \
+     "--host=0.0.0.0", \
+     "--port=5555", \
+     "--broker_api=redis://redis:6379/0"]

@@ -1,0 +1,221 @@
+name: 🏗️ Project Organization Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  validate-organization:
+    name: 🔍 Validate Project Organization
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for comprehensive validation
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📋 Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-organization-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-organization-
+            ${{ runner.os }}-pip-
+
+      - name: 🔧 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🏠 Validate Root Directory Organization
+        id: root-validation
+        run: |
+          echo "## 🏠 Root Directory Validation" >> $GITHUB_STEP_SUMMARY
+          python3 scripts/validation/validate_root_directory.py --json > root_validation.json
+
+          # Parse results
+          VALID=$(jq -r '.valid' root_validation.json)
+          VIOLATIONS=$(jq -r '.violations | length' root_validation.json)
+          WARNINGS=$(jq -r '.warnings | length' root_validation.json)
+
+          echo "valid=$VALID" >> $GITHUB_OUTPUT
+          echo "violations=$VIOLATIONS" >> $GITHUB_OUTPUT
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+
+          # Add to step summary
+          if [ "$VALID" = "true" ]; then
+            echo "✅ **Root directory organization is COMPLIANT**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Root directory organization has VIOLATIONS**" >> $GITHUB_STEP_SUMMARY
+            echo "- Violations: $VIOLATIONS" >> $GITHUB_STEP_SUMMARY
+            echo "- Warnings: $WARNINGS" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Show violations and warnings
+          if [ "$VIOLATIONS" -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ❌ Violations" >> $GITHUB_STEP_SUMMARY
+            jq -r '.violations[]' root_validation.json | while read violation; do
+              echo "- $violation" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+
+          if [ "$WARNINGS" -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ⚠️ Warnings" >> $GITHUB_STEP_SUMMARY
+            jq -r '.warnings[]' root_validation.json | while read warning; do
+              echo "- $warning" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+
+      - name: 📁 Check File Organization
+        if: always()
+        run: |
+          echo "## 📁 File Organization Check" >> $GITHUB_STEP_SUMMARY
+
+          # Count files in root
+          ROOT_FILES=$(find . -maxdepth 1 -type f ! -name ".*" | wc -l)
+          ROOT_DIRS=$(find . -maxdepth 1 -type d ! -name ".*" ! -name "." | wc -l)
+          TOTAL_ROOT_ITEMS=$((ROOT_FILES + ROOT_DIRS))
+
+          echo "- Root files: $ROOT_FILES" >> $GITHUB_STEP_SUMMARY
+          echo "- Root directories: $ROOT_DIRS" >> $GITHUB_STEP_SUMMARY
+          echo "- Total root items: $TOTAL_ROOT_ITEMS" >> $GITHUB_STEP_SUMMARY
+
+          # Check against targets
+          if [ $ROOT_FILES -le 12 ]; then
+            echo "✅ Root file count within target (≤12)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Root file count exceeds target ($ROOT_FILES > 12)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ $TOTAL_ROOT_ITEMS -le 20 ]; then
+            echo "✅ Total root items within recommendation (≤20)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Total root items above recommendation ($TOTAL_ROOT_ITEMS > 20)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 🎯 Generate Compliance Report
+        if: always()
+        run: |
+          echo "## 📊 Compliance Summary" >> $GITHUB_STEP_SUMMARY
+
+          # Calculate compliance score
+          TOTAL_CHECKS=3
+          PASSED_CHECKS=0
+
+          if [ "${{ steps.root-validation.outputs.valid }}" = "true" ]; then
+            PASSED_CHECKS=$((PASSED_CHECKS + 1))
+          fi
+
+          ROOT_FILES=$(find . -maxdepth 1 -type f ! -name ".*" | wc -l)
+          if [ $ROOT_FILES -le 12 ]; then
+            PASSED_CHECKS=$((PASSED_CHECKS + 1))
+          fi
+
+          TOTAL_ROOT_ITEMS=$(find . -maxdepth 1 ! -name ".*" ! -name "." | wc -l)
+          if [ $TOTAL_ROOT_ITEMS -le 20 ]; then
+            PASSED_CHECKS=$((PASSED_CHECKS + 1))
+          fi
+
+          COMPLIANCE_PERCENT=$((PASSED_CHECKS * 100 / TOTAL_CHECKS))
+
+          echo "**Compliance Score: $COMPLIANCE_PERCENT%** ($PASSED_CHECKS/$TOTAL_CHECKS checks passed)" >> $GITHUB_STEP_SUMMARY
+
+          if [ $COMPLIANCE_PERCENT -eq 100 ]; then
+            echo "🏆 **Perfect compliance achieved!**" >> $GITHUB_STEP_SUMMARY
+          elif [ $COMPLIANCE_PERCENT -ge 80 ]; then
+            echo "✅ **Good compliance level**" >> $GITHUB_STEP_SUMMARY
+          elif [ $COMPLIANCE_PERCENT -ge 60 ]; then
+            echo "⚠️ **Moderate compliance - improvements needed**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Poor compliance - immediate action required**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 🛠️ Provide Auto-fix Suggestions
+        if: steps.root-validation.outputs.valid != 'true'
+        run: |
+          echo "## 🛠️ Auto-fix Available" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "To automatically fix violations, run:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo 'python3 scripts/validation/auto_fix_root_directory.py --apply' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Or for a dry-run preview:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo 'python3 scripts/validation/auto_fix_root_directory.py' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: 📤 Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: organization-validation-report
+          path: |
+            root_validation.json
+          retention-days: 30
+
+      - name: 💥 Fail on violations (strict mode)
+        if: github.ref == 'refs/heads/main' && steps.root-validation.outputs.valid != 'true'
+        run: |
+          echo "❌ Root directory violations detected on main branch"
+          echo "Please fix violations before merging to main"
+          exit 1
+
+      - name: 📝 Comment on PR
+        if: github.event_name == 'pull_request' && steps.root-validation.outputs.valid != 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const validation = JSON.parse(fs.readFileSync('root_validation.json', 'utf8'));
+
+            let comment = '## 🏗️ Project Organization Validation\n\n';
+
+            if (validation.valid) {
+              comment += '✅ **Root directory organization is compliant**\n';
+            } else {
+              comment += '❌ **Root directory organization has violations**\n\n';
+
+              if (validation.violations.length > 0) {
+                comment += '### Violations\n';
+                validation.violations.forEach(v => comment += `- ${v}\n`);
+                comment += '\n';
+              }
+
+              if (validation.warnings.length > 0) {
+                comment += '### Warnings\n';
+                validation.warnings.forEach(w => comment += `- ${w}\n`);
+                comment += '\n';
+              }
+
+              comment += '### 🛠️ How to Fix\n';
+              comment += 'Run the auto-fix tool to resolve these issues:\n\n';
+              comment += '```bash\n';
+              comment += 'python3 scripts/validation/auto_fix_root_directory.py --apply\n';
+              comment += '```\n\n';
+              comment += 'Or preview changes first:\n\n';
+              comment += '```bash\n';
+              comment += 'python3 scripts/validation/auto_fix_root_directory.py\n';
+              comment += '```\n';
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

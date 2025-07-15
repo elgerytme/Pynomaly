@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pynomaly-staging
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    environment: staging
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pynomaly
+      environment: staging
+  template:
+    metadata:
+      labels:
+        app: pynomaly
+        environment: staging
+    spec:
+      containers:
+      - name: pynomaly
+        image: ghcr.io/pynomaly/pynomaly:staging
+        ports:
+        - containerPort: 8000
+        env:
+        - name: PYNOMALY_ENVIRONMENT
+          value: "staging"
+        - name: PYNOMALY_DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: database-url
+        - name: PYNOMALY_REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: redis-url
+        - name: PYNOMALY_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: pynomaly-secrets
+              key: secret-key
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: pynomaly-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pynomaly-staging-service
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    environment: staging
+spec:
+  selector:
+    app: pynomaly
+    environment: staging
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pynomaly-staging-ingress
+  namespace: pynomaly-staging
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - staging.pynomaly.io
+    secretName: pynomaly-staging-tls
+  rules:
+  - host: staging.pynomaly.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pynomaly-staging-service
+            port:
+              number: 80

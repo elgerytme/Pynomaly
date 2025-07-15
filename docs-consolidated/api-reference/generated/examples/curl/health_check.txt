@@ -1,0 +1,3 @@
+# Health check
+curl -X GET "https://api.pynomaly.com/health" \
+  -H "X-API-Key: your-api-key-here"

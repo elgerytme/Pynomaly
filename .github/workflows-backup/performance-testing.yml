@@ -1,0 +1,452 @@
+name: Performance Testing and Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run performance tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_duration:
+        description: 'Test duration in seconds'
+        required: false
+        default: '60'
+      concurrent_users:
+        description: 'Number of concurrent users'
+        required: false
+        default: '10'
+      scenario:
+        description: 'Test scenario (health, auth, detection, training, mixed)'
+        required: false
+        default: 'mixed'
+
+env:
+  PYTHON_VERSION: '3.12'
+  PYNOMALY_TEST_URL: 'http://localhost:8000'
+
+jobs:
+  # Job 1: Setup and basic validation
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run_load_tests: ${{ steps.check.outputs.should_run }}
+      test_config: ${{ steps.config.outputs.config }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check if load tests should run
+        id: check
+        run: |
+          # Run load tests on main branch, scheduled runs, or manual dispatch
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]] || \
+             [[ "${{ github.event_name }}" == "schedule" ]] || \
+             [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || \
+             [[ "${{ contains(github.event.pull_request.labels.*.name, 'performance') }}" == "true" ]]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate test configuration
+        id: config
+        run: |
+          DURATION="${{ github.event.inputs.test_duration || '60' }}"
+          USERS="${{ github.event.inputs.concurrent_users || '10' }}"
+          SCENARIO="${{ github.event.inputs.scenario || 'mixed' }}"
+          
+          # Adjust test parameters based on event type
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            DURATION="300"  # Longer tests for scheduled runs
+            USERS="20"
+            SCENARIO="mixed"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            DURATION="30"   # Shorter tests for PRs
+            USERS="5"
+            SCENARIO="health"
+          fi
+          
+          CONFIG=$(cat <<EOF
+          {
+            "base_url": "$PYNOMALY_TEST_URL",
+            "concurrent_users": $USERS,
+            "duration_seconds": $DURATION,
+            "ramp_up_seconds": 10,
+            "scenario": "$SCENARIO",
+            "auth_enabled": false,
+            "thresholds": {
+              "max_response_time_ms": 500.0,
+              "max_error_rate_percent": 1.0,
+              "min_throughput_rps": 5.0,
+              "max_cpu_percent": 80.0,
+              "max_memory_percent": 85.0
+            }
+          }
+          EOF
+          )
+          
+          echo "config=$CONFIG" >> $GITHUB_OUTPUT
+
+  # Job 2: Build and start the application
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    needs: setup
+    if: needs.setup.outputs.should_run_load_tests == 'true'
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pynomaly_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install -r requirements/dev.txt
+          pip install -r requirements/performance.txt
+
+      - name: Set up test environment
+        run: |
+          # Create test configuration
+          mkdir -p config/test
+          cat > config/test/settings.json << EOF
+          {
+            "database": {
+              "url": "postgresql://postgres:postgres@localhost:5432/pynomaly_test"
+            },
+            "redis": {
+              "url": "redis://localhost:6379/0"
+            },
+            "auth_enabled": false,
+            "monitoring": {
+              "metrics_enabled": false,
+              "tracing_enabled": false
+            }
+          }
+          EOF
+
+      - name: Run database migrations
+        run: |
+          export PYNOMALY_ENV=test
+          python -m pynomaly.infrastructure.database.migrations.migrate
+
+      - name: Start application
+        run: |
+          export PYNOMALY_ENV=test
+          export PYNOMALY_LOG_LEVEL=WARNING
+          python -m uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 &
+          echo $! > app.pid
+          
+          # Wait for application to start
+          for i in {1..30}; do
+            if curl -s http://localhost:8000/health > /dev/null; then
+              echo "Application started successfully"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "Application failed to start"
+              cat app.log
+              exit 1
+            fi
+            sleep 2
+          done
+
+      - name: Verify application health
+        run: |
+          curl -f http://localhost:8000/health
+          curl -f http://localhost:8000/api/v1/health
+
+      - name: Upload application logs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: application-logs
+          path: |
+            *.log
+            logs/
+
+  # Job 3: Run performance tests
+  performance-tests:
+    runs-on: ubuntu-latest
+    needs: [setup, build-and-deploy]
+    if: needs.setup.outputs.should_run_load_tests == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [health, detection, mixed]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install performance testing dependencies
+        run: |
+          pip install requests aiohttp rich
+
+      - name: Create test configuration
+        run: |
+          mkdir -p performance_test_config
+          echo '${{ needs.setup.outputs.test_config }}' | jq '.scenario = "${{ matrix.scenario }}"' > performance_test_config/config.json
+
+      - name: Wait for application to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:8000/health > /dev/null; then
+              echo "Application is ready"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "Application not ready"
+              exit 1
+            fi
+            sleep 2
+          done
+
+      - name: Run load tests
+        run: |
+          python scripts/performance/load_testing_framework.py \
+            --config-file performance_test_config/config.json \
+            --output-dir performance_results_${{ matrix.scenario }} \
+            --ci-mode
+        continue-on-error: true
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results-${{ matrix.scenario }}
+          path: performance_results_${{ matrix.scenario }}/
+
+      - name: Check performance thresholds
+        run: |
+          # Check if any CI reports indicate failures
+          for file in performance_results_${{ matrix.scenario }}/load_test_ci_*.json; do
+            if [ -f "$file" ]; then
+              if ! jq -e '.test_passed' "$file" > /dev/null; then
+                echo "Performance test failed for scenario ${{ matrix.scenario }}"
+                echo "Threshold violations:"
+                jq -r '.threshold_violations[]' "$file"
+                exit 1
+              fi
+            fi
+          done
+
+  # Job 4: Performance baseline establishment (weekly)
+  establish-baselines:
+    runs-on: ubuntu-latest
+    needs: [setup, build-and-deploy]
+    if: needs.setup.outputs.should_run_load_tests == 'true' && github.event_name == 'schedule'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install requests aiohttp rich
+
+      - name: Establish performance baselines
+        run: |
+          python scripts/performance/establish_baselines.py \
+            --base-url $PYNOMALY_TEST_URL \
+            --output-dir baseline_results
+
+      - name: Upload baseline results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-baselines
+          path: baseline_results/
+
+      - name: Update CI configuration
+        run: |
+          # Update the CI performance configuration if baselines changed significantly
+          if [ -f baseline_results/ci_performance_config.json ]; then
+            cp baseline_results/ci_performance_config.json .github/performance-config.json
+            
+            # Create a PR to update the configuration if there are changes
+            if ! git diff --quiet .github/performance-config.json; then
+              echo "Performance baselines have changed significantly"
+              echo "Manual review required for updated thresholds"
+              
+              # In a real implementation, you might create a PR automatically
+              git config --local user.email "action@github.com"
+              git config --local user.name "GitHub Action"
+              git add .github/performance-config.json
+              git commit -m "Update performance baselines from automated testing"
+            fi
+          fi
+
+  # Job 5: Performance analysis and reporting
+  analyze-results:
+    runs-on: ubuntu-latest
+    needs: [performance-tests]
+    if: always() && needs.setup.outputs.should_run_load_tests == 'true'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all performance results
+        uses: actions/download-artifact@v3
+        with:
+          path: all_performance_results/
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install analysis dependencies
+        run: |
+          pip install jq-py matplotlib pandas
+
+      - name: Analyze performance trends
+        run: |
+          python scripts/performance/analyze_performance_trends.py \
+            --results-dir all_performance_results/ \
+            --output-dir performance_analysis/
+
+      - name: Generate performance report
+        run: |
+          cat > performance_summary.md << 'EOF'
+          # Performance Test Results
+          
+          ## Test Configuration
+          - Event: ${{ github.event_name }}
+          - Branch: ${{ github.ref_name }}
+          - Commit: ${{ github.sha }}
+          - Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          ## Scenarios Tested
+          EOF
+          
+          # Add results for each scenario
+          for dir in all_performance_results/performance-results-*/; do
+            if [ -d "$dir" ]; then
+              scenario=$(basename "$dir" | sed 's/performance-results-//')
+              echo "### Scenario: $scenario" >> performance_summary.md
+              
+              # Find the latest CI report
+              latest_report=$(find "$dir" -name "load_test_ci_*.json" | sort | tail -1)
+              if [ -f "$latest_report" ]; then
+                echo "- **Test Passed**: $(jq -r '.test_passed' "$latest_report")" >> performance_summary.md
+                echo "- **Total Requests**: $(jq -r '.total_requests' "$latest_report")" >> performance_summary.md
+                echo "- **Success Rate**: $(jq -r '.success_rate_percent' "$latest_report")%" >> performance_summary.md
+                echo "- **Avg Response Time**: $(jq -r '.avg_response_time_ms' "$latest_report")ms" >> performance_summary.md
+                echo "- **Throughput**: $(jq -r '.throughput_rps' "$latest_report") RPS" >> performance_summary.md
+                echo "- **Error Rate**: $(jq -r '.error_rate_percent' "$latest_report")%" >> performance_summary.md
+                
+                # Add threshold violations if any
+                violations=$(jq -r '.threshold_violations[]' "$latest_report" 2>/dev/null || true)
+                if [ ! -z "$violations" ]; then
+                  echo "- **Threshold Violations**:" >> performance_summary.md
+                  echo "$violations" | sed 's/^/  - /' >> performance_summary.md
+                fi
+                echo "" >> performance_summary.md
+              fi
+            fi
+          done
+
+      - name: Upload performance analysis
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-analysis
+          path: |
+            performance_analysis/
+            performance_summary.md
+
+      - name: Comment PR with performance results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            if (fs.existsSync('performance_summary.md')) {
+              const body = fs.readFileSync('performance_summary.md', 'utf8');
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
+
+      - name: Check overall performance status
+        run: |
+          # Check if any scenario failed
+          failed_tests=0
+          for dir in all_performance_results/performance-results-*/; do
+            if [ -d "$dir" ]; then
+              latest_report=$(find "$dir" -name "load_test_ci_*.json" | sort | tail -1)
+              if [ -f "$latest_report" ]; then
+                if ! jq -e '.test_passed' "$latest_report" > /dev/null; then
+                  ((failed_tests++))
+                fi
+              fi
+            fi
+          done
+          
+          if [ $failed_tests -gt 0 ]; then
+            echo "❌ $failed_tests performance test scenario(s) failed"
+            exit 1
+          else
+            echo "✅ All performance tests passed"
+          fi
+
+  # Job 6: Cleanup
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [build-and-deploy, performance-tests, analyze-results]
+    if: always()
+    
+    steps:
+      - name: Stop application
+        run: |
+          if [ -f app.pid ]; then
+            kill $(cat app.pid) || true
+          fi
+          
+          # Kill any remaining processes
+          pkill -f "uvicorn.*pynomaly" || true
