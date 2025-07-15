@@ -1,0 +1,37 @@
+# Buck2 Build Configuration for Services Package
+# Application services and orchestration in application layer
+
+load("//tools/buck:python.bzl", "pynomaly_workspace_package")
+load("//tools/buck:testing.bzl", "pynomaly_comprehensive_tests")
+
+# ==========================================
+# Services Package
+# ==========================================
+
+pynomaly_workspace_package(
+    name = "services",
+    layer = "application",
+    package_type = "services",
+    dependencies = [
+        "//src/packages/core:core",
+        "//src/packages/algorithms:algorithms",
+        "//src/packages/infrastructure:infrastructure",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# Test Suite
+# ==========================================
+
+pynomaly_comprehensive_tests(
+    package_name = "services",
+    deps = [
+        "//src/packages/core:core",
+        "//src/packages/algorithms:algorithms",
+        "//src/packages/infrastructure:infrastructure",
+    ],
+    include_property = True,
+    include_performance = True,
+    include_security = False,
+)

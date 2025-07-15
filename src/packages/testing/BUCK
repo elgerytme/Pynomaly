@@ -1,0 +1,29 @@
+# Buck2 Build Configuration for Testing Package
+# Shared testing utilities and frameworks in shared layer
+
+load("//tools/buck:python.bzl", "pynomaly_workspace_package")
+load("//tools/buck:testing.bzl", "pynomaly_comprehensive_tests")
+
+# ==========================================
+# Testing Package
+# ==========================================
+
+pynomaly_workspace_package(
+    name = "testing",
+    layer = "shared",
+    package_type = "testing",
+    dependencies = [],
+    visibility = ["PUBLIC"],
+)
+
+# ==========================================
+# Test Suite
+# ==========================================
+
+pynomaly_comprehensive_tests(
+    package_name = "testing",
+    deps = [],
+    include_property = False,
+    include_performance = False,
+    include_security = False,
+)

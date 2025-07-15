@@ -1,0 +1,14 @@
+# Start AutoML optimization
+curl -X POST "https://api.pynomaly.com/api/v1/automl/optimize" \
+  -H "X-API-Key: your-api-key-here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "dataset_id": "dataset_abc123",
+    "algorithms": ["IsolationForest", "LocalOutlierFactor", "OneClassSVM"],
+    "objectives": ["accuracy", "speed", "interpretability"],
+    "constraints": {
+      "max_time": 3600,
+      "max_trials": 100,
+      "max_memory": 4096
+    }
+  }'
