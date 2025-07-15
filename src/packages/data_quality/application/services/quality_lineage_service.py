@@ -1339,6 +1339,294 @@ class QualityLineageService:
         
         return next_steps
     
+    def benchmark_performance(self, 
+                            test_scenarios: List[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Benchmark lineage service performance against targets.
+        
+        Args:
+            test_scenarios: Custom test scenarios to run
+            
+        Returns:
+            Performance benchmark results
+        """
+        if test_scenarios is None:
+            test_scenarios = self._generate_default_test_scenarios()
+        
+        results = {
+            'benchmark_timestamp': datetime.now().isoformat(),
+            'performance_targets': {
+                'lineage_discovery_max_minutes': 10,
+                'impact_analysis_max_seconds': 30,
+                'large_graph_handling': 1000000  # 1M nodes
+            },
+            'test_results': [],
+            'overall_performance': 'unknown'
+        }
+        
+        logger.info("Starting performance benchmark tests")
+        
+        for scenario in test_scenarios:
+            scenario_name = scenario.get('name', 'Unknown')
+            scenario_type = scenario.get('type', 'impact_analysis')
+            
+            logger.info(f"Running scenario: {scenario_name}")
+            
+            try:
+                start_time = time.time()
+                
+                if scenario_type == 'lineage_discovery':
+                    result = self._benchmark_lineage_discovery(scenario)
+                elif scenario_type == 'impact_analysis':
+                    result = self._benchmark_impact_analysis(scenario)
+                elif scenario_type == 'large_graph':
+                    result = self._benchmark_large_graph_handling(scenario)
+                else:
+                    result = {'error': f'Unknown scenario type: {scenario_type}'}
+                
+                duration = time.time() - start_time
+                
+                test_result = {
+                    'scenario_name': scenario_name,
+                    'scenario_type': scenario_type,
+                    'duration_seconds': duration,
+                    'result': result,
+                    'target_met': self._evaluate_performance_target(scenario_type, duration, result)
+                }
+                
+                results['test_results'].append(test_result)
+                logger.info(f"Completed scenario {scenario_name} in {duration:.2f}s")
+                
+            except Exception as e:
+                logger.error(f"Failed to run scenario {scenario_name}: {e}")
+                results['test_results'].append({
+                    'scenario_name': scenario_name,
+                    'scenario_type': scenario_type,
+                    'duration_seconds': 0,
+                    'error': str(e),
+                    'target_met': False
+                })
+        
+        # Calculate overall performance
+        passed_tests = sum(1 for test in results['test_results'] if test.get('target_met', False))
+        total_tests = len(results['test_results'])
+        
+        if passed_tests == total_tests:
+            results['overall_performance'] = 'excellent'
+        elif passed_tests >= total_tests * 0.8:
+            results['overall_performance'] = 'good'
+        elif passed_tests >= total_tests * 0.6:
+            results['overall_performance'] = 'acceptable'
+        else:
+            results['overall_performance'] = 'needs_improvement'
+        
+        results['performance_summary'] = {
+            'tests_passed': passed_tests,
+            'total_tests': total_tests,
+            'pass_rate': passed_tests / total_tests if total_tests > 0 else 0
+        }
+        
+        logger.info(f"Performance benchmark completed: {results['overall_performance']}")
+        return results
+    
+    def _generate_default_test_scenarios(self) -> List[Dict[str, Any]]:
+        """Generate default performance test scenarios."""
+        return [
+            {
+                'name': 'Small Graph Impact Analysis',
+                'type': 'impact_analysis',
+                'nodes': 100,
+                'edges': 200,
+                'depth': 5
+            },
+            {
+                'name': 'Medium Graph Impact Analysis',
+                'type': 'impact_analysis',
+                'nodes': 1000,
+                'edges': 2000,
+                'depth': 7
+            },
+            {
+                'name': 'Large Graph Impact Analysis',
+                'type': 'impact_analysis',
+                'nodes': 10000,
+                'edges': 20000,
+                'depth': 10
+            },
+            {
+                'name': 'Lineage Discovery Test',
+                'type': 'lineage_discovery',
+                'tables': 1000,
+                'columns_per_table': 10,
+                'relationships': 2000
+            },
+            {
+                'name': 'Very Large Graph Handling',
+                'type': 'large_graph',
+                'nodes': 100000,
+                'edges': 200000,
+                'depth': 5
+            }
+        ]
+    
+    def _benchmark_impact_analysis(self, scenario: Dict[str, Any]) -> Dict[str, Any]:
+        """Benchmark impact analysis performance."""
+        # Create test graph
+        graph = self._create_test_graph(
+            num_nodes=scenario.get('nodes', 100),
+            num_edges=scenario.get('edges', 200)
+        )
+        
+        # Run impact analysis
+        root_nodes = list(graph.nodes.values())[:5]  # Test with first 5 nodes
+        results = []
+        
+        for root_node in root_nodes:
+            analysis = self.analyze_quality_impact(
+                graph, root_node.node_id, "downstream"
+            )
+            results.append({
+                'root_node': root_node.name,
+                'impacted_nodes': len(analysis.impacted_nodes),
+                'analysis_duration': analysis.analysis_duration_seconds
+            })
+        
+        avg_duration = sum(r['analysis_duration'] for r in results) / len(results)
+        
+        return {
+            'graph_size': len(graph.nodes),
+            'analyses_run': len(results),
+            'average_duration_seconds': avg_duration,
+            'max_duration_seconds': max(r['analysis_duration'] for r in results),
+            'total_impacted_nodes': sum(r['impacted_nodes'] for r in results)
+        }
+    
+    def _benchmark_lineage_discovery(self, scenario: Dict[str, Any]) -> Dict[str, Any]:
+        """Benchmark lineage discovery performance."""
+        num_tables = scenario.get('tables', 1000)
+        columns_per_table = scenario.get('columns_per_table', 10)
+        
+        # Simulate lineage discovery
+        graph = self.create_lineage_graph(
+            f"Discovery Test - {num_tables} tables"
+        )
+        
+        # Add tables and columns
+        for i in range(num_tables):
+            dataset_node = self.add_dataset_node(
+                graph, f"table_{i}", f"Table {i}"
+            )
+            
+            for j in range(columns_per_table):
+                self.add_column_node(
+                    graph, dataset_node, f"column_{j}", "STRING"
+                )
+        
+        return {
+            'tables_processed': num_tables,
+            'columns_processed': num_tables * columns_per_table,
+            'total_nodes': len(graph.nodes),
+            'total_edges': len(graph.edges)
+        }
+    
+    def _benchmark_large_graph_handling(self, scenario: Dict[str, Any]) -> Dict[str, Any]:
+        """Benchmark large graph handling performance."""
+        num_nodes = scenario.get('nodes', 100000)
+        
+        # Create large test graph
+        graph = self._create_test_graph(
+            num_nodes=num_nodes,
+            num_edges=num_nodes * 2
+        )
+        
+        # Test various operations
+        sample_nodes = list(graph.nodes.values())[:10]
+        operations = []
+        
+        for node in sample_nodes:
+            start_time = time.time()
+            
+            # Test impact analysis
+            analysis = self.analyze_quality_impact(
+                graph, node.node_id, "downstream"
+            )
+            
+            duration = time.time() - start_time
+            operations.append({
+                'operation': 'impact_analysis',
+                'duration': duration,
+                'result_size': len(analysis.impacted_nodes)
+            })
+        
+        avg_duration = sum(op['duration'] for op in operations) / len(operations)
+        
+        return {
+            'graph_size': len(graph.nodes),
+            'operations_tested': len(operations),
+            'average_operation_duration': avg_duration,
+            'max_operation_duration': max(op['duration'] for op in operations)
+        }
+    
+    def _create_test_graph(self, num_nodes: int, num_edges: int) -> QualityLineageGraph:
+        """Create a test graph for benchmarking."""
+        graph = self.create_lineage_graph(f"Test Graph - {num_nodes} nodes")
+        
+        # Add nodes
+        nodes = []
+        for i in range(num_nodes):
+            node_type = LineageNodeType.DATASET if i % 2 == 0 else LineageNodeType.COLUMN
+            node = LineageNode(
+                node_id=LineageNodeId(),
+                node_type=node_type,
+                name=f"test_node_{i}",
+                description=f"Test node {i}",
+                quality_score=0.8 if i % 3 == 0 else None
+            )
+            graph.add_node(node)
+            nodes.append(node)
+        
+        # Add edges
+        edges_added = 0
+        for i in range(min(num_edges, num_nodes - 1)):
+            if edges_added >= num_edges:
+                break
+            
+            source_node = nodes[i]
+            target_node = nodes[min(i + 1, num_nodes - 1)]
+            
+            edge = LineageEdge(
+                edge_id=LineageEdgeId(),
+                source_node_id=source_node.node_id,
+                target_node_id=target_node.node_id,
+                relationship_type="test_relationship",
+                quality_impact_factor=0.8
+            )
+            
+            graph.add_edge(edge)
+            edges_added += 1
+        
+        return graph
+    
+    def _evaluate_performance_target(self, scenario_type: str, duration: float, result: Dict[str, Any]) -> bool:
+        """Evaluate if performance target was met."""
+        if scenario_type == 'lineage_discovery':
+            # Target: < 10 minutes for 1000 tables
+            tables = result.get('tables_processed', 0)
+            target_duration = (tables / 1000) * 600  # 10 minutes per 1000 tables
+            return duration <= target_duration
+        
+        elif scenario_type == 'impact_analysis':
+            # Target: < 30 seconds for impact analysis
+            return duration <= 30.0
+        
+        elif scenario_type == 'large_graph':
+            # Target: Handle large graphs efficiently
+            graph_size = result.get('graph_size', 0)
+            if graph_size >= 100000:
+                return duration <= 60.0  # 1 minute for very large graphs
+            return duration <= 30.0
+        
+        return False
+    
     def export_lineage_graph(self, 
                            graph: QualityLineageGraph,
                            format: str = "json",
