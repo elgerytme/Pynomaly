@@ -419,6 +419,34 @@ app.include_router(
     waf_management.router, dependencies=[Depends(get_current_user_token)]
 )
 
+# Include pattern recognition router
+from .endpoints import pattern_recognition
+app.include_router(
+    pattern_recognition.router,
+    dependencies=[Depends(get_current_user_token)]
+)
+
+# Include schema discovery router
+from .endpoints import schema_discovery
+app.include_router(
+    schema_discovery.router,
+    dependencies=[Depends(get_current_user_token)]
+)
+
+# Include quality governance router
+from .endpoints import quality_governance
+app.include_router(
+    quality_governance.router,
+    dependencies=[Depends(get_current_user_token)]
+)
+
+# Include data visualization router
+from .endpoints import data_visualization
+app.include_router(
+    data_visualization.router,
+    dependencies=[Depends(get_current_user_token)]
+)
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, log_level="info")

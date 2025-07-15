@@ -55,6 +55,12 @@ dependencies = [
     "structlog>=24.4.0",
     "dependency-injector>=4.42.0",
     "networkx>=3.0",
+    # Essential system dependencies
+    "pyyaml>=6.0",
+    "pydantic-settings>=2.8.0",
+    # Security and validation
+    "cryptography>=45.0.0",
+    "email-validator>=2.2.0",
 ]
 
 [project.urls]
@@ -81,7 +87,16 @@ api = [
     "python-multipart>=0.0.20",
     "jinja2>=3.1.5",
     "aiofiles>=24.1.0",
-    "pydantic-settings>=2.8.0"
+    "pydantic-settings>=2.8.0",
+    # Session and authentication
+    "itsdangerous>=2.2.0",
+    "pyjwt>=2.10.1",
+    "passlib[bcrypt]>=1.7.4",
+    # Database support
+    "sqlalchemy>=2.0.36",
+    # Monitoring
+    "prometheus-client>=0.21.1",
+    "psutil>=6.1.1",
 ]
 cli = ["typer[all]>=0.15.1", "rich>=13.9.4"]
 server = [
