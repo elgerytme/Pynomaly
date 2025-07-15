@@ -230,7 +230,9 @@
       "Bash(git -c core.hooksPath=/dev/null commit -m \"$(cat <<'EOF'\ndocs: Update GitHub issues list with completed issues #4 and #7\n\n🎯 GitHub Issues List Update - Completed Issues Closed\n\n## ✅ Issues Completed and Closed\n\n### **Issue #4: P2-Medium: DevOps & Deployment**\n- **Status**: ✅ COMPLETED\n- **Updated**: Jul 15, 2025\n- **Achievements**:\n  - Container orchestration with Docker and Kubernetes\n  - CI/CD optimization with GitHub Actions\n  - Monitoring & alerting with Prometheus/Grafana\n  - Production deployment automation\n\n### **Issue #7: P2-Medium: Advanced Anomaly Classification**\n- **Status**: ✅ COMPLETED\n- **Updated**: Jul 15, 2025\n- **Achievements**:\n  - Extended anomaly types beyond binary classification\n  - Multi-dimensional severity levels (LOW, MEDIUM, HIGH, CRITICAL)\n  - Categorical anomaly detection with hierarchical classification\n  - Enhanced confidence scoring and feature contributions\n\n## 📊 Updated Statistics\n- **Total Open Issues**: 129 (reduced from 131)\n- **Completed Issues**: 75 (increased from 73)\n- **Pending Issues**: 43 (reduced from 45)\n- **Last Sync**: July 15, 2025 at 10:15 UTC\n\n## 🚀 Impact Summary\nBoth issues represent significant enhancements to the Pynomaly platform:\n- **DevOps Excellence**: Enterprise-grade deployment and monitoring infrastructure\n- **Advanced AI**: Sophisticated anomaly classification beyond simple binary detection\n\nThe completion of these issues advances the platform's production readiness\nand machine learning capabilities significantly.\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(for i in {106..164})",
       "Bash(do gh issue view $i --json number,title,state)",
-      "Bash(ln:*)"
+      "Bash(ln:*)",
+      "Bash(pynomaly:*)",
+      "Bash(./test_all_environments.sh:*)"
     ],
     "deny": []
   }

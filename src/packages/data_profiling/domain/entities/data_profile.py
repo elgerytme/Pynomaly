@@ -24,6 +24,7 @@ class CardinalityLevel(str, Enum):
     MEDIUM = "medium"       # 10-50% unique values
     LOW = "low"            # 2-10% unique values
     CONSTANT = "constant"   # Single unique value
+    UNKNOWN = "unknown"     # Unable to determine cardinality
 
 
 class DataType(str, Enum):
