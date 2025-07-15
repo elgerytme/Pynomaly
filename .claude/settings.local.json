@@ -241,7 +241,8 @@
       "Bash(sed:*)",
       "Bash(npm test)",
       "Bash(npx jest:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(git pull:*)"
     ],
     "deny": []
   }
