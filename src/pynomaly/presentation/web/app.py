@@ -1879,3 +1879,15 @@ def get_app():
     if app is None:
         app = create_web_app()
     return app
+
+
+def main():
+    """Main entry point for the web application."""
+    import uvicorn
+    
+    app = get_app()
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+if __name__ == "__main__":
+    main()
