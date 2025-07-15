@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..security.authorization import require_permissions
 from ..dependencies.auth import get_current_user
@@ -26,10 +26,7 @@ class PatternRecognitionRequest(BaseModel):
     data: List[Dict[str, Any]] = Field(..., description="Dataset records as list of dictionaries")
     recognition_type: str = Field(..., description="Type of pattern recognition (semantic, structural, temporal)")
     target_columns: Optional[List[str]] = Field(default=None, description="Specific columns to analyze")
-    config: Optional[Dict[str, Any]] = Field(default=None, description="Pattern recognition configuration")
-    
-    class Config:
-        schema_extra = {
+    config: Optional[Dict[str, Any]] = Field(default=None, description="Pattern recognition configuration")        schema_extra = {
             "example": {
                 "dataset_id": "customer_data_2024",
                 "data": [
@@ -58,10 +55,7 @@ class PatternRecognitionResponse(BaseModel):
     classification_results: Dict[str, Dict[str, Any]] = Field(..., description="Classification results by column")
     recommendations: List[Dict[str, Any]] = Field(..., description="Recommendations based on patterns")
     processing_time_ms: float = Field(..., description="Processing time in milliseconds")
-    created_at: str = Field(..., description="Recognition creation timestamp")
-    
-    class Config:
-        schema_extra = {
+    created_at: str = Field(..., description="Recognition creation timestamp")        schema_extra = {
             "example": {
                 "recognition_id": "rec_123456789",
                 "dataset_id": "customer_data_2024",
@@ -123,10 +117,7 @@ class SemanticClassificationRequest(BaseModel):
     data: List[Dict[str, Any]] = Field(..., description="Data to classify")
     classification_type: str = Field(..., description="Type of classification (pii, data_type, business_domain)")
     target_columns: Optional[List[str]] = Field(default=None, description="Columns to classify")
-    domain_context: Optional[str] = Field(default=None, description="Business domain context")
-    
-    class Config:
-        schema_extra = {
+    domain_context: Optional[str] = Field(default=None, description="Business domain context")        schema_extra = {
             "example": {
                 "dataset_id": "customer_data_2024",
                 "data": [
@@ -159,10 +150,7 @@ class PatternDiscoveryRequest(BaseModel):
     data: List[Dict[str, Any]] = Field(..., description="Data for pattern discovery")
     discovery_mode: str = Field(default="comprehensive", description="Discovery mode (quick, comprehensive, custom)")
     min_confidence: float = Field(default=0.7, description="Minimum confidence threshold")
-    max_patterns: int = Field(default=50, description="Maximum number of patterns to return")
-    
-    class Config:
-        schema_extra = {
+    max_patterns: int = Field(default=50, description="Maximum number of patterns to return")        schema_extra = {
             "example": {
                 "dataset_id": "transaction_data_2024",
                 "data": [

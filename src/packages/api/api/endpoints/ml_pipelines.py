@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..security.authorization import require_permissions
 from ..dependencies.auth import get_current_user
@@ -30,10 +30,7 @@ class PipelineCreateRequest(BaseModel):
     data_source: Dict[str, Any] = Field(..., description="Data source configuration")
     preprocessing: Optional[List[Dict[str, Any]]] = Field(default=None, description="Preprocessing steps")
     validation: Optional[Dict[str, Any]] = Field(default=None, description="Validation configuration")
-    deployment: Optional[Dict[str, Any]] = Field(default=None, description="Deployment configuration")
-    
-    class Config:
-        schema_extra = {
+    deployment: Optional[Dict[str, Any]] = Field(default=None, description="Deployment configuration")        schema_extra = {
             "example": {
                 "name": "customer_anomaly_detection",
                 "description": "Pipeline for detecting anomalies in customer behavior data",
@@ -82,10 +79,7 @@ class PipelineExecutionRequest(BaseModel):
     pipeline_id: str = Field(..., description="Pipeline identifier to execute")
     execution_mode: str = Field(default="async", description="Execution mode (async, sync)")
     input_data: Optional[Dict[str, Any]] = Field(default=None, description="Input data for inference pipelines")
-    override_config: Optional[Dict[str, Any]] = Field(default=None, description="Configuration overrides")
-    
-    class Config:
-        schema_extra = {
+    override_config: Optional[Dict[str, Any]] = Field(default=None, description="Configuration overrides")        schema_extra = {
             "example": {
                 "pipeline_id": "pipeline_123456789",
                 "execution_mode": "async",
@@ -116,10 +110,7 @@ class ModelDeploymentRequest(BaseModel):
     environment: str = Field(..., description="Deployment environment (dev, staging, prod)")
     resources: Dict[str, Any] = Field(..., description="Resource requirements")
     scaling: Optional[Dict[str, Any]] = Field(default=None, description="Auto-scaling configuration")
-    monitoring: Optional[Dict[str, Any]] = Field(default=None, description="Monitoring configuration")
-    
-    class Config:
-        schema_extra = {
+    monitoring: Optional[Dict[str, Any]] = Field(default=None, description="Monitoring configuration")        schema_extra = {
             "example": {
                 "model_id": "model_123456789",
                 "deployment_name": "anomaly-detector-v1",

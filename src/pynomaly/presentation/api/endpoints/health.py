@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from pynomaly.infrastructure.config import Container
 from pynomaly.infrastructure.monitoring.health_service import HealthService
@@ -13,10 +13,8 @@ from pynomaly.presentation.api.docs.response_models import HTTPResponses
 from pynomaly.presentation.api.docs.schema_examples import SchemaExamples
 
 router = APIRouter(
-    prefix="/health",
-    tags=["Health"],
-    responses={
-        500: HTTPResponses.server_error_500("Health check service unavailable"),
+    prefix="/health", responses={
+        500: HTTPResponses.server_error_500("Health check service unavailable", tags=["Health"]),
         503: HTTPResponses.server_error_500("Service temporarily unavailable"),
     },
 )
@@ -41,10 +39,7 @@ class HealthCheckResponse(BaseModel):
     timestamp: datetime = Field(..., description="Check execution timestamp")
     details: dict[str, Any] = Field(
         default_factory=dict, description="Additional check details"
-    )
-
-    class Config:
-        json_schema_extra = {
+    )        json_schema_extra = {
             "example": {
                 "name": "database",
                 "status": "healthy",
@@ -70,10 +65,7 @@ class HealthResponse(BaseModel):
     checks: dict[str, HealthCheckResponse] = Field(
         ..., description="Individual health check results"
     )
-    summary: dict[str, Any] = Field(..., description="Health summary statistics")
-
-    class Config:
-        json_schema_extra = {"example": SchemaExamples.health_check_response()["value"]}
+    summary: dict[str, Any] = Field(..., description="Health summary statistics")        json_schema_extra = {"example": SchemaExamples.health_check_response()["value"]}
 
 
 class SystemMetricsResponse(BaseModel):
@@ -97,10 +89,7 @@ class SystemMetricsResponse(BaseModel):
     )
     network_io: dict[str, int] = Field(..., description="Network I/O statistics")
     process_count: int = Field(..., description="Number of active processes", ge=0)
-    uptime_seconds: float = Field(..., description="System uptime in seconds", ge=0)
-
-    class Config:
-        json_schema_extra = {
+    uptime_seconds: float = Field(..., description="System uptime in seconds", ge=0)        json_schema_extra = {
             "example": {
                 "cpu_percent": 23.5,
                 "memory_percent": 68.2,

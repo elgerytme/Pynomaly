@@ -22,7 +22,7 @@ from pydantic import BaseModel
 from pynomaly.infrastructure.config.settings import get_settings
 
 
-class SessionData(BaseModel):
+class SessionData(BaseModel, ConfigDict):
     """Session data model."""
 
     session_id: str
@@ -38,10 +38,7 @@ class SessionData(BaseModel):
     csrf_token: str | None = None
     login_method: str | None = None  # jwt, api_key, oauth, etc.
     security_level: str = "standard"  # standard, elevated, admin
-    concurrent_session_count: int = 1
-
-    class Config:
-        json_encoders = {datetime: lambda v: v.isoformat(), UUID: lambda v: str(v)}
+    concurrent_session_count: int = 1        json_encoders = {datetime: lambda v: v.isoformat(), UUID: lambda v: str(v)}
 
 
 class SessionSecurityEvent(BaseModel):

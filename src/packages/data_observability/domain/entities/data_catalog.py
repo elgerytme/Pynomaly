@@ -11,10 +11,10 @@ from enum import Enum
 from typing import Dict, List, Optional, Set, Any, Union
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Enum, Field
 
 
-class DataAssetType(str, Enum):
+class DataAssetType(str):
     """Types of data assets in the catalog."""
     
     TABLE = "table"
@@ -124,10 +124,7 @@ class DataSchema(BaseModel):
     created_by: Optional[str] = None
     
     # Compatibility
-    compatible_formats: List[DataFormat] = Field(default_factory=list)
-    
-    class Config:
-        use_enum_values = True
+    compatible_formats: List[DataFormat] = Field(default_factory=list)        use_enum_values = True
     
     def add_column(self, column: ColumnMetadata) -> None:
         """Add a column to the schema."""
@@ -169,10 +166,7 @@ class DataUsage(BaseModel):
     # Context
     application: Optional[str] = None
     purpose: Optional[str] = None
-    ip_address: Optional[str] = None
-    
-    class Config:
-        use_enum_values = True
+    ip_address: Optional[str] = None        use_enum_values = True
 
 
 class DataCatalogEntry(BaseModel):
@@ -223,10 +217,7 @@ class DataCatalogEntry(BaseModel):
     usage_stats: Dict[str, Any] = Field(default_factory=dict)
     
     # Custom properties
-    properties: Dict[str, Any] = Field(default_factory=dict)
-    
-    class Config:
-        use_enum_values = True
+    properties: Dict[str, Any] = Field(default_factory=dict)        use_enum_values = True
         allow_population_by_field_name = True
     
     def add_tag(self, tag: str) -> None:

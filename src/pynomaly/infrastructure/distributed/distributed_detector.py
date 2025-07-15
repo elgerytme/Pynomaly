@@ -10,14 +10,14 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, DataPartitioner, Field
 
 # Import domain entities
 from pynomaly.domain.entities.anomaly import Anomaly
 from pynomaly.domain.entities.detector import Detector
 from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
 
-from .data_partitioner import DataPartition, DataPartitioner, PartitionStrategy
+from .data_partitioner import DataPartition, PartitionStrategy
 from .distributed_config import get_distributed_config_manager
 from .task_distributor import DistributedTask, TaskDistributor, TaskPriority, TaskType
 from .worker_manager import WorkerManager
@@ -127,10 +127,7 @@ class DistributedDetectionResult(BaseModel):
     # Chunk-level details
     chunk_results: list[ChunkResult] = Field(
         default_factory=list, description="Individual chunk results"
-    )
-
-    class Config:
-        arbitrary_types_allowed = True
+    )        arbitrary_types_allowed = True
 
     @property
     def success_rate(self) -> float:

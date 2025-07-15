@@ -11,10 +11,10 @@ from enum import Enum
 from typing import Dict, List, Optional, Any, Union
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Enum, Field
 
 
-class PredictionType(str, Enum):
+class PredictionType(str):
     """Types of quality predictions."""
     
     QUALITY_DEGRADATION = "quality_degradation"
@@ -98,10 +98,7 @@ class QualityTrend(BaseModel):
     
     # Anomalies in the trend
     anomaly_count: int = Field(default=0)
-    anomaly_timestamps: List[datetime] = Field(default_factory=list)
-    
-    class Config:
-        use_enum_values = True
+    anomaly_timestamps: List[datetime] = Field(default_factory=list)        use_enum_values = True
     
     def is_significant_trend(self, min_r_squared: float = 0.7) -> bool:
         """Check if trend is statistically significant."""
@@ -159,10 +156,7 @@ class QualityPrediction(BaseModel):
     is_validated: bool = False
     actual_value: Optional[float] = None
     validation_time: Optional[datetime] = None
-    prediction_error: Optional[float] = None
-    
-    class Config:
-        use_enum_values = True
+    prediction_error: Optional[float] = None        use_enum_values = True
     
     def validate_prediction(self, actual_value: float) -> None:
         """Validate the prediction against actual observed value."""
@@ -248,10 +242,7 @@ class QualityForecast(BaseModel):
     
     # Anomaly predictions
     predicted_anomalies: List[datetime] = Field(default_factory=list)
-    anomaly_probabilities: List[float] = Field(default_factory=list)
-    
-    class Config:
-        use_enum_values = True
+    anomaly_probabilities: List[float] = Field(default_factory=list)        use_enum_values = True
     
     def get_value_at_time(self, target_time: datetime) -> Optional[float]:
         """Get forecasted value at a specific time."""
@@ -333,10 +324,7 @@ class QualityAlert(BaseModel):
     
     # Tracking
     acknowledged_at: Optional[datetime] = None
-    resolved_at: Optional[datetime] = None
-    
-    class Config:
-        use_enum_values = True
+    resolved_at: Optional[datetime] = None        use_enum_values = True
     
     def acknowledge(self, user: str) -> None:
         """Acknowledge the alert."""

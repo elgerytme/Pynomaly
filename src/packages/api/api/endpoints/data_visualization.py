@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..security.authorization import require_permissions
 from ..dependencies.auth import get_current_user
@@ -30,10 +30,7 @@ class ChartGenerationRequest(BaseModel):
     group_by: Optional[str] = Field(default=None, description="Column to group by")
     aggregation: Optional[str] = Field(default=None, description="Aggregation function (sum, avg, count, min, max)")
     filters: Optional[List[Dict[str, Any]]] = Field(default=None, description="Data filters")
-    styling: Optional[Dict[str, Any]] = Field(default=None, description="Chart styling options")
-    
-    class Config:
-        schema_extra = {
+    styling: Optional[Dict[str, Any]] = Field(default=None, description="Chart styling options")        schema_extra = {
             "example": {
                 "dataset_id": "sales_data_2024",
                 "chart_type": "bar",
@@ -71,10 +68,7 @@ class ChartGenerationResponse(BaseModel):
     thumbnail_url: str = Field(..., description="URL to chart thumbnail")
     metadata: Dict[str, Any] = Field(..., description="Chart metadata")
     processing_time_ms: float = Field(..., description="Processing time in milliseconds")
-    created_at: str = Field(..., description="Chart creation timestamp")
-    
-    class Config:
-        schema_extra = {
+    created_at: str = Field(..., description="Chart creation timestamp")        schema_extra = {
             "example": {
                 "chart_id": "chart_123456789",
                 "dataset_id": "sales_data_2024",
@@ -116,10 +110,7 @@ class DashboardRequest(BaseModel):
     widgets: List[Dict[str, Any]] = Field(..., description="Dashboard widgets")
     refresh_interval: Optional[int] = Field(default=300, description="Refresh interval in seconds")
     filters: Optional[List[Dict[str, Any]]] = Field(default=None, description="Global dashboard filters")
-    styling: Optional[Dict[str, Any]] = Field(default=None, description="Dashboard styling")
-    
-    class Config:
-        schema_extra = {
+    styling: Optional[Dict[str, Any]] = Field(default=None, description="Dashboard styling")        schema_extra = {
             "example": {
                 "dashboard_name": "Sales Performance Dashboard",
                 "description": "Real-time sales performance metrics and trends",
@@ -174,10 +165,7 @@ class DashboardResponse(BaseModel):
     filters: List[Dict[str, Any]] = Field(..., description="Dashboard filters")
     metadata: Dict[str, Any] = Field(..., description="Dashboard metadata")
     created_by: str = Field(..., description="Dashboard creator")
-    created_at: str = Field(..., description="Creation timestamp")
-    
-    class Config:
-        schema_extra = {
+    created_at: str = Field(..., description="Creation timestamp")        schema_extra = {
             "example": {
                 "dashboard_id": "dash_123456789",
                 "dashboard_name": "Sales Performance Dashboard",
@@ -218,10 +206,7 @@ class ReportGenerationRequest(BaseModel):
     sections: List[Dict[str, Any]] = Field(..., description="Report sections")
     format: str = Field(default="pdf", description="Report format (pdf, html, excel)")
     template: Optional[str] = Field(default=None, description="Report template")
-    parameters: Optional[Dict[str, Any]] = Field(default=None, description="Report parameters")
-    
-    class Config:
-        schema_extra = {
+    parameters: Optional[Dict[str, Any]] = Field(default=None, description="Report parameters")        schema_extra = {
             "example": {
                 "report_name": "Monthly Sales Report",
                 "report_type": "summary",
@@ -275,10 +260,7 @@ class VisualizationTemplateRequest(BaseModel):
     template_type: str = Field(..., description="Template type (chart, dashboard, report)")
     configuration: Dict[str, Any] = Field(..., description="Template configuration")
     description: str = Field(..., description="Template description")
-    tags: List[str] = Field(default_factory=list, description="Template tags")
-    
-    class Config:
-        schema_extra = {
+    tags: List[str] = Field(default_factory=list, description="Template tags")        schema_extra = {
             "example": {
                 "template_name": "Sales Performance Chart",
                 "template_type": "chart",

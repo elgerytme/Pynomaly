@@ -11,12 +11,11 @@ from uuid import uuid4
 
 import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ...data_quality.application.services.validation_engine import ValidationEngine
 from ...data_quality.application.services.quality_assessment_service import (
-    QualityAssessmentService, QualityAssessmentConfig
-)
+    QualityAssessmentService, QualityAssessmentConfig)
 from ...data_quality.domain.entities.quality_profile import DatasetId
 from ...data_quality.domain.entities.validation_rule import ValidationRule, ValidationLogic
 from ..security.authorization import require_permissions
@@ -32,10 +31,7 @@ class QualityValidationRequest(BaseModel):
     dataset_id: str = Field(..., description="Unique identifier for the dataset")
     data: List[Dict[str, Any]] = Field(..., description="Dataset records as list of dictionaries")
     validation_rules: Optional[List[Dict[str, Any]]] = Field(default=None, description="Custom validation rules")
-    config: Optional[Dict[str, Any]] = Field(default=None, description="Quality assessment configuration")
-    
-    class Config:
-        schema_extra = {
+    config: Optional[Dict[str, Any]] = Field(default=None, description="Quality assessment configuration")        schema_extra = {
             "example": {
                 "dataset_id": "customer_data_2024",
                 "data": [
@@ -71,10 +67,7 @@ class QualityValidationResponse(BaseModel):
     issues_detected: int = Field(..., description="Number of quality issues detected")
     validation_rules_applied: int = Field(..., description="Number of validation rules applied")
     processing_time_ms: float = Field(..., description="Processing time in milliseconds")
-    created_at: str = Field(..., description="Validation creation timestamp")
-    
-    class Config:
-        schema_extra = {
+    created_at: str = Field(..., description="Validation creation timestamp")        schema_extra = {
             "example": {
                 "validation_id": "val_123456789",
                 "dataset_id": "customer_data_2024",
@@ -105,10 +98,7 @@ class ValidationRuleRequest(BaseModel):
     parameters: Dict[str, Any] = Field(..., description="Rule parameters")
     target_columns: List[str] = Field(..., description="Target columns for validation")
     severity: str = Field(default="medium", description="Rule severity level")
-    enabled: bool = Field(default=True, description="Whether rule is enabled")
-    
-    class Config:
-        schema_extra = {
+    enabled: bool = Field(default=True, description="Whether rule is enabled")        schema_extra = {
             "example": {
                 "name": "email_format_validation",
                 "description": "Validate email format using regex",

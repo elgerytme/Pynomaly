@@ -20,7 +20,7 @@ from enum import Enum
 from functools import wraps
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
@@ -201,10 +201,7 @@ class SecurityEvent(BaseModel):
     # Technical details
     source_component: str | None = None
     error_code: str | None = None
-    stack_trace: str | None = None
-
-    class Config:
-        json_encoders = {datetime: lambda v: v.isoformat()}
+    stack_trace: str | None = None        json_encoders = {datetime: lambda v: v.isoformat()}
 
 
 class AuditEvent(BaseModel):
@@ -231,10 +228,7 @@ class AuditEvent(BaseModel):
 
     # Compliance
     compliance_standards: list[ComplianceStandard] | None = None
-    retention_period_days: int | None = None
-
-    class Config:
-        json_encoders = {datetime: lambda v: v.isoformat()}
+    retention_period_days: int | None = None        json_encoders = {datetime: lambda v: v.isoformat()}
 
 
 class AuditLogger:

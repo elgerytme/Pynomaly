@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..security.authorization import require_permissions
 from ..dependencies.auth import get_current_user
@@ -30,10 +30,7 @@ class GovernancePolicyRequest(BaseModel):
     enforcement_level: str = Field(..., description="Enforcement level (advisory, mandatory, blocking)")
     compliance_frameworks: List[str] = Field(default_factory=list, description="Applicable compliance frameworks")
     effective_date: str = Field(..., description="Policy effective date")
-    expiration_date: Optional[str] = Field(default=None, description="Policy expiration date")
-    
-    class Config:
-        schema_extra = {
+    expiration_date: Optional[str] = Field(default=None, description="Policy expiration date")        schema_extra = {
             "example": {
                 "policy_name": "PII Data Protection Policy",
                 "description": "Ensures proper handling of personally identifiable information",
@@ -76,10 +73,7 @@ class GovernancePolicyResponse(BaseModel):
     expiration_date: Optional[str] = Field(..., description="Expiration date")
     created_by: str = Field(..., description="Policy creator")
     created_at: str = Field(..., description="Creation timestamp")
-    updated_at: str = Field(..., description="Last update timestamp")
-    
-    class Config:
-        schema_extra = {
+    updated_at: str = Field(..., description="Last update timestamp")        schema_extra = {
             "example": {
                 "policy_id": "pol_123456789",
                 "policy_name": "PII Data Protection Policy",
@@ -112,10 +106,7 @@ class ComplianceCheckRequest(BaseModel):
     compliance_frameworks: List[str] = Field(..., description="Frameworks to check against")
     check_type: str = Field(default="comprehensive", description="Type of compliance check")
     data_sample: Optional[List[Dict[str, Any]]] = Field(default=None, description="Sample data for analysis")
-    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Dataset metadata")
-    
-    class Config:
-        schema_extra = {
+    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Dataset metadata")        schema_extra = {
             "example": {
                 "dataset_id": "customer_data_2024",
                 "compliance_frameworks": ["GDPR", "CCPA"],
@@ -147,10 +138,7 @@ class ComplianceCheckResponse(BaseModel):
     risk_assessment: Dict[str, Any] = Field(..., description="Risk assessment results")
     remediation_actions: List[Dict[str, Any]] = Field(..., description="Required remediation actions")
     processing_time_ms: float = Field(..., description="Processing time in milliseconds")
-    created_at: str = Field(..., description="Check timestamp")
-    
-    class Config:
-        schema_extra = {
+    created_at: str = Field(..., description="Check timestamp")        schema_extra = {
             "example": {
                 "check_id": "chk_123456789",
                 "dataset_id": "customer_data_2024",
@@ -219,10 +207,7 @@ class AuditTrailRequest(BaseModel):
     user_id: Optional[str] = Field(default=None, description="User identifier to filter")
     start_date: Optional[str] = Field(default=None, description="Start date for audit trail")
     end_date: Optional[str] = Field(default=None, description="End date for audit trail")
-    limit: int = Field(default=100, description="Maximum number of records to return")
-    
-    class Config:
-        schema_extra = {
+    limit: int = Field(default=100, description="Maximum number of records to return")        schema_extra = {
             "example": {
                 "resource_type": "dataset",
                 "resource_id": "customer_data_2024",
@@ -240,10 +225,7 @@ class AuditTrailResponse(BaseModel):
     audit_records: List[Dict[str, Any]] = Field(..., description="Audit trail records")
     total_records: int = Field(..., description="Total number of records")
     summary: Dict[str, Any] = Field(..., description="Audit summary statistics")
-    compliance_alerts: List[Dict[str, Any]] = Field(..., description="Compliance-related alerts")
-    
-    class Config:
-        schema_extra = {
+    compliance_alerts: List[Dict[str, Any]] = Field(..., description="Compliance-related alerts")        schema_extra = {
             "example": {
                 "audit_records": [
                     {
@@ -282,10 +264,7 @@ class PolicyEnforcementRequest(BaseModel):
     policy_id: str = Field(..., description="Policy identifier")
     target_resources: List[str] = Field(..., description="Target resources for enforcement")
     enforcement_mode: str = Field(default="validate", description="Enforcement mode (validate, apply, simulate)")
-    parameters: Optional[Dict[str, Any]] = Field(default=None, description="Enforcement parameters")
-    
-    class Config:
-        schema_extra = {
+    parameters: Optional[Dict[str, Any]] = Field(default=None, description="Enforcement parameters")        schema_extra = {
             "example": {
                 "policy_id": "pol_123456789",
                 "target_resources": ["customer_data_2024", "employee_data_2024"],

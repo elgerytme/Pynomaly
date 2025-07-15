@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ..security.authorization import require_permissions
 from ..dependencies.auth import get_current_user
@@ -27,10 +27,7 @@ class SchemaDiscoveryRequest(BaseModel):
     discovery_mode: str = Field(default="comprehensive", description="Discovery mode (quick, comprehensive, statistical)")
     include_samples: bool = Field(default=True, description="Include sample values in response")
     infer_relationships: bool = Field(default=False, description="Infer relationships between columns")
-    config: Optional[Dict[str, Any]] = Field(default=None, description="Schema discovery configuration")
-    
-    class Config:
-        schema_extra = {
+    config: Optional[Dict[str, Any]] = Field(default=None, description="Schema discovery configuration")        schema_extra = {
             "example": {
                 "dataset_id": "customer_data_2024",
                 "data": [
@@ -61,10 +58,7 @@ class SchemaDiscoveryResponse(BaseModel):
     quality_metrics: Dict[str, Any] = Field(..., description="Schema quality metrics")
     recommendations: List[Dict[str, Any]] = Field(..., description="Schema improvement recommendations")
     processing_time_ms: float = Field(..., description="Processing time in milliseconds")
-    created_at: str = Field(..., description="Discovery timestamp")
-    
-    class Config:
-        schema_extra = {
+    created_at: str = Field(..., description="Discovery timestamp")        schema_extra = {
             "example": {
                 "discovery_id": "sch_123456789",
                 "dataset_id": "customer_data_2024",
@@ -146,10 +140,7 @@ class SchemaInferenceRequest(BaseModel):
     dataset_id: str = Field(..., description="Dataset identifier")
     columns: List[Dict[str, Any]] = Field(..., description="Column data for inference")
     inference_method: str = Field(default="statistical", description="Inference method (statistical, ml, hybrid)")
-    confidence_threshold: float = Field(default=0.8, description="Minimum confidence threshold")
-    
-    class Config:
-        schema_extra = {
+    confidence_threshold: float = Field(default=0.8, description="Minimum confidence threshold")        schema_extra = {
             "example": {
                 "dataset_id": "customer_data_2024",
                 "columns": [
@@ -186,10 +177,7 @@ class SchemaComparisonRequest(BaseModel):
     source_schema_id: str = Field(..., description="Source schema identifier")
     target_schema_id: str = Field(..., description="Target schema identifier")
     comparison_mode: str = Field(default="structural", description="Comparison mode (structural, semantic, full)")
-    ignore_nullable: bool = Field(default=False, description="Ignore nullable differences")
-    
-    class Config:
-        schema_extra = {
+    ignore_nullable: bool = Field(default=False, description="Ignore nullable differences")        schema_extra = {
             "example": {
                 "source_schema_id": "sch_123456789",
                 "target_schema_id": "sch_987654321",

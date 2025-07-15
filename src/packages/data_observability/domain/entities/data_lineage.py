@@ -11,10 +11,10 @@ from enum import Enum
 from typing import Dict, List, Optional, Set, Any
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Enum, Field
 
 
-class LineageNodeType(str, Enum):
+class LineageNodeType(str):
     """Types of nodes in the data lineage graph."""
     
     SOURCE = "source"
@@ -86,10 +86,7 @@ class LineageNode(BaseModel):
     last_updated: Optional[datetime] = None
     update_frequency: Optional[str] = None
     owner: Optional[str] = None
-    criticality: Optional[str] = None
-    
-    class Config:
-        use_enum_values = True
+    criticality: Optional[str] = None        use_enum_values = True
         allow_population_by_field_name = True
     
     def update_quality_score(self, score: float) -> None:
@@ -134,10 +131,7 @@ class LineageEdge(BaseModel):
     # Operational attributes
     pipeline_id: Optional[UUID] = None
     execution_time: Optional[float] = None
-    last_executed: Optional[datetime] = None
-    
-    class Config:
-        use_enum_values = True
+    last_executed: Optional[datetime] = None        use_enum_values = True
     
     def set_transform_logic(self, logic: str, transform_type: str = None) -> None:
         """Set the transformation logic for this edge."""
@@ -173,10 +167,7 @@ class DataLineage(BaseModel):
     
     # Graph-level attributes
     version: str = "1.0"
-    namespace: str = "default"
-    
-    class Config:
-        use_enum_values = True
+    namespace: str = "default"        use_enum_values = True
     
     def add_node(self, node: LineageNode) -> None:
         """Add a node to the lineage graph."""

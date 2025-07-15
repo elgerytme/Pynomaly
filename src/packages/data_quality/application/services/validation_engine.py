@@ -1,83 +1,51 @@
-"""Validation Engine Service.
+"""Comprehensive validation engine for data quality rules."""
 
-Core validation engine for executing quality rules against datasets
-with support for multiple rule types, parallel execution, and performance optimization.
-"""
-
-import pandas as pd
-import numpy as np
-from typing import List, Dict, Any, Optional, Union, Callable
-from datetime import datetime, timedelta
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
-from dataclasses import dataclass, field
-import logging
-import time
 import re
+import time
 import traceback
-from functools import lru_cache
+import numpy as np
+import pandas as pd
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
-from ...domain.entities.validation_rule import (
-    QualityRule, ValidationResult, ValidationError, ValidationLogic,
-    RuleId, ValidationId, ValidationStatus, Severity, LogicType
+from ...domain.entities.quality_entity import (
+    QualityRule, ValidationResult, ValidationStatus, ValidationError,
+    LogicType, Severity, DatasetId, ValidationId
 )
-from ...domain.entities.quality_profile import DatasetId, JobMetrics
+from ...domain.value_objects.validation_logic import ValidationLogic
+from ...infrastructure.config.quality_config import ValidationEngineConfig
+from ...infrastructure.logging.quality_logger import get_logger
 
-
-logger = logging.getLogger(__name__)
-
-
-@dataclass(frozen=True)
-class ValidationEngineConfig:
-    """Configuration for validation engine."""
-    enable_parallel_processing: bool = True
-    max_workers: int = 4
-    timeout_seconds: int = 300
-    enable_caching: bool = True
-    cache_size: int = 1000
-    chunk_size: int = 10000
-    enable_sampling: bool = False
-    sample_size: int = 10000
-    sample_random_state: int = 42
-    enable_detailed_logging: bool = False
-    validation_batch_size: int = 100
-    memory_limit_mb: int = 1024
-    
-    def __post_init__(self):
-        """Validate configuration."""
-        if self.max_workers <= 0:
-            raise ValueError("Max workers must be positive")
-        if self.timeout_seconds <= 0:
-            raise ValueError("Timeout seconds must be positive")
-        if self.chunk_size <= 0:
-            raise ValueError("Chunk size must be positive")
-        if self.sample_size <= 0:
-            raise ValueError("Sample size must be positive")
+logger = get_logger(__name__)
 
 
 class ValidationEngine:
-    """Core validation engine for executing quality rules."""
+    """High-performance validation engine with caching and parallel processing."""
     
-    def __init__(self, config: ValidationEngineConfig = None):
+    def __init__(self, config: ValidationEngineConfig):
         """Initialize validation engine."""
-        self.config = config or ValidationEngineConfig()
-        self._cache = {} if self.config.enable_caching else None
-        self._cache_timestamps = {} if self.config.enable_caching else None
-        self._compiled_rules_cache = {}
+        self.config = config
         
-        # Performance monitoring
+        # Caching
+        self._cache: Optional[Dict[str, ValidationResult]] = {}
+        self._cache_timestamps: Dict[str, datetime] = {}
+        self._compiled_rules_cache: Dict[int, Any] = {}
+        
+        # Metrics
         self._execution_metrics = {
             'total_validations': 0,
             'successful_validations': 0,
             'failed_validations': 0,
-            'total_execution_time': 0.0,
             'cache_hits': 0,
-            'cache_misses': 0
+            'cache_misses': 0,
+            'total_execution_time': 0.0
         }
         
-        # Rule executors for different logic types
+        # Rule executors
         self._rule_executors = {
-            LogicType.SQL: self._execute_sql_rule,
             LogicType.PYTHON: self._execute_python_rule,
+            LogicType.SQL: self._execute_sql_rule,
             LogicType.REGEX: self._execute_regex_rule,
             LogicType.STATISTICAL: self._execute_statistical_rule,
             LogicType.COMPARISON: self._execute_comparison_rule,
@@ -120,4 +88,778 @@ class ValidationEngine:
         except Exception as e:
             logger.error(f"Validation failed: {str(e)}")
             logger.error(traceback.format_exc())
-            raise\n    \n    def validate_single_rule(self, \n                           df: pd.DataFrame,\n                           rule: QualityRule,\n                           dataset_id: DatasetId) -> ValidationResult:\n        \"\"\"Validate dataset against a single rule.\"\"\"\n        start_time = time.time()\n        \n        try:\n            # Check cache first\n            if self._cache and self._should_use_cache(df, rule):\n                cached_result = self._get_from_cache(df, rule)\n                if cached_result:\n                    self._execution_metrics['cache_hits'] += 1\n                    return cached_result\n            \n            self._execution_metrics['cache_misses'] += 1\n            \n            # Execute validation\n            result = self._execute_single_rule(df, rule, dataset_id)\n            \n            # Cache result\n            if self._cache:\n                self._cache_result(df, rule, result)\n            \n            execution_time = time.time() - start_time\n            logger.debug(f\"Rule {rule.rule_name} executed in {execution_time:.3f} seconds\")\n            \n            return result\n            \n        except Exception as e:\n            logger.error(f\"Rule validation failed for {rule.rule_name}: {str(e)}\")\n            return self._create_error_result(rule, dataset_id, str(e))\n    \n    def _execute_single_rule(self, \n                           df: pd.DataFrame,\n                           rule: QualityRule,\n                           dataset_id: DatasetId) -> ValidationResult:\n        \"\"\"Execute a single validation rule.\"\"\"\n        validation_id = ValidationId()\n        start_time = datetime.now()\n        \n        try:\n            # Get rule executor\n            executor = self._rule_executors.get(rule.validation_logic.logic_type)\n            if not executor:\n                raise ValueError(f\"No executor for logic type: {rule.validation_logic.logic_type}\")\n            \n            # Execute rule\n            passed_records, failed_records, error_details = executor(df, rule.validation_logic)\n            \n            # Calculate metrics\n            total_records = len(df)\n            failure_rate = failed_records / total_records if total_records > 0 else 0.0\n            \n            # Determine status\n            success_criteria = rule.validation_logic.success_criteria\n            pass_rate = passed_records / total_records if total_records > 0 else 0.0\n            \n            if pass_rate >= success_criteria.min_pass_rate:\n                if success_criteria.max_failure_count is None or failed_records <= success_criteria.max_failure_count:\n                    status = ValidationStatus.PASSED\n                else:\n                    status = ValidationStatus.FAILED\n            elif pass_rate >= success_criteria.warning_threshold:\n                status = ValidationStatus.WARNING\n            else:\n                status = ValidationStatus.FAILED\n            \n            execution_time = datetime.now() - start_time\n            \n            return ValidationResult(\n                validation_id=validation_id,\n                rule_id=rule.rule_id,\n                dataset_id=dataset_id,\n                status=status,\n                passed_records=passed_records,\n                failed_records=failed_records,\n                failure_rate=failure_rate,\n                error_details=error_details,\n                execution_time=execution_time,\n                validated_at=datetime.now(),\n                total_records=total_records\n            )\n            \n        except Exception as e:\n            logger.error(f\"Rule execution failed: {str(e)}\")\n            return self._create_error_result(rule, dataset_id, str(e))\n    \n    def _execute_python_rule(self, \n                           df: pd.DataFrame,\n                           logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:\n        \"\"\"Execute Python-based validation rule.\"\"\"\n        try:\n            # Compile Python expression\n            compiled_expr = self._compile_python_rule(logic)\n            \n            # Execute validation\n            if logic.get_parameter('row_wise', False):\n                # Row-wise validation\n                return self._execute_row_wise_python(df, compiled_expr, logic)\n            else:\n                # Column-wise or aggregate validation\n                return self._execute_aggregate_python(df, compiled_expr, logic)\n                \n        except Exception as e:\n            logger.error(f\"Python rule execution failed: {str(e)}\")\n            return 0, len(df), [ValidationError(error_message=str(e))]\n    \n    def _execute_sql_rule(self, \n                        df: pd.DataFrame,\n                        logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:\n        \"\"\"Execute SQL-based validation rule.\"\"\"\n        try:\n            # Convert SQL to pandas operations\n            # This is a simplified implementation - in production, you'd use a proper SQL parser\n            sql_expr = logic.expression.lower()\n            \n            if 'select' in sql_expr and 'where' in sql_expr:\n                # Extract WHERE clause for filtering\n                where_clause = self._extract_where_clause(sql_expr)\n                valid_mask = self._evaluate_sql_condition(df, where_clause)\n                \n                passed_records = valid_mask.sum()\n                failed_records = len(df) - passed_records\n                \n                # Create error details for failed records\n                error_details = []\n                if failed_records > 0:\n                    failed_indices = df[~valid_mask].index.tolist()\n                    for idx in failed_indices[:100]:  # Limit error details\n                        error_details.append(ValidationError(\n                            row_index=idx,\n                            error_message=logic.error_message,\n                            severity=Severity.MEDIUM\n                        ))\n                \n                return passed_records, failed_records, error_details\n            else:\n                raise ValueError(\"Invalid SQL expression format\")\n                \n        except Exception as e:\n            logger.error(f\"SQL rule execution failed: {str(e)}\")\n            return 0, len(df), [ValidationError(error_message=str(e))]\n    \n    def _execute_regex_rule(self, \n                          df: pd.DataFrame,\n                          logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:\n        \"\"\"Execute regex-based validation rule.\"\"\"\n        try:\n            pattern = logic.expression\n            column_name = logic.get_parameter('column_name')\n            \n            if not column_name or column_name not in df.columns:\n                raise ValueError(f\"Column '{column_name}' not found in dataset\")\n            \n            # Compile regex pattern\n            compiled_pattern = re.compile(pattern)\n            \n            # Apply regex validation\n            series = df[column_name].astype(str)\n            valid_mask = series.str.match(compiled_pattern, na=False)\n            \n            passed_records = valid_mask.sum()\n            failed_records = len(df) - passed_records\n            \n            # Create error details for failed records\n            error_details = []\n            if failed_records > 0:\n                failed_data = df[~valid_mask]\n                for idx, row in failed_data.head(100).iterrows():\n                    error_details.append(ValidationError(\n                        row_index=idx,\n                        column_name=column_name,\n                        field_value=str(row[column_name]),\n                        error_message=f\"Value does not match pattern: {pattern}\",\n                        severity=Severity.MEDIUM\n                    ))\n            \n            return passed_records, failed_records, error_details\n            \n        except Exception as e:\n            logger.error(f\"Regex rule execution failed: {str(e)}\")\n            return 0, len(df), [ValidationError(error_message=str(e))]\n    \n    def _execute_statistical_rule(self, \n                                df: pd.DataFrame,\n                                logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:\n        \"\"\"Execute statistical validation rule.\"\"\"\n        try:\n            column_name = logic.get_parameter('column_name')\n            stat_type = logic.get_parameter('stat_type', 'outlier')\n            \n            if not column_name or column_name not in df.columns:\n                raise ValueError(f\"Column '{column_name}' not found in dataset\")\n            \n            series = df[column_name]\n            \n            if stat_type == 'outlier':\n                # IQR-based outlier detection\n                Q1 = series.quantile(0.25)\n                Q3 = series.quantile(0.75)\n                IQR = Q3 - Q1\n                lower_bound = Q1 - 1.5 * IQR\n                upper_bound = Q3 + 1.5 * IQR\n                \n                valid_mask = (series >= lower_bound) & (series <= upper_bound)\n                \n            elif stat_type == 'z_score':\n                # Z-score based outlier detection\n                threshold = logic.get_parameter('threshold', 3.0)\n                z_scores = np.abs((series - series.mean()) / series.std())\n                valid_mask = z_scores <= threshold\n                \n            elif stat_type == 'range':\n                # Range validation\n                min_val = logic.get_parameter('min_value')\n                max_val = logic.get_parameter('max_value')\n                valid_mask = (series >= min_val) & (series <= max_val)\n                \n            else:\n                raise ValueError(f\"Unknown statistical validation type: {stat_type}\")\n            \n            passed_records = valid_mask.sum()\n            failed_records = len(df) - passed_records\n            \n            # Create error details for failed records\n            error_details = []\n            if failed_records > 0:\n                failed_data = df[~valid_mask]\n                for idx, row in failed_data.head(100).iterrows():\n                    error_details.append(ValidationError(\n                        row_index=idx,\n                        column_name=column_name,\n                        field_value=str(row[column_name]),\n                        error_message=f\"Statistical validation failed: {stat_type}\",\n                        severity=Severity.MEDIUM\n                    ))\n            \n            return passed_records, failed_records, error_details\n            \n        except Exception as e:\n            logger.error(f\"Statistical rule execution failed: {str(e)}\")\n            return 0, len(df), [ValidationError(error_message=str(e))]\n    \n    def _execute_comparison_rule(self, \n                               df: pd.DataFrame,\n                               logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:\n        \"\"\"Execute comparison validation rule.\"\"\"\n        try:\n            column1 = logic.get_parameter('column1')\n            column2 = logic.get_parameter('column2')\n            operator = logic.get_parameter('operator', '==')\n            \n            if not column1 or column1 not in df.columns:\n                raise ValueError(f\"Column '{column1}' not found in dataset\")\n            if not column2 or column2 not in df.columns:\n                raise ValueError(f\"Column '{column2}' not found in dataset\")\n            \n            # Perform comparison\n            series1 = df[column1]\n            series2 = df[column2]\n            \n            if operator == '==':\n                valid_mask = series1 == series2\n            elif operator == '!=':\n                valid_mask = series1 != series2\n            elif operator == '<':\n                valid_mask = series1 < series2\n            elif operator == '<=':\n                valid_mask = series1 <= series2\n            elif operator == '>':\n                valid_mask = series1 > series2\n            elif operator == '>=':\n                valid_mask = series1 >= series2\n            else:\n                raise ValueError(f\"Unknown comparison operator: {operator}\")\n            \n            passed_records = valid_mask.sum()\n            failed_records = len(df) - passed_records\n            \n            # Create error details for failed records\n            error_details = []\n            if failed_records > 0:\n                failed_data = df[~valid_mask]\n                for idx, row in failed_data.head(100).iterrows():\n                    error_details.append(ValidationError(\n                        row_index=idx,\n                        column_name=f\"{column1}, {column2}\",\n                        field_value=f\"{row[column1]} {operator} {row[column2]}\",\n                        error_message=f\"Comparison validation failed: {column1} {operator} {column2}\",\n                        severity=Severity.MEDIUM\n                    ))\n            \n            return passed_records, failed_records, error_details\n            \n        except Exception as e:\n            logger.error(f\"Comparison rule execution failed: {str(e)}\")\n            return 0, len(df), [ValidationError(error_message=str(e))]\n    \n    def _execute_aggregation_rule(self, \n                                df: pd.DataFrame,\n                                logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:\n        \"\"\"Execute aggregation validation rule.\"\"\"\n        try:\n            column_name = logic.get_parameter('column_name')\n            agg_function = logic.get_parameter('function', 'sum')\n            expected_value = logic.get_parameter('expected_value')\n            tolerance = logic.get_parameter('tolerance', 0.0)\n            \n            if not column_name or column_name not in df.columns:\n                raise ValueError(f\"Column '{column_name}' not found in dataset\")\n            \n            # Calculate aggregation\n            series = df[column_name]\n            \n            if agg_function == 'sum':\n                actual_value = series.sum()\n            elif agg_function == 'mean':\n                actual_value = series.mean()\n            elif agg_function == 'count':\n                actual_value = series.count()\n            elif agg_function == 'max':\n                actual_value = series.max()\n            elif agg_function == 'min':\n                actual_value = series.min()\n            else:\n                raise ValueError(f\"Unknown aggregation function: {agg_function}\")\n            \n            # Check if within tolerance\n            if abs(actual_value - expected_value) <= tolerance:\n                return len(df), 0, []\n            else:\n                error_details = [ValidationError(\n                    error_message=f\"Aggregation validation failed: {agg_function}({column_name}) = {actual_value}, expected {expected_value} ± {tolerance}\",\n                    severity=Severity.HIGH\n                )]\n                return 0, len(df), error_details\n            \n        except Exception as e:\n            logger.error(f\"Aggregation rule execution failed: {str(e)}\")\n            return 0, len(df), [ValidationError(error_message=str(e))]\n    \n    def _execute_lookup_rule(self, \n                           df: pd.DataFrame,\n                           logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:\n        \"\"\"Execute lookup validation rule.\"\"\"\n        try:\n            column_name = logic.get_parameter('column_name')\n            lookup_values = logic.get_parameter('lookup_values', [])\n            \n            if not column_name or column_name not in df.columns:\n                raise ValueError(f\"Column '{column_name}' not found in dataset\")\n            \n            if not lookup_values:\n                raise ValueError(\"Lookup values not provided\")\n            \n            # Perform lookup validation\n            series = df[column_name]\n            valid_mask = series.isin(lookup_values)\n            \n            passed_records = valid_mask.sum()\n            failed_records = len(df) - passed_records\n            \n            # Create error details for failed records\n            error_details = []\n            if failed_records > 0:\n                failed_data = df[~valid_mask]\n                for idx, row in failed_data.head(100).iterrows():\n                    error_details.append(ValidationError(\n                        row_index=idx,\n                        column_name=column_name,\n                        field_value=str(row[column_name]),\n                        error_message=f\"Value not found in lookup list: {lookup_values}\",\n                        severity=Severity.MEDIUM\n                    ))\n            \n            return passed_records, failed_records, error_details\n            \n        except Exception as e:\n            logger.error(f\"Lookup rule execution failed: {str(e)}\")\n            return 0, len(df), [ValidationError(error_message=str(e))]\n    \n    def _execute_conditional_rule(self, \n                                df: pd.DataFrame,\n                                logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:\n        \"\"\"Execute conditional validation rule.\"\"\"\n        try:\n            condition = logic.get_parameter('condition')\n            validation_expr = logic.get_parameter('validation_expression')\n            \n            if not condition or not validation_expr:\n                raise ValueError(\"Condition and validation expression are required\")\n            \n            # Evaluate condition\n            condition_mask = self._evaluate_expression(df, condition)\n            \n            # Apply validation only to records that meet the condition\n            filtered_df = df[condition_mask]\n            \n            if len(filtered_df) == 0:\n                return len(df), 0, []  # No records match condition\n            \n            # Execute validation on filtered data\n            validation_mask = self._evaluate_expression(filtered_df, validation_expr)\n            \n            passed_records = validation_mask.sum()\n            failed_records = len(filtered_df) - passed_records\n            \n            # Create error details for failed records\n            error_details = []\n            if failed_records > 0:\n                failed_data = filtered_df[~validation_mask]\n                for idx, row in failed_data.head(100).iterrows():\n                    error_details.append(ValidationError(\n                        row_index=idx,\n                        error_message=f\"Conditional validation failed: {validation_expr}\",\n                        severity=Severity.MEDIUM\n                    ))\n            \n            # Return results relative to full dataset\n            total_passed = len(df) - len(filtered_df) + passed_records\n            total_failed = failed_records\n            \n            return total_passed, total_failed, error_details\n            \n        except Exception as e:\n            logger.error(f\"Conditional rule execution failed: {str(e)}\")\n            return 0, len(df), [ValidationError(error_message=str(e))]\n    \n    def _execute_expression_rule(self, \n                               df: pd.DataFrame,\n                               logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:\n        \"\"\"Execute expression-based validation rule.\"\"\"\n        try:\n            expression = logic.expression\n            \n            # Evaluate expression\n            valid_mask = self._evaluate_expression(df, expression)\n            \n            passed_records = valid_mask.sum()\n            failed_records = len(df) - passed_records\n            \n            # Create error details for failed records\n            error_details = []\n            if failed_records > 0:\n                failed_data = df[~valid_mask]\n                for idx, row in failed_data.head(100).iterrows():\n                    error_details.append(ValidationError(\n                        row_index=idx,\n                        error_message=f\"Expression validation failed: {expression}\",\n                        severity=Severity.MEDIUM\n                    ))\n            \n            return passed_records, failed_records, error_details\n            \n        except Exception as e:\n            logger.error(f\"Expression rule execution failed: {str(e)}\")\n            return 0, len(df), [ValidationError(error_message=str(e))]\n    \n    def _evaluate_expression(self, df: pd.DataFrame, expression: str) -> pd.Series:\n        \"\"\"Safely evaluate pandas expression.\"\"\"\n        try:\n            # Simple expression evaluation - in production, use a proper expression parser\n            # This is a simplified version for demonstration\n            namespace = {'df': df}\n            for col in df.columns:\n                namespace[col] = df[col]\n            \n            return eval(expression, {\"__builtins__\": {}}, namespace)\n            \n        except Exception as e:\n            logger.error(f\"Expression evaluation failed: {str(e)}\")\n            return pd.Series([False] * len(df))\n    \n    def _apply_sampling(self, df: pd.DataFrame) -> pd.DataFrame:\n        \"\"\"Apply sampling to large datasets.\"\"\"\n        return df.sample(\n            n=min(self.config.sample_size, len(df)),\n            random_state=self.config.sample_random_state\n        )\n    \n    def _filter_applicable_rules(self, df: pd.DataFrame, rules: List[QualityRule]) -> List[QualityRule]:\n        \"\"\"Filter rules that are applicable to the dataset.\"\"\"\n        applicable_rules = []\n        \n        for rule in rules:\n            if not rule.is_active:\n                continue\n            \n            # Check if rule applies to any columns in the dataset\n            if rule.target_columns:\n                if not any(col in df.columns for col in rule.target_columns):\n                    continue\n            \n            applicable_rules.append(rule)\n        \n        return applicable_rules\n    \n    def _execute_parallel_validation(self, \n                                   df: pd.DataFrame,\n                                   rules: List[QualityRule],\n                                   dataset_id: DatasetId) -> List[ValidationResult]:\n        \"\"\"Execute validation rules in parallel.\"\"\"\n        results = []\n        \n        with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:\n            future_to_rule = {}\n            \n            for rule in rules:\n                future = executor.submit(self.validate_single_rule, df, rule, dataset_id)\n                future_to_rule[future] = rule\n            \n            for future in as_completed(future_to_rule, timeout=self.config.timeout_seconds):\n                rule = future_to_rule[future]\n                try:\n                    result = future.result()\n                    results.append(result)\n                except Exception as e:\n                    logger.error(f\"Parallel validation failed for rule {rule.rule_name}: {str(e)}\")\n                    results.append(self._create_error_result(rule, dataset_id, str(e)))\n        \n        return results\n    \n    def _execute_sequential_validation(self, \n                                     df: pd.DataFrame,\n                                     rules: List[QualityRule],\n                                     dataset_id: DatasetId) -> List[ValidationResult]:\n        \"\"\"Execute validation rules sequentially.\"\"\"\n        results = []\n        \n        for rule in rules:\n            try:\n                result = self.validate_single_rule(df, rule, dataset_id)\n                results.append(result)\n            except Exception as e:\n                logger.error(f\"Sequential validation failed for rule {rule.rule_name}: {str(e)}\")\n                results.append(self._create_error_result(rule, dataset_id, str(e)))\n        \n        return results\n    \n    def _create_error_result(self, rule: QualityRule, dataset_id: DatasetId, error_message: str) -> ValidationResult:\n        \"\"\"Create a validation result for errors.\"\"\"\n        return ValidationResult(\n            validation_id=ValidationId(),\n            rule_id=rule.rule_id,\n            dataset_id=dataset_id,\n            status=ValidationStatus.ERROR,\n            passed_records=0,\n            failed_records=0,\n            failure_rate=0.0,\n            error_details=[ValidationError(error_message=error_message, severity=Severity.HIGH)],\n            execution_time=timedelta(seconds=0),\n            validated_at=datetime.now()\n        )\n    \n    def _should_use_cache(self, df: pd.DataFrame, rule: QualityRule) -> bool:\n        \"\"\"Check if cached result should be used.\"\"\"\n        if not self._cache:\n            return False\n        \n        cache_key = self._get_cache_key(df, rule)\n        \n        if cache_key not in self._cache:\n            return False\n        \n        # Check if cache is still valid (simple time-based invalidation)\n        cache_time = self._cache_timestamps.get(cache_key, datetime.min)\n        if datetime.now() - cache_time > timedelta(minutes=30):\n            return False\n        \n        return True\n    \n    def _get_from_cache(self, df: pd.DataFrame, rule: QualityRule) -> Optional[ValidationResult]:\n        \"\"\"Get validation result from cache.\"\"\"\n        cache_key = self._get_cache_key(df, rule)\n        return self._cache.get(cache_key)\n    \n    def _cache_result(self, df: pd.DataFrame, rule: QualityRule, result: ValidationResult) -> None:\n        \"\"\"Cache validation result.\"\"\"\n        if not self._cache:\n            return\n        \n        cache_key = self._get_cache_key(df, rule)\n        self._cache[cache_key] = result\n        self._cache_timestamps[cache_key] = datetime.now()\n        \n        # Simple cache size management\n        if len(self._cache) > self.config.cache_size:\n            # Remove oldest entries\n            oldest_key = min(self._cache_timestamps.keys(), key=lambda k: self._cache_timestamps[k])\n            del self._cache[oldest_key]\n            del self._cache_timestamps[oldest_key]\n    \n    def _get_cache_key(self, df: pd.DataFrame, rule: QualityRule) -> str:\n        \"\"\"Generate cache key for dataset and rule.\"\"\"\n        # Simple hash-based key (in production, use more sophisticated hashing)\n        df_hash = hash(str(df.dtypes.to_dict()) + str(len(df)))\n        rule_hash = hash(str(rule.rule_id) + rule.validation_logic.expression)\n        return f\"{df_hash}_{rule_hash}\"\n    \n    def _compile_python_rule(self, logic: ValidationLogic) -> str:\n        \"\"\"Compile Python rule for execution.\"\"\"\n        rule_key = hash(logic.expression)\n        \n        if rule_key not in self._compiled_rules_cache:\n            # Basic compilation (in production, use AST parsing and validation)\n            self._compiled_rules_cache[rule_key] = compile(logic.expression, '<string>', 'eval')\n        \n        return self._compiled_rules_cache[rule_key]\n    \n    def _execute_row_wise_python(self, \n                                df: pd.DataFrame,\n                                compiled_expr: str,\n                                logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:\n        \"\"\"Execute row-wise Python validation.\"\"\"\n        passed_records = 0\n        failed_records = 0\n        error_details = []\n        \n        for idx, row in df.iterrows():\n            try:\n                # Create namespace for row\n                namespace = dict(row)\n                namespace['row'] = row\n                \n                # Evaluate expression\n                result = eval(compiled_expr, {\"__builtins__\": {}}, namespace)\n                \n                if result:\n                    passed_records += 1\n                else:\n                    failed_records += 1\n                    if len(error_details) < 100:  # Limit error details\n                        error_details.append(ValidationError(\n                            row_index=idx,\n                            error_message=logic.error_message,\n                            severity=Severity.MEDIUM\n                        ))\n                        \n            except Exception as e:\n                failed_records += 1\n                if len(error_details) < 100:\n                    error_details.append(ValidationError(\n                        row_index=idx,\n                        error_message=f\"Python evaluation error: {str(e)}\",\n                        severity=Severity.HIGH\n                    ))\n        \n        return passed_records, failed_records, error_details\n    \n    def _execute_aggregate_python(self, \n                                 df: pd.DataFrame,\n                                 compiled_expr: str,\n                                 logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:\n        \"\"\"Execute aggregate Python validation.\"\"\"\n        try:\n            # Create namespace for DataFrame\n            namespace = {'df': df}\n            for col in df.columns:\n                namespace[col] = df[col]\n            \n            # Evaluate expression\n            result = eval(compiled_expr, {\"__builtins__\": {}}, namespace)\n            \n            if isinstance(result, bool):\n                if result:\n                    return len(df), 0, []\n                else:\n                    return 0, len(df), [ValidationError(\n                        error_message=logic.error_message,\n                        severity=Severity.HIGH\n                    )]\n            elif isinstance(result, pd.Series):\n                # Series result - row-wise validation\n                passed = result.sum()\n                failed = len(result) - passed\n                \n                error_details = []\n                if failed > 0:\n                    failed_indices = result[~result].index.tolist()\n                    for idx in failed_indices[:100]:\n                        error_details.append(ValidationError(\n                            row_index=idx,\n                            error_message=logic.error_message,\n                            severity=Severity.MEDIUM\n                        ))\n                \n                return passed, failed, error_details\n            else:\n                raise ValueError(f\"Unexpected result type: {type(result)}\")\n                \n        except Exception as e:\n            return 0, len(df), [ValidationError(\n                error_message=f\"Python evaluation error: {str(e)}\",\n                severity=Severity.HIGH\n            )]\n    \n    def _extract_where_clause(self, sql: str) -> str:\n        \"\"\"Extract WHERE clause from SQL statement.\"\"\"\n        # Simplified SQL parsing - in production, use proper SQL parser\n        where_idx = sql.find('where')\n        if where_idx == -1:\n            return \"1=1\"  # Always true\n        \n        where_clause = sql[where_idx + 5:].strip()\n        \n        # Remove trailing semicolon if present\n        if where_clause.endswith(';'):\n            where_clause = where_clause[:-1]\n        \n        return where_clause\n    \n    def _evaluate_sql_condition(self, df: pd.DataFrame, condition: str) -> pd.Series:\n        \"\"\"Evaluate SQL condition as pandas expression.\"\"\"\n        # Convert basic SQL to pandas (simplified)\n        pandas_expr = condition.replace('=', '==')\n        return self._evaluate_expression(df, pandas_expr)\n    \n    def _update_execution_metrics(self, results: List[ValidationResult], execution_time: float) -> None:\n        \"\"\"Update execution metrics.\"\"\"\n        self._execution_metrics['total_validations'] += len(results)\n        self._execution_metrics['total_execution_time'] += execution_time\n        \n        for result in results:\n            if result.status == ValidationStatus.PASSED:\n                self._execution_metrics['successful_validations'] += 1\n            else:\n                self._execution_metrics['failed_validations'] += 1\n    \n    def get_execution_metrics(self) -> Dict[str, Any]:\n        \"\"\"Get engine execution metrics.\"\"\"\n        metrics = self._execution_metrics.copy()\n        \n        # Calculate derived metrics\n        total_validations = metrics['total_validations']\n        if total_validations > 0:\n            metrics['success_rate'] = metrics['successful_validations'] / total_validations\n            metrics['failure_rate'] = metrics['failed_validations'] / total_validations\n            metrics['average_execution_time'] = metrics['total_execution_time'] / total_validations\n        else:\n            metrics['success_rate'] = 0.0\n            metrics['failure_rate'] = 0.0\n            metrics['average_execution_time'] = 0.0\n        \n        # Cache metrics\n        if self._cache:\n            metrics['cache_size'] = len(self._cache)\n            total_cache_requests = metrics['cache_hits'] + metrics['cache_misses']\n            if total_cache_requests > 0:\n                metrics['cache_hit_rate'] = metrics['cache_hits'] / total_cache_requests\n            else:\n                metrics['cache_hit_rate'] = 0.0\n        \n        return metrics\n    \n    def clear_cache(self) -> None:\n        \"\"\"Clear validation cache.\"\"\"\n        if self._cache:\n            self._cache.clear()\n            self._cache_timestamps.clear()\n            self._compiled_rules_cache.clear()\n    \n    def get_cache_info(self) -> Dict[str, Any]:\n        \"\"\"Get cache information.\"\"\"\n        if not self._cache:\n            return {'cache_enabled': False}\n        \n        return {\n            'cache_enabled': True,\n            'cache_size': len(self._cache),\n            'cache_capacity': self.config.cache_size,\n            'compiled_rules_cached': len(self._compiled_rules_cache)\n        }
+            raise
+    
+    def validate_single_rule(self, 
+                           df: pd.DataFrame,
+                           rule: QualityRule,
+                           dataset_id: DatasetId) -> ValidationResult:
+        """Validate dataset against a single rule."""
+        start_time = time.time()
+        
+        try:
+            # Check cache first
+            if self._cache and self._should_use_cache(df, rule):
+                cached_result = self._get_from_cache(df, rule)
+                if cached_result:
+                    self._execution_metrics['cache_hits'] += 1
+                    return cached_result
+            
+            self._execution_metrics['cache_misses'] += 1
+            
+            # Execute validation
+            result = self._execute_single_rule(df, rule, dataset_id)
+            
+            # Cache result
+            if self._cache:
+                self._cache_result(df, rule, result)
+            
+            execution_time = time.time() - start_time
+            logger.debug(f"Rule {rule.rule_name} executed in {execution_time:.3f} seconds")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Rule validation failed for {rule.rule_name}: {str(e)}")
+            return self._create_error_result(rule, dataset_id, str(e))
+    
+    def _execute_single_rule(self, 
+                           df: pd.DataFrame,
+                           rule: QualityRule,
+                           dataset_id: DatasetId) -> ValidationResult:
+        """Execute a single validation rule."""
+        validation_id = ValidationId()
+        start_time = datetime.now()
+        
+        try:
+            # Get rule executor
+            executor = self._rule_executors.get(rule.validation_logic.logic_type)
+            if not executor:
+                raise ValueError(f"No executor for logic type: {rule.validation_logic.logic_type}")
+            
+            # Execute rule
+            passed_records, failed_records, error_details = executor(df, rule.validation_logic)
+            
+            # Calculate metrics
+            total_records = len(df)
+            failure_rate = failed_records / total_records if total_records > 0 else 0.0
+            
+            # Determine status
+            success_criteria = rule.validation_logic.success_criteria
+            pass_rate = passed_records / total_records if total_records > 0 else 0.0
+            
+            if pass_rate >= success_criteria.min_pass_rate:
+                if success_criteria.max_failure_count is None or failed_records <= success_criteria.max_failure_count:
+                    status = ValidationStatus.PASSED
+                else:
+                    status = ValidationStatus.FAILED
+            elif pass_rate >= success_criteria.warning_threshold:
+                status = ValidationStatus.WARNING
+            else:
+                status = ValidationStatus.FAILED
+            
+            execution_time = datetime.now() - start_time
+            
+            return ValidationResult(
+                validation_id=validation_id,
+                rule_id=rule.rule_id,
+                dataset_id=dataset_id,
+                status=status,
+                passed_records=passed_records,
+                failed_records=failed_records,
+                failure_rate=failure_rate,
+                error_details=error_details,
+                execution_time=execution_time,
+                validated_at=datetime.now(),
+                total_records=total_records
+            )
+            
+        except Exception as e:
+            logger.error(f"Rule execution failed: {str(e)}")
+            return self._create_error_result(rule, dataset_id, str(e))
+    
+    def _execute_python_rule(self, 
+                           df: pd.DataFrame,
+                           logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
+        """Execute Python-based validation rule."""
+        try:
+            # Compile Python expression
+            compiled_expr = self._compile_python_rule(logic)
+            
+            # Execute validation
+            if logic.get_parameter('row_wise', False):
+                # Row-wise validation
+                return self._execute_row_wise_python(df, compiled_expr, logic)
+            else:
+                # Column-wise or aggregate validation
+                return self._execute_aggregate_python(df, compiled_expr, logic)
+                
+        except Exception as e:
+            logger.error(f"Python rule execution failed: {str(e)}")
+            return 0, len(df), [ValidationError(error_message=str(e))]
+    
+    def _execute_sql_rule(self, 
+                        df: pd.DataFrame,
+                        logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
+        """Execute SQL-based validation rule."""
+        try:
+            # Convert SQL to pandas operations
+            # This is a simplified implementation
+            sql_expr = logic.expression.lower()
+            
+            if 'select' in sql_expr and 'where' in sql_expr:
+                # Extract WHERE clause for filtering
+                where_clause = self._extract_where_clause(sql_expr)
+                valid_mask = self._evaluate_sql_condition(df, where_clause)
+                
+                passed_records = valid_mask.sum()
+                failed_records = len(df) - passed_records
+                
+                # Create error details for failed records
+                error_details = []
+                if failed_records > 0:
+                    failed_indices = df[~valid_mask].index.tolist()
+                    for idx in failed_indices[:100]:  # Limit error details
+                        error_details.append(ValidationError(
+                            row_index=idx,
+                            error_message=logic.error_message,
+                            severity=Severity.MEDIUM
+                        ))
+                
+                return passed_records, failed_records, error_details
+            else:
+                raise ValueError("Invalid SQL expression format")
+                
+        except Exception as e:
+            logger.error(f"SQL rule execution failed: {str(e)}")
+            return 0, len(df), [ValidationError(error_message=str(e))]
+    
+    def _execute_regex_rule(self, 
+                          df: pd.DataFrame,
+                          logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
+        """Execute regex-based validation rule."""
+        try:
+            pattern = logic.expression
+            column_name = logic.get_parameter('column_name')
+            
+            if not column_name or column_name not in df.columns:
+                raise ValueError(f"Column '{column_name}' not found in dataset")
+            
+            # Compile regex pattern
+            compiled_pattern = re.compile(pattern)
+            
+            # Apply regex validation
+            series = df[column_name].astype(str)
+            valid_mask = series.str.match(compiled_pattern, na=False)
+            
+            passed_records = valid_mask.sum()
+            failed_records = len(df) - passed_records
+            
+            # Create error details for failed records
+            error_details = []
+            if failed_records > 0:
+                failed_data = df[~valid_mask]
+                for idx, row in failed_data.head(100).iterrows():
+                    error_details.append(ValidationError(
+                        row_index=idx,
+                        column_name=column_name,
+                        field_value=str(row[column_name]),
+                        error_message=f"Value does not match pattern: {pattern}",
+                        severity=Severity.MEDIUM
+                    ))
+            
+            return passed_records, failed_records, error_details
+            
+        except Exception as e:
+            logger.error(f"Regex rule execution failed: {str(e)}")
+            return 0, len(df), [ValidationError(error_message=str(e))]
+    
+    def _execute_statistical_rule(self, 
+                                df: pd.DataFrame,
+                                logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
+        """Execute statistical validation rule."""
+        try:
+            column_name = logic.get_parameter('column_name')
+            stat_type = logic.get_parameter('stat_type', 'outlier')
+            
+            if not column_name or column_name not in df.columns:
+                raise ValueError(f"Column '{column_name}' not found in dataset")
+            
+            series = df[column_name]
+            
+            if stat_type == 'outlier':
+                # IQR-based outlier detection
+                Q1 = series.quantile(0.25)
+                Q3 = series.quantile(0.75)
+                IQR = Q3 - Q1
+                lower_bound = Q1 - 1.5 * IQR
+                upper_bound = Q3 + 1.5 * IQR
+                
+                valid_mask = (series >= lower_bound) & (series <= upper_bound)
+                
+            elif stat_type == 'z_score':
+                # Z-score based outlier detection
+                threshold = logic.get_parameter('threshold', 3.0)
+                z_scores = np.abs((series - series.mean()) / series.std())
+                valid_mask = z_scores <= threshold
+                
+            elif stat_type == 'range':
+                # Range validation
+                min_val = logic.get_parameter('min_value')
+                max_val = logic.get_parameter('max_value')
+                valid_mask = (series >= min_val) & (series <= max_val)
+                
+            else:
+                raise ValueError(f"Unknown statistical validation type: {stat_type}")
+            
+            passed_records = valid_mask.sum()
+            failed_records = len(df) - passed_records
+            
+            # Create error details for failed records
+            error_details = []
+            if failed_records > 0:
+                failed_data = df[~valid_mask]
+                for idx, row in failed_data.head(100).iterrows():
+                    error_details.append(ValidationError(
+                        row_index=idx,
+                        column_name=column_name,
+                        field_value=str(row[column_name]),
+                        error_message=f"Statistical validation failed: {stat_type}",
+                        severity=Severity.MEDIUM
+                    ))
+            
+            return passed_records, failed_records, error_details
+            
+        except Exception as e:
+            logger.error(f"Statistical rule execution failed: {str(e)}")
+            return 0, len(df), [ValidationError(error_message=str(e))]
+    
+    def _execute_comparison_rule(self, 
+                               df: pd.DataFrame,
+                               logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
+        """Execute comparison validation rule."""
+        try:
+            column1 = logic.get_parameter('column1')
+            column2 = logic.get_parameter('column2')
+            operator = logic.get_parameter('operator', '==')
+            
+            if not column1 or column1 not in df.columns:
+                raise ValueError(f"Column '{column1}' not found in dataset")
+            if not column2 or column2 not in df.columns:
+                raise ValueError(f"Column '{column2}' not found in dataset")
+            
+            # Perform comparison
+            series1 = df[column1]
+            series2 = df[column2]
+            
+            if operator == '==':
+                valid_mask = series1 == series2
+            elif operator == '!=':
+                valid_mask = series1 != series2
+            elif operator == '<':
+                valid_mask = series1 < series2
+            elif operator == '<=':
+                valid_mask = series1 <= series2
+            elif operator == '>':
+                valid_mask = series1 > series2
+            elif operator == '>=':
+                valid_mask = series1 >= series2
+            else:
+                raise ValueError(f"Unknown comparison operator: {operator}")
+            
+            passed_records = valid_mask.sum()
+            failed_records = len(df) - passed_records
+            
+            # Create error details for failed records
+            error_details = []
+            if failed_records > 0:
+                failed_data = df[~valid_mask]
+                for idx, row in failed_data.head(100).iterrows():
+                    error_details.append(ValidationError(
+                        row_index=idx,
+                        column_name=f"{column1}, {column2}",
+                        field_value=f"{row[column1]} {operator} {row[column2]}",
+                        error_message=f"Comparison validation failed: {column1} {operator} {column2}",
+                        severity=Severity.MEDIUM
+                    ))
+            
+            return passed_records, failed_records, error_details
+            
+        except Exception as e:
+            logger.error(f"Comparison rule execution failed: {str(e)}")
+            return 0, len(df), [ValidationError(error_message=str(e))]
+    
+    def _execute_aggregation_rule(self, 
+                                df: pd.DataFrame,
+                                logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
+        """Execute aggregation validation rule."""
+        try:
+            column_name = logic.get_parameter('column_name')
+            agg_function = logic.get_parameter('function', 'sum')
+            expected_value = logic.get_parameter('expected_value')
+            tolerance = logic.get_parameter('tolerance', 0.0)
+            
+            if not column_name or column_name not in df.columns:
+                raise ValueError(f"Column '{column_name}' not found in dataset")
+            
+            # Calculate aggregation
+            series = df[column_name]
+            
+            if agg_function == 'sum':
+                actual_value = series.sum()
+            elif agg_function == 'mean':
+                actual_value = series.mean()
+            elif agg_function == 'count':
+                actual_value = series.count()
+            elif agg_function == 'max':
+                actual_value = series.max()
+            elif agg_function == 'min':
+                actual_value = series.min()
+            else:
+                raise ValueError(f"Unknown aggregation function: {agg_function}")
+            
+            # Check if within tolerance
+            if abs(actual_value - expected_value) <= tolerance:
+                return len(df), 0, []
+            else:
+                error_details = [ValidationError(
+                    error_message=f"Aggregation validation failed: {agg_function}({column_name}) = {actual_value}, expected {expected_value} ± {tolerance}",
+                    severity=Severity.HIGH
+                )]
+                return 0, len(df), error_details
+            
+        except Exception as e:
+            logger.error(f"Aggregation rule execution failed: {str(e)}")
+            return 0, len(df), [ValidationError(error_message=str(e))]
+    
+    def _execute_lookup_rule(self, 
+                           df: pd.DataFrame,
+                           logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
+        """Execute lookup validation rule."""
+        try:
+            column_name = logic.get_parameter('column_name')
+            lookup_values = logic.get_parameter('lookup_values', [])
+            
+            if not column_name or column_name not in df.columns:
+                raise ValueError(f"Column '{column_name}' not found in dataset")
+            
+            if not lookup_values:
+                raise ValueError("Lookup values not provided")
+            
+            # Perform lookup validation
+            series = df[column_name]
+            valid_mask = series.isin(lookup_values)
+            
+            passed_records = valid_mask.sum()
+            failed_records = len(df) - passed_records
+            
+            # Create error details for failed records
+            error_details = []
+            if failed_records > 0:
+                failed_data = df[~valid_mask]
+                for idx, row in failed_data.head(100).iterrows():
+                    error_details.append(ValidationError(
+                        row_index=idx,
+                        column_name=column_name,
+                        field_value=str(row[column_name]),
+                        error_message=f"Value not found in lookup list: {lookup_values}",
+                        severity=Severity.MEDIUM
+                    ))
+            
+            return passed_records, failed_records, error_details
+            
+        except Exception as e:
+            logger.error(f"Lookup rule execution failed: {str(e)}")
+            return 0, len(df), [ValidationError(error_message=str(e))]
+    
+    def _execute_conditional_rule(self, 
+                                df: pd.DataFrame,
+                                logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
+        """Execute conditional validation rule."""
+        try:
+            condition = logic.get_parameter('condition')
+            validation_expr = logic.get_parameter('validation_expression')
+            
+            if not condition or not validation_expr:
+                raise ValueError("Condition and validation expression are required")
+            
+            # Evaluate condition
+            condition_mask = self._evaluate_expression(df, condition)
+            
+            # Apply validation only to records that meet the condition
+            filtered_df = df[condition_mask]
+            
+            if len(filtered_df) == 0:
+                return len(df), 0, []  # No records match condition
+            
+            # Execute validation on filtered data
+            validation_mask = self._evaluate_expression(filtered_df, validation_expr)
+            
+            passed_records = validation_mask.sum()
+            failed_records = len(filtered_df) - passed_records
+            
+            # Create error details for failed records
+            error_details = []
+            if failed_records > 0:
+                failed_data = filtered_df[~validation_mask]
+                for idx, row in failed_data.head(100).iterrows():
+                    error_details.append(ValidationError(
+                        row_index=idx,
+                        error_message=f"Conditional validation failed: {validation_expr}",
+                        severity=Severity.MEDIUM
+                    ))
+            
+            # Return results relative to full dataset
+            total_passed = len(df) - len(filtered_df) + passed_records
+            total_failed = failed_records
+            
+            return total_passed, total_failed, error_details
+            
+        except Exception as e:
+            logger.error(f"Conditional rule execution failed: {str(e)}")
+            return 0, len(df), [ValidationError(error_message=str(e))]
+    
+    def _execute_expression_rule(self, 
+                               df: pd.DataFrame,
+                               logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
+        """Execute expression-based validation rule."""
+        try:
+            expression = logic.expression
+            
+            # Evaluate expression
+            valid_mask = self._evaluate_expression(df, expression)
+            
+            passed_records = valid_mask.sum()
+            failed_records = len(df) - passed_records
+            
+            # Create error details for failed records
+            error_details = []
+            if failed_records > 0:
+                failed_data = df[~valid_mask]
+                for idx, row in failed_data.head(100).iterrows():
+                    error_details.append(ValidationError(
+                        row_index=idx,
+                        error_message=f"Expression validation failed: {expression}",
+                        severity=Severity.MEDIUM
+                    ))
+            
+            return passed_records, failed_records, error_details
+            
+        except Exception as e:
+            logger.error(f"Expression rule execution failed: {str(e)}")
+            return 0, len(df), [ValidationError(error_message=str(e))]
+    
+    def _evaluate_expression(self, df: pd.DataFrame, expression: str) -> pd.Series:
+        """Safely evaluate pandas expression."""
+        try:
+            # Simple expression evaluation - in production, use a proper expression parser
+            # This is a simplified version for demonstration
+            namespace = {'df': df}
+            for col in df.columns:
+                namespace[col] = df[col]
+            
+            return eval(expression, {"__builtins__": {}}, namespace)
+            
+        except Exception as e:
+            logger.error(f"Expression evaluation failed: {str(e)}")
+            return pd.Series([False] * len(df))
+    
+    def _apply_sampling(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Apply sampling to large datasets."""
+        return df.sample(
+            n=min(self.config.sample_size, len(df)),
+            random_state=self.config.sample_random_state
+        )
+    
+    def _filter_applicable_rules(self, df: pd.DataFrame, rules: List[QualityRule]) -> List[QualityRule]:
+        """Filter rules that are applicable to the dataset."""
+        applicable_rules = []
+        
+        for rule in rules:
+            if not rule.is_active:
+                continue
+            
+            # Check if rule applies to any columns in the dataset
+            if rule.target_columns:
+                if not any(col in df.columns for col in rule.target_columns):
+                    continue
+            
+            applicable_rules.append(rule)
+        
+        return applicable_rules
+    
+    def _execute_parallel_validation(self, 
+                                   df: pd.DataFrame,
+                                   rules: List[QualityRule],
+                                   dataset_id: DatasetId) -> List[ValidationResult]:
+        """Execute validation rules in parallel."""
+        results = []
+        
+        with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
+            future_to_rule = {}
+            
+            for rule in rules:
+                future = executor.submit(self.validate_single_rule, df, rule, dataset_id)
+                future_to_rule[future] = rule
+            
+            for future in as_completed(future_to_rule, timeout=self.config.timeout_seconds):
+                rule = future_to_rule[future]
+                try:
+                    result = future.result()
+                    results.append(result)
+                except Exception as e:
+                    logger.error(f"Parallel validation failed for rule {rule.rule_name}: {str(e)}")
+                    results.append(self._create_error_result(rule, dataset_id, str(e)))
+        
+        return results
+    
+    def _execute_sequential_validation(self, 
+                                     df: pd.DataFrame,
+                                     rules: List[QualityRule],
+                                     dataset_id: DatasetId) -> List[ValidationResult]:
+        """Execute validation rules sequentially."""
+        results = []
+        
+        for rule in rules:
+            try:
+                result = self.validate_single_rule(df, rule, dataset_id)
+                results.append(result)
+            except Exception as e:
+                logger.error(f"Sequential validation failed for rule {rule.rule_name}: {str(e)}")
+                results.append(self._create_error_result(rule, dataset_id, str(e)))
+        
+        return results
+    
+    def _create_error_result(self, rule: QualityRule, dataset_id: DatasetId, error_message: str) -> ValidationResult:
+        """Create a validation result for errors."""
+        return ValidationResult(
+            validation_id=ValidationId(),
+            rule_id=rule.rule_id,
+            dataset_id=dataset_id,
+            status=ValidationStatus.ERROR,
+            passed_records=0,
+            failed_records=0,
+            failure_rate=0.0,
+            error_details=[ValidationError(error_message=error_message, severity=Severity.HIGH)],
+            execution_time=timedelta(seconds=0),
+            validated_at=datetime.now()
+        )
+    
+    def _should_use_cache(self, df: pd.DataFrame, rule: QualityRule) -> bool:
+        """Check if cached result should be used."""
+        if not self._cache:
+            return False
+        
+        cache_key = self._get_cache_key(df, rule)
+        
+        if cache_key not in self._cache:
+            return False
+        
+        # Check if cache is still valid (simple time-based invalidation)
+        cache_time = self._cache_timestamps.get(cache_key, datetime.min)
+        if datetime.now() - cache_time > timedelta(minutes=30):
+            return False
+        
+        return True
+    
+    def _get_from_cache(self, df: pd.DataFrame, rule: QualityRule) -> Optional[ValidationResult]:
+        """Get validation result from cache."""
+        cache_key = self._get_cache_key(df, rule)
+        return self._cache.get(cache_key)
+    
+    def _cache_result(self, df: pd.DataFrame, rule: QualityRule, result: ValidationResult) -> None:
+        """Cache validation result."""
+        if not self._cache:
+            return
+        
+        cache_key = self._get_cache_key(df, rule)
+        self._cache[cache_key] = result
+        self._cache_timestamps[cache_key] = datetime.now()
+        
+        # Simple cache size management
+        if len(self._cache) > self.config.cache_size:
+            # Remove oldest entries
+            oldest_key = min(self._cache_timestamps.keys(), key=lambda k: self._cache_timestamps[k])
+            del self._cache[oldest_key]
+            del self._cache_timestamps[oldest_key]
+    
+    def _get_cache_key(self, df: pd.DataFrame, rule: QualityRule) -> str:
+        """Generate cache key for dataset and rule."""
+        # Simple hash-based key (in production, use more sophisticated hashing)
+        df_hash = hash(str(df.dtypes.to_dict()) + str(len(df)))
+        rule_hash = hash(str(rule.rule_id) + rule.validation_logic.expression)
+        return f"{df_hash}_{rule_hash}"
+    
+    def _compile_python_rule(self, logic: ValidationLogic) -> str:
+        """Compile Python rule for execution."""
+        rule_key = hash(logic.expression)
+        
+        if rule_key not in self._compiled_rules_cache:
+            # Basic compilation (in production, use AST parsing and validation)
+            self._compiled_rules_cache[rule_key] = compile(logic.expression, '<string>', 'eval')
+        
+        return self._compiled_rules_cache[rule_key]
+    
+    def _execute_row_wise_python(self, 
+                                df: pd.DataFrame,
+                                compiled_expr: str,
+                                logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
+        """Execute row-wise Python validation."""
+        passed_records = 0
+        failed_records = 0
+        error_details = []
+        
+        for idx, row in df.iterrows():
+            try:
+                # Create namespace for row
+                namespace = dict(row)
+                namespace['row'] = row
+                
+                # Evaluate expression
+                result = eval(compiled_expr, {"__builtins__": {}}, namespace)
+                
+                if result:
+                    passed_records += 1
+                else:
+                    failed_records += 1
+                    if len(error_details) < 100:  # Limit error details
+                        error_details.append(ValidationError(
+                            row_index=idx,
+                            error_message=logic.error_message,
+                            severity=Severity.MEDIUM
+                        ))
+                        
+            except Exception as e:
+                failed_records += 1
+                if len(error_details) < 100:
+                    error_details.append(ValidationError(
+                        row_index=idx,
+                        error_message=f"Python evaluation error: {str(e)}",
+                        severity=Severity.HIGH
+                    ))
+        
+        return passed_records, failed_records, error_details
+    
+    def _execute_aggregate_python(self, 
+                                 df: pd.DataFrame,
+                                 compiled_expr: str,
+                                 logic: ValidationLogic) -> tuple[int, int, List[ValidationError]]:
+        """Execute aggregate Python validation."""
+        try:
+            # Create namespace for DataFrame
+            namespace = {'df': df}
+            for col in df.columns:
+                namespace[col] = df[col]
+            
+            # Evaluate expression
+            result = eval(compiled_expr, {"__builtins__": {}}, namespace)
+            
+            if isinstance(result, bool):
+                if result:
+                    return len(df), 0, []
+                else:
+                    return 0, len(df), [ValidationError(
+                        error_message=logic.error_message,
+                        severity=Severity.HIGH
+                    )]
+            elif isinstance(result, pd.Series):
+                # Series result - row-wise validation
+                passed = result.sum()
+                failed = len(result) - passed
+                
+                error_details = []
+                if failed > 0:
+                    failed_indices = result[~result].index.tolist()
+                    for idx in failed_indices[:100]:
+                        error_details.append(ValidationError(
+                            row_index=idx,
+                            error_message=logic.error_message,
+                            severity=Severity.MEDIUM
+                        ))
+                
+                return passed, failed, error_details
+            else:
+                raise ValueError(f"Unexpected result type: {type(result)}")
+                
+        except Exception as e:
+            return 0, len(df), [ValidationError(
+                error_message=f"Python evaluation error: {str(e)}",
+                severity=Severity.HIGH
+            )]
+    
+    def _extract_where_clause(self, sql: str) -> str:
+        """Extract WHERE clause from SQL statement."""
+        # Simplified SQL parsing - in production, use proper SQL parser
+        where_idx = sql.find('where')
+        if where_idx == -1:
+            return "1=1"  # Always true
+        
+        where_clause = sql[where_idx + 5:].strip()
+        
+        # Remove trailing semicolon if present
+        if where_clause.endswith(';'):
+            where_clause = where_clause[:-1]
+        
+        return where_clause
+    
+    def _evaluate_sql_condition(self, df: pd.DataFrame, condition: str) -> pd.Series:
+        """Evaluate SQL condition as pandas expression."""
+        # Convert basic SQL to pandas (simplified)
+        pandas_expr = condition.replace('=', '==')
+        return self._evaluate_expression(df, pandas_expr)
+    
+    def _update_execution_metrics(self, results: List[ValidationResult], execution_time: float) -> None:
+        """Update execution metrics."""
+        self._execution_metrics['total_validations'] += len(results)
+        self._execution_metrics['total_execution_time'] += execution_time
+        
+        for result in results:
+            if result.status == ValidationStatus.PASSED:
+                self._execution_metrics['successful_validations'] += 1
+            else:
+                self._execution_metrics['failed_validations'] += 1
+    
+    def get_execution_metrics(self) -> Dict[str, Any]:
+        """Get engine execution metrics."""
+        metrics = self._execution_metrics.copy()
+        
+        # Calculate derived metrics
+        total_validations = metrics['total_validations']
+        if total_validations > 0:
+            metrics['success_rate'] = metrics['successful_validations'] / total_validations
+            metrics['failure_rate'] = metrics['failed_validations'] / total_validations
+            metrics['average_execution_time'] = metrics['total_execution_time'] / total_validations
+        else:
+            metrics['success_rate'] = 0.0
+            metrics['failure_rate'] = 0.0
+            metrics['average_execution_time'] = 0.0
+        
+        # Cache metrics
+        if self._cache:
+            metrics['cache_size'] = len(self._cache)
+            total_cache_requests = metrics['cache_hits'] + metrics['cache_misses']
+            if total_cache_requests > 0:
+                metrics['cache_hit_rate'] = metrics['cache_hits'] / total_cache_requests
+            else:
+                metrics['cache_hit_rate'] = 0.0
+        
+        return metrics
+    
+    def clear_cache(self) -> None:
+        """Clear validation cache."""
+        if self._cache:
+            self._cache.clear()
+            self._cache_timestamps.clear()
+            self._compiled_rules_cache.clear()
+    
+    def get_cache_info(self) -> Dict[str, Any]:
+        """Get cache information."""
+        if not self._cache:
+            return {'cache_enabled': False}
+        
+        return {
+            'cache_enabled': True,
+            'cache_size': len(self._cache),
+            'cache_capacity': self.config.cache_size,
+            'compiled_rules_cached': len(self._compiled_rules_cache)
+        }

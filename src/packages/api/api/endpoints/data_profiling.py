@@ -10,11 +10,10 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from ...data_profiling.application.services.profiling_engine import (
-    ProfilingEngine, ProfilingConfig
-)
+    ProfilingEngine, ProfilingConfig)
 from ...data_profiling.domain.entities.data_profile import DatasetId
 from ..security.authorization import require_permissions
 from ..dependencies.auth import get_current_user
@@ -28,10 +27,7 @@ class DataProfilingRequest(BaseModel):
     """Request model for data profiling."""
     dataset_id: str = Field(..., description="Unique identifier for the dataset")
     data: List[Dict[str, Any]] = Field(..., description="Dataset records as list of dictionaries")
-    config: Optional[Dict[str, Any]] = Field(default=None, description="Profiling configuration options")
-    
-    class Config:
-        schema_extra = {
+    config: Optional[Dict[str, Any]] = Field(default=None, description="Profiling configuration options")        schema_extra = {
             "example": {
                 "dataset_id": "customer_data_2024",
                 "data": [
@@ -57,10 +53,7 @@ class DataProfilingResponse(BaseModel):
     total_columns: int = Field(..., description="Total number of columns")
     issues_detected: int = Field(..., description="Number of quality issues detected")
     processing_time_ms: float = Field(..., description="Processing time in milliseconds")
-    created_at: str = Field(..., description="Profile creation timestamp")
-    
-    class Config:
-        schema_extra = {
+    created_at: str = Field(..., description="Profile creation timestamp")        schema_extra = {
             "example": {
                 "profile_id": "prof_123456789",
                 "dataset_id": "customer_data_2024",

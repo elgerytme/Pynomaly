@@ -5,14 +5,11 @@ from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import , BaseModel, ConfigDict, EmailStr, Field
 
 from pynomaly.application.services.multi_tenant_service import MultiTenantService
 from pynomaly.domain.entities.tenant import (
-    ResourceQuotaType,
-    SubscriptionTier,
-    TenantStatus,
-)
+    ResourceQuotaType, SubscriptionTier, TenantStatus)
 
 # Pydantic models for API requests/responses
 
@@ -52,10 +49,7 @@ class TenantResponse(BaseModel):
     total_cpu_hours: float
     total_storage_gb: float
     last_billing_date: datetime | None
-    tags: dict[str, str]
-
-    class Config:
-        from_attributes = True
+    tags: dict[str, str]        from_attributes = True
 
 
 class TenantConfiguration(BaseModel):

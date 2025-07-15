@@ -13,7 +13,7 @@ except ImportError:
     BLEACH_AVAILABLE = False
     bleach = None
 from fastapi import HTTPException, status
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict, validator
 
 
 class SecurityConfig:
@@ -417,10 +417,7 @@ class InputValidator:
 
 
 class SecureBaseModel(BaseModel):
-    """Base Pydantic model with automatic input validation and sanitization."""
-
-    class Config:
-        """Pydantic configuration."""
+    """Base Pydantic model with automatic input validation and sanitization."""        """Pydantic configuration."""
 
         validate_assignment = True
         str_strip_whitespace = True

@@ -7,7 +7,7 @@ from uuid import UUID
 from datetime import datetime
 
 import pandas as pd
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class StepResult(BaseModel):
@@ -76,10 +76,7 @@ class PipelineResult(BaseModel):
     config: Optional[Any] = None
     validation_results: Optional[ValidationResult] = None
     metrics: Optional[ExecutionMetrics] = None
-    error_message: Optional[str] = None
-    
-    class Config:
-        """Pydantic configuration."""
+    error_message: Optional[str] = None        """Pydantic configuration."""
         arbitrary_types_allowed = True
         
     def to_dict(self) -> Dict[str, Any]:

@@ -7,13 +7,13 @@ from uuid import UUID, uuid4
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Enum, Field
 
 from ..value_objects.pipeline_config import PipelineConfig
 from ..value_objects.transformation_step import TransformationStep
 
 
-class PipelineStatus(str, Enum):
+class PipelineStatus(str):
     """Pipeline execution status."""
     CREATED = "created"
     RUNNING = "running"
@@ -54,10 +54,7 @@ class TransformationPipeline(BaseModel):
     
     # Metadata
     metadata: Dict[str, Any] = Field(default_factory=dict)
-    tags: List[str] = Field(default_factory=list)
-    
-    class Config:
-        """Pydantic configuration."""
+    tags: List[str] = Field(default_factory=list)        """Pydantic configuration."""
         arbitrary_types_allowed = True
         use_enum_values = True
     

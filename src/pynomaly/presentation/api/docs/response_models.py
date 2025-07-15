@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any, Generic, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 T = TypeVar("T")
 
@@ -27,10 +27,7 @@ class SuccessResponse(BaseResponse, Generic[T]):
 
     success: bool = Field(True, description="Indicates successful operation")
     data: T = Field(..., description="Response data")
-    message: str | None = Field(None, description="Optional success message")
-
-    class Config:
-        json_schema_extra = {
+    message: str | None = Field(None, description="Optional success message")        json_schema_extra = {
             "example": {
                 "success": True,
                 "data": {"example": "data"},
@@ -47,10 +44,7 @@ class ErrorResponse(BaseResponse):
     success: bool = Field(False, description="Indicates failed operation")
     error: str = Field(..., description="Error message")
     error_code: str | None = Field(None, description="Specific error code")
-    details: dict[str, Any] | None = Field(None, description="Additional error details")
-
-    class Config:
-        json_schema_extra = {
+    details: dict[str, Any] | None = Field(None, description="Additional error details")        json_schema_extra = {
             "example": {
                 "success": False,
                 "error": "Validation failed",
@@ -67,10 +61,7 @@ class ValidationErrorResponse(ErrorResponse):
 
     validation_errors: list[dict[str, Any]] = Field(
         ..., description="List of validation errors"
-    )
-
-    class Config:
-        json_schema_extra = {
+    )        json_schema_extra = {
             "example": {
                 "success": False,
                 "error": "Validation failed",
@@ -101,10 +92,7 @@ class PaginationMeta(BaseModel):
     total_items: int = Field(..., description="Total number of items")
     total_pages: int = Field(..., description="Total number of pages")
     has_next: bool = Field(..., description="Whether there is a next page")
-    has_previous: bool = Field(..., description="Whether there is a previous page")
-
-    class Config:
-        json_schema_extra = {
+    has_previous: bool = Field(..., description="Whether there is a previous page")        json_schema_extra = {
             "example": {
                 "page": 2,
                 "page_size": 20,
@@ -121,10 +109,7 @@ class PaginationResponse(BaseResponse, Generic[T]):
 
     success: bool = Field(True, description="Indicates successful operation")
     data: list[T] = Field(..., description="List of items for current page")
-    pagination: PaginationMeta = Field(..., description="Pagination metadata")
-
-    class Config:
-        json_schema_extra = {
+    pagination: PaginationMeta = Field(..., description="Pagination metadata")        json_schema_extra = {
             "example": {
                 "success": True,
                 "data": [{"id": 1, "name": "Item 1"}, {"id": 2, "name": "Item 2"}],
@@ -149,10 +134,7 @@ class HealthResponse(BaseResponse):
     version: str = Field(..., description="Application version")
     environment: str = Field(..., description="Environment name")
     uptime: float = Field(..., description="Uptime in seconds")
-    services: dict[str, str] = Field(..., description="Individual service statuses")
-
-    class Config:
-        json_schema_extra = {
+    services: dict[str, str] = Field(..., description="Individual service statuses")        json_schema_extra = {
             "example": {
                 "status": "healthy",
                 "version": "1.0.0",
@@ -178,10 +160,7 @@ class TaskResponse(BaseResponse):
     estimated_completion: datetime | None = Field(
         None, description="Estimated completion time"
     )
-    result_url: str | None = Field(None, description="URL to retrieve task result")
-
-    class Config:
-        json_schema_extra = {
+    result_url: str | None = Field(None, description="URL to retrieve task result")        json_schema_extra = {
             "example": {
                 "task_id": "task_abc123",
                 "status": "running",
@@ -199,10 +178,7 @@ class MetricsResponse(BaseResponse):
 
     metrics: dict[str, Any] = Field(..., description="Metrics data")
     period: str = Field(..., description="Time period for metrics")
-    aggregation: str = Field(..., description="Aggregation method used")
-
-    class Config:
-        json_schema_extra = {
+    aggregation: str = Field(..., description="Aggregation method used")        json_schema_extra = {
             "example": {
                 "metrics": {
                     "requests_total": 15420,

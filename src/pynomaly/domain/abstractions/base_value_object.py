@@ -3,14 +3,11 @@
 from abc import ABC
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import ABC, BaseModel
 
 
-class BaseValueObject(BaseModel, ABC):
-    """Base value object interface."""
-
-    class Config:
-        """Pydantic configuration."""
+class BaseValueObject(BaseModel, ConfigDict):
+    """Base value object interface."""        """Pydantic configuration."""
 
         allow_mutation = False
 

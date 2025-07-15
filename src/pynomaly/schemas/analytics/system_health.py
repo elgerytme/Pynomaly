@@ -16,12 +16,12 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Enum, Field, validator
 
 from .base import RealTimeMetricFrame
 
 
-class SystemStatus(str, Enum):
+class SystemStatus(str):
     """System health status levels."""
 
     HEALTHY = "healthy"
@@ -261,10 +261,7 @@ class SystemHealthFrame(RealTimeMetricFrame):
 
     # Additional context
     configuration_version: str | None = Field(None, description="Configuration version")
-    deployment_version: str | None = Field(None, description="Deployment version")
-
-    class Config:
-        """Pydantic configuration."""
+    deployment_version: str | None = Field(None, description="Deployment version")        """Pydantic configuration."""
 
         use_enum_values = True
         validate_assignment = True

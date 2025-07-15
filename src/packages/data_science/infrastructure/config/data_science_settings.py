@@ -1,7 +1,7 @@
 """Settings and configuration for data science package."""
 
 from typing import Any, Optional
-from pydantic import Field
+from pydantic import ConfigDict, Field
 from pydantic_settings import BaseSettings
 
 
@@ -276,10 +276,7 @@ class DataScienceSettings(BaseSettings):
         ge=1,
         le=168,
         description="Backup interval in hours"
-    )
-    
-    class Config:
-        """Pydantic configuration."""
+    )        """Pydantic configuration."""
         env_prefix = "DS_"
         env_file = ".env"
         case_sensitive = False

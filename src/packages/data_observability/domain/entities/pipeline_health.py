@@ -11,10 +11,10 @@ from enum import Enum
 from typing import Dict, List, Optional, Any
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Enum, Field
 
 
-class PipelineStatus(str, Enum):
+class PipelineStatus(str):
     """Status of a pipeline."""
     
     HEALTHY = "healthy"
@@ -97,10 +97,7 @@ class PipelineMetric(BaseModel):
     context: Dict[str, Any] = Field(default_factory=dict)
     
     # Threshold configuration
-    threshold: Optional[MetricThreshold] = None
-    
-    class Config:
-        use_enum_values = True
+    threshold: Optional[MetricThreshold] = None        use_enum_values = True
     
     def get_status(self) -> PipelineStatus:
         """Get status based on threshold evaluation."""
@@ -133,10 +130,7 @@ class PipelineAlert(BaseModel):
     # Action tracking
     acknowledged: bool = False
     acknowledged_by: Optional[str] = None
-    acknowledged_at: Optional[datetime] = None
-    
-    class Config:
-        use_enum_values = True
+    acknowledged_at: Optional[datetime] = None        use_enum_values = True
     
     def acknowledge(self, acknowledged_by: str) -> None:
         """Acknowledge the alert."""
@@ -189,10 +183,7 @@ class PipelineHealth(BaseModel):
     active_alerts: List[PipelineAlert] = Field(default_factory=list)
     
     # Health history
-    health_history: List[Dict[str, Any]] = Field(default_factory=list)
-    
-    class Config:
-        use_enum_values = True
+    health_history: List[Dict[str, Any]] = Field(default_factory=list)        use_enum_values = True
     
     def update_status(self, new_status: PipelineStatus) -> None:
         """Update pipeline status and record in history."""

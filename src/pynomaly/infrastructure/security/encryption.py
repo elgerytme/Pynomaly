@@ -23,7 +23,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
@@ -94,10 +94,7 @@ class EncryptionKey(BaseModel):
     created_at: float  # Unix timestamp
     expires_at: float | None = None
     is_active: bool = True
-    metadata: dict[str, Any] = Field(default_factory=dict)
-
-    class Config:
-        arbitrary_types_allowed = True
+    metadata: dict[str, Any] = Field(default_factory=dict)        arbitrary_types_allowed = True
 
 
 class EncryptionService:

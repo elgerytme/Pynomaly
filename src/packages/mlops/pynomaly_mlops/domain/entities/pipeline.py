@@ -13,10 +13,10 @@ from enum import Enum
 from typing import Dict, Any, Optional, List, Set, Union
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Enum, Field, validator
 
 
-class PipelineStatus(str, Enum):
+class PipelineStatus(str):
     """Pipeline execution status enumeration."""
     
     DRAFT = "draft"
@@ -124,10 +124,7 @@ class PipelineStep(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     created_by: Optional[str] = None
-    tags: Set[str] = Field(default_factory=set)
-    
-    class Config:
-        use_enum_values = True
+    tags: Set[str] = Field(default_factory=set)        use_enum_values = True
         json_encoders = {
             datetime: lambda v: v.isoformat(),
             UUID: str,
@@ -239,10 +236,7 @@ class Pipeline(BaseModel):
     
     # Configuration
     max_parallel_steps: int = Field(default=5, ge=1, le=50)
-    global_timeout_minutes: int = Field(default=480, ge=1, le=2880)  # 8 hours default
-    
-    class Config:
-        use_enum_values = True
+    global_timeout_minutes: int = Field(default=480, ge=1, le=2880)  # 8 hours default        use_enum_values = True
         json_encoders = {
             datetime: lambda v: v.isoformat(),
             UUID: str,
@@ -482,10 +476,7 @@ class PipelineRun(BaseModel):
     
     # Results
     artifacts: Dict[str, str] = Field(default_factory=dict)
-    metrics: Dict[str, float] = Field(default_factory=dict)
-    
-    class Config:
-        use_enum_values = True
+    metrics: Dict[str, float] = Field(default_factory=dict)        use_enum_values = True
         json_encoders = {
             datetime: lambda v: v.isoformat(),
             UUID: str

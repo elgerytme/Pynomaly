@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Any, Generic, TypeVar
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 T = TypeVar("T", bound="BaseEntity")
 
@@ -17,10 +17,7 @@ class BaseEntity(BaseModel, Generic[T], ABC):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     version: int = Field(default=1)
-    metadata: dict[str, Any] = Field(default_factory=dict)
-
-    class Config:
-        """Pydantic configuration."""
+    metadata: dict[str, Any] = Field(default_factory=dict)        """Pydantic configuration."""
 
         allow_mutation = True
         json_encoders = {

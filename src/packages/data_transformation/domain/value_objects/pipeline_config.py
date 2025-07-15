@@ -5,10 +5,10 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Union
 from enum import Enum
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Enum, Field, validator
 
 
-class SourceType(str, Enum):
+class SourceType(str):
     """Supported data source types."""
     CSV = "csv"
     JSON = "json"
@@ -134,10 +134,7 @@ class PipelineConfig(BaseModel):
     # Advanced options
     custom_transformers: List[str] = Field(default_factory=list)
     pipeline_cache: bool = True
-    verbose: bool = False
-    
-    class Config:
-        """Pydantic configuration."""
+    verbose: bool = False        """Pydantic configuration."""
         use_enum_values = True
         validate_assignment = True
     

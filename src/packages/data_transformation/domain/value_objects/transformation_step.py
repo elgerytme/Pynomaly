@@ -6,10 +6,10 @@ from typing import Any, Dict, List, Optional
 from enum import Enum
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Enum, Field
 
 
-class StepType(str, Enum):
+class StepType(str):
     """Types of transformation steps."""
     DATA_LOADING = "data_loading"
     DATA_VALIDATION = "data_validation"
@@ -71,10 +71,7 @@ class TransformationStep(BaseModel):
     warnings: List[str] = Field(default_factory=list)
     
     # Metadata
-    metadata: Dict[str, Any] = Field(default_factory=dict)
-    
-    class Config:
-        """Pydantic configuration."""
+    metadata: Dict[str, Any] = Field(default_factory=dict)        """Pydantic configuration."""
         use_enum_values = True
     
     def start_execution(self) -> None:

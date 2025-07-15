@@ -10,10 +10,10 @@ from enum import Enum
 from typing import Any
 
 import numpy as np
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Enum, Field, field_validator, model_validator
 
 
-class TaskStatus(str, Enum):
+class TaskStatus(str):
     """Task execution status."""
 
     PENDING = "pending"
@@ -58,10 +58,7 @@ class DataFormat(str, Enum):
 
 
 class BaseSDKModel(BaseModel):
-    """Base model for all SDK models."""
-
-    class Config:
-        # Allow arbitrary types for numpy arrays, etc.
+    """Base model for all SDK models."""        # Allow arbitrary types for numpy arrays, etc.
         arbitrary_types_allowed = True
         # Use enum values in JSON
         use_enum_values = True

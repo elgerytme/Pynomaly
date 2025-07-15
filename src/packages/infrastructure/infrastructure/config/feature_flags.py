@@ -11,14 +11,14 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 try:
-    from pydantic import Field
+    from pydantic import ConfigDict, Field
+
+
+class FeatureStage(Enum, Field
     from pydantic_settings import BaseSettings
 except ImportError:
     # Fallback for older pydantic versions
-    from pydantic import BaseSettings, Field
-
-
-class FeatureStage(Enum):
+    from pydantic import BaseSettings):
     """Development stages for feature maturity."""
 
     EXPERIMENTAL = "experimental"
@@ -245,10 +245,7 @@ class FeatureFlags(BaseSettings):
 
     multi_tenancy: bool = Field(
         default=False, description="Enable multi-tenant isolation"
-    )
-
-    class Config:
-        """Pydantic configuration."""
+    )        """Pydantic configuration."""
 
         env_prefix = "PYNOMALY_"
         case_sensitive = False
