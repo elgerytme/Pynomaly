@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional
 from uuid import UUID, uuid4
 
-from core.domain.abstractions.base_entity import BaseEntity
+from interfaces.shared.base_entity import BaseEntity
 
 
 @dataclass

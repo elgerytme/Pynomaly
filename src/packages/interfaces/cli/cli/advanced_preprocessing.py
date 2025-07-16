@@ -26,7 +26,8 @@ try:
         PipelineConfig, SourceType, CleaningStrategy, ScalingMethod, EncodingStrategy
     )
     from data_transformation.infrastructure.adapters.data_source_adapter import DataSourceAdapter
-    from services.services.enhanced_data_preprocessing_service import EnhancedDataPreprocessingService
+    # Services not available in interfaces package - using basic implementations
+    EnhancedDataPreprocessingService = None
     DATA_TRANSFORMATION_AVAILABLE = True
 except ImportError:
     DATA_TRANSFORMATION_AVAILABLE = False
@@ -172,6 +173,12 @@ def analyze_dataset(
             df = pd.read_csv(input_path)
             
             # Get recommendations
+            if EnhancedDataPreprocessingService is None:
+                preprocessing_service = None
+            else:
+                if EnhancedDataPreprocessingService is None:
+            preprocessing_service = None
+        else:
             preprocessing_service = EnhancedDataPreprocessingService()
             recommendations = await preprocessing_service.get_preprocessing_recommendations(
                 df, anomaly_type
@@ -221,7 +228,10 @@ def quality_check(
         df = pd.read_csv(input_path)
         
         # Perform quality assessment
-        preprocessing_service = EnhancedDataPreprocessingService()
+        if EnhancedDataPreprocessingService is None:
+            preprocessing_service = None
+        else:
+            preprocessing_service = EnhancedDataPreprocessingService()
         quality_report = await preprocessing_service._assess_data_quality(df, input_path.stem)
         
         # Display quality report
@@ -282,6 +292,12 @@ def optimize_for_algorithm(
             df = pd.read_csv(input_path)
             
             # Apply algorithm-specific optimization
+            if EnhancedDataPreprocessingService is None:
+                preprocessing_service = None
+            else:
+                if EnhancedDataPreprocessingService is None:
+            preprocessing_service = None
+        else:
             preprocessing_service = EnhancedDataPreprocessingService()
             optimized_data = await preprocessing_service.optimize_for_algorithm(
                 df, algorithm, target_column

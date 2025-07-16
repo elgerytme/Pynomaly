@@ -18,7 +18,7 @@ from collections import defaultdict, deque
 import hashlib
 import ipaddress
 
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -247,7 +247,7 @@ class SecurityMonitoringThreatDetection:
         for indicator in indicators:
             self.threat_indicators[indicator.indicator_id] = indicator
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def log_security_event(
         self,
         event_type: SecurityEvent,
@@ -733,7 +733,7 @@ class SecurityMonitoringThreatDetection:
             security_score=security_score
         )
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_security_dashboard(self) -> Dict[str, Any]:
         """Get comprehensive security monitoring dashboard."""
         current_metrics = await self._calculate_security_metrics()

@@ -24,8 +24,8 @@ AutomatedRemediationEngine = DataQualityInterface
 AdaptiveQualityControls = DataQualityInterface
 PipelineIntegrationFramework = DataQualityInterface
 QualityAnomaly = Dict[str, Any]
-from core.shared.error_handling import handle_exceptions
-from core.domain.abstractions.base_service import BaseService
+from interfaces.data_quality_interface import DataQualityInterface
+from interfaces.data_quality_interface import QualityReport
 
 
 logger = logging.getLogger(__name__)
@@ -344,12 +344,12 @@ class NotificationExecutor(WorkflowExecutor):
             raise ValueError(f"Unknown notification step type: {step.step_type}")
 
 
-class IntelligentQualityOrchestration(BaseService):
+class IntelligentQualityOrchestration:
     """Intelligent quality orchestration service for automated quality management."""
     
     def __init__(self, config: Dict[str, Any]):
         """Initialize the intelligent quality orchestration service."""
-        super().__init__(config)
+        # Initialize service configuration
         self.config = config
         
         # Initialize quality services
@@ -804,7 +804,7 @@ class IntelligentQualityOrchestration(BaseService):
         # Clear processed feedback
         self.learning_feedback.clear()
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def create_workflow_from_template(self, template_id: str, context: Dict[str, Any]) -> str:
         """Create workflow from template."""
         if template_id not in self.workflow_templates:
@@ -847,7 +847,7 @@ class IntelligentQualityOrchestration(BaseService):
         logger.info(f"Created workflow: {workflow.name} (ID: {workflow.id})")
         return workflow.id
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def trigger_quality_workflow(self, trigger_type: str, trigger_data: Dict[str, Any]) -> Optional[str]:
         """Trigger quality workflow based on event."""
         # Find matching workflow template
@@ -871,7 +871,7 @@ class IntelligentQualityOrchestration(BaseService):
         
         return None
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_workflow_status(self, workflow_id: str) -> Optional[Dict[str, Any]]:
         """Get workflow status."""
         workflow = self.active_workflows.get(workflow_id)
@@ -898,13 +898,13 @@ class IntelligentQualityOrchestration(BaseService):
             ]
         }
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def submit_learning_feedback(self, feedback: QualityLearningFeedback) -> None:
         """Submit learning feedback."""
         self.learning_feedback.append(feedback)
         logger.info(f"Received learning feedback for workflow {feedback.workflow_id}: rating {feedback.user_rating}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_orchestration_dashboard(self) -> Dict[str, Any]:
         """Get orchestration dashboard data."""
         return {

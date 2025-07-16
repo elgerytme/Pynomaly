@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from integration.domain.entities.workflow import Workflow, WorkflowStep, WorkflowStatus, WorkflowStepType
 from integration.domain.entities.integration_config import IntegrationConfig
 from integration.application.services.unified_api_service import UnifiedApiService
-from core.shared.error_handling import handle_exceptions
+from interfaces.shared.error_handling import handle_exceptions
 
 
 logger = logging.getLogger(__name__)

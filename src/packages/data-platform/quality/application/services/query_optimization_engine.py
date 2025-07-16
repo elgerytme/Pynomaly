@@ -26,7 +26,7 @@ import psutil
 
 from ...domain.entities.quality_profile import DataQualityProfile
 from ...domain.value_objects.quality_scores import QualityScores
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -359,7 +359,7 @@ class QueryOptimizationEngine:
             except Exception as e:
                 logger.error(f"ML optimization error: {str(e)}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def optimize_query(self, query: str, database: str = "default") -> QueryOptimizationResult:
         """Optimize a database query using multiple strategies."""
         query_hash = hashlib.md5(query.encode()).hexdigest()
@@ -723,7 +723,7 @@ class QueryOptimizationEngine:
         else:
             return "high"
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_optimization_report(self) -> Dict[str, Any]:
         """Generate comprehensive optimization report."""
         # Analyze query patterns

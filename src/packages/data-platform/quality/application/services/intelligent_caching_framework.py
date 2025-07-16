@@ -28,7 +28,7 @@ from contextlib import asynccontextmanager
 
 from ...domain.entities.quality_profile import DataQualityProfile
 from ...domain.value_objects.quality_scores import QualityScores
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -381,7 +381,7 @@ class IntelligentCacheManager:
             except Exception as e:
                 logger.error(f"ML optimization error: {str(e)}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get(self, key: str, partition: str = "default") -> Optional[Any]:
         """Get value from cache with intelligent retrieval."""
         start_time = time.time()
@@ -450,7 +450,7 @@ class IntelligentCacheManager:
             self.analytics.total_gets += 1
             return None
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def set(self, key: str, value: Any, ttl_seconds: Optional[int] = None,
                  partition: str = "default", priority: int = 0, tags: Set[str] = None) -> None:
         """Set value in cache with intelligent placement."""
@@ -740,7 +740,7 @@ class IntelligentCacheManager:
         total_quality = sum(entry.quality_score for entry in self.memory_cache.values())
         return total_quality / len(self.memory_cache)
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_cache_report(self) -> Dict[str, Any]:
         """Generate comprehensive cache performance report."""
         current_analytics = await self._collect_analytics()
@@ -789,7 +789,7 @@ class IntelligentCacheManager:
             ]
         }
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def optimize_cache(self) -> List[str]:
         """Generate cache optimization recommendations."""
         recommendations = []

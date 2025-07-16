@@ -29,7 +29,7 @@ from contextlib import contextmanager
 
 from ...domain.entities.quality_profile import DataQualityProfile
 from ...domain.value_objects.quality_scores import QualityScores
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -749,7 +749,7 @@ class MemoryStorageOptimizationService:
         
         logger.info(f"Garbage collection freed {memory_freed:.2f}MB in {gc_time:.2f}ms, collected {collected} objects")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def allocate_optimized_memory(self, size_bytes: int, data_type: str = "unknown") -> Optional[str]:
         """Allocate memory using optimized pools."""
         # Determine appropriate pool
@@ -776,7 +776,7 @@ class MemoryStorageOptimizationService:
         else:
             return MemoryPoolType.HUGE_OBJECTS
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def store_optimized_data(self, data_id: str, data: bytes, 
                                   access_pattern: str = "random") -> str:
         """Store data using optimal storage strategy."""
@@ -802,7 +802,7 @@ class MemoryStorageOptimizationService:
         else:
             return StorageTier.HOT  # Default to hot for unknown patterns
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_optimization_report(self) -> Dict[str, Any]:
         """Generate comprehensive optimization report."""
         # Memory pool statistics

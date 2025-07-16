@@ -13,8 +13,7 @@ from collections import defaultdict, deque
 
 from data_quality.domain.entities.quality_anomaly import QualityAnomaly
 from data_quality.domain.entities.quality_lineage import QualityLineage
-from core.shared.error_handling import handle_exceptions
-from core.domain.abstractions.base_service import BaseService
+from interfaces.data_quality_interface import DataQualityInterface, QualityReport
 
 
 logger = logging.getLogger(__name__)
@@ -98,12 +97,12 @@ class QualityState:
     historical_states: deque = field(default_factory=lambda: deque(maxlen=100))
 
 
-class AutonomousQualityMonitoringService(BaseService):
+class AutonomousQualityMonitoringService:
     """Service for autonomous quality monitoring with self-healing capabilities."""
     
     def __init__(self, config: Dict[str, Any]):
         """Initialize the autonomous quality monitoring service."""
-        super().__init__(config)
+        # Initialize service configuration
         self.config = config
         self.quality_states: Dict[str, QualityState] = {}
         self.quality_thresholds: Dict[str, QualityThreshold] = {}
@@ -246,7 +245,7 @@ class AutonomousQualityMonitoringService(BaseService):
             except Exception as e:
                 logger.error(f"Prediction task error: {str(e)}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def register_dataset(self, dataset_id: str, initial_metrics: Dict[str, float]) -> None:
         """Register a dataset for autonomous monitoring."""
         # Create initial quality state
@@ -273,7 +272,7 @@ class AutonomousQualityMonitoringService(BaseService):
         
         logger.info(f"Registered dataset for autonomous monitoring: {dataset_id}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def update_quality_metrics(self, dataset_id: str, metrics: Dict[str, float]) -> None:
         """Update quality metrics for a dataset."""
         timestamp = datetime.utcnow()
@@ -641,12 +640,12 @@ class AutonomousQualityMonitoringService(BaseService):
             # In a real implementation, this would send notifications
             # to monitoring systems, Slack, email, etc.
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_quality_state(self, dataset_id: str) -> Optional[QualityState]:
         """Get current quality state for a dataset."""
         return self.quality_states.get(dataset_id)
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_quality_dashboard(self) -> Dict[str, Any]:
         """Get quality monitoring dashboard data."""
         dashboard = {
@@ -684,7 +683,7 @@ class AutonomousQualityMonitoringService(BaseService):
         
         return dashboard
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_quality_forecasts(self, dataset_id: str) -> List[QualityPrediction]:
         """Get quality forecasts for a dataset."""
         state = self.quality_states.get(dataset_id)

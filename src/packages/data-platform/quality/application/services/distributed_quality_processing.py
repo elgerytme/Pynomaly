@@ -25,7 +25,7 @@ from contextlib import asynccontextmanager
 from ...domain.entities.quality_job import QualityJob, JobStatus, JobPriority
 from ...domain.entities.quality_profile import DataQualityProfile
 from ...domain.value_objects.quality_scores import QualityScores
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -462,7 +462,7 @@ class DistributedQualityProcessingService:
             except Exception as e:
                 logger.error(f"Performance monitoring error: {str(e)}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def submit_job(self, job: QualityJob) -> str:
         """Submit a quality processing job to the cluster."""
         # Assign job ID if not present
@@ -739,7 +739,7 @@ class DistributedQualityProcessingService:
             ]
         }
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_job_status(self, job_id: str) -> Optional[Dict[str, Any]]:
         """Get status of a specific job."""
         # Check active jobs

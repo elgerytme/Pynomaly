@@ -20,6 +20,7 @@ def find_cross_domain_imports(packages_root: str):
         "mobile": ["interfaces"],
         "data-platform": ["interfaces"],
         "enterprise": ["interfaces"],
+        "integration": ["interfaces"],
         "algorithms": ["core", "interfaces"],
         "anomaly_detection": ["core", "interfaces"],
         "machine_learning": ["core", "interfaces"],
@@ -40,9 +41,24 @@ def find_cross_domain_imports(packages_root: str):
                 with open(py_file, 'r', encoding='utf-8') as f:
                     content = f.read()
                 
-                # Look for imports from other packages
-                import_pattern = r'from\s+(\w+)\..*?import'
-                matches = re.findall(import_pattern, content)
+                # Look for imports from other packages (starting with package names)
+                import_patterns = [
+                    r'from\s+(core)\..*?import',
+                    r'from\s+(services)\..*?import',
+                    r'from\s+(infrastructure)\..*?import',
+                    r'from\s+(mobile)\..*?import',
+                    r'from\s+(data-platform)\..*?import',
+                    r'from\s+(enterprise)\..*?import',
+                    r'from\s+(integration)\..*?import',
+                    r'from\s+(algorithms)\..*?import',
+                    r'from\s+(anomaly_detection)\..*?import',
+                    r'from\s+(machine_learning)\..*?import',
+                    r'from\s+(mlops)\..*?import'
+                ]
+                
+                matches = []
+                for pattern in import_patterns:
+                    matches.extend(re.findall(pattern, content))
                 
                 for match in matches:
                     if match in domains and match != package_name and match not in allowed_deps:

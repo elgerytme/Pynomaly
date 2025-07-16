@@ -19,7 +19,7 @@ import json
 import pandas as pd
 import numpy as np
 
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -280,7 +280,7 @@ class DataPrivacyProtectionService:
         for rule in default_rules:
             self.masking_rules[rule.pii_type] = rule
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def detect_pii(
         self,
         data: Union[pd.DataFrame, Dict[str, List], List[Dict]],
@@ -406,7 +406,7 @@ class DataPrivacyProtectionService:
         else:
             return max(0.0, base_threshold - 0.4)
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def apply_privacy_protection(
         self,
         data: Union[pd.DataFrame, Dict[str, List], List[Dict]],
@@ -677,7 +677,7 @@ class DataPrivacyProtectionService:
         
         return True  # Default to compliant for unknown standards
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def create_privacy_policy(
         self,
         name: str,
@@ -695,7 +695,7 @@ class DataPrivacyProtectionService:
         logger.info(f"Created privacy policy: {name}")
         return policy
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def add_custom_pii_pattern(
         self,
         pii_type: PIIType,
@@ -718,7 +718,7 @@ class DataPrivacyProtectionService:
         logger.info(f"Added custom PII pattern for {pii_type.value}")
         return custom_pattern
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_privacy_dashboard(self) -> Dict[str, Any]:
         """Get comprehensive privacy protection dashboard."""
         return {

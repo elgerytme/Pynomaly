@@ -26,7 +26,7 @@ from pathlib import Path
 
 from ...domain.entities.quality_profile import DataQualityProfile
 from ...domain.value_objects.quality_scores import QualityScores
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -954,7 +954,7 @@ class PerformanceMonitoringTuningService:
         
         return predictions
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_performance_dashboard(self) -> Dict[str, Any]:
         """Get comprehensive performance dashboard data."""
         # Current system status

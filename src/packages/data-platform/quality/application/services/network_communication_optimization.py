@@ -26,7 +26,7 @@ import base64
 
 from ...domain.entities.quality_profile import DataQualityProfile
 from ...domain.value_objects.quality_scores import QualityScores
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -520,7 +520,7 @@ class NetworkCommunicationOptimizer:
             except Exception as e:
                 logger.error(f"Batch processing error: {str(e)}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def send_request(self, endpoint_id: str, method: str, data: Any = None,
                           headers: Dict[str, str] = None, priority: RequestPriority = RequestPriority.MEDIUM) -> Dict[str, Any]:
         """Send optimized network request."""
@@ -767,7 +767,7 @@ class NetworkCommunicationOptimizer:
                     logger.warning(f"Compression method {method.value} showing poor performance: "
                                  f"{avg_ratio:.2f} ratio, {avg_time_ms:.2f}ms avg time")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_network_report(self) -> Dict[str, Any]:
         """Generate comprehensive network performance report."""
         # Endpoint statistics

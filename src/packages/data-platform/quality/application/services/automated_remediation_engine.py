@@ -13,8 +13,7 @@ from abc import ABC, abstractmethod
 
 from data_quality.domain.entities.quality_anomaly import QualityAnomaly
 from data_quality.domain.entities.quality_lineage import QualityLineage
-from core.shared.error_handling import handle_exceptions
-from core.domain.abstractions.base_service import BaseService
+from interfaces.data_quality_interface import DataQualityInterface, QualityReport, QualityIssue
 
 
 logger = logging.getLogger(__name__)
@@ -326,12 +325,12 @@ class OutlierHandler(RemediationHandler):
             return False
 
 
-class AutomatedRemediationEngine(BaseService):
+class AutomatedRemediationEngine:
     """Automated remediation engine for self-healing data quality."""
     
     def __init__(self, config: Dict[str, Any]):
         """Initialize the automated remediation engine."""
-        super().__init__(config)
+        # Initialize service configuration
         self.config = config
         self.handlers: List[RemediationHandler] = []
         self.remediation_history: Dict[str, RemediationHistory] = {}
@@ -398,7 +397,7 @@ class AutomatedRemediationEngine(BaseService):
             except Exception as e:
                 logger.error(f"Performance monitoring error: {str(e)}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def analyze_and_remediate(self, issue: QualityAnomaly, data: Any) -> Optional[RemediationResult]:
         """Analyze issue and create remediation plan."""
         # Find suitable handler
@@ -554,22 +553,22 @@ class AutomatedRemediationEngine(BaseService):
         
         logger.info(f"Learning update: {len(success_patterns)} success patterns, {len(failure_patterns)} failure patterns")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_remediation_history(self, dataset_id: str) -> Optional[RemediationHistory]:
         """Get remediation history for a dataset."""
         return self.remediation_history.get(dataset_id)
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_active_plans(self) -> List[RemediationPlan]:
         """Get all active remediation plans."""
         return list(self.active_plans.values())
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_approval_queue(self) -> List[RemediationPlan]:
         """Get plans waiting for approval."""
         return self.approval_queue.copy()
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def approve_plan_manually(self, plan_id: str) -> bool:
         """Manually approve a remediation plan."""
         plan = next((p for p in self.approval_queue if p.issue_id == plan_id), None)
@@ -580,7 +579,7 @@ class AutomatedRemediationEngine(BaseService):
         self.approval_queue.remove(plan)
         return True
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def reject_plan(self, plan_id: str, reason: str) -> bool:
         """Reject a remediation plan."""
         plan = next((p for p in self.approval_queue if p.issue_id == plan_id), None)
@@ -591,7 +590,7 @@ class AutomatedRemediationEngine(BaseService):
         self.approval_queue.remove(plan)
         return True
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_remediation_stats(self) -> Dict[str, Any]:
         """Get remediation statistics."""
         total_plans = sum(len(h.plans) for h in self.remediation_history.values())

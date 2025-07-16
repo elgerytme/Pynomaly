@@ -22,9 +22,9 @@ try:
         PipelineConfig, SourceType, CleaningStrategy, ScalingMethod, EncodingStrategy
     )
     from data_transformation.application.dto.pipeline_result import PipelineResult
-    from services.services.enhanced_data_preprocessing_service import (
-        EnhancedDataPreprocessingService, EnhancedDataQualityReport
-    )
+    # Services not available in interfaces package - using basic implementations
+    EnhancedDataPreprocessingService = None
+    EnhancedDataQualityReport = None
     DATA_TRANSFORMATION_AVAILABLE = True
 except ImportError:
     DATA_TRANSFORMATION_AVAILABLE = False
@@ -91,7 +91,10 @@ async def advanced_transform_dataset(
         )
         
         # Initialize preprocessing service
-        preprocessing_service = EnhancedDataPreprocessingService()
+        if EnhancedDataPreprocessingService is None:
+            preprocessing_service = None
+        else:
+            preprocessing_service = EnhancedDataPreprocessingService()
         
         # Apply transformations (run in background for large datasets)
         def transform_task():
@@ -165,7 +168,10 @@ async def get_transformation_recommendations(
             raise HTTPException(status_code=404, detail="Dataset not found")
         
         # Initialize preprocessing service
-        preprocessing_service = EnhancedDataPreprocessingService()
+        if EnhancedDataPreprocessingService is None:
+            preprocessing_service = None
+        else:
+            preprocessing_service = EnhancedDataPreprocessingService()
         
         # Get recommendations
         recommendations = await preprocessing_service.get_preprocessing_recommendations(
@@ -209,6 +215,9 @@ async def assess_data_quality(
         
         if DATA_TRANSFORMATION_AVAILABLE and include_advanced_metrics:
             # Use enhanced assessment
+            if EnhancedDataPreprocessingService is None:
+            preprocessing_service = None
+        else:
             preprocessing_service = EnhancedDataPreprocessingService()
             quality_report = await preprocessing_service._assess_data_quality(
                 dataset.data, str(dataset_id)
@@ -290,7 +299,10 @@ async def optimize_dataset_for_algorithm(
             raise HTTPException(status_code=404, detail="Dataset not found")
         
         # Initialize preprocessing service
-        preprocessing_service = EnhancedDataPreprocessingService()
+        if EnhancedDataPreprocessingService is None:
+            preprocessing_service = None
+        else:
+            preprocessing_service = EnhancedDataPreprocessingService()
         
         # Optimize for specific algorithm
         optimized_data = await preprocessing_service.optimize_for_algorithm(

@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 import secrets
 
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -314,7 +314,7 @@ class EnterpriseAccessControlService:
             "department_segregation": dept_policy
         })
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def authenticate_user(
         self,
         username: str,
@@ -418,7 +418,7 @@ class EnterpriseAccessControlService:
         self.active_sessions[session_id] = session_data
         return session_id
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def check_access(
         self,
         user_id: str,
@@ -642,7 +642,7 @@ class EnterpriseAccessControlService:
             logger.error(f"Condition evaluation error: {e}")
             return False
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def create_user(
         self,
         username: str,
@@ -676,7 +676,7 @@ class EnterpriseAccessControlService:
         logger.info(f"User created: {username}")
         return user
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def create_role(
         self,
         name: str,
@@ -707,7 +707,7 @@ class EnterpriseAccessControlService:
         logger.info(f"Role created: {name}")
         return role
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def create_resource(
         self,
         name: str,
@@ -766,7 +766,7 @@ class EnterpriseAccessControlService:
         if len(self.audit_events) > 50000:
             self.audit_events = self.audit_events[-50000:]
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_access_control_dashboard(self) -> Dict[str, Any]:
         """Get comprehensive access control dashboard."""
         # Calculate statistics

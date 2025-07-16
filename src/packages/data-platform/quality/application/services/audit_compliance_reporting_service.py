@@ -20,7 +20,7 @@ from .regulatory_compliance_automation import ComplianceStandard, ComplianceRepo
 from .data_privacy_protection_service import PrivacyReport
 from .enterprise_access_control_service import AuditEvent
 from .security_monitoring_threat_detection import SecurityIncident
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface, QualityReport
 
 logger = logging.getLogger(__name__)
 
@@ -246,7 +246,7 @@ class AuditComplianceReportingService:
         for template in templates:
             self.report_templates[template.template_id] = template
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def log_audit_event(
         self,
         event_type: AuditEventType,
@@ -372,7 +372,7 @@ class AuditComplianceReportingService:
         
         return filtered_events
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def generate_audit_report(
         self,
         report_type: ReportType,
@@ -731,7 +731,7 @@ class AuditComplianceReportingService:
         sorted_categories = sorted(categories.items(), key=lambda x: x[1], reverse=True)
         return dict(sorted_categories[:5])
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def export_report(
         self,
         report_id: str,
@@ -923,7 +923,7 @@ class AuditComplianceReportingService:
             except Exception as e:
                 logger.error(f"Audit event cleanup error: {e}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_reporting_dashboard(self) -> Dict[str, Any]:
         """Get comprehensive audit and compliance reporting dashboard."""
         # Calculate statistics

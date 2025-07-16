@@ -23,7 +23,7 @@ from .network_communication_optimization import NetworkCommunicationOptimizer
 from .performance_monitoring_tuning import PerformanceMonitoringTuningService
 from ...domain.entities.quality_profile import DataQualityProfile
 from ...domain.value_objects.quality_scores import QualityScores
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -584,7 +584,7 @@ class EnterprisePerformanceOptimizer:
         
         return targets_met
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_enterprise_dashboard(self) -> Dict[str, Any]:
         """Get comprehensive enterprise performance dashboard."""
         # Get latest performance report

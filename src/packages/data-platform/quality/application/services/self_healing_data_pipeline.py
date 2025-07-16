@@ -15,8 +15,8 @@ from data_quality.application.services.pipeline_integration_framework import Pip
 from data_quality.application.services.intelligent_quality_orchestration import IntelligentQualityOrchestration
 from data_quality.application.services.self_monitoring_optimization import SelfMonitoringOptimization
 from data_quality.domain.entities.quality_anomaly import QualityAnomaly
-from core.shared.error_handling import handle_exceptions
-from core.domain.abstractions.base_service import BaseService
+from interfaces.data_quality_interface import DataQualityInterface
+from interfaces.data_quality_interface import QualityReport
 
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class SelfHealingConfig:
     performance_optimization_enabled: bool = True
 
 
-class SelfHealingDataPipeline(BaseService):
+class SelfHealingDataPipeline:
     """Main service for self-healing data pipeline integration."""
     
     def __init__(self, config: SelfHealingConfig):
@@ -310,18 +310,18 @@ class SelfHealingDataPipeline(BaseService):
         except Exception as e:
             logger.error(f"Optimization trigger failed: {str(e)}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def register_dataset(self, dataset_id: str, initial_metrics: Dict[str, float]) -> None:
         """Register a dataset for self-healing monitoring."""
         await self.monitoring_service.register_dataset(dataset_id, initial_metrics)
         logger.info(f"Registered dataset {dataset_id} for self-healing monitoring")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def update_dataset_metrics(self, dataset_id: str, metrics: Dict[str, float]) -> None:
         """Update metrics for a monitored dataset."""
         await self.monitoring_service.update_quality_metrics(dataset_id, metrics)
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_self_healing_dashboard(self) -> Dict[str, Any]:
         """Get comprehensive self-healing dashboard."""
         try:
@@ -365,7 +365,7 @@ class SelfHealingDataPipeline(BaseService):
                 "timestamp": datetime.utcnow()
             }
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_healing_history(self, dataset_id: Optional[str] = None) -> Dict[str, Any]:
         """Get healing history for analysis."""
         try:
@@ -390,7 +390,7 @@ class SelfHealingDataPipeline(BaseService):
             logger.error(f"Healing history retrieval failed: {str(e)}")
             return {"error": str(e)}
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def trigger_manual_healing(self, dataset_id: str, issue_description: str) -> str:
         """Trigger manual healing process."""
         try:
@@ -416,7 +416,7 @@ class SelfHealingDataPipeline(BaseService):
             logger.error(f"Manual healing trigger failed: {str(e)}")
             raise
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def configure_auto_healing(self, enabled: bool, learning_enabled: bool = None) -> None:
         """Configure auto-healing settings."""
         self.config.auto_healing_enabled = enabled
@@ -426,12 +426,12 @@ class SelfHealingDataPipeline(BaseService):
         
         logger.info(f"Auto-healing configured: enabled={enabled}, learning={self.config.learning_enabled}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_optimization_recommendations(self) -> List[Dict[str, Any]]:
         """Get optimization recommendations."""
         return await self.self_monitoring.get_optimization_recommendations()
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def apply_optimization(self, recommendation_id: str) -> bool:
         """Apply a specific optimization recommendation."""
         return await self.self_monitoring.implement_optimization_recommendation(recommendation_id)

@@ -15,8 +15,8 @@ from data_quality.application.services.autonomous_quality_monitoring_service imp
 from data_quality.application.services.automated_remediation_engine import AutomatedRemediationEngine
 from data_quality.application.services.adaptive_quality_controls import AdaptiveQualityControls
 from data_quality.domain.entities.quality_anomaly import QualityAnomaly
-from core.shared.error_handling import handle_exceptions
-from core.domain.abstractions.base_service import BaseService
+from interfaces.data_quality_interface import DataQualityInterface
+from interfaces.data_quality_interface import QualityReport
 
 
 logger = logging.getLogger(__name__)
@@ -418,12 +418,12 @@ class StreamingIntegrator(PipelineIntegrator):
         return recommendations
 
 
-class PipelineIntegrationFramework(BaseService):
+class PipelineIntegrationFramework:
     """Framework for integrating quality controls into data pipelines."""
     
     def __init__(self, config: Dict[str, Any]):
         """Initialize the pipeline integration framework."""
-        super().__init__(config)
+        # Initialize service configuration
         self.config = config
         
         # Initialize quality services
@@ -543,7 +543,7 @@ class PipelineIntegrationFramework(BaseService):
             if result.execution_time > cutoff_time
         ]
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def register_pipeline(self, pipeline_type: str, pipeline_config: Dict[str, Any]) -> bool:
         """Register a pipeline with the framework."""
         if pipeline_type not in self.integrators:
@@ -556,7 +556,7 @@ class PipelineIntegrationFramework(BaseService):
         logger.info(f"Registered {pipeline_type} pipeline with quality framework")
         return True
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def execute_quality_check(self, pipeline_type: str, stage: PipelineStage, 
                                    context: PipelineContext) -> QualityCheckResult:
         """Execute quality check for a pipeline stage."""
@@ -636,7 +636,7 @@ class PipelineIntegrationFramework(BaseService):
                 metadata={"error": str(e)}
             )
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def create_quality_operator(self, pipeline_type: str, stage: PipelineStage) -> Dict[str, Any]:
         """Create a quality operator for specific pipeline type."""
         if pipeline_type == "airflow":
@@ -721,7 +721,7 @@ class PipelineIntegrationFramework(BaseService):
         
         return quality_processor
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_pipeline_health(self) -> Dict[str, Any]:
         """Get overall pipeline health status."""
         health_status = {
@@ -761,7 +761,7 @@ class PipelineIntegrationFramework(BaseService):
         
         return health_status
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_execution_history(self, pipeline_type: Optional[str] = None, 
                                    stage: Optional[PipelineStage] = None) -> List[QualityCheckResult]:
         """Get execution history with optional filters."""

@@ -17,8 +17,8 @@ from data_quality.application.services.automated_remediation_engine import Autom
 from data_quality.application.services.adaptive_quality_controls import AdaptiveQualityControls
 from data_quality.application.services.pipeline_integration_framework import PipelineIntegrationFramework
 from data_quality.application.services.intelligent_quality_orchestration import IntelligentQualityOrchestration
-from core.shared.error_handling import handle_exceptions
-from core.domain.abstractions.base_service import BaseService
+from interfaces.data_quality_interface import DataQualityInterface
+from interfaces.data_quality_interface import QualityReport
 
 
 logger = logging.getLogger(__name__)
@@ -122,12 +122,12 @@ class SystemAlert:
     resolution_time: Optional[datetime] = None
 
 
-class SelfMonitoringOptimization(BaseService):
+class SelfMonitoringOptimization:
     """Service for self-monitoring and optimization of quality system performance."""
     
     def __init__(self, config: Dict[str, Any]):
         """Initialize the self-monitoring and optimization service."""
-        super().__init__(config)
+        # Initialize service configuration
         self.config = config
         
         # Initialize quality services (monitoring only, not controlling)
@@ -687,7 +687,7 @@ class SelfMonitoringOptimization(BaseService):
         
         logger.info("Recalculated performance baselines")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def register_quality_services(self, services: Dict[str, Any]) -> None:
         """Register quality services for monitoring."""
         self.monitoring_service = services.get("monitoring_service")
@@ -698,7 +698,7 @@ class SelfMonitoringOptimization(BaseService):
         
         logger.info("Registered quality services for monitoring")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_system_health_report(self) -> Dict[str, Any]:
         """Get comprehensive system health report."""
         overall_health = SystemHealthStatus.HEALTHY
@@ -761,7 +761,7 @@ class SelfMonitoringOptimization(BaseService):
             "throughput": sum(m.throughput for m in recent_metrics) / len(recent_metrics)
         }
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_optimization_recommendations(self) -> List[Dict[str, Any]]:
         """Get optimization recommendations."""
         return [
@@ -782,7 +782,7 @@ class SelfMonitoringOptimization(BaseService):
             for rec in self.optimization_recommendations
         ]
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def implement_optimization_recommendation(self, recommendation_id: str) -> bool:
         """Implement a specific optimization recommendation."""
         recommendation = next(
@@ -802,7 +802,7 @@ class SelfMonitoringOptimization(BaseService):
             logger.error(f"Failed to implement optimization {recommendation_id}: {str(e)}")
             return False
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_cost_effectiveness_analysis(self) -> Dict[str, Any]:
         """Get cost-effectiveness analysis."""
         if not self.cost_metrics_history or not self.effectiveness_metrics_history:

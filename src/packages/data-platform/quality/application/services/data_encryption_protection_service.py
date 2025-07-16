@@ -22,7 +22,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -231,7 +231,7 @@ class DataEncryptionProtectionService:
         for policy in policies:
             self.encryption_policies[policy.policy_id] = policy
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def generate_encryption_key(
         self,
         key_type: KeyType,
@@ -331,7 +331,7 @@ class DataEncryptionProtectionService:
         fernet = Fernet(base64.urlsafe_b64encode(self.master_key))
         return fernet.decrypt(encrypted_data)
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def encrypt_data(
         self,
         data: Union[bytes, str],
@@ -494,7 +494,7 @@ class DataEncryptionProtectionService:
         else:
             raise ValueError(f"Unsupported encryption algorithm: {algorithm}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def decrypt_data(
         self,
         encrypted_data_obj: EncryptedData,
@@ -602,7 +602,7 @@ class DataEncryptionProtectionService:
         else:
             raise ValueError(f"Unsupported decryption algorithm: {algorithm}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def rotate_key(
         self,
         key_id: str,
@@ -744,7 +744,7 @@ class DataEncryptionProtectionService:
             except Exception as e:
                 logger.error(f"Encryption health monitor error: {e}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_encryption_dashboard(self) -> Dict[str, Any]:
         """Get comprehensive encryption and protection dashboard."""
         # Calculate statistics

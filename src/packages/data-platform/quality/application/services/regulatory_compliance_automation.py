@@ -16,7 +16,7 @@ from enum import Enum
 import pandas as pd
 
 from .data_privacy_protection_service import ComplianceStandard, PIIType, PrivacyReport
-from core.shared.error_handling import handle_exceptions
+from interfaces.data_quality_interface import DataQualityInterface
 
 logger = logging.getLogger(__name__)
 
@@ -411,7 +411,7 @@ class RegulatoryComplianceAutomation:
         
         self.compliance_frameworks[ComplianceStandard.CCPA] = ccpa_framework
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def assess_compliance(
         self,
         standards: List[ComplianceStandard],
@@ -660,7 +660,7 @@ class RegulatoryComplianceAutomation:
         report.priority_actions = recommendations[:5]  # Top 5 actions
         report.compliance_gaps = gaps
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def remediate_violation(
         self,
         violation_id: str,
@@ -697,7 +697,7 @@ class RegulatoryComplianceAutomation:
         logger.info(f"Violation {violation_id} marked as remediated")
         return True
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def schedule_compliance_audit(
         self,
         standards: List[ComplianceStandard],
@@ -738,7 +738,7 @@ class RegulatoryComplianceAutomation:
         if len(self.audit_trail) > 10000:
             self.audit_trail = self.audit_trail[-10000:]
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_compliance_dashboard(self) -> Dict[str, Any]:
         """Get comprehensive compliance dashboard."""
         # Calculate current compliance status

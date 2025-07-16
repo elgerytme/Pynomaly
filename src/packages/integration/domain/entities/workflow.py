@@ -8,7 +8,7 @@ from enum import Enum
 from typing import List, Dict, Any, Optional
 from uuid import UUID, uuid4
 
-from core.domain.abstractions.base_entity import BaseEntity
+from interfaces.shared.base_entity import BaseEntity
 
 
 class WorkflowStatus(Enum):

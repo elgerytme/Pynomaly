@@ -23,6 +23,7 @@ class DomainBoundaryValidator:
         "mlops": ["core", "interfaces", "infrastructure"],
         "testing": ["core", "interfaces"],
         "tools": ["core", "interfaces"],
+        "integration": ["interfaces"],  # Integration package should only depend on interfaces
     }
     
     def __init__(self, packages_root: str):

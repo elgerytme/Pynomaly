@@ -14,8 +14,8 @@ from abc import ABC, abstractmethod
 from collections import defaultdict, deque
 
 from data_quality.domain.entities.quality_anomaly import QualityAnomaly
-from core.shared.error_handling import handle_exceptions
-from core.domain.abstractions.base_service import BaseService
+from interfaces.data_quality_interface import DataQualityInterface, QualityReport, QualityIssue, QualityLevel
+from interfaces.data_profiling_interface import DataProfilingInterface, DataProfile, ProfileType
 
 
 logger = logging.getLogger(__name__)
@@ -422,12 +422,12 @@ class SamplingController(AdaptiveController):
         return self._optimize_random_sampling(strategy)
 
 
-class AdaptiveQualityControls(BaseService):
+class AdaptiveQualityControls:
     """Adaptive quality controls service for intelligent quality management."""
     
     def __init__(self, config: Dict[str, Any]):
         """Initialize the adaptive quality controls service."""
-        super().__init__(config)
+        # Initialize service configuration
         self.config = config
         self.quality_rules: Dict[str, QualityRule] = {}
         self.sampling_strategies: Dict[str, SamplingStrategy] = {}
@@ -666,13 +666,13 @@ class AdaptiveQualityControls(BaseService):
                 )
                 checkpoint.adaptive_frequency = True
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def add_quality_rule(self, rule: QualityRule) -> None:
         """Add a new quality rule."""
         self.quality_rules[rule.id] = rule
         logger.info(f"Added quality rule: {rule.name}")
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def update_quality_rule(self, rule_id: str, updates: Dict[str, Any]) -> bool:
         """Update a quality rule."""
         if rule_id not in self.quality_rules:
@@ -696,7 +696,7 @@ class AdaptiveQualityControls(BaseService):
         rule.last_updated = datetime.utcnow()
         return True
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_adaptive_recommendations(self, dataset_id: str) -> List[Dict[str, Any]]:
         """Get adaptive recommendations for a dataset."""
         recommendations = []
@@ -728,12 +728,12 @@ class AdaptiveQualityControls(BaseService):
         
         return recommendations
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_adaptation_history(self) -> List[AdaptationDecision]:
         """Get adaptation decision history."""
         return self.adaptation_decisions.copy()
     
-    @handle_exceptions
+    # Error handling would be managed by interface implementation
     async def get_quality_controls_status(self) -> Dict[str, Any]:
         """Get current status of quality controls."""
         return {

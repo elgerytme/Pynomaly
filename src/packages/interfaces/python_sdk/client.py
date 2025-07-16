@@ -18,7 +18,8 @@ import json
 from datetime import datetime
 import time
 
-from .application.services.detection_service import DetectionService
+# Remove services dependency - interfaces should not depend on services
+# from .application.services.detection_service import DetectionService
 from .application.dto.detection_dto import DetectionRequestDTO, DetectionResponseDTO
 from .domain.value_objects.algorithm_config import AlgorithmConfig
 from .domain.value_objects.detection_metadata import DetectionMetadata

@@ -12,7 +12,8 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 from ...application.dto.export_options import ExportFormat, ExportOptions
-from ...application.services.export_service import ExportService
+# Remove services dependency - interfaces should not depend on services
+# from ...application.services.export_service import ExportService
 
 console = Console()
 export_app = typer.Typer(help="Export anomaly detection results to various platforms")

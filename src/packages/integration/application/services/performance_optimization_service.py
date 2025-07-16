@@ -14,7 +14,7 @@ import weakref
 
 from integration.domain.entities.integration_config import IntegrationConfig
 from integration.domain.value_objects.performance_metrics import PerformanceMetrics
-from core.shared.error_handling import handle_exceptions
+from interfaces.shared.error_handling import handle_exceptions
 
 
 logger = logging.getLogger(__name__)
