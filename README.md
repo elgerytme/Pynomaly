@@ -1,212 +1,265 @@
-# Pynomaly 🔍
+# Pynomaly Monorepo 🏗️
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build System: Hatch](https://img.shields.io/badge/build%20system-hatch-4051b5.svg)](https://hatch.pypa.io/)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Type checked: mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
-[![CI](https://github.com/yourusername/pynomaly/workflows/CI/badge.svg)](https://github.com/yourusername/pynomaly/actions)
-[![Security](https://github.com/yourusername/pynomaly/workflows/Security%20Scanning/badge.svg)](https://github.com/yourusername/pynomaly/actions)
-[![Maintenance Status](https://github.com/yourusername/pynomaly/workflows/Scheduled%20Maintenance/badge.svg)](https://github.com/yourusername/pynomaly/actions)
-[![Bandit](https://img.shields.io/badge/security-bandit-yellow)](https://bandit.readthedocs.io/)
-[![Safety](https://img.shields.io/badge/safety-checked-green)](https://github.com/pyupio/safety)
+[![Monorepo Structure](https://img.shields.io/badge/architecture-monorepo-blue.svg)](https://monorepo.tools/)
+[![Clean Architecture](https://img.shields.io/badge/architecture-clean-green.svg)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+[![Domain Driven Design](https://img.shields.io/badge/design-DDD-orange.svg)](https://www.domainlanguage.com/ddd/)
 
-Enterprise-ready anomaly detection platform with clean architecture, targeting Python 3.11+ and integrating multiple ML libraries (PyOD, PyGOD, scikit-learn, PyTorch, TensorFlow, JAX) through a unified interface.
+A general-purpose Python monorepo implementing clean architecture patterns with domain-driven design. This repository demonstrates enterprise-ready software organization with multiple packages, shared infrastructure, and comprehensive development tooling.
 
-**Built with**: Clean monorepo architecture, Hatch for build system and environment management, Ruff for linting and formatting, comprehensive CI/CD pipeline with automated testing and deployment.
+**Architecture**: Clean monorepo with domain-driven design, hexagonal architecture, comprehensive testing, automated governance, and enterprise development practices.
 
-## 🏗️ Monorepo Structure
+## 🏗️ Monorepo Architecture
 
-This is a clean, enterprise-ready monorepo containing all Pynomaly packages, applications, and infrastructure organized for maximum modularity and maintainability.
+This monorepo demonstrates modern software engineering practices with a focus on maintainability, scalability, and clean architecture. It contains multiple domain packages, shared infrastructure, and comprehensive development tooling.
 
 ```
 pynomaly/
-├── src/packages/           # 🎯 Core packages (domain-driven architecture)
-│   ├── core/              # Domain logic & business rules  
-│   ├── anomaly_detection/ # Consolidated anomaly & outlier detection
-│   ├── machine_learning/  # ML operations, training & lifecycle
-│   ├── people_ops/        # User management & authentication
-│   ├── mathematics/       # Statistical analysis & computations
-│   ├── data_platform/     # Data processing & quality pipeline
-│   ├── infrastructure/    # Technical infrastructure adapters
-│   ├── interfaces/        # User interfaces (CLI, API, Web)
-│   ├── enterprise/        # Enterprise features & governance
-│   ├── services/          # Application services
-│   └── testing/           # Testing utilities
-├── pkg/                   # 🔗 Third-party packages
-│   ├── vendor_dependencies/ # Vendored dependencies
-│   └── custom_forks/      # Custom package forks
-├── scripts/              # 🛠️ Development & automation scripts
-│   ├── governance/       # Repository organization enforcement
-│   ├── analysis/         # Analysis and debugging tools
-│   └── cleanup/          # Cleanup automation
-├── templates/            # 📋 Standardized templates
-│   └── package/         # Package structure templates
-├── reports/             # 📊 Analysis reports
-│   └── analysis/        # Repository analysis results
-├── deployment/          # 🚀 Deployment configurations
-├── configs/            # ⚙️ Configuration files
-├── docs/               # 📚 Project documentation
-└── tests/              # 🧪 Integration test suites
+├── src/packages/           # 🎯 Domain packages (clean architecture)
+│   ├── core/              # Shared domain logic & foundational patterns
+│   ├── anomaly_detection/ # Data analysis and anomaly detection domain
+│   ├── machine_learning/  # ML operations and model lifecycle management
+│   ├── people_ops/        # User management and authentication domain
+│   ├── mathematics/       # Mathematical computations and statistics
+│   ├── data_platform/     # Data processing and quality assurance
+│   ├── infrastructure/    # Cross-cutting infrastructure concerns
+│   ├── interfaces/        # Presentation layer (CLI, API, Web)
+│   ├── enterprise/        # Enterprise governance and compliance
+│   ├── services/          # Application service orchestration
+│   └── testing/           # Shared testing utilities and frameworks
+├── pkg/                   # 🔗 External dependencies
+│   ├── vendor_dependencies/ # Vendored third-party packages
+│   └── custom_forks/      # Customized package forks
+├── scripts/              # 🛠️ Automation and tooling
+│   ├── governance/       # Repository structure enforcement
+│   ├── analysis/         # Code analysis and metrics
+│   └── cleanup/          # Maintenance and cleanup automation
+├── templates/            # 📋 Code generation templates
+│   └── package/         # Standard package structure templates
+├── reports/             # 📊 Generated analysis reports
+│   └── analysis/        # Repository health and metrics
+├── deployment/          # 🚀 Infrastructure as code
+├── configs/            # ⚙️ Shared configuration files
+├── docs/               # 📚 Comprehensive documentation
+└── tests/              # 🧪 Cross-package integration tests
 ```
 
-### 📦 Package Organization
+### 📦 Package Organization Principles
 
-All packages follow **Domain-Driven Design** and **Clean Architecture** principles:
+All packages follow **Domain-Driven Design** and **Clean Architecture** principles for maximum maintainability and testability:
 
-#### 🏢 **Domain Packages** (Core Business Logic)
-- **`core/`**: Fundamental domain logic, entities, value objects
-- **`anomaly_detection/`**: Consolidated anomaly & outlier detection (40+ algorithms)
-- **`mathematics/`**: Statistical analysis and mathematical computations
+#### 🏢 **Domain Layer** (Pure Business Logic)
+- **`core/`**: Shared domain entities, value objects, and foundational patterns
+- **`anomaly_detection/`**: Data analysis domain with detection algorithms and models
+- **`mathematics/`**: Mathematical domain with statistical computations and utilities
 
-#### 🚀 **Application Packages** (Business Operations)
-- **`machine_learning/`**: ML training, optimization, lifecycle management
-- **`people_ops/`**: User management, authentication, authorization
-- **`data_platform/`**: Data processing, quality, transformation pipelines
-- **`enterprise/`**: Multi-tenancy, governance, compliance
-- **`services/`**: Application services and use cases
+#### 🚀 **Application Layer** (Use Cases and Orchestration)
+- **`machine_learning/`**: ML workflow orchestration and model lifecycle management
+- **`people_ops/`**: User management, authentication, and authorization workflows
+- **`data_platform/`**: Data processing pipelines and quality assurance workflows
+- **`enterprise/`**: Governance, compliance, and multi-tenancy orchestration
+- **`services/`**: Cross-domain application services and integration logic
 
-#### 🔧 **Infrastructure Packages** (Technical Concerns)
-- **`infrastructure/`**: Deployment, monitoring, persistence adapters
-- **`interfaces/`**: CLI, API, Web UI (presentation layer)
+#### 🔧 **Infrastructure Layer** (External Concerns)
+- **`infrastructure/`**: Database, messaging, monitoring, and deployment adapters
+- **`interfaces/`**: User interfaces (CLI, REST API, Web UI) and external integrations
 
-Each package contains:
+#### 📋 **Standard Package Structure**
+Each package maintains consistent organization:
 ```
 package_name/
-├── package_name/     # Source code
-├── tests/           # Package-specific tests
-├── docs/            # Package documentation
-├── README.md        # Package overview
-├── pyproject.toml   # Package configuration
-└── BUCK            # Build configuration
+├── package_name/         # Source code following clean architecture
+│   ├── domain/          # Domain layer (entities, value objects, services)
+│   ├── application/     # Application layer (use cases, services, DTOs)
+│   ├── infrastructure/  # Infrastructure layer (adapters, repositories)
+│   └── presentation/    # Presentation layer (controllers, serializers)
+├── tests/              # Comprehensive test suite
+├── docs/               # Package-specific documentation
+├── README.md           # Package overview and usage
+├── pyproject.toml      # Package configuration and dependencies
+└── BUCK               # Build system configuration
 ```
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
-### Installation
-
-```bash
-# Install core functionality
-pip install pynomaly-core
-
-# Install with all features
-pip install pynomaly[all]
-
-# Install specific components
-pip install pynomaly-api pynomaly-cli pynomaly-web
-```
-
-### Basic Usage
-
-```python
-from pynomaly.core import detect_anomalies, Dataset, Detector
-
-# Load your data
-dataset = Dataset.from_csv("data.csv")
-
-# Create a detector
-detector = Detector.isolation_forest()
-
-# Detect anomalies
-result = detect_anomalies(dataset, detector)
-print(f"Found {len(result.anomalies)} anomalies")
-```
-
-## 🏢 Enterprise Features
-
-- **🔐 Security**: RBAC, audit logging, SOC2 compliance
-- **📊 Monitoring**: Prometheus metrics, distributed tracing
-- **🌐 Multi-tenancy**: Complete data isolation and resource quotas
-- **⚙️ MLOps**: Model lifecycle and lineage tracking
-- **🔄 CI/CD**: Automated testing, deployment, and monitoring
-
-## Automation and Maintenance
-
-This project includes a robust scheduled maintenance workflow that automatically runs weekly checks to ensure code quality and security. To run maintenance tasks locally, use the following commands:
-
-```bash
-# Run structure validation
-python scripts/validation/validate_structure.py
-
-# Run linting with ruff
-ruff check src/ tests/
-
-# Run type checking with MyPy
-mypy src/pynomaly/
-
-# Run Bandit security scan
-bandit -r src/
-
-# Run Safety vulnerability check
-safety check --full-report
-
-# Run pip-audit for package vulnerabilities
-pip-audit
-```
-
-These tools ensure that the code meets the quality standards and is free from vulnerabilities.
-
-## Features
-
-### Core Features (Stable)
-
-- 🏗️ **Clean Architecture**: Domain-driven design with hexagonal architecture
-- 🔌 **PyOD Integration**: Production-ready PyOD algorithms (40+ algorithms including Isolation Forest, LOF, One-Class SVM)
-- 🧪 **scikit-learn Support**: Standard ML algorithms for anomaly detection
-- 📊 **Web Interface**: HTMX-based UI with Tailwind CSS styling
-- ⚡ **CLI Interface**: Command-line tools for data processing and detection
-- 🛡️ **Type Safe**: Comprehensive type coverage with mypy strict mode
-- ✅ **Testing**: Comprehensive test suite with high coverage
-
-### Advanced Features (Production Ready)
-
-- 🚀 **FastAPI REST API**: 65+ API endpoints with OpenAPI documentation
-- 🔐 **Authentication**: JWT-based authentication framework (optional)
-- 📈 **Monitoring**: Prometheus metrics collection capabilities
-- 💾 **Data Export**: CSV/JSON/Excel export functionality
-- 🎯 **Ensemble Methods**: Advanced voting strategies and model combination
-- ⚡ **Performance Optimizations**: Batch cache operations, optimized data loading, memory management
-- 🧪 **Testing Infrastructure**: 85%+ coverage with property-based testing, benchmarking, and mutation testing
-
-### Experimental Features (Limited Support)
-
-**📋 [View Complete Feature Status →](docs/reference/FEATURE_IMPLEMENTATION_STATUS.md)**
-
-**⚠️ IMPORTANT - READ BEFORE USE**: The following features have significant implementation limitations. Many are frameworks or placeholders rather than complete implementations:
-
-- 🤖 **AutoML**: Framework exists but requires `optuna` installation and ML expertise to configure
-- 🔍 **Explainability**: Service architecture exists but most methods return placeholder/mock data  
-- 🧠 **Deep Learning**: Advanced PyTorch adapter available, TensorFlow/JAX support is minimal
-- 📱 **PWA Features**: Basic Progressive Web App, offline functionality limited
-- 📊 **Graph Analysis**: **NOT IMPLEMENTED** - PyGOD integration mentioned but not functional
-
-**❌ NOT IMPLEMENTED (Despite Documentation Claims)**:
-
-- **Real-time Streaming**: Framework classes exist but no actual streaming functionality
-- **Advanced Business Intelligence**: Export formatting and BI integrations are placeholder  
-- **Enterprise LDAP/SAML**: Only basic JWT authentication implemented
-
-**✅ RECOMMENDATION**: Start with [Core Features](#core-features-stable) which are production-ready. Consult the [Feature Implementation Status Guide](docs/reference/FEATURE_IMPLEMENTATION_STATUS.md) for accurate implementation details before depending on any experimental feature.
-
-## Installation
-
-### Quick Setup (Recommended)
-
-#### Prerequisites
-
-```bash
-# Ensure Python 3.11+ is installed
-python --version  # Should show 3.11 or higher
-```
-
-#### Installation
+### Development Setup
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/pynomaly.git
 cd pynomaly
 
-# Create virtual environment
+# Create and activate virtual environment
+python -m venv environments/.venv
+source environments/.venv/bin/activate  # Linux/macOS
+# environments\.venv\Scripts\activate   # Windows
+
+# Install development dependencies
+pip install -e ".[dev,test]"
+
+# Verify setup
+python -c "import pynomaly; print('Setup successful')"
+```
+
+### Repository Structure Exploration
+
+```bash
+# Validate repository structure
+python scripts/governance/package_structure_enforcer.py
+
+# Analyze package dependencies
+python scripts/analysis/dependency_analyzer.py
+
+# Check for build artifacts
+python scripts/governance/build_artifacts_checker.py
+
+# Run all governance checks
+python scripts/governance/root_directory_checker.py
+```
+
+### Working with Packages
+
+```python
+# Example: Using the core domain patterns
+from src.packages.core.domain.entities import BaseEntity
+from src.packages.core.domain.value_objects import Identifier
+
+# Example: Data platform usage
+from src.packages.data_platform.application.services import DataQualityService
+from src.packages.data_platform.domain.entities import Dataset
+
+# Example: Infrastructure patterns
+from src.packages.infrastructure.persistence import Repository
+from src.packages.infrastructure.monitoring import MetricsCollector
+```
+
+## 🏢 Enterprise Architecture Features
+
+This monorepo demonstrates enterprise-ready software engineering practices:
+
+- **🏗️ Clean Architecture**: Strict separation of concerns with domain-driven design
+- **🔐 Security**: Comprehensive security patterns and compliance frameworks
+- **📊 Observability**: Built-in monitoring, metrics, and distributed tracing
+- **🌐 Scalability**: Multi-tenancy patterns and resource management
+- **⚙️ DevOps**: Automated testing, deployment, and infrastructure management
+- **🔄 Governance**: Repository structure enforcement and dependency management
+- **📋 Standards**: Consistent coding standards, documentation, and testing patterns
+
+## 🔧 Development Tooling & Automation
+
+This monorepo includes comprehensive automation for maintaining code quality and repository governance:
+
+### Repository Governance
+
+```bash
+# Validate repository structure and organization
+python scripts/governance/package_structure_enforcer.py
+
+# Check for build artifacts and cleanup
+python scripts/governance/build_artifacts_checker.py
+
+# Validate root directory organization
+python scripts/governance/root_directory_checker.py
+
+# Auto-fix common structural issues
+python scripts/governance/package_structure_enforcer.py --fix
+```
+
+### Code Quality & Security
+
+```bash
+# Run linting with ruff (fast, comprehensive)
+ruff check src/ tests/
+
+# Run type checking with MyPy (strict mode)
+mypy src/packages/
+
+# Run security scan with Bandit
+bandit -r src/
+
+# Check for known vulnerabilities
+safety check --full-report
+pip-audit
+```
+
+### Testing & Analysis
+
+```bash
+# Run comprehensive test suite
+pytest tests/ --cov=src/packages/
+
+# Run package-specific tests
+pytest src/packages/core/tests/
+
+# Generate dependency analysis
+python scripts/analysis/dependency_analyzer.py
+
+# Performance benchmarking
+python scripts/analysis/performance_profiler.py
+```
+
+These tools ensure enterprise-grade code quality, security, and maintainability across all packages.
+
+## 🎯 Core Capabilities
+
+### Architecture & Design Patterns
+
+- 🏗️ **Clean Architecture**: Strict layered architecture with dependency inversion
+- 🔄 **Domain-Driven Design**: Rich domain models with ubiquitous language
+- 🔌 **Hexagonal Architecture**: Ports and adapters pattern for external integrations
+- 🏭 **Repository Pattern**: Consistent data access abstraction
+- 🎯 **Strategy Pattern**: Pluggable algorithm implementations
+- 🔗 **Dependency Injection**: IoC container for loose coupling
+
+### Development Infrastructure
+
+- 🛡️ **Type Safety**: Comprehensive type coverage with mypy strict mode
+- ✅ **Testing**: Multi-layered testing with unit, integration, and E2E tests
+- 📊 **Coverage**: High test coverage with automated reporting
+- 🔍 **Code Quality**: Automated linting, formatting, and static analysis
+- 📈 **Performance**: Benchmarking and profiling capabilities
+- 🔐 **Security**: Security scanning and vulnerability assessment
+
+### Package Management
+
+- 📦 **Modular Design**: Independent packages with clear boundaries
+- 🔗 **Dependency Management**: Centralized dependency configuration
+- 🏗️ **Build System**: Hatch-based build system with unified environments
+- 📋 **Standards**: Consistent package structure and documentation
+- 🔄 **Governance**: Automated structure validation and enforcement
+
+### Developer Experience
+
+- ⚡ **CLI Tools**: Rich command-line interface with comprehensive help
+- 🌐 **Web Interface**: Modern web UI with real-time updates
+- 🚀 **API**: RESTful API with OpenAPI documentation
+- 📚 **Documentation**: Comprehensive guides and API references
+- 🔧 **Automation**: Automated setup, testing, and deployment scripts
+
+## 📥 Installation & Setup
+
+### Prerequisites
+
+```bash
+# Ensure Python 3.11+ is installed
+python --version  # Should show 3.11 or higher
+
+# Git for repository cloning
+git --version
+```
+
+### Development Environment Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/pynomaly.git
+cd pynomaly
+
+# Create virtual environment in organized structure
 python -m venv environments/.venv
 
 # Activate environment
@@ -215,156 +268,111 @@ source environments/.venv/bin/activate
 # Windows:
 environments\.venv\Scripts\activate
 
-# Install with basic features
-pip install -e .
+# Install development dependencies
+pip install -e ".[dev,test]"
 
 # Verify installation
 python -c "import pynomaly; print('Installation successful')"
 ```
 
-#### Feature Installation Options
+### Package Installation Options
 
 ```bash
-# 🎯 Quick Start (recommended for most users)
-pip install -e ".[server]"       # Complete server (CLI + API + web)
-
-# 🧪 Research & ML  
-pip install -e ".[server,automl,explainability]"
-
-# 🚀 Production Deployment
-pip install -e ".[production]"   # Authentication + monitoring
-
-# 🛠️ Interactive Installer (recommended)
-python scripts/setup/install_features.py
-```
-
-**📚 Complete Guide**: See [Feature Installation Guide](docs/getting-started/FEATURE_INSTALLATION_GUIDE.md) for detailed options and troubleshooting.
-
-### Alternative Setup (Traditional pip/venv)
-
-If you prefer traditional Python environment management, Pynomaly uses a centralized environment structure:
-
-#### Quick Start
-
-```bash
-# Create virtual environment in organized directory structure
-mkdir -p environments
-python -m venv environments/.venv
-
-# Activate environment
-# Linux/macOS:
-source environments/.venv/bin/activate
-# Windows:
-environments\.venv\Scripts\activate
-
-# Install with desired features
-pip install -e ".[server]"          # API + CLI + basic features
-pip install -e ".[all]"             # All available features
-```
-
-**Environment Organization**: Pynomaly uses a centralized `environments/` directory with dot-prefix naming (`.venv`, `.test_env`) to keep the project root clean and organize all virtual environments in one location.
-
-#### Feature-Specific Installation
-
-```bash
-# Core functionality only
+# Core packages only
 pip install -e .
 
-# ML frameworks
-pip install -e ".[torch]"           # PyTorch deep learning
-pip install -e ".[tensorflow]"      # TensorFlow neural networks
-pip install -e ".[jax]"             # JAX high-performance computing
-pip install -e ".[graph]"           # PyGOD graph anomaly detection
-pip install -e ".[ml-all]"          # All ML frameworks
+# Full development setup
+pip install -e ".[dev,test,lint]"
 
-# Data processing
-pip install -e ".[data-formats]"    # Parquet, Excel, HDF5 support
-pip install -e ".[database]"        # SQL database connectivity
-pip install -e ".[spark]"           # Apache Spark integration
+# Specific package groups
+pip install -e ".[ml]"           # Machine learning packages
+pip install -e ".[data]"         # Data platform packages  
+pip install -e ".[enterprise]"   # Enterprise features
+pip install -e ".[interfaces]"   # CLI, API, and web interfaces
 
-# Advanced features
-pip install -e ".[automl]"          # AutoML with Optuna and auto-sklearn2
-pip install -e ".[explainability]" # SHAP/LIME model explanation
-pip install -e ".[production]"      # Full production stack with monitoring
-
-# Development
-pip install -e ".[test]"            # Testing dependencies
-pip install -e ".[ui-test]"         # UI testing with Playwright
-pip install -e ".[lint]"            # Code quality tools
-pip install -e ".[dev]"             # Development tools
+# All packages
+pip install -e ".[all]"
 ```
+
+### Environment Organization
+
+This monorepo uses a centralized environment structure to maintain organization:
+
+```bash
+environments/
+├── .venv/              # Main development environment
+├── .test_env/          # Testing environment
+├── .prod_env/          # Production-like environment
+└── .docs_env/          # Documentation building environment
+```
+
+**Benefits**:
+- Keeps project root clean and organized
+- Centralized environment management
+- Clear separation of different environment purposes
+- Easy environment switching for different tasks
 
 ### Cross-Platform Compatibility
 
-Pynomaly is designed to work seamlessly across different operating systems and environments:
+This monorepo is designed to work seamlessly across different operating systems and development environments:
 
 **Supported Platforms:**
-
 - **Linux/Unix**: Full compatibility with bash shell environments
-- **macOS**: Complete support for all features and commands
+- **macOS**: Complete support for all features and commands  
 - **Windows**: Full compatibility with PowerShell and Command Prompt
 - **WSL/WSL2**: Tested and verified on Windows Subsystem for Linux
 
-**Shell Compatibility:**
-
-- **Bash**: All commands and scripts tested and verified
-- **PowerShell**: Cross-platform PowerShell support (Core 6.0+)
-- **Command Prompt**: Basic functionality available
-- **Zsh/Fish**: Compatible with alternative Unix shells
-
-**Python Environment Support:**
-
+**Development Environment Support:**
 - **Virtual Environments**: `venv`, `virtualenv`, `conda`, `pipenv`, `poetry`
 - **Python Versions**: 3.11, 3.12, 3.13+
 - **Package Managers**: pip, conda, poetry, pipenv
+- **IDEs**: VS Code, PyCharm, Vim/Neovim with appropriate configurations
 
-**Installation Methods:**
-
-- **Package Installation**: `pip install -e .` (cross-platform)
-- **Development Setup**: Poetry-based development environment
+**Deployment Options:**
+- **Local Development**: Standard Python development setup
 - **Container Deployment**: Docker support for all platforms
-- **Cloud Deployment**: AWS, Azure, GCP compatible
+- **Cloud Deployment**: AWS, Azure, GCP compatible infrastructure
 
-**Path Handling:**
+## 🚀 Quick Start Guide
 
-- Automatic cross-platform path normalization
-- Windows backslash (`\`) and Unix forward slash (`/`) support
-- Environment variable handling across all platforms
+### Repository Exploration
 
-**NumPy Compatibility**: Uses `numpy>=1.26.0,<2.2.0` to ensure compatibility with TensorFlow and other ML libraries across all platforms.
-
-## Quick Start
-
-### Getting Started Commands
-
-After installation, use these commands to get started:
+After installation, explore the monorepo structure and capabilities:
 
 ```bash
-# Core functionality
-pynomaly --help                    # Main CLI interface
-pynomaly version                   # Show version information
-pynomaly status                    # System status check
+# Repository structure and governance
+python scripts/governance/package_structure_enforcer.py   # Validate structure
+python scripts/governance/root_directory_checker.py       # Check organization
+python scripts/analysis/dependency_analyzer.py            # Analyze dependencies
 
-# Dataset operations
-pynomaly dataset list              # List available datasets
-pynomaly dataset create            # Create new dataset
-pynomaly dataset analyze           # Analyze dataset properties
+# Package management
+python scripts/analysis/package_metrics.py                # Package statistics
+python scripts/governance/build_artifacts_checker.py      # Check build artifacts
 
-# Detector operations
-pynomaly detector list             # List available detectors
-pynomaly detector create           # Create new detector
-pynomaly detector detect           # Run anomaly detection
-
-# Web interface (if installed with [server])
-pynomaly server start --port 8000 # Start web server
-# Then visit: http://localhost:8000
-
-# API server (if installed with [server])
-pynomaly api start --reload       # Start API with auto-reload
-# API docs: http://localhost:8000/docs
+# Development workflow
+pytest tests/                                              # Run test suite
+ruff check src/                                           # Code quality check
+mypy src/packages/                                        # Type checking
 ```
 
-### CLI Usage
+### Working with Individual Packages
+
+```bash
+# Explore package structure
+ls src/packages/                    # List all packages
+ls src/packages/core/              # Explore core package
+ls src/packages/data_platform/     # Explore data platform
+
+# Run package-specific tests
+pytest src/packages/core/tests/
+pytest src/packages/infrastructure/tests/
+
+# Check package documentation
+cat src/packages/core/README.md
+cat src/packages/data_platform/README.md
+```
+
+### CLI Interface (if available)
 
 ```bash
 # Show all available commands
@@ -372,229 +380,147 @@ pynomaly --help
 
 # Basic system information
 pynomaly version          # Show version info
-pynomaly status           # System status
+pynomaly status           # System health check
 
-# Dataset operations
-pynomaly dataset --help   # Dataset management commands
+# Package operations
+pynomaly packages list    # List available packages
+pynomaly packages info    # Package information
 
-# Detector operations  
-pynomaly detector --help  # Detector management commands
-
-# Performance monitoring and optimization
-pynomaly perf benchmark --suite quick    # Run performance benchmarks
-pynomaly perf monitor                     # Real-time performance monitoring
-pynomaly perf report --format html       # Generate performance reports
-
-# Start web interface (if web features installed)
-pynomaly server start --port 8000
+# Development tools
+pynomaly dev validate     # Validate repository structure
+pynomaly dev analyze      # Run analysis tools
+pynomaly dev test         # Run test suites
 ```
 
-**Note**: Some CLI commands are experimental. Use `--help` with each command to see current options and availability.
-
-### Python API
+### Python API Examples
 
 ```python
-import pandas as pd
-import numpy as np
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+# Example: Using core domain patterns
+from src.packages.core.domain.entities import BaseEntity
+from src.packages.core.domain.value_objects import Identifier
+from src.packages.core.application.use_cases import BaseUseCase
 
-# Basic usage example with Pynomaly's SklearnAdapter
-def basic_example():
-    # Create sample data with outliers
-    np.random.seed(42)
-    normal_data = np.random.normal(0, 1, (100, 2))
-    outliers = np.random.uniform(-4, 4, (10, 2))
-    data = np.vstack([normal_data, outliers])
+# Example: Infrastructure patterns
+from src.packages.infrastructure.persistence import Repository
+from src.packages.infrastructure.monitoring import MetricsCollector
+from src.packages.infrastructure.config import ConfigurationManager
 
-    # Create dataset
-    df = pd.DataFrame(data, columns=['feature1', 'feature2'])
-    dataset = Dataset(name="Sample Data", data=df)
+# Example: Working with the data platform
+from src.packages.data_platform.domain.entities import Dataset
+from src.packages.data_platform.application.services import DataQualityService
+from src.packages.data_platform.infrastructure.adapters import DatabaseAdapter
 
-    # Create detector using Pynomaly's clean architecture
-    detector = SklearnAdapter(
-        algorithm_name="IsolationForest",
-        name="Basic Detector",
-        contamination_rate=ContaminationRate(0.1),
-        random_state=42,
-        n_estimators=100
-    )
+# Example: Enterprise patterns
+from src.packages.enterprise.domain.entities import Tenant
+from src.packages.enterprise.application.services import GovernanceService
+from src.packages.people_ops.domain.entities import User
 
-    # Train detector
-    detector.fit(dataset)
+def demonstrate_architecture():
+    """Demonstrate clean architecture patterns."""
+    
+    # Repository pattern example
+    repository = Repository()
+    
+    # Use case orchestration
+    use_case = BaseUseCase(repository)
+    
+    # Metrics collection
+    metrics = MetricsCollector()
+    metrics.record_event("example_executed")
+    
+    print("Clean architecture patterns demonstrated successfully!")
 
-    # Detect anomalies
-    result = detector.detect(dataset)
-
-    # Results
-    anomaly_count = len(result.anomalies)
-    scores = [score.value for score in result.scores]
-    print(f"Detected {anomaly_count} anomalies out of {len(data)} samples")
-    print(f"Anomaly scores range: {min(scores):.3f} to {max(scores):.3f}")
-    print(f"Detection completed in {result.execution_time_ms:.2f}ms")
-
-    return result.labels, scores
-
-# Run example
 if __name__ == "__main__":
-    predictions, scores = basic_example()
-    print("Example completed successfully!")
+    demonstrate_architecture()
 ```
 
-### Web API & Interface
+### Web Interface & API
 
-Access the API and Progressive Web App at <http://localhost:8000> after starting the server.
-
-**📚 Complete Setup Guide**: See [docs/developer-guides/api-integration/WEB_API_SETUP_GUIDE.md](docs/developer-guides/api-integration/WEB_API_SETUP_GUIDE.md) for detailed instructions across all environments.
-
-**⚡ Quick Reference**: See [docs/developer-guides/api-integration/API_QUICK_REFERENCE.md](docs/developer-guides/api-integration/API_QUICK_REFERENCE.md) for commands and endpoints.
-
-- **Real-time Dashboard**: Live anomaly detection with WebSocket updates
-- **Interactive Visualizations**: D3.js custom charts and Apache ECharts statistical plots
-- **Offline Capability**: Service worker enables offline operation and data caching
-- **Installable PWA**: Install on desktop and mobile devices like a native app
-- **HTMX Simplicity**: Server-side rendering with minimal JavaScript complexity
-- **Modern UI**: Tailwind CSS for responsive, accessible design
-- **Experiment Tracking**: Compare models, track performance metrics, A/B testing
-- **Dataset Analysis**: Data quality reports, drift detection, feature importance
-
-## Data Export & Reporting 📊
-
-Pynomaly provides comprehensive data export capabilities for analysis and reporting:
-
-### Supported Export Formats
-
-- **Excel**: Advanced formatting with charts and multiple worksheets
-- **CSV**: Standard comma-separated values format
-- **JSON**: Structured data with metadata and annotations
-- **Parquet**: Efficient columnar storage for large datasets
-
-### Export Features
-
-- **Rich Formatting**: Conditional formatting, charts, and visual highlighting
-- **Metadata Inclusion**: Algorithm parameters, detection settings, timestamps
-- **Batch Processing**: Efficient handling of large result sets
-- **Custom Templates**: Configurable output formats and layouts
-
-### CLI Usage
+If web interfaces are available, access them after starting the development server:
 
 ```bash
-# List available export formats
-pynomaly export list-formats
+# Start development server (if available)
+uvicorn src.packages.interfaces.api.app:app --reload --port 8000
 
-# Export to Excel with formatting
-pynomaly export results.json report.xlsx --format excel --include-charts
-
-# Export to multiple formats
-pynomaly export results.json output --formats csv json excel
+# Access interfaces
+# API Documentation: http://localhost:8000/docs
+# Web Interface: http://localhost:8000/app
+# Health Check: http://localhost:8000/health
 ```
 
-### Python API
+**Features** (when implemented):
+- **RESTful API**: Clean API design with OpenAPI documentation
+- **Web Interface**: Modern UI with responsive design
+- **Real-time Updates**: WebSocket support for live data
+- **Progressive Web App**: Offline capability and installable interface
 
-```python
-from pynomaly.application.services.export_service import ExportService
+## 🏗️ Architecture Overview
 
-# Initialize export service
-export_service = ExportService()
-
-# Export with custom formatting
-result = export_service.export_results(
-    detection_results,
-    "anomaly_report.xlsx",
-    include_charts=True,
-    highlight_anomalies=True
-)
-```
-
-*Note: Advanced business intelligence integrations (Power BI, Google Sheets, Smartsheet) are planned for future releases.*
-
-## Architecture
-
-Pynomaly follows **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Hexagonal Architecture (Ports & Adapters)**:
+This monorepo implements **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Hexagonal Architecture (Ports & Adapters)** across all packages:
 
 ```
-src/pynomaly/
-├── domain/          # Pure business logic (no external dependencies)
-│   ├── entities/    # Anomaly, Detector, Dataset, DetectionResult, Model, Experiment
-│   ├── value_objects/ # ContaminationRate, ConfidenceInterval, AnomalyScore
-│   ├── services/    # Core detection logic, scoring algorithms
-│   └── exceptions/  # Domain-specific exception hierarchy
-├── application/     # Orchestrate use cases without implementation details
-│   ├── use_cases/   # DetectAnomalies, TrainDetector, EvaluateModel, ExplainAnomaly
-│   ├── services/    # DetectionService, EnsembleService, ModelPersistenceService, AutoMLService
-│   └── dto/         # Data transfer objects and request/response models
-├── infrastructure/  # All external integrations and adapters
-│   ├── adapters/    # PyODAdapter, PyGODAdapter, SklearnAdapter, TimeSeriesAdapter
-│   ├── persistence/ # ModelRepository, ResultRepository, data sources
-│   ├── config/      # Dependency injection container, settings
-│   └── monitoring/  # Prometheus metrics, health checks, observability
-└── presentation/    # User interfaces and external APIs
-    ├── api/         # FastAPI REST endpoints with async support
-    ├── cli/         # Typer CLI with rich formatting
-    └── web/         # Progressive Web App
-        ├── static/  # CSS, JS, PWA assets (Tailwind, D3.js, ECharts)
-        ├── templates/ # HTMX server-rendered templates
-        └── assets/  # PWA manifest, service worker, icons
+src/packages/{package_name}/
+├── domain/              # Pure business logic (no external dependencies)
+│   ├── entities/        # Business entities and aggregate roots
+│   ├── value_objects/   # Immutable value objects
+│   ├── services/        # Domain services and business rules
+│   ├── repositories/    # Repository interfaces (not implementations)
+│   └── exceptions/      # Domain-specific exception hierarchy
+├── application/         # Orchestrate use cases without implementation details
+│   ├── use_cases/       # Application use cases and workflows
+│   ├── services/        # Application services
+│   ├── dto/             # Data transfer objects
+│   └── ports/           # Output port interfaces
+├── infrastructure/      # All external integrations and adapters
+│   ├── adapters/        # External service adapters (databases, APIs, etc.)
+│   ├── persistence/     # Repository implementations
+│   ├── config/          # Configuration and dependency injection
+│   └── monitoring/      # Observability and health checks
+└── presentation/        # User interfaces and external APIs
+    ├── api/             # REST API controllers
+    ├── cli/             # Command-line interface
+    ├── web/             # Web interface (if applicable)
+    └── serializers/     # Data serialization/deserialization
 ```
 
-### Design Patterns
+### Design Patterns Implemented
 
-- **Repository Pattern**: Clean data access abstraction
-- **Factory Pattern**: Algorithm instantiation and configuration
-- **Strategy Pattern**: Pluggable detection algorithms
-- **Observer Pattern**: Real-time detection notifications
-- **Decorator Pattern**: Feature engineering pipeline
-- **Chain of Responsibility**: Data preprocessing and validation
+- **Repository Pattern**: Clean data access abstraction across all packages
+- **Factory Pattern**: Object creation and configuration management
+- **Strategy Pattern**: Pluggable algorithm and service implementations
+- **Observer Pattern**: Event-driven architecture and notifications
+- **Decorator Pattern**: Cross-cutting concerns and middleware
+- **Chain of Responsibility**: Request processing and validation pipelines
+- **Dependency Injection**: IoC container for loose coupling
+- **CQRS**: Command Query Responsibility Segregation where applicable
 
-## Supported Algorithm Libraries
+### Key Architectural Principles
 
-### PyOD (Python Outlier Detection)
+- **Separation of Concerns**: Clear boundaries between layers
+- **Dependency Inversion**: High-level modules don't depend on low-level modules
+- **Single Responsibility**: Each class has one reason to change
+- **Open/Closed Principle**: Open for extension, closed for modification
+- **Interface Segregation**: Many specific interfaces are better than one general-purpose interface
+- **Domain-Driven Design**: Rich domain models with ubiquitous language
 
-- **Statistical**: Isolation Forest, Local Outlier Factor, One-Class SVM, MCD, PCA
-- **Probabilistic**: GMM, COPOD, ECOD, Histogram-based, Sampling
-- **Linear**: PCA, Kernel PCA, Robust Covariance, Feature Bagging
-- **Proximity**: k-NN, Radius-based, Connectivity-based (COF), CBLOF
-- **Neural Networks**: AutoEncoder, VAE, Deep SVDD, SO-GAAL, MO-GAAL
+## 🛠️ Technology Stack
 
-### Time Series Algorithms (Custom Implementation)
+### Core Technologies
+- **Python 3.11+**: Latest Python features and performance improvements
+- **Hatch**: Modern Python build system and environment management
+- **Ruff**: Fast Python linter and formatter
+- **MyPy**: Static type checking with strict mode
+- **Pytest**: Comprehensive testing framework
 
-- **Statistical**: Rolling statistics, percentile-based detection
-- **Decomposition**: Seasonal decomposition with trend analysis
-- **Change Point**: Statistical tests for abrupt changes
+### Development Tools
+- **Pre-commit**: Git hooks for code quality
+- **Bandit**: Security vulnerability scanning
+- **Safety**: Dependency vulnerability checking
+- **GitHub Actions**: CI/CD pipeline automation
 
-### PyGOD (Python Graph Outlier Detection)
+## 💻 Development Workflow
 
-- **Node-level**: Anomalous node detection in graphs
-- **Edge-level**: Anomalous edge and subgraph detection  
-- **Graph-level**: Anomalous graph classification
-- **Deep Learning**: Graph neural networks, graph autoencoders
-
-### Scikit-learn Integration
-
-- **Ensemble**: Isolation Forest, One-Class SVM
-- **Neighbors**: Local Outlier Factor, Novelty detection
-- **Clustering**: DBSCAN outliers, Gaussian Mixture
-- **Covariance**: Elliptic Envelope, Robust Covariance
-
-### Deep Learning Frameworks
-
-- **PyTorch**: Custom neural architectures, GPU acceleration
-- **TensorFlow**: Distributed training, TensorBoard integration
-- **JAX**: High-performance computing, automatic differentiation
-
-### Multi-Modal Detection
-
-- **Tabular Data**: Traditional ML and statistical methods
-- **Time Series**: Seasonal decomposition, LSTM, Transformers  
-- **Graph Data**: GNN-based detection, network analysis
-- **Text Data**: NLP-based anomaly detection, embedding methods
-
-Run `pynomaly detector algorithms` to see all available algorithms with their parameters and performance characteristics.
-
-## Development
-
-### Development Setup
+### Initial Setup
 
 ```bash
 # Clone and setup development environment
@@ -604,10 +530,10 @@ cd pynomaly
 # Create development environment
 python -m venv environments/.venv
 source environments/.venv/bin/activate  # Linux/macOS
-# or environments\.venv\Scripts\activate  # Windows
+# environments\.venv\Scripts\activate    # Windows
 
 # Install development dependencies
-pip install -e ".[dev,test]"
+pip install -e ".[dev,test,lint]"
 
 # Install pre-commit hooks for code quality
 pre-commit install
@@ -616,149 +542,81 @@ pre-commit install
 python -c "import pynomaly; print('Setup successful')"
 ```
 
-#### Repository Organization
-
-The repository includes automated governance to maintain organization:
+### Daily Development
 
 ```bash
-# Run structure validation
-python3 scripts/governance/package_structure_enforcer.py
-
-# Check for build artifacts
-python3 scripts/governance/build_artifacts_checker.py
-
-# Validate root directory organization  
-python3 scripts/governance/root_directory_checker.py
-
-# Auto-fix common issues
-python3 scripts/governance/package_structure_enforcer.py --fix
-python3 scripts/governance/root_directory_checker.py --fix
-```
-
-#### Code Quality & Testing
-
-```bash
-# Run tests
-pytest tests/                    # Run all tests
-pytest tests/unit/               # Unit tests only
-pytest tests/integration/        # Integration tests only
-pytest --cov=src/pynomaly       # Test coverage
+# Repository governance
+python scripts/governance/package_structure_enforcer.py  # Validate structure
+python scripts/governance/build_artifacts_checker.py     # Check artifacts
+python scripts/governance/root_directory_checker.py      # Check organization
 
 # Code quality
-ruff check src/                  # Linting (actively maintained, ~9K issues resolved)
-ruff format src/                 # Auto-formatting
-mypy src/pynomaly               # Type checking (strict mode enabled)
-hatch run lint:all              # Run all quality checks
+ruff check src/                    # Fast linting
+ruff format src/                   # Auto-formatting  
+mypy src/packages/                 # Type checking
+pytest tests/ --cov=src/packages/ # Run tests with coverage
 
-# Build package
-python -m build                  # Build distribution
+# Security checks
+bandit -r src/                     # Security scan
+safety check                      # Dependency vulnerabilities
 ```
 
-#### Web Development
+### Package Development
 
 ```bash
-# Start development server
-uvicorn pynomaly.presentation.api.app:app --reload --port 8000
+# Work on specific packages
+cd src/packages/core/
+pytest tests/                     # Run package tests
+ruff check .                      # Check package code quality
 
-# Access the application
-# API Documentation: http://localhost:8000/docs
-# Web Interface: http://localhost:8000/app
+# Create new packages
+python scripts/templates/create_package.py --name new_package --domain business
 ```
 
-#### Testing Framework
-
-Pynomaly includes comprehensive testing:
+### Testing Strategy
 
 ```bash
-# Run different test suites
-pytest tests/unit/              # Fast unit tests
-pytest tests/integration/       # Integration tests
-pytest tests/e2e/              # End-to-end tests (if available)
-
-# Coverage reporting
-pytest --cov=src/pynomaly --cov-report=html
-
-# Test specific areas
-pytest tests/unit/domain/       # Domain layer tests
-pytest tests/unit/application/  # Application layer tests
+# Multi-layered testing approach
+pytest tests/unit/                          # Fast unit tests
+pytest tests/integration/                   # Integration tests
+pytest src/packages/*/tests/                # Package-specific tests
+pytest --cov=src/packages/ --cov-report=html # Coverage analysis
 ```
 
-**Testing Status**: Comprehensive test suite with **82.5% line coverage**, **88.1% function coverage**, and **91.3% class coverage**. Test suite includes 324 test files covering unit, integration, performance, and security testing.
+## 🤝 Contributing
 
-### Web API & CLI
+We welcome contributions to this monorepo! This repository serves as an example of enterprise-ready software engineering practices.
 
-```bash
-# API Server
-make prod-api-dev       # Development server with reload
-uvicorn pynomaly.presentation.api.app:app --reload
+### How to Contribute
 
-# Endpoints
-# http://localhost:8000/docs - Interactive docs
-# http://localhost:8000/app - Progressive Web App
+1. **Fork the repository** and create a feature branch
+2. **Follow the existing patterns** and architecture principles
+3. **Maintain code quality** with comprehensive tests and documentation
+4. **Run all governance checks** before submitting
+5. **Submit a pull request** with a clear description
 
-# Frontend
-npm install htmx.org d3 echarts tailwindcss
-npm run build-css
-```
+### Areas for Contribution
 
-## Development Status
+- **New packages**: Implement additional domain packages following clean architecture
+- **Infrastructure improvements**: Enhance monitoring, deployment, or CI/CD
+- **Documentation**: Improve guides, tutorials, and architectural documentation
+- **Testing**: Increase test coverage and add performance benchmarks
+- **Tooling**: Improve development tools and automation scripts
 
-**Pynomaly is actively developed with the following implementation status:**
+### Development Standards
 
-### ✅ Stable Features
+- Follow clean architecture and DDD principles
+- Maintain high test coverage (aim for 85%+)
+- Use type hints and pass mypy strict mode
+- Follow repository governance rules
+- Document all public APIs and architectural decisions
 
-- **Core anomaly detection**: PyOD integration with 40+ algorithms
-- **Basic web interface**: HTMX-based UI with Tailwind CSS
-- **CLI tools**: Basic dataset and detector management
-- **Clean architecture**: Domain-driven design implementation
-- **API foundation**: FastAPI with 65+ endpoints
+For detailed guidelines, see [CONTRIBUTING.md](docs/developer-guides/contributing/CONTRIBUTING.md).
 
-### ⚠️ Beta Features
-
-- **Authentication**: JWT framework (requires configuration)
-- **Monitoring**: Prometheus metrics (optional)
-- **Export functionality**: CSV/JSON export
-- **Ensemble methods**: Advanced voting strategies
-
-### 🚧 Experimental Features (Limited/Placeholder Implementations)
-
-- **AutoML**: Framework exists, requires optuna + ML expertise
-- **Deep Learning**: PyTorch adapter advanced, TensorFlow/JAX minimal
-- **Explainability**: Service architecture exists, most methods return mock data
-- **PWA features**: Basic Progressive Web App, offline functionality limited
-
-### ❌ Not Implemented (Despite Some Documentation Claims)
-
-- **Graph anomaly detection**: PyGOD integration not functional
-- **Real-time streaming**: Framework classes exist, no actual streaming
-- **Advanced BI export**: Basic CSV/JSON works, formatting/BI integrations placeholder
-- **Enterprise security**: Basic JWT only, no LDAP/SAML integration
-- **Advanced visualization**: Basic charts work, complex D3.js components limited
-
-See [CHANGELOG.md](CHANGELOG.md) for detailed progress and [TODO.md](docs/project/TODO.md) for planned features.
-
-## Important Notes
-
-- **Feature Accuracy**: This README contains historical feature descriptions. For accurate implementation status, **always consult** the [Feature Implementation Status Guide](docs/reference/FEATURE_IMPLEMENTATION_STATUS.md)
-- **Optional Dependencies**: Many advanced features require additional packages and may be placeholders (`pip install shap lime torch tensorflow`)
-- **Configuration Required**: Most "advanced" features need manual setup, additional dependencies, or ML expertise
-- **Platform Support**: Core features tested on Linux/macOS/Windows with Python 3.11+
-- **Production Use**: Only [Core Features](#core-features-stable) and [Advanced Features (Production Ready)](#advanced-features-production-ready) are recommended for production
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](docs/developer-guides/contributing/CONTRIBUTING.md) for details.
-
-### Open Feature Gaps
-
-The following features are planned but currently not implemented or incomplete:
-
-- **Audit Storage:** Methods in `AuditStorage` class for storing, retrieving, and deleting events.
-- **ONNX Model Support:** The `save_model` method in `ModelPersistenceService` currently raises NotImplementedError for the 'onnx' format.
-- **Deep Learning Models:** Some methods in `PyTorchAdapter` require implementation for specific neural network architectures.
-
-Feel free to pick any feature from this list to contribute or suggest your own improvements!
-
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Note**: This monorepo demonstrates enterprise software engineering practices. The specific domain implementations (anomaly detection, etc.) serve as examples of how to structure complex business logic using clean architecture principles.

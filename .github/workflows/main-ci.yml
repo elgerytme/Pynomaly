@@ -57,6 +57,22 @@ jobs:
         python -m pip install --upgrade pip
         pip install hatch==${{ env.HATCH_VERSION }}
 
+    # ARCHITECTURE VALIDATION
+    - name: Domain boundary validation
+      run: |
+        echo "::group::Domain Boundary Validation"
+        echo "🔍 Checking domain boundaries..."
+        python3 src/packages/simple_domain_check.py
+        
+        # Fail if violations found
+        if [ $? -ne 0 ]; then
+          echo "❌ Domain boundary violations detected!"
+          exit 1
+        fi
+        
+        echo "✅ Domain boundaries validated successfully"
+        echo "::endgroup::"
+
     # QUALITY CHECKS
     - name: Project structure validation
       run: |

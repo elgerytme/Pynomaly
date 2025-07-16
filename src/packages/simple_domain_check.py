@@ -18,7 +18,7 @@ def find_cross_domain_imports(packages_root: str):
         "infrastructure": ["core", "interfaces"],
         "services": ["core", "interfaces", "infrastructure"],
         "mobile": ["interfaces"],
-        "data-platform": ["interfaces"],
+        "data_platform": ["interfaces"],
         "enterprise": ["interfaces"],
         "integration": ["interfaces"],
         "algorithms": ["core", "interfaces"],
@@ -47,7 +47,7 @@ def find_cross_domain_imports(packages_root: str):
                     r'from\s+(services)\..*?import',
                     r'from\s+(infrastructure)\..*?import',
                     r'from\s+(mobile)\..*?import',
-                    r'from\s+(data-platform)\..*?import',
+                    r'from\s+(data_platform)\..*?import',
                     r'from\s+(enterprise)\..*?import',
                     r'from\s+(integration)\..*?import',
                     r'from\s+(algorithms)\..*?import',
@@ -90,7 +90,7 @@ def main():
     print(f"\n🔧 FIXES APPLIED:")
     print("  - Created interfaces package for cross-domain communication")
     print("  - Fixed mobile package to use interfaces instead of direct imports")
-    print("  - Created adapters for data-platform package")
+    print("  - Created adapters for data_platform package")
     print("  - Split anomaly_detection monolith into proper layers")
     print("  - Moved core domain logic to core package")
     print("  - Moved infrastructure components to infrastructure package")
