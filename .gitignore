@@ -479,6 +479,17 @@ scripts/automation/
 temp_*/
 temporary/
 scratch_*/
+**/tmp/
+**/temp/
+**/.tmp/
+**/.temp/
+**/cache/
+**/.cache/
+**/working/
+**/scratch/
+**/debug_output/
+**/test_output/
+**/output/
 
 # Windows system files (stray files like these should never be in repo)
 */system32/*
@@ -493,3 +504,77 @@ scratch_*/
 # Organizational enforcement - only these directories allowed in root:
 # .claude, .github, .hypothesis, .project-rules, .ruff_cache, .storybook, .vscode
 # docs, pkg, scripts, src
+
+# Enhanced Temporary File Patterns
+# =================================
+# Development and debugging files
+**/debug/
+**/debugging/
+**/dev_temp/
+**/development/
+**/playground/
+**/sandbox/
+**/experiments/
+**/prototypes/
+**/draft/
+**/drafts/
+
+# Editor temporary files
+**/*~
+**/*.swp
+**/*.swo
+**/*.tmp
+**/#*#
+**/.#*
+**/.*~
+
+# Runtime and process files
+**/run/
+**/runtime/
+**/pid/
+**/*.pid
+**/*.lock
+**/*.lockfile
+
+# Build and compilation artifacts
+**/build_temp/
+**/build_cache/
+**/compilation/
+**/generated/
+**/auto_generated/
+**/autogen/
+
+# Testing artifacts
+**/test_temp/
+**/test_cache/
+**/test_working/
+**/test_artifacts/
+**/coverage_temp/
+**/mutation_temp/
+**/benchmark_temp/
+
+# Development workflows
+**/workflow_temp/
+**/pipeline_temp/
+**/job_temp/
+**/stage_temp/
+
+# Memory and performance profiling
+**/profiling/
+**/memory_dumps/
+**/heap_dumps/
+**/performance_logs/
+**/*.memprof
+**/*.prof.tmp
+
+# Logs and monitoring
+**/logs_temp/
+**/monitoring_temp/
+**/metrics_temp/
+**/traces_temp/
+
+# Configuration and state
+**/state/
+**/config_temp/
+**/settings_temp/
+**/backup_temp/
