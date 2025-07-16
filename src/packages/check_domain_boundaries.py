@@ -2,7 +2,7 @@
 """Script to check domain boundaries and generate report."""
 
 import json
-from infrastructure.quality.domain_boundary_validator import DomainBoundaryValidator
+from ops.infrastructure.quality.domain_boundary_validator import DomainBoundaryValidator
 
 
 def main():

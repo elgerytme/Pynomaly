@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 from decimal import Decimal
 
-from core.domain.abstractions.base_value_object import BaseValueObject
+from software.core.domain.abstractions.base_value_object import BaseValueObject
 
 
 @dataclass(frozen=True)

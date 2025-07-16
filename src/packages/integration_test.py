@@ -8,7 +8,7 @@ def test_infrastructure_integration():
     """Test infrastructure package integration."""
     try:
         sys.path.insert(0, str(Path(__file__).parent / "infrastructure"))
-        from infrastructure.data_loaders.enhanced_data_loader_factory import EnhancedDataLoaderFactory
+        from ops.infrastructure.data_loaders.enhanced_data_loader_factory import EnhancedDataLoaderFactory
         
         factory = EnhancedDataLoaderFactory(enable_auto_preprocessing=False)
         print("✓ Infrastructure integration: PASSED")

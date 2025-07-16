@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 from textwrap import dedent
 
-from pynomaly.infrastructure.quality.quality_gates import (
+from pynomaly.ops.infrastructure.quality.quality_gates import (
     QualityGateReport,
     QualityGateResult,
     QualityGateType,
