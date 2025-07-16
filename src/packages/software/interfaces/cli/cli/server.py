@@ -10,7 +10,7 @@ import sys
 import typer
 from rich.console import Console
 
-from monorepo.presentation.cli.container import get_cli_container
+from interfaces.presentation.cli.container import get_cli_container
 
 app = typer.Typer()
 console = Console()

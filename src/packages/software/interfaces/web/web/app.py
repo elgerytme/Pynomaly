@@ -11,7 +11,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from monorepo.infrastructure.config import Container
+from interfaces.infrastructure.config import Container
 
 from .csrf import add_csrf_to_context
 from .security.security_monitor import setup_security_monitoring
@@ -21,7 +21,7 @@ from .security.security_monitor import setup_security_monitoring
 def get_container() -> Container:
     """Get dependency injection container."""
     # Import locally to avoid circular import
-    from monorepo.infrastructure.config import create_container
+    from interfaces.infrastructure.config import create_container
 
     return create_container()
 
@@ -174,8 +174,8 @@ async def login_post(
         return RedirectResponse(url="/", status_code=302)
 
     try:
-        from monorepo.domain.exceptions import AuthenticationError
-        from monorepo.infrastructure.auth import get_auth
+        from interfaces.domain.exceptions import AuthenticationError
+        from interfaces.infrastructure.auth import get_auth
 
         auth_service = get_auth()
         if not auth_service:
@@ -577,7 +577,7 @@ async def users_page(
         return RedirectResponse(url="/login", status_code=302)
 
     # Check admin permissions
-    from monorepo.infrastructure.auth import get_auth
+    from interfaces.infrastructure.auth import get_auth
 
     auth_service = get_auth()
     if not auth_service:
@@ -636,7 +636,7 @@ async def htmx_detector_create(
     request: Request, container: Container = Depends(get_container)
 ):
     """HTMX endpoint for creating detector."""
-    from monorepo.domain.entities import Detector
+    from interfaces.domain.entities import Detector
 
     # Get form data
     form_data = await request.form()
@@ -713,7 +713,7 @@ async def htmx_train_detector(
     """HTMX endpoint for training detector."""
     from uuid import UUID
 
-    from monorepo.application.use_cases import TrainDetectorRequest
+    from interfaces.application.use_cases import TrainDetectorRequest
 
     # Get form data
     form_data = await request.form()
@@ -762,7 +762,7 @@ async def htmx_detect_anomalies(
     """HTMX endpoint for anomaly detection."""
     from uuid import UUID
 
-    from monorepo.application.use_cases import DetectAnomaliesRequest
+    from interfaces.application.use_cases import DetectAnomaliesRequest
 
     # Get form data
     form_data = await request.form()
@@ -1804,11 +1804,11 @@ async def htmx_bulk_export(
 def mount_web_ui(app):
     """Mount web UI to FastAPI app."""
     # Initialize error handling
-    from monorepo.presentation.web.error_handling import (
+    from interfaces.presentation.web.error_handling import (
         ErrorHandlingMiddleware,
         get_web_ui_logger,
     )
-    from monorepo.presentation.web.error_monitoring import (
+    from interfaces.presentation.web.error_monitoring import (
         start_error_monitoring,
     )
 
@@ -1816,7 +1816,7 @@ def mount_web_ui(app):
     app.add_middleware(ErrorHandlingMiddleware, logger=logger)
 
     # Initialize security features
-    from monorepo.presentation.web.security_features import (
+    from interfaces.presentation.web.security_features import (
         SecurityMiddleware,
         get_rate_limiter,
         get_waf,
@@ -1828,7 +1828,7 @@ def mount_web_ui(app):
 
     # Setup comprehensive security monitoring
     try:
-        from monorepo.presentation.web.security.security_monitor import setup_security_monitoring
+        from interfaces.presentation.web.security.security_monitor import setup_security_monitoring
         setup_security_monitoring(
             app,
             config={

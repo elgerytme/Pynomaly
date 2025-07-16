@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 
-from monorepo.infrastructure.config.settings import Settings
+from interfaces.infrastructure.config.settings import Settings
 
 
 class OpenAPIConfig:
@@ -154,13 +154,13 @@ The API uses standard HTTP status codes and returns detailed error messages:
         elif environment == "staging":
             servers.append(
                 {
-                    "url": "https://staging-api.monorepo.io",
+                    "url": "https://staging-api.example.com",
                     "description": "Staging server",
                 }
             )
         elif environment == "production":
             servers.append(
-                {"url": "https://api.monorepo.io", "description": "Production server"}
+                {"url": "https://api.example.com", "description": "Production server"}
             )
 
         return servers
@@ -172,13 +172,13 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "contact": {
                     "name": "Pynomaly Team",
                     "url": "https://github.com/pynomaly/pynomaly",
-                    "email": "team@monorepo.io",
+                    "email": "team@example.com",
                 },
                 "license": {
                     "name": "MIT",
                     "url": "https://github.com/pynomaly/pynomaly/blob/main/LICENSE",
                 },
-                "termsOfService": "https://monorepo.io/terms",
+                "termsOfService": "https://example.com/terms",
                 "x-logo": {
                     "url": "/static/img/pynomaly-logo.png",
                     "altText": "Pynomaly Logo",

@@ -1,5 +1,13 @@
 """Generic detector management CLI commands."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import typer
@@ -7,10 +15,10 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from monorepo.domain.entities import GenericDetector
-from monorepo.presentation.cli.container import get_cli_container
-from monorepo.presentation.cli.help_formatter import get_option_help, get_standard_help
-from monorepo.presentation.cli.ux_improvements import CLIErrorHandler, CLIHelpers
+from interfaces.domain.entities import GenericDetector
+from interfaces.presentation.cli.container import get_cli_container
+from interfaces.presentation.cli.help_formatter import get_option_help, get_standard_help
+from interfaces.presentation.cli.ux_improvements import CLIErrorHandler, CLIHelpers
 
 # Get standardized help for this command group
 _help_info = get_standard_help("detector")
@@ -392,7 +400,7 @@ def delete_detector(
 @app.command("examples")
 def show_examples():
     """Show common detector usage examples with rich formatting."""
-    from monorepo.presentation.cli.help_formatter import format_rich_help
+    from interfaces.presentation.cli.help_formatter import format_rich_help
 
     examples = [
         "pynomaly detector create --name fraud_detector --algorithm IsolationForest",

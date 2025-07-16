@@ -1,5 +1,13 @@
 """CLI commands for deep learning anomaly detection."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import asyncio
@@ -16,14 +24,14 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 # Application imports
-from monorepo.application.services.deep_learning_integration_service import (
+from interfaces.application.services.deep_learning_integration_service import (
     DeepLearningIntegrationService,
     DLOptimizationConfig,
 )
 
 # Domain imports
-from monorepo.domain.entities import Dataset
-from monorepo.infrastructure.config.feature_flags import require_feature
+from interfaces.domain.entities import Dataset
+from interfaces.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
 from monorepo.infrastructure.data_loaders import CSVLoader, ParquetLoader

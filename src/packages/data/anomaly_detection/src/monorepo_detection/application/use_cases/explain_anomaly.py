@@ -9,8 +9,8 @@ from uuid import UUID
 import numpy as np
 import pandas as pd
 
-from monorepo.domain.entities import Dataset
-from monorepo.shared.protocols import (
+from monorepo_detection.domain.entities import Dataset
+from monorepo_detection.shared.protocols import (
     DetectorRepositoryProtocol,
     ExplainableDetectorProtocol,
 )

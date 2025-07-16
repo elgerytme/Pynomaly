@@ -8,11 +8,11 @@ import os
 USE_FAST_CONTAINER = os.getenv("PYNOMALY_USE_FAST_CLI", "true").lower() == "true"
 
 if USE_FAST_CONTAINER:
-    from monorepo.presentation.cli.fast_container import get_fast_cli_container
+    from interfaces.presentation.cli.fast_container import get_fast_cli_container
 
     get_cli_container = get_fast_cli_container
 else:
-    from monorepo.infrastructure.config import create_container
+    from interfaces.infrastructure.config import create_container
 
     # Store container globally for CLI
     _container = None

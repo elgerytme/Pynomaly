@@ -6,7 +6,7 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 
-from monorepo.application.dto.explainability_dto import (
+from interfaces.application.dto.explainability_dto import (
     CohortExplanationDTO,
     CompareMethodsRequestDTO,
     ExplainCohortRequestDTO,
@@ -16,15 +16,15 @@ from monorepo.application.dto.explainability_dto import (
     GlobalExplanationDTO,
     LocalExplanationDTO,
 )
-from monorepo.application.use_cases.explainability_use_case import (
+from interfaces.application.use_cases.explainability_use_case import (
     CompareExplanationsRequest,
     ExplainCohortRequest,
     ExplainModelRequest,
     ExplainPredictionRequest,
 )
-from monorepo.domain.services.explainability_service import ExplanationMethod
-from monorepo.infrastructure.config import Container
-from monorepo.presentation.api.deps import (
+from interfaces.domain.services.explainability_service import ExplanationMethod
+from interfaces.infrastructure.config import Container
+from interfaces.presentation.api.deps import (
     get_container,
     get_current_user,
     require_read,

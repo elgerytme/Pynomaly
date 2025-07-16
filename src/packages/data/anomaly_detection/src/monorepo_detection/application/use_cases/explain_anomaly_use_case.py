@@ -6,11 +6,11 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from monorepo.application.services.explainability_service import (
+from monorepo_detection.application.services.explainability_service import (
     ApplicationExplainabilityService,
     ExplanationRequest,
 )
-from monorepo.domain.services.explainability_service import ExplanationMethod
+from monorepo_detection.domain.services.explainability_service import ExplanationMethod
 
 logger = logging.getLogger(__name__)
 

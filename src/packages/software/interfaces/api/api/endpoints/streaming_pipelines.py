@@ -1,16 +1,24 @@
 """REST API endpoints for streaming pipeline management."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from typing import Any
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
-from monorepo.application.services.streaming_pipeline_manager import (
+from interfaces.application.services.streaming_pipeline_manager import (
     StreamingPipelineManager,
 )
 from monorepo.infrastructure.streaming.real_time_anomaly_pipeline import AlertSeverity
-from monorepo.presentation.api.deps import (
+from interfaces.presentation.api.deps import (
     get_current_user,
     get_streaming_pipeline_manager,
     require_write,

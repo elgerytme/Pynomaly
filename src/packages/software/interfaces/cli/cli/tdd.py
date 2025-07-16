@@ -1,5 +1,13 @@
 """TDD CLI commands for managing test-driven development workflow."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import json
@@ -12,7 +20,7 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from monorepo.infrastructure.config.tdd_config import TDDSettings, get_tdd_config
+from interfaces.infrastructure.config.tdd_config import TDDSettings, get_tdd_config
 from monorepo.infrastructure.persistence.tdd_repository import FileTDDRepository
 from monorepo.infrastructure.tdd.enforcement import TDDEnforcementEngine
 from monorepo.infrastructure.tdd.git_hooks import GitHookManager, PreCommitConfig

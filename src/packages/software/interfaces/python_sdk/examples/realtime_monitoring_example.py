@@ -7,6 +7,14 @@ This example demonstrates real-time anomaly detection monitoring
 with streaming data simulation and performance tracking.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import sys
 from pathlib import Path
 
@@ -21,8 +29,8 @@ from queue import Empty, Queue
 import numpy as np
 import pandas as pd
 
-from monorepo.domain.entities import Dataset
-from monorepo.domain.value_objects import ContaminationRate
+from interfaces.domain.entities import Dataset
+from interfaces.domain.value_objects import ContaminationRate
 from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 

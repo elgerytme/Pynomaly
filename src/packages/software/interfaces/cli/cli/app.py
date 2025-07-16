@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 # Import error handling utilities
-from monorepo.shared.error_handling import (
+from interfaces.shared.error_handling import (
     handle_cli_errors,
     print_error,
     print_success,

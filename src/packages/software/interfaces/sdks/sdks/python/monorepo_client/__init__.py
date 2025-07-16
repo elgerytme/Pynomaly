@@ -21,7 +21,7 @@ Example Usage:
     async def main():
         # Initialize client
         client = PynomaliClient(
-            base_url="https://api.monorepo.com",
+            base_url="https://api.example.com",
             api_key="your-api-key"
         )
 
@@ -45,7 +45,7 @@ Example Usage:
 
 __version__ = "1.0.0"
 __author__ = "Pynomaly Team"
-__email__ = "support@monorepo.com"
+__email__ = "support@example.com"
 __license__ = "MIT"
 
 from .client import AsyncPynomaliClient, PynomaliClient

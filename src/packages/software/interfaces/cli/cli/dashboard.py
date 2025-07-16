@@ -12,12 +12,12 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from monorepo.application.services.visualization_dashboard_service import (
+from interfaces.application.services.visualization_dashboard_service import (
     DashboardType,
     RealTimeMetrics,
     VisualizationDashboardService,
 )
-from monorepo.infrastructure.config.container import Container
+from interfaces.infrastructure.config.container import Container
 
 console = Console()
 

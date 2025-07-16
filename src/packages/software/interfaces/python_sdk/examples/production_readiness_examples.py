@@ -1,5 +1,13 @@
 """Production readiness examples and usage patterns for Pynomaly."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import asyncio
 
 from monorepo.infrastructure.production import (

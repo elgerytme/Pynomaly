@@ -5,21 +5,21 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel
 
-from monorepo.infrastructure.auth import (
+from interfaces.infrastructure.auth import (
     UserModel,
     require_super_admin,
     require_tenant_admin,
 )
-from monorepo.infrastructure.monitoring.health_checks import (
+from interfaces.infrastructure.monitoring.health_checks import (
     ProbeResponse,
     SystemHealth,
     get_health_checker,
     liveness_probe,
     readiness_probe,
 )
-from monorepo.infrastructure.monitoring.prometheus_metrics import get_metrics_service
-from monorepo.infrastructure.monitoring.telemetry import get_telemetry
-from monorepo.presentation.api.docs.response_models import (
+from interfaces.infrastructure.monitoring.prometheus_metrics import get_metrics_service
+from interfaces.infrastructure.monitoring.telemetry import get_telemetry
+from interfaces.presentation.api.docs.response_models import (
     HTTPResponses,
     SuccessResponse,
 )

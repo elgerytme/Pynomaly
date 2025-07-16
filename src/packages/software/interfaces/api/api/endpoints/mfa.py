@@ -7,7 +7,7 @@ Provides comprehensive MFA functionality including TOTP, SMS, email, and backup 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer
 
-from monorepo.application.dto.mfa_dto import (
+from interfaces.application.dto.mfa_dto import (
     BackupCodesResponse,
     EmailVerificationRequest,
     MFADisableRequest,
@@ -28,16 +28,16 @@ from monorepo.application.dto.mfa_dto import (
     TOTPVerificationRequest,
     TrustedDevicesResponse,
 )
-from monorepo.domain.services.mfa_service import MFAService
-from monorepo.infrastructure.auth import get_current_user
-from monorepo.infrastructure.cache import get_cache
-from monorepo.infrastructure.security.audit_logger import (
+from interfaces.domain.services.mfa_service import MFAService
+from interfaces.infrastructure.auth import get_current_user
+from interfaces.infrastructure.cache import get_cache
+from interfaces.infrastructure.security.audit_logger import (
     AuditLevel,
     SecurityEventType,
     get_audit_logger,
 )
-from monorepo.presentation.api.auth_deps import require_admin_simple
-from monorepo.presentation.api.dependencies.auth import get_auth
+from interfaces.presentation.api.auth_deps import require_admin_simple
+from interfaces.presentation.api.dependencies.auth import get_auth
 
 router = APIRouter(prefix="/mfa", tags=["mfa"])
 security = HTTPBearer()

@@ -1,5 +1,13 @@
 """CLI commands for intelligent algorithm selection."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import asyncio
@@ -14,19 +22,19 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from monorepo.application.dto.selection_dto import (
+from interfaces.application.dto.selection_dto import (
     AlgorithmPerformanceDTO,
     OptimizationConstraintsDTO,
 )
 
 # Application imports
-from monorepo.application.services.intelligent_selection_service import (
+from interfaces.application.services.intelligent_selection_service import (
     IntelligentSelectionService,
 )
 
 # Domain imports
-from monorepo.domain.entities import Dataset
-from monorepo.infrastructure.config.feature_flags import require_feature
+from interfaces.domain.entities import Dataset
+from interfaces.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
 from monorepo.infrastructure.data_loaders import CSVLoader, ParquetLoader

@@ -1,5 +1,13 @@
 """Database migration CLI commands."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 from datetime import datetime

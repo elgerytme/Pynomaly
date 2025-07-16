@@ -8,8 +8,8 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
-from monorepo.infrastructure.auth.enhanced_dependencies import get_current_user
-from monorepo.presentation.web.onboarding import (
+from interfaces.infrastructure.auth.enhanced_dependencies import get_current_user
+from interfaces.presentation.web.onboarding import (
     ExperienceLevel,
     OnboardingGoal,
     OnboardingStage,

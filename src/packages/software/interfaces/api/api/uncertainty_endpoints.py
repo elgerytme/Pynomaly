@@ -8,20 +8,20 @@ and uncertainty measures for anomaly detection predictions.
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
-from monorepo.application.dto.uncertainty_dto import (
+from interfaces.application.dto.uncertainty_dto import (
     EnsembleUncertaintyRequest,
     UncertaintyRequest,
     UncertaintyResponse,
 )
-from monorepo.application.use_cases.quantify_uncertainty import (
+from interfaces.application.use_cases.quantify_uncertainty import (
     QuantifyUncertaintyUseCase,
 )
-from monorepo.domain.entities.detection_result import DetectionResult
-from monorepo.domain.services.uncertainty_service import (
+from interfaces.domain.entities.detection_result import DetectionResult
+from interfaces.domain.services.uncertainty_service import (
     UncertaintyQuantificationService,
 )
-from monorepo.domain.value_objects.anomaly_score import AnomalyScore
-from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
+from interfaces.domain.value_objects.anomaly_score import AnomalyScore
+from interfaces.domain.value_objects.confidence_interval import ConfidenceInterval
 
 router = APIRouter(prefix="/uncertainty", tags=["uncertainty"])
 

@@ -7,19 +7,19 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from monorepo.application.dto import CreateDetectorDTO, DetectorDTO, UpdateDetectorDTO
-from monorepo.application.services.algorithm_adapter_registry import (
+from interfaces.application.dto import CreateDetectorDTO, DetectorDTO, UpdateDetectorDTO
+from interfaces.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from monorepo.domain.entities import Detector
-from monorepo.domain.value_objects import ContaminationRate
-from monorepo.infrastructure.auth import (
+from interfaces.domain.entities import Detector
+from interfaces.domain.value_objects import ContaminationRate
+from interfaces.infrastructure.auth import (
     require_analyst,
     require_data_scientist,
     require_tenant_admin,
     require_viewer,
 )
-from monorepo.infrastructure.config import Container
+from interfaces.infrastructure.config import Container
 
 router = APIRouter()
 

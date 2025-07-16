@@ -2,6 +2,14 @@
 FastAPI router for user management and multi-tenancy.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from datetime import datetime
 from uuid import UUID
 
@@ -9,14 +17,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
 
-from monorepo.application.services.user_management_service import UserManagementService
-from monorepo.domain.entities.user import TenantPlan, TenantStatus, UserRole, UserStatus
-from monorepo.infrastructure.security.audit_logging import (
+from interfaces.application.services.user_management_service import UserManagementService
+from interfaces.domain.entities.user import TenantPlan, TenantStatus, UserRole, UserStatus
+from interfaces.infrastructure.security.audit_logging import (
     AuditEventType,
     AuditSeverity,
     get_audit_logger,
 )
-from monorepo.shared.exceptions import (
+from interfaces.shared.exceptions import (
     AuthenticationError,
     AuthorizationError,
     ResourceLimitError,
@@ -24,7 +32,7 @@ from monorepo.shared.exceptions import (
     UserNotFoundError,
     ValidationError,
 )
-from monorepo.shared.types import TenantId, UserId
+from interfaces.shared.types import TenantId, UserId
 
 # Router setup
 router = APIRouter(prefix="/api/users", tags=["User Management"])

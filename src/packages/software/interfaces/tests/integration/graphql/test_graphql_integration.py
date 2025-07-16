@@ -1,14 +1,22 @@
 """Integration tests for GraphQL API."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import pytest
 import asyncio
 from uuid import uuid4
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, AsyncMock
 
-from monorepo.presentation.graphql.app import create_standalone_graphql_app, GraphQLConfig
+from interfaces.presentation.graphql.app import create_standalone_graphql_app, GraphQLConfig
 from monorepo.infrastructure.container import Container
-from monorepo.domain.entities.user import User, UserRole
+from interfaces.domain.entities.user import User, UserRole
 
 
 @pytest.fixture

@@ -17,9 +17,9 @@ import numpy as np
 # Add the src directory to Python path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../src"))
 
-from monorepo.domain.entities import DetectionResult, Detector
-from monorepo.domain.value_objects import AnomalyScore
-from monorepo.shared.protocols import DetectorProtocol
+from interfaces.domain.entities import DetectionResult, Detector
+from interfaces.domain.value_objects import AnomalyScore
+from interfaces.shared.protocols import DetectorProtocol
 
 
 class CustomStatisticalDetector:

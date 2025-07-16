@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from monorepo.domain.value_objects import AnomalyScore
+from monorepo_detection.domain.value_objects import AnomalyScore
 
 
 @dataclass

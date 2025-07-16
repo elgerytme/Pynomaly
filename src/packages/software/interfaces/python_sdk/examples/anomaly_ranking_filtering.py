@@ -7,6 +7,14 @@ anomalies across multiple detectors, including confidence-based filtering, conse
 analysis, top-K selection, and production-ready filtering workflows.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import asyncio
 import warnings
 from dataclasses import dataclass
@@ -24,9 +32,9 @@ import sys
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from monorepo.domain.entities import Dataset, Detector
-from monorepo.domain.value_objects import ConfidenceInterval
-from monorepo.infrastructure.config import create_container
+from interfaces.domain.entities import Dataset, Detector
+from interfaces.domain.value_objects import ConfidenceInterval
+from interfaces.infrastructure.config import create_container
 from monorepo.infrastructure.resilience import ml_resilient
 
 

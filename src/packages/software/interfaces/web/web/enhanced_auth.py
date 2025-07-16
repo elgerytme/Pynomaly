@@ -3,6 +3,14 @@ Enhanced authentication system for Web UI
 Supports OAuth2, SAML, MFA, and advanced security features
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import base64
 import hashlib
 import hmac

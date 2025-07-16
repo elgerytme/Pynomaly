@@ -64,7 +64,7 @@ class CLIErrorHandler:
     def _show_support_info() -> None:
         """Show support and troubleshooting information."""
         console.print("\n[bold blue]Need Help?[/bold blue]")
-        console.print("• Documentation: [cyan]https://docs.monorepo.com[/cyan]")
+        console.print("• Documentation: [cyan]https://docs.example.com[/cyan]")
         console.print("• GitHub Issues: [cyan]https://github.com/pynomaly/pynomaly/issues[/cyan]")
         console.print("• Community: [cyan]https://discord.gg/pynomaly[/cyan]")
         console.print("• Check logs: [cyan]~/.pynomaly/error.log[/cyan]")

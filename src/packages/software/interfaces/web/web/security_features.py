@@ -3,6 +3,14 @@ Advanced security features for web UI.
 Implements rate limiting, WAF, IP blocking, and security monitoring.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import asyncio
 import hashlib
 import ipaddress
@@ -30,7 +38,7 @@ except ImportError:
 
 
 try:
-    from monorepo.presentation.web.error_handling import (
+    from interfaces.presentation.web.error_handling import (
         ErrorCode,
         ErrorLevel,
         WebUIError,

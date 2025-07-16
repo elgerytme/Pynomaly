@@ -1,12 +1,20 @@
 """Performance monitoring and optimization API endpoints."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from typing import Any
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
-from monorepo.infrastructure.config.container import Container
+from interfaces.infrastructure.config.container import Container
 from monorepo.infrastructure.performance import QueryOptimizer
 
 router = APIRouter(prefix="/performance", tags=["performance"])

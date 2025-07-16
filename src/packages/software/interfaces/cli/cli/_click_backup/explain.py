@@ -12,12 +12,12 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from monorepo.application.services.explainable_ai_service import (
+from interfaces.application.services.explainable_ai_service import (
     ExplainableAIService,
     ExplanationConfiguration,
 )
-from monorepo.domain.entities.explainable_ai import ExplanationMethod
-from monorepo.infrastructure.config.container import Container
+from interfaces.domain.entities.explainable_ai import ExplanationMethod
+from interfaces.infrastructure.config.container import Container
 
 console = Console()
 

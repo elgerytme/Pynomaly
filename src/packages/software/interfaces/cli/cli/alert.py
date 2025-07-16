@@ -11,10 +11,10 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from monorepo.application.services.intelligent_alert_service import (
+from interfaces.application.services.intelligent_alert_service import (
     IntelligentAlertService,
 )
-from monorepo.domain.entities.alert import (
+from interfaces.domain.entities.alert import (
     AlertCategory,
     AlertMetadata,
     AlertSeverity,

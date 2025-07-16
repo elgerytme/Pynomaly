@@ -15,8 +15,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from monorepo.domain.entities import Dataset
-from monorepo.domain.exceptions import ValidationError
+from monorepo_detection.domain.entities import Dataset
+from monorepo_detection.domain.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 

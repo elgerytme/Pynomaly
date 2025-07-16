@@ -12,11 +12,11 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from monorepo.application.services.deployment_orchestration_service import (
+from interfaces.application.services.deployment_orchestration_service import (
     DeploymentOrchestrationService,
 )
-from monorepo.application.services.model_registry_service import ModelRegistryService
-from monorepo.domain.entities.deployment import (
+from interfaces.application.services.model_registry_service import ModelRegistryService
+from interfaces.domain.entities.deployment import (
     DeploymentConfig,
     DeploymentStrategy,
     Environment,

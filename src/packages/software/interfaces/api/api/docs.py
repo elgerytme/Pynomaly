@@ -82,8 +82,8 @@ def get_custom_openapi_schema(app: FastAPI) -> dict[str, Any]:
     # Add custom metadata
     openapi_schema["info"]["contact"] = {
         "name": "Pynomaly Support",
-        "url": "https://monorepo.com/support",
-        "email": "support@monorepo.com"
+        "url": "https://example.com/support",
+        "email": "support@example.com"
     }
 
     openapi_schema["info"]["license"] = {
@@ -94,11 +94,11 @@ def get_custom_openapi_schema(app: FastAPI) -> dict[str, Any]:
     # Add servers
     openapi_schema["servers"] = [
         {
-            "url": "https://api.monorepo.com",
+            "url": "https://api.example.com",
             "description": "Production server"
         },
         {
-            "url": "https://staging-api.monorepo.com",
+            "url": "https://staging-api.example.com",
             "description": "Staging server"
         },
         {

@@ -5,7 +5,7 @@ import json
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from monorepo.presentation.api.docs.openapi_config import (
+from interfaces.presentation.api.docs.openapi_config import (
     get_custom_redoc_html,
     get_custom_swagger_ui_html,
 )

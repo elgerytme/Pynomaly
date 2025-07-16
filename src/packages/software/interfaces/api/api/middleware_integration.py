@@ -4,6 +4,14 @@ This module provides utilities for integrating configuration capture middleware
 with FastAPI applications.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import logging
@@ -11,10 +19,10 @@ from typing import Any
 
 from fastapi import FastAPI
 
-from monorepo.application.services.configuration_capture_service import (
+from interfaces.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from monorepo.infrastructure.config.feature_flags import feature_flags
+from interfaces.infrastructure.config.feature_flags import feature_flags
 from monorepo.infrastructure.middleware.configuration_middleware import (
     ConfigurationAPIMiddleware,
     ConfigurationCaptureMiddleware,
@@ -210,7 +218,7 @@ def create_configured_app(
 
     # Add configuration endpoints
     try:
-        from monorepo.application.services.web_api_configuration_integration import (
+        from interfaces.application.services.web_api_configuration_integration import (
             WebAPIConfigurationIntegration,
         )
 
@@ -266,7 +274,7 @@ def setup_middleware_stack(app: FastAPI) -> None:
     Args:
         app: FastAPI application instance
     """
-    from monorepo.presentation.api.middleware.security_headers import (
+    from interfaces.presentation.api.middleware.security_headers import (
         SecurityHeadersMiddleware,
     )
 

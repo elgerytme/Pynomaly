@@ -4,7 +4,7 @@ from typing import Any, Dict
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from monorepo.infrastructure.auth.jwt_auth import UserModel, get_auth
+from interfaces.infrastructure.auth.jwt_auth import UserModel, get_auth
 
 # Security scheme
 security = HTTPBearer(auto_error=False)

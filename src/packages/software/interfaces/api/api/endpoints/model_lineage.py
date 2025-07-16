@@ -7,8 +7,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from monorepo.application.services.model_lineage_service import ModelLineageService
-from monorepo.domain.entities.lineage_record import (
+from interfaces.application.services.model_lineage_service import ModelLineageService
+from interfaces.domain.entities.lineage_record import (
     LineageGraph,
     LineageQuery,
     LineageRecord,
@@ -17,9 +17,9 @@ from monorepo.domain.entities.lineage_record import (
     LineageTransformation,
     TransformationType,
 )
-from monorepo.infrastructure.config import Container
-from monorepo.presentation.api.deps import get_container
-from monorepo.presentation.api.docs.response_models import (
+from interfaces.infrastructure.config import Container
+from interfaces.presentation.api.deps import get_container
+from interfaces.presentation.api.docs.response_models import (
     HTTPResponses,
     SuccessResponse,
 )

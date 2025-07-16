@@ -7,11 +7,11 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
-from monorepo.application.services.advanced_ml_lifecycle_service import (
+from interfaces.application.services.advanced_ml_lifecycle_service import (
     AdvancedMLLifecycleService,
 )
-from monorepo.domain.entities import ExperimentType
-from monorepo.presentation.api.deps import (
+from interfaces.domain.entities import ExperimentType
+from interfaces.presentation.api.deps import (
     get_advanced_ml_lifecycle_service,
     get_current_user,
     require_write,
@@ -347,7 +347,7 @@ async def log_model(
     """Log a trained model with the specified run."""
     try:
         # Get ML service instance
-        from monorepo.infrastructure.config import get_container
+        from interfaces.infrastructure.config import get_container
 
         container = get_container()
         ml_service_instance = container.get_ml_service()

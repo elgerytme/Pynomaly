@@ -1,16 +1,24 @@
 """Enhanced AutoML API endpoints with advanced optimization capabilities."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from monorepo.application.services.enhanced_automl_service import (
+from interfaces.application.services.enhanced_automl_service import (
     EnhancedAutoMLConfig,
     EnhancedAutoMLResult,
     EnhancedAutoMLService,
 )
-from monorepo.infrastructure.config.container import Container
+from interfaces.infrastructure.config.container import Container
 
 
 # Request/Response Models

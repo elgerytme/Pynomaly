@@ -1,5 +1,13 @@
 """CLI commands for configuration management."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import json
@@ -13,17 +21,17 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.tree import Tree
 
-from monorepo.application.dto.configuration_dto import (
+from interfaces.application.dto.configuration_dto import (
     ConfigurationCaptureRequestDTO,
     ConfigurationExportRequestDTO,
     ConfigurationSearchRequestDTO,
     ConfigurationSource,
     ExportFormat,
 )
-from monorepo.application.services.configuration_capture_service import (
+from interfaces.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from monorepo.infrastructure.config.feature_flags import require_feature
+from interfaces.infrastructure.config.feature_flags import require_feature
 from monorepo.infrastructure.persistence.configuration_repository import (
     ConfigurationRepository,
 )

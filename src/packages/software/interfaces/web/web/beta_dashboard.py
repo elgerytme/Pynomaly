@@ -641,7 +641,7 @@ class BetaDashboard:
             f"**Dashboard Last Updated:** {self.last_updated.strftime('%Y-%m-%d %H:%M:%S')}"
         )
         st.markdown(
-            "**Pynomaly Beta Program** | For questions: beta-support@monorepo.io"
+            "**Pynomaly Beta Program** | For questions: beta-support@example.com"
         )
 
 

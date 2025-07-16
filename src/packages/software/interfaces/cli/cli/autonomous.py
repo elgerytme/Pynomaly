@@ -1,5 +1,13 @@
 """Autonomous anomaly detection CLI commands."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import asyncio
@@ -18,7 +26,7 @@ from rich.progress import (
 )
 from rich.table import Table
 
-from monorepo.application.services.autonomous_service import (
+from interfaces.application.services.autonomous_service import (
     AutonomousConfig,
     AutonomousDetectionService,
 )
@@ -26,7 +34,7 @@ from monorepo.infrastructure.data_loaders.csv_loader import CSVLoader
 from monorepo.infrastructure.data_loaders.excel_loader import ExcelLoader
 from monorepo.infrastructure.data_loaders.json_loader import JSONLoader
 from monorepo.infrastructure.data_loaders.parquet_loader import ParquetLoader
-from monorepo.presentation.cli.container import get_cli_container
+from interfaces.presentation.cli.container import get_cli_container
 
 app = typer.Typer()
 console = Console()

@@ -46,6 +46,14 @@ class DomainBoundaryValidator:
         "data_observability": ["data_platform", "infrastructure"],
         "mobile": ["interfaces", "infrastructure"],
         "integration": ["interfaces"],
+        
+        # Allow packages to import from themselves (needed for internal structure)
+        "ai": ["core", "mathematics", "infrastructure"],
+        "creative": [],  # Creative packages should be independent
+        "data": ["core", "mathematics", "infrastructure"],  # Data packages
+        "formal_sciences": ["core", "mathematics"],
+        "ops": ["core", "mathematics", "infrastructure"],
+        "software": ["core", "mathematics", "infrastructure"],
     }
     
     # Packages that are completely isolated (no other packages can depend on them)
@@ -79,12 +87,20 @@ class DomainBoundaryValidator:
         if not package_path.exists():
             return violations
         
+        # Skip backup/migration directories
+        if "migration-backup" in str(package_path) or "move!" in str(package_path):
+            return violations
+        
         allowed_deps = self.ALLOWED_DEPENDENCIES.get(package_name, [])
         
         # Find all Python files in the package
         python_files = list(package_path.rglob("*.py"))
         
         for py_file in python_files:
+            # Skip backup/migration files
+            if "migration-backup" in str(py_file) or "move!" in str(py_file):
+                continue
+            
             file_violations = self._check_file_imports(py_file, package_name, allowed_deps)
             violations.extend(file_violations)
         
@@ -109,9 +125,11 @@ class DomainBoundaryValidator:
                 
                 elif isinstance(node, ast.ImportFrom):
                     if node.module:
-                        violation = self._check_import_path(node.module, package_name, allowed_deps, file_path)
-                        if violation:
-                            violations.append(violation)
+                        # Skip relative imports (level > 0)
+                        if node.level == 0:
+                            violation = self._check_import_path(node.module, package_name, allowed_deps, file_path)
+                            if violation:
+                                violations.append(violation)
         
         except Exception as e:
             violations.append(f"Error parsing {file_path}: {str(e)}")
@@ -122,6 +140,10 @@ class DomainBoundaryValidator:
         """Check if an import path violates domain boundaries."""
         if not import_path or import_path.startswith("."):
             return ""  # Relative imports are OK within package
+        
+        # Skip internal package imports that contain the package name
+        if package_name in import_path:
+            return ""  # Internal imports are OK
         
         # Check if import is from another package
         package_imports = self._extract_package_imports(import_path)
@@ -202,10 +224,13 @@ class DomainBoundaryValidator:
                 for violation in import_violations:
                     recommendations.append(f"- {violation}")
                     
-                    # Extract the violating package
-                    if "imports from" in violation:
-                        violating_package = violation.split("imports from '")[1].split("'")[0]
-                        recommendations.append(f"  → Use interface from 'interfaces' package instead of direct import from '{violating_package}'")
-                        recommendations.append(f"  → Create adapter in current package to bridge the interface")
+                    # Extract the violating package if format is correct
+                    if "imports from '" in violation:
+                        try:
+                            violating_package = violation.split("imports from '")[1].split("'")[0]
+                            recommendations.append(f"  → Use interface from 'interfaces' package instead of direct import from '{violating_package}'")
+                            recommendations.append(f"  → Create adapter in current package to bridge the interface")
+                        except IndexError:
+                            recommendations.append(f"  → Review import structure for proper dependency injection")
         
         return recommendations

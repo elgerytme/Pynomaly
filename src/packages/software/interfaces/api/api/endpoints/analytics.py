@@ -10,7 +10,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from monorepo.application.services.advanced_analytics_service import (
+from interfaces.application.services.advanced_analytics_service import (
     AdvancedAnalyticsService,
     AnalyticsQuery,
     AnalyticsTimeframe,

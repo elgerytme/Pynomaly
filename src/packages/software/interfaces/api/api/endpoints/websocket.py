@@ -7,13 +7,13 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
-from monorepo.application.services.task_tracking_service import (
+from interfaces.application.services.task_tracking_service import (
     TaskInfo,
     TaskTrackingService,
 )
-from monorepo.infrastructure.auth import create_websocket_auth_dependency, get_auth
-from monorepo.infrastructure.config import Container
-from monorepo.presentation.api.deps import get_container
+from interfaces.infrastructure.auth import create_websocket_auth_dependency, get_auth
+from interfaces.infrastructure.config import Container
+from interfaces.presentation.api.deps import get_container
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

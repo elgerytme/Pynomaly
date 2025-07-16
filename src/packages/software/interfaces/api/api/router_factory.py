@@ -3,21 +3,21 @@
 from fastapi import APIRouter, FastAPI
 
 # Import the existing complex auth dependencies that cause issues
-from monorepo.infrastructure.auth import (
+from interfaces.infrastructure.auth import (
     get_current_user,
     require_admin,
     require_analyst,
     require_viewer,
 )
-from monorepo.presentation.api.dependencies import (
+from interfaces.presentation.api.dependencies import (
     get_container_simple,
     get_current_user_safe,
     require_auth_safe,
 )
-from monorepo.presentation.api.dependencies.container import get_container_safe
+from interfaces.presentation.api.dependencies.container import get_container_safe
 
 # Also import deps that might be used in endpoints
-from monorepo.presentation.api.deps import get_container
+from interfaces.presentation.api.deps import get_container
 
 
 def create_api_router_with_overrides() -> APIRouter:

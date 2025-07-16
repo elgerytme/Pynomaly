@@ -12,7 +12,7 @@ import sys
 import typer
 from rich.console import Console
 
-from monorepo.presentation.cli.container import get_cli_container
+from interfaces.presentation.cli.container import get_cli_container
 
 # Create Typer app with lazy loading
 app = typer.Typer(
@@ -100,7 +100,7 @@ def _add_lazy_subcommand(
 
 
 # Import standardized help text
-from monorepo.presentation.cli.help_formatter import get_standard_help
+from interfaces.presentation.cli.help_formatter import get_standard_help
 
 # Add lazy subcommands with standardized help text
 lazy_commands = [

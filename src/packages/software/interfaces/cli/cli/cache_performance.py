@@ -6,10 +6,10 @@ from typing import Any
 
 import click
 
-from monorepo.infrastructure.cache.optimized_key_generator import (
+from interfaces.infrastructure.cache.optimized_key_generator import (
     OptimizedCacheKeyGenerator,
 )
-from monorepo.infrastructure.cache.performance_utils import (
+from interfaces.infrastructure.cache.performance_utils import (
     enable_cache_optimizations,
     get_cache_performance_report,
     get_health_monitor,

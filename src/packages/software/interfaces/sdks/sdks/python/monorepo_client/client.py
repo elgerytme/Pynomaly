@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 class BaseClient:
     """Base client with common functionality."""
 
-    DEFAULT_BASE_URL = "https://api.monorepo.com"
+    DEFAULT_BASE_URL = "https://api.example.com"
     DEFAULT_TIMEOUT = 30
     DEFAULT_MAX_RETRIES = 3
 

@@ -1,5 +1,13 @@
 """Data preprocessing CLI commands."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import json
@@ -24,7 +32,7 @@ from monorepo.infrastructure.preprocessing.data_transformer import (
 from monorepo.infrastructure.preprocessing.preprocessing_pipeline import (
     PreprocessingPipeline,
 )
-from monorepo.presentation.cli.container import get_cli_container
+from interfaces.presentation.cli.container import get_cli_container
 
 app = typer.Typer()
 console = Console()
@@ -207,7 +215,7 @@ def clean_data(
                 import uuid
                 from datetime import datetime
 
-                from monorepo.domain.entities import Dataset
+                from interfaces.domain.entities import Dataset
 
                 new_dataset = Dataset(
                     id=str(uuid.uuid4()),
@@ -464,7 +472,7 @@ def transform_data(
                 import uuid
                 from datetime import datetime
 
-                from monorepo.domain.entities import Dataset
+                from interfaces.domain.entities import Dataset
 
                 new_dataset = Dataset(
                     id=str(uuid.uuid4()),

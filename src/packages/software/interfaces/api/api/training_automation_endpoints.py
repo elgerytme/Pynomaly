@@ -7,6 +7,14 @@ This module provides comprehensive REST API endpoints for:
 - Model lifecycle management
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import logging
@@ -16,7 +24,7 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
-from monorepo.application.services.training_automation_service import (
+from interfaces.application.services.training_automation_service import (
     OptimizationStrategy,
     PruningStrategy,
     TrainingAutomationService,

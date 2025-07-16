@@ -13,12 +13,12 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from monorepo.application.dto.configuration_dto import (
+from interfaces.application.dto.configuration_dto import (
     ConfigurationLevel,
     DatasetCharacteristicsDTO,
 )
-from monorepo.infrastructure.config.feature_flags import require_feature
-from monorepo.presentation.cli.container import get_cli_container
+from interfaces.infrastructure.config.feature_flags import require_feature
+from interfaces.presentation.cli.container import get_cli_container
 
 # Create Typer app
 app = typer.Typer(

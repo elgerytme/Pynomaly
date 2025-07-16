@@ -5,13 +5,13 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from monorepo.infrastructure.auth import (
+from interfaces.infrastructure.auth import (
     UserModel,
     require_analyst,
     require_tenant_admin,
     require_viewer,
 )
-from monorepo.infrastructure.config import Container
+from interfaces.infrastructure.config import Container
 
 # Security scheme
 security = HTTPBearer(auto_error=False)
@@ -23,7 +23,7 @@ def get_container(request: Request) -> Container:
         return request.app.state.container
     except AttributeError:
         # Create default container for testing/fallback scenarios
-        from monorepo.infrastructure.config import create_container
+        from interfaces.infrastructure.config import create_container
 
         container = create_container()
         request.app.state.container = container
@@ -46,13 +46,13 @@ async def get_current_user(
         return None
 
     # Get auth service from container
-    from monorepo.domain.exceptions import AuthenticationError
+    from interfaces.domain.exceptions import AuthenticationError
 
     try:
         auth_service = container.auth_service()
     except Exception:
         # Fallback to global auth service
-        from monorepo.infrastructure.auth import get_auth
+        from interfaces.infrastructure.auth import get_auth
 
         auth_service = get_auth()
 

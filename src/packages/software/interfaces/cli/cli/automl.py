@@ -1,5 +1,13 @@
 """Advanced AutoML CLI commands for intelligent hyperparameter optimization."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import asyncio
@@ -20,25 +28,25 @@ from rich.progress import (
 )
 from rich.table import Table
 
-from monorepo.application.dto.optimization_dto import (
+from interfaces.application.dto.optimization_dto import (
     OptimizationObjectiveDTO,
     ResourceConstraintsDTO,
     create_default_objectives,
 )
 
 # Application imports
-from monorepo.application.services.advanced_automl_service import AdvancedAutoMLService
+from interfaces.application.services.advanced_automl_service import AdvancedAutoMLService
 
 # Domain imports
-from monorepo.domain.entities import Dataset
-from monorepo.domain.services.advanced_detection_service import DetectionAlgorithm
-from monorepo.domain.services.automl_service import (
+from interfaces.domain.entities import Dataset
+from interfaces.domain.services.advanced_detection_service import DetectionAlgorithm
+from interfaces.domain.services.automl_service import (
     OptimizationConfig,
     OptimizationMetric,
     SearchStrategy,
     get_automl_service,
 )
-from monorepo.infrastructure.config.feature_flags import require_feature
+from interfaces.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
 from monorepo.infrastructure.data_loaders.csv_loader import CSVLoader
@@ -677,7 +685,7 @@ def comprehensive(
         console.print("🔧 Initializing comprehensive AutoML service...")
 
         # Import comprehensive service
-        from monorepo.application.services.comprehensive_automl_service import (
+        from interfaces.application.services.comprehensive_automl_service import (
             ComprehensiveAutoMLService,
             ComprehensiveOptimizationConfig,
             EnsembleMethod,

@@ -16,7 +16,7 @@ from .presentation.cli.detection_cli import DetectionCLI
 
 __version__ = "1.0.0"
 __author__ = "Pynomaly Team"
-__email__ = "support@monorepo.com"
+__email__ = "support@example.com"
 
 __all__ = [
     "PynomaliClient",

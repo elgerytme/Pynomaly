@@ -19,13 +19,13 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from monorepo.application.services.enterprise_dashboard_service import (
+from interfaces.application.services.enterprise_dashboard_service import (
     AlertPriority,
     DashboardMetricType,
     EnterpriseDashboardService,
     initialize_enterprise_dashboard,
 )
-from monorepo.application.services.enterprise_integration_service import (
+from interfaces.application.services.enterprise_integration_service import (
     IntegrationConfig,
     initialize_enterprise_integration,
 )

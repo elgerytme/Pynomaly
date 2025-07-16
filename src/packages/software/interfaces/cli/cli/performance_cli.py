@@ -5,6 +5,14 @@ This module provides CLI commands for performance benchmarking, monitoring,
 and optimization of the Pynomaly anomaly detection system.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import asyncio
 import json
 import sys

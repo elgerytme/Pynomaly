@@ -17,8 +17,8 @@ import pandas as pd
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from monorepo.domain.entities import Dataset, Detector
-from monorepo.infrastructure.config import create_container
+from interfaces.domain.entities import Dataset, Detector
+from interfaces.infrastructure.config import create_container
 
 
 def create_complex_dataset():

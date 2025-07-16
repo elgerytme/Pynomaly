@@ -5,6 +5,14 @@ Getting Started with Pynomaly v0.1.1
 This example demonstrates the basic usage of Pynomaly for anomaly detection.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import sys
 from pathlib import Path
 
@@ -13,8 +21,8 @@ import numpy as np
 # Add src to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from monorepo.domain.entities.dataset import Dataset
-from monorepo.domain.value_objects.contamination_rate import ContaminationRate
+from interfaces.domain.entities.dataset import Dataset
+from interfaces.domain.value_objects.contamination_rate import ContaminationRate
 from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 

@@ -9,7 +9,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from monorepo.infrastructure.security.audit_logger import get_audit_logger
+from interfaces.infrastructure.security.audit_logger import get_audit_logger
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,13 @@
 """Enhanced AutoML CLI commands with advanced optimization features."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import asyncio
 import json
 
@@ -10,9 +18,9 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from monorepo.application.services.enhanced_automl_service import EnhancedAutoMLConfig
-from monorepo.infrastructure.config.container import create_container
-from monorepo.infrastructure.config.feature_flags import require_feature
+from interfaces.application.services.enhanced_automl_service import EnhancedAutoMLConfig
+from interfaces.infrastructure.config.container import create_container
+from interfaces.infrastructure.config.feature_flags import require_feature
 
 console = Console()
 

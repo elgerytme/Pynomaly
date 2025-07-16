@@ -7,6 +7,14 @@ This example demonstrates how to use Pynomaly's SklearnAdapter properly
 with the clean architecture approach.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import sys
 from pathlib import Path
 
@@ -16,8 +24,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 import numpy as np
 import pandas as pd
 
-from monorepo.domain.entities import Dataset
-from monorepo.domain.value_objects import ContaminationRate
+from interfaces.domain.entities import Dataset
+from interfaces.domain.value_objects import ContaminationRate
 from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 

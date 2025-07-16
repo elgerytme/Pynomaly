@@ -4,6 +4,14 @@ Deposit Transaction Anomaly Detection
 Identifies suspicious deposit patterns that may indicate money laundering, structuring, or fraud.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import warnings
 from datetime import datetime, timedelta
 
@@ -19,8 +27,8 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
 
-from monorepo.domain.entities.dataset import Dataset
-from monorepo.domain.value_objects.contamination_rate import ContaminationRate
+from interfaces.domain.entities.dataset import Dataset
+from interfaces.domain.value_objects.contamination_rate import ContaminationRate
 from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 

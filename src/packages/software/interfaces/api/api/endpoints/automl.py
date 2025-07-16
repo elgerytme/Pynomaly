@@ -10,9 +10,9 @@ from uuid import UUID
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 
 if TYPE_CHECKING:
-    from monorepo.infrastructure.config import Container
+    from interfaces.infrastructure.config import Container
 
-from monorepo.application.dto.automl_dto import (
+from interfaces.application.dto.automl_dto import (
     AlgorithmRecommendationDTO,
     AutoMLProfileRequestDTO,
     AutoMLProfileResponseDTO,
@@ -23,9 +23,9 @@ from monorepo.application.dto.automl_dto import (
     HyperparameterOptimizationRequestDTO,
     HyperparameterOptimizationResponseDTO,
 )
-from monorepo.infrastructure.auth import require_read, require_write
-from monorepo.infrastructure.config.feature_flags import require_automl, require_feature
-from monorepo.presentation.api.deps import get_container, get_current_user
+from interfaces.infrastructure.auth import require_read, require_write
+from interfaces.infrastructure.config.feature_flags import require_automl, require_feature
+from interfaces.presentation.api.deps import get_container, get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -151,7 +151,7 @@ async def optimize_automl(
         automl_use_case = container.automl_optimization_use_case()
 
         # Convert DTO to use case request format
-        from monorepo.application.dto.automl_dto import AutoMLOptimizationRequest
+        from interfaces.application.dto.automl_dto import AutoMLOptimizationRequest
 
         optimization_request = AutoMLOptimizationRequest(
             dataset_id=request.dataset_id,
@@ -290,7 +290,7 @@ async def list_supported_algorithms(
     """List all supported algorithms for AutoML."""
     try:
         # Import feature_flags for runtime check
-        from monorepo.infrastructure.config.feature_flags import feature_flags
+        from interfaces.infrastructure.config.feature_flags import feature_flags
 
         # Check if AutoML features are enabled
         if not feature_flags.is_enabled("automl") and not feature_flags.is_enabled(
@@ -497,7 +497,7 @@ async def run_automl(
         automl_use_case = container.automl_optimization_use_case()
 
         # Create optimization request
-        from monorepo.application.dto.automl_dto import AutoMLOptimizationRequest
+        from interfaces.application.dto.automl_dto import AutoMLOptimizationRequest
 
         optimization_request = AutoMLOptimizationRequest(
             dataset_id=dataset_path,  # Using path as ID for simplicity

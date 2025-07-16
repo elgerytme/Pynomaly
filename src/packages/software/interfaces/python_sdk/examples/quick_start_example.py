@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 import numpy as np
 import pandas as pd
 
-from monorepo.domain.entities import Dataset
+from interfaces.domain.entities import Dataset
 
 
 def create_sample_data(n_samples=1000, contamination=0.1):

@@ -15,6 +15,14 @@ Tutorial Structure:
 6. Production Considerations
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import sys
 from pathlib import Path
 
@@ -26,8 +34,8 @@ import time
 import numpy as np
 import pandas as pd
 
-from monorepo.domain.entities import Dataset
-from monorepo.domain.value_objects import ContaminationRate
+from interfaces.domain.entities import Dataset
+from interfaces.domain.value_objects import ContaminationRate
 from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 

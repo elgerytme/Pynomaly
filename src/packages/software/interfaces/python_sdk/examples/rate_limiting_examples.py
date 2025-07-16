@@ -3,7 +3,7 @@
 import asyncio
 from typing import Any
 
-from monorepo.infrastructure.security import (
+from interfaces.infrastructure.security import (
     RateLimitAlgorithm,
     RateLimitScope,
     api_rate_limited,
@@ -190,7 +190,7 @@ def create_fastapi_rate_limiting_example():
     try:
         from fastapi import FastAPI, HTTPException, Request
 
-        from monorepo.infrastructure.security import create_rate_limit_middleware
+        from interfaces.infrastructure.security import create_rate_limit_middleware
 
         app = FastAPI()
 

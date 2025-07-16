@@ -3,6 +3,14 @@ Comprehensive audit logging system for Web UI security events
 Provides detailed logging, compliance reporting, and forensic capabilities
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import asyncio
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
@@ -15,7 +23,7 @@ import structlog
 
 try:
     from monorepo.core.config import get_settings
-    from monorepo.presentation.web.enhanced_auth import AuthenticationMethod, UserRole
+    from interfaces.presentation.web.enhanced_auth import AuthenticationMethod, UserRole
 except ImportError:
     # Fallback for testing
     def get_settings():

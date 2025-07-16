@@ -9,11 +9,11 @@ import pandas as pd
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, BackgroundTasks
 from fastapi.responses import JSONResponse
 
-from monorepo.application.dto import DataQualityReportDTO, DatasetDTO
-from monorepo.domain.entities import Dataset
-from monorepo.infrastructure.auth import require_data_scientist, require_viewer
-from monorepo.infrastructure.config import Container
-from monorepo.presentation.api.auth_deps import get_container_simple
+from interfaces.application.dto import DataQualityReportDTO, DatasetDTO
+from interfaces.domain.entities import Dataset
+from interfaces.infrastructure.auth import require_data_scientist, require_viewer
+from interfaces.infrastructure.config import Container
+from interfaces.presentation.api.auth_deps import get_container_simple
 
 # Import data transformation components
 try:

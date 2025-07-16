@@ -5,7 +5,7 @@ CLI commands for interactive tutorials.
 import typer
 from rich.console import Console
 
-from monorepo.presentation.cli.tutorials import tutorial_manager
+from interfaces.presentation.cli.tutorials import tutorial_manager
 
 console = Console()
 
@@ -48,7 +48,7 @@ def info(
     tutorial_id: str = typer.Argument(..., help="Tutorial ID to get information about")
 ):
     """Show detailed information about a tutorial."""
-    from monorepo.presentation.cli.tutorials import tutorial_info_command
+    from interfaces.presentation.cli.tutorials import tutorial_info_command
     tutorial_info_command(tutorial_id)
 
 

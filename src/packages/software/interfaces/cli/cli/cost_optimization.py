@@ -10,10 +10,10 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from monorepo.application.services.cost_optimization_service import (
+from interfaces.application.services.cost_optimization_service import (
     CostOptimizationService,
 )
-from monorepo.domain.entities.cost_optimization import CostBudget, OptimizationStrategy
+from interfaces.domain.entities.cost_optimization import CostBudget, OptimizationStrategy
 
 console = Console()
 

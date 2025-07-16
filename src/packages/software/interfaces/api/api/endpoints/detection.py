@@ -5,13 +5,13 @@ from uuid import UUID
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from pydantic import BaseModel
 
-from monorepo.application.dto import DetectionResultDTO
-from monorepo.application.use_cases import (
+from interfaces.application.dto import DetectionResultDTO
+from interfaces.application.use_cases import (
     DetectAnomaliesRequest,
     EvaluateModelRequest,
     TrainDetectorRequest,
 )
-from monorepo.infrastructure.config import Container
+from interfaces.infrastructure.config import Container
 from ..deps import get_container, get_current_user
 
 router = APIRouter()

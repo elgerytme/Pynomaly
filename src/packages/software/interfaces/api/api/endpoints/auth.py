@@ -1,5 +1,13 @@
 """Authentication endpoints for API with comprehensive audit logging."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import time
 from typing import Annotated, Any
 
@@ -8,23 +16,23 @@ from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
 # from pydantic import EmailStr  # Temporarily disabled due to missing email-validator
-from monorepo.domain.exceptions import AuthenticationError
-from monorepo.domain.services.mfa_service import MFAService
-from monorepo.infrastructure.auth import (
+from interfaces.domain.exceptions import AuthenticationError
+from interfaces.domain.services.mfa_service import MFAService
+from interfaces.infrastructure.auth import (
     JWTAuthService,
     TokenResponse,
     UserModel,
     get_auth,
 )
-from monorepo.infrastructure.auth.middleware import get_current_user
-from monorepo.infrastructure.cache import get_cache
-from monorepo.infrastructure.security.audit_logger import (
+from interfaces.infrastructure.auth.middleware import get_current_user
+from interfaces.infrastructure.cache import get_cache
+from interfaces.infrastructure.security.audit_logger import (
     AuditLevel,
     SecurityEventType,
     audit_context,
     get_audit_logger,
 )
-from monorepo.infrastructure.security.rbac_middleware import require_auth
+from interfaces.infrastructure.security.rbac_middleware import require_auth
 from monorepo.infrastructure.services.email_service import get_email_service
 
 router = APIRouter()

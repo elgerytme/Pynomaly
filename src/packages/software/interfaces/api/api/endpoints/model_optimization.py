@@ -25,7 +25,7 @@ from fastapi import (
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from monorepo.application.services.advanced_model_optimization_service import (
+from interfaces.application.services.advanced_model_optimization_service import (
     AdvancedModelOptimizationService,
     AdvancedOptimizationConfig,
     EnsembleStrategy,

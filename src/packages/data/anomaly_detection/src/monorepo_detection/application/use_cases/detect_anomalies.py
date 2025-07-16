@@ -5,13 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from uuid import UUID
 
-from monorepo.application.services.algorithm_adapter_registry import (
+from monorepo_detection.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from monorepo.domain.entities import Anomaly, Dataset, DetectionResult
-from monorepo.domain.exceptions import DatasetError, DetectorNotFittedError
-from monorepo.domain.services import FeatureValidator
-from monorepo.shared.protocols import DetectorRepositoryProtocol
+from monorepo_detection.domain.entities import Anomaly, Dataset, DetectionResult
+from monorepo_detection.domain.exceptions import DatasetError, DetectorNotFittedError
+from monorepo_detection.domain.services import FeatureValidator
+from monorepo_detection.shared.protocols import DetectorRepositoryProtocol
 
 
 @dataclass

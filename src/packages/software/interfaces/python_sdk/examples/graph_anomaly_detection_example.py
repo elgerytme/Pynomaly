@@ -7,6 +7,14 @@ including installation verification, data preparation, model training,
 and result analysis.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import logging
@@ -212,8 +220,8 @@ def run_pygod_example_with_mocks():
     """Run PyGOD example using mocks when dependencies are not available."""
     from unittest.mock import MagicMock, patch
 
-    from monorepo.domain.entities import Dataset
-    from monorepo.domain.value_objects import ContaminationRate
+    from interfaces.domain.entities import Dataset
+    from interfaces.domain.value_objects import ContaminationRate
     from monorepo.infrastructure.adapters.pygod_adapter import PyGODAdapter
 
     logger.info("🔧 Running PyGOD example with mocked dependencies")
@@ -327,8 +335,8 @@ def run_pygod_example_with_mocks():
 
 def run_pygod_example_real():
     """Run PyGOD example with real dependencies."""
-    from monorepo.domain.entities import Dataset
-    from monorepo.domain.value_objects import ContaminationRate
+    from interfaces.domain.entities import Dataset
+    from interfaces.domain.value_objects import ContaminationRate
     from monorepo.infrastructure.adapters.pygod_adapter import PyGODAdapter
 
     logger.info("🚀 Running PyGOD example with real dependencies")

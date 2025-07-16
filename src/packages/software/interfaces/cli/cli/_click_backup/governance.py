@@ -12,14 +12,14 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from monorepo.application.services.governance_framework_service import (
+from interfaces.application.services.governance_framework_service import (
     GovernanceAction,
     GovernanceFrameworkService,
     PolicyType,
     RiskLevel,
 )
-from monorepo.domain.entities.security_compliance import ComplianceFramework
-from monorepo.infrastructure.config.container import Container
+from interfaces.domain.entities.security_compliance import ComplianceFramework
+from interfaces.infrastructure.config.container import Container
 
 console = Console()
 

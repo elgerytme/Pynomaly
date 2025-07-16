@@ -2,7 +2,7 @@
 
 import asyncio
 
-from monorepo.infrastructure.monitoring import (
+from interfaces.infrastructure.monitoring import (
     ComponentHealthConfig,
     ComponentType,
     HealthCheckCategory,

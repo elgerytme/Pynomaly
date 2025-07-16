@@ -17,12 +17,12 @@ from rich.progress import (
 )
 from rich.table import Table
 
-from monorepo.application.services.performance_benchmarking_service import (
+from interfaces.application.services.performance_benchmarking_service import (
     BenchmarkConfig,
     BenchmarkSuite,
     PerformanceBenchmarkingService,
 )
-from monorepo.infrastructure.config.container import Container
+from interfaces.infrastructure.config.container import Container
 
 console = Console()
 

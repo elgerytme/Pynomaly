@@ -3,8 +3,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 
-from monorepo.infrastructure.auth.enhanced_dependencies import require_superuser
-from monorepo.infrastructure.auth.jwt_auth_enhanced import (
+from interfaces.infrastructure.auth.enhanced_dependencies import require_superuser
+from interfaces.infrastructure.auth.jwt_auth_enhanced import (
     EnhancedJWTAuthService,
     JWKSResponse,
     UserModel,

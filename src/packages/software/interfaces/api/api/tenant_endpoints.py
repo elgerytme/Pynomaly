@@ -7,8 +7,8 @@ from uuid import UUID
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from pydantic import , BaseModel, ConfigDict, EmailStr, Field
 
-from monorepo.application.services.multi_tenant_service import MultiTenantService
-from monorepo.domain.entities.tenant import (
+from interfaces.application.services.multi_tenant_service import MultiTenantService
+from interfaces.domain.entities.tenant import (
     ResourceQuotaType, SubscriptionTier, TenantStatus)
 
 # Pydantic models for API requests/responses

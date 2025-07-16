@@ -7,6 +7,14 @@ including weighted voting, dynamic weighting, uncertainty quantification, stacki
 ensembles. It showcases production-ready ensemble strategies with comprehensive performance evaluation.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import asyncio
 import warnings
 from dataclasses import dataclass
@@ -23,9 +31,9 @@ import sys
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from monorepo.domain.entities import Dataset, Detector
-from monorepo.domain.value_objects import ConfidenceInterval
-from monorepo.infrastructure.config import create_container
+from interfaces.domain.entities import Dataset, Detector
+from interfaces.domain.value_objects import ConfidenceInterval
+from interfaces.infrastructure.config import create_container
 from monorepo.infrastructure.resilience import ml_resilient
 
 

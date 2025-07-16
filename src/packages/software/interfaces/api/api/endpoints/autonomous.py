@@ -1,25 +1,33 @@
 """Autonomous detection API endpoints."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
-from monorepo.application.services.automl_service import (
+from interfaces.application.services.automl_service import (
     AutoMLService,
     OptimizationObjective,
 )
-from monorepo.application.services.autonomous_service import (
+from interfaces.application.services.autonomous_service import (
     AutonomousConfig,
     AutonomousDetectionService,
 )
-from monorepo.application.services.ensemble_service import EnsembleService
-from monorepo.infrastructure.config import Container
+from interfaces.application.services.ensemble_service import EnsembleService
+from interfaces.infrastructure.config import Container
 from monorepo.infrastructure.data_loaders.csv_loader import CSVLoader
 from monorepo.infrastructure.data_loaders.excel_loader import ExcelLoader
 from monorepo.infrastructure.data_loaders.json_loader import JSONLoader
 from monorepo.infrastructure.data_loaders.parquet_loader import ParquetLoader
-from monorepo.presentation.api.deps import get_container, get_current_user
+from interfaces.presentation.api.deps import get_container, get_current_user
 
 router = APIRouter()
 

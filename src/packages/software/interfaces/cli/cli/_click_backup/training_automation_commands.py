@@ -7,6 +7,14 @@ This module provides comprehensive CLI commands for:
 - Experiment tracking and analysis
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import asyncio
@@ -21,7 +29,7 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from monorepo.application.services.training_automation_service import (
+from interfaces.application.services.training_automation_service import (
     OptimizationStrategy,
     PruningStrategy,
     TrainingAutomationService,

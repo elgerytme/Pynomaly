@@ -14,8 +14,8 @@ from fastapi import (
 )
 from pydantic import BaseModel, Field
 
-from monorepo.application.services.streaming_service import StreamingService
-from monorepo.domain.entities.streaming_session import (
+from interfaces.application.services.streaming_service import StreamingService
+from interfaces.domain.entities.streaming_session import (
     SessionStatus,
     SessionSummary,
     StreamingAlert,
@@ -25,9 +25,9 @@ from monorepo.domain.entities.streaming_session import (
     StreamingMetrics,
     StreamingSession,
 )
-from monorepo.infrastructure.config import Container
-from monorepo.presentation.api.deps import get_container
-from monorepo.presentation.api.docs.response_models import (
+from interfaces.infrastructure.config import Container
+from interfaces.presentation.api.deps import get_container
+from interfaces.presentation.api.docs.response_models import (
     HTTPResponses,
     SuccessResponse,
 )

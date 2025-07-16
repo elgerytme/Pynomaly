@@ -1,12 +1,20 @@
 """Example demonstrating autonomous anomaly detection capabilities."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import asyncio
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
-from monorepo.application.services.autonomous_service import (
+from interfaces.application.services.autonomous_service import (
     AutonomousConfig,
     AutonomousDetectionService,
 )

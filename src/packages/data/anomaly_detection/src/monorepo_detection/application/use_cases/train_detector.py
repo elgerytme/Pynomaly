@@ -7,14 +7,14 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from monorepo.application.services.algorithm_adapter_registry import (
+from monorepo_detection.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from monorepo.domain.entities import Dataset, Detector
-from monorepo.domain.exceptions import FittingError, InsufficientDataError
-from monorepo.domain.services import FeatureValidator
-from monorepo.domain.value_objects import ContaminationRate
-from monorepo.shared.protocols import DetectorRepositoryProtocol
+from monorepo_detection.domain.entities import Dataset, Detector
+from monorepo_detection.domain.exceptions import FittingError, InsufficientDataError
+from monorepo_detection.domain.services import FeatureValidator
+from monorepo_detection.domain.value_objects import ContaminationRate
+from monorepo_detection.shared.protocols import DetectorRepositoryProtocol
 
 
 @dataclass

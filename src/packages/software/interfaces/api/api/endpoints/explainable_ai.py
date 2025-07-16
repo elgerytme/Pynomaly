@@ -8,19 +8,19 @@ import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
 
-from monorepo.application.services.explainable_ai_service import (
+from interfaces.application.services.explainable_ai_service import (
     ExplainableAIService,
     ExplanationConfiguration,
     ExplanationNotSupportedError,
     InsufficientDataError,
 )
-from monorepo.domain.entities.explainable_ai import (
+from interfaces.domain.entities.explainable_ai import (
     BiasType,
     ExplanationAudience,
     ExplanationMethod,
     TrustLevel,
 )
-from monorepo.presentation.api.deps import (
+from interfaces.presentation.api.deps import (
     get_current_user,
     get_explainable_ai_service,
     require_read,
@@ -663,7 +663,7 @@ async def assess_trust(
 
         # Mock explanation result for trust assessment
         # In practice, retrieve actual explanation result
-        from monorepo.domain.entities.explainable_ai import ExplanationResult
+        from interfaces.domain.entities.explainable_ai import ExplanationResult
 
         mock_result = ExplanationResult(
             explanation_method=ExplanationMethod.PERMUTATION_IMPORTANCE,

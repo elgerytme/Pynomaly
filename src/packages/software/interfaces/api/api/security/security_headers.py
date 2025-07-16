@@ -28,7 +28,7 @@ class SecurityHeaders:
                 "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
                 "font-src 'self' https://fonts.gstatic.com; "
                 "img-src 'self' data: https:; "
-                "connect-src 'self' https://api.monorepo.com wss://api.monorepo.com; "
+                "connect-src 'self' https://api.example.com wss://api.example.com; "
                 "frame-ancestors 'none'; "
                 "base-uri 'self'; "
                 "form-action 'self'"
@@ -154,7 +154,7 @@ class CORSPolicy:
     def set_policy(self, policy: str) -> None:
         """Set CORS policy type."""
         if policy == "restrictive":
-            self.allowed_origins = {"https://monorepo.com", "https://app.monorepo.com"}
+            self.allowed_origins = {"https://example.com", "https://app.example.com"}
             self.allow_credentials = True
         elif policy == "permissive":
             self.allowed_origins = {"*"}
@@ -389,7 +389,7 @@ class APISecurityConfig:
                     "X-Content-Type-Options": "nosniff",
                     "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
                 },
-                "cors": {"origins": ["https://app.monorepo.com"]},
+                "cors": {"origins": ["https://app.example.com"]},
             }
         elif policy_name == "api_endpoints":
             policy = {

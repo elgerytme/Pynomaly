@@ -7,10 +7,10 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from monorepo.domain.entities import GenericDetector
-from monorepo.presentation.cli.container import get_cli_container
-from monorepo.presentation.cli.help_formatter import get_option_help, get_standard_help
-from monorepo.presentation.cli.ux_improvements import CLIErrorHandler, CLIHelpers
+from interfaces.domain.entities import GenericDetector
+from interfaces.presentation.cli.container import get_cli_container
+from interfaces.presentation.cli.help_formatter import get_option_help, get_standard_help
+from interfaces.presentation.cli.ux_improvements import CLIErrorHandler, CLIHelpers
 
 # Get standardized help for this command group
 _help_info = get_standard_help("detection")

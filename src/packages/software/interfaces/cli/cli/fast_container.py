@@ -5,12 +5,20 @@ Lightweight container optimized for CLI startup performance.
 Avoids heavy imports and database connections.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import functools
 from typing import Any
 
-from monorepo.infrastructure.config.settings import Settings, get_settings
+from interfaces.infrastructure.config.settings import Settings, get_settings
 
 
 class FastCLIContainer:
@@ -90,19 +98,19 @@ class FastCLIContainer:
 
     def _create_detector_service(self):
         """Create detector service."""
-        from monorepo.application.services.detector_service import DetectorService
+        from interfaces.application.services.detector_service import DetectorService
 
         return DetectorService(self.detector_repository())
 
     def _create_dataset_service(self):
         """Create dataset service."""
-        from monorepo.application.services.dataset_service import DatasetService
+        from interfaces.application.services.dataset_service import DatasetService
 
         return DatasetService(self.dataset_repository())
 
     def _create_detection_service(self):
         """Create detection service."""
-        from monorepo.application.services.detection_service import DetectionService
+        from interfaces.application.services.detection_service import DetectionService
 
         return DetectionService(
             self.detector_repository(),
@@ -112,7 +120,7 @@ class FastCLIContainer:
 
     def _create_training_service(self):
         """Create training service."""
-        from monorepo.application.services.training_service import TrainingService
+        from interfaces.application.services.training_service import TrainingService
 
         return TrainingService(
             self.detector_repository(),

@@ -10,9 +10,9 @@ from uuid import UUID, uuid4
 import numpy as np
 import pandas as pd
 
-from monorepo.domain.entities.anomaly import Anomaly
-from monorepo.domain.exceptions import ValidationError
-from monorepo.domain.value_objects import AnomalyScore, ConfidenceInterval
+from monorepo_detection.domain.entities.anomaly import Anomaly
+from monorepo_detection.domain.exceptions import ValidationError
+from monorepo_detection.domain.value_objects import AnomalyScore, ConfidenceInterval
 
 
 @dataclass

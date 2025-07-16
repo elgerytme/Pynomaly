@@ -8,8 +8,8 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from monorepo.domain.entities import Dataset
-from monorepo.presentation.cli.container import get_cli_container
+from interfaces.domain.entities import Dataset
+from interfaces.presentation.cli.container import get_cli_container
 
 app = typer.Typer()
 console = Console()

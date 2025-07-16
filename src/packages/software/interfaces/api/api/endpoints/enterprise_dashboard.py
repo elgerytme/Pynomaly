@@ -11,7 +11,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from fastapi.responses import JSONResponse
 
-from monorepo.application.services.enterprise_dashboard_service import (
+from interfaces.application.services.enterprise_dashboard_service import (
     AlertPriority,
     BusinessMetric,
     DashboardAlert,
@@ -24,7 +24,7 @@ from monorepo.application.services.enterprise_dashboard_service import (
 
 # Optional authentication
 try:
-    from monorepo.infrastructure.auth import get_current_user, require_permission
+    from interfaces.infrastructure.auth import get_current_user, require_permission
 
     AUTH_AVAILABLE = True
 except ImportError:

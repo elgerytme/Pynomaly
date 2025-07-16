@@ -14,9 +14,9 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from monorepo.infrastructure.auth.enhanced_dependencies import get_current_user
-from monorepo.infrastructure.security.rbac_middleware import require_permissions
-from monorepo.infrastructure.security.session_manager import get_session_manager
+from interfaces.infrastructure.auth.enhanced_dependencies import get_current_user
+from interfaces.infrastructure.security.rbac_middleware import require_permissions
+from interfaces.infrastructure.security.session_manager import get_session_manager
 
 
 # Response Models

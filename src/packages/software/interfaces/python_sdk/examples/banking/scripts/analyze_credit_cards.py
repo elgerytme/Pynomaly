@@ -4,6 +4,14 @@ Credit Card Transaction Anomaly Detection
 Identifies fraudulent credit card transactions and unusual spending patterns.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 import warnings
 from datetime import datetime, timedelta
 
@@ -19,8 +27,8 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
 
-from monorepo.domain.entities.dataset import Dataset
-from monorepo.domain.value_objects.contamination_rate import ContaminationRate
+from interfaces.domain.entities.dataset import Dataset
+from interfaces.domain.value_objects.contamination_rate import ContaminationRate
 from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 

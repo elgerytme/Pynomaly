@@ -6,11 +6,11 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
-from monorepo.infrastructure.config import Container
-from monorepo.infrastructure.monitoring.health_service import HealthService
-from monorepo.presentation.api.deps import get_container
-from monorepo.presentation.api.docs.response_models import HTTPResponses
-from monorepo.presentation.api.docs.schema_examples import SchemaExamples
+from interfaces.infrastructure.config import Container
+from interfaces.infrastructure.monitoring.health_service import HealthService
+from interfaces.presentation.api.deps import get_container
+from interfaces.presentation.api.docs.response_models import HTTPResponses
+from interfaces.presentation.api.docs.schema_examples import SchemaExamples
 
 router = APIRouter(
     prefix="/health", responses={

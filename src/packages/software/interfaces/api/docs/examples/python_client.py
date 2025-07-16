@@ -10,7 +10,7 @@ import requests
 class PynomaliClient:
     """Python client for Pynomaly API."""
 
-    def __init__(self, base_url: str = "https://api.monorepo.com"):
+    def __init__(self, base_url: str = "https://api.example.com"):
         self.base_url = base_url
         self.session = requests.Session()
         self.access_token = None

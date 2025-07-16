@@ -2,6 +2,14 @@
 FastAPI router for reporting and business metrics dashboard.
 """
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
@@ -9,15 +17,15 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 
-from monorepo.application.services.reporting_service import ReportingService
-from monorepo.domain.entities.reporting import MetricType, ReportType, TimeGranularity
-from monorepo.domain.entities.user import User
-from monorepo.shared.exceptions import (
+from interfaces.application.services.reporting_service import ReportingService
+from interfaces.domain.entities.reporting import MetricType, ReportType, TimeGranularity
+from interfaces.domain.entities.user import User
+from interfaces.shared.exceptions import (
     AuthorizationError,
     ReportNotFoundError,
     ValidationError,
 )
-from monorepo.shared.types import TenantId, UserId
+from interfaces.shared.types import TenantId, UserId
 
 # Router setup
 router = APIRouter(prefix="/api/reporting", tags=["Business Reporting"])
@@ -127,8 +135,8 @@ async def get_reporting_service() -> ReportingService:
 async def get_current_user() -> User:
     """Get current authenticated user."""
 
-    from monorepo.domain.entities.user import User
-    from monorepo.infrastructure.auth.jwt_auth import get_auth
+    from interfaces.domain.entities.user import User
+    from interfaces.infrastructure.auth.jwt_auth import get_auth
 
     # For now, return a mock user for development
     # In production, this would extract user from JWT token
@@ -192,7 +200,7 @@ async def generate_report(
 ):
     """Generate a new business report."""
     try:
-        from monorepo.domain.entities.reporting import ReportFilter
+        from interfaces.domain.entities.reporting import ReportFilter
 
         # Create filters
         filters = ReportFilter(

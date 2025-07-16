@@ -3,21 +3,21 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
 
-from monorepo.application.dto import (
+from interfaces.application.dto import (
     CreateExperimentDTO,
     ExperimentDTO,
     LeaderboardEntryDTO,
     RunDTO,
 )
-from monorepo.infrastructure.auth import (
+from interfaces.infrastructure.auth import (
     UserModel,
     get_current_user,
     require_analyst,
     require_data_scientist,
     require_viewer,
 )
-from monorepo.infrastructure.config import Container
-from monorepo.presentation.api.deps import get_container
+from interfaces.infrastructure.config import Container
+from interfaces.presentation.api.deps import get_container
 
 router = APIRouter()
 

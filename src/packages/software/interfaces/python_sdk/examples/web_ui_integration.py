@@ -18,7 +18,7 @@ from typing import Any
 # Add the src directory to Python path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../src"))
 
-from monorepo.infrastructure.config import create_container
+from interfaces.infrastructure.config import create_container
 
 
 class WebUIDataProvider:

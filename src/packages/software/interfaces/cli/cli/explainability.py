@@ -1,5 +1,13 @@
 """CLI commands for explainable AI and model interpretability."""
 
+"""
+TODO: This file needs dependency injection refactoring.
+Replace direct monorepo imports with dependency injection.
+Use interfaces/shared/base_entity.py for abstractions.
+"""
+
+
+
 from __future__ import annotations
 
 import asyncio
@@ -15,7 +23,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 # Application imports
-from monorepo.application.services.advanced_explainability_service import (
+from interfaces.application.services.advanced_explainability_service import (
     AdvancedExplainabilityService,
     BiasAnalysisConfig,
     ExplanationConfig,
@@ -23,12 +31,12 @@ from monorepo.application.services.advanced_explainability_service import (
 )
 
 # Domain imports
-from monorepo.domain.entities import Dataset
-from monorepo.infrastructure.config.feature_flags import require_feature
+from interfaces.domain.entities import Dataset
+from interfaces.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
 from monorepo.infrastructure.data_loaders import CSVLoader, ParquetLoader
-from monorepo.shared.protocols import DetectorProtocol
+from interfaces.shared.protocols import DetectorProtocol
 
 console = Console()
 
