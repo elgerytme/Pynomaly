@@ -1,0 +1,50 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pynomaly-people-ops"
+version = "0.1.0"
+description = "User management, authentication, and authorization for Pynomaly"
+authors = [{name = "Pynomaly Team", email = "team@pynomaly.io"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.9"
+
+dependencies = [
+    "pyjwt>=2.8.0",
+    "passlib>=1.7.4",
+    "bcrypt>=4.0.0",
+    "pydantic>=2.0.0",
+    "email-validator>=2.0.0",
+]
+
+[project.optional-dependencies]
+mfa = ["pyotp>=2.8.0", "qrcode>=7.4.0"]
+enterprise = ["python-ldap>=3.4.0", "pysaml2>=7.2.0"]
+monitoring = ["prometheus-client>=0.21.0"]
+
+test = [
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
+    "hypothesis>=6.115.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["people_ops"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+src = ["."]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

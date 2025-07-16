@@ -21,16 +21,21 @@ This is a clean, enterprise-ready monorepo containing all Pynomaly packages, app
 
 ```
 pynomaly/
-├── src/packages/           # 🎯 Core packages (clean architecture)
+├── src/packages/           # 🎯 Core packages (domain-driven architecture)
 │   ├── core/              # Domain logic & business rules  
-│   ├── algorithms/         # ML algorithm adapters
-│   ├── infrastructure/     # Technical infrastructure adapters
+│   ├── anomaly_detection/ # Consolidated anomaly & outlier detection
+│   ├── machine_learning/  # ML operations, training & lifecycle
+│   ├── people_ops/        # User management & authentication
+│   ├── mathematics/       # Statistical analysis & computations
+│   ├── data_platform/     # Data processing & quality pipeline
+│   ├── infrastructure/    # Technical infrastructure adapters
+│   ├── interfaces/        # User interfaces (CLI, API, Web)
+│   ├── enterprise/        # Enterprise features & governance
 │   ├── services/          # Application services
-│   ├── data_platform/     # Data processing pipeline
-│   ├── mlops/            # ML operations and monitoring
-│   ├── enterprise/       # Enterprise features
-│   ├── interfaces/       # User interfaces (CLI, API, Web)
-│   └── testing/          # Testing utilities
+│   └── testing/           # Testing utilities
+├── pkg/                   # 🔗 Third-party packages
+│   ├── vendor_dependencies/ # Vendored dependencies
+│   └── custom_forks/      # Custom package forks
 ├── scripts/              # 🛠️ Development & automation scripts
 │   ├── governance/       # Repository organization enforcement
 │   ├── analysis/         # Analysis and debugging tools
@@ -47,12 +52,23 @@ pynomaly/
 
 ### 📦 Package Organization
 
-All packages follow **Clean Architecture** principles with standardized structure:
+All packages follow **Domain-Driven Design** and **Clean Architecture** principles:
 
-- **Domain Layer** (`core/`): Pure business logic, entities, value objects
-- **Application Layer** (`services/`): Use cases, application services
-- **Infrastructure Layer** (`infrastructure/`, `data_platform/`): External adapters
-- **Interface Layer** (`interfaces/`): CLI, API, Web UI
+#### 🏢 **Domain Packages** (Core Business Logic)
+- **`core/`**: Fundamental domain logic, entities, value objects
+- **`anomaly_detection/`**: Consolidated anomaly & outlier detection (40+ algorithms)
+- **`mathematics/`**: Statistical analysis and mathematical computations
+
+#### 🚀 **Application Packages** (Business Operations)
+- **`machine_learning/`**: ML training, optimization, lifecycle management
+- **`people_ops/`**: User management, authentication, authorization
+- **`data_platform/`**: Data processing, quality, transformation pipelines
+- **`enterprise/`**: Multi-tenancy, governance, compliance
+- **`services/`**: Application services and use cases
+
+#### 🔧 **Infrastructure Packages** (Technical Concerns)
+- **`infrastructure/`**: Deployment, monitoring, persistence adapters
+- **`interfaces/`**: CLI, API, Web UI (presentation layer)
 
 Each package contains:
 ```

@@ -58,11 +58,64 @@ python_library(
     },
 )
 
-# Algorithms Package - ML algorithm adapters and implementations
+# Anomaly Detection Package - Consolidated anomaly and outlier detection
 python_library(
-    name = "algorithms",
+    name = "anomaly-detection",
     srcs = glob([
-        "src/packages/algorithms/**/*.py",
+        "src/packages/anomaly_detection/**/*.py",
+    ]),
+    deps = [
+        ":core",
+        ":mathematics",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "layer": "domain",
+        "type": "anomaly-detection",
+    },
+)
+
+# Machine Learning Package - ML operations and lifecycle management
+python_library(
+    name = "machine-learning",
+    srcs = glob([
+        "src/packages/machine_learning/**/*.py",
+    ]),
+    deps = [
+        ":core",
+        ":anomaly-detection",
+        ":data-platform",
+        ":infrastructure",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "layer": "application",
+        "type": "machine-learning",
+    },
+)
+
+# People Operations Package - User management and authentication
+python_library(
+    name = "people-ops",
+    srcs = glob([
+        "src/packages/people_ops/**/*.py",
+    ]),
+    deps = [
+        ":core",
+        ":infrastructure",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "layer": "application",
+        "type": "people-ops",
+    },
+)
+
+# Mathematics Package - Statistical analysis and computations
+python_library(
+    name = "mathematics",
+    srcs = glob([
+        "src/packages/mathematics/**/*.py",
     ]),
     deps = [
         ":core",
@@ -70,7 +123,7 @@ python_library(
     visibility = ["//src/packages/..."],
     metadata = {
         "layer": "domain",
-        "type": "algorithms",
+        "type": "mathematics",
     },
 )
 
@@ -91,7 +144,7 @@ python_library(
     },
 )
 
-# MLOps Package - ML operations and lifecycle management
+# MLOps Package - Legacy package (to be deprecated in favor of machine-learning)
 python_library(
     name = "mlops",
     srcs = glob([
@@ -100,13 +153,15 @@ python_library(
     deps = [
         ":core",
         ":infrastructure",
-        ":algorithms",
+        ":anomaly-detection",
+        ":machine-learning",
         ":data-platform",
     ],
     visibility = ["//src/packages/..."],
     metadata = {
         "layer": "application",
         "type": "mlops",
+        "deprecated": True,
     },
 )
 
@@ -142,7 +197,10 @@ python_library(
         ":core",
         ":infrastructure", 
         ":services",
-        ":algorithms",
+        ":anomaly-detection",
+        ":machine-learning",
+        ":people-ops",
+        ":mathematics",
         ":data-platform",
         ":mlops",
         ":enterprise",
