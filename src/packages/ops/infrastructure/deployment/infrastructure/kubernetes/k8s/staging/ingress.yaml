@@ -1,0 +1,315 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pynomaly-staging-ingress
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: ingress
+    environment: staging
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://staging.pynomaly.com"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Length,Content-Range"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+      more_set_headers "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:";
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - staging.pynomaly.com
+    - api-staging.pynomaly.com
+    - grafana-staging.pynomaly.com
+    - prometheus-staging.pynomaly.com
+    secretName: pynomaly-staging-tls
+  rules:
+  - host: staging.pynomaly.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pynomaly-staging-service
+            port:
+              number: 8000
+  - host: api-staging.pynomaly.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: pynomaly-staging-service
+            port:
+              number: 8000
+  - host: grafana-staging.pynomaly.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana-staging-service
+            port:
+              number: 3000
+  - host: prometheus-staging.pynomaly.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-staging-service
+            port:
+              number: 9090
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-ingress-controller-staging
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: nginx-ingress
+    environment: staging
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  - port: 443
+    targetPort: 443
+    protocol: TCP
+    name: https
+  selector:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/component: controller
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-staging-config
+  namespace: pynomaly-staging
+  labels:
+    app: pynomaly
+    component: nginx
+    environment: staging
+data:
+  nginx.conf: |
+    upstream pynomaly_staging {
+        server pynomaly-staging-service:8000;
+    }
+    
+    upstream grafana_staging {
+        server grafana-staging-service:3000;
+    }
+    
+    upstream prometheus_staging {
+        server prometheus-staging-service:9090;
+    }
+    
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=api_staging:10m rate=100r/m;
+    limit_req_zone $binary_remote_addr zone=upload_staging:10m rate=10r/m;
+    
+    # Connection limiting
+    limit_conn_zone $binary_remote_addr zone=addr_staging:10m;
+    
+    server {
+        listen 80;
+        server_name staging.pynomaly.com api-staging.pynomaly.com;
+        return 301 https://$server_name$request_uri;
+    }
+    
+    server {
+        listen 443 ssl http2;
+        server_name staging.pynomaly.com api-staging.pynomaly.com;
+        
+        ssl_certificate /etc/ssl/certs/pynomaly-staging.crt;
+        ssl_certificate_key /etc/ssl/private/pynomaly-staging.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!SRP:!CAMELLIA;
+        ssl_prefer_server_ciphers on;
+        ssl_session_cache shared:SSL:10m;
+        ssl_session_timeout 10m;
+        
+        # Security headers
+        add_header X-Frame-Options DENY;
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+        add_header Referrer-Policy "strict-origin-when-cross-origin";
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:";
+        
+        # Rate limiting
+        limit_req zone=api_staging burst=20 nodelay;
+        limit_conn addr_staging 10;
+        
+        # Gzip compression
+        gzip on;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_proxied any;
+        gzip_comp_level 6;
+        gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+        
+        # Client settings
+        client_max_body_size 100m;
+        client_body_timeout 60s;
+        client_header_timeout 60s;
+        
+        # Proxy settings
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+        proxy_buffer_size 4k;
+        proxy_buffers 4 32k;
+        proxy_busy_buffers_size 64k;
+        proxy_temp_file_write_size 64k;
+        
+        # Main application
+        location / {
+            proxy_pass http://pynomaly_staging;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header X-Forwarded-Port $server_port;
+        }
+        
+        # API endpoints with stricter rate limiting
+        location /api/ {
+            limit_req zone=api_staging burst=10 nodelay;
+            proxy_pass http://pynomaly_staging;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        # Upload endpoints with very strict rate limiting
+        location /api/v1/datasets {
+            limit_req zone=upload_staging burst=5 nodelay;
+            proxy_pass http://pynomaly_staging;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_request_buffering off;
+        }
+        
+        # Health check endpoint (no rate limiting)
+        location /health {
+            proxy_pass http://pynomaly_staging;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            access_log off;
+        }
+        
+        # Metrics endpoint (restricted access)
+        location /metrics {
+            allow 10.0.0.0/8;
+            allow 172.16.0.0/12;
+            allow 192.168.0.0/16;
+            deny all;
+            proxy_pass http://pynomaly_staging;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        
+        # Static files (if any)
+        location /static/ {
+            proxy_pass http://pynomaly_staging;
+            proxy_set_header Host $host;
+            proxy_cache_valid 200 302 10m;
+            proxy_cache_valid 404 1m;
+            expires 1h;
+        }
+    }
+    
+    server {
+        listen 443 ssl http2;
+        server_name grafana-staging.pynomaly.com;
+        
+        ssl_certificate /etc/ssl/certs/pynomaly-staging.crt;
+        ssl_certificate_key /etc/ssl/private/pynomaly-staging.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        
+        # Security headers
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+        
+        location / {
+            proxy_pass http://grafana_staging;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header X-Forwarded-Port $server_port;
+        }
+        
+        # WebSocket support for Grafana
+        location /api/live {
+            proxy_pass http://grafana_staging;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+    
+    server {
+        listen 443 ssl http2;
+        server_name prometheus-staging.pynomaly.com;
+        
+        ssl_certificate /etc/ssl/certs/pynomaly-staging.crt;
+        ssl_certificate_key /etc/ssl/private/pynomaly-staging.key;
+        ssl_protocols TLSv1.2 TLSv1.3;
+        
+        # Security headers
+        add_header X-Frame-Options SAMEORIGIN;
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+        
+        # Basic auth for Prometheus (in staging)
+        auth_basic "Prometheus Staging";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        
+        location / {
+            proxy_pass http://prometheus_staging;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }

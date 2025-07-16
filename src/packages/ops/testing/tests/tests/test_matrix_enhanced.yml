@@ -1,0 +1,348 @@
+# Enhanced Test Matrix Configuration for Multi-Environment Testing - Issue #214
+
+meta:
+  version: "2.0.0"
+  description: "Production-ready multi-environment testing matrix"
+  github_issue: "#214"
+  last_updated: "2024-07-15"
+
+# =============================================================================
+# ENVIRONMENT MATRIX DEFINITION
+# =============================================================================
+
+operating_systems:
+  - name: "ubuntu-latest"
+    type: "linux"
+    shell: "bash"
+    package_manager: "pip"
+    container_support: true
+    
+  - name: "windows-latest"
+    type: "windows"
+    shell: "powershell"
+    package_manager: "pip"
+    container_support: false
+    
+  - name: "macos-latest"
+    type: "macos"
+    shell: "bash"
+    package_manager: "pip"
+    container_support: true
+
+python_versions:
+  - version: "3.11"
+    status: "stable"
+    primary: true
+    
+  - version: "3.12"
+    status: "stable"
+    primary: true
+    
+  - version: "3.13"
+    status: "stable"
+    primary: false
+
+dependency_groups:
+  minimal:
+    description: "Core dependencies only"
+    packages:
+      - "pytest>=8.0.0"
+      - "pytest-cov>=6.0.0"
+      - "pytest-asyncio>=0.24.0"
+      - "numpy>=1.26.0"
+      - "pandas>=2.2.3"
+      - "pydantic>=2.9.0"
+      - "pyod>=2.0.5"
+    test_categories: ["unit"]
+    
+  standard:
+    description: "Standard ML dependencies"
+    packages:
+      - "pytest>=8.0.0"
+      - "pytest-cov>=6.0.0"
+      - "pytest-asyncio>=0.24.0"
+      - "numpy>=1.26.0"
+      - "pandas>=2.2.3"
+      - "pydantic>=2.9.0"
+      - "pyod>=2.0.5"
+      - "scikit-learn>=1.6.0"
+      - "scipy>=1.15.0"
+    test_categories: ["unit", "integration"]
+    
+  api:
+    description: "API server dependencies"
+    base: "standard"
+    additional_packages:
+      - "fastapi>=0.115.0"
+      - "uvicorn>=0.34.0"
+      - "httpx>=0.28.1"
+      - "requests>=2.32.3"
+    test_categories: ["unit", "integration", "contract", "api"]
+    
+  cli:
+    description: "CLI tool dependencies"
+    base: "standard"
+    additional_packages:
+      - "typer>=0.15.1"
+      - "rich>=13.9.4"
+      - "click>=8.0.0"
+    test_categories: ["unit", "integration", "cli"]
+    
+  server:
+    description: "Full server dependencies"
+    base: "api"
+    additional_packages:
+      - "redis>=5.2.1"
+      - "sqlalchemy>=2.0.36"
+      - "prometheus-client>=0.21.1"
+      - "psutil>=6.1.1"
+    test_categories: ["unit", "integration", "contract", "e2e", "api"]
+    
+  production:
+    description: "Production-ready dependencies"
+    base: "server"
+    additional_packages:
+      - "opentelemetry-api>=1.29.0"
+      - "opentelemetry-sdk>=1.29.0"
+      - "tenacity>=9.0.0"
+      - "circuitbreaker>=2.0.0"
+    test_categories: ["unit", "integration", "contract", "e2e", "performance", "security"]
+    
+  all:
+    description: "All optional dependencies"
+    install_command: "pip install -e .[all]"
+    test_categories: ["unit", "integration", "contract", "e2e", "performance", "load", "stress", "security"]
+
+# =============================================================================
+# TEST CATEGORIES AND COMMANDS
+# =============================================================================
+
+test_categories:
+  unit:
+    description: "Fast unit tests for core functionality"
+    command: "pytest tests/unit/ tests/domain/ -v --tb=short -m 'not slow'"
+    timeout: 300
+    coverage: true
+    parallel: true
+    
+  integration:
+    description: "Integration tests for component interaction"
+    command: "pytest tests/integration/ -v --tb=short -m 'not external'"
+    timeout: 600
+    coverage: true
+    parallel: false
+    services: ["postgres", "redis"]
+    
+  contract:
+    description: "API contract and interface validation"
+    command: "pytest tests/contract/ -v --tb=short"
+    timeout: 300
+    coverage: false
+    parallel: true
+    
+  api:
+    description: "API endpoint and middleware testing"
+    command: "pytest tests/api/ tests/presentation/api/ -v --tb=short"
+    timeout: 600
+    coverage: true
+    parallel: false
+    services: ["postgres", "redis"]
+    setup_commands:
+      - "uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 &"
+      - "sleep 10"
+    
+  cli:
+    description: "CLI command and interface testing"
+    command: "pytest tests/cli/ tests/presentation/cli/ -v --tb=short"
+    timeout: 400
+    coverage: true
+    parallel: true
+    
+  e2e:
+    description: "End-to-end workflow validation"
+    command: "pytest tests/e2e/ -v --tb=short -m 'not load'"
+    timeout: 900
+    coverage: false
+    parallel: false
+    services: ["postgres", "redis"]
+    
+  performance:
+    description: "Performance benchmarking and profiling"
+    command: "pytest tests/performance/ -v --tb=short --benchmark-skip"
+    timeout: 1200
+    coverage: false
+    parallel: false
+    
+  load:
+    description: "Load testing and stress scenarios"
+    command: "pytest tests/performance/ -v --tb=short -m load"
+    timeout: 1800
+    coverage: false
+    parallel: false
+    services: ["postgres", "redis"]
+    
+  stress:
+    description: "Stress testing and resource limits"
+    command: "pytest tests/performance/ -v --tb=short -m stress"
+    timeout: 3600
+    coverage: false
+    parallel: false
+    
+  security:
+    description: "Security validation and vulnerability testing"
+    command: "pytest tests/security/ -v --tb=short"
+    timeout: 600
+    coverage: false
+    parallel: true
+
+# =============================================================================
+# TESTING SCOPE CONFIGURATIONS
+# =============================================================================
+
+testing_scopes:
+  quick:
+    description: "Quick validation for CI/PR checks"
+    python_versions: ["3.11"]
+    dependency_groups: ["minimal", "standard"]
+    test_categories: ["unit", "integration"]
+    os_matrix: ["ubuntu-latest"]
+    
+  standard:
+    description: "Standard testing for regular validation"
+    python_versions: ["3.11", "3.12"]
+    dependency_groups: ["minimal", "standard", "api", "cli"]
+    test_categories: ["unit", "integration", "contract"]
+    os_matrix: ["ubuntu-latest", "windows-latest"]
+    
+  comprehensive:
+    description: "Comprehensive testing for releases"
+    python_versions: ["3.11", "3.12", "3.13"]
+    dependency_groups: ["minimal", "standard", "api", "cli", "server", "production"]
+    test_categories: ["unit", "integration", "contract", "e2e", "performance"]
+    os_matrix: ["ubuntu-latest", "windows-latest", "macos-latest"]
+    
+  stress:
+    description: "Stress testing for performance validation"
+    python_versions: ["3.11", "3.12", "3.13"]
+    dependency_groups: ["all"]
+    test_categories: ["unit", "integration", "contract", "e2e", "performance", "load", "stress"]
+    os_matrix: ["ubuntu-latest"]
+
+# =============================================================================
+# DEPLOYMENT SCENARIOS
+# =============================================================================
+
+deployment_scenarios:
+  development:
+    description: "Local development environment"
+    install_command: "pip install -e .[dev,test]"
+    validation_command: "python -c 'import pynomaly; from pynomaly.presentation.cli.app import app; print(\"✅ Development environment ready\")'"
+    
+  production:
+    description: "Production server environment"
+    install_command: "pip install -e .[production]"
+    validation_command: "python -c 'import pynomaly; from pynomaly.presentation.api.app import app; print(\"✅ Production environment ready\")'"
+    
+  container:
+    description: "Containerized deployment"
+    dockerfile: "Dockerfile"
+    build_command: "docker build -f Dockerfile -t pynomaly-test ."
+    run_command: "docker run --rm -d --name test-container -p 8080:8000 pynomaly-test"
+    health_check: "curl -f http://localhost:8080/api/health/"
+    cleanup_command: "docker stop test-container"
+    
+  serverless:
+    description: "Serverless function deployment"
+    install_command: "pip install -e .[api,minimal]"
+    validation_command: "python -c 'from pynomaly.presentation.api.app import app; from fastapi.testclient import TestClient; client = TestClient(app); response = client.get(\"/api/health/\"); assert response.status_code == 200; print(\"✅ Serverless deployment ready\")'"
+
+# =============================================================================
+# COMPATIBILITY MATRIX
+# =============================================================================
+
+compatibility_tests:
+  python_versions:
+    description: "Python version compatibility validation"
+    matrix:
+      - python: "3.11"
+        status: "stable"
+        validation: "python -c 'import sys; import pynomaly; print(f\"✅ Python {sys.version} compatibility verified\")'"
+      - python: "3.12"
+        status: "stable"
+        validation: "python -c 'import sys; import pynomaly; print(f\"✅ Python {sys.version} compatibility verified\")'"
+      - python: "3.13"
+        status: "stable"
+        validation: "python -c 'import sys; import pynomaly; print(f\"✅ Python {sys.version} compatibility verified\")'"
+        
+  package_managers:
+    description: "Package manager compatibility"
+    tests:
+      pip:
+        install: "python -m pip install --upgrade pip && pip install -e .[test]"
+        validate: "python -c 'import pynomaly; print(\"✅ pip installation works\")'"
+      pipx:
+        install: "pipx install ."
+        validate: "pipx run pynomaly --version"
+        condition: "command -v pipx"
+        
+  dependency_conflicts:
+    description: "Dependency conflict detection"
+    install: "pip install -e .[all]"
+    check: "pip check"
+    validate: "python -c 'import pynomaly; from pynomaly.domain.entities import Dataset; print(\"✅ Core functionality maintained\")'"
+
+# =============================================================================
+# QUALITY GATES AND THRESHOLDS
+# =============================================================================
+
+quality_gates:
+  minimum_success_rate: 95  # Minimum test pass rate percentage
+  maximum_regression: 15   # Maximum performance regression percentage
+  coverage_threshold: 85   # Minimum code coverage percentage
+  
+  test_timeouts:
+    unit: 300      # 5 minutes
+    integration: 600   # 10 minutes
+    e2e: 900       # 15 minutes
+    performance: 1200  # 20 minutes
+    load: 1800     # 30 minutes
+    stress: 3600   # 60 minutes
+    
+  performance_thresholds:
+    startup_time: 5.0    # Maximum seconds
+    memory_usage: 512    # Maximum MB
+    api_response: 1.0    # Maximum seconds
+    
+  resource_limits:
+    memory_minimum: 2048  # Minimum MB available
+    disk_minimum: 1024    # Minimum MB available
+    cpu_minimum: 1        # Minimum CPU cores
+
+# =============================================================================
+# REPORTING AND ARTIFACTS
+# =============================================================================
+
+reporting:
+  formats: ["json", "xml", "html", "markdown"]
+  artifacts:
+    - "test-results-*.xml"
+    - "coverage-*.xml"
+    - "htmlcov/"
+    - "benchmark-*.json"
+    - "performance-*.json"
+    - "environment-reports/"
+    
+  retention_days: 30
+  
+  notifications:
+    on_success: false
+    on_failure: true
+    on_regression: true
+    
+  summary_sections:
+    - "executive_summary"
+    - "environment_matrix_results"
+    - "test_category_breakdown"
+    - "performance_metrics"
+    - "quality_gate_status"
+    - "recommendations"

@@ -1,0 +1,313 @@
+config:
+  # Target configuration
+  target: 'http://localhost:8000'
+  
+  # Load phases
+  phases:
+    - duration: 120  # 2 minutes warm-up
+      arrivalRate: 5
+      name: "Warm-up phase"
+    
+    - duration: 300  # 5 minutes normal load
+      arrivalRate: 20
+      name: "Normal load"
+    
+    - duration: 180  # 3 minutes peak load
+      arrivalRate: 50
+      name: "Peak load"
+    
+    - duration: 120  # 2 minutes stress test
+      arrivalRate: 100
+      name: "Stress test"
+    
+    - duration: 180  # 3 minutes scale down
+      arrivalRate: 30
+      name: "Scale down"
+    
+    - duration: 60   # 1 minute cool down
+      arrivalRate: 5
+      name: "Cool down"
+  
+  # Payload configuration
+  payload:
+    path: "./test-data.csv"
+    fields:
+      - "dataset_name"
+      - "detector_type"
+      - "contamination"
+  
+  # Environment variables
+  environments:
+    production:
+      target: 'https://pynomaly.production.com'
+      phases:
+        - duration: 300
+          arrivalRate: 10
+    
+    staging:
+      target: 'https://pynomaly.staging.com'
+      phases:
+        - duration: 180
+          arrivalRate: 20
+  
+  # Default variables
+  variables:
+    dataset_size: 1000
+    max_response_time: 5000
+    csrf_token: "{{ $randomString() }}"
+  
+  # HTTP configuration
+  http:
+    timeout: 30
+    pool: 50
+    maxSockets: 100
+    
+  # WebSocket configuration
+  ws:
+    pool: 10
+    timeout: 30
+  
+  # Metrics and monitoring
+  statsig:
+    apiKey: "{{ $processEnvironment.STATSIG_API_KEY }}"
+  
+  # Rate limiting
+  rateLimit: 1000
+  
+  # Performance budgets
+  ensure:
+    maxErrorRate: 1
+    maxResponseTime: 
+      p95: 2000
+      p99: 5000
+    minOkRate: 95
+
+# Test scenarios
+scenarios:
+  # Basic page load scenario
+  - name: "Page Load Test"
+    weight: 30
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+            - hasProperty: "body"
+            - contentType: "text/html"
+      
+      - get:
+          url: "/detection"
+          expect:
+            - statusCode: 200
+            - hasProperty: "body"
+      
+      - get:
+          url: "/detectors"
+          expect:
+            - statusCode: 200
+            - hasProperty: "body"
+      
+      - get:
+          url: "/datasets"
+          expect:
+            - statusCode: 200
+            - hasProperty: "body"
+      
+      - get:
+          url: "/visualizations"
+          expect:
+            - statusCode: 200
+            - hasProperty: "body"
+      
+      - think: 2
+  
+  # API endpoint testing
+  - name: "API Stress Test"
+    weight: 25
+    flow:
+      - get:
+          url: "/api/ui/config"
+          expect:
+            - statusCode: 200
+            - contentType: "application/json"
+            - hasProperty: "performance_monitoring"
+      
+      - get:
+          url: "/api/ui/health"
+          expect:
+            - statusCode: 200
+            - contentType: "application/json"
+            - hasProperty: "status"
+      
+      - get:
+          url: "/api/session/status"
+          expect:
+            - statusCode: 200
+            - contentType: "application/json"
+      
+      - get:
+          url: "/api/detectors"
+          expect:
+            - statusCode: 200
+            - contentType: "application/json"
+      
+      - get:
+          url: "/api/datasets"
+          expect:
+            - statusCode: 200
+            - contentType: "application/json"
+      
+      - think: 1
+  
+  # User journey simulation
+  - name: "Complete User Journey"
+    weight: 20
+    flow:
+      # Step 1: Land on homepage
+      - get:
+          url: "/"
+          capture:
+            - json: "$.csrf_token"
+              as: "csrf_token"
+          expect:
+            - statusCode: 200
+      
+      # Step 2: Navigate to dashboard
+      - get:
+          url: "/dashboard"
+          expect:
+            - statusCode: 200
+      
+      - think: 3
+      
+      # Step 3: Check system health
+      - get:
+          url: "/api/ui/health"
+          expect:
+            - statusCode: 200
+            - hasProperty: "status"
+      
+      # Step 4: Load detection page
+      - get:
+          url: "/detection"
+          expect:
+            - statusCode: 200
+      
+      - think: 2
+      
+      # Step 5: Browse detectors
+      - get:
+          url: "/detectors"
+          expect:
+            - statusCode: 200
+      
+      # Step 6: Get detector information
+      - get:
+          url: "/api/detectors"
+          expect:
+            - statusCode: 200
+      
+      - think: 2
+      
+      # Step 7: Check datasets
+      - get:
+          url: "/datasets"
+          expect:
+            - statusCode: 200
+      
+      # Step 8: View visualizations
+      - get:
+          url: "/visualizations"
+          expect:
+            - statusCode: 200
+      
+      - think: 5
+  
+  # WebSocket connection test
+  - name: "WebSocket Connection Test"
+    weight: 15
+    engine: ws
+    flow:
+      # Test WebSocket endpoint availability
+      - get:
+          url: "/api/websocket/status"
+          expect:
+            - statusCode: 200
+      
+      # Test real-time endpoints
+      - get:
+          url: "/api/realtime/detection"
+          expect:
+            - statusCode: 200
+      
+      - get:
+          url: "/api/realtime/metrics"
+          expect:
+            - statusCode: 200
+      
+      - get:
+          url: "/api/realtime/alerts"
+          expect:
+            - statusCode: 200
+      
+      - think: 1
+  
+  # Error handling and resilience test
+  - name: "Error Handling Test"
+    weight: 10
+    flow:
+      # Test 404 handling
+      - get:
+          url: "/nonexistent-page"
+          expect:
+            - statusCode: 404
+      
+      # Test invalid API endpoints
+      - get:
+          url: "/api/invalid-endpoint"
+          expect:
+            - statusCode: 404
+      
+      # Test malformed requests
+      - post:
+          url: "/api/detection/analyze"
+          json:
+            invalid_data: "test"
+          expect:
+            - statusCode: [400, 422]
+      
+      - think: 1
+
+# Custom functions for data generation
+processor: "./artillery-processor.js"
+
+# Plugin configuration
+plugins:
+  # Metrics collection
+  metrics-by-endpoint:
+    useOnlyRequestNames: true
+  
+  # CloudWatch metrics (if using AWS)
+  cloudwatch:
+    namespace: "Pynomaly/LoadTest"
+    dimensions:
+      - name: "TestType"
+        value: "WebUI"
+  
+  # Prometheus metrics
+  prometheus:
+    pushgateway: "http://localhost:9091"
+    job: "pynomaly-load-test"
+  
+  # Slack notifications
+  slack:
+    webhook: "{{ $processEnvironment.SLACK_WEBHOOK_URL }}"
+    channel: "#pynomaly-alerts"
+    
+  # HTML reporting
+  html-report:
+    output: "./test_reports/artillery-report.html"
+    
+  # JSON reporting
+  json-report:
+    output: "./test_reports/artillery-results.json"

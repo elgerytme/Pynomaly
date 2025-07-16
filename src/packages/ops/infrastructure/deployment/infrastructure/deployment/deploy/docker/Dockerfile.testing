@@ -1,0 +1,70 @@
+FROM python:3.11-slim as base
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    git \
+    libpq-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt pyproject.toml ./
+COPY requirements-test.txt ./
+
+# Install core dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install test dependencies
+RUN pip install --no-cache-dir -r requirements-test.txt
+
+# Install ML framework dependencies for comprehensive testing
+RUN pip install --no-cache-dir \
+    torch==2.0.0 \
+    tensorflow==2.13.0 \
+    jax[cpu]==0.4.13 \
+    jaxlib==0.4.13 \
+    pyod==1.1.0 \
+    fastapi==0.104.1 \
+    uvicorn==0.24.0 \
+    redis==5.0.1 \
+    aioredis==2.0.1 \
+    celery==5.3.4 \
+    pytest-asyncio==0.21.1 \
+    pytest-mock==3.12.0 \
+    hypothesis==6.88.1 \
+    pytest-benchmark==4.0.0 \
+    pytest-xdist==3.5.0
+
+# Install optional dependencies for full coverage
+RUN pip install --no-cache-dir \
+    shap==0.42.1 \
+    lime==0.2.0.1 \
+    optuna==3.4.0 \
+    mlflow==2.8.1 \
+    prometheus-client==0.19.0 \
+    opentelemetry-api==1.21.0 \
+    opentelemetry-sdk==1.21.0
+
+# Copy source code
+COPY src/ src/
+COPY tests/ tests/
+COPY pytest.ini ./
+
+# Install package in development mode
+RUN pip install -e .
+
+# Set environment variables for testing
+ENV PYTHONPATH=/app/src
+ENV PYTEST_CURRENT_TEST=""
+ENV TESTING=true
+
+# Create test directories
+RUN mkdir -p /app/test-results /app/coverage-reports
+
+# Default command for testing
+CMD ["pytest", "tests/", "-v", "--cov=pynomaly", "--cov-report=html:/app/coverage-reports", "--cov-report=term-missing", "--junit-xml=/app/test-results/junit.xml"]

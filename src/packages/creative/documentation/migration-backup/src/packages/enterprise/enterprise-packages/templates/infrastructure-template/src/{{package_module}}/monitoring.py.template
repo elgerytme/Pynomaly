@@ -1,0 +1,375 @@
+"""Monitoring infrastructure for {{package_title}}."""
+
+import asyncio
+import time
+from contextlib import asynccontextmanager, contextmanager
+from typing import Any, Dict, List, Optional
+import psutil
+import structlog
+from enterprise_core import InfrastructureComponent
+from .config import {{package_module|title}}Config
+
+
+logger = structlog.get_logger(__name__)
+
+
+class {{package_module|title}}Monitor(InfrastructureComponent):
+    """{{package_title}} monitoring component."""
+
+    def __init__(self, config: {{package_module|title}}Config) -> None:
+        super().__init__(config)
+        self._config = config
+        self._metrics: Dict[str, Any] = {}
+        self._timers: Dict[str, float] = {}
+        self._health_checks: List[callable] = []
+        self._prometheus_client = None
+        self._monitoring_task: Optional[asyncio.Task] = None
+
+    async def start(self) -> None:
+        """Start monitoring infrastructure."""
+        logger.info("Starting {{package_name}} monitoring")
+
+        # Initialize Prometheus if enabled
+        if self._config.prometheus_enabled:
+            await self._init_prometheus()
+
+        # Start monitoring task
+        if self._config.performance_monitoring:
+            self._monitoring_task = asyncio.create_task(self._monitoring_loop())
+
+        self._is_running = True
+        logger.info("{{package_name}} monitoring started")
+
+    async def stop(self) -> None:
+        """Stop monitoring infrastructure."""
+        logger.info("Stopping {{package_name}} monitoring")
+
+        if self._monitoring_task:
+            self._monitoring_task.cancel()
+            try:
+                await self._monitoring_task
+            except asyncio.CancelledError:
+                pass
+
+        self._is_running = False
+        logger.info("{{package_name}} monitoring stopped")
+
+    def record_counter(
+        self,
+        name: str,
+        value: float = 1.0,
+        tags: Optional[Dict[str, str]] = None,
+    ) -> None:
+        """Record a counter metric."""
+        tags = tags or {}
+
+        metric_key = f"{name}_{self._serialize_tags(tags)}"
+        if metric_key not in self._metrics:
+            self._metrics[metric_key] = {"type": "counter", "value": 0, "tags": tags}
+
+        self._metrics[metric_key]["value"] += value
+
+        # Update Prometheus if available
+        if self._prometheus_client:
+            self._update_prometheus_counter(name, value, tags)
+
+    def record_gauge(
+        self,
+        name: str,
+        value: float,
+        tags: Optional[Dict[str, str]] = None,
+    ) -> None:
+        """Record a gauge metric."""
+        tags = tags or {}
+
+        metric_key = f"{name}_{self._serialize_tags(tags)}"
+        self._metrics[metric_key] = {"type": "gauge", "value": value, "tags": tags}
+
+        # Update Prometheus if available
+        if self._prometheus_client:
+            self._update_prometheus_gauge(name, value, tags)
+
+    def record_histogram(
+        self,
+        name: str,
+        value: float,
+        tags: Optional[Dict[str, str]] = None,
+    ) -> None:
+        """Record a histogram metric."""
+        tags = tags or {}
+
+        metric_key = f"{name}_{self._serialize_tags(tags)}"
+        if metric_key not in self._metrics:
+            self._metrics[metric_key] = {
+                "type": "histogram",
+                "values": [],
+                "count": 0,
+                "sum": 0.0,
+                "tags": tags,
+            }
+
+        metric = self._metrics[metric_key]
+        metric["values"].append(value)
+        metric["count"] += 1
+        metric["sum"] += value
+
+        # Keep only last 1000 values to prevent memory issues
+        if len(metric["values"]) > 1000:
+            metric["values"] = metric["values"][-1000:]
+
+        # Update Prometheus if available
+        if self._prometheus_client:
+            self._update_prometheus_histogram(name, value, tags)
+
+    @contextmanager
+    def timer(self, name: str, tags: Optional[Dict[str, str]] = None):
+        """Context manager for timing operations."""
+        start_time = time.time()
+        try:
+            yield
+        finally:
+            duration = time.time() - start_time
+            self.record_histogram(f"{name}.duration", duration, tags)
+
+    @asynccontextmanager
+    async def async_timer(self, name: str, tags: Optional[Dict[str, str]] = None):
+        """Async context manager for timing operations."""
+        start_time = time.time()
+        try:
+            yield
+        finally:
+            duration = time.time() - start_time
+            self.record_histogram(f"{name}.duration", duration, tags)
+
+    def start_timer(self, name: str) -> str:
+        """Start a named timer."""
+        timer_id = f"{name}_{time.time()}"
+        self._timers[timer_id] = time.time()
+        return timer_id
+
+    def stop_timer(
+        self,
+        timer_id: str,
+        tags: Optional[Dict[str, str]] = None,
+    ) -> float:
+        """Stop a named timer and record the duration."""
+        if timer_id not in self._timers:
+            raise ValueError(f"Timer {timer_id} not found")
+
+        duration = time.time() - self._timers[timer_id]
+        del self._timers[timer_id]
+
+        # Extract name from timer_id
+        name = timer_id.rsplit("_", 1)[0]
+        self.record_histogram(f"{name}.duration", duration, tags)
+
+        return duration
+
+    def add_health_check(self, check_func: callable) -> None:
+        """Add a health check function."""
+        self._health_checks.append(check_func)
+
+    async def health_check(self) -> Dict[str, Any]:
+        """Run all health checks."""
+        health_status = {
+            "status": "healthy",
+            "timestamp": time.time(),
+            "checks": {},
+            "system": await self._get_system_health(),
+        }
+
+        # Run custom health checks
+        for i, check_func in enumerate(self._health_checks):
+            check_name = getattr(check_func, "__name__", f"check_{i}")
+            try:
+                if asyncio.iscoroutinefunction(check_func):
+                    result = await check_func()
+                else:
+                    result = check_func()
+
+                health_status["checks"][check_name] = {
+                    "status": "healthy",
+                    "result": result,
+                }
+            except Exception as e:
+                health_status["checks"][check_name] = {
+                    "status": "unhealthy",
+                    "error": str(e),
+                }
+                health_status["status"] = "unhealthy"
+
+        return health_status
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """Get all collected metrics."""
+        return {
+            "metrics": self._metrics.copy(),
+            "active_timers": len(self._timers),
+            "health_checks": len(self._health_checks),
+        }
+
+    async def _init_prometheus(self) -> None:
+        """Initialize Prometheus metrics."""
+        try:
+            from prometheus_client import Counter, Gauge, Histogram, start_http_server
+
+            self._prometheus_client = {
+                "counters": {},
+                "gauges": {},
+                "histograms": {},
+                "Counter": Counter,
+                "Gauge": Gauge,
+                "Histogram": Histogram,
+            }
+
+            # Start Prometheus HTTP server
+            start_http_server(self._config.prometheus_port)
+            logger.info(
+                "Prometheus metrics server started",
+                port=self._config.prometheus_port
+            )
+
+        except ImportError:
+            logger.warning("Prometheus client not available, skipping initialization")
+
+    def _update_prometheus_counter(
+        self,
+        name: str,
+        value: float,
+        tags: Dict[str, str],
+    ) -> None:
+        """Update Prometheus counter."""
+        if not self._prometheus_client:
+            return
+
+        if name not in self._prometheus_client["counters"]:
+            self._prometheus_client["counters"][name] = (
+                self._prometheus_client["Counter"](
+                    f"{{{{package_module}}}}_{name}",
+                    f"{{{{package_name}}}} {name} counter",
+                    list(tags.keys()) if tags else [],
+                )
+            )
+
+        counter = self._prometheus_client["counters"][name]
+        if tags:
+            counter.labels(**tags).inc(value)
+        else:
+            counter.inc(value)
+
+    def _update_prometheus_gauge(
+        self,
+        name: str,
+        value: float,
+        tags: Dict[str, str],
+    ) -> None:
+        """Update Prometheus gauge."""
+        if not self._prometheus_client:
+            return
+
+        if name not in self._prometheus_client["gauges"]:
+            self._prometheus_client["gauges"][name] = (
+                self._prometheus_client["Gauge"](
+                    f"{{{{package_module}}}}_{name}",
+                    f"{{{{package_name}}}} {name} gauge",
+                    list(tags.keys()) if tags else [],
+                )
+            )
+
+        gauge = self._prometheus_client["gauges"][name]
+        if tags:
+            gauge.labels(**tags).set(value)
+        else:
+            gauge.set(value)
+
+    def _update_prometheus_histogram(
+        self,
+        name: str,
+        value: float,
+        tags: Dict[str, str],
+    ) -> None:
+        """Update Prometheus histogram."""
+        if not self._prometheus_client:
+            return
+
+        if name not in self._prometheus_client["histograms"]:
+            self._prometheus_client["histograms"][name] = (
+                self._prometheus_client["Histogram"](
+                    f"{{{{package_module}}}}_{name}",
+                    f"{{{{package_name}}}} {name} histogram",
+                    list(tags.keys()) if tags else [],
+                )
+            )
+
+        histogram = self._prometheus_client["histograms"][name]
+        if tags:
+            histogram.labels(**tags).observe(value)
+        else:
+            histogram.observe(value)
+
+    async def _monitoring_loop(self) -> None:
+        """Main monitoring loop."""
+        while self._is_running:
+            try:
+                # Collect system metrics
+                await self._collect_system_metrics()
+
+                # Sleep until next collection
+                await asyncio.sleep(self._config.health_check_interval)
+
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error("Error in monitoring loop", error=str(e))
+                await asyncio.sleep(5)  # Short sleep on error
+
+    async def _collect_system_metrics(self) -> None:
+        """Collect system performance metrics."""
+        # CPU usage
+        cpu_percent = psutil.cpu_percent(interval=1)
+        self.record_gauge("system.cpu.usage", cpu_percent)
+
+        # Memory usage
+        memory = psutil.virtual_memory()
+        self.record_gauge("system.memory.usage", memory.percent)
+        self.record_gauge("system.memory.available", memory.available)
+
+        # Disk usage
+        disk = psutil.disk_usage("/")
+        self.record_gauge("system.disk.usage", disk.percent)
+        self.record_gauge("system.disk.free", disk.free)
+
+        # Network I/O
+        network = psutil.net_io_counters()
+        self.record_counter("system.network.bytes_sent", network.bytes_sent)
+        self.record_counter("system.network.bytes_recv", network.bytes_recv)
+
+    async def _get_system_health(self) -> Dict[str, Any]:
+        """Get current system health status."""
+        cpu_percent = psutil.cpu_percent(interval=1)
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage("/")
+
+        return {
+            "cpu": {
+                "usage_percent": cpu_percent,
+                "status": "healthy" if cpu_percent < self._config.cpu_threshold * 100 else "unhealthy",
+            },
+            "memory": {
+                "usage_percent": memory.percent,
+                "available_mb": memory.available // 1024 // 1024,
+                "status": "healthy" if memory.percent < self._config.memory_threshold * 100 else "unhealthy",
+            },
+            "disk": {
+                "usage_percent": disk.percent,
+                "free_gb": disk.free // 1024 // 1024 // 1024,
+                "status": "healthy" if disk.percent < 90 else "unhealthy",
+            },
+        }
+
+    def _serialize_tags(self, tags: Dict[str, str]) -> str:
+        """Serialize tags for use as metric key."""
+        if not tags:
+            return ""
+
+        return "_".join(f"{k}_{v}" for k, v in sorted(tags.items()))

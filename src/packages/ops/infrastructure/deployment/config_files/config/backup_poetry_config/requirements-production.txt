@@ -1,0 +1,22 @@
+# Production requirements (full production stack)
+# Include server requirements
+-r requirements-server.txt
+circuitbreaker>=2.0.0
+
+# Monitoring & Observability
+opentelemetry-api>=1.29.0
+opentelemetry-instrumentation-fastapi>=0.50b0
+opentelemetry-sdk>=1.29.0
+passlib[bcrypt]>=1.7.4
+prometheus-client>=0.21.1
+prometheus-fastapi-instrumentator>=7.0.0
+psutil>=6.1.1
+
+# Authentication & Security
+pyjwt>=2.10.1
+
+# Caching
+redis>=5.2.1
+
+# Infrastructure resilience
+tenacity>=9.0.0

@@ -1,0 +1,13 @@
+# Run detection
+curl -X POST "https://api.pynomaly.com/api/v1/detectors/detector_abc123/detect" \
+  -H "X-API-Key: your-api-key-here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data": [
+      [1.2, 3.4, 5.6],
+      [2.3, 4.5, 6.7],
+      [3.4, 5.6, 7.8]
+    ],
+    "feature_names": ["feature1", "feature2", "feature3"],
+    "return_explanations": true
+  }'

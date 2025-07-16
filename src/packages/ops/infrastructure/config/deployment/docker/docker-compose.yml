@@ -1,0 +1,65 @@
+# Base Docker Compose Configuration
+# Use with environment-specific override files
+
+version: '3.8'
+
+services:
+  pynomaly-api:
+    build:
+      context: ../../..
+      dockerfile: Dockerfile
+    environment:
+      - PYNOMALY_ENV=${PYNOMALY_ENV:-development}
+    ports:
+      - "${PYNOMALY_API_PORT:-8000}:8000"
+    volumes:
+      - pynomaly_models:/opt/pynomaly/models
+      - pynomaly_logs:/opt/pynomaly/logs
+    depends_on:
+      - redis
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${PYNOMALY_REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=${PYNOMALY_DB_NAME:-pynomaly}
+      - POSTGRES_USER=${PYNOMALY_DB_USER:-pynomaly}
+      - POSTGRES_PASSWORD=${PYNOMALY_DB_PASSWORD:-password}
+    ports:
+      - "${PYNOMALY_DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PYNOMALY_DB_USER:-pynomaly}"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  pynomaly_models:
+  pynomaly_logs:
+  redis_data:
+  postgres_data:
+
+networks:
+  default:
+    name: pynomaly-network

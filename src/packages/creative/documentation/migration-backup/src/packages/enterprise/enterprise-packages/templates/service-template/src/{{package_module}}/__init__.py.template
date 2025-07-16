@@ -1,0 +1,15 @@
+"""{{package_title}}.
+
+{{package_description}}
+"""
+
+from .config import {{package_module|title}}Config
+from .service import {{package_module|title}}Service
+from .handlers import {{package_module|title}}Handler
+
+__version__ = "0.1.0"
+__all__ = [
+    "{{package_module|title}}Config",
+    "{{package_module|title}}Service",
+    "{{package_module|title}}Handler",
+]

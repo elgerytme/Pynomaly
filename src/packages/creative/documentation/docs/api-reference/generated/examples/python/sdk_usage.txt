@@ -1,0 +1,24 @@
+# Using the Pynomaly Python SDK
+from pynomaly_client import PynomalyClient
+
+# Initialize client
+client = PynomalyClient(api_key="your-api-key-here")
+
+# Create detector
+detector = client.detectors.create(
+    name="My Detector",
+    algorithm="IsolationForest",
+    parameters={
+        "contamination": 0.1,
+        "n_estimators": 100
+    }
+)
+
+# Run detection
+results = client.detectors.detect(
+    detector_id=detector.id,
+    data=[[1.2, 3.4, 5.6], [2.3, 4.5, 6.7]],
+    feature_names=["feature1", "feature2", "feature3"]
+)
+
+print(f"Anomalies detected: {results.summary.anomalies_detected}")

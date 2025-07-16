@@ -1,0 +1,515 @@
+mlops:
+  # MLOps platform configuration
+  platform:
+    name: "Pynomaly MLOps Platform"
+    version: "1.0.0"
+    environment: "production"
+    debug_mode: false
+    
+  # Model Registry configuration
+  model_registry:
+    enabled: true
+    storage_path: "mlops/model_registry"
+    max_storage_size_gb: 100
+    model_retention_days: 365
+    versioning_enabled: true
+    checksums_enabled: true
+    
+    # Model types supported
+    supported_model_types:
+      - "isolation_forest"
+      - "one_class_svm"
+      - "lstm_autoencoder"
+      - "ensemble"
+      - "custom"
+    
+    # Model status lifecycle
+    status_transitions:
+      development: ["staging", "archived"]
+      staging: ["production", "development", "archived"]
+      production: ["deprecated", "archived"]
+      deprecated: ["archived"]
+      archived: []
+    
+    # Automatic archiving
+    auto_archiving:
+      enabled: true
+      archive_after_days: 90
+      cleanup_archived_after_days: 365
+    
+  # Experiment Tracking configuration
+  experiment_tracking:
+    enabled: true
+    storage_path: "mlops/experiments"
+    max_experiments: 1000
+    max_runs_per_experiment: 100
+    artifact_retention_days: 180
+    
+    # Metrics logging
+    metrics_logging:
+      enabled: true
+      batch_size: 100
+      flush_interval_seconds: 60
+      max_metrics_per_run: 1000
+    
+    # Artifact storage
+    artifact_storage:
+      enabled: true
+      max_artifact_size_mb: 500
+      supported_formats: ["pkl", "joblib", "json", "csv", "png", "jpg", "pdf"]
+    
+  # Model Deployment configuration
+  model_deployment:
+    enabled: true
+    storage_path: "mlops/deployments"
+    
+    # Deployment environments
+    environments:
+      development:
+        auto_deploy: true
+        health_check_interval: 60
+        max_instances: 1
+        resource_limits:
+          cpu: "0.5"
+          memory: "1Gi"
+      
+      staging:
+        auto_deploy: false
+        health_check_interval: 30
+        max_instances: 2
+        resource_limits:
+          cpu: "1"
+          memory: "2Gi"
+      
+      production:
+        auto_deploy: false
+        health_check_interval: 15
+        max_instances: 5
+        resource_limits:
+          cpu: "2"
+          memory: "4Gi"
+    
+    # Model serving
+    model_serving:
+      enabled: true
+      default_port: 8000
+      timeout_seconds: 30
+      max_batch_size: 100
+      enable_caching: true
+      cache_ttl_seconds: 3600
+    
+    # Load balancing
+    load_balancing:
+      enabled: true
+      strategy: "round_robin"
+      health_check_path: "/health"
+      unhealthy_threshold: 3
+      healthy_threshold: 2
+    
+  # Automated Retraining configuration
+  automated_retraining:
+    enabled: true
+    storage_path: "mlops/retraining"
+    
+    # Trigger configurations
+    triggers:
+      scheduled:
+        enabled: true
+        default_schedule: "0 2 * * *"  # Daily at 2 AM
+        timezone: "UTC"
+      
+      performance_degradation:
+        enabled: true
+        check_interval_hours: 4
+        default_threshold: 0.05
+        lookback_days: 7
+      
+      data_drift:
+        enabled: true
+        check_interval_hours: 6
+        default_threshold: 0.1
+        statistical_tests: ["ks_test", "psi"]
+        min_samples: 100
+      
+      data_volume:
+        enabled: true
+        check_interval_hours: 12
+        volume_threshold: 10000
+        growth_rate_threshold: 0.5
+    
+    # Retraining pipeline
+    pipeline:
+      max_concurrent_jobs: 3
+      max_training_time_hours: 4
+      default_validation_split: 0.2
+      hyperparameter_tuning: true
+      early_stopping: true
+      
+    # Auto-deployment
+    auto_deployment:
+      enabled: false
+      target_environment: "staging"
+      approval_required: true
+      rollback_enabled: true
+      canary_deployment: true
+      canary_percentage: 10
+    
+  # Data Management
+  data_management:
+    # Data sources
+    data_sources:
+      primary_database:
+        type: "postgresql"
+        connection_string: "${DATABASE_URL}"
+        query_timeout: 30
+        max_connections: 10
+      
+      feature_store:
+        type: "redis"
+        connection_string: "${REDIS_URL}"
+        ttl_seconds: 3600
+        max_features: 10000
+      
+      data_lake:
+        type: "s3"
+        bucket: "${DATA_LAKE_BUCKET}"
+        region: "${AWS_REGION}"
+        access_key: "${AWS_ACCESS_KEY}"
+        secret_key: "${AWS_SECRET_KEY}"
+    
+    # Data quality monitoring
+    data_quality:
+      enabled: true
+      checks:
+        - "completeness"
+        - "consistency"
+        - "validity"
+        - "uniqueness"
+        - "timeliness"
+      
+      thresholds:
+        completeness: 0.95
+        consistency: 0.98
+        validity: 0.99
+        uniqueness: 0.95
+        timeliness: 24  # hours
+    
+    # Data lineage
+    data_lineage:
+      enabled: true
+      track_transformations: true
+      track_sources: true
+      retention_days: 180
+  
+  # Monitoring and Observability
+  monitoring:
+    # Metrics collection
+    metrics:
+      enabled: true
+      collection_interval: 30
+      retention_days: 90
+      
+      # Prometheus integration
+      prometheus:
+        enabled: true
+        port: 9090
+        metrics_path: "/metrics"
+        push_gateway: "${PROMETHEUS_PUSH_GATEWAY}"
+      
+      # Custom metrics
+      custom_metrics:
+        - name: "model_predictions_total"
+          type: "counter"
+          description: "Total number of predictions made"
+        
+        - name: "model_prediction_latency"
+          type: "histogram"
+          description: "Prediction latency in milliseconds"
+        
+        - name: "model_accuracy"
+          type: "gauge"
+          description: "Current model accuracy"
+        
+        - name: "data_drift_score"
+          type: "gauge"
+          description: "Current data drift score"
+    
+    # Alerting
+    alerting:
+      enabled: true
+      
+      # Alert channels
+      channels:
+        email:
+          enabled: true
+          smtp_server: "${SMTP_SERVER}"
+          smtp_port: 587
+          username: "${SMTP_USERNAME}"
+          password: "${SMTP_PASSWORD}"
+          recipients: ["mlops@pynomaly.com"]
+        
+        slack:
+          enabled: true
+          webhook_url: "${SLACK_WEBHOOK_URL}"
+          channel: "#mlops-alerts"
+        
+        pagerduty:
+          enabled: false
+          integration_key: "${PAGERDUTY_INTEGRATION_KEY}"
+      
+      # Alert rules
+      rules:
+        - name: "model_performance_degradation"
+          condition: "model_accuracy < 0.8"
+          severity: "critical"
+          cooldown_minutes: 60
+        
+        - name: "high_prediction_latency"
+          condition: "model_prediction_latency_p95 > 1000"
+          severity: "warning"
+          cooldown_minutes: 30
+        
+        - name: "data_drift_detected"
+          condition: "data_drift_score > 0.1"
+          severity: "warning"
+          cooldown_minutes: 120
+        
+        - name: "retraining_job_failed"
+          condition: "retraining_job_status == 'failed'"
+          severity: "critical"
+          cooldown_minutes: 0
+    
+    # Logging
+    logging:
+      enabled: true
+      level: "INFO"
+      format: "json"
+      
+      # Log destinations
+      destinations:
+        file:
+          enabled: true
+          path: "/var/log/mlops/mlops.log"
+          max_size_mb: 100
+          max_files: 10
+        
+        elasticsearch:
+          enabled: false
+          url: "${ELASTICSEARCH_URL}"
+          index_pattern: "mlops-logs-{date}"
+        
+        cloudwatch:
+          enabled: false
+          log_group: "/aws/mlops/pynomaly"
+          log_stream: "mlops-service"
+  
+  # Security and Compliance
+  security:
+    # Authentication
+    authentication:
+      enabled: true
+      type: "jwt"
+      secret_key: "${JWT_SECRET_KEY}"
+      expiration_minutes: 60
+      
+      # RBAC
+      rbac:
+        enabled: true
+        roles:
+          - name: "admin"
+            permissions: "*"
+          
+          - name: "data_scientist"
+            permissions:
+              - "experiments:*"
+              - "models:read"
+              - "models:register"
+              - "deployments:read"
+          
+          - name: "ml_engineer"
+            permissions:
+              - "models:*"
+              - "deployments:*"
+              - "retraining:*"
+          
+          - name: "viewer"
+            permissions:
+              - "models:read"
+              - "experiments:read"
+              - "deployments:read"
+    
+    # Data protection
+    data_protection:
+      enabled: true
+      
+      # Encryption
+      encryption:
+        at_rest: true
+        in_transit: true
+        algorithm: "AES-256-GCM"
+        key_rotation_days: 90
+      
+      # Data anonymization
+      anonymization:
+        enabled: true
+        pii_fields: ["email", "phone", "ssn"]
+        anonymization_method: "hash"
+      
+      # Audit logging
+      audit_logging:
+        enabled: true
+        log_all_access: true
+        retention_days: 365
+        compliance_mode: "GDPR"
+    
+    # Model security
+    model_security:
+      enabled: true
+      
+      # Model signing
+      model_signing:
+        enabled: true
+        algorithm: "RSA-2048"
+        verify_on_load: true
+      
+      # Vulnerability scanning
+      vulnerability_scanning:
+        enabled: true
+        scan_on_register: true
+        scan_dependencies: true
+        max_severity: "high"
+  
+  # CI/CD Integration
+  cicd:
+    enabled: true
+    
+    # Version control
+    version_control:
+      type: "git"
+      repository: "${GIT_REPOSITORY}"
+      branch: "main"
+      webhook_secret: "${GIT_WEBHOOK_SECRET}"
+    
+    # Build system
+    build_system:
+      type: "docker"
+      registry: "${DOCKER_REGISTRY}"
+      build_timeout_minutes: 30
+      
+      # Testing
+      testing:
+        enabled: true
+        unit_tests: true
+        integration_tests: true
+        performance_tests: true
+        min_coverage: 80
+    
+    # Deployment pipeline
+    deployment_pipeline:
+      enabled: true
+      stages:
+        - name: "test"
+          environment: "testing"
+          auto_promote: true
+        
+        - name: "staging"
+          environment: "staging"
+          auto_promote: false
+          approval_required: true
+        
+        - name: "production"
+          environment: "production"
+          auto_promote: false
+          approval_required: true
+          canary_deployment: true
+  
+  # Integration with External Tools
+  integrations:
+    # MLflow
+    mlflow:
+      enabled: false
+      tracking_uri: "${MLFLOW_TRACKING_URI}"
+      artifact_root: "${MLFLOW_ARTIFACT_ROOT}"
+      
+    # Kubeflow
+    kubeflow:
+      enabled: false
+      namespace: "kubeflow"
+      pipeline_service_account: "pipeline-runner"
+      
+    # Weights & Biases
+    wandb:
+      enabled: false
+      project: "pynomaly"
+      entity: "${WANDB_ENTITY}"
+      api_key: "${WANDB_API_KEY}"
+      
+    # TensorBoard
+    tensorboard:
+      enabled: false
+      log_dir: "/tmp/tensorboard"
+      port: 6006
+      
+    # Grafana
+    grafana:
+      enabled: true
+      url: "${GRAFANA_URL}"
+      api_key: "${GRAFANA_API_KEY}"
+      
+    # Jupyter
+    jupyter:
+      enabled: false
+      notebook_dir: "/workspace/notebooks"
+      port: 8888
+  
+  # Resource Management
+  resources:
+    # Compute resources
+    compute:
+      default_cpu: "1"
+      default_memory: "2Gi"
+      default_storage: "10Gi"
+      
+      # GPU support
+      gpu:
+        enabled: false
+        default_type: "nvidia.com/gpu"
+        max_gpus: 2
+    
+    # Auto-scaling
+    auto_scaling:
+      enabled: true
+      min_replicas: 1
+      max_replicas: 10
+      target_cpu_utilization: 70
+      target_memory_utilization: 80
+      
+    # Resource quotas
+    quotas:
+      max_models_per_user: 100
+      max_experiments_per_user: 50
+      max_deployments_per_user: 10
+      max_storage_per_user: "50Gi"
+  
+  # Development and Testing
+  development:
+    # Development mode
+    dev_mode:
+      enabled: false
+      auto_reload: true
+      debug_logging: true
+      mock_external_services: true
+      
+    # Testing
+    testing:
+      enabled: true
+      test_data_path: "data/test"
+      mock_models: true
+      fast_mode: true
+      
+    # Profiling
+    profiling:
+      enabled: false
+      profiler: "py-spy"
+      profile_interval: 30
+      profile_duration: 60

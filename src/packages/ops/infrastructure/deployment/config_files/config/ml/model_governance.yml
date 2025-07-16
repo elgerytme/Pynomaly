@@ -1,0 +1,263 @@
+# ML Model Governance Configuration
+# Following AI/ML best practices from RULES.md
+
+# Model Lifecycle Management
+model_lifecycle:
+  # Versioning strategy
+  versioning:
+    scheme: "semantic"  # semantic, timestamp, or sequential
+    auto_increment: true
+    retention_policy: "30d"  # Keep models for 30 days
+    
+  # Model validation requirements
+  validation:
+    required_metrics:
+      - precision
+      - recall
+      - f1_score
+      - auc_roc
+    minimum_thresholds:
+      precision: 0.8
+      recall: 0.75
+      f1_score: 0.77
+      auc_roc: 0.85
+    validation_dataset_size: 0.2  # 20% of training data
+    
+  # Approval workflow
+  approval:
+    required_approvers: 2
+    approval_roles:
+      - "ml_engineer"
+      - "data_scientist"
+      - "product_owner"
+    auto_approve_conditions:
+      - performance_improvement: 0.05  # 5% improvement
+      - no_security_issues: true
+      - passes_bias_tests: true
+
+# Model Monitoring and Drift Detection
+monitoring:
+  # Data drift detection
+  data_drift:
+    detection_method: "statistical"  # statistical, ml_based, or custom
+    check_interval: "1h"
+    alert_threshold: 0.1  # Statistical distance threshold
+    reference_window: "7d"  # Use last 7 days as reference
+    
+  # Model performance monitoring
+  performance:
+    metrics_collection_interval: "15m"
+    performance_degradation_threshold: 0.05  # 5% performance drop
+    alert_on_degradation: true
+    auto_retrain_threshold: 0.1  # 10% performance drop triggers retraining
+    
+  # Prediction monitoring
+  predictions:
+    log_all_predictions: true
+    sample_rate: 1.0  # Log 100% of predictions
+    include_features: true
+    include_explanations: false  # Set to true for explainable AI
+    retention_period: "90d"
+
+# Data Management and Privacy
+data_governance:
+  # Data quality requirements
+  quality_checks:
+    missing_values_threshold: 0.05  # Max 5% missing values
+    outlier_detection: true
+    schema_validation: true
+    duplicate_detection: true
+    
+  # Privacy and compliance
+  privacy:
+    pii_detection: true
+    data_anonymization: true
+    consent_tracking: true
+    right_to_be_forgotten: true
+    gdpr_compliance: true
+    
+  # Data lineage
+  lineage:
+    track_data_sources: true
+    track_transformations: true
+    track_feature_engineering: true
+    audit_trail: true
+
+# Feature Store Configuration
+feature_store:
+  # Feature validation
+  validation:
+    feature_drift_detection: true
+    feature_importance_tracking: true
+    feature_correlation_monitoring: true
+    
+  # Feature serving
+  serving:
+    cache_ttl: "1h"
+    batch_size: 1000
+    real_time_features: true
+    historical_features: true
+    
+  # Feature lifecycle
+  lifecycle:
+    deprecation_policy: "90d"  # Features deprecated after 90 days of non-use
+    version_retention: "1y"    # Keep feature versions for 1 year
+    documentation_required: true
+
+# Experiment Tracking
+experiments:
+  # MLflow configuration
+  tracking:
+    tracking_uri: "http://mlflow:5000"
+    experiment_naming: "pynomaly_{algorithm}_{timestamp}"
+    auto_log_params: true
+    auto_log_metrics: true
+    auto_log_artifacts: true
+    
+  # A/B testing
+  ab_testing:
+    enabled: true
+    traffic_split: 0.1  # 10% traffic to new models
+    minimum_sample_size: 1000
+    statistical_significance: 0.05
+    test_duration: "7d"
+    
+  # Hyperparameter optimization
+  hyperopt:
+    max_trials: 100
+    timeout: "2h"
+    optimization_metric: "f1_score"
+    search_space_strategy: "bayesian"
+
+# Model Security and Safety
+security:
+  # Input validation
+  input_validation:
+    schema_enforcement: true
+    value_range_checks: true
+    type_validation: true
+    sanitization: true
+    
+  # Model security
+  model_security:
+    adversarial_testing: true
+    model_extraction_protection: true
+    inference_rate_limiting: true
+    audit_logging: true
+    
+  # Bias and fairness
+  fairness:
+    bias_detection: true
+    fairness_metrics:
+      - demographic_parity
+      - equalized_odds
+      - individual_fairness
+    protected_attributes:
+      - age
+      - gender
+      - race
+      - location
+    bias_threshold: 0.1  # 10% disparity threshold
+
+# Deployment Strategy
+deployment:
+  # Rollout strategy
+  strategy: "blue_green"  # blue_green, canary, or rolling
+  
+  # Blue-Green deployment
+  blue_green:
+    health_check_timeout: "5m"
+    rollback_on_failure: true
+    validation_tests: true
+    
+  # Canary deployment
+  canary:
+    initial_traffic: 0.05  # Start with 5% traffic
+    increment_step: 0.1    # Increase by 10% each step
+    increment_interval: "1h"
+    success_criteria:
+      - error_rate: 0.01   # Less than 1% error rate
+      - latency_p95: 5.0   # 95th percentile latency under 5s
+      
+  # Rollback configuration
+  rollback:
+    auto_rollback: true
+    rollback_conditions:
+      - error_rate_spike: 0.05
+      - latency_spike: 2.0
+      - performance_degradation: 0.1
+    rollback_timeout: "2m"
+
+# Compliance and Auditing
+compliance:
+  # Model documentation requirements
+  documentation:
+    model_card_required: true
+    data_sheet_required: true
+    algorithm_explanation: true
+    performance_benchmarks: true
+    limitations_disclosure: true
+    
+  # Audit trail
+  audit:
+    log_all_changes: true
+    change_approval_required: true
+    compliance_checks: true
+    periodic_audits: "quarterly"
+    
+  # Regulatory compliance
+  regulations:
+    ai_act_compliance: true      # EU AI Act
+    gdpr_compliance: true        # GDPR
+    ccpa_compliance: true        # CCPA
+    hipaa_compliance: false      # Set to true if handling health data
+    sox_compliance: false        # Set to true if financial data
+
+# Resource Management
+resources:
+  # Training resources
+  training:
+    max_cpu_cores: 8
+    max_memory_gb: 32
+    max_gpu_count: 2
+    timeout: "4h"
+    
+  # Inference resources
+  inference:
+    cpu_request: "100m"
+    cpu_limit: "500m"
+    memory_request: "256Mi"
+    memory_limit: "1Gi"
+    auto_scaling: true
+    min_replicas: 2
+    max_replicas: 10
+    
+  # Storage
+  storage:
+    model_storage_limit: "10Gi"
+    data_storage_limit: "100Gi"
+    backup_retention: "30d"
+    compression: true
+
+# Notification and Alerting
+notifications:
+  # Channels
+  channels:
+    slack:
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      channels:
+        - "#ml-alerts"
+        - "#data-science"
+    email:
+      smtp_server: "${SMTP_SERVER}"
+      recipients:
+        - "ml-team@company.com"
+        - "on-call@company.com"
+        
+  # Alert conditions
+  alerts:
+    model_drift: "warning"
+    performance_degradation: "critical"
+    deployment_failure: "critical"
+    compliance_violation: "critical"
+    resource_exhaustion: "warning"

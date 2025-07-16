@@ -1,0 +1,803 @@
+"""Comprehensive performance regression tests.
+
+This module contains regression tests to detect performance degradation
+across versions and ensure that performance characteristics remain
+within acceptable bounds.
+"""
+
+import json
+import multiprocessing as mp
+import tempfile
+import time
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from pynomaly.domain.entities import Dataset
+from pynomaly.domain.value_objects import AnomalyScore
+from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+
+
+class TestTrainingPerformanceRegression:
+    """Test training performance regression across different scenarios."""
+
+    @pytest.fixture
+    def performance_datasets(self):
+        """Create datasets of different sizes for performance testing."""
+        datasets = {}
+
+        # Small dataset
+        np.random.seed(42)
+        small_data = np.random.normal(0, 1, (1000, 5))
+        datasets["small"] = Dataset(
+            name="Small Dataset",
+            data=pd.DataFrame(small_data, columns=[f"feature_{i}" for i in range(5)]),
+        )
+
+        # Medium dataset
+        medium_data = np.random.normal(0, 1, (10000, 10))
+        datasets["medium"] = Dataset(
+            name="Medium Dataset",
+            data=pd.DataFrame(medium_data, columns=[f"feature_{i}" for i in range(10)]),
+        )
+
+        # Large dataset
+        large_data = np.random.normal(0, 1, (50000, 5))
+        datasets["large"] = Dataset(
+            name="Large Dataset",
+            data=pd.DataFrame(large_data, columns=[f"feature_{i}" for i in range(5)]),
+        )
+
+        # Wide dataset (many features)
+        wide_data = np.random.normal(0, 1, (5000, 50))
+        datasets["wide"] = Dataset(
+            name="Wide Dataset",
+            data=pd.DataFrame(wide_data, columns=[f"feature_{i}" for i in range(50)]),
+        )
+
+        return datasets
+
+    def test_isolation_forest_training_performance(self, performance_datasets):
+        """Test IsolationForest training performance regression."""
+        performance_results = {}
+
+        for dataset_name, dataset in performance_datasets.items():
+            try:
+                adapter = SklearnAdapter(
+                    algorithm_name="IsolationForest",
+                    parameters={
+                        "contamination": 0.1,
+                        "n_estimators": 100,
+                        "random_state": 42,
+                        "n_jobs": 1,  # Single thread for consistent timing
+                    },
+                )
+
+                # Measure training time
+                start_time = time.time()
+                adapter.fit(dataset)
+                training_time = time.time() - start_time
+
+                performance_results[dataset_name] = {
+                    "training_time": training_time,
+                    "n_samples": dataset.n_samples,
+                    "n_features": dataset.n_features,
+                    "samples_per_second": dataset.n_samples / training_time,
+                }
+
+                # Performance thresholds based on dataset size
+                if dataset_name == "small":
+                    assert (
+                        training_time < 5.0
+                    ), f"Small dataset training too slow: {training_time}s"
+                elif dataset_name == "medium":
+                    assert (
+                        training_time < 30.0
+                    ), f"Medium dataset training too slow: {training_time}s"
+                elif dataset_name == "large":
+                    assert (
+                        training_time < 120.0
+                    ), f"Large dataset training too slow: {training_time}s"
+                elif dataset_name == "wide":
+                    assert (
+                        training_time < 60.0
+                    ), f"Wide dataset training too slow: {training_time}s"
+
+                # Throughput should be reasonable
+                samples_per_second = dataset.n_samples / training_time
+                assert (
+                    samples_per_second > 100
+                ), f"Training throughput too low: {samples_per_second} samples/s"
+
+            except ImportError:
+                pytest.skip("scikit-learn not available")
+
+        # Log performance results for monitoring
+        print(
+            f"Training performance results: {json.dumps(performance_results, indent=2)}"
+        )
+
+    def test_local_outlier_factor_training_performance(self, performance_datasets):
+        """Test LocalOutlierFactor training performance regression."""
+        # LOF is typically slower, so we use smaller datasets
+        test_datasets = {
+            k: v for k, v in performance_datasets.items() if k in ["small", "medium"]
+        }
+
+        for dataset_name, dataset in test_datasets.items():
+            try:
+                adapter = SklearnAdapter(
+                    algorithm_name="LocalOutlierFactor",
+                    parameters={
+                        "contamination": 0.1,
+                        "n_neighbors": 20,
+                        "novelty": True,
+                        "n_jobs": 1,
+                    },
+                )
+
+                start_time = time.time()
+                adapter.fit(dataset)
+                training_time = time.time() - start_time
+
+                # LOF performance thresholds (more lenient)
+                if dataset_name == "small":
+                    assert (
+                        training_time < 10.0
+                    ), f"LOF small dataset training too slow: {training_time}s"
+                elif dataset_name == "medium":
+                    assert (
+                        training_time < 60.0
+                    ), f"LOF medium dataset training too slow: {training_time}s"
+
+            except ImportError:
+                continue
+
+    def test_training_scalability_regression(self, performance_datasets):
+        """Test training time scalability with dataset size."""
+        scalability_results = []
+
+        # Test with increasing dataset sizes
+        test_sizes = [1000, 5000, 10000, 25000]
+
+        for size in test_sizes:
+            # Create dataset of specific size
+            np.random.seed(42)
+            data = np.random.normal(0, 1, (size, 5))
+            dataset = Dataset(
+                name=f"Scalability Test {size}",
+                data=pd.DataFrame(data, columns=[f"f_{i}" for i in range(5)]),
+            )
+
+            try:
+                adapter = SklearnAdapter(
+                    algorithm_name="IsolationForest",
+                    parameters={
+                        "contamination": 0.1,
+                        "n_estimators": 50,  # Fewer estimators for faster testing
+                        "random_state": 42,
+                        "n_jobs": 1,
+                    },
+                )
+
+                start_time = time.time()
+                adapter.fit(dataset)
+                training_time = time.time() - start_time
+
+                scalability_results.append(
+                    {
+                        "size": size,
+                        "time": training_time,
+                        "time_per_sample": training_time / size,
+                    }
+                )
+
+            except ImportError:
+                continue
+
+        if len(scalability_results) >= 2:
+            # Check that scaling is reasonable (not exponential)
+            for i in range(1, len(scalability_results)):
+                prev_result = scalability_results[i - 1]
+                curr_result = scalability_results[i]
+
+                size_ratio = curr_result["size"] / prev_result["size"]
+                time_ratio = curr_result["time"] / prev_result["time"]
+
+                # Time should not increase faster than O(n^2)
+                max_acceptable_ratio = size_ratio**2
+                assert (
+                    time_ratio <= max_acceptable_ratio
+                ), f"Poor time scalability: {time_ratio}x time for {size_ratio}x data"
+
+
+class TestInferencePerformanceRegression:
+    """Test inference/scoring performance regression."""
+
+    @pytest.fixture
+    def trained_models(self, performance_datasets):
+        """Create pre-trained models for inference testing."""
+        trained_models = {}
+
+        # Train models on small dataset for fast setup
+        dataset = performance_datasets["small"]
+
+        try:
+            # IsolationForest
+            if_adapter = SklearnAdapter(
+                algorithm_name="IsolationForest",
+                parameters={
+                    "contamination": 0.1,
+                    "n_estimators": 100,
+                    "random_state": 42,
+                },
+            )
+            if_adapter.fit(dataset)
+            trained_models["isolation_forest"] = if_adapter
+
+            # LocalOutlierFactor
+            lof_adapter = SklearnAdapter(
+                algorithm_name="LocalOutlierFactor",
+                parameters={"contamination": 0.1, "n_neighbors": 20, "novelty": True},
+            )
+            lof_adapter.fit(dataset)
+            trained_models["local_outlier_factor"] = lof_adapter
+
+        except ImportError:
+            pass
+
+        return trained_models
+
+    def test_single_sample_inference_performance(
+        self, trained_models, performance_datasets
+    ):
+        """Test single sample inference performance."""
+        # Create single sample datasets
+        single_sample_data = performance_datasets["small"].data.iloc[:1]
+        single_sample_dataset = Dataset(name="Single Sample", data=single_sample_data)
+
+        for model_name, model in trained_models.items():
+            # Measure inference time for single sample
+            start_time = time.time()
+            scores = model.score(single_sample_dataset)
+            inference_time = time.time() - start_time
+
+            # Single sample inference should be very fast
+            assert (
+                inference_time < 1.0
+            ), f"{model_name} single sample inference too slow: {inference_time}s"
+            assert len(scores) == 1
+            assert isinstance(scores[0], AnomalyScore)
+
+    def test_batch_inference_performance(self, trained_models, performance_datasets):
+        """Test batch inference performance."""
+        batch_sizes = [100, 1000, 5000]
+
+        for model_name, model in trained_models.items():
+            for batch_size in batch_sizes:
+                # Create batch dataset
+                if batch_size <= len(performance_datasets["medium"].data):
+                    batch_data = performance_datasets["medium"].data.iloc[:batch_size]
+                    batch_dataset = Dataset(name=f"Batch {batch_size}", data=batch_data)
+
+                    # Measure batch inference time
+                    start_time = time.time()
+                    scores = model.score(batch_dataset)
+                    inference_time = time.time() - start_time
+
+                    # Calculate throughput
+                    throughput = batch_size / inference_time
+
+                    # Performance thresholds
+                    if batch_size == 100:
+                        assert (
+                            inference_time < 2.0
+                        ), f"{model_name} batch 100 inference too slow: {inference_time}s"
+                    elif batch_size == 1000:
+                        assert (
+                            inference_time < 10.0
+                        ), f"{model_name} batch 1000 inference too slow: {inference_time}s"
+                    elif batch_size == 5000:
+                        assert (
+                            inference_time < 30.0
+                        ), f"{model_name} batch 5000 inference too slow: {inference_time}s"
+
+                    # Throughput should be reasonable
+                    assert (
+                        throughput > 50
+                    ), f"{model_name} throughput too low: {throughput} samples/s"
+
+                    # Verify results
+                    assert len(scores) == batch_size
+
+    def test_inference_scalability_regression(self, trained_models):
+        """Test inference time scalability."""
+        if not trained_models:
+            pytest.skip("No trained models available")
+
+        model = list(trained_models.values())[0]  # Use first available model
+
+        # Test with increasing batch sizes
+        test_sizes = [100, 500, 1000, 2500]
+        inference_results = []
+
+        for size in test_sizes:
+            # Create test dataset
+            np.random.seed(42)
+            data = np.random.normal(0, 1, (size, 5))
+            dataset = Dataset(
+                name=f"Inference Test {size}",
+                data=pd.DataFrame(data, columns=[f"f_{i}" for i in range(5)]),
+            )
+
+            # Measure inference time
+            start_time = time.time()
+            scores = model.score(dataset)
+            inference_time = time.time() - start_time
+
+            inference_results.append(
+                {
+                    "size": size,
+                    "time": inference_time,
+                    "throughput": size / inference_time,
+                }
+            )
+
+            assert len(scores) == size
+
+        # Check scalability
+        if len(inference_results) >= 2:
+            for i in range(1, len(inference_results)):
+                prev_result = inference_results[i - 1]
+                curr_result = inference_results[i]
+
+                size_ratio = curr_result["size"] / prev_result["size"]
+                time_ratio = curr_result["time"] / prev_result["time"]
+
+                # Inference time should scale roughly linearly
+                max_acceptable_ratio = size_ratio * 1.5  # Allow 50% overhead
+                assert (
+                    time_ratio <= max_acceptable_ratio
+                ), f"Poor inference scalability: {time_ratio}x time for {size_ratio}x data"
+
+
+class TestMemoryPerformanceRegression:
+    """Test memory usage performance regression."""
+
+    def test_training_memory_usage(self, performance_datasets):
+        """Test memory usage during training."""
+        try:
+            import psutil
+
+            process = psutil.Process()
+        except ImportError:
+            pytest.skip("psutil not available for memory monitoring")
+
+        import gc
+
+        for dataset_name, dataset in performance_datasets.items():
+            if dataset_name == "large":
+                continue  # Skip large dataset to avoid memory issues
+
+            try:
+                # Measure baseline memory
+                gc.collect()
+                baseline_memory = process.memory_info().rss
+
+                adapter = SklearnAdapter(
+                    algorithm_name="IsolationForest",
+                    parameters={
+                        "contamination": 0.1,
+                        "n_estimators": 50,
+                        "random_state": 42,
+                    },
+                )
+
+                # Measure memory during training
+                adapter.fit(dataset)
+                training_memory = process.memory_info().rss
+
+                # Measure memory after training
+                scores = adapter.score(dataset)
+                scoring_memory = process.memory_info().rss
+
+                # Clean up
+                del adapter, scores
+                gc.collect()
+                final_memory = process.memory_info().rss
+
+                # Calculate memory usage
+                training_increase = training_memory - baseline_memory
+                scoring_increase = scoring_memory - training_memory
+                memory_leak = final_memory - baseline_memory
+
+                # Memory usage thresholds (in MB)
+                training_mb = training_increase / (1024 * 1024)
+                scoring_mb = scoring_increase / (1024 * 1024)
+                leak_mb = memory_leak / (1024 * 1024)
+
+                # Memory usage should be reasonable
+                if dataset_name == "small":
+                    assert (
+                        training_mb < 100
+                    ), f"Small dataset training uses too much memory: {training_mb} MB"
+                elif dataset_name == "medium":
+                    assert (
+                        training_mb < 500
+                    ), f"Medium dataset training uses too much memory: {training_mb} MB"
+                elif dataset_name == "wide":
+                    assert (
+                        training_mb < 200
+                    ), f"Wide dataset training uses too much memory: {training_mb} MB"
+
+                # Scoring should not significantly increase memory
+                assert (
+                    scoring_mb < 50
+                ), f"Scoring increases memory too much: {scoring_mb} MB"
+
+                # Memory leak should be minimal
+                assert leak_mb < 20, f"Memory leak detected: {leak_mb} MB"
+
+            except ImportError:
+                continue
+
+    def test_concurrent_memory_usage(self):
+        """Test memory usage under concurrent operations."""
+        try:
+            import psutil
+
+            process = psutil.Process()
+        except ImportError:
+            pytest.skip("psutil not available")
+
+        import gc
+
+        # Measure baseline memory
+        gc.collect()
+        baseline_memory = process.memory_info().rss
+
+        def train_model(seed):
+            """Train a model in a thread."""
+            np.random.seed(seed)
+            data = np.random.normal(0, 1, (1000, 5))
+            dataset = Dataset(
+                name=f"Concurrent {seed}",
+                data=pd.DataFrame(data, columns=[f"f_{i}" for i in range(5)]),
+            )
+
+            try:
+                adapter = SklearnAdapter(
+                    algorithm_name="IsolationForest",
+                    parameters={
+                        "contamination": 0.1,
+                        "n_estimators": 20,
+                        "random_state": seed,
+                    },
+                )
+
+                adapter.fit(dataset)
+                scores = adapter.score(dataset)
+                return len(scores)
+
+            except ImportError:
+                return 0
+
+        # Run concurrent training
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = [executor.submit(train_model, i) for i in range(3)]
+            results = [future.result() for future in futures]
+
+        # Measure memory after concurrent operations
+        concurrent_memory = process.memory_info().rss
+
+        # Clean up
+        gc.collect()
+        final_memory = process.memory_info().rss
+
+        # Calculate memory usage
+        concurrent_increase = concurrent_memory - baseline_memory
+        memory_leak = final_memory - baseline_memory
+
+        concurrent_mb = concurrent_increase / (1024 * 1024)
+        leak_mb = memory_leak / (1024 * 1024)
+
+        # Verify operations completed
+        assert all(result > 0 for result in results if result is not None)
+
+        # Concurrent memory usage should not be excessive
+        assert (
+            concurrent_mb < 300
+        ), f"Concurrent operations use too much memory: {concurrent_mb} MB"
+
+        # Memory leak should be minimal
+        assert leak_mb < 50, f"Concurrent operations cause memory leak: {leak_mb} MB"
+
+
+class TestConcurrencyPerformanceRegression:
+    """Test concurrency performance regression."""
+
+    def test_thread_safety_performance(self):
+        """Test thread safety doesn't degrade performance."""
+        # Create test dataset
+        np.random.seed(42)
+        data = np.random.normal(0, 1, (1000, 5))
+        dataset = Dataset(
+            name="Thread Safety Test",
+            data=pd.DataFrame(data, columns=[f"f_{i}" for i in range(5)]),
+        )
+
+        try:
+            # Train model once
+            adapter = SklearnAdapter(
+                algorithm_name="IsolationForest",
+                parameters={
+                    "contamination": 0.1,
+                    "n_estimators": 50,
+                    "random_state": 42,
+                },
+            )
+            adapter.fit(dataset)
+
+            # Test sequential inference
+            sequential_times = []
+            for _ in range(5):
+                start_time = time.time()
+                adapter.score(dataset)
+                sequential_times.append(time.time() - start_time)
+
+            avg_sequential_time = np.mean(sequential_times)
+
+            # Test concurrent inference
+            def concurrent_inference():
+                start_time = time.time()
+                adapter.score(dataset)
+                return time.time() - start_time
+
+            concurrent_times = []
+            with ThreadPoolExecutor(max_workers=3) as executor:
+                futures = [executor.submit(concurrent_inference) for _ in range(3)]
+                concurrent_times = [future.result() for future in futures]
+
+            avg_concurrent_time = np.mean(concurrent_times)
+
+            # Concurrent inference should not be significantly slower
+            slowdown_ratio = avg_concurrent_time / avg_sequential_time
+            assert (
+                slowdown_ratio < 3.0
+            ), f"Concurrent inference too slow: {slowdown_ratio}x slower"
+
+        except ImportError:
+            pytest.skip("scikit-learn not available")
+
+    def test_multiprocessing_performance(self):
+        """Test multiprocessing performance characteristics."""
+        if mp.cpu_count() < 2:
+            pytest.skip("Multiprocessing test requires multiple CPU cores")
+
+        def train_and_score(seed):
+            """Train and score in a separate process."""
+            np.random.seed(seed)
+            data = np.random.normal(0, 1, (2000, 5))
+            dataset = Dataset(
+                name=f"MP Test {seed}",
+                data=pd.DataFrame(data, columns=[f"f_{i}" for i in range(5)]),
+            )
+
+            try:
+                adapter = SklearnAdapter(
+                    algorithm_name="IsolationForest",
+                    parameters={
+                        "contamination": 0.1,
+                        "n_estimators": 30,
+                        "random_state": seed,
+                    },
+                )
+
+                start_time = time.time()
+                adapter.fit(dataset)
+                scores = adapter.score(dataset)
+                total_time = time.time() - start_time
+
+                return {"seed": seed, "time": total_time, "n_scores": len(scores)}
+
+            except ImportError:
+                return {"seed": seed, "time": float("inf"), "n_scores": 0}
+
+        # Test sequential processing
+        start_time = time.time()
+        sequential_results = [train_and_score(i) for i in range(2)]
+        sequential_time = time.time() - start_time
+
+        # Test parallel processing
+        start_time = time.time()
+        with ProcessPoolExecutor(max_workers=2) as executor:
+            parallel_results = list(executor.map(train_and_score, range(2)))
+        parallel_time = time.time() - start_time
+
+        # Verify results
+        assert all(result["n_scores"] > 0 for result in sequential_results)
+        assert all(result["n_scores"] > 0 for result in parallel_results)
+
+        # Parallel processing should provide some speedup
+        speedup = sequential_time / parallel_time
+        assert speedup > 0.8, f"Multiprocessing provides no benefit: {speedup}x speedup"
+
+        # Should not be slower than sequential (accounting for overhead)
+        assert (
+            parallel_time < sequential_time * 1.5
+        ), "Multiprocessing significantly slower than sequential"
+
+
+class TestIOPerformanceRegression:
+    """Test I/O performance regression."""
+
+    def test_model_serialization_performance(self):
+        """Test model serialization/deserialization performance."""
+        # Create and train model
+        np.random.seed(42)
+        data = np.random.normal(0, 1, (5000, 10))
+        dataset = Dataset(
+            name="Serialization Test",
+            data=pd.DataFrame(data, columns=[f"f_{i}" for i in range(10)]),
+        )
+
+        try:
+            adapter = SklearnAdapter(
+                algorithm_name="IsolationForest",
+                parameters={
+                    "contamination": 0.1,
+                    "n_estimators": 100,
+                    "random_state": 42,
+                },
+            )
+            adapter.fit(dataset)
+
+            # Test pickle serialization performance
+            import pickle
+
+            with tempfile.NamedTemporaryFile(suffix=".pkl", delete=False) as f:
+                start_time = time.time()
+                pickle.dump(adapter, f)
+                serialization_time = time.time() - start_time
+                pickle_path = f.name
+
+            # Test pickle deserialization performance
+            start_time = time.time()
+            with open(pickle_path, "rb") as f:
+                loaded_adapter = pickle.load(f)
+            deserialization_time = time.time() - start_time
+
+            # Test loaded model works
+            scores = loaded_adapter.score(dataset)
+            assert len(scores) == len(dataset.data)
+
+            # Performance thresholds
+            assert (
+                serialization_time < 5.0
+            ), f"Model serialization too slow: {serialization_time}s"
+            assert (
+                deserialization_time < 3.0
+            ), f"Model deserialization too slow: {deserialization_time}s"
+
+            # Clean up
+            Path(pickle_path).unlink()
+
+            # Test joblib if available
+            try:
+                import joblib
+
+                with tempfile.NamedTemporaryFile(suffix=".joblib", delete=False) as f:
+                    start_time = time.time()
+                    joblib.dump(adapter, f.name)
+                    joblib_serialize_time = time.time() - start_time
+                    joblib_path = f.name
+
+                start_time = time.time()
+                joblib.load(joblib_path)
+                joblib_deserialize_time = time.time() - start_time
+
+                # Joblib should be reasonably fast
+                assert (
+                    joblib_serialize_time < 5.0
+                ), f"Joblib serialization too slow: {joblib_serialize_time}s"
+                assert (
+                    joblib_deserialize_time < 3.0
+                ), f"Joblib deserialization too slow: {joblib_deserialize_time}s"
+
+                # Clean up
+                Path(joblib_path).unlink()
+
+            except ImportError:
+                pass  # joblib not available
+
+        except ImportError:
+            pytest.skip("scikit-learn not available")
+
+    def test_data_loading_performance(self):
+        """Test data loading performance."""
+        # Create test data files
+        data_sizes = [1000, 10000, 50000]
+
+        for size in data_sizes:
+            # Generate test data
+            np.random.seed(42)
+            data = pd.DataFrame(
+                {
+                    "feature1": np.random.normal(0, 1, size),
+                    "feature2": np.random.exponential(1, size),
+                    "feature3": np.random.uniform(-1, 1, size),
+                    "category": np.random.choice(["A", "B", "C"], size),
+                }
+            )
+
+            # Test CSV loading performance
+            with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
+                csv_path = f.name
+
+            # Write CSV
+            start_time = time.time()
+            data.to_csv(csv_path, index=False)
+            csv_write_time = time.time() - start_time
+
+            # Read CSV
+            start_time = time.time()
+            loaded_csv = pd.read_csv(csv_path)
+            csv_read_time = time.time() - start_time
+
+            # Verify data integrity
+            assert len(loaded_csv) == size
+            assert len(loaded_csv.columns) == 4
+
+            # Performance thresholds based on size
+            if size <= 1000:
+                assert (
+                    csv_write_time < 2.0
+                ), f"CSV write too slow for {size} rows: {csv_write_time}s"
+                assert (
+                    csv_read_time < 1.0
+                ), f"CSV read too slow for {size} rows: {csv_read_time}s"
+            elif size <= 10000:
+                assert (
+                    csv_write_time < 5.0
+                ), f"CSV write too slow for {size} rows: {csv_write_time}s"
+                assert (
+                    csv_read_time < 3.0
+                ), f"CSV read too slow for {size} rows: {csv_read_time}s"
+            elif size <= 50000:
+                assert (
+                    csv_write_time < 15.0
+                ), f"CSV write too slow for {size} rows: {csv_write_time}s"
+                assert (
+                    csv_read_time < 10.0
+                ), f"CSV read too slow for {size} rows: {csv_read_time}s"
+
+            # Clean up
+            Path(csv_path).unlink()
+
+            # Test Parquet if available
+            try:
+                with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as f:
+                    parquet_path = f.name
+
+                start_time = time.time()
+                data.to_parquet(parquet_path, index=False)
+                time.time() - start_time
+
+                start_time = time.time()
+                pd.read_parquet(parquet_path)
+                parquet_read_time = time.time() - start_time
+
+                # Parquet should be faster than CSV for larger datasets
+                if size >= 10000:
+                    assert (
+                        parquet_read_time <= csv_read_time
+                    ), "Parquet not faster than CSV for large data"
+
+                # Clean up
+                Path(parquet_path).unlink()
+
+            except ImportError:
+                pass  # Parquet not available
