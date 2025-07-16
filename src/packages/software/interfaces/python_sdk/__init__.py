@@ -5,6 +5,7 @@ A comprehensive Python SDK for data science packages with intuitive APIs,
 async support, and integration with popular data science libraries.
 """
 
+from .client import PynomaliClient
 from .application.services.detection_service import DetectionService
 from .application.dto.detection_dto import DetectionRequestDTO, DetectionResponseDTO
 from .domain.entities.detection_request import DetectionRequest
@@ -18,6 +19,7 @@ __author__ = "Pynomaly Team"
 __email__ = "support@pynomaly.com"
 
 __all__ = [
+    "PynomaliClient",
     "DetectionService",
     "DetectionRequestDTO",
     "DetectionResponseDTO", 

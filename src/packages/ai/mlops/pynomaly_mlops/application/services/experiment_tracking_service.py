@@ -1,489 +1,359 @@
-"""Application service for experiment tracking and management."""
+"""Application service for experiment tracking."""
 
+from __future__ import annotations
+
+import json
 from datetime import datetime
-from typing import Dict, Any, List, Optional, Tuple
-from uuid import UUID, uuid4
+from pathlib import Path
+from typing import Any
+from uuid import uuid4
 
-from pynomaly_mlops.domain.entities.experiment import (
-    Experiment, ExperimentRun, ExperimentStatus, ExperimentRunStatus
-)
-from pynomaly_mlops.domain.repositories.experiment_repository import ExperimentRepository
-from pynomaly_mlops.infrastructure.storage.artifact_storage import ArtifactStorageService
+import pandas as pd
 
 
 class ExperimentTrackingService:
-    """Service for managing ML experiments and runs."""
-    
-    def __init__(
-        self, 
-        experiment_repository: ExperimentRepository,
-        artifact_storage: ArtifactStorageService
-    ):
-        """Initialize service with dependencies.
-        
+    """Service for tracking ML experiments and results."""
+
+    def __init__(self, tracking_path: Path):
+        """Initialize experiment tracking service.
+
         Args:
-            experiment_repository: Repository for experiment persistence
-            artifact_storage: Storage service for artifacts
+            tracking_path: Base path for experiment storage
         """
-        self.experiment_repository = experiment_repository
-        self.artifact_storage = artifact_storage
-    
+        self.tracking_path = tracking_path
+        self.tracking_path.mkdir(parents=True, exist_ok=True)
+        self.experiments_file = self.tracking_path / "experiments.json"
+        self._load_experiments()
+
+    def _load_experiments(self) -> None:
+        """Load existing experiments from file."""
+        if self.experiments_file.exists():
+            with open(self.experiments_file) as f:
+                self.experiments = json.load(f)
+        else:
+            self.experiments = {}
+
+    def _save_experiments(self) -> None:
+        """Save experiments to file."""
+        with open(self.experiments_file, "w") as f:
+            json.dump(self.experiments, f, indent=2)
+
     async def create_experiment(
         self,
         name: str,
-        description: Optional[str] = None,
-        tags: Optional[Dict[str, str]] = None,
-        created_by: str = "system"
-    ) -> Experiment:
+        description: str | None = None,
+        tags: list[str] | None = None,
+    ) -> str:
         """Create a new experiment.
-        
+
         Args:
             name: Experiment name
             description: Optional description
-            tags: Optional tags
-            created_by: User creating the experiment
-            
+            tags: Optional tags for categorization
+
         Returns:
-            Created experiment
-            
-        Raises:
-            ValueError: If experiment with name already exists
+            Experiment ID
         """
-        # Check if experiment already exists
-        existing = await self.experiment_repository.get_by_name(name)
-        if existing:
-            raise ValueError(f"Experiment with name '{name}' already exists")
-        
-        experiment = Experiment(
-            id=uuid4(),
-            name=name,
-            description=description,
-            tags=tags or {},
-            created_by=created_by,
-            status=ExperimentStatus.ACTIVE
-        )
-        
-        return await self.experiment_repository.save(experiment)
-    
-    async def get_experiment(self, experiment_id: UUID) -> Optional[Experiment]:
-        """Get experiment by ID.
-        
-        Args:
-            experiment_id: Experiment ID
-            
-        Returns:
-            Experiment if found, None otherwise
-        """
-        return await self.experiment_repository.get_by_id(experiment_id)
-    
-    async def get_experiment_by_name(self, name: str) -> Optional[Experiment]:
-        """Get experiment by name.
-        
-        Args:
-            name: Experiment name
-            
-        Returns:
-            Experiment if found, None otherwise
-        """
-        return await self.experiment_repository.get_by_name(name)
-    
-    async def list_experiments(
-        self,
-        limit: int = 100,
-        offset: int = 0,
-        status: Optional[ExperimentStatus] = None,
-        created_by: Optional[str] = None,
-        tags: Optional[Dict[str, str]] = None,
-        order_by: str = "created_at",
-        ascending: bool = False
-    ) -> List[Experiment]:
-        """List experiments with filtering.
-        
-        Args:
-            limit: Maximum results
-            offset: Pagination offset
-            status: Filter by status
-            created_by: Filter by creator
-            tags: Filter by tags
-            order_by: Sort field
-            ascending: Sort direction
-            
-        Returns:
-            List of experiments
-        """
-        return await self.experiment_repository.list_experiments(
-            limit=limit,
-            offset=offset,
-            status=status,
-            created_by=created_by,
-            tags=tags,
-            order_by=order_by,
-            ascending=ascending
-        )
-    
-    async def update_experiment(
-        self,
-        experiment_id: UUID,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        tags: Optional[Dict[str, str]] = None,
-        status: Optional[ExperimentStatus] = None
-    ) -> Optional[Experiment]:
-        """Update experiment details.
-        
-        Args:
-            experiment_id: Experiment ID
-            name: New name
-            description: New description
-            tags: New tags
-            status: New status
-            
-        Returns:
-            Updated experiment if found, None otherwise
-        """
-        experiment = await self.experiment_repository.get_by_id(experiment_id)
-        if not experiment:
-            return None
-        
-        # Update fields if provided
-        if name is not None:
-            experiment.name = name
-        if description is not None:
-            experiment.description = description
-        if tags is not None:
-            experiment.tags = tags
-        if status is not None:
-            experiment.status = status
-        
-        experiment.updated_at = datetime.utcnow()
-        
-        return await self.experiment_repository.save(experiment)
-    
-    async def delete_experiment(self, experiment_id: UUID) -> bool:
-        """Delete experiment and all associated runs.
-        
-        Args:
-            experiment_id: Experiment ID
-            
-        Returns:
-            True if deleted, False if not found
-        """
-        return await self.experiment_repository.delete(experiment_id)
-    
-    async def start_run(
-        self,
-        experiment_id: UUID,
-        name: Optional[str] = None,
-        parameters: Optional[Dict[str, Any]] = None,
-        tags: Optional[Dict[str, str]] = None,
-        created_by: str = "system",
-        parent_run_id: Optional[UUID] = None,
-        source_version: Optional[str] = None,
-        entry_point: Optional[str] = None
-    ) -> ExperimentRun:
-        """Start a new experiment run.
-        
-        Args:
-            experiment_id: Experiment ID
-            name: Optional run name
-            parameters: Run parameters
-            tags: Run tags
-            created_by: User starting the run
-            parent_run_id: Optional parent run ID
-            source_version: Source code version
-            entry_point: Entry point script
-            
-        Returns:
-            Created experiment run
-            
-        Raises:
-            ValueError: If experiment not found
-        """
-        # Verify experiment exists
-        experiment = await self.experiment_repository.get_by_id(experiment_id)
-        if not experiment:
-            raise ValueError(f"Experiment with ID {experiment_id} not found")
-        
-        run = ExperimentRun(
-            id=uuid4(),
-            experiment_id=experiment_id,
-            name=name,
-            parameters=parameters or {},
-            tags=tags or {},
-            status=ExperimentRunStatus.RUNNING,
-            created_by=created_by,
-            parent_run_id=parent_run_id,
-            source_version=source_version,
-            entry_point=entry_point
-        )
-        
-        return await self.experiment_repository.save_run(run)
-    
-    async def end_run(
-        self,
-        run_id: UUID,
-        status: ExperimentRunStatus = ExperimentRunStatus.COMPLETED,
-        notes: Optional[str] = None
-    ) -> Optional[ExperimentRun]:
-        """End an experiment run.
-        
-        Args:
-            run_id: Run ID
-            status: Final status
-            notes: Optional notes
-            
-        Returns:
-            Updated run if found, None otherwise
-        """
-        run = await self.experiment_repository.get_run_by_id(run_id)
-        if not run:
-            return None
-        
-        run.status = status
-        run.end_time = datetime.utcnow()
-        if notes:
-            run.notes = notes
-        
-        return await self.experiment_repository.save_run(run)
-    
-    async def log_metric(
-        self,
-        run_id: UUID,
-        key: str,
-        value: float,
-        step: Optional[float] = None,
-        timestamp: Optional[datetime] = None
-    ) -> None:
-        """Log a metric for a run.
-        
-        Args:
-            run_id: Run ID
-            key: Metric name
-            value: Metric value
-            step: Optional step number
-            timestamp: Optional timestamp
-            
-        Raises:
-            ValueError: If run not found
-        """
-        # Verify run exists
-        run = await self.experiment_repository.get_run_by_id(run_id)
-        if not run:
-            raise ValueError(f"Run with ID {run_id} not found")
-        
-        await self.experiment_repository.log_metric(
-            run_id=run_id,
-            key=key,
-            value=value,
-            step=step,
-            timestamp=timestamp
-        )
-    
-    async def log_metrics(
-        self,
-        run_id: UUID,
-        metrics: Dict[str, float],
-        step: Optional[float] = None,
-        timestamp: Optional[datetime] = None
-    ) -> None:
-        """Log multiple metrics for a run.
-        
-        Args:
-            run_id: Run ID
-            metrics: Dictionary of metric name to value
-            step: Optional step number
-            timestamp: Optional timestamp
-        """
-        for key, value in metrics.items():
-            await self.log_metric(
-                run_id=run_id,
-                key=key,
-                value=value,
-                step=step,
-                timestamp=timestamp
-            )
-    
-    async def log_artifact(
-        self,
-        run_id: UUID,
-        artifact_name: str,
-        artifact_data: Any,
-        artifact_type: str = "model"
-    ) -> str:
-        """Log an artifact for a run.
-        
-        Args:
-            run_id: Run ID
-            artifact_name: Artifact name
-            artifact_data: Artifact data
-            artifact_type: Type of artifact
-            
-        Returns:
-            Artifact URI
-            
-        Raises:
-            ValueError: If run not found
-        """
-        # Verify run exists
-        run = await self.experiment_repository.get_run_by_id(run_id)
-        if not run:
-            raise ValueError(f"Run with ID {run_id} not found")
-        
-        # Store artifact
-        artifact_uri = await self.artifact_storage.store_model(
-            model=artifact_data,
-            model_id=f"{run_id}_{artifact_name}",
-            metadata={
-                "run_id": str(run_id),
-                "artifact_name": artifact_name,
-                "artifact_type": artifact_type,
-                "timestamp": datetime.utcnow().isoformat()
-            }
-        )
-        
-        # Update run with artifact info
-        if not run.artifacts:
-            run.artifacts = {}
-        run.artifacts[artifact_name] = {
-            "uri": artifact_uri,
-            "type": artifact_type,
-            "timestamp": datetime.utcnow().isoformat()
+        experiment_id = str(uuid4())
+
+        experiment = {
+            "id": experiment_id,
+            "name": name,
+            "description": description,
+            "tags": tags or [],
+            "created_at": datetime.utcnow().isoformat(),
+            "runs": [],
         }
-        
-        await self.experiment_repository.save_run(run)
-        
-        return artifact_uri
-    
-    async def get_run_metrics(
+
+        self.experiments[experiment_id] = experiment
+        self._save_experiments()
+
+        # Create experiment directory
+        exp_dir = self.tracking_path / experiment_id
+        exp_dir.mkdir(exist_ok=True)
+
+        return experiment_id
+
+    async def log_run(
         self,
-        run_id: UUID,
-        keys: Optional[List[str]] = None
-    ) -> Dict[str, List[Dict[str, Any]]]:
-        """Get time-series metrics for a run.
-        
+        experiment_id: str,
+        detector_name: str,
+        dataset_name: str,
+        parameters: dict[str, Any],
+        metrics: dict[str, float],
+        artifacts: dict[str, str] | None = None,
+    ) -> str:
+        """Log a run within an experiment.
+
         Args:
-            run_id: Run ID
-            keys: Optional metric keys to filter
-            
+            experiment_id: ID of the experiment
+            detector_name: Name of the detector used
+            dataset_name: Name of the dataset used
+            parameters: Hyperparameters used
+            metrics: Performance metrics
+            artifacts: Optional paths to artifacts
+
         Returns:
-            Dictionary of metric histories
+            Run ID
         """
-        return await self.experiment_repository.get_metrics(run_id, keys)
-    
+        if experiment_id not in self.experiments:
+            raise ValueError(f"Experiment {experiment_id} not found")
+
+        run_id = str(uuid4())
+
+        run = {
+            "id": run_id,
+            "detector_name": detector_name,
+            "dataset_name": dataset_name,
+            "parameters": parameters,
+            "metrics": metrics,
+            "artifacts": artifacts or {},
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+
+        self.experiments[experiment_id]["runs"].append(run)
+        self._save_experiments()
+
+        # Save run details
+        run_dir = self.tracking_path / experiment_id / run_id
+        run_dir.mkdir(exist_ok=True)
+
+        with open(run_dir / "run.json", "w") as f:
+            json.dump(run, f, indent=2)
+
+        return run_id
+
     async def compare_runs(
         self,
-        run_ids: List[UUID],
-        metric_keys: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
-        """Compare multiple runs.
-        
+        experiment_id: str,
+        run_ids: list[str] | None = None,
+        metric: str = "f1",
+    ) -> pd.DataFrame:
+        """Compare runs within an experiment.
+
         Args:
-            run_ids: List of run IDs
-            metric_keys: Optional metrics to compare
-            
+            experiment_id: ID of the experiment
+            run_ids: Specific runs to compare (None = all)
+            metric: Metric to sort by
+
         Returns:
-            Comparison data
+            DataFrame with run comparisons
         """
-        return await self.experiment_repository.compare_runs(run_ids, metric_keys)
-    
-    async def search_experiments(
-        self,
-        query: str,
-        limit: int = 50,
-        offset: int = 0
-    ) -> List[Experiment]:
-        """Search experiments.
-        
-        Args:
-            query: Search query
-            limit: Maximum results
-            offset: Pagination offset
-            
-        Returns:
-            List of matching experiments
-        """
-        return await self.experiment_repository.search_experiments(
-            query=query,
-            limit=limit,
-            offset=offset
-        )
-    
-    async def get_experiment_summary(self, experiment_id: UUID) -> Optional[Dict[str, Any]]:
-        """Get experiment summary with statistics.
-        
-        Args:
-            experiment_id: Experiment ID
-            
-        Returns:
-            Experiment summary if found, None otherwise
-        """
-        experiment = await self.experiment_repository.get_by_id(experiment_id)
-        if not experiment:
-            return None
-        
-        # Get all runs for the experiment
-        runs = await self.experiment_repository.list_runs(
-            experiment_id=experiment_id,
-            limit=1000  # Large limit to get all runs
-        )
-        
-        # Calculate statistics
-        total_runs = len(runs)
-        completed_runs = len([r for r in runs if r.status == ExperimentRunStatus.COMPLETED])
-        failed_runs = len([r for r in runs if r.status == ExperimentRunStatus.FAILED])
-        running_runs = len([r for r in runs if r.status == ExperimentRunStatus.RUNNING])
-        
-        # Get latest run
-        latest_run = None
-        if runs:
-            latest_run = max(runs, key=lambda r: r.start_time)
-        
-        # Aggregate metrics from completed runs
-        all_metrics = {}
+        if experiment_id not in self.experiments:
+            raise ValueError(f"Experiment {experiment_id} not found")
+
+        runs = self.experiments[experiment_id]["runs"]
+
+        if run_ids:
+            runs = [r for r in runs if r["id"] in run_ids]
+
+        # Create comparison dataframe
+        comparison_data = []
         for run in runs:
-            if run.status == ExperimentRunStatus.COMPLETED and run.metrics:
-                for key, value in run.metrics.items():
-                    if key not in all_metrics:
-                        all_metrics[key] = []
-                    all_metrics[key].append(value)
-        
-        # Calculate metric statistics
-        metric_stats = {}
-        for key, values in all_metrics.items():
-            if values:
-                metric_stats[key] = {
-                    "count": len(values),
-                    "min": min(values),
-                    "max": max(values),
-                    "mean": sum(values) / len(values),
-                    "latest": values[-1] if values else None
-                }
-        
-        return {
-            "experiment": {
-                "id": str(experiment.id),
-                "name": experiment.name,
-                "description": experiment.description,
-                "status": experiment.status.value,
-                "created_at": experiment.created_at.isoformat(),
-                "updated_at": experiment.updated_at.isoformat(),
-                "created_by": experiment.created_by,
-                "tags": experiment.tags
-            },
-            "statistics": {
-                "total_runs": total_runs,
-                "completed_runs": completed_runs,
-                "failed_runs": failed_runs,
-                "running_runs": running_runs,
-                "success_rate": completed_runs / total_runs if total_runs > 0 else 0
-            },
-            "latest_run": {
-                "id": str(latest_run.id),
-                "name": latest_run.name,
-                "status": latest_run.status.value,
-                "start_time": latest_run.start_time.isoformat(),
-                "end_time": latest_run.end_time.isoformat() if latest_run.end_time else None,
-                "metrics": latest_run.metrics
-            } if latest_run else None,
-            "metric_summary": metric_stats
-        }
+            row = {
+                "run_id": run["id"],
+                "detector": run["detector_name"],
+                "dataset": run["dataset_name"],
+                "timestamp": run["timestamp"],
+                **run["metrics"],
+            }
+            # Add key parameters
+            for param, value in run["parameters"].items():
+                row[f"param_{param}"] = value
+
+            comparison_data.append(row)
+
+        df = pd.DataFrame(comparison_data)
+
+        # Sort by metric if available
+        if metric in df.columns:
+            df = df.sort_values(metric, ascending=False)
+
+        return df
+
+    async def get_best_run(
+        self, experiment_id: str, metric: str = "f1", higher_is_better: bool = True
+    ) -> dict[str, Any]:
+        """Get the best run from an experiment.
+
+        Args:
+            experiment_id: ID of the experiment
+            metric: Metric to optimize
+            higher_is_better: Whether higher values are better
+
+        Returns:
+            Best run details
+        """
+        if experiment_id not in self.experiments:
+            raise ValueError(f"Experiment {experiment_id} not found")
+
+        runs = self.experiments[experiment_id]["runs"]
+
+        if not runs:
+            raise ValueError("No runs found in experiment")
+
+        # Find best run
+        best_run = None
+        best_value = float("-inf") if higher_is_better else float("inf")
+
+        for run in runs:
+            if metric in run["metrics"]:
+                value = run["metrics"][metric]
+                if higher_is_better and value > best_value:
+                    best_value = value
+                    best_run = run
+                elif not higher_is_better and value < best_value:
+                    best_value = value
+                    best_run = run
+
+        if best_run is None:
+            raise ValueError(f"No runs found with metric {metric}")
+
+        return best_run
+
+    async def log_artifact(
+        self, experiment_id: str, run_id: str, artifact_name: str, artifact_path: str
+    ) -> None:
+        """Log an artifact for a run.
+
+        Args:
+            experiment_id: ID of the experiment
+            run_id: ID of the run
+            artifact_name: Name of the artifact
+            artifact_path: Path to the artifact
+        """
+        if experiment_id not in self.experiments:
+            raise ValueError(f"Experiment {experiment_id} not found")
+
+        # Find run
+        run = None
+        for r in self.experiments[experiment_id]["runs"]:
+            if r["id"] == run_id:
+                run = r
+                break
+
+        if run is None:
+            raise ValueError(f"Run {run_id} not found")
+
+        # Update artifacts
+        run["artifacts"][artifact_name] = artifact_path
+        self._save_experiments()
+
+    async def create_leaderboard(
+        self, experiment_ids: list[str] | None = None, metric: str = "f1"
+    ) -> pd.DataFrame:
+        """Create a leaderboard across experiments.
+
+        Args:
+            experiment_ids: Experiments to include (None = all)
+            metric: Metric to rank by
+
+        Returns:
+            Leaderboard DataFrame
+        """
+        if experiment_ids is None:
+            experiment_ids = list(self.experiments.keys())
+
+        leaderboard_data = []
+
+        for exp_id in experiment_ids:
+            if exp_id not in self.experiments:
+                continue
+
+            experiment = self.experiments[exp_id]
+
+            for run in experiment["runs"]:
+                if metric in run["metrics"]:
+                    leaderboard_data.append(
+                        {
+                            "experiment": experiment["name"],
+                            "run_id": run["id"],
+                            "detector": run["detector_name"],
+                            "dataset": run["dataset_name"],
+                            metric: run["metrics"][metric],
+                            "timestamp": run["timestamp"],
+                        }
+                    )
+
+        df = pd.DataFrame(leaderboard_data)
+
+        if not df.empty:
+            df = df.sort_values(metric, ascending=False)
+            df["rank"] = range(1, len(df) + 1)
+
+        return df
+
+    async def export_experiment(self, experiment_id: str, export_path: Path) -> None:
+        """Export experiment data and artifacts.
+
+        Args:
+            experiment_id: ID of experiment to export
+            export_path: Path to export to
+        """
+        if experiment_id not in self.experiments:
+            raise ValueError(f"Experiment {experiment_id} not found")
+
+        export_path.mkdir(parents=True, exist_ok=True)
+
+        # Export experiment metadata
+        experiment = self.experiments[experiment_id]
+        with open(export_path / "experiment.json", "w") as f:
+            json.dump(experiment, f, indent=2)
+
+        # Export comparison
+        comparison_df = await self.compare_runs(experiment_id)
+        comparison_df.to_csv(export_path / "comparison.csv", index=False)
+
+        # Create summary report
+        report = self._generate_experiment_report(experiment)
+        with open(export_path / "report.md", "w") as f:
+            f.write(report)
+
+    def _generate_experiment_report(self, experiment: dict[str, Any]) -> str:
+        """Generate markdown report for experiment."""
+        report = f"""# Experiment: {experiment["name"]}
+
+**ID**: {experiment["id"]}
+**Created**: {experiment["created_at"]}
+**Description**: {experiment.get("description", "N/A")}
+**Tags**: {", ".join(experiment.get("tags", []))}
+
+## Summary
+
+Total runs: {len(experiment["runs"])}
+
+## Best Performing Runs
+
+| Metric | Best Value | Detector | Dataset | Run ID |
+|--------|------------|----------|---------|--------|
+"""
+
+        # Find best runs for common metrics
+        metrics_to_check = ["f1", "auc_roc", "precision", "recall"]
+
+        for metric in metrics_to_check:
+            best_value = 0
+            best_run = None
+
+            for run in experiment["runs"]:
+                if metric in run["metrics"] and run["metrics"][metric] > best_value:
+                    best_value = run["metrics"][metric]
+                    best_run = run
+
+            if best_run:
+                report += f"| {metric} | {best_value:.4f} | "
+                report += f"{best_run['detector_name']} | "
+                report += f"{best_run['dataset_name']} | "
+                report += f"{best_run['id'][:8]} |\n"
+
+        report += "\n## All Runs\n\n"
+
+        for i, run in enumerate(experiment["runs"], 1):
+            report += f"### Run {i}: {run['detector_name']}\n"
+            report += f"- **ID**: {run['id']}\n"
+            report += f"- **Dataset**: {run['dataset_name']}\n"
+            report += f"- **Timestamp**: {run['timestamp']}\n"
+            report += f"- **Metrics**: {json.dumps(run['metrics'], indent=2)}\n"
+            report += f"- **Parameters**: {json.dumps(run['parameters'], indent=2)}\n\n"
+
+        return report

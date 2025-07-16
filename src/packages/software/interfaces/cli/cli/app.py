@@ -31,7 +31,6 @@ else:
     from pynomaly.presentation.cli import (
         datasets,
         deep_learning,
-        detection,
         detectors,
         explainability,
         migrations,
@@ -41,6 +40,7 @@ else:
         tdd,
         validation,
     )
+    from . import detection
     from pynomaly.presentation.cli.export import export_app
     from pynomaly.presentation.cli.performance import performance_app
 

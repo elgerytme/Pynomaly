@@ -1,0 +1,19 @@
+python_library(
+    name = "tools",
+    srcs = glob(["src/tools/**/*.py"]),
+    deps = [
+        "//src/packages/core:core",
+        "//src/packages/infrastructure:infrastructure",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+python_test(
+    name = "tools_test",
+    srcs = glob(["tests/**/*.py"]),
+    deps = [
+        ":tools",
+        "//src/packages/testing:testing",
+    ],
+    visibility = ["PUBLIC"],
+)

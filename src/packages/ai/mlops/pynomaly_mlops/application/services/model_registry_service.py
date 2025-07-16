@@ -1,453 +1,811 @@
-"""Model Registry Service
+"""Model registry service for centralized model management."""
 
-High-level service for managing model lifecycle, storage, and promotion.
-"""
+from __future__ import annotations
 
-import hashlib
+import asyncio
+import json
+from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional, Dict, Any, Tuple
+from pathlib import Path
+from typing import Any
 from uuid import UUID
 
-from pynomaly_mlops.domain.entities.model import Model, ModelStatus, ModelType
-from pynomaly_mlops.domain.repositories.model_repository import ModelRepository
-from pynomaly_mlops.domain.services.model_promotion_service import (
-    ModelPromotionService, PromotionCriteria, PromotionResult
+# Import from the common core domain entities
+from packages.software.core.domain.entities.model_registry import (
+    AccessLevel,
+    AccessPolicy,
+    Model,
+    ModelRegistry,
 )
-from pynomaly_mlops.domain.value_objects.semantic_version import SemanticVersion
-from pynomaly_mlops.domain.value_objects.model_metrics import ModelMetrics
-from pynomaly_mlops.infrastructure.storage.artifact_storage import ArtifactStorageService
+from packages.software.core.domain.entities.model_version import ModelStatus, ModelVersion
+
+
+class ModelRegistryError(Exception):
+    """Base exception for model registry errors."""
+
+    pass
+
+
+class ModelNotFoundError(ModelRegistryError):
+    """Model not found in registry."""
+
+    pass
+
+
+class VersionNotFoundError(ModelRegistryError):
+    """Model version not found."""
+
+    pass
+
+
+class AccessDeniedError(ModelRegistryError):
+    """Access denied to registry resource."""
+
+    pass
+
+
+class ModelAlreadyExistsError(ModelRegistryError):
+    """Model already exists in registry."""
+
+    pass
+
+
+@dataclass
+class SearchCriteria:
+    """Search criteria for model discovery."""
+
+    query: str | None = None
+    domain: str | None = None
+    algorithm: str | None = None
+    tags: list[str] | None = None
+    owner: str | None = None
+    min_accuracy: float | None = None
+    max_inference_time: float | None = None
+    include_archived: bool = False
+    limit: int | None = None
+
+    def matches_model(self, model: Model) -> bool:
+        """Check if a model matches these criteria."""
+        if not self.include_archived and model.is_archived:
+            return False
+
+        if self.domain and model.domain != self.domain:
+            return False
+
+        if self.algorithm and model.algorithm != self.algorithm:
+            return False
+
+        if self.owner and model.owner != self.owner:
+            return False
+
+        if self.tags:
+            if not all(tag in model.tags for tag in self.tags):
+                return False
+
+        # Performance-based filtering
+        if self.min_accuracy or self.max_inference_time:
+            latest_version = model.get_latest_version()
+            if latest_version:
+                metrics = latest_version.performance_metrics
+
+                if self.min_accuracy and metrics.accuracy < self.min_accuracy:
+                    return False
+
+                if (
+                    self.max_inference_time
+                    and metrics.inference_time > self.max_inference_time
+                ):
+                    return False
+
+        return True
+
+
+@dataclass
+class ModelRecommendation:
+    """Model recommendation for a specific use case."""
+
+    model: Model
+    version: ModelVersion
+    confidence: float
+    reasoning: str
+    expected_performance: dict[str, float]
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary representation."""
+        return {
+            "model_id": str(self.model.id),
+            "model_name": self.model.name,
+            "version": self.version.version_string,
+            "algorithm": self.model.algorithm,
+            "domain": self.model.domain,
+            "confidence": self.confidence,
+            "reasoning": self.reasoning,
+            "expected_performance": self.expected_performance,
+            "performance_metrics": self.version.performance_metrics.to_dict(),
+        }
 
 
 class ModelRegistryService:
-    """Application service for model registry operations."""
-    
-    def __init__(
-        self,
-        model_repository: ModelRepository,
-        artifact_storage: ArtifactStorageService,
-        promotion_service: ModelPromotionService
-    ):
+    """Service for managing model registries and providing model discovery.
+
+    This service provides comprehensive model lifecycle management including:
+    - Model registration and cataloging
+    - Version management across environments
+    - Access control and permissions
+    - Model search and discovery
+    - Performance tracking and comparison
+    - Recommendation engine for model selection
+    """
+
+    def __init__(self, storage_path: Path, default_registry_name: str = "default"):
         """Initialize model registry service.
-        
+
         Args:
-            model_repository: Repository for model persistence
-            artifact_storage: Service for storing model artifacts
-            promotion_service: Service for model promotion logic
+            storage_path: Path for registry persistence
+            default_registry_name: Name of default registry
         """
-        self.model_repository = model_repository
-        self.artifact_storage = artifact_storage
-        self.promotion_service = promotion_service
-    
+        self.storage_path = Path(storage_path)
+        self.storage_path.mkdir(parents=True, exist_ok=True)
+
+        self.registries: dict[str, ModelRegistry] = {}
+        self.default_registry_name = default_registry_name
+
+        # Load existing registries
+        asyncio.create_task(self._load_registries())
+
+    async def _load_registries(self) -> None:
+        """Load registries from storage."""
+        registry_files = self.storage_path.glob("*.json")
+
+        for registry_file in registry_files:
+            try:
+                registry = await self._load_registry_from_file(registry_file)
+                self.registries[registry.name] = registry
+            except Exception:
+                # Skip corrupted registry files
+                continue
+
+        # Create default registry if none exist
+        if not self.registries:
+            await self.create_registry(
+                name=self.default_registry_name,
+                description="Default model registry",
+                creator="system",
+            )
+
+    async def create_registry(
+        self,
+        name: str,
+        description: str,
+        creator: str,
+        access_policy: AccessPolicy | None = None,
+    ) -> ModelRegistry:
+        """Create a new model registry.
+
+        Args:
+            name: Registry name
+            description: Registry description
+            creator: User creating the registry
+            access_policy: Access control policy
+
+        Returns:
+            Created ModelRegistry
+
+        Raises:
+            ModelRegistryError: If registry already exists
+        """
+        if name in self.registries:
+            raise ModelRegistryError(f"Registry '{name}' already exists")
+
+        # Create default access policy if none provided
+        if access_policy is None:
+            access_policy = AccessPolicy()
+            access_policy.users[creator] = AccessLevel.ADMIN
+            access_policy.public_read = True
+
+        registry = ModelRegistry(
+            name=name, description=description, access_policy=access_policy
+        )
+
+        self.registries[name] = registry
+        await self._save_registry(registry)
+
+        return registry
+
+    async def get_registry(self, name: str | None = None) -> ModelRegistry:
+        """Get a registry by name.
+
+        Args:
+            name: Registry name (uses default if None)
+
+        Returns:
+            ModelRegistry
+
+        Raises:
+            ModelRegistryError: If registry not found
+        """
+        registry_name = name or self.default_registry_name
+
+        if registry_name not in self.registries:
+            raise ModelRegistryError(f"Registry '{registry_name}' not found")
+
+        return self.registries[registry_name]
+
     async def register_model(
         self,
         name: str,
-        version: SemanticVersion,
-        model_type: ModelType,
-        model_artifact: Any,
-        description: Optional[str] = None,
-        created_by: str = "system",
-        hyperparameters: Optional[Dict[str, Any]] = None,
-        training_config: Optional[Dict[str, Any]] = None,
-        parent_model_id: Optional[UUID] = None,
-        experiment_id: Optional[UUID] = None
+        description: str,
+        algorithm: str,
+        domain: str,
+        owner: str,
+        tags: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
     ) -> Model:
-        """Register a new model with the registry.
-        
+        """Register a new model in the registry.
+
         Args:
             name: Model name
-            version: Model version
-            model_type: Type of the model
-            model_artifact: Trained model object
             description: Model description
-            created_by: Creator of the model
-            hyperparameters: Model hyperparameters
-            training_config: Training configuration
-            parent_model_id: Parent model for lineage tracking
-            experiment_id: Associated experiment
-            
+            algorithm: Algorithm used
+            domain: Application domain
+            owner: Model owner
+            tags: Optional tags
+            metadata: Optional metadata
+            registry_name: Registry to use (default if None)
+            user: User registering the model
+            groups: User's groups
+
         Returns:
-            Registered model entity
-            
+            Registered Model
+
         Raises:
-            ValueError: If model with same name/version already exists
+            ModelAlreadyExistsError: If model name already exists
+            AccessDeniedError: If user lacks permission
         """
-        # Check if model already exists
-        existing_model = await self.model_repository.get_by_name_and_version(name, version)
+        registry = await self.get_registry(registry_name)
+
+        # Check if model name already exists
+        existing_model = registry.get_model_by_name(name, user, groups)
         if existing_model:
-            raise ValueError(f"Model {name} version {version} already exists")
-        
-        # Create model entity
+            raise ModelAlreadyExistsError(f"Model '{name}' already exists")
+
         model = Model(
             name=name,
-            version=version,
-            model_type=model_type,
             description=description,
-            created_by=created_by,
-            hyperparameters=hyperparameters or {},
-            training_config=training_config,
-            parent_model_id=parent_model_id,
-            experiment_id=experiment_id
+            algorithm=algorithm,
+            domain=domain,
+            owner=owner,
+            tags=tags or [],
+            metadata=metadata or {},
         )
-        
-        # Store model artifact
-        artifact_uri = await self.artifact_storage.store_model(model, model_artifact)
-        
-        # Get artifact info and update model
-        artifact_info = await self.artifact_storage.get_model_info(artifact_uri)
-        if artifact_info:
-            model.artifact_uri = artifact_uri
-            model.size_bytes = artifact_info.get('size_bytes')
-            model.checksum = artifact_info.get('checksum')
-        
-        # Save model to repository
-        return await self.model_repository.save(model)
-    
-    async def update_model_metrics(
+
+        registry.register_model(model, user, groups)
+        await self._save_registry(registry)
+
+        return model
+
+    async def add_model_version(
         self,
         model_id: UUID,
-        metrics: ModelMetrics,
-        validation_metrics: Optional[ModelMetrics] = None
+        version: ModelVersion,
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
+    ) -> None:
+        """Add a version to an existing model.
+
+        Args:
+            model_id: Model ID
+            version: ModelVersion to add
+            registry_name: Registry name
+            user: User adding the version
+            groups: User's groups
+
+        Raises:
+            ModelNotFoundError: If model not found
+            AccessDeniedError: If user lacks permission
+        """
+        registry = await self.get_registry(registry_name)
+        model = registry.get_model(model_id, user, groups)
+
+        if not model:
+            raise ModelNotFoundError(f"Model {model_id} not found")
+
+        if not registry.access_policy.can_write(user, groups):
+            raise AccessDeniedError(f"User {user} lacks write permission")
+
+        model.add_version(version)
+        await self._save_registry(registry)
+
+    async def get_model(
+        self,
+        model_id: UUID,
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
     ) -> Model:
-        """Update model performance metrics.
-        
+        """Get a model by ID.
+
         Args:
-            model_id: Model identifier
-            metrics: Performance metrics
-            validation_metrics: Validation metrics
-            
+            model_id: Model ID
+            registry_name: Registry name
+            user: User requesting the model
+            groups: User's groups
+
         Returns:
-            Updated model entity
-            
+            Model
+
         Raises:
-            ValueError: If model not found
+            ModelNotFoundError: If model not found
         """
-        model = await self.model_repository.get_by_id(model_id)
+        registry = await self.get_registry(registry_name)
+        model = registry.get_model(model_id, user, groups)
+
         if not model:
-            raise ValueError(f"Model {model_id} not found")
-        
-        # Update metrics
-        model.metrics = metrics
-        if validation_metrics:
-            model.validation_metrics = validation_metrics
-        
-        # Update timestamp
-        model.updated_at = datetime.utcnow()
-        
-        return await self.model_repository.save(model)
-    
-    async def promote_model(
-        self,
-        model_id: UUID,
-        target_status: ModelStatus,
-        criteria: Optional[PromotionCriteria] = None,
-        promoted_by: str = "system"
-    ) -> Tuple[bool, PromotionResult]:
-        """Promote model to a new status.
-        
-        Args:
-            model_id: Model identifier
-            target_status: Target status for promotion
-            criteria: Promotion criteria (optional)
-            promoted_by: User promoting the model
-            
-        Returns:
-            Tuple of (success, promotion_result)
-            
-        Raises:
-            ValueError: If model not found or promotion invalid
-        """
-        model = await self.model_repository.get_by_id(model_id)
-        if not model:
-            raise ValueError(f"Model {model_id} not found")
-        
-        # Get current production model for comparison
-        current_production_model = None
-        if target_status == ModelStatus.PRODUCTION:
-            production_models = await self.model_repository.get_production_models()
-            current_production_model = next(
-                (m for m in production_models if m.name == model.name),
-                None
-            )
-        
-        # Evaluate promotion
-        promotion_result = self.promotion_service.evaluate_promotion(
-            candidate_model=model,
-            target_status=target_status,
-            current_production_model=current_production_model,
-            criteria=criteria
-        )
-        
-        if promotion_result.approved:
-            # Update model status
-            model.promote_to_status(target_status, promoted_by)
-            await self.model_repository.save(model)
-            
-            # If promoting to production, demote current production model
-            if target_status == ModelStatus.PRODUCTION and current_production_model:
-                current_production_model.promote_to_status(ModelStatus.DEPRECATED, promoted_by)
-                await self.model_repository.save(current_production_model)
-        
-        return promotion_result.approved, promotion_result
-    
-    async def get_model(self, model_id: UUID) -> Optional[Model]:
-        """Get model by ID.
-        
-        Args:
-            model_id: Model identifier
-            
-        Returns:
-            Model entity if found
-        """
-        return await self.model_repository.get_by_id(model_id)
-    
-    async def get_model_by_name_version(
+            raise ModelNotFoundError(f"Model {model_id} not found")
+
+        return model
+
+    async def get_model_by_name(
         self,
         name: str,
-        version: SemanticVersion
-    ) -> Optional[Model]:
-        """Get model by name and version.
-        
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
+    ) -> Model:
+        """Get a model by name.
+
         Args:
             name: Model name
-            version: Model version
-            
+            registry_name: Registry name
+            user: User requesting the model
+            groups: User's groups
+
         Returns:
-            Model entity if found
+            Model
+
+        Raises:
+            ModelNotFoundError: If model not found
         """
-        return await self.model_repository.get_by_name_and_version(name, version)
-    
-    async def get_latest_model(self, name: str) -> Optional[Model]:
-        """Get latest version of a model.
-        
-        Args:
-            name: Model name
-            
-        Returns:
-            Latest model version if found
-        """
-        return await self.model_repository.get_latest_by_name(name)
-    
+        registry = await self.get_registry(registry_name)
+        model = registry.get_model_by_name(name, user, groups)
+
+        if not model:
+            raise ModelNotFoundError(f"Model '{name}' not found")
+
+        return model
+
     async def list_models(
         self,
-        name_pattern: Optional[str] = None,
-        status: Optional[ModelStatus] = None,
-        model_type: Optional[ModelType] = None,
-        created_by: Optional[str] = None,
-        limit: int = 100,
-        offset: int = 0
-    ) -> List[Model]:
-        """List models with filtering.
-        
+        criteria: SearchCriteria | None = None,
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
+    ) -> list[Model]:
+        """List models with optional filtering.
+
         Args:
-            name_pattern: Pattern to match model names
-            status: Filter by status
-            model_type: Filter by model type
-            created_by: Filter by creator
-            limit: Maximum number of results
-            offset: Number of results to skip
-            
+            criteria: Search criteria
+            registry_name: Registry name
+            user: User requesting the list
+            groups: User's groups
+
+        Returns:
+            List of models matching criteria
+        """
+        registry = await self.get_registry(registry_name)
+        criteria = criteria or SearchCriteria()
+
+        models = registry.list_models(
+            user=user,
+            groups=groups,
+            domain_filter=criteria.domain,
+            algorithm_filter=criteria.algorithm,
+            tag_filter=criteria.tags,
+            owner_filter=criteria.owner,
+            include_archived=criteria.include_archived,
+        )
+
+        # Apply additional criteria filtering
+        filtered_models = [model for model in models if criteria.matches_model(model)]
+
+        # Apply limit
+        if criteria.limit:
+            filtered_models = filtered_models[: criteria.limit]
+
+        return filtered_models
+
+    async def search_models(
+        self,
+        query: str,
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
+        limit: int | None = None,
+    ) -> list[Model]:
+        """Search models by query.
+
+        Args:
+            query: Search query
+            registry_name: Registry name
+            user: User performing search
+            groups: User's groups
+            limit: Maximum results
+
         Returns:
             List of matching models
         """
-        return await self.model_repository.search(
-            name_pattern=name_pattern,
-            status=status,
-            model_type=model_type,
-            created_by=created_by,
-            limit=limit,
-            offset=offset
-        )
-    
-    async def get_production_models(self) -> List[Model]:
-        """Get all models currently in production.
-        
-        Returns:
-            List of production models
-        """
-        return await self.model_repository.get_production_models()
-    
-    async def get_model_versions(self, name: str) -> List[Model]:
-        """Get all versions of a model.
-        
-        Args:
-            name: Model name
-            
-        Returns:
-            List of model versions, ordered by version descending
-        """
-        return await self.model_repository.list_by_name(name)
-    
-    async def get_model_lineage(self, model_id: UUID) -> List[Model]:
-        """Get model lineage (ancestors and descendants).
-        
-        Args:
-            model_id: Model identifier
-            
-        Returns:
-            List of models in lineage chain
-        """
-        return await self.model_repository.get_model_lineage(model_id)
-    
-    async def load_model_artifact(self, model_id: UUID) -> Any:
-        """Load model artifact for inference.
-        
-        Args:
-            model_id: Model identifier
-            
-        Returns:
-            Loaded model object
-            
-        Raises:
-            ValueError: If model not found or no artifact
-            FileNotFoundError: If artifact not found in storage
-        """
-        model = await self.model_repository.get_by_id(model_id)
-        if not model:
-            raise ValueError(f"Model {model_id} not found")
-        
-        if not model.artifact_uri:
-            raise ValueError(f"Model {model_id} has no stored artifact")
-        
-        return await self.artifact_storage.load_model(model.artifact_uri)
-    
-    async def delete_model(self, model_id: UUID) -> bool:
-        """Delete a model and its artifact.
-        
-        Args:
-            model_id: Model identifier
-            
-        Returns:
-            True if deleted, False if not found
-        """
-        model = await self.model_repository.get_by_id(model_id)
-        if not model:
-            return False
-        
-        # Delete artifact if exists
-        if model.artifact_uri:
-            try:
-                await self.artifact_storage.delete_model(model.artifact_uri)
-            except Exception:
-                # Continue with model deletion even if artifact deletion fails
-                pass
-        
-        # Delete model from repository
-        return await self.model_repository.delete(model_id)
-    
-    async def compare_models(
+        registry = await self.get_registry(registry_name)
+        return registry.search_models(query, user, groups, limit)
+
+    async def get_model_version(
         self,
-        model_ids: List[UUID],
-        metrics_keys: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
-        """Compare multiple models by their metrics.
-        
+        model_id: UUID,
+        version: str,
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
+    ) -> ModelVersion:
+        """Get a specific model version.
+
         Args:
-            model_ids: List of model identifiers to compare
-            metrics_keys: Specific metrics to compare (optional)
-            
+            model_id: Model ID
+            version: Version string
+            registry_name: Registry name
+            user: User requesting the version
+            groups: User's groups
+
         Returns:
-            Comparison results with model performance data
+            ModelVersion
+
+        Raises:
+            ModelNotFoundError: If model not found
+            VersionNotFoundError: If version not found
         """
-        models = []
-        for model_id in model_ids:
-            model = await self.model_repository.get_by_id(model_id)
-            if model:
-                models.append(model)
-        
-        if not models:
-            return {}
-        
-        comparison = {
-            'models': [],
-            'metrics_comparison': {},
-            'best_model': None
-        }
-        
-        # Collect model data
-        for model in models:
-            model_data = {
-                'id': str(model.id),
-                'name': model.name,
-                'version': str(model.version),
-                'status': model.status.value,
-                'metrics': {}
-            }
-            
-            if model.metrics:
-                if metrics_keys:
-                    # Only include specified metrics
-                    for key in metrics_keys:
-                        value = getattr(model.metrics, key, None)
-                        if value is not None:
-                            model_data['metrics'][key] = value
-                else:
-                    # Include all available metrics
-                    model_data['metrics'] = model.metrics.to_dict()
-            
-            comparison['models'].append(model_data)
-        
-        # Calculate metrics comparison
-        if metrics_keys:
-            for key in metrics_keys:
-                values = []
-                for model_data in comparison['models']:
-                    if key in model_data['metrics']:
-                        values.append(model_data['metrics'][key])
-                
-                if values:
-                    comparison['metrics_comparison'][key] = {
-                        'min': min(values),
-                        'max': max(values),
-                        'mean': sum(values) / len(values),
-                        'range': max(values) - min(values)
-                    }
-        
-        # Determine best model (highest accuracy or F1 score)
-        best_score = -1
-        best_model_data = None
-        
-        for model_data in comparison['models']:
-            metrics = model_data['metrics']
-            # Try accuracy first, then F1 score
-            score = metrics.get('accuracy') or metrics.get('f1_score') or 0
-            if score > best_score:
-                best_score = score
-                best_model_data = model_data
-        
-        if best_model_data:
-            comparison['best_model'] = {
-                'id': best_model_data['id'],
-                'name': best_model_data['name'],
-                'version': best_model_data['version'],
-                'score': best_score
-            }
-        
-        return comparison
-    
-    async def get_model_statistics(self) -> Dict[str, Any]:
-        """Get registry statistics.
-        
+        model = await self.get_model(model_id, registry_name, user, groups)
+        model_version = model.get_version(version)
+
+        if not model_version:
+            raise VersionNotFoundError(
+                f"Version {version} not found for model {model_id}"
+            )
+
+        return model_version
+
+    async def promote_to_staging(
+        self,
+        model_id: UUID,
+        version_id: UUID,
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
+    ) -> None:
+        """Promote a model version to staging.
+
+        Args:
+            model_id: Model ID
+            version_id: Version ID to promote
+            registry_name: Registry name
+            user: User performing promotion
+            groups: User's groups
+        """
+        registry = await self.get_registry(registry_name)
+        model = registry.get_model(model_id, user, groups)
+
+        if not model:
+            raise ModelNotFoundError(f"Model {model_id} not found")
+
+        if not registry.access_policy.can_write(user, groups):
+            raise AccessDeniedError(f"User {user} lacks write permission")
+
+        model.promote_to_staging(version_id)
+        await self._save_registry(registry)
+
+    async def promote_to_production(
+        self,
+        model_id: UUID,
+        version_id: UUID,
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
+    ) -> None:
+        """Promote a model version to production.
+
+        Args:
+            model_id: Model ID
+            version_id: Version ID to promote
+            registry_name: Registry name
+            user: User performing promotion
+            groups: User's groups
+        """
+        registry = await self.get_registry(registry_name)
+        model = registry.get_model(model_id, user, groups)
+
+        if not model:
+            raise ModelNotFoundError(f"Model {model_id} not found")
+
+        if not registry.access_policy.is_admin(user, groups):
+            raise AccessDeniedError(
+                f"User {user} lacks admin permission for production promotion"
+            )
+
+        model.promote_to_production(version_id)
+        await self._save_registry(registry)
+
+    async def compare_model_versions(
+        self,
+        model_id: UUID,
+        version1: str,
+        version2: str,
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Compare two versions of a model.
+
+        Args:
+            model_id: Model ID
+            version1: First version string
+            version2: Second version string
+            registry_name: Registry name
+            user: User performing comparison
+            groups: User's groups
+
         Returns:
-            Dictionary with model statistics
+            Comparison results
         """
-        # Get counts by status
-        status_counts = {}
-        for status in ModelStatus:
-            count = await self.model_repository.count({'status': status.value})
-            status_counts[status.value] = count
-        
-        # Get counts by type
-        type_counts = {}
-        for model_type in ModelType:
-            count = await self.model_repository.count({'model_type': model_type.value})
-            type_counts[model_type.value] = count
-        
-        # Get total count
-        total_count = await self.model_repository.count()
-        
+        v1 = await self.get_model_version(
+            model_id, version1, registry_name, user, groups
+        )
+        v2 = await self.get_model_version(
+            model_id, version2, registry_name, user, groups
+        )
+
+        performance_diff = v1.performance_metrics.compare_with(v2.performance_metrics)
+
         return {
-            'total_models': total_count,
-            'by_status': status_counts,
-            'by_type': type_counts,
-            'production_models': status_counts.get('production', 0)
+            "model_id": str(model_id),
+            "version1": {
+                "version": v1.version_string,
+                "status": v1.status.value,
+                "created_at": v1.created_at.isoformat(),
+                "performance": v1.performance_metrics.to_dict(),
+            },
+            "version2": {
+                "version": v2.version_string,
+                "status": v2.status.value,
+                "created_at": v2.created_at.isoformat(),
+                "performance": v2.performance_metrics.to_dict(),
+            },
+            "performance_difference": performance_diff,
+            "version1_is_better": v1.performance_metrics.is_better_than(
+                v2.performance_metrics
+            ),
+            "recommendations": self._generate_version_recommendations(v1, v2),
         }
+
+    async def recommend_models(
+        self,
+        domain: str,
+        use_case: str,
+        performance_requirements: dict[str, float] | None = None,
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
+        limit: int = 5,
+    ) -> list[ModelRecommendation]:
+        """Recommend models for a specific use case.
+
+        Args:
+            domain: Application domain
+            use_case: Specific use case description
+            performance_requirements: Required performance metrics
+            registry_name: Registry name
+            user: User requesting recommendations
+            groups: User's groups
+            limit: Maximum recommendations
+
+        Returns:
+            List of model recommendations
+        """
+        # Get models in the domain
+        criteria = SearchCriteria(domain=domain, include_archived=False)
+        models = await self.list_models(criteria, registry_name, user, groups)
+
+        recommendations = []
+
+        for model in models:
+            latest_version = model.get_latest_version()
+            if not latest_version:
+                continue
+
+            # Calculate recommendation score
+            score, reasoning = self._calculate_recommendation_score(
+                model, latest_version, use_case, performance_requirements
+            )
+
+            if score > 0.3:  # Minimum threshold
+                recommendation = ModelRecommendation(
+                    model=model,
+                    version=latest_version,
+                    confidence=score,
+                    reasoning=reasoning,
+                    expected_performance=latest_version.performance_metrics.to_dict(),
+                )
+                recommendations.append(recommendation)
+
+        # Sort by confidence
+        recommendations.sort(key=lambda r: r.confidence, reverse=True)
+
+        return recommendations[:limit]
+
+    async def get_registry_statistics(
+        self, registry_name: str | None = None
+    ) -> dict[str, Any]:
+        """Get registry statistics.
+
+        Args:
+            registry_name: Registry name
+
+        Returns:
+            Registry statistics
+        """
+        registry = await self.get_registry(registry_name)
+        return registry.get_statistics()
+
+    async def archive_model(
+        self,
+        model_id: UUID,
+        registry_name: str | None = None,
+        user: str = "system",
+        groups: list[str] | None = None,
+    ) -> None:
+        """Archive a model.
+
+        Args:
+            model_id: Model ID
+            registry_name: Registry name
+            user: User archiving the model
+            groups: User's groups
+        """
+        registry = await self.get_registry(registry_name)
+        model = registry.get_model(model_id, user, groups)
+
+        if not model:
+            raise ModelNotFoundError(f"Model {model_id} not found")
+
+        if not registry.access_policy.can_write(user, groups):
+            raise AccessDeniedError(f"User {user} lacks write permission")
+
+        model.archive()
+        await self._save_registry(registry)
+
+    async def _save_registry(self, registry: ModelRegistry) -> None:
+        """Save registry to storage."""
+        registry_file = self.storage_path / f"{registry.name}.json"
+
+        with open(registry_file, "w") as f:
+            json.dump(registry.get_info(), f, indent=2, default=str)
+
+    async def _load_registry_from_file(self, registry_file: Path) -> ModelRegistry:
+        """Load registry from file."""
+        with open(registry_file) as f:
+            data = json.load(f)
+
+        # Reconstruct registry (simplified for example)
+        # In practice, you'd need full deserialization logic
+        registry = ModelRegistry(
+            name=data["name"],
+            description=data["description"],
+            id=UUID(data["id"]),
+            created_at=datetime.fromisoformat(data["created_at"]),
+        )
+
+        return registry
+
+    def _calculate_recommendation_score(
+        self,
+        model: Model,
+        version: ModelVersion,
+        use_case: str,
+        performance_requirements: dict[str, float] | None,
+    ) -> tuple[float, str]:
+        """Calculate recommendation score for a model."""
+        score = 0.0
+        reasons = []
+
+        # Base score from performance
+        metrics = version.performance_metrics
+        score += metrics.performance_score * 0.4
+
+        # Algorithm suitability (simplified)
+        algorithm_scores = {
+            "IsolationForest": 0.9,
+            "LocalOutlierFactor": 0.8,
+            "OneClassSVM": 0.7,
+            "EllipticEnvelope": 0.6,
+        }
+
+        algo_score = algorithm_scores.get(model.algorithm, 0.5)
+        score += algo_score * 0.3
+        reasons.append(f"Algorithm {model.algorithm} suitable for anomaly detection")
+
+        # Performance requirements check
+        if performance_requirements:
+            meets_requirements = True
+            for metric, requirement in performance_requirements.items():
+                if hasattr(metrics, metric):
+                    actual_value = getattr(metrics, metric)
+                    if metric in ["accuracy", "precision", "recall", "f1_score"]:
+                        # Higher is better
+                        if actual_value < requirement:
+                            meets_requirements = False
+                            break
+                    elif metric in ["inference_time", "training_time"]:
+                        # Lower is better
+                        if actual_value > requirement:
+                            meets_requirements = False
+                            break
+
+            if meets_requirements:
+                score += 0.2
+                reasons.append("Meets all performance requirements")
+            else:
+                score -= 0.1
+                reasons.append("Does not meet some performance requirements")
+
+        # Recent activity bonus
+        days_since_update = (datetime.utcnow() - model.updated_at).days
+        if days_since_update < 30:
+            score += 0.1
+            reasons.append("Recently updated")
+
+        reasoning = "; ".join(reasons)
+        return min(score, 1.0), reasoning
+
+    def _generate_version_recommendations(
+        self, version1: ModelVersion, version2: ModelVersion
+    ) -> list[str]:
+        """Generate recommendations based on version comparison."""
+        recommendations = []
+
+        perf_diff = version1.performance_metrics.compare_with(
+            version2.performance_metrics
+        )
+
+        if perf_diff["accuracy"] > 0.05:
+            recommendations.append(
+                f"Version {version1.version_string} has significantly better accuracy"
+            )
+        elif perf_diff["accuracy"] < -0.05:
+            recommendations.append(
+                f"Version {version2.version_string} has significantly better accuracy"
+            )
+
+        if perf_diff["inference_time"] < -10:  # ms improvement
+            recommendations.append(
+                f"Version {version1.version_string} is faster for inference"
+            )
+        elif perf_diff["inference_time"] > 10:
+            recommendations.append(
+                f"Version {version2.version_string} is faster for inference"
+            )
+
+        if version1.status == ModelStatus.DEPLOYED:
+            recommendations.append(
+                f"Version {version1.version_string} is currently deployed"
+            )
+        elif version2.status == ModelStatus.DEPLOYED:
+            recommendations.append(
+                f"Version {version2.version_string} is currently deployed"
+            )
+
+        if not recommendations:
+            recommendations.append(
+                "Both versions have similar performance characteristics"
+            )
+
+        return recommendations
