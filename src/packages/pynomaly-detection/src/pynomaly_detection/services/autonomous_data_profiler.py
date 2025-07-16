@@ -5,11 +5,11 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from pynomaly.application.services.autonomous_detection_config import (
+from pynomaly_detection.application.services.autonomous_detection_config import (
     AutonomousConfig,
     DataProfile,
 )
-from pynomaly.domain.entities import Dataset
+from pynomaly_detection.domain.entities import Dataset
 
 
 class AutonomousDataProfiler:

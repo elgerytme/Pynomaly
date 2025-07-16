@@ -15,10 +15,10 @@ import pandas as pd
 from scipy.signal import find_peaks
 from sklearn.preprocessing import StandardScaler
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.shared.protocols import DetectorProtocol
+from pynomaly_detection.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly_detection.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from pynomaly_detection.domain.value_objects import AnomalyScore
+from pynomaly_detection.shared.protocols import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -378,7 +378,7 @@ class TimeSeriesAdapter(DetectorProtocol):
             ]
 
             # Create anomaly objects for detected anomalies
-            from pynomaly.domain.entities.anomaly import Anomaly
+            from pynomaly_detection.domain.entities.anomaly import Anomaly
 
             anomalies = []
             anomaly_indices = np.where(labels == 1)[0]

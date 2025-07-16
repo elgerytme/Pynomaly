@@ -10,8 +10,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from pynomaly.application.dto.training_dto import TrainingConfigDTO
-from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet
+from pynomaly_detection.application.dto.training_dto import TrainingConfigDTO
+from pynomaly_detection.domain.value_objects.hyperparameters import HyperparameterSet
 
 
 class TrainingStatus(Enum):

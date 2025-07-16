@@ -20,11 +20,11 @@ import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import train_test_split
 
-from pynomaly.application.services.advanced_model_optimization_service import (
+from pynomaly_detection.application.services.advanced_model_optimization_service import (
     AdvancedModelOptimizationService,
     AdvancedOptimizationConfig,
 )
-from pynomaly.application.services.automl_service import DatasetProfile
+from pynomaly_detection.application.services.automl_service import DatasetProfile
 
 logger = logging.getLogger(__name__)
 
@@ -401,7 +401,7 @@ class AutoMLPipelineOrchestrator:
 
         # Initialize AutoML service with configuration
         try:
-            from pynomaly.application.services.automl_service import AutoMLService
+            from pynomaly_detection.application.services.automl_service import AutoMLService
 
             self.automl_service = AutoMLService()
             logger.info("AutoML service initialized successfully")

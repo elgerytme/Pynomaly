@@ -4,7 +4,7 @@ Repository interface for user management operations.
 
 from abc import ABC, abstractmethod
 
-from pynomaly.domain.entities.user import (
+from pynomaly_detection.domain.entities.user import (
     Tenant,
     User,
     UserRole,
@@ -12,7 +12,7 @@ from pynomaly.domain.entities.user import (
     UserStatus,
     UserTenantRole,
 )
-from pynomaly.shared.types import TenantId, UserId
+from pynomaly_detection.shared.types import TenantId, UserId
 
 
 class UserRepositoryProtocol(ABC):

@@ -8,11 +8,11 @@ from typing import Any
 
 import pandas as pd
 
-from pynomaly.application.services.advanced_model_optimization_service import (
+from pynomaly_detection.application.services.advanced_model_optimization_service import (
     AdvancedModelOptimizationService,
     AdvancedOptimizationConfig,
 )
-from pynomaly.domain.models.pipeline_models import PipelineConfig, PipelineMode
+from pynomaly_detection.domain.models.pipeline_models import PipelineConfig, PipelineMode
 
 logger = logging.getLogger(__name__)
 

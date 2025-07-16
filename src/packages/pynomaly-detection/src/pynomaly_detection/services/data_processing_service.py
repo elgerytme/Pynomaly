@@ -9,8 +9,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.application.services.automl_service import DatasetProfile
-from pynomaly.domain.models.pipeline_models import PipelineConfig
+from pynomaly_detection.application.services.automl_service import DatasetProfile
+from pynomaly_detection.domain.models.pipeline_models import PipelineConfig
 
 logger = logging.getLogger(__name__)
 

@@ -3,8 +3,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 
-from pynomaly.infrastructure.auth.enhanced_dependencies import require_superuser
-from pynomaly.infrastructure.auth.jwt_auth_enhanced import (
+from pynomaly_detection.infrastructure.auth.enhanced_dependencies import require_superuser
+from pynomaly_detection.infrastructure.auth.jwt_auth_enhanced import (
     EnhancedJWTAuthService,
     JWKSResponse,
     UserModel,

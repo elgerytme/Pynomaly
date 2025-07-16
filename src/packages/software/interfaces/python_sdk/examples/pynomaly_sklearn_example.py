@@ -16,9 +16,9 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.domain.value_objects import ContaminationRate
+from pynomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 def create_sample_data(n_samples=1000, contamination=0.1):

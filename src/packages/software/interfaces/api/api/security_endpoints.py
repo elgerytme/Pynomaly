@@ -8,7 +8,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from pydantic import BaseModel, Field
 
-from pynomaly.presentation.web.csrf import get_csrf_protection, refresh_csrf_token
+from pynomaly_detection.presentation.web.csrf import get_csrf_protection, refresh_csrf_token
 
 logger = logging.getLogger(__name__)
 

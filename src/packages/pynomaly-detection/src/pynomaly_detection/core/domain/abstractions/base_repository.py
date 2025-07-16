@@ -15,7 +15,7 @@ T = TypeVar("T")
 class BaseRepository(Generic[T], ABC):
     """Base repository interface.
 
-    DEPRECATED: Use RepositoryProtocol from pynomaly.shared.protocols instead.
+    DEPRECATED: Use RepositoryProtocol from pynomaly_detection.shared.protocols instead.
     This class exists only for backward compatibility and will be removed in v2.0.
     """
 

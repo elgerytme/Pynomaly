@@ -10,13 +10,13 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities.model_registry import (
+from pynomaly_detection.domain.entities.model_registry import (
     AccessLevel,
     AccessPolicy,
     Model,
     ModelRegistry,
 )
-from pynomaly.domain.entities.model_version import ModelStatus, ModelVersion
+from pynomaly_detection.domain.entities.model_version import ModelStatus, ModelVersion
 
 
 class ModelRegistryError(Exception):

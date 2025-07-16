@@ -3,7 +3,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from pynomaly.presentation.api.versioning import get_version_manager
+from pynomaly_detection.presentation.api.versioning import get_version_manager
 
 router = APIRouter()
 

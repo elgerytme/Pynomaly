@@ -6,11 +6,11 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from pynomaly.application.services.explainability_service import (
+from pynomaly_detection.application.services.explainability_service import (
     ApplicationExplainabilityService,
     ExplanationRequest,
 )
-from pynomaly.domain.services.explainability_service import ExplanationMethod
+from pynomaly_detection.domain.services.explainability_service import ExplanationMethod
 
 logger = logging.getLogger(__name__)
 

@@ -15,18 +15,18 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.application.services.advanced_ml_pipeline_service import (
+from pynomaly_detection.application.services.advanced_ml_pipeline_service import (
     AdvancedMLPipelineService,
     OptimizationStrategy,
 )
-from pynomaly.application.services.model_drift_detection_service import (
+from pynomaly_detection.application.services.model_drift_detection_service import (
     DriftReport,
     DriftSeverity,
     DriftType,
     ModelDriftDetectionService,
 )
-from pynomaly.infrastructure.logging.structured_logger import StructuredLogger
-from pynomaly.infrastructure.monitoring.metrics_service import MetricsService
+from pynomaly_detection.infrastructure.logging.structured_logger import StructuredLogger
+from pynomaly_detection.infrastructure.monitoring.metrics_service import MetricsService
 
 
 class RetrainingTrigger(Enum):

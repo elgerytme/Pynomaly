@@ -4,7 +4,7 @@ from typing import Any, Dict
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from pynomaly.infrastructure.auth.jwt_auth import UserModel, get_auth
+from pynomaly_detection.infrastructure.auth.jwt_auth import UserModel, get_auth
 
 # Security scheme
 security = HTTPBearer(auto_error=False)

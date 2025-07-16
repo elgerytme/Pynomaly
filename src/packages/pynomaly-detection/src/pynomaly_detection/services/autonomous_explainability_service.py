@@ -9,11 +9,11 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.application.services.algorithm_recommendation_service import (
+from pynomaly_detection.application.services.algorithm_recommendation_service import (
     AlgorithmRecommendation,
 )
-from pynomaly.application.services.data_profiling_service import DataProfile
-from pynomaly.domain.entities import Dataset, DetectionResult
+from pynomaly_detection.application.services.data_profiling_service import DataProfile
+from pynomaly_detection.domain.entities import Dataset, DetectionResult
 
 
 @dataclass

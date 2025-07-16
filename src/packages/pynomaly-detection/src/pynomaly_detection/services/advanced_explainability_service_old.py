@@ -8,23 +8,23 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.application.services.explainability_analyzers import (
+from pynomaly_detection.application.services.explainability_analyzers import (
     BiasAnalyzer,
     CounterfactualAnalyzer,
     TrustScoreAnalyzer,
 )
-from pynomaly.application.services.explainability_core import (
+from pynomaly_detection.application.services.explainability_core import (
     BiasAnalysisConfig,
     ExplanationConfig,
     ExplanationReport,
     TrustScoreConfig,
 )
-from pynomaly.application.services.explainability_engines import (
+from pynomaly_detection.application.services.explainability_engines import (
     GlobalExplanationEngine,
     LocalExplanationEngine,
 )
-from pynomaly.domain.entities import Dataset
-from pynomaly.shared.protocols import DetectorProtocol
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.shared.protocols import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 

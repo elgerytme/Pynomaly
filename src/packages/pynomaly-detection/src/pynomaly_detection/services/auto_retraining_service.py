@@ -13,16 +13,16 @@ from uuid import UUID, uuid4
 import numpy as np
 from sklearn.base import BaseEstimator
 
-from pynomaly.application.services.continuous_learning_service import (
+from pynomaly_detection.application.services.continuous_learning_service import (
     ContinuousLearningService,
 )
-from pynomaly.application.services.drift_detection_service import DriftDetectionService
-from pynomaly.domain.entities.continuous_learning import (
+from pynomaly_detection.application.services.drift_detection_service import DriftDetectionService
+from pynomaly_detection.domain.entities.continuous_learning import (
     EvolutionTrigger,
     KnowledgeTransferMetrics,
     PerformanceDelta,
 )
-from pynomaly.domain.entities.drift_detection import DriftEvent, DriftSeverity
+from pynomaly_detection.domain.entities.drift_detection import DriftEvent, DriftSeverity
 
 logger = logging.getLogger(__name__)
 

@@ -11,14 +11,14 @@ from typing import Any
 
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.infrastructure.data_loaders.data_loader_factory import (
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.domain.exceptions import DataValidationError
+from pynomaly_detection.infrastructure.data_loaders.data_loader_factory import (
     DataLoaderFactory,
     SmartDataLoader,
 )
-from pynomaly.infrastructure.data_loaders.database_loader import DatabaseLoader
-from pynomaly.infrastructure.data_processing.advanced_data_pipeline import (
+from pynomaly_detection.infrastructure.data_loaders.database_loader import DatabaseLoader
+from pynomaly_detection.infrastructure.data_processing.advanced_data_pipeline import (
     AdvancedDataPipeline,
     ProcessingConfig,
     ProcessingReport,

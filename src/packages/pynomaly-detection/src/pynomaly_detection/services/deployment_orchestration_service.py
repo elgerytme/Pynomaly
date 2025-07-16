@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID
 
-from pynomaly.application.services.model_registry_service import ModelRegistryService
-from pynomaly.domain.entities.deployment import (
+from pynomaly_detection.application.services.model_registry_service import ModelRegistryService
+from pynomaly_detection.domain.entities.deployment import (
     Deployment,
     DeploymentConfig,
     DeploymentStatus,
@@ -19,7 +19,7 @@ from pynomaly.domain.entities.deployment import (
     HealthMetrics,
     StrategyType,
 )
-from pynomaly.domain.entities.model_version import ModelVersion
+from pynomaly_detection.domain.entities.model_version import ModelVersion
 
 
 class DeploymentOrchestrationError(Exception):
@@ -632,13 +632,13 @@ class DeploymentOrchestrationService:
         """Get and validate model version."""
         # This would integrate with model registry service
         # For now, return a mock version
-        from pynomaly.domain.value_objects.model_storage_info import (
+        from pynomaly_detection.domain.value_objects.model_storage_info import (
             ModelStorageInfo,
             SerializationFormat,
             StorageBackend,
         )
-        from pynomaly.domain.value_objects.performance_metrics import PerformanceMetrics
-        from pynomaly.domain.value_objects.semantic_version import SemanticVersion
+        from pynomaly_detection.domain.value_objects.performance_metrics import PerformanceMetrics
+        from pynomaly_detection.domain.value_objects.semantic_version import SemanticVersion
 
         return ModelVersion(
             model_id=model_version_id,

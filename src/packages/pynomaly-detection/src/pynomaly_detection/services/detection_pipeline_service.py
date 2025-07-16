@@ -6,15 +6,15 @@ import logging
 import time
 from typing import Any
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from pynomaly_detection.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.application.services.algorithm_recommendation_service import (
+from pynomaly_detection.application.services.algorithm_recommendation_service import (
     AlgorithmRecommendation,
 )
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.shared.protocols import (
+from pynomaly_detection.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly_detection.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from pynomaly_detection.shared.protocols import (
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,
 )
@@ -568,7 +568,7 @@ class DetectionPipelineService:
             # Create ensemble result
             from uuid import uuid4
 
-            from pynomaly.domain.value_objects import AnomalyScore
+            from pynomaly_detection.domain.value_objects import AnomalyScore
 
             ensemble_result = DetectionResult(
                 detector_id=str(uuid4()),

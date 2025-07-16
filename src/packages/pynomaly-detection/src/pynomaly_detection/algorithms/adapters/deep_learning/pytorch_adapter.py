@@ -10,7 +10,7 @@ from typing import Any
 import numpy as np
 from pydantic import BaseModel, Field
 
-from pynomaly.shared.protocols import DetectorProtocol
+from pynomaly_detection.shared.protocols import DetectorProtocol
 
 # Optional PyTorch imports with fallbacks
 try:

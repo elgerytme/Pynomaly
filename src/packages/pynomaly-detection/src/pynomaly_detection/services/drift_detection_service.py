@@ -11,7 +11,7 @@ from uuid import UUID, uuid4
 import numpy as np
 from scipy import stats
 
-from pynomaly.domain.entities.drift_detection import (
+from pynomaly_detection.domain.entities.drift_detection import (
     ConceptDriftResult,
     DriftAnalysisResult,
     DriftDetectionMethod,

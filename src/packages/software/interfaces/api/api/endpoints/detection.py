@@ -5,13 +5,13 @@ from uuid import UUID
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from pydantic import BaseModel
 
-from pynomaly.application.dto import DetectionResultDTO
-from pynomaly.application.use_cases import (
+from pynomaly_detection.application.dto import DetectionResultDTO
+from pynomaly_detection.application.use_cases import (
     DetectAnomaliesRequest,
     EvaluateModelRequest,
     TrainDetectorRequest,
 )
-from pynomaly.infrastructure.config import Container
+from pynomaly_detection.infrastructure.config import Container
 from ..deps import get_container, get_current_user
 
 router = APIRouter()

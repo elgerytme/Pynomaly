@@ -8,8 +8,8 @@ from uuid import UUID
 
 import pandas as pd
 
-from pynomaly.domain.entities.model import Model
-from pynomaly.infrastructure.ml_governance import (
+from pynomaly_detection.domain.entities.model import Model
+from pynomaly_detection.infrastructure.ml_governance import (
     DeploymentStrategy,
     GovernanceStatus,
     MLGovernanceFramework,

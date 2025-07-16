@@ -25,7 +25,7 @@ from fastapi import (
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from pynomaly.application.services.advanced_model_optimization_service import (
+from pynomaly_detection.application.services.advanced_model_optimization_service import (
     AdvancedModelOptimizationService,
     AdvancedOptimizationConfig,
     EnsembleStrategy,

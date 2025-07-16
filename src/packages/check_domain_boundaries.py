@@ -2,7 +2,12 @@
 """Script to check domain boundaries and generate report."""
 
 import json
-from ops.infrastructure.quality.domain_boundary_validator import DomainBoundaryValidator
+import sys
+import os
+
+# Add the path where domain_boundary_validator.py is located
+sys.path.append('/mnt/c/Users/andre/Pynomaly/src/packages/ops/infrastructure - move!/quality')
+from domain_boundary_validator import DomainBoundaryValidator
 
 
 def main():

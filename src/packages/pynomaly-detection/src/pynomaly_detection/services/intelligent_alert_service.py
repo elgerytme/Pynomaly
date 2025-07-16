@@ -13,7 +13,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import StandardScaler
 
-from pynomaly.domain.entities.alert import (
+from pynomaly_detection.domain.entities.alert import (
     Alert,
     AlertCategory,
     AlertCorrelation,

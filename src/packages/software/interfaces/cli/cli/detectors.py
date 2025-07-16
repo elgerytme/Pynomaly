@@ -7,10 +7,10 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from pynomaly.domain.entities import Detector
-from pynomaly.presentation.cli.container import get_cli_container
-from pynomaly.presentation.cli.help_formatter import get_option_help, get_standard_help
-from pynomaly.presentation.cli.ux_improvements import CLIErrorHandler, CLIHelpers
+from pynomaly_detection.domain.entities import Detector
+from pynomaly_detection.presentation.cli.container import get_cli_container
+from pynomaly_detection.presentation.cli.help_formatter import get_option_help, get_standard_help
+from pynomaly_detection.presentation.cli.ux_improvements import CLIErrorHandler, CLIHelpers
 
 # Get standardized help for this command group
 _help_info = get_standard_help("detector")
@@ -144,7 +144,7 @@ def create_detector(
 
     # Get available algorithms
     try:
-        from pynomaly.infrastructure.adapters import PyODAdapter
+        from pynomaly_detection.infrastructure.adapters import PyODAdapter
 
         available_algorithms = PyODAdapter.list_algorithms()
 
@@ -392,7 +392,7 @@ def delete_detector(
 @app.command("examples")
 def show_examples():
     """Show common detector usage examples with rich formatting."""
-    from pynomaly.presentation.cli.help_formatter import format_rich_help
+    from pynomaly_detection.presentation.cli.help_formatter import format_rich_help
 
     examples = [
         "pynomaly detector create --name fraud_detector --algorithm IsolationForest",
@@ -427,7 +427,7 @@ def list_algorithms(
     get_cli_container()
 
     try:
-        from pynomaly.infrastructure.adapters import PyODAdapter
+        from pynomaly_detection.infrastructure.adapters import PyODAdapter
 
         # Get algorithm info
         algorithms = PyODAdapter.list_algorithms()
@@ -537,7 +537,7 @@ def interactive_detector_creation():
     console.print("\n[bold]Step 2: Algorithm Selection[/bold]")
 
     try:
-        from pynomaly.infrastructure.adapters import PyODAdapter
+        from pynomaly_detection.infrastructure.adapters import PyODAdapter
 
         algorithms = PyODAdapter.list_algorithms()
 

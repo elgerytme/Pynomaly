@@ -9,12 +9,12 @@ from typing import Any
 import numpy as np
 from pydantic import BaseModel, Field
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.shared.protocols import DetectorProtocol
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.shared.protocols import DetectorProtocol
 
 # Import deep learning adapters with fallbacks
 try:
-    from pynomaly.infrastructure.adapters.deep_learning import PyTorchAdapter
+    from pynomaly_detection.infrastructure.adapters.deep_learning import PyTorchAdapter
 
     # Check if PyTorch is actually available by trying to instantiate
     try:
@@ -28,7 +28,7 @@ except ImportError:
     PYTORCH_AVAILABLE = False
 
 try:
-    from pynomaly.infrastructure.adapters.deep_learning import TensorFlowAdapter
+    from pynomaly_detection.infrastructure.adapters.deep_learning import TensorFlowAdapter
 
     # Check if TensorFlow is actually available
     try:
@@ -42,7 +42,7 @@ except ImportError:
     TENSORFLOW_AVAILABLE = False
 
 try:
-    from pynomaly.infrastructure.adapters.deep_learning import JAXAdapter
+    from pynomaly_detection.infrastructure.adapters.deep_learning import JAXAdapter
 
     # Check if JAX is actually available
     try:

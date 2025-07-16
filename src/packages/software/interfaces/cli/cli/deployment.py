@@ -12,11 +12,11 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.application.services.deployment_orchestration_service import (
+from pynomaly_detection.application.services.deployment_orchestration_service import (
     DeploymentOrchestrationService,
 )
-from pynomaly.application.services.model_registry_service import ModelRegistryService
-from pynomaly.domain.entities.deployment import (
+from pynomaly_detection.application.services.model_registry_service import ModelRegistryService
+from pynomaly_detection.domain.entities.deployment import (
     DeploymentConfig,
     DeploymentStrategy,
     Environment,

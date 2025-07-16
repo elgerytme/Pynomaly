@@ -15,16 +15,16 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.infrastructure.adapters.pygod_adapter import PyGODAdapter
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.infrastructure.adapters.text_adapter import (
+from pynomaly_detection.domain.entities import Dataset, DetectionResult
+from pynomaly_detection.domain.value_objects import AnomalyScore
+from pynomaly_detection.infrastructure.adapters.pygod_adapter import PyGODAdapter
+from pynomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from pynomaly_detection.infrastructure.adapters.text_adapter import (
     TextAnomalyDetector,
     TextDetectionConfig,
 )
-from pynomaly.infrastructure.adapters.time_series_adapter import TimeSeriesAdapter
-from pynomaly.shared.protocols import DetectorProtocol
+from pynomaly_detection.infrastructure.adapters.time_series_adapter import TimeSeriesAdapter
+from pynomaly_detection.shared.protocols import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -126,8 +126,8 @@ class MultiModalFusionAdapter(DetectorProtocol):
         """Initialize detectors for each modality."""
         # Time series detector
         if self.config.time_series_weight > 0:
-            from pynomaly.domain.entities import Detector
-            from pynomaly.domain.value_objects import ContaminationRate
+            from pynomaly_detection.domain.entities import Detector
+            from pynomaly_detection.domain.value_objects import ContaminationRate
 
             ts_detector = Detector(
                 name="TimeSeriesModality",
@@ -483,7 +483,7 @@ class MultiModalFusionAdapter(DetectorProtocol):
         else:
             # Convert to Dataset if needed
             if isinstance(data, pd.DataFrame):
-                from pynomaly.domain.entities import Dataset
+                from pynomaly_detection.domain.entities import Dataset
 
                 dataset = Dataset(
                     data=data,

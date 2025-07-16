@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from pynomaly.domain.exceptions import InvalidValueError
+from pynomaly_detection.domain.exceptions import InvalidValueError
 
 
 @dataclass(frozen=True)

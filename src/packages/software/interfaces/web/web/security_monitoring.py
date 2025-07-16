@@ -15,12 +15,12 @@ from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 
 try:
-    from pynomaly.presentation.web.enhanced_auth import (
+    from pynomaly_detection.presentation.web.enhanced_auth import (
         AuthenticationMethod,
         Permission,
         get_auth_service,
     )
-    from pynomaly.presentation.web.security_features import (
+    from pynomaly_detection.presentation.web.security_features import (
         SecurityEvent,
         SecurityEventType,
         SecurityThreatLevel,

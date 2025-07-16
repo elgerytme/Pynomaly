@@ -9,17 +9,17 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, EmailStr
 
-from pynomaly.application.services.compliance_service import ComplianceService
-from pynomaly.domain.entities.compliance import (
+from pynomaly_detection.application.services.compliance_service import ComplianceService
+from pynomaly_detection.domain.entities.compliance import (
     AuditAction,
     AuditSeverity,
     ComplianceFramework,
     DataClassification,
     RetentionPolicyStatus,
 )
-from pynomaly.domain.entities.user import User
-from pynomaly.shared.exceptions import ValidationError
-from pynomaly.shared.types import TenantId, UserId
+from pynomaly_detection.domain.entities.user import User
+from pynomaly_detection.shared.exceptions import ValidationError
+from pynomaly_detection.shared.types import TenantId, UserId
 
 # Router setup
 router = APIRouter(prefix="/api/compliance", tags=["Compliance & Audit"])
@@ -304,7 +304,7 @@ async def create_retention_policy(
 ):
     """Create a new data retention policy."""
     try:
-        from pynomaly.domain.entities.compliance import DataRetentionPolicy
+        from pynomaly_detection.domain.entities.compliance import DataRetentionPolicy
 
         policy = DataRetentionPolicy(
             id="",  # Will be set by service

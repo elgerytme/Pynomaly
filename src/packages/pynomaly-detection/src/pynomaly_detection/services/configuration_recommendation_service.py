@@ -20,7 +20,7 @@ from sklearn.metrics import accuracy_score, mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-from pynomaly.application.dto.configuration_dto import (
+from pynomaly_detection.application.dto.configuration_dto import (
     ConfigurationLevel,
     ConfigurationRecommendationDTO,
     ConfigurationSearchRequestDTO,
@@ -28,11 +28,11 @@ from pynomaly.application.dto.configuration_dto import (
     DatasetCharacteristicsDTO,
     ExperimentConfigurationDTO,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from pynomaly_detection.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.infrastructure.config.feature_flags import require_feature
-from pynomaly.infrastructure.persistence.configuration_repository import (
+from pynomaly_detection.infrastructure.config.feature_flags import require_feature
+from pynomaly_detection.infrastructure.persistence.configuration_repository import (
     ConfigurationRepository,
 )
 
@@ -814,7 +814,7 @@ class ConfigurationRecommendationService:
         self, algorithm: str, dataset_characteristics: DatasetCharacteristicsDTO
     ) -> ExperimentConfigurationDTO:
         """Create dummy configuration for feature extraction."""
-        from pynomaly.application.dto.configuration_dto import (
+        from pynomaly_detection.application.dto.configuration_dto import (
             AlgorithmConfigurationDTO,
             ConfigurationMetadataDTO,
             DatasetConfigurationDTO,

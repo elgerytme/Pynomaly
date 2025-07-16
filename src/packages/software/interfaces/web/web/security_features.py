@@ -20,7 +20,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 try:
-    from pynomaly.core.config import get_settings
+    from pynomaly_detection.core.config import get_settings
 except ImportError:
     # Fallback for testing - create a mock settings function
     def get_settings():
@@ -30,7 +30,7 @@ except ImportError:
 
 
 try:
-    from pynomaly.presentation.web.error_handling import (
+    from pynomaly_detection.presentation.web.error_handling import (
         ErrorCode,
         ErrorLevel,
         WebUIError,

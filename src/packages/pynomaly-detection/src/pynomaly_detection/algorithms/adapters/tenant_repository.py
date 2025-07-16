@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Session, declarative_base
 
-from pynomaly.domain.entities.tenant import (
+from pynomaly_detection.domain.entities.tenant import (
     ResourceQuota,
     ResourceQuotaType,
     SubscriptionTier,
@@ -16,7 +16,7 @@ from pynomaly.domain.entities.tenant import (
     TenantConfiguration,
     TenantStatus,
 )
-from pynomaly.shared.protocols.repository import Repository
+from pynomaly_detection.shared.protocols.repository import Repository
 
 Base = declarative_base()
 

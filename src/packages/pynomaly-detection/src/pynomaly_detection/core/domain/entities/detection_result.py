@@ -10,8 +10,8 @@ from uuid import UUID, uuid4
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval
+from pynomaly_detection.domain.entities.anomaly import Anomaly
+from pynomaly_detection.domain.value_objects import AnomalyScore, ConfidenceInterval
 
 
 @dataclass

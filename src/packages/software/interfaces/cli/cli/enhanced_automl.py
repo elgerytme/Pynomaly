@@ -10,9 +10,9 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.application.services.enhanced_automl_service import EnhancedAutoMLConfig
-from pynomaly.infrastructure.config.container import create_container
-from pynomaly.infrastructure.config.feature_flags import require_feature
+from pynomaly_detection.application.services.enhanced_automl_service import EnhancedAutoMLConfig
+from pynomaly_detection.infrastructure.config.container import create_container
+from pynomaly_detection.infrastructure.config.feature_flags import require_feature
 
 console = Console()
 
@@ -109,7 +109,7 @@ def optimize(
                 return
         else:
             # Configure enhanced AutoML
-            from pynomaly.infrastructure.automl import (
+            from pynomaly_detection.infrastructure.automl import (
                 AcquisitionFunction,
                 OptimizationStrategy,
             )
@@ -225,7 +225,7 @@ def auto_optimize(
                 return
         else:
             # Configure enhanced AutoML
-            from pynomaly.infrastructure.automl import OptimizationStrategy
+            from pynomaly_detection.infrastructure.automl import OptimizationStrategy
 
             strategy_enum = OptimizationStrategy(strategy)
 

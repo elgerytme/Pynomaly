@@ -23,7 +23,7 @@ from passlib.context import CryptContext
 from pydantic import BaseModel
 
 try:
-    from pynomaly.core.config import get_settings
+    from pynomaly_detection.core.config import get_settings
 except ImportError:
     # Fallback for testing
     def get_settings():

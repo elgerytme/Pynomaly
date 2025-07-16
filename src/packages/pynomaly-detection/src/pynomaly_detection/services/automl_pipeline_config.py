@@ -9,7 +9,7 @@ from typing import Any
 
 from sklearn.base import BaseEstimator
 
-from pynomaly.application.services.automl_service import DatasetProfile
+from pynomaly_detection.application.services.automl_service import DatasetProfile
 
 
 class PipelineStage(Enum):

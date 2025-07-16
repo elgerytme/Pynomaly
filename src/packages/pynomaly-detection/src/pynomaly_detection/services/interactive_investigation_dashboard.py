@@ -11,7 +11,7 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.domain.entities import Dataset, Detector
+from pynomaly_detection.domain.entities import Dataset, Detector
 
 logger = logging.getLogger(__name__)
 

@@ -7,8 +7,8 @@ from uuid import UUID
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from pydantic import , BaseModel, ConfigDict, EmailStr, Field
 
-from pynomaly.application.services.multi_tenant_service import MultiTenantService
-from pynomaly.domain.entities.tenant import (
+from pynomaly_detection.application.services.multi_tenant_service import MultiTenantService
+from pynomaly_detection.domain.entities.tenant import (
     ResourceQuotaType, SubscriptionTier, TenantStatus)
 
 # Pydantic models for API requests/responses

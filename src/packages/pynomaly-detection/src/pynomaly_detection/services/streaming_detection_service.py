@@ -15,10 +15,10 @@ from uuid import uuid4
 
 import numpy as np
 
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.exceptions import StreamingError, ValidationError
-from pynomaly.domain.value_objects.score import Score
+from pynomaly_detection.domain.entities.detection_result import DetectionResult
+from pynomaly_detection.domain.entities.detector import Detector
+from pynomaly_detection.domain.exceptions import StreamingError, ValidationError
+from pynomaly_detection.domain.value_objects.score import Score
 
 
 class StreamState(Enum):

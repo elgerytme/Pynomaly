@@ -12,14 +12,14 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
-from pynomaly.application.dto.configuration_dto import (
+from pynomaly_detection.application.dto.configuration_dto import (
     ConfigurationSearchRequestDTO,
     ConfigurationSource,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from pynomaly_detection.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.infrastructure.config.feature_flags import require_feature
+from pynomaly_detection.infrastructure.config.feature_flags import require_feature
 
 logger = logging.getLogger(__name__)
 

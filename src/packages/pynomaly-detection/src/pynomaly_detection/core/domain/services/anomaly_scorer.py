@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from pynomaly.domain.value_objects import AnomalyScore
+from pynomaly_detection.domain.value_objects import AnomalyScore
 
 
 class AnomalyScorer:

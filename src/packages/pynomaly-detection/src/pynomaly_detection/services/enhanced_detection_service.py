@@ -7,19 +7,19 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.exceptions import DetectorNotFittedError, FittingError
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters.algorithm_factory import (
+from pynomaly_detection.domain.entities import Dataset, DetectionResult
+from pynomaly_detection.domain.exceptions import DetectorNotFittedError, FittingError
+from pynomaly_detection.domain.value_objects import ContaminationRate
+from pynomaly_detection.infrastructure.adapters.algorithm_factory import (
     AlgorithmFactory,
     AlgorithmRecommendation,
     DatasetCharacteristics,
 )
-from pynomaly.infrastructure.adapters.ensemble_meta_adapter import (
+from pynomaly_detection.infrastructure.adapters.ensemble_meta_adapter import (
     AggregationMethod,
     EnsembleMetaAdapter,
 )
-from pynomaly.shared.protocols import DetectorProtocol
+from pynomaly_detection.shared.protocols import DetectorProtocol
 
 
 class EnhancedDetectionService:

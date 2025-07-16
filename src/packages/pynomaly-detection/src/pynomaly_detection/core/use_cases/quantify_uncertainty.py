@@ -11,17 +11,17 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from pynomaly.application.dto.uncertainty_dto import (
+from pynomaly_detection.application.dto.uncertainty_dto import (
     EnsembleUncertaintyRequest,
     EnsembleUncertaintyResponse,
     UncertaintyRequest,
     UncertaintyResponse,
 )
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.services.uncertainty_service import (
+from pynomaly_detection.domain.entities.detection_result import DetectionResult
+from pynomaly_detection.domain.services.uncertainty_service import (
     UncertaintyQuantificationService,
 )
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
+from pynomaly_detection.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
 @dataclass

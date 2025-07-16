@@ -10,14 +10,14 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
-from pynomaly.domain.exceptions import (
+from pynomaly_detection.domain.entities import Anomaly, Dataset, DetectionResult
+from pynomaly_detection.domain.exceptions import (
     DetectorNotFittedError,
     FittingError,
     InvalidAlgorithmError,
 )
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols.detector_protocol import ExplainableDetectorProtocol
+from pynomaly_detection.domain.value_objects import AnomalyScore, ContaminationRate
+from pynomaly_detection.shared.protocols.detector_protocol import ExplainableDetectorProtocol
 
 
 @dataclass

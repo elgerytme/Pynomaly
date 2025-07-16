@@ -16,17 +16,17 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
-from pynomaly.application.services.training_automation_service import (
+from pynomaly_detection.application.services.training_automation_service import (
     OptimizationStrategy,
     PruningStrategy,
     TrainingAutomationService,
     TrainingConfiguration,
     TrainingStatus,
 )
-from pynomaly.infrastructure.adapters.model_trainer_adapter import (
+from pynomaly_detection.infrastructure.adapters.model_trainer_adapter import (
     create_model_trainer_adapter,
 )
-from pynomaly.infrastructure.persistence.training_job_repository import (
+from pynomaly_detection.infrastructure.persistence.training_job_repository import (
     create_training_job_repository,
 )
 

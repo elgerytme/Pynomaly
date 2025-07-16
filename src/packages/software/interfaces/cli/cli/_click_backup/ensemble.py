@@ -15,17 +15,17 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 # Application imports
-from pynomaly.application.services.advanced_ensemble_service import (
+from pynomaly_detection.application.services.advanced_ensemble_service import (
     AdvancedEnsembleService,
     EnsembleConfiguration,
 )
 
 # Domain imports
-from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.config.feature_flags import require_feature
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
-from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
+from pynomaly_detection.infrastructure.data_loaders import CSVLoader, ParquetLoader
 
 console = Console()
 

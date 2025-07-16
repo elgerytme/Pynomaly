@@ -12,11 +12,11 @@ from rich.panel import Panel
 from rich.progress import BarColumn, Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.application.services.performance_testing_service import (
+from pynomaly_detection.application.services.performance_testing_service import (
     PerformanceTestingService,
     StressTestConfig,
 )
-from pynomaly.infrastructure.config.container import Container
+from pynomaly_detection.infrastructure.config.container import Container
 
 console = Console()
 

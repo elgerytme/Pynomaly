@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
+from pynomaly_detection.domain.value_objects.anomaly_score import AnomalyScore
 
 
 class FeedbackType(Enum):

@@ -6,17 +6,17 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import (
+from pynomaly_detection.domain.entities import (
     Experiment,
     ExperimentRun,
     ExperimentStatus,
     ExperimentType,
 )
-from pynomaly.domain.exceptions import (
+from pynomaly_detection.domain.exceptions import (
     ExperimentNotFoundError,
     InvalidExperimentStateError,
 )
-from pynomaly.shared.protocols import (
+from pynomaly_detection.shared.protocols import (
     ExperimentRepositoryProtocol,
     ExperimentRunRepositoryProtocol,
 )

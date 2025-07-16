@@ -17,7 +17,7 @@ from rich.panel import Panel
 from rich.text import Text
 
 # Import existing CLI infrastructure
-from pynomaly.presentation.cli.container import get_cli_container
+from pynomaly_detection.presentation.cli.container import get_cli_container
 
 # Import data transformation components
 try:

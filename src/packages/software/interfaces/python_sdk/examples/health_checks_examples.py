@@ -2,7 +2,7 @@
 
 import asyncio
 
-from pynomaly.infrastructure.monitoring import (
+from pynomaly_detection.infrastructure.monitoring import (
     ComponentHealthConfig,
     ComponentType,
     HealthCheckCategory,

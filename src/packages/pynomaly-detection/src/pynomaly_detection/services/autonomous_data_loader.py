@@ -8,10 +8,10 @@ from typing import Any
 
 import pandas as pd
 
-from pynomaly.application.services.autonomous_detection_config import AutonomousConfig
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.shared.protocols import DataLoaderProtocol
+from pynomaly_detection.application.services.autonomous_detection_config import AutonomousConfig
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.domain.exceptions import DataValidationError
+from pynomaly_detection.shared.protocols import DataLoaderProtocol
 
 logger = logging.getLogger(__name__)
 

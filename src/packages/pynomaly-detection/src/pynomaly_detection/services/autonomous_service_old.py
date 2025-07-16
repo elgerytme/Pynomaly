@@ -11,16 +11,16 @@ from uuid import uuid4
 import numpy as np
 import pandas as pd
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from pynomaly_detection.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.application.services.autonomous_preprocessing import (
+from pynomaly_detection.application.services.autonomous_preprocessing import (
     AutonomousPreprocessingOrchestrator,
     DataQualityReport,
 )
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.shared.protocols import (
+from pynomaly_detection.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly_detection.domain.exceptions import DataValidationError
+from pynomaly_detection.shared.protocols import (
     DataLoaderProtocol,
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,
@@ -729,7 +729,7 @@ class AutonomousDetectionService:
                     self.logger.info(f"Processing results for {rec.algorithm}")
 
                 # Create detection result
-                from pynomaly.domain.entities import Anomaly
+                from pynomaly_detection.domain.entities import Anomaly
 
                 anomalies = []
                 for i, (score, pred) in enumerate(
@@ -804,7 +804,7 @@ class AutonomousDetectionService:
     ) -> Detector:
         """Create detector instance from recommendation."""
 
-        from pynomaly.domain.value_objects import ContaminationRate
+        from pynomaly_detection.domain.value_objects import ContaminationRate
 
         detector_id = uuid4()
         contamination_rate = ContaminationRate(

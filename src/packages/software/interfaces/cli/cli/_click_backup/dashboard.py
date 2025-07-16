@@ -12,12 +12,12 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.application.services.visualization_dashboard_service import (
+from pynomaly_detection.application.services.visualization_dashboard_service import (
     DashboardType,
     RealTimeMetrics,
     VisualizationDashboardService,
 )
-from pynomaly.infrastructure.config.container import Container
+from pynomaly_detection.infrastructure.config.container import Container
 
 console = Console()
 

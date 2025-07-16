@@ -14,20 +14,20 @@ from uuid import uuid4
 
 import pandas as pd
 
-from pynomaly.application.dto.configuration_dto import (
+from pynomaly_detection.application.dto.configuration_dto import (
     ConfigurationCaptureRequestDTO,
     ConfigurationSearchRequestDTO,
     ConfigurationSource,
     PerformanceResultsDTO,
 )
-from pynomaly.application.services.autonomous_service import (
+from pynomaly_detection.application.services.autonomous_service import (
     AutonomousConfig,
     AutonomousDetectionService,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from pynomaly_detection.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.domain.entities import DetectionResult
+from pynomaly_detection.domain.entities import DetectionResult
 
 logger = logging.getLogger(__name__)
 
@@ -230,7 +230,7 @@ class AutonomousConfigurationIntegration:
         """
         from datetime import timedelta
 
-        from pynomaly.application.dto.configuration_dto import (
+        from pynomaly_detection.application.dto.configuration_dto import (
             ConfigurationSearchRequestDTO,
         )
 
@@ -667,7 +667,7 @@ class AutonomousConfigurationManager:
         Returns:
             Recommended autonomous configuration
         """
-        from pynomaly.application.dto.configuration_dto import (
+        from pynomaly_detection.application.dto.configuration_dto import (
             ConfigurationSearchRequestDTO,
         )
 
@@ -750,7 +750,7 @@ class AutonomousConfigurationManager:
         Returns:
             Exported configuration data as string
         """
-        from pynomaly.application.dto.configuration_dto import (
+        from pynomaly_detection.application.dto.configuration_dto import (
             ConfigurationExportRequestDTO,
             ExportFormat,
         )

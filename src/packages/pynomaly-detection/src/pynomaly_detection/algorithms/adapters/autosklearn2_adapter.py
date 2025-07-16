@@ -12,9 +12,9 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.domain.entities import Detector
-from pynomaly.domain.exceptions import DetectorError, TrainingError
-from pynomaly.shared.protocols import DetectorProtocol
+from pynomaly_detection.domain.entities import Detector
+from pynomaly_detection.domain.exceptions import DetectorError, TrainingError
+from pynomaly_detection.shared.protocols import DetectorProtocol
 
 # Optional auto-sklearn2 import
 try:

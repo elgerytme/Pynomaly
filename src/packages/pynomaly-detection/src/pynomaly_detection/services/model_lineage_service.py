@@ -6,7 +6,7 @@ import asyncio
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities.lineage_record import (
+from pynomaly_detection.domain.entities.lineage_record import (
     LineageEdge,
     LineageGraph,
     LineageNode,
@@ -17,7 +17,7 @@ from pynomaly.domain.entities.lineage_record import (
     LineageTransformation,
     TransformationType,
 )
-from pynomaly.shared.protocols.repository_protocol import (
+from pynomaly_detection.shared.protocols.repository_protocol import (
     ModelRepositoryProtocol,
     ModelVersionRepositoryProtocol,
 )

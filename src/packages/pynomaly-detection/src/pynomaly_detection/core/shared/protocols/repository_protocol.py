@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Protocol, TypeVar, runtime_checkable
 from uuid import UUID
 
-from pynomaly.domain.entities import (
+from pynomaly_detection.domain.entities import (
     Alert,
     AlertNotification,
     Dataset,

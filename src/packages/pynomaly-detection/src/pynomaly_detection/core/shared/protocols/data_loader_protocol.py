@@ -6,7 +6,7 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
-from pynomaly.domain.entities import Dataset
+from pynomaly_detection.domain.entities import Dataset
 
 
 @runtime_checkable

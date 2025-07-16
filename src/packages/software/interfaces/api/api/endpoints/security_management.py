@@ -9,7 +9,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from pynomaly.infrastructure.security.audit_logger import get_audit_logger
+from pynomaly_detection.infrastructure.security.audit_logger import get_audit_logger
 
 logger = logging.getLogger(__name__)
 

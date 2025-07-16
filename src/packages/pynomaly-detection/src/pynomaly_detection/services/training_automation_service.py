@@ -21,8 +21,8 @@ from uuid import uuid4
 
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import TrainingError
+from pynomaly_detection.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly_detection.domain.exceptions import TrainingError
 
 # Optional dependencies with graceful fallback
 try:
@@ -775,10 +775,10 @@ async def quick_optimize(
     timeout_minutes: int = 30,
 ) -> TrainingJob:
     """Quick optimization with sensible defaults."""
-    from pynomaly.infrastructure.adapters.model_trainer_adapter import (
+    from pynomaly_detection.infrastructure.adapters.model_trainer_adapter import (
         ModelTrainerAdapter,
     )
-    from pynomaly.infrastructure.persistence.training_job_repository import (
+    from pynomaly_detection.infrastructure.persistence.training_job_repository import (
         TrainingJobRepository,
     )
 
@@ -812,10 +812,10 @@ async def production_optimize(
     timeout_hours: int = 4,
 ) -> TrainingJob:
     """Production-grade optimization with comprehensive tracking."""
-    from pynomaly.infrastructure.adapters.model_trainer_adapter import (
+    from pynomaly_detection.infrastructure.adapters.model_trainer_adapter import (
         ModelTrainerAdapter,
     )
-    from pynomaly.infrastructure.persistence.training_job_repository import (
+    from pynomaly_detection.infrastructure.persistence.training_job_repository import (
         TrainingJobRepository,
     )
 

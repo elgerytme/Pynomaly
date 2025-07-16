@@ -7,7 +7,7 @@ import json
 import logging
 from pathlib import Path
 
-from pynomaly.domain.models.pipeline_models import PipelineResult
+from pynomaly_detection.domain.models.pipeline_models import PipelineResult
 
 logger = logging.getLogger(__name__)
 

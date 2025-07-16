@@ -10,9 +10,9 @@ from uuid import uuid4
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols import DetectorProtocol
+from pynomaly_detection.domain.entities import Dataset, DetectionResult
+from pynomaly_detection.domain.value_objects import AnomalyScore, ContaminationRate
+from pynomaly_detection.shared.protocols import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +116,7 @@ class ONNXAdapter(DetectorProtocol):
         labels = [1 if score.value > threshold else 0 for score in scores]
 
         # Create anomaly objects
-        from pynomaly.domain.entities import Anomaly
+        from pynomaly_detection.domain.entities import Anomaly
 
         anomalies = []
         for i, (score, label) in enumerate(zip(scores, labels, strict=False)):

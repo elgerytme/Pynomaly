@@ -2,7 +2,7 @@
 
 from fastapi import Request
 
-from pynomaly.infrastructure.config import Container
+from pynomaly_detection.infrastructure.config import Container
 
 
 def get_container_safe(request: Request) -> Container:

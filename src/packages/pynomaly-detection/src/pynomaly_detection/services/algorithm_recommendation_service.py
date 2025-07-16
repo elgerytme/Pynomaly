@@ -6,10 +6,10 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from pynomaly_detection.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.application.services.data_profiling_service import DataProfile
+from pynomaly_detection.application.services.data_profiling_service import DataProfile
 
 
 @dataclass

@@ -10,7 +10,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from pynomaly.domain.value_objects.hyperparameters import HyperparameterSet
+from pynomaly_detection.domain.value_objects.hyperparameters import HyperparameterSet
 
 
 class TrialStatus(Enum):

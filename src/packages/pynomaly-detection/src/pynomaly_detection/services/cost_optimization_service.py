@@ -11,7 +11,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 
-from pynomaly.domain.entities.cost_optimization import (
+from pynomaly_detection.domain.entities.cost_optimization import (
     CloudResource,
     CostBudget,
     CostOptimizationPlan,

@@ -12,9 +12,9 @@ from uuid import UUID, uuid4
 
 import numpy as np
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.exceptions import ValidationError
+from pynomaly_detection.domain.entities.dataset import Dataset
+from pynomaly_detection.domain.entities.detector import Detector
+from pynomaly_detection.domain.exceptions import ValidationError
 
 # Optional ML libraries
 try:

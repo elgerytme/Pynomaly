@@ -5,13 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from uuid import UUID
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from pynomaly_detection.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
-from pynomaly.domain.exceptions import DatasetError, DetectorNotFittedError
-from pynomaly.domain.services import FeatureValidator
-from pynomaly.shared.protocols import DetectorRepositoryProtocol
+from pynomaly_detection.domain.entities import Anomaly, Dataset, DetectionResult
+from pynomaly_detection.domain.exceptions import DatasetError, DetectorNotFittedError
+from pynomaly_detection.domain.services import FeatureValidator
+from pynomaly_detection.shared.protocols import DetectorRepositoryProtocol
 
 
 @dataclass

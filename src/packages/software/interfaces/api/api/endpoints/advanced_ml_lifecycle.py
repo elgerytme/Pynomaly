@@ -7,11 +7,11 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
-from pynomaly.application.services.advanced_ml_lifecycle_service import (
+from pynomaly_detection.application.services.advanced_ml_lifecycle_service import (
     AdvancedMLLifecycleService,
 )
-from pynomaly.domain.entities import ExperimentType
-from pynomaly.presentation.api.deps import (
+from pynomaly_detection.domain.entities import ExperimentType
+from pynomaly_detection.presentation.api.deps import (
     get_advanced_ml_lifecycle_service,
     get_current_user,
     require_write,
@@ -347,7 +347,7 @@ async def log_model(
     """Log a trained model with the specified run."""
     try:
         # Get ML service instance
-        from pynomaly.infrastructure.config import get_container
+        from pynomaly_detection.infrastructure.config import get_container
 
         container = get_container()
         ml_service_instance = container.get_ml_service()

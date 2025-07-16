@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from pynomaly.domain.entities.drift_report import (
+from pynomaly_detection.domain.entities.drift_report import (
     DriftConfiguration,
     DriftDetectionMethod,
     DriftMonitor,
@@ -19,7 +19,7 @@ from pynomaly.domain.entities.drift_report import (
     DriftType,
     FeatureDrift,
 )
-from pynomaly.shared.protocols.repository_protocol import (
+from pynomaly_detection.shared.protocols.repository_protocol import (
     DatasetRepositoryProtocol,
     ModelRepositoryProtocol,
 )

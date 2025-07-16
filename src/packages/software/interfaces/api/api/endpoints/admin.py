@@ -7,13 +7,13 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, EmailStr, Field
 
-from pynomaly.infrastructure.auth import (
+from pynomaly_detection.infrastructure.auth import (
     get_auth,
     require_super_admin,
     require_tenant_admin,
 )
-from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.auth_deps import get_container_simple
+from pynomaly_detection.infrastructure.config import Container
+from pynomaly_detection.presentation.api.auth_deps import get_container_simple
 
 router = APIRouter()
 

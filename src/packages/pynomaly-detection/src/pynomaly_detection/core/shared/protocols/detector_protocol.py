@@ -6,8 +6,8 @@ from typing import Any, Protocol, runtime_checkable
 
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from pynomaly_detection.domain.entities import Dataset, DetectionResult
+from pynomaly_detection.domain.value_objects import AnomalyScore, ContaminationRate
 
 
 @runtime_checkable

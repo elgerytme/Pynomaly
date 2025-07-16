@@ -19,10 +19,10 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.value_objects.contamination_rate import ContaminationRate
-from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from pynomaly_detection.domain.entities.dataset import Dataset
+from pynomaly_detection.domain.value_objects.contamination_rate import ContaminationRate
+from pynomaly_detection.infrastructure.adapters.pyod_adapter import PyODAdapter
+from pynomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 class CreditCardAnomalyDetector:

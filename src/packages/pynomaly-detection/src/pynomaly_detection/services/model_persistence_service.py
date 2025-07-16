@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID
 
-from pynomaly.infrastructure.security.security_hardening import get_secure_serializer
-from pynomaly.shared.protocols import DetectorProtocol, DetectorRepositoryProtocol
+from pynomaly_detection.infrastructure.security.security_hardening import get_secure_serializer
+from pynomaly_detection.shared.protocols import DetectorProtocol, DetectorRepositoryProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -332,7 +332,7 @@ class {detector.name.replace(" ", "")}Detector:
         Returns:
             Dictionary with scores and labels
         """
-        from pynomaly.domain.entities import Dataset
+        from pynomaly_detection.domain.entities import Dataset
 
         dataset = Dataset(name="input", data=data)
         result = self.detector.detect(dataset)
@@ -353,7 +353,7 @@ class {detector.name.replace(" ", "")}Detector:
         Returns:
             List of anomaly scores
         """
-        from pynomaly.domain.entities import Dataset
+        from pynomaly_detection.domain.entities import Dataset
 
         dataset = Dataset(name="input", data=data)
         scores = self.detector.score(dataset)
@@ -398,7 +398,7 @@ if __name__ == "__main__":
             detector: Detector to save
             model_path: Path to save ONNX model
         """
-        from pynomaly.infrastructure.config.feature_flags import feature_flags
+        from pynomaly_detection.infrastructure.config.feature_flags import feature_flags
 
         # Check if deep learning is enabled
         if not feature_flags.is_enabled("deep_learning"):
@@ -557,8 +557,8 @@ if __name__ == "__main__":
             stub_data = json.load(f)
 
         # Create a basic detector from the stub data
-        from pynomaly.domain.value_objects import ContaminationRate
-        from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+        from pynomaly_detection.domain.value_objects import ContaminationRate
+        from pynomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
         # Create a simple sklearn adapter as a fallback
         detector = SklearnAdapter(
@@ -582,7 +582,7 @@ if __name__ == "__main__":
         Returns:
             Detector wrapper
         """
-        from pynomaly.infrastructure.adapters.onnx_adapter import ONNXAdapter
+        from pynomaly_detection.infrastructure.adapters.onnx_adapter import ONNXAdapter
 
         # Create ONNX adapter (this would need to be implemented)
         adapter = ONNXAdapter(session, model_path)

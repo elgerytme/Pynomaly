@@ -9,10 +9,10 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.shared.protocols.detector_protocol import DetectorProtocol
+from pynomaly_detection.domain.entities.anomaly import Anomaly
+from pynomaly_detection.domain.entities.dataset import Dataset
+from pynomaly_detection.domain.entities.detector import Detector
+from pynomaly_detection.shared.protocols.detector_protocol import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 

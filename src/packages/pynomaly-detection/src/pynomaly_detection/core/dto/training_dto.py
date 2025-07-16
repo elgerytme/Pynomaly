@@ -12,7 +12,7 @@ from enum import Enum
 from typing import Any
 from uuid import UUID
 
-from pynomaly.application.dto.configuration_dto import OptimizationConfigDTO
+from pynomaly_detection.application.dto.configuration_dto import OptimizationConfigDTO
 
 
 class TrainingTrigger(Enum):

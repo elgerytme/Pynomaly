@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 
-from pynomaly.infrastructure.config.settings import Settings
+from pynomaly_detection.infrastructure.config.settings import Settings
 
 
 class OpenAPIConfig:

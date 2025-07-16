@@ -7,19 +7,19 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from pynomaly.application.dto import CreateDetectorDTO, DetectorDTO, UpdateDetectorDTO
-from pynomaly.application.services.algorithm_adapter_registry import (
+from pynomaly_detection.application.dto import CreateDetectorDTO, DetectorDTO, UpdateDetectorDTO
+from pynomaly_detection.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.domain.entities import Detector
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.auth import (
+from pynomaly_detection.domain.entities import Detector
+from pynomaly_detection.domain.value_objects import ContaminationRate
+from pynomaly_detection.infrastructure.auth import (
     require_analyst,
     require_data_scientist,
     require_tenant_admin,
     require_viewer,
 )
-from pynomaly.infrastructure.config import Container
+from pynomaly_detection.infrastructure.config import Container
 
 router = APIRouter()
 

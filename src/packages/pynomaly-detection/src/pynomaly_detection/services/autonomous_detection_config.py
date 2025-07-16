@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from pynomaly.application.services.autonomous_preprocessing import DataQualityReport
+from pynomaly_detection.application.services.autonomous_preprocessing import DataQualityReport
 
 
 @dataclass

@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Any
 
-from pynomaly.domain.entities.reporting import (
+from pynomaly_detection.domain.entities.reporting import (
     Alert,
     Dashboard,
     Metric,
@@ -19,11 +19,11 @@ from pynomaly.domain.entities.reporting import (
     ReportType,
     TimeGranularity,
 )
-from pynomaly.shared.exceptions import (
+from pynomaly_detection.shared.exceptions import (
     AuthorizationError,
     ReportNotFoundError,
 )
-from pynomaly.shared.types import TenantId, UserId
+from pynomaly_detection.shared.types import TenantId, UserId
 
 
 class ReportingService:

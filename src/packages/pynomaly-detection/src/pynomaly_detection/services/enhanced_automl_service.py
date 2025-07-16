@@ -15,15 +15,15 @@ from uuid import uuid4
 
 import numpy as np
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import AutoMLError
+from pynomaly_detection.domain.entities import Dataset, Detector
+from pynomaly_detection.domain.exceptions import AutoMLError
 
 # Import base AutoML service
 from .automl_service import AlgorithmConfig, AutoMLResult, AutoMLService, DatasetProfile
 
 # Import advanced optimization components
 try:
-    from pynomaly.infrastructure.automl import (
+    from pynomaly_detection.infrastructure.automl import (
         AcquisitionFunction,
         AdvancedHyperparameterOptimizer,
         AdvancedOptimizationConfig,
@@ -34,7 +34,7 @@ try:
         OptimizationResult,
         OptimizationStrategy,
     )
-    from pynomaly.infrastructure.automl import (
+    from pynomaly_detection.infrastructure.automl import (
         OptimizationObjective as AdvancedObjective,
     )
 

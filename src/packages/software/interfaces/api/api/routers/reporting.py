@@ -9,15 +9,15 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 
-from pynomaly.application.services.reporting_service import ReportingService
-from pynomaly.domain.entities.reporting import MetricType, ReportType, TimeGranularity
-from pynomaly.domain.entities.user import User
-from pynomaly.shared.exceptions import (
+from pynomaly_detection.application.services.reporting_service import ReportingService
+from pynomaly_detection.domain.entities.reporting import MetricType, ReportType, TimeGranularity
+from pynomaly_detection.domain.entities.user import User
+from pynomaly_detection.shared.exceptions import (
     AuthorizationError,
     ReportNotFoundError,
     ValidationError,
 )
-from pynomaly.shared.types import TenantId, UserId
+from pynomaly_detection.shared.types import TenantId, UserId
 
 # Router setup
 router = APIRouter(prefix="/api/reporting", tags=["Business Reporting"])
@@ -109,10 +109,10 @@ class AlertResponse(BaseModel):
 # Dependencies
 async def get_reporting_service() -> ReportingService:
     """Get reporting service instance."""
-    from pynomaly.infrastructure.persistence.sqlalchemy.repositories.reporting_repository import (
+    from pynomaly_detection.infrastructure.persistence.sqlalchemy.repositories.reporting_repository import (
         SQLAlchemyReportingRepository,
     )
-    from pynomaly.infrastructure.persistence.sqlalchemy.session import get_session
+    from pynomaly_detection.infrastructure.persistence.sqlalchemy.session import get_session
 
     # Get database session
     session = get_session()
@@ -127,8 +127,8 @@ async def get_reporting_service() -> ReportingService:
 async def get_current_user() -> User:
     """Get current authenticated user."""
 
-    from pynomaly.domain.entities.user import User
-    from pynomaly.infrastructure.auth.jwt_auth import get_auth
+    from pynomaly_detection.domain.entities.user import User
+    from pynomaly_detection.infrastructure.auth.jwt_auth import get_auth
 
     # For now, return a mock user for development
     # In production, this would extract user from JWT token
@@ -192,7 +192,7 @@ async def generate_report(
 ):
     """Generate a new business report."""
     try:
-        from pynomaly.domain.entities.reporting import ReportFilter
+        from pynomaly_detection.domain.entities.reporting import ReportFilter
 
         # Create filters
         filters = ReportFilter(

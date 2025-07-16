@@ -5,9 +5,9 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.services import AnomalyScorer, ThresholdCalculator
-from pynomaly.shared.protocols import (
+from pynomaly_detection.domain.entities import Dataset, DetectionResult
+from pynomaly_detection.domain.services import AnomalyScorer, ThresholdCalculator
+from pynomaly_detection.shared.protocols import (
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,
 )

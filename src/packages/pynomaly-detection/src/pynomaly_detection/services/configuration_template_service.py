@@ -15,7 +15,7 @@ from uuid import UUID, uuid4
 import yaml
 from jinja2 import BaseLoader, Environment
 
-from pynomaly.application.dto.configuration_dto import (
+from pynomaly_detection.application.dto.configuration_dto import (
     ConfigurationLevel,
     ConfigurationSearchRequestDTO,
     ConfigurationSource,
@@ -23,11 +23,11 @@ from pynomaly.application.dto.configuration_dto import (
     ExperimentConfigurationDTO,
     ExportFormat,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from pynomaly_detection.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.infrastructure.config.feature_flags import require_feature
-from pynomaly.infrastructure.persistence.configuration_repository import (
+from pynomaly_detection.infrastructure.config.feature_flags import require_feature
+from pynomaly_detection.infrastructure.persistence.configuration_repository import (
     ConfigurationRepository,
 )
 
@@ -778,7 +778,7 @@ class ConfigurationTemplateService:
         """Generate example code for using template."""
         code_lines = [
             "from pynomaly import ConfigurationTemplateService",
-            "from pynomaly.infrastructure.data_loaders import CSVLoader",
+            "from pynomaly_detection.infrastructure.data_loaders import CSVLoader",
             "",
             "# Load template service",
             "template_service = ConfigurationTemplateService()",
@@ -798,7 +798,7 @@ class ConfigurationTemplateService:
             "dataset = loader.load('path/to/your/data.csv')",
             "",
             "# Run detection",
-            "from pynomaly.application.services import DetectionService",
+            "from pynomaly_detection.application.services import DetectionService",
             "detection_service = DetectionService()",
             "result = detection_service.detect_anomalies(dataset, config)",
         ]
@@ -972,9 +972,9 @@ class ConfigurationTemplateService:
             "#!/usr/bin/env python3",
             f'"""Configuration template: {template.name}"""',
             "",
-            "from pynomaly.application.services import ConfigurationTemplateService",
-            "from pynomaly.application.services import DetectionService",
-            "from pynomaly.infrastructure.data_loaders import CSVLoader",
+            "from pynomaly_detection.application.services import ConfigurationTemplateService",
+            "from pynomaly_detection.application.services import DetectionService",
+            "from pynomaly_detection.infrastructure.data_loaders import CSVLoader",
             "",
             f"# Template: {template.name}",
             f"# {template.description}",
@@ -1058,9 +1058,9 @@ class ConfigurationTemplateService:
                 "execution_count": None,
                 "metadata": {},
                 "source": [
-                    "from pynomaly.application.services import ConfigurationTemplateService\n",
-                    "from pynomaly.application.services import DetectionService\n",
-                    "from pynomaly.infrastructure.data_loaders import CSVLoader\n",
+                    "from pynomaly_detection.application.services import ConfigurationTemplateService\n",
+                    "from pynomaly_detection.application.services import DetectionService\n",
+                    "from pynomaly_detection.infrastructure.data_loaders import CSVLoader\n",
                     "import pandas as pd\n",
                     "import numpy as np",
                 ],

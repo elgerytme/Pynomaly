@@ -7,8 +7,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataTypeError, FeatureMismatchError
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.domain.exceptions import DataTypeError, FeatureMismatchError
 
 
 class FeatureValidator:

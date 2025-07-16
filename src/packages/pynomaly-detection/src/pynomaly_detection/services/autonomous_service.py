@@ -8,26 +8,26 @@ from typing import Any
 
 import pandas as pd
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from pynomaly_detection.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.application.services.autonomous_algorithm_recommender import (
+from pynomaly_detection.application.services.autonomous_algorithm_recommender import (
     AutonomousAlgorithmRecommender,
 )
-from pynomaly.application.services.autonomous_data_loader import AutonomousDataLoader
-from pynomaly.application.services.autonomous_data_profiler import (
+from pynomaly_detection.application.services.autonomous_data_loader import AutonomousDataLoader
+from pynomaly_detection.application.services.autonomous_data_profiler import (
     AutonomousDataProfiler,
 )
-from pynomaly.application.services.autonomous_detection_config import (
+from pynomaly_detection.application.services.autonomous_detection_config import (
     AlgorithmRecommendation,
     AutonomousConfig,
     DataProfile,
 )
-from pynomaly.application.services.autonomous_preprocessing import (
+from pynomaly_detection.application.services.autonomous_preprocessing import (
     AutonomousPreprocessingOrchestrator,
 )
-from pynomaly.domain.entities import Dataset
-from pynomaly.shared.protocols import (
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.shared.protocols import (
     DataLoaderProtocol,
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,

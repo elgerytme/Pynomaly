@@ -6,13 +6,13 @@ import asyncio
 import logging
 from typing import Any
 
-from pynomaly.application.services.advanced_automl_service import AdvancedAutoMLService
-from pynomaly.application.services.task_tracking_service import (
+from pynomaly_detection.application.services.advanced_automl_service import AdvancedAutoMLService
+from pynomaly_detection.application.services.task_tracking_service import (
     TaskContext,
     TaskTrackingService,
     TaskType,
 )
-from pynomaly.domain.entities import Dataset, Detector
+from pynomaly_detection.domain.entities import Dataset, Detector
 
 
 class AutoMLWithTracking:

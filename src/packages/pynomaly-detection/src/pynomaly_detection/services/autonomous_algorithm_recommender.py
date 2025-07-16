@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pynomaly.application.services.autonomous_detection_config import (
+from pynomaly_detection.application.services.autonomous_detection_config import (
     AlgorithmRecommendation,
     AutonomousConfig,
     DataProfile,

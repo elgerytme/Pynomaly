@@ -2,7 +2,7 @@
 
 import asyncio
 
-from pynomaly.infrastructure.production import (
+from pynomaly_detection.infrastructure.production import (
     Environment,
     ProductionConfig,
     ShutdownPhase,

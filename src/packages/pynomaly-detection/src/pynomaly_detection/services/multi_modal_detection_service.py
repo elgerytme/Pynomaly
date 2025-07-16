@@ -18,17 +18,17 @@ from sklearn.feature_selection import mutual_info_regression
 from sklearn.preprocessing import StandardScaler
 from pydantic import BaseModel, Field
 
-from pynomaly.domain.entities import DetectionResult
-from pynomaly.domain.models.multimodal import (
+from pynomaly_detection.domain.entities import DetectionResult
+from pynomaly_detection.domain.models.multimodal import (
     FusionStrategy,
     ModalityType,
     MultiModalData,
 )
-from pynomaly.domain.value_objects import AnomalyScore, AnomalyType
-from pynomaly.infrastructure.adapters.pygod_adapter import PyGODDetector
-from pynomaly.infrastructure.adapters.text_adapter import TextAnomalyDetector
-from pynomaly.infrastructure.adapters.time_series_adapter import TimeSeriesDetector
-from pynomaly.shared.protocols.detector_protocol import DetectorProtocol
+from pynomaly_detection.domain.value_objects import AnomalyScore, AnomalyType
+from pynomaly_detection.infrastructure.adapters.pygod_adapter import PyGODDetector
+from pynomaly_detection.infrastructure.adapters.text_adapter import TextAnomalyDetector
+from pynomaly_detection.infrastructure.adapters.time_series_adapter import TimeSeriesDetector
+from pynomaly_detection.shared.protocols.detector_protocol import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 

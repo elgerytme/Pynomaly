@@ -22,7 +22,7 @@ from pydantic import BaseModel, Field
 
 # Application layer imports
 # Core domain imports
-from pynomaly.domain.entities import Dataset, Detector
+from pynomaly_detection.domain.entities import Dataset, Detector
 
 # Infrastructure imports - handle optional dependencies
 try:
@@ -648,7 +648,7 @@ class AdvancedEnsembleService:
         for algorithm in algorithms:
             try:
                 # Create detector using existing adapter system
-                from pynomaly.infrastructure.adapters import SklearnAdapter
+                from pynomaly_detection.infrastructure.adapters import SklearnAdapter
 
                 detector = SklearnAdapter(algorithm)
                 detector.fit(dataset)
@@ -662,7 +662,7 @@ class AdvancedEnsembleService:
 
         if not detectors:
             # Fallback to default detector
-            from pynomaly.infrastructure.adapters import SklearnAdapter
+            from pynomaly_detection.infrastructure.adapters import SklearnAdapter
 
             default_detector = SklearnAdapter("IsolationForest")
             default_detector.fit(dataset)

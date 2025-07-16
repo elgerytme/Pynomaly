@@ -34,10 +34,10 @@ from sklearn.metrics import (
 )
 from sklearn.preprocessing import StandardScaler
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.shared.protocols import DetectorProtocol
+from pynomaly_detection.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly_detection.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from pynomaly_detection.domain.value_objects import AnomalyScore
+from pynomaly_detection.shared.protocols import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -863,7 +863,7 @@ class DriftDetectionAdapter(DetectorProtocol):
     @property
     def contamination_rate(self):
         """Get the contamination rate."""
-        from pynomaly.domain.value_objects import ContaminationRate
+        from pynomaly_detection.domain.value_objects import ContaminationRate
 
         # Drift detection doesn't use contamination rate in the traditional sense
         return ContaminationRate(0.0)
@@ -1029,7 +1029,7 @@ class DriftDetectionAdapter(DetectorProtocol):
             # Mark all samples as potential drift samples
             labels = np.ones(n_samples, dtype=int)
 
-            from pynomaly.domain.entities.anomaly import Anomaly
+            from pynomaly_detection.domain.entities.anomaly import Anomaly
 
             # Create representative anomaly (not per-sample for drift)
             anomaly = Anomaly(

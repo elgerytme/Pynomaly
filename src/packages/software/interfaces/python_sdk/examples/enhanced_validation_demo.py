@@ -21,7 +21,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
-from pynomaly.presentation.cli.validation import (
+from pynomaly_detection.presentation.cli.validation import (
     EnhancedValidator,
     GitHubCommentGenerator,
     RichOutputFormatter,
@@ -256,7 +256,7 @@ def demo_pre_commit_integration():
     )
 
     # Check pre-commit status
-    from pynomaly.presentation.cli.validation import (
+    from pynomaly_detection.presentation.cli.validation import (
         check_pre_commit_installed,
         show_pre_commit_reminder,
     )

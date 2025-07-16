@@ -8,12 +8,12 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
-from pynomaly.infrastructure.auth.enhanced_dependencies import (
+from pynomaly_detection.infrastructure.auth.enhanced_dependencies import (
     get_current_admin_user,
     get_current_user,
 )
-from pynomaly.infrastructure.config import Settings, get_settings
-from pynomaly.infrastructure.security.waf_middleware import (
+from pynomaly_detection.infrastructure.config import Settings, get_settings
+from pynomaly_detection.infrastructure.security.waf_middleware import (
     AttackType,
     ThreatLevel,
     ThreatSignature,

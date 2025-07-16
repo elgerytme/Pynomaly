@@ -13,7 +13,7 @@ import numpy as np
 from scipy import stats
 from sklearn.utils import resample
 
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
+from pynomaly_detection.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
 class UncertaintyAdapterProtocol(ABC):

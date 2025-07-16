@@ -7,8 +7,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from pynomaly.application.services.model_lineage_service import ModelLineageService
-from pynomaly.domain.entities.lineage_record import (
+from pynomaly_detection.application.services.model_lineage_service import ModelLineageService
+from pynomaly_detection.domain.entities.lineage_record import (
     LineageGraph,
     LineageQuery,
     LineageRecord,
@@ -17,9 +17,9 @@ from pynomaly.domain.entities.lineage_record import (
     LineageTransformation,
     TransformationType,
 )
-from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import get_container
-from pynomaly.presentation.api.docs.response_models import (
+from pynomaly_detection.infrastructure.config import Container
+from pynomaly_detection.presentation.api.deps import get_container
+from pynomaly_detection.presentation.api.docs.response_models import (
     HTTPResponses,
     SuccessResponse,
 )

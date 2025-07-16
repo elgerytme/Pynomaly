@@ -12,14 +12,14 @@ from pathlib import Path
 
 import click
 
-from pynomaly.infrastructure.performance.advanced_benchmarking_service import (
+from pynomaly_detection.infrastructure.performance.advanced_benchmarking_service import (
     AdvancedBenchmarkConfig,
     AdvancedPerformanceBenchmarkingService,
 )
-from pynomaly.infrastructure.performance.optimization_engine import (
+from pynomaly_detection.infrastructure.performance.optimization_engine import (
     create_optimization_engine,
 )
-from pynomaly.infrastructure.performance.performance_integration import (
+from pynomaly_detection.infrastructure.performance.performance_integration import (
     get_performance_integration_manager,
     get_performance_stats,
     start_performance_monitoring,

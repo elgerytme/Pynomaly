@@ -14,8 +14,8 @@ import numpy as np
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.preprocessing import StandardScaler
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+from pynomaly_detection.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly_detection.infrastructure.adapters.pyod_adapter import PyODAdapter
 
 
 class OptimizedPyODAdapter(PyODAdapter):

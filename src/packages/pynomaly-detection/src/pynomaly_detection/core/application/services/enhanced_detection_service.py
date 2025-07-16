@@ -5,23 +5,23 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from packages.core.domain.entities.anomaly import Anomaly
-from pynomaly.domain.value_objects import AnomalyScore
+from pynomaly_detection.domain.value_objects import AnomalyScore
 
 # Import advanced classification components
 try:
-    from pynomaly.domain.services.advanced_classification_service import (
+    from pynomaly_detection.domain.services.advanced_classification_service import (
         AdvancedClassificationService,
     )
-    from pynomaly.domain.services.threshold_severity_classifier import (
+    from pynomaly_detection.domain.services.threshold_severity_classifier import (
         ThresholdSeverityClassifier,
     )
-    from pynomaly.domain.value_objects.anomaly_classification import (
+    from pynomaly_detection.domain.value_objects.anomaly_classification import (
         AdvancedAnomalyClassification,
         ClassificationResult,
         ConfidenceLevel,
     )
-    from pynomaly.domain.value_objects.anomaly_type import AnomalyType
-    from pynomaly.domain.value_objects.severity_score import SeverityLevel
+    from pynomaly_detection.domain.value_objects.anomaly_type import AnomalyType
+    from pynomaly_detection.domain.value_objects.severity_score import SeverityLevel
 except ImportError:
     # Fallback for development
     AdvancedClassificationService = None

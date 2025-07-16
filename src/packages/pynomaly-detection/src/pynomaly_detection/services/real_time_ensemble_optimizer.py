@@ -13,11 +13,11 @@ from typing import Any
 import numpy as np
 from pydantic import BaseModel, Field
 
-from pynomaly.application.services.advanced_ensemble_service import (
+from pynomaly_detection.application.services.advanced_ensemble_service import (
     AdvancedEnsembleService,
 )
-from pynomaly.application.services.drift_detection_service import DriftDetectionService
-from pynomaly.domain.entities import Dataset, Detector
+from pynomaly_detection.application.services.drift_detection_service import DriftDetectionService
+from pynomaly_detection.domain.entities import Dataset, Detector
 
 logger = logging.getLogger(__name__)
 

@@ -10,7 +10,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from pynomaly.application.services.advanced_analytics_service import (
+from pynomaly_detection.application.services.advanced_analytics_service import (
     AdvancedAnalyticsService,
     AnalyticsQuery,
     AnalyticsTimeframe,

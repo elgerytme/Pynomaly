@@ -17,7 +17,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
 
-from pynomaly.application.dto.selection_dto import (
+from pynomaly_detection.application.dto.selection_dto import (
     AlgorithmBenchmarkDTO,
     AlgorithmPerformanceDTO,
     DatasetCharacteristicsDTO,
@@ -27,7 +27,7 @@ from pynomaly.application.dto.selection_dto import (
     SelectionHistoryDTO,
     SelectionRecommendationDTO,
 )
-from pynomaly.domain.entities import Dataset
+from pynomaly_detection.domain.entities import Dataset
 
 logger = logging.getLogger(__name__)
 

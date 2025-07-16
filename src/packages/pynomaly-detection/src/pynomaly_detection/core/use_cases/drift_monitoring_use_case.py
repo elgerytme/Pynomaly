@@ -13,8 +13,8 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.application.services.drift_detection_service import DriftDetectionService
-from pynomaly.domain.entities.drift_detection import (
+from pynomaly_detection.application.services.drift_detection_service import DriftDetectionService
+from pynomaly_detection.domain.entities.drift_detection import (
     DriftAlert,
     DriftDetectionResult,
     DriftMonitoringStatus,
@@ -24,7 +24,7 @@ from pynomaly.domain.entities.drift_detection import (
     ModelMonitoringConfig,
     MonitoringStatus,
 )
-from pynomaly.infrastructure.monitoring.prometheus_metrics import get_metrics_service
+from pynomaly_detection.infrastructure.monitoring.prometheus_metrics import get_metrics_service
 
 logger = logging.getLogger(__name__)
 

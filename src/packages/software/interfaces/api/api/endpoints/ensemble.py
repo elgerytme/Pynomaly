@@ -3,7 +3,7 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 
-from pynomaly.application.dto.ensemble_dto import (
+from pynomaly_detection.application.dto.ensemble_dto import (
     EnsembleDetectionRequestDTO,
     EnsembleDetectionResponseDTO,
     EnsembleMetricsResponseDTO,
@@ -11,15 +11,15 @@ from pynomaly.application.dto.ensemble_dto import (
     EnsembleOptimizationResponseDTO,
     EnsembleStatusResponseDTO,
 )
-from pynomaly.application.use_cases.ensemble_detection_use_case import (
+from pynomaly_detection.application.use_cases.ensemble_detection_use_case import (
     EnsembleDetectionRequest,
     EnsembleDetectionUseCase,
     EnsembleOptimizationObjective,
     EnsembleOptimizationRequest,
     VotingStrategy,
 )
-from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import (
+from pynomaly_detection.infrastructure.config import Container
+from pynomaly_detection.presentation.api.deps import (
     get_container,
     get_current_user,
     require_read,

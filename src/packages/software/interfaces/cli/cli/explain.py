@@ -12,12 +12,12 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.application.services.explainable_ai_service import (
+from pynomaly_detection.application.services.explainable_ai_service import (
     ExplainableAIService,
     ExplanationConfiguration,
 )
-from pynomaly.domain.entities.explainable_ai import ExplanationMethod
-from pynomaly.infrastructure.config.container import Container
+from pynomaly_detection.domain.entities.explainable_ai import ExplanationMethod
+from pynomaly_detection.infrastructure.config.container import Container
 
 console = Console()
 

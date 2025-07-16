@@ -6,7 +6,7 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 
-from pynomaly.application.dto.explainability_dto import (
+from pynomaly_detection.application.dto.explainability_dto import (
     CohortExplanationDTO,
     CompareMethodsRequestDTO,
     ExplainCohortRequestDTO,
@@ -16,15 +16,15 @@ from pynomaly.application.dto.explainability_dto import (
     GlobalExplanationDTO,
     LocalExplanationDTO,
 )
-from pynomaly.application.use_cases.explainability_use_case import (
+from pynomaly_detection.application.use_cases.explainability_use_case import (
     CompareExplanationsRequest,
     ExplainCohortRequest,
     ExplainModelRequest,
     ExplainPredictionRequest,
 )
-from pynomaly.domain.services.explainability_service import ExplanationMethod
-from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import (
+from pynomaly_detection.domain.services.explainability_service import ExplanationMethod
+from pynomaly_detection.infrastructure.config import Container
+from pynomaly_detection.presentation.api.deps import (
     get_container,
     get_current_user,
     require_read,

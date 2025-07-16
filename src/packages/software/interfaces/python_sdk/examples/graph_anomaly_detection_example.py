@@ -212,9 +212,9 @@ def run_pygod_example_with_mocks():
     """Run PyGOD example using mocks when dependencies are not available."""
     from unittest.mock import MagicMock, patch
 
-    from pynomaly.domain.entities import Dataset
-    from pynomaly.domain.value_objects import ContaminationRate
-    from pynomaly.infrastructure.adapters.pygod_adapter import PyGODAdapter
+    from pynomaly_detection.domain.entities import Dataset
+    from pynomaly_detection.domain.value_objects import ContaminationRate
+    from pynomaly_detection.infrastructure.adapters.pygod_adapter import PyGODAdapter
 
     logger.info("🔧 Running PyGOD example with mocked dependencies")
 
@@ -327,9 +327,9 @@ def run_pygod_example_with_mocks():
 
 def run_pygod_example_real():
     """Run PyGOD example with real dependencies."""
-    from pynomaly.domain.entities import Dataset
-    from pynomaly.domain.value_objects import ContaminationRate
-    from pynomaly.infrastructure.adapters.pygod_adapter import PyGODAdapter
+    from pynomaly_detection.domain.entities import Dataset
+    from pynomaly_detection.domain.value_objects import ContaminationRate
+    from pynomaly_detection.infrastructure.adapters.pygod_adapter import PyGODAdapter
 
     logger.info("🚀 Running PyGOD example with real dependencies")
 
@@ -433,7 +433,7 @@ def run_pygod_example_real():
 
 def demonstrate_algorithm_selection():
     """Demonstrate how to select appropriate algorithms for different scenarios."""
-    from pynomaly.infrastructure.adapters.pygod_adapter import PyGODAdapter
+    from pynomaly_detection.infrastructure.adapters.pygod_adapter import PyGODAdapter
 
     logger.info("📋 Algorithm Selection Guide")
 

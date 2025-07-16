@@ -9,16 +9,16 @@ from datetime import datetime
 
 import pandas as pd
 
-from pynomaly.application.services.data_processing_service import DataProcessingService
-from pynomaly.application.services.model_optimization_service import (
+from pynomaly_detection.application.services.data_processing_service import DataProcessingService
+from pynomaly_detection.application.services.model_optimization_service import (
     ModelOptimizationService,
 )
-from pynomaly.application.services.pipeline_config_service import PipelineConfigService
-from pynomaly.application.services.pipeline_monitoring_service import (
+from pynomaly_detection.application.services.pipeline_config_service import PipelineConfigService
+from pynomaly_detection.application.services.pipeline_monitoring_service import (
     PipelineMonitoringService,
 )
-from pynomaly.application.services.pipeline_result_service import PipelineResultService
-from pynomaly.domain.models.pipeline_models import (
+from pynomaly_detection.application.services.pipeline_result_service import PipelineResultService
+from pynomaly_detection.domain.models.pipeline_models import (
     PipelineConfig,
     PipelineResult,
     PipelineStage,

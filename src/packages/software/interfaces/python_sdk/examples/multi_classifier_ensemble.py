@@ -26,7 +26,7 @@ from sklearn.metrics import roc_auc_score
 # Add the src directory to Python path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../src"))
 
-from pynomaly.infrastructure.config import create_container
+from pynomaly_detection.infrastructure.config import create_container
 
 
 class VotingStrategy(Enum):

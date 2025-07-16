@@ -6,20 +6,20 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import (
+from pynomaly_detection.domain.entities import (
     Model,
     ModelStage,
     ModelStatus,
     ModelType,
     ModelVersion,
 )
-from pynomaly.domain.exceptions import InvalidModelStateError, ModelNotFoundError
-from pynomaly.domain.value_objects import (
+from pynomaly_detection.domain.exceptions import InvalidModelStateError, ModelNotFoundError
+from pynomaly_detection.domain.value_objects import (
     ModelStorageInfo,
     PerformanceMetrics,
     SemanticVersion,
 )
-from pynomaly.shared.protocols import (
+from pynomaly_detection.shared.protocols import (
     ModelRepositoryProtocol,
     ModelVersionRepositoryProtocol,
 )

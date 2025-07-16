@@ -7,7 +7,7 @@ Provides comprehensive MFA functionality including TOTP, SMS, email, and backup 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer
 
-from pynomaly.application.dto.mfa_dto import (
+from pynomaly_detection.application.dto.mfa_dto import (
     BackupCodesResponse,
     EmailVerificationRequest,
     MFADisableRequest,
@@ -28,16 +28,16 @@ from pynomaly.application.dto.mfa_dto import (
     TOTPVerificationRequest,
     TrustedDevicesResponse,
 )
-from pynomaly.domain.services.mfa_service import MFAService
-from pynomaly.infrastructure.auth import get_current_user
-from pynomaly.infrastructure.cache import get_cache
-from pynomaly.infrastructure.security.audit_logger import (
+from pynomaly_detection.domain.services.mfa_service import MFAService
+from pynomaly_detection.infrastructure.auth import get_current_user
+from pynomaly_detection.infrastructure.cache import get_cache
+from pynomaly_detection.infrastructure.security.audit_logger import (
     AuditLevel,
     SecurityEventType,
     get_audit_logger,
 )
-from pynomaly.presentation.api.auth_deps import require_admin_simple
-from pynomaly.presentation.api.dependencies.auth import get_auth
+from pynomaly_detection.presentation.api.auth_deps import require_admin_simple
+from pynomaly_detection.presentation.api.dependencies.auth import get_auth
 
 router = APIRouter(prefix="/mfa", tags=["mfa"])
 security = HTTPBearer()

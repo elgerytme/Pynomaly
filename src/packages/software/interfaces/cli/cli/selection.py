@@ -14,22 +14,22 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.application.dto.selection_dto import (
+from pynomaly_detection.application.dto.selection_dto import (
     AlgorithmPerformanceDTO,
     OptimizationConstraintsDTO,
 )
 
 # Application imports
-from pynomaly.application.services.intelligent_selection_service import (
+from pynomaly_detection.application.services.intelligent_selection_service import (
     IntelligentSelectionService,
 )
 
 # Domain imports
-from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.config.feature_flags import require_feature
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
-from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
+from pynomaly_detection.infrastructure.data_loaders import CSVLoader, ParquetLoader
 
 console = Console()
 

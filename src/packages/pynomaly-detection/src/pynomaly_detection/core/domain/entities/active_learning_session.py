@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 
-from pynomaly.domain.entities.human_feedback import HumanFeedback
+from pynomaly_detection.domain.entities.human_feedback import HumanFeedback
 
 
 class SessionStatus(Enum):

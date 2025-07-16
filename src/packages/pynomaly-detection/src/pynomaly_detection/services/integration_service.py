@@ -11,7 +11,7 @@ from typing import Any
 import aiohttp
 from cryptography.fernet import Fernet
 
-from pynomaly.domain.entities.integrations import (
+from pynomaly_detection.domain.entities.integrations import (
     Integration,
     IntegrationConfig,
     IntegrationCredentials,
@@ -23,14 +23,14 @@ from pynomaly.domain.entities.integrations import (
     NotificationPayload,
     NotificationTemplate,
 )
-from pynomaly.infrastructure.services.email_service import get_email_service
-from pynomaly.shared.exceptions import (
+from pynomaly_detection.infrastructure.services.email_service import get_email_service
+from pynomaly_detection.shared.exceptions import (
     AuthenticationError,
     IntegrationError,
     NotificationError,
     ValidationError,
 )
-from pynomaly.shared.types import TenantId, UserId
+from pynomaly_detection.shared.types import TenantId, UserId
 
 
 class IntegrationService:

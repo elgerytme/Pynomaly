@@ -5,9 +5,9 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.services import AnomalyScorer, ThresholdCalculator
-from pynomaly.shared.protocols import (
+from pynomaly_detection.domain.entities import Dataset, DetectionResult
+from pynomaly_detection.domain.services import AnomalyScorer, ThresholdCalculator
+from pynomaly_detection.shared.protocols import (
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,
 )
@@ -131,7 +131,7 @@ class DetectionEngine:
         """Create anomalies list from scores and labels."""
         import numpy as np
 
-        from pynomaly.domain.entities import Anomaly
+        from pynomaly_detection.domain.entities import Anomaly
 
         anomalies = []
         anomaly_indices = np.where(labels == 1)[0]
@@ -173,7 +173,7 @@ class DetectionEngine:
         result.scores = scores_with_ci
 
         # Create confidence intervals for the result
-        from pynomaly.domain.value_objects import ConfidenceInterval
+        from pynomaly_detection.domain.value_objects import ConfidenceInterval
 
         confidence_intervals = []
 

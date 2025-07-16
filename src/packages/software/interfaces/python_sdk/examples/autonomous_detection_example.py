@@ -6,17 +6,17 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from pynomaly.application.services.autonomous_service import (
+from pynomaly_detection.application.services.autonomous_service import (
     AutonomousConfig,
     AutonomousDetectionService,
 )
-from pynomaly.infrastructure.data_loaders import (
+from pynomaly_detection.infrastructure.data_loaders import (
     CSVLoader,
     ExcelLoader,
     JSONLoader,
     ParquetLoader,
 )
-from pynomaly.infrastructure.repositories.in_memory_repositories import (
+from pynomaly_detection.infrastructure.repositories.in_memory_repositories import (
     InMemoryDetectionResultRepository,
     InMemoryDetectorRepository,
 )

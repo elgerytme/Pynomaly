@@ -482,7 +482,7 @@ class StreamingDetectionUseCase:
         """
         try:
             # Import here to avoid circular imports
-            from pynomaly.application.dto.streaming_dto import (
+            from pynomaly_detection.application.dto.streaming_dto import (
                 StreamDetectionResponseDTO,
             )
 
@@ -601,7 +601,7 @@ class StreamingDetectionUseCase:
         """
         try:
             # Import here to avoid circular imports
-            from pynomaly.application.dto.streaming_dto import StreamDataBatchDTO
+            from pynomaly_detection.application.dto.streaming_dto import StreamDataBatchDTO
 
             batch_size = configuration.batch_size
             batch_count = 0
@@ -635,7 +635,7 @@ class StreamingDetectionUseCase:
         """
         try:
             # Import here to avoid circular imports
-            from pynomaly.application.dto.streaming_dto import StreamStatusDTO
+            from pynomaly_detection.application.dto.streaming_dto import StreamStatusDTO
 
             stream_id = configuration.stream_id
 
@@ -677,7 +677,7 @@ class StreamingDetectionUseCase:
         """
         try:
             # Import here to avoid circular imports
-            from pynomaly.application.dto.streaming_dto import StreamStatusDTO
+            from pynomaly_detection.application.dto.streaming_dto import StreamStatusDTO
 
             if stream_id not in self._active_streams:
                 raise StreamProcessingError(f"Stream {stream_id} not found")
@@ -709,7 +709,7 @@ class StreamingDetectionUseCase:
         """
         try:
             # Import here to avoid circular imports
-            from pynomaly.application.dto.streaming_dto import StreamStatusDTO
+            from pynomaly_detection.application.dto.streaming_dto import StreamStatusDTO
 
             if stream_id not in self._active_streams:
                 raise StreamProcessingError(f"Stream {stream_id} not found")
@@ -742,7 +742,7 @@ class StreamingDetectionUseCase:
         """
         try:
             # Import here to avoid circular imports
-            from pynomaly.application.dto.streaming_dto import StreamStatusDTO
+            from pynomaly_detection.application.dto.streaming_dto import StreamStatusDTO
 
             if stream_id not in self._active_streams:
                 raise StreamProcessingError(f"Stream {stream_id} not found")

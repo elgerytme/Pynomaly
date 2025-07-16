@@ -18,8 +18,8 @@ from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
-from pynomaly.application.services.automl_service import DatasetProfile
-from pynomaly.infrastructure.config.feature_flags import require_feature
+from pynomaly_detection.application.services.automl_service import DatasetProfile
+from pynomaly_detection.infrastructure.config.feature_flags import require_feature
 
 logger = logging.getLogger(__name__)
 

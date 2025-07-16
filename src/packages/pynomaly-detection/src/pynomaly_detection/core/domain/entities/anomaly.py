@@ -7,17 +7,17 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.value_objects import AnomalyScore
+from pynomaly_detection.domain.value_objects import AnomalyScore
 
 # Import advanced classification types
 try:
-    from pynomaly.domain.value_objects.anomaly_classification import (
+    from pynomaly_detection.domain.value_objects.anomaly_classification import (
         AdvancedAnomalyClassification,
         ClassificationResult,
         ConfidenceLevel,
     )
-    from pynomaly.domain.value_objects.anomaly_type import AnomalyType
-    from pynomaly.domain.value_objects.severity_score import SeverityLevel
+    from pynomaly_detection.domain.value_objects.anomaly_type import AnomalyType
+    from pynomaly_detection.domain.value_objects.severity_score import SeverityLevel
 except ImportError:
     # Fallback for backward compatibility
     AdvancedAnomalyClassification = None

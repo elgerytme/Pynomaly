@@ -19,13 +19,13 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from pynomaly.application.services.enterprise_dashboard_service import (
+from pynomaly_detection.application.services.enterprise_dashboard_service import (
     AlertPriority,
     DashboardMetricType,
     EnterpriseDashboardService,
     initialize_enterprise_dashboard,
 )
-from pynomaly.application.services.enterprise_integration_service import (
+from pynomaly_detection.application.services.enterprise_integration_service import (
     IntegrationConfig,
     initialize_enterprise_integration,
 )

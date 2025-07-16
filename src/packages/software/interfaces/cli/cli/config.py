@@ -13,18 +13,18 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.tree import Tree
 
-from pynomaly.application.dto.configuration_dto import (
+from pynomaly_detection.application.dto.configuration_dto import (
     ConfigurationCaptureRequestDTO,
     ConfigurationExportRequestDTO,
     ConfigurationSearchRequestDTO,
     ConfigurationSource,
     ExportFormat,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from pynomaly_detection.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.infrastructure.config.feature_flags import require_feature
-from pynomaly.infrastructure.persistence.configuration_repository import (
+from pynomaly_detection.infrastructure.config.feature_flags import require_feature
+from pynomaly_detection.infrastructure.persistence.configuration_repository import (
     ConfigurationRepository,
 )
 

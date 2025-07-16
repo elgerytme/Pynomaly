@@ -12,14 +12,14 @@ import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import StandardScaler
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
-from pynomaly.domain.exceptions import (
+from pynomaly_detection.domain.entities import Anomaly, Dataset, DetectionResult
+from pynomaly_detection.domain.exceptions import (
     DetectorNotFittedError,
     FittingError,
     InvalidAlgorithmError,
 )
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols import DetectorProtocol
+from pynomaly_detection.domain.value_objects import AnomalyScore, ContaminationRate
+from pynomaly_detection.shared.protocols import DetectorProtocol
 
 
 @dataclass

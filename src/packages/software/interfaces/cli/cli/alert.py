@@ -11,10 +11,10 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.application.services.intelligent_alert_service import (
+from pynomaly_detection.application.services.intelligent_alert_service import (
     IntelligentAlertService,
 )
-from pynomaly.domain.entities.alert import (
+from pynomaly_detection.domain.entities.alert import (
     AlertCategory,
     AlertMetadata,
     AlertSeverity,

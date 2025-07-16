@@ -19,18 +19,18 @@ from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.application.services.automl_service import (
+from pynomaly_detection.application.services.automl_service import (
     AutoMLService,
     OptimizationObjective,
 )
-from pynomaly.application.services.enhanced_model_persistence_service import (
+from pynomaly_detection.application.services.enhanced_model_persistence_service import (
     EnhancedModelPersistenceService,
 )
-from pynomaly.application.use_cases.train_detector import (
+from pynomaly_detection.application.use_cases.train_detector import (
     TrainDetectorRequest,
     TrainDetectorUseCase,
 )
-from pynomaly.shared.protocols import DetectorRepositoryProtocol
+from pynomaly_detection.shared.protocols import DetectorRepositoryProtocol
 
 logger = logging.getLogger(__name__)
 

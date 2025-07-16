@@ -8,13 +8,13 @@ active learning sessions, sample selection, and feedback collection.
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
-from pynomaly.application.dto.active_learning_dto import CreateSessionRequest
-from pynomaly.application.use_cases.manage_active_learning import (
+from pynomaly_detection.application.dto.active_learning_dto import CreateSessionRequest
+from pynomaly_detection.application.use_cases.manage_active_learning import (
     ManageActiveLearningUseCase,
 )
-from pynomaly.domain.entities.active_learning_session import SamplingStrategy
-from pynomaly.domain.entities.human_feedback import FeedbackConfidence, FeedbackType
-from pynomaly.domain.services.active_learning_service import ActiveLearningService
+from pynomaly_detection.domain.entities.active_learning_session import SamplingStrategy
+from pynomaly_detection.domain.entities.human_feedback import FeedbackConfidence, FeedbackType
+from pynomaly_detection.domain.services.active_learning_service import ActiveLearningService
 
 router = APIRouter(prefix="/active-learning", tags=["active-learning"])
 
@@ -295,8 +295,8 @@ async def select_samples(
             raise ValueError("Session ID mismatch")
 
         # Convert detection results to domain entities
-        from pynomaly.domain.entities.detection_result import DetectionResult
-        from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
+        from pynomaly_detection.domain.entities.detection_result import DetectionResult
+        from pynomaly_detection.domain.value_objects.anomaly_score import AnomalyScore
 
         detection_results = []
         for result_model in request.detection_results:
@@ -312,7 +312,7 @@ async def select_samples(
             detection_results.append(result)
 
         # Create domain request
-        from pynomaly.application.dto.active_learning_dto import SelectSamplesRequest
+        from pynomaly_detection.application.dto.active_learning_dto import SelectSamplesRequest
 
         domain_request = SelectSamplesRequest(
             session_id=request.session_id,
@@ -381,8 +381,8 @@ async def submit_feedback(
             raise ValueError("Session ID mismatch")
 
         # Convert to domain request
-        from pynomaly.application.dto.active_learning_dto import SubmitFeedbackRequest
-        from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
+        from pynomaly_detection.application.dto.active_learning_dto import SubmitFeedbackRequest
+        from pynomaly_detection.domain.value_objects.anomaly_score import AnomalyScore
 
         original_prediction = None
         if request.original_score is not None:
@@ -450,7 +450,7 @@ async def get_session_status(
     """Get status of an active learning session."""
     try:
         # Create domain request
-        from pynomaly.application.dto.active_learning_dto import SessionStatusRequest
+        from pynomaly_detection.application.dto.active_learning_dto import SessionStatusRequest
 
         domain_request = SessionStatusRequest(
             session_id=session_id,
@@ -524,7 +524,7 @@ async def update_model(
 
         # This would typically load feedback from repository
         # For demonstration, create empty feedback list
-        from pynomaly.application.dto.active_learning_dto import UpdateModelRequest
+        from pynomaly_detection.application.dto.active_learning_dto import UpdateModelRequest
 
         domain_request = UpdateModelRequest(
             session_id=request.session_id,

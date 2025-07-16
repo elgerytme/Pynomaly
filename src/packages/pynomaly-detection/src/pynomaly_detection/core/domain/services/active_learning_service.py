@@ -13,9 +13,9 @@ import numpy as np
 from scipy.spatial.distance import pdist, squareform
 from sklearn.cluster import KMeans
 
-from pynomaly.domain.entities.active_learning_session import SamplingStrategy
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.entities.human_feedback import HumanFeedback
+from pynomaly_detection.domain.entities.active_learning_session import SamplingStrategy
+from pynomaly_detection.domain.entities.detection_result import DetectionResult
+from pynomaly_detection.domain.entities.human_feedback import HumanFeedback
 
 
 class SampleSelectionProtocol(Protocol):

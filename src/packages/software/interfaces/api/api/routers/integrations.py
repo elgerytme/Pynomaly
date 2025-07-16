@@ -9,8 +9,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, HttpUrl
 
-from pynomaly.application.services.integration_service import IntegrationService
-from pynomaly.domain.entities.integrations import (
+from pynomaly_detection.application.services.integration_service import IntegrationService
+from pynomaly_detection.domain.entities.integrations import (
     IntegrationConfig,
     IntegrationStatus,
     IntegrationType,
@@ -19,14 +19,14 @@ from pynomaly.domain.entities.integrations import (
     NotificationTemplate,
     TriggerType,
 )
-from pynomaly.domain.entities.user import User
-from pynomaly.shared.exceptions import (
+from pynomaly_detection.domain.entities.user import User
+from pynomaly_detection.shared.exceptions import (
     AuthenticationError,
     IntegrationError,
     NotificationError,
     ValidationError,
 )
-from pynomaly.shared.types import TenantId, UserId
+from pynomaly_detection.shared.types import TenantId, UserId
 
 # Router setup
 router = APIRouter(prefix="/api/integrations", tags=["Integrations"])

@@ -7,14 +7,14 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from pynomaly_detection.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import FittingError, InsufficientDataError
-from pynomaly.domain.services import FeatureValidator
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.shared.protocols import DetectorRepositoryProtocol
+from pynomaly_detection.domain.entities import Dataset, Detector
+from pynomaly_detection.domain.exceptions import FittingError, InsufficientDataError
+from pynomaly_detection.domain.services import FeatureValidator
+from pynomaly_detection.domain.value_objects import ContaminationRate
+from pynomaly_detection.shared.protocols import DetectorRepositoryProtocol
 
 
 @dataclass

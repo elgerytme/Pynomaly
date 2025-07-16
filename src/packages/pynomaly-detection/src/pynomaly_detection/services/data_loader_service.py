@@ -8,9 +8,9 @@ from typing import Any
 
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.shared.protocols import DataLoaderProtocol
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.domain.exceptions import DataValidationError
+from pynomaly_detection.shared.protocols import DataLoaderProtocol
 
 
 class DataLoaderService:

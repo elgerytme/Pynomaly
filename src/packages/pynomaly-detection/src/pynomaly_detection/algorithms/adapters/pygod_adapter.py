@@ -11,9 +11,9 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from pynomaly_detection.domain.entities import Dataset, DetectionResult
+from pynomaly_detection.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from pynomaly_detection.domain.value_objects import AnomalyScore, ContaminationRate
 
 logger = logging.getLogger(__name__)
 

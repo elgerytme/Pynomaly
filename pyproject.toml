@@ -368,17 +368,17 @@ all = [
 ]
 
 [project.scripts]
-pynomaly = "pynomaly.presentation.cli.app:app"
+pynomaly = "packages.software.interfaces.cli.cli.app:app"
 
 [project.gui-scripts]
-pynomaly-gui = "pynomaly.presentation.web.app:main"
+pynomaly-gui = "packages.software.interfaces.web.app:main"
 
 # Hatch configuration
 [tool.hatch.version]
 source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "src/pynomaly/_version.py"
+version-file = "src/packages/pynomaly-detection/src/pynomaly_detection/_version.py"
 
 # Buck2 integration (Buck2 is installed and available)
 # [tool.hatch.build.hooks.buck2]
@@ -397,17 +397,20 @@ version-file = "src/pynomaly/_version.py"
 
 [tool.hatch.build]
 include = [
-    "src/pynomaly/**/*.py",
-    "src/pynomaly/**/*.pyi",
-    "src/pynomaly/py.typed",
+    "src/packages/pynomaly-detection/src/pynomaly_detection/**/*.py",
+    "src/packages/pynomaly-detection/src/pynomaly_detection/**/*.pyi",
+    "src/packages/pynomaly-detection/src/pynomaly_detection/py.typed",
+    "src/packages/software/interfaces/**/*.py",
 ]
 exclude = [
-    "src/pynomaly/**/*_test.py",
-    "src/pynomaly/**/test_*.py",
+    "src/packages/pynomaly-detection/src/pynomaly_detection/**/*_test.py",
+    "src/packages/pynomaly-detection/src/pynomaly_detection/**/test_*.py",
+    "src/packages/software/interfaces/**/*_test.py",
+    "src/packages/software/interfaces/**/test_*.py",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pynomaly"]
+packages = ["src/packages/pynomaly-detection/src/pynomaly_detection", "src/packages/software/interfaces"]
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -436,7 +439,7 @@ path = "environments/.venv"
 
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
-test-cov = "pytest --cov=pynomaly --cov-report=html --cov-report=xml {args:tests}"
+test-cov = "pytest --cov=pynomaly_detection --cov-report=html --cov-report=xml {args:tests}"
 cov-report = ["test-cov", "python -m webbrowser htmlcov/index.html"]
 
 [tool.hatch.envs.lint]
@@ -449,7 +452,7 @@ dependencies = [
 ]
 
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:src/pynomaly tests}"
+typing = "mypy --install-types --non-interactive {args:src/packages/pynomaly-detection/src/pynomaly_detection tests}"
 style = [
     "ruff check {args:.}",
     "black --check --diff {args:.}",
@@ -495,9 +498,9 @@ run-e2e = "pytest tests/e2e/ -m e2e {args}"
 run-contract = "pytest tests/contract/ -m contract {args}"
 
 # Coverage testing
-run-cov = "pytest --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 {args:tests}"
-run-cov-unit = "pytest tests/unit/ --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
-run-cov-integration = "pytest tests/integration/ --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
+run-cov = "pytest --cov=pynomaly_detection --cov-report=html --cov-report=xml --cov-fail-under=90 {args:tests}"
+run-cov-unit = "pytest tests/unit/ --cov=pynomaly_detection --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
+run-cov-integration = "pytest tests/integration/ --cov=pynomaly_detection --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
 
 # Parallel testing
 run-parallel = "pytest -n auto {args:tests}"
@@ -518,11 +521,11 @@ run-mutation-cosmic = "cosmic-ray run"
 check-mutation = "mutmut show"
 
 # Quality gates
-run-quality = "pytest --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 -n auto {args:tests}"
-run-ci = "pytest --cov=pynomaly --cov-report=html --cov-report=xml --cov-fail-under=90 -n auto --tb=short {args:tests}"
+run-quality = "pytest --cov=pynomaly_detection --cov-report=html --cov-report=xml --cov-fail-under=90 -n auto {args:tests}"
+run-ci = "pytest --cov=pynomaly_detection --cov-report=html --cov-report=xml --cov-fail-under=90 -n auto --tb=short {args:tests}"
 
 # Test reporting
-run-report = "pytest --cov=pynomaly --cov-report=html --cov-report=xml --html=test_reports/test_report.html --self-contained-html {args:tests}"
+run-report = "pytest --cov=pynomaly_detection --cov-report=html --cov-report=xml --html=test_reports/test_report.html --self-contained-html {args:tests}"
 
 # Matrix testing for different Python versions
 [[tool.hatch.envs.test.matrix]]
@@ -569,8 +572,8 @@ clean = [
 extra-dependencies = ["pynomaly[production]"]
 
 [tool.hatch.envs.prod.scripts]
-serve-api = "uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000"
-serve-api-prod = "uvicorn pynomaly.presentation.api.app:app --host 0.0.0.0 --port 8000 --workers 4"
+serve-api = "uvicorn packages.software.interfaces.api.app:app --host 0.0.0.0 --port 8000"
+serve-api-prod = "uvicorn packages.software.interfaces.api.app:app --host 0.0.0.0 --port 8000 --workers 4"
 
 # CLI-specific environment
 [tool.hatch.envs.cli]
@@ -640,7 +643,7 @@ extend-exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["pynomaly"]
+known_first_party = ["pynomaly_detection", "packages"]
 skip_glob = [
     "environments/*",
     ".env*",
@@ -808,7 +811,7 @@ test_command = "python -m pytest tests/"
 run_tests_in_parallel = true
 
 [tool.cosmic-ray]
-module-path = "src/pynomaly"
+module-path = "src/packages/pynomaly-detection/src/pynomaly_detection"
 timeout = 10.0
 test-command = "python -m pytest tests/"
 

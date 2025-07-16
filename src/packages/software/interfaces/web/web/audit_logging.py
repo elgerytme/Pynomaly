@@ -14,8 +14,8 @@ from uuid import uuid4
 import structlog
 
 try:
-    from pynomaly.core.config import get_settings
-    from pynomaly.presentation.web.enhanced_auth import AuthenticationMethod, UserRole
+    from pynomaly_detection.core.config import get_settings
+    from pynomaly_detection.presentation.web.enhanced_auth import AuthenticationMethod, UserRole
 except ImportError:
     # Fallback for testing
     def get_settings():

@@ -17,8 +17,8 @@ import numpy as np
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
-from pynomaly.infrastructure.logging.structured_logger import StructuredLogger
-from pynomaly.infrastructure.monitoring.metrics_service import MetricsService
+from pynomaly_detection.infrastructure.logging.structured_logger import StructuredLogger
+from pynomaly_detection.infrastructure.monitoring.metrics_service import MetricsService
 
 
 class AnomalyThreatLevel(Enum):

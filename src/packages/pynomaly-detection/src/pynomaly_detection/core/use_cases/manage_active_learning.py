@@ -15,7 +15,7 @@ from uuid import uuid4
 
 import numpy as np
 
-from pynomaly.application.dto.active_learning_dto import (
+from pynomaly_detection.application.dto.active_learning_dto import (
     CreateSessionRequest,
     CreateSessionResponse,
     SelectSamplesRequest,
@@ -27,18 +27,18 @@ from pynomaly.application.dto.active_learning_dto import (
     UpdateModelRequest,
     UpdateModelResponse,
 )
-from pynomaly.domain.entities.active_learning_session import (
+from pynomaly_detection.domain.entities.active_learning_session import (
     ActiveLearningSession,
     SamplingStrategy,
     SessionStatus,
 )
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.entities.human_feedback import (
+from pynomaly_detection.domain.entities.detection_result import DetectionResult
+from pynomaly_detection.domain.entities.human_feedback import (
     FeedbackConfidence,
     FeedbackType,
     HumanFeedback,
 )
-from pynomaly.domain.services.active_learning_service import ActiveLearningService
+from pynomaly_detection.domain.services.active_learning_service import ActiveLearningService
 
 
 class ActiveLearningSessionRepositoryProtocol(Protocol):

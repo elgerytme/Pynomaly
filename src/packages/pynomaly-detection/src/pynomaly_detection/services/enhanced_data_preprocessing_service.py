@@ -17,9 +17,9 @@ import numpy as np
 import pandas as pd
 
 # Import existing Pynomaly components
-from pynomaly.application.services.automl_service import DatasetProfile
-from pynomaly.infrastructure.config.feature_flags import require_feature
-from pynomaly.domain.entities import Dataset
+from pynomaly_detection.application.services.automl_service import DatasetProfile
+from pynomaly_detection.infrastructure.config.feature_flags import require_feature
+from pynomaly_detection.domain.entities import Dataset
 
 # Import data_transformation components
 try:

@@ -5,9 +5,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.infrastructure.adapters.algorithm_factory import AlgorithmFactory
-from pynomaly.infrastructure.persistence.memory_repository import MemoryRepository
+from pynomaly_detection.domain.entities import Dataset, DetectionResult, Detector
+from pynomaly_detection.infrastructure.adapters.algorithm_factory import AlgorithmFactory
+from pynomaly_detection.infrastructure.persistence.memory_repository import MemoryRepository
 
 logger = logging.getLogger(__name__)
 

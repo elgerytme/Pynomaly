@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
-from pynomaly.domain.entities.user import Permission, UserRole
+from pynomaly_detection.domain.entities.user import Permission, UserRole
 
 
 class ResourceType(str, Enum):

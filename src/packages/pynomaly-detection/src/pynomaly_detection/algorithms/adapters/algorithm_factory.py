@@ -7,9 +7,9 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from pynomaly.domain.exceptions import InvalidAlgorithmError
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.shared.protocols import DetectorProtocol
+from pynomaly_detection.domain.exceptions import InvalidAlgorithmError
+from pynomaly_detection.domain.value_objects import ContaminationRate
+from pynomaly_detection.shared.protocols import DetectorProtocol
 
 # Import adapters
 from .enhanced_pyod_adapter import EnhancedPyODAdapter

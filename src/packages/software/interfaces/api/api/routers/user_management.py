@@ -9,14 +9,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
 
-from pynomaly.application.services.user_management_service import UserManagementService
-from pynomaly.domain.entities.user import TenantPlan, TenantStatus, UserRole, UserStatus
-from pynomaly.infrastructure.security.audit_logging import (
+from pynomaly_detection.application.services.user_management_service import UserManagementService
+from pynomaly_detection.domain.entities.user import TenantPlan, TenantStatus, UserRole, UserStatus
+from pynomaly_detection.infrastructure.security.audit_logging import (
     AuditEventType,
     AuditSeverity,
     get_audit_logger,
 )
-from pynomaly.shared.exceptions import (
+from pynomaly_detection.shared.exceptions import (
     AuthenticationError,
     AuthorizationError,
     ResourceLimitError,
@@ -24,7 +24,7 @@ from pynomaly.shared.exceptions import (
     UserNotFoundError,
     ValidationError,
 )
-from pynomaly.shared.types import TenantId, UserId
+from pynomaly_detection.shared.types import TenantId, UserId
 
 # Router setup
 router = APIRouter(prefix="/api/users", tags=["User Management"])
@@ -131,7 +131,7 @@ class ChangePasswordRequest(BaseModel):
 # Dependency injection
 async def get_user_management_service() -> UserManagementService:
     """Get user management service instance."""
-    from pynomaly.infrastructure.persistence.repository_factory import (
+    from pynomaly_detection.infrastructure.persistence.repository_factory import (
         get_session_repository,
         get_tenant_repository,
         get_user_repository,

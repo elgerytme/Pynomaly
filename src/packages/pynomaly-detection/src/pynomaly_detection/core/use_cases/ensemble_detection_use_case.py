@@ -15,8 +15,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import ValidationError
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.domain.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ Pipeline Configuration Service - Handles pipeline configuration and setup
 
 import logging
 
-from pynomaly.domain.models.pipeline_models import PipelineConfig, PipelineMode
+from pynomaly_detection.domain.models.pipeline_models import PipelineConfig, PipelineMode
 
 logger = logging.getLogger(__name__)
 

@@ -11,11 +11,11 @@ from typing import Any
 
 from fastapi import FastAPI
 
-from pynomaly.application.services.configuration_capture_service import (
+from pynomaly_detection.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.infrastructure.config.feature_flags import feature_flags
-from pynomaly.infrastructure.middleware.configuration_middleware import (
+from pynomaly_detection.infrastructure.config.feature_flags import feature_flags
+from pynomaly_detection.infrastructure.middleware.configuration_middleware import (
     ConfigurationAPIMiddleware,
     ConfigurationCaptureMiddleware,
 )
@@ -210,7 +210,7 @@ def create_configured_app(
 
     # Add configuration endpoints
     try:
-        from pynomaly.application.services.web_api_configuration_integration import (
+        from pynomaly_detection.application.services.web_api_configuration_integration import (
             WebAPIConfigurationIntegration,
         )
 
@@ -266,7 +266,7 @@ def setup_middleware_stack(app: FastAPI) -> None:
     Args:
         app: FastAPI application instance
     """
-    from pynomaly.presentation.api.middleware.security_headers import (
+    from pynomaly_detection.presentation.api.middleware.security_headers import (
         SecurityHeadersMiddleware,
     )
 

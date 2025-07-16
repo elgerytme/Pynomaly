@@ -6,9 +6,9 @@ import asyncio
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.exceptions import DetectorNotFittedError
-from pynomaly.shared.protocols import (
+from pynomaly_detection.domain.entities import Dataset, DetectionResult
+from pynomaly_detection.domain.exceptions import DetectorNotFittedError
+from pynomaly_detection.shared.protocols import (
     DetectionResultRepositoryProtocol,
     DetectorProtocol,
     DetectorRepositoryProtocol,

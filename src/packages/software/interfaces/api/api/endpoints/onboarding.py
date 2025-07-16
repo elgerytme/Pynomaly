@@ -8,8 +8,8 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
-from pynomaly.infrastructure.auth.enhanced_dependencies import get_current_user
-from pynomaly.presentation.web.onboarding import (
+from pynomaly_detection.infrastructure.auth.enhanced_dependencies import get_current_user
+from pynomaly_detection.presentation.web.onboarding import (
     ExperienceLevel,
     OnboardingGoal,
     OnboardingStage,

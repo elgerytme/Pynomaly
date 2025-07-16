@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from pynomaly.domain.exceptions import InvalidValueError
+from pynomaly_detection.domain.exceptions import InvalidValueError
 
 
 @dataclass(frozen=True)

@@ -9,8 +9,8 @@ from uuid import UUID
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.shared.protocols import (
+from pynomaly_detection.domain.entities import Dataset
+from pynomaly_detection.shared.protocols import (
     DetectorRepositoryProtocol,
     ExplainableDetectorProtocol,
 )

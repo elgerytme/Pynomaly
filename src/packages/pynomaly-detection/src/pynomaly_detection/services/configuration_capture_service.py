@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.application.dto.configuration_dto import (
+from pynomaly_detection.application.dto.configuration_dto import (
     AlgorithmConfigDTO,
     ConfigurationCaptureRequestDTO,
     ConfigurationExportRequestDTO,
@@ -732,8 +732,8 @@ class ConfigurationCaptureService:
             '"""Generated configuration script from Pynomaly."""',
             "",
             "import pynomaly",
-            "from pynomaly.application.services import DetectionService",
-            "from pynomaly.infrastructure.data_loaders import CSVLoader",
+            "from pynomaly_detection.application.services import DetectionService",
+            "from pynomaly_detection.infrastructure.data_loaders import CSVLoader",
             "",
             "def run_configurations():",
             '    """Execute all configurations."""',
@@ -794,8 +794,8 @@ class ConfigurationCaptureService:
                     "metadata": {},
                     "source": [
                         "import pynomaly\n",
-                        "from pynomaly.application.services import DetectionService\n",
-                        "from pynomaly.infrastructure.data_loaders import CSVLoader\n",
+                        "from pynomaly_detection.application.services import DetectionService\n",
+                        "from pynomaly_detection.infrastructure.data_loaders import CSVLoader\n",
                         "import pandas as pd\n",
                         "import matplotlib.pyplot as plt",
                     ],
