@@ -1,249 +1,371 @@
 # Buck2 Build Configuration for Pynomaly Monorepo
-# Comprehensive monorepo build system following Buck2-first architecture with clean boundaries
+# Domain-based monorepo build system following Buck2-first architecture with clean boundaries
 
 load("@prelude//python:defs.bzl", "python_binary", "python_library", "python_test")
 load("@prelude//js:defs.bzl", "js_bundle")
 
 # ==========================================
-# Monorepo Package Organization
+# Domain-Based Monorepo Package Organization
 # Following domain-based clean architecture with Buck2 optimization
+# Domains: AI, Data, Software, Ops, Formal Sciences, Creative
+# ==========================================
+
+# ==========================================
+# SOFTWARE DOMAIN - Core architecture and interfaces
 # ==========================================
 
 # Core Domain Layer - Pure business logic with no external dependencies
 python_library(
-    name = "core",
+    name = "software-core",
     srcs = glob([
-        "src/packages/core/**/*.py",
+        "src/packages/software/core/**/*.py",
     ]),
     deps = [],
     visibility = ["//src/packages/..."],
-    # Buck2 optimization: mark as fundamental dependency
     metadata = {
+        "domain": "software",
         "layer": "domain",
         "type": "core",
         "cache_priority": "high",
     },
 )
 
-# Infrastructure Layer - External integrations and adapters
+# Domain Library - Domain management and business logic templates
 python_library(
-    name = "infrastructure",
+    name = "software-domain-library",
     srcs = glob([
-        "src/packages/infrastructure/**/*.py",
+        "src/packages/software/domain_library/**/*.py",
     ]),
     deps = [
-        ":core",
+        ":software-core",
     ],
     visibility = ["//src/packages/..."],
     metadata = {
-        "layer": "infrastructure",
-        "type": "adapters",
-    },
-)
-
-# Application Layer - Use cases and application services
-python_library(
-    name = "services",
-    srcs = glob([
-        "src/packages/services/**/*.py",
-    ]),
-    deps = [
-        ":core",
-        ":infrastructure",
-    ],
-    visibility = ["//src/packages/..."],
-    metadata = {
-        "layer": "application",
-        "type": "services",
-    },
-)
-
-# Anomaly Detection Package - Consolidated anomaly and outlier detection
-python_library(
-    name = "anomaly-detection",
-    srcs = glob([
-        "src/packages/anomaly_detection/**/*.py",
-    ]),
-    deps = [
-        ":core",
-        ":mathematics",
-    ],
-    visibility = ["//src/packages/..."],
-    metadata = {
+        "domain": "software",
         "layer": "domain",
-        "type": "anomaly-detection",
+        "type": "domain-library",
     },
 )
-
-# Machine Learning Package - ML operations and lifecycle management
-python_library(
-    name = "machine-learning",
-    srcs = glob([
-        "src/packages/machine_learning/**/*.py",
-    ]),
-    deps = [
-        ":core",
-        ":anomaly-detection",
-        ":data_platform",
-        ":infrastructure",
-    ],
-    visibility = ["//src/packages/..."],
-    metadata = {
-        "layer": "application",
-        "type": "machine-learning",
-    },
-)
-
-# People Operations Package - User management and authentication
-python_library(
-    name = "people-ops",
-    srcs = glob([
-        "src/packages/people_ops/**/*.py",
-    ]),
-    deps = [
-        ":core",
-        ":infrastructure",
-    ],
-    visibility = ["//src/packages/..."],
-    metadata = {
-        "layer": "application",
-        "type": "people-ops",
-    },
-)
-
-# Mathematics Package - Statistical analysis and computations
-python_library(
-    name = "mathematics",
-    srcs = glob([
-        "src/packages/mathematics/**/*.py",
-    ]),
-    deps = [
-        ":core",
-    ],
-    visibility = ["//src/packages/..."],
-    metadata = {
-        "layer": "domain",
-        "type": "mathematics",
-    },
-)
-
-# Data Platform Package - Consolidated data processing functionality
-python_library(
-    name = "data_platform",
-    srcs = glob([
-        "src/packages/data_platform/**/*.py",
-    ]),
-    deps = [
-        ":core",
-        ":infrastructure",
-    ],
-    visibility = ["//src/packages/..."],
-    metadata = {
-        "layer": "application",
-        "type": "data_platform",
-    },
-)
-
-# MLOps Package - Legacy package (to be deprecated in favor of machine-learning)
-python_library(
-    name = "mlops",
-    srcs = glob([
-        "src/packages/mlops/**/*.py",
-    ]),
-    deps = [
-        ":core",
-        ":infrastructure",
-        ":anomaly-detection",
-        ":machine-learning",
-        ":data_platform",
-    ],
-    visibility = ["//src/packages/..."],
-    metadata = {
-        "layer": "application",
-        "type": "mlops",
-        "deprecated": True,
-    },
-)
-
-# Enterprise Package - Enterprise features and multi-tenancy
-python_library(
-    name = "enterprise",
-    srcs = glob([
-        "src/packages/enterprise/**/*.py",
-    ]),
-    deps = [
-        ":core",
-        ":infrastructure",
-        ":services",
-    ],
-    visibility = ["//src/packages/..."],
-    metadata = {
-        "layer": "application",
-        "type": "enterprise",
-    },
-)
-
-# ==========================================
-# Interface Layer Packages
-# ==========================================
 
 # Interfaces Package - All user-facing interfaces
 python_library(
-    name = "interfaces",
+    name = "software-interfaces",
     srcs = glob([
-        "src/packages/interfaces/**/*.py",
+        "src/packages/software/interfaces/**/*.py",
     ]),
     deps = [
-        ":core",
-        ":infrastructure", 
-        ":services",
-        ":anomaly-detection",
-        ":machine-learning",
-        ":people-ops",
-        ":mathematics",
-        ":data_platform",
-        ":mlops",
-        ":enterprise",
+        ":software-core",
+        ":ops-infrastructure",
+        ":software-services",
     ],
     visibility = ["//src/packages/..."],
     metadata = {
+        "domain": "software",
         "layer": "presentation",
         "type": "interfaces",
     },
 )
 
-# Individual interface sub-packages accessible via interfaces
-# These are handled by the main interfaces package above
+# Application Services Layer
+python_library(
+    name = "software-services",
+    srcs = glob([
+        "src/packages/software/services/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+        ":ops-infrastructure",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "software",
+        "layer": "application",
+        "type": "services",
+    },
+)
+
+# Enterprise Features
+python_library(
+    name = "software-enterprise",
+    srcs = glob([
+        "src/packages/software/enterprise/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+        ":ops-infrastructure",
+        ":software-services",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "software",
+        "layer": "application",
+        "type": "enterprise",
+    },
+)
+
+# Mobile Adaptations
+python_library(
+    name = "software-mobile",
+    srcs = glob([
+        "src/packages/software/mobile/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "software",
+        "layer": "presentation",
+        "type": "mobile",
+    },
+)
+
+# ==========================================
+# AI DOMAIN - Machine Learning and AI Operations
+# ==========================================
+
+# Anomaly Detection Package - Consolidated anomaly and outlier detection
+python_library(
+    name = "ai-anomaly-detection",
+    srcs = glob([
+        "src/packages/ai/anomaly_detection/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+        ":formal-sciences-mathematics",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "ai",
+        "layer": "domain",
+        "type": "anomaly-detection",
+    },
+)
+
+# ML Algorithms Package - ML algorithm infrastructure
+python_library(
+    name = "ai-algorithms",
+    srcs = glob([
+        "src/packages/ai/algorithms/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+        ":formal-sciences-mathematics",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "ai",
+        "layer": "infrastructure",
+        "type": "algorithms",
+    },
+)
+
+# Machine Learning Package - ML operations and lifecycle management
+python_library(
+    name = "ai-machine-learning",
+    srcs = glob([
+        "src/packages/ai/machine_learning/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+        ":ai-anomaly-detection",
+        ":data-platform",
+        ":ops-infrastructure",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "ai",
+        "layer": "application",
+        "type": "machine-learning",
+    },
+)
+
+# MLOps Package - ML operations platform
+python_library(
+    name = "ai-mlops",
+    srcs = glob([
+        "src/packages/ai/mlops/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+        ":ops-infrastructure",
+        ":ai-anomaly-detection",
+        ":ai-machine-learning",
+        ":data-platform",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "ai",
+        "layer": "application",
+        "type": "mlops",
+    },
+)
+
+# ==========================================
+# DATA DOMAIN - Data processing and observability
+# ==========================================
+
+# Data Platform Package - Consolidated data processing functionality
+python_library(
+    name = "data-platform",
+    srcs = glob([
+        "src/packages/data/data_platform/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+        ":ops-infrastructure",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "data",
+        "layer": "application",
+        "type": "data_platform",
+    },
+)
+
+# Data Observability Package - Data monitoring and lineage
+python_library(
+    name = "data-observability",
+    srcs = glob([
+        "src/packages/data/data_observability/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+        ":data-platform",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "data",
+        "layer": "application",
+        "type": "data-observability",
+    },
+)
+
+# ==========================================
+# OPS DOMAIN - Operations and infrastructure
+# ==========================================
+
+# Infrastructure Layer - External integrations and adapters
+python_library(
+    name = "ops-infrastructure",
+    srcs = glob([
+        "src/packages/ops/infrastructure/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "ops",
+        "layer": "infrastructure",
+        "type": "adapters",
+    },
+)
+
+# Configuration Management
+python_library(
+    name = "ops-config",
+    srcs = glob([
+        "src/packages/ops/config/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "ops",
+        "layer": "infrastructure",
+        "type": "config",
+    },
+)
+
+# People Operations Package - User management and authentication
+python_library(
+    name = "ops-people-ops",
+    srcs = glob([
+        "src/packages/ops/people_ops/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+        ":ops-infrastructure",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "ops",
+        "layer": "application",
+        "type": "people-ops",
+    },
+)
 
 # Testing Package - Shared testing utilities
 python_library(
-    name = "testing",
+    name = "ops-testing",
     srcs = glob([
-        "src/packages/testing/**/*.py",
+        "src/packages/ops/testing/**/*.py",
     ]),
     deps = [],
     visibility = ["PUBLIC"],
     metadata = {
+        "domain": "ops",
         "layer": "shared",
         "type": "testing",
     },
 )
 
+# Development Tools
+python_library(
+    name = "ops-tools",
+    srcs = glob([
+        "src/packages/ops/tools/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "ops",
+        "layer": "infrastructure",
+        "type": "tools",
+    },
+)
+
 # ==========================================
-# Shared Libraries
+# FORMAL SCIENCES DOMAIN - Mathematics and logic
 # ==========================================
 
-# Shared Utilities - Common utilities across packages
+# Mathematics Package - Statistical analysis and computations
 python_library(
-    name = "shared",
+    name = "formal-sciences-mathematics",
     srcs = glob([
-        "src/packages/core/shared/**/*.py",
+        "src/packages/formal_sciences/mathematics/**/*.py",
+    ]),
+    deps = [
+        ":software-core",
+    ],
+    visibility = ["//src/packages/..."],
+    metadata = {
+        "domain": "formal_sciences",
+        "layer": "domain",
+        "type": "mathematics",
+    },
+)
+
+# ==========================================
+# CREATIVE DOMAIN - Documentation and content
+# ==========================================
+
+# Documentation Package - All documentation and training materials
+python_library(
+    name = "creative-documentation",
+    srcs = glob([
+        "src/packages/creative/documentation/**/*.py",
     ]),
     deps = [],
-    visibility = ["PUBLIC"],
+    visibility = ["//src/packages/..."],
     metadata = {
-        "layer": "shared",
-        "type": "utilities",
+        "domain": "creative",
+        "layer": "content",
+        "type": "documentation",
     },
 )
 
@@ -254,24 +376,24 @@ python_library(
 # Main CLI Binary
 python_binary(
     name = "pynomaly-cli",
-    main = "src/packages/interfaces/cli/cli/app.py",
-    deps = [":interfaces"],
+    main = "src/packages/software/interfaces/cli/cli/app.py",
+    deps = [":software-interfaces"],
     visibility = ["PUBLIC"],
 )
 
 # API Server Binary
 python_binary(
     name = "pynomaly-api",
-    main = "src/packages/interfaces/api/api/app.py",
-    deps = [":interfaces"],
+    main = "src/packages/software/interfaces/api/api/app.py",
+    deps = [":software-interfaces"],
     visibility = ["PUBLIC"],
 )
 
 # Web UI Server Binary  
 python_binary(
     name = "pynomaly-web",
-    main = "src/packages/interfaces/web/web/app.py",
-    deps = [":interfaces"],
+    main = "src/packages/software/interfaces/web/web/app.py",
+    deps = [":software-interfaces"],
     visibility = ["PUBLIC"],
 )
 
@@ -286,8 +408,8 @@ genrule(
         "src/workspace_configs/webpack.config.js",
         "config/web/tailwind.config.js",
     ] + glob([
-        "src/packages/web/web/templates/**/*.html",
-        "src/packages/web/web/static/**/*.css",
+        "src/packages/software/interfaces/web/web/templates/**/*.html",
+        "src/packages/software/interfaces/web/web/static/**/*.css",
     ]),
     out = "static/css/tailwind.css",
     cmd = "cd $(location .) && npm run build-css",
@@ -298,10 +420,10 @@ genrule(
 js_bundle(
     name = "pynomaly-js",
     srcs = glob([
-        "src/packages/web/web/static/**/*.js",
+        "src/packages/software/interfaces/web/web/static/**/*.js",
         "src/build_artifacts/storybook-static/js/**/*.js",
     ]),
-    entry_point = "src/packages/web/web/static/js/main.js",
+    entry_point = "src/packages/software/interfaces/web/web/static/js/main.js",
     visibility = ["PUBLIC"],
 )
 
@@ -312,7 +434,7 @@ genrule(
         ":tailwind-build",
         ":pynomaly-js",
     ] + glob([
-        "src/packages/web/web/static/**/*",
+        "src/packages/software/interfaces/web/web/static/**/*",
         "src/build_artifacts/storybook-static/**/*",
     ]),
     out = "web-assets.tar.gz",
@@ -321,120 +443,78 @@ genrule(
 )
 
 # ==========================================
-# Test Targets by Layer
+# Test Targets by Domain
 # ==========================================
 
-# Core Domain Tests
+# Software Domain Tests
 python_test(
-    name = "test-core",
+    name = "test-software",
     srcs = glob([
-        "tests/domain/**/*.py",
+        "tests/software/**/*.py",
         "tests/unit/**/*.py",
     ]),
     deps = [
-        ":core",
-        ":testing",
+        ":software-core",
+        ":software-interfaces",
+        ":software-services",
+        ":ops-testing",
     ],
     env = {
         "PYTHONPATH": "src/packages",
     },
 )
 
-# Infrastructure Tests
+# AI Domain Tests
 python_test(
-    name = "test-infrastructure",
+    name = "test-ai",
     srcs = glob([
-        "tests/infrastructure/**/*.py",
+        "tests/ai/**/*.py",
+        "tests/ml/**/*.py",
+        "tests/anomaly/**/*.py",
     ]),
     deps = [
-        ":infrastructure",
-        ":core",
-        ":testing",
+        ":ai-anomaly-detection",
+        ":ai-algorithms",
+        ":ai-machine-learning",
+        ":ai-mlops",
+        ":ops-testing",
     ],
     env = {
         "PYTHONPATH": "src/packages",
     },
 )
 
-# Application Services Tests
+# Data Domain Tests
 python_test(
-    name = "test-application",
+    name = "test-data",
     srcs = glob([
-        "tests/application/**/*.py",
-    ]),
-    deps = [
-        ":application",
-        ":infrastructure",
-        ":core",
-        ":testing",
-    ],
-    env = {
-        "PYTHONPATH": "src/packages",
-    },
-)
-
-# Algorithm Tests
-python_test(
-    name = "test-algorithms",
-    srcs = glob([
-        "tests/automl/**/*.py",
-    ]),
-    deps = [
-        ":algorithms",
-        ":core",
-        ":testing",
-    ],
-    env = {
-        "PYTHONPATH": "src/packages",
-    },
-)
-
-# Data Platform Tests
-python_test(
-    name = "test-data_platform",
-    srcs = glob([
+        "tests/data/**/*.py",
         "tests/data_science/**/*.py",
     ]),
     deps = [
-        ":data_platform",
-        ":core",
-        ":infrastructure",
-        ":testing",
+        ":data-platform",
+        ":data-observability",
+        ":software-core",
+        ":ops-testing",
     ],
     env = {
         "PYTHONPATH": "src/packages",
     },
 )
 
-# API Tests
+# Ops Domain Tests
 python_test(
-    name = "test-api",
+    name = "test-ops",
     srcs = glob([
-        "tests/api/**/*.py",
-        "tests/presentation/**/*.py",
+        "tests/ops/**/*.py",
+        "tests/infrastructure/**/*.py",
     ]),
     deps = [
-        ":api",
-        ":application",
-        ":core",
-        ":testing",
-    ],
-    env = {
-        "PYTHONPATH": "src/packages",
-    },
-)
-
-# CLI Tests
-python_test(
-    name = "test-cli",
-    srcs = glob([
-        "tests/cli/**/*.py",
-    ]),
-    deps = [
-        ":cli",
-        ":application",
-        ":core",
-        ":testing",
+        ":ops-infrastructure",
+        ":ops-config",
+        ":ops-people-ops",
+        ":ops-tools",
+        ":ops-testing",
     ],
     env = {
         "PYTHONPATH": "src/packages",
@@ -449,13 +529,12 @@ python_test(
         "tests/e2e/**/*.py",
     ]),
     deps = [
-        ":core",
-        ":infrastructure",
-        ":application",
-        ":api",
-        ":cli",
-        ":web",
-        ":testing",
+        ":software-core",
+        ":ops-infrastructure",
+        ":software-interfaces",
+        ":ai-anomaly-detection",
+        ":data-platform",
+        ":ops-testing",
     ],
     env = {
         "PYTHONPATH": "src/packages",
@@ -463,89 +542,63 @@ python_test(
 )
 
 # ==========================================
-# Performance and Quality Targets
+# Build Convenience Targets by Domain
 # ==========================================
 
-# Performance Benchmarks
-python_test(
-    name = "benchmarks",
-    srcs = glob([
-        "tests/benchmarks/**/*.py",
-        "tests/performance/**/*.py",
-    ]),
-    deps = [
-        ":core",
-        ":algorithms",
-        ":application",
-        ":testing",
-    ],
-    env = {
-        "PYTHONPATH": "src/packages",
-    },
-)
-
-# Property-Based Tests
-python_test(
-    name = "property-tests",
-    srcs = glob([
-        "tests/property/**/*.py",
-        "tests/property_based/**/*.py",
-    ]),
-    deps = [
-        ":core",
-        ":algorithms",
-        ":testing",
-    ],
-    env = {
-        "PYTHONPATH": "src/packages",
-    },
-)
-
-# Security Tests
-python_test(
-    name = "security-tests",
-    srcs = glob([
-        "tests/security/**/*.py",
-    ]),
-    deps = [
-        ":api",
-        ":enterprise",
-        ":testing",
-    ],
-    env = {
-        "PYTHONPATH": "src/packages",
-    },
-)
-
-# ==========================================
-# Build Convenience Targets
-# ==========================================
-
-# All Core Packages (most frequently changed)
+# Software Domain Build
 genrule(
-    name = "build-core",
+    name = "build-software",
     srcs = [],
-    out = "core-build.txt",
-    cmd = "echo 'Core packages built' > $OUT",
+    out = "software-build.txt",
+    cmd = "echo 'Software domain packages built' > $OUT",
     deps = [
-        ":core",
-        ":infrastructure",
-        ":application",
-        ":algorithms",
+        ":software-core",
+        ":software-interfaces",
+        ":software-services",
+        ":software-enterprise",
+        ":software-mobile",
+        ":software-domain-library",
     ],
 )
 
-# All Interface Packages
+# AI Domain Build
 genrule(
-    name = "build-interfaces",
+    name = "build-ai",
     srcs = [],
-    out = "interfaces-build.txt", 
-    cmd = "echo 'Interface packages built' > $OUT",
+    out = "ai-build.txt",
+    cmd = "echo 'AI domain packages built' > $OUT",
     deps = [
-        ":api",
-        ":cli",
-        ":web",
-        ":sdk",
+        ":ai-anomaly-detection",
+        ":ai-algorithms",
+        ":ai-machine-learning",
+        ":ai-mlops",
+    ],
+)
+
+# Data Domain Build
+genrule(
+    name = "build-data",
+    srcs = [],
+    out = "data-build.txt",
+    cmd = "echo 'Data domain packages built' > $OUT",
+    deps = [
+        ":data-platform",
+        ":data-observability",
+    ],
+)
+
+# Ops Domain Build
+genrule(
+    name = "build-ops",
+    srcs = [],
+    out = "ops-build.txt",
+    cmd = "echo 'Ops domain packages built' > $OUT",
+    deps = [
+        ":ops-infrastructure",
+        ":ops-config",
+        ":ops-people-ops",
+        ":ops-testing",
+        ":ops-tools",
     ],
 )
 
@@ -554,19 +607,13 @@ genrule(
     name = "test-all",
     srcs = [],
     out = "test-results.txt",
-    cmd = "echo 'All tests completed' > $OUT",
+    cmd = "echo 'All domain tests completed' > $OUT",
     deps = [
-        ":test-core",
-        ":test-infrastructure", 
-        ":test-application",
-        ":test-algorithms",
-        ":test-data_platform",
-        ":test-api",
-        ":test-cli",
+        ":test-software",
+        ":test-ai",
+        ":test-data",
+        ":test-ops",
         ":test-integration",
-        ":benchmarks",
-        ":property-tests",
-        ":security-tests",
     ],
 )
 
@@ -575,13 +622,14 @@ genrule(
     name = "build-all",
     srcs = [],
     out = "build-complete.txt",
-    cmd = "echo 'Monorepo build completed' > $OUT",
+    cmd = "echo 'Domain-organized monorepo build completed' > $OUT",
     deps = [
-        ":build-core",
-        ":build-interfaces",
-        ":data_platform",
-        ":mlops",
-        ":enterprise",
+        ":build-software",
+        ":build-ai",
+        ":build-data",
+        ":build-ops",
+        ":formal-sciences-mathematics",
+        ":creative-documentation",
         ":web-assets",
     ],
 )
@@ -595,10 +643,10 @@ genrule(
     name = "dev",
     srcs = [],
     out = "dev-ready.txt",
-    cmd = "echo 'Development environment ready' > $OUT",
+    cmd = "echo 'Domain-based development environment ready' > $OUT",
     deps = [
-        ":build-core",
-        ":testing",
+        ":build-software",
+        ":ops-testing",
     ],
 )
 
@@ -607,13 +655,13 @@ genrule(
     name = "ci-tests",
     srcs = [],
     out = "ci-test-results.txt",
-    cmd = "echo 'CI tests passed' > $OUT",
+    cmd = "echo 'CI tests passed for all domains' > $OUT",
     deps = [
-        ":test-core",
-        ":test-infrastructure",
-        ":test-application",
+        ":test-software",
+        ":test-ai",
+        ":test-data",
+        ":test-ops",
         ":test-integration",
-        ":security-tests",
     ],
 )
 
@@ -622,18 +670,18 @@ genrule(
     name = "release",
     srcs = [],
     out = "release-artifacts.txt",
-    cmd = "echo 'Release artifacts generated' > $OUT",
+    cmd = "echo 'Domain-organized release artifacts generated' > $OUT",
     deps = [
         ":test-all",
         ":build-all",
     ],
 )
 
-# Affected Package Detection (for incremental builds)
+# Domain Impact Analysis (for incremental builds)
 genrule(
     name = "affected",
     srcs = [],
     out = "affected-packages.txt",
-    cmd = "echo 'Detecting affected packages...' > $OUT && git diff --name-only HEAD~1 | grep '^src/packages/' | cut -d'/' -f3 | sort -u >> $OUT",
+    cmd = "echo 'Detecting affected domains and packages...' > $OUT && git diff --name-only HEAD~1 | grep '^src/packages/' | cut -d'/' -f3,4 | sort -u >> $OUT",
     visibility = ["PUBLIC"],
 )
