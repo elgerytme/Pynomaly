@@ -1,0 +1,110 @@
+# Domain Architecture Rules for Clean Domain-Driven Design
+# This file defines the architectural constraints for our monorepo
+
+version: "1.0"
+description: "Domain boundary rules enforcing clean architecture and domain isolation"
+
+# Core principle: Domain isolation for detection algorithms
+# Only the anomaly_detection package contains anomaly detection logic
+# Other packages use generic interfaces and abstractions
+
+isolation_rules:
+  description: "Packages that are completely isolated - no other packages can import from them"
+  isolated_packages:
+    - anomaly_detection  # Anomaly detection domain - completely isolated
+    - fraud_detection    # Future: Fraud detection domain
+    - intrusion_detection # Future: Intrusion detection domain
+  
+  violations:
+    - type: ISOLATION_VIOLATION
+      message: "No package may import from isolated detection domains"
+      action: "Use generic interfaces from software/interfaces instead"
+
+dependency_rules:
+  description: "Allowed dependencies between packages"
+  
+  # Foundation layer - no dependencies
+  foundation:
+    - core: []
+    - mathematics: []
+  
+  # Infrastructure layer - depends only on foundation
+  infrastructure:
+    - infrastructure: ["core", "mathematics"]
+    - interfaces: ["core", "mathematics"]  # Generic interfaces only
+  
+  # Isolated domain layer - depends only on foundation + infrastructure
+  isolated_domains:
+    - anomaly_detection: ["core", "mathematics", "infrastructure"]
+    - fraud_detection: ["core", "mathematics", "infrastructure"]
+    - intrusion_detection: ["core", "mathematics", "infrastructure"]
+  
+  # Generic business domains - NO dependency on isolated domains
+  business_domains:
+    - machine_learning: ["core", "mathematics", "infrastructure"]
+    - data_platform: ["core", "mathematics", "infrastructure"] 
+    - services: ["core", "mathematics", "infrastructure", "machine_learning", "data_platform"]
+  
+  # Application layer - depends on generic domains only
+  application:
+    - enterprise: ["core", "mathematics", "infrastructure", "services"]
+    - mlops: ["core", "mathematics", "infrastructure", "machine_learning", "services"]
+  
+  # Presentation layer - uses generic interfaces for detection
+  presentation:
+    - interfaces: ["core", "mathematics", "infrastructure", "services"]
+
+naming_conventions:
+  description: "Naming rules to prevent domain leakage"
+  
+  forbidden_terms_outside_domain:
+    - terms: ["anomaly", "Anomaly", "ANOMALY"]
+      allowed_packages: ["anomaly_detection"]
+      message: "Anomaly-specific terms should only appear in anomaly_detection package"
+    
+    - terms: ["pynomaly", "Pynomaly", "PYNOMALY"]
+      allowed_packages: []
+      message: "Pynomaly references should be replaced with generic platform terms"
+    
+    - terms: ["detector", "Detector"] 
+      allowed_packages: ["anomaly_detection", "fraud_detection", "intrusion_detection"]
+      message: "Specific detector references should use GenericDetector in generic packages"
+
+environment_variables:
+  description: "Environment variable naming rules"
+  
+  deprecated_prefixes:
+    - prefix: "PYNOMALY_"
+      replacement: "PLATFORM_"
+      message: "Use generic PLATFORM_ prefix instead of anomaly-specific PYNOMALY_"
+
+validation_rules:
+  description: "Additional validation constraints"
+  
+  import_constraints:
+    - rule: "No direct imports from isolated packages"
+      enforcement: "Use dependency injection and generic interfaces"
+    
+    - rule: "Generic packages must use GenericDetector, not specific detectors"
+      enforcement: "Import from software.core.domain.entities.GenericDetector"
+    
+    - rule: "CLI and API must be algorithm-agnostic" 
+      enforcement: "Use generic detection commands that delegate to specific implementations"
+
+enforcement:
+  description: "How these rules are enforced"
+  
+  pre_commit_hooks:
+    - domain_boundary_check
+    - naming_convention_check
+    - import_validation
+  
+  ci_checks:
+    - architectural_compliance
+    - domain_isolation_verification
+    - interface_abstraction_check
+  
+  documentation:
+    - architecture_decision_records
+    - domain_boundary_documentation
+    - migration_guides

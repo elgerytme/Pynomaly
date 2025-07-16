@@ -14,21 +14,25 @@ class DomainBoundaryValidator:
         "core": [],  # Core should have no dependencies on other packages
         "mathematics": [],  # Mathematics is pure computational logic
         
-        # Infrastructure layer - can depend on core domains
+        # Infrastructure layer - can depend on core domains only
         "infrastructure": ["core", "mathematics"],
-        "interfaces": ["core", "mathematics"],  # Interfaces define contracts
+        "interfaces": ["core", "mathematics"],  # Interfaces define generic contracts
         
-        # Business domain packages - can depend on core and infrastructure
-        "anomaly_detection": ["core", "mathematics", "infrastructure"],
-        "machine_learning": ["core", "mathematics", "infrastructure"],
-        "data_platform": ["core", "mathematics", "infrastructure"],
+        # Isolated domain packages - can depend on core and infrastructure ONLY
+        "anomaly_detection": ["core", "mathematics", "infrastructure"],  # ISOLATED: No other packages can depend on this
+        "fraud_detection": ["core", "mathematics", "infrastructure"],  # Future domain package
+        "intrusion_detection": ["core", "mathematics", "infrastructure"],  # Future domain package
         
-        # Application layer - can depend on business domains
-        "services": ["core", "mathematics", "infrastructure", "anomaly_detection", "machine_learning", "data_platform"],
+        # Generic business domain packages - CANNOT depend on specific detection domains
+        "machine_learning": ["core", "mathematics", "infrastructure"],  # Generic ML, no specific detection types
+        "data_platform": ["core", "mathematics", "infrastructure"],  # Generic data processing
+        
+        # Application layer - can depend on generic domains but NOT specific detection domains
+        "services": ["core", "mathematics", "infrastructure", "machine_learning", "data_platform"],
         "enterprise": ["core", "mathematics", "infrastructure", "services"],
         "mlops": ["core", "mathematics", "infrastructure", "machine_learning", "services"],
         
-        # Presentation layer - can depend on all layers below
+        # Presentation layer - can depend on generic layers only (uses interfaces for detection)
         "interfaces": ["core", "mathematics", "infrastructure", "services"],
         
         # Utility packages
@@ -36,14 +40,19 @@ class DomainBoundaryValidator:
         "tools": ["core", "mathematics", "infrastructure"],
         "documentation": [],  # Documentation should be independent
         
-        # Legacy packages (to be removed)
-        "algorithms": ["core", "mathematics"],  # Will be consolidated into anomaly_detection
-        "config": [],  # Will be moved to infrastructure
+        # Domain-agnostic packages
         "people_ops": ["core", "infrastructure"],
         "domain_library": ["core"],
         "data_observability": ["data_platform", "infrastructure"],
         "mobile": ["interfaces", "infrastructure"],
         "integration": ["interfaces"],
+    }
+    
+    # Packages that are completely isolated (no other packages can depend on them)
+    ISOLATED_PACKAGES = {
+        "anomaly_detection",
+        "fraud_detection", 
+        "intrusion_detection",
     }
     
     def __init__(self, packages_root: str):
@@ -121,9 +130,18 @@ class DomainBoundaryValidator:
             if imported_package == package_name:
                 continue  # Self-imports are OK
             
+            # Check isolation violation: no package can depend on isolated packages
+            if imported_package in self.ISOLATED_PACKAGES and package_name != imported_package:
+                return (
+                    f"ISOLATION VIOLATION: {file_path} imports from ISOLATED package '{imported_package}'. "
+                    f"Isolated packages like anomaly_detection cannot be imported by other packages. "
+                    f"Use generic interfaces instead."
+                )
+            
+            # Check standard dependency violations
             if imported_package in self.ALLOWED_DEPENDENCIES and imported_package not in allowed_deps:
                 return (
-                    f"VIOLATION: {file_path} imports from '{imported_package}' "
+                    f"DEPENDENCY VIOLATION: {file_path} imports from '{imported_package}' "
                     f"but '{package_name}' is not allowed to depend on '{imported_package}'"
                 )
         
