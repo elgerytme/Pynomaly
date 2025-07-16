@@ -53,12 +53,17 @@ def test_memory_usage():
     """Basic memory usage validation."""
     try:
         import os
-
-        # TODO: fix this import issue
-        import psutil
-
-        process = psutil.Process(os.getpid())
-        memory_mb = process.memory_info().rss / 1024 / 1024
+        import resource
+        
+        # Use built-in resource module for basic memory info
+        # RSS (Resident Set Size) in KB, convert to MB
+        memory_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        
+        # On Linux, ru_maxrss is in KB, on macOS it's in bytes
+        if sys.platform == 'darwin':  # macOS
+            memory_mb = memory_kb / 1024 / 1024
+        else:  # Linux and others
+            memory_mb = memory_kb / 1024
 
         print(f"\n💾 Memory usage: {memory_mb:.1f} MB")
 
@@ -71,8 +76,8 @@ def test_memory_usage():
 
         return memory_mb
 
-    except ImportError:
-        print("⚠️ psutil not available - skipping memory check")
+    except Exception as e:
+        print(f"⚠️ Memory check unavailable: {e}")
         return None
 
 
