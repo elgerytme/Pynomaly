@@ -314,7 +314,7 @@ benchmarks/results/
 .terraform/
 
 # Docker
-.dockerignore
+# Note: .dockerignore moved to scripts/config/docker/
 
 # Dependency Resolution Artifacts & Temp Files
 # --------------------------------------------
@@ -370,6 +370,7 @@ benchmarks/results/
 /temp*
 /backup*
 /scratch*
+/.temp
 
 # Build and temp directories that need to be ignored
 buck-out/
@@ -465,3 +466,30 @@ tasks.md
 **/manual_sync.py
 **/issue-sync.yml
 scripts/automation/
+
+# Repository Organization (Post-Cleanup)
+# =======================================
+# Configuration files are now organized in scripts/config/
+# Documentation reorganized in docs/
+# Build files organized in scripts/build/
+# This maintains the clean root directory structure
+
+# Temporary files and directories
+.temp/
+temp_*/
+temporary/
+scratch_*/
+
+# Windows system files (stray files like these should never be in repo)
+*/system32/*
+*.sam
+
+# Configuration backup patterns (from reorganization)
+*.config.bak
+*.yaml.bak
+*.toml.bak
+*.json.bak
+
+# Organizational enforcement - only these directories allowed in root:
+# .claude, .github, .hypothesis, .project-rules, .ruff_cache, .storybook, .vscode
+# docs, pkg, scripts, src

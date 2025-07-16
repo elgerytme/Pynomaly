@@ -1,0 +1,87 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyo
+*.pyd
+*.pyc
+.Python
+env/
+venv/
+ENV/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+.env
+.env.*
+!.env.example
+logs/
+storage/
+temp/
+models/
+*.log
+*.db
+*.sqlite
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/
+mkdocs.yml
+*.md
+!README.md
+
+# Tests
+tests/
+pytest.ini
+.coveragerc
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Development
+Makefile
+poetry.lock
+pyproject.toml
+scripts/
+kubernetes/
+docker-compose*.yml
+nginx.conf
+
+# Node
+node_modules/
+package*.json
+tailwind.config.js
+postcss.config.js
+
+# Cache
+.mypy_cache/
+.ruff_cache/
