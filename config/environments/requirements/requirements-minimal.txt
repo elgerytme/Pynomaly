@@ -1,7 +1,0 @@
-# Minimal requirements (core + basic ML only)
-# Include core requirements
--r requirements.txt
-
-# Basic ML support
-scikit-learn>=1.6.0
-scipy>=1.15.0
