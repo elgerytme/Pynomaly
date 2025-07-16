@@ -6,20 +6,17 @@ from .data_loader_protocol import (
     DataLoaderProtocol,
     StreamingDataLoaderProtocol,
 )
-from .detector_protocol import (
-    DetectorProtocol,
-    EnsembleDetectorProtocol,
-    ExplainableDetectorProtocol,
-    StreamingDetectorProtocol,
+from .generic_detection_protocol import (
+    BatchDetectionProtocol,
+    EnsembleDetectionProtocol,
+    ExplainableDetectionProtocol,
+    GenericDetectionProtocol,
+    StreamingDetectionProtocol,
 )
 from .repository_protocol import (
     AlertNotificationRepositoryProtocol,
     AlertRepositoryProtocol,
     DatasetRepositoryProtocol,
-    DetectionResultRepositoryProtocol,
-    DetectorRepositoryProtocol,
-    ExperimentRepositoryProtocol,
-    ExperimentRunRepositoryProtocol,
     ModelRepositoryProtocol,
     ModelVersionRepositoryProtocol,
     PipelineRepositoryProtocol,
@@ -28,18 +25,15 @@ from .repository_protocol import (
 )
 
 __all__ = [
-    "DetectorProtocol",
-    "ExplainableDetectorProtocol",
-    "EnsembleDetectorProtocol",
-    "StreamingDetectorProtocol",
+    "GenericDetectionProtocol",
+    "ExplainableDetectionProtocol",
+    "EnsembleDetectionProtocol",
+    "StreamingDetectionProtocol",
+    "BatchDetectionProtocol",
     "RepositoryProtocol",
-    "DetectorRepositoryProtocol",
     "DatasetRepositoryProtocol",
-    "DetectionResultRepositoryProtocol",
     "ModelRepositoryProtocol",
     "ModelVersionRepositoryProtocol",
-    "ExperimentRepositoryProtocol",
-    "ExperimentRunRepositoryProtocol",
     "PipelineRepositoryProtocol",
     "PipelineRunRepositoryProtocol",
     "AlertRepositoryProtocol",

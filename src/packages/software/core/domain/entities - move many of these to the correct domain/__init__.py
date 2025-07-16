@@ -1,4 +1,4 @@
-"""Domain entities."""
+"""Domain entities for software core."""
 
 from .alert import (
     Alert,
@@ -9,12 +9,8 @@ from .alert import (
     AlertType,
     NotificationChannel,
 )
-from .anomaly import Anomaly
-from .anomaly_point import AnomalyPoint
 from .dataset import Dataset
-from .detection_result import DetectionResult
-from .detector import Detector
-from .experiment import Experiment, ExperimentRun, ExperimentStatus, ExperimentType
+from .generic_detector import GenericDetector
 from .model import Model, ModelStage, ModelType
 from .model_version import ModelStatus, ModelVersion
 from .pipeline import (
@@ -27,20 +23,13 @@ from .pipeline import (
 )
 
 __all__ = [
-    "Anomaly",
-    "AnomalyPoint",
     "Dataset",
-    "Detector",
-    "DetectionResult",
+    "GenericDetector",
     "ModelVersion",
     "ModelStatus",
     "Model",
     "ModelType",
     "ModelStage",
-    "Experiment",
-    "ExperimentRun",
-    "ExperimentStatus",
-    "ExperimentType",
     "Pipeline",
     "PipelineStep",
     "PipelineRun",
