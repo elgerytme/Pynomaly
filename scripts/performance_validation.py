@@ -54,6 +54,11 @@ def test_memory_usage():
     try:
         import resource
 
+        # Check if resource module has the required attributes (Unix/Linux only)
+        if not hasattr(resource, 'getrusage') or not hasattr(resource, 'RUSAGE_SELF'):
+            print("⚠️ Memory monitoring not available on this platform")
+            return None
+
         # Use built-in resource module for basic memory info
         # RSS (Resident Set Size) in KB, convert to MB
         memory_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss

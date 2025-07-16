@@ -1,0 +1,25 @@
+load("@prelude//python:defs.bzl", "python_library")
+
+python_library(
+    name = "pynomaly-detection",
+    srcs = glob(["src/**/*.py"]),
+    deps = [
+        "//src/packages/services/software/core:core",
+        "//src/packages/services/ai/algorithms:algorithms",
+        "//src/packages/services/ai/machine_learning:machine_learning",
+        "//src/packages/services/ai/mlops:mlops",
+        "//src/packages/services/data/data_platform:data_platform",
+        "//src/packages/services/ops/infrastructure:infrastructure",
+        "//src/packages/services/ops/testing:testing",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+python_library(
+    name = "pynomaly-detection-test",
+    srcs = glob(["tests/**/*.py"]),
+    deps = [
+        ":pynomaly-detection",
+    ],
+    visibility = ["PUBLIC"],
+)
