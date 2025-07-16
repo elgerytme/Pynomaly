@@ -14,11 +14,18 @@ from enum import Enum
 import uuid
 from collections import defaultdict, deque
 
-from ...data_quality.application.services.autonomous_quality_monitoring_service import (
-    QualityMetric, QualityThreshold, QualityPrediction, QualityState, QualityTrend
+from ...interfaces.data_quality_interface import (
+    DataQualityInterface, QualityReport, QualityIssue, QualityLevel
 )
-from ...data_quality.domain.entities.quality_anomaly import QualityAnomaly
-from ...data_quality.domain.entities.quality_lineage import QualityLineage
+
+# Type aliases for backward compatibility
+QualityMetric = Dict[str, float]
+QualityThreshold = Dict[str, float]
+QualityPrediction = Dict[str, Any]
+QualityState = str
+QualityTrend = str
+QualityAnomaly = Dict[str, Any]
+QualityLineage = Dict[str, Any]
 
 logger = logging.getLogger(__name__)
 

@@ -13,11 +13,17 @@ import uuid
 from abc import ABC, abstractmethod
 from collections import defaultdict, deque
 
-from data_quality.application.services.autonomous_quality_monitoring_service import AutonomousQualityMonitoringService
-from data_quality.application.services.automated_remediation_engine import AutomatedRemediationEngine
-from data_quality.application.services.adaptive_quality_controls import AdaptiveQualityControls
-from data_quality.application.services.pipeline_integration_framework import PipelineIntegrationFramework
-from data_quality.domain.entities.quality_anomaly import QualityAnomaly
+from ....interfaces.data_quality_interface import (
+    DataQualityInterface, QualityReport, QualityIssue, QualityLevel
+)
+from ....adapters.quality_adapter import DataPlatformQualityAdapter
+
+# Type aliases for backward compatibility
+AutonomousQualityMonitoringService = DataQualityInterface
+AutomatedRemediationEngine = DataQualityInterface
+AdaptiveQualityControls = DataQualityInterface
+PipelineIntegrationFramework = DataQualityInterface
+QualityAnomaly = Dict[str, Any]
 from core.shared.error_handling import handle_exceptions
 from core.domain.abstractions.base_service import BaseService
 
