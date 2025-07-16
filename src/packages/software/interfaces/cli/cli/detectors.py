@@ -1,4 +1,4 @@
-"""Detector management CLI commands."""
+"""Generic detector management CLI commands."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from monorepo.domain.entities import Detector
+from monorepo.domain.entities import GenericDetector
 from monorepo.presentation.cli.container import get_cli_container
 from monorepo.presentation.cli.help_formatter import get_option_help, get_standard_help
 from monorepo.presentation.cli.ux_improvements import CLIErrorHandler, CLIHelpers
@@ -17,7 +17,7 @@ _help_info = get_standard_help("detector")
 
 app = typer.Typer(
     name="detector",
-    help=_help_info["help"],
+    help="🔧 Generic detector management for any algorithm type",
     rich_markup_mode="rich",
     no_args_is_help=True,
 )
