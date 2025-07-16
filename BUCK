@@ -84,7 +84,7 @@ python_library(
     deps = [
         ":core",
         ":anomaly-detection",
-        ":data-platform",
+        ":data_platform",
         ":infrastructure",
     ],
     visibility = ["//src/packages/..."],
@@ -129,9 +129,9 @@ python_library(
 
 # Data Platform Package - Consolidated data processing functionality
 python_library(
-    name = "data-platform",
+    name = "data_platform",
     srcs = glob([
-        "src/packages/data-platform/**/*.py",
+        "src/packages/data_platform/**/*.py",
     ]),
     deps = [
         ":core",
@@ -140,7 +140,7 @@ python_library(
     visibility = ["//src/packages/..."],
     metadata = {
         "layer": "application",
-        "type": "data-platform",
+        "type": "data_platform",
     },
 )
 
@@ -155,7 +155,7 @@ python_library(
         ":infrastructure",
         ":anomaly-detection",
         ":machine-learning",
-        ":data-platform",
+        ":data_platform",
     ],
     visibility = ["//src/packages/..."],
     metadata = {
@@ -201,7 +201,7 @@ python_library(
         ":machine-learning",
         ":people-ops",
         ":mathematics",
-        ":data-platform",
+        ":data_platform",
         ":mlops",
         ":enterprise",
     ],
@@ -391,12 +391,12 @@ python_test(
 
 # Data Platform Tests
 python_test(
-    name = "test-data-platform",
+    name = "test-data_platform",
     srcs = glob([
         "tests/data_science/**/*.py",
     ]),
     deps = [
-        ":data-platform",
+        ":data_platform",
         ":core",
         ":infrastructure",
         ":testing",
@@ -560,7 +560,7 @@ genrule(
         ":test-infrastructure", 
         ":test-application",
         ":test-algorithms",
-        ":test-data-platform",
+        ":test-data_platform",
         ":test-api",
         ":test-cli",
         ":test-integration",
@@ -579,7 +579,7 @@ genrule(
     deps = [
         ":build-core",
         ":build-interfaces",
-        ":data-platform",
+        ":data_platform",
         ":mlops",
         ":enterprise",
         ":web-assets",
