@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# Repository Organization Post-commit Hook
+# =======================================
+# Provides organization feedback after commits
+#
+
+set -e
+
+# Colors for output
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Repository root
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+echo -e "${BLUE}📋 Post-commit: Repository organization status${NC}"
+
+# Run a quick organization health check
+VALIDATION_SCRIPT="$REPO_ROOT/scripts/validation/validate_organization.py"
+if [ -f "$VALIDATION_SCRIPT" ]; then
+    if python3 "$VALIDATION_SCRIPT" --summary 2>/dev/null; then
+        echo -e "${GREEN}✅ Repository organization is healthy${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Repository organization needs attention${NC}"
+        echo -e "${BLUE}Run 'scripts/validation/validate_organization.py' for details${NC}"
+    fi
+fi
+
+# Check if cleanup is recommended
+CLEANUP_SCRIPT="$REPO_ROOT/scripts/cleanup/auto_organize.py"
+if [ -f "$CLEANUP_SCRIPT" ]; then
+    # Check for common cleanup indicators
+    TEMP_COUNT=$(find "$REPO_ROOT" -name "*.tmp" -o -name "*.temp" -o -name "*.bak" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$TEMP_COUNT" -gt 0 ]; then
+        echo -e "${YELLOW}💡 Tip: Found $TEMP_COUNT temporary files. Run 'scripts/cleanup/auto_organize.py' to clean up${NC}"
+    fi
+fi
+
+echo -e "${BLUE}📊 Repository stats:${NC}"
+echo "  - Commits: $(git rev-list --count HEAD)"
+echo "  - Files: $(find "$REPO_ROOT" -type f ! -path '*/.*' | wc -l | tr -d ' ')"
+echo "  - Last organization check: $(date)"
+
+exit 0

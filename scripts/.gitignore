@@ -1,0 +1,96 @@
+# Scripts .gitignore
+# ===================
+
+# Script execution artifacts
+output/
+results/
+logs/
+reports/
+temp_files/
+
+# Runtime generated files
+*.out
+*.result
+*.output
+*.execution_log
+
+# Script temporary files
+temp_*.py
+temp_*.sh
+temp_*.ps1
+temp_*.bat
+working_*.py
+working_*.sh
+debug_*.py
+debug_*.sh
+test_*.py.tmp
+test_*.sh.tmp
+
+# Configuration temporary files
+config/temp/
+config/backup/
+config/working/
+config/*.bak
+config/*.tmp
+config/.temp
+
+# Build artifacts
+build/temp/
+build/cache/
+build/artifacts/temp/
+build/logs/
+
+# Performance and profiling
+performance/temp/
+performance/results/
+performance/logs/
+profiling/
+benchmarks/temp/
+benchmarks/results/
+
+# Deployment artifacts
+deployment/temp/
+deployment/logs/
+deployment/state/
+deployment/cache/
+
+# Testing artifacts
+testing/temp/
+testing/output/
+testing/results/
+testing/reports/temp/
+testing/coverage/temp/
+
+# Validation artifacts
+validation/temp/
+validation/output/
+validation/results/
+validation/logs/
+
+# Tool-specific temporary files
+.python-version.tmp
+requirements.txt.tmp
+*.env.tmp
+*.yaml.tmp
+*.json.tmp
+*.toml.tmp
+
+# CI/CD temporary files
+ci/temp/
+ci/cache/
+ci/artifacts/
+cd/temp/
+cd/artifacts/
+
+# Development helpers
+dev/
+development/
+playground/
+sandbox/
+experiments/
+
+# Backup patterns for scripts
+*.backup
+*.bak
+*_backup.*
+*_bak.*

@@ -1,0 +1,74 @@
+# Package .gitignore
+# ===================
+
+# Package build artifacts
+build/
+dist/
+*.egg-info/
+*.dist-info/
+*.whl
+*.tar.gz
+
+# Package development
+temp/
+staging/
+development/
+testing/
+
+# Package testing
+test_install/
+test_packages/
+test_wheels/
+temp_installs/
+
+# Version files
+_version.py.tmp
+version.py.tmp
+__version__.py.tmp
+
+# Package metadata temporary
+MANIFEST.in.tmp
+setup.py.tmp
+setup.cfg.tmp
+pyproject.toml.tmp
+
+# Package documentation
+docs/build/
+docs/temp/
+README.tmp.md
+CHANGELOG.tmp.md
+
+# Package configuration
+.pkg_config/
+.package_temp/
+pkg_temp/
+
+# Package validation
+validation/
+verification/
+package_tests/temp/
+
+# Publishing artifacts
+publish/
+release/temp/
+upload/temp/
+
+# Package dependencies
+requirements/temp/
+constraints/temp/
+pip-tools/temp/
+
+# Development packages
+dev_packages/
+local_packages/
+editable_installs/
+
+# Package caching
+.package_cache/
+.pip_cache/
+.wheel_cache/
+
+# Installation testing
+install_test/
+upgrade_test/
+compatibility_test/

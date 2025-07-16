@@ -1,0 +1,62 @@
+# Configuration .gitignore
+# =========================
+
+# Configuration temporary files
+temp/
+tmp/
+backup/
+working/
+staging/
+
+# Configuration backups
+*.bak
+*.backup
+*.orig
+*.tmp
+*_backup.*
+*_bak.*
+
+# Environment-specific configs that shouldn't be committed
+env/.env.local
+env/.env.personal
+env/.env.temp
+env/*.local
+env/*.temp
+
+# Build configuration temporary
+buck/temp/
+buck/cache/
+buck/.buck-out/
+
+# Docker configuration temporary
+docker/temp/
+docker/.docker_temp/
+docker/build_context/
+
+# Git configuration temporary
+git/temp/
+git/.git_temp/
+
+# Linting configuration temporary
+linting/temp/
+linting/.eslint_temp/
+linting/.prettier_temp/
+
+# Python configuration temporary
+python/temp/
+python/.python_temp/
+
+# Security configuration temporary (extra caution)
+security/temp/
+security/.sec_temp/
+security/*.tmp
+
+# Testing configuration temporary
+testing/temp/
+testing/.test_temp/
+testing/mutation_temp/
+
+# Workspace configuration temporary
+workspace/temp/
+workspace/.workspace_temp/
+workspace/node_modules/

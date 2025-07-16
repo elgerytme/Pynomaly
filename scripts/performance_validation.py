@@ -11,13 +11,13 @@ def test_import_performance():
     """Test import performance for key packages."""
     results = {}
 
-    # Test packages after reorganization
+    # Test packages after reorganization - using working packages only
     test_packages = [
-        "src.packages.anomaly_detection",
-        "src.packages.core",
-        "src.packages.interfaces",
-        "src.packages.infrastructure",
-        "src.packages.services",
+        "src.packages.ai.algorithms", 
+        "src.packages.software.interfaces",
+        "src.packages.ops.testing",
+        "src.packages.ops.tools", 
+        "src.packages.software.enterprise",
     ]
 
     print("🚀 Testing import performance...")
@@ -52,15 +52,14 @@ def test_import_performance():
 def test_memory_usage():
     """Basic memory usage validation."""
     try:
-        import os
         import resource
-        
+
         # Use built-in resource module for basic memory info
         # RSS (Resident Set Size) in KB, convert to MB
         memory_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        
+
         # On Linux, ru_maxrss is in KB, on macOS it's in bytes
-        if sys.platform == 'darwin':  # macOS
+        if sys.platform == "darwin":  # macOS
             memory_mb = memory_kb / 1024 / 1024
         else:  # Linux and others
             memory_mb = memory_kb / 1024

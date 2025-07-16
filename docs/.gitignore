@@ -1,0 +1,75 @@
+# Documentation .gitignore
+# =========================
+
+# Documentation build artifacts
+_build/
+_static/
+_templates/
+build/
+site/
+public/
+
+# Documentation generators
+.sphinx/
+.mkdocs/
+.docusaurus/
+.gitbook/
+.vuepress/
+
+# Generated documentation
+api/
+reference/
+auto/
+generated/
+
+# Documentation temporary files
+*.md.bak
+*.rst.bak
+*.md.tmp
+*.rst.tmp
+draft_*.md
+draft_*.rst
+temp_*.md
+temp_*.rst
+
+# Documentation tools
+.vale/
+.spelling/
+.textlint/
+.alex/
+
+# Export formats
+*.pdf
+*.epub
+*.mobi
+*.docx
+*.odt
+
+# Documentation development
+docs_temp/
+preview/
+staging/
+review/
+working_notes/
+editorial/
+
+# Link checking
+.link-checker/
+link-check-results.json
+broken-links.txt
+
+# Translation files
+*.pot
+locale/
+translations/
+
+# Documentation assets temporary
+images/temp/
+assets/temp/
+media/temp/
+diagrams/temp/
+
+# Archive patterns specific to docs
+archive/temp/
+archive/working/
+archive/draft/

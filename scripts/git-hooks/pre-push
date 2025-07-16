@@ -1,0 +1,86 @@
+#!/bin/bash
+#
+# Repository Organization Pre-push Hook
+# ====================================
+# Final organization validation before pushing
+#
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Repository root
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+echo -e "${BLUE}🚀 Pre-push: Final repository organization validation...${NC}"
+
+# Run comprehensive organization validation
+VALIDATION_SCRIPT="$REPO_ROOT/scripts/validation/validate_organization.py"
+if [ ! -f "$VALIDATION_SCRIPT" ]; then
+    echo -e "${YELLOW}⚠️  Organization validation script not found, skipping...${NC}"
+    exit 0
+fi
+
+# Run full validation
+if python3 "$VALIDATION_SCRIPT"; then
+    echo -e "${GREEN}✅ Repository organization validation passed${NC}"
+else
+    echo -e "${RED}❌ Repository organization validation failed${NC}"
+    echo ""
+    echo -e "${YELLOW}Push blocked due to organization issues.${NC}"
+    echo -e "${BLUE}Please fix the issues or run: scripts/cleanup/auto_organize.py${NC}"
+    echo ""
+    echo -e "${YELLOW}To bypass this check (not recommended): git push --no-verify${NC}"
+    exit 1
+fi
+
+# Check for sensitive files
+echo -e "${BLUE}🔒 Checking for sensitive files...${NC}"
+SENSITIVE_PATTERNS=(
+    "*.key"
+    "*.pem"
+    "*.p12"
+    "*.pfx"
+    "id_rsa"
+    "id_dsa"
+    "*.env"
+    "secrets.*"
+    ".secrets"
+    "password*"
+    "secret*"
+    "credential*"
+    "*.crt"
+)
+
+SENSITIVE_FILES=""
+for pattern in "${SENSITIVE_PATTERNS[@]}"; do
+    files=$(git ls-files | grep -i "$pattern" || true)
+    if [ -n "$files" ]; then
+        SENSITIVE_FILES="$SENSITIVE_FILES\n$files"
+    fi
+done
+
+if [ -n "$SENSITIVE_FILES" ]; then
+    echo -e "${RED}🚨 WARNING: Potential sensitive files detected:${NC}"
+    echo -e "$SENSITIVE_FILES"
+    echo ""
+    echo -e "${YELLOW}Please verify these files don't contain sensitive information${NC}"
+    read -p "Continue with push? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Push aborted by user${NC}"
+        exit 1
+    fi
+fi
+
+# Final organization health score
+echo -e "${BLUE}📊 Final organization health check...${NC}"
+python3 "$VALIDATION_SCRIPT" --health-score
+
+echo -e "${GREEN}✅ All pre-push checks passed${NC}"
+exit 0

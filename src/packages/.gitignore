@@ -1,0 +1,61 @@
+# Packages .gitignore
+# ====================
+
+# Package-specific temporary files
+*/temp/
+*/tmp/
+*/cache/
+*/logs/
+*/output/
+
+# Package build artifacts
+*/build/
+*/dist/
+*/*.egg-info/
+*/*.dist-info/
+
+# Package testing
+*/test_output/
+*/test_results/
+*/coverage/
+*/.pytest_cache/
+*/.tox/
+
+# Package development
+*/playground/
+*/sandbox/
+*/experiments/
+*/draft/
+
+# Domain-specific temporary files
+ai/*/temp/
+data/*/temp/
+software/*/temp/
+ops/*/temp/
+formal_sciences/*/temp/
+creative/*/temp/
+
+# Package configuration temporary
+*/config/temp/
+*/settings/temp/
+*/.env.local
+*/.env.temp
+
+# Package documentation temporary
+*/docs/temp/
+*/docs/build/
+*/README.tmp.md
+
+# Package profiling and debugging
+*/profiling/
+*/debug/
+*/memory_analysis/
+
+# Package integration testing
+*/integration_tests/temp/
+*/integration_tests/results/
+
+# Package migration artifacts
+*/migration/temp/
+*/migration/backup/
+*/migration/working/

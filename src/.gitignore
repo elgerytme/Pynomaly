@@ -1,0 +1,117 @@
+# Source Code .gitignore
+# =======================
+
+# Development temporary files
+temp/
+tmp/
+scratch/
+playground/
+sandbox/
+experiments/
+prototypes/
+
+# Code generation artifacts
+generated/
+auto_generated/
+codegen/
+templates/generated/
+
+# Build artifacts specific to source
+build/
+dist/
+*.egg-info/
+*.dist-info/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Development databases and storage
+dev.db
+dev.sqlite
+dev.sqlite3
+development.db
+local.db
+temp.db
+*.db.tmp
+
+# Configuration files that shouldn't be committed
+.env.local
+.env.development
+.env.staging
+config.local.*
+settings.local.*
+secrets.local.*
+
+# IDE and editor files
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.idea/workspace.xml
+.idea/tasks.xml
+*.sublime-workspace
+
+# Testing artifacts
+test_output/
+test_results/
+test_temp/
+coverage/
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+# Package development
+packages/*/build/
+packages/*/dist/
+packages/*/temp/
+packages/*/*.egg-info/
+packages/*/test_output/
+
+# Application runtime
+logs/
+storage/
+uploads/
+downloads/
+cache/
+sessions/
+tmp_uploads/
+
+# Development data
+data/temp/
+data/test/
+data/dev/
+sample_data/temp/
+fixtures/temp/
+
+# Model artifacts
+models/temp/
+models/cache/
+models/checkpoints/temp/
+experiments/temp/
+
+# API development
+api/temp/
+api/logs/
+api/cache/
+
+# Client SDK development
+client_sdks/*/temp/
+client_sdks/*/build/
+client_sdks/*/dist/
+client_sdks/*/node_modules/
+
+# Integration testing
+integration_tests/temp/
+integration_tests/logs/
+integration_tests/results/
+
+# Performance testing
+perf_test_results/
+load_test_results/
+benchmark_results/
+
+# Development utilities
+dev_utils/
+debug_utils/
+temp_scripts/
