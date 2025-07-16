@@ -29,36 +29,52 @@ __email__ = "team@pynomaly.io"
 try:
     from .core.domain.entities.anomaly import Anomaly
     from .core.domain.entities.detection_result import DetectionResult
-    from .core.domain.entities.detector import Detector
-    from .core.domain.services.detection_service import DetectionService
-    from .core.use_cases.detect_anomalies import DetectAnomaliesUseCase
+    from .core.domain.entities.anomaly_point import AnomalyPoint
+    from .core.domain.entities.streaming_anomaly import StreamingAnomaly
+    from .core.domain.services.anomaly_scorer import AnomalyScorer
+    from .core.domain.services.advanced_detection_service import AdvancedDetectionService
+    from .core.domain.value_objects.anomaly_score import AnomalyScore
+    from .core.domain.value_objects.anomaly_category import AnomalyCategory
+    from .core.domain.value_objects.anomaly_type import AnomalyType
 except ImportError:
     # Provide basic fallbacks if specific modules aren't available
     Anomaly = None
     DetectionResult = None
-    Detector = None
-    DetectionService = None
-    DetectAnomaliesUseCase = None
+    AnomalyPoint = None
+    StreamingAnomaly = None
+    AnomalyScorer = None
+    AdvancedDetectionService = None
+    AnomalyScore = None
+    AnomalyCategory = None
+    AnomalyType = None
 
 # Algorithm exports
 try:
-    from .algorithms.adapters.pyod_adapter import PyODAdapter
-    from .algorithms.adapters.sklearn_adapter import SklearnAdapter  
-    from .algorithms.adapters.ensemble_adapter import EnsembleAdapter
+    from .adapters.pyod_adapter import PyODAdapter
+    from .adapters.enhanced_pyod_adapter import EnhancedPyODAdapter
+    from .adapters.optimized_pyod_adapter import OptimizedPyODAdapter
+    from .adapters.drift_detection_adapter import DriftDetectionAdapter
 except ImportError:
     PyODAdapter = None
-    SklearnAdapter = None
-    EnsembleAdapter = None
+    EnhancedPyODAdapter = None
+    OptimizedPyODAdapter = None
+    DriftDetectionAdapter = None
 
 # Service exports
 try:
     from .services.anomaly_detection_service import AnomalyDetectionService
-    from .services.automl_service import AutoMLService
-    from .services.explainability_service import ExplainabilityService
+    from .services.streaming_anomaly_detection_service import StreamingAnomalyDetectionService
+    from .services.drift_detection_service import DriftDetectionService
+    from .services.model_drift_detection_service import ModelDriftDetectionService
+    from .services.detection_engine import DetectionEngine
+    from .services.ensemble_detection_service import EnsembleDetectionService
 except ImportError:
     AnomalyDetectionService = None
-    AutoMLService = None
-    ExplainabilityService = None
+    StreamingAnomalyDetectionService = None
+    DriftDetectionService = None
+    ModelDriftDetectionService = None
+    DetectionEngine = None
+    EnsembleDetectionService = None
 
 # Convenience classes
 class AnomalyDetector:
@@ -128,19 +144,27 @@ __all__ = [
     # Core classes
     "Anomaly",
     "DetectionResult", 
-    "Detector",
-    "DetectionService",
-    "DetectAnomaliesUseCase",
+    "AnomalyPoint",
+    "StreamingAnomaly",
+    "AnomalyScorer",
+    "AdvancedDetectionService",
+    "AnomalyScore",
+    "AnomalyCategory",
+    "AnomalyType",
     
     # Algorithm adapters
     "PyODAdapter",
-    "SklearnAdapter", 
-    "EnsembleAdapter",
+    "EnhancedPyODAdapter", 
+    "OptimizedPyODAdapter",
+    "DriftDetectionAdapter",
     
     # Services
     "AnomalyDetectionService",
-    "AutoMLService",
-    "ExplainabilityService",
+    "StreamingAnomalyDetectionService",
+    "DriftDetectionService",
+    "ModelDriftDetectionService",
+    "DetectionEngine",
+    "EnsembleDetectionService",
     
     # Main interfaces
     "AnomalyDetector",
