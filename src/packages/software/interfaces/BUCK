@@ -103,3 +103,20 @@ pynomaly_comprehensive_tests(
     include_performance = True,
     include_security = True,
 )
+
+# Integration Tests
+python_test(
+    name = "integration-tests",
+    srcs = glob(["tests/integration/**/*.py"]),
+    deps = [
+        ":interfaces",
+        "//src/packages/core:core",
+        "//src/packages/infrastructure:infrastructure",
+        "//src/packages/services:services",
+        "//src/packages/testing:testing",
+    ],
+    env = {
+        "PYTHONPATH": "src/packages",
+    },
+    visibility = ["PUBLIC"],
+)
