@@ -3,8 +3,8 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from monorepo.infrastructure.config import create_container
+from monorepo.presentation.api.app import create_app
 
 
 class TestSecurityIntegrationSimple:
@@ -15,7 +15,7 @@ class TestSecurityIntegrationSimple:
         """Create test client with authentication enabled."""
         container = create_container()
         # Override settings to enable auth for testing
-        from pynomaly.infrastructure.config import Settings
+        from monorepo.infrastructure.config import Settings
 
         settings = Settings(auth_enabled=True, debug=True)
         container.config.override(settings)
@@ -28,7 +28,7 @@ class TestSecurityIntegrationSimple:
         """Create test client with authentication disabled."""
         container = create_container()
         # Keep auth disabled for baseline testing
-        from pynomaly.infrastructure.config import Settings
+        from monorepo.infrastructure.config import Settings
 
         settings = Settings(auth_enabled=False, debug=True)
         container.config.override(settings)
@@ -53,7 +53,7 @@ class TestSecurityIntegrationSimple:
 
     def test_security_exceptions_are_importable(self):
         """Test that security exception classes can be imported correctly."""
-        from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
+        from monorepo.domain.exceptions import AuthenticationError, AuthorizationError
 
         # Test AuthenticationError
         auth_error = AuthenticationError("Test auth error", username="testuser")
@@ -71,7 +71,7 @@ class TestSecurityIntegrationSimple:
     def test_security_headers_configuration(self):
         """Test that security headers can be configured."""
         try:
-            from pynomaly.infrastructure.security import (
+            from monorepo.infrastructure.security import (
                 create_development_headers,
                 create_production_headers,
             )
@@ -89,7 +89,7 @@ class TestSecurityIntegrationSimple:
     def test_input_sanitization_available(self):
         """Test that input sanitization components are available."""
         try:
-            from pynomaly.infrastructure.security import (
+            from monorepo.infrastructure.security import (
                 InputSanitizer,
                 SanitizationConfig,
             )
@@ -109,7 +109,7 @@ class TestSecurityIntegrationSimple:
     def test_encryption_services_available(self):
         """Test that encryption services are available."""
         try:
-            from pynomaly.infrastructure.security import (
+            from monorepo.infrastructure.security import (
                 EncryptionConfig,
                 EncryptionService,
             )

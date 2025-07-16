@@ -498,8 +498,8 @@ def create_encryption_config() -> dict[str, Any]:
         },
         "hashing": {"algorithm": "SHA-256", "salt_length": 32, "iterations": 100000},
         "certificates": {
-            "cert_path": "/etc/ssl/certs/pynomaly.crt",
-            "key_path": "/etc/ssl/private/pynomaly.key",
+            "cert_path": "/etc/ssl/certs/monorepo.crt",
+            "key_path": "/etc/ssl/private/monorepo.key",
             "ca_path": "/etc/ssl/certs/ca-bundle.crt",
         },
     }

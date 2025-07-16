@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 from pytest_bdd import given, parsers, then, when
 
-from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
+from monorepo.infrastructure.data_loaders import CSVLoader, ParquetLoader
 
 
 @pytest.fixture
@@ -192,7 +192,7 @@ def create_polars_dataset(temp_dir):
 def load_polars_lazy():
     """Load data using Polars with lazy evaluation."""
     try:
-        from pynomaly.infrastructure.data_loaders import PolarsLoader
+        from monorepo.infrastructure.data_loaders import PolarsLoader
 
         loader = PolarsLoader(lazy=True)
         pytest.polars_lazy_frame = loader.load(str(pytest.polars_csv_path))
@@ -219,7 +219,7 @@ def create_spark_dataset(temp_dir):
 def initialize_spark_session():
     """Initialize Spark session."""
     try:
-        from pynomaly.infrastructure.data_loaders import SparkLoader
+        from monorepo.infrastructure.data_loaders import SparkLoader
 
         pytest.spark_loader = SparkLoader(app_name="TestApp", master="local[*]")
     except ImportError:

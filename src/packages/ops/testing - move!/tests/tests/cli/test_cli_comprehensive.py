@@ -12,8 +12,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.presentation.cli import autonomous, datasets, detection, detectors
-from pynomaly.presentation.cli.app import app
+from monorepo.presentation.cli import autonomous, datasets, detection, detectors
+from monorepo.presentation.cli.app import app
 
 
 class TestCLICommands:
@@ -37,7 +37,7 @@ class TestCLICommands:
         if result.exit_code == 0:
             assert len(result.stdout.strip()) > 0
 
-    @patch("pynomaly.presentation.cli.container.get_cli_container")
+    @patch("monorepo.presentation.cli.container.get_cli_container")
     def test_dataset_commands(
         self, mock_get_container, stable_cli_runner, mock_container, sample_dataset
     ):
@@ -76,7 +76,7 @@ class TestCLICommands:
         )
         assert result.exit_code in [0, 1]
 
-    @patch("pynomaly.presentation.cli.container.get_cli_container")
+    @patch("monorepo.presentation.cli.container.get_cli_container")
     def test_detector_commands(
         self, mock_get_container, stable_cli_runner, mock_container
     ):
@@ -117,7 +117,7 @@ class TestCLICommands:
         assert result.exit_code in [0, 1]
 
     @patch(
-        "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+        "monorepo.application.services.autonomous_service.AutonomousDetectionService"
     )
     def test_autonomous_commands(
         self, mock_service_class, stable_cli_runner, sample_dataset
@@ -164,7 +164,7 @@ class TestCLICommands:
         result = stable_cli_runner.invoke(autonomous.app, ["quick", sample_dataset])
         assert result.exit_code in [0, 1]
 
-    @patch("pynomaly.presentation.cli.container.get_cli_container")
+    @patch("monorepo.presentation.cli.container.get_cli_container")
     def test_detection_commands(
         self, mock_get_container, stable_cli_runner, mock_container
     ):
@@ -329,7 +329,7 @@ class TestCLIErrorHandling:
         )
         assert result.exit_code != 0
 
-    @patch("pynomaly.presentation.cli.container.get_cli_container")
+    @patch("monorepo.presentation.cli.container.get_cli_container")
     def test_service_errors(
         self, mock_get_container, stable_cli_runner, mock_container
     ):
@@ -362,7 +362,7 @@ class TestCLIErrorHandling:
     def test_timeout_handling(self, stable_cli_runner):
         """Test handling of timeout scenarios."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -383,7 +383,7 @@ class TestCLIErrorHandling:
 class TestCLIWorkflows:
     """Test complete CLI workflows."""
 
-    @patch("pynomaly.presentation.cli.container.get_cli_container")
+    @patch("monorepo.presentation.cli.container.get_cli_container")
     def test_complete_detection_workflow(
         self, mock_get_container, stable_cli_runner, mock_container, sample_dataset
     ):
@@ -445,7 +445,7 @@ class TestCLIWorkflows:
         assert result4.exit_code in [0, 1]
 
     @patch(
-        "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+        "monorepo.application.services.autonomous_service.AutonomousDetectionService"
     )
     def test_autonomous_workflow(
         self, mock_service_class, stable_cli_runner, sample_dataset
@@ -498,7 +498,7 @@ class TestCLIIntegrationScenarios:
     ):
         """Test handling of different file formats."""
         with patch(
-            "pynomaly.presentation.cli.container.get_cli_container"
+            "monorepo.presentation.cli.container.get_cli_container"
         ) as mock_container:
             container = Mock()
             dataset_repo = Mock()
@@ -523,7 +523,7 @@ class TestCLIIntegrationScenarios:
     ):
         """Test integration with configuration files."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -543,7 +543,7 @@ class TestCLIIntegrationScenarios:
     ):
         """Test integration with different output formats."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance

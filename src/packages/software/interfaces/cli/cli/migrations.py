@@ -10,7 +10,7 @@ from rich.panel import Panel
 from rich.prompt import Confirm
 from rich.table import Table
 
-from pynomaly_detection.infrastructure.persistence.migration_manager import (
+from monorepo.infrastructure.persistence.migration_manager import (
     create_migration_manager,
     init_and_migrate,
     quick_migrate,

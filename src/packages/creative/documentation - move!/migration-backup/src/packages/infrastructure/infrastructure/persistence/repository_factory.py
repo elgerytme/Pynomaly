@@ -5,13 +5,13 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from pynomaly.domain.repositories.user_repository import (
+from monorepo.domain.repositories.user_repository import (
     SessionRepositoryProtocol,
     TenantRepositoryProtocol,
     UserRepositoryProtocol,
 )
-from pynomaly.infrastructure.persistence.database_repositories import Base
-from pynomaly.infrastructure.persistence.user_repositories import (
+from monorepo.infrastructure.persistence.database_repositories import Base
+from monorepo.infrastructure.persistence.user_repositories import (
     DatabaseSessionRepository,
     DatabaseTenantRepository,
     DatabaseUserRepository,
@@ -20,7 +20,7 @@ from pynomaly.infrastructure.persistence.user_repositories import (
 
 def get_database_url() -> str:
     """Get database URL from environment or default to SQLite."""
-    return os.getenv("DATABASE_URL", "sqlite:///./pynomaly.db")
+    return os.getenv("DATABASE_URL", "sqlite:///./monorepo.db")
 
 
 class RepositoryFactory:

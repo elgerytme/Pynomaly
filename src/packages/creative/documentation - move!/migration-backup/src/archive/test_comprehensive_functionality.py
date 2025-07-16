@@ -15,24 +15,24 @@ from typing import List, Dict, Any
 def test_all_core_imports():
     """Test all critical imports work correctly"""
     # Domain layer
-    from pynomaly.domain.entities import Dataset, Detector, DetectionResult
-    from pynomaly.domain.value_objects import ContaminationRate, AnomalyScore
-    from pynomaly.domain.exceptions import PynomaliError
+    from monorepo.domain.entities import Dataset, Detector, DetectionResult
+    from monorepo.domain.value_objects import ContaminationRate, AnomalyScore
+    from monorepo.domain.exceptions import PynomaliError
     
     # Application layer
-    from pynomaly.application.services.detection_service import DetectionService
-    from pynomaly.application.dto.detection_dto import DetectionRequestDTO
+    from monorepo.application.services.detection_service import DetectionService
+    from monorepo.application.dto.detection_dto import DetectionRequestDTO
     
     # Infrastructure layer
-    from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-    from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
-    from pynomaly.infrastructure.config import create_container
+    from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+    from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
+    from monorepo.infrastructure.config import create_container
     
     print("✓ All core imports successful")
 
 def test_dataset_creation_and_validation():
     """Test Dataset entity creation and validation"""
-    from pynomaly.domain.entities import Dataset
+    from monorepo.domain.entities import Dataset
     
     # Test normal dataset creation
     data = pd.DataFrame({
@@ -59,7 +59,7 @@ def test_dataset_creation_and_validation():
 
 def test_contamination_rate_validation():
     """Test ContaminationRate value object validation"""
-    from pynomaly.domain.value_objects import ContaminationRate
+    from monorepo.domain.value_objects import ContaminationRate
     
     # Test valid contamination rates
     valid_rates = [0.01, 0.05, 0.1, 0.2, 0.5]
@@ -78,9 +78,9 @@ def test_contamination_rate_validation():
 
 def test_sklearn_adapter_comprehensive():
     """Test SklearnAdapter with multiple algorithms"""
-    from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-    from pynomaly.domain.entities import Dataset
-    from pynomaly.domain.value_objects import ContaminationRate
+    from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+    from monorepo.domain.entities import Dataset
+    from monorepo.domain.value_objects import ContaminationRate
     
     # Create test data with clear outliers
     np.random.seed(42)
@@ -128,9 +128,9 @@ def test_sklearn_adapter_comprehensive():
 
 def test_pyod_adapter_comprehensive():
     """Test PyODAdapter with multiple algorithms"""
-    from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
-    from pynomaly.domain.entities import Dataset
-    from pynomaly.domain.value_objects import ContaminationRate
+    from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
+    from monorepo.domain.entities import Dataset
+    from monorepo.domain.value_objects import ContaminationRate
     
     # Create test data with clear outliers
     np.random.seed(42)
@@ -178,10 +178,10 @@ def test_pyod_adapter_comprehensive():
 
 def test_detection_service_workflow():
     """Test complete detection workflow using DetectionService"""
-    from pynomaly.application.services.detection_service import DetectionService
-    from pynomaly.domain.entities import Dataset, Detector
-    from pynomaly.domain.value_objects import ContaminationRate
-    from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+    from monorepo.application.services.detection_service import DetectionService
+    from monorepo.domain.entities import Dataset, Detector
+    from monorepo.domain.value_objects import ContaminationRate
+    from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
     
     # Create test data
     np.random.seed(42)
@@ -207,7 +207,7 @@ def test_detection_service_workflow():
 
 def test_anomaly_score_operations():
     """Test AnomalyScore value object operations"""
-    from pynomaly.domain.value_objects import AnomalyScore
+    from monorepo.domain.value_objects import AnomalyScore
     
     # Test score creation and validation
     scores = [0.1, 0.5, 0.9, 0.99]
@@ -228,8 +228,8 @@ def test_anomaly_score_operations():
 
 def test_detection_result_properties():
     """Test DetectionResult entity properties"""
-    from pynomaly.domain.entities import DetectionResult, Dataset
-    from pynomaly.domain.value_objects import AnomalyScore
+    from monorepo.domain.entities import DetectionResult, Dataset
+    from monorepo.domain.value_objects import AnomalyScore
     
     # Create test data
     data = pd.DataFrame({
@@ -243,7 +243,7 @@ def test_detection_result_properties():
     labels = [0, 0, 1, 0, 1]  # 0 = normal, 1 = anomaly
     
     from uuid import uuid4
-    from pynomaly.domain.entities.anomaly import Anomaly
+    from monorepo.domain.entities.anomaly import Anomaly
     import numpy as np
     
     # Create anomalies for the anomaly labels
@@ -276,8 +276,8 @@ def test_detection_result_properties():
 
 def test_error_handling():
     """Test error handling and exceptions"""
-    from pynomaly.domain.exceptions import PynomaliError
-    from pynomaly.domain.entities import Dataset
+    from monorepo.domain.exceptions import PynomaliError
+    from monorepo.domain.entities import Dataset
     
     # Test invalid dataset creation
     with pytest.raises((ValueError, AssertionError)):
@@ -293,7 +293,7 @@ def test_error_handling():
 
 def test_data_format_support():
     """Test support for different data formats"""
-    from pynomaly.domain.entities import Dataset
+    from monorepo.domain.entities import Dataset
     
     # Test different data types
     test_cases = [
@@ -314,9 +314,9 @@ def test_data_format_support():
 
 def test_performance_basic():
     """Test basic performance requirements"""
-    from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-    from pynomaly.domain.entities import Dataset
-    from pynomaly.domain.value_objects import ContaminationRate
+    from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+    from monorepo.domain.entities import Dataset
+    from monorepo.domain.value_objects import ContaminationRate
     import time
     
     # Create larger dataset for performance testing

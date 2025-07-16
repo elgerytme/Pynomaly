@@ -234,7 +234,7 @@ class OnboardingService:
                         <h4>Development Install</h4>
                         <div class="code-block">
                             <code>
-                            git clone https://github.com/your-org/pynomaly.git<br>
+                            git clone https://github.com/your-org/monorepo.git<br>
                             cd pynomaly<br>
                             pip install hatch<br>
                             hatch env create<br>
@@ -260,7 +260,7 @@ class OnboardingService:
                     <h4>Verify Installation</h4>
                     <div class="code-block">
                         <code>
-                        python -c "import pynomaly; print('✅ Pynomaly installed successfully!')"
+                        python -c "import monorepo; print('✅ Pynomaly installed successfully!')"
                         </code>
                     </div>
                 </div>
@@ -472,7 +472,7 @@ RUN pip install -r requirements.txt
 COPY . .
 EXPOSE 8000
 
-CMD ["uvicorn", "pynomaly.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "monorepo.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
                             </code>
                         </div>
                     </div>

@@ -5,12 +5,12 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.services.cost_optimization_service import (
+from monorepo.application.services.cost_optimization_service import (
     CostAnalysisEngine,
     CostOptimizationService,
     RecommendationEngine,
 )
-from pynomaly.domain.entities.cost_optimization import (
+from monorepo.domain.entities.cost_optimization import (
     CloudProvider,
     CloudResource,
     CostBudget,

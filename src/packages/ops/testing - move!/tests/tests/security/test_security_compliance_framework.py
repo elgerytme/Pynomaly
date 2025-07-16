@@ -103,7 +103,7 @@ class TestAuthenticationSecurity:
     @pytest.fixture
     def test_client(self):
         """Create test client for security testing."""
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
         
         app = create_app(testing=True)
         return TestClient(app)
@@ -133,7 +133,7 @@ class TestAuthenticationSecurity:
             }
             
             # Mock user registration endpoint
-            with patch('pynomaly.application.services.user_service.UserService') as mock_service:
+            with patch('monorepo.application.services.user_service.UserService') as mock_service:
                 mock_service.return_value.create_user.side_effect = ValueError("Password too weak")
                 
                 response = test_client.post("/api/v1/auth/register", json=user_data)
@@ -172,7 +172,7 @@ class TestAuthenticationSecurity:
                 "password": f"wrongpassword{attempt}"
             }
             
-            with patch('pynomaly.application.services.auth_service.AuthService') as mock_service:
+            with patch('monorepo.application.services.auth_service.AuthService') as mock_service:
                 mock_service.return_value.authenticate.return_value = None
                 
                 response = test_client.post("/api/v1/auth/login", json=login_data)
@@ -293,7 +293,7 @@ class TestAuthenticationSecurity:
         findings = []
         
         # Test session fixation
-        with patch('pynomaly.application.services.session_service.SessionService') as mock_service:
+        with patch('monorepo.application.services.session_service.SessionService') as mock_service:
             # Simulate session before and after login
             mock_service.return_value.get_session_id.side_effect = ["session123", "session123"]
             
@@ -312,7 +312,7 @@ class TestAuthenticationSecurity:
                 findings.append("Session ID not regenerated after login (session fixation vulnerability)")
         
         # Test session timeout
-        with patch('pynomaly.application.services.session_service.SessionService') as mock_service:
+        with patch('monorepo.application.services.session_service.SessionService') as mock_service:
             # Mock old session
             old_timestamp = time.time() - 7200  # 2 hours ago
             mock_service.return_value.get_session.return_value = Mock(
@@ -326,7 +326,7 @@ class TestAuthenticationSecurity:
                 findings.append("Old session not properly expired")
         
         # Test secure cookie flags
-        with patch('pynomaly.presentation.api.middleware.session_middleware') as mock_middleware:
+        with patch('monorepo.presentation.api.middleware.session_middleware') as mock_middleware:
             mock_response = Mock()
             mock_response.headers = {"Set-Cookie": "session=abc123; Path=/"}
             
@@ -369,7 +369,7 @@ class TestInputValidationSecurity:
     @pytest.fixture
     def test_client(self):
         """Create test client for security testing."""
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
         
         app = create_app(testing=True)
         return TestClient(app)
@@ -401,7 +401,7 @@ class TestInputValidationSecurity:
             
             for method, endpoint, *data in test_cases:
                 try:
-                    with patch('pynomaly.infrastructure.persistence.database.DatabaseManager') as mock_db:
+                    with patch('monorepo.infrastructure.persistence.database.DatabaseManager') as mock_db:
                         # Mock database to detect SQL injection attempts
                         mock_db.return_value.execute.side_effect = lambda query: self._detect_sql_injection(query, payload)
                         
@@ -590,7 +590,7 @@ class TestInputValidationSecurity:
                 # Mock file upload
                 files = {"file": (filename, content, "application/octet-stream")}
                 
-                with patch('pynomaly.application.services.file_service.FileService') as mock_service:
+                with patch('monorepo.application.services.file_service.FileService') as mock_service:
                     # Check if file extension validation exists
                     allowed_extensions = [".csv", ".json", ".xlsx", ".txt"]
                     
@@ -655,7 +655,7 @@ class TestDataProtectionSecurity:
         findings = []
         
         # Test password storage
-        with patch('pynomaly.infrastructure.security.encryption.PasswordManager') as mock_pm:
+        with patch('monorepo.infrastructure.security.encryption.PasswordManager') as mock_pm:
             test_password = "testpassword123"
             
             # Check if passwords are hashed
@@ -669,7 +669,7 @@ class TestDataProtectionSecurity:
                 findings.append("Password hashing appears weak")
         
         # Test database connection strings
-        with patch('pynomaly.infrastructure.config.settings.Settings') as mock_settings:
+        with patch('monorepo.infrastructure.config.settings.Settings') as mock_settings:
             mock_settings.return_value.database_url = "postgresql://user:password@localhost/db"
             
             db_url = mock_settings.return_value.database_url
@@ -678,7 +678,7 @@ class TestDataProtectionSecurity:
                 findings.append("Database credentials may be stored in plaintext")
         
         # Test API keys and secrets
-        with patch('pynomaly.infrastructure.config.settings.Settings') as mock_settings:
+        with patch('monorepo.infrastructure.config.settings.Settings') as mock_settings:
             mock_settings.return_value.secret_key = "secret123"
             mock_settings.return_value.jwt_secret = "jwt_secret"
             
@@ -767,7 +767,7 @@ class TestDataProtectionSecurity:
         findings = []
         
         # Test unauthorized data access
-        with patch('pynomaly.application.services.dataset_service.DatasetService') as mock_service:
+        with patch('monorepo.application.services.dataset_service.DatasetService') as mock_service:
             # Mock unauthorized access attempt
             mock_service.return_value.get_dataset.side_effect = lambda dataset_id, user: self._check_authorization(user, dataset_id)
             
@@ -785,7 +785,7 @@ class TestDataProtectionSecurity:
                 pass  # Good, unauthorized access blocked
         
         # Test data visibility based on user role
-        with patch('pynomaly.application.services.user_service.UserService') as mock_service:
+        with patch('monorepo.application.services.user_service.UserService') as mock_service:
             # Test admin vs regular user data access
             admin_user = Mock(id="admin", role="admin")
             regular_user = Mock(id="user", role="user")
@@ -837,7 +837,7 @@ class TestComplianceFrameworks:
         findings = []
         
         # Test right to be forgotten
-        with patch('pynomaly.application.services.user_service.UserService') as mock_service:
+        with patch('monorepo.application.services.user_service.UserService') as mock_service:
             mock_service.return_value.delete_user_data.return_value = True
             
             # Test data deletion
@@ -848,7 +848,7 @@ class TestComplianceFrameworks:
                 findings.append("User data deletion not properly implemented")
         
         # Test data portability
-        with patch('pynomaly.application.services.export_service.ExportService') as mock_service:
+        with patch('monorepo.application.services.export_service.ExportService') as mock_service:
             mock_service.return_value.export_user_data.return_value = {"user_data": "exported"}
             
             user_id = "user123"
@@ -858,7 +858,7 @@ class TestComplianceFrameworks:
                 findings.append("User data export not properly implemented")
         
         # Test consent management
-        with patch('pynomaly.application.services.consent_service.ConsentService') as mock_service:
+        with patch('monorepo.application.services.consent_service.ConsentService') as mock_service:
             mock_service.return_value.get_consent.return_value = Mock(
                 user_id="user123",
                 purpose="data_processing",
@@ -872,7 +872,7 @@ class TestComplianceFrameworks:
                 findings.append("Consent management not properly implemented")
         
         # Test data minimization
-        with patch('pynomaly.application.services.data_service.DataService') as mock_service:
+        with patch('monorepo.application.services.data_service.DataService') as mock_service:
             # Check if unnecessary data is collected
             collected_fields = ["name", "email", "phone", "address", "ssn", "credit_card"]
             necessary_fields = ["name", "email"]
@@ -907,7 +907,7 @@ class TestComplianceFrameworks:
         findings = []
         
         # Test security monitoring
-        with patch('pynomaly.infrastructure.monitoring.security_monitor.SecurityMonitor') as mock_monitor:
+        with patch('monorepo.infrastructure.monitoring.security_monitor.SecurityMonitor') as mock_monitor:
             mock_monitor.return_value.is_monitoring_active.return_value = True
             
             monitoring_active = mock_monitor.return_value.is_monitoring_active()
@@ -916,7 +916,7 @@ class TestComplianceFrameworks:
                 findings.append("Security monitoring not active")
         
         # Test access logging
-        with patch('pynomaly.infrastructure.logging.audit_logger.AuditLogger') as mock_logger:
+        with patch('monorepo.infrastructure.logging.audit_logger.AuditLogger') as mock_logger:
             mock_logger.return_value.log_access.return_value = True
             
             # Test if access is logged
@@ -926,7 +926,7 @@ class TestComplianceFrameworks:
                 findings.append("Access logging not properly implemented")
         
         # Test backup and recovery
-        with patch('pynomaly.infrastructure.backup.backup_service.BackupService') as mock_backup:
+        with patch('monorepo.infrastructure.backup.backup_service.BackupService') as mock_backup:
             mock_backup.return_value.create_backup.return_value = Mock(id="backup123")
             mock_backup.return_value.test_recovery.return_value = True
             
@@ -940,7 +940,7 @@ class TestComplianceFrameworks:
                 findings.append("Recovery testing not properly implemented")
         
         # Test incident response
-        with patch('pynomaly.infrastructure.security.incident_response.IncidentResponse') as mock_ir:
+        with patch('monorepo.infrastructure.security.incident_response.IncidentResponse') as mock_ir:
             mock_ir.return_value.handle_incident.return_value = Mock(
                 status="handled",
                 response_time=300
@@ -984,7 +984,7 @@ class TestSecurityMonitoring:
         findings = []
         
         # Test suspicious activity detection
-        with patch('pynomaly.infrastructure.security.intrusion_detection.IDS') as mock_ids:
+        with patch('monorepo.infrastructure.security.intrusion_detection.IDS') as mock_ids:
             mock_ids.return_value.detect_suspicious_activity.return_value = []
             
             # Simulate suspicious activities
@@ -1001,7 +1001,7 @@ class TestSecurityMonitoring:
                     findings.append(f"Suspicious activity not detected: {activity['type']}")
         
         # Test real-time monitoring
-        with patch('pynomaly.infrastructure.monitoring.real_time_monitor.RealTimeMonitor') as mock_monitor:
+        with patch('monorepo.infrastructure.monitoring.real_time_monitor.RealTimeMonitor') as mock_monitor:
             mock_monitor.return_value.is_active.return_value = True
             mock_monitor.return_value.get_alerts.return_value = []
             
@@ -1032,7 +1032,7 @@ class TestSecurityMonitoring:
         findings = []
         
         # Test alert generation
-        with patch('pynomaly.infrastructure.alerting.security_alerter.SecurityAlerter') as mock_alerter:
+        with patch('monorepo.infrastructure.alerting.security_alerter.SecurityAlerter') as mock_alerter:
             mock_alerter.return_value.send_alert.return_value = True
             
             # Test different alert types
@@ -1049,7 +1049,7 @@ class TestSecurityMonitoring:
                     findings.append(f"Alert not sent for {alert['type']}")
         
         # Test alert escalation
-        with patch('pynomaly.infrastructure.alerting.escalation.AlertEscalation') as mock_escalation:
+        with patch('monorepo.infrastructure.alerting.escalation.AlertEscalation') as mock_escalation:
             mock_escalation.return_value.escalate.return_value = True
             
             # Test critical alert escalation

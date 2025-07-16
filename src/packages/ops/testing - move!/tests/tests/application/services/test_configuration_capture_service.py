@@ -10,7 +10,7 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     AlgorithmConfigDTO,
     ConfigurationCaptureRequestDTO,
     ConfigurationExportRequestDTO,
@@ -23,7 +23,7 @@ from pynomaly.application.dto.configuration_dto import (
     ExportFormat,
     PreprocessingConfigDTO,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from monorepo.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
 
@@ -816,7 +816,7 @@ class TestConfigurationCaptureService:
             assert response.success is True
             assert response.export_data is not None
             assert "#!/usr/bin/env python3" in response.export_data
-            assert "import pynomaly" in response.export_data
+            assert "import monorepo" in response.export_data
             assert "one_class_svm" in response.export_data
             assert "contamination': 0.05" in response.export_data
             assert "random_state': 42" in response.export_data

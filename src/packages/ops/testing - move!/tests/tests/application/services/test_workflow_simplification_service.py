@@ -4,14 +4,14 @@ from unittest.mock import patch
 
 import numpy as np
 
-from pynomaly.application.services.workflow_simplification_service import (
+from monorepo.application.services.workflow_simplification_service import (
     UserExperience,
     WorkflowComplexity,
     WorkflowRecommendation,
     WorkflowSimplificationService,
     WorkflowStep,
 )
-from pynomaly.domain.entities import Dataset
+from monorepo.domain.entities import Dataset
 
 
 class TestWorkflowSimplificationService:
@@ -108,7 +108,7 @@ class TestWorkflowSimplificationService:
         assert len(recommendation.steps) > 0
         assert recommendation.confidence_score > 0
 
-    @patch("pynomaly.infrastructure.config.feature_flags.is_feature_enabled")
+    @patch("monorepo.infrastructure.config.feature_flags.is_feature_enabled")
     def test_recommend_workflow_advanced_user(self, mock_feature_enabled):
         """Test workflow recommendation for advanced users."""
         mock_feature_enabled.return_value = True
@@ -133,7 +133,7 @@ class TestWorkflowSimplificationService:
             recommendation.estimated_duration_minutes > 10
         )  # Should be longer for comprehensive
 
-    @patch("pynomaly.infrastructure.config.feature_flags.is_feature_enabled")
+    @patch("monorepo.infrastructure.config.feature_flags.is_feature_enabled")
     def test_recommend_workflow_production(self, mock_feature_enabled):
         """Test workflow recommendation for production environment."""
         mock_feature_enabled.return_value = True
@@ -155,7 +155,7 @@ class TestWorkflowSimplificationService:
             recommendation.estimated_duration_minutes > 20
         )  # Production should take longer
 
-    @patch("pynomaly.infrastructure.config.feature_flags.is_feature_enabled")
+    @patch("monorepo.infrastructure.config.feature_flags.is_feature_enabled")
     def test_get_next_step_guidance(self, mock_feature_enabled):
         """Test next step guidance functionality."""
         mock_feature_enabled.return_value = True
@@ -176,7 +176,7 @@ class TestWorkflowSimplificationService:
                 assert "progress" in guidance
                 assert "guidance" in guidance
 
-    @patch("pynomaly.infrastructure.config.feature_flags.is_feature_enabled")
+    @patch("monorepo.infrastructure.config.feature_flags.is_feature_enabled")
     def test_simplify_detection_workflow_automated(self, mock_feature_enabled):
         """Test simplified detection workflow with maximum automation."""
         mock_feature_enabled.return_value = True
@@ -197,7 +197,7 @@ class TestWorkflowSimplificationService:
         assert "anomalies_detected" in result
         assert "confidence_score" in result
 
-    @patch("pynomaly.infrastructure.config.feature_flags.is_feature_enabled")
+    @patch("monorepo.infrastructure.config.feature_flags.is_feature_enabled")
     def test_simplify_detection_workflow_guided(self, mock_feature_enabled):
         """Test simplified detection workflow with guided automation."""
         mock_feature_enabled.return_value = True
@@ -217,7 +217,7 @@ class TestWorkflowSimplificationService:
         assert "interaction_points" in result
         assert len(result["interaction_points"]) > 0
 
-    @patch("pynomaly.infrastructure.config.feature_flags.is_feature_enabled")
+    @patch("monorepo.infrastructure.config.feature_flags.is_feature_enabled")
     def test_simplify_detection_workflow_manual(self, mock_feature_enabled):
         """Test simplified detection workflow with manual guidance."""
         mock_feature_enabled.return_value = True
@@ -234,7 +234,7 @@ class TestWorkflowSimplificationService:
         assert "helpful_hints" in result
         assert len(result["helpful_hints"]) > 0
 
-    @patch("pynomaly.infrastructure.config.feature_flags.is_feature_enabled")
+    @patch("monorepo.infrastructure.config.feature_flags.is_feature_enabled")
     def test_handle_workflow_error(self, mock_feature_enabled):
         """Test workflow error handling."""
         mock_feature_enabled.return_value = True
@@ -256,7 +256,7 @@ class TestWorkflowSimplificationService:
         assert "prevention_tips" in recovery_info
         assert len(recovery_info["recovery_actions"]) > 0
 
-    @patch("pynomaly.infrastructure.config.feature_flags.is_feature_enabled")
+    @patch("monorepo.infrastructure.config.feature_flags.is_feature_enabled")
     def test_get_contextual_help(self, mock_feature_enabled):
         """Test contextual help functionality."""
         mock_feature_enabled.return_value = True
@@ -480,7 +480,7 @@ class TestWorkflowSimplificationService:
             assert popular[0][0] == "quick_start"  # Most popular
             assert popular[0][1] == 100
 
-    @patch("pynomaly.infrastructure.config.feature_flags.is_feature_enabled")
+    @patch("monorepo.infrastructure.config.feature_flags.is_feature_enabled")
     def test_feature_flag_integration(self, mock_feature_enabled):
         """Test feature flag integration."""
         # Test with feature disabled

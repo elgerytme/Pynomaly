@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from pynomaly.application.services.governance_framework_service import (
+from monorepo.application.services.governance_framework_service import (
     ApprovalStatus,
     AuditTrailEntry,
     ChangeRequest,
@@ -16,7 +16,7 @@ from pynomaly.application.services.governance_framework_service import (
     RiskAssessment,
     RiskLevel,
 )
-from pynomaly.domain.entities.security_compliance import ComplianceFramework
+from monorepo.domain.entities.security_compliance import ComplianceFramework
 
 
 class TestGovernanceFrameworkService:

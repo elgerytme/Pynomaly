@@ -7,8 +7,8 @@ from fastapi.testclient import TestClient
 def test_api_import_basic():
     """Test if we can import basic API components."""
     try:
-        from pynomaly.application.dto.dataset_dto import DatasetResponseDTO
-        from pynomaly.application.dto.detection_dto import ConfidenceInterval
+        from monorepo.application.dto.dataset_dto import DatasetResponseDTO
+        from monorepo.application.dto.detection_dto import ConfidenceInterval
         assert DatasetResponseDTO is not None
         assert ConfidenceInterval is not None
         print("✅ DTOs import successfully")
@@ -53,8 +53,8 @@ def test_health_endpoint_availability():
 def test_pydantic_models():
     """Test if Pydantic models can be instantiated."""
     try:
-        from pynomaly.application.dto.detection_dto import ConfidenceInterval
-        from pynomaly.application.dto.dataset_dto import DatasetResponseDTO
+        from monorepo.application.dto.detection_dto import ConfidenceInterval
+        from monorepo.application.dto.dataset_dto import DatasetResponseDTO
         from datetime import datetime
         import uuid
         

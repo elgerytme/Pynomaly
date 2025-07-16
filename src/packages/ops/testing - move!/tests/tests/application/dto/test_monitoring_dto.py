@@ -11,7 +11,7 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.dto.monitoring_dto import (
+from monorepo.application.dto.monitoring_dto import (
     AlertLevel,
     AlertMessage,
     DetectionMetrics,

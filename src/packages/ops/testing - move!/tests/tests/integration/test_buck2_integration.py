@@ -214,7 +214,7 @@ class TestNpmIntegration:
 
     def test_web_asset_directories(self):
         """Test web asset directory structure."""
-        web_root = Path.cwd() / "src" / "pynomaly" / "presentation" / "web"
+        web_root = Path.cwd() / "src" / "monorepo" / "presentation" / "web"
         assert web_root.exists(), "Web presentation directory not found"
 
         # Check asset sources
@@ -335,7 +335,7 @@ class TestIntegratedWorkflow:
             python_name = pyproject_config["project"]["name"]
             npm_name = package_config["name"]
             assert (
-                python_name in npm_name or "pynomaly" in npm_name.lower()
+                python_name in npm_name or "monorepo" in npm_name.lower()
             ), f"Names don't align: {python_name} vs {npm_name}"
 
 

@@ -7,8 +7,8 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.infrastructure.repositories.in_memory_repositories import (
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.infrastructure.repositories.in_memory_repositories import (
     InMemoryDatasetRepository,
     InMemoryDetectorRepository,
     InMemoryResultRepository,

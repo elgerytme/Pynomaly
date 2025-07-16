@@ -14,8 +14,8 @@ from typing import Any
 
 import yaml
 
-from pynomaly.domain.value_objects.semantic_version import SemanticVersion
-from pynomaly.shared.exceptions import ConfigurationError
+from monorepo.domain.value_objects.semantic_version import SemanticVersion
+from monorepo.shared.exceptions import ConfigurationError
 
 
 class ConfigurationEnvironment(Enum):

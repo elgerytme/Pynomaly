@@ -27,7 +27,7 @@ class TestPhase7Integration:
     def test_explainable_ai_availability(self):
         """Test if explainable AI implementations are available"""
         try:
-            from pynomaly.research.explainability.explainable_ai import (
+            from monorepo.research.explainability.explainable_ai import (
                 CounterfactualExplainer,
                 ExplainableAIOrchestrator,
                 LIMEExplainer,
@@ -43,7 +43,7 @@ class TestPhase7Integration:
     def test_synthetic_data_availability(self):
         """Test if synthetic data generation implementations are available"""
         try:
-            from pynomaly.research.synthetic.synthetic_data_generation import (
+            from monorepo.research.synthetic.synthetic_data_generation import (
                 StatisticalGenerator,
                 SyntheticDataOrchestrator,
                 VAEGenerator,
@@ -59,7 +59,7 @@ class TestPhase7Integration:
     def test_causal_models_availability(self):
         """Test if causal anomaly detection models are available"""
         try:
-            from pynomaly.domain.models.causal import (
+            from monorepo.domain.models.causal import (
                 CausalAnomalyEvent,
                 CausalGraph,
                 CausalInferenceMethod,
@@ -75,7 +75,7 @@ class TestPhase7Integration:
     def test_multimodal_models_availability(self):
         """Test if multimodal fusion models are available"""
         try:
-            from pynomaly.domain.models.multimodal import (
+            from monorepo.domain.models.multimodal import (
                 FusionStrategy,
                 ModalityEncoder,
                 ModalityType,
@@ -91,7 +91,7 @@ class TestPhase7Integration:
     def test_quantum_algorithms_missing(self):
         """Test if quantum algorithms are missing (expected to be missing)"""
         try:
-            from pynomaly.research.quantum.quantum_algorithms import (
+            from monorepo.research.quantum.quantum_algorithms import (
                 QuantumAnomalyDetector,
             )
             print("✅ Quantum algorithms found")
@@ -103,7 +103,7 @@ class TestPhase7Integration:
     def test_edge_deployment_missing(self):
         """Test if edge deployment is missing (expected to be missing)"""
         try:
-            from pynomaly.research.edge.edge_deployment import EdgeDeploymentService
+            from monorepo.research.edge.edge_deployment import EdgeDeploymentService
             print("✅ Edge deployment found")
             return True
         except ImportError:
@@ -113,7 +113,7 @@ class TestPhase7Integration:
     def test_automl_v2_missing(self):
         """Test if AutoML v2 is missing (expected to be missing)"""
         try:
-            from pynomaly.research.automl.automl_v2 import AutoMLV2System
+            from monorepo.research.automl.automl_v2 import AutoMLV2System
             print("✅ AutoML v2 found")
             return True
         except ImportError:
@@ -126,7 +126,7 @@ class TestPhase7Integration:
             pytest.skip("Explainable AI not available")
 
         try:
-            from pynomaly.research.explainability.explainable_ai import (
+            from monorepo.research.explainability.explainable_ai import (
                 ExplainableAIOrchestrator,
                 ExplanationMethod,
             )
@@ -157,7 +157,7 @@ class TestPhase7Integration:
             pytest.skip("Synthetic data generation not available")
 
         try:
-            from pynomaly.research.synthetic.synthetic_data_generation import (
+            from monorepo.research.synthetic.synthetic_data_generation import (
                 DataType,
                 SyntheticDataConfig,
                 SyntheticDataOrchestrator,

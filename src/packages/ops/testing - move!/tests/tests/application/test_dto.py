@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto import (
+from monorepo.application.dto import (
     AnomalyDTO,
     CreateDetectorDTO,
     CreateExperimentDTO,
@@ -17,8 +17,8 @@ from pynomaly.application.dto import (
     DetectionResultDTO,
     DetectorResponseDTO,
 )
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ConfidenceInterval,
     ContaminationRate,

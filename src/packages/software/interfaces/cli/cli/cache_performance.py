@@ -6,10 +6,10 @@ from typing import Any
 
 import click
 
-from pynomaly_detection.infrastructure.cache.optimized_key_generator import (
+from monorepo.infrastructure.cache.optimized_key_generator import (
     OptimizedCacheKeyGenerator,
 )
-from pynomaly_detection.infrastructure.cache.performance_utils import (
+from monorepo.infrastructure.cache.performance_utils import (
     enable_cache_optimizations,
     get_cache_performance_report,
     get_health_monitor,

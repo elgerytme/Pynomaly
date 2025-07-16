@@ -3,7 +3,7 @@
 import re
 import uuid
 
-from pynomaly.shared.types import (
+from monorepo.shared.types import (
     # Infrastructure types
     CacheKey,
     Confidence,
@@ -329,7 +329,7 @@ class TestIdGeneratorConsistency:
             return "mock-uuid-1234-5678-9012"
 
         # Patch the generate_id function
-        import pynomaly.shared.types as types_module
+        import monorepo.shared.types as types_module
 
         types_module.generate_id = mock_generate_id
 

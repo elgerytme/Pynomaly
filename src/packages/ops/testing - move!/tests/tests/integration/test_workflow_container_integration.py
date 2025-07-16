@@ -4,7 +4,7 @@
 def test_workflow_simplification_service_availability():
     """Test that workflow simplification service is available in container."""
     try:
-        from pynomaly.infrastructure.config.container import Container
+        from monorepo.infrastructure.config.container import Container
 
         # Create container
         container = Container()
@@ -37,7 +37,7 @@ def test_workflow_simplification_service_availability():
 def test_container_phase2_services():
     """Test that Phase 2 services are properly integrated."""
     try:
-        from pynomaly.infrastructure.config.container import Container
+        from monorepo.infrastructure.config.container import Container
 
         container = Container()
 

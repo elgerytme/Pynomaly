@@ -10,8 +10,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.data_loaders.csv_loader import CSVLoader
+from monorepo.domain.entities import Dataset
+from monorepo.infrastructure.data_loaders.csv_loader import CSVLoader
 
 
 class OptimizedCSVLoader(CSVLoader):

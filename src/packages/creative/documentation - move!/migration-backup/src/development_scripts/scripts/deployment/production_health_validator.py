@@ -31,10 +31,10 @@ class ProductionHealthValidator:
         self.start_time = datetime.now()
         self.test_results = []
         self.production_urls = {
-            "api": "https://api.pynomaly.io",
-            "dashboard": "https://app.pynomaly.io",
-            "docs": "https://docs.pynomaly.io",
-            "monitoring": "https://grafana.pynomaly.io",
+            "api": "https://api.monorepo.io",
+            "dashboard": "https://app.monorepo.io",
+            "docs": "https://docs.monorepo.io",
+            "monitoring": "https://grafana.monorepo.io",
         }
 
     def log_test_result(

@@ -15,17 +15,17 @@ except FileNotFoundError:
     )
 
 setup(
-    name="pynomaly",
+    name="monorepo",
     version=version,
     author="Pynomaly Team",
-    author_email="team@pynomaly.io",
+    author_email="team@monorepo.io",
     description="State-of-the-art Python anomaly detection package with clean architecture",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/pynomaly/pynomaly",
     project_urls={
         "Bug Tracker": "https://github.com/pynomaly/pynomaly/issues",
-        "Documentation": "https://pynomaly.readthedocs.io",
+        "Documentation": "https://monorepo.readthedocs.io",
     },
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -131,12 +131,12 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "pynomaly=pynomaly.presentation.cli.app:app",
+            "pynomaly=monorepo.presentation.cli.app:app",
         ],
     },
     include_package_data=True,
     package_data={
-        "pynomaly": [
+        "monorepo": [
             "presentation/web/templates/**/*",
             "presentation/web/static/**/*",
             "presentation/web/static/css/*",

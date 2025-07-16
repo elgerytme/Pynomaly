@@ -24,7 +24,7 @@ class TestSDKClientInitialization:
     def mock_sdk_config(self):
         """Create mock SDK configuration."""
         return {
-            "base_url": "https://api.pynomaly.com",
+            "base_url": "https://api.monorepo.com",
             "api_key": "test-api-key-123",
             "timeout": 30,
             "verify_ssl": True,
@@ -36,7 +36,7 @@ class TestSDKClientInitialization:
     def mock_sync_client(self):
         """Create mock synchronous client."""
         client = Mock()
-        client.base_url = "https://api.pynomaly.com"
+        client.base_url = "https://api.monorepo.com"
         client.timeout = 30
         client.headers = {"X-API-Key": "test-api-key-123"}
         client.session = Mock()
@@ -47,7 +47,7 @@ class TestSDKClientInitialization:
     def mock_async_client(self):
         """Create mock asynchronous client."""
         client = AsyncMock()
-        client.base_url = "https://api.pynomaly.com"
+        client.base_url = "https://api.monorepo.com"
         client.timeout = 30
         client.headers = {"X-API-Key": "test-api-key-123"}
         client.session = AsyncMock()
@@ -72,7 +72,7 @@ class TestSDKClientInitialization:
         client.timeout = mock_sdk_config["timeout"]
         client.verify_ssl = mock_sdk_config["verify_ssl"]
 
-        assert client.base_url == "https://api.pynomaly.com"
+        assert client.base_url == "https://api.monorepo.com"
         assert client.api_key == "test-api-key-123"
         assert client.timeout == 30
         assert client.verify_ssl is True
@@ -419,7 +419,7 @@ class TestSDKDetectorOperations:
             "deployment_id": "deployment-999",
             "detector_id": "detector-456",
             "status": "deployed",
-            "endpoint_url": "https://api.pynomaly.com/v1/detect/deployment-999",
+            "endpoint_url": "https://api.monorepo.com/v1/detect/deployment-999",
             "deployed_at": "2023-01-01T11:00:00Z",
         }
         mock_sync_client.deploy_detector = Mock(return_value=mock_deployment_response)
@@ -637,7 +637,7 @@ class TestSDKErrorHandling:
         self, mock_sync_client, mock_error_responses
     ):
         """Test authentication error handling."""
-        from pynomaly.presentation.sdk.exceptions import AuthenticationError
+        from monorepo.presentation.sdk.exceptions import AuthenticationError
 
         # Mock 401 error
         def raise_auth_error(*args, **kwargs):
@@ -652,7 +652,7 @@ class TestSDKErrorHandling:
 
     def test_authorization_error_handling(self, mock_sync_client, mock_error_responses):
         """Test authorization error handling."""
-        from pynomaly.presentation.sdk.exceptions import AuthorizationError
+        from monorepo.presentation.sdk.exceptions import AuthorizationError
 
         # Mock 403 error
         def raise_auth_error(*args, **kwargs):
@@ -667,7 +667,7 @@ class TestSDKErrorHandling:
 
     def test_validation_error_handling(self, mock_sync_client, mock_error_responses):
         """Test validation error handling."""
-        from pynomaly.presentation.sdk.exceptions import ValidationError
+        from monorepo.presentation.sdk.exceptions import ValidationError
 
         # Mock 400 error
         def raise_validation_error(*args, **kwargs):
@@ -684,7 +684,7 @@ class TestSDKErrorHandling:
         self, mock_sync_client, mock_error_responses
     ):
         """Test resource not found error handling."""
-        from pynomaly.presentation.sdk.exceptions import ResourceNotFoundError
+        from monorepo.presentation.sdk.exceptions import ResourceNotFoundError
 
         # Mock 404 error
         def raise_not_found_error(*args, **kwargs):
@@ -699,7 +699,7 @@ class TestSDKErrorHandling:
 
     def test_rate_limit_error_handling(self, mock_sync_client, mock_error_responses):
         """Test rate limit error handling."""
-        from pynomaly.presentation.sdk.exceptions import RateLimitError
+        from monorepo.presentation.sdk.exceptions import RateLimitError
 
         # Mock 429 error
         def raise_rate_limit_error(*args, **kwargs):
@@ -714,7 +714,7 @@ class TestSDKErrorHandling:
 
     def test_server_error_handling(self, mock_sync_client, mock_error_responses):
         """Test server error handling."""
-        from pynomaly.presentation.sdk.exceptions import ServerError
+        from monorepo.presentation.sdk.exceptions import ServerError
 
         # Mock 500 error
         def raise_server_error(*args, **kwargs):
@@ -729,7 +729,7 @@ class TestSDKErrorHandling:
 
     def test_network_error_handling(self, mock_sync_client):
         """Test network error handling."""
-        from pynomaly.presentation.sdk.exceptions import NetworkError
+        from monorepo.presentation.sdk.exceptions import NetworkError
 
         # Mock network error
         def raise_network_error(*args, **kwargs):
@@ -744,7 +744,7 @@ class TestSDKErrorHandling:
 
     def test_timeout_error_handling(self, mock_sync_client):
         """Test timeout error handling."""
-        from pynomaly.presentation.sdk.exceptions import TimeoutError
+        from monorepo.presentation.sdk.exceptions import TimeoutError
 
         # Mock timeout error
         def raise_timeout_error(*args, **kwargs):
@@ -890,7 +890,7 @@ class TestSDKPerformanceAndReliability:
         """Test configuration validation."""
         # Test valid configuration
         valid_config = {
-            "base_url": "https://api.pynomaly.com",
+            "base_url": "https://api.monorepo.com",
             "api_key": "valid-key-123",
             "timeout": 30,
             "verify_ssl": True,

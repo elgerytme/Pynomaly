@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.infrastructure.performance.optimization_engine import (
+from monorepo.infrastructure.performance.optimization_engine import (
     CacheKey,
     IntelligentCache,
     MemoryOptimizer,

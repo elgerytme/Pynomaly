@@ -9,11 +9,11 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.application.services.algorithm_recommendation_service import (
+from monorepo.application.services.algorithm_recommendation_service import (
     AlgorithmRecommendation,
 )
-from pynomaly.application.services.data_profiling_service import DataProfile
-from pynomaly.domain.entities import Dataset, DetectionResult
+from monorepo.application.services.data_profiling_service import DataProfile
+from monorepo.domain.entities import Dataset, DetectionResult
 
 
 @dataclass

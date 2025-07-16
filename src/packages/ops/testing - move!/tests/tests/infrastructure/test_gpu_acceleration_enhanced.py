@@ -9,10 +9,10 @@ from unittest.mock import MagicMock, Mock, patch
 import numpy as np
 import pytest
 
-from pynomaly.domain.exceptions import GPUError, MemoryError
-from pynomaly.infrastructure.gpu.cuda_utils import CUDAUtils
-from pynomaly.infrastructure.gpu.device_manager import DeviceManager
-from pynomaly.infrastructure.gpu.memory_manager import GPUMemoryManager
+from monorepo.domain.exceptions import GPUError, MemoryError
+from monorepo.infrastructure.gpu.cuda_utils import CUDAUtils
+from monorepo.infrastructure.gpu.device_manager import DeviceManager
+from monorepo.infrastructure.gpu.memory_manager import GPUMemoryManager
 
 
 class TestDeviceManager:
@@ -307,7 +307,7 @@ class TestGPUAcceleration:
 
     def test_matrix_operations_gpu_acceleration(self):
         """Test GPU acceleration for matrix operations."""
-        from pynomaly.infrastructure.gpu.operations import GPUOperations
+        from monorepo.infrastructure.gpu.operations import GPUOperations
 
         gpu_ops = GPUOperations()
 
@@ -331,7 +331,7 @@ class TestGPUAcceleration:
 
     def test_reduction_operations_gpu(self):
         """Test GPU-accelerated reduction operations."""
-        from pynomaly.infrastructure.gpu.operations import GPUOperations
+        from monorepo.infrastructure.gpu.operations import GPUOperations
 
         gpu_ops = GPUOperations()
 
@@ -349,7 +349,7 @@ class TestGPUAcceleration:
 
     def test_distance_computations_gpu(self):
         """Test GPU-accelerated distance computations."""
-        from pynomaly.infrastructure.gpu.operations import GPUOperations
+        from monorepo.infrastructure.gpu.operations import GPUOperations
 
         gpu_ops = GPUOperations()
 
@@ -366,7 +366,7 @@ class TestGPUAcceleration:
 
     def test_anomaly_score_computation_gpu(self):
         """Test GPU-accelerated anomaly score computation."""
-        from pynomaly.infrastructure.gpu.operations import GPUOperations
+        from monorepo.infrastructure.gpu.operations import GPUOperations
 
         gpu_ops = GPUOperations()
 
@@ -384,7 +384,7 @@ class TestGPUAcceleration:
 
     def test_batch_processing_gpu(self):
         """Test GPU batch processing optimization."""
-        from pynomaly.infrastructure.gpu.batch_processor import GPUBatchProcessor
+        from monorepo.infrastructure.gpu.batch_processor import GPUBatchProcessor
 
         processor = GPUBatchProcessor(batch_size=512, device="cuda")
 
@@ -404,7 +404,7 @@ class TestPerformanceBenchmarks:
 
     def test_cpu_vs_gpu_performance_comparison(self):
         """Test performance comparison between CPU and GPU."""
-        from pynomaly.infrastructure.gpu.benchmarks import PerformanceBenchmark
+        from monorepo.infrastructure.gpu.benchmarks import PerformanceBenchmark
 
         benchmark = PerformanceBenchmark()
 
@@ -429,7 +429,7 @@ class TestPerformanceBenchmarks:
 
     def test_memory_bandwidth_benchmark(self):
         """Test memory bandwidth benchmarks."""
-        from pynomaly.infrastructure.gpu.benchmarks import PerformanceBenchmark
+        from monorepo.infrastructure.gpu.benchmarks import PerformanceBenchmark
 
         benchmark = PerformanceBenchmark()
 
@@ -448,7 +448,7 @@ class TestPerformanceBenchmarks:
 
     def test_throughput_measurement(self):
         """Test throughput measurement for anomaly detection."""
-        from pynomaly.infrastructure.gpu.benchmarks import PerformanceBenchmark
+        from monorepo.infrastructure.gpu.benchmarks import PerformanceBenchmark
 
         benchmark = PerformanceBenchmark()
 
@@ -473,7 +473,7 @@ class TestErrorHandling:
 
     def test_cuda_out_of_memory_recovery(self):
         """Test recovery from CUDA out of memory errors."""
-        from pynomaly.infrastructure.gpu.error_handler import GPUErrorHandler
+        from monorepo.infrastructure.gpu.error_handler import GPUErrorHandler
 
         error_handler = GPUErrorHandler()
 
@@ -490,7 +490,7 @@ class TestErrorHandling:
 
     def test_device_lost_recovery(self):
         """Test recovery from device lost errors."""
-        from pynomaly.infrastructure.gpu.error_handler import GPUErrorHandler
+        from monorepo.infrastructure.gpu.error_handler import GPUErrorHandler
 
         error_handler = GPUErrorHandler()
 
@@ -507,7 +507,7 @@ class TestErrorHandling:
 
     def test_mixed_precision_error_handling(self):
         """Test error handling in mixed precision operations."""
-        from pynomaly.infrastructure.gpu.error_handler import GPUErrorHandler
+        from monorepo.infrastructure.gpu.error_handler import GPUErrorHandler
 
         error_handler = GPUErrorHandler()
 
@@ -522,7 +522,7 @@ class TestErrorHandling:
 
     def test_driver_compatibility_check(self):
         """Test driver compatibility checking."""
-        from pynomaly.infrastructure.gpu.compatibility import DriverChecker
+        from monorepo.infrastructure.gpu.compatibility import DriverChecker
 
         checker = DriverChecker()
 
@@ -535,7 +535,7 @@ class TestErrorHandling:
 
     def test_compute_capability_validation(self):
         """Test compute capability validation."""
-        from pynomaly.infrastructure.gpu.compatibility import DriverChecker
+        from monorepo.infrastructure.gpu.compatibility import DriverChecker
 
         checker = DriverChecker()
 
@@ -552,7 +552,7 @@ class TestGPUIntegration:
 
     def test_end_to_end_gpu_anomaly_detection(self):
         """Test end-to-end GPU-accelerated anomaly detection."""
-        from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+        from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
         adapter = PyTorchAdapter(device="cuda", use_gpu=True)
 
@@ -578,7 +578,7 @@ class TestGPUIntegration:
 
     def test_multi_gpu_distributed_training(self):
         """Test distributed training across multiple GPUs."""
-        from pynomaly.infrastructure.gpu.distributed import DistributedTrainer
+        from monorepo.infrastructure.gpu.distributed import DistributedTrainer
 
         trainer = DistributedTrainer(num_gpus=2)
 
@@ -599,7 +599,7 @@ class TestGPUIntegration:
 
     def test_gpu_memory_optimization_integration(self):
         """Test GPU memory optimization during training."""
-        from pynomaly.infrastructure.gpu.memory_optimizer import MemoryOptimizer
+        from monorepo.infrastructure.gpu.memory_optimizer import MemoryOptimizer
 
         optimizer = MemoryOptimizer()
 

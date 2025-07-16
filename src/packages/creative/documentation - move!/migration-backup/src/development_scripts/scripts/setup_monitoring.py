@@ -308,7 +308,7 @@ alerting:
                 "dashboard": {
                     "id": None,
                     "title": "Pynomaly Real-time Monitoring",
-                    "tags": ["pynomaly", "real-time", "monitoring"],
+                    "tags": ["monorepo", "real-time", "monitoring"],
                     "timezone": "browser",
                     "panels": [
                         {

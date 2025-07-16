@@ -10,9 +10,9 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.preprocessing.data_cleaner import DataCleaner
-from pynomaly.infrastructure.preprocessing.data_transformer import DataTransformer
+from monorepo.domain.entities import Dataset
+from monorepo.infrastructure.preprocessing.data_cleaner import DataCleaner
+from monorepo.infrastructure.preprocessing.data_transformer import DataTransformer
 
 
 class DataQualityIssue(Enum):

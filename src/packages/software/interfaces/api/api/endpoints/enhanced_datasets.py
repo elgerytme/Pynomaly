@@ -9,11 +9,11 @@ import pandas as pd
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, BackgroundTasks
 from fastapi.responses import JSONResponse
 
-from pynomaly_detection.application.dto import DataQualityReportDTO, DatasetDTO
-from pynomaly_detection.domain.entities import Dataset
-from pynomaly_detection.infrastructure.auth import require_data_scientist, require_viewer
-from pynomaly_detection.infrastructure.config import Container
-from pynomaly_detection.presentation.api.auth_deps import get_container_simple
+from monorepo.application.dto import DataQualityReportDTO, DatasetDTO
+from monorepo.domain.entities import Dataset
+from monorepo.infrastructure.auth import require_data_scientist, require_viewer
+from monorepo.infrastructure.config import Container
+from monorepo.presentation.api.auth_deps import get_container_simple
 
 # Import data transformation components
 try:

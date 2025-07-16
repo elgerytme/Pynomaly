@@ -2,7 +2,7 @@
 
 import pytest
 
-from pynomaly.shared.exceptions import (
+from monorepo.shared.exceptions import (
     AlertingError,
     AnomalyDetectionError,
     # API exceptions

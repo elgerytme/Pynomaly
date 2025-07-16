@@ -2,7 +2,7 @@
 
 import pytest
 
-from pynomaly.domain.exceptions.base import (
+from monorepo.domain.exceptions.base import (
     AuthenticationError,
     AuthorizationError,
     CacheError,

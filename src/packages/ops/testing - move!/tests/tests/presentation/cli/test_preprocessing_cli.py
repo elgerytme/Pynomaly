@@ -13,7 +13,7 @@ import pandas as pd
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.preprocessing import app
+from monorepo.presentation.cli.preprocessing import app
 
 
 class TestPreprocessingCLI:
@@ -27,7 +27,7 @@ class TestPreprocessingCLI:
     @pytest.fixture
     def mock_container(self):
         """Mock CLI container for preprocessing operations."""
-        with patch("pynomaly.presentation.cli.container.get_cli_container") as mock:
+        with patch("monorepo.presentation.cli.container.get_cli_container") as mock:
             container = Mock()
 
             # Mock dataset repository
@@ -680,7 +680,7 @@ class TestPreprocessingCLI:
             mock_read_csv.return_value = dirty_df
 
             with patch(
-                "pynomaly.application.services.preprocessing_service.PreprocessingService"
+                "monorepo.application.services.preprocessing_service.PreprocessingService"
             ) as mock_service:
                 service_instance = Mock()
                 mock_service.return_value = service_instance

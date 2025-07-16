@@ -2,7 +2,7 @@
 
 import pytest
 
-from pynomaly.domain.value_objects.performance_metrics import PerformanceMetrics
+from monorepo.domain.value_objects.performance_metrics import PerformanceMetrics
 
 
 class TestPerformanceMetricsInitialization:

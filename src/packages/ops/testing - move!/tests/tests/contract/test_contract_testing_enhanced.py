@@ -8,10 +8,10 @@ from unittest.mock import Mock
 import jsonschema
 import pytest
 
-from pynomaly.application.dto import DetectionRequestDTO, TrainingRequestDTO
-from pynomaly.domain.protocols import AdapterProtocol
-from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.application.dto import DetectionRequestDTO, TrainingRequestDTO
+from monorepo.domain.protocols import AdapterProtocol
+from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 class TestAPIContractTesting:
@@ -424,7 +424,7 @@ class TestServiceContractTesting:
 
     def test_service_interface_contract(self):
         """Test service interface contract compliance."""
-        from pynomaly.application.services.detection_service import DetectionService
+        from monorepo.application.services.detection_service import DetectionService
 
         # Mock dependencies
         mock_adapter = Mock()

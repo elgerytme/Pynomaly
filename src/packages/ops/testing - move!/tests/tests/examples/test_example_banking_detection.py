@@ -10,9 +10,9 @@ import pandas as pd
 
 # Import from src.pynomaly instead of using path manipulation
 try:
-    from src.pynomaly.domain.entities.dataset import Dataset
-    from src.pynomaly.domain.value_objects.contamination_rate import ContaminationRate
-    from src.pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+    from src.monorepo.domain.entities.dataset import Dataset
+    from src.monorepo.domain.value_objects.contamination_rate import ContaminationRate
+    from src.monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
     print("✓ Pynomaly imports successful")
 except ImportError as e:

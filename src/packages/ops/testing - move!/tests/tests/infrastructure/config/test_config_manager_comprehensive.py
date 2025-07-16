@@ -9,15 +9,15 @@ from unittest.mock import patch
 import pytest
 import yaml
 
-from pynomaly.domain.exceptions import ConfigurationError
-from pynomaly.infrastructure.config.config_manager import (
+from monorepo.domain.exceptions import ConfigurationError
+from monorepo.infrastructure.config.config_manager import (
     CacheConfigManager,
     ConfigurationManager,
     DatabaseConfigManager,
     MonitoringConfigManager,
     create_config_manager,
 )
-from pynomaly.infrastructure.config.settings import Settings
+from monorepo.infrastructure.config.settings import Settings
 
 
 class TestConfigurationManager:
@@ -76,7 +76,7 @@ class TestConfigurationManager:
 
         # Mock Settings to raise validation error
         with patch(
-            "pynomaly.infrastructure.config.config_manager.Settings"
+            "monorepo.infrastructure.config.config_manager.Settings"
         ) as mock_settings:
             from pydantic import ValidationError
 

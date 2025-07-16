@@ -10,7 +10,7 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from pynomaly.presentation.api.app import create_app
+from monorepo.presentation.api.app import create_app
 
 
 class TestHealthEndpoints:

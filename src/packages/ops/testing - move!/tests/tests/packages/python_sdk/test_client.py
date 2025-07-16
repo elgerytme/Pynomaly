@@ -30,7 +30,7 @@ class TestClientConfig:
         """Test default configuration values."""
         config = ClientConfig()
         
-        assert config.base_url == "https://api.pynomaly.com/v1"
+        assert config.base_url == "https://api.monorepo.com/v1"
         assert config.api_key is None
         assert config.timeout == 30
         assert config.max_retries == 3
@@ -109,7 +109,7 @@ class TestPynomagyClient:
         """Test client initialization with default config."""
         client = PynomagyClient()
         
-        assert client.config.base_url == "https://api.pynomaly.com/v1"
+        assert client.config.base_url == "https://api.monorepo.com/v1"
         assert client.config.api_key is None
         assert client.config.timeout == 30
     
@@ -516,7 +516,7 @@ class TestCreateClient:
         client = create_client()
         
         assert isinstance(client, PynomagyClient)
-        assert client.config.base_url == "https://api.pynomaly.com/v1"
+        assert client.config.base_url == "https://api.monorepo.com/v1"
         assert client.config.api_key is None
     
     def test_create_client_with_custom_params(self):

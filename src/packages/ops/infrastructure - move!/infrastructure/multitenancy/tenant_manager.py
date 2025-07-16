@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
 
-from pynomaly.shared.config import Config
+from monorepo.shared.config import Config
 
 # from ..monitoring.opentelemetry_service import get_telemetry_service
 

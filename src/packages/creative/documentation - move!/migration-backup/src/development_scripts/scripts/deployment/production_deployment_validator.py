@@ -146,7 +146,7 @@ class ProductionDeploymentValidator:
 
         # Check alerting system
         alerting_path = (
-            self.project_root / "src" / "pynomaly" / "infrastructure" / "alerting"
+            self.project_root / "src" / "monorepo" / "infrastructure" / "alerting"
         )
         if alerting_path.exists():
             self.log_validation(

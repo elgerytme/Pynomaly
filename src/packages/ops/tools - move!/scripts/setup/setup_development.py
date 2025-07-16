@@ -283,7 +283,7 @@ PYTHONPATH={self.project_root}/src
         # Test Python import
         try:
             self._run_command(
-                [python_path, "-c", "import pynomaly; print(f'✓ Pynomaly v{pynomaly.__version__} imported successfully')"],
+                [python_path, "-c", "import monorepo; print(f'✓ Pynomaly v{monorepo.__version__} imported successfully')"],
                 "Testing Pynomaly import"
             )
         except subprocess.CalledProcessError:
@@ -294,8 +294,8 @@ PYTHONPATH={self.project_root}/src
             test_code = """
 import numpy as np
 import pandas as pd
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.entities import Dataset
+from monorepo.domain.value_objects import ContaminationRate
 print('✓ Core domain objects imported successfully')
 """
             self._run_command(
@@ -327,13 +327,13 @@ print('✓ Core domain objects imported successfully')
         print(f"     {Colors.CYAN}{activation_cmd}{Colors.END}")
         print()
         print(f"  2. Verify installation:")
-        print(f"     {Colors.CYAN}python -c \"import pynomaly; print('Success!')\"{Colors.END}")
+        print(f"     {Colors.CYAN}python -c \"import monorepo; print('Success!')\"{Colors.END}")
         print()
         print(f"  3. Run tests:")
         print(f"     {Colors.CYAN}pytest tests/unit/domain/ -v{Colors.END}")
         print()
         print(f"  4. Start development server:")
-        print(f"     {Colors.CYAN}uvicorn pynomaly.presentation.api.app:app --reload{Colors.END}")
+        print(f"     {Colors.CYAN}uvicorn monorepo.presentation.api.app:app --reload{Colors.END}")
         print()
         print(f"  5. Access documentation:")
         print(f"     • API docs: {Colors.CYAN}http://localhost:8000/docs{Colors.END}")

@@ -1,6 +1,6 @@
 # People Operations Package
 
-Comprehensive user management, authentication, authorization, and compliance for the Pynomaly platform.
+Comprehensive user management, authentication, authorization, and compliance for the Monorepo platform.
 
 ## Overview
 

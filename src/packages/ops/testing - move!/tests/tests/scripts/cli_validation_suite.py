@@ -85,7 +85,7 @@ class CLIValidationSuite:
 
             for module in cli_modules:
                 try:
-                    exec(f"from pynomaly.presentation.cli.{module} import *")
+                    exec(f"from monorepo.presentation.cli.{module} import *")
                     self.results["structure"][f"{module}_import"] = True
                     print(f"✅ CLI module '{module}' imports successfully")
                 except ImportError as e:
@@ -104,11 +104,11 @@ class CLIValidationSuite:
         print("\n🔍 Testing Basic CLI Commands...")
 
         commands_to_test = [
-            (["python", "-m", "pynomaly", "--help"], "help_command"),
-            (["python", "-m", "pynomaly", "--version"], "version_command"),
-            (["python", "-m", "pynomaly", "detect", "--help"], "detect_help"),
-            (["python", "-m", "pynomaly", "datasets", "--help"], "datasets_help"),
-            (["python", "-m", "pynomaly", "export", "--help"], "export_help"),
+            (["python", "-m", "monorepo", "--help"], "help_command"),
+            (["python", "-m", "monorepo", "--version"], "version_command"),
+            (["python", "-m", "monorepo", "detect", "--help"], "detect_help"),
+            (["python", "-m", "monorepo", "datasets", "--help"], "datasets_help"),
+            (["python", "-m", "monorepo", "export", "--help"], "export_help"),
         ]
 
         all_passed = True
@@ -153,7 +153,7 @@ class CLIValidationSuite:
             cmd = [
                 "python",
                 "-m",
-                "pynomaly",
+                "monorepo",
                 "auto",
                 "detect",
                 str(test_file),
@@ -222,7 +222,7 @@ class CLIValidationSuite:
                 cmd = [
                     "python",
                     "-m",
-                    "pynomaly",
+                    "monorepo",
                     "export",
                     str(test_file),
                     "--format",
@@ -262,7 +262,7 @@ class CLIValidationSuite:
         start_time = time.time()
         try:
             result = subprocess.run(
-                ["python", "-m", "pynomaly", "--version"],
+                ["python", "-m", "monorepo", "--version"],
                 capture_output=True,
                 text=True,
                 timeout=10,
@@ -292,7 +292,7 @@ class CLIValidationSuite:
 
         try:
             # Test error handling
-            cmd = ["python", "-m", "pynomaly", "detect", "nonexistent_file.csv"]
+            cmd = ["python", "-m", "monorepo", "detect", "nonexistent_file.csv"]
             result = subprocess.run(
                 cmd, capture_output=True, text=True, timeout=10, cwd=self.project_root
             )
@@ -306,7 +306,7 @@ class CLIValidationSuite:
 
             # Test help documentation
             help_result = subprocess.run(
-                ["python", "-m", "pynomaly", "--help"],
+                ["python", "-m", "monorepo", "--help"],
                 capture_output=True,
                 text=True,
                 timeout=10,

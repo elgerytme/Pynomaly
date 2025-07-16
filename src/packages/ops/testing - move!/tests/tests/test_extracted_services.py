@@ -6,16 +6,16 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.pynomaly.application.services.data_profiling_service import (
+from src.monorepo.application.services.data_profiling_service import (
     DataProfilingService,
 )
-from src.pynomaly.application.services.data_validation_service import (
+from src.monorepo.application.services.data_validation_service import (
     DataValidationService,
 )
-from src.pynomaly.application.services.feature_engineering_service import (
+from src.monorepo.application.services.feature_engineering_service import (
     FeatureEngineeringService,
 )
-from src.pynomaly.application.services.interfaces.pipeline_services import (
+from src.monorepo.application.services.interfaces.pipeline_services import (
     DataProfile,
     DataValidationResult,
     FeatureEngineeringResult,

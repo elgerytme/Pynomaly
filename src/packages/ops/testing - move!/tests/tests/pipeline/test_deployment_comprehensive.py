@@ -21,9 +21,9 @@ class TestDeploymentPipeline:
         class MockDeploymentEnvironment:
             def __init__(self):
                 self.environments = {
-                    "development": {"url": "dev.pynomaly.com", "replicas": 1},
-                    "staging": {"url": "staging.pynomaly.com", "replicas": 2},
-                    "production": {"url": "pynomaly.com", "replicas": 3},
+                    "development": {"url": "dev.monorepo.com", "replicas": 1},
+                    "staging": {"url": "staging.monorepo.com", "replicas": 2},
+                    "production": {"url": "monorepo.com", "replicas": 3},
                 }
                 self.deployments = {}
                 self.infrastructure = {}

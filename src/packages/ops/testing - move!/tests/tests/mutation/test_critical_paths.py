@@ -5,10 +5,10 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import InvalidValueError
-from pynomaly.domain.services import AnomalyScorer, ThresholdCalculator
-from pynomaly.domain.value_objects import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.exceptions import InvalidValueError
+from monorepo.domain.services import AnomalyScorer, ThresholdCalculator
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ConfidenceInterval,
     ContaminationRate,
@@ -227,7 +227,7 @@ class TestCriticalBusinessRules:
 
     def test_ensemble_score_aggregation_mutations(self):
         """Test ensemble aggregation logic against mutations."""
-        from pynomaly.domain.services import EnsembleAggregator
+        from monorepo.domain.services import EnsembleAggregator
 
         aggregator = EnsembleAggregator()
 

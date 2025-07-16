@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 try:
     # Test if the main API module can be imported
-    from pynomaly.presentation.api.app import app
+    from monorepo.presentation.api.app import app
     print("✅ API app import successful")
 
     # Test if FastAPI is available

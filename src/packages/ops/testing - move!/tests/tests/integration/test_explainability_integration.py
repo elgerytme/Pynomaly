@@ -12,18 +12,18 @@ import pandas as pd
 # Add the src directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from pynomaly.application.use_cases.explainability_use_case import (
+from monorepo.application.use_cases.explainability_use_case import (
     ExplainabilityUseCase,
     ExplainPredictionRequest,
 )
-from pynomaly.domain.services.explainability_service import (
+from monorepo.domain.services.explainability_service import (
     ExplainabilityService,
     ExplanationMethod,
     FeatureContribution,
     GlobalExplanation,
     LocalExplanation,
 )
-from pynomaly.infrastructure.explainers.shap_explainer import SHAPExplainer
+from monorepo.infrastructure.explainers.shap_explainer import SHAPExplainer
 
 
 def create_mock_detector():
@@ -156,7 +156,7 @@ async def test_basic_explainability():
             ):
                 from datetime import datetime
 
-                from pynomaly.domain.services.explainability_service import (
+                from monorepo.domain.services.explainability_service import (
                     CohortExplanation,
                 )
 

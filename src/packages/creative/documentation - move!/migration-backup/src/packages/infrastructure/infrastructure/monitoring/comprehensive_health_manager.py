@@ -11,10 +11,10 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any
 
-from pynomaly.infrastructure.cache import get_cache_integration_manager
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.persistence import get_production_database_manager
-from pynomaly.infrastructure.security import get_rate_limit_manager
+from monorepo.infrastructure.cache import get_cache_integration_manager
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.persistence import get_production_database_manager
+from monorepo.infrastructure.security import get_rate_limit_manager
 
 from .health_checks import (
     ComponentType,

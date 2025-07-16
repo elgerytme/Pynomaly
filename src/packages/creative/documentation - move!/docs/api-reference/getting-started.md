@@ -1,19 +1,19 @@
-# Getting Started with Pynomaly API
+# Getting Started with Monorepo API
 
-This guide will help you get started with the Pynomaly API for anomaly detection. You'll learn how to authenticate, upload data, create detectors, and perform anomaly detection.
+This guide will help you get started with the Monorepo API for anomaly detection. You'll learn how to authenticate, upload data, create detectors, and perform anomaly detection.
 
 ## Prerequisites
 
 - Python 3.7+ (for Python examples)
 - Node.js 14+ (for JavaScript examples)
 - curl (for command-line examples)
-- A Pynomaly account with API access
+- A Monorepo account with API access
 
 ## Step 1: Authentication
 
 ### Obtain API Credentials
 
-1. Log in to your Pynomaly account
+1. Log in to your Monorepo account
 2. Navigate to Settings > API Keys
 3. Create a new API key with appropriate permissions
 4. Store your API key securely (never commit it to version control)
@@ -24,7 +24,7 @@ This guide will help you get started with the Pynomaly API for anomaly detection
 
 ```bash
 # Login to get JWT token
-curl -X POST https://api.pynomaly.com/v1/auth/login \
+curl -X POST https://api.monorepo.com/v1/auth/login \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "username=your_email@example.com&password=your_password"
 ```
@@ -43,10 +43,10 @@ Response:
 
 ```bash
 # Using API key in header (recommended)
-curl -H "X-API-Key: your_api_key" https://api.pynomaly.com/v1/health
+curl -H "X-API-Key: your_api_key" https://api.monorepo.com/v1/health
 
 # Using API key in query parameter
-curl "https://api.pynomaly.com/v1/health?api_key=your_api_key"
+curl "https://api.monorepo.com/v1/health?api_key=your_api_key"
 ```
 
 ## Step 2: Check API Health
@@ -55,7 +55,7 @@ Before starting, verify that the API is accessible:
 
 ```bash
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  https://api.pynomaly.com/v1/health
+  https://api.monorepo.com/v1/health
 ```
 
 Expected response:
@@ -102,7 +102,7 @@ timestamp,temperature,humidity,pressure,anomaly_label
 ### Upload via API
 
 ```bash
-curl -X POST https://api.pynomaly.com/v1/datasets/upload \
+curl -X POST https://api.monorepo.com/v1/datasets/upload \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -F "file=@sensor_data.csv" \
   -F "name=IoT Sensor Data" \
@@ -127,7 +127,7 @@ with open('sensor_data.csv', 'rb') as f:
     }
     
     response = requests.post(
-        'https://api.pynomaly.com/v1/datasets/upload',
+        'https://api.monorepo.com/v1/datasets/upload',
         headers=headers,
         files=files,
         data=data
@@ -147,7 +147,7 @@ formData.append('name', 'IoT Sensor Data');
 formData.append('description', 'Temperature and humidity sensor readings');
 formData.append('tags', JSON.stringify(['iot', 'sensors', 'temperature']));
 
-const response = await fetch('https://api.pynomaly.com/v1/datasets/upload', {
+const response = await fetch('https://api.monorepo.com/v1/datasets/upload', {
     method: 'POST',
     headers: {
         'Authorization': 'Bearer YOUR_JWT_TOKEN'
@@ -163,7 +163,7 @@ console.log('Dataset uploaded:', dataset);
 
 ### Choose an Algorithm
 
-Pynomaly supports multiple anomaly detection algorithms:
+Monorepo supports multiple anomaly detection algorithms:
 
 - **Isolation Forest**: Good for high-dimensional data
 - **Local Outlier Factor**: Effective for local anomalies
@@ -175,7 +175,7 @@ Pynomaly supports multiple anomaly detection algorithms:
 ### Create Detector
 
 ```bash
-curl -X POST https://api.pynomaly.com/v1/detectors/ \
+curl -X POST https://api.monorepo.com/v1/detectors/ \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -207,7 +207,7 @@ detector_data = {
 }
 
 response = requests.post(
-    'https://api.pynomaly.com/v1/detectors/',
+    'https://api.monorepo.com/v1/detectors/',
     headers=headers,
     json=detector_data
 )
@@ -222,7 +222,7 @@ print(f"Detector created with ID: {detector_id}")
 ### Start Training
 
 ```bash
-curl -X POST https://api.pynomaly.com/v1/detection/train \
+curl -X POST https://api.monorepo.com/v1/detection/train \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -244,7 +244,7 @@ train_data = {
 }
 
 response = requests.post(
-    'https://api.pynomaly.com/v1/detection/train',
+    'https://api.monorepo.com/v1/detection/train',
     headers=headers,
     json=train_data
 )
@@ -261,7 +261,7 @@ import time
 
 while True:
     response = requests.get(
-        f'https://api.pynomaly.com/v1/detection/train/{job_id}',
+        f'https://api.monorepo.com/v1/detection/train/{job_id}',
         headers=headers
     )
     
@@ -283,7 +283,7 @@ while True:
 ### Single Detection
 
 ```bash
-curl -X POST https://api.pynomaly.com/v1/detection/detect \
+curl -X POST https://api.monorepo.com/v1/detection/detect \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -331,7 +331,7 @@ detection_data = {
 }
 
 response = requests.post(
-    'https://api.pynomaly.com/v1/detection/detect',
+    'https://api.monorepo.com/v1/detection/detect',
     headers=headers,
     json=detection_data
 )
@@ -418,7 +418,7 @@ batch_data = {
 }
 
 response = requests.post(
-    'https://api.pynomaly.com/v1/detection/detect/batch',
+    'https://api.monorepo.com/v1/detection/detect/batch',
     headers=headers,
     json=batch_data
 )
@@ -440,7 +440,7 @@ evaluation_data = {
 }
 
 response = requests.post(
-    'https://api.pynomaly.com/v1/detection/evaluate',
+    'https://api.monorepo.com/v1/detection/evaluate',
     headers=headers,
     json=evaluation_data
 )
@@ -460,7 +460,7 @@ Always implement proper error handling:
 ```python
 try:
     response = requests.post(
-        'https://api.pynomaly.com/v1/detection/detect',
+        'https://api.monorepo.com/v1/detection/detect',
         headers=headers,
         json=detection_data
     )
@@ -499,7 +499,7 @@ except Exception as e:
 
 - **Start simple**: Begin with Isolation Forest or LOF
 - **Consider data characteristics**: Choose algorithms suitable for your data type
-- **Use AutoML**: Let Pynomaly automatically select the best algorithm
+- **Use AutoML**: Let Monorepo automatically select the best algorithm
 - **Ensemble methods**: Combine multiple algorithms for better performance
 
 ### 3. Performance Optimization
@@ -536,6 +536,6 @@ except Exception as e:
 
 If you need help:
 - Check the [FAQ](./faq.md)
-- Visit our [Community Forum](https://community.pynomaly.com)
-- Contact support at [support@pynomaly.com](mailto:support@pynomaly.com)
-- Report issues on [GitHub](https://github.com/pynomaly/pynomaly/issues)
+- Visit our [Community Forum](https://community.monorepo.com)
+- Contact support at [support@monorepo.com](mailto:support@monorepo.com)
+- Report issues on [GitHub](https://github.com/monorepo/monorepo/issues)

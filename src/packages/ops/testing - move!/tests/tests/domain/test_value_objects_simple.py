@@ -12,9 +12,9 @@ from hypothesis import strategies as st
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
-from pynomaly.domain.value_objects.contamination_rate import ContaminationRate
+from monorepo.domain.value_objects.anomaly_score import AnomalyScore
+from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
+from monorepo.domain.value_objects.contamination_rate import ContaminationRate
 
 
 class TestAnomalyScore:
@@ -38,7 +38,7 @@ class TestAnomalyScore:
 
     def test_invalid_scores(self):
         """Test that invalid scores raise errors."""
-        from pynomaly.domain.exceptions.base import InvalidValueError
+        from monorepo.domain.exceptions.base import InvalidValueError
 
         with pytest.raises(InvalidValueError):
             AnomalyScore(-0.1)
@@ -100,7 +100,7 @@ class TestContaminationRate:
 
     def test_invalid_rates(self):
         """Test that invalid rates raise errors."""
-        from pynomaly.domain.exceptions.base import InvalidValueError
+        from monorepo.domain.exceptions.base import InvalidValueError
 
         # Note: 0.0 is actually allowed in the implementation
         # Test values that should definitely fail
@@ -165,7 +165,7 @@ class TestConfidenceInterval:
 
     def test_invalid_intervals(self):
         """Test that invalid intervals raise errors."""
-        from pynomaly.domain.exceptions.base import InvalidValueError
+        from monorepo.domain.exceptions.base import InvalidValueError
 
         with pytest.raises(InvalidValueError):
             ConfidenceInterval(lower=0.8, upper=0.6)  # Lower > upper

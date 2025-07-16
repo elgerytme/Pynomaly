@@ -8,11 +8,11 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.services.model_persistence_service import (
+from monorepo.application.services.model_persistence_service import (
     ModelPersistenceService,
 )
-from pynomaly.domain.entities import Detector
-from pynomaly.infrastructure.repositories.in_memory_repositories import (
+from monorepo.domain.entities import Detector
+from monorepo.infrastructure.repositories.in_memory_repositories import (
     InMemoryDetectorRepository,
 )
 
@@ -262,7 +262,7 @@ class TestONNXModelPersistence:
         from unittest.mock import patch
 
         with patch(
-            "pynomaly.infrastructure.config.feature_flags.feature_flags.is_enabled"
+            "monorepo.infrastructure.config.feature_flags.feature_flags.is_enabled"
         ) as mock_is_enabled:
             mock_is_enabled.return_value = False
 

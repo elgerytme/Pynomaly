@@ -2,13 +2,13 @@
 
 import pytest
 
-from pynomaly.domain.exceptions.base import (
+from monorepo.domain.exceptions.base import (
     ConfigurationError,
     DomainError,
     NotFittedError,
     PynamolyError,
 )
-from pynomaly.domain.exceptions.detector_exceptions import (
+from monorepo.domain.exceptions.detector_exceptions import (
     DetectorConfigurationError,
     DetectorError,
     DetectorNotFittedError,

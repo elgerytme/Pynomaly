@@ -22,16 +22,16 @@ try:
 except ImportError:
     REDIS_AVAILABLE = False
 
-from pynomaly.infrastructure.cache.cache_manager import (
+from monorepo.infrastructure.cache.cache_manager import (
     CacheManager,
     InMemoryCache,
     create_cache_manager,
 )
-from pynomaly.infrastructure.performance.profiler import (
+from monorepo.infrastructure.performance.profiler import (
     PerformanceProfiler,
     SystemMonitor,
 )
-from pynomaly.infrastructure.performance.query_optimizer import (
+from monorepo.infrastructure.performance.query_optimizer import (
     DataFrameOptimizer,
     QueryCache,
     QueryOptimizer,
@@ -39,7 +39,7 @@ from pynomaly.infrastructure.performance.query_optimizer import (
 
 # Test Redis cache only if Redis is available
 if REDIS_AVAILABLE:
-    from pynomaly.infrastructure.cache.cache_manager import RedisCache
+    from monorepo.infrastructure.cache.cache_manager import RedisCache
 
 
 class TestInMemoryCache:
@@ -633,7 +633,7 @@ class TestIntegration:
 
     def test_container_integration(self):
         """Test integration with dependency injection container."""
-        from pynomaly.infrastructure.config.container import Container
+        from monorepo.infrastructure.config.container import Container
 
         container = Container()
 

@@ -11,22 +11,22 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.dto.configuration_dto import ConfigurationSource
-from pynomaly.application.services.automl_configuration_integration import (
+from monorepo.application.dto.configuration_dto import ConfigurationSource
+from monorepo.application.services.automl_configuration_integration import (
     AutoMLConfigurationIntegration,
     AutoMLConfigurationManager,
 )
-from pynomaly.application.services.autonomous_configuration_integration import (
+from monorepo.application.services.autonomous_configuration_integration import (
     AutonomousConfigurationIntegration,
     AutonomousConfigurationManager,
 )
-from pynomaly.application.services.autonomous_service import AutonomousConfig
-from pynomaly.application.services.configuration_capture_service import (
+from monorepo.application.services.autonomous_service import AutonomousConfig
+from monorepo.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.infrastructure.monitoring.cli_parameter_interceptor import (
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import AnomalyScore
+from monorepo.infrastructure.monitoring.cli_parameter_interceptor import (
     CLIParameterInterceptor,
     capture_detection_command,
     initialize_cli_interceptor,
@@ -347,7 +347,7 @@ class TestAutonomousConfigurationIntegration:
     ):
         """Test autonomous configuration analysis."""
         # Create some test configurations first
-        from pynomaly.application.dto.configuration_dto import (
+        from monorepo.application.dto.configuration_dto import (
             ConfigurationCaptureRequestDTO,
         )
 
@@ -552,7 +552,7 @@ class TestConfigurationManagers:
         manager = AutoMLConfigurationManager(capture_service)
 
         # Create test configurations
-        from pynomaly.application.dto.configuration_dto import (
+        from monorepo.application.dto.configuration_dto import (
             ConfigurationCaptureRequestDTO,
         )
 
@@ -596,7 +596,7 @@ class TestConfigurationManagers:
         manager = AutonomousConfigurationManager(capture_service)
 
         # Create test configurations
-        from pynomaly.application.dto.configuration_dto import (
+        from monorepo.application.dto.configuration_dto import (
             ConfigurationCaptureRequestDTO,
         )
 

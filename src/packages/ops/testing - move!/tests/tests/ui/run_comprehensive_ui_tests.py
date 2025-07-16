@@ -60,7 +60,7 @@ class UITestRunner:
             print(f"❌ Server not accessible: {e}")
             print("💡 Make sure to start the Pynomaly web server first:")
             print(
-                "   poetry run uvicorn pynomaly.presentation.api:app --host 127.0.0.1 --port 8000"
+                "   poetry run uvicorn monorepo.presentation.api:app --host 127.0.0.1 --port 8000"
             )
             return False
 

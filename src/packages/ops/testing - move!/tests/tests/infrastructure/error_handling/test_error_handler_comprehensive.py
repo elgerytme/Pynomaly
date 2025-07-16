@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     AuthenticationError,
     AuthorizationError,
     ConfigurationError,
@@ -17,11 +17,11 @@ from pynomaly.domain.exceptions import (
     PynamolyError,
     ValidationError,
 )
-from pynomaly.infrastructure.error_handling.error_handler import (
+from monorepo.infrastructure.error_handling.error_handler import (
     ErrorHandler,
     create_default_error_handler,
 )
-from pynomaly.infrastructure.error_handling.recovery_strategies import (
+from monorepo.infrastructure.error_handling.recovery_strategies import (
     CircuitBreakerStrategy,
     FallbackStrategy,
     RecoveryStrategy,
@@ -341,7 +341,7 @@ class TestErrorHandler:
         assert isinstance(handler, ErrorHandler)
         assert handler.enable_recovery is True
         assert handler.enable_reporting is True
-        assert handler.logger.name == "pynomaly.errors"
+        assert handler.logger.name == "monorepo.errors"
 
 
 class TestRetryStrategy:

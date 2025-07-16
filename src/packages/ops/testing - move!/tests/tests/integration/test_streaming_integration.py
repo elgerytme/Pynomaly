@@ -19,12 +19,12 @@ async def test_streaming_integration():
 
     try:
         # Test imports
-        from pynomaly.application.dto.streaming_dto import (
+        from monorepo.application.dto.streaming_dto import (
             StreamingConfigurationDTO,
             StreamingRequestDTO,
             StreamingSampleDTO,
         )
-        from pynomaly.application.use_cases.streaming_detection_use_case import (
+        from monorepo.application.use_cases.streaming_detection_use_case import (
             BackpressureStrategy,
             StreamingConfiguration,
             StreamingDetectionUseCase,

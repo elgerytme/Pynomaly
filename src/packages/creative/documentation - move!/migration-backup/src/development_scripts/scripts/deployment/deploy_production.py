@@ -25,10 +25,10 @@ class DeploymentConfig:
     """Configuration for production deployment."""
 
     namespace: str = "pynomaly-production"
-    domain: str = "pynomaly.ai"
-    api_domain: str = "api.pynomaly.ai"
-    monitoring_domain: str = "monitoring.pynomaly.ai"
-    admin_email: str = "admin@pynomaly.ai"
+    domain: str = "monorepo.ai"
+    api_domain: str = "api.monorepo.ai"
+    monitoring_domain: str = "monitoring.monorepo.ai"
+    admin_email: str = "admin@monorepo.ai"
     image_tag: str = "production-latest"
     storage_class: str = "gp3-encrypted"
     node_selector: str = "ml"
@@ -178,10 +178,10 @@ class ProductionDeployer:
             "REPLACE_WITH_ACTUAL_ENCRYPTION_KEY": self._generate_secure_password(32),
             "REPLACE_WITH_ADMIN_PASSWORD": self._generate_secure_password(),
             "REPLACE_WITH_SECRET_KEY": self._generate_secure_password(32),
-            "api.pynomaly.ai": self.config.api_domain,
-            "pynomaly.ai": self.config.domain,
-            "monitoring.pynomaly.ai": self.config.monitoring_domain,
-            "admin@pynomaly.ai": self.config.admin_email,
+            "api.monorepo.ai": self.config.api_domain,
+            "monorepo.ai": self.config.domain,
+            "monitoring.monorepo.ai": self.config.monitoring_domain,
+            "admin@monorepo.ai": self.config.admin_email,
             "pynomaly:production-latest": f"pynomaly:{self.config.image_tag}",
             "gp3-encrypted": self.config.storage_class,
             'workload-type: "ml"': f'workload-type: "{self.config.node_selector}"',
@@ -620,15 +620,15 @@ def main():
     parser.add_argument(
         "--namespace", default="pynomaly-production", help="Kubernetes namespace"
     )
-    parser.add_argument("--domain", default="pynomaly.ai", help="Main domain")
-    parser.add_argument("--api-domain", default="api.pynomaly.ai", help="API domain")
+    parser.add_argument("--domain", default="monorepo.ai", help="Main domain")
+    parser.add_argument("--api-domain", default="api.monorepo.ai", help="API domain")
     parser.add_argument(
         "--monitoring-domain",
-        default="monitoring.pynomaly.ai",
+        default="monitoring.monorepo.ai",
         help="Monitoring domain",
     )
     parser.add_argument(
-        "--admin-email", default="admin@pynomaly.ai", help="Admin email"
+        "--admin-email", default="admin@monorepo.ai", help="Admin email"
     )
     parser.add_argument(
         "--image-tag", default="production-latest", help="Docker image tag"

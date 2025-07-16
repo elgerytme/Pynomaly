@@ -7,9 +7,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore, AnomalyType
-from pynomaly.features.advanced_analytics import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import AnomalyScore, AnomalyType
+from monorepo.features.advanced_analytics import (
     AdvancedAnalytics,
     AnalysisType,
     AnalyticsEngine,

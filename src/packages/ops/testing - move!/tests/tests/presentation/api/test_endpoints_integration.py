@@ -7,12 +7,12 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from monorepo.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.presentation.api.app import create_app
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.presentation.api.app import create_app
 
 
 class TestDetectorEndpointsIntegration:
@@ -56,11 +56,11 @@ class TestDetectorEndpointsIntegration:
         dataset_repo.find_by_id.return_value = test_dataset
 
         # Mock use cases with real implementations
-        from pynomaly.application.use_cases.detect_anomalies import (
+        from monorepo.application.use_cases.detect_anomalies import (
             DetectAnomaliesUseCase,
         )
-        from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
-        from pynomaly.domain.services import FeatureValidator
+        from monorepo.application.use_cases.train_detector import TrainDetectorUseCase
+        from monorepo.domain.services import FeatureValidator
 
         feature_validator = FeatureValidator()
         adapter_registry = AlgorithmAdapterRegistry()

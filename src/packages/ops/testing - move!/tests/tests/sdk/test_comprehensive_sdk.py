@@ -16,8 +16,8 @@ import httpx
 import numpy as np
 import pytest
 
-from pynomaly.sdk import AsyncPynomalaClient, PynomalaClient
-from pynomaly.sdk.exceptions import (
+from monorepo.sdk import AsyncPynomalaClient, PynomalaClient
+from monorepo.sdk.exceptions import (
     AuthenticationError,
     NetworkError,
     NotFoundError,
@@ -43,7 +43,7 @@ class TestSDKClientInitialization:
     def test_client_initialization_with_custom_config(self):
         """Test client initialization with custom configuration."""
         config = {
-            "base_url": "https://api.pynomaly.com",
+            "base_url": "https://api.monorepo.com",
             "api_version": "v2",
             "timeout": 60.0,
             "max_retries": 5,
@@ -61,7 +61,7 @@ class TestSDKClientInitialization:
     def test_client_initialization_from_env(self):
         """Test client initialization from environment variables."""
         env_vars = {
-            "PYNOMALY_BASE_URL": "https://env.pynomaly.com",
+            "PYNOMALY_BASE_URL": "https://env.monorepo.com",
             "PYNOMALY_API_KEY": "env_api_key_456",
             "PYNOMALY_TIMEOUT": "45",
         }
@@ -76,7 +76,7 @@ class TestSDKClientInitialization:
     def test_client_initialization_from_config_file(self):
         """Test client initialization from configuration file."""
         config_data = {
-            "base_url": "https://config.pynomaly.com",
+            "base_url": "https://config.monorepo.com",
             "api_key": "config_api_key_789",
             "timeout": 90,
             "max_retries": 2,
@@ -99,10 +99,10 @@ class TestSDKClientInitialization:
     def test_async_client_initialization(self):
         """Test async client initialization."""
         client = AsyncPynomalaClient(
-            base_url="https://async.pynomaly.com", api_key="async_key_123"
+            base_url="https://async.monorepo.com", api_key="async_key_123"
         )
 
-        assert client.base_url == "https://async.pynomaly.com"
+        assert client.base_url == "https://async.monorepo.com"
         assert client.api_key == "async_key_123"
         assert hasattr(client, "_session")
 
@@ -525,7 +525,7 @@ class TestSDKDetectionOperations:
             "stream_id": "stream_123",
             "detector_id": detector_id,
             "status": "active",
-            "endpoint": "wss://api.pynomaly.com/stream/stream_123",
+            "endpoint": "wss://api.monorepo.com/stream/stream_123",
         }
 
         mock_response = Mock()
@@ -937,7 +937,7 @@ class TestSDKUtilities:
 
     def test_data_format_validation(self):
         """Test data format validation utilities."""
-        from pynomaly.sdk.utils import validate_data_format
+        from monorepo.sdk.utils import validate_data_format
 
         # Valid data
         valid_data = [[1, 2, 3], [4, 5, 6]]
@@ -953,7 +953,7 @@ class TestSDKUtilities:
 
     def test_response_parsing(self):
         """Test response parsing utilities."""
-        from pynomaly.sdk.utils import parse_api_response
+        from monorepo.sdk.utils import parse_api_response
 
         # Successful response
         success_response = Mock()
@@ -973,14 +973,14 @@ class TestSDKUtilities:
 
     def test_url_building(self):
         """Test URL building utilities."""
-        from pynomaly.sdk.utils import build_api_url
+        from monorepo.sdk.utils import build_api_url
 
-        base_url = "https://api.pynomaly.com"
+        base_url = "https://api.monorepo.com"
         api_version = "v1"
         endpoint = "datasets"
 
         url = build_api_url(base_url, api_version, endpoint)
-        assert url == "https://api.pynomaly.com/api/v1/datasets"
+        assert url == "https://api.monorepo.com/api/v1/datasets"
 
         # With parameters
         params = {"page": 1, "per_page": 10}
@@ -990,7 +990,7 @@ class TestSDKUtilities:
 
     def test_data_serialization(self):
         """Test data serialization utilities."""
-        from pynomaly.sdk.utils import serialize_numpy_data
+        from monorepo.sdk.utils import serialize_numpy_data
 
         # NumPy array
         numpy_data = np.array([[1, 2], [3, 4]])
@@ -1005,11 +1005,11 @@ class TestSDKUtilities:
 
     def test_configuration_validation(self):
         """Test configuration validation."""
-        from pynomaly.sdk.utils import validate_client_config
+        from monorepo.sdk.utils import validate_client_config
 
         # Valid config
         valid_config = {
-            "base_url": "https://api.pynomaly.com",
+            "base_url": "https://api.monorepo.com",
             "api_key": "valid_key",
             "timeout": 30,
         }

@@ -11,7 +11,7 @@ from datetime import datetime
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.presentation.sdk.models import (
+from monorepo.presentation.sdk.models import (
     DatasetInfo,
     DetectionRequest,
     DetectionResponse,

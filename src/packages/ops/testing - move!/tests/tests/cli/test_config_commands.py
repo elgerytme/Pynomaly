@@ -9,7 +9,7 @@ from uuid import uuid4
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.config import app
+from monorepo.presentation.cli.config import app
 
 
 class TestConfigCommands:
@@ -91,8 +91,8 @@ class TestConfigCommands:
 
         return config
 
-    @patch("pynomaly.infrastructure.config.feature_flags.require_feature")
-    @patch("pynomaly.presentation.cli.config.ConfigurationCaptureService")
+    @patch("monorepo.infrastructure.config.feature_flags.require_feature")
+    @patch("monorepo.presentation.cli.config.ConfigurationCaptureService")
     def test_capture_configuration_success(
         self, mock_service_class, mock_require_feature, runner, sample_config_data
     ):
@@ -149,8 +149,8 @@ class TestConfigCommands:
             # Verify service was called
             mock_service.capture_configuration.assert_called_once()
 
-    @patch("pynomaly.infrastructure.config.feature_flags.require_feature")
-    @patch("pynomaly.presentation.cli.config.ConfigurationCaptureService")
+    @patch("monorepo.infrastructure.config.feature_flags.require_feature")
+    @patch("monorepo.presentation.cli.config.ConfigurationCaptureService")
     def test_capture_configuration_with_output_file(
         self, mock_service_class, mock_require_feature, runner, sample_config_data
     ):
@@ -200,8 +200,8 @@ class TestConfigCommands:
                 assert f"Saved to: {output_file}" in result.stdout
                 assert output_file.exists()
 
-    @patch("pynomaly.infrastructure.config.feature_flags.require_feature")
-    @patch("pynomaly.presentation.cli.config.ConfigurationCaptureService")
+    @patch("monorepo.infrastructure.config.feature_flags.require_feature")
+    @patch("monorepo.presentation.cli.config.ConfigurationCaptureService")
     def test_capture_configuration_validation_issues(
         self, mock_service_class, mock_require_feature, runner, sample_config_data
     ):
@@ -239,8 +239,8 @@ class TestConfigCommands:
             assert "Invalid contamination value" in result.stdout
             assert "Missing feature columns" in result.stdout
 
-    @patch("pynomaly.infrastructure.config.feature_flags.require_feature")
-    @patch("pynomaly.presentation.cli.config.ConfigurationCaptureService")
+    @patch("monorepo.infrastructure.config.feature_flags.require_feature")
+    @patch("monorepo.presentation.cli.config.ConfigurationCaptureService")
     def test_capture_configuration_failure(
         self, mock_service_class, mock_require_feature, runner, sample_config_data
     ):
@@ -280,7 +280,7 @@ class TestConfigCommands:
         assert result.exit_code == 1
         assert "Parameters file not found" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationCaptureService")
+    @patch("monorepo.presentation.cli.config.ConfigurationCaptureService")
     def test_export_configurations_success(self, mock_service_class, runner):
         """Test successful configuration export."""
         # Mock service
@@ -315,7 +315,7 @@ class TestConfigCommands:
             assert "Output: /tmp/export.json" in result.stdout
             assert "/tmp/config1.json" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationCaptureService")
+    @patch("monorepo.presentation.cli.config.ConfigurationCaptureService")
     def test_export_configurations_multiple_ids(self, mock_service_class, runner):
         """Test exporting multiple configurations."""
         # Mock service
@@ -359,7 +359,7 @@ class TestConfigCommands:
         assert result.exit_code == 1
         assert "Invalid UUID format: invalid-uuid" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationCaptureService")
+    @patch("monorepo.presentation.cli.config.ConfigurationCaptureService")
     def test_export_configurations_failure(self, mock_service_class, runner):
         """Test export configuration failure."""
         # Mock service
@@ -386,7 +386,7 @@ class TestConfigCommands:
             assert "Export failed" in result.stdout
             assert "Configuration not found" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_import_configurations_success(self, mock_repo_class, runner):
         """Test successful configuration import."""
         # Mock repository
@@ -425,7 +425,7 @@ class TestConfigCommands:
             assert "Successfully imported 3 configurations" in result.stdout
             assert "Storage: /tmp/configs" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_import_configurations_dry_run(self, mock_repo_class, runner):
         """Test configuration import dry run."""
         # Mock repository
@@ -460,7 +460,7 @@ class TestConfigCommands:
         assert result.exit_code == 1
         assert "Import file not found" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_list_configurations_success(
         self, mock_repo_class, runner, sample_configuration
     ):
@@ -480,7 +480,7 @@ class TestConfigCommands:
             assert "test_config" in result.stdout
             assert "IsolationForest" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_list_configurations_detailed(
         self, mock_repo_class, runner, sample_configuration
     ):
@@ -508,7 +508,7 @@ class TestConfigCommands:
             assert "IsolationForest" in result.stdout
             assert "0.950" in result.stdout  # Accuracy
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_list_configurations_empty(self, mock_repo_class, runner):
         """Test listing when no configurations exist."""
         # Mock repository
@@ -522,7 +522,7 @@ class TestConfigCommands:
             assert result.exit_code == 0
             assert "No configurations found" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_search_configurations_success(
         self, mock_repo_class, runner, sample_configuration
     ):
@@ -556,7 +556,7 @@ class TestConfigCommands:
             assert "test_config" in result.stdout
             assert "IsolationForest" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_search_configurations_no_results(self, mock_repo_class, runner):
         """Test search with no results."""
         # Mock repository
@@ -572,7 +572,7 @@ class TestConfigCommands:
                 "No configurations found matching query: 'nonexistent'" in result.stdout
             )
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_show_configuration_success(
         self, mock_repo_class, runner, sample_configuration
     ):
@@ -595,7 +595,7 @@ class TestConfigCommands:
             assert "Basic Information" in result.stdout
             assert "Algorithm Configuration" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_show_configuration_json_format(
         self, mock_repo_class, runner, sample_configuration
     ):
@@ -614,7 +614,7 @@ class TestConfigCommands:
             assert "test_config" in result.stdout
             assert "IsolationForest" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_show_configuration_yaml_format(
         self, mock_repo_class, runner, sample_configuration
     ):
@@ -640,7 +640,7 @@ class TestConfigCommands:
         assert result.exit_code == 1
         assert "Invalid UUID format: invalid-uuid" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_show_configuration_not_found(self, mock_repo_class, runner):
         """Test show configuration when not found."""
         # Mock repository
@@ -656,7 +656,7 @@ class TestConfigCommands:
             assert result.exit_code == 1
             assert "Configuration not found" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_show_statistics_success(self, mock_repo_class, runner):
         """Test successful statistics display."""
         # Mock repository
@@ -688,7 +688,7 @@ class TestConfigCommands:
         assert "Versioning Enabled: ✓" in result.stdout
         assert "Compression Enabled: ✗" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_show_statistics_no_data(self, mock_repo_class, runner):
         """Test statistics when no data available."""
         # Mock repository
@@ -777,13 +777,13 @@ class TestConfigCommandsErrorHandling:
         """Create CLI runner for testing."""
         return CliRunner()
 
-    @patch("pynomaly.infrastructure.config.feature_flags.require_feature")
+    @patch("monorepo.infrastructure.config.feature_flags.require_feature")
     def test_capture_configuration_exception(self, mock_require_feature, runner):
         """Test capture command with exception."""
         mock_require_feature.return_value = lambda f: f
 
         with patch(
-            "pynomaly.presentation.cli.config.ConfigurationCaptureService",
+            "monorepo.presentation.cli.config.ConfigurationCaptureService",
             side_effect=Exception("Service error"),
         ):
             with tempfile.NamedTemporaryFile(
@@ -797,7 +797,7 @@ class TestConfigCommandsErrorHandling:
             assert result.exit_code == 1
             assert "Error capturing configuration: Service error" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationCaptureService")
+    @patch("monorepo.presentation.cli.config.ConfigurationCaptureService")
     def test_export_configuration_exception(self, mock_service_class, runner):
         """Test export command with exception."""
         mock_service_class.side_effect = Exception("Export error")
@@ -810,7 +810,7 @@ class TestConfigCommandsErrorHandling:
         assert result.exit_code == 1
         assert "Error exporting configurations: Export error" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_import_configuration_exception(self, mock_repo_class, runner):
         """Test import command with exception."""
         mock_repo_class.side_effect = Exception("Import error")
@@ -824,7 +824,7 @@ class TestConfigCommandsErrorHandling:
         assert result.exit_code == 1
         assert "Error importing configurations: Import error" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_list_configurations_exception(self, mock_repo_class, runner):
         """Test list command with exception."""
         mock_repo_class.side_effect = Exception("List error")
@@ -834,7 +834,7 @@ class TestConfigCommandsErrorHandling:
         assert result.exit_code == 1
         assert "Error listing configurations: List error" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_search_configurations_exception(self, mock_repo_class, runner):
         """Test search command with exception."""
         mock_repo_class.side_effect = Exception("Search error")
@@ -844,7 +844,7 @@ class TestConfigCommandsErrorHandling:
         assert result.exit_code == 1
         assert "Error searching configurations: Search error" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_show_configuration_exception(self, mock_repo_class, runner):
         """Test show command with exception."""
         mock_repo_class.side_effect = Exception("Show error")
@@ -855,7 +855,7 @@ class TestConfigCommandsErrorHandling:
         assert result.exit_code == 1
         assert "Error showing configuration: Show error" in result.stdout
 
-    @patch("pynomaly.presentation.cli.config.ConfigurationRepository")
+    @patch("monorepo.presentation.cli.config.ConfigurationRepository")
     def test_stats_exception(self, mock_repo_class, runner):
         """Test stats command with exception."""
         mock_repo_class.side_effect = Exception("Stats error")

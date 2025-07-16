@@ -44,14 +44,14 @@ def test_core_package():
     try:
         # Test basic import
         sys.path.insert(0, 'src')
-        import pynomaly
-        log_test_result("core_package_import", "PASS", f"Version {pynomaly.__version__}")
+        import monorepo
+        log_test_result("core_package_import", "PASS", f"Version {monorepo.__version__}")
         
         # Test core functionality
-        from pynomaly.domain.entities import Detector, Dataset
-        from pynomaly.domain.value_objects import ContaminationRate
+        from monorepo.domain.entities import Detector, Dataset
+        from monorepo.domain.value_objects import ContaminationRate
         
-        detector = pynomaly.create_detector("test_detector", "IsolationForest", 0.1)
+        detector = monorepo.create_detector("test_detector", "IsolationForest", 0.1)
         log_test_result("core_detector_creation", "PASS", f"Created detector: {detector.name}")
         
         # Test data loading
@@ -59,7 +59,7 @@ def test_core_package():
         import numpy as np
         
         data = pd.DataFrame(np.random.randn(100, 3), columns=['A', 'B', 'C'])
-        dataset = pynomaly.load_dataset(data, "test_dataset")
+        dataset = monorepo.load_dataset(data, "test_dataset")
         log_test_result("core_dataset_loading", "PASS", f"Loaded dataset: {dataset.name}")
         
         return True
@@ -73,12 +73,12 @@ def test_cli_application():
     try:
         # Test CLI import
         sys.path.insert(0, 'src')
-        from pynomaly.presentation.cli.app import app
+        from monorepo.presentation.cli.app import app
         log_test_result("cli_import", "PASS", "CLI app imported successfully")
         
         # Test CLI help command
         result = subprocess.run([
-            sys.executable, "-m", "pynomaly", "--help"
+            sys.executable, "-m", "monorepo", "--help"
         ], capture_output=True, text=True, timeout=30)
         
         if result.returncode == 0:
@@ -88,7 +88,7 @@ def test_cli_application():
             
         # Test CLI version command
         result = subprocess.run([
-            sys.executable, "-m", "pynomaly", "version"
+            sys.executable, "-m", "monorepo", "version"
         ], capture_output=True, text=True, timeout=30)
         
         if result.returncode == 0:
@@ -107,11 +107,11 @@ def test_web_api():
     try:
         # Test API import
         sys.path.insert(0, 'src')
-        from pynomaly.presentation.api.app import app
+        from monorepo.presentation.api.app import app
         log_test_result("api_import", "PASS", "API app imported successfully")
         
         # Test API structure
-        from pynomaly.presentation.api.dependencies import get_container
+        from monorepo.presentation.api.dependencies import get_container
         container = get_container()
         log_test_result("api_container", "PASS", "DI container working")
         
@@ -126,7 +126,7 @@ def test_web_ui():
     try:
         # Test Web UI import
         sys.path.insert(0, 'src')
-        from pynomaly.presentation.web.app import main
+        from monorepo.presentation.web.app import main
         log_test_result("web_ui_import", "PASS", "Web UI imported successfully")
         
         return True
@@ -184,7 +184,7 @@ def test_health_checks():
     try:
         # Test health check CLI
         result = subprocess.run([
-            sys.executable, "-m", "pynomaly", "health", "system"
+            sys.executable, "-m", "monorepo", "health", "system"
         ], capture_output=True, text=True, timeout=30)
         
         if result.returncode == 0:

@@ -80,7 +80,7 @@ class AlertManager:
         default_config = {
             "global": {
                 "smtp_smarthost": "smtp.company.com:587",
-                "smtp_from": "alerts@pynomaly.com",
+                "smtp_from": "alerts@monorepo.com",
                 "slack_api_url": os.getenv("SLACK_WEBHOOK_URL"),
             },
             "notification_channels": [
@@ -136,7 +136,7 @@ class AlertManager:
                     alert_type=AlertType.INFRASTRUCTURE,
                     duration="5m",
                     description="Container CPU usage is above 80%",
-                    runbook_url="https://runbooks.pynomaly.com/high-cpu",
+                    runbook_url="https://runbooks.monorepo.com/high-cpu",
                     labels={"team": "platform"},
                     annotations={
                         "summary": "High CPU usage detected on {{ $labels.container }}",
@@ -150,7 +150,7 @@ class AlertManager:
                     alert_type=AlertType.INFRASTRUCTURE,
                     duration="5m",
                     description="Container memory usage is above 90%",
-                    runbook_url="https://runbooks.pynomaly.com/high-memory",
+                    runbook_url="https://runbooks.monorepo.com/high-memory",
                     labels={"team": "platform"},
                     annotations={
                         "summary": "High memory usage detected on {{ $labels.container }}",
@@ -164,7 +164,7 @@ class AlertManager:
                     alert_type=AlertType.INFRASTRUCTURE,
                     duration="0m",
                     description="Pod is crash looping",
-                    runbook_url="https://runbooks.pynomaly.com/pod-crash",
+                    runbook_url="https://runbooks.monorepo.com/pod-crash",
                     labels={"team": "platform"},
                     annotations={
                         "summary": "Pod {{ $labels.pod }} is crash looping",
@@ -178,7 +178,7 @@ class AlertManager:
                     alert_type=AlertType.INFRASTRUCTURE,
                     duration="5m",
                     description="Kubernetes node is not ready",
-                    runbook_url="https://runbooks.pynomaly.com/node-not-ready",
+                    runbook_url="https://runbooks.monorepo.com/node-not-ready",
                     labels={"team": "platform"},
                     annotations={
                         "summary": "Node {{ $labels.node }} is not ready",
@@ -192,7 +192,7 @@ class AlertManager:
                     alert_type=AlertType.INFRASTRUCTURE,
                     duration="5m",
                     description="Disk space usage is above 85%",
-                    runbook_url="https://runbooks.pynomaly.com/disk-space",
+                    runbook_url="https://runbooks.monorepo.com/disk-space",
                     labels={"team": "platform"},
                     annotations={
                         "summary": "High disk usage on {{ $labels.instance }}",
@@ -212,7 +212,7 @@ class AlertManager:
                     alert_type=AlertType.APPLICATION,
                     duration="2m",
                     description="API error rate is above 5%",
-                    runbook_url="https://runbooks.pynomaly.com/api-errors",
+                    runbook_url="https://runbooks.monorepo.com/api-errors",
                     labels={"team": "api"},
                     annotations={
                         "summary": "High error rate on API",
@@ -226,7 +226,7 @@ class AlertManager:
                     alert_type=AlertType.APPLICATION,
                     duration="5m",
                     description="API 95th percentile latency is above 2 seconds",
-                    runbook_url="https://runbooks.pynomaly.com/api-latency",
+                    runbook_url="https://runbooks.monorepo.com/api-latency",
                     labels={"team": "api"},
                     annotations={
                         "summary": "High API latency detected",
@@ -240,7 +240,7 @@ class AlertManager:
                     alert_type=AlertType.APPLICATION,
                     duration="2m",
                     description="Database connection pool is nearly exhausted",
-                    runbook_url="https://runbooks.pynomaly.com/db-connections",
+                    runbook_url="https://runbooks.monorepo.com/db-connections",
                     labels={"team": "backend"},
                     annotations={
                         "summary": "Database connection pool nearly exhausted",
@@ -254,7 +254,7 @@ class AlertManager:
                     alert_type=AlertType.APPLICATION,
                     duration="5m",
                     description="Message queue backlog is high",
-                    runbook_url="https://runbooks.pynomaly.com/queue-backlog",
+                    runbook_url="https://runbooks.monorepo.com/queue-backlog",
                     labels={"team": "backend"},
                     annotations={
                         "summary": "High queue backlog detected",
@@ -268,7 +268,7 @@ class AlertManager:
                     alert_type=AlertType.APPLICATION,
                     duration="5m",
                     description="ML model inference latency is high",
-                    runbook_url="https://runbooks.pynomaly.com/ml-latency",
+                    runbook_url="https://runbooks.monorepo.com/ml-latency",
                     labels={"team": "ml"},
                     annotations={
                         "summary": "High ML inference latency",
@@ -288,7 +288,7 @@ class AlertManager:
                     alert_type=AlertType.SECURITY,
                     duration="2m",
                     description="High number of security scanner requests blocked",
-                    runbook_url="https://runbooks.pynomaly.com/security-scanner",
+                    runbook_url="https://runbooks.monorepo.com/security-scanner",
                     labels={"team": "security"},
                     annotations={
                         "summary": "Security scanners detected",
@@ -302,7 +302,7 @@ class AlertManager:
                     alert_type=AlertType.SECURITY,
                     duration="0m",
                     description="SQL injection attempts detected",
-                    runbook_url="https://runbooks.pynomaly.com/sql-injection",
+                    runbook_url="https://runbooks.monorepo.com/sql-injection",
                     labels={"team": "security"},
                     annotations={
                         "summary": "SQL injection attempts detected",
@@ -316,7 +316,7 @@ class AlertManager:
                     alert_type=AlertType.SECURITY,
                     duration="2m",
                     description="High number of failed authentication attempts",
-                    runbook_url="https://runbooks.pynomaly.com/failed-auth",
+                    runbook_url="https://runbooks.monorepo.com/failed-auth",
                     labels={"team": "security"},
                     annotations={
                         "summary": "High failed authentication rate",
@@ -330,7 +330,7 @@ class AlertManager:
                     alert_type=AlertType.SECURITY,
                     duration="5m",
                     description="High number of unauthorized access attempts",
-                    runbook_url="https://runbooks.pynomaly.com/unauthorized-access",
+                    runbook_url="https://runbooks.monorepo.com/unauthorized-access",
                     labels={"team": "security"},
                     annotations={
                         "summary": "Unauthorized access attempts detected",
@@ -350,7 +350,7 @@ class AlertManager:
                     alert_type=AlertType.BUSINESS,
                     duration="30m",
                     description="User registration rate has dropped significantly",
-                    runbook_url="https://runbooks.pynomaly.com/user-registration",
+                    runbook_url="https://runbooks.monorepo.com/user-registration",
                     labels={"team": "product"},
                     annotations={
                         "summary": "User registration rate dropped",
@@ -364,7 +364,7 @@ class AlertManager:
                     alert_type=AlertType.BUSINESS,
                     duration="10m",
                     description="High anomaly detection job failure rate",
-                    runbook_url="https://runbooks.pynomaly.com/job-failures",
+                    runbook_url="https://runbooks.monorepo.com/job-failures",
                     labels={"team": "ml"},
                     annotations={
                         "summary": "High anomaly detection job failure rate",
@@ -378,7 +378,7 @@ class AlertManager:
                     alert_type=AlertType.BUSINESS,
                     duration="0m",
                     description="Payment processing errors detected",
-                    runbook_url="https://runbooks.pynomaly.com/payment-errors",
+                    runbook_url="https://runbooks.monorepo.com/payment-errors",
                     labels={"team": "billing"},
                     annotations={
                         "summary": "Payment processing errors detected",
@@ -413,7 +413,7 @@ class AlertManager:
                     "for": rule.duration,
                     "labels": {
                         "severity": rule.severity.value,
-                        "service": "pynomaly",
+                        "service": "monorepo",
                         **rule.labels,
                     },
                     "annotations": {
@@ -510,7 +510,7 @@ class AlertManager:
                     ],
                     "email_configs": [
                         {
-                            "to": "oncall@pynomaly.com",
+                            "to": "oncall@monorepo.com",
                             "subject": "EMERGENCY: {{ .GroupLabels.alertname }}",
                             "body": "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}",
                         }

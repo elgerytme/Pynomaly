@@ -26,7 +26,7 @@ class TestPhase8Integration:
     def test_multi_region_deployment_availability(self):
         """Test if multi-region deployment implementation is available"""
         try:
-            from pynomaly.infrastructure.global_scale.multi_region_deployment import (
+            from monorepo.infrastructure.global_scale.multi_region_deployment import (
                 DataReplicationManager,
                 FailoverManager,
                 GlobalLoadBalancer,
@@ -43,7 +43,7 @@ class TestPhase8Integration:
     def test_massive_dataset_processing_availability(self):
         """Test if massive dataset processing implementation is available"""
         try:
-            from pynomaly.infrastructure.global_scale.massive_dataset_processing import (
+            from monorepo.infrastructure.global_scale.massive_dataset_processing import (
                 DataPartitionManager,
                 DistributedComputeCluster,
                 MassiveDatasetProcessor,
@@ -59,7 +59,7 @@ class TestPhase8Integration:
     def test_ultra_high_performance_availability(self):
         """Test if ultra-high performance implementation is available"""
         try:
-            from pynomaly.infrastructure.performance_v2.ultra_high_performance import (
+            from monorepo.infrastructure.performance_v2.ultra_high_performance import (
                 ComputeStream,
                 CustomKernelManager,
                 GPUClusterManager,
@@ -76,7 +76,7 @@ class TestPhase8Integration:
     def test_advanced_caching_v2_availability(self):
         """Test if advanced caching v2 implementation is available"""
         try:
-            from pynomaly.infrastructure.performance_v2.advanced_caching_v2 import (
+            from monorepo.infrastructure.performance_v2.advanced_caching_v2 import (
                 AccessPredictor,
                 AdvancedCacheOrchestrator,
                 CacheWarmer,
@@ -93,7 +93,7 @@ class TestPhase8Integration:
     def test_real_time_processing_enhancement_availability(self):
         """Test if real-time processing enhancement implementation is available"""
         try:
-            from pynomaly.infrastructure.performance_v2.real_time_processing_enhancement import (
+            from monorepo.infrastructure.performance_v2.real_time_processing_enhancement import (
                 NetworkOptimizer,
                 RealTimeProcessingOrchestrator,
                 StreamProcessor,
@@ -109,7 +109,7 @@ class TestPhase8Integration:
     def test_resource_optimization_availability(self):
         """Test if resource optimization implementation is available"""
         try:
-            from pynomaly.infrastructure.performance_v2.resource_optimization import (
+            from monorepo.infrastructure.performance_v2.resource_optimization import (
                 CostOptimizer,
                 DynamicResourceAllocator,
                 PerformanceOptimizer,
@@ -128,7 +128,7 @@ class TestPhase8Integration:
             pytest.skip("Multi-region deployment not available")
 
         try:
-            from pynomaly.infrastructure.global_scale.multi_region_deployment import (
+            from monorepo.infrastructure.global_scale.multi_region_deployment import (
                 LoadBalancingStrategy,
                 MultiRegionDeploymentOrchestrator,
                 RegionConfig,
@@ -166,7 +166,7 @@ class TestPhase8Integration:
             pytest.skip("Massive dataset processing not available")
 
         try:
-            from pynomaly.infrastructure.global_scale.massive_dataset_processing import (
+            from monorepo.infrastructure.global_scale.massive_dataset_processing import (
                 MassiveDatasetProcessor,
                 ProcessingConfig,
                 ProcessingMode,
@@ -204,7 +204,7 @@ class TestPhase8Integration:
             pytest.skip("Ultra-high performance not available")
 
         try:
-            from pynomaly.infrastructure.performance_v2.ultra_high_performance import (
+            from monorepo.infrastructure.performance_v2.ultra_high_performance import (
                 OptimizationLevel,
                 UltraHighPerformanceOrchestrator,
             )
@@ -235,7 +235,7 @@ class TestPhase8Integration:
             pytest.skip("Advanced caching v2 not available")
 
         try:
-            from pynomaly.infrastructure.performance_v2.advanced_caching_v2 import (
+            from monorepo.infrastructure.performance_v2.advanced_caching_v2 import (
                 AdvancedCacheOrchestrator,
                 CacheStrategy,
             )
@@ -261,7 +261,7 @@ class TestPhase8Integration:
             pytest.skip("Real-time processing enhancement not available")
 
         try:
-            from pynomaly.infrastructure.performance_v2.real_time_processing_enhancement import (
+            from monorepo.infrastructure.performance_v2.real_time_processing_enhancement import (
                 ProcessingMode,
                 RealTimeProcessingOrchestrator,
             )
@@ -291,7 +291,7 @@ class TestPhase8Integration:
             pytest.skip("Resource optimization not available")
 
         try:
-            from pynomaly.infrastructure.performance_v2.resource_optimization import (
+            from monorepo.infrastructure.performance_v2.resource_optimization import (
                 ResourceOptimizationOrchestrator,
             )
 

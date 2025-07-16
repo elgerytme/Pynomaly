@@ -95,7 +95,7 @@ def update_imports(content: str) -> str:
     # Check if we need to add RBAC imports
     if "require_permissions" not in content:
         import_lines.append(
-            "from pynomaly.infrastructure.security.rbac_middleware import ("
+            "from monorepo.infrastructure.security.rbac_middleware import ("
         )
         import_lines.append(
             "    require_permissions, require_role, require_auth, CommonPermissions"
@@ -103,7 +103,7 @@ def update_imports(content: str) -> str:
         import_lines.append(")")
 
     if "UserRole" not in content and "require_role" in content:
-        import_lines.append("from pynomaly.domain.entities.user import UserRole")
+        import_lines.append("from monorepo.domain.entities.user import UserRole")
 
     if import_lines:
         # Find the last import line

@@ -242,9 +242,9 @@ class BetaProgramLauncher:
                     "email": user.email,
                     "company": user.company,
                     "industry": user.industry.value,
-                    "beta_access_url": f"https://beta.pynomaly.io/register?token={hash(user.email) % 100000}",
-                    "support_email": "beta-support@pynomaly.io",
-                    "documentation_url": "https://docs.pynomaly.io/beta",
+                    "beta_access_url": f"https://beta.monorepo.io/register?token={hash(user.email) % 100000}",
+                    "support_email": "beta-support@monorepo.io",
+                    "documentation_url": "https://docs.monorepo.io/beta",
                 }
 
                 self.log_launch_step(
@@ -389,7 +389,7 @@ class BetaProgramLauncher:
                 self.log_launch_step("Monitoring", "SUCCESS", f"{component} configured")
 
             monitoring_config = {
-                "analytics_dashboard": "https://analytics.pynomaly.io/beta",
+                "analytics_dashboard": "https://analytics.monorepo.io/beta",
                 "user_activity_tracking": "enabled",
                 "feature_usage_metrics": "enabled",
                 "feedback_collection": "enabled",
@@ -492,10 +492,10 @@ class BetaProgramLauncher:
             "beta_users": [asdict(user) for user in self.beta_users],
             "launch_log": self.launch_log,
             "production_urls": {
-                "beta_portal": "https://beta.pynomaly.io",
-                "documentation": "https://docs.pynomaly.io/beta",
-                "support": "beta-support@pynomaly.io",
-                "feedback": "https://feedback.pynomaly.io",
+                "beta_portal": "https://beta.monorepo.io",
+                "documentation": "https://docs.monorepo.io/beta",
+                "support": "beta-support@monorepo.io",
+                "feedback": "https://feedback.monorepo.io",
             },
             "next_steps": [
                 "Monitor beta user engagement and feature usage",

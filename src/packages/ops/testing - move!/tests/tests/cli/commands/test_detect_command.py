@@ -10,9 +10,9 @@ from unittest.mock import Mock, patch
 
 from typer.testing import CliRunner
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.presentation.cli.app import app
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import AnomalyScore
+from monorepo.presentation.cli.app import app
 
 
 class TestDetectCommand:
@@ -84,8 +84,8 @@ class TestDetectCommand:
 
     # Training Command Tests
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_train_basic(self, mock_dataset_service, mock_detection_service):
         """Test basic training command execution."""
         # Mock services
@@ -119,8 +119,8 @@ class TestDetectCommand:
         mock_dataset_service.load_dataset.assert_called_once()
         mock_detection_service.train_detector.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_train_with_contamination_rate(
         self, mock_dataset_service, mock_detection_service
     ):
@@ -155,8 +155,8 @@ class TestDetectCommand:
         # Check that contamination rate was used in the call
         assert call_args is not None
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_train_with_config_file(
         self, mock_dataset_service, mock_detection_service
     ):
@@ -188,8 +188,8 @@ class TestDetectCommand:
 
     # Detection Command Tests
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_run_basic(self, mock_dataset_service, mock_detection_service):
         """Test basic detection run command."""
         # Mock services
@@ -217,8 +217,8 @@ class TestDetectCommand:
         assert result.exit_code == 0
         mock_detection_service.detect_anomalies.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_run_with_output_file(
         self, mock_dataset_service, mock_detection_service
     ):
@@ -255,8 +255,8 @@ class TestDetectCommand:
 
     # Batch Detection Tests
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_batch_basic(self, mock_dataset_service, mock_detection_service):
         """Test batch detection command."""
         # Create batch config
@@ -419,8 +419,8 @@ class TestDetectCommand:
 
     # Algorithm-Specific Tests
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_train_isolation_forest(
         self, mock_dataset_service, mock_detection_service
     ):
@@ -449,8 +449,8 @@ class TestDetectCommand:
         assert result.exit_code == 0
         mock_detection_service.train_detector.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_train_one_class_svm(
         self, mock_dataset_service, mock_detection_service
     ):
@@ -481,8 +481,8 @@ class TestDetectCommand:
 
     # Output Format Tests
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_run_json_output(self, mock_dataset_service, mock_detection_service):
         """Test detection with JSON output format."""
         # Mock services
@@ -511,8 +511,8 @@ class TestDetectCommand:
         assert result.exit_code == 0
         mock_detection_service.detect_anomalies.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_run_csv_output(self, mock_dataset_service, mock_detection_service):
         """Test detection with CSV output format."""
         # Mock services
@@ -543,8 +543,8 @@ class TestDetectCommand:
 
     # Performance and Resource Tests
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_train_with_timeout(
         self, mock_dataset_service, mock_detection_service
     ):
@@ -577,8 +577,8 @@ class TestDetectCommand:
 
     # Integration Tests
 
-    @patch("pynomaly.presentation.cli.commands.detect.detection_service")
-    @patch("pynomaly.presentation.cli.commands.detect.dataset_service")
+    @patch("monorepo.presentation.cli.commands.detect.detection_service")
+    @patch("monorepo.presentation.cli.commands.detect.dataset_service")
     def test_detect_train_and_run_workflow(
         self, mock_dataset_service, mock_detection_service
     ):

@@ -8,8 +8,8 @@ from unittest.mock import Mock
 import jwt
 import pytest
 
-from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
-from pynomaly.infrastructure.auth.jwt_auth import (
+from monorepo.domain.exceptions import AuthenticationError, AuthorizationError
+from monorepo.infrastructure.auth.jwt_auth import (
     JWTAuthService,
     TokenPayload,
     TokenResponse,
@@ -17,8 +17,8 @@ from pynomaly.infrastructure.auth.jwt_auth import (
     get_auth,
     init_auth,
 )
-from pynomaly.infrastructure.auth.middleware import AuthenticationMiddleware
-from pynomaly.infrastructure.config.settings import Settings
+from monorepo.infrastructure.auth.middleware import AuthenticationMiddleware
+from monorepo.infrastructure.config.settings import Settings
 
 
 class TestJWTAuthService:

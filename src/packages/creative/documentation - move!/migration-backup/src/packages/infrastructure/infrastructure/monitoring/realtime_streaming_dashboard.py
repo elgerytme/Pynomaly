@@ -16,12 +16,12 @@ import plotly.graph_objects as go
 import plotly.utils
 from plotly.subplots import make_subplots
 
-from pynomaly.application.services.streaming_anomaly_detection_service import (
+from monorepo.application.services.streaming_anomaly_detection_service import (
     AnomalyAlert,
     AnomalyThreatLevel,
     StreamingAnomalyDetectionService,
 )
-from pynomaly.infrastructure.logging.structured_logger import StructuredLogger
+from monorepo.infrastructure.logging.structured_logger import StructuredLogger
 
 
 class RealtimeStreamingDashboard:

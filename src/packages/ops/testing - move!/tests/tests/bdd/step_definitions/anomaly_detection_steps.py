@@ -7,10 +7,10 @@ import pytest
 from pytest_bdd import given, parsers, then, when
 from sklearn.datasets import make_blobs
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.services import AnomalyScorer, ThresholdCalculator
-from pynomaly.infrastructure.adapters import SklearnAdapter
-from pynomaly.infrastructure.repositories import (
+from monorepo.domain.entities import Dataset
+from monorepo.domain.services import AnomalyScorer, ThresholdCalculator
+from monorepo.infrastructure.adapters import SklearnAdapter
+from monorepo.infrastructure.repositories import (
     InMemoryDetectorRepository,
     InMemoryResultRepository,
 )

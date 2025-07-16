@@ -10,8 +10,8 @@ from unittest.mock import patch
 
 import pytest
 
-from src.pynomaly.domain.entities.model_performance import ModelPerformanceMetrics
-from src.pynomaly.domain.services.model_selector import ModelSelector
+from src.monorepo.domain.entities.model_performance import ModelPerformanceMetrics
+from src.monorepo.domain.services.model_selector import ModelSelector
 
 
 class TestModelSelector:
@@ -76,7 +76,7 @@ class TestModelSelector:
     def test_rank_models(self, model_selector, sample_models):
         """Test model ranking with Pareto front filtering."""
         with patch(
-            "src.pynomaly.domain.services.model_selector.MetricsCalculator.compare_models"
+            "src.monorepo.domain.services.model_selector.MetricsCalculator.compare_models"
         ) as mock_compare:
             mock_compare.return_value = {
                 "rankings": {
@@ -105,7 +105,7 @@ class TestModelSelector:
     def test_rank_models_empty_list(self, model_selector):
         """Test ranking with empty model list."""
         with patch(
-            "src.pynomaly.domain.services.model_selector.MetricsCalculator.compare_models"
+            "src.monorepo.domain.services.model_selector.MetricsCalculator.compare_models"
         ) as mock_compare:
             mock_compare.return_value = {"rankings": {"f1_score": []}}
 
@@ -120,7 +120,7 @@ class TestModelSelector:
     def test_significant_difference_mock_ttest(self, model_selector, sample_models):
         """Test statistical significance between models with mocked t-test."""
         with patch(
-            "src.pynomaly.domain.services.model_selector.ttest_ind"
+            "src.monorepo.domain.services.model_selector.ttest_ind"
         ) as mock_ttest:
             # Mock significant difference
             mock_ttest.return_value = (2.5, 0.02)  # p-value < 0.05
@@ -181,7 +181,7 @@ class TestModelSelector:
             ]
 
             with patch(
-                "src.pynomaly.domain.services.model_selector.MetricsCalculator.compare_models"
+                "src.monorepo.domain.services.model_selector.MetricsCalculator.compare_models"
             ) as mock_compare:
                 mock_compare.return_value = {
                     "rankings": {
@@ -222,7 +222,7 @@ class TestModelSelector:
         ]
 
         with patch(
-            "src.pynomaly.domain.services.model_selector.MetricsCalculator.compare_models"
+            "src.monorepo.domain.services.model_selector.MetricsCalculator.compare_models"
         ) as mock_compare:
             mock_compare.return_value = {
                 "rankings": {

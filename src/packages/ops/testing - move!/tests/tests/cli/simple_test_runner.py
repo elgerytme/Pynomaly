@@ -14,8 +14,8 @@ sys.path.insert(0, str(project_root / "src"))
 
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli import autonomous, datasets, detectors
-from pynomaly.presentation.cli.app import app
+from monorepo.presentation.cli import autonomous, datasets, detectors
+from monorepo.presentation.cli.app import app
 
 
 def test_main_help_command():
@@ -132,7 +132,7 @@ def test_subcommand_help_completeness():
         return False
 
 
-@patch("pynomaly.presentation.cli.container.get_cli_container")
+@patch("monorepo.presentation.cli.container.get_cli_container")
 def test_dataset_list_with_mock(mock_get_container):
     """Test dataset list with mocked container."""
     print("🧪 Testing dataset list with mock...")
@@ -208,7 +208,7 @@ def test_export_list_formats():
         return False
 
 
-@patch("pynomaly.application.services.autonomous_service.AutonomousDetectionService")
+@patch("monorepo.application.services.autonomous_service.AutonomousDetectionService")
 def test_autonomous_detect_basic(mock_service_class):
     """Test basic autonomous detection."""
     print("🧪 Testing autonomous detect basic...")

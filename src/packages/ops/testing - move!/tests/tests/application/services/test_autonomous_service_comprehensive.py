@@ -10,14 +10,14 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.services.autonomous_service import (
+from monorepo.application.services.autonomous_service import (
     AutonomousDetectionService as AutonomousService,
 )
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.entities.experiment import Experiment
-from pynomaly.domain.exceptions import DatasetError
-from pynomaly.domain.value_objects import PerformanceMetrics
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.entities.experiment import Experiment
+from monorepo.domain.exceptions import DatasetError
+from monorepo.domain.value_objects import PerformanceMetrics
 
 
 class TestAutonomousService:

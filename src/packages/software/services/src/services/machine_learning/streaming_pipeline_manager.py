@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import (
+from monorepo.infrastructure.streaming.real_time_anomaly_pipeline import (
     AlertSeverity,
     KafkaDataSource,
     RealTimeAnomalyPipeline,

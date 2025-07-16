@@ -13,7 +13,7 @@ from uuid import UUID
 
 import pytest
 
-from pynomaly.application.services.video_tutorial_service import (
+from monorepo.application.services.video_tutorial_service import (
     VideoTutorial,
     VideoTutorialService,
     VideoSeries,

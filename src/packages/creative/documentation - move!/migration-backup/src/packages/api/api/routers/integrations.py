@@ -9,8 +9,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, HttpUrl
 
-from pynomaly.application.services.integration_service import IntegrationService
-from pynomaly.domain.entities.integrations import (
+from monorepo.application.services.integration_service import IntegrationService
+from monorepo.domain.entities.integrations import (
     IntegrationConfig,
     IntegrationStatus,
     IntegrationType,
@@ -19,14 +19,14 @@ from pynomaly.domain.entities.integrations import (
     NotificationTemplate,
     TriggerType,
 )
-from pynomaly.domain.entities.user import User
-from pynomaly.shared.exceptions import (
+from monorepo.domain.entities.user import User
+from monorepo.shared.exceptions import (
     AuthenticationError,
     IntegrationError,
     NotificationError,
     ValidationError,
 )
-from pynomaly.shared.types import TenantId, UserId
+from monorepo.shared.types import TenantId, UserId
 
 # Router setup
 router = APIRouter(prefix="/api/integrations", tags=["Integrations"])

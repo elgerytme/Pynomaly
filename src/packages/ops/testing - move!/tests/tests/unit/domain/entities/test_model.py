@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.domain.entities.model import Model, ModelStage, ModelType
+from monorepo.domain.entities.model import Model, ModelStage, ModelType
 
 
 class TestModelInitialization:

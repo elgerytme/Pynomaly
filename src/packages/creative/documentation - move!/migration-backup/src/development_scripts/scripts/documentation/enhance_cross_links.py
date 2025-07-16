@@ -138,7 +138,7 @@ class CrossLinkEnhancer:
 - **[Troubleshooting Guide](../troubleshooting/troubleshooting.md)** - Common issues and solutions
 - **[GitHub Issues](https://github.com/your-org/pynomaly/issues)** - Report bugs and request features
 - **[GitHub Discussions](https://github.com/your-org/pynomaly/discussions)** - Ask questions and share ideas
-- **[Security Issues](mailto:security@pynomaly.org)** - Report security vulnerabilities
+- **[Security Issues](mailto:security@monorepo.org)** - Report security vulnerabilities
 """,
             "developer-guide": """
 ---

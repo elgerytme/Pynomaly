@@ -2,11 +2,11 @@
 
 import time
 
-from pynomaly.infrastructure.cache.decorators import CacheKeyGenerator
-from pynomaly.infrastructure.cache.optimized_key_generator import (
+from monorepo.infrastructure.cache.decorators import CacheKeyGenerator
+from monorepo.infrastructure.cache.optimized_key_generator import (
     OptimizedCacheKeyGenerator,
 )
-from pynomaly.infrastructure.cache.performance_utils import (
+from monorepo.infrastructure.cache.performance_utils import (
     enable_cache_optimizations,
     get_cache_performance_report,
     get_performance_optimizer,

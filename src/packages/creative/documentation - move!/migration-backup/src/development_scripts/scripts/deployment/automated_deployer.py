@@ -82,7 +82,7 @@ class AutomatedDeployer:
                     "smtp_port": int(os.getenv("SMTP_PORT", "587")),
                     "username": os.getenv("SMTP_USERNAME"),
                     "password": os.getenv("SMTP_PASSWORD"),
-                    "recipients": ["team@pynomaly.io"],
+                    "recipients": ["team@monorepo.io"],
                 },
                 "slack": {
                     "webhook_url": os.getenv("SLACK_WEBHOOK_URL"),
@@ -665,9 +665,9 @@ class AutomatedDeployer:
     def _get_base_url(self, environment: str) -> str:
         """Get base URL for environment."""
         if environment == "production":
-            return "https://api.pynomaly.io"
+            return "https://api.monorepo.io"
         elif environment == "staging":
-            return "https://staging-api.pynomaly.io"
+            return "https://staging-api.monorepo.io"
         else:
             return "http://localhost:8000"
 

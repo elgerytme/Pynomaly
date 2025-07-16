@@ -16,37 +16,37 @@ def test_cli_module_structure():
     """Test that CLI modules can be imported."""
     try:
         # Test basic imports
-        from pynomaly.domain.entities.anomaly import Anomaly
+        from monorepo.domain.entities.anomaly import Anomaly
 
         print("✅ Domain entities import successful")
 
         # Test CLI app import (the main CLI module)
-        from pynomaly.presentation.cli.app import app as cli_app
+        from monorepo.presentation.cli.app import app as cli_app
 
         print("✅ CLI app import successful")
 
         # Test autonomous CLI import
-        from pynomaly.presentation.cli.autonomous import app as auto_app
+        from monorepo.presentation.cli.autonomous import app as auto_app
 
         print("✅ Autonomous CLI import successful")
 
         # Test dataset CLI import
-        from pynomaly.presentation.cli.datasets import app as dataset_app
+        from monorepo.presentation.cli.datasets import app as dataset_app
 
         print("✅ Dataset CLI import successful")
 
         # Test detector CLI import
-        from pynomaly.presentation.cli.detectors import app as detector_app
+        from monorepo.presentation.cli.detectors import app as detector_app
 
         print("✅ Detector CLI import successful")
 
         # Test detection CLI import
-        from pynomaly.presentation.cli.detection import app as detection_app
+        from monorepo.presentation.cli.detection import app as detection_app
 
         print("✅ Detection CLI import successful")
 
         # Test export CLI import
-        from pynomaly.presentation.cli.export import export_app
+        from monorepo.presentation.cli.export import export_app
 
         print("✅ Export CLI import successful")
 
@@ -62,7 +62,7 @@ def test_typer_cli_structure():
     try:
         import typer
 
-        from pynomaly.presentation.cli.app import app
+        from monorepo.presentation.cli.app import app
 
         # Verify it's a Typer app
         if isinstance(app, typer.Typer):
@@ -91,7 +91,7 @@ def test_cli_help_generation():
     try:
         import typer.testing
 
-        from pynomaly.presentation.cli.app import app
+        from monorepo.presentation.cli.app import app
 
         runner = typer.testing.CliRunner()
         result = runner.invoke(app, ["--help"])
@@ -121,11 +121,11 @@ def test_cli_help_generation():
 def test_data_loaders():
     """Test data loader imports."""
     try:
-        from pynomaly.infrastructure.data_loaders.csv_loader import CSVLoader
+        from monorepo.infrastructure.data_loaders.csv_loader import CSVLoader
 
         print("✅ CSV loader import successful")
 
-        from pynomaly.infrastructure.data_loaders.json_loader import JSONLoader
+        from monorepo.infrastructure.data_loaders.json_loader import JSONLoader
 
         print("✅ JSON loader import successful")
 

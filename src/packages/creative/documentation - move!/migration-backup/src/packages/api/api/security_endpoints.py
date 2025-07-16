@@ -8,7 +8,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from pydantic import BaseModel, Field
 
-from pynomaly.presentation.web.csrf import get_csrf_protection, refresh_csrf_token
+from monorepo.presentation.web.csrf import get_csrf_protection, refresh_csrf_token
 
 logger = logging.getLogger(__name__)
 
@@ -366,7 +366,7 @@ async def _analyze_csp_violation(
 @router.post("/test/trigger-violation")
 async def trigger_test_violation(request: Request) -> dict[str, str]:
     """Trigger a test CSP violation for testing purposes (development only)."""
-    if request.url.hostname not in ["localhost", "127.0.0.1", "dev.pynomaly.com"]:
+    if request.url.hostname not in ["localhost", "127.0.0.1", "dev.monorepo.com"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Test endpoints only available in development",

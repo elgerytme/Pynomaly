@@ -13,8 +13,8 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.types import VARCHAR, TypeDecorator
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.shared.protocols import (
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.shared.protocols import (
     DatasetRepositoryProtocol,
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,
@@ -542,7 +542,7 @@ class DatabaseDetectionResultRepository(DetectionResultRepositoryProtocol):
         # Deserialize scores
         scores = []
         if model.scores:
-            from pynomaly.domain.value_objects import AnomalyScore
+            from monorepo.domain.value_objects import AnomalyScore
 
             scores = [
                 AnomalyScore(

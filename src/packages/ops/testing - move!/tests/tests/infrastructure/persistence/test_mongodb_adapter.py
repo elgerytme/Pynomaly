@@ -6,8 +6,8 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.infrastructure.config.database_config import DatabaseConfig, DatabaseType
-from pynomaly.infrastructure.persistence.mongodb_adapter import MongoDBAdapter
+from monorepo.infrastructure.config.database_config import DatabaseConfig, DatabaseType
+from monorepo.infrastructure.persistence.mongodb_adapter import MongoDBAdapter
 
 
 class TestMongoDBAdapter:

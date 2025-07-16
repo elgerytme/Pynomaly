@@ -36,7 +36,7 @@ def generate_openapi_spec():
             "version": "1.0.0",
         },
         "servers": [
-            {"url": "https://api.pynomaly.com", "description": "Production"},
+            {"url": "https://api.monorepo.com", "description": "Production"},
             {"url": "http://localhost:8000", "description": "Development"},
         ],
         "paths": {
@@ -174,7 +174,7 @@ def generate_postman_collection():
             },
         ],
         "variable": [
-            {"key": "base_url", "value": "https://api.pynomaly.com"},
+            {"key": "base_url", "value": "https://api.monorepo.com"},
             {"key": "api_key", "value": "your-api-key-here"},
         ],
     }
@@ -200,7 +200,7 @@ def generate_code_examples():
     python_example = """import requests
 
 API_KEY = "your-api-key-here"
-BASE_URL = "https://api.pynomaly.com"
+BASE_URL = "https://api.monorepo.com"
 
 headers = {
     "X-API-Key": API_KEY,
@@ -224,11 +224,11 @@ print(response.json())
     curl_dir.mkdir(exist_ok=True)
 
     curl_example = """# Health check
-curl -X GET "https://api.pynomaly.com/health" \\
+curl -X GET "https://api.monorepo.com/health" \\
   -H "X-API-Key: your-api-key-here"
 
 # List detectors
-curl -X GET "https://api.pynomaly.com/api/v1/detectors" \\
+curl -X GET "https://api.monorepo.com/api/v1/detectors" \\
   -H "X-API-Key: your-api-key-here"
 """
 

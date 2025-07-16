@@ -11,6 +11,7 @@ import sys
 import time
 from datetime import datetime
 
+# TODO: fix
 import aiohttp
 
 # Configure logging

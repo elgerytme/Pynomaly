@@ -13,9 +13,9 @@ from typing import Protocol
 import numpy as np
 from scipy import stats
 
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.value_objects.anomaly_score import AnomalyScore
+from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
 class UncertaintyQuantificationProtocol(Protocol):

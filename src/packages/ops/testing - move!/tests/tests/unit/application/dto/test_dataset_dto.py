@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto.dataset_dto import (
+from monorepo.application.dto.dataset_dto import (
     CreateDatasetDTO,
     DataQualityReportDTO,
     DatasetDTO,

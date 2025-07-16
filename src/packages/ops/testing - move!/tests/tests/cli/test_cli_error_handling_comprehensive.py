@@ -8,9 +8,9 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.app import app
-from pynomaly.presentation.cli.config import app as config_app
-from pynomaly.presentation.cli.server import app as server_app
+from monorepo.presentation.cli.app import app
+from monorepo.presentation.cli.config import app as config_app
+from monorepo.presentation.cli.server import app as server_app
 
 
 class TestCLIErrorHandling:
@@ -25,7 +25,7 @@ class TestCLIErrorHandling:
     def mock_container(self):
         """Mock CLI container."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -98,7 +98,7 @@ class TestCLIErrorHandling:
     def test_network_errors(self, runner):
         """Test handling of network-related errors."""
         with patch(
-            "pynomaly.presentation.cli.server.get_cli_container"
+            "monorepo.presentation.cli.server.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -119,7 +119,7 @@ class TestCLIErrorHandling:
     def test_timeout_handling(self, runner):
         """Test handling of timeout errors."""
         with patch(
-            "pynomaly.presentation.cli.server.get_cli_container"
+            "monorepo.presentation.cli.server.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -155,7 +155,7 @@ class TestCLIErrorHandling:
     def test_service_unavailable_errors(self, runner):
         """Test handling of service unavailable errors."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container",
+            "monorepo.presentation.cli.app.get_cli_container",
             side_effect=Exception("Service unavailable"),
         ):
             result = runner.invoke(app, ["version"])
@@ -164,7 +164,7 @@ class TestCLIErrorHandling:
     def test_memory_errors(self, runner):
         """Test handling of memory-related errors."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container",
+            "monorepo.presentation.cli.app.get_cli_container",
             side_effect=MemoryError("Out of memory"),
         ):
             result = runner.invoke(app, ["version"])
@@ -173,7 +173,7 @@ class TestCLIErrorHandling:
     def test_keyboard_interrupt_handling(self, runner):
         """Test handling of keyboard interrupts."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container",
+            "monorepo.presentation.cli.app.get_cli_container",
             side_effect=KeyboardInterrupt(),
         ):
             result = runner.invoke(app, ["version"])
@@ -194,7 +194,7 @@ class TestCLIErrorHandling:
     def test_subprocess_errors(self, runner):
         """Test handling of subprocess errors."""
         with patch(
-            "pynomaly.presentation.cli.server.get_cli_container"
+            "monorepo.presentation.cli.server.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -224,7 +224,7 @@ class TestCLIErrorHandling:
     def test_signal_handling(self, runner):
         """Test handling of system signals."""
         with patch(
-            "pynomaly.presentation.cli.server.get_cli_container"
+            "monorepo.presentation.cli.server.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -234,7 +234,7 @@ class TestCLIErrorHandling:
 
             # Test server stop with signal error
             with tempfile.TemporaryDirectory() as tmp_dir:
-                pid_file = Path(tmp_dir) / "pynomaly.pid"
+                pid_file = Path(tmp_dir) / "monorepo.pid"
                 pid_file.write_text("1234")
                 container.config.return_value.storage_path = Path(tmp_dir)
 
@@ -476,7 +476,7 @@ class TestCLIResourceLimits:
     def test_memory_intensive_operations(self, runner):
         """Test memory-intensive operations."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -492,7 +492,7 @@ class TestCLIResourceLimits:
     def test_concurrent_access_simulation(self, runner):
         """Test concurrent access simulation."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -526,7 +526,7 @@ class TestCLIResourceLimits:
     def test_process_limits(self, runner):
         """Test process limits."""
         with patch(
-            "pynomaly.presentation.cli.server.get_cli_container"
+            "monorepo.presentation.cli.server.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -557,7 +557,7 @@ class TestCLIRecovery:
         """Test graceful degradation when features are unavailable."""
         # Test when optional features are not available
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -577,7 +577,7 @@ class TestCLIRecovery:
     def test_fallback_mechanisms(self, runner):
         """Test fallback mechanisms when primary methods fail."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -593,7 +593,7 @@ class TestCLIRecovery:
     def test_partial_failure_handling(self, runner):
         """Test handling of partial failures."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -617,7 +617,7 @@ class TestCLIRecovery:
     def test_retry_mechanisms(self, runner):
         """Test retry mechanisms for transient failures."""
         with patch(
-            "pynomaly.presentation.cli.server.get_cli_container"
+            "monorepo.presentation.cli.server.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -665,7 +665,7 @@ class TestCLIRecovery:
     def test_state_consistency(self, runner):
         """Test state consistency after failures."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()

@@ -11,8 +11,8 @@ from enum import Enum
 import redis
 from fastapi import Request
 
-from pynomaly.infrastructure.config import Settings
-from pynomaly.infrastructure.security.audit_logger import (
+from monorepo.infrastructure.config import Settings
+from monorepo.infrastructure.security.audit_logger import (
     AuditLevel,
     SecurityEventType,
     get_audit_logger,

@@ -4,12 +4,12 @@ import pytest
 from unittest.mock import Mock, patch
 from datetime import datetime
 
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.entities.anomaly_event import EventType, EventSeverity
-from pynomaly.domain.services.advanced_classification_service import AdvancedClassificationService
-from pynomaly.domain.services.detection_pipeline_integration import DetectionPipelineIntegration
-from pynomaly.domain.services.threshold_severity_classifier import ThresholdSeverityClassifier
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.entities.anomaly_event import EventType, EventSeverity
+from monorepo.domain.services.advanced_classification_service import AdvancedClassificationService
+from monorepo.domain.services.detection_pipeline_integration import DetectionPipelineIntegration
+from monorepo.domain.services.threshold_severity_classifier import ThresholdSeverityClassifier
+from monorepo.domain.value_objects import ContaminationRate
 
 
 class TestDetectionPipelineIntegration:

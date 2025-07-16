@@ -1,13 +1,13 @@
-# 🔌 Pynomaly API Documentation
+# 🔌 Monorepo API Documentation
 
 ## Overview
 
-The Pynomaly API provides comprehensive REST endpoints for anomaly detection, model management, and system monitoring. This documentation covers all 65+ available endpoints with detailed examples and usage instructions.
+The Monorepo API provides comprehensive REST endpoints for anomaly detection, model management, and system monitoring. This documentation covers all 65+ available endpoints with detailed examples and usage instructions.
 
 ## Base URL
 
 ```
-Production: https://api.pynomaly.com
+Production: https://api.monorepo.com
 Development: http://localhost:8000
 ```
 
@@ -17,10 +17,10 @@ All API endpoints require authentication via API key:
 
 ```bash
 # Header-based authentication
-curl -H "X-API-Key: your-api-key" https://api.pynomaly.com/api/v1/detectors
+curl -H "X-API-Key: your-api-key" https://api.monorepo.com/api/v1/detectors
 
 # Query parameter authentication
-curl "https://api.pynomaly.com/api/v1/detectors?api_key=your-api-key"
+curl "https://api.monorepo.com/api/v1/detectors?api_key=your-api-key"
 ```
 
 ## Response Format
@@ -832,9 +832,9 @@ Get A/B test results.
 
 ### Python SDK
 ```python
-from pynomaly_client import PynomalyClient
+from monorepo_client import MonorepoClient
 
-client = PynomalyClient(api_key="your-api-key")
+client = MonorepoClient(api_key="your-api-key")
 detector = client.detectors.create(
     name="My Detector",
     algorithm="IsolationForest"
@@ -843,9 +843,9 @@ detector = client.detectors.create(
 
 ### JavaScript SDK
 ```javascript
-import { PynomalyClient } from 'pynomaly-js';
+import { MonorepoClient } from 'monorepo-js';
 
-const client = new PynomalyClient('your-api-key');
+const client = new MonorepoClient('your-api-key');
 const detector = await client.detectors.create({
   name: 'My Detector',
   algorithm: 'IsolationForest'
@@ -855,13 +855,13 @@ const detector = await client.detectors.create({
 ### cURL Examples
 ```bash
 # Create detector
-curl -X POST "https://api.pynomaly.com/api/v1/detectors" \
+curl -X POST "https://api.monorepo.com/api/v1/detectors" \
   -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{"name": "My Detector", "algorithm": "IsolationForest"}'
 
 # Run detection
-curl -X POST "https://api.pynomaly.com/api/v1/detectors/detector_abc123/detect" \
+curl -X POST "https://api.monorepo.com/api/v1/detectors/detector_abc123/detect" \
   -H "X-API-Key: your-api-key" \
   -H "Content-Type: application/json" \
   -d '{"data": [[1.2, 3.4, 5.6]]}'
@@ -901,7 +901,7 @@ The complete OpenAPI 3.0 specification is available at:
 
 ## Support
 
-- **Documentation**: https://docs.pynomaly.com
-- **API Status**: https://status.pynomaly.com
-- **Support**: support@pynomaly.com
-- **Community**: https://github.com/pynomaly/pynomaly
+- **Documentation**: https://docs.monorepo.com
+- **API Status**: https://status.monorepo.com
+- **Support**: support@monorepo.com
+- **Community**: https://github.com/monorepo/monorepo

@@ -12,7 +12,7 @@ import time
 
 import pytest
 
-from pynomaly.infrastructure.resilience.circuit_breaker import (
+from monorepo.infrastructure.resilience.circuit_breaker import (
     APICircuitBreaker,
     CircuitBreaker,
     CircuitBreakerConfig,

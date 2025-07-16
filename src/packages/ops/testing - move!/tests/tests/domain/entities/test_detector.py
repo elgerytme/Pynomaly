@@ -6,11 +6,11 @@ from unittest.mock import Mock
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.entities.training_result import TrainingResult
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.entities.training_result import TrainingResult
+from monorepo.domain.value_objects import AnomalyScore
 
 
 class TestDetectorTraining:

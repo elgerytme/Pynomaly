@@ -10,18 +10,18 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
 
-# from pynomaly.domain.services import (
+# from monorepo.domain.services import (
 #     DetectionService, EnsembleService, ModelValidationService,
 #     DataQualityService, PerformanceAnalysisService
 # )
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     DetectorNotFittedError,
     InsufficientDataError,
     ValidationError,
 )
-from pynomaly.domain.value_objects import (
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ConfidenceInterval,
     ContaminationRate,
@@ -29,11 +29,11 @@ from pynomaly.domain.value_objects import (
 )
 
 # InvalidAnomalyScoreError, InvalidContaminationRateError don't exist
-# from pynomaly.domain.events import (
+# from monorepo.domain.events import (
 #     DetectorCreated, DetectorTrained, AnomalyDetected,
 #     DatasetCreated, ExperimentCompleted
 # )
-# from pynomaly.domain.specifications import (
+# from monorepo.domain.specifications import (
 #     TrainedDetectorSpecification, HighQualityDatasetSpecification,
 #     AnomalyThresholdSpecification
 # )

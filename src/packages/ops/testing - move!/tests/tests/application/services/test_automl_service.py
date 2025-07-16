@@ -6,15 +6,15 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.automl_service import (
+from monorepo.application.services.automl_service import (
     AlgorithmFamily,
     AutoMLResult,
     AutoMLService,
     DatasetProfile,
     OptimizationObjective,
 )
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import AutoMLError
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import AutoMLError
 
 
 class TestAutoMLService:
@@ -233,7 +233,7 @@ class TestAutoMLService:
 
         # Mock Optuna as unavailable
         with patch(
-            "pynomaly.application.services.automl_service.OPTUNA_AVAILABLE", False
+            "monorepo.application.services.automl_service.OPTUNA_AVAILABLE", False
         ):
             with pytest.raises(AutoMLError, match="Optuna is required"):
                 await automl_service.optimize_hyperparameters(
@@ -254,10 +254,10 @@ class TestAutoMLService:
         mock_study.trials = [Mock() for _ in range(10)]
 
         with patch(
-            "pynomaly.application.services.automl_service.OPTUNA_AVAILABLE", True
+            "monorepo.application.services.automl_service.OPTUNA_AVAILABLE", True
         ):
             with patch(
-                "pynomaly.application.services.automl_service.optuna"
+                "monorepo.application.services.automl_service.optuna"
             ) as mock_optuna:
                 mock_optuna.create_study.return_value = mock_study
 
@@ -422,7 +422,7 @@ class TestAutoMLService:
         automl_service.dataset_repository.get = AsyncMock(return_value=sample_dataset)
 
         with patch(
-            "pynomaly.application.services.automl_service.OPTUNA_AVAILABLE", True
+            "monorepo.application.services.automl_service.OPTUNA_AVAILABLE", True
         ):
             with pytest.raises(AutoMLError, match="Algorithm .* not supported"):
                 await automl_service.optimize_hyperparameters(
@@ -516,10 +516,10 @@ class TestAutoMLService:
 
             # 3. Test single algorithm optimization (mocked)
             with patch(
-                "pynomaly.application.services.automl_service.OPTUNA_AVAILABLE", True
+                "monorepo.application.services.automl_service.OPTUNA_AVAILABLE", True
             ):
                 with patch(
-                    "pynomaly.application.services.automl_service.optuna"
+                    "monorepo.application.services.automl_service.optuna"
                 ) as mock_optuna:
                     mock_study = Mock()
                     mock_study.best_params = {"contamination": 0.1}

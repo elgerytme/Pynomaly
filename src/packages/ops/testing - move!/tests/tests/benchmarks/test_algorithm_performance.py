@@ -123,7 +123,7 @@ class TestAlgorithmPerformance:
     ):
         """Benchmark Isolation Forest performance across different data sizes."""
         try:
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 
@@ -181,7 +181,7 @@ class TestAlgorithmPerformance:
     ):
         """Compare performance of different algorithms on medium dataset."""
         try:
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 
@@ -233,7 +233,7 @@ class TestAlgorithmPerformance:
     def test_large_dataset_scalability(self, benchmark, performance_tracker):
         """Test algorithm scalability on large datasets."""
         try:
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 
@@ -294,7 +294,7 @@ class TestMemoryPerformance:
 
             import psutil
 
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 
@@ -350,7 +350,7 @@ class TestConcurrencyPerformance:
         try:
             import concurrent.futures
 
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 
@@ -416,7 +416,7 @@ class TestPerformanceRegression:
     def test_baseline_performance(self, benchmark, performance_tracker):
         """Establish baseline performance metrics."""
         try:
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 

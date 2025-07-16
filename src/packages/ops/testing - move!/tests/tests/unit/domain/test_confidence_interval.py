@@ -10,8 +10,8 @@ import pytest
 from hypothesis import assume, given
 from hypothesis import strategies as st
 
-from pynomaly.domain.exceptions import InvalidValueError
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
+from monorepo.domain.exceptions import InvalidValueError
+from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
 @given(st.floats(min_value=0.0, max_value=1.0), st.floats(min_value=0.0, max_value=1.0))

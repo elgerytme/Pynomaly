@@ -6,18 +6,18 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters.algorithm_factory import (
+from monorepo.domain.entities import Dataset
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.infrastructure.adapters.algorithm_factory import (
     AlgorithmFactory,
     AlgorithmLibrary,
     DatasetCharacteristics,
 )
-from pynomaly.infrastructure.adapters.enhanced_pyod_adapter import EnhancedPyODAdapter
-from pynomaly.infrastructure.adapters.enhanced_sklearn_adapter import (
+from monorepo.infrastructure.adapters.enhanced_pyod_adapter import EnhancedPyODAdapter
+from monorepo.infrastructure.adapters.enhanced_sklearn_adapter import (
     EnhancedSklearnAdapter,
 )
-from pynomaly.infrastructure.adapters.ensemble_meta_adapter import (
+from monorepo.infrastructure.adapters.ensemble_meta_adapter import (
     AggregationMethod,
     EnsembleMetaAdapter,
 )
@@ -332,7 +332,7 @@ class TestAlgorithmFactory:
         assert isinstance(algorithms, list)
         assert len(algorithms) > 0
 
-    @patch("pynomaly.infrastructure.adapters.enhanced_pyod_adapter.EnhancedPyODAdapter")
+    @patch("monorepo.infrastructure.adapters.enhanced_pyod_adapter.EnhancedPyODAdapter")
     def test_create_pyod_detector(self, mock_adapter):
         """Test creating PyOD detector."""
         factory = AlgorithmFactory()
@@ -344,7 +344,7 @@ class TestAlgorithmFactory:
         mock_adapter.assert_called_once()
 
     @patch(
-        "pynomaly.infrastructure.adapters.enhanced_sklearn_adapter.EnhancedSklearnAdapter"
+        "monorepo.infrastructure.adapters.enhanced_sklearn_adapter.EnhancedSklearnAdapter"
     )
     def test_create_sklearn_detector(self, mock_adapter):
         """Test creating sklearn detector."""

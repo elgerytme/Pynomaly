@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from pynomaly.domain.value_objects.hyperparameters import (
+from monorepo.domain.value_objects.hyperparameters import (
     DistributionType,
     HyperparameterRange,
     HyperparameterSet,

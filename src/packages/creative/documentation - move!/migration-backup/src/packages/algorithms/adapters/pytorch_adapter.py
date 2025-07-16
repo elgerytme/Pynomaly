@@ -137,9 +137,9 @@ except ImportError:
             return None
 
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.domain.entities import Dataset, DetectionResult
+from monorepo.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
 
 logger = logging.getLogger(__name__)
 

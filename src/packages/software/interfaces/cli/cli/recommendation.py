@@ -13,12 +13,12 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly_detection.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     ConfigurationLevel,
     DatasetCharacteristicsDTO,
 )
-from pynomaly_detection.infrastructure.config.feature_flags import require_feature
-from pynomaly_detection.presentation.cli.container import get_cli_container
+from monorepo.infrastructure.config.feature_flags import require_feature
+from monorepo.presentation.cli.container import get_cli_container
 
 # Create Typer app
 app = typer.Typer(

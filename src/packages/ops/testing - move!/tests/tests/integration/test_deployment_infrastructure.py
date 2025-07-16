@@ -9,12 +9,12 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.services.deployment_orchestration_service import (
+from monorepo.application.services.deployment_orchestration_service import (
     DeploymentNotFoundError,
     DeploymentOrchestrationService,
 )
-from pynomaly.application.services.model_registry_service import ModelRegistryService
-from pynomaly.domain.entities.deployment import (
+from monorepo.application.services.model_registry_service import ModelRegistryService
+from monorepo.domain.entities.deployment import (
     Deployment,
     DeploymentConfig,
     DeploymentStatus,
@@ -24,7 +24,7 @@ from pynomaly.domain.entities.deployment import (
     RollbackCriteria,
     StrategyType,
 )
-from pynomaly.infrastructure.serving.model_server import ModelServer
+from monorepo.infrastructure.serving.model_server import ModelServer
 
 
 class TestDeploymentEntities:
@@ -558,14 +558,14 @@ class TestDeploymentCLI:
 
     def test_cli_import(self):
         """Test that CLI module can be imported."""
-        from pynomaly.presentation.cli.deployment import app
+        from monorepo.presentation.cli.deployment import app
 
         assert app is not None
 
     @pytest.mark.asyncio
     async def test_deployment_service_creation(self):
         """Test deployment service creation in CLI."""
-        from pynomaly.presentation.cli.deployment import get_deployment_service
+        from monorepo.presentation.cli.deployment import get_deployment_service
 
         service = get_deployment_service()
         assert isinstance(service, DeploymentOrchestrationService)

@@ -153,5 +153,5 @@ def get_session() -> Generator[Session, None, None]:
 
 # Common database URLs for development
 SQLITE_MEMORY_URL = "sqlite:///:memory:"
-SQLITE_FILE_URL = "sqlite:///./pynomaly.db"
+SQLITE_FILE_URL = "sqlite:///./monorepo.db"
 POSTGRESQL_LOCAL_URL = "postgresql://pynomaly:pynomaly@localhost:5432/pynomaly"

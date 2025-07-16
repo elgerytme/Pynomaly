@@ -73,15 +73,15 @@ def generate_openapi_spec() -> dict[str, Any]:
             "version": "1.0.0",
             "contact": {
                 "name": "Pynomaly Support",
-                "email": "support@pynomaly.com",
-                "url": "https://docs.pynomaly.com",
+                "email": "support@monorepo.com",
+                "url": "https://docs.monorepo.com",
             },
             "license": {"name": "MIT", "url": "https://opensource.org/licenses/MIT"},
         },
         "servers": [
-            {"url": "https://api.pynomaly.com", "description": "Production server"},
+            {"url": "https://api.monorepo.com", "description": "Production server"},
             {
-                "url": "https://staging-api.pynomaly.com",
+                "url": "https://staging-api.monorepo.com",
                 "description": "Staging server",
             },
             {"url": "http://localhost:8000", "description": "Development server"},
@@ -831,7 +831,7 @@ import requests
 
 # Configuration
 API_KEY = "your-api-key-here"
-BASE_URL = "https://api.pynomaly.com"
+BASE_URL = "https://api.monorepo.com"
 
 headers = {
     "X-API-Key": API_KEY,
@@ -921,7 +921,7 @@ const axios = require('axios');
 
 // Configuration
 const API_KEY = 'your-api-key-here';
-const BASE_URL = 'https://api.pynomaly.com';
+const BASE_URL = 'https://api.monorepo.com';
 
 const headers = {
     'X-API-Key': API_KEY,
@@ -1049,18 +1049,18 @@ console.log(`Anomalies detected: ${results.summary.anomaliesDetected}`);
         "curl": {
             "health_check": """
 # Health check
-curl -X GET "https://api.pynomaly.com/health" \\
+curl -X GET "https://api.monorepo.com/health" \\
   -H "X-API-Key: your-api-key-here"
 """,
             "list_detectors": """
 # List detectors
-curl -X GET "https://api.pynomaly.com/api/v1/detectors?limit=10" \\
+curl -X GET "https://api.monorepo.com/api/v1/detectors?limit=10" \\
   -H "X-API-Key: your-api-key-here" \\
   -H "Content-Type: application/json"
 """,
             "create_detector": """
 # Create detector
-curl -X POST "https://api.pynomaly.com/api/v1/detectors" \\
+curl -X POST "https://api.monorepo.com/api/v1/detectors" \\
   -H "X-API-Key: your-api-key-here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -1076,7 +1076,7 @@ curl -X POST "https://api.pynomaly.com/api/v1/detectors" \\
 """,
             "run_detection": """
 # Run detection
-curl -X POST "https://api.pynomaly.com/api/v1/detectors/detector_abc123/detect" \\
+curl -X POST "https://api.monorepo.com/api/v1/detectors/detector_abc123/detect" \\
   -H "X-API-Key: your-api-key-here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -1091,7 +1091,7 @@ curl -X POST "https://api.pynomaly.com/api/v1/detectors/detector_abc123/detect" 
 """,
             "automl_optimization": """
 # Start AutoML optimization
-curl -X POST "https://api.pynomaly.com/api/v1/automl/optimize" \\
+curl -X POST "https://api.monorepo.com/api/v1/automl/optimize" \\
   -H "X-API-Key: your-api-key-here" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -1147,7 +1147,7 @@ def generate_postman_collection():
             ],
         },
         "variable": [
-            {"key": "base_url", "value": "https://api.pynomaly.com", "type": "string"},
+            {"key": "base_url", "value": "https://api.monorepo.com", "type": "string"},
             {"key": "api_key", "value": "your-api-key-here", "type": "string"},
         ],
         "item": [
@@ -1454,10 +1454,10 @@ All API endpoints require authentication via API key:
 
 ```bash
 # Header authentication (recommended)
-curl -H "X-API-Key: your-api-key" https://api.pynomaly.com/api/v1/detectors
+curl -H "X-API-Key: your-api-key" https://api.monorepo.com/api/v1/detectors
 
 # Query parameter authentication
-curl "https://api.pynomaly.com/api/v1/detectors?api_key=your-api-key"
+curl "https://api.monorepo.com/api/v1/detectors?api_key=your-api-key"
 ```
 
 ## 📚 Quick Examples
@@ -1468,14 +1468,14 @@ curl "https://api.pynomaly.com/api/v1/detectors?api_key=your-api-key"
 import requests
 
 headers = {{"X-API-Key": "your-api-key"}}
-response = requests.get("https://api.pynomaly.com/health", headers=headers)
+response = requests.get("https://api.monorepo.com/health", headers=headers)
 print(response.json())
 ```
 
 ### JavaScript
 
 ```javascript
-const response = await fetch('https://api.pynomaly.com/health', {{
+const response = await fetch('https://api.monorepo.com/health', {{
     headers: {{ 'X-API-Key': 'your-api-key' }}
 }});
 const data = await response.json();
@@ -1485,13 +1485,13 @@ console.log(data);
 ### cURL
 
 ```bash
-curl -H "X-API-Key: your-api-key" https://api.pynomaly.com/health
+curl -H "X-API-Key: your-api-key" https://api.monorepo.com/health
 ```
 
 ## 🌐 Base URLs
 
-- **Production**: `https://api.pynomaly.com`
-- **Staging**: `https://staging-api.pynomaly.com`
+- **Production**: `https://api.monorepo.com`
+- **Staging**: `https://staging-api.monorepo.com`
 - **Development**: `http://localhost:8000`
 
 ## 📊 Rate Limits
@@ -1503,9 +1503,9 @@ curl -H "X-API-Key: your-api-key" https://api.pynomaly.com/health
 
 ## 📧 Support
 
-- **Documentation**: https://docs.pynomaly.com
-- **API Status**: https://status.pynomaly.com
-- **Support**: support@pynomaly.com
+- **Documentation**: https://docs.monorepo.com
+- **API Status**: https://status.monorepo.com
+- **Support**: support@monorepo.com
 - **Community**: https://github.com/pynomaly/pynomaly
 
 ## 🔄 Regenerating Documentation

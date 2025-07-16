@@ -13,9 +13,9 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.exceptions import DatasetError
-from pynomaly.presentation.api.app import app
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.exceptions import DatasetError
+from monorepo.presentation.api.app import app
 
 
 class TestDatasetEndpointsComprehensive:
@@ -142,7 +142,7 @@ class TestDatasetEndpointsComprehensive:
             "metadata": json.dumps(valid_dataset_metadata)
         }
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.post(
                 "/api/v1/datasets/upload",
                 files=files,
@@ -171,7 +171,7 @@ class TestDatasetEndpointsComprehensive:
             "metadata": json.dumps(valid_dataset_metadata)
         }
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.post(
                 "/api/v1/datasets/upload",
                 files=files,
@@ -277,7 +277,7 @@ class TestDatasetEndpointsComprehensive:
             "metadata": json.dumps(valid_dataset_metadata)
         }
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.post(
                 "/api/v1/datasets/upload",
                 files=files,
@@ -293,7 +293,7 @@ class TestDatasetEndpointsComprehensive:
         """Test successful dataset retrieval."""
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}",
                 headers=auth_headers,
@@ -314,7 +314,7 @@ class TestDatasetEndpointsComprehensive:
         mock_dataset_service.get_dataset.side_effect = DatasetError("Dataset not found")
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}",
                 headers=auth_headers,
@@ -357,7 +357,7 @@ class TestDatasetEndpointsComprehensive:
         ]
         mock_dataset_service.list_datasets.return_value = mock_datasets
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.get("/api/v1/datasets", headers=auth_headers)
 
         assert response.status_code == status.HTTP_200_OK
@@ -373,7 +373,7 @@ class TestDatasetEndpointsComprehensive:
         """Test dataset listing with pagination."""
         mock_dataset_service.list_datasets.return_value = []
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 "/api/v1/datasets?page=1&size=10",
                 headers=auth_headers,
@@ -388,7 +388,7 @@ class TestDatasetEndpointsComprehensive:
         self, client, mock_dataset_service, auth_headers
     ):
         """Test dataset listing with filters."""
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 "/api/v1/datasets?name=test&format=csv&size_min=1000",
                 headers=auth_headers,
@@ -404,7 +404,7 @@ class TestDatasetEndpointsComprehensive:
         """Test successful dataset validation."""
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.post(
                 f"/api/v1/datasets/{dataset_id}/validate",
                 headers=auth_headers,
@@ -442,7 +442,7 @@ class TestDatasetEndpointsComprehensive:
             },
         }
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.post(
                 f"/api/v1/datasets/{dataset_id}/validate",
                 headers=auth_headers,
@@ -461,7 +461,7 @@ class TestDatasetEndpointsComprehensive:
         mock_dataset_service.validate_dataset.side_effect = DatasetError("Dataset not found")
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.post(
                 f"/api/v1/datasets/{dataset_id}/validate",
                 headers=auth_headers,
@@ -475,7 +475,7 @@ class TestDatasetEndpointsComprehensive:
         """Test successful dataset preview retrieval."""
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}/preview",
                 headers=auth_headers,
@@ -496,7 +496,7 @@ class TestDatasetEndpointsComprehensive:
         """Test dataset preview with custom limit."""
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}/preview?limit=10",
                 headers=auth_headers,
@@ -512,7 +512,7 @@ class TestDatasetEndpointsComprehensive:
         """Test successful dataset statistics retrieval."""
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}/statistics",
                 headers=auth_headers,
@@ -546,7 +546,7 @@ class TestDatasetEndpointsComprehensive:
         )
         mock_dataset_service.update_dataset.return_value = mock_updated_dataset
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.put(
                 f"/api/v1/datasets/{dataset_id}",
                 json=update_payload,
@@ -565,7 +565,7 @@ class TestDatasetEndpointsComprehensive:
         dataset_id = str(uuid4())
         update_payload = {"name": "updated-dataset"}
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.put(
                 f"/api/v1/datasets/{dataset_id}",
                 json=update_payload,
@@ -581,7 +581,7 @@ class TestDatasetEndpointsComprehensive:
         dataset_id = str(uuid4())
         mock_dataset_service.delete_dataset.return_value = True
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.delete(
                 f"/api/v1/datasets/{dataset_id}",
                 headers=auth_headers,
@@ -596,7 +596,7 @@ class TestDatasetEndpointsComprehensive:
         mock_dataset_service.delete_dataset.side_effect = DatasetError("Dataset not found")
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.delete(
                 f"/api/v1/datasets/{dataset_id}",
                 headers=auth_headers,
@@ -623,7 +623,7 @@ class TestDatasetEndpointsComprehensive:
             "download_url": f"/api/v1/datasets/{dataset_id}/download/export_123",
         }
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.post(
                 f"/api/v1/datasets/{dataset_id}/export",
                 json=export_payload,
@@ -689,7 +689,7 @@ class TestDatasetEndpointsComprehensive:
         }
         mock_dataset_service.search_datasets.return_value = mock_search_results
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.post(
                 "/api/v1/datasets/search",
                 json=search_payload,
@@ -727,7 +727,7 @@ class TestDatasetEndpointsComprehensive:
         }
         mock_dataset_service.compare_datasets.return_value = mock_comparison_result
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.post(
                 "/api/v1/datasets/compare",
                 json=comparison_payload,
@@ -764,7 +764,7 @@ class TestDatasetEndpointsComprehensive:
         mock_dataset_service.get_dataset.side_effect = Exception("Service unavailable")
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}",
                 headers=auth_headers,
@@ -788,7 +788,7 @@ class TestDatasetEndpointsComprehensive:
                 "metadata": json.dumps(valid_dataset_metadata)
             }
 
-            with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+            with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
                 response = client.post(
                     "/api/v1/datasets/upload",
                     files=files,
@@ -818,7 +818,7 @@ class TestDatasetEndpointsComprehensive:
         """Test security headers in dataset responses."""
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}",
                 headers=auth_headers,
@@ -839,7 +839,7 @@ class TestDatasetEndpointsComprehensive:
             "Origin": "https://example.com",
         }
 
-        with patch("pynomaly.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
+        with patch("monorepo.presentation.api.deps.get_dataset_service", return_value=mock_dataset_service):
             response = client.get(
                 f"/api/v1/datasets/{dataset_id}",
                 headers=cors_headers,

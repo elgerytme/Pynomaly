@@ -8,26 +8,26 @@ from typing import Any
 
 import pandas as pd
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from monorepo.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.application.services.autonomous_algorithm_recommender import (
+from monorepo.application.services.autonomous_algorithm_recommender import (
     AutonomousAlgorithmRecommender,
 )
-from pynomaly.application.services.autonomous_data_loader import AutonomousDataLoader
-from pynomaly.application.services.autonomous_data_profiler import (
+from monorepo.application.services.autonomous_data_loader import AutonomousDataLoader
+from monorepo.application.services.autonomous_data_profiler import (
     AutonomousDataProfiler,
 )
-from pynomaly.application.services.autonomous_detection_config import (
+from monorepo.application.services.autonomous_detection_config import (
     AlgorithmRecommendation,
     AutonomousConfig,
     DataProfile,
 )
-from pynomaly.application.services.autonomous_preprocessing import (
+from monorepo.application.services.autonomous_preprocessing import (
     AutonomousPreprocessingOrchestrator,
 )
-from pynomaly.domain.entities import Dataset
-from pynomaly.shared.protocols import (
+from monorepo.domain.entities import Dataset
+from monorepo.shared.protocols import (
     DataLoaderProtocol,
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,

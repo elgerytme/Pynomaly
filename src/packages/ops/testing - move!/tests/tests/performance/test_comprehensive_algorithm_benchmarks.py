@@ -24,12 +24,12 @@ from sklearn.svm import OneClassSVM
 
 # Import Pynomaly components
 try:
-    from pynomaly.infrastructure.performance.advanced_benchmarking_service import (
+    from monorepo.infrastructure.performance.advanced_benchmarking_service import (
         AdvancedBenchmarkConfig,
         AdvancedPerformanceBenchmarkingService,
         AdvancedPerformanceMetrics,
     )
-    from pynomaly.infrastructure.performance.optimization_engine import (
+    from monorepo.infrastructure.performance.optimization_engine import (
         OptimizationConfig,
         PerformanceOptimizationEngine,
         create_optimization_engine,

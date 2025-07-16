@@ -13,12 +13,12 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from pynomaly.infrastructure.cache import get_cache_integration_manager
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.monitoring import get_comprehensive_health_manager
-from pynomaly.infrastructure.persistence import get_production_database_manager
-from pynomaly.infrastructure.security import get_rate_limit_manager
-from pynomaly.shared.error_handling import InfrastructureError
+from monorepo.infrastructure.cache import get_cache_integration_manager
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.monitoring import get_comprehensive_health_manager
+from monorepo.infrastructure.persistence import get_production_database_manager
+from monorepo.infrastructure.security import get_rate_limit_manager
+from monorepo.shared.error_handling import InfrastructureError
 
 from .production_config import Environment, get_production_config
 

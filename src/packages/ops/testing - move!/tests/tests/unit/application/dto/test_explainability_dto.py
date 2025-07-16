@@ -6,7 +6,7 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto.explainability_dto import (
+from monorepo.application.dto.explainability_dto import (
     BiasAnalysisConfigDTO,
     BiasAnalysisResultDTO,
     BiasMetric,

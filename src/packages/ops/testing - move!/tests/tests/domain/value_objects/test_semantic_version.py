@@ -7,7 +7,7 @@ behavior, and immutability across all use cases.
 
 import pytest
 
-from pynomaly.domain.value_objects import SemanticVersion
+from monorepo.domain.value_objects import SemanticVersion
 
 
 class TestSemanticVersionCreation:

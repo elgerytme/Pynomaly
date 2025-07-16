@@ -12,15 +12,15 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.dto.export_options import (
+from monorepo.application.dto.export_options import (
     ExportDestination,
     ExportFormat,
     ExportOptions,
 )
-from pynomaly.application.services.export_service import ExportService
-from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
+from monorepo.application.services.export_service import ExportService
+from monorepo.domain.entities.anomaly import Anomaly
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.value_objects.anomaly_score import AnomalyScore
 
 
 @pytest.fixture
@@ -66,10 +66,10 @@ def sample_detection_result():
 class TestExportService:
     """Test cases for ExportService functionality."""
 
-    @patch("pynomaly.application.services.export_service.ExcelAdapter")
-    @patch("pynomaly.application.services.export_service.PowerBIAdapter")
-    @patch("pynomaly.application.services.export_service.GoogleSheetsAdapter")
-    @patch("pynomaly.application.services.export_service.SmartsheetAdapter")
+    @patch("monorepo.application.services.export_service.ExcelAdapter")
+    @patch("monorepo.application.services.export_service.PowerBIAdapter")
+    @patch("monorepo.application.services.export_service.GoogleSheetsAdapter")
+    @patch("monorepo.application.services.export_service.SmartsheetAdapter")
     def test_initialization_all_adapters_available(
         self, mock_smartsheet, mock_gsheets, mock_powerbi, mock_excel
     ):
@@ -95,10 +95,10 @@ class TestExportService:
         mock_gsheets.assert_called_once()
         mock_smartsheet.assert_called_once()
 
-    @patch("pynomaly.application.services.export_service.ExcelAdapter")
-    @patch("pynomaly.application.services.export_service.PowerBIAdapter")
-    @patch("pynomaly.application.services.export_service.GoogleSheetsAdapter")
-    @patch("pynomaly.application.services.export_service.SmartsheetAdapter")
+    @patch("monorepo.application.services.export_service.ExcelAdapter")
+    @patch("monorepo.application.services.export_service.PowerBIAdapter")
+    @patch("monorepo.application.services.export_service.GoogleSheetsAdapter")
+    @patch("monorepo.application.services.export_service.SmartsheetAdapter")
     def test_initialization_some_adapters_unavailable(
         self, mock_smartsheet, mock_gsheets, mock_powerbi, mock_excel
     ):
@@ -127,7 +127,7 @@ class TestExportService:
     def test_get_supported_formats(self):
         """Test getting supported export formats."""
         with patch(
-            "pynomaly.application.services.export_service.ExcelAdapter"
+            "monorepo.application.services.export_service.ExcelAdapter"
         ) as mock_excel:
             mock_excel.return_value = MagicMock()
 
@@ -140,7 +140,7 @@ class TestExportService:
     def test_export_results_excel_success(self, sample_detection_result):
         """Test successful export to Excel format."""
         with patch(
-            "pynomaly.application.services.export_service.ExcelAdapter"
+            "monorepo.application.services.export_service.ExcelAdapter"
         ) as mock_adapter_class:
             mock_adapter = MagicMock()
             mock_adapter.validate_file.return_value = True
@@ -176,7 +176,7 @@ class TestExportService:
 
     def test_export_results_unsupported_format(self, sample_detection_result):
         """Test export with unsupported format."""
-        with patch("pynomaly.application.services.export_service.ExcelAdapter"):
+        with patch("monorepo.application.services.export_service.ExcelAdapter"):
             service = ExportService()
 
             # Remove all adapters to simulate unsupported format
@@ -194,7 +194,7 @@ class TestExportService:
     def test_export_results_validation_failure(self, sample_detection_result):
         """Test export when file validation fails."""
         with patch(
-            "pynomaly.application.services.export_service.ExcelAdapter"
+            "monorepo.application.services.export_service.ExcelAdapter"
         ) as mock_adapter_class:
             mock_adapter = MagicMock()
             mock_adapter.validate_file.return_value = False
@@ -212,7 +212,7 @@ class TestExportService:
     def test_export_results_adapter_failure(self, sample_detection_result):
         """Test export when adapter throws exception."""
         with patch(
-            "pynomaly.application.services.export_service.ExcelAdapter"
+            "monorepo.application.services.export_service.ExcelAdapter"
         ) as mock_adapter_class:
             mock_adapter = MagicMock()
             mock_adapter.validate_file.return_value = True
@@ -231,7 +231,7 @@ class TestExportService:
     def test_validate_export_request_valid(self):
         """Test validation of valid export request."""
         with patch(
-            "pynomaly.application.services.export_service.ExcelAdapter"
+            "monorepo.application.services.export_service.ExcelAdapter"
         ) as mock_adapter_class:
             mock_adapter = MagicMock()
             mock_adapter.validate_file.return_value = True
@@ -251,7 +251,7 @@ class TestExportService:
 
     def test_validate_export_request_invalid_format(self):
         """Test validation with unsupported format."""
-        with patch("pynomaly.application.services.export_service.ExcelAdapter"):
+        with patch("monorepo.application.services.export_service.ExcelAdapter"):
             service = ExportService()
             service._adapters.clear()  # Remove all adapters
 
@@ -266,7 +266,7 @@ class TestExportService:
     def test_validate_export_request_invalid_file(self):
         """Test validation with invalid file path."""
         with patch(
-            "pynomaly.application.services.export_service.ExcelAdapter"
+            "monorepo.application.services.export_service.ExcelAdapter"
         ) as mock_adapter_class:
             mock_adapter = MagicMock()
             mock_adapter.validate_file.return_value = False
@@ -284,7 +284,7 @@ class TestExportService:
 
     def test_create_export_options_excel(self):
         """Test creating Excel-optimized export options."""
-        with patch("pynomaly.application.services.export_service.ExcelAdapter"):
+        with patch("monorepo.application.services.export_service.ExcelAdapter"):
             service = ExportService()
 
             options = service.create_export_options(
@@ -298,7 +298,7 @@ class TestExportService:
 
     def test_create_export_options_powerbi(self):
         """Test creating Power BI-optimized export options."""
-        with patch("pynomaly.application.services.export_service.ExcelAdapter"):
+        with patch("monorepo.application.services.export_service.ExcelAdapter"):
             service = ExportService()
 
             options = service.create_export_options(
@@ -315,7 +315,7 @@ class TestExportService:
     def test_get_export_statistics(self):
         """Test getting export statistics."""
         with patch(
-            "pynomaly.application.services.export_service.ExcelAdapter"
+            "monorepo.application.services.export_service.ExcelAdapter"
         ) as mock_adapter_class:
             mock_adapter = MagicMock()
             mock_adapter.get_supported_formats.return_value = [".xlsx", ".xls"]
@@ -336,10 +336,10 @@ class TestExportService:
         """Test exporting to multiple formats simultaneously."""
         with (
             patch(
-                "pynomaly.application.services.export_service.ExcelAdapter"
+                "monorepo.application.services.export_service.ExcelAdapter"
             ) as mock_excel_class,
             patch(
-                "pynomaly.application.services.export_service.PowerBIAdapter"
+                "monorepo.application.services.export_service.PowerBIAdapter"
             ) as mock_powerbi_class,
         ):
             # Mock Excel adapter
@@ -390,7 +390,7 @@ class TestExportService:
     def test_export_multiple_formats_with_failure(self, sample_detection_result):
         """Test multiple format export when one format fails."""
         with patch(
-            "pynomaly.application.services.export_service.ExcelAdapter"
+            "monorepo.application.services.export_service.ExcelAdapter"
         ) as mock_excel_class:
             # Mock Excel adapter with failure
             mock_excel = MagicMock()
@@ -417,7 +417,7 @@ class TestExportService:
     def test_get_supported_file_extensions(self):
         """Test getting supported file extensions for specific format."""
         with patch(
-            "pynomaly.application.services.export_service.ExcelAdapter"
+            "monorepo.application.services.export_service.ExcelAdapter"
         ) as mock_adapter_class:
             mock_adapter = MagicMock()
             mock_adapter.get_supported_formats.return_value = [".xlsx", ".xls"]
@@ -432,7 +432,7 @@ class TestExportService:
 
     def test_get_supported_file_extensions_unsupported_format(self):
         """Test getting file extensions for unsupported format."""
-        with patch("pynomaly.application.services.export_service.ExcelAdapter"):
+        with patch("monorepo.application.services.export_service.ExcelAdapter"):
             service = ExportService()
             service._adapters.clear()  # Remove all adapters
 

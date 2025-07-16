@@ -20,10 +20,10 @@ async def test_ensemble_integration():
 
     try:
         # Test imports
-        from pynomaly.application.dto.ensemble_dto import (
+        from monorepo.application.dto.ensemble_dto import (
             EnsembleDetectionRequestDTO,
         )
-        from pynomaly.application.use_cases.ensemble_detection_use_case import (
+        from monorepo.application.use_cases.ensemble_detection_use_case import (
             EnsembleDetectionRequest,
             EnsembleDetectionUseCase,
             EnsembleOptimizationObjective,
@@ -212,7 +212,7 @@ async def test_ensemble_integration():
         print("-" * 25)
 
         try:
-            from pynomaly.presentation.api.endpoints.ensemble import router
+            from monorepo.presentation.api.endpoints.ensemble import router
 
             print(f"✅ API router imported: {len(router.routes)} routes")
 

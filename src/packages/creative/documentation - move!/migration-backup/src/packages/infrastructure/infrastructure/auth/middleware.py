@@ -16,10 +16,10 @@ from typing import Annotated, Any
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import APIKeyHeader, HTTPAuthorizationCredentials, HTTPBearer
 
-from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
-from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, get_auth
-from pynomaly.infrastructure.cache import get_cache
-from pynomaly.infrastructure.config import Settings
+from monorepo.domain.exceptions import AuthenticationError, AuthorizationError
+from monorepo.infrastructure.auth.jwt_auth import JWTAuthService, get_auth
+from monorepo.infrastructure.cache import get_cache
+from monorepo.infrastructure.config import Settings
 
 # Security schemes
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -324,7 +324,7 @@ async def track_request_metrics(request: Request, call_next):
     time.time() - start_time
 
     # Record metrics if telemetry available (temporarily disabled)
-    # from pynomaly.infrastructure.monitoring import get_telemetry
+    # from monorepo.infrastructure.monitoring import get_telemetry
     # telemetry = get_telemetry()
     # if telemetry:
     #     telemetry.record_request(

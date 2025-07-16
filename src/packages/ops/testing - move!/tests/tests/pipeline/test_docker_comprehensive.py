@@ -95,10 +95,10 @@ USER pynomaly
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \\
-    CMD python -c "import pynomaly; print('OK')" || exit 1
+    CMD python -c "import monorepo; print('OK')" || exit 1
 
 # Default command
-CMD ["python", "-m", "pynomaly", "--help"]
+CMD ["python", "-m", "monorepo", "--help"]
 """
 
             def _create_development_dockerfile(self) -> str:
@@ -226,10 +226,10 @@ WORKDIR /home/pynomaly
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \\
-    CMD python -c "import pynomaly; print('OK')" || exit 1
+    CMD python -c "import monorepo; print('OK')" || exit 1
 
 # Default command
-CMD ["python", "-m", "pynomaly", "--help"]
+CMD ["python", "-m", "monorepo", "--help"]
 """
 
             def build_image(
@@ -424,7 +424,7 @@ CMD ["python", "-m", "pynomaly", "--help"]
                     return {"error": "Image not found"}
 
                 container_id = str(uuid.uuid4())
-                command = command or ["python", "-m", "pynomaly", "--help"]
+                command = command or ["python", "-m", "monorepo", "--help"]
                 environment = environment or {}
                 ports = ports or {}
 
@@ -814,7 +814,7 @@ CMD ["python", "-m", "pynomaly", "--help"]
                 "python",
                 "-m",
                 "uvicorn",
-                "pynomaly.api:app",
+                "monorepo.api:app",
                 "--host",
                 "0.0.0.0",
             ],
@@ -941,8 +941,8 @@ CMD ["python", "-m", "pynomaly", "--help"]
             "postgres": {
                 "image": "postgres:13",
                 "environment": {
-                    "POSTGRES_DB": "pynomaly",
-                    "POSTGRES_USER": "pynomaly",
+                    "POSTGRES_DB": "monorepo",
+                    "POSTGRES_USER": "monorepo",
                     "POSTGRES_PASSWORD": "password",
                 },
                 "volumes": ["postgres_data:/var/lib/postgresql/data"],
@@ -1139,7 +1139,7 @@ CMD ["python", "app.py"]
         # Test container with custom health check command
         health_container = docker_env.run_container(
             image_id=image_id,
-            command=["python", "-c", "import pynomaly; print('healthy')"],
+            command=["python", "-c", "import monorepo; print('healthy')"],
         )
 
         # Should have health status

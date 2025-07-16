@@ -8,7 +8,7 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from pynomaly.domain.models.pipeline_models import (
+from monorepo.domain.models.pipeline_models import (
     PipelineResult,
     PipelineStage,
     PipelineStageResult,

@@ -11,7 +11,7 @@ import numpy as np
 from scipy import stats
 from sklearn.metrics import pairwise_distances
 
-from pynomaly.domain.models.federated import (
+from monorepo.domain.models.federated import (
     AggregationMethod,
     FederatedParticipant,
     ModelUpdate,

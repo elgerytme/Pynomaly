@@ -3,8 +3,8 @@
 import logging
 from typing import Any
 
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.services.email_service import init_email_service
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.services.email_service import init_email_service
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ def setup_authentication_system(settings: Settings) -> dict[str, Any]:
 
         # Set up database repositories
         try:
-            from pynomaly.infrastructure.persistence.repository_factory import (
+            from monorepo.infrastructure.persistence.repository_factory import (
                 get_repository_factory,
             )
 
@@ -59,8 +59,8 @@ def setup_authentication_system(settings: Settings) -> dict[str, Any]:
 
         # Set up MFA service
         try:
-            from pynomaly.domain.services.mfa_service import MFAService
-            from pynomaly.infrastructure.cache import get_cache
+            from monorepo.domain.services.mfa_service import MFAService
+            from monorepo.infrastructure.cache import get_cache
 
             cache = get_cache()
             mfa_service = MFAService(redis_client=cache)
@@ -223,7 +223,7 @@ def get_security_status() -> dict[str, Any]:
         status["timestamp"] = datetime.utcnow().isoformat()
 
         # Check email service
-        from pynomaly.infrastructure.services.email_service import get_email_service
+        from monorepo.infrastructure.services.email_service import get_email_service
 
         email_service = get_email_service()
         status["components"]["email_service"] = {
@@ -233,7 +233,7 @@ def get_security_status() -> dict[str, Any]:
 
         # Check database repositories
         try:
-            from pynomaly.infrastructure.persistence.repository_factory import (
+            from monorepo.infrastructure.persistence.repository_factory import (
                 get_repository_factory,
             )
 
@@ -250,7 +250,7 @@ def get_security_status() -> dict[str, Any]:
 
         # Check MFA service
         try:
-            from pynomaly.infrastructure.cache import get_cache
+            from monorepo.infrastructure.cache import get_cache
 
             cache = get_cache()
             status["components"]["mfa_service"] = {
@@ -266,7 +266,7 @@ def get_security_status() -> dict[str, Any]:
 
         # Check cache service
         try:
-            from pynomaly.infrastructure.cache import get_cache
+            from monorepo.infrastructure.cache import get_cache
 
             cache = get_cache()
             status["components"]["cache_service"] = {

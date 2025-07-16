@@ -18,8 +18,8 @@ import pandas as pd
 import pytest
 from jsonschema import ValidationError, validate
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import AnomalyScore
 
 
 @pytest.mark.contract
@@ -46,7 +46,7 @@ class TestAPIContractCompliance:
 
         # Test with API
         with patch(
-            "pynomaly.application.services.dataset_service.DatasetService.create_dataset"
+            "monorepo.application.services.dataset_service.DatasetService.create_dataset"
         ) as mock_create:
             mock_create.return_value = Dataset(
                 name=valid_request["name"],
@@ -106,7 +106,7 @@ class TestAPIContractCompliance:
 
         # Test with API
         with patch(
-            "pynomaly.application.services.detector_service.DetectorService.create_detector"
+            "monorepo.application.services.detector_service.DetectorService.create_detector"
         ) as mock_create:
             mock_create.return_value = Detector(
                 algorithm_name=valid_request["algorithm_name"],
@@ -134,7 +134,7 @@ class TestAPIContractCompliance:
 
         # Test with API
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
         ) as mock_detect:
             mock_detect.return_value = DetectionResult(
                 detector_id=valid_request["detector_id"],
@@ -163,7 +163,7 @@ class TestAPIContractCompliance:
 
         # Test with API
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
         ) as mock_detect:
             mock_detect.side_effect = [
                 DetectionResult(
@@ -605,7 +605,7 @@ class TestBackwardCompatibilityContracts:
         }
 
         with patch(
-            "pynomaly.application.services.dataset_service.DatasetService.create_dataset"
+            "monorepo.application.services.dataset_service.DatasetService.create_dataset"
         ) as mock_create:
             mock_create.return_value = Dataset(
                 name=old_format_request["name"],

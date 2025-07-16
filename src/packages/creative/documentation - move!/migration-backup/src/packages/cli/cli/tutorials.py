@@ -18,7 +18,7 @@ from rich.prompt import Confirm
 from rich.syntax import Syntax
 from rich.table import Table
 
-from pynomaly.presentation.cli.ux_improvements import ProgressIndicator
+from monorepo.presentation.cli.ux_improvements import ProgressIndicator
 
 console = Console()
 progress_indicator = ProgressIndicator()
@@ -428,7 +428,7 @@ class TutorialManager:
         tutorial.add_step(TutorialStep(
             title="API Authentication",
             description="Set up authentication for API access.",
-            code_example="curl -H \"X-API-Key: your-api-key\" https://api.pynomaly.com/health",
+            code_example="curl -H \"X-API-Key: your-api-key\" https://api.monorepo.com/health",
             explanation="All API calls require authentication using your API key.",
             tips=["Keep your API key secure", "Use environment variables for keys", "Monitor API usage"]
         ))

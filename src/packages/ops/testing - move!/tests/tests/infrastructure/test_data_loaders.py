@@ -8,9 +8,9 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import DataValidationError
+from monorepo.infrastructure.data_loaders import CSVLoader, ParquetLoader
 
 
 class TestCSVLoader:

@@ -153,40 +153,40 @@ def patch_imports():
 
     # Create mock modules
     mock_threat_detection = ModuleType(
-        "pynomaly.infrastructure.security.threat_detection"
+        "monorepo.infrastructure.security.threat_detection"
     )
     mock_threat_detection.ThreatDetector = MockThreatDetector
 
     mock_input_validation = ModuleType(
-        "pynomaly.infrastructure.security.input_validation"
+        "monorepo.infrastructure.security.input_validation"
     )
     mock_input_validation.InputSanitizer = MockInputSanitizer
 
-    mock_jwt_auth = ModuleType("pynomaly.infrastructure.auth.jwt_auth")
+    mock_jwt_auth = ModuleType("monorepo.infrastructure.auth.jwt_auth")
     mock_jwt_auth.JWTAuthService = MockJWTAuthService
 
-    mock_detector = ModuleType("pynomaly.domain.entities.detector")
+    mock_detector = ModuleType("monorepo.domain.entities.detector")
     mock_detector.Detector = MockDetector
 
-    mock_anomaly_score = ModuleType("pynomaly.domain.value_objects.anomaly_score")
+    mock_anomaly_score = ModuleType("monorepo.domain.value_objects.anomaly_score")
     mock_anomaly_score.AnomalyScore = MockAnomalyScore
 
     mock_performance_metrics = ModuleType(
-        "pynomaly.domain.value_objects.performance_metrics"
+        "monorepo.domain.value_objects.performance_metrics"
     )
     mock_performance_metrics.PerformanceMetrics = MockPerformanceMetrics
 
     # Add to sys.modules
-    sys.modules["pynomaly.infrastructure.security.threat_detection"] = (
+    sys.modules["monorepo.infrastructure.security.threat_detection"] = (
         mock_threat_detection
     )
-    sys.modules["pynomaly.infrastructure.security.input_validation"] = (
+    sys.modules["monorepo.infrastructure.security.input_validation"] = (
         mock_input_validation
     )
-    sys.modules["pynomaly.infrastructure.auth.jwt_auth"] = mock_jwt_auth
-    sys.modules["pynomaly.domain.entities.detector"] = mock_detector
-    sys.modules["pynomaly.domain.value_objects.anomaly_score"] = mock_anomaly_score
-    sys.modules["pynomaly.domain.value_objects.performance_metrics"] = (
+    sys.modules["monorepo.infrastructure.auth.jwt_auth"] = mock_jwt_auth
+    sys.modules["monorepo.domain.entities.detector"] = mock_detector
+    sys.modules["monorepo.domain.value_objects.anomaly_score"] = mock_anomaly_score
+    sys.modules["monorepo.domain.value_objects.performance_metrics"] = (
         mock_performance_metrics
     )
 

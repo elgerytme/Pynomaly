@@ -1,7 +1,7 @@
-# Pynomaly API Documentation
+# Monorepo API Documentation
 
 
-# Pynomaly - Enterprise Anomaly Detection Platform
+# Monorepo - Enterprise Anomaly Detection Platform
 
 A comprehensive, production-ready anomaly detection system with enterprise-grade features.
 
@@ -36,7 +36,7 @@ A comprehensive, production-ready anomaly detection system with enterprise-grade
 ### 1. Authentication
 ```bash
 # Get JWT token
-curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \
+curl -X POST "https://api.monorepo.com/api/v1/auth/login" \
   -H "Content-Type: application/json" \
   -d '{"username": "your_username", "password": "your_password"}'
 ```
@@ -44,7 +44,7 @@ curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \
 ### 2. Basic Anomaly Detection
 ```bash
 # Detect anomalies in data
-curl -X POST "https://api.pynomaly.com/api/v1/detection/detect" \
+curl -X POST "https://api.monorepo.com/api/v1/detection/detect" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -57,7 +57,7 @@ curl -X POST "https://api.pynomaly.com/api/v1/detection/detect" \
 ### 3. Train Custom Model
 ```bash
 # Train a new model
-curl -X POST "https://api.pynomaly.com/api/v1/detection/train" \
+curl -X POST "https://api.monorepo.com/api/v1/detection/train" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -95,7 +95,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
 
 ```json
 {
-  "type": "https://pynomaly.com/errors/validation-error",
+  "type": "https://monorepo.com/errors/validation-error",
   "title": "Validation Error",
   "status": 422,
   "detail": "The request data is invalid",
@@ -111,14 +111,14 @@ The API uses standard HTTP status codes and returns detailed error messages foll
 
 ## Support
 
-- **Documentation**: https://docs.pynomaly.com
-- **Support**: support@pynomaly.com
-- **Community**: https://community.pynomaly.com
+- **Documentation**: https://docs.monorepo.com
+- **Support**: support@monorepo.com
+- **Community**: https://community.monorepo.com
 
 
 ## Generated Documentation
 
-This directory contains comprehensive API documentation for the Pynomaly platform:
+This directory contains comprehensive API documentation for the Monorepo platform:
 
 - **`openapi.json`** - OpenAPI 3.0 specification in JSON format
 - **`openapi.yaml`** - OpenAPI 3.0 specification in YAML format
@@ -148,14 +148,14 @@ This directory contains comprehensive API documentation for the Pynomaly platfor
 
 ### Authentication
 ```bash
-curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \
+curl -X POST "https://api.monorepo.com/api/v1/auth/login" \
   -H "Content-Type: application/json" \
   -d '{"username": "your_username", "password": "your_password"}'
 ```
 
 ### Anomaly Detection
 ```bash
-curl -X POST "https://api.pynomaly.com/api/v1/detection/detect" \
+curl -X POST "https://api.monorepo.com/api/v1/detection/detect" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -181,9 +181,9 @@ See the `examples/` directory for client code examples in:
 
 ## Support
 
-- **Documentation**: https://docs.pynomaly.com
-- **Support**: support@pynomaly.com
-- **Community**: https://community.pynomaly.com
+- **Documentation**: https://docs.monorepo.com
+- **Support**: support@monorepo.com
+- **Community**: https://community.monorepo.com
 
 ---
 

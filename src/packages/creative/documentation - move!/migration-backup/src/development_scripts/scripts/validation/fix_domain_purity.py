@@ -16,7 +16,7 @@ class DomainPurityFixer:
 
     def __init__(self, src_root: Path):
         self.src_root = src_root
-        self.domain_root = src_root / "pynomaly" / "domain"
+        self.domain_root = src_root / "monorepo" / "domain"
         self.violations: list[dict] = []
         self.fixes_applied: list[str] = []
 
@@ -115,8 +115,8 @@ class DomainPurityFixer:
                             )
                         elif (
                             module not in self.allowed_stdlib
-                            and not module.startswith("pynomaly.domain")
-                            and not module.startswith("pynomaly.shared")
+                            and not module.startswith("monorepo.domain")
+                            and not module.startswith("monorepo.shared")
                         ):
                             violations.append(
                                 {
@@ -144,8 +144,8 @@ class DomainPurityFixer:
                         )
                     elif (
                         module not in self.allowed_stdlib
-                        and not module.startswith("pynomaly.domain")
-                        and not module.startswith("pynomaly.shared")
+                        and not module.startswith("monorepo.domain")
+                        and not module.startswith("monorepo.shared")
                     ):
                         violations.append(
                             {
@@ -230,7 +230,7 @@ class Anomaly:
 
 # Infrastructure Validation (✅)
 from pydantic import BaseModel
-from pynomaly.domain.entities import Anomaly
+from monorepo.domain.entities import Anomaly
 
 class AnomalyValidator(BaseModel):
     score: float

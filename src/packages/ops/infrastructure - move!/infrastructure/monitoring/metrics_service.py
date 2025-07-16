@@ -13,7 +13,7 @@ import psutil
 import requests
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram
 
-from pynomaly.domain.models.monitoring import (
+from monorepo.domain.models.monitoring import (
     Alert,
     AlertRule,
     AlertSeverity,
@@ -28,7 +28,7 @@ from pynomaly.domain.models.monitoring import (
 class MetricsService:
     """Comprehensive metrics collection and monitoring service."""
 
-    def __init__(self, service_name: str = "pynomaly", service_version: str = "1.0.0"):
+    def __init__(self, service_name: str = "monorepo", service_version: str = "1.0.0"):
         self.service_name = service_name
         self.service_version = service_version
         self.logger = logging.getLogger(__name__)

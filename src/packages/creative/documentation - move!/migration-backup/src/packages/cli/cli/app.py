@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 # Import error handling utilities
-from pynomaly.shared.error_handling import (
+from monorepo.shared.error_handling import (
     handle_cli_errors,
     print_error,
     print_success,
@@ -23,12 +23,12 @@ USE_LAZY_LOADING = os.getenv("PYNOMALY_USE_LAZY_CLI", "true").lower() == "true"
 
 if USE_LAZY_LOADING:
     # Use lazy loading for better performance
-    from pynomaly.presentation.cli.lazy_app import app
+    from monorepo.presentation.cli.lazy_app import app
 else:
     # Use traditional loading (for debugging/testing)
-    from pynomaly.presentation.cli import automl, autonomous
-    from pynomaly.presentation.cli import config as config_cli
-    from pynomaly.presentation.cli import (
+    from monorepo.presentation.cli import automl, autonomous
+    from monorepo.presentation.cli import config as config_cli
+    from monorepo.presentation.cli import (
         datasets,
         deep_learning,
         detection,
@@ -41,12 +41,12 @@ else:
         tdd,
         validation,
     )
-    from pynomaly.presentation.cli.export import export_app
-    from pynomaly.presentation.cli.performance import performance_app
+    from monorepo.presentation.cli.export import export_app
+    from monorepo.presentation.cli.performance import performance_app
 
     # Configuration management CLI
     try:
-        from pynomaly.presentation.cli import recommendation
+        from monorepo.presentation.cli import recommendation
 
         RECOMMENDATION_CLI_AVAILABLE = True
     except ImportError:
@@ -55,14 +55,14 @@ else:
 
     # Create Typer app
     app = typer.Typer(
-        name="pynomaly",
+        name="monorepo",
         help="Pynomaly - State-of-the-art anomaly detection CLI",
         add_completion=True,
         rich_markup_mode="rich",
     )
 
     # Import standardized help text
-    from pynomaly.presentation.cli.help_formatter import get_standard_help
+    from monorepo.presentation.cli.help_formatter import get_standard_help
 
     # Add subcommands with standardized help text
     subcommands = [
@@ -115,7 +115,7 @@ else:
             help="🧠 Intelligent configuration recommendations",
         )
 
-from pynomaly.presentation.cli.container import get_cli_container
+from monorepo.presentation.cli.container import get_cli_container
 
 # Create console for rich output
 console = Console()
@@ -542,7 +542,7 @@ def setup():
     new to Pynomaly, helping them configure their first detection workflow.
     """
     try:
-        from pynomaly.presentation.cli.ux_improvements import create_setup_wizard
+        from monorepo.presentation.cli.ux_improvements import create_setup_wizard
 
         config = create_setup_wizard()
 

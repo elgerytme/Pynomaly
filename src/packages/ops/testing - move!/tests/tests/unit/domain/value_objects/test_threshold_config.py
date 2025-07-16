@@ -2,8 +2,8 @@
 
 import pytest
 
-from pynomaly.domain.exceptions import InvalidValueError
-from pynomaly.domain.value_objects.threshold_config import ThresholdConfig
+from monorepo.domain.exceptions import InvalidValueError
+from monorepo.domain.value_objects.threshold_config import ThresholdConfig
 
 
 class TestThresholdConfig:

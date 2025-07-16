@@ -1,14 +1,14 @@
 # Buck2 Build Configuration for Enterprise Package
 # Enterprise features and multi-tenancy in application layer
 
-load("//tools/buck:python.bzl", "pynomaly_workspace_package")
-load("//tools/buck:testing.bzl", "pynomaly_comprehensive_tests")
+load("//tools/buck:python.bzl", "monorepo_workspace_package")
+load("//tools/buck:testing.bzl", "monorepo_comprehensive_tests")
 
 # ==========================================
 # Enterprise Package
 # ==========================================
 
-pynomaly_workspace_package(
+monorepo_workspace_package(
     name = "enterprise",
     layer = "application",
     package_type = "enterprise",
@@ -24,7 +24,7 @@ pynomaly_workspace_package(
 # Test Suite
 # ==========================================
 
-pynomaly_comprehensive_tests(
+monorepo_comprehensive_tests(
     package_name = "enterprise",
     deps = [
         "//src/packages/core:core",

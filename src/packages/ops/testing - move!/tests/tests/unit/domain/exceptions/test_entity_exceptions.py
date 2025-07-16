@@ -4,8 +4,8 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from pynomaly.domain.exceptions.base import DomainError, PynamolyError
-from pynomaly.domain.exceptions.entity_exceptions import (
+from monorepo.domain.exceptions.base import DomainError, PynamolyError
+from monorepo.domain.exceptions.entity_exceptions import (
     AlertNotFoundError,
     EntityNotFoundError,
     ExperimentNotFoundError,

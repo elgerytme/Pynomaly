@@ -7,9 +7,9 @@ from unittest.mock import patch
 
 import pytest
 
-from pynomaly.domain.exceptions import SecurityError, ValidationError
-from pynomaly.infrastructure.security.input_sanitizer import InputSanitizer
-from pynomaly.infrastructure.security.sql_protection import SQLProtection
+from monorepo.domain.exceptions import SecurityError, ValidationError
+from monorepo.infrastructure.security.input_sanitizer import InputSanitizer
+from monorepo.infrastructure.security.sql_protection import SQLProtection
 
 
 class TestInputSanitizer:
@@ -434,7 +434,7 @@ class TestInputSanitizer:
         """Test file content scanning for malicious content."""
         # Mock file content scanning
         with patch(
-            "pynomaly.infrastructure.security.file_scanner.scan_content"
+            "monorepo.infrastructure.security.file_scanner.scan_content"
         ) as mock_scan:
             # Clean file content
             mock_scan.return_value = {"is_safe": True, "threats": []}

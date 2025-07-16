@@ -10,7 +10,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.pynomaly.application.dto.streaming_dto import (
+from src.monorepo.application.dto.streaming_dto import (
     BackpressureConfigDTO,
     CheckpointConfigDTO,
     StreamConfigurationDTO,

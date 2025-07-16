@@ -7,9 +7,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
-from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
-from pynomaly.domain.entities import Dataset, Detector
+from monorepo.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
+from monorepo.application.use_cases.train_detector import TrainDetectorUseCase
+from monorepo.domain.entities import Dataset, Detector
 
 
 @pytest.mark.performance
@@ -162,7 +162,7 @@ class TestDatabasePerformance:
     def test_bulk_insert_performance(self, session_factory):
         """Test bulk insert performance."""
         try:
-            from pynomaly.infrastructure.persistence.database_repositories import (
+            from monorepo.infrastructure.persistence.database_repositories import (
                 DatabaseDatasetRepository,
                 DatasetModel,
                 DetectorModel,
@@ -206,7 +206,7 @@ class TestDatabasePerformance:
     def test_query_performance(self, session_factory):
         """Test query performance with indexed searches."""
         try:
-            from pynomaly.infrastructure.persistence.database_repositories import (
+            from monorepo.infrastructure.persistence.database_repositories import (
                 DatabaseDatasetRepository,
             )
         except ImportError:

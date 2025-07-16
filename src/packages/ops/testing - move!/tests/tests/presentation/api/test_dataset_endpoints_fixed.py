@@ -10,8 +10,8 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.application.dto.dataset_dto import DatasetDTO
-from pynomaly.presentation.api.app import create_app
+from monorepo.application.dto.dataset_dto import DatasetDTO
+from monorepo.presentation.api.app import create_app
 
 
 class TestDatasetEndpoints:
@@ -26,13 +26,13 @@ class TestDatasetEndpoints:
     @pytest.fixture
     def mock_auth_dependencies(self):
         """Mock all authentication dependencies."""
-        with patch("pynomaly.infrastructure.auth.middleware.get_current_user") as mock_get_user, \
-             patch("pynomaly.infrastructure.auth.jwt_auth.get_auth") as mock_get_auth, \
-             patch("pynomaly.infrastructure.auth.middleware.require_viewer") as mock_require_viewer, \
-             patch("pynomaly.infrastructure.auth.middleware.require_data_scientist") as mock_require_ds:
+        with patch("monorepo.infrastructure.auth.middleware.get_current_user") as mock_get_user, \
+             patch("monorepo.infrastructure.auth.jwt_auth.get_auth") as mock_get_auth, \
+             patch("monorepo.infrastructure.auth.middleware.require_viewer") as mock_require_viewer, \
+             patch("monorepo.infrastructure.auth.middleware.require_data_scientist") as mock_require_ds:
             
             # Create mock user
-            from pynomaly.infrastructure.auth.jwt_auth import UserModel
+            from monorepo.infrastructure.auth.jwt_auth import UserModel
             mock_user = UserModel(
                 id="user123",
                 username="testuser",
@@ -56,7 +56,7 @@ class TestDatasetEndpoints:
     @pytest.fixture
     def mock_container(self):
         """Mock the container dependencies."""
-        with patch("pynomaly.infrastructure.config.Container") as mock_container_class:
+        with patch("monorepo.infrastructure.config.Container") as mock_container_class:
             mock_container = Mock()
             
             # Mock repository
@@ -72,7 +72,7 @@ class TestDatasetEndpoints:
             mock_container_class.return_value = mock_container
             
             # Override the dependency
-            with patch("pynomaly.presentation.api.endpoints.datasets.Container", return_value=mock_container):
+            with patch("monorepo.presentation.api.endpoints.datasets.Container", return_value=mock_container):
                 yield mock_container, mock_repo
 
     @pytest.fixture
@@ -97,7 +97,7 @@ class TestDatasetEndpoints:
         mock_container_obj, mock_repo = mock_container
         
         # Create mock dataset
-        from pynomaly.domain.entities.dataset import Dataset
+        from monorepo.domain.entities.dataset import Dataset
         import pandas as pd
         
         mock_dataset = Dataset(
@@ -122,7 +122,7 @@ class TestDatasetEndpoints:
         mock_container_obj, mock_repo = mock_container
         
         # Create datasets with and without targets
-        from pynomaly.domain.entities.dataset import Dataset
+        from monorepo.domain.entities.dataset import Dataset
         import pandas as pd
         
         dataset_with_target = Dataset(
@@ -153,7 +153,7 @@ class TestDatasetEndpoints:
         """Test retrieving a specific dataset."""
         mock_container_obj, mock_repo = mock_container
         
-        from pynomaly.domain.entities.dataset import Dataset
+        from monorepo.domain.entities.dataset import Dataset
         import pandas as pd
         from uuid import uuid4
         
@@ -258,7 +258,7 @@ class TestDatasetEndpoints:
         """Test dataset quality check endpoint."""
         mock_container_obj, mock_repo = mock_container
         
-        from pynomaly.domain.entities.dataset import Dataset
+        from monorepo.domain.entities.dataset import Dataset
         import pandas as pd
         from uuid import uuid4
         
@@ -301,7 +301,7 @@ class TestDatasetEndpoints:
         """Test getting dataset sample."""
         mock_container_obj, mock_repo = mock_container
         
-        from pynomaly.domain.entities.dataset import Dataset
+        from monorepo.domain.entities.dataset import Dataset
         import pandas as pd
         from uuid import uuid4
         
@@ -328,7 +328,7 @@ class TestDatasetEndpoints:
         """Test dataset splitting."""
         mock_container_obj, mock_repo = mock_container
         
-        from pynomaly.domain.entities.dataset import Dataset
+        from monorepo.domain.entities.dataset import Dataset
         import pandas as pd
         from uuid import uuid4
         

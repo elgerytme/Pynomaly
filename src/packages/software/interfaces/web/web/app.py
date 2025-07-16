@@ -11,7 +11,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from pynomaly_detection.infrastructure.config import Container
+from monorepo.infrastructure.config import Container
 
 from .csrf import add_csrf_to_context
 from .security.security_monitor import setup_security_monitoring
@@ -21,7 +21,7 @@ from .security.security_monitor import setup_security_monitoring
 def get_container() -> Container:
     """Get dependency injection container."""
     # Import locally to avoid circular import
-    from pynomaly_detection.infrastructure.config import create_container
+    from monorepo.infrastructure.config import create_container
 
     return create_container()
 
@@ -174,8 +174,8 @@ async def login_post(
         return RedirectResponse(url="/", status_code=302)
 
     try:
-        from pynomaly_detection.domain.exceptions import AuthenticationError
-        from pynomaly_detection.infrastructure.auth import get_auth
+        from monorepo.domain.exceptions import AuthenticationError
+        from monorepo.infrastructure.auth import get_auth
 
         auth_service = get_auth()
         if not auth_service:
@@ -577,7 +577,7 @@ async def users_page(
         return RedirectResponse(url="/login", status_code=302)
 
     # Check admin permissions
-    from pynomaly_detection.infrastructure.auth import get_auth
+    from monorepo.infrastructure.auth import get_auth
 
     auth_service = get_auth()
     if not auth_service:
@@ -636,7 +636,7 @@ async def htmx_detector_create(
     request: Request, container: Container = Depends(get_container)
 ):
     """HTMX endpoint for creating detector."""
-    from pynomaly_detection.domain.entities import Detector
+    from monorepo.domain.entities import Detector
 
     # Get form data
     form_data = await request.form()
@@ -713,7 +713,7 @@ async def htmx_train_detector(
     """HTMX endpoint for training detector."""
     from uuid import UUID
 
-    from pynomaly_detection.application.use_cases import TrainDetectorRequest
+    from monorepo.application.use_cases import TrainDetectorRequest
 
     # Get form data
     form_data = await request.form()
@@ -762,7 +762,7 @@ async def htmx_detect_anomalies(
     """HTMX endpoint for anomaly detection."""
     from uuid import UUID
 
-    from pynomaly_detection.application.use_cases import DetectAnomaliesRequest
+    from monorepo.application.use_cases import DetectAnomaliesRequest
 
     # Get form data
     form_data = await request.form()
@@ -1804,11 +1804,11 @@ async def htmx_bulk_export(
 def mount_web_ui(app):
     """Mount web UI to FastAPI app."""
     # Initialize error handling
-    from pynomaly_detection.presentation.web.error_handling import (
+    from monorepo.presentation.web.error_handling import (
         ErrorHandlingMiddleware,
         get_web_ui_logger,
     )
-    from pynomaly_detection.presentation.web.error_monitoring import (
+    from monorepo.presentation.web.error_monitoring import (
         start_error_monitoring,
     )
 
@@ -1816,7 +1816,7 @@ def mount_web_ui(app):
     app.add_middleware(ErrorHandlingMiddleware, logger=logger)
 
     # Initialize security features
-    from pynomaly_detection.presentation.web.security_features import (
+    from monorepo.presentation.web.security_features import (
         SecurityMiddleware,
         get_rate_limiter,
         get_waf,
@@ -1828,7 +1828,7 @@ def mount_web_ui(app):
 
     # Setup comprehensive security monitoring
     try:
-        from pynomaly_detection.presentation.web.security.security_monitor import setup_security_monitoring
+        from monorepo.presentation.web.security.security_monitor import setup_security_monitoring
         setup_security_monitoring(
             app,
             config={
@@ -1857,7 +1857,7 @@ def create_web_app():
     # Import locally to avoid circular import
     import importlib
 
-    api_module = importlib.import_module("pynomaly.presentation.api.app")
+    api_module = importlib.import_module("monorepo.presentation.api.app")
     create_app = api_module.create_app
 
     # Create API app

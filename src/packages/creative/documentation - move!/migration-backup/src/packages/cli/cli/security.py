@@ -10,16 +10,16 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.application.services.security_compliance_service import (
+from monorepo.application.services.security_compliance_service import (
     EncryptionContext,
     SecurityComplianceService,
     SecurityConfiguration,
 )
-from pynomaly.domain.entities.security_compliance import (
+from monorepo.domain.entities.security_compliance import (
     ComplianceFramework,
     DataClassification,
 )
-from pynomaly.infrastructure.config.container import Container
+from monorepo.infrastructure.config.container import Container
 
 console = Console()
 

@@ -12,14 +12,14 @@ from pathlib import Path
 
 import click
 
-from pynomaly_detection.infrastructure.performance.advanced_benchmarking_service import (
+from monorepo.infrastructure.performance.advanced_benchmarking_service import (
     AdvancedBenchmarkConfig,
     AdvancedPerformanceBenchmarkingService,
 )
-from pynomaly_detection.infrastructure.performance.optimization_engine import (
+from monorepo.infrastructure.performance.optimization_engine import (
     create_optimization_engine,
 )
-from pynomaly_detection.infrastructure.performance.performance_integration import (
+from monorepo.infrastructure.performance.performance_integration import (
     get_performance_integration_manager,
     get_performance_stats,
     start_performance_monitoring,

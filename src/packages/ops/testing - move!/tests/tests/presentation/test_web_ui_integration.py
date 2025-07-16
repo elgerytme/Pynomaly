@@ -6,8 +6,8 @@ Tests for main HTML page and static asset accessibility.
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.web.app import create_web_app
+from monorepo.infrastructure.config import create_container
+from monorepo.presentation.web.app import create_web_app
 
 
 @pytest.fixture
@@ -21,7 +21,7 @@ def web_client():
 @pytest.fixture
 def api_client():
     """Create test client for API app."""
-    from pynomaly.presentation.api.app import create_app
+    from monorepo.presentation.api.app import create_app
 
     container = create_container()
     app = create_app(container)

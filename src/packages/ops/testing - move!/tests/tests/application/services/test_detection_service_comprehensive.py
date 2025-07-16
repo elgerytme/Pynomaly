@@ -10,13 +10,13 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.services import DetectionService
-from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.exceptions import DetectorError
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.application.services import DetectionService
+from monorepo.domain.entities.anomaly import Anomaly
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.exceptions import DetectorError
+from monorepo.domain.value_objects import AnomalyScore
 
 
 class TestDetectionService:

@@ -14,10 +14,10 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from pynomaly.presentation.sdk.async_client import AsyncPynomályClient
-from pynomaly.presentation.sdk.client import PynomályClient
-from pynomaly.presentation.sdk.config import SDKConfig
-from pynomaly.presentation.sdk.exceptions import (
+from monorepo.presentation.sdk.async_client import AsyncPynomályClient
+from monorepo.presentation.sdk.client import PynomályClient
+from monorepo.presentation.sdk.config import SDKConfig
+from monorepo.presentation.sdk.exceptions import (
     AuthenticationError,
     NetworkError,
     RateLimitError,
@@ -25,7 +25,7 @@ from pynomaly.presentation.sdk.exceptions import (
     TimeoutError,
     ValidationError,
 )
-from pynomaly.presentation.sdk.models import (
+from monorepo.presentation.sdk.models import (
     Dataset,
     DetectionResult,
     Detector,

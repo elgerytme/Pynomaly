@@ -10,10 +10,10 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from pynomaly.domain.services.ensemble_aggregator import EnsembleAggregator
-from pynomaly.domain.services.metrics_calculator import MetricsCalculator
-from pynomaly.domain.services.processing_orchestrator import ProcessingOrchestrator
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.services.ensemble_aggregator import EnsembleAggregator
+from monorepo.domain.services.metrics_calculator import MetricsCalculator
+from monorepo.domain.services.processing_orchestrator import ProcessingOrchestrator
+from monorepo.domain.value_objects import AnomalyScore
 
 
 class TestEnsembleAggregator:

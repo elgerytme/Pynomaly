@@ -14,7 +14,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import (
+from monorepo.domain.entities import (
     Experiment,
     ExperimentRun,
     ExperimentStatus,
@@ -23,12 +23,12 @@ from pynomaly.domain.entities import (
     ModelStatus,
     ModelVersion,
 )
-from pynomaly.domain.value_objects import (
+from monorepo.domain.value_objects import (
     ModelStorageInfo,
     PerformanceMetrics,
     SemanticVersion,
 )
-from pynomaly.shared.protocols import (
+from monorepo.shared.protocols import (
     ExperimentRepositoryProtocol,
     ModelRepositoryProtocol,
     ModelVersionRepositoryProtocol,

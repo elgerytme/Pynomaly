@@ -13,12 +13,12 @@ from uuid import uuid4
 import pytest
 import yaml
 
-from pynomaly.domain.exceptions import ConfigurationError, ValidationError
-from pynomaly.infrastructure.config.config_manager import ConfigManager
-from pynomaly.infrastructure.config.config_validator import ConfigValidator
-from pynomaly.infrastructure.config.feature_flags import FeatureFlags
-from pynomaly.infrastructure.config.service_registry import ServiceRegistry
-from pynomaly.infrastructure.config.simplified_container import SimplifiedContainer
+from monorepo.domain.exceptions import ConfigurationError, ValidationError
+from monorepo.infrastructure.config.config_manager import ConfigManager
+from monorepo.infrastructure.config.config_validator import ConfigValidator
+from monorepo.infrastructure.config.feature_flags import FeatureFlags
+from monorepo.infrastructure.config.service_registry import ServiceRegistry
+from monorepo.infrastructure.config.simplified_container import SimplifiedContainer
 
 
 class TestConfigManager:
@@ -769,7 +769,7 @@ class TestConfigurationIntegration:
         """Test complete configuration lifecycle."""
         # Create complex configuration
         main_config = {
-            "app": {"name": "pynomaly", "version": "1.0.0"},
+            "app": {"name": "monorepo", "version": "1.0.0"},
             "database": {"host": "localhost", "port": 5432},
             "features": {"new_algorithm": True, "beta_ui": False},
         }
@@ -800,7 +800,7 @@ class TestConfigurationIntegration:
         feature_flags.set("beta_ui", config_manager.get("features.beta_ui"))
 
         # Test integrated functionality
-        assert config_manager.get("app.name") == "pynomaly"
+        assert config_manager.get("app.name") == "monorepo"
         assert feature_flags.is_enabled("new_algorithm") is True
         assert feature_flags.is_enabled("beta_ui") is False
 

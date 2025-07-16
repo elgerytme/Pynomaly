@@ -15,10 +15,10 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../src"))
 
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.persistence.database import DatabaseManager
-from pynomaly.infrastructure.persistence.database_repositories import (
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.infrastructure.persistence.database import DatabaseManager
+from monorepo.infrastructure.persistence.database_repositories import (
     Base,
     DatabaseDetectorRepository,
     DatasetModel,
@@ -206,8 +206,8 @@ class TestDatabaseRepositoriesPhase2:
                 self.is_fitted = True
 
             def detect(self, dataset):
-                from pynomaly.domain.entities import DetectionResult
-                from pynomaly.domain.value_objects import AnomalyScore
+                from monorepo.domain.entities import DetectionResult
+                from monorepo.domain.value_objects import AnomalyScore
 
                 return DetectionResult(
                     dataset_id=dataset.id,
@@ -217,7 +217,7 @@ class TestDatabaseRepositoriesPhase2:
                 )
 
             def score(self, dataset):
-                from pynomaly.domain.value_objects import AnomalyScore
+                from monorepo.domain.value_objects import AnomalyScore
 
                 return [AnomalyScore(0.5)]
 

@@ -19,10 +19,10 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 try:
-    from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
-    from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
-    from pynomaly.infrastructure.security.input_validation import InputSanitizer
-    from pynomaly.infrastructure.security.threat_detection import ThreatDetector
+    from monorepo.domain.exceptions import AuthenticationError, AuthorizationError
+    from monorepo.infrastructure.auth.jwt_auth import JWTAuthService
+    from monorepo.infrastructure.security.input_validation import InputSanitizer
+    from monorepo.infrastructure.security.threat_detection import ThreatDetector
 except ImportError:
     # Import mocks if actual modules not available
     import sys
@@ -31,9 +31,9 @@ except ImportError:
     from test_performance_security_mocks import patch_imports
 
     patch_imports()
-    from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
-    from pynomaly.infrastructure.security.input_validation import InputSanitizer
-    from pynomaly.infrastructure.security.threat_detection import ThreatDetector
+    from monorepo.infrastructure.auth.jwt_auth import JWTAuthService
+    from monorepo.infrastructure.security.input_validation import InputSanitizer
+    from monorepo.infrastructure.security.threat_detection import ThreatDetector
 
     # Mock exceptions
     class AuthenticationError(Exception):

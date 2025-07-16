@@ -2,9 +2,9 @@
 
 import pytest
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
-from pynomaly.domain.exceptions import InvalidValueError
-from pynomaly.domain.value_objects import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult
+from monorepo.domain.exceptions import InvalidValueError
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ConfidenceInterval,
     ContaminationRate,

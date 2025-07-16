@@ -15,11 +15,11 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from pynomaly.presentation.sdk.async_client import AsyncPynomalyClient
-from pynomaly.presentation.sdk.client import PynomalyClient
-from pynomaly.presentation.sdk.config import PynomalyConfig, load_config_from_file
-from pynomaly.presentation.sdk.exceptions import AuthenticationError, NetworkError
-from pynomaly.presentation.sdk.models import (
+from monorepo.presentation.sdk.async_client import AsyncPynomalyClient
+from monorepo.presentation.sdk.client import PynomalyClient
+from monorepo.presentation.sdk.config import PynomalyConfig, load_config_from_file
+from monorepo.presentation.sdk.exceptions import AuthenticationError, NetworkError
+from monorepo.presentation.sdk.models import (
     DetectionRequest,
     DetectionResponse,
     TrainingRequest,
@@ -345,7 +345,7 @@ class TestSDKConfigurationIntegration:
         }
 
         with patch.dict(os.environ, env_vars):
-            from pynomaly.presentation.sdk.config import load_config_from_env
+            from monorepo.presentation.sdk.config import load_config_from_env
 
             config = load_config_from_env()
             client = PynomalyClient.from_config(config.to_dict())

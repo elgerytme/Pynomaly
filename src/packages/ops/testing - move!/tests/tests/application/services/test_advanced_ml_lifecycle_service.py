@@ -11,17 +11,17 @@ import numpy as np
 import pytest
 from sklearn.ensemble import IsolationForest
 
-from pynomaly.application.services.advanced_ml_lifecycle_service import (
+from monorepo.application.services.advanced_ml_lifecycle_service import (
     AdvancedMLLifecycleService,
 )
-from pynomaly.domain.entities import (
+from monorepo.domain.entities import (
     Experiment,
     ExperimentStatus,
     ExperimentType,
     Model,
     ModelVersion,
 )
-from pynomaly.domain.value_objects import (
+from monorepo.domain.value_objects import (
     ModelStorageInfo,
     PerformanceMetrics,
     SemanticVersion,

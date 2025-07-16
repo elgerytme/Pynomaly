@@ -15,30 +15,30 @@ from fastapi.testclient import TestClient
 from sklearn.ensemble import IsolationForest
 
 # Import Pynomaly components
-from pynomaly.application.services.automl_pipeline_orchestrator import (
+from monorepo.application.services.automl_pipeline_orchestrator import (
     AutoMLPipelineOrchestrator,
     PipelineConfig,
     PipelineMode,
 )
-from pynomaly.infrastructure.config.environment_config import ConfigManager, Environment
-from pynomaly.infrastructure.data_quality.data_validation import (
+from monorepo.infrastructure.config.environment_config import ConfigManager, Environment
+from monorepo.infrastructure.data_quality.data_validation import (
     DataPipelineMonitor,
     ValidationRule,
     ValidationRuleType,
     ValidationSeverity,
 )
-from pynomaly.mlops.automated_retraining import (
+from monorepo.mlops.automated_retraining import (
     AutomatedRetrainingPipeline,
     RetrainingConfig,
     TriggerType,
 )
-from pynomaly.mlops.model_deployment import (
+from monorepo.mlops.model_deployment import (
     DeploymentEnvironment,
     ModelDeploymentManager,
 )
-from pynomaly.mlops.model_registry import ModelRegistry, ModelType
-from pynomaly.mlops.model_serving import ModelServingEngine, PredictionRequest
-from pynomaly.mlops.monitoring import MLOpsMonitor
+from monorepo.mlops.model_registry import ModelRegistry, ModelType
+from monorepo.mlops.model_serving import ModelServingEngine, PredictionRequest
+from monorepo.mlops.monitoring import MLOpsMonitor
 
 
 class TestMLOpsIntegration:
@@ -284,7 +284,7 @@ class TestMLOpsIntegration:
 
         # Run pipeline
         with patch(
-            "pynomaly.application.services.automl_pipeline_orchestrator.DatasetProfile"
+            "monorepo.application.services.automl_pipeline_orchestrator.DatasetProfile"
         ) as mock_profile:
             mock_profile.return_value = dataset_profile
 
@@ -507,7 +507,7 @@ class TestMLOpsIntegration:
         """Test API endpoints integration."""
         # This would typically test FastAPI endpoints
         # For now, we'll test the basic structure
-        from pynomaly.mlops.model_serving import app
+        from monorepo.mlops.model_serving import app
 
         client = TestClient(app)
 

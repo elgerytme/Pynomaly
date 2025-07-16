@@ -18,9 +18,9 @@ def test_new_adapters():
     try:
         # Test imports
         print("1. Testing adapter imports...")
-        from pynomaly.domain.entities import Dataset, Detector
-        from pynomaly.infrastructure.adapters.ensemble_adapter import EnsembleAdapter
-        from pynomaly.infrastructure.adapters.time_series_adapter import (
+        from monorepo.domain.entities import Dataset, Detector
+        from monorepo.infrastructure.adapters.ensemble_adapter import EnsembleAdapter
+        from monorepo.infrastructure.adapters.time_series_adapter import (
             TimeSeriesAdapter,
         )
 

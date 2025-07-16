@@ -16,10 +16,10 @@ import numpy as np
 import pandas as pd
 from pydantic import ConfigDict, Field, field_validator
 
-from pynomaly.domain.entities import DetectionResult
-from pynomaly.domain.models.detection import DetectionConfig
-from pynomaly.domain.value_objects import AnomalyScore, AnomalyType
-from pynomaly.shared.protocols.detector_protocol import DetectorProtocol
+from monorepo.domain.entities import DetectionResult
+from monorepo.domain.models.detection import DetectionConfig
+from monorepo.domain.value_objects import AnomalyScore, AnomalyType
+from monorepo.shared.protocols.detector_protocol import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -697,7 +697,7 @@ class TextAnomalyDetector(DetectorProtocol):
     @property
     def contamination_rate(self):
         """Get the contamination rate."""
-        from pynomaly.domain.value_objects import ContaminationRate
+        from monorepo.domain.value_objects import ContaminationRate
 
         return ContaminationRate(value=self.config.contamination)
 

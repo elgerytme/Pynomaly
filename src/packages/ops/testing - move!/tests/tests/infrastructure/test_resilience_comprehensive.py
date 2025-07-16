@@ -8,14 +8,14 @@ from unittest.mock import patch
 
 import pytest
 
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     BulkheadRejectionError,
     CircuitBreakerOpenError,
     RateLimitExceededError,
     RetryExhaustedError,
     TimeoutError,
 )
-from pynomaly.infrastructure.resilience import (
+from monorepo.infrastructure.resilience import (
     BulkheadIsolation,
     CircuitBreaker,
     CircuitBreakerState,

@@ -18,10 +18,10 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.value_objects.contamination_rate import ContaminationRate
-from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.value_objects.contamination_rate import ContaminationRate
+from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 class FXAnomalyDetector:

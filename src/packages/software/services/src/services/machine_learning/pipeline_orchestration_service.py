@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import (
+from monorepo.domain.entities import (
     Pipeline,
     PipelineRun,
     PipelineStatus,
@@ -13,8 +13,8 @@ from pynomaly.domain.entities import (
     PipelineType,
     StepType,
 )
-from pynomaly.domain.exceptions import InvalidPipelineStateError, PipelineNotFoundError
-from pynomaly.shared.protocols import (
+from monorepo.domain.exceptions import InvalidPipelineStateError, PipelineNotFoundError
+from monorepo.shared.protocols import (
     PipelineRepositoryProtocol,
     PipelineRunRepositoryProtocol,
 )

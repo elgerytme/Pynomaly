@@ -6,8 +6,8 @@ import numpy as np
 from hypothesis import strategies as st
 from hypothesis.extra import numpy as stnp
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ConfidenceInterval,
     ContaminationRate,

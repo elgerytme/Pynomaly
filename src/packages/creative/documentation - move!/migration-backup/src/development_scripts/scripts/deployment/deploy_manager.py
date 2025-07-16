@@ -332,9 +332,9 @@ class PynomAlyDeploymentManager:
                     "pynomaly-postgres",
                     "pg_dump",
                     "-U",
-                    "pynomaly",
+                    "monorepo",
                     "-d",
-                    "pynomaly",
+                    "monorepo",
                     "-f",
                     f"/backup/db_backup_{self.deployment_id}.sql",
                 ]
@@ -349,9 +349,9 @@ class PynomAlyDeploymentManager:
                     "--",
                     "pg_dump",
                     "-U",
-                    "pynomaly",
+                    "monorepo",
                     "-d",
-                    "pynomaly",
+                    "monorepo",
                     "-f",
                     f"/backup/db_backup_{self.deployment_id}.sql",
                 ]
@@ -523,7 +523,7 @@ class PynomAlyDeploymentManager:
         self._log_deployment_step("DEPLOY_HELM", "INFO", "Deploying with Helm")
 
         try:
-            chart_path = self.project_root / "deploy" / "helm" / "pynomaly"
+            chart_path = self.project_root / "deploy" / "helm" / "monorepo"
             release_name = f"pynomaly-{self.environment.value}"
             namespace = f"pynomaly-{self.environment.value}"
 

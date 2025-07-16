@@ -12,13 +12,13 @@ import pandas as pd
 from rich.console import Console
 from rich.table import Table
 
-from pynomaly.application.use_cases import (
+from monorepo.application.use_cases import (
     DetectAnomaliesRequest,
     EvaluateModelRequest,
     TrainDetectorRequest,
 )
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.infrastructure.config import create_container
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.infrastructure.config import create_container
 
 console = Console()
 

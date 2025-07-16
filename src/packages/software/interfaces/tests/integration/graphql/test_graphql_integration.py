@@ -6,9 +6,9 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, AsyncMock
 
-from pynomaly_detection.presentation.graphql.app import create_standalone_graphql_app, GraphQLConfig
-from pynomaly_detection.infrastructure.container import Container
-from pynomaly_detection.domain.entities.user import User, UserRole
+from monorepo.presentation.graphql.app import create_standalone_graphql_app, GraphQLConfig
+from monorepo.infrastructure.container import Container
+from monorepo.domain.entities.user import User, UserRole
 
 
 @pytest.fixture

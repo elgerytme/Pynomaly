@@ -8,13 +8,13 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.application.dto.mfa_dto import (
+from monorepo.application.dto.mfa_dto import (
     MFAMethodStatus,
     MFAMethodType,
     MFAStatisticsDTO,
     TOTPSetupResponse,
 )
-from pynomaly.domain.services.mfa_service import MFAService
+from monorepo.domain.services.mfa_service import MFAService
 
 
 class TestMFAService:
@@ -57,8 +57,8 @@ class TestMFAService:
         assert mfa_service.backup_codes_count == 10
         assert mfa_service.device_remember_duration == 2592000
 
-    @patch("pynomaly.domain.services.mfa_service.PYOTP_AVAILABLE", True)
-    @patch("pynomaly.domain.services.mfa_service.pyotp")
+    @patch("monorepo.domain.services.mfa_service.PYOTP_AVAILABLE", True)
+    @patch("monorepo.domain.services.mfa_service.pyotp")
     def test_generate_totp_secret(self, mock_pyotp, mfa_service, mock_redis):
         """Test TOTP secret generation."""
         mock_pyotp.random_base32.return_value = "TESTSECRET123"
@@ -71,7 +71,7 @@ class TestMFAService:
             "mfa_totp_setup:user123", 3600, "TESTSECRET123"
         )
 
-    @patch("pynomaly.domain.services.mfa_service.PYOTP_AVAILABLE", False)
+    @patch("monorepo.domain.services.mfa_service.PYOTP_AVAILABLE", False)
     def test_generate_totp_secret_without_pyotp(self, mfa_service):
         """Test TOTP secret generation when pyotp is not available."""
         with pytest.raises(
@@ -79,10 +79,10 @@ class TestMFAService:
         ):
             mfa_service.generate_totp_secret("user123")
 
-    @patch("pynomaly.domain.services.mfa_service.PYOTP_AVAILABLE", True)
-    @patch("pynomaly.domain.services.mfa_service.QRCODE_AVAILABLE", True)
-    @patch("pynomaly.domain.services.mfa_service.pyotp")
-    @patch("pynomaly.domain.services.mfa_service.qrcode")
+    @patch("monorepo.domain.services.mfa_service.PYOTP_AVAILABLE", True)
+    @patch("monorepo.domain.services.mfa_service.QRCODE_AVAILABLE", True)
+    @patch("monorepo.domain.services.mfa_service.pyotp")
+    @patch("monorepo.domain.services.mfa_service.qrcode")
     def test_create_totp_setup_response(self, mock_qrcode, mock_pyotp, mfa_service):
         """Test TOTP setup response creation."""
         # Mock TOTP
@@ -109,8 +109,8 @@ class TestMFAService:
             assert response.manual_entry_key == "TESTSECRET123"
             assert response.backup_codes == ["123456", "789012"]
 
-    @patch("pynomaly.domain.services.mfa_service.PYOTP_AVAILABLE", True)
-    @patch("pynomaly.domain.services.mfa_service.pyotp")
+    @patch("monorepo.domain.services.mfa_service.PYOTP_AVAILABLE", True)
+    @patch("monorepo.domain.services.mfa_service.pyotp")
     def test_verify_totp_code_success(self, mock_pyotp, mfa_service, mock_redis):
         """Test successful TOTP code verification."""
         # First call: get secret, second call: check if code was used (should be None)
@@ -125,8 +125,8 @@ class TestMFAService:
         assert result is True
         mock_totp.verify.assert_called_once_with("123456", valid_window=1)
 
-    @patch("pynomaly.domain.services.mfa_service.PYOTP_AVAILABLE", True)
-    @patch("pynomaly.domain.services.mfa_service.pyotp")
+    @patch("monorepo.domain.services.mfa_service.PYOTP_AVAILABLE", True)
+    @patch("monorepo.domain.services.mfa_service.pyotp")
     def test_verify_totp_code_failure(self, mock_pyotp, mfa_service, mock_redis):
         """Test failed TOTP code verification."""
         mock_redis.get.return_value = b"TESTSECRET123"
@@ -442,8 +442,8 @@ class TestMFAService:
         assert service.is_device_trusted("test123", "user123") is False
         assert service.revoke_trusted_device("test123", "user123") is False
 
-    @patch("pynomaly.domain.services.mfa_service.PYOTP_AVAILABLE", True)
-    @patch("pynomaly.domain.services.mfa_service.pyotp")
+    @patch("monorepo.domain.services.mfa_service.PYOTP_AVAILABLE", True)
+    @patch("monorepo.domain.services.mfa_service.pyotp")
     def test_error_handling_in_totp_verification(
         self, mock_pyotp, mfa_service, mock_redis
     ):

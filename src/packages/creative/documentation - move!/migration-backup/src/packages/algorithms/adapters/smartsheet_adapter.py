@@ -180,7 +180,7 @@ class SmartsheetAdapter(ExportProtocol):
         for i, record in enumerate(records):
             record["row_id"] = i + 1
             record["export_timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            record["source"] = "pynomaly"
+            record["source"] = "monorepo"
 
             # Add status based on anomaly score
             if "anomaly_score" in record:

@@ -8,9 +8,9 @@ from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.value_objects.model_storage_info import ModelStorageInfo
-from pynomaly.domain.value_objects.performance_metrics import PerformanceMetrics
-from pynomaly.domain.value_objects.semantic_version import SemanticVersion
+from monorepo.domain.value_objects.model_storage_info import ModelStorageInfo
+from monorepo.domain.value_objects.performance_metrics import PerformanceMetrics
+from monorepo.domain.value_objects.semantic_version import SemanticVersion
 
 
 class ModelStatus(Enum):

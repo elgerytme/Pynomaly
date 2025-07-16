@@ -9,14 +9,14 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.domain.entities import Detector
-from pynomaly.domain.exceptions import InfrastructureError, ValidationError
-from pynomaly.infrastructure.adapters.enhanced_pyod_adapter import EnhancedPyodAdapter
-from pynomaly.infrastructure.adapters.enhanced_sklearn_adapter import (
+from monorepo.domain.entities import Detector
+from monorepo.domain.exceptions import InfrastructureError, ValidationError
+from monorepo.infrastructure.adapters.enhanced_pyod_adapter import EnhancedPyodAdapter
+from monorepo.infrastructure.adapters.enhanced_sklearn_adapter import (
     EnhancedSklearnAdapter,
 )
-from pynomaly.infrastructure.adapters.ensemble_adapter import EnsembleAdapter
-from pynomaly.infrastructure.adapters.optimized_adapter import OptimizedAdapter
+from monorepo.infrastructure.adapters.ensemble_adapter import EnsembleAdapter
+from monorepo.infrastructure.adapters.optimized_adapter import OptimizedAdapter
 
 
 class TestEnhancedSklearnAdapter:
@@ -513,7 +513,7 @@ class TestAdapterRegistry:
 
     def test_adapter_registry_registration(self):
         """Test adapter registration and retrieval."""
-        from pynomaly.infrastructure.adapters.registry import AdapterRegistry
+        from monorepo.infrastructure.adapters.registry import AdapterRegistry
 
         registry = AdapterRegistry()
 
@@ -536,7 +536,7 @@ class TestAdapterRegistry:
 
     def test_adapter_registry_algorithm_discovery(self):
         """Test algorithm discovery across adapters."""
-        from pynomaly.infrastructure.adapters.registry import AdapterRegistry
+        from monorepo.infrastructure.adapters.registry import AdapterRegistry
 
         registry = AdapterRegistry()
         registry.register("sklearn", EnhancedSklearnAdapter())

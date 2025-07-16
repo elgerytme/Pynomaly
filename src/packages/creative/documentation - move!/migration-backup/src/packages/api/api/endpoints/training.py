@@ -15,13 +15,13 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
-from pynomaly.application.services.automated_training_service import (
+from monorepo.application.services.automated_training_service import (
     AutomatedTrainingService,
     TrainingConfig,
     TriggerType,
 )
-from pynomaly.application.services.automl_service import OptimizationObjective
-from pynomaly.presentation.api.dependencies import (
+from monorepo.application.services.automl_service import OptimizationObjective
+from monorepo.presentation.api.dependencies import (
     get_current_user,
     get_training_service,
 )

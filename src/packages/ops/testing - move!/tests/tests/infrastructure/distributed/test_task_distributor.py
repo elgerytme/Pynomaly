@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from pynomaly.infrastructure.distributed.distributed_config import DistributedConfig
-from pynomaly.infrastructure.distributed.task_distributor import (
+from monorepo.infrastructure.distributed.distributed_config import DistributedConfig
+from monorepo.infrastructure.distributed.task_distributor import (
     DistributedTask,
     TaskDistributor,
     TaskMetadata,
@@ -318,7 +318,7 @@ class TestTaskDistributor:
     def distributor(self, config):
         """Create test task distributor."""
         with patch(
-            "pynomaly.infrastructure.distributed.task_distributor.get_distributed_config_manager"
+            "monorepo.infrastructure.distributed.task_distributor.get_distributed_config_manager"
         ) as mock_manager:
             mock_manager.return_value.get_effective_config.return_value = config
             return TaskDistributor(config)
@@ -502,7 +502,7 @@ class TestTaskDistributorIntegration:
         config = DistributedConfig(enabled=True)
 
         with patch(
-            "pynomaly.infrastructure.distributed.task_distributor.get_distributed_config_manager"
+            "monorepo.infrastructure.distributed.task_distributor.get_distributed_config_manager"
         ) as mock_manager:
             mock_manager.return_value.get_effective_config.return_value = config
 
@@ -547,7 +547,7 @@ class TestTaskDistributorIntegration:
         config = DistributedConfig(enabled=True)
 
         with patch(
-            "pynomaly.infrastructure.distributed.task_distributor.get_distributed_config_manager"
+            "monorepo.infrastructure.distributed.task_distributor.get_distributed_config_manager"
         ) as mock_manager:
             mock_manager.return_value.get_effective_config.return_value = config
 

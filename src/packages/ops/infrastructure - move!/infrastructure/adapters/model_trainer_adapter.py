@@ -11,15 +11,15 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.application.services.training_automation_service import ModelTrainer
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import TrainingError
+from monorepo.application.services.training_automation_service import ModelTrainer
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.exceptions import TrainingError
 
 # Import existing services
 try:
-    from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
-    from pynomaly.application.use_cases.evaluate_model import EvaluateModelUseCase
-    from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
+    from monorepo.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
+    from monorepo.application.use_cases.evaluate_model import EvaluateModelUseCase
+    from monorepo.application.use_cases.train_detector import TrainDetectorUseCase
 
     USE_CASES_AVAILABLE = True
 except ImportError:
@@ -70,7 +70,7 @@ class ModelTrainerAdapter(ModelTrainer):
 
             if self.train_detector_use_case:
                 # Use existing use case
-                from pynomaly.application.use_cases.train_detector import (
+                from monorepo.application.use_cases.train_detector import (
                     TrainDetectorRequest,
                 )
 
@@ -102,7 +102,7 @@ class ModelTrainerAdapter(ModelTrainer):
         try:
             if self.evaluate_model_use_case:
                 # Use existing evaluation use case
-                from pynomaly.application.use_cases.evaluate_model import (
+                from monorepo.application.use_cases.evaluate_model import (
                     EvaluateModelRequest,
                 )
 
@@ -445,7 +445,7 @@ def create_model_trainer_adapter() -> ModelTrainerAdapter:
     # to inject the actual use cases
 
     try:
-        from pynomaly.infrastructure.config import create_container
+        from monorepo.infrastructure.config import create_container
 
         container = create_container()
 

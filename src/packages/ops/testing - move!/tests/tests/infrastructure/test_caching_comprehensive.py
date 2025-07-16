@@ -8,10 +8,10 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import CacheError, SerializationError
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.cache import (
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.exceptions import CacheError, SerializationError
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.infrastructure.cache import (
     CacheDecorator,
     CacheEvictionPolicy,
     CacheKeyBuilder,

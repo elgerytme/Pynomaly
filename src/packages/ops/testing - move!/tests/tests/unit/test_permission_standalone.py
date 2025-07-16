@@ -31,7 +31,7 @@ class Permission:
 # Find the project root by going up from the test file
 project_root = Path(__file__).parent.parent.parent
 permission_matrix_path = (
-    project_root / "src" / "pynomaly" / "domain" / "security" / "permission_matrix.py"
+    project_root / "src" / "monorepo" / "domain" / "security" / "permission_matrix.py"
 )
 
 # Read and execute the permission matrix code
@@ -40,7 +40,7 @@ with open(permission_matrix_path) as f:
 
 # Replace the import line to use our local definitions
 code = code.replace(
-    "from pynomaly.domain.entities.user import UserRole, Permission", ""
+    "from monorepo.domain.entities.user import UserRole, Permission", ""
 )
 
 # Create a proper module namespace

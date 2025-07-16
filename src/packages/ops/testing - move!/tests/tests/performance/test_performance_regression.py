@@ -14,9 +14,9 @@ import numpy as np
 import pandas as pd
 from sklearn.datasets import make_classification
 
-from pynomaly.application.use_cases.anomaly_detection import AnomalyDetectionUseCase
-from pynomaly.domain.entities.anomaly_detection import AnomalyDetectionRequest
-from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+from monorepo.application.use_cases.anomaly_detection import AnomalyDetectionUseCase
+from monorepo.domain.entities.anomaly_detection import AnomalyDetectionRequest
+from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
 from tests.performance.regression.performance_regression_detector import (
     PerformanceRegressionDetector,

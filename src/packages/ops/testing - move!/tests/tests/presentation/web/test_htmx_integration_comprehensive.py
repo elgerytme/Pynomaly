@@ -11,7 +11,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 # Import the web application
-from pynomaly.presentation.web.app import create_web_app
+from monorepo.presentation.web.app import create_web_app
 
 
 class TestHTMXDetectionResults:
@@ -26,7 +26,7 @@ class TestHTMXDetectionResults:
         """Test successful HTMX detection results."""
         # Mock detection service
         with patch(
-            "pynomaly.presentation.web.dependencies.get_detection_service"
+            "monorepo.presentation.web.dependencies.get_detection_service"
         ) as mock_service:
             mock_service.return_value.detect_anomalies.return_value = {
                 "anomaly_scores": [0.1, 0.9, 0.2, 0.8],
@@ -58,7 +58,7 @@ class TestHTMXDetectionResults:
     def test_htmx_detection_results_with_visualization(self):
         """Test HTMX detection results with visualization."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_detection_service"
+            "monorepo.presentation.web.dependencies.get_detection_service"
         ) as mock_service:
             mock_service.return_value.detect_anomalies.return_value = {
                 "anomaly_scores": [0.1, 0.9, 0.2],
@@ -89,7 +89,7 @@ class TestHTMXDetectionResults:
     def test_htmx_detection_results_error_handling(self):
         """Test HTMX detection results error handling."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_detection_service"
+            "monorepo.presentation.web.dependencies.get_detection_service"
         ) as mock_service:
             mock_service.return_value.detect_anomalies.side_effect = Exception(
                 "Detection failed"
@@ -109,7 +109,7 @@ class TestHTMXDetectionResults:
     def test_htmx_detection_results_streaming(self):
         """Test HTMX detection results with streaming."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_detection_service"
+            "monorepo.presentation.web.dependencies.get_detection_service"
         ) as mock_service:
             mock_service.return_value.detect_anomalies_stream.return_value = [
                 {"progress": 25, "partial_results": [0.1, 0.2]},
@@ -147,7 +147,7 @@ class TestHTMXTrainingProgress:
     def test_htmx_training_progress_running(self):
         """Test HTMX training progress for running job."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_training_service"
+            "monorepo.presentation.web.dependencies.get_training_service"
         ) as mock_service:
             mock_service.return_value.get_training_status.return_value = {
                 "job_id": "train-123",
@@ -174,7 +174,7 @@ class TestHTMXTrainingProgress:
     def test_htmx_training_progress_completed(self):
         """Test HTMX training progress for completed job."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_training_service"
+            "monorepo.presentation.web.dependencies.get_training_service"
         ) as mock_service:
             mock_service.return_value.get_training_status.return_value = {
                 "job_id": "train-123",
@@ -205,7 +205,7 @@ class TestHTMXTrainingProgress:
     def test_htmx_training_progress_failed(self):
         """Test HTMX training progress for failed job."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_training_service"
+            "monorepo.presentation.web.dependencies.get_training_service"
         ) as mock_service:
             mock_service.return_value.get_training_status.return_value = {
                 "job_id": "train-123",
@@ -228,7 +228,7 @@ class TestHTMXTrainingProgress:
     def test_htmx_training_progress_with_metrics_chart(self):
         """Test HTMX training progress with metrics chart."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_training_service"
+            "monorepo.presentation.web.dependencies.get_training_service"
         ) as mock_service:
             mock_service.return_value.get_training_status.return_value = {
                 "job_id": "train-123",
@@ -265,7 +265,7 @@ class TestHTMXDatasetPreview:
     def test_htmx_dataset_preview_success(self):
         """Test successful HTMX dataset preview."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_dataset_service"
+            "monorepo.presentation.web.dependencies.get_dataset_service"
         ) as mock_service:
             mock_service.return_value.get_dataset_preview.return_value = {
                 "dataset_id": "dataset-123",
@@ -308,7 +308,7 @@ class TestHTMXDatasetPreview:
     def test_htmx_dataset_preview_with_pagination(self):
         """Test HTMX dataset preview with pagination."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_dataset_service"
+            "monorepo.presentation.web.dependencies.get_dataset_service"
         ) as mock_service:
             mock_service.return_value.get_dataset_preview.return_value = {
                 "dataset_id": "dataset-123",
@@ -341,7 +341,7 @@ class TestHTMXDatasetPreview:
     def test_htmx_dataset_preview_with_filtering(self):
         """Test HTMX dataset preview with filtering."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_dataset_service"
+            "monorepo.presentation.web.dependencies.get_dataset_service"
         ) as mock_service:
             mock_service.return_value.get_dataset_preview.return_value = {
                 "dataset_id": "dataset-123",
@@ -383,7 +383,7 @@ class TestHTMXModelMetrics:
     def test_htmx_model_metrics_success(self):
         """Test successful HTMX model metrics."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_model_service"
+            "monorepo.presentation.web.dependencies.get_model_service"
         ) as mock_service:
             mock_service.return_value.get_model_metrics.return_value = {
                 "model_id": "model-123",
@@ -421,7 +421,7 @@ class TestHTMXModelMetrics:
     def test_htmx_model_metrics_with_charts(self):
         """Test HTMX model metrics with charts."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_model_service"
+            "monorepo.presentation.web.dependencies.get_model_service"
         ) as mock_service:
             mock_service.return_value.get_model_metrics.return_value = {
                 "model_id": "model-123",
@@ -459,7 +459,7 @@ class TestHTMXModelMetrics:
     def test_htmx_model_metrics_comparison(self):
         """Test HTMX model metrics comparison."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_model_service"
+            "monorepo.presentation.web.dependencies.get_model_service"
         ) as mock_service:
             mock_service.return_value.compare_models.return_value = {
                 "models": [
@@ -500,7 +500,7 @@ class TestHTMXSystemStatus:
     def test_htmx_system_status_healthy(self):
         """Test HTMX system status when healthy."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_system_service"
+            "monorepo.presentation.web.dependencies.get_system_service"
         ) as mock_service:
             mock_service.return_value.get_system_status.return_value = {
                 "overall_status": "healthy",
@@ -533,7 +533,7 @@ class TestHTMXSystemStatus:
     def test_htmx_system_status_degraded(self):
         """Test HTMX system status when degraded."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_system_service"
+            "monorepo.presentation.web.dependencies.get_system_service"
         ) as mock_service:
             mock_service.return_value.get_system_status.return_value = {
                 "overall_status": "degraded",
@@ -568,7 +568,7 @@ class TestHTMXSystemStatus:
     def test_htmx_system_status_error(self):
         """Test HTMX system status error handling."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_system_service"
+            "monorepo.presentation.web.dependencies.get_system_service"
         ) as mock_service:
             mock_service.return_value.get_system_status.side_effect = Exception(
                 "System status unavailable"
@@ -595,7 +595,7 @@ class TestHTMXFileUploadProgress:
     def test_htmx_file_upload_progress_success(self):
         """Test successful HTMX file upload progress."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_upload_service"
+            "monorepo.presentation.web.dependencies.get_upload_service"
         ) as mock_service:
             mock_service.return_value.get_upload_progress.return_value = {
                 "upload_id": "upload-123",
@@ -624,7 +624,7 @@ class TestHTMXFileUploadProgress:
     def test_htmx_file_upload_progress_completed(self):
         """Test HTMX file upload progress when completed."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_upload_service"
+            "monorepo.presentation.web.dependencies.get_upload_service"
         ) as mock_service:
             mock_service.return_value.get_upload_progress.return_value = {
                 "upload_id": "upload-123",
@@ -660,7 +660,7 @@ class TestHTMXFileUploadProgress:
     def test_htmx_file_upload_progress_failed(self):
         """Test HTMX file upload progress when failed."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_upload_service"
+            "monorepo.presentation.web.dependencies.get_upload_service"
         ) as mock_service:
             mock_service.return_value.get_upload_progress.return_value = {
                 "upload_id": "upload-123",
@@ -755,7 +755,7 @@ class TestHTMXErrorHandling:
     def test_htmx_server_error(self):
         """Test HTMX server error handling."""
         with patch(
-            "pynomaly.presentation.web.dependencies.get_detection_service"
+            "monorepo.presentation.web.dependencies.get_detection_service"
         ) as mock_service:
             mock_service.return_value.detect_anomalies.side_effect = Exception(
                 "Internal server error"

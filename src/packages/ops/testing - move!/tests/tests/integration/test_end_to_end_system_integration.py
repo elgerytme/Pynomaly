@@ -10,17 +10,17 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector, Model
-from pynomaly.domain.value_objects import AnomalyScore, AnomalyType, SemanticVersion
-from pynomaly.features.advanced_analytics import get_analytics_engine
-from pynomaly.features.api_gateway import APIRequest, HTTPMethod, get_api_gateway
-from pynomaly.features.feature_engineering import FeatureEngineer
-from pynomaly.features.model_management import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector, Model
+from monorepo.domain.value_objects import AnomalyScore, AnomalyType, SemanticVersion
+from monorepo.features.advanced_analytics import get_analytics_engine
+from monorepo.features.api_gateway import APIRequest, HTTPMethod, get_api_gateway
+from monorepo.features.feature_engineering import FeatureEngineer
+from monorepo.features.model_management import (
     DeploymentConfig,
     ModelStatus,
     get_model_registry,
 )
-from pynomaly.features.real_time_processing import (
+from monorepo.features.real_time_processing import (
     ProcessingMode,
     StreamingConfig,
     get_stream_processor,
@@ -599,7 +599,7 @@ class TestEndToEndModelLifecycle:
             )
 
         # Step 4: Model Deployment
-        from pynomaly.features.model_management import ModelDeployment
+        from monorepo.features.model_management import ModelDeployment
 
         deployment_service = ModelDeployment(model_registry)
 
@@ -619,7 +619,7 @@ class TestEndToEndModelLifecycle:
         assert v1_deployment_id is not None
 
         # Step 5: Model Monitoring
-        from pynomaly.features.model_management import (
+        from monorepo.features.model_management import (
             ModelMonitoring,
             PerformanceMetrics,
         )
@@ -711,7 +711,7 @@ class TestEndToEndModelLifecycle:
             await deployment_service.stop_deployment(v1_deployment_id)
 
         # Step 9: Model Versioning Analysis
-        from pynomaly.features.model_management import ModelVersioning
+        from monorepo.features.model_management import ModelVersioning
 
         versioning_service = ModelVersioning(model_registry)
 

@@ -173,7 +173,7 @@ class EnvironmentManager:
             
             # Test core imports
             core_imports = [
-                "pynomaly",
+                "monorepo",
                 "numpy", 
                 "pandas",
                 "pydantic",
@@ -220,9 +220,9 @@ class EnvironmentManager:
         """Test basic Pynomaly functionality."""
         try:
             test_script = """
-import pynomaly
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.application.services import DetectionService
+import monorepo
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.application.services import DetectionService
 print("✅ Basic functionality test passed")
 """
             subprocess.run([
@@ -236,7 +236,7 @@ print("✅ Basic functionality test passed")
         """Test CLI functionality."""
         try:
             subprocess.run([
-                str(python_executable), "-m", "pynomaly.presentation.cli.app", "--help"
+                str(python_executable), "-m", "monorepo.presentation.cli.app", "--help"
             ], check=True, capture_output=True)
             return True
         except subprocess.CalledProcessError:

@@ -6,11 +6,11 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
-from pynomaly_detection.infrastructure.config import Container
-from pynomaly_detection.infrastructure.monitoring.health_service import HealthService
-from pynomaly_detection.presentation.api.deps import get_container
-from pynomaly_detection.presentation.api.docs.response_models import HTTPResponses
-from pynomaly_detection.presentation.api.docs.schema_examples import SchemaExamples
+from monorepo.infrastructure.config import Container
+from monorepo.infrastructure.monitoring.health_service import HealthService
+from monorepo.presentation.api.deps import get_container
+from monorepo.presentation.api.docs.response_models import HTTPResponses
+from monorepo.presentation.api.docs.schema_examples import SchemaExamples
 
 router = APIRouter(
     prefix="/health", responses={

@@ -17,18 +17,18 @@ import numpy as np
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     ConfigurationCollectionDTO,
     ConfigurationResponseDTO,
     ConfigurationSearchRequestDTO,
     ConfigurationSource,
     ExperimentConfigurationDTO,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from monorepo.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.infrastructure.config.feature_flags import require_feature
-from pynomaly.infrastructure.persistence.configuration_repository import (
+from monorepo.infrastructure.config.feature_flags import require_feature
+from monorepo.infrastructure.persistence.configuration_repository import (
     ConfigurationRepository,
 )
 

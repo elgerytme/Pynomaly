@@ -12,8 +12,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import Select
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.shared.protocols import (
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.shared.protocols import (
     DatasetRepositoryProtocol,
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,
@@ -738,7 +738,7 @@ class OptimizedDetectionResultRepository(DetectionResultRepositoryProtocol):
         # Deserialize scores
         scores = []
         if model.scores:
-            from pynomaly.domain.value_objects import AnomalyScore
+            from monorepo.domain.value_objects import AnomalyScore
 
             scores = [
                 AnomalyScore(

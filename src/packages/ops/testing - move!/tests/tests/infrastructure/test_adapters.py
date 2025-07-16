@@ -30,10 +30,10 @@ except ImportError:
     torch = None
     nn = None
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import InvalidAlgorithmError
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.infrastructure.adapters import PyODAdapter, SklearnAdapter
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.exceptions import InvalidAlgorithmError
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.infrastructure.adapters import PyODAdapter, SklearnAdapter
 
 # Conditionally import optional adapters
 PyTorchAdapter = None
@@ -41,12 +41,12 @@ PyGODAdapter = None
 TODSAdapter = None
 
 try:
-    from pynomaly.infrastructure.adapters import PyTorchAdapter
+    from monorepo.infrastructure.adapters import PyTorchAdapter
 except ImportError:
     pass
 
 try:
-    from pynomaly.infrastructure.adapters import PyGODAdapter
+    from monorepo.infrastructure.adapters import PyGODAdapter
 except ImportError:
     pass
 

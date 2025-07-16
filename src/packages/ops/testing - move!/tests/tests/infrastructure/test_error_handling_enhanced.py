@@ -9,7 +9,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     AdapterError,
     DataError,
     DetectorError,
@@ -17,10 +17,10 @@ from pynomaly.domain.exceptions import (
     NetworkError,
     ValidationError,
 )
-from pynomaly.infrastructure.error_handling.circuit_breaker import CircuitBreaker
-from pynomaly.infrastructure.error_handling.error_handler import ErrorHandler
-from pynomaly.infrastructure.error_handling.fallback_strategy import FallbackStrategy
-from pynomaly.infrastructure.error_handling.retry_policy import RetryPolicy
+from monorepo.infrastructure.error_handling.circuit_breaker import CircuitBreaker
+from monorepo.infrastructure.error_handling.error_handler import ErrorHandler
+from monorepo.infrastructure.error_handling.fallback_strategy import FallbackStrategy
+from monorepo.infrastructure.error_handling.retry_policy import RetryPolicy
 
 
 class TestErrorHandler:
@@ -97,10 +97,10 @@ class TestErrorHandler:
         """Test error notification and alerting."""
         with (
             patch(
-                "pynomaly.infrastructure.notifications.email_notifier.send_email"
+                "monorepo.infrastructure.notifications.email_notifier.send_email"
             ) as mock_email,
             patch(
-                "pynomaly.infrastructure.notifications.slack_notifier.send_message"
+                "monorepo.infrastructure.notifications.slack_notifier.send_message"
             ) as mock_slack,
         ):
             critical_error = ModelError("Critical model corruption detected")
@@ -517,7 +517,7 @@ class TestErrorRecovery:
 
     def test_memory_error_recovery(self):
         """Test recovery from memory errors."""
-        from pynomaly.infrastructure.error_handling.recovery import MemoryRecovery
+        from monorepo.infrastructure.error_handling.recovery import MemoryRecovery
 
         recovery = MemoryRecovery()
 
@@ -545,7 +545,7 @@ class TestErrorRecovery:
 
     def test_model_corruption_recovery(self):
         """Test recovery from model corruption."""
-        from pynomaly.infrastructure.error_handling.recovery import ModelRecovery
+        from monorepo.infrastructure.error_handling.recovery import ModelRecovery
 
         recovery = ModelRecovery()
 
@@ -564,7 +564,7 @@ class TestErrorRecovery:
 
     def test_network_error_recovery(self):
         """Test recovery from network errors."""
-        from pynomaly.infrastructure.error_handling.recovery import NetworkRecovery
+        from monorepo.infrastructure.error_handling.recovery import NetworkRecovery
 
         recovery = NetworkRecovery()
 
@@ -587,7 +587,7 @@ class TestErrorRecovery:
 
     def test_concurrent_error_handling(self):
         """Test error handling in concurrent operations."""
-        from pynomaly.infrastructure.error_handling.concurrent import (
+        from monorepo.infrastructure.error_handling.concurrent import (
             ConcurrentErrorHandler,
         )
 
@@ -618,7 +618,7 @@ class TestErrorHandlingIntegration:
 
     def test_end_to_end_error_handling_pipeline(self):
         """Test complete error handling pipeline."""
-        from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+        from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
         PyTorchAdapter()
         error_handler = ErrorHandler()
@@ -648,7 +648,7 @@ class TestErrorHandlingIntegration:
 
     def test_error_handling_with_monitoring(self):
         """Test error handling integration with monitoring."""
-        from pynomaly.infrastructure.monitoring.error_monitor import ErrorMonitor
+        from monorepo.infrastructure.monitoring.error_monitor import ErrorMonitor
 
         monitor = ErrorMonitor()
         error_handler = ErrorHandler()
@@ -669,7 +669,7 @@ class TestErrorHandlingIntegration:
 
     def test_distributed_error_handling(self):
         """Test error handling in distributed environments."""
-        from pynomaly.infrastructure.error_handling.distributed import (
+        from monorepo.infrastructure.error_handling.distributed import (
             DistributedErrorHandler,
         )
 

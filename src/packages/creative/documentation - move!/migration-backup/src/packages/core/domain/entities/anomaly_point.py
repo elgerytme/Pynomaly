@@ -9,7 +9,7 @@ from uuid import UUID, uuid4
 
 import numpy as np
 
-from pynomaly.domain.value_objects import AnomalyScore, SeverityScore
+from monorepo.domain.value_objects import AnomalyScore, SeverityScore
 
 
 @dataclass

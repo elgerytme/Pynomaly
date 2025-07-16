@@ -5,11 +5,11 @@ import asyncio
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.ml_governance_service import (
+from monorepo.application.services.ml_governance_service import (
     MLGovernanceApplicationService,
 )
-from pynomaly.domain.entities.model import Model, ModelType
-from pynomaly.infrastructure.ml_governance import (
+from monorepo.domain.entities.model import Model, ModelType
+from monorepo.infrastructure.ml_governance import (
     DeploymentStrategy,
     GovernanceStatus,
     MLGovernanceFramework,

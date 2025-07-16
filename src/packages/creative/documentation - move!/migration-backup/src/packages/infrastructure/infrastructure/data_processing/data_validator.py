@@ -16,9 +16,9 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import ValidationError
-from pynomaly.infrastructure.monitoring import get_monitor, monitor_operation
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import ValidationError
+from monorepo.infrastructure.monitoring import get_monitor, monitor_operation
 
 
 class ValidationSeverity(Enum):

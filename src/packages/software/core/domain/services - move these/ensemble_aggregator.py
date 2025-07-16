@@ -6,7 +6,7 @@ from collections import Counter
 
 import numpy as np
 
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.value_objects import AnomalyScore
 
 
 class EnsembleAggregator:

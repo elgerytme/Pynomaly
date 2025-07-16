@@ -18,17 +18,17 @@ from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     ConfigurationCaptureRequestDTO,
     ConfigurationSource,
     RequestConfigurationDTO,
     ResponseConfigurationDTO,
     WebAPIContextDTO,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from monorepo.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.infrastructure.config.feature_flags import require_feature
+from monorepo.infrastructure.config.feature_flags import require_feature
 
 logger = logging.getLogger(__name__)
 

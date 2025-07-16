@@ -172,7 +172,7 @@ def validate_production_readiness(analysis):
                 "run",
                 "python",
                 "-c",
-                "from pynomaly.domain.entities import Dataset; from pynomaly.domain.value_objects import ContaminationRate; print('Core imports: OK')",
+                "from monorepo.domain.entities import Dataset; from monorepo.domain.value_objects import ContaminationRate; print('Core imports: OK')",
             ],
             capture_output=True,
             text=True,

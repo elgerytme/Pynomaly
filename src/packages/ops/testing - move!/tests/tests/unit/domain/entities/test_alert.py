@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.domain.entities.alert import (
+from monorepo.domain.entities.alert import (
     Alert,
     AlertCondition,
     AlertCorrelation,

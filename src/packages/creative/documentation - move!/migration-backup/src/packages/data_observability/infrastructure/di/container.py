@@ -29,7 +29,7 @@ class DataObservabilityContainer(containers.DeclarativeContainer):
     
     # Composed services that depend on core services
     observability_facade = providers.Factory(
-        "pynomaly.packages.data_observability.application.facades.observability_facade.DataObservabilityFacade",
+        "monorepo.packages.data_observability.application.facades.observability_facade.DataObservabilityFacade",
         lineage_service=data_lineage_service,
         health_service=pipeline_health_service,
         catalog_service=data_catalog_service,

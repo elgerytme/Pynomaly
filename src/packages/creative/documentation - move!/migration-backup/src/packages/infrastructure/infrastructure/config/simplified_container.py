@@ -6,33 +6,33 @@ from pathlib import Path
 
 from dependency_injector import containers, providers
 
-from pynomaly.application.services import (
+from monorepo.application.services import (
     DetectionService,
     EnsembleService,
     ExperimentTrackingService,
     ModelPersistenceService,
 )
-from pynomaly.application.use_cases import (
+from monorepo.application.use_cases import (
     DetectAnomaliesUseCase,
     EvaluateModelUseCase,
     ExplainAnomalyUseCase,
     TrainDetectorUseCase,
 )
-from pynomaly.domain.services import (
+from monorepo.domain.services import (
     AnomalyScorer,
     EnsembleAggregator,
     FeatureValidator,
     ThresholdCalculator,
 )
-from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
-from pynomaly.infrastructure.config.service_registry import (
+from monorepo.infrastructure.config.feature_flags import FeatureFlagManager
+from monorepo.infrastructure.config.service_registry import (
     RepositoryFactory,
     ServiceGroupFactory,
     ServiceRegistry,
     register_all_services,
 )
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.repositories import (
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.repositories import (
     FileDatasetRepository,
     FileDetectorRepository,
     FileResultRepository,
@@ -40,7 +40,7 @@ from pynomaly.infrastructure.repositories import (
     InMemoryDetectorRepository,
     InMemoryResultRepository,
 )
-from pynomaly.infrastructure.repositories.async_wrappers import (
+from monorepo.infrastructure.repositories.async_wrappers import (
     AsyncDatasetRepositoryWrapper,
     AsyncDetectionResultRepositoryWrapper,
     AsyncDetectorRepositoryWrapper,
@@ -94,7 +94,7 @@ class SimplifiedContainer(containers.DeclarativeContainer):
 
         # Add database repositories if available
         try:
-            from pynomaly.infrastructure.persistence import (
+            from monorepo.infrastructure.persistence import (
                 DatabaseDatasetRepository,
                 DatabaseDetectionResultRepository,
                 DatabaseDetectorRepository,
@@ -335,9 +335,9 @@ def create_simplified_container(testing: bool = False) -> SimplifiedContainer:
     try:
         container.wire(
             modules=[
-                "pynomaly.presentation.api",
-                "pynomaly.presentation.cli",
-                "pynomaly.presentation.web",
+                "monorepo.presentation.api",
+                "monorepo.presentation.cli",
+                "monorepo.presentation.web",
             ]
         )
     except Exception as e:

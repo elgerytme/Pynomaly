@@ -5,18 +5,18 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pytest
 
-from pynomaly.application.dto.optimization_dto import (
+from monorepo.application.dto.optimization_dto import (
     OptimizationConfigDTO,
     OptimizationObjectiveDTO,
     ResourceConstraintsDTO,
 )
-from pynomaly.application.services.advanced_automl_service import (
+from monorepo.application.services.advanced_automl_service import (
     AdvancedAutoMLService,
     OptimizationHistory,
     OptimizationObjective,
     ResourceConstraints,
 )
-from pynomaly.domain.entities import Dataset
+from monorepo.domain.entities import Dataset
 
 
 @pytest.fixture
@@ -533,7 +533,7 @@ class TestAdvancedAutoMLIntegration:
 
     def test_feature_flag_integration(self):
         """Test integration with feature flags."""
-        from pynomaly.infrastructure.config.feature_flags import feature_flags
+        from monorepo.infrastructure.config.feature_flags import feature_flags
 
         assert feature_flags.is_enabled("advanced_automl")
         assert feature_flags.is_enabled("meta_learning")

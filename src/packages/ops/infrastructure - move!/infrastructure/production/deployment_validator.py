@@ -13,8 +13,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.monitoring import get_comprehensive_health_manager
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.monitoring import get_comprehensive_health_manager
 
 from .production_config import (
     Environment,
@@ -595,7 +595,7 @@ class DeploymentValidator:
     ) -> ValidationResult:
         """Check database connectivity."""
         try:
-            from pynomaly.infrastructure.persistence import (
+            from monorepo.infrastructure.persistence import (
                 get_production_database_manager,
             )
 
@@ -628,7 +628,7 @@ class DeploymentValidator:
     ) -> ValidationResult:
         """Check cache connectivity."""
         try:
-            from pynomaly.infrastructure.cache import get_cache_integration_manager
+            from monorepo.infrastructure.cache import get_cache_integration_manager
 
             cache_manager = get_cache_integration_manager()
 
@@ -879,7 +879,7 @@ class DeploymentValidator:
     ) -> ValidationResult:
         """Check health check endpoints."""
         try:
-            from pynomaly.infrastructure.monitoring import get_health_checker
+            from monorepo.infrastructure.monitoring import get_health_checker
 
             health_checker = get_health_checker()
             system_health = await health_checker.get_system_health()

@@ -200,7 +200,7 @@ class EnvironmentValidator:
         
         # Core dependencies
         core_deps = [
-            "pynomaly",
+            "monorepo",
             "numpy", 
             "pandas",
             "pydantic",

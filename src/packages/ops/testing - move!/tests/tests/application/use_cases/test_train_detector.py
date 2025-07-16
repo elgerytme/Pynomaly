@@ -6,15 +6,15 @@ from uuid import uuid4
 import pandas as pd
 import pytest
 
-from pynomaly.application.use_cases.train_detector import (
+from monorepo.application.use_cases.train_detector import (
     TrainDetectorRequest,
     TrainDetectorResponse,
     TrainDetectorUseCase,
 )
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.exceptions import FittingError, InsufficientDataError
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.exceptions import FittingError, InsufficientDataError
+from monorepo.domain.value_objects import ContaminationRate
 
 
 class TestTrainDetectorUseCase:

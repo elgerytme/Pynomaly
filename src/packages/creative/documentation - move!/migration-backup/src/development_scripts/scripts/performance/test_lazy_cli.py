@@ -22,7 +22,7 @@ def measure_cli_startup(use_lazy: bool = True) -> float:
     start_time = time.perf_counter()
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "pynomaly.presentation.cli.app", "--help"],
+            [sys.executable, "-m", "monorepo.presentation.cli.app", "--help"],
             capture_output=True,
             text=True,
             timeout=30,
@@ -89,7 +89,7 @@ def main():
         start_time = time.perf_counter()
         try:
             result = subprocess.run(
-                [sys.executable, "-m", "pynomaly.presentation.cli.app", cmd],
+                [sys.executable, "-m", "monorepo.presentation.cli.app", cmd],
                 capture_output=True,
                 text=True,
                 timeout=10,

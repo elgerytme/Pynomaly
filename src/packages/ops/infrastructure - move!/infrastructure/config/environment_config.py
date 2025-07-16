@@ -42,7 +42,7 @@ class DatabaseConfig:
 
     host: str = "localhost"
     port: int = 5432
-    database: str = "pynomaly"
+    database: str = "monorepo"
     username: str = "postgres"
     password: str = ""
     ssl_mode: str = "prefer"
@@ -114,7 +114,7 @@ class DeploymentConfig:
     """Deployment configuration."""
 
     container_registry: str = "localhost:5000"
-    kubernetes_namespace: str = "pynomaly"
+    kubernetes_namespace: str = "monorepo"
     default_replicas: int = 2
     max_replicas: int = 10
     cpu_request: str = "100m"
@@ -132,7 +132,7 @@ class LoggingConfig:
     level: LogLevel = LogLevel.INFO
     format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     file_enabled: bool = True
-    file_path: str = "logs/pynomaly.log"
+    file_path: str = "logs/monorepo.log"
     file_max_size_mb: int = 10
     file_backup_count: int = 5
     console_enabled: bool = True
@@ -440,7 +440,7 @@ class ConfigManager:
                 "database": {
                     "host": "localhost",
                     "port": 5432,
-                    "database": "pynomaly",
+                    "database": "monorepo",
                     "username": "postgres",
                     "pool_size": 10,
                 },

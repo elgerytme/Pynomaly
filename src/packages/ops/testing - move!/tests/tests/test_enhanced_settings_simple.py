@@ -6,7 +6,7 @@ import sys
 
 sys.path.insert(0, "src")
 
-from pynomaly.infrastructure.config.settings import (
+from monorepo.infrastructure.config.settings import (
     EnvironmentSecretsProvider,
     MultiEnvSettingsConfigDict,
     SecretsBackend,

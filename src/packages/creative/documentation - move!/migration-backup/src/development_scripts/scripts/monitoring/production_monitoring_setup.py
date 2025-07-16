@@ -286,7 +286,7 @@ class ProductionMonitoringSetup:
         rules = {
             "groups": [
                 {
-                    "name": "pynomaly.alerts",
+                    "name": "monorepo.alerts",
                     "rules": [
                         {
                             "alert": "PynomályServiceDown",
@@ -391,7 +391,7 @@ class ProductionMonitoringSetup:
                     ],
                 },
                 {
-                    "name": "pynomaly.performance",
+                    "name": "monorepo.performance",
                     "rules": [
                         {
                             "alert": "ModelTrainingTimeout",
@@ -435,7 +435,7 @@ class ProductionMonitoringSetup:
                 "id": None,
                 "title": "Pynomaly Production Overview",
                 "description": "Comprehensive monitoring for Pynomaly production deployment",
-                "tags": ["pynomaly", "production", "overview"],
+                "tags": ["monorepo", "production", "overview"],
                 "timezone": "UTC",
                 "refresh": "30s",
                 "time": {"from": "now-1h", "to": "now"},

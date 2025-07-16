@@ -1,14 +1,14 @@
 # Buck2 Build Configuration for Interfaces Package
 # All user-facing interfaces in presentation layer
 
-load("//tools/buck:python.bzl", "pynomaly_workspace_package")
-load("//tools/buck:testing.bzl", "pynomaly_comprehensive_tests")
+load("//tools/buck:python.bzl", "monorepo_workspace_package")
+load("//tools/buck:testing.bzl", "monorepo_comprehensive_tests")
 
 # ==========================================
 # Interfaces Package (Meta-package)
 # ==========================================
 
-pynomaly_workspace_package(
+monorepo_workspace_package(
     name = "interfaces",
     layer = "presentation",
     package_type = "interfaces",
@@ -92,7 +92,7 @@ python_binary(
 # Test Suite
 # ==========================================
 
-pynomaly_comprehensive_tests(
+monorepo_comprehensive_tests(
     package_name = "interfaces",
     deps = [
         "//src/packages/core:core",

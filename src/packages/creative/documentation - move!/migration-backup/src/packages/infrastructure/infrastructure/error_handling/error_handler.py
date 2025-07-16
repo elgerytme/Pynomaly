@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     AuthenticationError,
     AuthorizationError,
     ConfigurationError,
@@ -234,7 +234,7 @@ class ErrorHandler:
         context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Handle resource not found error."""
-        from pynomaly.domain.exceptions import EntityNotFoundError
+        from monorepo.domain.exceptions import EntityNotFoundError
 
         error = EntityNotFoundError(
             f"{resource_type} with ID '{resource_id}' not found",
@@ -260,7 +260,7 @@ class ErrorHandler:
 
 def create_default_error_handler() -> ErrorHandler:
     """Create default error handler with standard configuration."""
-    logger = logging.getLogger("pynomaly.errors")
+    logger = logging.getLogger("monorepo.errors")
     return ErrorHandler(
         logger=logger,
         enable_recovery=True,

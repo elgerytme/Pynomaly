@@ -104,7 +104,7 @@ def test_setup():
             try:
                 # Fallback to basic text parsing
                 content = pyproject_path.read_text()
-                if "[project]" in content and 'name = "pynomaly"' in content:
+                if "[project]" in content and 'name = "monorepo"' in content:
                     print("✅ Basic pyproject.toml structure appears valid")
                     return True
                 else:

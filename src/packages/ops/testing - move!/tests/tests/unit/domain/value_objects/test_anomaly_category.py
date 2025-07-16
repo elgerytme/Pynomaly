@@ -2,7 +2,7 @@
 
 import pytest
 
-from pynomaly.domain.value_objects.anomaly_category import AnomalyCategory
+from monorepo.domain.value_objects.anomaly_category import AnomalyCategory
 
 
 class TestAnomalyCategory:

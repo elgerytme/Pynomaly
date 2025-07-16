@@ -22,7 +22,7 @@ class TestInfrastructure:
         project_root = Path(__file__).parent.parent
 
         # Check source directory
-        assert (project_root / "src" / "pynomaly").exists(), "Source directory missing"
+        assert (project_root / "src" / "monorepo").exists(), "Source directory missing"
 
         # Check configuration directory
         assert (project_root / "config").exists(), "Config directory missing"
@@ -41,11 +41,11 @@ class TestInfrastructure:
     def test_imports(self):
         """Test that key modules can be imported."""
         try:
-            import pynomaly
+            import monorepo
 
             assert pynomaly is not None
         except ImportError:
-            pytest.fail("Cannot import pynomaly package")
+            pytest.fail("Cannot import monorepo package")
 
     def test_pytest_markers(self):
         """Test that pytest markers are working."""

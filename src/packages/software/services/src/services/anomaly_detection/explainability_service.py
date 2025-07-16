@@ -8,7 +8,7 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.application.dto.explainability_dto import (
+from monorepo.application.dto.explainability_dto import (
     CohortExplanationRequestDTO,
     CohortExplanationResponseDTO,
     ExplanationComparisonRequestDTO,
@@ -18,17 +18,17 @@ from pynomaly.application.dto.explainability_dto import (
     FeatureImportanceRequestDTO,
     FeatureImportanceResponseDTO,
 )
-from pynomaly.domain.services.explainability_service import (
+from monorepo.domain.services.explainability_service import (
     CohortExplanation,
     ExplanationMethod,
     GlobalExplanation,
     LocalExplanation,
 )
-from pynomaly.domain.services.explainability_service import (
+from monorepo.domain.services.explainability_service import (
     ExplainabilityService as DomainExplainabilityService,
 )
-from pynomaly.infrastructure.repositories.dataset_repository import DatasetRepository
-from pynomaly.infrastructure.repositories.detector_repository import DetectorRepository
+from monorepo.infrastructure.repositories.dataset_repository import DatasetRepository
+from monorepo.infrastructure.repositories.detector_repository import DetectorRepository
 
 logger = logging.getLogger(__name__)
 

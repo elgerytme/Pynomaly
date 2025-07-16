@@ -7,9 +7,9 @@ import pandas as pd
 import pytest
 from sklearn.impute import KNNImputer
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.infrastructure.data_processing.advanced_data_pipeline import (
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import DataValidationError
+from monorepo.infrastructure.data_processing.advanced_data_pipeline import (
     AdvancedDataPipeline,
     EncodingMethod,
     ImputationStrategy,

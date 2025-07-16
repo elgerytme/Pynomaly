@@ -2,8 +2,8 @@
 
 # Re-export all protocols from shared.protocols for backward compatibility
 # Specific aliases for common domain protocols
-from pynomaly.shared.protocols import DetectorProtocol as AdapterProtocol
-from pynomaly.shared.protocols import *
+from monorepo.shared.protocols import DetectorProtocol as AdapterProtocol
+from monorepo.shared.protocols import *
 
 __all__ = [
     "AdapterProtocol",

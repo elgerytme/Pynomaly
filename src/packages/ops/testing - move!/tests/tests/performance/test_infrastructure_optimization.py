@@ -17,7 +17,7 @@ def test_caching_infrastructure():
         print("🗄️ Testing caching infrastructure...")
 
         # Test basic cache imports
-        from pynomaly.infrastructure.cache import get_cache, init_cache
+        from monorepo.infrastructure.cache import get_cache, init_cache
         test_results.append(("✅ Cache module imports successful", "PASS"))
 
         # Test cache initialization
@@ -42,7 +42,7 @@ def test_monitoring_infrastructure():
 
         # Test basic monitoring imports
         try:
-            from pynomaly.infrastructure.monitoring import get_telemetry
+            from monorepo.infrastructure.monitoring import get_telemetry
             test_results.append(("✅ Monitoring module imports", "PASS"))
         except ImportError:
             test_results.append(("⚠️ Monitoring module disabled", "WARN"))
@@ -130,7 +130,7 @@ def test_enhanced_automl_availability():
 
         # Check if enhanced AutoML is available
         try:
-            from pynomaly.presentation.api import enhanced_automl
+            from monorepo.presentation.api import enhanced_automl
             test_results.append(("✅ Enhanced AutoML available", "PASS"))
         except ImportError:
             test_results.append(("⚠️ Enhanced AutoML not available", "WARN"))

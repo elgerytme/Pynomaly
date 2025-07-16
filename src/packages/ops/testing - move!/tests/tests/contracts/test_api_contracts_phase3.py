@@ -402,7 +402,7 @@ class TestInterfaceCompliancePhase3:
         """Test detector adapter protocol compliance."""
         # Define detector protocol interface
         try:
-            from pynomaly.shared.protocols.detector_protocol import DetectorProtocol
+            from monorepo.shared.protocols.detector_protocol import DetectorProtocol
 
             # Mock detector implementation
             class MockDetectorAdapter:

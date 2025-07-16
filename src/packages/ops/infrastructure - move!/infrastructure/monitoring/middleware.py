@@ -14,11 +14,11 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.base import RequestResponseEndpoint
 
-from pynomaly.infrastructure.monitoring.prometheus_metrics import (
+from monorepo.infrastructure.monitoring.prometheus_metrics import (
     PrometheusMetricsService,
     get_metrics_service,
 )
-from pynomaly.infrastructure.monitoring.telemetry import get_telemetry
+from monorepo.infrastructure.monitoring.telemetry import get_telemetry
 
 logger = logging.getLogger(__name__)
 

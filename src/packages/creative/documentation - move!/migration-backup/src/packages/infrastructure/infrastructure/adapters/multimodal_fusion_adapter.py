@@ -15,16 +15,16 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.infrastructure.adapters.pygod_adapter import PyGODAdapter
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.infrastructure.adapters.text_adapter import (
+from monorepo.domain.entities import Dataset, DetectionResult
+from monorepo.domain.value_objects import AnomalyScore
+from monorepo.infrastructure.adapters.pygod_adapter import PyGODAdapter
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.infrastructure.adapters.text_adapter import (
     TextAnomalyDetector,
     TextDetectionConfig,
 )
-from pynomaly.infrastructure.adapters.time_series_adapter import TimeSeriesAdapter
-from pynomaly.shared.protocols import DetectorProtocol
+from monorepo.infrastructure.adapters.time_series_adapter import TimeSeriesAdapter
+from monorepo.shared.protocols import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -126,8 +126,8 @@ class MultiModalFusionAdapter(DetectorProtocol):
         """Initialize detectors for each modality."""
         # Time series detector
         if self.config.time_series_weight > 0:
-            from pynomaly.domain.entities import Detector
-            from pynomaly.domain.value_objects import ContaminationRate
+            from monorepo.domain.entities import Detector
+            from monorepo.domain.value_objects import ContaminationRate
 
             ts_detector = Detector(
                 name="TimeSeriesModality",
@@ -483,7 +483,7 @@ class MultiModalFusionAdapter(DetectorProtocol):
         else:
             # Convert to Dataset if needed
             if isinstance(data, pd.DataFrame):
-                from pynomaly.domain.entities import Dataset
+                from monorepo.domain.entities import Dataset
 
                 dataset = Dataset(
                     data=data,

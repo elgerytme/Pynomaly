@@ -9,15 +9,15 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.services.training_service import (
+from monorepo.application.services.training_service import (
     AutomatedTrainingService as TrainingService,
 )
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.entities.training_job import TrainingJob
-from pynomaly.domain.entities.training_result import TrainingResult
-from pynomaly.domain.exceptions import DetectorError, TrainingError
-from pynomaly.domain.value_objects import PerformanceMetrics
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.entities.training_job import TrainingJob
+from monorepo.domain.entities.training_result import TrainingResult
+from monorepo.domain.exceptions import DetectorError, TrainingError
+from monorepo.domain.value_objects import PerformanceMetrics
 
 
 class TestTrainingService:

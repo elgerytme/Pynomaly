@@ -8,26 +8,26 @@ from pathlib import Path
 from dependency_injector import containers, providers
 
 # Core imports (always available)
-from pynomaly.application.services import (
+from monorepo.application.services import (
     DetectionService,
     EnsembleService,
     ExperimentTrackingService,
     ModelPersistenceService,
 )
-from pynomaly.application.use_cases import (
+from monorepo.application.use_cases import (
     DetectAnomaliesUseCase,
     EvaluateModelUseCase,
     TrainDetectorUseCase,
 )
-from pynomaly.domain.services import (
+from monorepo.domain.services import (
     AnomalyScorer,
     EnsembleAggregator,
     FeatureValidator,
     ThresholdCalculator,
 )
-from pynomaly.infrastructure.config.feature_flags import FeatureFlagManager
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.repositories.memory_repository import (
+from monorepo.infrastructure.config.feature_flags import FeatureFlagManager
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.repositories.memory_repository import (
     MemoryDatasetRepository,
     MemoryDetectionResultRepository,
     MemoryDetectorRepository,
@@ -48,304 +48,304 @@ class OptionalServiceManager:
         """Initialize all optional services."""
         # Data loaders
         self._register_service(
-            "csv_loader", "pynomaly.infrastructure.data_loaders", "CSVLoader"
+            "csv_loader", "monorepo.infrastructure.data_loaders", "CSVLoader"
         )
         self._register_service(
-            "parquet_loader", "pynomaly.infrastructure.data_loaders", "ParquetLoader"
+            "parquet_loader", "monorepo.infrastructure.data_loaders", "ParquetLoader"
         )
         self._register_service(
-            "polars_loader", "pynomaly.infrastructure.data_loaders", "PolarsLoader"
+            "polars_loader", "monorepo.infrastructure.data_loaders", "PolarsLoader"
         )
         self._register_service(
-            "arrow_loader", "pynomaly.infrastructure.data_loaders", "ArrowLoader"
+            "arrow_loader", "monorepo.infrastructure.data_loaders", "ArrowLoader"
         )
         self._register_service(
-            "spark_loader", "pynomaly.infrastructure.data_loaders", "SparkLoader"
+            "spark_loader", "monorepo.infrastructure.data_loaders", "SparkLoader"
         )
 
         # Algorithm adapters
         self._register_service(
-            "pyod_adapter", "pynomaly.infrastructure.adapters", "PyODAdapter"
+            "pyod_adapter", "monorepo.infrastructure.adapters", "PyODAdapter"
         )
         self._register_service(
-            "sklearn_adapter", "pynomaly.infrastructure.adapters", "SklearnAdapter"
+            "sklearn_adapter", "monorepo.infrastructure.adapters", "SklearnAdapter"
         )
         self._register_service(
-            "pygod_adapter", "pynomaly.infrastructure.adapters", "PyGODAdapter"
+            "pygod_adapter", "monorepo.infrastructure.adapters", "PyGODAdapter"
         )
         self._register_service(
-            "pytorch_adapter", "pynomaly.infrastructure.adapters", "PyTorchAdapter"
+            "pytorch_adapter", "monorepo.infrastructure.adapters", "PyTorchAdapter"
         )
         self._register_service(
             "tensorflow_adapter",
-            "pynomaly.infrastructure.adapters",
+            "monorepo.infrastructure.adapters",
             "TensorFlowAdapter",
         )
         self._register_service(
-            "jax_adapter", "pynomaly.infrastructure.adapters", "JAXAdapter"
+            "jax_adapter", "monorepo.infrastructure.adapters", "JAXAdapter"
         )
 
         # Authentication services
         self._register_service(
             "jwt_auth_service",
-            "pynomaly.infrastructure.auth.jwt_auth_enhanced",
+            "monorepo.infrastructure.auth.jwt_auth_enhanced",
             "EnhancedJWTAuthService",
         )
         self._register_service(
             "permission_checker",
-            "pynomaly.infrastructure.auth.middleware",
+            "monorepo.infrastructure.auth.middleware",
             "PermissionChecker",
         )
         self._register_service(
-            "rate_limiter", "pynomaly.infrastructure.auth.middleware", "RateLimiter"
+            "rate_limiter", "monorepo.infrastructure.auth.middleware", "RateLimiter"
         )
 
         # User management repositories
         self._register_service(
             "user_repository",
-            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "monorepo.infrastructure.repositories.sqlalchemy_user_repository",
             "SQLAlchemyUserRepository",
         )
         self._register_service(
             "tenant_repository",
-            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "monorepo.infrastructure.repositories.sqlalchemy_user_repository",
             "SQLAlchemyTenantRepository",
         )
         self._register_service(
             "session_repository",
-            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "monorepo.infrastructure.repositories.sqlalchemy_user_repository",
             "SQLAlchemySessionRepository",
         )
 
         # Security services
         self._register_service(
             "security_monitor",
-            "pynomaly.infrastructure.security.security_monitor",
+            "monorepo.infrastructure.security.security_monitor",
             "SecurityMonitor",
         )
         self._register_service(
             "audit_logger",
-            "pynomaly.infrastructure.security.audit_logger",
+            "monorepo.infrastructure.security.audit_logger",
             "AuditLogger",
         )
         self._register_service(
             "security_middleware_stack",
-            "pynomaly.infrastructure.security.middleware_integration",
+            "monorepo.infrastructure.security.middleware_integration",
             "SecurityMiddlewareStack",
         )
 
         # Cache services
         self._register_service(
-            "redis_cache", "pynomaly.infrastructure.cache", "RedisCache"
+            "redis_cache", "monorepo.infrastructure.cache", "RedisCache"
         )
         self._register_service(
             "detector_cache_decorator",
-            "pynomaly.infrastructure.cache",
+            "monorepo.infrastructure.cache",
             "DetectorCacheDecorator",
         )
 
         # Monitoring services
         self._register_service(
             "telemetry_service",
-            "pynomaly.infrastructure.monitoring",
+            "monorepo.infrastructure.monitoring",
             "TelemetryService",
         )
         self._register_service(
-            "health_service", "pynomaly.infrastructure.monitoring", "HealthService"
+            "health_service", "monorepo.infrastructure.monitoring", "HealthService"
         )
 
         # Logging and observability services
         self._register_service(
             "structured_logger",
-            "pynomaly.infrastructure.logging.structured_logger",
+            "monorepo.infrastructure.logging.structured_logger",
             "StructuredLogger",
         )
         self._register_service(
             "metrics_collector",
-            "pynomaly.infrastructure.logging.metrics_collector",
+            "monorepo.infrastructure.logging.metrics_collector",
             "MetricsCollector",
         )
         self._register_service(
             "tracing_manager",
-            "pynomaly.infrastructure.logging.tracing_manager",
+            "monorepo.infrastructure.logging.tracing_manager",
             "TracingManager",
         )
         self._register_service(
             "log_aggregator",
-            "pynomaly.infrastructure.logging.log_aggregator",
+            "monorepo.infrastructure.logging.log_aggregator",
             "LogAggregator",
         )
         self._register_service(
             "log_analyzer",
-            "pynomaly.infrastructure.logging.log_analysis",
+            "monorepo.infrastructure.logging.log_analysis",
             "LogAnalyzer",
         )
         self._register_service(
             "log_anomaly_detector",
-            "pynomaly.infrastructure.logging.log_analysis",
+            "monorepo.infrastructure.logging.log_analysis",
             "AnomalyDetector",
         )
         self._register_service(
             "observability_service",
-            "pynomaly.infrastructure.logging.observability_service",
+            "monorepo.infrastructure.logging.observability_service",
             "ObservabilityService",
         )
 
         # Performance optimization services
         self._register_service(
             "cache_manager",
-            "pynomaly.infrastructure.cache.cache_manager",
+            "monorepo.infrastructure.cache.cache_manager",
             "CacheManager",
         )
         self._register_service(
             "in_memory_cache",
-            "pynomaly.infrastructure.cache.cache_manager",
+            "monorepo.infrastructure.cache.cache_manager",
             "InMemoryCache",
         )
         self._register_service(
             "redis_cache_backend",
-            "pynomaly.infrastructure.cache.cache_manager",
+            "monorepo.infrastructure.cache.cache_manager",
             "RedisCache",
         )
         self._register_service(
             "performance_profiler",
-            "pynomaly.infrastructure.performance.profiler",
+            "monorepo.infrastructure.performance.profiler",
             "PerformanceProfiler",
         )
         self._register_service(
             "system_monitor",
-            "pynomaly.infrastructure.performance.profiler",
+            "monorepo.infrastructure.performance.profiler",
             "SystemMonitor",
         )
         self._register_service(
             "query_optimizer",
-            "pynomaly.infrastructure.performance.query_optimizer",
+            "monorepo.infrastructure.performance.query_optimizer",
             "QueryOptimizer",
         )
         self._register_service(
             "dataframe_optimizer",
-            "pynomaly.infrastructure.performance.query_optimizer",
+            "monorepo.infrastructure.performance.query_optimizer",
             "DataFrameOptimizer",
         )
         self._register_service(
             "query_cache",
-            "pynomaly.infrastructure.performance.query_optimizer",
+            "monorepo.infrastructure.performance.query_optimizer",
             "QueryCache",
         )
 
         # Distributed processing services
         self._register_service(
             "task_distributor",
-            "pynomaly.infrastructure.distributed.task_distributor",
+            "monorepo.infrastructure.distributed.task_distributor",
             "TaskDistributor",
         )
         self._register_service(
             "worker_manager",
-            "pynomaly.infrastructure.distributed.worker_manager",
+            "monorepo.infrastructure.distributed.worker_manager",
             "WorkerManager",
         )
         self._register_service(
             "data_partitioner",
-            "pynomaly.infrastructure.distributed.data_partitioner",
+            "monorepo.infrastructure.distributed.data_partitioner",
             "DataPartitioner",
         )
         self._register_service(
             "distributed_detector",
-            "pynomaly.infrastructure.distributed.distributed_detector",
+            "monorepo.infrastructure.distributed.distributed_detector",
             "DistributedDetector",
         )
         self._register_service(
             "cluster_coordinator",
-            "pynomaly.infrastructure.distributed.cluster_coordinator",
+            "monorepo.infrastructure.distributed.cluster_coordinator",
             "ClusterCoordinator",
         )
         self._register_service(
             "result_aggregator",
-            "pynomaly.infrastructure.distributed.result_aggregator",
+            "monorepo.infrastructure.distributed.result_aggregator",
             "ResultAggregator",
         )
         self._register_service(
             "load_balancer",
-            "pynomaly.infrastructure.distributed.load_balancer",
+            "monorepo.infrastructure.distributed.load_balancer",
             "LoadBalancer",
         )
 
         # Database services
         self._register_service(
-            "database_manager", "pynomaly.infrastructure.persistence", "DatabaseManager"
+            "database_manager", "monorepo.infrastructure.persistence", "DatabaseManager"
         )
         self._register_service(
             "database_detector_repository",
-            "pynomaly.infrastructure.persistence",
+            "monorepo.infrastructure.persistence",
             "DatabaseDetectorRepository",
         )
         self._register_service(
             "database_dataset_repository",
-            "pynomaly.infrastructure.persistence",
+            "monorepo.infrastructure.persistence",
             "DatabaseDatasetRepository",
         )
         self._register_service(
             "database_result_repository",
-            "pynomaly.infrastructure.persistence",
+            "monorepo.infrastructure.persistence",
             "DatabaseDetectionResultRepository",
         )
 
         # Database user management repositories
         self._register_service(
             "database_user_repository",
-            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "monorepo.infrastructure.repositories.sqlalchemy_user_repository",
             "SQLAlchemyUserRepository",
         )
         self._register_service(
             "database_tenant_repository",
-            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "monorepo.infrastructure.repositories.sqlalchemy_user_repository",
             "SQLAlchemyTenantRepository",
         )
         self._register_service(
             "database_session_repository",
-            "pynomaly.infrastructure.repositories.sqlalchemy_user_repository",
+            "monorepo.infrastructure.repositories.sqlalchemy_user_repository",
             "SQLAlchemySessionRepository",
         )
 
         # Application services
         self._register_service(
             "automl_service",
-            "pynomaly.application.services.automl_service",
+            "monorepo.application.services.automl_service",
             "AutoMLService",
         )
         self._register_service(
             "enhanced_automl_service",
-            "pynomaly.application.services.enhanced_automl_service",
+            "monorepo.application.services.enhanced_automl_service",
             "EnhancedAutoMLService",
         )
         self._register_service(
             "explainability_service",
-            "pynomaly.domain.services.explainability_service",
+            "monorepo.domain.services.explainability_service",
             "ExplainabilityService",
         )
         self._register_service(
             "application_explainability_service",
-            "pynomaly.application.services.explainability_service",
+            "monorepo.application.services.explainability_service",
             "ApplicationExplainabilityService",
         )
 
         # Explainers
         self._register_service(
-            "shap_explainer", "pynomaly.infrastructure.explainers", "SHAPExplainer"
+            "shap_explainer", "monorepo.infrastructure.explainers", "SHAPExplainer"
         )
         self._register_service(
-            "lime_explainer", "pynomaly.infrastructure.explainers", "LIMEExplainer"
+            "lime_explainer", "monorepo.infrastructure.explainers", "LIMEExplainer"
         )
 
         # Use cases
         self._register_service(
             "explain_anomaly_use_case",
-            "pynomaly.application.use_cases",
+            "monorepo.application.use_cases",
             "ExplainAnomalyUseCase",
         )
         self._register_service(
             "automl_use_case",
-            "pynomaly.application.use_cases.automl_use_case",
+            "monorepo.application.use_cases.automl_use_case",
             "AutoMLUseCase",
         )
 
@@ -405,7 +405,7 @@ def _create_repository(config, repo_type: str):
 
                 # Initialize database if needed
                 try:
-                    from pynomaly.infrastructure.persistence.migrations import (
+                    from monorepo.infrastructure.persistence.migrations import (
                         DatabaseMigrator,
                     )
 
@@ -569,7 +569,7 @@ class Container(containers.DeclarativeContainer):
             cls.telemetry_service = service_manager.create_provider(
                 "telemetry_service",
                 "singleton",
-                service_name="pynomaly",
+                service_name="monorepo",
                 environment=cls.config.provided.app.environment,
                 otlp_endpoint=cls.config.provided.monitoring.otlp_endpoint,
             )
@@ -581,7 +581,7 @@ class Container(containers.DeclarativeContainer):
 
         # Observability services
         if service_manager.is_available("observability_service"):
-            from pynomaly.infrastructure.logging.observability_service import (
+            from monorepo.infrastructure.logging.observability_service import (
                 ObservabilityConfig,
             )
 
@@ -608,7 +608,7 @@ class Container(containers.DeclarativeContainer):
             cls.structured_logger = service_manager.create_provider(
                 "structured_logger",
                 "factory",
-                logger_name=providers.Object("pynomaly"),
+                logger_name=providers.Object("monorepo"),
                 output_path=providers.Object(None),  # Simplified for now
             )
 
@@ -715,7 +715,7 @@ class Container(containers.DeclarativeContainer):
             )
 
         if service_manager.is_available("enhanced_automl_service"):
-            from pynomaly.application.services.enhanced_automl_service import (
+            from monorepo.application.services.enhanced_automl_service import (
                 EnhancedAutoMLConfig,
             )
 
@@ -915,7 +915,7 @@ class Container(containers.DeclarativeContainer):
                 pass
 
         # Fallback to global auth service
-        from pynomaly.infrastructure.auth import get_auth
+        from monorepo.infrastructure.auth import get_auth
 
         return get_auth()
 
@@ -1000,9 +1000,9 @@ def create_container(testing: bool = False) -> Container:
     try:
         container.wire(
             modules=[
-                "pynomaly.presentation.api",
-                "pynomaly.presentation.cli",
-                "pynomaly.presentation.web",
+                "monorepo.presentation.api",
+                "monorepo.presentation.cli",
+                "monorepo.presentation.web",
             ]
         )
     except Exception as e:

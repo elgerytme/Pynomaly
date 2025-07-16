@@ -13,7 +13,7 @@ from sklearn.ensemble import IsolationForest
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 
-from pynomaly.application.services.explainable_ai_service import (
+from monorepo.application.services.explainable_ai_service import (
     ExplainabilityError,
     ExplainableAIService,
     ExplanationCache,
@@ -24,7 +24,7 @@ from pynomaly.application.services.explainable_ai_service import (
     PermutationImportanceExplainer,
     SHAPExplainer,
 )
-from pynomaly.domain.entities.explainable_ai import (
+from monorepo.domain.entities.explainable_ai import (
     BiasAnalysis,
     ExplanationMethod,
     ExplanationResult,
@@ -453,10 +453,10 @@ class TestSHAPExplainer:
 
         # Mock SHAP if not available
         with patch(
-            "pynomaly.application.services.explainable_ai_service.SHAP_AVAILABLE", True
+            "monorepo.application.services.explainable_ai_service.SHAP_AVAILABLE", True
         ):
             with patch(
-                "pynomaly.application.services.explainable_ai_service.shap"
+                "monorepo.application.services.explainable_ai_service.shap"
             ) as mock_shap:
                 # Mock SHAP explainer and values
                 mock_explainer = MagicMock()
@@ -496,10 +496,10 @@ class TestLIMEExplainer:
 
         # Mock LIME if not available
         with patch(
-            "pynomaly.application.services.explainable_ai_service.LIME_AVAILABLE", True
+            "monorepo.application.services.explainable_ai_service.LIME_AVAILABLE", True
         ):
             with patch(
-                "pynomaly.application.services.explainable_ai_service.lime"
+                "monorepo.application.services.explainable_ai_service.lime"
             ) as mock_lime:
                 # Mock LIME explainer
                 mock_explainer = MagicMock()

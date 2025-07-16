@@ -6,12 +6,12 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.services.intelligent_alert_service import (
+from monorepo.application.services.intelligent_alert_service import (
     AlertCorrelationEngine,
     IntelligentAlertService,
     NoiseClassificationModel,
 )
-from pynomaly.domain.entities.alert import (
+from monorepo.domain.entities.alert import (
     Alert,
     AlertMetadata,
     AlertSeverity,

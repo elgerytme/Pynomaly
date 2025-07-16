@@ -17,7 +17,7 @@ def test_sdk():
         print("✅ Package import successful")
 
         # Test SDK import
-        from pynomaly.presentation.sdk import PynomalySDK
+        from monorepo.presentation.sdk import PynomalySDK
 
         print("✅ SDK class import successful")
 

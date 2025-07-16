@@ -31,7 +31,7 @@ except ImportError:
     LIME_AVAILABLE = False
     lime = None
 
-from pynomaly.domain.entities.explainable_ai import (
+from monorepo.domain.entities.explainable_ai import (
     BiasAnalysis,
     ExplanationMetadata,
     ExplanationMethod,

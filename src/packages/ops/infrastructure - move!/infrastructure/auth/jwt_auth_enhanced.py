@@ -21,8 +21,8 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from passlib.context import CryptContext
 from pydantic import BaseModel, Field
 
-from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
-from pynomaly.infrastructure.config import Settings
+from monorepo.domain.exceptions import AuthenticationError, AuthorizationError
+from monorepo.infrastructure.config import Settings
 
 logger = logging.getLogger(__name__)
 
@@ -275,7 +275,7 @@ class EnhancedJWTAuthService:
             admin_user = UserModel(
                 id="admin",
                 username="admin",
-                email="admin@pynomaly.io",
+                email="admin@monorepo.io",
                 full_name="Admin User",
                 hashed_password=self.hash_password("admin123"),
                 is_superuser=True,

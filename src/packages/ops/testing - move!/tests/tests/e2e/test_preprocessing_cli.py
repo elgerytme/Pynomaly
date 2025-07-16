@@ -7,8 +7,8 @@ import pandas as pd
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.presentation.cli.preprocessing import app
+from monorepo.domain.entities import Dataset
+from monorepo.presentation.cli.preprocessing import app
 
 
 @pytest.fixture
@@ -74,7 +74,7 @@ def mock_container(sample_dataset):
 class TestDataCleaningCLI:
     """Test data cleaning CLI commands."""
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_clean_missing_values_dry_run(
         self, mock_get_container, runner, mock_container
     ):
@@ -90,7 +90,7 @@ class TestDataCleaningCLI:
         assert "Would handle" in result.output
         assert "missing values" in result.output
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_clean_outliers(self, mock_get_container, runner, mock_container):
         """Test outlier handling."""
         mock_get_container.return_value = mock_container
@@ -111,7 +111,7 @@ class TestDataCleaningCLI:
         assert result.exit_code == 0
         assert "outliers" in result.output.lower()
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_clean_duplicates(self, mock_get_container, runner, mock_container):
         """Test duplicate removal."""
         mock_get_container.return_value = mock_container
@@ -123,7 +123,7 @@ class TestDataCleaningCLI:
         assert result.exit_code == 0
         assert "duplicate" in result.output.lower()
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_clean_comprehensive(self, mock_get_container, runner, mock_container):
         """Test comprehensive cleaning with multiple options."""
         mock_get_container.return_value = mock_container
@@ -151,7 +151,7 @@ class TestDataCleaningCLI:
         assert "outliers" in result.output.lower()
         assert "duplicate" in result.output.lower()
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_clean_invalid_strategy(self, mock_get_container, runner, mock_container):
         """Test error handling for invalid strategies."""
         mock_get_container.return_value = mock_container
@@ -167,7 +167,7 @@ class TestDataCleaningCLI:
 class TestDataTransformationCLI:
     """Test data transformation CLI commands."""
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_transform_scaling(self, mock_get_container, runner, mock_container):
         """Test feature scaling."""
         mock_get_container.return_value = mock_container
@@ -179,7 +179,7 @@ class TestDataTransformationCLI:
         assert result.exit_code == 0
         assert "scaling" in result.output.lower()
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_transform_encoding(self, mock_get_container, runner, mock_container):
         """Test categorical encoding."""
         mock_get_container.return_value = mock_container
@@ -191,7 +191,7 @@ class TestDataTransformationCLI:
         assert result.exit_code == 0
         assert "encoding" in result.output.lower()
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_transform_feature_selection(
         self, mock_get_container, runner, mock_container
     ):
@@ -212,7 +212,7 @@ class TestDataTransformationCLI:
         assert result.exit_code == 0
         assert "feature selection" in result.output.lower()
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_transform_polynomial_features(
         self, mock_get_container, runner, mock_container
     ):
@@ -226,7 +226,7 @@ class TestDataTransformationCLI:
         assert result.exit_code == 0
         assert "polynomial" in result.output.lower()
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_transform_comprehensive(self, mock_get_container, runner, mock_container):
         """Test comprehensive transformation."""
         mock_get_container.return_value = mock_container
@@ -333,7 +333,7 @@ class TestPipelineManagementCLI:
 class TestPreprocessingIntegration:
     """Test integration between preprocessing components."""
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_dataset_not_found(self, mock_get_container, runner):
         """Test error handling when dataset is not found."""
         mock_container = Mock()
@@ -347,7 +347,7 @@ class TestPreprocessingIntegration:
         assert result.exit_code == 1
         assert "not found" in result.output
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_save_as_new_dataset(self, mock_get_container, runner, mock_container):
         """Test saving cleaned data as new dataset."""
         mock_get_container.return_value = mock_container
@@ -391,7 +391,7 @@ class TestCommandValidation:
 class TestPreprocessingWorkflow:
     """Integration tests for complete preprocessing workflows."""
 
-    @patch("pynomaly.presentation.cli.preprocessing.get_cli_container")
+    @patch("monorepo.presentation.cli.preprocessing.get_cli_container")
     def test_complete_preprocessing_workflow(
         self, mock_get_container, runner, mock_container
     ):

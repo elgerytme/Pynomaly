@@ -8,10 +8,10 @@ build-backend = "hatchling.build"
 # Legacy Poetry configuration removed - using Hatch build system
 
 [project]
-name = "pynomaly"
+name = "monorepo"
 dynamic = ["version"]
-description = "Production-ready Python anomaly detection platform with clean architecture, AutoML, and 40+ algorithms"
-authors = [{name = "Pynomaly Team", email = "team@pynomaly.io"}]
+description = "Production-ready monorepo platform with clean architecture, AutoML, and 40+ algorithms"
+authors = [{name = "Monorepo Team", email = "team@monorepo.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11"
@@ -64,13 +64,13 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/elgerytme/Pynomaly"
-Repository = "https://github.com/elgerytme/Pynomaly"
-Documentation = "https://github.com/elgerytme/Pynomaly/blob/main/docs/"
-Issues = "https://github.com/elgerytme/Pynomaly/issues"
-Changelog = "https://github.com/elgerytme/Pynomaly/blob/main/CHANGELOG.md"
-"Bug Tracker" = "https://github.com/elgerytme/Pynomaly/issues"
-"Source Code" = "https://github.com/elgerytme/Pynomaly"
+Homepage = "https://github.com/elgerytme/monorepo"
+Repository = "https://github.com/elgerytme/monorepo"
+Documentation = "https://github.com/elgerytme/monorepo/blob/main/docs/"
+Issues = "https://github.com/elgerytme/monorepo/issues"
+Changelog = "https://github.com/elgerytme/monorepo/blob/main/CHANGELOG.md"
+"Bug Tracker" = "https://github.com/elgerytme/monorepo/issues"
+"Source Code" = "https://github.com/elgerytme/monorepo"
 
 [project.optional-dependencies]
 # Core functionality extras
@@ -368,17 +368,17 @@ all = [
 ]
 
 [project.scripts]
-pynomaly = "packages.software.interfaces.cli.cli.app:app"
+monorepo = "packages.software.interfaces.cli.cli.app:app"
 
 [project.gui-scripts]
-pynomaly-gui = "packages.software.interfaces.web.app:main"
+monorepo-gui = "packages.software.interfaces.web.app:main"
 
 # Hatch configuration
 [tool.hatch.version]
 source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "src/packages/pynomaly-detection/src/pynomaly_detection/_version.py"
+version-file = "src/packages/data/anomaly_detection/src/monorepo_detection/_version.py"
 
 # Buck2 integration (Buck2 is installed and available)
 # [tool.hatch.build.hooks.buck2]
@@ -397,20 +397,20 @@ version-file = "src/packages/pynomaly-detection/src/pynomaly_detection/_version.
 
 [tool.hatch.build]
 include = [
-    "src/packages/pynomaly-detection/src/pynomaly_detection/**/*.py",
-    "src/packages/pynomaly-detection/src/pynomaly_detection/**/*.pyi",
-    "src/packages/pynomaly-detection/src/pynomaly_detection/py.typed",
+    "src/packages/data/anomaly_detection/src/monorepo_detection/**/*.py",
+    "src/packages/data/anomaly_detection/src/monorepo_detection/**/*.pyi",
+    "src/packages/data/anomaly_detection/src/monorepo_detection/py.typed",
     "src/packages/software/interfaces/**/*.py",
 ]
 exclude = [
-    "src/packages/pynomaly-detection/src/pynomaly_detection/**/*_test.py",
-    "src/packages/pynomaly-detection/src/pynomaly_detection/**/test_*.py",
+    "src/packages/data/anomaly_detection/src/monorepo_detection/**/*_test.py",
+    "src/packages/data/anomaly_detection/src/monorepo_detection/**/test_*.py",
     "src/packages/software/interfaces/**/*_test.py",
     "src/packages/software/interfaces/**/test_*.py",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/packages/pynomaly-detection/src/pynomaly_detection", "src/packages/software/interfaces"]
+packages = ["src/packages/data/anomaly_detection/src/monorepo_detection", "src/packages/software/interfaces"]
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -439,7 +439,7 @@ path = "environments/.venv"
 
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
-test-cov = "pytest --cov=pynomaly_detection --cov-report=html --cov-report=xml {args:tests}"
+test-cov = "pytest --cov=monorepo_detection --cov-report=html --cov-report=xml {args:tests}"
 cov-report = ["test-cov", "python -m webbrowser htmlcov/index.html"]
 
 [tool.hatch.envs.lint]
@@ -452,7 +452,7 @@ dependencies = [
 ]
 
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:src/packages/pynomaly-detection/src/pynomaly_detection tests}"
+typing = "mypy --install-types --non-interactive {args:src/packages/data/anomaly_detection/src/monorepo_detection tests}"
 style = [
     "ruff check {args:.}",
     "black --check --diff {args:.}",
@@ -498,9 +498,9 @@ run-e2e = "pytest tests/e2e/ -m e2e {args}"
 run-contract = "pytest tests/contract/ -m contract {args}"
 
 # Coverage testing
-run-cov = "pytest --cov=pynomaly_detection --cov-report=html --cov-report=xml --cov-fail-under=90 {args:tests}"
-run-cov-unit = "pytest tests/unit/ --cov=pynomaly_detection --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
-run-cov-integration = "pytest tests/integration/ --cov=pynomaly_detection --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
+run-cov = "pytest --cov=monorepo_detection --cov-report=html --cov-report=xml --cov-fail-under=90 {args:tests}"
+run-cov-unit = "pytest tests/unit/ --cov=monorepo_detection --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
+run-cov-integration = "pytest tests/integration/ --cov=monorepo_detection --cov-report=html --cov-report=xml --cov-fail-under=90 {args}"
 
 # Parallel testing
 run-parallel = "pytest -n auto {args:tests}"
@@ -521,11 +521,11 @@ run-mutation-cosmic = "cosmic-ray run"
 check-mutation = "mutmut show"
 
 # Quality gates
-run-quality = "pytest --cov=pynomaly_detection --cov-report=html --cov-report=xml --cov-fail-under=90 -n auto {args:tests}"
-run-ci = "pytest --cov=pynomaly_detection --cov-report=html --cov-report=xml --cov-fail-under=90 -n auto --tb=short {args:tests}"
+run-quality = "pytest --cov=monorepo_detection --cov-report=html --cov-report=xml --cov-fail-under=90 -n auto {args:tests}"
+run-ci = "pytest --cov=monorepo_detection --cov-report=html --cov-report=xml --cov-fail-under=90 -n auto --tb=short {args:tests}"
 
 # Test reporting
-run-report = "pytest --cov=pynomaly_detection --cov-report=html --cov-report=xml --html=test_reports/test_report.html --self-contained-html {args:tests}"
+run-report = "pytest --cov=monorepo_detection --cov-report=html --cov-report=xml --html=test_reports/test_report.html --self-contained-html {args:tests}"
 
 # Matrix testing for different Python versions
 [[tool.hatch.envs.test.matrix]]
@@ -552,7 +552,7 @@ dependencies = [
     "hatch>=1.12.0",
 ]
 extra-dependencies = [
-    "pynomaly[test,lint,docs]",
+    "monorepo[test,lint,docs]",
 ]
 
 [tool.hatch.envs.dev.scripts]
@@ -569,7 +569,7 @@ clean = [
 
 # Production environment for deployment
 [tool.hatch.envs.prod]
-extra-dependencies = ["pynomaly[production]"]
+extra-dependencies = ["monorepo[production]"]
 
 [tool.hatch.envs.prod.scripts]
 serve-api = "uvicorn packages.software.interfaces.api.app:app --host 0.0.0.0 --port 8000"
@@ -577,15 +577,15 @@ serve-api-prod = "uvicorn packages.software.interfaces.api.app:app --host 0.0.0.
 
 # CLI-specific environment
 [tool.hatch.envs.cli]
-extra-dependencies = ["pynomaly[cli,minimal]"]
+extra-dependencies = ["monorepo[cli,minimal]"]
 
 [tool.hatch.envs.cli.scripts]
-run = "pynomaly {args}"
-test-cli = "pynomaly --help"
+run = "monorepo {args}"
+test-cli = "monorepo --help"
 
 # UI Testing environment
 [tool.hatch.envs.ui-test]
-extra-dependencies = ["pynomaly[ui-test,test]"]
+extra-dependencies = ["monorepo[ui-test,test]"]
 
 [tool.hatch.envs.ui-test.scripts]
 install-browsers = "playwright install"
@@ -643,7 +643,7 @@ extend-exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["pynomaly_detection", "packages"]
+known_first_party = ["monorepo_detection", "packages"]
 skip_glob = [
     "environments/*",
     ".env*",
@@ -811,7 +811,7 @@ test_command = "python -m pytest tests/"
 run_tests_in_parallel = true
 
 [tool.cosmic-ray]
-module-path = "src/packages/pynomaly-detection/src/pynomaly_detection"
+module-path = "src/packages/data/anomaly_detection/src/monorepo_detection"
 timeout = 10.0
 test-command = "python -m pytest tests/"
 

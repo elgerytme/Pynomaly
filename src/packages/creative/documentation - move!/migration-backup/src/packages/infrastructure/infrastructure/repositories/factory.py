@@ -9,15 +9,15 @@ from __future__ import annotations
 
 import logging
 
-from pynomaly.infrastructure.config.database_config import (
+from monorepo.infrastructure.config.database_config import (
     DatabaseConfig,
     DatabaseProfile,
     get_database_config,
     get_database_config_manager,
 )
-from pynomaly.infrastructure.persistence.database import DatabaseManager
-from pynomaly.infrastructure.persistence.migrations import DatabaseMigrator
-from pynomaly.shared.protocols import (
+from monorepo.infrastructure.persistence.database import DatabaseManager
+from monorepo.infrastructure.persistence.migrations import DatabaseMigrator
+from monorepo.shared.protocols import (
     DatasetRepositoryProtocol,
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,
@@ -32,7 +32,7 @@ from .in_memory_repositories import (
 
 # Database repositories (optional import)
 try:
-    from pynomaly.infrastructure.persistence.database_repositories import (
+    from monorepo.infrastructure.persistence.database_repositories import (
         DatabaseDatasetRepository,
         DatabaseDetectionResultRepository,
         DatabaseDetectorRepository,

@@ -10,8 +10,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.shared.protocols.import_protocol import ImportProtocol
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.shared.protocols.import_protocol import ImportProtocol
 
 
 class TestImportProtocol:

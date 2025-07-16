@@ -12,59 +12,59 @@ load("@prelude//js:defs.bzl", "js_bundle")
 python_library(
     name = "domain",
     srcs = glob([
-        "src/pynomaly/domain/**/*.py",
+        "src/monorepo/domain/**/*.py",
     ]),
     deps = [],
-    visibility = ["//src/pynomaly/..."],
+    visibility = ["//src/monorepo/..."],
 )
 
 # Application Layer - Use cases and application services
 python_library(
     name = "application",
     srcs = glob([
-        "src/pynomaly/application/**/*.py",
+        "src/monorepo/application/**/*.py",
     ]),
     deps = [
         ":domain",
     ],
-    visibility = ["//src/pynomaly/..."],
+    visibility = ["//src/monorepo/..."],
 )
 
 # Infrastructure Layer - External integrations and adapters
 python_library(
     name = "infrastructure",
     srcs = glob([
-        "src/pynomaly/infrastructure/**/*.py",
+        "src/monorepo/infrastructure/**/*.py",
     ]),
     deps = [
         ":domain",
         ":application",
     ],
-    visibility = ["//src/pynomaly/..."],
+    visibility = ["//src/monorepo/..."],
 )
 
 # Presentation Layer - APIs, CLI, and Web UI
 python_library(
     name = "presentation",
     srcs = glob([
-        "src/pynomaly/presentation/**/*.py",
+        "src/monorepo/presentation/**/*.py",
     ]),
     deps = [
         ":domain",
         ":application",
         ":infrastructure",
     ],
-    visibility = ["//src/pynomaly/..."],
+    visibility = ["//src/monorepo/..."],
 )
 
 # Shared Utilities - Common utilities across layers
 python_library(
     name = "shared",
     srcs = glob([
-        "src/pynomaly/shared/**/*.py",
+        "src/monorepo/shared/**/*.py",
     ]),
     deps = [],
-    visibility = ["//src/pynomaly/..."],
+    visibility = ["//src/monorepo/..."],
 )
 
 # ==========================================
@@ -72,9 +72,9 @@ python_library(
 # ==========================================
 
 python_library(
-    name = "pynomaly-lib",
+    name = "monorepo-lib",
     srcs = glob([
-        "src/pynomaly/*.py",
+        "src/monorepo/*.py",
     ]),
     deps = [
         ":domain",
@@ -92,25 +92,25 @@ python_library(
 
 # Main CLI Binary
 python_binary(
-    name = "pynomaly-cli",
-    main = "src/pynomaly/__main__.py",
-    deps = [":pynomaly-lib"],
+    name = "monorepo-cli",
+    main = "src/monorepo/__main__.py",
+    deps = [":monorepo-lib"],
     visibility = ["PUBLIC"],
 )
 
 # API Server Binary
 python_binary(
-    name = "pynomaly-api",
+    name = "monorepo-api",
     main = "scripts/run_api.py",
-    deps = [":pynomaly-lib"],
+    deps = [":monorepo-lib"],
     visibility = ["PUBLIC"],
 )
 
 # Web UI Server Binary
 python_binary(
-    name = "pynomaly-web",
+    name = "monorepo-web",
     main = "scripts/run_web_ui.py",
-    deps = [":pynomaly-lib"],
+    deps = [":monorepo-lib"],
     visibility = ["PUBLIC"],
 )
 
@@ -125,21 +125,21 @@ genrule(
         "config/web/tailwind.config.js",
         "config/web/postcss.config.js",
     ] + glob([
-        "src/pynomaly/presentation/web/templates/**/*.html",
-        "src/pynomaly/presentation/web/static/css/**/*.css",
+        "src/monorepo/presentation/web/templates/**/*.html",
+        "src/monorepo/presentation/web/static/css/**/*.css",
     ]),
     out = "static/css/tailwind.css",
-    cmd = "cd $(location .) && npm run build-css && cp src/pynomaly/presentation/web/static/css/tailwind.css $OUT",
+    cmd = "cd $(location .) && npm run build-css && cp src/monorepo/presentation/web/static/css/tailwind.css $OUT",
     visibility = ["PUBLIC"],
 )
 
 # JavaScript Bundle
 js_bundle(
-    name = "pynomaly-js",
+    name = "monorepo-js",
     srcs = glob([
-        "src/pynomaly/presentation/web/static/js/**/*.js",
+        "src/monorepo/presentation/web/static/js/**/*.js",
     ]),
-    entry_point = "src/pynomaly/presentation/web/static/js/main.js",
+    entry_point = "src/monorepo/presentation/web/static/js/main.js",
     visibility = ["PUBLIC"],
 )
 
@@ -148,12 +148,12 @@ genrule(
     name = "web-assets",
     srcs = [
         ":tailwind-build",
-        ":pynomaly-js",
+        ":monorepo-js",
     ] + glob([
-        "src/pynomaly/presentation/web/static/**/*",
+        "src/monorepo/presentation/web/static/**/*",
     ]),
     out = "web-assets.tar.gz",
-    cmd = "tar -czf $OUT -C $(location :tailwind-build) . -C $(location :pynomaly-js) .",
+    cmd = "tar -czf $OUT -C $(location :tailwind-build) . -C $(location :monorepo-js) .",
     visibility = ["PUBLIC"],
 )
 
@@ -223,7 +223,7 @@ python_test(
         "tests/e2e/**/*.py",
     ]),
     deps = [
-        ":pynomaly-lib",
+        ":monorepo-lib",
         ":test-utils",
     ],
 )
@@ -236,7 +236,7 @@ python_library(
         "tests/plugins/**/*.py",
         "tests/utils/**/*.py",
     ]),
-    deps = [":pynomaly-lib"],
+    deps = [":monorepo-lib"],
 )
 
 # ==========================================
@@ -251,7 +251,7 @@ python_test(
         "tests/performance/**/*.py",
     ]),
     deps = [
-        ":pynomaly-lib",
+        ":monorepo-lib",
         ":test-utils",
     ],
 )
@@ -263,7 +263,7 @@ python_test(
         "tests/property/**/*.py",
     ]),
     deps = [
-        ":pynomaly-lib",
+        ":monorepo-lib",
         ":test-utils",
     ],
 )
@@ -275,7 +275,7 @@ python_test(
         "tests/mutation/**/*.py",
     ]),
     deps = [
-        ":pynomaly-lib",
+        ":monorepo-lib",
         ":test-utils",
     ],
 )
@@ -287,7 +287,7 @@ python_test(
         "tests/security/**/*.py",
     ]),
     deps = [
-        ":pynomaly-lib",
+        ":monorepo-lib",
         ":test-utils",
     ],
 )
@@ -308,7 +308,7 @@ genrule(
     name = "docs",
     srcs = glob([
         "docs/**/*.md",
-        "src/pynomaly/**/*.py",
+        "src/monorepo/**/*.py",
     ]),
     out = "docs-site.tar.gz",
     cmd = "cd docs && mkdocs build && tar -czf $OUT -C site .",
@@ -329,8 +329,8 @@ genrule(
 # Wheel Distribution
 genrule(
     name = "wheel",
-    srcs = [":pynomaly-lib"],
-    out = "pynomaly.whl",
+    srcs = [":monorepo-lib"],
+    out = "monorepo.whl",
     cmd = "cd $(location .) && python -m build --wheel --outdir $(dirname $OUT) && mv dist/*.whl $OUT",
     visibility = ["PUBLIC"],
 )
@@ -338,8 +338,8 @@ genrule(
 # Source Distribution
 genrule(
     name = "sdist",
-    srcs = [":pynomaly-lib"],
-    out = "pynomaly.tar.gz",
+    srcs = [":monorepo-lib"],
+    out = "monorepo.tar.gz",
     cmd = "cd $(location .) && python -m build --sdist --outdir $(dirname $OUT) && mv dist/*.tar.gz $OUT",
     visibility = ["PUBLIC"],
 )
@@ -373,10 +373,10 @@ genrule(
     out = "build-complete.txt",
     cmd = "echo 'Build completed successfully' > $OUT",
     deps = [
-        ":pynomaly-lib",
-        ":pynomaly-cli",
-        ":pynomaly-api",
-        ":pynomaly-web",
+        ":monorepo-lib",
+        ":monorepo-cli",
+        ":monorepo-api",
+        ":monorepo-web",
         ":web-assets",
         ":wheel",
         ":sdist",
@@ -391,7 +391,7 @@ genrule(
     out = "dev-ready.txt",
     cmd = "echo 'Development environment ready' > $OUT",
     deps = [
-        ":pynomaly-lib",
+        ":monorepo-lib",
         ":test-utils",
         ":dev-setup",
     ],

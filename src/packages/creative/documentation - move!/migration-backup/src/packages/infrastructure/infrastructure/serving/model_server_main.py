@@ -10,12 +10,12 @@ from pathlib import Path
 import uvicorn
 from fastapi import FastAPI
 
-from pynomaly.application.services.deployment_orchestration_service import (
+from monorepo.application.services.deployment_orchestration_service import (
     DeploymentOrchestrationService,
 )
-from pynomaly.application.services.model_registry_service import ModelRegistryService
-from pynomaly.domain.entities.deployment import Environment
-from pynomaly.infrastructure.serving.model_server import create_model_server
+from monorepo.application.services.model_registry_service import ModelRegistryService
+from monorepo.domain.entities.deployment import Environment
+from monorepo.infrastructure.serving.model_server import create_model_server
 
 # Configure logging
 logging.basicConfig(

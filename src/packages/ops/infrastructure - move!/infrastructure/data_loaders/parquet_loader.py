@@ -9,9 +9,9 @@ from typing import Any
 import pandas as pd
 import pyarrow.parquet as pq
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.shared.protocols import BatchDataLoaderProtocol
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import DataValidationError
+from monorepo.shared.protocols import BatchDataLoaderProtocol
 
 
 class ParquetLoader(BatchDataLoaderProtocol):

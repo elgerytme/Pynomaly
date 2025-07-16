@@ -15,7 +15,7 @@ import pytest
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../src"))
 
-from pynomaly.domain.entities import Dataset, Detector
+from monorepo.domain.entities import Dataset, Detector
 
 
 class TestPyTorchAdapterAdvanced:
@@ -125,7 +125,7 @@ class TestPyTorchAdapterAdvanced:
                 "torch.utils.data": Mock(),
             },
         ):
-            from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+            from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
             adapter = PyTorchAdapter(
                 model_type="lstm_autoencoder",
@@ -185,7 +185,7 @@ class TestPyTorchAdapterAdvanced:
             "sys.modules",
             {"torch": mock_torch, "torch.nn": mock_nn, "torch.optim": Mock()},
         ):
-            from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+            from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
             adapter = PyTorchAdapter(
                 model_type="convolutional_autoencoder",
@@ -235,7 +235,7 @@ class TestPyTorchAdapterAdvanced:
                 "torch.distributions": mock_distributions,
             },
         ):
-            from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+            from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
             adapter = PyTorchAdapter(
                 model_type="variational_autoencoder",
@@ -277,7 +277,7 @@ class TestPyTorchAdapterAdvanced:
             "sys.modules",
             {"torch": mock_torch, "torch.nn": mock_nn, "torch.optim": mock_optim},
         ):
-            from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+            from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
             adapter = PyTorchAdapter(
                 model_type="adversarial_autoencoder",
@@ -319,7 +319,7 @@ class TestPyTorchAdapterAdvanced:
             "sys.modules",
             {"torch": mock_torch, "torch.nn": mock_nn, "torch.optim": Mock()},
         ):
-            from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+            from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
             adapter = PyTorchAdapter(
                 model_type="ensemble_autoencoder",
@@ -365,7 +365,7 @@ class TestPyTorchAdapterAdvanced:
             "sys.modules",
             {"torch": mock_torch, "torch.nn": mock_nn, "torch.optim": Mock()},
         ):
-            from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+            from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
             adapter = PyTorchAdapter(
                 model_type="transformer_autoencoder",
@@ -416,7 +416,7 @@ class TestPyTorchAdapterAdvanced:
             "sys.modules",
             {"torch": mock_torch, "torch.nn": Mock(), "torch.optim": Mock()},
         ):
-            from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+            from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
             adapter = PyTorchAdapter(
                 device="cuda:0",
@@ -459,7 +459,7 @@ class TestPyTorchAdapterAdvanced:
                 "torch.quantization": mock_quantization,
             },
         ):
-            from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+            from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
             adapter = PyTorchAdapter(
                 model_type="quantized_autoencoder",
@@ -545,7 +545,7 @@ class TestTensorFlowAdapterAdvanced:
                 "tensorflow.keras.layers": mock_layers,
             },
         ):
-            from pynomaly.infrastructure.adapters.tensorflow_adapter import (
+            from monorepo.infrastructure.adapters.tensorflow_adapter import (
                 TensorFlowAdapter,
             )
 
@@ -589,7 +589,7 @@ class TestTensorFlowAdapterAdvanced:
         with patch.dict(
             "sys.modules", {"tensorflow": mock_tf, "tensorflow.keras": Mock()}
         ):
-            from pynomaly.infrastructure.adapters.tensorflow_adapter import (
+            from monorepo.infrastructure.adapters.tensorflow_adapter import (
                 TensorFlowAdapter,
             )
 
@@ -630,7 +630,7 @@ class TestTensorFlowAdapterAdvanced:
         with patch.dict(
             "sys.modules", {"tensorflow": mock_tf, "tensorflow.keras": Mock()}
         ):
-            from pynomaly.infrastructure.adapters.tensorflow_adapter import (
+            from monorepo.infrastructure.adapters.tensorflow_adapter import (
                 TensorFlowAdapter,
             )
 
@@ -667,7 +667,7 @@ class TestTensorFlowAdapterAdvanced:
         with patch.dict(
             "sys.modules", {"tensorflow": mock_tf, "tensorflow.keras": Mock()}
         ):
-            from pynomaly.infrastructure.adapters.tensorflow_adapter import (
+            from monorepo.infrastructure.adapters.tensorflow_adapter import (
                 TensorFlowAdapter,
             )
 
@@ -711,7 +711,7 @@ class TestTensorFlowAdapterAdvanced:
                 "tensorflow_probability": mock_tfp,
             },
         ):
-            from pynomaly.infrastructure.adapters.tensorflow_adapter import (
+            from monorepo.infrastructure.adapters.tensorflow_adapter import (
                 TensorFlowAdapter,
             )
 
@@ -794,7 +794,7 @@ class TestJAXAdapterAdvanced:
                 "jax.experimental.ode": Mock(odeint=mock_odeint),
             },
         ):
-            from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+            from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
             adapter = JAXAdapter(
                 model_type="neural_ode_autoencoder",
@@ -840,7 +840,7 @@ class TestJAXAdapterAdvanced:
             "sys.modules",
             {"jax": mock_jax, "jax.numpy": mock_jnp, "jax.random": mock_random},
         ):
-            from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+            from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
             adapter = JAXAdapter(
                 model_type="normalizing_flow",
@@ -881,7 +881,7 @@ class TestJAXAdapterAdvanced:
         mock_jnp = Mock()
 
         with patch.dict("sys.modules", {"jax": mock_jax, "jax.numpy": mock_jnp}):
-            from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+            from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
             adapter = JAXAdapter(
                 model_type="graph_autoencoder",
@@ -925,7 +925,7 @@ class TestJAXAdapterAdvanced:
         mock_jax.checkpoint = mock_checkpoint
 
         with patch.dict("sys.modules", {"jax": mock_jax, "jax.numpy": mock_jnp}):
-            from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+            from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
             adapter = JAXAdapter(
                 use_gradient_checkpointing=True,
@@ -973,7 +973,7 @@ class TestJAXAdapterAdvanced:
         with patch.dict(
             "sys.modules", {"jax": mock_jax, "jax.numpy": Mock(), "optax": mock_optax}
         ):
-            from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+            from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
             adapter = JAXAdapter(
                 optimizer="adamw",
@@ -1025,7 +1025,7 @@ class TestJAXAdapterAdvanced:
                 "numpyro.distributions": Mock(),
             },
         ):
-            from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+            from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
             adapter = JAXAdapter(
                 model_type="bayesian_autoencoder",

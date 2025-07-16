@@ -176,7 +176,7 @@ class PowerBIAdapter(ExportProtocol):
         # Add metadata
         for record in records:
             record["export_timestamp"] = datetime.now().isoformat()
-            record["source"] = "pynomaly"
+            record["source"] = "monorepo"
 
         return records
 

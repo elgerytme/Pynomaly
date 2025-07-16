@@ -13,8 +13,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.shared.protocols.import_protocol import ImportProtocol
+from monorepo.domain.entities import Dataset
+from monorepo.shared.protocols.import_protocol import ImportProtocol
 
 
 class MockDataset:

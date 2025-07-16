@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.use_cases.ensemble_detection_use_case import (
+from monorepo.application.use_cases.ensemble_detection_use_case import (
     DetectorPerformanceMetrics,
     EnsembleDetectionRequest,
     EnsembleDetectionResponse,
@@ -15,7 +15,7 @@ from pynomaly.application.use_cases.ensemble_detection_use_case import (
     EnsembleOptimizationRequest,
     VotingStrategy,
 )
-from pynomaly.domain.entities import Dataset, Detector
+from monorepo.domain.entities import Dataset, Detector
 
 
 class TestEnsembleDetectionUseCase:

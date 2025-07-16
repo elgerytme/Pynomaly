@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class SecurityConfig:
     """Security configuration data structure."""
 
-    domain: str = "pynomaly.local"
+    domain: str = "monorepo.local"
     ssl_cert_path: str = "/etc/ssl/certs/pynomaly"
     ssl_key_path: str = "/etc/ssl/private/pynomaly"
     firewall_enabled: bool = True
@@ -764,7 +764,7 @@ check_suspicious_ips() {
 
 # Monitor SSL certificate expiration
 check_ssl_expiration() {
-    CERT_FILE="/etc/ssl/certs/pynomaly.crt"
+    CERT_FILE="/etc/ssl/certs/monorepo.crt"
     if [ -f "$CERT_FILE" ]; then
         EXPIRY_DATE=$(openssl x509 -enddate -noout -in $CERT_FILE | cut -d= -f2)
         EXPIRY_EPOCH=$(date -d "$EXPIRY_DATE" +%s)

@@ -18,9 +18,9 @@ from uuid import uuid4
 
 import pandas as pd
 
-from pynomaly.domain.entities import DetectionResult
-from pynomaly.domain.exceptions import InfrastructureError
-from pynomaly.infrastructure.monitoring import get_monitor, monitor_async_operation
+from monorepo.domain.entities import DetectionResult
+from monorepo.domain.exceptions import InfrastructureError
+from monorepo.infrastructure.monitoring import get_monitor, monitor_async_operation
 
 from .memory_efficient_processor import get_memory_usage
 

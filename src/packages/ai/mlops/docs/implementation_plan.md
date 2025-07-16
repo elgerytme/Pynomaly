@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the comprehensive implementation plan for the Pynomaly MLOps package, a production-ready machine learning operations platform. The plan is structured in phases to enable incremental delivery and early value realization.
+This document outlines the comprehensive implementation plan for the MLOps package, a production-ready machine learning operations platform. The plan is structured in phases to enable incremental delivery and early value realization.
 
 ## Implementation Strategy
 

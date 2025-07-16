@@ -7,16 +7,16 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from monorepo.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
-from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.services import FeatureValidator
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.presentation.api.app import create_app
-from pynomaly.presentation.web.app import mount_web_ui
+from monorepo.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
+from monorepo.application.use_cases.train_detector import TrainDetectorUseCase
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.services import FeatureValidator
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.presentation.api.app import create_app
+from monorepo.presentation.web.app import mount_web_ui
 
 
 class TestCompleteWorkflowIntegration:
@@ -153,7 +153,7 @@ class TestCompleteWorkflowIntegration:
     ):
         """Step 2: Test API endpoints work with real algorithms."""
         with patch(
-            "pynomaly.presentation.api.app.get_container",
+            "monorepo.presentation.api.app.get_container",
             return_value=mock_container_with_real_services,
         ):
             # Test algorithm listing endpoint
@@ -226,7 +226,7 @@ class TestCompleteWorkflowIntegration:
     def test_step3_pwa_functionality(self, client, mock_container_with_real_services):
         """Step 3: Test PWA features work correctly."""
         with patch(
-            "pynomaly.presentation.web.app.get_container",
+            "monorepo.presentation.web.app.get_container",
             return_value=mock_container_with_real_services,
         ):
             # Test PWA manifest
@@ -272,7 +272,7 @@ class TestCompleteWorkflowIntegration:
     ):
         """Step 4: Test complete end-to-end workflow from PWA to real algorithms."""
         with patch(
-            "pynomaly.presentation.web.app.get_container",
+            "monorepo.presentation.web.app.get_container",
             return_value=mock_container_with_real_services,
         ):
             # 1. Create detector via API
@@ -488,11 +488,11 @@ class TestCompleteWorkflowIntegration:
         """Test that all 4 major features are properly integrated."""
         with (
             patch(
-                "pynomaly.presentation.api.app.get_container",
+                "monorepo.presentation.api.app.get_container",
                 return_value=mock_container_with_real_services,
             ),
             patch(
-                "pynomaly.presentation.web.app.get_container",
+                "monorepo.presentation.web.app.get_container",
                 return_value=mock_container_with_real_services,
             ),
         ):

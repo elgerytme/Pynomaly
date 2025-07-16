@@ -7,13 +7,13 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Any
 from uuid import uuid4
 
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.entities.training_job import TrainingJob
-from pynomaly.domain.entities.anomaly_event import AnomalyEvent, EventType, EventSeverity
-from pynomaly.domain.services.advanced_classification_service import AdvancedClassificationService
-from pynomaly.domain.services.detection_pipeline_integration import DetectionPipelineIntegration
-from pynomaly.domain.services.threshold_severity_classifier import ThresholdSeverityClassifier
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.entities.training_job import TrainingJob
+from monorepo.domain.entities.anomaly_event import AnomalyEvent, EventType, EventSeverity
+from monorepo.domain.services.advanced_classification_service import AdvancedClassificationService
+from monorepo.domain.services.detection_pipeline_integration import DetectionPipelineIntegration
+from monorepo.domain.services.threshold_severity_classifier import ThresholdSeverityClassifier
+from monorepo.domain.value_objects import ContaminationRate
 
 
 class MockDetectionService:

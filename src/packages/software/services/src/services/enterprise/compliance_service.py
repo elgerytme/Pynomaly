@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Any
 
-from pynomaly.domain.entities.compliance import (
+from monorepo.domain.entities.compliance import (
     DEFAULT_COMPLIANCE_RULES,
     AuditAction,
     AuditEvent,
@@ -20,8 +20,8 @@ from pynomaly.domain.entities.compliance import (
     EncryptionKey,
     GDPRRequest,
 )
-from pynomaly.shared.exceptions import ValidationError
-from pynomaly.shared.types import TenantId, UserId
+from monorepo.shared.exceptions import ValidationError
+from monorepo.shared.types import TenantId, UserId
 
 
 class ComplianceService:

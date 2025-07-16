@@ -13,8 +13,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.infrastructure.config import create_container
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.infrastructure.config import create_container
 
 
 class TestDependencyInjectionIntegration:
@@ -462,7 +462,7 @@ class TestMonitoringIntegration:
         handler.setLevel(logging.INFO)
 
         # Create test logger
-        logger = logging.getLogger("pynomaly.test")
+        logger = logging.getLogger("monorepo.test")
         logger.setLevel(logging.INFO)
         logger.addHandler(handler)
 

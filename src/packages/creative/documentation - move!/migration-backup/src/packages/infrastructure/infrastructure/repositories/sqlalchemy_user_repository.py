@@ -19,7 +19,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
-from pynomaly.domain.entities.user import (
+from monorepo.domain.entities.user import (
     Permission,
     Tenant,
     TenantLimits,
@@ -32,12 +32,12 @@ from pynomaly.domain.entities.user import (
     UserStatus,
     UserTenantRole,
 )
-from pynomaly.domain.repositories.user_repository import (
+from monorepo.domain.repositories.user_repository import (
     SessionRepositoryProtocol,
     TenantRepositoryProtocol,
     UserRepositoryProtocol,
 )
-from pynomaly.shared.types import TenantId, UserId
+from monorepo.shared.types import TenantId, UserId
 
 Base = declarative_base()
 
@@ -326,7 +326,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
     ) -> UserTenantRole:
         """Add user to tenant with role."""
         with self._session_factory() as session:
-            from pynomaly.domain.entities.user import get_default_permissions
+            from monorepo.domain.entities.user import get_default_permissions
 
             permissions_data = [
                 {
@@ -376,7 +376,7 @@ class SQLAlchemyUserRepository(UserRepositoryProtocol):
     ) -> UserTenantRole:
         """Update user's role in tenant."""
         with self._session_factory() as session:
-            from pynomaly.domain.entities.user import get_default_permissions
+            from monorepo.domain.entities.user import get_default_permissions
 
             permissions_data = [
                 {

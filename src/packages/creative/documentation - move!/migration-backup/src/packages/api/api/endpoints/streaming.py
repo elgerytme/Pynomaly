@@ -14,8 +14,8 @@ from fastapi import (
 )
 from pydantic import BaseModel, Field
 
-from pynomaly.application.services.streaming_service import StreamingService
-from pynomaly.domain.entities.streaming_session import (
+from monorepo.application.services.streaming_service import StreamingService
+from monorepo.domain.entities.streaming_session import (
     SessionStatus,
     SessionSummary,
     StreamingAlert,
@@ -25,9 +25,9 @@ from pynomaly.domain.entities.streaming_session import (
     StreamingMetrics,
     StreamingSession,
 )
-from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.deps import get_container
-from pynomaly.presentation.api.docs.response_models import (
+from monorepo.infrastructure.config import Container
+from monorepo.presentation.api.deps import get_container
+from monorepo.presentation.api.docs.response_models import (
     HTTPResponses,
     SuccessResponse,
 )

@@ -11,11 +11,11 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.exceptions import DatasetError, DetectorError
-from pynomaly.presentation.api.app import app
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.exceptions import DatasetError, DetectorError
+from monorepo.presentation.api.app import app
 
 
 class TestDetectionEndpointsComprehensive:
@@ -137,7 +137,7 @@ class TestDetectionEndpointsComprehensive:
         self, client, valid_detection_payload, mock_detection_service, auth_headers
     ):
         """Test successful anomaly detection."""
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/detect",
                 json=valid_detection_payload,
@@ -159,7 +159,7 @@ class TestDetectionEndpointsComprehensive:
         """Test detection with invalid detector ID."""
         mock_detection_service.detect_anomalies.side_effect = DetectorError("Detector not found")
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/detect",
                 json=valid_detection_payload,
@@ -177,7 +177,7 @@ class TestDetectionEndpointsComprehensive:
         """Test detection with invalid dataset ID."""
         mock_detection_service.detect_anomalies.side_effect = DatasetError("Dataset not found")
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/detect",
                 json=valid_detection_payload,
@@ -256,7 +256,7 @@ class TestDetectionEndpointsComprehensive:
         )
         mock_detection_service.detect_anomalies.return_value = mock_result
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/detect",
                 json=payload_with_explanation,
@@ -272,7 +272,7 @@ class TestDetectionEndpointsComprehensive:
         self, client, valid_training_payload, mock_detection_service, auth_headers
     ):
         """Test successful detector training."""
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/train",
                 json=valid_training_payload,
@@ -299,7 +299,7 @@ class TestDetectionEndpointsComprehensive:
         """Test training with invalid detector ID."""
         mock_detection_service.train_detector.side_effect = DetectorError("Detector not found")
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/train",
                 json=valid_training_payload,
@@ -348,7 +348,7 @@ class TestDetectionEndpointsComprehensive:
         )
         mock_detection_service.create_detector.return_value = mock_detector
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detectors",
                 json=valid_detector_payload,
@@ -400,7 +400,7 @@ class TestDetectionEndpointsComprehensive:
         """Test successful detector retrieval."""
         detector_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.get(
                 f"/api/v1/detectors/{detector_id}",
                 headers=auth_headers,
@@ -421,7 +421,7 @@ class TestDetectionEndpointsComprehensive:
         mock_detection_service.get_detector.side_effect = DetectorError("Detector not found")
         detector_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.get(
                 f"/api/v1/detectors/{detector_id}",
                 headers=auth_headers,
@@ -462,7 +462,7 @@ class TestDetectionEndpointsComprehensive:
         ]
         mock_detection_service.list_detectors.return_value = mock_detectors
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.get("/api/v1/detectors", headers=auth_headers)
 
         assert response.status_code == status.HTTP_200_OK
@@ -478,7 +478,7 @@ class TestDetectionEndpointsComprehensive:
         """Test detector listing with pagination."""
         mock_detection_service.list_detectors.return_value = []
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.get(
                 "/api/v1/detectors?page=1&size=10",
                 headers=auth_headers,
@@ -493,7 +493,7 @@ class TestDetectionEndpointsComprehensive:
         self, client, mock_detection_service, auth_headers
     ):
         """Test detector listing with filters."""
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.get(
                 "/api/v1/detectors?algorithm=IsolationForest&fitted=true",
                 headers=auth_headers,
@@ -526,7 +526,7 @@ class TestDetectionEndpointsComprehensive:
         )
         mock_detection_service.update_detector.return_value = mock_updated_detector
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.put(
                 f"/api/v1/detectors/{detector_id}",
                 json=update_payload,
@@ -546,7 +546,7 @@ class TestDetectionEndpointsComprehensive:
         detector_id = str(uuid4())
         update_payload = {"name": "updated-detector"}
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.put(
                 f"/api/v1/detectors/{detector_id}",
                 json=update_payload,
@@ -562,7 +562,7 @@ class TestDetectionEndpointsComprehensive:
         detector_id = str(uuid4())
         mock_detection_service.delete_detector.return_value = True
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.delete(
                 f"/api/v1/detectors/{detector_id}",
                 headers=auth_headers,
@@ -577,7 +577,7 @@ class TestDetectionEndpointsComprehensive:
         mock_detection_service.delete_detector.side_effect = DetectorError("Detector not found")
         detector_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.delete(
                 f"/api/v1/detectors/{detector_id}",
                 headers=auth_headers,
@@ -602,7 +602,7 @@ class TestDetectionEndpointsComprehensive:
         ]
         mock_detection_service.get_detection_results.return_value = mock_results
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.get(
                 f"/api/v1/detectors/{detector_id}/results",
                 headers=auth_headers,
@@ -622,7 +622,7 @@ class TestDetectionEndpointsComprehensive:
         mock_detection_service.get_detection_results.side_effect = DetectorError("Detector not found")
         detector_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.get(
                 f"/api/v1/detectors/{detector_id}/results",
                 headers=auth_headers,
@@ -647,7 +647,7 @@ class TestDetectionEndpointsComprehensive:
         }
         mock_detection_service.get_detector_performance.return_value = mock_performance
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.get(
                 f"/api/v1/detectors/{detector_id}/performance",
                 headers=auth_headers,
@@ -689,7 +689,7 @@ class TestDetectionEndpointsComprehensive:
         ]
         mock_detection_service.batch_detect.return_value = mock_batch_results
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/batch",
                 json=batch_payload,
@@ -724,7 +724,7 @@ class TestDetectionEndpointsComprehensive:
         }
         mock_detection_service.setup_streaming.return_value = mock_stream_session
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/streaming/setup",
                 json=streaming_payload,
@@ -747,7 +747,7 @@ class TestDetectionEndpointsComprehensive:
         results = []
 
         def make_detection_request():
-            with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+            with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
                 response = client.post(
                     "/api/v1/detection/detect",
                     json=valid_detection_payload,
@@ -812,7 +812,7 @@ class TestDetectionEndpointsComprehensive:
         # Test service unavailable
         mock_detection_service.detect_anomalies.side_effect = Exception("Service unavailable")
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/detect",
                 json=valid_detection_payload,
@@ -825,7 +825,7 @@ class TestDetectionEndpointsComprehensive:
         self, client, valid_detection_payload, mock_detection_service, auth_headers
     ):
         """Test rate limiting on detection endpoints."""
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             # Make multiple requests rapidly
             responses = []
             for i in range(20):
@@ -845,7 +845,7 @@ class TestDetectionEndpointsComprehensive:
         self, client, valid_detection_payload, mock_detection_service, auth_headers
     ):
         """Test security headers in detection responses."""
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/detect",
                 json=valid_detection_payload,
@@ -866,7 +866,7 @@ class TestDetectionEndpointsComprehensive:
             "Origin": "https://example.com",
         }
 
-        with patch("pynomaly.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
+        with patch("monorepo.presentation.api.deps.get_detection_service", return_value=mock_detection_service):
             response = client.post(
                 "/api/v1/detection/detect",
                 json=valid_detection_payload,

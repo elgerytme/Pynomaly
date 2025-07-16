@@ -11,11 +11,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.algorithm_optimization_service import (
+from monorepo.application.services.algorithm_optimization_service import (
     AlgorithmOptimizationService,
 )
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.entities.simple_detector import SimpleDetector
+from monorepo.domain.entities import Dataset
+from monorepo.domain.entities.simple_detector import SimpleDetector
 
 
 class TestAlgorithmOptimizationService:
@@ -179,7 +179,7 @@ class TestAlgorithmOptimizationService:
         assert characteristics["dimensionality_category"] == "high"
 
     @patch(
-        "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+        "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
         return_value=True,
     )
     def test_optimize_detector_isolation_forest(
@@ -202,7 +202,7 @@ class TestAlgorithmOptimizationService:
         assert results["optimization_type"] == "heuristic_search"
 
     @patch(
-        "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+        "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
         return_value=True,
     )
     def test_optimize_detector_different_levels(
@@ -221,7 +221,7 @@ class TestAlgorithmOptimizationService:
             assert "best_params" in results
 
     @patch(
-        "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+        "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
         return_value=True,
     )
     def test_optimize_detector_with_contamination_rate(
@@ -245,7 +245,7 @@ class TestAlgorithmOptimizationService:
             assert results["best_params"]["contamination"] == contamination_rate
 
     @patch(
-        "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+        "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
         return_value=True,
     )
     def test_optimize_detector_caching(
@@ -269,7 +269,7 @@ class TestAlgorithmOptimizationService:
         assert len(optimization_service.optimization_cache) > 0
 
     @patch(
-        "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+        "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
         return_value=True,
     )
     def test_optimize_detector_unknown_algorithm(
@@ -291,7 +291,7 @@ class TestAlgorithmOptimizationService:
         assert results["optimization_type"] == "generic"
 
     @patch(
-        "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+        "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
         return_value=True,
     )
     def test_optimize_ensemble(
@@ -329,7 +329,7 @@ class TestAlgorithmOptimizationService:
         assert len(ensemble_results["combination_weights"]) == 2
 
     @patch(
-        "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+        "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
         return_value=True,
     )
     def test_adaptive_parameter_selection(
@@ -352,7 +352,7 @@ class TestAlgorithmOptimizationService:
         assert len(result["reasoning"]) > 0
 
     @patch(
-        "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+        "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
         return_value=True,
     )
     def test_adaptive_parameter_selection_with_performance_targets(
@@ -488,11 +488,11 @@ class TestAlgorithmOptimizationService:
             assert best_params["nu"] in expected_range
 
     @patch(
-        "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+        "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
         return_value=True,
     )
     @patch(
-        "pynomaly.application.services.algorithm_benchmark.AlgorithmBenchmarkService"
+        "monorepo.application.services.algorithm_benchmark.AlgorithmBenchmarkService"
     )
     def test_benchmark_optimization_impact(
         self,
@@ -787,7 +787,7 @@ class TestAlgorithmOptimizationService:
         )
 
         with patch(
-            "pynomaly.application.services.algorithm_optimization_service.PyODAdapter",
+            "monorepo.application.services.algorithm_optimization_service.PyODAdapter",
             side_effect=ImportError,
         ):
             result = optimization_service._optimize_knn(
@@ -889,7 +889,7 @@ class TestAlgorithmOptimizationService:
         assert abs(aggregated["avg_memory_usage"] - 110.0) < 0.01
 
     @patch(
-        "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+        "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
         return_value=False,
     )
     def test_feature_flag_disabled(

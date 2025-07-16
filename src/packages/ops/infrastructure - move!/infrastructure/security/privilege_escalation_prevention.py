@@ -10,9 +10,9 @@ import logging
 from datetime import datetime, timedelta
 from uuid import UUID
 
-from pynomaly.domain.entities.user import Permission, User, UserRole
-from pynomaly.domain.security.permission_matrix import PermissionMatrix
-from pynomaly.infrastructure.security.rbac_service import RBACService
+from monorepo.domain.entities.user import Permission, User, UserRole
+from monorepo.domain.security.permission_matrix import PermissionMatrix
+from monorepo.infrastructure.security.rbac_service import RBACService
 
 logger = logging.getLogger(__name__)
 

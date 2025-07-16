@@ -9,8 +9,8 @@ import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa
 from passlib.context import CryptContext
 
-from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
-from pynomaly.infrastructure.auth.jwt_auth_enhanced import (
+from monorepo.domain.exceptions import AuthenticationError, AuthorizationError
+from monorepo.infrastructure.auth.jwt_auth_enhanced import (
     EnhancedJWTAuthService,
     JWKSKey,
     JWKSResponse,
@@ -22,7 +22,7 @@ from pynomaly.infrastructure.auth.jwt_auth_enhanced import (
     get_auth,
     init_auth,
 )
-from pynomaly.infrastructure.config import Settings
+from monorepo.infrastructure.config import Settings
 
 
 class TestUserModel:
@@ -802,7 +802,7 @@ class TestEnhancedJWTAuthService:
 
         # Create token that expires immediately
         with patch(
-            "pynomaly.infrastructure.auth.jwt_auth_enhanced.timedelta"
+            "monorepo.infrastructure.auth.jwt_auth_enhanced.timedelta"
         ) as mock_timedelta:
             mock_timedelta.return_value = timedelta(minutes=-1)  # Already expired
             reset_token = service.create_password_reset_token(user.email)

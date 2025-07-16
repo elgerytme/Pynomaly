@@ -10,15 +10,15 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     ConfigurationError,
     DatasetError,
     DetectorError,
     InfrastructureError,
     ValidationError,
 )
-from pynomaly.presentation.cli.app import app
-from pynomaly.shared.error_handling.cli_errors import (
+from monorepo.presentation.cli.app import app
+from monorepo.shared.error_handling.cli_errors import (
     validate_algorithm_name,
     validate_contamination_rate,
     validate_dataset_name,
@@ -40,16 +40,16 @@ class TestCLIErrorHandling:
         """Mock all CLI services for error testing."""
         with (
             patch(
-                "pynomaly.presentation.cli.commands.datasets.dataset_service"
+                "monorepo.presentation.cli.commands.datasets.dataset_service"
             ) as mock_dataset,
             patch(
-                "pynomaly.presentation.cli.commands.detector.detector_service"
+                "monorepo.presentation.cli.commands.detector.detector_service"
             ) as mock_detector,
             patch(
-                "pynomaly.presentation.cli.commands.detector.training_service"
+                "monorepo.presentation.cli.commands.detector.training_service"
             ) as mock_training,
             patch(
-                "pynomaly.presentation.cli.commands.detect.detection_service"
+                "monorepo.presentation.cli.commands.detect.detection_service"
             ) as mock_detection,
         ):
             services = {

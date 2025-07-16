@@ -12,10 +12,10 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.presentation.api.app import app
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.entities.detector import Detector
+from monorepo.presentation.api.app import app
 
 
 class TestWebAPIIntegrationComprehensive:
@@ -130,7 +130,7 @@ class TestWebAPIIntegrationComprehensive:
         """Test complete end-to-end anomaly detection workflow."""
         # Step 1: Upload dataset
         with patch(
-            "pynomaly.presentation.web_api.dependencies.get_dataset_service",
+            "monorepo.presentation.web_api.dependencies.get_dataset_service",
             return_value=mock_services["dataset"],
         ):
             upload_response = client.post(
@@ -153,7 +153,7 @@ class TestWebAPIIntegrationComprehensive:
         }
 
         with patch(
-            "pynomaly.presentation.api.deps.get_detection_service",
+            "monorepo.presentation.api.deps.get_detection_service",
             return_value=mock_services["detection"],
         ):
             detector_response = client.post(
@@ -173,7 +173,7 @@ class TestWebAPIIntegrationComprehensive:
         }
 
         with patch(
-            "pynomaly.presentation.api.deps.get_detection_service",
+            "monorepo.presentation.api.deps.get_detection_service",
             return_value=mock_services["detection"],
         ):
             train_response = client.post(
@@ -194,7 +194,7 @@ class TestWebAPIIntegrationComprehensive:
         }
 
         with patch(
-            "pynomaly.presentation.api.deps.get_detection_service",
+            "monorepo.presentation.api.deps.get_detection_service",
             return_value=mock_services["detection"],
         ):
             detect_response = client.post(
@@ -222,7 +222,7 @@ class TestWebAPIIntegrationComprehensive:
         """Test AutoML workflow integration."""
         # Step 1: Upload dataset
         with patch(
-            "pynomaly.presentation.web_api.dependencies.get_dataset_service",
+            "monorepo.presentation.web_api.dependencies.get_dataset_service",
             return_value=mock_services["dataset"],
         ):
             upload_response = client.post(
@@ -246,7 +246,7 @@ class TestWebAPIIntegrationComprehensive:
         }
 
         with patch(
-            "pynomaly.presentation.api.deps.get_automl_service",
+            "monorepo.presentation.api.deps.get_automl_service",
             return_value=mock_services["automl"],
         ):
             automl_response = client.post(
@@ -270,7 +270,7 @@ class TestWebAPIIntegrationComprehensive:
         }
 
         with patch(
-            "pynomaly.presentation.api.deps.get_detection_service",
+            "monorepo.presentation.api.deps.get_detection_service",
             return_value=mock_services["detection"],
         ):
             detector_response = client.post(
@@ -299,7 +299,7 @@ class TestWebAPIIntegrationComprehensive:
         }
 
         with patch(
-            "pynomaly.presentation.web_api.dependencies.get_explainability_service",
+            "monorepo.presentation.web_api.dependencies.get_explainability_service",
             return_value=mock_services["explainability"],
         ):
             explain_response = client.post(
@@ -314,7 +314,7 @@ class TestWebAPIIntegrationComprehensive:
 
         # Step 3: Get feature importance for detector
         with patch(
-            "pynomaly.presentation.web_api.dependencies.get_explainability_service",
+            "monorepo.presentation.web_api.dependencies.get_explainability_service",
             return_value=mock_services["explainability"],
         ):
             importance_response = client.get(
@@ -338,7 +338,7 @@ class TestWebAPIIntegrationComprehensive:
         }
 
         with patch(
-            "pynomaly.presentation.api.deps.get_streaming_service",
+            "monorepo.presentation.api.deps.get_streaming_service",
             return_value=mock_services["streaming"],
         ):
             session_response = client.post(
@@ -368,7 +368,7 @@ class TestWebAPIIntegrationComprehensive:
         }
 
         with patch(
-            "pynomaly.presentation.api.deps.get_streaming_service",
+            "monorepo.presentation.api.deps.get_streaming_service",
             return_value=mock_services["streaming"],
         ):
             process_response = client.post(
@@ -406,7 +406,7 @@ class TestWebAPIIntegrationComprehensive:
 
         # Test dataset endpoint
         with patch(
-            "pynomaly.presentation.web_api.dependencies.get_dataset_service",
+            "monorepo.presentation.web_api.dependencies.get_dataset_service",
             return_value=mock_services["dataset"],
         ):
             dataset_response = client.get(
@@ -416,7 +416,7 @@ class TestWebAPIIntegrationComprehensive:
 
         # Test detector endpoint
         with patch(
-            "pynomaly.presentation.api.deps.get_detection_service",
+            "monorepo.presentation.api.deps.get_detection_service",
             return_value=mock_services["detection"],
         ):
             detector_response = client.get(
@@ -451,15 +451,15 @@ class TestWebAPIIntegrationComprehensive:
                         getattr(service, method).side_effect = Exception("Not found")
 
             with patch(
-                "pynomaly.presentation.api.deps.get_dataset_service",
+                "monorepo.presentation.api.deps.get_dataset_service",
                 return_value=mock_services["dataset"],
             ):
                 with patch(
-                    "pynomaly.presentation.api.deps.get_detection_service",
+                    "monorepo.presentation.api.deps.get_detection_service",
                     return_value=mock_services["detection"],
                 ):
                     with patch(
-                        "pynomaly.presentation.api.deps.get_streaming_service",
+                        "monorepo.presentation.api.deps.get_streaming_service",
                         return_value=mock_services["streaming"],
                     ):
                         response = client.get(endpoint, headers=auth_headers)
@@ -506,11 +506,11 @@ class TestWebAPIIntegrationComprehensive:
             responses = []
             for i in range(5):
                 with patch(
-                    "pynomaly.presentation.api.deps.get_detection_service",
+                    "monorepo.presentation.api.deps.get_detection_service",
                     return_value=mock_services["detection"],
                 ):
                     with patch(
-                        "pynomaly.presentation.api.deps.get_automl_service",
+                        "monorepo.presentation.api.deps.get_automl_service",
                         return_value=mock_services["automl"],
                     ):
                         response = client.post(
@@ -540,11 +540,11 @@ class TestWebAPIIntegrationComprehensive:
 
         for method, endpoint, *payload in endpoints:
             with patch(
-                "pynomaly.presentation.api.deps.get_dataset_service",
+                "monorepo.presentation.api.deps.get_dataset_service",
                 return_value=mock_services["dataset"],
             ):
                 with patch(
-                    "pynomaly.presentation.api.deps.get_detection_service",
+                    "monorepo.presentation.api.deps.get_detection_service",
                     return_value=mock_services["detection"],
                 ):
                     if method == "GET":
@@ -575,11 +575,11 @@ class TestWebAPIIntegrationComprehensive:
 
         for method, endpoint, *payload in endpoints:
             with patch(
-                "pynomaly.presentation.api.deps.get_dataset_service",
+                "monorepo.presentation.api.deps.get_dataset_service",
                 return_value=mock_services["dataset"],
             ):
                 with patch(
-                    "pynomaly.presentation.api.deps.get_detection_service",
+                    "monorepo.presentation.api.deps.get_detection_service",
                     return_value=mock_services["detection"],
                 ):
                     if method == "GET":
@@ -611,11 +611,11 @@ class TestWebAPIIntegrationComprehensive:
             start_time = time.time()
 
             with patch(
-                "pynomaly.presentation.api.deps.get_dataset_service",
+                "monorepo.presentation.api.deps.get_dataset_service",
                 return_value=mock_services["dataset"],
             ):
                 with patch(
-                    "pynomaly.presentation.api.deps.get_detection_service",
+                    "monorepo.presentation.api.deps.get_detection_service",
                     return_value=mock_services["detection"],
                 ):
                     response = client.get(endpoint, headers=auth_headers)

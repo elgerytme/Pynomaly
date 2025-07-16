@@ -14,7 +14,7 @@ import pandas as pd
 import pytest
 
 # Domain entities
-from pynomaly.domain.entities import (
+from monorepo.domain.entities import (
     ContinuousLearning,
     Dataset,
     DetectionResult,
@@ -25,18 +25,18 @@ from pynomaly.domain.entities import (
 )
 
 # Domain exceptions
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     BusinessRuleViolation,
     DetectorNotTrainedError,
     ValidationError,
 )
-from pynomaly.domain.services.ensemble_aggregator import EnsembleAggregator
+from monorepo.domain.services.ensemble_aggregator import EnsembleAggregator
 
 # Domain services
-from pynomaly.domain.services.threshold_calculator import ThresholdCalculator
+from monorepo.domain.services.threshold_calculator import ThresholdCalculator
 
 # Domain value objects
-from pynomaly.domain.value_objects import (
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ConfidenceInterval,
     ContaminationRate,

@@ -13,12 +13,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from pynomaly.application.services.enterprise_dashboard_service import (
+from monorepo.application.services.enterprise_dashboard_service import (
     AlertPriority,
     DashboardMetricType,
     EnterpriseDashboardService,
 )
-from pynomaly.infrastructure.alerting import (
+from monorepo.infrastructure.alerting import (
     AlertCategory,
     AlertRule,
     AlertSeverity,
@@ -32,7 +32,7 @@ from pynomaly.infrastructure.alerting import (
 
 # Optional imports
 try:
-    from pynomaly.application.services.autonomous_service import (
+    from monorepo.application.services.autonomous_service import (
         AutonomousDetectionService,
     )
 
@@ -41,7 +41,7 @@ except ImportError:
     AUTONOMOUS_AVAILABLE = False
 
 try:
-    from pynomaly.infrastructure.monitoring import autonomous_monitor
+    from monorepo.infrastructure.monitoring import autonomous_monitor
 
     MONITORING_AVAILABLE = True
 except ImportError:

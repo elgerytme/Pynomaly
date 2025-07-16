@@ -6,7 +6,7 @@ import pytest
 from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
-from pynomaly.infrastructure.auth.enhanced_dependencies import (
+from monorepo.infrastructure.auth.enhanced_dependencies import (
     get_current_active_user,
     get_current_user,
     require_api_key,
@@ -16,10 +16,10 @@ from pynomaly.infrastructure.auth.enhanced_dependencies import (
     require_roles,
     require_superuser,
 )
-from pynomaly.infrastructure.auth.jwt_auth_enhanced import (
+from monorepo.infrastructure.auth.jwt_auth_enhanced import (
     init_auth,
 )
-from pynomaly.infrastructure.config import Settings
+from monorepo.infrastructure.config import Settings
 
 
 class TestRBACIntegration:
@@ -394,7 +394,7 @@ class TestJWKSEndpointIntegration:
     @pytest.fixture
     def app(self, auth_service):
         """Create test FastAPI app with JWKS endpoint."""
-        from pynomaly.presentation.api.endpoints.jwks import router
+        from monorepo.presentation.api.endpoints.jwks import router
 
         app = FastAPI()
         app.include_router(router)

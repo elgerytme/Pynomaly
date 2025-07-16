@@ -3,11 +3,11 @@
 
 import pytest
 
-from pynomaly.infrastructure.auth.jwt_auth import (
+from monorepo.infrastructure.auth.jwt_auth import (
     JWTAuthService,
     PasswordRotationStrategy,
 )
-from pynomaly.infrastructure.config.settings import Settings
+from monorepo.infrastructure.config.settings import Settings
 
 
 @pytest.fixture

@@ -9,7 +9,7 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from pynomaly.presentation.web.app import app
+from monorepo.presentation.web.app import app
 
 
 class TestHTMXDashboardEndpoints:

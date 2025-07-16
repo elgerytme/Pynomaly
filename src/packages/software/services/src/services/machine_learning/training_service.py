@@ -25,17 +25,17 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import train_test_split
 
-from pynomaly.application.dto.training_dto import TrainingConfigDTO, TrainingRequestDTO
-from pynomaly.application.services.algorithm_adapter_registry import AlgorithmAdapter
-from pynomaly.application.services.model_persistence_service import (
+from monorepo.application.dto.training_dto import TrainingConfigDTO, TrainingRequestDTO
+from monorepo.application.services.algorithm_adapter_registry import AlgorithmAdapter
+from monorepo.application.services.model_persistence_service import (
     ModelPersistenceService,
 )
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.model_version import ModelVersion
-from pynomaly.domain.value_objects.model_metrics import ModelMetrics
-from pynomaly.infrastructure.persistence.training_repository import TrainingRepository
-from pynomaly.shared.exceptions import DataValidationError, TrainingError
-from pynomaly.shared.protocols.repository_protocol import ModelRepositoryProtocol
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.model_version import ModelVersion
+from monorepo.domain.value_objects.model_metrics import ModelMetrics
+from monorepo.infrastructure.persistence.training_repository import TrainingRepository
+from monorepo.shared.exceptions import DataValidationError, TrainingError
+from monorepo.shared.protocols.repository_protocol import ModelRepositoryProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -223,8 +223,8 @@ class AutomatedTrainingService:
         # Create a detector with the best parameters
         from uuid import uuid4
 
-        from pynomaly.domain.entities.detector import Detector
-        from pynomaly.domain.value_objects import ContaminationRate
+        from monorepo.domain.entities.detector import Detector
+        from monorepo.domain.value_objects import ContaminationRate
 
         detector = Detector(
             id=uuid4(),
@@ -931,7 +931,7 @@ class AutomatedTrainingService:
         """Load dataset by ID."""
         # Try to load from dataset repository if available
         try:
-            from pynomaly.infrastructure.config.container import Container
+            from monorepo.infrastructure.config.container import Container
 
             # Get dataset repository from container
             container = Container()
@@ -1347,8 +1347,8 @@ class AutomatedTrainingService:
         """Create a temporary detector for hyperparameter optimization."""
         from uuid import uuid4
 
-        from pynomaly.domain.entities.detector import Detector
-        from pynomaly.domain.value_objects import ContaminationRate
+        from monorepo.domain.entities.detector import Detector
+        from monorepo.domain.value_objects import ContaminationRate
 
         return Detector(
             id=uuid4(),

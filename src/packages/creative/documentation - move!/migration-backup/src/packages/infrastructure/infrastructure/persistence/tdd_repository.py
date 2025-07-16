@@ -7,12 +7,12 @@ from datetime import datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
-from pynomaly.infrastructure.config.tdd_config import (
+from monorepo.infrastructure.config.tdd_config import (
     TDDComplianceReport,
     TDDViolation,
     TestRequirement,
 )
-from pynomaly.shared.protocols.repository_protocol import RepositoryProtocol
+from monorepo.shared.protocols.repository_protocol import RepositoryProtocol
 
 
 class TestDrivenDevelopmentRepositoryProtocol(RepositoryProtocol[TestRequirement]):

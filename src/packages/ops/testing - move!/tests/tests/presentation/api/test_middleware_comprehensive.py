@@ -15,10 +15,10 @@ from fastapi.testclient import TestClient
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
-from pynomaly.presentation.api.middleware.security_headers import (
+from monorepo.presentation.api.middleware.security_headers import (
     SecurityHeadersMiddleware,
 )
-from pynomaly.presentation.api.middleware_integration import (
+from monorepo.presentation.api.middleware_integration import (
     configure_cors,
     configure_rate_limiting,
     setup_middleware_stack,

@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from pynomaly.features.api_gateway import (
+from monorepo.features.api_gateway import (
     APIGateway,
     APIRequest,
     APIResponse,

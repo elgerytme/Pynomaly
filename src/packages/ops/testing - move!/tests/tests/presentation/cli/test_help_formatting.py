@@ -3,9 +3,9 @@
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.app import app
-from pynomaly.presentation.cli.detectors import app as detector_app
-from pynomaly.presentation.cli.help_formatter import (
+from monorepo.presentation.cli.app import app
+from monorepo.presentation.cli.detectors import app as detector_app
+from monorepo.presentation.cli.help_formatter import (
     STANDARD_HELP_TEXTS,
     STANDARD_OPTION_HELP,
     HelpFormatter,

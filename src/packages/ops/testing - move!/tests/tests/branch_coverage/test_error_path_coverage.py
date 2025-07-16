@@ -16,7 +16,7 @@ import pytest
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
 
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     ConfigurationError,
     InvalidAlgorithmError,
     ValidationError,
@@ -28,7 +28,7 @@ class TestFileOperationErrorPaths:
 
     def test_file_loading_error_paths(self):
         """Test file loading error scenarios."""
-        from pynomaly.infrastructure.data.loaders import FileLoader
+        from monorepo.infrastructure.data.loaders import FileLoader
 
         loader = FileLoader()
 
@@ -80,7 +80,7 @@ class TestFileOperationErrorPaths:
 
     def test_database_connection_error_paths(self):
         """Test database connection error scenarios."""
-        from pynomaly.infrastructure.data.database import DatabaseLoader
+        from monorepo.infrastructure.data.database import DatabaseLoader
 
         # Test connection timeout
         with patch("sqlalchemy.create_engine") as mock_engine:
@@ -122,7 +122,7 @@ class TestFileOperationErrorPaths:
 
     def test_serialization_error_paths(self):
         """Test serialization/deserialization error scenarios."""
-        from pynomaly.infrastructure.persistence.serializer import ModelSerializer
+        from monorepo.infrastructure.persistence.serializer import ModelSerializer
 
         serializer = ModelSerializer()
 
@@ -150,7 +150,7 @@ class TestFileOperationErrorPaths:
 
     def test_memory_error_paths(self):
         """Test memory-related error scenarios."""
-        from pynomaly.infrastructure.data.processors import DataProcessor
+        from monorepo.infrastructure.data.processors import DataProcessor
 
         processor = DataProcessor()
 
@@ -174,7 +174,7 @@ class TestConcurrencyErrorPaths:
 
     def test_thread_safety_error_paths(self):
         """Test thread safety error scenarios."""
-        from pynomaly.infrastructure.adapters.base_adapter import BaseAdapter
+        from monorepo.infrastructure.adapters.base_adapter import BaseAdapter
 
         adapter = BaseAdapter()
         errors = []
@@ -212,7 +212,7 @@ class TestConcurrencyErrorPaths:
 
     def test_deadlock_prevention(self):
         """Test deadlock prevention mechanisms."""
-        from pynomaly.infrastructure.concurrency.locks import DeadlockDetector
+        from monorepo.infrastructure.concurrency.locks import DeadlockDetector
 
         detector = DeadlockDetector()
 
@@ -257,7 +257,7 @@ class TestResourceExhaustionPaths:
 
     def test_file_descriptor_exhaustion(self):
         """Test file descriptor exhaustion handling."""
-        from pynomaly.infrastructure.resources.file_manager import FileManager
+        from monorepo.infrastructure.resources.file_manager import FileManager
 
         manager = FileManager()
         open_files = []
@@ -284,7 +284,7 @@ class TestResourceExhaustionPaths:
 
     def test_disk_space_exhaustion(self):
         """Test disk space exhaustion handling."""
-        from pynomaly.infrastructure.storage.manager import StorageManager
+        from monorepo.infrastructure.storage.manager import StorageManager
 
         manager = StorageManager()
 
@@ -298,7 +298,7 @@ class TestResourceExhaustionPaths:
 
     def test_network_timeout_paths(self):
         """Test network timeout error scenarios."""
-        from pynomaly.infrastructure.network.client import NetworkClient
+        from monorepo.infrastructure.network.client import NetworkClient
 
         client = NetworkClient()
 
@@ -338,7 +338,7 @@ class TestValidationErrorPaths:
 
     def test_data_type_validation_errors(self):
         """Test data type validation error paths."""
-        from pynomaly.infrastructure.validation.type_validator import TypeValidator
+        from monorepo.infrastructure.validation.type_validator import TypeValidator
 
         validator = TypeValidator()
 
@@ -375,7 +375,7 @@ class TestValidationErrorPaths:
 
     def test_parameter_validation_edge_cases(self):
         """Test parameter validation edge cases."""
-        from pynomaly.infrastructure.validation.parameter_validator import (
+        from monorepo.infrastructure.validation.parameter_validator import (
             ParameterValidator,
         )
 
@@ -411,7 +411,7 @@ class TestValidationErrorPaths:
 
     def test_schema_validation_errors(self):
         """Test schema validation error paths."""
-        from pynomaly.infrastructure.validation.schema_validator import SchemaValidator
+        from monorepo.infrastructure.validation.schema_validator import SchemaValidator
 
         validator = SchemaValidator()
 
@@ -449,7 +449,7 @@ class TestIntegrationErrorPaths:
 
     def test_adapter_integration_errors(self):
         """Test adapter integration error scenarios."""
-        from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+        from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
         # Test adapter with missing dependencies
         with patch("importlib.import_module") as mock_import:
@@ -489,7 +489,7 @@ class TestIntegrationErrorPaths:
 
     def test_pipeline_integration_errors(self):
         """Test pipeline integration error scenarios."""
-        from pynomaly.application.pipelines.detection_pipeline import DetectionPipeline
+        from monorepo.application.pipelines.detection_pipeline import DetectionPipeline
 
         pipeline = DetectionPipeline()
 
@@ -533,7 +533,7 @@ class TestIntegrationErrorPaths:
 
     def test_configuration_integration_errors(self):
         """Test configuration integration error scenarios."""
-        from pynomaly.infrastructure.config.manager import ConfigManager
+        from monorepo.infrastructure.config.manager import ConfigManager
 
         manager = ConfigManager()
 
@@ -573,7 +573,7 @@ class TestPerformanceErrorPaths:
 
     def test_timeout_error_paths(self):
         """Test timeout error scenarios."""
-        from pynomaly.infrastructure.performance.timeout_manager import TimeoutManager
+        from monorepo.infrastructure.performance.timeout_manager import TimeoutManager
 
         manager = TimeoutManager()
 
@@ -598,7 +598,7 @@ class TestPerformanceErrorPaths:
 
     def test_resource_limit_errors(self):
         """Test resource limit error scenarios."""
-        from pynomaly.infrastructure.performance.resource_monitor import ResourceMonitor
+        from monorepo.infrastructure.performance.resource_monitor import ResourceMonitor
 
         monitor = ResourceMonitor()
 

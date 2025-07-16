@@ -18,12 +18,12 @@ import pytest
 from fastapi.testclient import TestClient
 from typer.testing import CliRunner
 
-from pynomaly.presentation.api.app import create_app as create_api_app
-from pynomaly.presentation.cli.app import app as cli_app
-from pynomaly.presentation.sdk.async_client import AsyncPynomályClient
-from pynomaly.presentation.sdk.client import PynomályClient
-from pynomaly.presentation.sdk.config import SDKConfig
-from pynomaly.presentation.web.app import app as web_app
+from monorepo.presentation.api.app import create_app as create_api_app
+from monorepo.presentation.cli.app import app as cli_app
+from monorepo.presentation.sdk.async_client import AsyncPynomályClient
+from monorepo.presentation.sdk.client import PynomályClient
+from monorepo.presentation.sdk.config import SDKConfig
+from monorepo.presentation.web.app import app as web_app
 
 
 class TestCrossLayerCommunication:

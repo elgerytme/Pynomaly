@@ -3,7 +3,7 @@
 import pytest
 
 try:
-    from pynomaly.application.services.deep_learning_integration_service import (
+    from monorepo.application.services.deep_learning_integration_service import (
         DeepLearningIntegrationService,
     )
 

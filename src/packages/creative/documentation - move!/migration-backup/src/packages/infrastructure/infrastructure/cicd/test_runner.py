@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.models.cicd import PipelineStatus, TestResult, TestSuite, TestType
+from monorepo.domain.models.cicd import PipelineStatus, TestResult, TestSuite, TestType
 
 
 class TestRunner:

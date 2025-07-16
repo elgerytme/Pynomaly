@@ -10,8 +10,8 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly_detection.application.services.enhanced_automl_service import EnhancedAutoMLConfig
-from pynomaly_detection.infrastructure.config.container import create_container
+from monorepo.application.services.enhanced_automl_service import EnhancedAutoMLConfig
+from monorepo.infrastructure.config.container import create_container
 
 console = Console()
 
@@ -107,7 +107,7 @@ def optimize(
                 return
         else:
             # Configure enhanced AutoML
-            from pynomaly_detection.infrastructure.automl import (
+            from monorepo.infrastructure.automl import (
                 AcquisitionFunction,
                 OptimizationStrategy,
             )
@@ -222,7 +222,7 @@ def auto_optimize(
                 return
         else:
             # Configure enhanced AutoML
-            from pynomaly_detection.infrastructure.automl import OptimizationStrategy
+            from monorepo.infrastructure.automl import OptimizationStrategy
 
             strategy_enum = OptimizationStrategy(strategy)
 

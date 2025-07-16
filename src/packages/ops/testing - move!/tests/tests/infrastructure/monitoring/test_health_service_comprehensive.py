@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.infrastructure.monitoring.health_service import (
+from monorepo.infrastructure.monitoring.health_service import (
     HealthCheck,
     HealthService,
     HealthStatus,
@@ -106,7 +106,7 @@ class TestHealthService:
         assert service.max_history == 100
         assert service._check_history == []
 
-    @patch("pynomaly.infrastructure.monitoring.health_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.health_service.psutil")
     def test_check_system_resources_healthy(self, mock_psutil):
         """Test system resources check with healthy status."""
         # Mock psutil responses
@@ -148,7 +148,7 @@ class TestHealthService:
         assert "Disk usage: 50.0%" in disk_check.message
         assert disk_check.details["disk_percent"] == 50.0
 
-    @patch("pynomaly.infrastructure.monitoring.health_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.health_service.psutil")
     def test_check_system_resources_degraded(self, mock_psutil):
         """Test system resources check with degraded status."""
         # Mock psutil responses for degraded state
@@ -180,7 +180,7 @@ class TestHealthService:
         disk_check = checks["disk"]
         assert disk_check.status == HealthStatus.DEGRADED
 
-    @patch("pynomaly.infrastructure.monitoring.health_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.health_service.psutil")
     def test_check_system_resources_unhealthy(self, mock_psutil):
         """Test system resources check with unhealthy status."""
         # Mock psutil responses for unhealthy state
@@ -212,7 +212,7 @@ class TestHealthService:
         disk_check = checks["disk"]
         assert disk_check.status == HealthStatus.UNHEALTHY
 
-    @patch("pynomaly.infrastructure.monitoring.health_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.health_service.psutil")
     def test_check_system_resources_exception(self, mock_psutil):
         """Test system resources check with exception."""
         # Mock psutil to raise exception
@@ -381,7 +381,7 @@ class TestHealthService:
         assert redis_check.status == HealthStatus.UNHEALTHY
         assert "Redis ping failed" in redis_check.message
 
-    @patch("pynomaly.infrastructure.monitoring.health_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.health_service.psutil")
     def test_check_application_health(self, mock_psutil):
         """Test application health check."""
         # Mock psutil Process
@@ -413,7 +413,7 @@ class TestHealthService:
         assert memory_check.details["rss_mb"] == 256.0
         assert memory_check.details["num_threads"] == 10
 
-    @patch("pynomaly.infrastructure.monitoring.health_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.health_service.psutil")
     def test_check_application_health_high_memory(self, mock_psutil):
         """Test application health check with high memory usage."""
         # Mock psutil Process with high memory usage
@@ -434,7 +434,7 @@ class TestHealthService:
         assert memory_check.status == HealthStatus.UNHEALTHY
         assert "Process using 1536.0MB" in memory_check.message
 
-    @patch("pynomaly.infrastructure.monitoring.health_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.health_service.psutil")
     def test_check_application_health_exception(self, mock_psutil):
         """Test application health check with exception."""
         # Mock psutil to raise exception
@@ -614,7 +614,7 @@ class TestHealthService:
         overall_status = service.get_overall_status({})
         assert overall_status == HealthStatus.UNKNOWN
 
-    @patch("pynomaly.infrastructure.monitoring.health_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.health_service.psutil")
     def test_get_system_metrics(self, mock_psutil):
         """Test getting system metrics."""
         # Mock psutil responses
@@ -653,7 +653,7 @@ class TestHealthService:
         assert metrics.process_count == 100
         assert metrics.uptime_seconds >= 0
 
-    @patch("pynomaly.infrastructure.monitoring.health_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.health_service.psutil")
     def test_get_system_metrics_windows(self, mock_psutil):
         """Test getting system metrics on Windows (no load average)."""
         # Mock psutil responses for Windows
@@ -684,7 +684,7 @@ class TestHealthService:
 
         assert metrics.load_average == [0.0, 0.0, 0.0]
 
-    @patch("pynomaly.infrastructure.monitoring.health_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.health_service.psutil")
     def test_get_system_metrics_network_error(self, mock_psutil):
         """Test getting system metrics with network error."""
         # Mock psutil responses
@@ -708,7 +708,7 @@ class TestHealthService:
 
         assert metrics.network_io == {"bytes_sent": 0, "bytes_recv": 0}
 
-    @patch("pynomaly.infrastructure.monitoring.health_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.health_service.psutil")
     def test_get_system_metrics_exception(self, mock_psutil):
         """Test getting system metrics with exception."""
         # Mock psutil to raise exception

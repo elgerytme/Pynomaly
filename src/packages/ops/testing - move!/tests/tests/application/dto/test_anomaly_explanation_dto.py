@@ -8,7 +8,7 @@ serialization, and behavior across all use cases.
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto.explainability_dto import AnomalyExplanationDTO
+from monorepo.application.dto.explainability_dto import AnomalyExplanationDTO
 
 
 class TestAnomalyExplanationDTO:

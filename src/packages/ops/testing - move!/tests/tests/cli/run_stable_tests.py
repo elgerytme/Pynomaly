@@ -98,7 +98,7 @@ def run_coverage_analysis():
 
         # This would integrate with pytest-cov if available
         cov_args = [
-            "--cov=pynomaly.presentation.cli",
+            "--cov=monorepo.presentation.cli",
             "--cov-report=term-missing",
             "--cov-report=html:htmlcov",
             "--cov-fail-under=70",  # Require 70% coverage
@@ -150,7 +150,7 @@ def validate_test_environment():
 
     # Check CLI modules can be imported
     try:
-        from pynomaly.presentation.cli.app import app
+        from monorepo.presentation.cli.app import app
 
         print("✅ CLI modules importable")
     except ImportError as e:

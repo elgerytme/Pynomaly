@@ -93,7 +93,7 @@ python_library(
 # ==========================================
 
 python_binary(
-    name = "pynomaly",
+    name = "monorepo",
     main = "cli/app.py",
     deps = [":cli"],
     visibility = ["PUBLIC"],
@@ -101,11 +101,11 @@ python_binary(
 
 # Development CLI Binary (with debug flags)
 python_binary(
-    name = "pynomaly-dev",
+    name = "monorepo-dev",
     main = "cli/app.py",
     deps = [":cli"],
     env = {
-        "PYNOMALY_ENV": "development",
+        "MONOREPO_ENV": "development",
         "DEBUG": "true",
         "TYPER_COMPLETION": "false",
     },

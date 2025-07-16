@@ -73,7 +73,7 @@ class ComprehensiveAuditEvent:
     timestamp: datetime = field(default_factory=datetime.utcnow)
     user_id: Optional[str] = None
     session_id: Optional[str] = None
-    source_system: str = "pynomaly"
+    source_system: str = "monorepo"
     resource_id: Optional[str] = None
     resource_type: Optional[str] = None
     action: str = ""

@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
 @dataclass

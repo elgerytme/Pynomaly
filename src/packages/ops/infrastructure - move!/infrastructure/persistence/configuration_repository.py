@@ -13,7 +13,7 @@ from uuid import UUID
 import aiofiles
 import aiofiles.os
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     ConfigurationCollectionDTO,
     ConfigurationSearchRequestDTO,
     ConfigurationSource,

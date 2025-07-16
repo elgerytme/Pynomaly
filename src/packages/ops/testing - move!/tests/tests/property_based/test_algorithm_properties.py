@@ -13,8 +13,8 @@ from sklearn.datasets import make_classification
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.value_objects import ContaminationRate
 
 
 # Data generation strategies
@@ -145,7 +145,7 @@ class TestAlgorithmUniversalProperties:
     def test_algorithm_score_range(self, dataset, algorithm_name):
         """Anomaly scores should always be in a reasonable range."""
         try:
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 
@@ -200,7 +200,7 @@ class TestAlgorithmUniversalProperties:
     def test_algorithm_determinism(self, dataset, algorithm_name):
         """Algorithm should be deterministic when random_state is set."""
         try:
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 
@@ -255,7 +255,7 @@ class TestAlgorithmUniversalProperties:
     def test_algorithm_monotonicity_with_contamination(self, dataset, algorithm_name):
         """Algorithm behavior should be monotonic with contamination rate."""
         try:
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 
@@ -311,7 +311,7 @@ class TestDataQualityProperties:
     def test_algorithm_with_constant_features(self, n_samples, n_features, noise_level):
         """Algorithm should handle datasets with constant features gracefully."""
         try:
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 
@@ -358,7 +358,7 @@ class TestDataQualityProperties:
     ):
         """Algorithm should handle correlated features appropriately."""
         try:
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 
@@ -406,7 +406,7 @@ class TestScalingProperties:
     def test_algorithm_scale_invariance(self, n_samples, n_features, scale_factor):
         """Test algorithm behavior under different data scales."""
         try:
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 
@@ -457,7 +457,7 @@ class TestRobustnessProperties:
     ):
         """Algorithm should be robust to the presence of outliers."""
         try:
-            from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+            from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                 PyODAdapter,
             )
 

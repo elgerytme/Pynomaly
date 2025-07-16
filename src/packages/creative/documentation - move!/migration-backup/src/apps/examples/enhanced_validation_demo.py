@@ -21,7 +21,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
-from pynomaly.presentation.cli.validation import (
+from monorepo.presentation.cli.validation import (
     EnhancedValidator,
     GitHubCommentGenerator,
     RichOutputFormatter,
@@ -256,7 +256,7 @@ def demo_pre_commit_integration():
     )
 
     # Check pre-commit status
-    from pynomaly.presentation.cli.validation import (
+    from monorepo.presentation.cli.validation import (
         check_pre_commit_installed,
         show_pre_commit_reminder,
     )
@@ -290,7 +290,7 @@ def demo_pre_commit_integration():
   hooks:
     - id: enhanced-validation
       name: Enhanced Validation with Rich Output
-      entry: python -m pynomaly.presentation.cli.app validate run --format rich
+      entry: python -m monorepo.presentation.cli.app validate run --format rich
       language: python
       pass_filenames: false
       always_run: true

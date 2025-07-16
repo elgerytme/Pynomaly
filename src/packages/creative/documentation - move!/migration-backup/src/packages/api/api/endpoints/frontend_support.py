@@ -7,7 +7,7 @@ from typing import Any
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
 
-from pynomaly.presentation.api.middleware import CSPViolationReporter
+from monorepo.presentation.api.middleware import CSPViolationReporter
 
 router = APIRouter(prefix="/api", tags=["Frontend Support"])
 
@@ -213,7 +213,7 @@ async def get_monitoring_dashboard(request: Request):
     This endpoint provides real-time monitoring data for the web UI
     including performance metrics, security events, and system health.
     """
-    from pynomaly.presentation.web.monitoring import (
+    from monorepo.presentation.web.monitoring import (
         performance_monitor,
         security_monitor,
     )
@@ -246,7 +246,7 @@ async def report_performance_data(request: Request, data: dict):
     This endpoint receives comprehensive performance data including
     page load times, resource timings, and user interaction metrics.
     """
-    from pynomaly.presentation.web.monitoring import performance_monitor
+    from monorepo.presentation.web.monitoring import performance_monitor
 
     # Process different types of performance data
     if "page_load_time" in data:
@@ -275,7 +275,7 @@ async def report_security_data(request: Request, data: dict):
     This endpoint receives security-related events and threat detection
     data from the frontend security monitoring system.
     """
-    from pynomaly.presentation.web.monitoring import security_monitor
+    from monorepo.presentation.web.monitoring import security_monitor
 
     # Record security event
     security_monitor.record_security_event(
@@ -295,7 +295,7 @@ async def report_security_data(request: Request, data: dict):
 async def get_error_metrics(request: Request):
     """Get error monitoring metrics."""
     try:
-        from pynomaly.presentation.web.error_handling import get_error_monitor
+        from monorepo.presentation.web.error_handling import get_error_monitor
 
         monitor = get_error_monitor()
         return monitor.get_metrics()
@@ -307,7 +307,7 @@ async def get_error_metrics(request: Request):
 async def get_error_history(request: Request, limit: int = 100):
     """Get error monitoring history."""
     try:
-        from pynomaly.presentation.web.error_handling import get_error_monitor
+        from monorepo.presentation.web.error_handling import get_error_monitor
 
         monitor = get_error_monitor()
         return {"errors": monitor.get_recent_errors(limit)}
@@ -319,7 +319,7 @@ async def get_error_history(request: Request, limit: int = 100):
 async def get_error_trends(request: Request):
     """Get error monitoring trends."""
     try:
-        from pynomaly.presentation.web.error_handling import get_error_monitor
+        from monorepo.presentation.web.error_handling import get_error_monitor
 
         monitor = get_error_monitor()
         return monitor.get_error_trends()
@@ -331,7 +331,7 @@ async def get_error_trends(request: Request):
 async def report_frontend_error(request: Request, error_data: dict):
     """Report frontend error for monitoring."""
     try:
-        from pynomaly.presentation.web.error_handling import (
+        from monorepo.presentation.web.error_handling import (
             ErrorCode,
             ErrorLevel,
             create_web_ui_error,
@@ -363,7 +363,7 @@ async def report_frontend_error(request: Request, error_data: dict):
 async def get_security_events(request: Request, limit: int = 100):
     """Get recent security events for monitoring."""
     try:
-        from pynomaly.presentation.web.security_features import get_security_middleware
+        from monorepo.presentation.web.security_features import get_security_middleware
 
         middleware = get_security_middleware()
         events = middleware.get_security_events(limit)
@@ -376,7 +376,7 @@ async def get_security_events(request: Request, limit: int = 100):
 async def get_security_metrics(request: Request):
     """Get security metrics and statistics."""
     try:
-        from pynomaly.presentation.web.security_features import get_security_middleware
+        from monorepo.presentation.web.security_features import get_security_middleware
 
         middleware = get_security_middleware()
         metrics = middleware.get_security_metrics()
@@ -389,7 +389,7 @@ async def get_security_metrics(request: Request):
 async def get_rate_limit_status(request: Request, ip: str):
     """Get rate limit status for specific IP."""
     try:
-        from pynomaly.presentation.web.security_features import get_rate_limiter
+        from monorepo.presentation.web.security_features import get_rate_limiter
 
         rate_limiter = get_rate_limiter()
         endpoint = request.url.path

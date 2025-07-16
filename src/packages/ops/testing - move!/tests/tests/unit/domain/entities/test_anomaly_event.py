@@ -11,7 +11,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from src.pynomaly.domain.entities.anomaly_event import (
+from src.monorepo.domain.entities.anomaly_event import (
     AnomalyEvent,
     AnomalyEventData,
     DataQualityEventData,
@@ -578,7 +578,7 @@ class TestAnomalyEvent:
         user = "admin"
         notes = "Investigating the issue"
 
-        with patch('src.pynomaly.domain.entities.anomaly_event.datetime') as mock_datetime:
+        with patch('src.monorepo.domain.entities.anomaly_event.datetime') as mock_datetime:
             mock_now = datetime(2024, 1, 1, 12, 0, 0)
             mock_datetime.utcnow.return_value = mock_now
 
@@ -602,7 +602,7 @@ class TestAnomalyEvent:
 
         user = "admin"
 
-        with patch('src.pynomaly.domain.entities.anomaly_event.datetime') as mock_datetime:
+        with patch('src.monorepo.domain.entities.anomaly_event.datetime') as mock_datetime:
             mock_now = datetime(2024, 1, 1, 12, 0, 0)
             mock_datetime.utcnow.return_value = mock_now
 
@@ -627,7 +627,7 @@ class TestAnomalyEvent:
         user = "admin"
         notes = "Issue resolved by restarting service"
 
-        with patch('src.pynomaly.domain.entities.anomaly_event.datetime') as mock_datetime:
+        with patch('src.monorepo.domain.entities.anomaly_event.datetime') as mock_datetime:
             mock_now = datetime(2024, 1, 1, 12, 0, 0)
             mock_datetime.utcnow.return_value = mock_now
 
@@ -651,7 +651,7 @@ class TestAnomalyEvent:
 
         user = "admin"
 
-        with patch('src.pynomaly.domain.entities.anomaly_event.datetime') as mock_datetime:
+        with patch('src.monorepo.domain.entities.anomaly_event.datetime') as mock_datetime:
             mock_now = datetime(2024, 1, 1, 12, 0, 0)
             mock_datetime.utcnow.return_value = mock_now
 
@@ -676,7 +676,7 @@ class TestAnomalyEvent:
         user = "admin"
         reason = "False positive"
 
-        with patch('src.pynomaly.domain.entities.anomaly_event.datetime') as mock_datetime:
+        with patch('src.monorepo.domain.entities.anomaly_event.datetime') as mock_datetime:
             mock_now = datetime(2024, 1, 1, 12, 0, 0)
             mock_datetime.utcnow.return_value = mock_now
 
@@ -700,7 +700,7 @@ class TestAnomalyEvent:
 
         user = "admin"
 
-        with patch('src.pynomaly.domain.entities.anomaly_event.datetime') as mock_datetime:
+        with patch('src.monorepo.domain.entities.anomaly_event.datetime') as mock_datetime:
             mock_now = datetime(2024, 1, 1, 12, 0, 0)
             mock_datetime.utcnow.return_value = mock_now
 
@@ -722,7 +722,7 @@ class TestAnomalyEvent:
             event_time=datetime.utcnow()
         )
 
-        with patch('src.pynomaly.domain.entities.anomaly_event.datetime') as mock_datetime:
+        with patch('src.monorepo.domain.entities.anomaly_event.datetime') as mock_datetime:
             mock_now = datetime(2024, 1, 1, 12, 0, 0)
             mock_datetime.utcnow.return_value = mock_now
 
@@ -885,7 +885,7 @@ class TestAnomalyEvent:
             event_time=event_time
         )
 
-        with patch('src.pynomaly.domain.entities.anomaly_event.datetime') as mock_datetime:
+        with patch('src.monorepo.domain.entities.anomaly_event.datetime') as mock_datetime:
             mock_now = event_time + timedelta(minutes=30)
             mock_datetime.utcnow.return_value = mock_now
 
@@ -941,7 +941,7 @@ class TestAnomalyEvent:
             processing_time=processing_time
         )
 
-        with patch('src.pynomaly.domain.entities.anomaly_event.datetime') as mock_datetime:
+        with patch('src.monorepo.domain.entities.anomaly_event.datetime') as mock_datetime:
             mock_now = processing_time + timedelta(minutes=15)
             mock_datetime.utcnow.return_value = mock_now
 

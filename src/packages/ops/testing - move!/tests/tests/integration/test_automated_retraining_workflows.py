@@ -10,18 +10,18 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime, timedelta
 from typing import List, Dict, Any
 
-from src.pynomaly.application.services.automated_retraining_orchestrator import (
+from src.monorepo.application.services.automated_retraining_orchestrator import (
     AutomatedRetrainingOrchestrator,
     WorkflowConfig,
     WorkflowType,
     WorkflowStatus,
     WorkflowExecution
 )
-from src.pynomaly.application.services.retraining_workflow_templates import (
+from src.monorepo.application.services.retraining_workflow_templates import (
     RetrainingWorkflowTemplates,
     WorkflowConfigurationHelper
 )
-from src.pynomaly.application.services.automated_retraining_service import (
+from src.monorepo.application.services.automated_retraining_service import (
     AutomatedRetrainingService,
     RetrainingTrigger,
     RetrainingResult

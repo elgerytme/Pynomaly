@@ -192,7 +192,7 @@ class TestDataIsolation:
     def test_dataset_isolation(self, isolation_tester, tenant_contexts):
         """Test dataset isolation between tenants."""
         
-        with patch('pynomaly.infrastructure.persistence.multi_tenant_repository.MultiTenantRepository') as mock_repo:
+        with patch('monorepo.infrastructure.persistence.multi_tenant_repository.MultiTenantRepository') as mock_repo:
             # Mock repository to simulate tenant isolation
             def mock_get_datasets(tenant_id: str):
                 # Return different datasets for different tenants
@@ -263,7 +263,7 @@ class TestDataIsolation:
     def test_detector_isolation(self, isolation_tester, tenant_contexts):
         """Test detector isolation between tenants."""
         
-        with patch('pynomaly.infrastructure.persistence.multi_tenant_repository.MultiTenantRepository') as mock_repo:
+        with patch('monorepo.infrastructure.persistence.multi_tenant_repository.MultiTenantRepository') as mock_repo:
             # Mock detector repository
             def mock_get_detectors(tenant_id: str):
                 detectors = {
@@ -293,7 +293,7 @@ class TestDataIsolation:
                         violations.append(f"Detector {detector.id} with tenant_id {detector.tenant_id} accessible by {tenant_id}")
                 
                 # Test cross-tenant detector access
-                with patch('pynomaly.application.services.detector_service.DetectorService') as mock_service:
+                with patch('monorepo.application.services.detector_service.DetectorService') as mock_service:
                     mock_service.return_value.get_detector_by_id.side_effect = lambda detector_id, tenant_id: self._check_detector_access(detector_id, tenant_id)
                     
                     # Try to access detectors from other tenants
@@ -350,7 +350,7 @@ class TestDataIsolation:
     def test_detection_results_isolation(self, isolation_tester, tenant_contexts):
         """Test detection results isolation between tenants."""
         
-        with patch('pynomaly.infrastructure.persistence.multi_tenant_repository.MultiTenantRepository') as mock_repo:
+        with patch('monorepo.infrastructure.persistence.multi_tenant_repository.MultiTenantRepository') as mock_repo:
             # Mock results repository
             def mock_get_results(tenant_id: str):
                 results = {
@@ -380,7 +380,7 @@ class TestDataIsolation:
                         violations.append(f"Result {result.id} with tenant_id {result.tenant_id} accessible by {tenant_id}")
                 
                 # Test cross-tenant result access
-                with patch('pynomaly.application.services.detection_service.DetectionService') as mock_service:
+                with patch('monorepo.application.services.detection_service.DetectionService') as mock_service:
                     mock_service.return_value.get_result_by_id.side_effect = lambda result_id, tenant_id: self._check_result_access(result_id, tenant_id)
                     
                     # Try to access results from other tenants
@@ -463,7 +463,7 @@ class TestSecurityIsolation:
     def test_authentication_isolation(self, isolation_tester, tenant_contexts):
         """Test authentication isolation between tenants."""
         
-        with patch('pynomaly.infrastructure.security.auth_provider.AuthProvider') as mock_auth:
+        with patch('monorepo.infrastructure.security.auth_provider.AuthProvider') as mock_auth:
             # Mock authentication provider
             def mock_authenticate(username: str, password: str, tenant_id: str):
                 # Define users for each tenant
@@ -533,7 +533,7 @@ class TestSecurityIsolation:
     def test_authorization_isolation(self, isolation_tester, tenant_contexts):
         """Test authorization isolation between tenants."""
         
-        with patch('pynomaly.infrastructure.security.rbac.RoleBasedAccessControl') as mock_rbac:
+        with patch('monorepo.infrastructure.security.rbac.RoleBasedAccessControl') as mock_rbac:
             # Mock RBAC system
             def mock_check_permission(user_id: str, resource: str, action: str, tenant_id: str):
                 # Define permissions for each tenant
@@ -603,7 +603,7 @@ class TestSecurityIsolation:
     def test_session_isolation(self, isolation_tester, tenant_contexts):
         """Test session isolation between tenants."""
         
-        with patch('pynomaly.infrastructure.security.session_manager.SessionManager') as mock_session:
+        with patch('monorepo.infrastructure.security.session_manager.SessionManager') as mock_session:
             # Mock session manager
             def mock_create_session(user_id: str, tenant_id: str):
                 session_id = f"session_{user_id}_{tenant_id}"
@@ -708,7 +708,7 @@ class TestResourceIsolation:
     def test_storage_isolation(self, isolation_tester, tenant_contexts):
         """Test storage isolation and limits between tenants."""
         
-        with patch('pynomaly.infrastructure.storage.tenant_storage_manager.TenantStorageManager') as mock_storage:
+        with patch('monorepo.infrastructure.storage.tenant_storage_manager.TenantStorageManager') as mock_storage:
             # Mock storage manager
             def mock_get_storage_usage(tenant_id: str):
                 # Simulate different storage usage
@@ -761,7 +761,7 @@ class TestResourceIsolation:
                             # This should be isolated - we shouldn't be able to get accurate usage
                             if other_usage > 0:
                                 # Check if we can modify other tenant's storage
-                                with patch('pynomaly.infrastructure.storage.tenant_storage_manager.TenantStorageManager.delete_tenant_data') as mock_delete:
+                                with patch('monorepo.infrastructure.storage.tenant_storage_manager.TenantStorageManager.delete_tenant_data') as mock_delete:
                                     mock_delete.side_effect = lambda tid: tid == tenant_id  # Only allow own tenant
                                     
                                     can_delete = mock_delete(other_tenant_id)
@@ -792,7 +792,7 @@ class TestResourceIsolation:
     def test_compute_isolation(self, isolation_tester, tenant_contexts):
         """Test compute resource isolation between tenants."""
         
-        with patch('pynomaly.infrastructure.compute.tenant_compute_manager.TenantComputeManager') as mock_compute:
+        with patch('monorepo.infrastructure.compute.tenant_compute_manager.TenantComputeManager') as mock_compute:
             # Mock compute manager
             def mock_get_compute_usage(tenant_id: str):
                 # Simulate different compute usage
@@ -839,7 +839,7 @@ class TestResourceIsolation:
                         violations.append(f"Basic tenant {tenant_id} can use too many resources")
                 
                 # Test compute isolation
-                with patch('pynomaly.infrastructure.compute.resource_allocator.ResourceAllocator') as mock_allocator:
+                with patch('monorepo.infrastructure.compute.resource_allocator.ResourceAllocator') as mock_allocator:
                     mock_allocator.return_value.allocate_resources.side_effect = lambda tid, resources: tid == tenant_id
                     
                     # Try to allocate resources for other tenants
@@ -873,7 +873,7 @@ class TestResourceIsolation:
     def test_api_rate_limiting_isolation(self, isolation_tester, tenant_contexts):
         """Test API rate limiting isolation between tenants."""
         
-        with patch('pynomaly.infrastructure.rate_limiting.tenant_rate_limiter.TenantRateLimiter') as mock_limiter:
+        with patch('monorepo.infrastructure.rate_limiting.tenant_rate_limiter.TenantRateLimiter') as mock_limiter:
             # Mock rate limiter
             def mock_check_rate_limit(tenant_id: str, endpoint: str):
                 context = tenant_contexts.get(tenant_id)
@@ -907,7 +907,7 @@ class TestResourceIsolation:
                         violations.append(f"Rate limiting incorrectly blocking tenant {tenant_id}")
                 
                 # Test cross-tenant rate limit isolation
-                with patch('pynomaly.infrastructure.rate_limiting.rate_limit_storage.RateLimitStorage') as mock_storage:
+                with patch('monorepo.infrastructure.rate_limiting.rate_limit_storage.RateLimitStorage') as mock_storage:
                     mock_storage.return_value.get_usage.side_effect = lambda tid, endpoint: tid == tenant_id
                     
                     # Try to access other tenant's rate limit data
@@ -975,7 +975,7 @@ class TestConfigurationIsolation:
     def test_feature_isolation(self, isolation_tester, tenant_contexts):
         """Test feature configuration isolation between tenants."""
         
-        with patch('pynomaly.infrastructure.config.tenant_config_manager.TenantConfigManager') as mock_config:
+        with patch('monorepo.infrastructure.config.tenant_config_manager.TenantConfigManager') as mock_config:
             # Mock config manager
             def mock_get_tenant_config(tenant_id: str):
                 context = tenant_contexts.get(tenant_id)
@@ -1009,7 +1009,7 @@ class TestConfigurationIsolation:
                             violations.append(f"Feature {feature} should be disabled for tenant {tenant_id}")
                 
                 # Test cross-tenant feature access
-                with patch('pynomaly.application.services.feature_service.FeatureService') as mock_feature:
+                with patch('monorepo.application.services.feature_service.FeatureService') as mock_feature:
                     mock_feature.return_value.check_feature_access.side_effect = lambda tid, feature: mock_is_feature_enabled(tid, feature)
                     
                     # Try to access other tenant's features
@@ -1043,7 +1043,7 @@ class TestConfigurationIsolation:
     def test_ui_customization_isolation(self, isolation_tester, tenant_contexts):
         """Test UI customization isolation between tenants."""
         
-        with patch('pynomaly.infrastructure.ui.tenant_ui_manager.TenantUIManager') as mock_ui:
+        with patch('monorepo.infrastructure.ui.tenant_ui_manager.TenantUIManager') as mock_ui:
             # Mock UI manager
             def mock_get_ui_config(tenant_id: str):
                 context = tenant_contexts.get(tenant_id)
@@ -1089,7 +1089,7 @@ class TestConfigurationIsolation:
                         violations.append(f"UI branding not isolated for tenant {tenant_id}: logo {logo}")
                 
                 # Test cross-tenant UI access
-                with patch('pynomaly.presentation.web.ui_renderer.UIRenderer') as mock_renderer:
+                with patch('monorepo.presentation.web.ui_renderer.UIRenderer') as mock_renderer:
                     mock_renderer.return_value.render_for_tenant.side_effect = lambda tid: mock_get_ui_config(tid)
                     
                     # Try to render UI for other tenants

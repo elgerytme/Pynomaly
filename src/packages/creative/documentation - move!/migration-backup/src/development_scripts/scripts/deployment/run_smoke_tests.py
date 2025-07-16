@@ -91,7 +91,7 @@ class SmokeTestRunner:
                 test_type="cli",
                 command=(
                     "./environments/.venv/bin/python -m "
-                    "pynomaly.presentation.cli.app --help"
+                    "monorepo.presentation.cli.app --help"
                 ),
                 timeout=30,
             ),
@@ -100,33 +100,33 @@ class SmokeTestRunner:
                 test_type="cli",
                 command=(
                     './environments/.venv/bin/python -c '
-                    '"from pynomaly._version import __version__; print(__version__)"'
+                    '"from monorepo._version import __version__; print(__version__)"'
                 ),
                 timeout=30,
             ),
             SmokeTest(
                 name="CLI Health Check",
                 test_type="cli",
-                command="./environments/.venv/bin/python -c \"from pynomaly.presentation.cli.app import app; print('CLI app import successful')\"",
+                command="./environments/.venv/bin/python -c \"from monorepo.presentation.cli.app import app; print('CLI app import successful')\"",
                 timeout=30,
             ),
             # Integration Tests
             SmokeTest(
                 name="Core Imports Test",
                 test_type="integration",
-                command="./environments/.venv/bin/python -c \"from pynomaly.domain.entities import Detector; print('Core imports successful')\"",
+                command="./environments/.venv/bin/python -c \"from monorepo.domain.entities import Detector; print('Core imports successful')\"",
                 timeout=30,
             ),
             SmokeTest(
                 name="Infrastructure Test",
                 test_type="integration",
-                command="./environments/.venv/bin/python -c \"from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter; print('Infrastructure imports successful')\"",
+                command="./environments/.venv/bin/python -c \"from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter; print('Infrastructure imports successful')\"",
                 timeout=30,
             ),
             SmokeTest(
                 name="Application Services Test",
                 test_type="integration",
-                command="./environments/.venv/bin/python -c \"from pynomaly.application.services.detection_service import DetectionService; print('Application services imports successful')\"",
+                command="./environments/.venv/bin/python -c \"from monorepo.application.services.detection_service import DetectionService; print('Application services imports successful')\"",
                 timeout=30,
                 required=False,
             ),

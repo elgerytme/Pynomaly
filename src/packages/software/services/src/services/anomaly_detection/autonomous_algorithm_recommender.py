@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pynomaly.application.services.autonomous_detection_config import (
+from monorepo.application.services.autonomous_detection_config import (
     AlgorithmRecommendation,
     AutonomousConfig,
     DataProfile,

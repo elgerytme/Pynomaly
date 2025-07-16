@@ -10,8 +10,8 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.domain.exceptions import DatasetError, DetectorError, ValidationError
-from pynomaly.presentation.cli.export import export_app
+from monorepo.domain.exceptions import DatasetError, DetectorError, ValidationError
+from monorepo.presentation.cli.export import export_app
 
 
 class TestExportCommand:
@@ -25,25 +25,25 @@ class TestExportCommand:
     @pytest.fixture
     def mock_export_service(self):
         """Mock export service."""
-        with patch("pynomaly.presentation.cli.export.export_service") as mock:
+        with patch("monorepo.presentation.cli.export.export_service") as mock:
             yield mock
 
     @pytest.fixture
     def mock_detector_service(self):
         """Mock detector service."""
-        with patch("pynomaly.presentation.cli.export.detector_service") as mock:
+        with patch("monorepo.presentation.cli.export.detector_service") as mock:
             yield mock
 
     @pytest.fixture
     def mock_dataset_service(self):
         """Mock dataset service."""
-        with patch("pynomaly.presentation.cli.export.dataset_service") as mock:
+        with patch("monorepo.presentation.cli.export.dataset_service") as mock:
             yield mock
 
     @pytest.fixture
     def mock_container(self):
         """Mock CLI container."""
-        with patch("pynomaly.presentation.cli.export.get_cli_container") as mock:
+        with patch("monorepo.presentation.cli.export.get_cli_container") as mock:
             container = Mock()
             container.config.return_value.storage_path = Path("/tmp/pynomaly")
             container.config.return_value.export_formats = [

@@ -17,10 +17,10 @@ import pytest
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
 
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     ValidationError,
 )
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.value_objects import ContaminationRate
 
 
 class TestDomainEntityBranches:
@@ -28,7 +28,7 @@ class TestDomainEntityBranches:
 
     def test_dataset_validation_branches(self):
         """Test Dataset validation conditional branches."""
-        from pynomaly.domain.entities import Dataset
+        from monorepo.domain.entities import Dataset
 
         # Test valid dataset creation
         valid_data = pd.DataFrame(
@@ -89,7 +89,7 @@ class TestDomainEntityBranches:
 
     def test_contamination_rate_validation_branches(self):
         """Test ContaminationRate validation branches."""
-        from pynomaly.domain.value_objects import ContaminationRate
+        from monorepo.domain.value_objects import ContaminationRate
 
         # Test valid contamination rates
         valid_rates = [0.01, 0.1, 0.3, 0.49]
@@ -132,7 +132,7 @@ class TestDomainEntityBranches:
 
     def test_anomaly_score_validation_branches(self):
         """Test AnomalyScore validation branches."""
-        from pynomaly.domain.value_objects import AnomalyScore
+        from monorepo.domain.value_objects import AnomalyScore
 
         # Test valid scores
         valid_scores = [0.0, 0.5, 1.0, 0.123, 0.999]
@@ -175,7 +175,7 @@ class TestDomainEntityBranches:
 
     def test_detector_state_branches(self):
         """Test Detector state management branches."""
-        from pynomaly.domain.entities import Detector
+        from monorepo.domain.entities import Detector
 
         # Test detector creation with minimal parameters
         detector = Detector(name="test_detector", algorithm_name="test_algorithm")
@@ -221,8 +221,8 @@ class TestDomainEntityBranches:
 
     def test_detection_result_branches(self):
         """Test DetectionResult conditional branches."""
-        from pynomaly.domain.entities import Anomaly, DetectionResult
-        from pynomaly.domain.value_objects import AnomalyScore
+        from monorepo.domain.entities import Anomaly, DetectionResult
+        from monorepo.domain.value_objects import AnomalyScore
 
         # Create test data
         scores = [
@@ -281,7 +281,7 @@ class TestExceptionHandlingBranches:
 
     def test_detector_not_fitted_branches(self):
         """Test DetectorNotFittedError branches."""
-        from pynomaly.domain.exceptions import DetectorNotFittedError
+        from monorepo.domain.exceptions import DetectorNotFittedError
 
         # Test with operation specified
         error_with_operation = DetectorNotFittedError(
@@ -300,7 +300,7 @@ class TestExceptionHandlingBranches:
 
     def test_fitting_error_branches(self):
         """Test FittingError branches."""
-        from pynomaly.domain.exceptions import FittingError
+        from monorepo.domain.exceptions import FittingError
 
         # Test with all parameters
         full_error = FittingError(
@@ -333,7 +333,7 @@ class TestExceptionHandlingBranches:
 
     def test_invalid_algorithm_error_branches(self):
         """Test InvalidAlgorithmError branches."""
-        from pynomaly.domain.exceptions import InvalidAlgorithmError
+        from monorepo.domain.exceptions import InvalidAlgorithmError
 
         # Test with available algorithms list
         available_algorithms = ["algo1", "algo2", "algo3"]
@@ -351,7 +351,7 @@ class TestExceptionHandlingBranches:
 
     def test_validation_error_branches(self):
         """Test ValidationError branches."""
-        from pynomaly.domain.exceptions import ValidationError
+        from monorepo.domain.exceptions import ValidationError
 
         # Test simple validation error
         simple_error = ValidationError("Simple validation failed")
@@ -367,7 +367,7 @@ class TestExceptionHandlingBranches:
 
     def test_configuration_error_branches(self):
         """Test ConfigurationError branches."""
-        from pynomaly.domain.exceptions import ConfigurationError
+        from monorepo.domain.exceptions import ConfigurationError
 
         # Test configuration error with context
         config_error = ConfigurationError(
@@ -389,7 +389,7 @@ class TestDataProcessingBranches:
 
     def test_data_validation_branches(self):
         """Test data validation conditional paths."""
-        from pynomaly.infrastructure.data.validators import DataValidator
+        from monorepo.infrastructure.data.validators import DataValidator
 
         validator = DataValidator()
 
@@ -439,7 +439,7 @@ class TestDataProcessingBranches:
 
     def test_feature_selection_branches(self):
         """Test feature selection conditional logic."""
-        from pynomaly.infrastructure.data.feature_selector import FeatureSelector
+        from monorepo.infrastructure.data.feature_selector import FeatureSelector
 
         # Create test data with various feature types
         test_data = pd.DataFrame(
@@ -482,7 +482,7 @@ class TestDataProcessingBranches:
 
     def test_data_preprocessing_branches(self):
         """Test data preprocessing conditional paths."""
-        from pynomaly.infrastructure.data.preprocessor import DataPreprocessor
+        from monorepo.infrastructure.data.preprocessor import DataPreprocessor
 
         preprocessor = DataPreprocessor()
 
@@ -538,7 +538,7 @@ class TestAlgorithmSelectionBranches:
 
     def test_algorithm_registry_branches(self):
         """Test algorithm registry conditional logic."""
-        from pynomaly.infrastructure.algorithms.registry import AlgorithmRegistry
+        from monorepo.infrastructure.algorithms.registry import AlgorithmRegistry
 
         registry = AlgorithmRegistry()
 
@@ -582,7 +582,7 @@ class TestAlgorithmSelectionBranches:
 
     def test_parameter_validation_branches(self):
         """Test parameter validation conditional paths."""
-        from pynomaly.infrastructure.algorithms.parameter_validator import (
+        from monorepo.infrastructure.algorithms.parameter_validator import (
             ParameterValidator,
         )
 
@@ -673,7 +673,7 @@ class TestConfigurationBranches:
 
     def test_config_loading_branches(self):
         """Test configuration loading conditional paths."""
-        from pynomaly.infrastructure.config.loader import ConfigLoader
+        from monorepo.infrastructure.config.loader import ConfigLoader
 
         loader = ConfigLoader()
 
@@ -722,7 +722,7 @@ class TestConfigurationBranches:
 
     def test_config_validation_branches(self):
         """Test configuration validation conditional paths."""
-        from pynomaly.infrastructure.config.validator import ConfigValidator
+        from monorepo.infrastructure.config.validator import ConfigValidator
 
         validator = ConfigValidator()
 

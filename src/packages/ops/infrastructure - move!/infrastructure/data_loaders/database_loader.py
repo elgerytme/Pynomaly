@@ -13,9 +13,9 @@ import sqlalchemy as sa
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.exc import SQLAlchemyError
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.shared.protocols import BatchDataLoaderProtocol, DatabaseLoaderProtocol
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import DataValidationError
+from monorepo.shared.protocols import BatchDataLoaderProtocol, DatabaseLoaderProtocol
 
 
 class DatabaseLoader(DatabaseLoaderProtocol, BatchDataLoaderProtocol):

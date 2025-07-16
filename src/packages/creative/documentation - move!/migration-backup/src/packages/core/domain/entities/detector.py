@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.value_objects import ContaminationRate
 
 if TYPE_CHECKING:
     pass

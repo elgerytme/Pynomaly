@@ -12,12 +12,12 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly_detection.application.services.explainable_ai_service import (
+from monorepo.application.services.explainable_ai_service import (
     ExplainableAIService,
     ExplanationConfiguration,
 )
-from pynomaly_detection.domain.entities.explainable_ai import ExplanationMethod
-from pynomaly_detection.infrastructure.config.container import Container
+from monorepo.domain.entities.explainable_ai import ExplanationMethod
+from monorepo.infrastructure.config.container import Container
 
 console = Console()
 

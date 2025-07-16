@@ -2,7 +2,7 @@
 
 import pytest
 
-from pynomaly.domain.value_objects.anomaly_classification import (
+from monorepo.domain.value_objects.anomaly_classification import (
     AdvancedAnomalyClassification,
     AnomalySubType,
     ClassificationMethod,

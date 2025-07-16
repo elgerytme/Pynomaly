@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pytest
 
-from pynomaly.infrastructure.automl import (
+from monorepo.infrastructure.automl import (
     AcquisitionFunction,
     AdvancedHyperparameterOptimizer,
     AdvancedOptimizationConfig,
@@ -258,7 +258,7 @@ class TestAdvancedHyperparameterOptimizer:
             config=basic_config, storage_path=temp_storage
         )
 
-        from pynomaly.infrastructure.automl.advanced_optimizer import OptimizationTrial
+        from monorepo.infrastructure.automl.advanced_optimizer import OptimizationTrial
 
         # Create mock trials with diverse parameters
         trials = [
@@ -478,7 +478,7 @@ class TestOptimizationInsights:
         )
 
         # Create mock optimization result
-        from pynomaly.infrastructure.automl.advanced_optimizer import (
+        from monorepo.infrastructure.automl.advanced_optimizer import (
             OptimizationResult,
             OptimizationTrial,
         )
@@ -525,7 +525,7 @@ class TestOptimizationInsights:
         )
 
         # Create mock trials with numerical parameters
-        from pynomaly.infrastructure.automl.advanced_optimizer import (
+        from monorepo.infrastructure.automl.advanced_optimizer import (
             OptimizationResult,
             OptimizationTrial,
         )

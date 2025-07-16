@@ -18,12 +18,12 @@ from uuid import UUID
 from fastapi import WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ValidationError
 
-from pynomaly_detection.application.services.automated_training_service import (
+from monorepo.application.services.automated_training_service import (
     AutomatedTrainingService,
     TrainingConfig,
     TriggerType,
 )
-from pynomaly_detection.application.services.automl_service import OptimizationObjective
+from monorepo.application.services.automl_service import OptimizationObjective
 
 logger = logging.getLogger(__name__)
 

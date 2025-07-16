@@ -2,7 +2,7 @@
 
 from unittest.mock import patch
 
-from pynomaly.infrastructure.monitoring.prometheus_metrics import (
+from monorepo.infrastructure.monitoring.prometheus_metrics import (
     MetricDefinition,
     PrometheusMetricsService,
     get_metrics_service,
@@ -16,7 +16,7 @@ class TestPrometheusMetricsService:
     def test_init_without_prometheus(self):
         """Test initialization when Prometheus client is not available."""
         with patch(
-            "pynomaly.infrastructure.monitoring.prometheus_metrics.PROMETHEUS_AVAILABLE",
+            "monorepo.infrastructure.monitoring.prometheus_metrics.PROMETHEUS_AVAILABLE",
             False,
         ):
             service = PrometheusMetricsService()
@@ -240,7 +240,7 @@ class TestPrometheusMetricsService:
 
         # Should contain some metric information
         metrics_str = metrics_data.decode("utf-8")
-        assert "pynomaly" in metrics_str
+        assert "monorepo" in metrics_str
 
     def test_categorize_size(self):
         """Test dataset size categorization."""
@@ -254,7 +254,7 @@ class TestPrometheusMetricsService:
     def test_without_prometheus_client(self):
         """Test service functionality when Prometheus client is not available."""
         with patch(
-            "pynomaly.infrastructure.monitoring.prometheus_metrics.PROMETHEUS_AVAILABLE",
+            "monorepo.infrastructure.monitoring.prometheus_metrics.PROMETHEUS_AVAILABLE",
             False,
         ):
             service = PrometheusMetricsService()
@@ -318,7 +318,7 @@ class TestGlobalMetricsService:
     def test_get_metrics_service_not_initialized(self):
         """Test getting metrics service when not initialized."""
         # Reset global service
-        import pynomaly.infrastructure.monitoring.prometheus_metrics as pm
+        import monorepo.infrastructure.monitoring.prometheus_metrics as pm
 
         pm._metrics_service = None
 

@@ -121,7 +121,7 @@ def generate_docker_compose() -> dict[str, Any]:
             },
             "pynomaly-worker": {
                 "build": ".",
-                "command": "celery -A pynomaly.infrastructure.celery worker --loglevel=info",
+                "command": "celery -A monorepo.infrastructure.celery worker --loglevel=info",
                 "depends_on": ["postgres", "redis"],
                 "volumes": [
                     "./data:/app/data",
@@ -244,8 +244,8 @@ server {
     server_name your-domain.com;
 
     # SSL configuration
-    ssl_certificate /etc/ssl/certs/pynomaly.crt;
-    ssl_certificate_key /etc/ssl/private/pynomaly.key;
+    ssl_certificate /etc/ssl/certs/monorepo.crt;
+    ssl_certificate_key /etc/ssl/private/monorepo.key;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
     ssl_prefer_server_ciphers off;
@@ -259,8 +259,8 @@ server {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
 
     # Logging
-    access_log /var/log/nginx/pynomaly.access.log;
-    error_log /var/log/nginx/pynomaly.error.log;
+    access_log /var/log/nginx/monorepo.access.log;
+    error_log /var/log/nginx/monorepo.error.log;
 
     # API endpoints
     location /api/ {
@@ -343,7 +343,7 @@ def generate_prometheus_config() -> dict[str, Any]:
         },
         "scrape_configs": [
             {
-                "job_name": "pynomaly",
+                "job_name": "monorepo",
                 "static_configs": [{"targets": ["localhost:8000"]}],
                 "metrics_path": "/metrics",
                 "scrape_interval": "5s",
@@ -401,7 +401,7 @@ User=pynomaly
 Group=pynomaly
 WorkingDirectory=/app
 Environment=PYNOMALY_ENV=production
-ExecStart=/usr/local/bin/gunicorn -c gunicorn.conf.py pynomaly.presentation.api.app:app
+ExecStart=/usr/local/bin/gunicorn -c gunicorn.conf.py monorepo.presentation.api.app:app
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=mixed
 TimeoutStopSec=5
@@ -594,7 +594,7 @@ def main():
         yaml.dump(grafana_datasource, f, default_flow_style=False)
 
     # Generate systemd service
-    with open(base_dir / "pynomaly.service", "w") as f:
+    with open(base_dir / "monorepo.service", "w") as f:
         f.write(generate_systemd_service())
 
     # Generate scripts
@@ -614,7 +614,7 @@ def main():
             ".env.production",
             "docker-compose.prod.yml",
             "nginx.conf",
-            "pynomaly.service",
+            "monorepo.service",
             "monitoring/prometheus.yml",
             "monitoring/grafana/datasource.yml",
             "scripts/backup.sh",

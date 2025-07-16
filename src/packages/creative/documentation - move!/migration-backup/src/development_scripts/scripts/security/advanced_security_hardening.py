@@ -126,7 +126,7 @@ RATE_LIMIT_BURST_SIZE=20
 
 # CORS Configuration
 CORS_ENABLED=true
-CORS_ALLOWED_ORIGINS=https://app.pynomaly.com,https://dashboard.pynomaly.com
+CORS_ALLOWED_ORIGINS=https://app.monorepo.com,https://dashboard.monorepo.com
 
 # Authentication
 JWT_REQUIRED=true
@@ -136,8 +136,8 @@ MAX_CONCURRENT_SESSIONS=3
 
 # SSL/TLS Configuration
 SSL_REQUIRED=true
-SSL_CERT_PATH=/etc/ssl/certs/pynomaly.crt
-SSL_KEY_PATH=/etc/ssl/private/pynomaly.key
+SSL_CERT_PATH=/etc/ssl/certs/monorepo.crt
+SSL_KEY_PATH=/etc/ssl/private/monorepo.key
 
 # Password Policy
 PASSWORD_MIN_LENGTH=12

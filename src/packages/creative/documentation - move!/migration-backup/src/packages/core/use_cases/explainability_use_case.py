@@ -9,8 +9,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.services.explainability_service import (
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.services.explainability_service import (
     CohortExplanation,
     ExplainabilityService,
     ExplanationMethod,

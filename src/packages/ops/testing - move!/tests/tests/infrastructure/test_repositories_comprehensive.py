@@ -7,10 +7,10 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import EntityNotFoundError, RepositoryError
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.infrastructure.repositories import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.exceptions import EntityNotFoundError, RepositoryError
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.infrastructure.repositories import (
     DatabaseDatasetRepository,
     DatabaseDetectorRepository,
     DatabaseResultRepository,
@@ -454,7 +454,7 @@ class TestDatabaseRepositories:
     async def test_database_detector_repository(self, sample_detector, mock_db_session):
         """Test database detector repository operations."""
         with patch(
-            "pynomaly.infrastructure.persistence.database.get_session"
+            "monorepo.infrastructure.persistence.database.get_session"
         ) as mock_get_session:
             mock_get_session.return_value = mock_db_session
 
@@ -483,7 +483,7 @@ class TestDatabaseRepositories:
     async def test_database_connection_error_handling(self, sample_detector):
         """Test database connection error handling."""
         with patch(
-            "pynomaly.infrastructure.persistence.database.get_session"
+            "monorepo.infrastructure.persistence.database.get_session"
         ) as mock_get_session:
             # Mock connection error
             mock_get_session.side_effect = Exception("Database connection failed")
@@ -503,7 +503,7 @@ class TestDatabaseRepositories:
         mock_session.close = Mock()
 
         with patch(
-            "pynomaly.infrastructure.persistence.database.get_session"
+            "monorepo.infrastructure.persistence.database.get_session"
         ) as mock_get_session:
             mock_get_session.return_value = mock_session
 
@@ -531,7 +531,7 @@ class TestDatabaseRepositories:
         mock_session.query.return_value = mock_query
 
         with patch(
-            "pynomaly.infrastructure.persistence.database.get_session"
+            "monorepo.infrastructure.persistence.database.get_session"
         ) as mock_get_session:
             mock_get_session.return_value = mock_session
 
@@ -567,7 +567,7 @@ class TestRepositoryFactory:
 
     def test_factory_database_creation(self):
         """Test factory creation of database repositories."""
-        with patch("pynomaly.infrastructure.persistence.database.get_session"):
+        with patch("monorepo.infrastructure.persistence.database.get_session"):
             # Test detector repository
             detector_repo = RepositoryFactory.create_detector_repository("database")
             assert isinstance(detector_repo, DatabaseDetectorRepository)
@@ -589,7 +589,7 @@ class TestRepositoryFactory:
             "echo": True,
         }
 
-        with patch("pynomaly.infrastructure.persistence.database.get_session"):
+        with patch("monorepo.infrastructure.persistence.database.get_session"):
             repo = RepositoryFactory.create_detector_repository("database", **config)
             assert isinstance(repo, DatabaseDetectorRepository)
 
@@ -606,7 +606,7 @@ class TestRepositoryFactory:
         )
         assert isinstance(auto_memory, InMemoryDetectorRepository)
 
-        with patch("pynomaly.infrastructure.persistence.database.get_session"):
+        with patch("monorepo.infrastructure.persistence.database.get_session"):
             auto_db = RepositoryFactory.create_detector_repository(
                 "auto", prefer_memory=False
             )
@@ -857,7 +857,7 @@ class TestRepositoryErrorRecovery:
                 return mock_session
 
         with patch(
-            "pynomaly.infrastructure.persistence.database.get_session", mock_get_session
+            "monorepo.infrastructure.persistence.database.get_session", mock_get_session
         ):
             repo = DatabaseDetectorRepository(retry_attempts=2, retry_delay=0.1)
 

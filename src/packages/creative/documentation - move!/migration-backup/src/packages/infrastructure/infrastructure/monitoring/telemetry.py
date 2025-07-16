@@ -15,7 +15,7 @@ from contextlib import contextmanager
 from functools import wraps
 from typing import Any
 
-from pynomaly.infrastructure.config import Settings
+from monorepo.infrastructure.config import Settings
 
 # Try importing OpenTelemetry components with fallbacks
 try:
@@ -237,7 +237,7 @@ class TelemetryService:
         """Create OpenTelemetry resource with service information."""
         return Resource.create(
             {
-                ResourceAttributes.SERVICE_NAME: "pynomaly",
+                ResourceAttributes.SERVICE_NAME: "monorepo",
                 ResourceAttributes.SERVICE_VERSION: self.settings.app.version,
                 ResourceAttributes.SERVICE_NAMESPACE: self.settings.app.environment,
                 ResourceAttributes.HOST_NAME: self.settings.monitoring.host_name,

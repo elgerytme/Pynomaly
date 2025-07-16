@@ -2,9 +2,9 @@
 
 import pytest
 
-from pynomaly.domain.value_objects.anomaly_category import AnomalyCategory
-from pynomaly.domain.value_objects.anomaly_type import AnomalyType
-from pynomaly.domain.value_objects.severity_score import SeverityLevel, SeverityScore
+from monorepo.domain.value_objects.anomaly_category import AnomalyCategory
+from monorepo.domain.value_objects.anomaly_type import AnomalyType
+from monorepo.domain.value_objects.severity_score import SeverityLevel, SeverityScore
 
 
 class TestAnomalyTypeImplementation:

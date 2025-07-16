@@ -16,13 +16,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     DataIngestionError,
     DataPipelineError,
     DataTransformationError,
     DataValidationError,
 )
-from pynomaly.infrastructure.data_pipeline import (
+from monorepo.infrastructure.data_pipeline import (
     DataIngestionStage,
     DataPipeline,
     DataQualityStage,
@@ -94,13 +94,13 @@ class TestDataPipelineCore:
         # Mock stages to track execution
         with (
             patch(
-                "pynomaly.infrastructure.data_pipeline.DataIngestionStage"
+                "monorepo.infrastructure.data_pipeline.DataIngestionStage"
             ) as mock_ingestion,
             patch(
-                "pynomaly.infrastructure.data_pipeline.DataValidationStage"
+                "monorepo.infrastructure.data_pipeline.DataValidationStage"
             ) as mock_validation,
             patch(
-                "pynomaly.infrastructure.data_pipeline.DataTransformationStage"
+                "monorepo.infrastructure.data_pipeline.DataTransformationStage"
             ) as mock_transformation,
         ):
 
@@ -335,7 +335,7 @@ class TestDataIngestionStage:
         mock_data_batches = [[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]]
 
         with patch(
-            "pynomaly.infrastructure.data_sources.StreamingDataSource"
+            "monorepo.infrastructure.data_sources.StreamingDataSource"
         ) as mock_source:
             mock_source_instance = mock_source.return_value
             mock_source_instance.read_batch.side_effect = mock_data_batches

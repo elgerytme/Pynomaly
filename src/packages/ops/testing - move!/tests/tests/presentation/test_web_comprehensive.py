@@ -8,8 +8,8 @@ import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.web.app import create_web_app
+from monorepo.infrastructure.config import create_container
+from monorepo.presentation.web.app import create_web_app
 
 
 @pytest.fixture
@@ -57,7 +57,7 @@ class TestWebAppRoutes:
 
     def test_dashboard_page(self, web_client: TestClient):
         """Test dashboard page."""
-        with patch("pynomaly.presentation.web.app.get_dashboard_stats") as mock_stats:
+        with patch("monorepo.presentation.web.app.get_dashboard_stats") as mock_stats:
             mock_stats.return_value = {
                 "total_detectors": 5,
                 "total_datasets": 10,
@@ -74,7 +74,7 @@ class TestWebAppRoutes:
 
     def test_detectors_page(self, web_client: TestClient):
         """Test detectors management page."""
-        with patch("pynomaly.presentation.web.app.get_detectors") as mock_get_detectors:
+        with patch("monorepo.presentation.web.app.get_detectors") as mock_get_detectors:
             mock_detectors = [
                 {
                     "id": "det1",
@@ -102,7 +102,7 @@ class TestWebAppRoutes:
 
     def test_datasets_page(self, web_client: TestClient):
         """Test datasets management page."""
-        with patch("pynomaly.presentation.web.app.get_datasets") as mock_get_datasets:
+        with patch("monorepo.presentation.web.app.get_datasets") as mock_get_datasets:
             mock_datasets = [
                 {
                     "id": "ds1",
@@ -134,7 +134,7 @@ class TestWebAppRoutes:
     def test_experiments_page(self, web_client: TestClient):
         """Test experiments page."""
         with patch(
-            "pynomaly.presentation.web.app.get_experiments"
+            "monorepo.presentation.web.app.get_experiments"
         ) as mock_get_experiments:
             mock_experiments = [
                 {
@@ -175,7 +175,7 @@ class TestHTMXEndpoints:
 
     def test_detector_list_htmx(self, web_client: TestClient):
         """Test HTMX detector list partial."""
-        with patch("pynomaly.presentation.web.app.get_detectors") as mock_get_detectors:
+        with patch("monorepo.presentation.web.app.get_detectors") as mock_get_detectors:
             mock_detectors = [
                 {
                     "id": "det1",
@@ -197,7 +197,7 @@ class TestHTMXEndpoints:
         """Test HTMX dataset upload."""
         csv_content = "feature1,feature2\n1,2\n3,4\n"
 
-        with patch("pynomaly.presentation.web.app.upload_dataset") as mock_upload:
+        with patch("monorepo.presentation.web.app.upload_dataset") as mock_upload:
             mock_upload.return_value = {
                 "id": "ds123",
                 "name": "Uploaded Dataset",
@@ -221,7 +221,7 @@ class TestHTMXEndpoints:
 
     def test_detector_create_htmx(self, web_client: TestClient):
         """Test HTMX detector creation."""
-        with patch("pynomaly.presentation.web.app.create_detector") as mock_create:
+        with patch("monorepo.presentation.web.app.create_detector") as mock_create:
             mock_create.return_value = {
                 "id": "det123",
                 "name": "New Detector",
@@ -244,7 +244,7 @@ class TestHTMXEndpoints:
 
     def test_detection_train_htmx(self, web_client: TestClient):
         """Test HTMX detector training."""
-        with patch("pynomaly.presentation.web.app.train_detector") as mock_train:
+        with patch("monorepo.presentation.web.app.train_detector") as mock_train:
             mock_train.return_value = {
                 "success": True,
                 "training_time_ms": 1500,
@@ -268,7 +268,7 @@ class TestHTMXEndpoints:
 
     def test_detection_predict_htmx(self, web_client: TestClient):
         """Test HTMX anomaly prediction."""
-        with patch("pynomaly.presentation.web.app.predict_anomalies") as mock_predict:
+        with patch("monorepo.presentation.web.app.predict_anomalies") as mock_predict:
             mock_predict.return_value = {
                 "success": True,
                 "predictions": [0, 0, 1, 0, 1],
@@ -298,7 +298,7 @@ class TestHTMXEndpoints:
 
     def test_experiment_create_htmx(self, web_client: TestClient):
         """Test HTMX experiment creation."""
-        with patch("pynomaly.presentation.web.app.create_experiment") as mock_create:
+        with patch("monorepo.presentation.web.app.create_experiment") as mock_create:
             mock_create.return_value = {
                 "id": "exp123",
                 "name": "HTMX Experiment",
@@ -323,7 +323,7 @@ class TestHTMXEndpoints:
 
     def test_live_updates_htmx(self, web_client: TestClient):
         """Test HTMX live updates."""
-        with patch("pynomaly.presentation.web.app.get_live_updates") as mock_updates:
+        with patch("monorepo.presentation.web.app.get_live_updates") as mock_updates:
             mock_updates.return_value = {
                 "recent_detections": [
                     {
@@ -362,7 +362,7 @@ class TestWebUIComponents:
     def test_detector_detail_modal(self, web_client: TestClient):
         """Test detector detail modal."""
         with patch(
-            "pynomaly.presentation.web.app.get_detector_details"
+            "monorepo.presentation.web.app.get_detector_details"
         ) as mock_details:
             mock_details.return_value = {
                 "id": "det123",
@@ -392,7 +392,7 @@ class TestWebUIComponents:
 
     def test_dataset_preview_component(self, web_client: TestClient):
         """Test dataset preview component."""
-        with patch("pynomaly.presentation.web.app.get_dataset_preview") as mock_preview:
+        with patch("monorepo.presentation.web.app.get_dataset_preview") as mock_preview:
             mock_preview.return_value = {
                 "sample_data": [
                     {"feature1": 1.5, "feature2": 2.3, "feature3": 0.8},
@@ -423,7 +423,7 @@ class TestWebUIComponents:
     def test_visualization_components(self, web_client: TestClient):
         """Test data visualization components."""
         with patch(
-            "pynomaly.presentation.web.app.get_visualization_data"
+            "monorepo.presentation.web.app.get_visualization_data"
         ) as mock_viz_data:
             mock_viz_data.return_value = {
                 "scatter_plot": {
@@ -458,7 +458,7 @@ class TestWebUIComponents:
     def test_performance_dashboard_component(self, web_client: TestClient):
         """Test performance dashboard component."""
         with patch(
-            "pynomaly.presentation.web.app.get_performance_data"
+            "monorepo.presentation.web.app.get_performance_data"
         ) as mock_perf_data:
             mock_perf_data.return_value = {
                 "system_metrics": {
@@ -503,7 +503,7 @@ class TestWebUIComponents:
     def test_experiment_results_component(self, web_client: TestClient):
         """Test experiment results component."""
         with patch(
-            "pynomaly.presentation.web.app.get_experiment_results"
+            "monorepo.presentation.web.app.get_experiment_results"
         ) as mock_results:
             mock_results.return_value = {
                 "experiment_id": "exp123",
@@ -616,7 +616,7 @@ class TestWebUIAuthentication:
 
     def test_login_form_submission(self, web_client: TestClient):
         """Test login form submission."""
-        with patch("pynomaly.presentation.web.auth.authenticate_user") as mock_auth:
+        with patch("monorepo.presentation.web.auth.authenticate_user") as mock_auth:
             mock_auth.return_value = {
                 "success": True,
                 "user": {"id": "user123", "username": "testuser"},
@@ -653,7 +653,7 @@ class TestWebUIAuthentication:
     def test_session_persistence(self, web_client: TestClient):
         """Test session persistence across requests."""
         # Login
-        with patch("pynomaly.presentation.web.auth.authenticate_user") as mock_auth:
+        with patch("monorepo.presentation.web.auth.authenticate_user") as mock_auth:
             mock_auth.return_value = {
                 "success": True,
                 "user": {"id": "user123", "username": "testuser"},
@@ -682,7 +682,7 @@ class TestWebUIErrorHandling:
 
     def test_500_error_handling(self, web_client: TestClient):
         """Test 500 error handling."""
-        with patch("pynomaly.presentation.web.app.get_dashboard_stats") as mock_stats:
+        with patch("monorepo.presentation.web.app.get_dashboard_stats") as mock_stats:
             mock_stats.side_effect = Exception("Database error")
 
             response = web_client.get("/dashboard")
@@ -768,7 +768,7 @@ class TestWebUIPerformance:
     def test_large_dataset_list_performance(self, web_client: TestClient):
         """Test performance with large dataset lists."""
         # Mock large number of datasets
-        with patch("pynomaly.presentation.web.app.get_datasets") as mock_get_datasets:
+        with patch("monorepo.presentation.web.app.get_datasets") as mock_get_datasets:
             large_dataset_list = [
                 {
                     "id": f"ds{i}",
@@ -807,7 +807,7 @@ class TestWebUIPerformance:
     def test_memory_usage_with_large_data(self, web_client: TestClient):
         """Test memory usage with large data operations."""
         # Test large dataset preview
-        with patch("pynomaly.presentation.web.app.get_dataset_preview") as mock_preview:
+        with patch("monorepo.presentation.web.app.get_dataset_preview") as mock_preview:
             # Mock large dataset preview
             large_sample = [
                 {f"feature_{j}": i * j for j in range(50)} for i in range(1000)
@@ -888,10 +888,10 @@ class TestWebUIIntegration:
 
         # Mock all the necessary services
         with (
-            patch("pynomaly.presentation.web.app.upload_dataset") as mock_upload,
-            patch("pynomaly.presentation.web.app.create_detector") as mock_create,
-            patch("pynomaly.presentation.web.app.train_detector") as mock_train,
-            patch("pynomaly.presentation.web.app.predict_anomalies") as mock_predict,
+            patch("monorepo.presentation.web.app.upload_dataset") as mock_upload,
+            patch("monorepo.presentation.web.app.create_detector") as mock_create,
+            patch("monorepo.presentation.web.app.train_detector") as mock_train,
+            patch("monorepo.presentation.web.app.predict_anomalies") as mock_predict,
         ):
             # Step 1: Upload dataset
             mock_upload.return_value = {"id": "ds123", "success": True}
@@ -936,7 +936,7 @@ class TestWebUIIntegration:
 
     def test_real_time_updates(self, web_client: TestClient):
         """Test real-time updates functionality."""
-        with patch("pynomaly.presentation.web.app.get_live_updates") as mock_updates:
+        with patch("monorepo.presentation.web.app.get_live_updates") as mock_updates:
             mock_updates.return_value = {
                 "recent_detections": [],
                 "system_stats": {"active_detections": 0},

@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     AlgorithmConfigDTO,
     ConfigurationCaptureRequestDTO,
     ConfigurationExportRequestDTO,
@@ -731,9 +731,9 @@ class ConfigurationCaptureService:
             "#!/usr/bin/env python3",
             '"""Generated configuration script from Pynomaly."""',
             "",
-            "import pynomaly",
-            "from pynomaly.application.services import DetectionService",
-            "from pynomaly.infrastructure.data_loaders import CSVLoader",
+            "import monorepo",
+            "from monorepo.application.services import DetectionService",
+            "from monorepo.infrastructure.data_loaders import CSVLoader",
             "",
             "def run_configurations():",
             '    """Execute all configurations."""',
@@ -793,9 +793,9 @@ class ConfigurationCaptureService:
                     "execution_count": None,
                     "metadata": {},
                     "source": [
-                        "import pynomaly\n",
-                        "from pynomaly.application.services import DetectionService\n",
-                        "from pynomaly.infrastructure.data_loaders import CSVLoader\n",
+                        "import monorepo\n",
+                        "from monorepo.application.services import DetectionService\n",
+                        "from monorepo.infrastructure.data_loaders import CSVLoader\n",
                         "import pandas as pd\n",
                         "import matplotlib.pyplot as plt",
                     ],

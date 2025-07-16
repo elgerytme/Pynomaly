@@ -9,7 +9,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from pynomaly.domain.entities import (
+from monorepo.domain.entities import (
     Alert,
     Dataset,
     DetectionResult,
@@ -18,7 +18,7 @@ from pynomaly.domain.entities import (
     Model,
     Pipeline,
 )
-from pynomaly.shared.protocols.repository_protocol import (
+from monorepo.shared.protocols.repository_protocol import (
     AlertNotificationRepositoryProtocol,
     AlertRepositoryProtocol,
     DatasetRepositoryProtocol,

@@ -195,7 +195,7 @@ class ObservabilityService:
         """Initialize structured logger."""
         try:
             self.logger = StructuredLogger(
-                name="pynomaly.observability",
+                name="monorepo.observability",
                 level=self.config.log_level,
                 output_path=(
                     self.config.logs_storage_path / "observability.log"
@@ -238,7 +238,7 @@ class ObservabilityService:
 
         try:
             self.tracer = TracingManager(
-                service_name="pynomaly",
+                service_name="monorepo",
                 sampling_rate=self.config.trace_sampling_rate,
                 jaeger_endpoint=self.config.jaeger_endpoint,
             )
@@ -501,7 +501,7 @@ class ObservabilityService:
         log_entry = LogEntry(
             timestamp=datetime.utcnow(),
             level=level.upper(),
-            logger_name="pynomaly.observability",
+            logger_name="monorepo.observability",
             message=message,
             context=kwargs,
             tags=kwargs.get("tags", []),

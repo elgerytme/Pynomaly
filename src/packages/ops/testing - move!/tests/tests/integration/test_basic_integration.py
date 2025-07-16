@@ -5,9 +5,9 @@ from unittest.mock import Mock
 import numpy as np
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.features.advanced_analytics import TrendAnalyzer
-from pynomaly.infrastructure.persistence.memory_repository import MemoryRepository
+from monorepo.domain.entities import Dataset
+from monorepo.features.advanced_analytics import TrendAnalyzer
+from monorepo.infrastructure.persistence.memory_repository import MemoryRepository
 
 
 class TestBasicIntegration:
@@ -66,8 +66,8 @@ class TestBasicIntegration:
     def test_import_structure(self):
         """Test that key imports work without MRO conflicts."""
         # This would fail if there are MRO conflicts
-        from pynomaly.features.advanced_analytics import TrendAnalyzer
-        from pynomaly.infrastructure.persistence.memory_repository import (
+        from monorepo.features.advanced_analytics import TrendAnalyzer
+        from monorepo.infrastructure.persistence.memory_repository import (
             MemoryRepository,
         )
 

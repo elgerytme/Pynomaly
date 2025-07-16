@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from pynomaly.infrastructure.persistence.migration_manager import (
+from monorepo.infrastructure.persistence.migration_manager import (
     MigrationManager,
     create_migration_manager,
     init_and_migrate,
@@ -49,13 +49,13 @@ class TestMigrationManagerBasic:
         """Test database URL fallback to default."""
         # Clear environment variable
         with patch.dict(os.environ, {}, clear=True):
-            with patch('pynomaly.infrastructure.persistence.migration_manager.Settings') as mock_settings:
+            with patch('monorepo.infrastructure.persistence.migration_manager.Settings') as mock_settings:
                 mock_settings.side_effect = Exception("Settings error")
                 manager = MigrationManager()
-                assert "sqlite:///./storage/pynomaly.db" in manager.database_url
+                assert "sqlite:///./storage/monorepo.db" in manager.database_url
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.MigrationContext')
-    @patch('pynomaly.infrastructure.persistence.migration_manager.ScriptDirectory')
+    @patch('monorepo.infrastructure.persistence.migration_manager.MigrationContext')
+    @patch('monorepo.infrastructure.persistence.migration_manager.ScriptDirectory')
     def test_check_migration_needed_no_history(self, mock_script_dir, mock_migration_context):
         """Test migration check when no history exists."""
         # Mock migration context
@@ -75,8 +75,8 @@ class TestMigrationManagerBasic:
             
         assert result is True
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.MigrationContext')
-    @patch('pynomaly.infrastructure.persistence.migration_manager.ScriptDirectory')
+    @patch('monorepo.infrastructure.persistence.migration_manager.MigrationContext')
+    @patch('monorepo.infrastructure.persistence.migration_manager.ScriptDirectory')
     def test_check_migration_needed_up_to_date(self, mock_script_dir, mock_migration_context):
         """Test migration check when database is up to date."""
         # Mock migration context
@@ -96,12 +96,12 @@ class TestMigrationManagerBasic:
             
         assert result is False
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.command')
+    @patch('monorepo.infrastructure.persistence.migration_manager.command')
     def test_create_migration(self, mock_command):
         """Test migration creation."""
         manager = MigrationManager(self.database_url)
         
-        with patch('pynomaly.infrastructure.persistence.migration_manager.ScriptDirectory') as mock_script_dir:
+        with patch('monorepo.infrastructure.persistence.migration_manager.ScriptDirectory') as mock_script_dir:
             mock_script = MagicMock()
             mock_script.get_current_head.return_value = "def456"
             mock_script_dir.from_config.return_value = mock_script
@@ -115,7 +115,7 @@ class TestMigrationManagerBasic:
             )
             assert revision_id == "def456"
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.command')
+    @patch('monorepo.infrastructure.persistence.migration_manager.command')
     def test_run_migrations_success(self, mock_command):
         """Test successful migration run."""
         manager = MigrationManager(self.database_url)
@@ -125,7 +125,7 @@ class TestMigrationManagerBasic:
         mock_command.upgrade.assert_called_once_with(manager.config, "head")
         assert result is True
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.command')
+    @patch('monorepo.infrastructure.persistence.migration_manager.command')
     def test_run_migrations_failure(self, mock_command):
         """Test migration run failure."""
         mock_command.upgrade.side_effect = Exception("Migration failed")
@@ -135,7 +135,7 @@ class TestMigrationManagerBasic:
         
         assert result is False
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.command')
+    @patch('monorepo.infrastructure.persistence.migration_manager.command')
     def test_rollback_migration_success(self, mock_command):
         """Test successful migration rollback."""
         manager = MigrationManager(self.database_url)
@@ -145,7 +145,7 @@ class TestMigrationManagerBasic:
         mock_command.downgrade.assert_called_once_with(manager.config, "-1")
         assert result is True
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.command')
+    @patch('monorepo.infrastructure.persistence.migration_manager.command')
     def test_rollback_migration_failure(self, mock_command):
         """Test migration rollback failure."""
         mock_command.downgrade.side_effect = Exception("Rollback failed")
@@ -211,7 +211,7 @@ class TestMigrationManagerAdvanced:
         remaining_files = list(backup_dir.glob("*.db"))
         assert len(remaining_files) == 3
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.ScriptDirectory')
+    @patch('monorepo.infrastructure.persistence.migration_manager.ScriptDirectory')
     def test_validate_migration_success(self, mock_script_dir):
         """Test successful migration validation."""
         # Create a temporary migration file
@@ -230,7 +230,7 @@ class TestMigrationManagerAdvanced:
         
         assert result is True
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.ScriptDirectory')
+    @patch('monorepo.infrastructure.persistence.migration_manager.ScriptDirectory')
     def test_validate_migration_not_found(self, mock_script_dir):
         """Test migration validation when revision not found."""
         # Mock script directory
@@ -243,7 +243,7 @@ class TestMigrationManagerAdvanced:
         
         assert result is False
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.ScriptDirectory')
+    @patch('monorepo.infrastructure.persistence.migration_manager.ScriptDirectory')
     def test_validate_migration_file_missing(self, mock_script_dir):
         """Test migration validation when file is missing."""
         # Mock script directory
@@ -258,7 +258,7 @@ class TestMigrationManagerAdvanced:
         
         assert result is False
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.ScriptDirectory')
+    @patch('monorepo.infrastructure.persistence.migration_manager.ScriptDirectory')
     def test_get_migration_history(self, mock_script_dir):
         """Test getting migration history."""
         # Mock script directory
@@ -314,7 +314,7 @@ class TestMigrationManagerIntegration:
         assert isinstance(manager, MigrationManager)
         assert manager.database_url == self.database_url
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.MigrationManager.run_migrations')
+    @patch('monorepo.infrastructure.persistence.migration_manager.MigrationManager.run_migrations')
     def test_quick_migrate_function(self, mock_run_migrations):
         """Test quick migrate convenience function."""
         mock_run_migrations.return_value = True
@@ -324,8 +324,8 @@ class TestMigrationManagerIntegration:
         assert result is True
         mock_run_migrations.assert_called_once()
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.MigrationManager.initialize_database')
-    @patch('pynomaly.infrastructure.persistence.migration_manager.MigrationManager.run_migrations')
+    @patch('monorepo.infrastructure.persistence.migration_manager.MigrationManager.initialize_database')
+    @patch('monorepo.infrastructure.persistence.migration_manager.MigrationManager.run_migrations')
     def test_init_and_migrate_success(self, mock_run_migrations, mock_initialize):
         """Test init and migrate function success."""
         mock_initialize.return_value = True
@@ -337,7 +337,7 @@ class TestMigrationManagerIntegration:
         mock_initialize.assert_called_once()
         mock_run_migrations.assert_called_once()
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.MigrationManager.initialize_database')
+    @patch('monorepo.infrastructure.persistence.migration_manager.MigrationManager.initialize_database')
     def test_init_and_migrate_init_failure(self, mock_initialize):
         """Test init and migrate function with initialization failure."""
         mock_initialize.return_value = False
@@ -403,7 +403,7 @@ class TestMigrationManagerErrorHandling:
         """Test create migration with error."""
         manager = MigrationManager(self.database_url)
         
-        with patch('pynomaly.infrastructure.persistence.migration_manager.command') as mock_command:
+        with patch('monorepo.infrastructure.persistence.migration_manager.command') as mock_command:
             mock_command.revision.side_effect = Exception("Migration creation failed")
             
             with pytest.raises(Exception, match="Migration creation failed"):
@@ -426,7 +426,7 @@ class TestMigrationManagerCLIIntegration:
 
     def test_migration_manager_with_settings_integration(self):
         """Test MigrationManager integration with application settings."""
-        with patch('pynomaly.infrastructure.persistence.migration_manager.Settings') as mock_settings:
+        with patch('monorepo.infrastructure.persistence.migration_manager.Settings') as mock_settings:
             mock_config = MagicMock()
             mock_config.database_url = self.database_url
             mock_settings.return_value = mock_config
@@ -435,7 +435,7 @@ class TestMigrationManagerCLIIntegration:
             
             assert manager.database_url == self.database_url
 
-    @patch('pynomaly.infrastructure.persistence.migration_manager.Config')
+    @patch('monorepo.infrastructure.persistence.migration_manager.Config')
     def test_alembic_config_setup(self, mock_config_class):
         """Test Alembic configuration setup."""
         mock_config = MagicMock()

@@ -7,19 +7,19 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from pynomaly_detection.application.dto import CreateDetectorDTO, DetectorDTO, UpdateDetectorDTO
-from pynomaly_detection.application.services.algorithm_adapter_registry import (
+from monorepo.application.dto import CreateDetectorDTO, DetectorDTO, UpdateDetectorDTO
+from monorepo.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly_detection.domain.entities import Detector
-from pynomaly_detection.domain.value_objects import ContaminationRate
-from pynomaly_detection.infrastructure.auth import (
+from monorepo.domain.entities import Detector
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.infrastructure.auth import (
     require_analyst,
     require_data_scientist,
     require_tenant_admin,
     require_viewer,
 )
-from pynomaly_detection.infrastructure.config import Container
+from monorepo.infrastructure.config import Container
 
 router = APIRouter()
 

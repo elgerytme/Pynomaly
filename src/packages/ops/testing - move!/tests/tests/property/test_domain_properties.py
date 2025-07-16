@@ -7,14 +7,14 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 from hypothesis.extra import numpy as stnp
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.services import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.services import (
     AnomalyScorer,
     EnsembleAggregator,
     FeatureValidator,
     ThresholdCalculator,
 )
-from pynomaly.domain.value_objects import (
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ConfidenceInterval,
     ContaminationRate,

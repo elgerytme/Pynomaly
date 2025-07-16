@@ -105,7 +105,7 @@ class TestRateLimiter:
     @pytest.fixture
     def rate_limiter(self):
         """Create rate limiter instance."""
-        from pynomaly.presentation.web.security_features import RateLimiter
+        from monorepo.presentation.web.security_features import RateLimiter
 
         return RateLimiter(requests_per_minute=100, burst_size=10, window_size=60)
 
@@ -199,7 +199,7 @@ class TestWAFMiddleware:
     @pytest.fixture
     def waf_middleware(self):
         """Create WAF middleware instance."""
-        from pynomaly.presentation.web.security_features import WAFMiddleware
+        from monorepo.presentation.web.security_features import WAFMiddleware
 
         return WAFMiddleware()
 
@@ -395,7 +395,7 @@ class TestCSPMiddleware:
     @pytest.fixture
     def csp_middleware(self):
         """Create CSP middleware instance."""
-        from pynomaly.presentation.web.security.csp_enhanced import CSPMiddleware
+        from monorepo.presentation.web.security.csp_enhanced import CSPMiddleware
 
         return CSPMiddleware()
 
@@ -532,7 +532,7 @@ class TestSecurityHeadersMiddleware:
     @pytest.fixture
     def security_headers_middleware(self):
         """Create security headers middleware instance."""
-        from pynomaly.presentation.web.security_features import (
+        from monorepo.presentation.web.security_features import (
             SecurityHeadersMiddleware,
         )
 
@@ -665,7 +665,7 @@ class TestIntegratedSecurityMiddleware:
     @pytest.fixture
     def integrated_middleware(self):
         """Create integrated security middleware stack."""
-        from pynomaly.presentation.web.security_features import (
+        from monorepo.presentation.web.security_features import (
             IntegratedSecurityMiddleware,
         )
 

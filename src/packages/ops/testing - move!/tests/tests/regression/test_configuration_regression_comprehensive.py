@@ -14,8 +14,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.domain.entities import Dataset
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 class TestParameterValidationRegression:
@@ -329,7 +329,7 @@ output:
 
 logging:
   level: INFO
-  file: pynomaly.log
+  file: monorepo.log
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 """
 

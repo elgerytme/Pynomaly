@@ -253,7 +253,7 @@ from pynomaly_client.exceptions import ApiException
 
 async def main():
     # Initialize client
-    client = PynomaliClient(base_url="https://api.pynomaly.com")
+    client = PynomaliClient(base_url="https://api.monorepo.com")
 
     try:
         # Authenticate
@@ -279,7 +279,7 @@ async def main():
 import { PynomaliClient } from '@pynomaly/client';
 
 const client = new PynomaliClient({
-    basePath: 'https://api.pynomaly.com'
+    basePath: 'https://api.monorepo.com'
 });
 
 async function detectAnomalies() {

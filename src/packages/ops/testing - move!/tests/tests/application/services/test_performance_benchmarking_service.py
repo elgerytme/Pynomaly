@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.performance_benchmarking_service import (
+from monorepo.application.services.performance_benchmarking_service import (
     BenchmarkConfig,
     BenchmarkSuite,
     PerformanceBenchmarkingService,

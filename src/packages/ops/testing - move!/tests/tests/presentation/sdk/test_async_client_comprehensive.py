@@ -12,8 +12,8 @@ import pytest
 from aiohttp import ClientResponse, ClientTimeout
 from aiohttp.client_exceptions import ClientConnectorError, ServerTimeoutError
 
-from pynomaly.presentation.sdk.async_client import AsyncPynomalyClient
-from pynomaly.presentation.sdk.exceptions import (
+from monorepo.presentation.sdk.async_client import AsyncPynomalyClient
+from monorepo.presentation.sdk.exceptions import (
     AuthenticationError,
     NetworkError,
     NotFoundError,
@@ -21,7 +21,7 @@ from pynomaly.presentation.sdk.exceptions import (
     ServerError,
     ValidationError,
 )
-from pynomaly.presentation.sdk.models import (
+from monorepo.presentation.sdk.models import (
     DatasetInfo,
     DetectionRequest,
     DetectionResponse,

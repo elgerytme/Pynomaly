@@ -13,8 +13,8 @@ import numpy as np
 import psutil
 import pytest
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 class TestPerformanceBenchmarks:
@@ -189,7 +189,7 @@ class TestLoadTesting:
 
     def test_concurrent_requests_simulation(self):
         """Test handling of concurrent requests."""
-        from pynomaly.application.services.detection_service import DetectionService
+        from monorepo.application.services.detection_service import DetectionService
 
         service = Mock(spec=DetectionService)
         service.detect_anomalies.return_value = {
@@ -344,7 +344,7 @@ class TestScalabilityTesting:
 
     def test_horizontal_scaling_simulation(self):
         """Test horizontal scaling capabilities."""
-        from pynomaly.infrastructure.distributed.load_balancer import LoadBalancer
+        from monorepo.infrastructure.distributed.load_balancer import LoadBalancer
 
         Mock(spec=LoadBalancer)
 
@@ -382,7 +382,7 @@ class TestScalabilityTesting:
 
     def test_database_connection_pool_stress(self):
         """Test database connection pool under stress."""
-        from pynomaly.infrastructure.persistence.database import DatabaseManager
+        from monorepo.infrastructure.persistence.database import DatabaseManager
 
         Mock(spec=DatabaseManager)
 

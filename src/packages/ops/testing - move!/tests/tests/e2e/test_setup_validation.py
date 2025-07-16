@@ -69,7 +69,7 @@ def test_setup_simple_logic():
         print("✅ pyproject.toml found")
         with open("pyproject.toml") as f:
             content = f.read()
-            if "[project]" in content and "pynomaly" in content:
+            if "[project]" in content and "monorepo" in content:
                 print("✅ Valid pyproject.toml structure detected")
             else:
                 print("⚠️  pyproject.toml may have issues")
@@ -105,14 +105,14 @@ def test_setup_simple_logic():
     try:
         # Add src to path for testing
         sys.path.insert(0, "src")
-        import pynomaly
+        import monorepo
 
         print(
             f"✅ pynomaly imported successfully (version: {getattr(pynomaly, '__version__', 'unknown')})"
         )
 
         try:
-            from pynomaly.domain.entities import Dataset
+            from monorepo.domain.entities import Dataset
 
             print("✅ Domain entities import successful")
         except ImportError as e:

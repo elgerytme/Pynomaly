@@ -17,7 +17,7 @@ def test_complete_workflow_with_adapters():
     try:
         # 1. Create and test adapter registry
         print("1. Setting up algorithm adapter registry...")
-        from pynomaly.application.services.algorithm_adapter_registry import (
+        from monorepo.application.services.algorithm_adapter_registry import (
             AlgorithmAdapterRegistry,
         )
 
@@ -54,7 +54,7 @@ def test_complete_workflow_with_adapters():
         df = pd.DataFrame(all_data, columns=["feature_1", "feature_2", "feature_3"])
 
         # Create dataset entity
-        from pynomaly.domain.entities import Dataset
+        from monorepo.domain.entities import Dataset
 
         test_dataset = Dataset(
             name="test_workflow_data",
@@ -68,7 +68,7 @@ def test_complete_workflow_with_adapters():
 
         # 3. Create detector
         print("\n3. Creating anomaly detector...")
-        from pynomaly.domain.entities import Detector
+        from monorepo.domain.entities import Detector
 
         detector = Detector(
             name="workflow_test_detector",
@@ -132,8 +132,8 @@ def test_complete_workflow_with_adapters():
 
         try:
             # Create repositories (in-memory for testing)
-            from pynomaly.domain.services import FeatureValidator
-            from pynomaly.infrastructure.repositories import (
+            from monorepo.domain.services import FeatureValidator
+            from monorepo.infrastructure.repositories import (
                 InMemoryDatasetRepository,
                 InMemoryDetectorRepository,
             )
@@ -149,7 +149,7 @@ def test_complete_workflow_with_adapters():
             print("   ✓ Repositories and services created")
 
             # Test training use case
-            from pynomaly.application.use_cases import (
+            from monorepo.application.use_cases import (
                 TrainDetectorRequest,
                 TrainDetectorUseCase,
             )
@@ -185,7 +185,7 @@ def test_complete_workflow_with_adapters():
             print(f"     Detector fitted: {train_response.trained_detector.is_fitted}")
 
             # Test detection use case
-            from pynomaly.application.use_cases import (
+            from monorepo.application.use_cases import (
                 DetectAnomaliesRequest,
                 DetectAnomaliesUseCase,
             )

@@ -39,8 +39,8 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detector import Detector
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detector import Detector
 
 
 @dataclass

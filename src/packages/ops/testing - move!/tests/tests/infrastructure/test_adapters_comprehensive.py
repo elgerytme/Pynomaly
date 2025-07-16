@@ -7,10 +7,10 @@ from unittest.mock import Mock, patch
 import numpy as np
 import pytest
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import AdapterError, InvalidAlgorithmError
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters import (
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.exceptions import AdapterError, InvalidAlgorithmError
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.infrastructure.adapters import (
     PyGODAdapter,
     PyODAdapter,
     PyTorchAdapter,
@@ -458,11 +458,11 @@ class TestAdapterIntegration:
 
     def test_adapter_factory(self):
         """Test adapter factory pattern."""
-        from pynomaly.infrastructure.adapters.factory import AdapterFactory
+        from monorepo.infrastructure.adapters.factory import AdapterFactory
 
         with (
-            patch("pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"),
-            patch("pynomaly.infrastructure.adapters.pyod_adapter.PyODAdapter"),
+            patch("monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"),
+            patch("monorepo.infrastructure.adapters.pyod_adapter.PyODAdapter"),
         ):
             # Test different adapter types
             sklearn_adapter = AdapterFactory.create_adapter(

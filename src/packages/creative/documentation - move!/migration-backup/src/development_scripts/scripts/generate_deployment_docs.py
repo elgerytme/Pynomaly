@@ -167,7 +167,7 @@ REDIS_MAX_CONNECTIONS=50
 SECRET_KEY=[REDACTED]
 JWT_ALGORITHM=HS256
 JWT_EXPIRATION_MINUTES=60
-CORS_ORIGINS=https://{self.environment}.pynomaly.ai
+CORS_ORIGINS=https://{self.environment}.monorepo.ai
 ```
 
 ### Monitoring Configuration
@@ -194,7 +194,7 @@ LOG_FORMAT=json
 - **Target Port:** 8000
 
 ### Ingress
-- **Host:** {self.environment}.pynomaly.ai
+- **Host:** {self.environment}.monorepo.ai
 - **TLS:** Enabled
 - **Certificate:** Let's Encrypt
 
@@ -210,7 +210,7 @@ upstream pynomaly_backend {{
 
 server {{
     listen 443 ssl http2;
-    server_name {self.environment}.pynomaly.ai;
+    server_name {self.environment}.monorepo.ai;
 
     location / {{
         proxy_pass http://pynomaly_backend;
@@ -330,7 +330,7 @@ kubectl describe pod [POD_NAME] -n pynomaly-{self.environment}
 **Diagnosis:**
 ```bash
 # Check response times
-curl -w "@curl-format.txt" -o /dev/null -s https://{self.environment}.pynomaly.ai/api/v1/health
+curl -w "@curl-format.txt" -o /dev/null -s https://{self.environment}.monorepo.ai/api/v1/health
 
 # Check load
 kubectl top nodes
@@ -367,7 +367,7 @@ kubectl rollout undo deployment/pynomaly-api --to-revision=2 -n pynomaly-{self.e
 ### Application Health
 ```bash
 # API health check
-curl https://{self.environment}.pynomaly.ai/api/v1/health
+curl https://{self.environment}.monorepo.ai/api/v1/health
 
 # Database health check
 kubectl exec -it postgres-0 -n pynomaly-{self.environment} -- pg_isready -U pynomaly
@@ -398,7 +398,7 @@ kubectl get events --all-namespaces --sort-by='.lastTimestamp'
 ### Communication Channels
 - **Slack:** #pynomaly-incidents
 - **PagerDuty:** Pynomaly Service
-- **Email:** devops@pynomaly.ai
+- **Email:** devops@monorepo.ai
 
 ---
 *Generated for deployment {self.deployment_id} on {self.timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}*
@@ -433,7 +433,7 @@ kubectl rollout status deployment/pynomaly-api -n pynomaly-{self.environment} --
 
 # Verify rollback
 kubectl get pods -n pynomaly-{self.environment}
-curl https://{self.environment}.pynomaly.ai/api/v1/health
+curl https://{self.environment}.monorepo.ai/api/v1/health
 ```
 
 ## Detailed Rollback Procedure
@@ -476,10 +476,10 @@ SELECT version_num FROM alembic_version;
 ### 5. Verify Rollback
 ```bash
 # Check application health
-curl https://{self.environment}.pynomaly.ai/api/v1/health
+curl https://{self.environment}.monorepo.ai/api/v1/health
 
 # Check key functionality
-curl https://{self.environment}.pynomaly.ai/api/v1/algorithms
+curl https://{self.environment}.monorepo.ai/api/v1/algorithms
 
 # Monitor logs
 kubectl logs -f deployment/pynomaly-api -n pynomaly-{self.environment}

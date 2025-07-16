@@ -17,7 +17,7 @@ def test_explainability_infrastructure():
 
     try:
         # Test domain service
-        from pynomaly.domain.services.explainability_service import (
+        from monorepo.domain.services.explainability_service import (
             ExplainabilityService,
             ExplanationMethod,
         )
@@ -30,7 +30,7 @@ def test_explainability_infrastructure():
         print(f"📋 Available methods: {[m.value for m in available_methods]}")
 
         # Test application service
-        from pynomaly.application.services.explainability_service import (
+        from monorepo.application.services.explainability_service import (
             ExplanationRequest,
         )
 
@@ -38,7 +38,7 @@ def test_explainability_infrastructure():
 
         # Test SHAP explainer (may fail if SHAP not available)
         try:
-            from pynomaly.infrastructure.explainers.shap_explainer import SHAPExplainer
+            from monorepo.infrastructure.explainers.shap_explainer import SHAPExplainer
 
             print("✅ SHAP explainer imported successfully")
 
@@ -58,7 +58,7 @@ def test_explainability_infrastructure():
 
         # Test API endpoints
         try:
-            from pynomaly.presentation.api.endpoints.explainability import router
+            from monorepo.presentation.api.endpoints.explainability import router
 
             print("✅ API endpoints imported successfully")
             print(f"📡 API router has {len(router.routes)} routes")

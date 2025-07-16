@@ -7,10 +7,10 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from pynomaly.infrastructure.quality_gates.code_quality_gate import CodeQualityGate
-from pynomaly.infrastructure.quality_gates.coverage_gate import CoverageGate
-from pynomaly.infrastructure.quality_gates.performance_gate import PerformanceGate
-from pynomaly.infrastructure.quality_gates.security_gate import SecurityGate
+from monorepo.infrastructure.quality_gates.code_quality_gate import CodeQualityGate
+from monorepo.infrastructure.quality_gates.coverage_gate import CoverageGate
+from monorepo.infrastructure.quality_gates.performance_gate import PerformanceGate
+from monorepo.infrastructure.quality_gates.security_gate import SecurityGate
 
 
 class TestCoverageGate:

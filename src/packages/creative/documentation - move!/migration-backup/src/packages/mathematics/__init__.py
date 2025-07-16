@@ -14,7 +14,7 @@ This package offers:
 
 __version__ = "1.0.0"
 __author__ = "Pynomaly Team"
-__email__ = "support@pynomaly.com"
+__email__ = "support@monorepo.com"
 
 from .domain.entities.math_function import MathFunction
 from .domain.entities.matrix import Matrix

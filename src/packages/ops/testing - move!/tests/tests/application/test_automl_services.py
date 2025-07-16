@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.application.dto.automl_dto import (
+from monorepo.application.dto.automl_dto import (
     AlgorithmRecommendationRequestDTO,
     AlgorithmRecommendationResponseDTO,
     AutoMLRequestDTO,
@@ -15,9 +15,9 @@ from pynomaly.application.dto.automl_dto import (
     HyperparameterOptimizationRequestDTO,
     HyperparameterOptimizationResponseDTO,
 )
-from pynomaly.application.services.automl_service import AutoMLService
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import ProcessingError, ValidationError
+from monorepo.application.services.automl_service import AutoMLService
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import ProcessingError, ValidationError
 from tests.conftest_dependencies import requires_dependency
 
 

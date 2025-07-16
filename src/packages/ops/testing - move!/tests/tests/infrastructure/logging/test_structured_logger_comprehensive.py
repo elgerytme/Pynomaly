@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from unittest.mock import patch
 
-from pynomaly.infrastructure.logging.structured_logger import (
+from monorepo.infrastructure.logging.structured_logger import (
     LogContext,
     LogLevel,
     PerformanceLogger,
@@ -25,7 +25,7 @@ class TestLogContext:
         context = LogContext()
 
         # Check default values
-        assert context.service_name == "pynomaly"
+        assert context.service_name == "monorepo"
         assert context.service_version == "1.0.0"
         assert context.environment == "development"
         assert context.correlation_id is not None
@@ -616,7 +616,7 @@ class TestGlobalLoggerManagement:
             assert logger.level == LogLevel.WARNING
             assert logger.enable_console is False
             assert logger.enable_json is True
-            assert logger.output_path == output_dir / "pynomaly.log"
+            assert logger.output_path == output_dir / "monorepo.log"
 
             # Check that context was set
             context = StructuredLogger.get_current_context()

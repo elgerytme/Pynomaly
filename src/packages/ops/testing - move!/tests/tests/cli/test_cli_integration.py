@@ -10,8 +10,8 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli import autonomous, datasets, detection, detectors
-from pynomaly.presentation.cli.app import app
+from monorepo.presentation.cli import autonomous, datasets, detection, detectors
+from monorepo.presentation.cli.app import app
 
 
 class TestCLIIntegration:
@@ -40,7 +40,7 @@ class TestCLIIntegration:
     def test_autonomous_detection_workflow(self, runner, sample_data_file):
         """Test complete autonomous detection workflow."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -85,7 +85,7 @@ class TestCLIIntegration:
     def test_dataset_lifecycle_workflow(self, runner, sample_data_file):
         """Test dataset load, show, and delete workflow."""
         with patch(
-            "pynomaly.presentation.cli.container.get_cli_container"
+            "monorepo.presentation.cli.container.get_cli_container"
         ) as mock_container:
             container = Mock()
             dataset_repo = Mock()
@@ -124,7 +124,7 @@ class TestCLIIntegration:
     def test_detector_creation_and_training_workflow(self, runner, sample_data_file):
         """Test detector creation and training workflow."""
         with patch(
-            "pynomaly.presentation.cli.container.get_cli_container"
+            "monorepo.presentation.cli.container.get_cli_container"
         ) as mock_container:
             container = Mock()
             detector_repo = Mock()
@@ -164,7 +164,7 @@ class TestCLIIntegration:
 
             # 2. Train detector (mock training)
             with patch(
-                "pynomaly.application.use_cases.train_detector.TrainDetectorUseCase"
+                "monorepo.application.use_cases.train_detector.TrainDetectorUseCase"
             ) as mock_use_case:
                 mock_use_case_instance = Mock()
                 mock_use_case.return_value = mock_use_case_instance
@@ -250,7 +250,7 @@ class TestCLIIntegration:
 
             try:
                 with patch(
-                    "pynomaly.infrastructure.exporters.excel_exporter.ExcelExporter"
+                    "monorepo.infrastructure.exporters.excel_exporter.ExcelExporter"
                 ) as mock_exporter:
                     mock_exporter_instance = Mock()
                     mock_exporter.return_value = mock_exporter_instance
@@ -311,7 +311,7 @@ class TestCLIIntegration:
     def test_error_recovery_workflow(self, runner, sample_data_file):
         """Test error recovery in workflows."""
         with patch(
-            "pynomaly.presentation.cli.container.get_cli_container"
+            "monorepo.presentation.cli.container.get_cli_container"
         ) as mock_container:
             container = Mock()
             dataset_repo = Mock()
@@ -342,7 +342,7 @@ class TestCLIIntegration:
     def test_concurrent_operations_workflow(self, runner, sample_data_file):
         """Test handling of concurrent operations."""
         with patch(
-            "pynomaly.presentation.cli.container.get_cli_container"
+            "monorepo.presentation.cli.container.get_cli_container"
         ) as mock_container:
             container = Mock()
             dataset_repo = Mock()

@@ -149,19 +149,19 @@ class DependencyValidator:
         print("=" * 50)
         
         # Test main package
-        success, message = self.validate_import("pynomaly")
+        success, message = self.validate_import("monorepo")
         if success:
-            print(f"✅ {'pynomaly':<20} {message}")
+            print(f"✅ {'monorepo':<20} {message}")
         else:
-            print(f"❌ {'pynomaly':<20} {message}")
+            print(f"❌ {'monorepo':<20} {message}")
             self.issues.append(f"pynomaly: {message}")
             return
         
         # Test key submodules
         submodules = [
-            "pynomaly.domain.entities",
-            "pynomaly.domain.value_objects",
-            "pynomaly.presentation.cli",
+            "monorepo.domain.entities",
+            "monorepo.domain.value_objects",
+            "monorepo.presentation.cli",
         ]
         
         for module in submodules:

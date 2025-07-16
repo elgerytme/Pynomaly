@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from sklearn.impute import KNNImputer
 
-from pynomaly.domain.entities import Dataset
+from monorepo.domain.entities import Dataset
 
 
 class MissingValueStrategy(Enum):

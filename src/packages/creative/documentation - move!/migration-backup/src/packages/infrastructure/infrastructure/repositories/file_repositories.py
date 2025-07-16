@@ -8,9 +8,9 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.shared.protocols import (
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.shared.protocols import (
     DatasetRepositoryProtocol,
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,
@@ -318,8 +318,8 @@ class FileResultRepository(DetectionResultRepositoryProtocol):
         """Convert dictionary to result object."""
         import numpy as np
 
-        from pynomaly.domain.entities.anomaly import Anomaly
-        from pynomaly.domain.value_objects import AnomalyScore
+        from monorepo.domain.entities.anomaly import Anomaly
+        from monorepo.domain.value_objects import AnomalyScore
 
         timestamp = datetime.fromisoformat(data["timestamp"])
 

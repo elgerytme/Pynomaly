@@ -17,12 +17,12 @@ from rich.progress import (
 )
 from rich.table import Table
 
-from pynomaly.application.services.performance_benchmarking_service import (
+from monorepo.application.services.performance_benchmarking_service import (
     BenchmarkConfig,
     BenchmarkSuite,
     PerformanceBenchmarkingService,
 )
-from pynomaly.infrastructure.config.container import Container
+from monorepo.infrastructure.config.container import Container
 
 console = Console()
 

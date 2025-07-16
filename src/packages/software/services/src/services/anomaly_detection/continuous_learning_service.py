@@ -14,7 +14,7 @@ from uuid import UUID, uuid4
 import numpy as np
 from sklearn.base import BaseEstimator
 
-from pynomaly.domain.entities.continuous_learning import (
+from monorepo.domain.entities.continuous_learning import (
     ConvergenceCriteria,
     EvolutionTrigger,
     FeedbackType,
@@ -25,7 +25,7 @@ from pynomaly.domain.entities.continuous_learning import (
     PerformanceDelta,
     UserFeedback,
 )
-from pynomaly.domain.entities.drift_detection import DriftEvent
+from monorepo.domain.entities.drift_detection import DriftEvent
 
 logger = logging.getLogger(__name__)
 

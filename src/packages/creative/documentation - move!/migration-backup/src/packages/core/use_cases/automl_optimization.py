@@ -13,13 +13,13 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.application.services.automl_service import (
+from monorepo.application.services.automl_service import (
     AutoMLResult,
     AutoMLService,
     OptimizationObjective,
 )
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import AutoMLError, DomainError
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import AutoMLError, DomainError
 
 logger = logging.getLogger(__name__)
 
@@ -473,7 +473,7 @@ class AutoMLOptimizationUseCase:
 
     def _create_dataset_profile(self, dataset: Dataset):
         """Create a dataset profile from a Dataset entity."""
-        from pynomaly.application.services.automl_service import DatasetProfile
+        from monorepo.application.services.automl_service import DatasetProfile
 
         df = dataset.features
         n_samples, n_features = df.shape

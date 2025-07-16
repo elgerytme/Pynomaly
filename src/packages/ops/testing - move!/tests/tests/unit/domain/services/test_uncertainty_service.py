@@ -9,12 +9,12 @@ including bootstrap, Bayesian, and normal confidence intervals.
 import numpy as np
 import pytest
 
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.services.uncertainty_service import (
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.services.uncertainty_service import (
     UncertaintyQuantificationService,
 )
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
+from monorepo.domain.value_objects.anomaly_score import AnomalyScore
+from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
 class TestUncertaintyQuantificationService:

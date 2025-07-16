@@ -10,7 +10,7 @@ import sys
 import typer
 from rich.console import Console
 
-from pynomaly.presentation.cli.container import get_cli_container
+from monorepo.presentation.cli.container import get_cli_container
 
 app = typer.Typer()
 console = Console()
@@ -40,7 +40,7 @@ def start_server(
         sys.executable,
         "-m",
         "uvicorn",
-        "pynomaly.presentation.api.app:app",
+        "monorepo.presentation.api.app:app",
         f"--host={settings.api_host}",
         f"--port={settings.api_port}",
         f"--log-level={log_level}",
@@ -76,7 +76,7 @@ def start_server(
 
     if daemon:
         # Run as daemon (basic implementation)
-        pid_file = settings.storage_path / "pynomaly.pid"
+        pid_file = settings.storage_path / "monorepo.pid"
 
         # Fork process
         try:
@@ -120,7 +120,7 @@ def stop_server(force: bool = typer.Option(False, "--force", "-f", help="Force s
     container = get_cli_container()
     settings = container.config()
 
-    pid_file = settings.storage_path / "pynomaly.pid"
+    pid_file = settings.storage_path / "monorepo.pid"
 
     if not pid_file.exists():
         console.print("[yellow]No server PID file found[/yellow]")
@@ -161,7 +161,7 @@ def server_status():
     settings = container.config()
 
     # Check PID file
-    pid_file = settings.storage_path / "pynomaly.pid"
+    pid_file = settings.storage_path / "monorepo.pid"
 
     if pid_file.exists():
         try:

@@ -11,9 +11,9 @@ from unittest.mock import Mock, patch
 import pytest
 import yaml
 
-from pynomaly.domain.exceptions import ConfigurationError
-from pynomaly.infrastructure.config import Settings
-from pynomaly.infrastructure.config.container import Container
+from monorepo.domain.exceptions import ConfigurationError
+from monorepo.infrastructure.config import Settings
+from monorepo.infrastructure.config.container import Container
 
 
 @pytest.fixture
@@ -67,7 +67,7 @@ class TestSettings:
         settings = Settings()
 
         # Test database defaults
-        assert settings.database_url == "sqlite:///pynomaly.db"
+        assert settings.database_url == "sqlite:///monorepo.db"
         assert settings.database_echo is False
         assert settings.database_pool_size == 10
 
@@ -809,7 +809,7 @@ class TestConfigurationExtensions:
         }
 
         # Mock encryption key
-        with patch("pynomaly.infrastructure.config.get_encryption_key") as mock_key:
+        with patch("monorepo.infrastructure.config.get_encryption_key") as mock_key:
             mock_key.return_value = b"0" * 32  # 256-bit key
 
             settings = Settings.load_encrypted(sensitive_config)

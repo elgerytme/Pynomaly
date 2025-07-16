@@ -84,7 +84,7 @@ class APMIntegration:
     def __init__(self, provider: APMProvider = APMProvider.OPENTELEMETRY):
         self.provider = provider
         self.enabled = os.getenv("PYNOMALY_APM_ENABLED", "true").lower() == "true"
-        self.service_name = os.getenv("PYNOMALY_SERVICE_NAME", "pynomaly")
+        self.service_name = os.getenv("PYNOMALY_SERVICE_NAME", "monorepo")
         self.environment = os.getenv("PYNOMALY_ENV", "development")
         self.version = os.getenv("PYNOMALY_VERSION", "1.0.0")
 

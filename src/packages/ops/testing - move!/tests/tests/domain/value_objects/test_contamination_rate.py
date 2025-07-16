@@ -7,8 +7,8 @@ behavior, and immutability across all use cases.
 
 import pytest
 
-from pynomaly.domain.exceptions import InvalidValueError
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.exceptions import InvalidValueError
+from monorepo.domain.value_objects import ContaminationRate
 
 
 class TestContaminationRateCreation:

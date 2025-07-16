@@ -16,7 +16,7 @@ def test_new_entities():
     try:
         # Test Model entity
         print("1. Testing Model entity...")
-        from pynomaly.domain.entities import Model, ModelStage, ModelType
+        from monorepo.domain.entities import Model, ModelStage, ModelType
 
         model = Model(
             name="fraud_detection_model",
@@ -51,7 +51,7 @@ def test_new_entities():
 
         # Test Experiment entity
         print("\n2. Testing Experiment entity...")
-        from pynomaly.domain.entities import Experiment, ExperimentRun, ExperimentType
+        from monorepo.domain.entities import Experiment, ExperimentRun, ExperimentType
 
         experiment = Experiment(
             name="algorithm_comparison_v1",
@@ -105,7 +105,7 @@ def test_new_entities():
 
         # Test Pipeline entity
         print("\n3. Testing Pipeline entity...")
-        from pynomaly.domain.entities import (
+        from monorepo.domain.entities import (
             Pipeline,
             PipelineStep,
             PipelineType,
@@ -174,7 +174,7 @@ def test_new_entities():
 
         # Test Alert entity
         print("\n4. Testing Alert entity...")
-        from pynomaly.domain.entities import (
+        from monorepo.domain.entities import (
             Alert,
             AlertCondition,
             AlertSeverity,

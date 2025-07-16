@@ -6,13 +6,13 @@ from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
-from pynomaly.domain.models.monitoring import (
+from monorepo.domain.models.monitoring import (
     AlertSeverity,
     AlertStatus,
     MetricType,
     ServiceStatus,
 )
-from pynomaly.infrastructure.monitoring.metrics_service import MetricsService
+from monorepo.infrastructure.monitoring.metrics_service import MetricsService
 
 
 class TestMetricsService:
@@ -38,7 +38,7 @@ class TestMetricsService:
         """Test metrics service with default parameters."""
         service = MetricsService()
 
-        assert service.service_name == "pynomaly"
+        assert service.service_name == "monorepo"
         assert service.service_version == "1.0.0"
 
     def test_prometheus_metrics_initialization(self):
@@ -596,7 +596,7 @@ class TestMetricsService:
             assert service.is_monitoring is False
             assert len(service.monitoring_tasks) == 0
 
-    @patch("pynomaly.infrastructure.monitoring.metrics_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.metrics_service.psutil")
     def test_system_metrics_collector(self, mock_psutil):
         """Test system metrics collector task."""
         service = MetricsService()
@@ -664,7 +664,7 @@ class TestMetricsService:
             assert service.service_status.memory_usage == 60.0
             assert service.service_status.disk_usage == 50.0
 
-    @patch("pynomaly.infrastructure.monitoring.metrics_service.psutil")
+    @patch("monorepo.infrastructure.monitoring.metrics_service.psutil")
     def test_system_metrics_collector_exception(self, mock_psutil):
         """Test system metrics collector with exception."""
         service = MetricsService()
@@ -785,7 +785,7 @@ class TestMetricsService:
                 # Check that health check was not run
                 mock_run_check.assert_not_called()
 
-    @patch("pynomaly.infrastructure.monitoring.metrics_service.requests")
+    @patch("monorepo.infrastructure.monitoring.metrics_service.requests")
     def test_run_health_check_http_success(self, mock_requests):
         """Test running HTTP health check successfully."""
         service = MetricsService()
@@ -817,7 +817,7 @@ class TestMetricsService:
         assert health_check.is_healthy is True
         assert health_check.last_result["status_code"] == 200
 
-    @patch("pynomaly.infrastructure.monitoring.metrics_service.requests")
+    @patch("monorepo.infrastructure.monitoring.metrics_service.requests")
     def test_run_health_check_http_failure(self, mock_requests):
         """Test running HTTP health check with failure."""
         service = MetricsService()
@@ -1040,7 +1040,7 @@ class TestMetricsService:
         )
 
         # Create existing active alert
-        from pynomaly.domain.models.monitoring import Alert
+        from monorepo.domain.models.monitoring import Alert
 
         alert = Alert(
             alert_id=uuid4(),
@@ -1071,7 +1071,7 @@ class TestMetricsService:
         service = MetricsService()
 
         # Create mock alert
-        from pynomaly.domain.models.monitoring import Alert
+        from monorepo.domain.models.monitoring import Alert
 
         alert = Alert(
             alert_id=uuid4(),
@@ -1134,7 +1134,7 @@ class TestMetricsService:
         service = MetricsService()
 
         # Create old resolved alert
-        from pynomaly.domain.models.monitoring import Alert
+        from monorepo.domain.models.monitoring import Alert
 
         old_alert = Alert(
             alert_id=uuid4(),
@@ -1204,7 +1204,7 @@ class TestMetricsService:
         service = MetricsService()
 
         # Create alerts with different statuses
-        from pynomaly.domain.models.monitoring import Alert
+        from monorepo.domain.models.monitoring import Alert
 
         active_alert = Alert(
             alert_id=uuid4(),
@@ -1244,7 +1244,7 @@ class TestMetricsService:
         service = MetricsService()
 
         # Create alert
-        from pynomaly.domain.models.monitoring import Alert
+        from monorepo.domain.models.monitoring import Alert
 
         alert = Alert(
             alert_id=uuid4(),
@@ -1280,7 +1280,7 @@ class TestMetricsService:
         service = MetricsService()
 
         # Create alert
-        from pynomaly.domain.models.monitoring import Alert
+        from monorepo.domain.models.monitoring import Alert
 
         alert = Alert(
             alert_id=uuid4(),

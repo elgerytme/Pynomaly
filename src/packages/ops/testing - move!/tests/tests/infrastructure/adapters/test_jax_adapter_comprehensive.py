@@ -6,13 +6,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import (
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import (
     DetectorNotFittedError,
     FittingError,
     InvalidAlgorithmError,
 )
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.value_objects import ContaminationRate
 
 
 # Test with optional dependency handling
@@ -71,7 +71,7 @@ class TestJAXAdapterComprehensive:
     )
     def test_jax_adapter_initialization(self, algorithm_name):
         """Test JAX adapter initialization for all algorithms."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         adapter = JAXAdapter(
             algorithm_name=algorithm_name, contamination_rate=ContaminationRate(0.1)
@@ -84,7 +84,7 @@ class TestJAXAdapterComprehensive:
 
     def test_jax_adapter_invalid_algorithm(self):
         """Test JAX adapter with invalid algorithm name."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         with pytest.raises(InvalidAlgorithmError):
             JAXAdapter(
@@ -95,7 +95,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_autoencoder_training_and_prediction(self, sample_dataset):
         """Test AutoEncoder training and prediction."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         adapter = JAXAdapter(
             algorithm_name="AutoEncoder",
@@ -127,7 +127,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_vae_training_and_prediction(self, sample_dataset):
         """Test VAE training and prediction."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         adapter = JAXAdapter(
             algorithm_name="VAE",
@@ -159,7 +159,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_isolation_forest_training_and_prediction(self, sample_dataset):
         """Test IsolationForest training and prediction."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         adapter = JAXAdapter(
             algorithm_name="IsolationForest",
@@ -188,7 +188,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_ocsvm_training_and_prediction(self, sample_dataset):
         """Test OCSVM training and prediction."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         adapter = JAXAdapter(
             algorithm_name="OCSVM",
@@ -218,7 +218,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_lof_training_and_prediction(self, sample_dataset):
         """Test LOF training and prediction."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         adapter = JAXAdapter(
             algorithm_name="LOF",
@@ -248,7 +248,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_prediction_without_fitting(self, sample_dataset):
         """Test prediction without fitting raises appropriate error."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         adapter = JAXAdapter(
             algorithm_name="AutoEncoder", contamination_rate=ContaminationRate(0.1)
@@ -260,7 +260,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_performance_with_large_dataset(self, large_dataset):
         """Test performance with larger dataset."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         adapter = JAXAdapter(
             algorithm_name="AutoEncoder",
@@ -292,7 +292,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_edge_cases_and_error_handling(self):
         """Test edge cases and error handling."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         # Test with empty dataset
         empty_df = pd.DataFrame()
@@ -327,7 +327,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_different_contamination_rates(self, sample_dataset):
         """Test different contamination rates."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         contamination_rates = [0.05, 0.1, 0.2, 0.3]
 
@@ -348,7 +348,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_reproducibility_with_random_seed(self, sample_dataset):
         """Test reproducibility with fixed random seed."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         # Create two identical adapters with same seed
         adapter1 = JAXAdapter(
@@ -379,7 +379,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_algorithm_parameter_variations(self, sample_dataset):
         """Test different algorithm parameter configurations."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         # Test AutoEncoder with different architectures
         configurations = [
@@ -409,8 +409,8 @@ class TestJAXAdapterComprehensive:
     def test_jax_availability_handling(self):
         """Test handling when JAX is not available."""
         # Mock JAX as unavailable
-        with patch("pynomaly.infrastructure.adapters.jax_adapter.HAS_JAX", False):
-            from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        with patch("monorepo.infrastructure.adapters.jax_adapter.HAS_JAX", False):
+            from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
             with pytest.raises(ImportError, match="JAX is not installed"):
                 JAXAdapter(
@@ -421,7 +421,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_list_available_algorithms(self):
         """Test listing available algorithms."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         algorithms = JAXAdapter.list_available_algorithms()
 
@@ -434,7 +434,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_get_algorithm_info(self):
         """Test getting algorithm information."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         # Test AutoEncoder info
         ae_info = JAXAdapter.get_algorithm_info("AutoEncoder")
@@ -461,7 +461,7 @@ class TestJAXAdapterComprehensive:
 
         import psutil
 
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         # Get initial memory usage
         process = psutil.Process(os.getpid())
@@ -490,7 +490,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_batch_processing_consistency(self, sample_dataset):
         """Test that batch processing gives consistent results."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         # Test with different batch sizes
         batch_sizes = [16, 32, 64]
@@ -516,7 +516,7 @@ class TestJAXAdapterComprehensive:
     @requires_jax
     def test_feature_scaling_robustness(self, sample_dataset):
         """Test robustness to different feature scales."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         # Create datasets with different scales
         original_data = sample_dataset.data.copy()

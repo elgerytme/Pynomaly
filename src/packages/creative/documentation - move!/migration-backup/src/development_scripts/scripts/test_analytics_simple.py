@@ -26,7 +26,7 @@ async def test_analytics_service():
     try:
         from datetime import datetime, timedelta
 
-        from pynomaly.presentation.web.analytics_dashboard import (
+        from monorepo.presentation.web.analytics_dashboard import (
             AnalyticsQuery,
             analytics_service,
         )
@@ -61,7 +61,7 @@ async def test_analytics_service():
 async def test_app_integration():
     """Test app integration with analytics."""
     try:
-        from pynomaly.presentation.web.simple_app import create_app
+        from monorepo.presentation.web.simple_app import create_app
 
         app = create_app()
 

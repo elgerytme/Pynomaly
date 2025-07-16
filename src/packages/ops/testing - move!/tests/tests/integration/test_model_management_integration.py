@@ -9,9 +9,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector, Model
-from pynomaly.domain.value_objects import AnomalyScore, AnomalyType, SemanticVersion
-from pynomaly.features.model_management import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector, Model
+from monorepo.domain.value_objects import AnomalyScore, AnomalyType, SemanticVersion
+from monorepo.features.model_management import (
     AutoMLPipeline,
     DeploymentConfig,
     ModelDeployment,

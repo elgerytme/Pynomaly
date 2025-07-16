@@ -10,7 +10,7 @@ from uuid import UUID
 import numpy as np
 from scipy import stats
 
-from pynomaly.domain.entities.ab_test import (
+from monorepo.domain.entities.ab_test import (
     ABTest,
     ABTestConfiguration,
     ABTestMetrics,
@@ -20,7 +20,7 @@ from pynomaly.domain.entities.ab_test import (
     SuccessMetric,
     TrafficSplit,
 )
-from pynomaly.shared.protocols.repository_protocol import ModelRepositoryProtocol
+from monorepo.shared.protocols.repository_protocol import ModelRepositoryProtocol
 
 
 class ModelABTestingService:

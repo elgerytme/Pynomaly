@@ -5,9 +5,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.shared.protocols.detector_protocol import DetectorProtocol
+from monorepo.domain.entities import Dataset, DetectionResult
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.shared.protocols.detector_protocol import DetectorProtocol
 
 
 class MockDetector:
@@ -46,8 +46,8 @@ class MockDetector:
 
         import numpy as np
 
-        from pynomaly.domain.entities.anomaly import Anomaly
-        from pynomaly.domain.value_objects import AnomalyScore
+        from monorepo.domain.entities.anomaly import Anomaly
+        from monorepo.domain.value_objects import AnomalyScore
 
         # Mock anomalies
         anomalies = [
@@ -84,7 +84,7 @@ class MockDetector:
         if not self._is_fitted:
             raise ValueError("Detector must be fitted before scoring")
 
-        from pynomaly.domain.value_objects import AnomalyScore
+        from monorepo.domain.value_objects import AnomalyScore
 
         return [
             AnomalyScore(value=0.1),

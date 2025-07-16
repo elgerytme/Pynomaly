@@ -8,7 +8,7 @@ from datetime import datetime
 
 import pytest
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     AlgorithmConfigurationDTO,
     ConfigurationMetadataDTO,
     DatasetConfigDTO,

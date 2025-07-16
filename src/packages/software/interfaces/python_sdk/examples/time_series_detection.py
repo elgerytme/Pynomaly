@@ -18,7 +18,7 @@ import pandas as pd
 # Add the src directory to Python path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../src"))
 
-from pynomaly_detection.infrastructure.config import create_container
+from monorepo.infrastructure.config import create_container
 
 
 def generate_time_series_data(n_points: int = 1000, anomaly_rate: float = 0.05):

@@ -6,8 +6,8 @@ import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from monorepo.infrastructure.config import create_container
+from monorepo.presentation.api.app import create_app
 
 
 @pytest.fixture

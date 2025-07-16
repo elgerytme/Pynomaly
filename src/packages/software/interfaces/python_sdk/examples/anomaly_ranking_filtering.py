@@ -24,10 +24,10 @@ import sys
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from pynomaly_detection.domain.entities import Dataset, Detector
-from pynomaly_detection.domain.value_objects import ConfidenceInterval
-from pynomaly_detection.infrastructure.config import create_container
-from pynomaly_detection.infrastructure.resilience import ml_resilient
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.value_objects import ConfidenceInterval
+from monorepo.infrastructure.config import create_container
+from monorepo.infrastructure.resilience import ml_resilient
 
 
 class RankingMethod(Enum):

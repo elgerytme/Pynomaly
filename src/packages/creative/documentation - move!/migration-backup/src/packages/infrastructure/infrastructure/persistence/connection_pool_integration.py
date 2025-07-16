@@ -8,12 +8,12 @@ from typing import Any
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.performance.connection_pooling import (
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.performance.connection_pooling import (
     PoolConfiguration,
     get_connection_pool_manager,
 )
-from pynomaly.infrastructure.repositories.repository_factory import RepositoryFactory
+from monorepo.infrastructure.repositories.repository_factory import RepositoryFactory
 
 from .enhanced_database import EnhancedDatabaseManager
 from .production_database import (

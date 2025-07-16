@@ -122,7 +122,7 @@ class TestAPIPerformance:
         """Create test client for performance testing."""
         from fastapi.testclient import TestClient
 
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app(testing=True)
         return TestClient(app)
@@ -369,7 +369,7 @@ class TestMLPerformance:
             for algorithm in algorithms:
                 # Mock adapter for consistent testing
                 with patch(
-                    "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+                    "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
                 ) as mock_adapter:
                     adapter = mock_adapter.return_value
 
@@ -425,7 +425,7 @@ class TestMLPerformance:
         n_features = 10
 
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
         ) as mock_adapter:
             adapter = mock_adapter.return_value
 
@@ -492,7 +492,7 @@ class TestMLPerformance:
 
             # Simulate processing
             with patch(
-                "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+                "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
             ) as mock_adapter:
                 adapter = mock_adapter.return_value
 
@@ -568,7 +568,7 @@ class TestMLPerformance:
 
             # Simulate ML operations
             with patch(
-                "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+                "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
             ) as mock_adapter:
                 adapter = mock_adapter.return_value
 
@@ -621,7 +621,7 @@ class TestDatabasePerformance:
     async def mock_database(self):
         """Mock database for performance testing."""
         with patch(
-            "pynomaly.infrastructure.persistence.database.DatabaseManager"
+            "monorepo.infrastructure.persistence.database.DatabaseManager"
         ) as mock_db:
             db_manager = mock_db.return_value
 
@@ -766,7 +766,7 @@ class TestDatabasePerformance:
 
         # Mock connection pool
         with patch(
-            "pynomaly.infrastructure.persistence.connection_pool.ConnectionPool"
+            "monorepo.infrastructure.persistence.connection_pool.ConnectionPool"
         ) as mock_pool:
             pool = mock_pool.return_value
 
@@ -944,7 +944,7 @@ class TestSystemPerformance:
 
         from fastapi.testclient import TestClient
 
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app(testing=True)
         client = TestClient(app)
@@ -970,7 +970,7 @@ class TestSystemPerformance:
 
         # Mock the workflow steps
         with patch.multiple(
-            "pynomaly.application.services.detection_service.DetectionService",
+            "monorepo.application.services.detection_service.DetectionService",
             detect_anomalies=MagicMock(return_value=Mock()),
             train_detector=MagicMock(return_value=Mock()),
         ):
@@ -1050,7 +1050,7 @@ class TestSystemPerformance:
         # API response time
         from fastapi.testclient import TestClient
 
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app(testing=True)
         client = TestClient(app)
@@ -1062,7 +1062,7 @@ class TestSystemPerformance:
 
         # ML operations (mocked)
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
         ) as mock_adapter:
             mock_adapter.return_value.fit.return_value = Mock()
 

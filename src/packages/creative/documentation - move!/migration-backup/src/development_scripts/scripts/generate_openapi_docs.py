@@ -35,8 +35,8 @@ class OpenAPIDocumentationGenerator:
             "description": self._get_api_description(),
             "contact": {
                 "name": "Pynomaly Support",
-                "url": "https://pynomaly.com/support",
-                "email": "support@pynomaly.com",
+                "url": "https://monorepo.com/support",
+                "email": "support@monorepo.com",
             },
             "license": {
                 "name": "MIT License",
@@ -45,9 +45,9 @@ class OpenAPIDocumentationGenerator:
         }
 
         self.servers = [
-            {"url": "https://api.pynomaly.com", "description": "Production server"},
+            {"url": "https://api.monorepo.com", "description": "Production server"},
             {
-                "url": "https://staging-api.pynomaly.com",
+                "url": "https://staging-api.monorepo.com",
                 "description": "Staging server",
             },
             {"url": "http://localhost:8000", "description": "Development server"},
@@ -91,7 +91,7 @@ A comprehensive, production-ready anomaly detection system with enterprise-grade
 ### 1. Authentication
 ```bash
 # Get JWT token
-curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \\
+curl -X POST "https://api.monorepo.com/api/v1/auth/login" \\
   -H "Content-Type: application/json" \\
   -d '{"username": "your_username", "password": "your_password"}'
 ```
@@ -99,7 +99,7 @@ curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \\
 ### 2. Basic Anomaly Detection
 ```bash
 # Detect anomalies in data
-curl -X POST "https://api.pynomaly.com/api/v1/detection/detect" \\
+curl -X POST "https://api.monorepo.com/api/v1/detection/detect" \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -112,7 +112,7 @@ curl -X POST "https://api.pynomaly.com/api/v1/detection/detect" \\
 ### 3. Train Custom Model
 ```bash
 # Train a new model
-curl -X POST "https://api.pynomaly.com/api/v1/detection/train" \\
+curl -X POST "https://api.monorepo.com/api/v1/detection/train" \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -150,7 +150,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
 
 ```json
 {
-  "type": "https://pynomaly.com/errors/validation-error",
+  "type": "https://monorepo.com/errors/validation-error",
   "title": "Validation Error",
   "status": 422,
   "detail": "The request data is invalid",
@@ -166,9 +166,9 @@ The API uses standard HTTP status codes and returns detailed error messages foll
 
 ## Support
 
-- **Documentation**: https://docs.pynomaly.com
-- **Support**: support@pynomaly.com
-- **Community**: https://community.pynomaly.com
+- **Documentation**: https://docs.monorepo.com
+- **Support**: support@monorepo.com
+- **Community**: https://community.monorepo.com
 """
 
     def generate_comprehensive_schema(self) -> dict[str, Any]:
@@ -191,7 +191,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
             "security": [{"BearerAuth": []}, {"ApiKeyAuth": []}],
             "externalDocs": {
                 "description": "Pynomaly Documentation",
-                "url": "https://docs.pynomaly.com",
+                "url": "https://docs.monorepo.com",
             },
         }
 
@@ -205,7 +205,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                 "description": "User authentication and authorization",
                 "externalDocs": {
                     "description": "Authentication Guide",
-                    "url": "https://docs.pynomaly.com/authentication",
+                    "url": "https://docs.monorepo.com/authentication",
                 },
             },
             {
@@ -213,7 +213,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                 "description": "Core anomaly detection capabilities",
                 "externalDocs": {
                     "description": "Detection Guide",
-                    "url": "https://docs.pynomaly.com/detection",
+                    "url": "https://docs.monorepo.com/detection",
                 },
             },
             {
@@ -221,7 +221,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                 "description": "Model lifecycle management and deployment",
                 "externalDocs": {
                     "description": "Model Management Guide",
-                    "url": "https://docs.pynomaly.com/models",
+                    "url": "https://docs.monorepo.com/models",
                 },
             },
             {
@@ -229,7 +229,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                 "description": "MLOps platform features",
                 "externalDocs": {
                     "description": "MLOps Guide",
-                    "url": "https://docs.pynomaly.com/mlops",
+                    "url": "https://docs.monorepo.com/mlops",
                 },
             },
             {
@@ -237,7 +237,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                 "description": "Enterprise features and multi-tenancy",
                 "externalDocs": {
                     "description": "Enterprise Guide",
-                    "url": "https://docs.pynomaly.com/enterprise",
+                    "url": "https://docs.monorepo.com/enterprise",
                 },
             },
             {
@@ -245,7 +245,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                 "description": "System monitoring and health checks",
                 "externalDocs": {
                     "description": "Monitoring Guide",
-                    "url": "https://docs.pynomaly.com/monitoring",
+                    "url": "https://docs.monorepo.com/monitoring",
                 },
             },
             {
@@ -253,7 +253,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                 "description": "Analytics dashboard and insights",
                 "externalDocs": {
                     "description": "Analytics Guide",
-                    "url": "https://docs.pynomaly.com/analytics",
+                    "url": "https://docs.monorepo.com/analytics",
                 },
             },
             {
@@ -261,7 +261,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                 "description": "Audit logging and compliance reporting",
                 "externalDocs": {
                     "description": "Compliance Guide",
-                    "url": "https://docs.pynomaly.com/compliance",
+                    "url": "https://docs.monorepo.com/compliance",
                 },
             },
         ]
@@ -637,7 +637,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                     "type": {
                         "type": "string",
                         "description": "Error type URI",
-                        "example": "https://pynomaly.com/errors/validation-error",
+                        "example": "https://monorepo.com/errors/validation-error",
                     },
                     "title": {
                         "type": "string",
@@ -712,7 +712,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                     "application/json": {
                         "schema": {"$ref": "#/components/schemas/ErrorResponse"},
                         "example": {
-                            "type": "https://pynomaly.com/errors/bad-request",
+                            "type": "https://monorepo.com/errors/bad-request",
                             "title": "Bad Request",
                             "status": 400,
                             "detail": "Invalid request parameters",
@@ -726,7 +726,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                     "application/json": {
                         "schema": {"$ref": "#/components/schemas/ErrorResponse"},
                         "example": {
-                            "type": "https://pynomaly.com/errors/unauthorized",
+                            "type": "https://monorepo.com/errors/unauthorized",
                             "title": "Unauthorized",
                             "status": 401,
                             "detail": "Authentication required",
@@ -740,7 +740,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                     "application/json": {
                         "schema": {"$ref": "#/components/schemas/ErrorResponse"},
                         "example": {
-                            "type": "https://pynomaly.com/errors/not-found",
+                            "type": "https://monorepo.com/errors/not-found",
                             "title": "Not Found",
                             "status": 404,
                             "detail": "Resource not found",
@@ -754,7 +754,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                     "application/json": {
                         "schema": {"$ref": "#/components/schemas/ErrorResponse"},
                         "example": {
-                            "type": "https://pynomaly.com/errors/validation-error",
+                            "type": "https://monorepo.com/errors/validation-error",
                             "title": "Validation Error",
                             "status": 422,
                             "detail": "The request data is invalid",
@@ -768,7 +768,7 @@ The API uses standard HTTP status codes and returns detailed error messages foll
                     "application/json": {
                         "schema": {"$ref": "#/components/schemas/ErrorResponse"},
                         "example": {
-                            "type": "https://pynomaly.com/errors/service-unavailable",
+                            "type": "https://monorepo.com/errors/service-unavailable",
                             "title": "Service Unavailable",
                             "status": 503,
                             "detail": "Service temporarily unavailable",
@@ -995,14 +995,14 @@ This directory contains comprehensive API documentation for the Pynomaly platfor
 
 ### Authentication
 ```bash
-curl -X POST "https://api.pynomaly.com/api/v1/auth/login" \\
+curl -X POST "https://api.monorepo.com/api/v1/auth/login" \\
   -H "Content-Type: application/json" \\
   -d '{{"username": "your_username", "password": "your_password"}}'
 ```
 
 ### Anomaly Detection
 ```bash
-curl -X POST "https://api.pynomaly.com/api/v1/detection/detect" \\
+curl -X POST "https://api.monorepo.com/api/v1/detection/detect" \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{{
@@ -1028,9 +1028,9 @@ See the `examples/` directory for client code examples in:
 
 ## Support
 
-- **Documentation**: https://docs.pynomaly.com
-- **Support**: support@pynomaly.com
-- **Community**: https://community.pynomaly.com
+- **Documentation**: https://docs.monorepo.com
+- **Support**: support@monorepo.com
+- **Community**: https://community.monorepo.com
 
 ---
 
@@ -1056,7 +1056,7 @@ from typing import Dict, Any, List
 class PynomaliClient:
     """Python client for Pynomaly API."""
 
-    def __init__(self, base_url: str = "https://api.pynomaly.com"):
+    def __init__(self, base_url: str = "https://api.monorepo.com"):
         self.base_url = base_url
         self.session = requests.Session()
         self.access_token = None
@@ -1146,7 +1146,7 @@ if __name__ == "__main__":
  */
 
 class PynomaliClient {
-    constructor(baseUrl = 'https://api.pynomaly.com') {
+    constructor(baseUrl = 'https://api.monorepo.com') {
         this.baseUrl = baseUrl;
         this.accessToken = null;
     }
@@ -1257,7 +1257,7 @@ class PynomaliClient {
 # Pynomaly API Client Example - cURL
 
 # Base URL
-BASE_URL="https://api.pynomaly.com"
+BASE_URL="https://api.monorepo.com"
 
 # Login and get JWT token
 echo "Logging in..."

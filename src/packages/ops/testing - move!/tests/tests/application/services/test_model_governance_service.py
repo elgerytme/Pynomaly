@@ -8,7 +8,7 @@ ensuring proper model lifecycle management, compliance, and audit capabilities.
 
 
 # TODO: Import actual service when implementation is complete
-# from src.pynomaly.application.services.model_governance_service import ModelGovernanceService
+# from src.monorepo.application.services.model_governance_service import ModelGovernanceService
 
 
 class TestModelGovernanceService:

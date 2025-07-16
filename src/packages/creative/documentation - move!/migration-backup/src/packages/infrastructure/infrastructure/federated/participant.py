@@ -10,14 +10,14 @@ from uuid import UUID, uuid4
 
 import numpy as np
 
-from pynomaly.domain.models.detector import Detector
-from pynomaly.domain.models.federated import (
+from monorepo.domain.models.detector import Detector
+from monorepo.domain.models.federated import (
     FederatedParticipant,
     ModelUpdate,
     ParticipantRole,
     PrivacyBudget,
 )
-from pynomaly.infrastructure.security.security_service import SecurityService
+from monorepo.infrastructure.security.security_service import SecurityService
 
 
 class FederatedParticipantClient:

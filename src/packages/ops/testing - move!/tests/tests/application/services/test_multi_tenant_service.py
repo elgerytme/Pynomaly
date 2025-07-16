@@ -4,12 +4,12 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.services.multi_tenant_service import (
+from monorepo.application.services.multi_tenant_service import (
     MultiTenantService,
     TenantIsolationService,
     TenantResourceManager,
 )
-from pynomaly.domain.entities.tenant import (
+from monorepo.domain.entities.tenant import (
     ResourceQuotaType,
     SubscriptionTier,
     Tenant,

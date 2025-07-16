@@ -7,9 +7,9 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.shared.protocols import DataLoaderProtocol
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import DataValidationError
+from monorepo.shared.protocols import DataLoaderProtocol
 
 # Import all available loaders
 from .csv_loader import CSVLoader

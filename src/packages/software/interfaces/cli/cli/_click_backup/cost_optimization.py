@@ -10,10 +10,10 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly_detection.application.services.cost_optimization_service import (
+from monorepo.application.services.cost_optimization_service import (
     CostOptimizationService,
 )
-from pynomaly_detection.domain.entities.cost_optimization import CostBudget, OptimizationStrategy
+from monorepo.domain.entities.cost_optimization import CostBudget, OptimizationStrategy
 
 console = Console()
 

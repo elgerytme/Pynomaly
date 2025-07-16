@@ -13,7 +13,7 @@ sys.path.insert(0, str(src_path))
 
 try:
     # Import database models directly to check for metadata issues
-    from pynomaly.infrastructure.persistence.database_repositories import (
+    from monorepo.infrastructure.persistence.database_repositories import (
         Base,
         MetricModel,
         RoleModel,

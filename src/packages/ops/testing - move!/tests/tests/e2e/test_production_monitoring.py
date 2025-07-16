@@ -6,8 +6,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.pynomaly.infrastructure.monitoring.health_service import HealthStatus
-from src.pynomaly.infrastructure.monitoring.production_monitor import (
+from src.monorepo.infrastructure.monitoring.health_service import HealthStatus
+from src.monorepo.infrastructure.monitoring.production_monitor import (
     LogLevel,
     ProductionMonitor,
     get_monitor,

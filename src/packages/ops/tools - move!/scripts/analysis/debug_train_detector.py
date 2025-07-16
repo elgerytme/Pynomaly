@@ -5,13 +5,13 @@ import asyncio
 import pandas as pd
 from unittest.mock import Mock, AsyncMock
 
-from pynomaly.application.use_cases.train_detector import (
+from monorepo.application.use_cases.train_detector import (
     TrainDetectorRequest,
     TrainDetectorUseCase,
 )
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.value_objects import ContaminationRate
 
 
 async def debug_training():

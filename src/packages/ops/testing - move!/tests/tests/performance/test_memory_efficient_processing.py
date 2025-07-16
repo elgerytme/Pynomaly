@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.data_processing import (
+from monorepo.domain.entities import Dataset
+from monorepo.infrastructure.data_processing import (
     DataChunk,
     DataValidator,
     LargeDatasetAnalyzer,
@@ -267,7 +267,7 @@ class TestDataValidator:
 
         # Custom rule that always finds an issue
         def custom_rule(df, threshold=5):
-            from src.pynomaly.infrastructure.data_processing.data_validator import (
+            from src.monorepo.infrastructure.data_processing.data_validator import (
                 ValidationCategory,
                 ValidationIssue,
                 ValidationSeverity,

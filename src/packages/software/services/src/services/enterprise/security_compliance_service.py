@@ -15,7 +15,7 @@ from uuid import UUID, uuid4
 import numpy as np
 from cryptography.fernet import Fernet
 
-from pynomaly.domain.entities.security_compliance import (
+from monorepo.domain.entities.security_compliance import (
     AccessControl,
     AuditEvent,
     AuditLevel,

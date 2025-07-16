@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.app import app
+from monorepo.presentation.cli.app import app
 
 
 class TestCLIIntegrationWorkflows:
@@ -25,14 +25,14 @@ class TestCLIIntegrationWorkflows:
     def mock_container(self):
         """Mock CLI container with all dependencies."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
 
             # Mock config
             config = Mock()
             config.app.version = "1.0.0"
-            config.app_name = "pynomaly"
+            config.app_name = "monorepo"
             config.version = "1.0.0"
             config.debug = False
             config.storage_path = Path("/tmp/pynomaly")
@@ -79,7 +79,7 @@ class TestCLIIntegrationWorkflows:
         """Test complete end-to-end anomaly detection workflow."""
         # Mock dataset service
         with patch(
-            "pynomaly.presentation.cli.datasets.get_cli_container"
+            "monorepo.presentation.cli.datasets.get_cli_container"
         ) as mock_dataset_container:
             mock_dataset_container.return_value = mock_container
 
@@ -265,7 +265,7 @@ class TestCLIIntegrationWorkflows:
         algorithms = ["IsolationForest", "LOF", "OneClassSVM"]
 
         with patch(
-            "pynomaly.presentation.cli.datasets.get_cli_container"
+            "monorepo.presentation.cli.datasets.get_cli_container"
         ) as mock_dataset_container:
             mock_dataset_container.return_value = mock_container
 
@@ -359,7 +359,7 @@ class TestCLIIntegrationWorkflows:
     ):
         """Test workflow with data preprocessing steps."""
         with patch(
-            "pynomaly.presentation.cli.datasets.get_cli_container"
+            "monorepo.presentation.cli.datasets.get_cli_container"
         ) as mock_dataset_container:
             mock_dataset_container.return_value = mock_container
 
@@ -452,7 +452,7 @@ class TestCLIIntegrationWorkflows:
     def test_export_and_sharing_workflow(self, runner, mock_container):
         """Test workflow for exporting and sharing results."""
         with patch(
-            "pynomaly.presentation.cli.export.get_cli_container"
+            "monorepo.presentation.cli.export.get_cli_container"
         ) as mock_export_container:
             mock_export_container.return_value = mock_container
 
@@ -511,7 +511,7 @@ class TestCLIIntegrationWorkflows:
     def test_server_integration_workflow(self, runner, mock_container):
         """Test workflow with server management."""
         with patch(
-            "pynomaly.presentation.cli.server.get_cli_container"
+            "monorepo.presentation.cli.server.get_cli_container"
         ) as mock_server_container:
             mock_server_container.return_value = mock_container
 
@@ -630,7 +630,7 @@ class TestCLIIntegrationWorkflows:
     def test_error_recovery_workflow(self, runner, mock_container):
         """Test workflow error handling and recovery."""
         with patch(
-            "pynomaly.presentation.cli.datasets.get_cli_container"
+            "monorepo.presentation.cli.datasets.get_cli_container"
         ) as mock_dataset_container:
             mock_dataset_container.return_value = mock_container
 
@@ -712,7 +712,7 @@ class TestCLIIntegrationWorkflows:
             large_dataset = f.name
 
         with patch(
-            "pynomaly.presentation.cli.datasets.get_cli_container"
+            "monorepo.presentation.cli.datasets.get_cli_container"
         ) as mock_dataset_container:
             mock_dataset_container.return_value = mock_container
 
@@ -815,7 +815,7 @@ class TestCLIStressTests:
     def mock_container(self):
         """Mock CLI container."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -964,12 +964,12 @@ class TestCLICompatibility:
     def test_output_format_consistency(self, runner):
         """Test output format consistency across commands."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
             config.app.version = "1.0.0"
-            config.app_name = "pynomaly"
+            config.app_name = "monorepo"
             container.config.return_value = config
             mock_get_container.return_value = container
 
@@ -1011,7 +1011,7 @@ class TestCLICompatibility:
     def test_cross_platform_paths(self, runner):
         """Test cross-platform path handling."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
@@ -1056,12 +1056,12 @@ class TestCLIRegressionTests:
     def test_output_stability(self, runner):
         """Test output format stability across versions."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             config = Mock()
             config.app.version = "1.0.0"
-            config.app_name = "pynomaly"
+            config.app_name = "monorepo"
             config.version = "1.0.0"
             config.debug = False
             config.storage_path = Path("/tmp/pynomaly")

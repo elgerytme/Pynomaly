@@ -15,9 +15,9 @@ import pytest
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
 
-from pynomaly.domain.entities import DetectionResult
-from pynomaly.domain.exceptions import InvalidAlgorithmError, ValidationError
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.entities import DetectionResult
+from monorepo.domain.exceptions import InvalidAlgorithmError, ValidationError
+from monorepo.domain.value_objects import ContaminationRate
 
 
 class TestAlgorithmSelectionBranches:
@@ -26,9 +26,9 @@ class TestAlgorithmSelectionBranches:
     def test_algorithm_availability_branches(self):
         """Test algorithm availability checking branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             # Test available algorithm
             mock_module = Mock()
@@ -61,13 +61,13 @@ class TestAlgorithmSelectionBranches:
     def test_parameter_validation_branches(self):
         """Test algorithm parameter validation branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_module.IForest = Mock()
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             # Test valid parameters
             valid_adapter = PyODAdapter(
@@ -106,13 +106,13 @@ class TestAlgorithmSelectionBranches:
     def test_contamination_rate_branches(self):
         """Test contamination rate handling branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_module.IForest = Mock()
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             # Test auto contamination rate
             auto_adapter = PyODAdapter(
@@ -179,14 +179,14 @@ class TestAlgorithmSpecificBranches:
     def test_isolation_forest_branches(self):
         """Test IsolationForest-specific branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
             mock_module.IForest = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="IsolationForest")
 
@@ -229,14 +229,14 @@ class TestAlgorithmSpecificBranches:
     def test_lof_algorithm_branches(self):
         """Test LOF-specific branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
             mock_module.LOF = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="LOF")
 
@@ -288,14 +288,14 @@ class TestAlgorithmSpecificBranches:
     def test_ocsvm_algorithm_branches(self):
         """Test OneClassSVM-specific branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.sklearn_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
             mock_module.OneClassSVM = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             adapter = SklearnAdapter(algorithm_name="OneClassSVM")
 
@@ -335,14 +335,14 @@ class TestAlgorithmSpecificBranches:
     def test_autoencoder_branches(self):
         """Test autoencoder-specific branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
             mock_module.AutoEncoder = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="AutoEncoder")
 
@@ -412,14 +412,14 @@ class TestEnsembleAlgorithmBranches:
     def test_feature_bagging_branches(self):
         """Test FeatureBagging-specific branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
             mock_module.FeatureBagging = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="FeatureBagging")
 
@@ -455,14 +455,14 @@ class TestEnsembleAlgorithmBranches:
     def test_lscp_ensemble_branches(self):
         """Test LSCP ensemble-specific branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
             mock_module.LSCP = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="LSCP")
 
@@ -498,14 +498,14 @@ class TestEnsembleAlgorithmBranches:
     def test_suod_ensemble_branches(self):
         """Test SUOD ensemble-specific branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
             mock_module.SUOD = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="SUOD")
 
@@ -551,7 +551,7 @@ class TestAlgorithmFittingBranches:
     def test_fitting_with_different_data_sizes(self):
         """Test fitting branches with different data sizes."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
@@ -561,7 +561,7 @@ class TestAlgorithmFittingBranches:
             mock_module.IForest = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="IsolationForest")
 
@@ -606,14 +606,14 @@ class TestAlgorithmFittingBranches:
     def test_fitting_convergence_branches(self):
         """Test fitting convergence handling branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
             mock_module.AutoEncoder = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="AutoEncoder")
 
@@ -649,14 +649,14 @@ class TestAlgorithmFittingBranches:
     def test_incremental_learning_branches(self):
         """Test incremental learning branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.sklearn_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
             mock_module.SGDOneClassSVM = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             adapter = SklearnAdapter(algorithm_name="SGDOneClassSVM")
 
@@ -707,7 +707,7 @@ class TestDetectionBranches:
     def test_score_normalization_branches(self):
         """Test score normalization branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
@@ -717,7 +717,7 @@ class TestDetectionBranches:
             mock_module.IForest = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="IsolationForest")
 
@@ -762,7 +762,7 @@ class TestDetectionBranches:
     def test_threshold_calculation_branches(self):
         """Test threshold calculation branches."""
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.sklearn_adapter.importlib.import_module"
         ) as mock_import:
             mock_module = Mock()
             mock_model_class = Mock()
@@ -772,7 +772,7 @@ class TestDetectionBranches:
             mock_module.IsolationForest = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             # Test with different contamination rates
             contamination_rates = [0.01, 0.05, 0.1, 0.2, 0.4]

@@ -26,7 +26,7 @@ class TestSDKClientFramework:
         client = Mock()
 
         # Client configuration
-        client.base_url = "https://api.pynomaly.com"
+        client.base_url = "https://api.monorepo.com"
         client.api_key = "test-api-key-123"
         client.timeout = 30
         client.verify_ssl = True
@@ -55,7 +55,7 @@ class TestSDKClientFramework:
         client = AsyncMock()
 
         # Client configuration
-        client.base_url = "https://api.pynomaly.com"
+        client.base_url = "https://api.monorepo.com"
         client.api_key = "test-api-key-123"
         client.timeout = 30
         client.verify_ssl = True
@@ -84,7 +84,7 @@ class TestSDKClientFramework:
 
     def test_sync_client_initialization(self, mock_sync_client):
         """Test synchronous client initialization."""
-        assert mock_sync_client.base_url == "https://api.pynomaly.com"
+        assert mock_sync_client.base_url == "https://api.monorepo.com"
         assert mock_sync_client.api_key == "test-api-key-123"
         assert mock_sync_client.timeout == 30
         assert mock_sync_client.verify_ssl is True
@@ -94,7 +94,7 @@ class TestSDKClientFramework:
     @pytest.mark.asyncio
     async def test_async_client_initialization(self, mock_async_client):
         """Test asynchronous client initialization."""
-        assert mock_async_client.base_url == "https://api.pynomaly.com"
+        assert mock_async_client.base_url == "https://api.monorepo.com"
         assert mock_async_client.api_key == "test-api-key-123"
         assert mock_async_client.timeout == 30
         assert mock_async_client.max_concurrent == 5
@@ -131,7 +131,7 @@ class TestSDKClientFramework:
         with mock_sync_client as client:
             assert client is mock_sync_client
             # Perform operations within context
-            assert client.base_url == "https://api.pynomaly.com"
+            assert client.base_url == "https://api.monorepo.com"
 
         # Verify cleanup was called
         mock_sync_client.__exit__.assert_called_once()
@@ -142,7 +142,7 @@ class TestSDKClientFramework:
         async with mock_async_client as client:
             assert client is mock_async_client
             # Perform async operations within context
-            assert client.base_url == "https://api.pynomaly.com"
+            assert client.base_url == "https://api.monorepo.com"
 
         # Verify async cleanup was called
         mock_async_client.__aexit__.assert_called_once()
@@ -381,7 +381,7 @@ class TestSDKDetectorOperations:
             "deployment_id": "deploy-789",
             "detector_id": "detector-123",
             "status": "deployed",
-            "endpoint_url": "https://api.pynomaly.com/v1/detect/deploy-789",
+            "endpoint_url": "https://api.monorepo.com/v1/detect/deploy-789",
             "scaling": {"min_instances": 1, "max_instances": 5},
         }
         detector_client.deploy_detector.return_value = deployment_response

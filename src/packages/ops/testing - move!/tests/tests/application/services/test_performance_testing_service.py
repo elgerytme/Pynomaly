@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.performance_testing_service import (
+from monorepo.application.services.performance_testing_service import (
     BenchmarkResult,
     BenchmarkSuite,
     PerformanceMetrics,
@@ -16,8 +16,8 @@ from pynomaly.application.services.performance_testing_service import (
     StressTestConfig,
     SystemMonitor,
 )
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detector import Detector
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detector import Detector
 
 
 class TestPerformanceTestingService:

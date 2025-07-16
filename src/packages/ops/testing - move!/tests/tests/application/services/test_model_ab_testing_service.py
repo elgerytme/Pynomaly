@@ -8,7 +8,7 @@ ensuring proper experiment design, statistical analysis, and result interpretati
 
 
 # TODO: Import actual service when implementation is complete
-# from src.pynomaly.application.services.model_ab_testing_service import ModelABTestingService
+# from src.monorepo.application.services.model_ab_testing_service import ModelABTestingService
 
 
 class TestModelABTestingService:

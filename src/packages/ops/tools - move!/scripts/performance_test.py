@@ -17,11 +17,11 @@ import os
 # Add the source directory to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.value_objects.contamination_rate import ContaminationRate
-from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesRequest
-from pynomaly.infrastructure.config.container import Container
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.value_objects.contamination_rate import ContaminationRate
+from monorepo.application.use_cases.detect_anomalies import DetectAnomaliesRequest
+from monorepo.infrastructure.config.container import Container
 
 
 def generate_synthetic_data(n_samples: int, n_features: int, contamination: float):
@@ -107,7 +107,7 @@ async def benchmark_detection_pipeline(
     await detector_repo.save(detector)
     
     # Train the detector first
-    from pynomaly.application.use_cases.train_detector import TrainDetectorRequest
+    from monorepo.application.use_cases.train_detector import TrainDetectorRequest
     train_use_case = container.train_detector_use_case()
     train_request = TrainDetectorRequest(
         training_data=dataset,

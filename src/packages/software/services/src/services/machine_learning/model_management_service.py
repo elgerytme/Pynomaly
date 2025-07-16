@@ -6,20 +6,20 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import (
+from monorepo.domain.entities import (
     Model,
     ModelStage,
     ModelStatus,
     ModelType,
     ModelVersion,
 )
-from pynomaly.domain.exceptions import InvalidModelStateError, ModelNotFoundError
-from pynomaly.domain.value_objects import (
+from monorepo.domain.exceptions import InvalidModelStateError, ModelNotFoundError
+from monorepo.domain.value_objects import (
     ModelStorageInfo,
     PerformanceMetrics,
     SemanticVersion,
 )
-from pynomaly.shared.protocols import (
+from monorepo.shared.protocols import (
     ModelRepositoryProtocol,
     ModelVersionRepositoryProtocol,
 )

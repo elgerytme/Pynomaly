@@ -13,10 +13,10 @@ from pydantic import ValidationError
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
-from pynomaly.domain.value_objects.contamination_rate import ContaminationRate
+from monorepo.domain.entities.anomaly import Anomaly
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.value_objects.anomaly_score import AnomalyScore
+from monorepo.domain.value_objects.contamination_rate import ContaminationRate
 
 
 # Custom strategies for enhanced testing

@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from pynomaly.application.services.visualization_dashboard_service import (
+from monorepo.application.services.visualization_dashboard_service import (
     ChartConfig,
     ChartType,
     DashboardConfig,

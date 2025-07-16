@@ -16,11 +16,11 @@ class ImportVisitor(ast.NodeVisitor):
     
     def visit_Import(self, node):
         for alias in node.names:
-            if alias.name.startswith('pynomaly'):
+            if alias.name.startswith('monorepo'):
                 self.imports.append(alias.name)
     
     def visit_ImportFrom(self, node):
-        if node.module and node.module.startswith('pynomaly'):
+        if node.module and node.module.startswith('monorepo'):
             self.imports.append(node.module)
 
 

@@ -6,7 +6,7 @@ Tests that demonstrate fixed code quality issues and improved coverage.
 
 import pytest
 
-from pynomaly.infrastructure.monitoring.distributed_tracing import (
+from monorepo.infrastructure.monitoring.distributed_tracing import (
     add_span_attribute,
     end_span,
     set_span_error,

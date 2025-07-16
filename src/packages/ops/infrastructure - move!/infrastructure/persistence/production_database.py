@@ -8,8 +8,8 @@ from typing import Any
 import structlog
 from sqlalchemy import event
 
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.performance.connection_pooling import (
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.performance.connection_pooling import (
     PoolConfiguration,
     get_connection_pool_manager,
 )

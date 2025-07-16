@@ -7,7 +7,7 @@ import secrets
 import uuid
 from datetime import datetime, timedelta
 
-from pynomaly.domain.entities.user import (
+from monorepo.domain.entities.user import (
     Tenant,
     TenantLimits,
     TenantPlan,
@@ -20,13 +20,13 @@ from pynomaly.domain.entities.user import (
     UserTenantRole,
     get_default_permissions,
 )
-from pynomaly.domain.repositories.user_repository import (
+from monorepo.domain.repositories.user_repository import (
     SessionRepositoryProtocol,
     TenantRepositoryProtocol,
     UserRepositoryProtocol,
 )
-from pynomaly.infrastructure.services.email_service import get_email_service
-from pynomaly.shared.exceptions import (
+from monorepo.infrastructure.services.email_service import get_email_service
+from monorepo.shared.exceptions import (
     AuthenticationError,
     AuthorizationError,
     ResourceLimitError,
@@ -34,7 +34,7 @@ from pynomaly.shared.exceptions import (
     UserNotFoundError,
     ValidationError,
 )
-from pynomaly.shared.types import TenantId, UserId
+from monorepo.shared.types import TenantId, UserId
 
 
 class UserManagementService:

@@ -16,10 +16,10 @@ def test_basic_imports():
     print("Testing basic imports...")
     
     # Test core imports
-    import pynomaly
-    from pynomaly.domain.entities import Dataset
-    from pynomaly.domain.value_objects import ContaminationRate
-    from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+    import monorepo
+    from monorepo.domain.entities import Dataset
+    from monorepo.domain.value_objects import ContaminationRate
+    from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
     
     print("✓ All basic imports successful")
     
@@ -27,7 +27,7 @@ def test_dataset_creation():
     """Test Dataset creation"""
     print("Testing Dataset creation...")
     
-    from pynomaly.domain.entities import Dataset
+    from monorepo.domain.entities import Dataset
     
     # Create sample data
     data = pd.DataFrame({
@@ -48,7 +48,7 @@ def test_contamination_rate():
     """Test ContaminationRate value object"""
     print("Testing ContaminationRate...")
     
-    from pynomaly.domain.value_objects import ContaminationRate
+    from monorepo.domain.value_objects import ContaminationRate
     
     # Create contamination rate
     rate = ContaminationRate(0.1)
@@ -62,9 +62,9 @@ def test_sklearn_adapter():
     """Test SklearnAdapter"""
     print("Testing SklearnAdapter...")
     
-    from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-    from pynomaly.domain.entities import Dataset
-    from pynomaly.domain.value_objects import ContaminationRate
+    from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+    from monorepo.domain.entities import Dataset
+    from monorepo.domain.value_objects import ContaminationRate
     
     # Create sample data with some outliers
     np.random.seed(42)
@@ -100,9 +100,9 @@ def test_pyod_integration():
     """Test PyOD integration"""
     print("Testing PyOD integration...")
     
-    from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
-    from pynomaly.domain.entities import Dataset
-    from pynomaly.domain.value_objects import ContaminationRate
+    from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
+    from monorepo.domain.entities import Dataset
+    from monorepo.domain.value_objects import ContaminationRate
     
     # Create sample data
     np.random.seed(42)

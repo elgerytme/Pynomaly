@@ -9,7 +9,7 @@ optimization requests, ensemble configuration, and experiment tracking.
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto.automl_dto import (
+from monorepo.application.dto.automl_dto import (
     AlgorithmRecommendationDTO,
     AlgorithmRecommendationRequestDTO,
     AutoMLProfileRequestDTO,

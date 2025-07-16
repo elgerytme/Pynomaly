@@ -13,7 +13,7 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.export import export_app
+from monorepo.presentation.cli.export import export_app
 
 
 class TestExportCLI:
@@ -172,7 +172,7 @@ class TestExportCLI:
 
         try:
             with patch(
-                "pynomaly.infrastructure.exporters.excel_exporter.ExcelExporter"
+                "monorepo.infrastructure.exporters.excel_exporter.ExcelExporter"
             ) as mock_exporter:
                 exporter_instance = Mock()
                 mock_exporter.return_value = exporter_instance
@@ -199,7 +199,7 @@ class TestExportCLI:
 
         try:
             with patch(
-                "pynomaly.infrastructure.exporters.excel_exporter.ExcelExporter"
+                "monorepo.infrastructure.exporters.excel_exporter.ExcelExporter"
             ) as mock_exporter:
                 exporter_instance = Mock()
                 mock_exporter.return_value = exporter_instance
@@ -230,7 +230,7 @@ class TestExportCLI:
 
         try:
             with patch(
-                "pynomaly.infrastructure.exporters.excel_exporter.ExcelExporter"
+                "monorepo.infrastructure.exporters.excel_exporter.ExcelExporter"
             ) as mock_exporter:
                 exporter_instance = Mock()
                 mock_exporter.return_value = exporter_instance
@@ -262,7 +262,7 @@ class TestExportCLI:
 
         try:
             with patch(
-                "pynomaly.infrastructure.exporters.excel_exporter.ExcelExporter"
+                "monorepo.infrastructure.exporters.excel_exporter.ExcelExporter"
             ) as mock_exporter:
                 exporter_instance = Mock()
                 mock_exporter.return_value = exporter_instance
@@ -290,7 +290,7 @@ class TestExportCLI:
     def test_powerbi_export_basic(self, runner, sample_results_file):
         """Test basic Power BI export."""
         with patch(
-            "pynomaly.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
+            "monorepo.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
         ) as mock_exporter:
             exporter_instance = Mock()
             mock_exporter.return_value = exporter_instance
@@ -313,7 +313,7 @@ class TestExportCLI:
     def test_powerbi_export_with_dataset_name(self, runner, sample_results_file):
         """Test Power BI export with custom dataset name."""
         with patch(
-            "pynomaly.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
+            "monorepo.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
         ) as mock_exporter:
             exporter_instance = Mock()
             mock_exporter.return_value = exporter_instance
@@ -337,7 +337,7 @@ class TestExportCLI:
     def test_powerbi_export_with_refresh(self, runner, sample_results_file):
         """Test Power BI export with auto-refresh."""
         with patch(
-            "pynomaly.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
+            "monorepo.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
         ) as mock_exporter:
             exporter_instance = Mock()
             mock_exporter.return_value = exporter_instance
@@ -360,7 +360,7 @@ class TestExportCLI:
     def test_powerbi_export_authentication_error(self, runner, sample_results_file):
         """Test Power BI export with authentication error."""
         with patch(
-            "pynomaly.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
+            "monorepo.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
         ) as mock_exporter:
             exporter_instance = Mock()
             mock_exporter.return_value = exporter_instance
@@ -388,7 +388,7 @@ class TestExportCLI:
 
         try:
             with patch(
-                "pynomaly.infrastructure.exporters.tableau_exporter.TableauExporter"
+                "monorepo.infrastructure.exporters.tableau_exporter.TableauExporter"
             ) as mock_exporter:
                 exporter_instance = Mock()
                 mock_exporter.return_value = exporter_instance
@@ -411,7 +411,7 @@ class TestExportCLI:
 
         try:
             with patch(
-                "pynomaly.infrastructure.exporters.tableau_exporter.TableauExporter"
+                "monorepo.infrastructure.exporters.tableau_exporter.TableauExporter"
             ) as mock_exporter:
                 exporter_instance = Mock()
                 mock_exporter.return_value = exporter_instance
@@ -431,7 +431,7 @@ class TestExportCLI:
     def test_tableau_server_publish(self, runner, sample_results_file):
         """Test publishing to Tableau Server."""
         with patch(
-            "pynomaly.infrastructure.exporters.tableau_exporter.TableauExporter"
+            "monorepo.infrastructure.exporters.tableau_exporter.TableauExporter"
         ) as mock_exporter:
             exporter_instance = Mock()
             mock_exporter.return_value = exporter_instance
@@ -619,10 +619,10 @@ class TestExportCLI:
             output_dir = Path(temp_dir)
 
             with patch(
-                "pynomaly.infrastructure.exporters.excel_exporter.ExcelExporter"
+                "monorepo.infrastructure.exporters.excel_exporter.ExcelExporter"
             ) as mock_excel:
                 with patch(
-                    "pynomaly.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
+                    "monorepo.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
                 ) as mock_powerbi:
                     excel_instance = Mock()
                     powerbi_instance = Mock()
@@ -678,7 +678,7 @@ class TestExportCLI:
 
         try:
             with patch(
-                "pynomaly.infrastructure.exporters.report_generator.ReportGenerator"
+                "monorepo.infrastructure.exporters.report_generator.ReportGenerator"
             ) as mock_generator:
                 generator_instance = Mock()
                 mock_generator.return_value = generator_instance
@@ -710,7 +710,7 @@ class TestExportCLI:
 
         try:
             with patch(
-                "pynomaly.infrastructure.exporters.report_generator.ReportGenerator"
+                "monorepo.infrastructure.exporters.report_generator.ReportGenerator"
             ) as mock_generator:
                 generator_instance = Mock()
                 mock_generator.return_value = generator_instance
@@ -772,7 +772,7 @@ class TestExportCLI:
     def test_export_service_unavailable(self, runner, sample_results_file):
         """Test export when service is unavailable."""
         with patch(
-            "pynomaly.infrastructure.exporters.excel_exporter.ExcelExporter"
+            "monorepo.infrastructure.exporters.excel_exporter.ExcelExporter"
         ) as mock_exporter:
             mock_exporter.side_effect = Exception("Service unavailable")
 
@@ -806,7 +806,7 @@ class TestExportCLI:
             # 2. Export to Excel
             excel_path = output_dir / "results.xlsx"
             with patch(
-                "pynomaly.infrastructure.exporters.excel_exporter.ExcelExporter"
+                "monorepo.infrastructure.exporters.excel_exporter.ExcelExporter"
             ) as mock_exporter:
                 exporter_instance = Mock()
                 mock_exporter.return_value = exporter_instance
@@ -827,7 +827,7 @@ class TestExportCLI:
             # 4. Generate HTML report
             report_path = output_dir / "report.html"
             with patch(
-                "pynomaly.infrastructure.exporters.report_generator.ReportGenerator"
+                "monorepo.infrastructure.exporters.report_generator.ReportGenerator"
             ) as mock_generator:
                 generator_instance = Mock()
                 mock_generator.return_value = generator_instance
@@ -874,7 +874,7 @@ class TestExportCLI:
 
             try:
                 with patch(
-                    "pynomaly.infrastructure.exporters.excel_exporter.ExcelExporter"
+                    "monorepo.infrastructure.exporters.excel_exporter.ExcelExporter"
                 ) as mock_exporter:
                     exporter_instance = Mock()
                     mock_exporter.return_value = exporter_instance

@@ -199,7 +199,7 @@ class MetricsCollector:
         """Get database connection count."""
         try:
             # Try to get SQLAlchemy engine pool info if available
-            from pynomaly.infrastructure.database import get_database_engine
+            from monorepo.infrastructure.database import get_database_engine
 
             engine = get_database_engine()
             if engine and hasattr(engine.pool, "checkedout"):
@@ -231,7 +231,7 @@ class MetricsCollector:
         """Get cache hit rate."""
         try:
             # Try to get Redis cache statistics if available
-            from pynomaly.infrastructure.caching import get_redis_client
+            from monorepo.infrastructure.caching import get_redis_client
 
             client = get_redis_client()
             if client:
@@ -248,7 +248,7 @@ class MetricsCollector:
 
         # Fallback: check for in-memory cache statistics
         try:
-            from pynomaly.infrastructure.caching import CacheManager
+            from monorepo.infrastructure.caching import CacheManager
 
             cache_manager = CacheManager.get_instance()
             if hasattr(cache_manager, "get_hit_rate"):
@@ -264,7 +264,7 @@ class MetricsCollector:
         """Get average API response time."""
         try:
             # Try to get metrics from Prometheus if available
-            from pynomaly.infrastructure.monitoring.prometheus_metrics import (
+            from monorepo.infrastructure.monitoring.prometheus_metrics import (
                 get_prometheus_metrics,
             )
 
@@ -277,7 +277,7 @@ class MetricsCollector:
 
         try:
             # Try to get metrics from application performance monitoring
-            from pynomaly.infrastructure.monitoring.performance_monitor import (
+            from monorepo.infrastructure.monitoring.performance_monitor import (
                 get_performance_tracker,
             )
 
@@ -421,9 +421,9 @@ class AlertManager:
         email_config = {
             "smtp_server": "smtp.gmail.com",
             "smtp_port": 587,
-            "username": "alerts@pynomaly.com",
+            "username": "alerts@monorepo.com",
             "password": "your_app_password",
-            "recipients": ["admin@pynomaly.com", "ops@pynomaly.com"],
+            "recipients": ["admin@monorepo.com", "ops@monorepo.com"],
         }
         self.notification_channels.append(EmailNotificationChannel(email_config))
 
@@ -943,7 +943,7 @@ class HealthChecker:
         """Check cache health."""
         try:
             # Check Redis cache health
-            from pynomaly.infrastructure.caching import get_redis_client
+            from monorepo.infrastructure.caching import get_redis_client
 
             client = get_redis_client()
             if client:
@@ -976,7 +976,7 @@ class HealthChecker:
                     )
             else:
                 # Check in-memory cache if Redis not available
-                from pynomaly.infrastructure.caching import CacheManager
+                from monorepo.infrastructure.caching import CacheManager
 
                 cache_manager = CacheManager.get_instance()
                 if hasattr(cache_manager, "health_check"):
@@ -999,7 +999,7 @@ class HealthChecker:
 
             # Get API base URL from configuration
             try:
-                from pynomaly.shared.config import Config
+                from monorepo.shared.config import Config
 
                 config = Config()
                 api_url = config.get("api.base_url", "http://localhost:8000")
@@ -1071,7 +1071,7 @@ class HealthChecker:
         try:
             import requests
 
-            from pynomaly.shared.config import Config
+            from monorepo.shared.config import Config
 
             config = Config()
 

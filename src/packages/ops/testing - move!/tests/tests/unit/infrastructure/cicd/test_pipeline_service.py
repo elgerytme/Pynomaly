@@ -6,11 +6,11 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.domain.models.cicd import (
+from monorepo.domain.models.cicd import (
     PipelineStatus,
     PipelineTemplate,
 )
-from pynomaly.infrastructure.cicd.pipeline_service import PipelineService
+from monorepo.infrastructure.cicd.pipeline_service import PipelineService
 
 
 @pytest.fixture
@@ -137,7 +137,7 @@ class TestPipelineService:
         assert not success
 
     @patch(
-        "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
+        "monorepo.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
     )
     async def test_execute_pipeline_success(
         self, mock_subprocess, pipeline_service, sample_template
@@ -167,7 +167,7 @@ class TestPipelineService:
         assert pipeline.pipeline_id not in pipeline_service.running_pipelines
 
     @patch(
-        "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
+        "monorepo.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
     )
     async def test_execute_pipeline_failure(
         self, mock_subprocess, pipeline_service, sample_template
@@ -363,7 +363,7 @@ class TestPipelineService:
         assert len(pipeline_service.execution_tasks) == 0
 
     @patch(
-        "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_shell"
+        "monorepo.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_shell"
     )
     async def test_execute_stage_success(
         self, mock_subprocess, pipeline_service, sample_template
@@ -398,7 +398,7 @@ class TestPipelineService:
         assert "test output" in stage.output
 
     @patch(
-        "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_shell"
+        "monorepo.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_shell"
     )
     async def test_execute_stage_failure(
         self, mock_subprocess, pipeline_service, sample_template

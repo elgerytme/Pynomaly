@@ -9,14 +9,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Anomaly, Dataset
-from pynomaly.domain.exceptions import InvalidValueError, ValidationError
-from pynomaly.domain.services.anomaly_scorer import AnomalyScorer
-from pynomaly.domain.services.ensemble_aggregator import EnsembleAggregator
-from pynomaly.domain.services.explainability_service import ExplainabilityService
-from pynomaly.domain.services.feature_validator import FeatureValidator
-from pynomaly.domain.services.threshold_calculator import ThresholdCalculator
-from pynomaly.domain.value_objects import (
+from monorepo.domain.entities import Anomaly, Dataset
+from monorepo.domain.exceptions import InvalidValueError, ValidationError
+from monorepo.domain.services.anomaly_scorer import AnomalyScorer
+from monorepo.domain.services.ensemble_aggregator import EnsembleAggregator
+from monorepo.domain.services.explainability_service import ExplainabilityService
+from monorepo.domain.services.feature_validator import FeatureValidator
+from monorepo.domain.services.threshold_calculator import ThresholdCalculator
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ConfidenceInterval,
     ContaminationRate,

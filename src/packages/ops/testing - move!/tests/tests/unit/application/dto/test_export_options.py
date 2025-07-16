@@ -1,6 +1,6 @@
 """Tests for Export Options DTO."""
 
-from pynomaly.application.dto.export_options import (
+from monorepo.application.dto.export_options import (
     ExportDestination,
     ExportFormat,
     ExportOptions,

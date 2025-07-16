@@ -104,8 +104,8 @@ def setup_rsyslog_integration():
 # Pynomaly logging configuration for rsyslog
 
 # Create separate files for different log levels
-:programname, isequal, "pynomaly" /var/log/pynomaly/application/pynomaly.log
-:programname, isequal, "pynomaly" ~
+:programname, isequal, "monorepo" /var/log/pynomaly/application/monorepo.log
+:programname, isequal, "monorepo" ~
 
 # High priority logs
 *.emerg;*.alert;*.crit;*.err /var/log/pynomaly/error/critical.log
@@ -120,7 +120,7 @@ local0.* /var/log/pynomaly/performance/metrics.log
 & stop
 """
 
-    rsyslog_file = "/etc/rsyslog.d/10-pynomaly.conf"
+    rsyslog_file = "/etc/rsyslog.d/10-monorepo.conf"
 
     print("Setting up rsyslog integration...")
     with open(rsyslog_file, "w") as f:
@@ -146,7 +146,7 @@ def setup_fluentd_config():
   @id pynomaly_application_logs
   path /var/log/pynomaly/application/*.log
   pos_file /var/log/fluentd/pynomaly-application.log.pos
-  tag pynomaly.application
+  tag monorepo.application
   format json
   time_key timestamp
   time_format %Y-%m-%dT%H:%M:%S.%LZ
@@ -157,7 +157,7 @@ def setup_fluentd_config():
   @id pynomaly_access_logs
   path /var/log/pynomaly/access/*.log
   pos_file /var/log/fluentd/pynomaly-access.log.pos
-  tag pynomaly.access
+  tag monorepo.access
   format json
   time_key timestamp
   time_format %Y-%m-%dT%H:%M:%S.%LZ
@@ -168,7 +168,7 @@ def setup_fluentd_config():
   @id pynomaly_error_logs
   path /var/log/pynomaly/error/*.log
   pos_file /var/log/fluentd/pynomaly-error.log.pos
-  tag pynomaly.error
+  tag monorepo.error
   format json
   time_key timestamp
   time_format %Y-%m-%dT%H:%M:%S.%LZ
@@ -179,13 +179,13 @@ def setup_fluentd_config():
   @id pynomaly_audit_logs
   path /var/log/pynomaly/audit/*.log
   pos_file /var/log/fluentd/pynomaly-audit.log.pos
-  tag pynomaly.audit
+  tag monorepo.audit
   format json
   time_key timestamp
   time_format %Y-%m-%dT%H:%M:%S.%LZ
 </source>
 
-<filter pynomaly.**>
+<filter monorepo.**>
   @type record_transformer
   <record>
     hostname "#{Socket.gethostname}"
@@ -195,7 +195,7 @@ def setup_fluentd_config():
 </filter>
 
 # Output to Elasticsearch
-<match pynomaly.**>
+<match monorepo.**>
   @type elasticsearch
   @id pynomaly_elasticsearch
   hosts elasticsearch.company.com:9200
@@ -221,7 +221,7 @@ def setup_fluentd_config():
 </match>
 
 # Output to CloudWatch Logs (if enabled)
-<match pynomaly.**>
+<match monorepo.**>
   @type cloudwatch_logs
   @id pynomaly_cloudwatch
   log_group_name pynomaly-production
@@ -241,7 +241,7 @@ def setup_fluentd_config():
 </match>
 
 # Backup to local file in case of forwarding failures
-<match pynomaly.**>
+<match monorepo.**>
   @type file
   @id pynomaly_backup
   path /var/log/pynomaly/archived/backup.%Y%m%d
@@ -260,7 +260,7 @@ def setup_fluentd_config():
     fluentd_dir = "/etc/fluentd"
     Path(fluentd_dir).mkdir(parents=True, exist_ok=True)
 
-    fluentd_file = f"{fluentd_dir}/pynomaly.conf"
+    fluentd_file = f"{fluentd_dir}/monorepo.conf"
 
     print("Setting up Fluentd configuration...")
     with open(fluentd_file, "w") as f:
@@ -323,7 +323,7 @@ check_log_growth() {
 
 # Check for missing logs
 check_missing_logs() {
-    local expected_logs=("application/pynomaly.log" "access/access.log" "error/error.log")
+    local expected_logs=("application/monorepo.log" "access/access.log" "error/error.log")
 
     for log in "${expected_logs[@]}"; do
         if [ ! -f "$LOG_DIR/$log" ]; then
@@ -666,9 +666,9 @@ def create_logging_user():
     """Create pynomaly user for logging."""
     try:
         # Check if user exists
-        result = subprocess.run(["id", "pynomaly"], capture_output=True)
+        result = subprocess.run(["id", "monorepo"], capture_output=True)
         if result.returncode == 0:
-            print("User 'pynomaly' already exists")
+            print("User 'monorepo' already exists")
             return
 
         # Create user
@@ -680,12 +680,12 @@ def create_logging_user():
                 "/opt/pynomaly",
                 "--shell",
                 "/bin/false",
-                "pynomaly",
+                "monorepo",
             ],
             check=True,
         )
 
-        print("Created system user 'pynomaly'")
+        print("Created system user 'monorepo'")
 
         # Set ownership of log directories
         subprocess.run(
@@ -744,8 +744,8 @@ def main():
         print("\nKey files created:")
         print("- Log directories: /var/log/pynomaly/")
         print("- Log rotation: /etc/logrotate.d/pynomaly")
-        print("- Rsyslog config: /etc/rsyslog.d/10-pynomaly.conf")
-        print("- Fluentd config: /etc/fluentd/pynomaly.conf")
+        print("- Rsyslog config: /etc/rsyslog.d/10-monorepo.conf")
+        print("- Fluentd config: /etc/fluentd/monorepo.conf")
         print("- Monitoring script: /opt/pynomaly/scripts/monitoring/log_monitoring.sh")
         print("- Analysis tools: /opt/pynomaly/scripts/analysis/log_analysis.py")
         print("- Dashboard: /opt/pynomaly/scripts/dashboard/log_dashboard.py")

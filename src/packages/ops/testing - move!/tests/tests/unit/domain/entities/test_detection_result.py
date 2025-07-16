@@ -7,9 +7,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.value_objects import AnomalyScore, ConfidenceInterval
+from monorepo.domain.entities.anomaly import Anomaly
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.value_objects import AnomalyScore, ConfidenceInterval
 
 
 class TestDetectionResultInitialization:

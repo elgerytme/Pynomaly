@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.models.multitenancy import (
+from monorepo.domain.models.multitenancy import (
     ResourceQuota,
     ResourceType,
     Tenant,

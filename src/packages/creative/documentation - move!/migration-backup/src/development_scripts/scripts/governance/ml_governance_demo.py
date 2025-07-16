@@ -36,10 +36,10 @@ class Model:
         self.parameters = parameters or {}
 
 
-from src.pynomaly.application.services.ml_governance_service import (
+from src.monorepo.application.services.ml_governance_service import (
     MLGovernanceApplicationService,
 )
-from src.pynomaly.infrastructure.ml_governance import (
+from src.monorepo.infrastructure.ml_governance import (
     DeploymentStrategy,
     MLGovernanceFramework,
     ModelStage,

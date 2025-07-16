@@ -15,7 +15,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 # Application imports
-from pynomaly.application.services.advanced_explainability_service import (
+from monorepo.application.services.advanced_explainability_service import (
     AdvancedExplainabilityService,
     BiasAnalysisConfig,
     ExplanationConfig,
@@ -23,12 +23,12 @@ from pynomaly.application.services.advanced_explainability_service import (
 )
 
 # Domain imports
-from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.config.feature_flags import require_feature
+from monorepo.domain.entities import Dataset
+from monorepo.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
-from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
-from pynomaly.shared.protocols import DetectorProtocol
+from monorepo.infrastructure.data_loaders import CSVLoader, ParquetLoader
+from monorepo.shared.protocols import DetectorProtocol
 
 console = Console()
 
@@ -597,7 +597,7 @@ def counterfactuals(
             # Generate counterfactuals based on method
             if method == "lime":
                 # Import LIME explainer
-                from pynomaly.infrastructure.explainers.lime_explainer import (
+                from monorepo.infrastructure.explainers.lime_explainer import (
                     LIMEExplainer,
                 )
 
@@ -691,7 +691,7 @@ def interactions(
             # Analyze interactions based on method
             if method == "shap":
                 # Import SHAP explainer
-                from pynomaly.infrastructure.explainers.shap_explainer import (
+                from monorepo.infrastructure.explainers.shap_explainer import (
                     SHAPExplainer,
                 )
 

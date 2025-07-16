@@ -15,7 +15,7 @@ def test_auth_deps_functionality():
 
     try:
         print("🔐 Testing auth dependencies functionality...")
-        from pynomaly.presentation.api.auth_deps import (
+        from monorepo.presentation.api.auth_deps import (
             get_container_simple,
             get_current_user_model,
             get_current_user_simple,
@@ -51,7 +51,7 @@ def test_container_creation():
 
     try:
         print("📦 Testing container creation...")
-        from pynomaly.infrastructure.config import create_container
+        from monorepo.infrastructure.config import create_container
 
         container = create_container()
         assert container is not None
@@ -76,7 +76,7 @@ def test_auth_integration_with_endpoints():
         print("🔗 Testing auth integration with endpoints...")
         from fastapi.testclient import TestClient
 
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app()
         client = TestClient(app)
@@ -118,11 +118,11 @@ def test_no_circular_imports():
 
         # Import auth dependencies
         # Import main app
-        from pynomaly.presentation.api.app import create_app
-        from pynomaly.presentation.api.auth_deps import get_current_user_simple
+        from monorepo.presentation.api.app import create_app
+        from monorepo.presentation.api.auth_deps import get_current_user_simple
 
         # Import endpoint modules that use auth deps
-        from pynomaly.presentation.api.endpoints import (
+        from monorepo.presentation.api.endpoints import (
             automl,
             autonomous,
             ensemble,
@@ -146,7 +146,7 @@ def test_pydantic_forward_reference_fix():
 
     try:
         print("🔧 Testing pydantic forward reference fix...")
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app()
 

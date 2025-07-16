@@ -19,10 +19,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Mock streaming components (in production, these would import from the real modules)
-from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import (
+from monorepo.infrastructure.streaming.real_time_anomaly_pipeline import (
     StreamingMetrics,
 )
-from pynomaly.infrastructure.streaming.websocket_gateway import (
+from monorepo.infrastructure.streaming.websocket_gateway import (
     RealTimeMetrics,
     WebSocketGateway,
 )

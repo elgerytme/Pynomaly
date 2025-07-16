@@ -52,7 +52,7 @@ def test_algorithm_support():
     try:
         print("\nTesting algorithm support...")
 
-        from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+        from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
         # Test PyOD algorithms
         algorithms = ["IsolationForest", "LocalOutlierFactor", "OneClassSVM"]

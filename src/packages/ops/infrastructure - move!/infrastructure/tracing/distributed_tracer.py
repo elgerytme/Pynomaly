@@ -146,7 +146,7 @@ class DistributedTracer:
 
     def __init__(self, config: dict[str, Any]):
         self.config = config
-        self.service_name = config.get("service_name", "pynomaly")
+        self.service_name = config.get("service_name", "monorepo")
         self.service_version = config.get("service_version", "1.0.0")
         self.environment = config.get("environment", "production")
 
@@ -677,7 +677,7 @@ async def main():
 
     # Configuration
     config = {
-        "service_name": "pynomaly",
+        "service_name": "monorepo",
         "service_version": "1.0.0",
         "environment": "test",
         "backends": ["console", "jaeger"],

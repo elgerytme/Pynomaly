@@ -8,24 +8,24 @@ from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
 
 # from pydantic import EmailStr  # Temporarily disabled due to missing email-validator
-from pynomaly.domain.exceptions import AuthenticationError
-from pynomaly.domain.services.mfa_service import MFAService
-from pynomaly.infrastructure.auth import (
+from monorepo.domain.exceptions import AuthenticationError
+from monorepo.domain.services.mfa_service import MFAService
+from monorepo.infrastructure.auth import (
     JWTAuthService,
     TokenResponse,
     UserModel,
     get_auth,
 )
-from pynomaly.infrastructure.auth.middleware import get_current_user
-from pynomaly.infrastructure.cache import get_cache
-from pynomaly.infrastructure.security.audit_logger import (
+from monorepo.infrastructure.auth.middleware import get_current_user
+from monorepo.infrastructure.cache import get_cache
+from monorepo.infrastructure.security.audit_logger import (
     AuditLevel,
     SecurityEventType,
     audit_context,
     get_audit_logger,
 )
-from pynomaly.infrastructure.security.rbac_middleware import require_auth
-from pynomaly.infrastructure.services.email_service import get_email_service
+from monorepo.infrastructure.security.rbac_middleware import require_auth
+from monorepo.infrastructure.services.email_service import get_email_service
 
 router = APIRouter()
 

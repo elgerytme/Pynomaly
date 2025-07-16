@@ -5,7 +5,7 @@ from datetime import datetime
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto.streaming_dto import (
+from monorepo.application.dto.streaming_dto import (
     StreamDataBatchDTO,
     StreamDataPointDTO,
     StreamErrorDTO,

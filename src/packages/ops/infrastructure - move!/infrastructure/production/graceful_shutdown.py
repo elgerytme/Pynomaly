@@ -11,9 +11,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from pynomaly.infrastructure.cache import close_cache_integration_manager
-from pynomaly.infrastructure.monitoring import close_comprehensive_health_manager
-from pynomaly.infrastructure.security import close_rate_limit_manager
+from monorepo.infrastructure.cache import close_cache_integration_manager
+from monorepo.infrastructure.monitoring import close_comprehensive_health_manager
+from monorepo.infrastructure.security import close_rate_limit_manager
 
 logger = logging.getLogger(__name__)
 

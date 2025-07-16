@@ -11,7 +11,7 @@ import time
 from datetime import datetime, timedelta
 from uuid import uuid4
 
-from pynomaly.packages.data_observability import (
+from monorepo.packages.data_observability import (
     DataObservabilityFacade,
     DataObservabilityContainer,
     DataAssetType,

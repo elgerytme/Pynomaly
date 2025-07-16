@@ -17,16 +17,16 @@ async def test_mlops_imports():
     
     try:
         # Test core MLOps imports
-        from pynomaly.mlops.model_deployment import deployment_manager
+        from monorepo.mlops.model_deployment import deployment_manager
         print("✅ Model deployment module imported successfully")
         
-        from pynomaly.mlops.monitoring import mlops_monitor
+        from monorepo.mlops.monitoring import mlops_monitor
         print("✅ Monitoring module imported successfully")
         
-        from pynomaly.mlops.model_serving import ModelServingEngine
+        from monorepo.mlops.model_serving import ModelServingEngine
         print("✅ Model serving module imported successfully")
         
-        from pynomaly.mlops.model_registry import ModelRegistry
+        from monorepo.mlops.model_registry import ModelRegistry
         print("✅ Model registry module imported successfully")
         
         return True
@@ -41,7 +41,7 @@ async def test_main_server():
     print("\n🔍 Testing main MLOps server initialization...")
     
     try:
-        from pynomaly.mlops.main_server import app
+        from monorepo.mlops.main_server import app
         print("✅ Main server app created successfully")
         
         # Test that we can access the app routes
@@ -60,7 +60,7 @@ async def test_deployment_manager():
     print("\n🔍 Testing deployment manager...")
     
     try:
-        from pynomaly.mlops.model_deployment import deployment_manager
+        from monorepo.mlops.model_deployment import deployment_manager
         
         # Test listing deployments
         deployments = await deployment_manager.list_deployments()
@@ -78,7 +78,7 @@ async def test_automl_orchestrator():
     print("\n🔍 Testing AutoML pipeline orchestrator...")
     
     try:
-        from pynomaly.application.services.automl_pipeline_orchestrator import AutoMLPipelineOrchestrator, PipelineConfig
+        from monorepo.application.services.automl_pipeline_orchestrator import AutoMLPipelineOrchestrator, PipelineConfig
         
         config = PipelineConfig()
         orchestrator = AutoMLPipelineOrchestrator(config)
@@ -96,7 +96,7 @@ async def test_data_validation():
     print("\n🔍 Testing data validation...")
     
     try:
-        from pynomaly.infrastructure.data_quality.data_validation import data_pipeline_monitor
+        from monorepo.infrastructure.data_quality.data_validation import data_pipeline_monitor
         print("✅ Data pipeline monitor imported successfully")
         
         return True

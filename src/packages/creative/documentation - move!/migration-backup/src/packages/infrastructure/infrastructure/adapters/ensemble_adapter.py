@@ -18,10 +18,10 @@ from sklearn.neighbors import LocalOutlierFactor
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import OneClassSVM
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.shared.protocols import DetectorProtocol
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from monorepo.domain.value_objects import AnomalyScore
+from monorepo.shared.protocols import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -510,7 +510,7 @@ class EnsembleAdapter(DetectorProtocol):
             ]
 
             # Create anomaly objects for detected anomalies
-            from pynomaly.domain.entities.anomaly import Anomaly
+            from monorepo.domain.entities.anomaly import Anomaly
 
             anomalies = []
             anomaly_indices = np.where(labels == 1)[0]

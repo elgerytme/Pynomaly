@@ -11,20 +11,20 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.services import (
+from monorepo.application.services import (
     DetectionService,
     EnsembleService,
     ExperimentTrackingService,
     ModelPersistenceService,
 )
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
-from pynomaly.domain.services import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult
+from monorepo.domain.services import (
     AnomalyScorer,
     EnsembleAggregator,
     ThresholdCalculator,
 )
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.infrastructure.repositories import (
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.infrastructure.repositories import (
     AsyncDetectionResultRepositoryWrapper,
     AsyncDetectorRepositoryWrapper,
     InMemoryDetectorRepository,
@@ -53,7 +53,7 @@ def sample_dataset():
 @pytest.fixture
 def sample_detector():
     """Create a sample detector for testing."""
-    from pynomaly.infrastructure.adapters import SklearnAdapter
+    from monorepo.infrastructure.adapters import SklearnAdapter
 
     return SklearnAdapter(
         algorithm_name="IsolationForest",
@@ -318,7 +318,7 @@ class TestEnsembleService:
     @pytest.mark.asyncio
     async def test_create_ensemble(self, ensemble_service, sample_dataset):
         """Test creating an ensemble from multiple detectors."""
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         # Create multiple detectors
         detectors = []
@@ -349,7 +349,7 @@ class TestEnsembleService:
     @pytest.mark.asyncio
     async def test_ensemble_with_weights(self, ensemble_service, sample_dataset):
         """Test weighted ensemble creation."""
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         # Create detectors
         detectors = []

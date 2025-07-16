@@ -15,8 +15,8 @@ from typing import Any
 
 from cryptography.fernet import Fernet
 
-from pynomaly.infrastructure.logging.structured_logger import StructuredLogger
-from pynomaly.infrastructure.monitoring.metrics_service import MetricsService
+from monorepo.infrastructure.logging.structured_logger import StructuredLogger
+from monorepo.infrastructure.monitoring.metrics_service import MetricsService
 
 
 class TenantStatus(Enum):

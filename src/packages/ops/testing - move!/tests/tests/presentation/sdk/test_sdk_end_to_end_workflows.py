@@ -21,7 +21,7 @@ class TestCompleteDetectionWorkflow:
     def workflow_client(self):
         """Create mock client for workflow testing."""
         client = Mock()
-        client.base_url = "https://api.pynomaly.com"
+        client.base_url = "https://api.monorepo.com"
         client.headers = {"X-API-Key": "test-key"}
         return client
 
@@ -495,7 +495,7 @@ class TestMLOpsWorkflows:
     def mlops_client(self):
         """Create mock client for MLOps testing."""
         client = Mock()
-        client.base_url = "https://api.pynomaly.com"
+        client.base_url = "https://api.monorepo.com"
         client.headers = {"X-API-Key": "mlops-key"}
         return client
 
@@ -529,7 +529,7 @@ class TestMLOpsWorkflows:
             "model_id": "model-v1-123",
             "environment": "staging",
             "status": "deployed",
-            "endpoint_url": "https://api.pynomaly.com/v1/models/deploy-v1-456",
+            "endpoint_url": "https://api.monorepo.com/v1/models/deploy-v1-456",
         }
         mlops_client.deploy_model = Mock(return_value=deployment_v1_response)
 

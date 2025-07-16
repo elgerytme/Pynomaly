@@ -3,7 +3,7 @@
 __version__ = "0.1.0"
 
 try:
-    from .pynomaly_mlops import *
+    from .mlops import *  # noqa: F403
 except ImportError:
     # Graceful degradation if MLOps dependencies not available
     pass

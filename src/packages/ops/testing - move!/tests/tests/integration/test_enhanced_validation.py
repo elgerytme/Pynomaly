@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 import pytest
 from rich.console import Console
 
-from pynomaly.presentation.cli.validation import (
+from monorepo.presentation.cli.validation import (
     EnhancedValidator,
     GitHubCommentGenerator,
     RichOutputFormatter,

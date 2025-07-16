@@ -8,9 +8,9 @@ from typing import Any, Optional
 
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.shared.protocols import DataLoaderProtocol
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import DataValidationError
+from monorepo.shared.protocols import DataLoaderProtocol
 
 # Import existing loaders
 from .data_loader_factory import DataLoaderFactory

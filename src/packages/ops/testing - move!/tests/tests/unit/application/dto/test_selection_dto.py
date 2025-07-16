@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.dto.selection_dto import (
+from monorepo.application.dto.selection_dto import (
     AlgorithmBenchmarkDTO,
     AlgorithmComparisonDTO,
     AlgorithmPerformanceDTO,

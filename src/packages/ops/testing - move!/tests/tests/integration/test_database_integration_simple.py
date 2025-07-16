@@ -4,8 +4,8 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.domain.entities import Detector
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.entities import Detector
+from monorepo.domain.value_objects import ContaminationRate
 
 
 class TestDatabaseIntegrationSimple:

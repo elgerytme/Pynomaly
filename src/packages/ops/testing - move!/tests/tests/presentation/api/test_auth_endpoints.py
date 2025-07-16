@@ -10,8 +10,8 @@ import jwt
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.domain.exceptions import AuthenticationError
-from pynomaly.presentation.api.app import create_app
+from monorepo.domain.exceptions import AuthenticationError
+from monorepo.presentation.api.app import create_app
 
 
 class TestAuthEndpoints:
@@ -26,7 +26,7 @@ class TestAuthEndpoints:
     @pytest.fixture
     def mock_auth_handler(self):
         """Mock JWT authentication handler."""
-        with patch("pynomaly.infrastructure.auth.jwt_auth.JWTAuthService") as mock:
+        with patch("monorepo.infrastructure.auth.jwt_auth.JWTAuthService") as mock:
             handler = Mock()
             handler.create_access_token.return_value = "test-jwt-token"
             handler.verify_token.return_value = {

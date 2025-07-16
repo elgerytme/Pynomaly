@@ -5,13 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from uuid import UUID
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from monorepo.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
-from pynomaly.domain.exceptions import DatasetError, DetectorNotFittedError
-from pynomaly.domain.services import FeatureValidator
-from pynomaly.shared.protocols import DetectorRepositoryProtocol
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult
+from monorepo.domain.exceptions import DatasetError, DetectorNotFittedError
+from monorepo.domain.services import FeatureValidator
+from monorepo.shared.protocols import DetectorRepositoryProtocol
 
 
 @dataclass

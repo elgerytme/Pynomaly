@@ -18,8 +18,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import DetectionResult
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.entities import DetectionResult
+from monorepo.domain.value_objects import AnomalyScore
 
 
 @pytest.mark.e2e
@@ -55,7 +55,7 @@ class TestEndToEndAnomalyDetection:
 
         # Mock the actual ML computation
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
         ) as mock_detect:
             mock_detect.return_value = DetectionResult(
                 detector_id=detector_id,
@@ -111,7 +111,7 @@ class TestEndToEndAnomalyDetection:
         detection_data = {"dataset_id": dataset_id, "detector_id": detector_id}
 
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
         ) as mock_detect:
             mock_detect.return_value = DetectionResult(
                 detector_id=detector_id,
@@ -156,7 +156,7 @@ class TestEndToEndAnomalyDetection:
         batch_data = {"dataset_ids": datasets, "detector_id": detector_id}
 
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
         ) as mock_detect:
             # Mock returns different results for each dataset
             mock_detect.side_effect = [
@@ -208,7 +208,7 @@ class TestEndToEndAnomalyDetection:
         training_request = {"model_id": model_id, "dataset_id": training_dataset_id}
 
         with patch(
-            "pynomaly.application.services.model_service.ModelService.train_model"
+            "monorepo.application.services.model_service.ModelService.train_model"
         ) as mock_train:
             mock_train.return_value = {
                 "model_id": model_id,
@@ -237,7 +237,7 @@ class TestEndToEndAnomalyDetection:
         inference_request = {"model_id": model_id, "dataset_id": inference_dataset_id}
 
         with patch(
-            "pynomaly.application.services.model_service.ModelService.predict"
+            "monorepo.application.services.model_service.ModelService.predict"
         ) as mock_predict:
             mock_predict.return_value = DetectionResult(
                 detector_id=model_id,
@@ -289,7 +289,7 @@ class TestEndToEndAnomalyDetection:
                 detection_data = {"dataset_id": dataset_id, "detector_id": detector_id}
 
                 with patch(
-                    "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
+                    "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
                 ) as mock_detect:
                     mock_detect.return_value = DetectionResult(
                         detector_id=detector_id,
@@ -388,7 +388,7 @@ class TestEndToEndAnomalyDetection:
         detection_data = {"dataset_id": dataset_id, "detector_id": detector_id}
 
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
         ) as mock_detect:
             mock_detect.return_value = DetectionResult(
                 detector_id=detector_id,
@@ -481,7 +481,7 @@ class TestEndToEndAnomalyDetection:
         async_detection_data = {"dataset_id": dataset_id, "detector_id": detector_id}
 
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies_async"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies_async"
         ) as mock_async_detect:
             # Mock async detection
             mock_async_detect.return_value = asyncio.Future()
@@ -513,7 +513,7 @@ class TestEndToEndAnomalyDetection:
 
             # Step 5: Get results (mock as completed)
             with patch(
-                "pynomaly.application.services.task_service.TaskService.get_task_result"
+                "monorepo.application.services.task_service.TaskService.get_task_result"
             ) as mock_get_result:
                 mock_get_result.return_value = {
                     "task_id": task_id,
@@ -585,7 +585,7 @@ class TestRealWorldScenarios:
         detection_data = {"dataset_id": dataset_id, "detector_id": detector_id}
 
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
         ) as mock_detect:
             mock_detect.return_value = DetectionResult(
                 detector_id=detector_id,
@@ -649,7 +649,7 @@ class TestRealWorldScenarios:
         detection_data = {"dataset_id": dataset_id, "detector_id": detector_id}
 
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
         ) as mock_detect:
             mock_detect.return_value = DetectionResult(
                 detector_id=detector_id,
@@ -711,7 +711,7 @@ class TestRealWorldScenarios:
         detection_data = {"dataset_id": dataset_id, "detector_id": detector_id}
 
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
         ) as mock_detect:
             mock_detect.return_value = DetectionResult(
                 detector_id=detector_id,
@@ -765,7 +765,7 @@ class TestRealWorldScenarios:
         detection_data = {"dataset_id": dataset_id, "detector_id": detector_id}
 
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService.detect_anomalies"
         ) as mock_detect:
             mock_detect.return_value = DetectionResult(
                 detector_id=detector_id,

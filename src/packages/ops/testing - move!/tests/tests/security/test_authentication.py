@@ -10,8 +10,8 @@ from unittest.mock import patch
 import jwt
 import pytest
 
-from pynomaly.domain.exceptions import AuthenticationError, SecurityError
-from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
+from monorepo.domain.exceptions import AuthenticationError, SecurityError
+from monorepo.infrastructure.auth.jwt_auth import JWTAuthService
 
 
 class TestJWTAuthentication:
@@ -177,7 +177,7 @@ class TestJWTAuthentication:
     def test_authenticate_valid_credentials(self, jwt_handler):
         """Test authentication with valid credentials."""
         with patch(
-            "pynomaly.infrastructure.auth.password_hasher.verify_password"
+            "monorepo.infrastructure.auth.password_hasher.verify_password"
         ) as mock_verify:
             mock_verify.return_value = True
 
@@ -191,7 +191,7 @@ class TestJWTAuthentication:
     def test_authenticate_invalid_password(self, jwt_handler):
         """Test authentication with invalid password."""
         with patch(
-            "pynomaly.infrastructure.auth.password_hasher.verify_password"
+            "monorepo.infrastructure.auth.password_hasher.verify_password"
         ) as mock_verify:
             mock_verify.return_value = False
 
@@ -201,7 +201,7 @@ class TestJWTAuthentication:
     def test_authenticate_nonexistent_user(self, jwt_handler):
         """Test authentication with non-existent user."""
         with patch(
-            "pynomaly.infrastructure.auth.user_repository.get_user_by_email"
+            "monorepo.infrastructure.auth.user_repository.get_user_by_email"
         ) as mock_get:
             mock_get.return_value = None
 
@@ -212,7 +212,7 @@ class TestJWTAuthentication:
 
     def test_password_hashing_security(self):
         """Test password hashing security requirements."""
-        with patch("pynomaly.infrastructure.auth.password_hasher") as mock_hasher:
+        with patch("monorepo.infrastructure.auth.password_hasher") as mock_hasher:
             password = "test_password_123"
 
             # Mock secure password hashing
@@ -229,7 +229,7 @@ class TestJWTAuthentication:
 
     def test_password_complexity_requirements(self):
         """Test password complexity validation."""
-        from pynomaly.infrastructure.auth.password_validator import PasswordValidator
+        from monorepo.infrastructure.auth.password_validator import PasswordValidator
 
         validator = PasswordValidator()
 
@@ -297,7 +297,7 @@ class TestJWTAuthentication:
     def test_authentication_rate_limiting(self, jwt_handler):
         """Test rate limiting for authentication attempts."""
         with patch(
-            "pynomaly.infrastructure.auth.rate_limiter.check_rate_limit"
+            "monorepo.infrastructure.auth.rate_limiter.check_rate_limit"
         ) as mock_rate_limit:
             # Simulate rate limit exceeded
             mock_rate_limit.return_value = False
@@ -308,7 +308,7 @@ class TestJWTAuthentication:
     def test_brute_force_protection(self, jwt_handler):
         """Test brute force attack protection."""
         with patch(
-            "pynomaly.infrastructure.auth.brute_force_detector"
+            "monorepo.infrastructure.auth.brute_force_detector"
         ) as mock_detector:
             # Simulate multiple failed attempts
             mock_detector.is_locked.return_value = True
@@ -332,7 +332,7 @@ class TestJWTAuthentication:
         """Test MFA token verification."""
         user_email = "test@example.com"
 
-        with patch("pynomaly.infrastructure.auth.totp_handler.verify") as mock_verify:
+        with patch("monorepo.infrastructure.auth.totp_handler.verify") as mock_verify:
             mock_verify.return_value = True
 
             result = jwt_handler.verify_mfa_token(user_email, "123456")
@@ -343,7 +343,7 @@ class TestJWTAuthentication:
         """Test MFA token expiry."""
         user_email = "test@example.com"
 
-        with patch("pynomaly.infrastructure.auth.totp_handler.verify") as mock_verify:
+        with patch("monorepo.infrastructure.auth.totp_handler.verify") as mock_verify:
             # Simulate expired token
             mock_verify.return_value = False
 
@@ -425,7 +425,7 @@ class TestAuthenticationSecurity:
 
     def test_constant_time_comparison(self):
         """Test constant-time string comparison for security."""
-        from pynomaly.infrastructure.auth.crypto_utils import constant_time_compare
+        from monorepo.infrastructure.auth.crypto_utils import constant_time_compare
 
         # Same strings
         assert constant_time_compare("secret", "secret") is True
@@ -456,7 +456,7 @@ class TestAuthenticationSecurity:
 
     def test_password_salt_uniqueness(self):
         """Test that password salts are unique."""
-        with patch("pynomaly.infrastructure.auth.password_hasher") as mock_hasher:
+        with patch("monorepo.infrastructure.auth.password_hasher") as mock_hasher:
             password = "test_password"
 
             # Mock salt generation
@@ -551,7 +551,7 @@ class TestAuthenticationIntegration:
 
         # 2. Authenticate user
         with patch(
-            "pynomaly.infrastructure.auth.password_hasher.verify_password"
+            "monorepo.infrastructure.auth.password_hasher.verify_password"
         ) as mock_verify:
             mock_verify.return_value = True
 

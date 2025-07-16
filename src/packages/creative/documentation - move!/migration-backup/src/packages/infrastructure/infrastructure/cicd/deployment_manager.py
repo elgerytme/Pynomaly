@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.models.cicd import (
+from monorepo.domain.models.cicd import (
     Deployment,
     DeploymentEnvironment,
     DeploymentStrategy,
@@ -744,12 +744,12 @@ class DeploymentManager:
         """Get base domain for environment."""
 
         domain_map = {
-            DeploymentEnvironment.DEVELOPMENT: "dev.pynomaly.ai",
-            DeploymentEnvironment.TESTING: "test.pynomaly.ai",
-            DeploymentEnvironment.STAGING: "staging.pynomaly.ai",
-            DeploymentEnvironment.PRODUCTION: "pynomaly.ai",
-            DeploymentEnvironment.CANARY: "canary.pynomaly.ai",
-            DeploymentEnvironment.PREVIEW: "preview.pynomaly.ai",
+            DeploymentEnvironment.DEVELOPMENT: "dev.monorepo.ai",
+            DeploymentEnvironment.TESTING: "test.monorepo.ai",
+            DeploymentEnvironment.STAGING: "staging.monorepo.ai",
+            DeploymentEnvironment.PRODUCTION: "monorepo.ai",
+            DeploymentEnvironment.CANARY: "canary.monorepo.ai",
+            DeploymentEnvironment.PREVIEW: "preview.monorepo.ai",
         }
 
         return domain_map.get(environment, "localhost")

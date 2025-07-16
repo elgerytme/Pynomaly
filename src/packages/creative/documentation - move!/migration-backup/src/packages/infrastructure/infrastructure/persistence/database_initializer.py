@@ -5,8 +5,8 @@ from __future__ import annotations
 import logging
 import os
 
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.persistence.migration_manager import (
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.persistence.migration_manager import (
     create_migration_manager,
 )
 

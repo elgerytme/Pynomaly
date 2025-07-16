@@ -209,7 +209,7 @@ class GrafanaMonitoringProvider(ExternalMonitoringProvider):
             # Send to InfluxDB endpoint
             influx_url = urljoin(self.config.endpoint_url, "/write")
             params = {
-                "db": self.config.settings.get("database", "pynomaly"),
+                "db": self.config.settings.get("database", "monorepo"),
                 "precision": "ns",
             }
 
@@ -298,7 +298,7 @@ class DatadogMonitoringProvider(ExternalMonitoringProvider):
             datadog.initialize(
                 api_key=config.api_key,
                 app_key=config.api_secret,
-                host_name=config.settings.get("host_name", "pynomaly"),
+                host_name=config.settings.get("host_name", "monorepo"),
             )
 
     async def send_metric(self, metric: MetricData) -> bool:
@@ -358,7 +358,7 @@ class DatadogMonitoringProvider(ExternalMonitoringProvider):
                 text=text,
                 tags=tags,
                 alert_type=self._severity_to_datadog_type(alert.severity),
-                source_type_name="pynomaly",
+                source_type_name="monorepo",
             )
 
             logger.info(f"Sent alert {alert.alert_id} to Datadog")
@@ -375,7 +375,7 @@ class DatadogMonitoringProvider(ExternalMonitoringProvider):
                 return False
 
             # Test by sending a test metric
-            statsd.increment("pynomaly.test.connection", tags=["test:true"])
+            statsd.increment("monorepo.test.connection", tags=["test:true"])
             return True
 
         except Exception as e:
@@ -497,7 +497,7 @@ class PrometheusMonitoringProvider(ExternalMonitoringProvider):
 
             # Push to gateway
             gateway_url = self.config.endpoint_url or "localhost:9091"
-            job_name = self.config.settings.get("job_name", "pynomaly")
+            job_name = self.config.settings.get("job_name", "monorepo")
 
             push_to_gateway(gateway_url, job=job_name, registry=self.registry)
 
@@ -806,7 +806,7 @@ class ExternalMonitoringService:
         title: str,
         message: str,
         severity: AlertSeverity = AlertSeverity.MEDIUM,
-        source: str = "pynomaly",
+        source: str = "monorepo",
         tags: dict[str, str] | None = None,
         providers: list[str] | None = None,
         buffered: bool = False,
@@ -1030,6 +1030,6 @@ async def send_system_health_alert(
         title=f"System Health Issue: {component}",
         message=f"Issue detected in {component}: {issue}",
         severity=severity,
-        source="pynomaly.health",
+        source="monorepo.health",
         tags={"component": component, "type": "health_check"},
     )

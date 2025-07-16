@@ -53,9 +53,9 @@ def test_basic_functionality():
         import numpy as np
         import pandas as pd
 
-        from pynomaly.domain.entities import Dataset
-        from pynomaly.domain.value_objects import ContaminationRate
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.domain.entities import Dataset
+        from monorepo.domain.value_objects import ContaminationRate
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         # Create sample data
         data = pd.DataFrame(
@@ -91,7 +91,7 @@ def test_container_import():
     """Test that the dependency injection container works."""
     print("🔍 Testing dependency injection container...")
     try:
-        from pynomaly.infrastructure.config.container import Container
+        from monorepo.infrastructure.config.container import Container
 
         container = Container()
         print("✅ Container import and creation successful")

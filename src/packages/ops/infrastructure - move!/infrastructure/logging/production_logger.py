@@ -348,7 +348,7 @@ class ProductionLogger:
     def __init__(self, config: dict[str, Any]):
         self.config = config
         self.context = LogContext(
-            service_name=config.get("service_name", "pynomaly"),
+            service_name=config.get("service_name", "monorepo"),
             version=config.get("version", "1.0.0"),
             environment=config.get("environment", "production"),
             hostname=socket.gethostname(),
@@ -640,7 +640,7 @@ def main():
     """Main function for testing."""
     # Test configuration
     config = {
-        "service_name": "pynomaly",
+        "service_name": "monorepo",
         "version": "1.0.0",
         "environment": "production",
         "log_level": "INFO",
@@ -659,8 +659,8 @@ def main():
     prod_logger = initialize_production_logging(config)
 
     # Get loggers
-    app_logger = get_production_logger("pynomaly.app")
-    struct_logger = get_structured_logger("pynomaly.structured")
+    app_logger = get_production_logger("monorepo.app")
+    struct_logger = get_structured_logger("monorepo.structured")
 
     # Test logging
     app_logger.info("Production logging system initialized")

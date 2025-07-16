@@ -125,7 +125,7 @@ def validate_pygod_adapter():
     logger.info("🔧 Validating PyGOD adapter...")
 
     try:
-        from pynomaly.infrastructure.adapters.pygod_adapter import PyGODAdapter
+        from monorepo.infrastructure.adapters.pygod_adapter import PyGODAdapter
 
         logger.info("✅ PyGOD adapter import successful")
 
@@ -190,9 +190,9 @@ def validate_with_sample_data():
         import numpy as np
         import pandas as pd
 
-        from pynomaly.domain.entities import Dataset
-        from pynomaly.domain.value_objects import ContaminationRate
-        from pynomaly.infrastructure.adapters.pygod_adapter import PyGODAdapter
+        from monorepo.domain.entities import Dataset
+        from monorepo.domain.value_objects import ContaminationRate
+        from monorepo.infrastructure.adapters.pygod_adapter import PyGODAdapter
 
         # Create simple test graph
         np.random.seed(42)

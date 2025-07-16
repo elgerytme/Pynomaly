@@ -11,7 +11,7 @@ import motor.motor_asyncio
 from pymongo import IndexModel
 from pymongo.errors import DuplicateKeyError
 
-from pynomaly.infrastructure.config.database_config import DatabaseConfig
+from monorepo.infrastructure.config.database_config import DatabaseConfig
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class MongoDBAdapter:
             self.client = motor.motor_asyncio.AsyncIOMotorClient(connection_url)
 
             # Get database name from config
-            database_name = self.config.database or "pynomaly"
+            database_name = self.config.database or "monorepo"
             self.database = self.client[database_name]
 
             # Test connection

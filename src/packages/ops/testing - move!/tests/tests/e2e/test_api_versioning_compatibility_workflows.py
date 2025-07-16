@@ -12,8 +12,8 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from monorepo.infrastructure.config import create_container
+from monorepo.presentation.api.app import create_app
 
 
 class TestAPIVersioningCompatibilityWorkflows:
@@ -362,7 +362,7 @@ class TestAPIVersioningCompatibilityWorkflows:
 
             for version, format_spec in version_response_formats.items():
                 # Test with Accept header for different versions
-                headers = {"Accept": f"application/vnd.pynomaly.{version}+json"}
+                headers = {"Accept": f"application/vnd.monorepo.{version}+json"}
 
                 detect_response = app_client.post(
                     f"/api/detectors/{detector_id}/detect",

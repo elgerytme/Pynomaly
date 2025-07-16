@@ -9,9 +9,9 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.domain.exceptions import AuthenticationError
-from pynomaly.infrastructure.auth import TokenResponse, UserModel
-from pynomaly.presentation.api.app import create_app
+from monorepo.domain.exceptions import AuthenticationError
+from monorepo.infrastructure.auth import TokenResponse, UserModel
+from monorepo.presentation.api.app import create_app
 
 
 class TestAuthEndpoints:
@@ -26,7 +26,7 @@ class TestAuthEndpoints:
     @pytest.fixture
     def mock_auth_service(self):
         """Mock authentication service."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService") as mock:
+        with patch("monorepo.infrastructure.auth.JWTAuthService") as mock:
             service = Mock()
 
             # Mock successful authentication
@@ -275,7 +275,7 @@ class TestAuthEndpoints:
 
     def test_get_current_user_success(self, client, mock_auth_service):
         """Test getting current user profile."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(
                 id="test-user-123",
                 username="testuser",
@@ -309,7 +309,7 @@ class TestAuthEndpoints:
 
     def test_update_user_profile_success(self, client, mock_auth_service):
         """Test updating user profile."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(
                 id="test-user-123", username="testuser", email="test@example.com"
             )
@@ -334,7 +334,7 @@ class TestAuthEndpoints:
 
     def test_change_password_success(self, client, mock_auth_service):
         """Test successful password change."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(id="test-user-123", username="testuser")
 
             mock_auth_service.change_password.return_value = True
@@ -355,7 +355,7 @@ class TestAuthEndpoints:
 
     def test_change_password_wrong_current(self, client, mock_auth_service):
         """Test password change with wrong current password."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(id="test-user-123")
 
             mock_auth_service.change_password.side_effect = AuthenticationError(
@@ -411,7 +411,7 @@ class TestAuthEndpoints:
 
     def test_create_api_key_success(self, client, mock_auth_service):
         """Test successful API key creation."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(id="test-user-123")
 
             mock_auth_service.create_api_key.return_value = {
@@ -439,7 +439,7 @@ class TestAuthEndpoints:
 
     def test_list_api_keys(self, client, mock_auth_service):
         """Test listing user API keys."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(id="test-user-123")
 
             mock_auth_service.list_api_keys.return_value = [
@@ -469,7 +469,7 @@ class TestAuthEndpoints:
 
     def test_revoke_api_key(self, client, mock_auth_service):
         """Test API key revocation."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(id="test-user-123")
 
             mock_auth_service.revoke_api_key.return_value = True
@@ -483,7 +483,7 @@ class TestAuthEndpoints:
 
     def test_logout_success(self, client, mock_auth_service):
         """Test successful logout."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(id="test-user-123")
 
             mock_auth_service.logout_user.return_value = True
@@ -497,7 +497,7 @@ class TestAuthEndpoints:
 
     def test_logout_all_sessions(self, client, mock_auth_service):
         """Test logout from all sessions."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(id="test-user-123")
 
             mock_auth_service.logout_all_sessions.return_value = (
@@ -513,7 +513,7 @@ class TestAuthEndpoints:
 
     def test_list_active_sessions(self, client, mock_auth_service):
         """Test listing active user sessions."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(id="test-user-123")
 
             mock_auth_service.list_active_sessions.return_value = [
@@ -539,7 +539,7 @@ class TestAuthEndpoints:
 
     def test_enable_mfa_success(self, client, mock_auth_service):
         """Test enabling multi-factor authentication."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(id="test-user-123")
 
             mock_auth_service.enable_mfa.return_value = {
@@ -559,7 +559,7 @@ class TestAuthEndpoints:
 
     def test_verify_mfa_setup(self, client, mock_auth_service):
         """Test MFA setup verification."""
-        with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_user:
+        with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_user:
             mock_user.return_value = UserModel(id="test-user-123")
 
             mock_auth_service.verify_mfa_setup.return_value = True
@@ -645,7 +645,7 @@ class TestAuthEndpointsIntegration:
 
     def test_complete_auth_workflow(self, client):
         """Test complete authentication workflow."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService") as mock_service:
+        with patch("monorepo.infrastructure.auth.JWTAuthService") as mock_service:
             service_instance = Mock()
             mock_service.return_value = service_instance
 
@@ -682,7 +682,7 @@ class TestAuthEndpointsIntegration:
                 headers = {"Authorization": f"Bearer {token}"}
 
                 with patch(
-                    "pynomaly.infrastructure.auth.get_current_active_user"
+                    "monorepo.infrastructure.auth.get_current_active_user"
                 ) as mock_user:
                     mock_user.return_value = UserModel(
                         id="test-user", username="testuser"

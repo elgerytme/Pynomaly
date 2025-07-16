@@ -8,7 +8,7 @@ import pytest
 import requests
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.server import app
+from monorepo.presentation.cli.server import app
 
 
 class TestServerCommands:
@@ -23,7 +23,7 @@ class TestServerCommands:
     def mock_container(self):
         """Mock CLI container with server settings."""
         with patch(
-            "pynomaly.presentation.cli.server.get_cli_container"
+            "monorepo.presentation.cli.server.get_cli_container"
         ) as mock_get_container:
             container = Mock()
 
@@ -77,7 +77,7 @@ class TestServerCommands:
         mock_subprocess.assert_called_once()
         args = mock_subprocess.call_args[0][0]
         assert "uvicorn" in args
-        assert "pynomaly.presentation.api.app:app" in args
+        assert "monorepo.presentation.api.app:app" in args
         assert "--host=127.0.0.1" in args
         assert "--port=8000" in args
         assert "--log-level=info" in args
@@ -192,7 +192,7 @@ class TestServerCommands:
 
         # Mock PID file
         with tempfile.TemporaryDirectory() as tmp_dir:
-            pid_file = Path(tmp_dir) / "pynomaly.pid"
+            pid_file = Path(tmp_dir) / "monorepo.pid"
             mock_container.config.return_value.storage_path = Path(tmp_dir)
 
             result = runner.invoke(app, ["start", "--daemon"])
@@ -235,7 +235,7 @@ class TestServerCommands:
     def test_stop_server_success(self, mock_kill, runner, mock_container):
         """Test successful server stop."""
         with tempfile.TemporaryDirectory() as tmp_dir:
-            pid_file = Path(tmp_dir) / "pynomaly.pid"
+            pid_file = Path(tmp_dir) / "monorepo.pid"
             pid_file.write_text("1234")
             mock_container.config.return_value.storage_path = Path(tmp_dir)
 
@@ -255,7 +255,7 @@ class TestServerCommands:
     def test_stop_server_force(self, mock_kill, runner, mock_container):
         """Test force stop server."""
         with tempfile.TemporaryDirectory() as tmp_dir:
-            pid_file = Path(tmp_dir) / "pynomaly.pid"
+            pid_file = Path(tmp_dir) / "monorepo.pid"
             pid_file.write_text("1234")
             mock_container.config.return_value.storage_path = Path(tmp_dir)
 
@@ -273,7 +273,7 @@ class TestServerCommands:
     def test_stop_server_process_not_found(self, mock_kill, runner, mock_container):
         """Test stop server when process doesn't exist."""
         with tempfile.TemporaryDirectory() as tmp_dir:
-            pid_file = Path(tmp_dir) / "pynomaly.pid"
+            pid_file = Path(tmp_dir) / "monorepo.pid"
             pid_file.write_text("1234")
             mock_container.config.return_value.storage_path = Path(tmp_dir)
 
@@ -290,7 +290,7 @@ class TestServerCommands:
     def test_stop_server_invalid_pid_file(self, mock_kill, runner, mock_container):
         """Test stop server with invalid PID file."""
         with tempfile.TemporaryDirectory() as tmp_dir:
-            pid_file = Path(tmp_dir) / "pynomaly.pid"
+            pid_file = Path(tmp_dir) / "monorepo.pid"
             pid_file.write_text("invalid_pid")
             mock_container.config.return_value.storage_path = Path(tmp_dir)
 
@@ -303,7 +303,7 @@ class TestServerCommands:
     def test_status_server_running(self, mock_kill, runner, mock_container):
         """Test server status when server is running."""
         with tempfile.TemporaryDirectory() as tmp_dir:
-            pid_file = Path(tmp_dir) / "pynomaly.pid"
+            pid_file = Path(tmp_dir) / "monorepo.pid"
             pid_file.write_text("1234")
             mock_container.config.return_value.storage_path = Path(tmp_dir)
 
@@ -585,7 +585,7 @@ class TestServerCommandsEdgeCases:
     def mock_container(self):
         """Mock CLI container with server settings."""
         with patch(
-            "pynomaly.presentation.cli.server.get_cli_container"
+            "monorepo.presentation.cli.server.get_cli_container"
         ) as mock_get_container:
             container = Mock()
             settings = Mock()
@@ -659,7 +659,7 @@ class TestServerCommandsEdgeCases:
     def test_status_invalid_pid_file(self, runner, mock_container):
         """Test server status with invalid PID file content."""
         with tempfile.TemporaryDirectory() as tmp_dir:
-            pid_file = Path(tmp_dir) / "pynomaly.pid"
+            pid_file = Path(tmp_dir) / "monorepo.pid"
             pid_file.write_text("not_a_number")
             mock_container.config.return_value.storage_path = Path(tmp_dir)
 
@@ -672,7 +672,7 @@ class TestServerCommandsEdgeCases:
     def test_status_process_check_exception(self, mock_kill, runner, mock_container):
         """Test server status with process check exception."""
         with tempfile.TemporaryDirectory() as tmp_dir:
-            pid_file = Path(tmp_dir) / "pynomaly.pid"
+            pid_file = Path(tmp_dir) / "monorepo.pid"
             pid_file.write_text("1234")
             mock_container.config.return_value.storage_path = Path(tmp_dir)
 

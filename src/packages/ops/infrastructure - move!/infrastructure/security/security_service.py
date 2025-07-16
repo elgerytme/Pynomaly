@@ -582,7 +582,7 @@ class AuditService:
         self._max_events_memory = 10000
 
         # Audit logger
-        self.audit_logger = logging.getLogger("pynomaly.audit")
+        self.audit_logger = logging.getLogger("monorepo.audit")
         if not self.audit_logger.handlers:
             handler = logging.FileHandler("/var/log/pynomaly/audit.log")
             formatter = logging.Formatter(

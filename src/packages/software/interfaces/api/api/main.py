@@ -339,7 +339,7 @@ async def train_model(
                             "production": {
                                 "status": "active",
                                 "deployed_at": "2024-01-01T14:00:00Z",
-                                "endpoint": "https://api.pynomaly.com/models/isolation_forest_20240101_001/predict",
+                                "endpoint": "https://api.monorepo.com/models/isolation_forest_20240101_001/predict",
                             }
                         },
                     }
@@ -368,7 +368,7 @@ async def get_model_info(
                 "production": {
                     "status": "active",
                     "deployed_at": "2024-01-01T14:00:00Z",
-                    "endpoint": f"https://api.pynomaly.com/models/{model_id}/predict",
+                    "endpoint": f"https://api.monorepo.com/models/{model_id}/predict",
                 }
             },
         }

@@ -13,9 +13,9 @@ import numpy as np
 # Add src to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pynomaly_detection.domain.entities.dataset import Dataset
-from pynomaly_detection.domain.value_objects.contamination_rate import ContaminationRate
-from pynomaly_detection.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.value_objects.contamination_rate import ContaminationRate
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 def generate_sample_data():

@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 import numpy as np
 import pytest
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore, AnomalyType
-from pynomaly.features.real_time_processing import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import AnomalyScore, AnomalyType
+from monorepo.features.real_time_processing import (
     EventProcessor,
     ProcessingMode,
     RealTimeDetector,

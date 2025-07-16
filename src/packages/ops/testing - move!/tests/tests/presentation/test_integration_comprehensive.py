@@ -9,9 +9,9 @@ import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
-from pynomaly.presentation.web.app import create_web_app
+from monorepo.infrastructure.config import create_container
+from monorepo.presentation.api.app import create_app
+from monorepo.presentation.web.app import create_web_app
 
 
 @pytest.fixture
@@ -92,7 +92,7 @@ class TestEndToEndAPIWorkflow:
         }
 
         with patch(
-            "pynomaly.application.services.dataset_service.DatasetService.load_dataset"
+            "monorepo.application.services.dataset_service.DatasetService.load_dataset"
         ) as mock_load:
             mock_dataset = Mock()
             mock_dataset.id = "dataset_123"
@@ -123,7 +123,7 @@ class TestEndToEndAPIWorkflow:
         }
 
         with patch(
-            "pynomaly.application.services.detector_service.DetectorService.create_detector"
+            "monorepo.application.services.detector_service.DetectorService.create_detector"
         ) as mock_create:
             mock_detector = Mock()
             mock_detector.id = "detector_123"
@@ -150,7 +150,7 @@ class TestEndToEndAPIWorkflow:
         }
 
         with patch(
-            "pynomaly.application.services.detection_service.DetectionService.train_detector"
+            "monorepo.application.services.detection_service.DetectionService.train_detector"
         ) as mock_train:
             mock_train_result = {
                 "success": True,
@@ -184,7 +184,7 @@ class TestEndToEndAPIWorkflow:
         }
 
         with patch(
-            "pynomaly.application.services.detection_service.DetectionService.detect_anomalies"
+            "monorepo.application.services.detection_service.DetectionService.detect_anomalies"
         ) as mock_predict:
             mock_prediction_result = {
                 "predictions": [0, 0, 0, 1, 1, 0, 0, 1],
@@ -238,7 +238,7 @@ class TestEndToEndAPIWorkflow:
         data = {"name": "Experiment Dataset"}
 
         with patch(
-            "pynomaly.application.services.dataset_service.DatasetService.load_dataset"
+            "monorepo.application.services.dataset_service.DatasetService.load_dataset"
         ) as mock_load:
             mock_dataset = Mock()
             mock_dataset.id = "exp_dataset_123"
@@ -269,7 +269,7 @@ class TestEndToEndAPIWorkflow:
         }
 
         with patch(
-            "pynomaly.application.services.experiment_service.ExperimentService.create_experiment"
+            "monorepo.application.services.experiment_service.ExperimentService.create_experiment"
         ) as mock_create_exp:
             mock_experiment = Mock()
             mock_experiment.id = "experiment_123"
@@ -292,7 +292,7 @@ class TestEndToEndAPIWorkflow:
         }
 
         with patch(
-            "pynomaly.application.services.experiment_service.ExperimentService.execute_experiment"
+            "monorepo.application.services.experiment_service.ExperimentService.execute_experiment"
         ) as mock_execute:
             mock_execution_result = {
                 "experiment_id": experiment_id,
@@ -385,7 +385,7 @@ class TestEndToEndAPIWorkflow:
             data = {"name": f"Batch Dataset {i}"}
 
             with patch(
-                "pynomaly.application.services.dataset_service.DatasetService.load_dataset"
+                "monorepo.application.services.dataset_service.DatasetService.load_dataset"
             ) as mock_load:
                 mock_dataset = Mock()
                 mock_dataset.id = f"batch_dataset_{i}"
@@ -400,7 +400,7 @@ class TestEndToEndAPIWorkflow:
         detector_config = {"name": "Batch Detector", "algorithm": "IsolationForest"}
 
         with patch(
-            "pynomaly.application.services.detector_service.DetectorService.create_detector"
+            "monorepo.application.services.detector_service.DetectorService.create_detector"
         ) as mock_create:
             mock_detector = Mock()
             mock_detector.id = "batch_detector_123"
@@ -413,7 +413,7 @@ class TestEndToEndAPIWorkflow:
 
         # Train detector on first dataset
         with patch(
-            "pynomaly.application.services.detection_service.DetectionService.train_detector"
+            "monorepo.application.services.detection_service.DetectionService.train_detector"
         ) as mock_train:
             mock_train.return_value = {"success": True, "training_time_ms": 1000}
 
@@ -432,7 +432,7 @@ class TestEndToEndAPIWorkflow:
         }
 
         with patch(
-            "pynomaly.application.services.detection_service.DetectionService.batch_detect_anomalies"
+            "monorepo.application.services.detection_service.DetectionService.batch_detect_anomalies"
         ) as mock_batch:
             mock_batch_result = {
                 "batch_id": "batch_123",
@@ -489,7 +489,7 @@ class TestWebUIIntegration:
 
     def test_real_time_updates_integration(self, web_client: TestClient):
         """Test real-time updates between web UI and backend."""
-        with patch("pynomaly.presentation.web.app.get_live_updates") as mock_updates:
+        with patch("monorepo.presentation.web.app.get_live_updates") as mock_updates:
             mock_updates.return_value = {
                 "recent_detections": [
                     {"id": "det1", "status": "completed", "anomalies": 5},
@@ -514,7 +514,7 @@ class TestWebUIIntegration:
 
     def test_form_submission_to_api(self, web_client: TestClient):
         """Test form submission that triggers API calls."""
-        with patch("pynomaly.presentation.web.app.create_detector") as mock_create:
+        with patch("monorepo.presentation.web.app.create_detector") as mock_create:
             mock_create.return_value = {
                 "id": "new_detector_123",
                 "name": "Web Created Detector",
@@ -538,7 +538,7 @@ class TestWebUIIntegration:
 
     def test_file_upload_integration(self, web_client: TestClient, sample_csv_content):
         """Test file upload through web UI."""
-        with patch("pynomaly.presentation.web.app.upload_dataset") as mock_upload:
+        with patch("monorepo.presentation.web.app.upload_dataset") as mock_upload:
             mock_upload.return_value = {
                 "id": "uploaded_dataset_123",
                 "name": "Web Uploaded Dataset",
@@ -570,11 +570,11 @@ class TestCLIIntegration:
         """Test CLI commands that interact with API."""
         from typer.testing import CliRunner
 
-        from pynomaly.presentation.cli.app import app
+        from monorepo.presentation.cli.app import app
 
         runner = CliRunner()
 
-        with patch("pynomaly.presentation.cli.server.requests.get") as mock_get:
+        with patch("monorepo.presentation.cli.server.requests.get") as mock_get:
             # Mock API response for server status
             mock_response = Mock()
             mock_response.status_code = 200
@@ -590,12 +590,12 @@ class TestCLIIntegration:
         """Test CLI commands that use services directly."""
         from typer.testing import CliRunner
 
-        from pynomaly.presentation.cli.app import app
+        from monorepo.presentation.cli.app import app
 
         runner = CliRunner()
 
         with patch(
-            "pynomaly.presentation.cli.detectors.get_cli_container"
+            "monorepo.presentation.cli.detectors.get_cli_container"
         ) as mock_container:
             mock_service = Mock()
             mock_detector = Mock()
@@ -637,7 +637,7 @@ class TestCrossPlatformIntegration:
         detector_config = {"name": "Cross-Platform Detector", "algorithm": "LOF"}
 
         with patch(
-            "pynomaly.application.services.detector_service.DetectorService.create_detector"
+            "monorepo.application.services.detector_service.DetectorService.create_detector"
         ) as mock_create:
             mock_detector = Mock()
             mock_detector.id = "cross_platform_det"
@@ -651,7 +651,7 @@ class TestCrossPlatformIntegration:
             detector_id = api_response.json()["id"]
 
         # Step 2: Upload dataset via Web UI
-        with patch("pynomaly.presentation.web.app.upload_dataset") as mock_upload:
+        with patch("monorepo.presentation.web.app.upload_dataset") as mock_upload:
             mock_upload.return_value = {
                 "id": "cross_platform_ds",
                 "name": "Cross-Platform Dataset",
@@ -670,7 +670,7 @@ class TestCrossPlatformIntegration:
 
         # Step 3: Train via API
         with patch(
-            "pynomaly.application.services.detection_service.DetectionService.train_detector"
+            "monorepo.application.services.detection_service.DetectionService.train_detector"
         ) as mock_train:
             mock_train.return_value = {"success": True, "training_time_ms": 1000}
 
@@ -683,7 +683,7 @@ class TestCrossPlatformIntegration:
 
         # Step 4: View results in Web UI
         with patch(
-            "pynomaly.presentation.web.app.get_detection_results"
+            "monorepo.presentation.web.app.get_detection_results"
         ) as mock_results:
             mock_results.return_value = {
                 "results": [
@@ -734,7 +734,7 @@ class TestCrossPlatformIntegration:
 
         # Login via API
         with patch(
-            "pynomaly.infrastructure.auth.JWTAuthService.authenticate_user"
+            "monorepo.infrastructure.auth.JWTAuthService.authenticate_user"
         ) as mock_auth:
             mock_auth.return_value = {"user_id": "test_user", "username": "testuser"}
 
@@ -785,7 +785,7 @@ class TestErrorHandlingIntegration:
         headers = {"Authorization": f"Bearer {auth_token}"}
 
         with patch(
-            "pynomaly.application.services.detector_service.DetectorService.create_detector"
+            "monorepo.application.services.detector_service.DetectorService.create_detector"
         ) as mock_create:
             # Mock service failure
             mock_create.side_effect = Exception("Service temporarily unavailable")
@@ -808,7 +808,7 @@ class TestErrorHandlingIntegration:
         headers = {"Authorization": f"Bearer {auth_token}"}
 
         with patch(
-            "pynomaly.infrastructure.persistence.database.get_session"
+            "monorepo.infrastructure.persistence.database.get_session"
         ) as mock_session:
             mock_session.side_effect = Exception("Database connection failed")
 
@@ -834,16 +834,16 @@ class TestPerformanceIntegration:
         # Mock all services for performance testing
         with (
             patch(
-                "pynomaly.application.services.dataset_service.DatasetService.load_dataset"
+                "monorepo.application.services.dataset_service.DatasetService.load_dataset"
             ) as mock_load,
             patch(
-                "pynomaly.application.services.detector_service.DetectorService.create_detector"
+                "monorepo.application.services.detector_service.DetectorService.create_detector"
             ) as mock_create,
             patch(
-                "pynomaly.application.services.detection_service.DetectionService.train_detector"
+                "monorepo.application.services.detection_service.DetectionService.train_detector"
             ) as mock_train,
             patch(
-                "pynomaly.application.services.detection_service.DetectionService.detect_anomalies"
+                "monorepo.application.services.detection_service.DetectionService.detect_anomalies"
             ) as mock_predict,
         ):
             # Setup mocks

@@ -10,9 +10,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from pynomaly_detection.infrastructure.config import Container, create_container
-from pynomaly_detection.presentation.api.docs import configure_openapi_docs
-from pynomaly_detection.presentation.api.router_factory import apply_openapi_overrides
+from monorepo.infrastructure.config import Container, create_container
+from monorepo.presentation.api.docs import configure_openapi_docs
+from monorepo.presentation.api.router_factory import apply_openapi_overrides
 
 logger = logging.getLogger(__name__)
 

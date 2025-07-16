@@ -12,7 +12,7 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.dto.training_dto import (
+from monorepo.application.dto.training_dto import (
     AutoMLConfigDTO,
     ModelMetricsDTO,
     NotificationConfigDTO,

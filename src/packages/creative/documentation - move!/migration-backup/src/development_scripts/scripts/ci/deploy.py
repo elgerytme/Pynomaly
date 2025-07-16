@@ -73,8 +73,8 @@ class PynomAlyDeployer:
             "staging": {
                 "description": "Staging environment",
                 "docker_compose": "docker-compose.staging.yml",
-                "health_check_url": "https://staging-api.pynomaly.io/health",
-                "api_url": "https://staging-api.pynomaly.io",
+                "health_check_url": "https://staging-api.monorepo.io/health",
+                "api_url": "https://staging-api.monorepo.io",
                 "database_url": "postgresql://pynomaly:password@staging-db:5432/pynomaly_staging",
                 "redis_url": "redis://staging-redis:6379/0",
                 "backup_required": True,
@@ -83,8 +83,8 @@ class PynomAlyDeployer:
             "production": {
                 "description": "Production environment",
                 "docker_compose": "docker-compose.production.yml",
-                "health_check_url": "https://api.pynomaly.io/health",
-                "api_url": "https://api.pynomaly.io",
+                "health_check_url": "https://api.monorepo.io/health",
+                "api_url": "https://api.monorepo.io",
                 "database_url": "postgresql://pynomaly:password@prod-db:5432/pynomaly_prod",
                 "redis_url": "redis://prod-redis:6379/0",
                 "backup_required": True,

@@ -8,8 +8,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.features.feature_engineering import (
+from monorepo.domain.entities import Dataset
+from monorepo.features.feature_engineering import (
     FeatureEngineer,
     FeatureExtractor,
     FeatureMetadata,

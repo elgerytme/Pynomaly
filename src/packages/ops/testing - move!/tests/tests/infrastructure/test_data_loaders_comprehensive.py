@@ -10,8 +10,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.exceptions import LoaderError
-from pynomaly.infrastructure.data_loaders import (
+from monorepo.domain.exceptions import LoaderError
+from monorepo.infrastructure.data_loaders import (
     ArrowLoader,
     CSVLoader,
     DataLoaderFactory,

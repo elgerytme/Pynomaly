@@ -15,7 +15,7 @@ try:
     from enum import Enum
 
     # Minimal import to avoid circular dependencies
-    from src.pynomaly.domain.security.permission_matrix import (
+    from src.monorepo.domain.security.permission_matrix import (
         ActionType,
         PermissionMatrix,
         ResourceType,

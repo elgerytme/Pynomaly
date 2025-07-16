@@ -39,7 +39,7 @@ class LogContext:
     request_id: str | None = None
 
     # Service context
-    service_name: str = "pynomaly"
+    service_name: str = "monorepo"
     service_version: str = "1.0.0"
     environment: str = "development"
     instance_id: str = field(default_factory=lambda: str(uuid4())[:8])
@@ -570,7 +570,7 @@ def configure_logging(
     output_dir: Path | None = None,
     enable_console: bool = True,
     enable_json: bool = True,
-    service_name: str = "pynomaly",
+    service_name: str = "monorepo",
     service_version: str = "1.0.0",
     environment: str = "development",
 ):
@@ -585,9 +585,9 @@ def configure_logging(
 
     # Configure root logger
     root_logger = get_logger(
-        "pynomaly",
+        "monorepo",
         level=level,
-        output_path=output_dir / "pynomaly.log" if output_dir else None,
+        output_path=output_dir / "monorepo.log" if output_dir else None,
         enable_console=enable_console,
         enable_json=enable_json,
     )

@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
-from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
+from monorepo.application.use_cases.train_detector import TrainDetectorUseCase
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
 
 
 @pytest.mark.integration
@@ -431,7 +431,7 @@ class TestDatabaseIntegration:
     def test_repository_integration(self, session_factory):
         """Test repository integration with database."""
         try:
-            from pynomaly.infrastructure.persistence.database_repositories import (
+            from monorepo.infrastructure.persistence.database_repositories import (
                 DatabaseDatasetRepository,
                 DatabaseDetectionResultRepository,
                 DatabaseDetectorRepository,
@@ -474,7 +474,7 @@ class TestDatabaseIntegration:
         assert retrieved_detector.algorithm_name == detector.algorithm_name
 
         # Test detection result operations
-        from pynomaly.domain.value_objects import AnomalyScore
+        from monorepo.domain.value_objects import AnomalyScore
 
         result = DetectionResult(
             detector_id=detector.id,
@@ -499,7 +499,7 @@ class TestDatabaseIntegration:
     def test_transaction_handling(self, session_factory):
         """Test transaction handling in database operations."""
         try:
-            from pynomaly.infrastructure.persistence.database_repositories import (
+            from monorepo.infrastructure.persistence.database_repositories import (
                 DatabaseDatasetRepository,
             )
         except ImportError:
@@ -602,7 +602,7 @@ class TestSecurityIntegration:
     def test_audit_logging_integration(self, audit_logger):
         """Test audit logging integration."""
         try:
-            from pynomaly.infrastructure.security.audit_logging import (
+            from monorepo.infrastructure.security.audit_logging import (
                 AuditEvent,
                 AuditEventType,
                 audit_context,

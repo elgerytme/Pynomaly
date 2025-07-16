@@ -259,7 +259,7 @@ async def then_essential_functionality_available(
             # Fallback check
             content = await page.content()
             assert (
-                "pynomaly" in content.lower()
+                "monorepo" in content.lower()
             ), "Basic app content should be available"
 
 

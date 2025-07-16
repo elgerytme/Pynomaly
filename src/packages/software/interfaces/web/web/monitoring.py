@@ -89,7 +89,7 @@ class WebUIMonitoringMiddleware(BaseHTTPMiddleware):
 class WebUILogger:
     """Centralized logging for web UI components."""
 
-    def __init__(self, name: str = "pynomaly.web"):
+    def __init__(self, name: str = "monorepo.web"):
         self.logger = logging.getLogger(name)
         self.setup_logger()
 
@@ -191,7 +191,7 @@ class PerformanceMonitor:
                 "CLS": [],  # Cumulative Layout Shift
             },
         }
-        self.logger = WebUILogger("pynomaly.web.performance")
+        self.logger = WebUILogger("monorepo.web.performance")
 
     def record_page_load_time(self, page: str, load_time: float):
         """Record page load time."""
@@ -322,7 +322,7 @@ class SecurityMonitor:
                 "%2E%2E%5C",
             ],
         }
-        self.logger = WebUILogger("pynomaly.web.security")
+        self.logger = WebUILogger("monorepo.web.security")
 
     def check_request_security(self, request: Request) -> list[dict]:
         """Check request for security threats."""

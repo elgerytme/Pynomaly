@@ -23,7 +23,7 @@ from pydantic import BaseModel, Field
 
 # Application layer imports
 # Core domain imports
-from pynomaly.domain.entities import Dataset, Detector
+from monorepo.domain.entities import Dataset, Detector
 
 # Infrastructure imports - handle optional dependencies
 try:
@@ -648,7 +648,7 @@ class AdvancedAutoMLService:
         """Create detector instance from parameters."""
         # This would integrate with the existing adapter system
         # For now, return a mock detector
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         try:
             adapter = SklearnAdapter(algorithm_name)

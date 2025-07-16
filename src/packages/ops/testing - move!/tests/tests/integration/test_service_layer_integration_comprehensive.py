@@ -13,12 +13,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.services.anomaly_scorer import AnomalyScorer
-from pynomaly.domain.services.ensemble_aggregator import EnsembleAggregator
-from pynomaly.domain.services.threshold_calculator import ThresholdCalculator
-from pynomaly.domain.value_objects import ContaminationRate, PerformanceMetrics
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.domain.entities import Dataset, DetectionResult
+from monorepo.domain.services.anomaly_scorer import AnomalyScorer
+from monorepo.domain.services.ensemble_aggregator import EnsembleAggregator
+from monorepo.domain.services.threshold_calculator import ThresholdCalculator
+from monorepo.domain.value_objects import ContaminationRate, PerformanceMetrics
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 class TestDetectionServiceIntegration:

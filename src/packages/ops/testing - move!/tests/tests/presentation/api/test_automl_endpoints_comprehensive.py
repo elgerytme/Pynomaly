@@ -11,9 +11,9 @@ import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from pynomaly.domain.entities.experiment import Experiment
-from pynomaly.domain.exceptions import AutoMLError, DatasetError
-from pynomaly.presentation.api.app import app
+from monorepo.domain.entities.experiment import Experiment
+from monorepo.domain.exceptions import AutoMLError, DatasetError
+from monorepo.presentation.api.app import app
 
 
 class TestAutoMLEndpointsComprehensive:
@@ -174,7 +174,7 @@ class TestAutoMLEndpointsComprehensive:
         self, client, valid_automl_payload, mock_automl_service, auth_headers
     ):
         """Test successful AutoML execution."""
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.post(
                 "/api/v1/automl/run",
                 json=valid_automl_payload,
@@ -201,7 +201,7 @@ class TestAutoMLEndpointsComprehensive:
         """Test AutoML with invalid dataset ID."""
         mock_automl_service.run_automl.side_effect = DatasetError("Dataset not found")
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.post(
                 "/api/v1/automl/run",
                 json=valid_automl_payload,
@@ -258,7 +258,7 @@ class TestAutoMLEndpointsComprehensive:
         """Test successful AutoML experiment retrieval."""
         experiment_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.get(
                 f"/api/v1/automl/experiments/{experiment_id}",
                 headers=auth_headers,
@@ -279,7 +279,7 @@ class TestAutoMLEndpointsComprehensive:
         mock_automl_service.get_automl_experiment.side_effect = AutoMLError("Experiment not found")
         experiment_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.get(
                 f"/api/v1/automl/experiments/{experiment_id}",
                 headers=auth_headers,
@@ -291,7 +291,7 @@ class TestAutoMLEndpointsComprehensive:
         self, client, valid_hyperparameter_optimization_payload, mock_automl_service, auth_headers
     ):
         """Test successful hyperparameter optimization."""
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.post(
                 "/api/v1/automl/optimize",
                 json=valid_hyperparameter_optimization_payload,
@@ -311,7 +311,7 @@ class TestAutoMLEndpointsComprehensive:
         """Test hyperparameter optimization with invalid detector."""
         mock_automl_service.optimize_hyperparameters.side_effect = AutoMLError("Detector not found")
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.post(
                 "/api/v1/automl/optimize",
                 json=valid_hyperparameter_optimization_payload,
@@ -326,7 +326,7 @@ class TestAutoMLEndpointsComprehensive:
         """Test successful algorithm recommendations."""
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.get(
                 f"/api/v1/automl/recommendations/{dataset_id}",
                 headers=auth_headers,
@@ -352,7 +352,7 @@ class TestAutoMLEndpointsComprehensive:
         mock_automl_service.get_algorithm_recommendations.side_effect = DatasetError("Dataset not found")
         dataset_id = str(uuid4())
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.get(
                 f"/api/v1/automl/recommendations/{dataset_id}",
                 headers=auth_headers,
@@ -384,7 +384,7 @@ class TestAutoMLEndpointsComprehensive:
         ]
         mock_automl_service.list_automl_experiments.return_value = mock_experiments
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.get("/api/v1/automl/experiments", headers=auth_headers)
 
         assert response.status_code == status.HTTP_200_OK
@@ -400,7 +400,7 @@ class TestAutoMLEndpointsComprehensive:
         """Test AutoML experiments listing with filters."""
         mock_automl_service.list_automl_experiments.return_value = []
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.get(
                 "/api/v1/automl/experiments?status=completed&algorithm=IsolationForest",
                 headers=auth_headers,
@@ -417,7 +417,7 @@ class TestAutoMLEndpointsComprehensive:
         experiment_id = str(uuid4())
         mock_automl_service.cancel_automl_experiment.return_value = True
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.post(
                 f"/api/v1/automl/experiments/{experiment_id}/cancel",
                 headers=auth_headers,
@@ -451,7 +451,7 @@ class TestAutoMLEndpointsComprehensive:
         }
         mock_automl_service.get_automl_metrics.return_value = mock_metrics
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.get(
                 f"/api/v1/automl/experiments/{experiment_id}/metrics",
                 headers=auth_headers,
@@ -472,7 +472,7 @@ class TestAutoMLEndpointsComprehensive:
         results = []
 
         def make_automl_request():
-            with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+            with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
                 response = client.post(
                     "/api/v1/automl/run",
                     json=valid_automl_payload,
@@ -536,7 +536,7 @@ class TestAutoMLEndpointsComprehensive:
         # Test service unavailable
         mock_automl_service.run_automl.side_effect = Exception("Service unavailable")
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.post(
                 "/api/v1/automl/run",
                 json=valid_automl_payload,
@@ -549,7 +549,7 @@ class TestAutoMLEndpointsComprehensive:
         self, client, valid_automl_payload, mock_automl_service, auth_headers
     ):
         """Test security headers in AutoML responses."""
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.post(
                 "/api/v1/automl/run",
                 json=valid_automl_payload,
@@ -570,7 +570,7 @@ class TestAutoMLEndpointsComprehensive:
             "Origin": "https://example.com",
         }
 
-        with patch("pynomaly.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
+        with patch("monorepo.presentation.api.deps.get_automl_service", return_value=mock_automl_service):
             response = client.post(
                 "/api/v1/automl/run",
                 json=valid_automl_payload,

@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 import numpy as np
 import pytest
 
-from pynomaly.application.services.drift_detection_service import DriftDetectionService
-from pynomaly.domain.entities.drift_detection import (
+from monorepo.application.services.drift_detection_service import DriftDetectionService
+from monorepo.domain.entities.drift_detection import (
     DriftDetectionMethod,
     DriftDetectionResult,
     DriftSeverity,
@@ -298,7 +298,7 @@ class TestStatisticalDriftDetector:
     @pytest.fixture
     def detector(self):
         """Create statistical drift detector."""
-        from pynomaly.application.services.drift_detection_service import (
+        from monorepo.application.services.drift_detection_service import (
             StatisticalDriftDetector,
         )
 
@@ -358,7 +358,7 @@ class TestPerformanceDriftDetector:
     @pytest.fixture
     def detector(self):
         """Create performance drift detector."""
-        from pynomaly.application.services.drift_detection_service import (
+        from monorepo.application.services.drift_detection_service import (
             PerformanceDriftDetector,
         )
 

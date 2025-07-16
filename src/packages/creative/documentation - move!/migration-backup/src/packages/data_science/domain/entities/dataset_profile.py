@@ -168,7 +168,7 @@ class DatasetProfile(BaseEntity):
     tags: list[str] = Field(default_factory=list)
     notes: str = Field(default="", max_length=5000)
     created_by: str = Field(..., min_length=1)
-    profiling_tool: str = Field(default="pynomaly")
+    profiling_tool: str = Field(default="monorepo")
     profiling_config: dict[str, Any] = Field(default_factory=dict)
     
     # Comparison and versioning

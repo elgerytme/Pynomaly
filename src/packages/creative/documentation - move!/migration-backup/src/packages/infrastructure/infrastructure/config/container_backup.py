@@ -6,7 +6,7 @@ from pathlib import Path
 
 from dependency_injector import containers, providers
 
-from pynomaly.application.services import (
+from monorepo.application.services import (
     DetectionService,
     EnsembleService,
     ExperimentTrackingService,
@@ -15,10 +15,10 @@ from pynomaly.application.services import (
 
 # Phase 2 services (conditionally imported)
 try:
-    from pynomaly.application.services.algorithm_benchmark import (
+    from monorepo.application.services.algorithm_benchmark import (
         AlgorithmBenchmarkService,
     )
-    from pynomaly.infrastructure.monitoring.complexity_monitor import ComplexityMonitor
+    from monorepo.infrastructure.monitoring.complexity_monitor import ComplexityMonitor
 
     PHASE2_SERVICES_AVAILABLE = True
 except ImportError:
@@ -28,17 +28,17 @@ except ImportError:
 
 # Optional AutoML service
 try:
-    from pynomaly.application.services.automl_service import AutoMLService
+    from monorepo.application.services.automl_service import AutoMLService
 except ImportError:
     AutoMLService = None
 
 # Optional explainability services
 try:
-    from pynomaly.application.services.explainability_service import (
+    from monorepo.application.services.explainability_service import (
         ApplicationExplainabilityService,
     )
-    from pynomaly.domain.services.explainability_service import ExplainabilityService
-    from pynomaly.infrastructure.explainers import (
+    from monorepo.domain.services.explainability_service import ExplainabilityService
+    from monorepo.infrastructure.explainers import (
         LIME_AVAILABLE,
         SHAP_AVAILABLE,
         LIMEExplainer,
@@ -58,7 +58,7 @@ except ImportError:
 # Streaming infrastructure completely removed for simplification
 
 # Distributed processing infrastructure completely removed for simplification
-from pynomaly.application.use_cases import (
+from monorepo.application.use_cases import (
     DetectAnomaliesUseCase,
     EvaluateModelUseCase,
     ExplainAnomalyUseCase,
@@ -67,25 +67,25 @@ from pynomaly.application.use_cases import (
 
 # Optional AutoML use case
 try:
-    from pynomaly.application.use_cases.automl_use_case import AutoMLUseCase
+    from monorepo.application.use_cases.automl_use_case import AutoMLUseCase
 except ImportError:
     AutoMLUseCase = None
-from pynomaly.domain.services import (
+from monorepo.domain.services import (
     AnomalyScorer,
     EnsembleAggregator,
     FeatureValidator,
     ThresholdCalculator,
 )
-from pynomaly.infrastructure.config.feature_flags import (
+from monorepo.infrastructure.config.feature_flags import (
     FeatureFlagManager,
     feature_flags,
 )
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.data_loaders import CSVLoader, ParquetLoader
 
 # Preprocessing services
 try:
-    from pynomaly.infrastructure.preprocessing import (
+    from monorepo.infrastructure.preprocessing import (
         DataCleaner,
         DataTransformer,
         PreprocessingPipeline,
@@ -97,7 +97,7 @@ except ImportError:
 
 # Authentication and security
 try:
-    from pynomaly.infrastructure.auth import (
+    from monorepo.infrastructure.auth import (
         JWTAuthService,
         PermissionChecker,
         RateLimiter,
@@ -109,21 +109,21 @@ except ImportError:
 
 # Cache services
 try:
-    from pynomaly.infrastructure.cache import DetectorCacheDecorator, RedisCache
+    from monorepo.infrastructure.cache import DetectorCacheDecorator, RedisCache
 except ImportError:
     RedisCache = None
     DetectorCacheDecorator = None
 
 # Monitoring services
 try:
-    from pynomaly.infrastructure.monitoring import HealthService, TelemetryService
+    from monorepo.infrastructure.monitoring import HealthService, TelemetryService
 except ImportError:
     TelemetryService = None
     HealthService = None
 
 # Database repositories
 try:
-    from pynomaly.infrastructure.persistence import (
+    from monorepo.infrastructure.persistence import (
         DatabaseDatasetRepository,
         DatabaseDetectionResultRepository,
         DatabaseDetectorRepository,
@@ -137,19 +137,19 @@ except ImportError:
 
 # Resilience services
 try:
-    from pynomaly.infrastructure.resilience.service import ResilienceService
+    from monorepo.infrastructure.resilience.service import ResilienceService
 except ImportError:
     ResilienceService = None
 
 # Lifecycle services
 try:
-    from pynomaly.infrastructure.lifecycle import ShutdownService
+    from monorepo.infrastructure.lifecycle import ShutdownService
 except ImportError:
     ShutdownService = None
 
 # Security services
 try:
-    from pynomaly.infrastructure.security import (
+    from monorepo.infrastructure.security import (
         AuditLogger,
         CSPConfig,
         DataEncryption,
@@ -192,7 +192,7 @@ except ImportError:
 
 # Performance optimization services
 try:
-    from pynomaly.infrastructure.performance import (
+    from monorepo.infrastructure.performance import (
         ConnectionPoolManager,
         PerformanceService,
         PoolConfiguration,
@@ -208,51 +208,51 @@ except ImportError:
 
 # Optional high-performance data loaders - import only if available
 try:
-    from pynomaly.infrastructure.data_loaders import PolarsLoader
+    from monorepo.infrastructure.data_loaders import PolarsLoader
 except ImportError:
     PolarsLoader = None
 
 try:
-    from pynomaly.infrastructure.data_loaders import ArrowLoader
+    from monorepo.infrastructure.data_loaders import ArrowLoader
 except ImportError:
     ArrowLoader = None
 
 try:
-    from pynomaly.infrastructure.data_loaders import SparkLoader
+    from monorepo.infrastructure.data_loaders import SparkLoader
 except ImportError:
     SparkLoader = None
 
 # Configuration integration services
 try:
-    from pynomaly.application.services.automl_configuration_integration import (
+    from monorepo.application.services.automl_configuration_integration import (
         AutoMLConfigurationIntegration,
     )
-    from pynomaly.application.services.autonomous_configuration_integration import (
+    from monorepo.application.services.autonomous_configuration_integration import (
         AutonomousConfigurationIntegration,
     )
-    from pynomaly.application.services.configuration_capture_service import (
+    from monorepo.application.services.configuration_capture_service import (
         ConfigurationCaptureService,
     )
-    from pynomaly.application.services.configuration_discovery_service import (
+    from monorepo.application.services.configuration_discovery_service import (
         ConfigurationDiscoveryService,
     )
-    from pynomaly.application.services.configuration_recommendation_service import (
+    from monorepo.application.services.configuration_recommendation_service import (
         ConfigurationRecommendationService,
     )
-    from pynomaly.application.services.configuration_template_service import (
+    from monorepo.application.services.configuration_template_service import (
         ConfigurationTemplateService,
     )
-    from pynomaly.application.services.web_api_configuration_integration import (
+    from monorepo.application.services.web_api_configuration_integration import (
         WebAPIConfigurationIntegration,
     )
-    from pynomaly.infrastructure.middleware.configuration_middleware import (
+    from monorepo.infrastructure.middleware.configuration_middleware import (
         ConfigurationAPIMiddleware,
         ConfigurationCaptureMiddleware,
     )
-    from pynomaly.infrastructure.monitoring.cli_parameter_interceptor import (
+    from monorepo.infrastructure.monitoring.cli_parameter_interceptor import (
         CLIParameterInterceptor,
     )
-    from pynomaly.infrastructure.persistence.configuration_repository import (
+    from monorepo.infrastructure.persistence.configuration_repository import (
         ConfigurationRepository,
     )
 
@@ -270,8 +270,8 @@ except ImportError:
     ConfigurationCaptureMiddleware = None
     ConfigurationAPIMiddleware = None
     CONFIGURATION_SERVICES_AVAILABLE = False
-from pynomaly.infrastructure.adapters import PyODAdapter, SklearnAdapter
-from pynomaly.infrastructure.repositories import (
+from monorepo.infrastructure.adapters import PyODAdapter, SklearnAdapter
+from monorepo.infrastructure.repositories import (
     FileDatasetRepository,
     FileDetectorRepository,
     FileResultRepository,
@@ -279,7 +279,7 @@ from pynomaly.infrastructure.repositories import (
 )
 
 # Async repository wrappers for application services
-from pynomaly.infrastructure.repositories.async_wrappers import (
+from monorepo.infrastructure.repositories.async_wrappers import (
     AsyncDatasetRepositoryWrapper,
     AsyncDetectionResultRepositoryWrapper,
     AsyncDetectorRepositoryWrapper,
@@ -287,22 +287,22 @@ from pynomaly.infrastructure.repositories.async_wrappers import (
 
 # Optional adapters - import only if available
 try:
-    from pynomaly.infrastructure.adapters import PyGODAdapter
+    from monorepo.infrastructure.adapters import PyGODAdapter
 except ImportError:
     PyGODAdapter = None
 
 try:
-    from pynomaly.infrastructure.adapters import PyTorchAdapter
+    from monorepo.infrastructure.adapters import PyTorchAdapter
 except ImportError:
     PyTorchAdapter = None
 
 try:
-    from pynomaly.infrastructure.adapters import TensorFlowAdapter
+    from monorepo.infrastructure.adapters import TensorFlowAdapter
 except ImportError:
     TensorFlowAdapter = None
 
 try:
-    from pynomaly.infrastructure.adapters import JAXAdapter
+    from monorepo.infrastructure.adapters import JAXAdapter
 except ImportError:
     JAXAdapter = None
 
@@ -412,7 +412,7 @@ class Container(containers.DeclarativeContainer):
     if TelemetryService is not None:
         telemetry_service = providers.Singleton(
             TelemetryService,
-            service_name="pynomaly",
+            service_name="monorepo",
             environment=config.provided.app.environment,
             otlp_endpoint=config.provided.monitoring.otlp_endpoint,
         )
@@ -570,7 +570,7 @@ class Container(containers.DeclarativeContainer):
 
         # Algorithm optimization service
         try:
-            from pynomaly.application.services.algorithm_optimization_service import (
+            from monorepo.application.services.algorithm_optimization_service import (
                 AlgorithmOptimizationService,
             )
 
@@ -586,7 +586,7 @@ class Container(containers.DeclarativeContainer):
     # Memory efficiency services
     if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("memory_efficiency"):
         try:
-            from pynomaly.application.services.memory_optimization_service import (
+            from monorepo.application.services.memory_optimization_service import (
                 MemoryOptimizationService,
             )
 
@@ -597,7 +597,7 @@ class Container(containers.DeclarativeContainer):
     # Performance monitoring services
     if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("performance_monitoring"):
         try:
-            from pynomaly.application.services.performance_monitoring_service import (
+            from monorepo.application.services.performance_monitoring_service import (
                 PerformanceMonitoringService,
             )
 
@@ -610,7 +610,7 @@ class Container(containers.DeclarativeContainer):
     # Workflow simplification services
     if PHASE2_SERVICES_AVAILABLE and feature_flags.is_enabled("cli_simplification"):
         try:
-            from pynomaly.application.services.workflow_simplification_service import (
+            from monorepo.application.services.workflow_simplification_service import (
                 WorkflowSimplificationService,
             )
 
@@ -676,7 +676,7 @@ class Container(containers.DeclarativeContainer):
 
         # Autonomous configuration integration
         try:
-            from pynomaly.application.services.autonomous_service import (
+            from monorepo.application.services.autonomous_service import (
                 AutonomousService,
             )
 
@@ -800,7 +800,7 @@ class Container(containers.DeclarativeContainer):
         # Audit logging
         audit_logger = providers.Singleton(
             AuditLogger,
-            logger_name="pynomaly.audit",
+            logger_name="monorepo.audit",
             enable_structured_logging=True,
             enable_compliance_logging=config.provided.security.enable_compliance_logging,
         )
@@ -829,7 +829,7 @@ def _create_detector_repository(config):
             )
             # Initialize database if needed
             try:
-                from pynomaly.infrastructure.persistence.migrations import (
+                from monorepo.infrastructure.persistence.migrations import (
                     DatabaseMigrator,
                 )
 
@@ -914,9 +914,9 @@ def create_container(testing: bool = False) -> Container:
     # Wire the container to modules that need it
     container.wire(
         modules=[
-            "pynomaly.presentation.api",
-            "pynomaly.presentation.cli",
-            "pynomaly.presentation.web",
+            "monorepo.presentation.api",
+            "monorepo.presentation.cli",
+            "monorepo.presentation.web",
         ]
     )
 

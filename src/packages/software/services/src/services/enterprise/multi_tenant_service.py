@@ -5,7 +5,7 @@ import secrets
 from datetime import datetime
 from uuid import UUID
 
-from pynomaly.domain.entities.tenant import (
+from monorepo.domain.entities.tenant import (
     ResourceQuotaType,
     SubscriptionTier,
     Tenant,

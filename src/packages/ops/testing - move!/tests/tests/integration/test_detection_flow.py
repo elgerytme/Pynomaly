@@ -5,8 +5,8 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.infrastructure.config import Container
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.infrastructure.config import Container
 
 
 class TestDetectionFlow:
@@ -37,7 +37,7 @@ class TestDetectionFlow:
 
         # 3. Train detector
         train_use_case = container.train_detector_use_case()
-        from pynomaly.application.use_cases import TrainDetectorRequest
+        from monorepo.application.use_cases import TrainDetectorRequest
 
         train_request = TrainDetectorRequest(
             detector_id=detector.id,
@@ -52,7 +52,7 @@ class TestDetectionFlow:
 
         # 4. Run detection
         detect_use_case = container.detect_anomalies_use_case()
-        from pynomaly.application.use_cases import DetectAnomaliesRequest
+        from monorepo.application.use_cases import DetectAnomaliesRequest
 
         detect_request = DetectAnomaliesRequest(
             detector_id=detector.id,
@@ -102,7 +102,7 @@ class TestDetectionFlow:
 
         # Train all detectors
         train_use_case = container.train_detector_use_case()
-        from pynomaly.application.use_cases import TrainDetectorRequest
+        from monorepo.application.use_cases import TrainDetectorRequest
 
         for detector in detectors:
             train_request = TrainDetectorRequest(
@@ -156,7 +156,7 @@ class TestDetectionFlow:
         train_use_case = container.train_detector_use_case()
         evaluate_use_case = container.evaluate_model_use_case()
 
-        from pynomaly.application.use_cases import (
+        from monorepo.application.use_cases import (
             EvaluateModelRequest,
             TrainDetectorRequest,
         )

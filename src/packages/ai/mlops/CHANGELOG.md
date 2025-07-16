@@ -1,6 +1,6 @@
 # Changelog - MLOps Package
 
-All notable changes to the Pynomaly MLOps package will be documented in this file.
+All notable changes to the MLOps package will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -158,11 +158,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Experiment Tracking Configuration
 ```python
-from pynomaly.mlops.config import ExperimentConfig
+from mlops.config import ExperimentConfig
 
 config = ExperimentConfig(
     tracking_uri="http://mlflow-server:5000",
-    artifact_store="s3://pynomaly-artifacts",
+    artifact_store="", #
     backend_store_uri="postgresql://mlflow:password@db:5432/mlflow",
     default_experiment="anomaly_detection",
     auto_log_models=True
@@ -171,11 +171,11 @@ config = ExperimentConfig(
 
 ### Model Deployment Configuration
 ```python
-from pynomaly.mlops.config import DeploymentConfig
+from mlops.config import DeploymentConfig
 
 config = DeploymentConfig(
     platform="kubernetes",
-    namespace="pynomaly-models",
+    namespace="models",
     replicas=3,
     resources={
         "cpu": "500m",
@@ -193,7 +193,7 @@ config = DeploymentConfig(
 
 ### Monitoring Configuration
 ```python
-from pynomaly.mlops.config import MonitoringConfig
+from mlops.config import MonitoringConfig
 
 config = MonitoringConfig(
     drift_detection_enabled=True,
@@ -209,8 +209,8 @@ config = MonitoringConfig(
 
 ### Complete MLOps Workflow
 ```python
-from pynomaly.mlops import MLOpsWorkflow
-from pynomaly.core.domain.entities import Dataset, Detector
+from mlops import MLOpsWorkflow
+from core.domain.entities import Dataset, Detector
 
 # Initialize MLOps workflow
 mlops = MLOpsWorkflow(
@@ -263,7 +263,7 @@ with mlops.start_experiment() as experiment:
 
 ### A/B Testing Framework
 ```python
-from pynomaly.mlops.experiments import ABTestFramework
+from mlops.experiments import ABTestFramework
 
 # Setup A/B test
 ab_test = ABTestFramework(
@@ -293,12 +293,12 @@ if test_results.statistical_significance > 0.95:
 
 ```python
 # Before (0.9.x)
-from pynomaly.mlops import ExperimentTracker
+from mlops import ExperimentTracker
 tracker = ExperimentTracker("mlflow", "http://localhost:5000")
 
 # After (1.0.0)
-from pynomaly.mlops.experiments import ExperimentTracker
-from pynomaly.mlops.config import ExperimentConfig
+from mlops.experiments import ExperimentTracker
+from mlops.config import ExperimentConfig
 
 config = ExperimentConfig(tracking_uri="http://localhost:5000")
 tracker = ExperimentTracker(config)
@@ -311,7 +311,7 @@ tracker = ExperimentTracker(config)
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  name: anomaly-detection-training
+  name: training
 spec:
   entrypoint: training-pipeline
   templates:
@@ -336,7 +336,7 @@ spec:
 
 ### Inference Pipeline
 ```python
-from pynomaly.mlops.pipelines import InferencePipeline
+from mlops.pipelines import InferencePipeline
 
 pipeline = InferencePipeline(
     name="real_time_anomaly_detection",
@@ -401,7 +401,7 @@ For detailed contribution guidelines, see [CONTRIBUTING.md](../../../CONTRIBUTIN
 - **Deployment Guide**: [docs/deployment_guide.md](docs/deployment_guide.md)
 - **Issues**: [GitHub Issues](../../../issues)
 
-[Unreleased]: https://github.com/elgerytme/Pynomaly/compare/mlops-v1.0.0...HEAD
-[1.0.0]: https://github.com/elgerytme/Pynomaly/releases/tag/mlops-v1.0.0
-[0.9.0]: https://github.com/elgerytme/Pynomaly/releases/tag/mlops-v0.9.0
-[0.1.0]: https://github.com/elgerytme/Pynomaly/releases/tag/mlops-v0.1.0
+[Unreleased]: https://github.com/elgerytme/Monorepo/compare/mlops-v1.0.0...HEAD
+[1.0.0]: https://github.com/elgerytme/Monorepo/releases/tag/mlops-v1.0.0
+[0.9.0]: https://github.com/elgerytme/Monorepo/releases/tag/mlops-v0.9.0
+[0.1.0]: https://github.com/elgerytme/Monorepo/releases/tag/mlops-v0.1.0

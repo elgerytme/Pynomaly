@@ -12,9 +12,9 @@ from hypothesis import strategies as st
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import ValidationError
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.exceptions import ValidationError
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
 
 
 # Custom strategies for domain objects

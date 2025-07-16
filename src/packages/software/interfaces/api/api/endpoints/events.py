@@ -7,10 +7,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from pynomaly_detection.application.services.event_processing_service import (
+from monorepo.application.services.event_processing_service import (
     EventProcessingService,
 )
-from pynomaly_detection.domain.entities.anomaly_event import (
+from monorepo.domain.entities.anomaly_event import (
     AnomalyEvent,
     EventAggregation,
     EventFilter,
@@ -20,9 +20,9 @@ from pynomaly_detection.domain.entities.anomaly_event import (
     EventSummary,
     EventType,
 )
-from pynomaly_detection.infrastructure.config import Container
-from pynomaly_detection.presentation.api.deps import get_container
-from pynomaly_detection.presentation.api.docs.response_models import (
+from monorepo.infrastructure.config import Container
+from monorepo.presentation.api.deps import get_container
+from monorepo.presentation.api.docs.response_models import (
     HTTPResponses,
     SuccessResponse,
 )

@@ -13,8 +13,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.infrastructure.repositories.in_memory_repositories import (
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.infrastructure.repositories.in_memory_repositories import (
     InMemoryDatasetRepository,
     InMemoryDetectorRepository,
     InMemoryResultRepository,

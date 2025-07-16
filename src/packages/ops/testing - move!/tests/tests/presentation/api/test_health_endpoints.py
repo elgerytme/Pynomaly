@@ -9,7 +9,7 @@ from unittest.mock import patch
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.presentation.api.app import create_app
+from monorepo.presentation.api.app import create_app
 
 
 class TestHealthEndpoints:
@@ -24,8 +24,8 @@ class TestHealthEndpoints:
     @pytest.fixture
     def mock_health_service(self):
         """Mock health service."""
-        with patch("pynomaly.presentation.api.endpoints.health.health_service") as mock:
-            from pynomaly.infrastructure.monitoring.health_service import (
+        with patch("monorepo.presentation.api.endpoints.health.health_service") as mock:
+            from monorepo.infrastructure.monitoring.health_service import (
                 HealthCheck,
                 HealthStatus,
                 SystemMetrics,
@@ -334,7 +334,7 @@ class TestHealthEndpoints:
         # With authentication (mocked)
         headers = {"Authorization": "Bearer admin-token"}
         with patch(
-            "pynomaly.infrastructure.auth.jwt_auth.JWTAuthService.get_current_user"
+            "monorepo.infrastructure.auth.jwt_auth.JWTAuthService.get_current_user"
         ) as mock_auth:
             mock_auth.return_value = {"role": "admin", "permissions": ["admin:health"]}
             response = client.get("/api/v1/health/admin", headers=headers)
@@ -432,7 +432,7 @@ class TestHealthEndpoints:
     def test_health_check_logging(self, client):
         """Test that health checks are properly logged."""
         with patch(
-            "pynomaly.infrastructure.monitoring.health_service.logger"
+            "monorepo.infrastructure.monitoring.health_service.logger"
         ) as mock_logger:
             response = client.get("/api/v1/health/status")
 
@@ -442,7 +442,7 @@ class TestHealthEndpoints:
     def test_health_check_metrics_collection(self, client):
         """Test that health check metrics are collected."""
         with patch(
-            "pynomaly.infrastructure.monitoring.health_service.metrics"
+            "monorepo.infrastructure.monitoring.health_service.metrics"
         ) as mock_metrics:
             response = client.get("/api/v1/health/")
 

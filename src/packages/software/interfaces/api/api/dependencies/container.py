@@ -2,7 +2,7 @@
 
 from fastapi import Request
 
-from pynomaly_detection.infrastructure.config import Container
+from monorepo.infrastructure.config import Container
 
 
 def get_container_safe(request: Request) -> Container:

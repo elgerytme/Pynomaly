@@ -15,15 +15,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     ConfigurationCaptureRequestDTO,
     ConfigurationSource,
     PerformanceResultsDTO,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from monorepo.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.infrastructure.config.feature_flags import feature_flags
+from monorepo.infrastructure.config.feature_flags import feature_flags
 
 logger = logging.getLogger(__name__)
 
@@ -453,7 +453,7 @@ class CLIConfigurationAnalytics:
         """
         from datetime import timedelta
 
-        from pynomaly.application.dto.configuration_dto import (
+        from monorepo.application.dto.configuration_dto import (
             ConfigurationSearchRequestDTO,
         )
 
@@ -539,7 +539,7 @@ class CLIConfigurationAnalytics:
         Returns:
             Parameter recommendations
         """
-        from pynomaly.application.dto.configuration_dto import (
+        from monorepo.application.dto.configuration_dto import (
             ConfigurationSearchRequestDTO,
         )
 

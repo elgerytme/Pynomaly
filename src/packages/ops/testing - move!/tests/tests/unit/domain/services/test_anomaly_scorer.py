@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from pynomaly.domain.services.anomaly_scorer import AnomalyScorer
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
+from monorepo.domain.services.anomaly_scorer import AnomalyScorer
+from monorepo.domain.value_objects.anomaly_score import AnomalyScore
 
 
 class TestAnomalyScorerNormalization:

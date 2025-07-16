@@ -5,16 +5,16 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.domain.models.cicd import (
+from monorepo.domain.models.cicd import (
     DeploymentEnvironment,
     DeploymentStrategy,
     PipelineStatus,
     TestType,
     TriggerType,
 )
-from pynomaly.infrastructure.cicd.deployment_manager import DeploymentManager
-from pynomaly.infrastructure.cicd.pipeline_service import PipelineService
-from pynomaly.infrastructure.cicd.test_runner import TestRunner
+from monorepo.infrastructure.cicd.deployment_manager import DeploymentManager
+from monorepo.infrastructure.cicd.pipeline_service import PipelineService
+from monorepo.infrastructure.cicd.test_runner import TestRunner
 
 
 @pytest.fixture
@@ -39,9 +39,9 @@ def deployment_manager():
 def test_workspace(tmp_path):
     """Create test workspace with sample project structure."""
     # Create project structure
-    (tmp_path / "src" / "pynomaly").mkdir(parents=True)
-    (tmp_path / "src" / "pynomaly" / "__init__.py").touch()
-    (tmp_path / "src" / "pynomaly" / "main.py").write_text("""
+    (tmp_path / "src" / "monorepo").mkdir(parents=True)
+    (tmp_path / "src" / "monorepo" / "__init__.py").touch()
+    (tmp_path / "src" / "monorepo" / "main.py").write_text("""
 def hello_world():
     return "Hello, World!"
 """)
@@ -50,7 +50,7 @@ def hello_world():
     (tmp_path / "tests" / "unit").mkdir(parents=True)
     (tmp_path / "tests" / "unit" / "test_main.py").write_text("""
 import pytest
-from pynomaly.main import hello_world
+from monorepo.main import hello_world
 
 def test_hello_world():
     assert hello_world() == "Hello, World!"
@@ -101,10 +101,10 @@ class TestCICDIntegration:
     """Integration tests for complete CI/CD workflow."""
 
     @patch(
-        "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
+        "monorepo.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
     )
     @patch(
-        "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_shell"
+        "monorepo.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_shell"
     )
     async def test_complete_cicd_workflow(
         self,
@@ -251,7 +251,7 @@ class TestCICDIntegration:
 
         # 3. Execute test suites (mocked)
         with patch(
-            "pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell"
+            "monorepo.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell"
         ) as mock_subprocess:
             mock_process = AsyncMock()
             mock_process.returncode = 0
@@ -261,7 +261,7 @@ class TestCICDIntegration:
             )
             mock_subprocess.return_value = mock_process
 
-            from pynomaly.domain.models.cicd import TestSuite
+            from monorepo.domain.models.cicd import TestSuite
 
             unit_suite = TestSuite(
                 suite_id=uuid4(),
@@ -359,7 +359,7 @@ class TestCICDIntegration:
 
             # Mock failed execution
             with patch(
-                "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
+                "monorepo.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
             ) as mock_subprocess:
                 mock_process = AsyncMock()
                 mock_process.returncode = 1  # Failure
@@ -556,7 +556,7 @@ class TestCICDErrorScenarios:
 
         # Mock git clone failure
         with patch(
-            "pynomaly.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
+            "monorepo.infrastructure.cicd.pipeline_service.asyncio.create_subprocess_exec"
         ) as mock_subprocess:
             mock_process = AsyncMock()
             mock_process.returncode = 128  # Git error
@@ -599,7 +599,7 @@ class TestCICDErrorScenarios:
     async def test_test_execution_timeout(self, test_runner, test_workspace):
         """Test test execution timeout handling."""
 
-        from pynomaly.domain.models.cicd import TestSuite
+        from monorepo.domain.models.cicd import TestSuite
 
         test_suite = TestSuite(
             suite_id=uuid4(),
@@ -609,7 +609,7 @@ class TestCICDErrorScenarios:
 
         # Mock long-running test
         with patch(
-            "pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell"
+            "monorepo.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell"
         ) as mock_subprocess:
             mock_process = AsyncMock()
             mock_process.returncode = 1

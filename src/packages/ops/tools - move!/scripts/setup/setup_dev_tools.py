@@ -179,7 +179,7 @@ class DevToolsSetup:
                     "name": "Pynomaly CLI",
                     "type": "python",
                     "request": "launch",
-                    "module": "pynomaly.presentation.cli.app",
+                    "module": "monorepo.presentation.cli.app",
                     "args": ["--help"],
                     "console": "integratedTerminal",
                     "cwd": "${workspaceFolder}",
@@ -193,7 +193,7 @@ class DevToolsSetup:
                     "request": "launch",
                     "module": "uvicorn",
                     "args": [
-                        "pynomaly.presentation.api.app:app",
+                        "monorepo.presentation.api.app:app",
                         "--reload",
                         "--port",
                         "8000"
@@ -389,8 +389,8 @@ echo "Commit message format OK"
             "pyn-type": "mypy src/pynomaly/",
             "pyn-quality": "python scripts/quality_gates.py",
             "pyn-docs": "mkdocs serve",
-            "pyn-api": "PYTHONPATH=src uvicorn pynomaly.presentation.api.app:app --reload",
-            "pyn-cli": "PYTHONPATH=src python -m pynomaly.presentation.cli.app",
+            "pyn-api": "PYTHONPATH=src uvicorn monorepo.presentation.api.app:app --reload",
+            "pyn-cli": "PYTHONPATH=src python -m monorepo.presentation.cli.app",
             "pyn-clean": "find . -type d -name '__pycache__' -exec rm -rf {} + 2>/dev/null || true",
         }
         

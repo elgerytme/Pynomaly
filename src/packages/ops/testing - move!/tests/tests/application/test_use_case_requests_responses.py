@@ -6,20 +6,20 @@ from uuid import uuid4
 
 import numpy as np
 
-from pynomaly.application.use_cases.detect_anomalies import (
+from monorepo.application.use_cases.detect_anomalies import (
     DetectAnomaliesRequest,
     DetectAnomaliesResponse,
 )
-from pynomaly.application.use_cases.evaluate_model import (
+from monorepo.application.use_cases.evaluate_model import (
     EvaluateModelRequest,
     EvaluateModelResponse,
 )
-from pynomaly.application.use_cases.train_detector import (
+from monorepo.application.use_cases.train_detector import (
     TrainDetectorRequest,
     TrainDetectorResponse,
 )
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ConfidenceInterval,
     ContaminationRate,

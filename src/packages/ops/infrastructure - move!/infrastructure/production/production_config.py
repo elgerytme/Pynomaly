@@ -10,8 +10,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.shared.error_handling import ErrorCodes, create_infrastructure_error
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.shared.error_handling import ErrorCodes, create_infrastructure_error
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +72,7 @@ class EnvironmentConfig:
                 enable_metrics=True,
                 enable_tracing=True,
                 cors_origins=[],  # Strict CORS in production
-                allowed_hosts=["api.example.com", "pynomaly.example.com"],
+                allowed_hosts=["api.example.com", "monorepo.example.com"],
             )
         else:  # TESTING
             return cls(

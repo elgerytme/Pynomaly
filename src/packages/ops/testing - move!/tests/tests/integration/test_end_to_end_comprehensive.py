@@ -19,11 +19,11 @@ from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from typer.testing import CliRunner
 
-from pynomaly.application.use_cases import DetectAnomalies, TrainDetector
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
-from pynomaly.presentation.cli.app import app as cli_app
-from pynomaly.presentation.web.app import create_web_app
+from monorepo.application.use_cases import DetectAnomalies, TrainDetector
+from monorepo.infrastructure.config import create_container
+from monorepo.presentation.api.app import create_app
+from monorepo.presentation.cli.app import app as cli_app
+from monorepo.presentation.web.app import create_web_app
 
 
 @pytest.fixture(scope="session")
@@ -503,7 +503,7 @@ class TestCrossLayerIntegration:
 
         # Verify detector exists via CLI
         with patch(
-            "pynomaly.presentation.cli.detectors.get_cli_container"
+            "monorepo.presentation.cli.detectors.get_cli_container"
         ) as mock_get_container:
             mock_container = Mock()
             mock_service = Mock()
@@ -522,7 +522,7 @@ class TestCrossLayerIntegration:
 
         # Verify detector exists via Web interface
         with patch(
-            "pynomaly.presentation.web.app.get_detector_details"
+            "monorepo.presentation.web.app.get_detector_details"
         ) as mock_get_details:
             mock_get_details.return_value = {
                 "id": detector_id,

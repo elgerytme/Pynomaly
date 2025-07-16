@@ -307,7 +307,7 @@ class TestAPILoadTesting:
     @pytest.fixture
     def test_client(self):
         """Create test client for load testing."""
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
         
         app = create_app(testing=True)
         return TestClient(app)
@@ -536,7 +536,7 @@ class TestDatabaseLoadTesting:
     @pytest.fixture
     async def mock_database(self):
         """Mock database for load testing."""
-        with patch("pynomaly.infrastructure.persistence.database.DatabaseManager") as mock_db:
+        with patch("monorepo.infrastructure.persistence.database.DatabaseManager") as mock_db:
             db_manager = mock_db.return_value
             
             # Configure realistic database operations
@@ -698,7 +698,7 @@ class TestMLWorkflowLoadTesting:
             X = np.random.randn(1000, 10)
             
             # Simulate ML operations with realistic timing
-            with patch("pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter") as mock_adapter:
+            with patch("monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter") as mock_adapter:
                 adapter = mock_adapter.return_value
                 
                 # Mock training (longer operation)
@@ -778,7 +778,7 @@ class TestMLWorkflowLoadTesting:
                 X = np.random.randn(n_samples, n_features)
                 
                 for algorithm in algorithms:
-                    with patch("pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter") as mock_adapter:
+                    with patch("monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter") as mock_adapter:
                         adapter = mock_adapter.return_value
                         
                         # Mock algorithm-specific timing

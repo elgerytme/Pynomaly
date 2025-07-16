@@ -10,7 +10,7 @@ def test_real_health_endpoints():
         # Import real app but handle any dependency injection issues
         from fastapi import FastAPI
 
-        from pynomaly.presentation.api.endpoints.health import router as health_router
+        from monorepo.presentation.api.endpoints.health import router as health_router
 
         # Create a minimal app with just health router
         app = FastAPI(title="Health Test App")
@@ -57,7 +57,7 @@ def test_fallback_health_endpoint():
 def test_auth_endpoint_availability():
     """Test if auth endpoints can be imported without errors."""
     try:
-        from pynomaly.presentation.api.endpoints.auth import router as auth_router
+        from monorepo.presentation.api.endpoints.auth import router as auth_router
 
         assert auth_router is not None
         print("✅ Auth router imports successfully")
@@ -68,7 +68,7 @@ def test_auth_endpoint_availability():
 def test_basic_dto_functionality():
     """Test basic DTO functionality."""
     try:
-        from pynomaly.application.dto.detection_dto import ConfidenceInterval
+        from monorepo.application.dto.detection_dto import ConfidenceInterval
 
         # Test ConfidenceInterval
         ci = ConfidenceInterval(lower=0.1, upper=0.9)

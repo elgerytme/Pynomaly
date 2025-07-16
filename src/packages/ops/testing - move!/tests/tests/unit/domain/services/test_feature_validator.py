@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.exceptions import DataTypeError, FeatureMismatchError
-from pynomaly.domain.services.feature_validator import FeatureValidator
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.exceptions import DataTypeError, FeatureMismatchError
+from monorepo.domain.services.feature_validator import FeatureValidator
 
 
 class TestFeatureValidatorCompatibility:

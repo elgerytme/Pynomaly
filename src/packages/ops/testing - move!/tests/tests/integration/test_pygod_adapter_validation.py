@@ -12,10 +12,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters.pygod_adapter import PyGODAdapter
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.infrastructure.adapters.pygod_adapter import PyGODAdapter
 
 
 def _pygod_available() -> bool:
@@ -131,8 +131,8 @@ class TestPyGODAdapterValidation:
             with pytest.raises(AlgorithmNotFoundError):
                 PyGODAdapter.get_algorithm_info("INVALID_ALGO")
 
-    @patch("pynomaly.infrastructure.adapters.pygod_adapter.torch")
-    @patch("pynomaly.infrastructure.adapters.pygod_adapter.Data")
+    @patch("monorepo.infrastructure.adapters.pygod_adapter.torch")
+    @patch("monorepo.infrastructure.adapters.pygod_adapter.Data")
     def test_graph_data_preparation_edge_list(
         self, mock_data, mock_torch, sample_graph_dataset
     ):
@@ -169,8 +169,8 @@ class TestPyGODAdapterValidation:
             assert 0.5 <= confidence_anomaly <= 1.0
             assert confidence_anomaly > confidence_normal
 
-    @patch("pynomaly.infrastructure.adapters.pygod_adapter.torch")
-    @patch("pynomaly.infrastructure.adapters.pygod_adapter.Data")
+    @patch("monorepo.infrastructure.adapters.pygod_adapter.torch")
+    @patch("monorepo.infrastructure.adapters.pygod_adapter.Data")
     def test_fit_and_predict_workflow(
         self, mock_data, mock_torch, sample_graph_dataset
     ):
@@ -308,7 +308,7 @@ class TestPyGODAdapterRealDependencies:
 # Integration test for container registration
 def test_pygod_adapter_in_container():
     """Test that PyGOD adapter is properly registered in the dependency injection container."""
-    from pynomaly.infrastructure.config.container import OptionalServiceManager
+    from monorepo.infrastructure.config.container import OptionalServiceManager
 
     service_manager = OptionalServiceManager()
 

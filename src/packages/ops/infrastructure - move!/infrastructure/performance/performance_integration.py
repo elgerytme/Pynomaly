@@ -12,19 +12,19 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from pynomaly.infrastructure.monitoring.performance_monitor import (
+from monorepo.infrastructure.monitoring.performance_monitor import (
     PerformanceMonitor,
     create_performance_monitor,
 )
-from pynomaly.infrastructure.performance.advanced_benchmarking_service import (
+from monorepo.infrastructure.performance.advanced_benchmarking_service import (
     AdvancedBenchmarkConfig,
     AdvancedPerformanceBenchmarkingService,
 )
-from pynomaly.infrastructure.performance.optimization_engine import (
+from monorepo.infrastructure.performance.optimization_engine import (
     PerformanceOptimizationEngine,
     create_optimization_engine,
 )
-from pynomaly.infrastructure.performance.performance_reporting import (
+from monorepo.infrastructure.performance.performance_reporting import (
     PerformanceReporter,
     create_performance_reporter,
 )

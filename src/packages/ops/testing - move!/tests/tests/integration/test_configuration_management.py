@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     AlgorithmConfigDTO,
     ConfigurationCaptureRequestDTO,
     ConfigurationExportRequestDTO,
@@ -21,10 +21,10 @@ from pynomaly.application.dto.configuration_dto import (
     ExportFormat,
     create_basic_configuration,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from monorepo.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.infrastructure.persistence.configuration_repository import (
+from monorepo.infrastructure.persistence.configuration_repository import (
     ConfigurationRepository,
 )
 
@@ -354,7 +354,7 @@ class TestConfigurationCaptureService:
         assert export_response.success is True
         assert export_response.export_data is not None
         assert "#!/usr/bin/env python3" in export_response.export_data
-        assert "import pynomaly" in export_response.export_data
+        assert "import monorepo" in export_response.export_data
         assert "local_outlier_factor" in export_response.export_data
 
     @pytest.mark.asyncio

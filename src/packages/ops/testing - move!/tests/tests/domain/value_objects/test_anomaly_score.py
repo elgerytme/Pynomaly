@@ -11,8 +11,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from pynomaly.domain.exceptions import ValidationError
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.exceptions import ValidationError
+from monorepo.domain.value_objects import AnomalyScore
 
 
 class MockConfidenceInterval:

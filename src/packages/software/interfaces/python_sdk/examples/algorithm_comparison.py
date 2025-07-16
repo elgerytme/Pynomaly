@@ -19,8 +19,8 @@ import pandas as pd
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from pynomaly_detection.domain.entities import Dataset, Detector
-from pynomaly_detection.infrastructure.config import create_container
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.infrastructure.config import create_container
 
 
 def create_sample_data(

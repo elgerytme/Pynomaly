@@ -6,9 +6,9 @@ from unittest.mock import Mock
 
 import pytest
 
-from pynomaly.application.dto.export_options import ExportOptions
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.shared.protocols.export_protocol import ExportProtocol
+from monorepo.application.dto.export_options import ExportOptions
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.shared.protocols.export_protocol import ExportProtocol
 
 
 class TestExportProtocol:

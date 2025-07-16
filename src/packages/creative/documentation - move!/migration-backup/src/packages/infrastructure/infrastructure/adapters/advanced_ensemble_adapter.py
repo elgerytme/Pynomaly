@@ -25,10 +25,10 @@ from sklearn.neighbors import LocalOutlierFactor
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import OneClassSVM
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.shared.protocols import DetectorProtocol, EnsembleDetectorProtocol
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from monorepo.domain.value_objects import AnomalyScore
+from monorepo.shared.protocols import DetectorProtocol, EnsembleDetectorProtocol
 
 logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -364,7 +364,7 @@ class AdvancedEnsembleAdapter(EnsembleDetectorProtocol):
     @property
     def contamination_rate(self):
         """Get the contamination rate."""
-        from pynomaly.domain.value_objects import ContaminationRate
+        from monorepo.domain.value_objects import ContaminationRate
 
         rate = self.detector.parameters.get("contamination", 0.1)
         return ContaminationRate(rate)
@@ -511,7 +511,7 @@ class AdvancedEnsembleAdapter(EnsembleDetectorProtocol):
             ]
 
             # Create anomaly objects
-            from pynomaly.domain.entities.anomaly import Anomaly
+            from monorepo.domain.entities.anomaly import Anomaly
 
             anomalies = []
             anomaly_indices = np.where(labels == 1)[0]

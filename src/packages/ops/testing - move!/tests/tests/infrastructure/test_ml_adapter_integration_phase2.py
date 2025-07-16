@@ -27,8 +27,8 @@ import pytest
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import AdapterError
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import AdapterError
 
 
 # Conditional imports for dependency-aware testing
@@ -189,7 +189,7 @@ class TestPyODAdapterIntegration(MLAdapterTestBase):
     @requires_dependency("PyOD", "pyod")
     def test_pyod_adapter_full_lifecycle(self, sample_data, mock_dataset):
         """Test complete PyOD adapter lifecycle with real dependencies."""
-        from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+        from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
         with memory_monitor():
             # Test different algorithms
@@ -224,7 +224,7 @@ class TestPyODAdapterIntegration(MLAdapterTestBase):
     @requires_dependency("PyOD", "pyod")
     def test_pyod_algorithm_metadata(self):
         """Test PyOD algorithm metadata and information retrieval."""
-        from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+        from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
         adapter = PyODAdapter()
 
@@ -245,7 +245,7 @@ class TestPyODAdapterIntegration(MLAdapterTestBase):
     @requires_dependency("PyOD", "pyod")
     def test_pyod_error_handling(self, sample_data):
         """Test PyOD adapter error handling and edge cases."""
-        from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+        from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
         # Test invalid algorithm
         with pytest.raises((AdapterError, ValueError)):
@@ -271,7 +271,7 @@ class TestSklearnAdapterIntegration(MLAdapterTestBase):
 
     def test_sklearn_adapter_full_lifecycle(self, sample_data, mock_dataset):
         """Test complete sklearn adapter lifecycle."""
-        from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+        from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
         with memory_monitor():
             # Test different algorithms
@@ -302,7 +302,7 @@ class TestSklearnAdapterIntegration(MLAdapterTestBase):
 
     def test_sklearn_contamination_handling(self, sample_data):
         """Test contamination rate handling in sklearn adapter."""
-        from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+        from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
         contamination_rates = [0.05, 0.1, 0.2, 0.3]
 
@@ -324,7 +324,7 @@ class TestPyTorchAdapterIntegration(MLAdapterTestBase):
 
     def test_pytorch_adapter_autoencoder(self, sample_data, mock_dataset):
         """Test PyTorch AutoEncoder implementation."""
-        from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+        from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
         with memory_monitor():
             adapter = PyTorchAdapter(
@@ -355,7 +355,7 @@ class TestPyTorchAdapterIntegration(MLAdapterTestBase):
     @requires_dependency("PyTorch", "torch")
     def test_pytorch_vae_implementation(self, sample_data):
         """Test PyTorch VAE (Variational AutoEncoder) implementation."""
-        from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+        from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
         adapter = PyTorchAdapter(
             algorithm="VAE",
@@ -376,7 +376,7 @@ class TestPyTorchAdapterIntegration(MLAdapterTestBase):
         """Test PyTorch adapter GPU/CPU device handling."""
         import torch
 
-        from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+        from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
         # Test CPU mode
         adapter_cpu = PyTorchAdapter(algorithm="AutoEncoder", device="cpu", epochs=2)
@@ -403,7 +403,7 @@ class TestTensorFlowAdapterIntegration(MLAdapterTestBase):
 
     def test_tensorflow_adapter_autoencoder(self, sample_data, mock_dataset):
         """Test TensorFlow AutoEncoder implementation."""
-        from pynomaly.infrastructure.adapters.tensorflow_adapter import (
+        from monorepo.infrastructure.adapters.tensorflow_adapter import (
             TensorFlowAdapter,
         )
 
@@ -429,7 +429,7 @@ class TestTensorFlowAdapterIntegration(MLAdapterTestBase):
     @requires_dependency("TensorFlow", "tensorflow")
     def test_tensorflow_training_history(self, sample_data):
         """Test TensorFlow training history tracking."""
-        from pynomaly.infrastructure.adapters.tensorflow_adapter import (
+        from monorepo.infrastructure.adapters.tensorflow_adapter import (
             TensorFlowAdapter,
         )
 
@@ -452,7 +452,7 @@ class TestJAXAdapterIntegration(MLAdapterTestBase):
 
     def test_jax_adapter_autoencoder(self, sample_data, mock_dataset):
         """Test JAX AutoEncoder implementation."""
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         with memory_monitor():
             adapter = JAXAdapter(
@@ -478,7 +478,7 @@ class TestJAXAdapterIntegration(MLAdapterTestBase):
         """Test JAX JIT compilation benefits."""
         import time
 
-        from pynomaly.infrastructure.adapters.jax_adapter import JAXAdapter
+        from monorepo.infrastructure.adapters.jax_adapter import JAXAdapter
 
         adapter = JAXAdapter(algorithm="IsolationForest", use_jit=True)
         adapter.fit(sample_data["X_train"])
@@ -512,7 +512,7 @@ class TestMLAdapterInteroperability:
 
         # Test sklearn IsolationForest
         try:
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             sklearn_adapter = SklearnAdapter(algorithm="IsolationForest")
             sklearn_adapter.fit(sample_data)
@@ -522,7 +522,7 @@ class TestMLAdapterInteroperability:
 
         # Test PyOD IsolationForest
         try:
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             pyod_adapter = PyODAdapter(algorithm="IsolationForest")
             pyod_adapter.fit(sample_data)
@@ -549,7 +549,7 @@ class TestMLAdapterInteroperability:
 
         # Create multiple adapters
         try:
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             for _ in range(5):
                 adapter = SklearnAdapter(algorithm="IsolationForest")
@@ -581,7 +581,7 @@ class TestMLAdapterPerformance:
         large_data = np.random.normal(0, 1, (10000, 10)).astype(np.float32)
 
         try:
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             adapter = SklearnAdapter(algorithm="IsolationForest")
 
@@ -605,7 +605,7 @@ class TestMLAdapterPerformance:
     def test_memory_stress(self):
         """Test adapter behavior under memory stress."""
         try:
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             # Create progressively larger datasets
             base_size = 1000

@@ -1,9 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, get_auth, init_auth
-from pynomaly.infrastructure.config import get_settings
-from pynomaly.presentation.api.app import create_app
+from monorepo.infrastructure.auth.jwt_auth import JWTAuthService, get_auth, init_auth
+from monorepo.infrastructure.config import get_settings
+from monorepo.presentation.api.app import create_app
 
 
 @pytest.fixture(scope="module")

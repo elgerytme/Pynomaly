@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from monorepo.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
     PyODAlgorithmAdapter,
     SklearnAlgorithmAdapter,
 )
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import FittingError, InvalidAlgorithmError
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.exceptions import FittingError, InvalidAlgorithmError
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
 
 
 class TestPyODAlgorithmAdapter:

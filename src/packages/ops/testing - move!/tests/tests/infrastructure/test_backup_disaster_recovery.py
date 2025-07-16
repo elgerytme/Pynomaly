@@ -12,7 +12,7 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 import yaml
 
-from pynomaly.infrastructure.backup.backup_manager import (
+from monorepo.infrastructure.backup.backup_manager import (
     BackupManager,
     BackupMetadata,
     BackupStatus,
@@ -20,7 +20,7 @@ from pynomaly.infrastructure.backup.backup_manager import (
     CompressionType,
     LocalBackupProvider,
 )
-from pynomaly.infrastructure.backup.disaster_recovery_service import (
+from monorepo.infrastructure.backup.disaster_recovery_service import (
     DisasterRecoveryService,
     EmailNotificationChannel,
     HealthChecker,

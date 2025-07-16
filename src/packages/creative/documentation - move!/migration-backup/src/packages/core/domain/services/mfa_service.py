@@ -28,7 +28,7 @@ except ImportError:
     QRCODE_AVAILABLE = False
     qrcode = None
 
-from pynomaly.application.dto.mfa_dto import (
+from monorepo.application.dto.mfa_dto import (
     MFADeviceDTO,
     MFAMethodDTO,
     MFAMethodStatus,
@@ -36,7 +36,7 @@ from pynomaly.application.dto.mfa_dto import (
     MFAStatisticsDTO,
     TOTPSetupResponse,
 )
-from pynomaly.infrastructure.security.audit_logger import (
+from monorepo.infrastructure.security.audit_logger import (
     AuditLevel,
     SecurityEventType,
     get_audit_logger,

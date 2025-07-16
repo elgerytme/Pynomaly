@@ -9,7 +9,7 @@ import uuid
 
 import pytest
 
-from pynomaly.shared.types import (  # Infrastructure types; Domain identifier types; Data types; Numeric types; Utility functions
+from monorepo.shared.types import (  # Infrastructure types; Domain identifier types; Data types; Numeric types; Utility functions
     CacheKey,
     Confidence,
     ConfigKey,

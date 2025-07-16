@@ -873,7 +873,7 @@ class TestMonitoringPipeline:
             "metrics_path": "/metrics",
             "labels": {
                 "environment": "production",
-                "service": "pynomaly",
+                "service": "monorepo",
                 "version": "1.0.0",
             },
             "retention": "60d",
@@ -896,7 +896,7 @@ class TestMonitoringPipeline:
             ],
         }
 
-        setup_result = monitoring.setup_metrics_collection("pynomaly", service_config)
+        setup_result = monitoring.setup_metrics_collection("monorepo", service_config)
 
         assert setup_result["success"]
         assert "collection_id" in setup_result
@@ -904,7 +904,7 @@ class TestMonitoringPipeline:
 
         # Verify configuration
         config = setup_result["config"]
-        assert config["service_name"] == "pynomaly"
+        assert config["service_name"] == "monorepo"
         assert config["scrape_interval"] == "15s"
         assert config["timeout"] == "5s"
         assert config["retention"] == "60d"
@@ -1067,7 +1067,7 @@ class TestMonitoringPipeline:
         dashboard_config = {
             "name": "Pynomaly Monitoring Dashboard",
             "description": "Main monitoring dashboard for Pynomaly service",
-            "tags": ["pynomaly", "anomaly-detection", "production"],
+            "tags": ["monorepo", "anomaly-detection", "production"],
             "time_range": {"from": "now-6h", "to": "now"},
             "refresh_interval": "30s",
             "panels": [
@@ -1115,7 +1115,7 @@ class TestMonitoringPipeline:
             ],
             "variables": {
                 "environment": {"type": "query", "values": ["production", "staging"]},
-                "service": {"type": "constant", "value": "pynomaly"},
+                "service": {"type": "constant", "value": "monorepo"},
             },
         }
 
@@ -1272,7 +1272,7 @@ class TestMonitoringPipeline:
             ],
         }
 
-        setup_result = monitoring.setup_health_checks("pynomaly", health_config)
+        setup_result = monitoring.setup_health_checks("monorepo", health_config)
 
         assert setup_result["success"]
         assert "health_check_id" in setup_result
@@ -1280,7 +1280,7 @@ class TestMonitoringPipeline:
 
         # Verify configuration
         config = setup_result["config"]
-        assert config["service_name"] == "pynomaly"
+        assert config["service_name"] == "monorepo"
         assert config["endpoints"] == health_config["endpoints"]
         assert config["interval"] == health_config["interval"]
         assert config["timeout"] == health_config["timeout"]
@@ -1302,7 +1302,7 @@ class TestMonitoringPipeline:
 
         hc_result = results[health_check_id]
         assert hc_result["health_check_id"] == health_check_id
-        assert hc_result["service_name"] == "pynomaly"
+        assert hc_result["service_name"] == "monorepo"
         assert "overall_healthy" in hc_result
         assert "endpoint_results" in hc_result
         assert "checked_at" in hc_result

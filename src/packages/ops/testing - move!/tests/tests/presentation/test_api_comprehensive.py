@@ -10,9 +10,9 @@ import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
-from pynomaly.domain.exceptions import AuthenticationError
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from monorepo.domain.exceptions import AuthenticationError
+from monorepo.infrastructure.config import create_container
+from monorepo.presentation.api.app import create_app
 
 
 @pytest.fixture
@@ -40,7 +40,7 @@ async def async_client(test_container):
 @pytest.fixture
 def auth_headers():
     """Create authentication headers for testing."""
-    with patch("pynomaly.infrastructure.auth.get_current_active_user") as mock_auth:
+    with patch("monorepo.infrastructure.auth.get_current_active_user") as mock_auth:
         mock_user = Mock()
         mock_user.id = "test_user_id"
         mock_user.username = "testuser"
@@ -75,7 +75,7 @@ class TestHealthEndpoints:
     def test_health_check_with_dependencies(self, client: TestClient):
         """Test health check with dependency status."""
         with patch(
-            "pynomaly.infrastructure.monitoring.health.get_system_health"
+            "monorepo.infrastructure.monitoring.health.get_system_health"
         ) as mock_health:
             mock_health.return_value = {
                 "status": "healthy",
@@ -122,7 +122,7 @@ class TestHealthEndpoints:
     def test_health_check_failure_simulation(self, client: TestClient):
         """Test health check with simulated failures."""
         with patch(
-            "pynomaly.infrastructure.monitoring.health.get_system_health"
+            "monorepo.infrastructure.monitoring.health.get_system_health"
         ) as mock_health:
             mock_health.return_value = {
                 "status": "unhealthy",
@@ -145,7 +145,7 @@ class TestAuthenticationEndpoints:
 
     def test_login_success(self, client: TestClient):
         """Test successful login."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
+        with patch("monorepo.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_user = Mock()
             mock_user.id = "user123"
@@ -159,7 +159,7 @@ class TestAuthenticationEndpoints:
             }
 
             with patch(
-                "pynomaly.presentation.api.endpoints.auth.get_auth",
+                "monorepo.presentation.api.endpoints.auth.get_auth",
                 return_value=mock_service,
             ):
                 response = client.post(
@@ -174,14 +174,14 @@ class TestAuthenticationEndpoints:
 
     def test_login_invalid_credentials(self, client: TestClient):
         """Test login with invalid credentials."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
+        with patch("monorepo.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_service.authenticate_user.side_effect = AuthenticationError(
                 "Invalid credentials"
             )
 
             with patch(
-                "pynomaly.presentation.api.endpoints.auth.get_auth",
+                "monorepo.presentation.api.endpoints.auth.get_auth",
                 return_value=mock_service,
             ):
                 response = client.post(
@@ -195,7 +195,7 @@ class TestAuthenticationEndpoints:
 
     def test_user_registration(self, client: TestClient):
         """Test user registration."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
+        with patch("monorepo.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_user = Mock()
             mock_user.id = "new_user_123"
@@ -209,7 +209,7 @@ class TestAuthenticationEndpoints:
             mock_service.create_user.return_value = mock_user
 
             with patch(
-                "pynomaly.presentation.api.endpoints.auth.get_auth",
+                "monorepo.presentation.api.endpoints.auth.get_auth",
                 return_value=mock_service,
             ):
                 response = client.post(
@@ -229,7 +229,7 @@ class TestAuthenticationEndpoints:
 
     def test_refresh_token(self, client: TestClient):
         """Test token refresh."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
+        with patch("monorepo.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_service.refresh_access_token.return_value = {
                 "access_token": "new_access_token",
@@ -238,7 +238,7 @@ class TestAuthenticationEndpoints:
             }
 
             with patch(
-                "pynomaly.presentation.api.endpoints.auth.get_auth",
+                "monorepo.presentation.api.endpoints.auth.get_auth",
                 return_value=mock_service,
             ):
                 response = client.post(
@@ -260,12 +260,12 @@ class TestAuthenticationEndpoints:
 
     def test_create_api_key(self, client: TestClient, auth_headers):
         """Test API key creation."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
+        with patch("monorepo.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_service.create_api_key.return_value = "api_key_123456"
 
             with patch(
-                "pynomaly.presentation.api.endpoints.auth.get_auth",
+                "monorepo.presentation.api.endpoints.auth.get_auth",
                 return_value=mock_service,
             ):
                 response = client.post(
@@ -284,16 +284,16 @@ class TestAuthenticationEndpoints:
 
     def test_revoke_api_key(self, client: TestClient, auth_headers):
         """Test API key revocation."""
-        with patch("pynomaly.infrastructure.auth.JWTAuthService"):
+        with patch("monorepo.infrastructure.auth.JWTAuthService"):
             mock_service = Mock()
             mock_service.revoke_api_key.return_value = True
 
             with patch(
-                "pynomaly.presentation.api.endpoints.auth.get_auth",
+                "monorepo.presentation.api.endpoints.auth.get_auth",
                 return_value=mock_service,
             ):
                 with patch(
-                    "pynomaly.infrastructure.auth.get_current_active_user"
+                    "monorepo.infrastructure.auth.get_current_active_user"
                 ) as mock_user:
                     mock_user.return_value.api_keys = ["api_key_to_revoke"]
 
@@ -1352,7 +1352,7 @@ class TestAPIErrorHandling:
     ):
         """Test handling of database connection failures."""
         with patch(
-            "pynomaly.infrastructure.persistence.database.get_session"
+            "monorepo.infrastructure.persistence.database.get_session"
         ) as mock_session:
             mock_session.side_effect = Exception("Database connection failed")
 

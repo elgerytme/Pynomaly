@@ -20,9 +20,9 @@ import pandas as pd
 import psutil
 from pandas.api.types import is_numeric_dtype
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import InfrastructureError
-from pynomaly.infrastructure.monitoring import get_monitor, monitor_operation
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import InfrastructureError
+from monorepo.infrastructure.monitoring import get_monitor, monitor_operation
 
 
 @dataclass

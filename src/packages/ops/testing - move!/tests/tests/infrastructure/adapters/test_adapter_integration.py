@@ -15,14 +15,14 @@ import pytest
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../src"))
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.exceptions import (
+from monorepo.domain.entities import Dataset, DetectionResult
+from monorepo.domain.exceptions import (
     DetectorNotFittedError,
     FittingError,
     InvalidAlgorithmError,
 )
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols import DetectorProtocol
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.shared.protocols import DetectorProtocol
 
 
 class TestAdapterInterfaceCompliance:
@@ -49,7 +49,7 @@ class TestAdapterInterfaceCompliance:
     def test_pyod_adapter_interface_compliance(self, sample_dataset):
         """Test PyOD adapter interface compliance."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             # Mock PyOD model
             mock_model_class = Mock()
@@ -63,7 +63,7 @@ class TestAdapterInterfaceCompliance:
             mock_module.IForest = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="IsolationForest")
 
@@ -97,7 +97,7 @@ class TestAdapterInterfaceCompliance:
     def test_sklearn_adapter_interface_compliance(self, sample_dataset):
         """Test sklearn adapter interface compliance."""
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.sklearn_adapter.importlib.import_module"
         ) as mock_import:
             # Mock sklearn model
             mock_model_class = Mock()
@@ -113,7 +113,7 @@ class TestAdapterInterfaceCompliance:
             mock_module.IsolationForest = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             adapter = SklearnAdapter(algorithm_name="IsolationForest")
 
@@ -136,12 +136,12 @@ class TestAdapterInterfaceCompliance:
     def test_adapter_protocol_compliance(self):
         """Test that adapters implement DetectorProtocol correctly."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_import.return_value = Mock()
             mock_import.return_value.IForest = Mock()
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="IsolationForest")
 
@@ -191,23 +191,23 @@ class TestCrossAdapterCompatibility:
         """Test that different adapters produce consistent result formats."""
         # Mock PyOD adapter
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_pyod_import:
             mock_pyod_import.return_value = Mock()
             mock_pyod_import.return_value.IForest = Mock()
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             pyod_adapter = PyODAdapter(algorithm_name="IsolationForest")
 
         # Mock sklearn adapter
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.sklearn_adapter.importlib.import_module"
         ) as mock_sklearn_import:
             mock_sklearn_import.return_value = Mock()
             mock_sklearn_import.return_value.IsolationForest = Mock()
 
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             sklearn_adapter = SklearnAdapter(algorithm_name="IsolationForest")
 
@@ -253,7 +253,7 @@ class TestCrossAdapterCompatibility:
     def test_adapter_score_normalization(self, standardized_dataset):
         """Test that all adapters normalize scores to [0, 1] range."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             # Mock PyOD with various score ranges
             mock_model_class = Mock()
@@ -268,7 +268,7 @@ class TestCrossAdapterCompatibility:
             mock_module.IForest = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="IsolationForest")
             adapter.fit(standardized_dataset)
@@ -287,12 +287,12 @@ class TestCrossAdapterCompatibility:
 
         # Test PyOD adapter
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_import.return_value = Mock()
             mock_import.return_value.IForest = Mock()
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             pyod_adapter = PyODAdapter(
                 algorithm_name="IsolationForest", **common_params
@@ -303,12 +303,12 @@ class TestCrossAdapterCompatibility:
 
         # Test sklearn adapter
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.sklearn_adapter.importlib.import_module"
         ) as mock_import:
             mock_import.return_value = Mock()
             mock_import.return_value.IsolationForest = Mock()
 
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             sklearn_adapter = SklearnAdapter(
                 algorithm_name="IsolationForest", **common_params
@@ -325,12 +325,12 @@ class TestAdapterErrorHandlingConsistency:
         """Test that all adapters handle not-fitted state consistently."""
         # Test PyOD adapter
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_import.return_value = Mock()
             mock_import.return_value.IForest = Mock()
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="IsolationForest")
 
@@ -362,7 +362,7 @@ class TestAdapterErrorHandlingConsistency:
         """Test that adapters handle invalid algorithms consistently."""
         # Test PyOD adapter
         with pytest.raises(InvalidAlgorithmError) as exc_info:
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             PyODAdapter(algorithm_name="NonExistentAlgorithm")
 
@@ -371,7 +371,7 @@ class TestAdapterErrorHandlingConsistency:
 
         # Test sklearn adapter
         with pytest.raises(InvalidAlgorithmError) as exc_info:
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             SklearnAdapter(algorithm_name="InvalidSklearnAlgorithm")
 
@@ -380,7 +380,7 @@ class TestAdapterErrorHandlingConsistency:
     def test_adapter_fitting_error_handling(self):
         """Test adapter fitting error handling."""
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.sklearn_adapter.importlib.import_module"
         ) as mock_import:
             # Mock sklearn model that raises error during fit
             mock_model_class = Mock()
@@ -392,7 +392,7 @@ class TestAdapterErrorHandlingConsistency:
             mock_module.IsolationForest = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             adapter = SklearnAdapter(algorithm_name="IsolationForest")
 
@@ -424,12 +424,12 @@ class TestAdapterPerformanceCharacteristics:
     def test_adapter_metadata_consistency(self):
         """Test that adapters provide consistent metadata."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             mock_import.return_value = Mock()
             mock_import.return_value.IForest = Mock()
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="IsolationForest")
 
@@ -446,7 +446,7 @@ class TestAdapterPerformanceCharacteristics:
     def test_adapter_training_metadata_updates(self):
         """Test that adapters update training metadata correctly."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_import:
             # Mock PyOD model
             mock_model_class = Mock()
@@ -458,7 +458,7 @@ class TestAdapterPerformanceCharacteristics:
             mock_module.IForest = mock_model_class
             mock_import.return_value = mock_module
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             adapter = PyODAdapter(algorithm_name="IsolationForest")
 
@@ -498,7 +498,7 @@ class TestAdapterPerformanceCharacteristics:
 
         for algorithm, expected_time, expected_space in algorithms_and_complexities:
             with patch(
-                "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+                "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
             ) as mock_import:
                 mock_import.return_value = Mock()
                 setattr(
@@ -507,7 +507,7 @@ class TestAdapterPerformanceCharacteristics:
                     Mock(),
                 )
 
-                from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+                from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
                 adapter = PyODAdapter(algorithm_name=algorithm)
 
@@ -543,12 +543,12 @@ class TestAdapterEnsembleCompatibility:
 
         # Create PyOD adapter
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
         ) as mock_pyod_import:
             mock_pyod_import.return_value = Mock()
             mock_pyod_import.return_value.IForest = Mock()
 
-            from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+            from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
             pyod_adapter = PyODAdapter(
                 algorithm_name="IsolationForest", name="PyOD_Ensemble_Member"
@@ -557,12 +557,12 @@ class TestAdapterEnsembleCompatibility:
 
         # Create sklearn adapter
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.importlib.import_module"
+            "monorepo.infrastructure.adapters.sklearn_adapter.importlib.import_module"
         ) as mock_sklearn_import:
             mock_sklearn_import.return_value = Mock()
             mock_sklearn_import.return_value.IsolationForest = Mock()
 
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             sklearn_adapter = SklearnAdapter(
                 algorithm_name="IsolationForest", name="Sklearn_Ensemble_Member"
@@ -617,12 +617,12 @@ class TestAdapterEnsembleCompatibility:
 
         for rate in contamination_rates:
             with patch(
-                "pynomaly.infrastructure.adapters.pyod_adapter.importlib.import_module"
+                "monorepo.infrastructure.adapters.pyod_adapter.importlib.import_module"
             ) as mock_import:
                 mock_import.return_value = Mock()
                 mock_import.return_value.IForest = Mock()
 
-                from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+                from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
                 adapter = PyODAdapter(
                     algorithm_name="IsolationForest",

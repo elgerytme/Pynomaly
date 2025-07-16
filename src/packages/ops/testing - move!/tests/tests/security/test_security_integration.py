@@ -9,17 +9,17 @@ import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from src.pynomaly.infrastructure.config import Settings
-from src.pynomaly.infrastructure.security.enhanced_rate_limiter import (
+from src.monorepo.infrastructure.config import Settings
+from src.monorepo.infrastructure.security.enhanced_rate_limiter import (
     EnhancedRateLimiter,
 )
-from src.pynomaly.infrastructure.security.rate_limiting_middleware import (
+from src.monorepo.infrastructure.security.rate_limiting_middleware import (
     RateLimitMiddleware,
 )
-from src.pynomaly.infrastructure.security.security_headers import (
+from src.monorepo.infrastructure.security.security_headers import (
     SecurityHeadersMiddleware,
 )
-from src.pynomaly.infrastructure.security.waf_middleware import WAFMiddleware
+from src.monorepo.infrastructure.security.waf_middleware import WAFMiddleware
 
 
 @pytest.fixture
@@ -387,7 +387,7 @@ class TestRateLimitingScenarios:
 class TestSecurityEventLogging:
     """Test security event logging and monitoring."""
 
-    @patch("src.pynomaly.infrastructure.security.audit_logger.get_audit_logger")
+    @patch("src.monorepo.infrastructure.security.audit_logger.get_audit_logger")
     def test_security_events_logged(self, mock_audit_logger, security_app):
         """Test security events are properly logged."""
         mock_logger = MagicMock()

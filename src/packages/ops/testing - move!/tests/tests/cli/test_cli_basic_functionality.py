@@ -11,8 +11,8 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.app import app
-from pynomaly.presentation.cli import autonomous, datasets, detectors
+from monorepo.presentation.cli.app import app
+from monorepo.presentation.cli import autonomous, datasets, detectors
 
 
 class TestBasicCLIFunctionality:
@@ -82,7 +82,7 @@ class TestBasicCLIFunctionality:
             assert result.exit_code == 0
             assert 'Usage:' in result.stdout or 'Commands' in result.stdout
     
-    @patch('pynomaly.presentation.cli.container.get_cli_container')
+    @patch('monorepo.presentation.cli.container.get_cli_container')
     def test_dataset_list_with_mock(self, mock_get_container, cli_runner):
         """Test dataset list with mocked container."""
         # Mock container and repository
@@ -97,7 +97,7 @@ class TestBasicCLIFunctionality:
         # Should handle gracefully
         assert result.exit_code in [0, 1]
     
-    @patch('pynomaly.presentation.cli.container.get_cli_container')
+    @patch('monorepo.presentation.cli.container.get_cli_container')
     def test_detector_list_with_mock(self, mock_get_container, cli_runner):
         """Test detector list with mocked container."""
         # Mock container and repository
@@ -156,7 +156,7 @@ class TestBasicCLIFunctionality:
         finally:
             Path(config_path).unlink(missing_ok=True)
     
-    @patch('pynomaly.application.services.autonomous_service.AutonomousDetectionService')
+    @patch('monorepo.application.services.autonomous_service.AutonomousDetectionService')
     def test_autonomous_detect_basic(self, mock_service_class, cli_runner):
         """Test basic autonomous detection."""
         # Create a temporary CSV file

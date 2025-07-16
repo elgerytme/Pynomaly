@@ -15,7 +15,7 @@ async def test_server_endpoints():
     print("🔍 Testing MLOps server endpoints...")
     
     try:
-        from pynomaly.mlops.main_server import app
+        from monorepo.mlops.main_server import app
         from fastapi.testclient import TestClient
         
         # Create test client

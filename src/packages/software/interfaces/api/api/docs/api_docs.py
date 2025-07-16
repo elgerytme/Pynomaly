@@ -5,7 +5,7 @@ import json
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from pynomaly_detection.presentation.api.docs.openapi_config import (
+from monorepo.presentation.api.docs.openapi_config import (
     get_custom_redoc_html,
     get_custom_swagger_ui_html,
 )
@@ -154,21 +154,21 @@ async def sdk_information() -> dict:
                 "language": "Python",
                 "status": "official",
                 "installation": "pip install pynomaly-client",
-                "documentation": "https://pynomaly.readthedocs.io/python-sdk",
+                "documentation": "https://monorepo.readthedocs.io/python-sdk",
                 "repository": "https://github.com/pynomaly/pynomaly-python-client",
             },
             {
                 "language": "JavaScript/TypeScript",
                 "status": "community",
                 "installation": "npm install pynomaly-js",
-                "documentation": "https://pynomaly.readthedocs.io/js-sdk",
+                "documentation": "https://monorepo.readthedocs.io/js-sdk",
                 "repository": "https://github.com/pynomaly/pynomaly-js-client",
             },
             {
                 "language": "R",
                 "status": "planned",
-                "installation": "install.packages('pynomaly')",
-                "documentation": "https://pynomaly.readthedocs.io/r-sdk",
+                "installation": "install.packages('monorepo')",
+                "documentation": "https://monorepo.readthedocs.io/r-sdk",
                 "repository": "https://github.com/pynomaly/pynomaly-r-client",
             },
         ],

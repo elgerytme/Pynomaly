@@ -14,7 +14,7 @@ from urllib.parse import urljoin
 
 from pydantic import BaseModel, ConfigDict, EmailStr
 
-from pynomaly.infrastructure.config.settings import Settings
+from monorepo.infrastructure.config.settings import Settings
 
 logger = logging.getLogger(__name__)
 

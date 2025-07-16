@@ -10,7 +10,7 @@ from fastapi import HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     AuthenticationError,
     AuthorizationError,
     PynamolyError,

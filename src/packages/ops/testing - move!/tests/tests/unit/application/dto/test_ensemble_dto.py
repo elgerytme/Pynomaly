@@ -5,7 +5,7 @@ from datetime import datetime
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto.ensemble_dto import (
+from monorepo.application.dto.ensemble_dto import (
     DiversityMetricsDTO,
     EnsembleConfigurationDTO,
     EnsembleDetectionRequestDTO,

@@ -93,7 +93,7 @@ class BackupRecovery:
                 "postgres",
                 "pg_dump",
                 "-U",
-                "pynomaly",
+                "monorepo",
                 "-d",
                 "pynomaly_prod",
                 "--verbose",
@@ -501,7 +501,7 @@ class BackupRecovery:
                 "postgres",
                 "createdb",
                 "-U",
-                "pynomaly",
+                "monorepo",
                 test_db_name,
             ]
 
@@ -525,7 +525,7 @@ class BackupRecovery:
                     "postgres",
                     "psql",
                     "-U",
-                    "pynomaly",
+                    "monorepo",
                     "-d",
                     test_db_name,
                 ]
@@ -558,7 +558,7 @@ class BackupRecovery:
                     "postgres",
                     "pg_restore",
                     "-U",
-                    "pynomaly",
+                    "monorepo",
                     "-d",
                     test_db_name,
                     "--verbose",
@@ -584,7 +584,7 @@ class BackupRecovery:
                 "postgres",
                 "psql",
                 "-U",
-                "pynomaly",
+                "monorepo",
                 "-d",
                 test_db_name,
                 "-c",
@@ -616,7 +616,7 @@ class BackupRecovery:
                     "postgres",
                     "dropdb",
                     "-U",
-                    "pynomaly",
+                    "monorepo",
                     test_db_name,
                 ]
                 subprocess.run(drop_db_cmd, capture_output=True)

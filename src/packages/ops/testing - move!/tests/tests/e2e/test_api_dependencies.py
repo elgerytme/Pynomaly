@@ -6,7 +6,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
-from pynomaly.infrastructure.config import create_container
+from monorepo.infrastructure.config import create_container
 
 
 def test_api_dependencies():

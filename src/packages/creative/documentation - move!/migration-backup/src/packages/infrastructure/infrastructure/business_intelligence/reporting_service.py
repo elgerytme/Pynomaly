@@ -8,8 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from pynomaly.application.services.algorithm_benchmark import BenchmarkResult
-from pynomaly.infrastructure.config.feature_flags import require_feature
+from monorepo.application.services.algorithm_benchmark import BenchmarkResult
+from monorepo.infrastructure.config.feature_flags import require_feature
 
 
 @dataclass

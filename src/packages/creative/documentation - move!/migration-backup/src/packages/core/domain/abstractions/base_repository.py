@@ -1,6 +1,6 @@
 """Base repository abstraction - DEPRECATED.
 
-This module is deprecated. Use `pynomaly.shared.protocols.repository_protocol` instead.
+This module is deprecated. Use `monorepo.shared.protocols.repository_protocol` instead.
 All new repositories should implement the async RepositoryProtocol interface.
 """
 
@@ -15,7 +15,7 @@ T = TypeVar("T")
 class BaseRepository(Generic[T], ABC):
     """Base repository interface.
 
-    DEPRECATED: Use RepositoryProtocol from pynomaly.shared.protocols instead.
+    DEPRECATED: Use RepositoryProtocol from monorepo.shared.protocols instead.
     This class exists only for backward compatibility and will be removed in v2.0.
     """
 
@@ -23,7 +23,7 @@ class BaseRepository(Generic[T], ABC):
         """Initialize repository with deprecation warning."""
         warn(
             "BaseRepository is deprecated. Use RepositoryProtocol from "
-            "pynomaly.shared.protocols.repository_protocol instead.",
+            "monorepo.shared.protocols.repository_protocol instead.",
             DeprecationWarning,
             stacklevel=2,
         )

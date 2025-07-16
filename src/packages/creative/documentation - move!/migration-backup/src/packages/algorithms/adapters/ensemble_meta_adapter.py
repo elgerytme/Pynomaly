@@ -10,10 +10,10 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
-from pynomaly.domain.exceptions import DetectorNotFittedError, FittingError
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols import DetectorProtocol, EnsembleDetectorProtocol
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult
+from monorepo.domain.exceptions import DetectorNotFittedError, FittingError
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.shared.protocols import DetectorProtocol, EnsembleDetectorProtocol
 
 
 class AggregationMethod(Enum):

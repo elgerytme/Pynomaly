@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-from pynomaly.domain.entities.model_performance import (
+from monorepo.domain.entities.model_performance import (
     ModelPerformanceBaseline,
     ModelPerformanceMetrics,
 )

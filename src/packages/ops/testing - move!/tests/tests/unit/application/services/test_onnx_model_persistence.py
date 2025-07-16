@@ -8,11 +8,11 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.services.model_persistence_service import (
+from monorepo.application.services.model_persistence_service import (
     ModelPersistenceService,
 )
-from pynomaly.domain.entities import Detector
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.entities import Detector
+from monorepo.domain.value_objects import ContaminationRate
 
 
 class TestONNXModelPersistence:
@@ -63,7 +63,7 @@ class TestONNXModelPersistence:
 
         # Test
         with patch(
-            "pynomaly.infrastructure.config.feature_flags.feature_flags"
+            "monorepo.infrastructure.config.feature_flags.feature_flags"
         ) as mock_flags:
             mock_flags.is_enabled.return_value = True
 
@@ -93,7 +93,7 @@ class TestONNXModelPersistence:
 
         # Test
         with patch(
-            "pynomaly.infrastructure.config.feature_flags.feature_flags"
+            "monorepo.infrastructure.config.feature_flags.feature_flags"
         ) as mock_flags:
             mock_flags.is_enabled.return_value = False
 
@@ -144,7 +144,7 @@ class TestONNXModelPersistence:
 
         # Test - without PyTorch available, should create stub
         with patch(
-            "pynomaly.infrastructure.config.feature_flags.feature_flags"
+            "monorepo.infrastructure.config.feature_flags.feature_flags"
         ) as mock_flags:
             mock_flags.is_enabled.return_value = True
 
@@ -202,7 +202,7 @@ class TestONNXModelPersistence:
 
         # Test
         with patch(
-            "pynomaly.infrastructure.config.feature_flags.feature_flags"
+            "monorepo.infrastructure.config.feature_flags.feature_flags"
         ) as mock_flags:
             mock_flags.is_enabled.return_value = True
 
@@ -230,7 +230,7 @@ class TestONNXModelPersistence:
 
         # Test
         with patch(
-            "pynomaly.infrastructure.config.feature_flags.feature_flags"
+            "monorepo.infrastructure.config.feature_flags.feature_flags"
         ) as mock_flags:
             mock_flags.is_enabled.return_value = True
 

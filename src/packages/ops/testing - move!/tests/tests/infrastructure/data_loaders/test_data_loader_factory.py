@@ -5,9 +5,9 @@ from unittest.mock import Mock, patch
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.infrastructure.data_loaders.data_loader_factory import (
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import DataValidationError
+from monorepo.infrastructure.data_loaders.data_loader_factory import (
     DataLoaderFactory,
     SmartDataLoader,
 )
@@ -121,7 +121,7 @@ class TestDataLoaderFactory:
         loader = factory.create_loader("test.csv", delimiter=";", encoding="latin-1")
         assert loader is not None
 
-    @patch("pynomaly.infrastructure.data_loaders.data_loader_factory.CSVLoader")
+    @patch("monorepo.infrastructure.data_loaders.data_loader_factory.CSVLoader")
     def test_load_data_success(self, mock_csv_loader):
         """Test successful data loading."""
         factory = DataLoaderFactory()

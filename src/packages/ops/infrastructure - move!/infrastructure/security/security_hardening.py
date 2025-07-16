@@ -21,7 +21,7 @@ import joblib
 from cryptography.fernet import Fernet
 from pydantic import BaseModel, ConfigDict, field_validator
 
-from pynomaly.infrastructure.config.settings import Settings
+from monorepo.infrastructure.config.settings import Settings
 
 
 class SecureSerializationError(Exception):

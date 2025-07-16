@@ -15,9 +15,9 @@ import pandas as pd
 import pytest
 from sklearn.datasets import make_classification
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.infrastructure.adapters.drift_detection_adapter import (
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from monorepo.infrastructure.adapters.drift_detection_adapter import (
     DistanceBasedDriftDetector,
     DriftDetectionAdapter,
     DriftDetectionResult,

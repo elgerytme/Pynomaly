@@ -6,7 +6,7 @@
 
 ## Overview
 
-The core domain logic and business rules for the Pynomaly anomaly detection platform.
+The core domain logic and business rules for the Monorepo anomaly detection platform.
 
 **Architecture Layer**: Domain Layer
 **Package Type**: Core Business Logic
@@ -14,7 +14,7 @@ The core domain logic and business rules for the Pynomaly anomaly detection plat
 
 ## Purpose
 
-This package contains the pure business logic that drives the Pynomaly platform. It follows Clean Architecture principles with no external dependencies on infrastructure concerns, making it highly testable and reusable across different interfaces.
+This package contains the pure business logic that drives the Monorepo platform. It follows Clean Architecture principles with no external dependencies on infrastructure concerns, making it highly testable and reusable across different interfaces.
 
 ### Key Features
 

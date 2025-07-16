@@ -6,8 +6,8 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.entities.anomaly import Anomaly
+from monorepo.domain.value_objects import AnomalyScore
 
 
 class TestAnomalyInitialization:

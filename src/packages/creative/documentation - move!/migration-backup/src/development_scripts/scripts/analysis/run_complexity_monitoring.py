@@ -40,7 +40,7 @@ def run_complexity_analysis(
         Analysis results dictionary
     """
     try:
-        from pynomaly.infrastructure.monitoring.complexity_monitor import (
+        from monorepo.infrastructure.monitoring.complexity_monitor import (
             ComplexityMonitor,
         )
 

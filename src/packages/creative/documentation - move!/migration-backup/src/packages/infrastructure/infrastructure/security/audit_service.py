@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.models.security import (
+from monorepo.domain.models.security import (
     ActionType,
     AuditEvent,
     ComplianceFramework,

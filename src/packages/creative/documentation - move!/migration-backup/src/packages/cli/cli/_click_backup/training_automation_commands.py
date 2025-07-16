@@ -21,17 +21,17 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.application.services.training_automation_service import (
+from monorepo.application.services.training_automation_service import (
     OptimizationStrategy,
     PruningStrategy,
     TrainingAutomationService,
     TrainingConfiguration,
     TrainingStatus,
 )
-from pynomaly.infrastructure.adapters.model_trainer_adapter import (
+from monorepo.infrastructure.adapters.model_trainer_adapter import (
     create_model_trainer_adapter,
 )
-from pynomaly.infrastructure.persistence.training_job_repository import (
+from monorepo.infrastructure.persistence.training_job_repository import (
     create_training_job_repository,
 )
 

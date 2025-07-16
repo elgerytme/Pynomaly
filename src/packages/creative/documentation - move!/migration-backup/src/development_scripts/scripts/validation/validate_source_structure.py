@@ -39,7 +39,7 @@ class SourceStructureValidator:
 
     def __init__(self, src_root: Path):
         self.src_root = src_root
-        self.pynomaly_root = src_root / "pynomaly"
+        self.pynomaly_root = src_root / "monorepo"
         self.violations = []
         self.warnings = []
         self.metrics = {}
@@ -259,8 +259,8 @@ class SourceStructureValidator:
                             module = node.module.split(".")[0]
                             if (
                                 module not in allowed_imports
-                                and not module.startswith("pynomaly.domain")
-                                and not module.startswith("pynomaly.shared")
+                                and not module.startswith("monorepo.domain")
+                                and not module.startswith("monorepo.shared")
                             ):  # Allow shared utilities
                                 self.violations.append(
                                     f"Domain layer imports external dependency: "
@@ -293,7 +293,7 @@ class SourceStructureValidator:
 
                     for node in ast.walk(tree):
                         if isinstance(node, ast.ImportFrom) and node.module:
-                            if node.module.startswith("pynomaly."):
+                            if node.module.startswith("monorepo."):
                                 imported_layer = (
                                     node.module.split(".")[1]
                                     if len(node.module.split(".")) > 1
@@ -404,7 +404,7 @@ class SourceStructureValidator:
 
                 for node in ast.walk(tree):
                     if isinstance(node, ast.ImportFrom) and node.module:
-                        if node.module.startswith("pynomaly."):
+                        if node.module.startswith("monorepo."):
                             imports.add(node.module)
 
                 import_graph[module_path] = imports

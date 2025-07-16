@@ -9,9 +9,9 @@ from typing import Any
 import pandas as pd
 from pydantic import BaseModel, Field
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataLoadingError
-from pynomaly.shared.protocols import DataLoaderProtocol
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import DataLoadingError
+from monorepo.shared.protocols import DataLoaderProtocol
 
 
 class DVCConfig(BaseModel):

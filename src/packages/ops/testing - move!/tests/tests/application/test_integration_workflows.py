@@ -6,14 +6,14 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.application.services.automl_service import AutoMLService
-from pynomaly.application.services.detection_service import DetectionService
-from pynomaly.application.services.ensemble_service import EnsembleService
-from pynomaly.application.services.explainability_service import ExplainabilityService
-from pynomaly.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
-from pynomaly.application.use_cases.evaluate_model import EvaluateModelUseCase
-from pynomaly.application.use_cases.train_detector import TrainDetectorUseCase
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.application.services.automl_service import AutoMLService
+from monorepo.application.services.detection_service import DetectionService
+from monorepo.application.services.ensemble_service import EnsembleService
+from monorepo.application.services.explainability_service import ExplainabilityService
+from monorepo.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
+from monorepo.application.use_cases.evaluate_model import EvaluateModelUseCase
+from monorepo.application.use_cases.train_detector import TrainDetectorUseCase
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
 
 
 class TestApplicationWorkflows:

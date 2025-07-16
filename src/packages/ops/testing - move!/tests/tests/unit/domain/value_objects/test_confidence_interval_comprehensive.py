@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from pynomaly.domain.exceptions import InvalidValueError
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
+from monorepo.domain.exceptions import InvalidValueError
+from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
 class TestConfidenceIntervalInitialization:

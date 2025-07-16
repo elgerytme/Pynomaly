@@ -490,7 +490,7 @@ Let's schedule a quick call to review everything and ensure you're getting maxim
 Best regards,
 The Pynomaly Team
 
-P.S. As a beta user, you have our direct email for any urgent questions: beta-support@pynomaly.io
+P.S. As a beta user, you have our direct email for any urgent questions: beta-support@monorepo.io
             """,
         }
 

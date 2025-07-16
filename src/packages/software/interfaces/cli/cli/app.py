@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 # Import error handling utilities
-from pynomaly_detection.shared.error_handling import (
+from monorepo.shared.error_handling import (
     handle_cli_errors,
     print_error,
     print_success,
@@ -55,7 +55,7 @@ else:
 
     # Create Typer app
     app = typer.Typer(
-        name="pynomaly",
+        name="monorepo",
         help="Pynomaly - State-of-the-art anomaly detection CLI",
         add_completion=True,
         rich_markup_mode="rich",

@@ -18,13 +18,13 @@ from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from pynomaly.infrastructure.config import Settings
-from pynomaly.infrastructure.security.audit_logger import (
+from monorepo.infrastructure.config import Settings
+from monorepo.infrastructure.security.audit_logger import (
     AuditLevel,
     SecurityEventType,
     get_audit_logger,
 )
-from pynomaly.infrastructure.security.input_sanitizer import (
+from monorepo.infrastructure.security.input_sanitizer import (
     InputSanitizer,
     SanitizationConfig,
 )

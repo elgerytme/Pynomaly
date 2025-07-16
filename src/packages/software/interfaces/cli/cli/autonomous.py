@@ -18,15 +18,15 @@ from rich.progress import (
 )
 from rich.table import Table
 
-from pynomaly_detection.application.services.autonomous_service import (
+from monorepo.application.services.autonomous_service import (
     AutonomousConfig,
     AutonomousDetectionService,
 )
-from pynomaly_detection.infrastructure.data_loaders.csv_loader import CSVLoader
-from pynomaly_detection.infrastructure.data_loaders.excel_loader import ExcelLoader
-from pynomaly_detection.infrastructure.data_loaders.json_loader import JSONLoader
-from pynomaly_detection.infrastructure.data_loaders.parquet_loader import ParquetLoader
-from pynomaly_detection.presentation.cli.container import get_cli_container
+from monorepo.infrastructure.data_loaders.csv_loader import CSVLoader
+from monorepo.infrastructure.data_loaders.excel_loader import ExcelLoader
+from monorepo.infrastructure.data_loaders.json_loader import JSONLoader
+from monorepo.infrastructure.data_loaders.parquet_loader import ParquetLoader
+from monorepo.presentation.cli.container import get_cli_container
 
 app = typer.Typer()
 console = Console()

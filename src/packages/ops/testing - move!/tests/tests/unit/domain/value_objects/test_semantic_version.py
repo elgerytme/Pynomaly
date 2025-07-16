@@ -2,7 +2,7 @@
 
 import pytest
 
-from pynomaly.domain.value_objects.semantic_version import SemanticVersion
+from monorepo.domain.value_objects.semantic_version import SemanticVersion
 
 
 class TestSemanticVersion:

@@ -6,8 +6,8 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.domain.models.detector import Detector
-from pynomaly.domain.models.federated import (
+from monorepo.domain.models.detector import Detector
+from monorepo.domain.models.federated import (
     AggregationMethod,
     FederatedParticipant,
     FederationStrategy,
@@ -16,9 +16,9 @@ from pynomaly.domain.models.federated import (
     PrivacyBudget,
     PrivacyMechanism,
 )
-from pynomaly.domain.value_objects import AlgorithmType, DetectorConfig, ModelType
-from pynomaly.infrastructure.federated.coordinator import FederatedCoordinator
-from pynomaly.infrastructure.security.security_service import SecurityService
+from monorepo.domain.value_objects import AlgorithmType, DetectorConfig, ModelType
+from monorepo.infrastructure.federated.coordinator import FederatedCoordinator
+from monorepo.infrastructure.security.security_service import SecurityService
 
 
 @pytest.fixture

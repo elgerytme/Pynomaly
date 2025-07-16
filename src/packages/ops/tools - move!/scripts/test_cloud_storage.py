@@ -8,7 +8,7 @@ from pathlib import Path
 import sys
 sys.path.insert(0, 'src')
 
-from pynomaly.infrastructure.storage.local_adapter import LocalStorageAdapter
+from monorepo.infrastructure.storage.local_adapter import LocalStorageAdapter
 
 print("🚀 Cloud Storage Integration Test\n")
 
@@ -141,7 +141,7 @@ async def main():
         print("\n🎯 Next Steps:")
         print("1. Install cloud dependencies: pip install pynomaly[cloud-storage]")
         print("2. Configure cloud storage credentials")
-        print("3. Use CLI: python -m pynomaly.infrastructure.storage.cli --help")
+        print("3. Use CLI: python -m monorepo.infrastructure.storage.cli --help")
         print("4. Test with your cloud storage provider")
         
         return True

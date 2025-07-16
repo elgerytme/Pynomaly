@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.value_objects import PerformanceMetrics
+from monorepo.domain.value_objects import PerformanceMetrics
 
 
 @dataclass

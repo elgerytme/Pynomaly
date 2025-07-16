@@ -150,7 +150,7 @@ class Span:
 class SimpleTracer:
     """Simplified distributed tracer."""
 
-    def __init__(self, service_name: str = "pynomaly"):
+    def __init__(self, service_name: str = "monorepo"):
         self.service_name = service_name
         self.spans: list[Span] = []
         self.current_span: Span | None = None
@@ -437,7 +437,7 @@ class SimpleTracer:
 _simple_tracer = None
 
 
-def initialize_simple_tracing(service_name: str = "pynomaly") -> SimpleTracer:
+def initialize_simple_tracing(service_name: str = "monorepo") -> SimpleTracer:
     """Initialize simple tracing system."""
     global _simple_tracer
     _simple_tracer = SimpleTracer(service_name)

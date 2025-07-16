@@ -6,7 +6,7 @@ Tests API endpoints and their integration with the underlying services.
 
 from fastapi.testclient import TestClient
 
-from pynomaly.presentation.api.app import create_app
+from monorepo.presentation.api.app import create_app
 from tests.integration.framework.integration_test_base import ServiceIntegrationTest
 
 

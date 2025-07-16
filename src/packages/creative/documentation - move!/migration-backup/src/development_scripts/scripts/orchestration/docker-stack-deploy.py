@@ -218,7 +218,7 @@ http {
 
     server {
         listen 80;
-        server_name api.pynomaly.local;
+        server_name api.monorepo.local;
 
         location / {
             proxy_pass http://pynomaly_api;
@@ -235,7 +235,7 @@ http {
 
     server {
         listen 80;
-        server_name grafana.pynomaly.local;
+        server_name grafana.monorepo.local;
 
         location / {
             proxy_pass http://grafana;
@@ -248,7 +248,7 @@ http {
 
     server {
         listen 80;
-        server_name jaeger.pynomaly.local;
+        server_name jaeger.monorepo.local;
 
         location / {
             proxy_pass http://jaeger;
@@ -283,7 +283,7 @@ exporters:
       insecure: true
   prometheus:
     endpoint: "0.0.0.0:8889"
-    namespace: "pynomaly"
+    namespace: "monorepo"
 
 service:
   pipelines:
@@ -450,7 +450,7 @@ services:
   # Training Worker
   pynomaly-worker-training:
     image: pynomaly/worker:1.0.0
-    command: celery worker -A pynomaly.workers -Q model_training,anomaly_detection --concurrency=4
+    command: celery worker -A monorepo.workers -Q model_training,anomaly_detection --concurrency=4
     environment:
       - ENVIRONMENT=production
       - CELERY_BROKER_URL=redis://:$(cat /run/secrets/redis_password)@redis:6379/0
@@ -482,7 +482,7 @@ services:
   # Drift Worker
   pynomaly-worker-drift:
     image: pynomaly/worker:1.0.0
-    command: celery worker -A pynomaly.workers -Q drift_monitoring,alert_processing --concurrency=2
+    command: celery worker -A monorepo.workers -Q drift_monitoring,alert_processing --concurrency=2
     environment:
       - ENVIRONMENT=production
       - CELERY_BROKER_URL=redis://:$(cat /run/secrets/redis_password)@redis:6379/0
@@ -514,7 +514,7 @@ services:
   # Celery Scheduler
   pynomaly-scheduler:
     image: pynomaly/scheduler:1.0.0
-    command: celery beat -A pynomaly.workers --loglevel=info
+    command: celery beat -A monorepo.workers --loglevel=info
     environment:
       - ENVIRONMENT=production
       - CELERY_BROKER_URL=redis://:$(cat /run/secrets/redis_password)@redis:6379/0
@@ -795,7 +795,7 @@ configs:
     return stack_file
 
 
-def deploy_stack(stack_file: Path, stack_name: str = "pynomaly"):
+def deploy_stack(stack_file: Path, stack_name: str = "monorepo"):
     """Deploy the Docker Stack."""
     print(f"Deploying Docker Stack '{stack_name}'...")
 
@@ -1071,9 +1071,9 @@ def main():
         print("\n3. Scale services:")
         print("   ./scripts/docker-swarm/scale.sh api 5")
         print("\n4. Access services:")
-        print("   - API: http://api.pynomaly.local")
-        print("   - Grafana: http://grafana.pynomaly.local (admin/admin)")
-        print("   - Jaeger: http://jaeger.pynomaly.local")
+        print("   - API: http://api.monorepo.local")
+        print("   - Grafana: http://grafana.monorepo.local (admin/admin)")
+        print("   - Jaeger: http://jaeger.monorepo.local")
         print("   - Prometheus: http://localhost:9090")
         print("\n5. Clean up:")
         print("   ./scripts/docker-swarm/cleanup.sh")

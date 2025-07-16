@@ -12,7 +12,7 @@ import time
 import requests
 import uvicorn
 
-from pynomaly.presentation.api.app import create_app
+from monorepo.presentation.api.app import create_app
 
 
 def test_basic_api():

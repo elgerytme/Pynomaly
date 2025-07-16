@@ -16,16 +16,16 @@ import pytest
 from fastapi import FastAPI, Request, Response
 from fastapi.testclient import TestClient
 
-from pynomaly.infrastructure.security.csrf_middleware import (
+from monorepo.infrastructure.security.csrf_middleware import (
     CSRFConfig,
     CSRFProtectionMiddleware,
     CSRFTokenGenerator,
 )
-from pynomaly.infrastructure.security.session_manager import (
+from monorepo.infrastructure.security.session_manager import (
     EnhancedSessionManager,
     SessionData,
 )
-from pynomaly.presentation.api.endpoints.security import router as security_router
+from monorepo.presentation.api.endpoints.security import router as security_router
 
 
 class TestCSRFProtectionMiddleware:
@@ -350,8 +350,8 @@ class TestSecurityDashboardAPI:
         """Create test client."""
         return TestClient(test_app)
 
-    @patch("pynomaly.presentation.api.endpoints.security.get_current_user")
-    @patch("pynomaly.presentation.api.endpoints.security.require_permissions")
+    @patch("monorepo.presentation.api.endpoints.security.get_current_user")
+    @patch("monorepo.presentation.api.endpoints.security.require_permissions")
     def test_security_overview_endpoint(self, mock_permission, mock_user, client):
         """Test security overview endpoint."""
         # Mock authentication and authorization
@@ -375,8 +375,8 @@ class TestSecurityDashboardAPI:
         assert isinstance(data["security_score"], int)
         assert data["threat_level"] in ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
 
-    @patch("pynomaly.presentation.api.endpoints.security.get_current_user")
-    @patch("pynomaly.presentation.api.endpoints.security.require_permissions")
+    @patch("monorepo.presentation.api.endpoints.security.get_current_user")
+    @patch("monorepo.presentation.api.endpoints.security.require_permissions")
     def test_threat_statistics_endpoint(self, mock_permission, mock_user, client):
         """Test threat statistics endpoint."""
         mock_user.return_value = {"user_id": "test_user"}
@@ -398,8 +398,8 @@ class TestSecurityDashboardAPI:
         assert "color" in threat_stat
         assert "severity" in threat_stat
 
-    @patch("pynomaly.presentation.api.endpoints.security.get_current_user")
-    @patch("pynomaly.presentation.api.endpoints.security.require_permissions")
+    @patch("monorepo.presentation.api.endpoints.security.get_current_user")
+    @patch("monorepo.presentation.api.endpoints.security.require_permissions")
     def test_security_events_endpoint(self, mock_permission, mock_user, client):
         """Test security events endpoint."""
         mock_user.return_value = {"user_id": "test_user"}
@@ -422,8 +422,8 @@ class TestSecurityDashboardAPI:
             assert "severity" in event
             assert "details" in event
 
-    @patch("pynomaly.presentation.api.endpoints.security.get_current_user")
-    @patch("pynomaly.presentation.api.endpoints.security.require_permissions")
+    @patch("monorepo.presentation.api.endpoints.security.get_current_user")
+    @patch("monorepo.presentation.api.endpoints.security.require_permissions")
     def test_active_sessions_endpoint(self, mock_permission, mock_user, client):
         """Test active sessions endpoint."""
         mock_user.return_value = {"user_id": "test_user"}
@@ -446,9 +446,9 @@ class TestSecurityDashboardAPI:
             assert "security_level" in session
             assert "is_current" in session
 
-    @patch("pynomaly.presentation.api.endpoints.security.get_current_user")
-    @patch("pynomaly.presentation.api.endpoints.security.require_permissions")
-    @patch("pynomaly.presentation.api.endpoints.security.get_session_manager")
+    @patch("monorepo.presentation.api.endpoints.security.get_current_user")
+    @patch("monorepo.presentation.api.endpoints.security.require_permissions")
+    @patch("monorepo.presentation.api.endpoints.security.get_session_manager")
     def test_terminate_session_endpoint(
         self, mock_session_manager, mock_permission, mock_user, client
     ):
@@ -470,8 +470,8 @@ class TestSecurityDashboardAPI:
         assert "message" in data
         assert "timestamp" in data
 
-    @patch("pynomaly.presentation.api.endpoints.security.get_current_user")
-    @patch("pynomaly.presentation.api.endpoints.security.require_permissions")
+    @patch("monorepo.presentation.api.endpoints.security.get_current_user")
+    @patch("monorepo.presentation.api.endpoints.security.require_permissions")
     def test_threat_timeline_endpoint(self, mock_permission, mock_user, client):
         """Test threat timeline endpoint."""
         mock_user.return_value = {"user_id": "test_user"}

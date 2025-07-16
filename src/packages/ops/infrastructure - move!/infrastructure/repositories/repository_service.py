@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pynomaly.shared.protocols.repository_protocol import (
+    from monorepo.shared.protocols.repository_protocol import (
         DatasetRepositoryProtocol,
         DetectionResultRepositoryProtocol,
         DetectorRepositoryProtocol,
@@ -118,7 +118,7 @@ class RepositoryService:
 
 def create_memory_repository_service() -> RepositoryService:
     """Create repository service with in-memory implementations."""
-    from pynomaly.infrastructure.repositories.memory_repository import (
+    from monorepo.infrastructure.repositories.memory_repository import (
         MemoryDatasetRepository,
         MemoryDetectionResultRepository,
         MemoryDetectorRepository,
@@ -137,7 +137,7 @@ def create_filesystem_repository_service(base_path: str = "data") -> RepositoryS
     Args:
         base_path: Base directory for file storage
     """
-    from pynomaly.infrastructure.repositories.memory_repository import (
+    from monorepo.infrastructure.repositories.memory_repository import (
         FileSystemDetectorRepository,
         MemoryDatasetRepository,
         MemoryDetectionResultRepository,

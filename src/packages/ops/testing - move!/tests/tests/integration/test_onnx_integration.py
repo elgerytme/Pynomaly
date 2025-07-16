@@ -6,13 +6,13 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.model_persistence_service import (
+from monorepo.application.services.model_persistence_service import (
     ModelPersistenceService,
 )
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.infrastructure.repositories.in_memory_repositories import (
+from monorepo.domain.entities import Dataset
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.infrastructure.repositories.in_memory_repositories import (
     InMemoryDetectorRepository,
 )
 

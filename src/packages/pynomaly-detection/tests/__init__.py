@@ -1,1 +1,0 @@
-"""Tests for pynomaly-detection package."""

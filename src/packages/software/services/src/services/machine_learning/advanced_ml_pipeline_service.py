@@ -20,10 +20,10 @@ from sklearn.ensemble import IsolationForest
 from sklearn.metrics import precision_score, recall_score, roc_auc_score
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
-from pynomaly.domain.entities.model import Model, ModelVersion
-from pynomaly.domain.value_objects.performance_metrics import PerformanceMetrics
-from pynomaly.infrastructure.logging.structured_logger import StructuredLogger
-from pynomaly.infrastructure.monitoring.metrics_service import MetricsService
+from monorepo.domain.entities.model import Model, ModelVersion
+from monorepo.domain.value_objects.performance_metrics import PerformanceMetrics
+from monorepo.infrastructure.logging.structured_logger import StructuredLogger
+from monorepo.infrastructure.monitoring.metrics_service import MetricsService
 
 
 class ModelStatus(Enum):

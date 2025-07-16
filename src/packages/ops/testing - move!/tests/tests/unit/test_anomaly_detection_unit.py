@@ -18,12 +18,12 @@ from hypothesis import assume, example, given, settings
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 
-from pynomaly.application.services.anomaly_detection_service import (
+from monorepo.application.services.anomaly_detection_service import (
     AnomalyDetectionService,
 )
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.services.advanced_detection_service import AdvancedDetectionService
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.services.advanced_detection_service import AdvancedDetectionService
+from monorepo.domain.value_objects import AnomalyScore
 
 
 class TestAnomalyDetectionService:

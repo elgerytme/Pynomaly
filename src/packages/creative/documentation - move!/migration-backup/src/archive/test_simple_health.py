@@ -18,7 +18,7 @@ os.environ["PYNOMALY_MONITORING_METRICS_ENABLED"] = "false"
 
 # Now import after setting environment
 from fastapi.testclient import TestClient
-from pynomaly.presentation.api.app import create_app
+from monorepo.presentation.api.app import create_app
 
 def test_health_endpoint():
     """Test that the health endpoint works."""

@@ -21,7 +21,7 @@ class DockerImageBuilder:
 
     def __init__(self):
         self.project_root = Path(__file__).parent.parent.parent
-        self.docker_registry = os.getenv("DOCKER_REGISTRY", "pynomaly")
+        self.docker_registry = os.getenv("DOCKER_REGISTRY", "monorepo")
         self.image_tag = os.getenv("IMAGE_TAG", "latest")
         self.build_args = self._get_build_args()
 
@@ -50,7 +50,7 @@ class DockerImageBuilder:
     def _get_version(self) -> str:
         """Get application version"""
         try:
-            version_file = self.project_root / "src" / "pynomaly" / "_version.py"
+            version_file = self.project_root / "src" / "monorepo" / "_version.py"
             if version_file.exists():
                 with open(version_file) as f:
                     content = f.read()

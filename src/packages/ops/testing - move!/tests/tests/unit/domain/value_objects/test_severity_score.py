@@ -2,7 +2,7 @@
 
 import pytest
 
-from pynomaly.domain.value_objects.severity_score import SeverityLevel, SeverityScore
+from monorepo.domain.value_objects.severity_score import SeverityLevel, SeverityScore
 
 
 class TestSeverityLevel:

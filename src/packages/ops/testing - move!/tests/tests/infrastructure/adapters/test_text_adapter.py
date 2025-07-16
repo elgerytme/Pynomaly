@@ -2,8 +2,8 @@
 
 import pytest
 
-from pynomaly.domain.value_objects import AnomalyType
-from pynomaly.infrastructure.adapters.text_adapter import (
+from monorepo.domain.value_objects import AnomalyType
+from monorepo.infrastructure.adapters.text_adapter import (
     SentimentAnalyzer,
     TextAnomalyDetector,
     TextDetectionConfig,

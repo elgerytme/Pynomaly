@@ -6,18 +6,18 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.autonomous_preprocessing import (
+from monorepo.application.services.autonomous_preprocessing import (
     AutonomousPreprocessingOrchestrator,
     AutonomousQualityAnalyzer,
     DataQualityIssue,
     DataQualityReport,
 )
-from pynomaly.application.services.autonomous_service import (
+from monorepo.application.services.autonomous_service import (
     AutonomousConfig,
     AutonomousDetectionService,
     DataProfile,
 )
-from pynomaly.domain.entities import Dataset
+from monorepo.domain.entities import Dataset
 
 
 @pytest.fixture

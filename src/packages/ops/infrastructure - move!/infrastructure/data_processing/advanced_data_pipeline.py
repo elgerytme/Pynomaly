@@ -24,8 +24,8 @@ from sklearn.preprocessing import (
     StandardScaler,
 )
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import DataValidationError
 
 
 class PreprocessingStep(Enum):

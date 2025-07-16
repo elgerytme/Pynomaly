@@ -5,7 +5,7 @@ Basic tests for demo functions.
 import numpy as np
 import pytest
 
-from src.pynomaly.demo_functions import (
+from src.monorepo.demo_functions import (
     add_numbers,
     calculate_distance,
     clean_data,

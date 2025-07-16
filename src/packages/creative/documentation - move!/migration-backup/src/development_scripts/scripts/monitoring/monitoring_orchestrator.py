@@ -21,10 +21,10 @@ from prometheus_client import (
 
 # Import our tested monitoring components
 try:
-    from pynomaly.infrastructure.logging.structured_logger import StructuredLogger
-    from pynomaly.infrastructure.monitoring.health_service import HealthService
-    from pynomaly.infrastructure.monitoring.metrics_service import MetricsService
-    from pynomaly.infrastructure.security.threat_detection import ThreatDetector
+    from monorepo.infrastructure.logging.structured_logger import StructuredLogger
+    from monorepo.infrastructure.monitoring.health_service import HealthService
+    from monorepo.infrastructure.monitoring.metrics_service import MetricsService
+    from monorepo.infrastructure.security.threat_detection import ThreatDetector
 except ImportError:
     # Use mocks if not available
     import sys
@@ -33,10 +33,10 @@ except ImportError:
     from test_performance_security_mocks import patch_imports
 
     patch_imports()
-    from pynomaly.infrastructure.logging.structured_logger import StructuredLogger
-    from pynomaly.infrastructure.monitoring.health_service import HealthService
-    from pynomaly.infrastructure.monitoring.metrics_service import MetricsService
-    from pynomaly.infrastructure.security.threat_detection import ThreatDetector
+    from monorepo.infrastructure.logging.structured_logger import StructuredLogger
+    from monorepo.infrastructure.monitoring.health_service import HealthService
+    from monorepo.infrastructure.monitoring.metrics_service import MetricsService
+    from monorepo.infrastructure.security.threat_detection import ThreatDetector
 
 
 @dataclass
@@ -128,7 +128,7 @@ class MonitoringOrchestrator:
                 duration=300,  # 5 minutes
                 severity="warning",
                 description="High CPU usage detected",
-                runbook_url="https://runbooks.pynomaly.com/high-cpu",
+                runbook_url="https://runbooks.monorepo.com/high-cpu",
             ),
             AlertRule(
                 name="critical_cpu_usage",
@@ -138,7 +138,7 @@ class MonitoringOrchestrator:
                 duration=60,  # 1 minute
                 severity="critical",
                 description="Critical CPU usage detected",
-                runbook_url="https://runbooks.pynomaly.com/critical-cpu",
+                runbook_url="https://runbooks.monorepo.com/critical-cpu",
             ),
             AlertRule(
                 name="high_memory_usage",
@@ -148,7 +148,7 @@ class MonitoringOrchestrator:
                 duration=300,
                 severity="warning",
                 description="High memory usage detected",
-                runbook_url="https://runbooks.pynomaly.com/high-memory",
+                runbook_url="https://runbooks.monorepo.com/high-memory",
             ),
             AlertRule(
                 name="critical_memory_usage",
@@ -158,7 +158,7 @@ class MonitoringOrchestrator:
                 duration=60,
                 severity="critical",
                 description="Critical memory usage detected",
-                runbook_url="https://runbooks.pynomaly.com/critical-memory",
+                runbook_url="https://runbooks.monorepo.com/critical-memory",
             ),
             # Application Health Alerts
             AlertRule(
@@ -169,7 +169,7 @@ class MonitoringOrchestrator:
                 duration=180,
                 severity="warning",
                 description="API response time is high",
-                runbook_url="https://runbooks.pynomaly.com/slow-api",
+                runbook_url="https://runbooks.monorepo.com/slow-api",
             ),
             AlertRule(
                 name="error_rate_high",
@@ -179,7 +179,7 @@ class MonitoringOrchestrator:
                 duration=120,
                 severity="critical",
                 description="High error rate detected",
-                runbook_url="https://runbooks.pynomaly.com/high-errors",
+                runbook_url="https://runbooks.monorepo.com/high-errors",
             ),
             AlertRule(
                 name="database_connection_issues",
@@ -189,7 +189,7 @@ class MonitoringOrchestrator:
                 duration=60,
                 severity="critical",
                 description="Database connection issues detected",
-                runbook_url="https://runbooks.pynomaly.com/database-issues",
+                runbook_url="https://runbooks.monorepo.com/database-issues",
             ),
             # Security Alerts
             AlertRule(
@@ -200,7 +200,7 @@ class MonitoringOrchestrator:
                 duration=0,  # Immediate
                 severity="critical",
                 description="High-level security threat detected",
-                runbook_url="https://runbooks.pynomaly.com/security-incident",
+                runbook_url="https://runbooks.monorepo.com/security-incident",
             ),
             AlertRule(
                 name="failed_authentication_spike",
@@ -210,7 +210,7 @@ class MonitoringOrchestrator:
                 duration=60,
                 severity="warning",
                 description="Spike in failed authentication attempts",
-                runbook_url="https://runbooks.pynomaly.com/auth-spike",
+                runbook_url="https://runbooks.monorepo.com/auth-spike",
             ),
         ]
 

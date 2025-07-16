@@ -12,10 +12,10 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.dto.export_options import ExportOptions
-from pynomaly.domain.entities import Anomaly, DetectionResult
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.shared.protocols.export_protocol import ExportProtocol
+from monorepo.application.dto.export_options import ExportOptions
+from monorepo.domain.entities import Anomaly, DetectionResult
+from monorepo.domain.value_objects import AnomalyScore
+from monorepo.shared.protocols.export_protocol import ExportProtocol
 
 
 class MockExportOptions:

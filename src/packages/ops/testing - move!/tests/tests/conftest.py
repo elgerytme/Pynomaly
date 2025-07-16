@@ -77,7 +77,7 @@ def sample_data() -> pd.DataFrame:
 def sample_dataset(sample_data):
     """Create sample dataset entity."""
     try:
-        from pynomaly.domain.entities import Dataset
+        from monorepo.domain.entities import Dataset
 
         return Dataset(name="test_dataset", data=sample_data)
     except ImportError:
@@ -133,7 +133,7 @@ def isolate_tests():
     test_modules_to_clear = [
         mod
         for mod in sys.modules.keys()
-        if "pynomaly" in mod
+        if "monorepo" in mod
         and any(test_path in mod for test_path in ["test_", "_test"])
     ]
 

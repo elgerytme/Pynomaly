@@ -13,7 +13,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.experiment_tracking_service import (
+from monorepo.application.services.experiment_tracking_service import (
     ExperimentTrackingService,
 )
 
@@ -901,7 +901,7 @@ class TestExperimentTrackingService:
     ):
         """Test that timestamps are properly recorded."""
         with patch(
-            "pynomaly.application.services.experiment_tracking_service.datetime"
+            "monorepo.application.services.experiment_tracking_service.datetime"
         ) as mock_datetime:
             mock_time = datetime(2023, 1, 1, 12, 0, 0)
             mock_datetime.utcnow.return_value = mock_time

@@ -8,7 +8,7 @@ import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from pynomaly.presentation.web.security_features import (
+from monorepo.presentation.web.security_features import (
     RateLimiter,
     SecurityEvent,
     SecurityEventType,
@@ -242,7 +242,7 @@ class TestWebApplicationFirewall:
         assert waf.is_whitelisted("::1")
         assert waf.is_whitelisted("localhost")
 
-    @patch("pynomaly.presentation.web.security_features.Request")
+    @patch("monorepo.presentation.web.security_features.Request")
     def test_request_analysis(self, mock_request):
         """Test comprehensive request analysis."""
         waf = WebApplicationFirewall()
@@ -464,7 +464,7 @@ class TestSecurityIntegration:
         app = FastAPI()
 
         # Add security middleware
-        from pynomaly.presentation.web.security_features import (
+        from monorepo.presentation.web.security_features import (
             SecurityMiddleware,
             get_rate_limiter,
             get_waf,
@@ -495,7 +495,7 @@ class TestSecurityIntegration:
         app = FastAPI()
 
         # Add security middleware
-        from pynomaly.presentation.web.security_features import (
+        from monorepo.presentation.web.security_features import (
             SecurityMiddleware,
             get_rate_limiter,
             get_waf,
@@ -526,7 +526,7 @@ class TestSecurityIntegration:
         app = FastAPI()
 
         # Add security middleware
-        from pynomaly.presentation.web.security_features import (
+        from monorepo.presentation.web.security_features import (
             SecurityMiddleware,
             get_rate_limiter,
             get_waf,

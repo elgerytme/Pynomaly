@@ -16,11 +16,11 @@ from prometheus_client import Counter, Gauge, Histogram, generate_latest
 from prometheus_client.exposition import choose_encoder
 from pydantic import BaseModel, Field
 
-from pynomaly.application.services.deployment_orchestration_service import (
+from monorepo.application.services.deployment_orchestration_service import (
     DeploymentOrchestrationService,
 )
-from pynomaly.application.services.model_registry_service import ModelRegistryService
-from pynomaly.domain.entities.deployment import Environment
+from monorepo.application.services.model_registry_service import ModelRegistryService
+from monorepo.domain.entities.deployment import Environment
 
 # Prometheus metrics
 PREDICTION_COUNTER = Counter(

@@ -9,9 +9,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import InvalidDataError
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.exceptions import InvalidDataError
+from monorepo.domain.value_objects import AnomalyScore
 
 
 class MockDetector(Detector):
@@ -24,7 +24,7 @@ class MockDetector(Detector):
 
     def detect(self, dataset: Dataset) -> DetectionResult:
         """Dummy detect implementation."""
-        from pynomaly.domain.entities.detection_result import DetectionResult
+        from monorepo.domain.entities.detection_result import DetectionResult
 
         return DetectionResult(
             detector_id=self.id,

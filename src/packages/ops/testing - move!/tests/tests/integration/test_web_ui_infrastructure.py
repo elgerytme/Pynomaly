@@ -6,7 +6,7 @@ import time
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.presentation.api.app import create_app
+from monorepo.presentation.api.app import create_app
 
 
 class TestWebUIInfrastructure:
@@ -323,7 +323,7 @@ class TestWebUIInfrastructureAsync:
         """Test handling of concurrent requests."""
         from httpx import AsyncClient
 
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app()
 
@@ -346,7 +346,7 @@ class TestWebUIInfrastructureAsync:
         """Test that monitoring doesn't significantly impact performance."""
         from httpx import AsyncClient
 
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app()
 

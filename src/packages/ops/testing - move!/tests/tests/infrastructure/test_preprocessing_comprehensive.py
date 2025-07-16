@@ -10,19 +10,19 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.preprocessing.data_cleaner import (
+from monorepo.domain.entities import Dataset
+from monorepo.infrastructure.preprocessing.data_cleaner import (
     DataCleaner,
     MissingValueStrategy,
     OutlierStrategy,
 )
-from pynomaly.infrastructure.preprocessing.data_transformer import (
+from monorepo.infrastructure.preprocessing.data_transformer import (
     DataTransformer,
     EncodingStrategy,
     FeatureSelectionStrategy,
     ScalingStrategy,
 )
-from pynomaly.infrastructure.preprocessing.preprocessing_pipeline import (
+from monorepo.infrastructure.preprocessing.preprocessing_pipeline import (
     PipelineConfig,
     PreprocessingPipeline,
     PreprocessingStep,

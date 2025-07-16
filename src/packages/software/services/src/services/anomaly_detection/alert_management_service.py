@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import (
+from monorepo.domain.entities import (
     Alert,
     AlertCondition,
     AlertNotification,
@@ -15,8 +15,8 @@ from pynomaly.domain.entities import (
     AlertType,
     NotificationChannel,
 )
-from pynomaly.domain.exceptions import AlertNotFoundError, InvalidAlertStateError
-from pynomaly.shared.protocols import (
+from monorepo.domain.exceptions import AlertNotFoundError, InvalidAlertStateError
+from monorepo.shared.protocols import (
     AlertNotificationRepositoryProtocol,
     AlertRepositoryProtocol,
 )

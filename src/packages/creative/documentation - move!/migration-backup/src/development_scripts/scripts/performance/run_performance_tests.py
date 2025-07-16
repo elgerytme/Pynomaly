@@ -63,7 +63,7 @@ class LocalPerformanceRunner:
                     sys.executable,
                     "-m",
                     "uvicorn",
-                    "pynomaly.presentation.api.app:app",
+                    "monorepo.presentation.api.app:app",
                     "--host",
                     "0.0.0.0",
                     "--port",

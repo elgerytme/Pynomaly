@@ -12,9 +12,9 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.domain.entities import Detector
-from pynomaly.domain.exceptions import DetectorError, TrainingError
-from pynomaly.shared.protocols import DetectorProtocol
+from monorepo.domain.entities import Detector
+from monorepo.domain.exceptions import DetectorError, TrainingError
+from monorepo.shared.protocols import DetectorProtocol
 
 # Optional auto-sklearn2 import
 try:

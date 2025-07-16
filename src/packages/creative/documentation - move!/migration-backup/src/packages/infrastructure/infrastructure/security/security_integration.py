@@ -12,9 +12,9 @@ import os
 import sys
 from typing import Any
 
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.security.secure_database import get_query_auditor
-from pynomaly.infrastructure.security.security_hardening import (
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.security.secure_database import get_query_auditor
+from monorepo.infrastructure.security.security_hardening import (
     SecureConfigurationManager,
     get_config_manager,
     get_input_validator,

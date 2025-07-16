@@ -203,7 +203,7 @@ def main():
             [
                 python_path,
                 "-c",
-                "import pynomaly; from pynomaly.domain.entities import Dataset; print('✅ Core imports successful')",
+                "import monorepo; from monorepo.domain.entities import Dataset; print('✅ Core imports successful')",
             ],
             allow_failure=True,
         )
@@ -228,20 +228,20 @@ def main():
 
     print("\n2. Test basic functionality:")
     print(
-        f"   {python_path} -c \"import pynomaly; print('Pynomaly imported successfully')\""
+        f"   {python_path} -c \"import monorepo; print('Pynomaly imported successfully')\""
     )
 
     print("\n3. Run the CLI (requires CLI extras):")
     print("   # Install CLI support first:")
     print(f'   {python_path} -m pip install -e ".[cli]"')
     print("   # Then run CLI:")
-    print("   python -m pynomaly.presentation.cli.app --help")
+    print("   python -m monorepo.presentation.cli.app --help")
 
     print("\n4. Start the API server (requires API extras):")
     print("   # Install API support first:")
     print(f'   {python_path} -m pip install -e ".[api]"')
     print("   # Then start server:")
-    print("   python -m uvicorn pynomaly.presentation.api.app:app --reload")
+    print("   python -m uvicorn monorepo.presentation.api.app:app --reload")
 
     print("\n5. Quick server setup (includes API + CLI):")
     print(f'   {python_path} -m pip install -e ".[server]"')
@@ -258,7 +258,7 @@ def main():
         f"   {python_path} -c \"import pandas as pd; print('Pandas version:', pd.__version__)\""
     )
     print(
-        f"   {python_path} -c \"from pynomaly.domain.entities import Dataset; print('Core entities loaded')\""
+        f"   {python_path} -c \"from monorepo.domain.entities import Dataset; print('Core entities loaded')\""
     )
 
     print("\n🔧 For development extras:")

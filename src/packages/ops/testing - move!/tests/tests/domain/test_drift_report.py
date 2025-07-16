@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.domain.entities.drift_report import (
+from monorepo.domain.entities.drift_report import (
     DriftConfiguration,
     DriftDetectionMethod,
     DriftMonitor,

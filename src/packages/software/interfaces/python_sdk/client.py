@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ClientConfig:
     """Configuration for Pynomaly SDK client."""
-    base_url: str = "https://api.pynomaly.com/v1"
+    base_url: str = "https://api.monorepo.com/v1"
     api_key: Optional[str] = None
     timeout: int = 30
     max_retries: int = 3
@@ -473,7 +473,7 @@ class PynomagyClient:
 # Convenience function for creating client
 def create_client(
     api_key: Optional[str] = None,
-    base_url: str = "https://api.pynomaly.com/v1",
+    base_url: str = "https://api.monorepo.com/v1",
     **kwargs
 ) -> PynomagyClient:
     """

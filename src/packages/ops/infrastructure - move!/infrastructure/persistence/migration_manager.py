@@ -13,7 +13,7 @@ from alembic import command
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.script import ScriptDirectory
-from pynomaly.infrastructure.config.settings import Settings
+from monorepo.infrastructure.config.settings import Settings
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class MigrationManager:
             settings = Settings()
             return settings.database_url
         except Exception:
-            return "sqlite:///./storage/pynomaly.db"
+            return "sqlite:///./storage/monorepo.db"
 
     def _get_alembic_config(self) -> Config:
         """Get Alembic configuration."""
@@ -219,7 +219,7 @@ class MigrationManager:
             logger.warning("Resetting database to initial state")
 
             # Drop all tables
-            from pynomaly.infrastructure.repositories.sqlalchemy_user_repository import (
+            from monorepo.infrastructure.repositories.sqlalchemy_user_repository import (
                 Base,
             )
 

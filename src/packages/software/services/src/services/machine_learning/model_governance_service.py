@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities.governance_workflow import (
+from monorepo.domain.entities.governance_workflow import (
     ApprovalRequest,
     ApprovalStatus,
     ApprovalType,
@@ -18,7 +18,7 @@ from pynomaly.domain.entities.governance_workflow import (
     ComplianceViolation,
     WorkflowStatus,
 )
-from pynomaly.shared.protocols.repository_protocol import ModelRepositoryProtocol
+from monorepo.shared.protocols.repository_protocol import ModelRepositoryProtocol
 
 
 class ModelGovernanceService:

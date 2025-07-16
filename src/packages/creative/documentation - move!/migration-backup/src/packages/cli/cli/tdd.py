@@ -12,10 +12,10 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.infrastructure.config.tdd_config import TDDSettings, get_tdd_config
-from pynomaly.infrastructure.persistence.tdd_repository import FileTDDRepository
-from pynomaly.infrastructure.tdd.enforcement import TDDEnforcementEngine
-from pynomaly.infrastructure.tdd.git_hooks import GitHookManager, PreCommitConfig
+from monorepo.infrastructure.config.tdd_config import TDDSettings, get_tdd_config
+from monorepo.infrastructure.persistence.tdd_repository import FileTDDRepository
+from monorepo.infrastructure.tdd.enforcement import TDDEnforcementEngine
+from monorepo.infrastructure.tdd.git_hooks import GitHookManager, PreCommitConfig
 
 # Create Typer app for TDD commands
 app = typer.Typer(

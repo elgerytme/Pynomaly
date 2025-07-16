@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from pynomaly.shared.protocols.repository_protocol import (
+from monorepo.shared.protocols.repository_protocol import (
     AlertNotificationRepositoryProtocol,
     AlertRepositoryProtocol,
     DatasetRepositoryProtocol,

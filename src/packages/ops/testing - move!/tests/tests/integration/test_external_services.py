@@ -10,18 +10,18 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from pynomaly.infrastructure.external.cloud_storage import GCSClient, S3Client
-from pynomaly.infrastructure.external.database_clients import (
+from monorepo.infrastructure.external.cloud_storage import GCSClient, S3Client
+from monorepo.infrastructure.external.database_clients import (
     MongoDBClient,
     PostgreSQLClient,
     RedisClient,
 )
-from pynomaly.infrastructure.external.monitoring import (
+from monorepo.infrastructure.external.monitoring import (
     DatadogClient,
     GrafanaClient,
     PrometheusClient,
 )
-from pynomaly.infrastructure.external.notification import (
+from monorepo.infrastructure.external.notification import (
     EmailClient,
     PagerDutyClient,
     SlackClient,
@@ -212,13 +212,13 @@ class TestDatabaseIntegration:
         primary_config = {
             "host": "primary-db.example.com",
             "port": 5432,
-            "database": "pynomaly",
+            "database": "monorepo",
         }
 
         secondary_config = {
             "host": "secondary-db.example.com",
             "port": 5432,
-            "database": "pynomaly",
+            "database": "monorepo",
         }
 
         with patch("psycopg2.connect") as mock_connect:
@@ -507,12 +507,12 @@ class TestMonitoringIntegration:
             # Test sending custom metrics
             metrics = [
                 {
-                    "metric": "pynomaly.detection.latency",
+                    "metric": "monorepo.detection.latency",
                     "points": [[int(time.time()), 150.5]],
                     "tags": ["detector:isolation_forest", "environment:production"],
                 },
                 {
-                    "metric": "pynomaly.detection.accuracy",
+                    "metric": "monorepo.detection.accuracy",
                     "points": [[int(time.time()), 0.95]],
                     "tags": ["detector:isolation_forest", "environment:production"],
                 },
@@ -525,7 +525,7 @@ class TestMonitoringIntegration:
             # Test creating monitor/alert
             monitor_config = {
                 "type": "metric alert",
-                "query": "avg(last_5m):avg:pynomaly.detection.latency{environment:production} > 500",
+                "query": "avg(last_5m):avg:monorepo.detection.latency{environment:production} > 500",
                 "name": "High Detection Latency",
                 "message": "Detection latency is above 500ms @slack-alerts",
                 "tags": ["service:pynomaly", "team:ml-platform"],
@@ -811,7 +811,7 @@ class TestExternalAPIIntegration:
             }
 
             # Test external model prediction
-            from pynomaly.infrastructure.external.model_apis import ThirdPartyMLAPI
+            from monorepo.infrastructure.external.model_apis import ThirdPartyMLAPI
 
             api_client = ThirdPartyMLAPI(api_config)
 
@@ -858,7 +858,7 @@ class TestExternalAPIIntegration:
             }
 
             # Test data ingestion from external API
-            from pynomaly.infrastructure.external.data_apis import SensorDataAPI
+            from monorepo.infrastructure.external.data_apis import SensorDataAPI
 
             data_api = SensorDataAPI(
                 base_url="https://api.sensors.example.com/v1",
@@ -886,7 +886,7 @@ class TestExternalAPIIntegration:
             mock_post.return_value.status_code = 200
             mock_post.return_value.json.return_value = {"status": "received"}
 
-            from pynomaly.infrastructure.external.webhooks import WebhookSender
+            from monorepo.infrastructure.external.webhooks import WebhookSender
 
             webhook_sender = WebhookSender(webhook_config)
 

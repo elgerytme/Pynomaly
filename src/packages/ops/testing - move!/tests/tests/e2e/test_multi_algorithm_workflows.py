@@ -12,8 +12,8 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from monorepo.infrastructure.config import create_container
+from monorepo.presentation.api.app import create_app
 
 
 class TestMultiAlgorithmWorkflows:

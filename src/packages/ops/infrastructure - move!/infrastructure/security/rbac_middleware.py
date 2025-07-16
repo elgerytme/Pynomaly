@@ -15,11 +15,11 @@ from uuid import UUID
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from pynomaly.domain.entities.user import Permission, User, UserRole
-from pynomaly.domain.security.permission_matrix import PermissionMatrix
-from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, get_auth
-from pynomaly.infrastructure.config.settings import get_settings
-from pynomaly.infrastructure.security.rbac_service import RBACService
+from monorepo.domain.entities.user import Permission, User, UserRole
+from monorepo.domain.security.permission_matrix import PermissionMatrix
+from monorepo.infrastructure.auth.jwt_auth import JWTAuthService, get_auth
+from monorepo.infrastructure.config.settings import get_settings
+from monorepo.infrastructure.security.rbac_service import RBACService
 
 logger = logging.getLogger(__name__)
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -368,7 +368,7 @@ async def get_rbac_service() -> RBACService:
     """Get RBAC service instance."""
     # This would be injected from container in production
     settings = get_settings()
-    from pynomaly.domain.models.security import SecurityPolicy
+    from monorepo.domain.models.security import SecurityPolicy
 
     security_policy = SecurityPolicy(
         password_min_length=8,

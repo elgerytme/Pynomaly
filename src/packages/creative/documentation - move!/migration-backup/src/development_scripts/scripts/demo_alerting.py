@@ -91,7 +91,7 @@ class AlertingDemo:
             {
                 "name": "Anomaly Detection Rate",
                 "description": "Alert when anomaly detection rate is unusual",
-                "metric_name": "pynomaly.anomaly_rate",
+                "metric_name": "monorepo.anomaly_rate",
                 "condition": ">",
                 "threshold": "0.1",
                 "duration": 180,
@@ -148,7 +148,7 @@ class AlertingDemo:
                 "metadata": {"host": "web-server-01", "datacenter": "us-east-1"},
             },
             {
-                "metric_name": "pynomaly.anomaly_rate",
+                "metric_name": "monorepo.anomaly_rate",
                 "value": 0.15,  # Above threshold
                 "metadata": {"detector": "isolation-forest", "dataset": "production"},
             },

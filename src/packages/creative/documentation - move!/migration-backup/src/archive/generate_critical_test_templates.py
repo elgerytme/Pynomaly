@@ -53,17 +53,17 @@ def get_test_template(test_type: str, test_path: str) -> str:
 
     # Determine import path
     if "shared/protocols" in test_path:
-        import_path = f"pynomaly.shared.protocols.{module_name}"
+        import_path = f"monorepo.shared.protocols.{module_name}"
     elif "shared" in test_path:
-        import_path = f"pynomaly.shared.{module_name}"
+        import_path = f"monorepo.shared.{module_name}"
     elif "domain/value_objects" in test_path:
-        import_path = f"pynomaly.domain.value_objects.{module_name}"
+        import_path = f"monorepo.domain.value_objects.{module_name}"
     elif "domain/exceptions" in test_path:
-        import_path = f"pynomaly.domain.exceptions.{module_name}"
+        import_path = f"monorepo.domain.exceptions.{module_name}"
     elif "application/dto" in test_path:
-        import_path = f"pynomaly.application.dto.{module_name}"
+        import_path = f"monorepo.application.dto.{module_name}"
     else:
-        import_path = f"pynomaly.{module_name}"
+        import_path = f"monorepo.{module_name}"
 
     base_template = f'''"""
 Test cases for {import_path}

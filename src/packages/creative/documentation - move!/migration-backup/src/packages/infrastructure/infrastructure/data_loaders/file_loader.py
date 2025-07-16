@@ -9,7 +9,7 @@ from typing import Any, Protocol
 
 import pandas as pd
 
-from pynomaly.domain.entities.dataset import Dataset
+from monorepo.domain.entities.dataset import Dataset
 
 logger = logging.getLogger(__name__)
 

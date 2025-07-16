@@ -7,13 +7,13 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
-from pynomaly_detection.application.services.task_tracking_service import (
+from monorepo.application.services.task_tracking_service import (
     TaskInfo,
     TaskTrackingService,
 )
-from pynomaly_detection.infrastructure.auth import create_websocket_auth_dependency, get_auth
-from pynomaly_detection.infrastructure.config import Container
-from pynomaly_detection.presentation.api.deps import get_container
+from monorepo.infrastructure.auth import create_websocket_auth_dependency, get_auth
+from monorepo.infrastructure.config import Container
+from monorepo.presentation.api.deps import get_container
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

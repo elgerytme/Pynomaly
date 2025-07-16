@@ -115,10 +115,10 @@ def run_import_performance_test() -> dict[str, float]:
 
     # Test core imports
     import_tests = [
-        ("pynomaly.domain.entities", "domain_entities"),
-        ("pynomaly.application.services", "application_services"),
-        ("pynomaly.infrastructure.adapters", "infrastructure_adapters"),
-        ("pynomaly.presentation.cli", "presentation_cli"),
+        ("monorepo.domain.entities", "domain_entities"),
+        ("monorepo.application.services", "application_services"),
+        ("monorepo.infrastructure.adapters", "infrastructure_adapters"),
+        ("monorepo.presentation.cli", "presentation_cli"),
     ]
 
     for module_name, test_name in import_tests:
@@ -143,8 +143,8 @@ def run_basic_functionality_test() -> dict[str, float]:
 
         import numpy as np
 
-        from pynomaly.domain.entities import Dataset
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.domain.entities import Dataset
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         # Create simple test data
         data = np.random.rand(100, 5)
@@ -230,7 +230,7 @@ def run_startup_performance_test() -> dict[str, float]:
         # Test container initialization
         start_time = time.time()
 
-        from pynomaly.infrastructure.config.container import create_container
+        from monorepo.infrastructure.config.container import create_container
 
         create_container(testing=True)
 

@@ -7,9 +7,9 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.infrastructure.data_loaders.excel_loader import ExcelLoader
-from pynomaly.infrastructure.data_loaders.json_loader import JSONLoader
+from monorepo.domain.exceptions import DataValidationError
+from monorepo.infrastructure.data_loaders.excel_loader import ExcelLoader
+from monorepo.infrastructure.data_loaders.json_loader import JSONLoader
 
 
 class TestJSONLoader:

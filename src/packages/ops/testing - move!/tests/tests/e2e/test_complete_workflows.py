@@ -11,15 +11,15 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.detection_service import DetectionService
-from pynomaly.application.use_cases.detect_anomalies import DetectAnomalies
-from pynomaly.application.use_cases.evaluate_model import EvaluateModel
-from pynomaly.application.use_cases.train_detector import TrainDetector
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
-from pynomaly.infrastructure.persistence.data_loader import DataLoader
-from pynomaly.infrastructure.persistence.model_repository import ModelRepository
+from monorepo.application.services.detection_service import DetectionService
+from monorepo.application.use_cases.detect_anomalies import DetectAnomalies
+from monorepo.application.use_cases.evaluate_model import EvaluateModel
+from monorepo.application.use_cases.train_detector import TrainDetector
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.infrastructure.persistence.data_loader import DataLoader
+from monorepo.infrastructure.persistence.model_repository import ModelRepository
 
 
 class TestCompleteAnomalyDetectionWorkflow:
@@ -66,7 +66,7 @@ class TestCompleteAnomalyDetectionWorkflow:
 
         # Step 1: Data Ingestion
         with patch(
-            "pynomaly.infrastructure.persistence.data_loader.DataLoader.load_csv"
+            "monorepo.infrastructure.persistence.data_loader.DataLoader.load_csv"
         ) as mock_load:
             mock_dataset = Mock(spec=Dataset)
             mock_dataset.data = np.random.randn(1000, 5)
@@ -88,7 +88,7 @@ class TestCompleteAnomalyDetectionWorkflow:
 
         # Step 2: Model Training
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
         ) as mock_fit:
             mock_detector = Mock(spec=Detector)
             mock_detector.id = "isolation_forest_detector"
@@ -117,7 +117,7 @@ class TestCompleteAnomalyDetectionWorkflow:
 
         # Step 4: Anomaly Detection
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter.predict"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter.predict"
         ) as mock_predict:
             mock_result = Mock(spec=DetectionResult)
             mock_result.anomaly_scores = [AnomalyScore(0.1) for _ in range(200)]
@@ -147,7 +147,7 @@ class TestCompleteAnomalyDetectionWorkflow:
 
         with (
             patch(
-                "pynomaly.infrastructure.persistence.data_loader.DataLoader.load_csv"
+                "monorepo.infrastructure.persistence.data_loader.DataLoader.load_csv"
             ) as mock_load,
             patch("sklearn.model_selection.cross_val_score") as mock_cv,
         ):
@@ -189,7 +189,7 @@ class TestCompleteAnomalyDetectionWorkflow:
                 return_value=mock_detector,
             ),
             patch(
-                "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter.predict"
+                "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter.predict"
             ) as mock_predict,
         ):
             # Mock streaming predictions
@@ -241,7 +241,7 @@ class TestCompleteAnomalyDetectionWorkflow:
                 return_value=mock_detector,
             ),
             patch(
-                "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter.predict"
+                "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter.predict"
             ) as mock_predict,
         ):
             # Mock batch predictions
@@ -287,7 +287,7 @@ class TestCompleteAnomalyDetectionWorkflow:
         initial_dataset.id = "initial_dataset"
 
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
         ) as mock_fit:
             mock_detector_v1 = Mock(spec=Detector)
             mock_detector_v1.id = "detector_v1"
@@ -330,7 +330,7 @@ class TestCompleteAnomalyDetectionWorkflow:
         new_dataset.id = "expanded_dataset"
 
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
         ) as mock_retrain:
             mock_detector_v2 = Mock(spec=Detector)
             mock_detector_v2.id = "detector_v2"
@@ -360,7 +360,7 @@ class TestCompleteAnomalyDetectionWorkflow:
         # Train multiple models
         for algorithm in algorithms:
             with patch(
-                "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
+                "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
             ) as mock_fit:
                 mock_detector = Mock(spec=Detector)
                 mock_detector.id = f"{algorithm.lower()}_detector"
@@ -388,7 +388,7 @@ class TestCompleteAnomalyDetectionWorkflow:
                     return_value=detector,
                 ),
                 patch(
-                    "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter.predict"
+                    "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter.predict"
                 ) as mock_predict,
             ):
                 mock_result = Mock(spec=DetectionResult)
@@ -426,7 +426,7 @@ class TestCompleteAnomalyDetectionWorkflow:
 
         # Train initial model
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
         ) as mock_fit:
             mock_detector = Mock(spec=Detector)
             mock_detector.id = "drift_detector"
@@ -451,7 +451,7 @@ class TestCompleteAnomalyDetectionWorkflow:
         drifted_data = np.random.normal(2, 1.5, (500, 5))  # Shifted mean and scale
 
         # Detect data drift
-        from pynomaly.infrastructure.monitoring.drift_detector import DriftDetector
+        from monorepo.infrastructure.monitoring.drift_detector import DriftDetector
 
         drift_detector = DriftDetector()
 
@@ -476,7 +476,7 @@ class TestCompleteAnomalyDetectionWorkflow:
             combined_data.id = "adapted_dataset"
 
             with patch(
-                "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
+                "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter.fit"
             ) as mock_retrain:
                 mock_adapted_detector = Mock(spec=Detector)
                 mock_adapted_detector.id = "adapted_detector"
@@ -498,7 +498,7 @@ class TestMLOpsWorkflow:
     def test_model_versioning_workflow(self):
         """Test model versioning and lifecycle management."""
 
-        from pynomaly.infrastructure.mlops.model_versioning import ModelVersionManager
+        from monorepo.infrastructure.mlops.model_versioning import ModelVersionManager
 
         version_manager = ModelVersionManager()
 
@@ -538,7 +538,7 @@ class TestMLOpsWorkflow:
     def test_model_deployment_workflow(self):
         """Test model deployment pipeline."""
 
-        from pynomaly.infrastructure.mlops.deployment import ModelDeployment
+        from monorepo.infrastructure.mlops.deployment import ModelDeployment
 
         deployment_manager = ModelDeployment()
 
@@ -609,7 +609,7 @@ class TestMLOpsWorkflow:
     def test_continuous_monitoring_workflow(self):
         """Test continuous model monitoring workflow."""
 
-        from pynomaly.infrastructure.monitoring.model_monitor import ModelMonitor
+        from monorepo.infrastructure.monitoring.model_monitor import ModelMonitor
 
         monitor = ModelMonitor()
 
@@ -683,7 +683,7 @@ class TestMLOpsWorkflow:
     def test_automated_retraining_workflow(self):
         """Test automated model retraining based on triggers."""
 
-        from pynomaly.infrastructure.mlops.auto_retrain import AutoRetrainManager
+        from monorepo.infrastructure.mlops.auto_retrain import AutoRetrainManager
 
         retrain_manager = AutoRetrainManager()
 
@@ -747,7 +747,7 @@ class TestDataPipelineWorkflow:
     def test_etl_pipeline_workflow(self):
         """Test complete ETL pipeline workflow."""
 
-        from pynomaly.infrastructure.data_pipeline.etl import ETLPipeline
+        from monorepo.infrastructure.data_pipeline.etl import ETLPipeline
 
         etl_pipeline = ETLPipeline()
 
@@ -806,7 +806,7 @@ class TestDataPipelineWorkflow:
     def test_data_validation_pipeline(self):
         """Test data validation pipeline workflow."""
 
-        from pynomaly.infrastructure.data_pipeline.validation import DataValidator
+        from monorepo.infrastructure.data_pipeline.validation import DataValidator
 
         validator = DataValidator()
 
@@ -911,13 +911,13 @@ class TestAPIWorkflow:
 
         from fastapi.testclient import TestClient
 
-        from pynomaly.presentation.api.main import app
+        from monorepo.presentation.api.main import app
 
         client = TestClient(app)
 
         # Step 1: Upload dataset
         with patch(
-            "pynomaly.infrastructure.persistence.data_loader.DataLoader.save_dataset"
+            "monorepo.infrastructure.persistence.data_loader.DataLoader.save_dataset"
         ) as mock_save:
             mock_save.return_value = {"dataset_id": "test_dataset_123"}
 
@@ -934,7 +934,7 @@ class TestAPIWorkflow:
 
         # Step 2: Train model
         with patch(
-            "pynomaly.application.use_cases.train_detector.TrainDetector.execute"
+            "monorepo.application.use_cases.train_detector.TrainDetector.execute"
         ) as mock_train:
             mock_detector = {
                 "detector_id": "test_detector_456",
@@ -957,7 +957,7 @@ class TestAPIWorkflow:
 
         # Step 3: Make predictions
         with patch(
-            "pynomaly.application.use_cases.detect_anomalies.DetectAnomalies.execute"
+            "monorepo.application.use_cases.detect_anomalies.DetectAnomalies.execute"
         ) as mock_predict:
             mock_result = {
                 "predictions": [0, 1, 0, 0, 1],
@@ -982,11 +982,11 @@ class TestAPIWorkflow:
     def test_sdk_workflow(self):
         """Test Python SDK workflow."""
 
-        from pynomaly.presentation.sdk.pynomaly_client import PynomaliClient
+        from monorepo.presentation.sdk.pynomaly_client import PynomaliClient
 
         # Initialize client
         client = PynomaliClient(
-            api_url="https://api.pynomaly.example.com", api_key="test_api_key_123"
+            api_url="https://api.monorepo.example.com", api_key="test_api_key_123"
         )
 
         # Mock HTTP requests

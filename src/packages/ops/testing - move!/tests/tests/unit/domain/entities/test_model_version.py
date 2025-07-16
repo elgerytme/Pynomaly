@@ -11,14 +11,14 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from pynomaly.domain.entities.model_version import ModelStatus, ModelVersion
-from pynomaly.domain.value_objects.model_storage_info import (
+from monorepo.domain.entities.model_version import ModelStatus, ModelVersion
+from monorepo.domain.value_objects.model_storage_info import (
     ModelStorageInfo,
     SerializationFormat,
     StorageBackend,
 )
-from pynomaly.domain.value_objects.performance_metrics import PerformanceMetrics
-from pynomaly.domain.value_objects.semantic_version import SemanticVersion
+from monorepo.domain.value_objects.performance_metrics import PerformanceMetrics
+from monorepo.domain.value_objects.semantic_version import SemanticVersion
 
 
 class TestModelStatus:
@@ -335,7 +335,7 @@ class TestModelVersion:
         # Initially draft
         assert model_version.status == ModelStatus.DRAFT
 
-        with patch('pynomaly.domain.entities.model_version.datetime') as mock_datetime:
+        with patch('monorepo.domain.entities.model_version.datetime') as mock_datetime:
             mock_now = datetime(2024, 1, 1, 12, 0, 0)
             mock_datetime.utcnow.return_value = mock_now
 
@@ -348,7 +348,7 @@ class TestModelVersion:
         """Test updating metadata."""
         model_version = self.create_valid_model_version()
 
-        with patch('pynomaly.domain.entities.model_version.datetime') as mock_datetime:
+        with patch('monorepo.domain.entities.model_version.datetime') as mock_datetime:
             mock_now = datetime(2024, 1, 1, 12, 0, 0)
             mock_datetime.utcnow.return_value = mock_now
 

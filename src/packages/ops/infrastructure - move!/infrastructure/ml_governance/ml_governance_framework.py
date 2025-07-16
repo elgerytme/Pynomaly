@@ -372,7 +372,7 @@ class DeploymentManager:
             )
 
         deployment_result["status"] = "completed"
-        deployment_result["deployment_url"] = f"https://models.pynomaly.com/{model.id}"
+        deployment_result["deployment_url"] = f"https://models.monorepo.com/{model.id}"
 
         return deployment_result
 

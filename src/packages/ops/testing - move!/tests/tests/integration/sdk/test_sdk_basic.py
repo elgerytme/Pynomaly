@@ -28,7 +28,7 @@ def test_basic_imports():
         print("✅ Infrastructure adapters import successful")
 
         # Test basic SDK models without async client
-        from pynomaly.presentation.sdk.models import AnomalyScore, DetectionConfig
+        from monorepo.presentation.sdk.models import AnomalyScore, DetectionConfig
 
         print("✅ SDK models import successful")
 

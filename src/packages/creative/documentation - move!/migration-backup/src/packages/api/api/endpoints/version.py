@@ -3,7 +3,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from pynomaly.presentation.api.versioning import get_version_manager
+from monorepo.presentation.api.versioning import get_version_manager
 
 router = APIRouter()
 

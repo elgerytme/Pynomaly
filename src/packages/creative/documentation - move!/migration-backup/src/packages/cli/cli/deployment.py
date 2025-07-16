@@ -12,11 +12,11 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.application.services.deployment_orchestration_service import (
+from monorepo.application.services.deployment_orchestration_service import (
     DeploymentOrchestrationService,
 )
-from pynomaly.application.services.model_registry_service import ModelRegistryService
-from pynomaly.domain.entities.deployment import (
+from monorepo.application.services.model_registry_service import ModelRegistryService
+from monorepo.domain.entities.deployment import (
     DeploymentConfig,
     DeploymentStrategy,
     Environment,
@@ -537,7 +537,7 @@ def start_model_server(
         try:
             # Start server using uvicorn
             config = uvicorn.Config(
-                "pynomaly.infrastructure.serving.model_server_main:app",
+                "monorepo.infrastructure.serving.model_server_main:app",
                 host=host,
                 port=port,
                 workers=workers if workers > 1 else None,

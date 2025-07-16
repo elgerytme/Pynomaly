@@ -78,7 +78,7 @@ class TestJWTAuthentication:
         token = security_client.create_jwt_token()
 
         # Mock the authentication middleware to accept our token
-        with patch("pynomaly.infrastructure.auth.jwt_auth.get_auth") as mock_get_auth:
+        with patch("monorepo.infrastructure.auth.jwt_auth.get_auth") as mock_get_auth:
             mock_auth = Mock()
             mock_auth.decode_token.return_value = Mock(sub="test_user", roles=["user"])
             mock_get_auth.return_value = mock_auth
@@ -313,14 +313,14 @@ class TestSecurityHeaders:
         """Test CORS configuration."""
         # Test that CORS is properly configured
         cors_config = {
-            "allow_origins": ["https://app.pynomaly.io"],
+            "allow_origins": ["https://app.monorepo.io"],
             "allow_methods": ["GET", "POST", "PUT", "DELETE"],
             "allow_headers": ["Authorization", "Content-Type"],
             "allow_credentials": True,
         }
 
         # Verify restrictive CORS policy
-        assert "https://app.pynomaly.io" in cors_config["allow_origins"]
+        assert "https://app.monorepo.io" in cors_config["allow_origins"]
         assert "*" not in cors_config["allow_origins"]  # Should not allow all origins
         assert cors_config["allow_credentials"] is True
 

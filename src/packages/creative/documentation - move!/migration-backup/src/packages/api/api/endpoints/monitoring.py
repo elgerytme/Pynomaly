@@ -5,21 +5,21 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel
 
-from pynomaly.infrastructure.auth import (
+from monorepo.infrastructure.auth import (
     UserModel,
     require_super_admin,
     require_tenant_admin,
 )
-from pynomaly.infrastructure.monitoring.health_checks import (
+from monorepo.infrastructure.monitoring.health_checks import (
     ProbeResponse,
     SystemHealth,
     get_health_checker,
     liveness_probe,
     readiness_probe,
 )
-from pynomaly.infrastructure.monitoring.prometheus_metrics import get_metrics_service
-from pynomaly.infrastructure.monitoring.telemetry import get_telemetry
-from pynomaly.presentation.api.docs.response_models import (
+from monorepo.infrastructure.monitoring.prometheus_metrics import get_metrics_service
+from monorepo.infrastructure.monitoring.telemetry import get_telemetry
+from monorepo.presentation.api.docs.response_models import (
     HTTPResponses,
     SuccessResponse,
 )
@@ -244,7 +244,7 @@ async def readiness_check(response: Response) -> ProbeResponse:
     **Prometheus Configuration:**
     ```yaml
     scrape_configs:
-      - job_name: 'pynomaly'
+      - job_name: 'monorepo'
         static_configs:
           - targets: ['localhost:8000']
         scrape_interval: 30s
@@ -398,7 +398,7 @@ async def get_telemetry_status(
         if telemetry and hasattr(telemetry, "settings"):
             status["configuration"] = {
                 "service_name": getattr(telemetry.settings, "app", {}).get(
-                    "name", "pynomaly"
+                    "name", "monorepo"
                 ),
                 "environment": getattr(telemetry.settings, "app", {}).get(
                     "environment", "unknown"

@@ -356,8 +356,8 @@ class ProductionDeploymentExecutor:
                 )
 
             monitoring_info = {
-                "prometheus_url": "https://prometheus.pynomaly.io",
-                "grafana_url": "https://grafana.pynomaly.io",
+                "prometheus_url": "https://prometheus.monorepo.io",
+                "grafana_url": "https://grafana.monorepo.io",
                 "alert_channels": ["email", "slack", "pagerduty"],
                 "retention_period": "30 days",
             }
@@ -397,10 +397,10 @@ class ProductionDeploymentExecutor:
                 self.log_deployment_step("Finalization", "SUCCESS", f"{task} completed")
 
             production_info = {
-                "production_url": "https://api.pynomaly.io",
-                "dashboard_url": "https://app.pynomaly.io",
-                "documentation_url": "https://docs.pynomaly.io",
-                "status_page": "https://status.pynomaly.io",
+                "production_url": "https://api.monorepo.io",
+                "dashboard_url": "https://app.monorepo.io",
+                "documentation_url": "https://docs.monorepo.io",
+                "status_page": "https://status.monorepo.io",
             }
 
             self.log_deployment_step(
@@ -449,10 +449,10 @@ class ProductionDeploymentExecutor:
                 else "0%",
             },
             "production_urls": {
-                "api": "https://api.pynomaly.io",
-                "dashboard": "https://app.pynomaly.io",
-                "docs": "https://docs.pynomaly.io",
-                "monitoring": "https://grafana.pynomaly.io",
+                "api": "https://api.monorepo.io",
+                "dashboard": "https://app.monorepo.io",
+                "docs": "https://docs.monorepo.io",
+                "monitoring": "https://grafana.monorepo.io",
             },
             "deployment_log": self.deployment_log,
         }

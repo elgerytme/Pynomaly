@@ -29,7 +29,7 @@ class TestPerformanceBenchmarks:
         latency_results = {}
 
         for algorithm in algorithms:
-            from pynomaly.domain.value_objects import (
+            from monorepo.domain.value_objects import (
                 AlgorithmType,
                 DetectorConfig,
                 ModelType,
@@ -44,7 +44,7 @@ class TestPerformanceBenchmarks:
                 },
             )
 
-            from pynomaly.domain.models import Detector
+            from monorepo.domain.models import Detector
             detector = Detector(name=f"{algorithm}_latency_benchmark", config=config)
 
             # Train detector
@@ -111,7 +111,7 @@ class TestPerformanceBenchmarks:
         memory_results = {}
 
         for algorithm in algorithms:
-            from pynomaly.domain.value_objects import (
+            from monorepo.domain.value_objects import (
                 AlgorithmType,
                 DetectorConfig,
                 ModelType,
@@ -126,7 +126,7 @@ class TestPerformanceBenchmarks:
                 },
             )
 
-            from pynomaly.domain.models import Detector
+            from monorepo.domain.models import Detector
             detector = Detector(name=f"{algorithm}_memory_benchmark", config=config)
 
             # Measure memory during training
@@ -255,7 +255,7 @@ class TestPerformanceBenchmarks:
         # Create and train multiple detectors
         detectors = []
         for i in range(10):
-            from pynomaly.domain.value_objects import (
+            from monorepo.domain.value_objects import (
                 AlgorithmType,
                 DetectorConfig,
                 ModelType,
@@ -270,7 +270,7 @@ class TestPerformanceBenchmarks:
                 },
             )
 
-            from pynomaly.domain.models import Detector
+            from monorepo.domain.models import Detector
             detector = Detector(name=f"cleanup_detector_{i}", config=config)
             await detection_service.train_detector(detector, dataset)
             detectors.append(detector)

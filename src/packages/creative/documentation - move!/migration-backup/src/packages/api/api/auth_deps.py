@@ -7,8 +7,8 @@ that work with OpenAPI generation.
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from pynomaly.infrastructure.auth.jwt_auth import UserModel, get_auth
-from pynomaly.infrastructure.config import Container
+from monorepo.infrastructure.auth.jwt_auth import UserModel, get_auth
+from monorepo.infrastructure.config import Container
 
 # Simple security scheme
 security = HTTPBearer(auto_error=False)

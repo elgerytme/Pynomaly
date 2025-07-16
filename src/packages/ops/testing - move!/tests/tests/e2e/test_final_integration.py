@@ -37,7 +37,7 @@ class FinalIntegrationTester:
         """Test comprehensive CLI functionality"""
         print("\n🔍 Testing CLI Functionality...")
 
-        cli_wrapper = self.project_root / "run_pynomaly.py"
+        cli_wrapper = self.project_root / "run_monorepo.py"
 
         tests = {
             "help": ["--help"],
@@ -85,7 +85,7 @@ class FinalIntegrationTester:
 import sys
 sys.path.insert(0, "{self.project_root}/src")
 import uvicorn
-from pynomaly.presentation.api import create_app
+from monorepo.presentation.api import create_app
 
 app = create_app()
 uvicorn.run(app, host="127.0.0.1", port=8006, log_level="error")
@@ -209,9 +209,9 @@ uvicorn.run(app, host="127.0.0.1", port=8006, log_level="error")
         try:
             import pandas as pd
 
-            from pynomaly.domain.entities import Detector
-            from pynomaly.domain.value_objects import ContaminationRate
-            from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+            from monorepo.domain.entities import Detector
+            from monorepo.domain.value_objects import ContaminationRate
+            from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
             # Create test data
             data = pd.DataFrame(
@@ -261,7 +261,7 @@ uvicorn.run(app, host="127.0.0.1", port=8006, log_level="error")
             # Test dataset info command
             result = subprocess.run(
                 [
-                    str(self.project_root / "run_pynomaly.py"),
+                    str(self.project_root / "run_monorepo.py"),
                     "dataset",
                     "info",
                     str(test_file),

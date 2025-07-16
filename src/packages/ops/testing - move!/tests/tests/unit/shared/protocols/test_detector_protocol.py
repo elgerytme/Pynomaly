@@ -6,9 +6,9 @@ from unittest.mock import Mock
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.shared.protocols.detector_protocol import (
+from monorepo.domain.entities import Dataset, DetectionResult
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.shared.protocols.detector_protocol import (
     DetectorProtocol,
     EnsembleDetectorProtocol,
     ExplainableDetectorProtocol,

@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.shared.error_handling import (
+from monorepo.shared.error_handling import (
     ErrorContext,
     ErrorHandler,
     ErrorSeverity,
@@ -156,7 +156,7 @@ class TestErrorHandler:
             except Exception as e:
                 pytest.fail(f"Failed to handle error with severity {severity}: {e}")
 
-    @patch("pynomaly.shared.error_handling.logger")
+    @patch("monorepo.shared.error_handling.logger")
     def test_error_handler_logging(self, mock_logger, error_handler, sample_context):
         """Test that ErrorHandler logs errors appropriately."""
         exception = ValueError("Test logging error")
@@ -232,7 +232,7 @@ class TestErrorHandlingDecorator:
 class TestErrorUtilityFunctions:
     """Test utility functions for error handling."""
 
-    @patch("pynomaly.shared.error_handling.logger")
+    @patch("monorepo.shared.error_handling.logger")
     def test_log_error_function(self, mock_logger):
         """Test standalone log_error function."""
         exception = ValueError("Utility test error")
@@ -310,7 +310,7 @@ class TestErrorHandlingIntegration:
             except Exception as handling_error:
                 pytest.fail(f"Failed to handle nested exception: {handling_error}")
 
-    @patch("pynomaly.shared.error_handling.logger")
+    @patch("monorepo.shared.error_handling.logger")
     def test_error_handling_logging_levels(self, mock_logger):
         """Test that different severity levels use appropriate logging levels."""
         handler = ErrorHandler()

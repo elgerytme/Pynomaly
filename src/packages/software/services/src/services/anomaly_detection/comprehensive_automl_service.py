@@ -25,8 +25,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import AutoMLError
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import AutoMLError
 
 # Optional optimization libraries
 try:

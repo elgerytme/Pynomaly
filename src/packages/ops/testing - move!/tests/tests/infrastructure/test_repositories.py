@@ -7,9 +7,9 @@ from datetime import datetime
 
 import pandas as pd
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.infrastructure.repositories import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import AnomalyScore
+from monorepo.infrastructure.repositories import (
     InMemoryDatasetRepository,
     InMemoryDetectorRepository,
     InMemoryResultRepository,

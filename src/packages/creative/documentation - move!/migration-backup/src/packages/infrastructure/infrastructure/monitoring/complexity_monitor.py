@@ -92,7 +92,7 @@ class ComplexityMonitor:
     def __init__(self, project_root: Path | None = None):
         """Initialize complexity monitor."""
         self.project_root = project_root or Path.cwd()
-        self.src_path = self.project_root / "src" / "pynomaly"
+        self.src_path = self.project_root / "src" / "monorepo"
         self.tests_path = self.project_root / "tests"
         self.metrics_file = self.project_root / "complexity_metrics.json"
 
@@ -241,7 +241,7 @@ class ComplexityMonitor:
         # Measure import time
         start_time = time.time()
         try:
-            import pynomaly
+            import monorepo
 
             metrics["import_time"] = time.time() - start_time
         except ImportError:
@@ -462,8 +462,8 @@ Generated: {metrics.measured_at.strftime("%Y-%m-%d %H:%M:%S")}
                     with open(py_file) as f:
                         content = f.read()
                         if (
-                            "from pynomaly.infrastructure" in content
-                            or "import pynomaly.infrastructure" in content
+                            "from monorepo.infrastructure" in content
+                            or "import monorepo.infrastructure" in content
                         ):
                             violations.append(
                                 f"Domain imports infrastructure: {py_file}"

@@ -11,14 +11,14 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from pynomaly.application.services import (
+from monorepo.application.services import (
     DatasetService,
     DetectionService,
     DetectorService,
 )
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.presentation.web.main import app
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.presentation.web.main import app
 
 
 class TestWebUIMain:
@@ -97,7 +97,7 @@ class TestDashboardRoutes:
     def test_dashboard_stats_endpoint(self, test_client, mock_services):
         """Test dashboard statistics endpoint."""
         with patch.multiple(
-            "pynomaly.presentation.web.routes.dashboard_routes", **mock_services
+            "monorepo.presentation.web.routes.dashboard_routes", **mock_services
         ):
             response = test_client.get("/dashboard/stats")
 
@@ -107,7 +107,7 @@ class TestDashboardRoutes:
     def test_dashboard_recent_activity(self, test_client, mock_services):
         """Test dashboard recent activity."""
         with patch.multiple(
-            "pynomaly.presentation.web.routes.dashboard_routes", **mock_services
+            "monorepo.presentation.web.routes.dashboard_routes", **mock_services
         ):
             response = test_client.get("/dashboard/recent")
 
@@ -146,7 +146,7 @@ class TestDetectorRoutes:
         mock_detector_service.list_detectors.return_value = []
 
         with patch(
-            "pynomaly.presentation.web.routes.detector_routes.get_detector_service"
+            "monorepo.presentation.web.routes.detector_routes.get_detector_service"
         ) as mock_get:
             mock_get.return_value = mock_detector_service
 
@@ -162,7 +162,7 @@ class TestDetectorRoutes:
         mock_detector_service.get_detector.return_value = sample_detector
 
         with patch(
-            "pynomaly.presentation.web.routes.detector_routes.get_detector_service"
+            "monorepo.presentation.web.routes.detector_routes.get_detector_service"
         ) as mock_get:
             mock_get.return_value = mock_detector_service
 
@@ -186,7 +186,7 @@ class TestDetectorRoutes:
         mock_detector_service.create_detector.return_value = sample_detector
 
         with patch(
-            "pynomaly.presentation.web.routes.detector_routes.get_detector_service"
+            "monorepo.presentation.web.routes.detector_routes.get_detector_service"
         ) as mock_get:
             mock_get.return_value = mock_detector_service
 
@@ -209,7 +209,7 @@ class TestDetectorRoutes:
         mock_detector_service.get_detector.return_value = sample_detector
 
         with patch(
-            "pynomaly.presentation.web.routes.detector_routes.get_detector_service"
+            "monorepo.presentation.web.routes.detector_routes.get_detector_service"
         ) as mock_get:
             mock_get.return_value = mock_detector_service
 
@@ -226,7 +226,7 @@ class TestDetectorRoutes:
         mock_detector_service.delete_detector.return_value = True
 
         with patch(
-            "pynomaly.presentation.web.routes.detector_routes.get_detector_service"
+            "monorepo.presentation.web.routes.detector_routes.get_detector_service"
         ) as mock_get:
             mock_get.return_value = mock_detector_service
 
@@ -265,7 +265,7 @@ class TestDatasetRoutes:
         mock_dataset_service.list_datasets.return_value = []
 
         with patch(
-            "pynomaly.presentation.web.routes.dataset_routes.get_dataset_service"
+            "monorepo.presentation.web.routes.dataset_routes.get_dataset_service"
         ) as mock_get:
             mock_get.return_value = mock_dataset_service
 
@@ -281,7 +281,7 @@ class TestDatasetRoutes:
         mock_dataset_service.get_dataset.return_value = sample_dataset
 
         with patch(
-            "pynomaly.presentation.web.routes.dataset_routes.get_dataset_service"
+            "monorepo.presentation.web.routes.dataset_routes.get_dataset_service"
         ) as mock_get:
             mock_get.return_value = mock_dataset_service
 
@@ -311,7 +311,7 @@ class TestDatasetRoutes:
 
         try:
             with patch(
-                "pynomaly.presentation.web.routes.dataset_routes.get_dataset_service"
+                "monorepo.presentation.web.routes.dataset_routes.get_dataset_service"
             ) as mock_get:
                 mock_get.return_value = mock_dataset_service
 
@@ -334,7 +334,7 @@ class TestDatasetRoutes:
         mock_dataset_service.get_dataset.return_value = sample_dataset
 
         with patch(
-            "pynomaly.presentation.web.routes.dataset_routes.get_dataset_service"
+            "monorepo.presentation.web.routes.dataset_routes.get_dataset_service"
         ) as mock_get:
             mock_get.return_value = mock_dataset_service
 
@@ -395,7 +395,7 @@ class TestDetectionRoutes:
         mock_detection_service.get_detection_results.return_value = []
 
         with patch(
-            "pynomaly.presentation.web.routes.detection_routes.get_detection_service"
+            "monorepo.presentation.web.routes.detection_routes.get_detection_service"
         ) as mock_get:
             mock_get.return_value = mock_detection_service
 
@@ -413,7 +413,7 @@ class TestDetectionRoutes:
         )
 
         with patch(
-            "pynomaly.presentation.web.routes.detection_routes.get_detection_service"
+            "monorepo.presentation.web.routes.detection_routes.get_detection_service"
         ) as mock_get:
             mock_get.return_value = mock_detection_service
 
@@ -431,7 +431,7 @@ class TestDetectionRoutes:
         mock_detection_service.detect_anomalies.return_value = sample_detection_result
 
         with patch(
-            "pynomaly.presentation.web.routes.detection_routes.get_detection_service"
+            "monorepo.presentation.web.routes.detection_routes.get_detection_service"
         ) as mock_get:
             mock_get.return_value = mock_detection_service
 
@@ -534,7 +534,7 @@ class TestVisualizationComponents:
     def test_anomaly_scatter_plot(self, test_client, sample_detection_result):
         """Test anomaly scatter plot visualization."""
         with patch(
-            "pynomaly.presentation.web.routes.visualization_routes.get_detection_service"
+            "monorepo.presentation.web.routes.visualization_routes.get_detection_service"
         ) as mock_get:
             mock_service = Mock()
             mock_service.get_detection_result.return_value = sample_detection_result
@@ -553,7 +553,7 @@ class TestVisualizationComponents:
     def test_anomaly_histogram(self, test_client, sample_detection_result):
         """Test anomaly score histogram."""
         with patch(
-            "pynomaly.presentation.web.routes.visualization_routes.get_detection_service"
+            "monorepo.presentation.web.routes.visualization_routes.get_detection_service"
         ) as mock_get:
             mock_service = Mock()
             mock_service.get_detection_result.return_value = sample_detection_result

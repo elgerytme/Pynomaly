@@ -89,7 +89,7 @@ T010,42.15,Supermarket,Local,10,3,0"""
             cmd = [
                 "python3",
                 "-m",
-                "pynomaly",
+                "monorepo",
                 "auto",
                 "detect",
                 str(simple_file),
@@ -160,7 +160,7 @@ T010,42.15,Supermarket,Local,10,3,0"""
             cmd = [
                 "python3",
                 "-m",
-                "pynomaly",
+                "monorepo",
                 "auto",
                 "detect",
                 str(financial_file),
@@ -239,7 +239,7 @@ T010,42.15,Supermarket,Local,10,3,0"""
                 cmd = [
                     "python3",
                     "-m",
-                    "pynomaly",
+                    "monorepo",
                     "export",
                     str(simple_file),
                     "--format",
@@ -314,7 +314,7 @@ T010,42.15,Supermarket,Local,10,3,0"""
             cmd = [
                 "python3",
                 "-m",
-                "pynomaly",
+                "monorepo",
                 "data",
                 "clean",
                 str(messy_file),
@@ -364,7 +364,7 @@ T010,42.15,Supermarket,Local,10,3,0"""
             cmd = [
                 "python3",
                 "-m",
-                "pynomaly",
+                "monorepo",
                 "benchmark",
                 str(simple_file),
                 "--algorithms",
@@ -473,9 +473,9 @@ Demo Types:
   performance   Performance benchmarking
 
 Examples:
-  python demo_pynomaly.py
-  python demo_pynomaly.py --demo autonomous
-  python demo_pynomaly.py --demo export
+  python demo_monorepo.py
+  python demo_monorepo.py --demo autonomous
+  python demo_monorepo.py --demo export
         """,
     )
 

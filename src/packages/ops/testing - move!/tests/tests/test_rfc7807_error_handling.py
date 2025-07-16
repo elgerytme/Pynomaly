@@ -5,12 +5,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 from pydantic import BaseModel, ValidationError
 
-from pynomaly.infrastructure.error_handling.problem_details_handler import (
+from monorepo.infrastructure.error_handling.problem_details_handler import (
     ProblemDetailsResponse,
     add_exception_handlers,
     create_problem_details_response,
 )
-from pynomaly.infrastructure.middleware.correlation_id_middleware import (
+from monorepo.infrastructure.middleware.correlation_id_middleware import (
     add_correlation_id,
 )
 
@@ -186,7 +186,7 @@ def test_dto_extra_forbid():
     """Test that DTOs reject extra fields."""
     from uuid import uuid4
 
-    from pynomaly.application.dto.detection_dto import DetectionRequestDTO
+    from monorepo.application.dto.detection_dto import DetectionRequestDTO
 
     # Valid data should work
     valid_data = {

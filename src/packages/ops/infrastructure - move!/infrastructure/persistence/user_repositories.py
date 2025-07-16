@@ -7,7 +7,7 @@ from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from pynomaly.domain.entities.user import (
+from monorepo.domain.entities.user import (
     Tenant,
     TenantLimits,
     TenantPlan,
@@ -20,22 +20,22 @@ from pynomaly.domain.entities.user import (
     UserTenantRole,
     get_default_permissions,
 )
-from pynomaly.domain.repositories.user_repository import (
+from monorepo.domain.repositories.user_repository import (
     SessionRepositoryProtocol,
     TenantRepositoryProtocol,
     UserRepositoryProtocol,
 )
-from pynomaly.infrastructure.persistence.database_repositories import (
+from monorepo.infrastructure.persistence.database_repositories import (
     TenantModel,
     UserModel,
     UserRoleModel,
 )
-from pynomaly.shared.exceptions import (
+from monorepo.shared.exceptions import (
     TenantNotFoundError,
     UserNotFoundError,
     ValidationError,
 )
-from pynomaly.shared.types import TenantId, UserId
+from monorepo.shared.types import TenantId, UserId
 
 
 class UserSessionModel:
@@ -371,7 +371,7 @@ class DatabaseUserRepository(UserRepositoryProtocol):
             # Convert stored permissions back to Permission objects
             permissions = set()
             if role_model.permissions and "permissions" in role_model.permissions:
-                from pynomaly.domain.entities.user import Permission
+                from monorepo.domain.entities.user import Permission
 
                 for perm_data in role_model.permissions["permissions"]:
                     permission = Permission(

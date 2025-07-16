@@ -10,11 +10,11 @@ from typing import Any
 import redis
 from fastapi import Request, Response
 
-from pynomaly.infrastructure.config import Settings
-from pynomaly.infrastructure.security.audit_logger import get_audit_logger
-from pynomaly.infrastructure.security.enhanced_rate_limiter import EnhancedRateLimiter
-from pynomaly.infrastructure.security.security_monitor import SecurityMonitor
-from pynomaly.infrastructure.security.waf_middleware import WAFMiddleware
+from monorepo.infrastructure.config import Settings
+from monorepo.infrastructure.security.audit_logger import get_audit_logger
+from monorepo.infrastructure.security.enhanced_rate_limiter import EnhancedRateLimiter
+from monorepo.infrastructure.security.security_monitor import SecurityMonitor
+from monorepo.infrastructure.security.waf_middleware import WAFMiddleware
 
 logger = logging.getLogger(__name__)
 

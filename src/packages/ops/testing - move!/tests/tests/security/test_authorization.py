@@ -8,9 +8,9 @@ from unittest.mock import patch
 
 import pytest
 
-from pynomaly.domain.exceptions import AuthorizationError, SecurityError
-from pynomaly.infrastructure.auth.access_control import AccessControlManager
-from pynomaly.infrastructure.auth.rbac import Permission, Role, RoleBasedAccessControl
+from monorepo.domain.exceptions import AuthorizationError, SecurityError
+from monorepo.infrastructure.auth.access_control import AccessControlManager
+from monorepo.infrastructure.auth.rbac import Permission, Role, RoleBasedAccessControl
 
 
 class TestRoleBasedAccessControl:

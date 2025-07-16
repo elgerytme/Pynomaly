@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities.anomaly_event import (
+from monorepo.domain.entities.anomaly_event import (
     AnomalyEvent,
     EventAggregation,
     EventFilter,

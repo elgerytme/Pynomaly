@@ -10,7 +10,7 @@ from typing import Any, TypeVar
 import yaml
 from pydantic import BaseModel, ValidationError
 
-from pynomaly.domain.exceptions import ConfigurationError
+from monorepo.domain.exceptions import ConfigurationError
 
 from .settings import Settings
 
@@ -298,7 +298,7 @@ class MonitoringConfigManager:
                 },
                 "file": {
                     "class": "logging.FileHandler",
-                    "filename": self.settings.log_path / "pynomaly.log",
+                    "filename": self.settings.log_path / "monorepo.log",
                     "level": self.settings.monitoring.log_level,
                 },
             },

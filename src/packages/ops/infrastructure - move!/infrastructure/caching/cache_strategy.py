@@ -25,7 +25,7 @@ class CacheConfig(BaseModel):
     max_memory_cache_size: int = 1000  # items
     enable_compression: bool = True
     enable_metrics: bool = True
-    key_prefix: str = "pynomaly"
+    key_prefix: str = "monorepo"
 
 
 class CacheMetrics(BaseModel):

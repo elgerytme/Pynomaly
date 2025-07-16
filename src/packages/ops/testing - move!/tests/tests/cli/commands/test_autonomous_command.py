@@ -10,9 +10,9 @@ from unittest.mock import Mock, patch
 
 from typer.testing import CliRunner
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.presentation.cli.autonomous import app
+from monorepo.domain.entities import Dataset, DetectionResult
+from monorepo.domain.value_objects import AnomalyScore
+from monorepo.presentation.cli.autonomous import app
 
 
 class TestAutonomousCommand:
@@ -113,8 +113,8 @@ class TestAutonomousCommand:
 
     # Autonomous Detection Tests
 
-    @patch("pynomaly.presentation.cli.autonomous.AutonomousDetectionService")
-    @patch("pynomaly.presentation.cli.autonomous.get_cli_container")
+    @patch("monorepo.presentation.cli.autonomous.AutonomousDetectionService")
+    @patch("monorepo.presentation.cli.autonomous.get_cli_container")
     def test_autonomous_detect_basic(self, mock_get_container, mock_service_class):
         """Test basic autonomous detection."""
         # Mock container
@@ -170,8 +170,8 @@ class TestAutonomousCommand:
             for keyword in ["detection completed", "autonomous", "algorithm", "samples"]
         )
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_detect_with_config(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -200,8 +200,8 @@ class TestAutonomousCommand:
         assert result.exit_code == 0
         mock_autonomous_service.autonomous_detect.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_detect_with_output_dir(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -233,8 +233,8 @@ class TestAutonomousCommand:
         assert result.exit_code == 0
         mock_autonomous_service.autonomous_detect.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_detect_with_algorithm_strategy(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -265,8 +265,8 @@ class TestAutonomousCommand:
 
     # Data Profiling Tests
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_profile_basic(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -294,8 +294,8 @@ class TestAutonomousCommand:
         mock_dataset_service.load_dataset.assert_called_once()
         mock_autonomous_service.profile_dataset.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_profile_with_detailed_analysis(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -327,8 +327,8 @@ class TestAutonomousCommand:
         assert result.exit_code == 0
         mock_autonomous_service.profile_dataset.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_profile_with_visualizations(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -367,8 +367,8 @@ class TestAutonomousCommand:
 
     # Quick Detection Tests
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_quick_basic(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -392,8 +392,8 @@ class TestAutonomousCommand:
         mock_dataset_service.load_dataset.assert_called_once()
         mock_autonomous_service.quick_detect.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_quick_with_threshold(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -472,8 +472,8 @@ class TestAutonomousCommand:
 
     # Performance Tests
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_detect_large_dataset(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -497,8 +497,8 @@ class TestAutonomousCommand:
         assert result.exit_code == 0
         mock_autonomous_service.autonomous_detect.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_detect_with_timeout(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -529,8 +529,8 @@ class TestAutonomousCommand:
 
     # Integration Tests
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_profile_then_detect(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -574,8 +574,8 @@ class TestAutonomousCommand:
 
     # Output Format Tests
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_detect_json_output(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -604,8 +604,8 @@ class TestAutonomousCommand:
         assert result.exit_code == 0
         mock_autonomous_service.autonomous_detect.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_profile_html_report(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -641,8 +641,8 @@ class TestAutonomousCommand:
 
     # Advanced Configuration Tests
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_detect_custom_preprocessing(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -675,8 +675,8 @@ class TestAutonomousCommand:
         assert result.exit_code == 0
         mock_autonomous_service.autonomous_detect.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_detect_ensemble_mode(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -760,8 +760,8 @@ class TestAutonomousCommand:
 
     # Resource Management Tests
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_detect_memory_limit(
         self, mock_dataset_service, mock_autonomous_service
     ):
@@ -790,8 +790,8 @@ class TestAutonomousCommand:
         assert result.exit_code == 0
         mock_autonomous_service.autonomous_detect.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.commands.autonomous.autonomous_service")
-    @patch("pynomaly.presentation.cli.commands.autonomous.dataset_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.autonomous_service")
+    @patch("monorepo.presentation.cli.commands.autonomous.dataset_service")
     def test_autonomous_detect_parallel_processing(
         self, mock_dataset_service, mock_autonomous_service
     ):

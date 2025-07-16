@@ -238,7 +238,7 @@ class TestTemplateRendering:
     @pytest.fixture
     def template_renderer(self):
         """Create template renderer instance."""
-        from pynomaly.presentation.web.templates import TemplateRenderer
+        from monorepo.presentation.web.templates import TemplateRenderer
 
         return TemplateRenderer()
 
@@ -677,7 +677,7 @@ class TestMiddlewareIntegration:
         app = FastAPI()
 
         # Add middleware
-        from pynomaly.presentation.web.middleware import SecurityMiddleware
+        from monorepo.presentation.web.middleware import SecurityMiddleware
 
         app.add_middleware(SecurityMiddleware)
 

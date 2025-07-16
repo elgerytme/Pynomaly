@@ -13,9 +13,9 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, DataPartitioner, Field
 
 # Import domain entities
-from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
+from monorepo.domain.entities.anomaly import Anomaly
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.value_objects.anomaly_score import AnomalyScore
 
 from .data_partitioner import DataPartition, PartitionStrategy
 from .distributed_config import get_distributed_config_manager

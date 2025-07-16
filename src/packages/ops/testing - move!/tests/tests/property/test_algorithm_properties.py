@@ -21,7 +21,7 @@ class TestAlgorithmMathematicalProperties:
     @settings(max_examples=10, deadline=10000)
     def test_score_range_property(self, data: np.ndarray, contamination: float):
         """Test that algorithm scores are always in [0, 1] range."""
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         adapter = SklearnAdapter()
 
@@ -46,7 +46,7 @@ class TestAlgorithmMathematicalProperties:
     @settings(max_examples=5, deadline=10000)
     def test_deterministic_property(self, data: np.ndarray, contamination: float):
         """Test that algorithms produce consistent results with same parameters."""
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         adapter = SklearnAdapter()
 
@@ -81,7 +81,7 @@ class TestAlgorithmMathematicalProperties:
         self, data: np.ndarray, contamination: float
     ):
         """Test that contamination rate affects the number of predicted anomalies."""
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         adapter = SklearnAdapter()
 
@@ -117,7 +117,7 @@ class TestAlgorithmMathematicalProperties:
     @settings(max_examples=5, deadline=10000)
     def test_scale_invariance_property(self, data: np.ndarray):
         """Test that algorithms handle data scaling appropriately."""
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         adapter = SklearnAdapter()
         contamination = 0.1
@@ -158,7 +158,7 @@ class TestAlgorithmPerformanceProperties:
         """Test that algorithm runtime scales reasonably with data size."""
         import time
 
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         small_data, large_data = data_pair
         adapter = SklearnAdapter()
@@ -209,7 +209,7 @@ class TestAlgorithmPerformanceProperties:
 
         import psutil
 
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         adapter = SklearnAdapter()
         contamination = 0.1
@@ -258,7 +258,7 @@ class TestAlgorithmRobustnessProperties:
         self, clean_data: np.ndarray, noise_level: float
     ):
         """Test that algorithms are reasonably robust to noise."""
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         adapter = SklearnAdapter()
         contamination = 0.1
@@ -305,7 +305,7 @@ class TestAlgorithmRobustnessProperties:
         self, n_samples: int, n_features: int, outlier_fraction: float
     ):
         """Test that algorithms can detect obvious outliers."""
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         # Create data with clear outliers
         n_outliers = int(n_samples * outlier_fraction)
@@ -353,7 +353,7 @@ class TestAlgorithmContractProperties:
     @settings(max_examples=5, deadline=10000)
     def test_adapter_interface_contract(self, data: np.ndarray, contamination: float):
         """Test that all adapters satisfy the same interface contract."""
-        from pynomaly.infrastructure.adapters import PyODAdapter, SklearnAdapter
+        from monorepo.infrastructure.adapters import PyODAdapter, SklearnAdapter
 
         adapters = [SklearnAdapter()]
 
@@ -405,7 +405,7 @@ class TestAlgorithmContractProperties:
     @settings(max_examples=3, deadline=10000)
     def test_fit_predict_consistency(self, data: np.ndarray):
         """Test that fit followed by predict is consistent."""
-        from pynomaly.infrastructure.adapters import SklearnAdapter
+        from monorepo.infrastructure.adapters import SklearnAdapter
 
         adapter = SklearnAdapter()
         contamination = 0.1

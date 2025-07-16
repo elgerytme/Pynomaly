@@ -17,7 +17,7 @@ async def test_model_deployment():
     print("🔍 Testing model deployment...")
     
     try:
-        from pynomaly.mlops.model_deployment import deployment_manager, DeploymentEnvironment
+        from monorepo.mlops.model_deployment import deployment_manager, DeploymentEnvironment
         
         # Create a test deployment
         deployment_id = await deployment_manager.create_deployment(
@@ -43,7 +43,7 @@ async def test_automl_pipeline():
     print("\n🔍 Testing AutoML pipeline...")
     
     try:
-        from pynomaly.application.services.automl_pipeline_orchestrator import (
+        from monorepo.application.services.automl_pipeline_orchestrator import (
             AutoMLPipelineOrchestrator, PipelineConfig, PipelineMode
         )
         
@@ -80,7 +80,7 @@ async def test_monitoring():
     print("\n🔍 Testing monitoring...")
     
     try:
-        from pynomaly.mlops.monitoring import mlops_monitor
+        from monorepo.mlops.monitoring import mlops_monitor
         
         # Test metrics collection
         metrics_count = len(mlops_monitor.metrics_collector.metrics_storage)
@@ -105,7 +105,7 @@ async def test_data_quality():
     print("\n🔍 Testing data quality...")
     
     try:
-        from pynomaly.infrastructure.data_quality.data_validation import data_pipeline_monitor
+        from monorepo.infrastructure.data_quality.data_validation import data_pipeline_monitor
         
         # Create test data
         data = pd.DataFrame({

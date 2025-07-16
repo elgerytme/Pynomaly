@@ -52,7 +52,7 @@ class Buck2RemoteCacheSetup:
                 "mode": "dir",
                 "dir": ".buck-cache",
                 "ci_integration": "github-actions",
-                "cache_key_prefix": f"buck2-{os.getenv('GITHUB_REPOSITORY', 'pynomaly')}",
+                "cache_key_prefix": f"buck2-{os.getenv('GITHUB_REPOSITORY', 'monorepo')}",
             }
 
             # Create cache directory if not exists

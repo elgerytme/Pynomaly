@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.shared.error_handling import (
+from monorepo.shared.error_handling import (
     ConfigurationError,
     PerformanceError,
     ValidationError,

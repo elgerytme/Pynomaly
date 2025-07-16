@@ -290,7 +290,7 @@ def temp_output_dir():
 def mock_cli_dependencies():
     """Mock CLI-specific dependencies and services."""
     with patch(
-        "pynomaly.presentation.cli.container.get_cli_container"
+        "monorepo.presentation.cli.container.get_cli_container"
     ) as mock_get_container:
         # Create a comprehensive mock container
         container = Mock()
@@ -520,7 +520,7 @@ def simulate_network_errors():
 def mock_dataset_service():
     """Mock dataset service for CLI tests."""
     with patch(
-        "pynomaly.presentation.cli.datasets.get_cli_container"
+        "monorepo.presentation.cli.datasets.get_cli_container"
     ) as mock_get_container:
         container = Mock()
 
@@ -551,7 +551,7 @@ def mock_dataset_service():
 def mock_detector_service():
     """Mock detector service for CLI tests."""
     with patch(
-        "pynomaly.presentation.cli.detectors.get_cli_container"
+        "monorepo.presentation.cli.detectors.get_cli_container"
     ) as mock_get_container:
         container = Mock()
 
@@ -572,7 +572,7 @@ def mock_detector_service():
 def mock_training_service():
     """Mock training service for CLI tests."""
     with patch(
-        "pynomaly.presentation.cli.training.get_cli_container"
+        "monorepo.presentation.cli.training.get_cli_container"
     ) as mock_get_container:
         container = Mock()
 
@@ -598,7 +598,7 @@ def mock_training_service():
 def mock_detection_service():
     """Mock detection service for CLI tests."""
     with patch(
-        "pynomaly.presentation.cli.detection.get_cli_container"
+        "monorepo.presentation.cli.detection.get_cli_container"
     ) as mock_get_container:
         container = Mock()
 

@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document outlines the comprehensive requirements for the Pynomaly MLOps platform, a production-ready machine learning operations system designed to manage the complete ML lifecycle from experimentation to production deployment and monitoring.
+This document outlines the comprehensive requirements for the MLOps platform, a production-ready machine learning operations system designed to manage the complete ML lifecycle from experimentation to production deployment and monitoring.
 
 ## 1. Business Requirements
 

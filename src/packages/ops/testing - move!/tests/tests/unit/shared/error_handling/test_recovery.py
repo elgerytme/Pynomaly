@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from pynomaly.shared.error_handling.recovery import (
+from monorepo.shared.error_handling.recovery import (
     CacheRecoveryHandler,
     FallbackRecoveryHandler,
     RecoveryConfig,
@@ -20,7 +20,7 @@ from pynomaly.shared.error_handling.recovery import (
     fallback_on_error,
     recovery_handler,
 )
-from pynomaly.shared.exceptions import (
+from monorepo.shared.exceptions import (
     APIError,
     CacheError,
     DatabaseError,

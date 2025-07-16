@@ -9,7 +9,7 @@ import pytest
 import numpy as np
 from unittest.mock import Mock, patch
 
-from pynomaly.infrastructure.adapters.text_adapter import (
+from monorepo.infrastructure.adapters.text_adapter import (
     TextAnomalyDetector,
     TextDetectionConfig,
     TextPreprocessor,

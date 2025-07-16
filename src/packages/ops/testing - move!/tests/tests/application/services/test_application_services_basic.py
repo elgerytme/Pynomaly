@@ -7,9 +7,9 @@ from unittest.mock import Mock
 
 import pytest
 
-from pynomaly.application.services import DetectionService, EnsembleService
-from pynomaly.application.services.autonomous_service import AutonomousDetectionService
-from pynomaly.application.services.training_service import AutomatedTrainingService
+from monorepo.application.services import DetectionService, EnsembleService
+from monorepo.application.services.autonomous_service import AutonomousDetectionService
+from monorepo.application.services.training_service import AutomatedTrainingService
 
 
 class TestApplicationServicesBasic:

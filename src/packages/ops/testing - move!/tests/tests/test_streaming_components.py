@@ -13,11 +13,11 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from pynomaly.infrastructure.streaming.real_time_anomaly_pipeline import (
+from monorepo.infrastructure.streaming.real_time_anomaly_pipeline import (
     MetricsPublisher,
     StreamingMetrics,
 )
-from pynomaly.infrastructure.streaming.websocket_gateway import (
+from monorepo.infrastructure.streaming.websocket_gateway import (
     RealTimeMetrics,
     WebSocketGateway,
 )

@@ -7,8 +7,8 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.shared.protocols.repository_protocol import (
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.shared.protocols.repository_protocol import (
     DatasetRepositoryProtocol,
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,

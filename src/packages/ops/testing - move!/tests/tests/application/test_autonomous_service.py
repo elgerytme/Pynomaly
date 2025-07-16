@@ -7,16 +7,16 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.autonomous_service import (
+from monorepo.application.services.autonomous_service import (
     AlgorithmRecommendation,
     AutonomousConfig,
     AutonomousDetectionService,
     DataProfile,
 )
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.infrastructure.data_loaders.csv_loader import CSVLoader
-from pynomaly.infrastructure.data_loaders.json_loader import JSONLoader
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.value_objects import AnomalyScore
+from monorepo.infrastructure.data_loaders.csv_loader import CSVLoader
+from monorepo.infrastructure.data_loaders.json_loader import JSONLoader
 
 
 @pytest.fixture

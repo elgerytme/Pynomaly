@@ -10,8 +10,8 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.domain.exceptions import DetectorError, ValidationError
-from pynomaly.presentation.cli.detectors import app as detector_app
+from monorepo.domain.exceptions import DetectorError, ValidationError
+from monorepo.presentation.cli.detectors import app as detector_app
 
 
 class TestDetectorCommand:
@@ -26,7 +26,7 @@ class TestDetectorCommand:
     def mock_detector_service(self):
         """Mock detector service."""
         with patch(
-            "pynomaly.presentation.cli.commands.detector.detector_service"
+            "monorepo.presentation.cli.commands.detector.detector_service"
         ) as mock:
             yield mock
 
@@ -34,7 +34,7 @@ class TestDetectorCommand:
     def mock_training_service(self):
         """Mock training service."""
         with patch(
-            "pynomaly.presentation.cli.commands.detector.training_service"
+            "monorepo.presentation.cli.commands.detector.training_service"
         ) as mock:
             yield mock
 
@@ -42,7 +42,7 @@ class TestDetectorCommand:
     def mock_evaluation_service(self):
         """Mock evaluation service."""
         with patch(
-            "pynomaly.presentation.cli.commands.detector.evaluation_service"
+            "monorepo.presentation.cli.commands.detector.evaluation_service"
         ) as mock:
             yield mock
 
@@ -50,7 +50,7 @@ class TestDetectorCommand:
     def mock_container(self):
         """Mock CLI container."""
         with patch(
-            "pynomaly.presentation.cli.commands.detector.get_cli_container"
+            "monorepo.presentation.cli.commands.detector.get_cli_container"
         ) as mock:
             container = Mock()
             container.config.return_value.storage_path = Path("/tmp/pynomaly")

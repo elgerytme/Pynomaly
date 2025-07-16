@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import os
-sys.path.insert(0, os.path.join(os.getcwd(), 'src', 'pynomaly', 'mutation'))
+sys.path.insert(0, os.path.join(os.getcwd(), 'src', 'monorepo', 'mutation'))
 
 try:
     from engine import MutationRunner

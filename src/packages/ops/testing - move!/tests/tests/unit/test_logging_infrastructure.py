@@ -7,31 +7,31 @@ from pathlib import Path
 
 import pytest
 
-from pynomaly.infrastructure.logging.log_aggregator import (
+from monorepo.infrastructure.logging.log_aggregator import (
     LogAggregator,
     LogEntry,
     LogFilter,
     LogStreamType,
 )
-from pynomaly.infrastructure.logging.log_analysis import (
+from monorepo.infrastructure.logging.log_analysis import (
     AnomalyDetector,
     LogAnalyzer,
     PatternRule,
     PatternType,
     Severity,
 )
-from pynomaly.infrastructure.logging.metrics_collector import MetricsCollector
-from pynomaly.infrastructure.logging.observability_service import (
+from monorepo.infrastructure.logging.metrics_collector import MetricsCollector
+from monorepo.infrastructure.logging.observability_service import (
     ObservabilityConfig,
     ObservabilityService,
 )
-from pynomaly.infrastructure.logging.structured_logger import (
+from monorepo.infrastructure.logging.structured_logger import (
     LogContext,
     LogLevel,
     StructuredLogger,
     get_logger,
 )
-from pynomaly.infrastructure.logging.tracing_manager import TracingManager
+from monorepo.infrastructure.logging.tracing_manager import TracingManager
 
 
 class TestStructuredLogger:
@@ -77,7 +77,7 @@ class TestStructuredLogger:
         with tempfile.TemporaryDirectory() as temp_dir:
             Path(temp_dir) / "test.log"
 
-            from pynomaly.infrastructure.logging.structured_logger import (
+            from monorepo.infrastructure.logging.structured_logger import (
                 PerformanceLogger,
             )
 
@@ -124,7 +124,7 @@ class TestMetricsCollector:
         """Test metrics with labels."""
         collector = MetricsCollector(auto_flush=False, enable_system_metrics=False)
 
-        labels = {"service": "pynomaly", "env": "test"}
+        labels = {"service": "monorepo", "env": "test"}
         collector.counter("requests.total", 5, labels)
         collector.gauge("memory.usage", 75.5, labels)
 
@@ -135,7 +135,7 @@ class TestMetricsCollector:
         """Test timer context manager."""
         collector = MetricsCollector(auto_flush=False, enable_system_metrics=False)
 
-        from pynomaly.infrastructure.logging.metrics_collector import TimerContext
+        from monorepo.infrastructure.logging.metrics_collector import TimerContext
 
         with TimerContext(collector, "operation.duration"):
             time.sleep(0.01)
@@ -546,7 +546,7 @@ class TestIntegration:
 
     def test_container_integration(self):
         """Test integration with dependency injection container."""
-        from pynomaly.infrastructure.config.container import Container
+        from monorepo.infrastructure.config.container import Container
 
         container = Container()
 

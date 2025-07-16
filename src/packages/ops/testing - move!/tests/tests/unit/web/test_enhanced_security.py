@@ -10,7 +10,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 # Import security modules
-from pynomaly.presentation.web.security_features import (
+from monorepo.presentation.web.security_features import (
     RateLimiter,
     WebApplicationFirewall,
     SecurityMiddleware,
@@ -22,7 +22,7 @@ from pynomaly.presentation.web.security_features import (
     get_security_middleware
 )
 
-from pynomaly.presentation.web.security_monitoring import (
+from monorepo.presentation.web.security_monitoring import (
     SecurityMonitoringService,
     SecurityAlert,
     AlertType,
@@ -32,7 +32,7 @@ from pynomaly.presentation.web.security_monitoring import (
     get_monitoring_service
 )
 
-from pynomaly.presentation.web.audit_logging import (
+from monorepo.presentation.web.audit_logging import (
     AuditLogger,
     AuditEvent,
     AuditEventType,
@@ -371,8 +371,8 @@ class TestSecurityMonitoring:
     
     def test_collect_current_metrics(self, monitoring_service):
         """Test metrics collection"""
-        with patch('pynomaly.presentation.web.security_monitoring.get_security_middleware') as mock_get_security:
-            with patch('pynomaly.presentation.web.security_monitoring.get_auth_service') as mock_get_auth:
+        with patch('monorepo.presentation.web.security_monitoring.get_security_middleware') as mock_get_security:
+            with patch('monorepo.presentation.web.security_monitoring.get_auth_service') as mock_get_auth:
                 # Mock security middleware
                 mock_middleware = Mock()
                 mock_middleware.security_events = [
@@ -523,7 +523,7 @@ class TestAuditLogging:
     
     def test_log_authentication_event(self, audit_logger):
         """Test authentication event logging"""
-        from pynomaly.presentation.web.enhanced_auth import AuthenticationMethod
+        from monorepo.presentation.web.enhanced_auth import AuthenticationMethod
         
         event_id = audit_logger.log_authentication_event(
             event_type=AuditEventType.USER_LOGIN,
@@ -650,7 +650,7 @@ class TestConvenienceFunctions:
     
     def test_log_user_login_convenience(self):
         """Test user login convenience function"""
-        from pynomaly.presentation.web.enhanced_auth import AuthenticationMethod
+        from monorepo.presentation.web.enhanced_auth import AuthenticationMethod
         
         event_id = log_user_login(
             user_id="user123",

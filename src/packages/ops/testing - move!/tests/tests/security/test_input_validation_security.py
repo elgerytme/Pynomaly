@@ -9,8 +9,8 @@ import json
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.domain.exceptions import ValidationError as DomainValidationError
-from pynomaly.infrastructure.validation import (
+from monorepo.domain.exceptions import ValidationError as DomainValidationError
+from monorepo.infrastructure.validation import (
     DataSanitizer,
     InputValidator,
     SecurityValidator,

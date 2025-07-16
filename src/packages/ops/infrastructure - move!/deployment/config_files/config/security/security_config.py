@@ -8,8 +8,8 @@ import os
 
 from pydantic import BaseModel, Field
 
-from pynomaly.infrastructure.security.authentication import SecurityConfig
-from pynomaly.infrastructure.security.encryption import EncryptionConfig
+from monorepo.infrastructure.security.authentication import SecurityConfig
+from monorepo.infrastructure.security.encryption import EncryptionConfig
 
 
 class SecuritySettings(BaseModel):
@@ -28,7 +28,7 @@ class SecuritySettings(BaseModel):
     )
     cors_enabled: bool = Field(default=True, description="Enable CORS")
     cors_allowed_origins: list[str] = Field(
-        default_factory=lambda: ["https://app.pynomaly.com"]
+        default_factory=lambda: ["https://app.monorepo.com"]
     )
 
     # Authentication
@@ -328,7 +328,7 @@ API_KEY_REQUIRED=true
 RATE_LIMITING_ENABLED=true
 
 # CORS Configuration
-CORS_ALLOWED_ORIGINS=https://app.pynomaly.com,https://dashboard.pynomaly.com
+CORS_ALLOWED_ORIGINS=https://app.monorepo.com,https://dashboard.monorepo.com
 
 # Authentication
 JWT_REQUIRED=true

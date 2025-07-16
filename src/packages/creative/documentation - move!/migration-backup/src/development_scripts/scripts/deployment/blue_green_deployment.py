@@ -48,8 +48,8 @@ class DeploymentConfig:
     app_name: str = "pynomaly-api"
 
     # Image settings
-    image_registry: str = "pynomaly.azurecr.io"
-    image_name: str = "pynomaly"
+    image_registry: str = "monorepo.azurecr.io"
+    image_name: str = "monorepo"
     new_image_tag: str = "latest"
 
     # Deployment settings

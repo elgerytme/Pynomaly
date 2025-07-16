@@ -10,22 +10,22 @@ from typing import Any
 
 import pytest
 
-from pynomaly.infrastructure.caching.advanced_cache_service import (
+from monorepo.infrastructure.caching.advanced_cache_service import (
     AdvancedCacheService,
     CompressionAlgorithm,
 )
-from pynomaly.infrastructure.performance.profiling_service import (
+from monorepo.infrastructure.performance.profiling_service import (
     PerformanceProfilingService,
     ProfilerType,
 )
-from pynomaly.infrastructure.security.advanced_threat_detection import (
+from monorepo.infrastructure.security.advanced_threat_detection import (
     DataExfiltrationDetector,
     SessionHijackingDetector,
     create_advanced_threat_detectors,
 )
-from pynomaly.infrastructure.security.audit_logger import SecurityEventType
-from pynomaly.infrastructure.security.security_monitor import AlertType, ThreatLevel
-from pynomaly.infrastructure.security.security_service import (
+from monorepo.infrastructure.security.audit_logger import SecurityEventType
+from monorepo.infrastructure.security.security_monitor import AlertType, ThreatLevel
+from monorepo.infrastructure.security.security_service import (
     AuditEventType,
     SecurityConfig,
     SecurityLevel,

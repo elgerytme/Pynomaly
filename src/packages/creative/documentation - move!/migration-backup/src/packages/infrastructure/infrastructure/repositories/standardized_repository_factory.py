@@ -10,17 +10,17 @@ from typing import TypeVar
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from pynomaly.infrastructure.persistence.database_repositories import (
+from monorepo.infrastructure.persistence.database_repositories import (
     DatabaseDatasetRepository,
     DatabaseDetectionResultRepository,
     DatabaseDetectorRepository,
 )
-from pynomaly.infrastructure.repositories.in_memory_repositories import (
+from monorepo.infrastructure.repositories.in_memory_repositories import (
     InMemoryDatasetRepository,
     InMemoryDetectorRepository,
     InMemoryResultRepository,
 )
-from pynomaly.shared.protocols.repository_protocol import (
+from monorepo.shared.protocols.repository_protocol import (
     DatasetRepositoryProtocol,
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,

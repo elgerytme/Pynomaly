@@ -1,14 +1,14 @@
 # Buck2 Build Configuration for Services Package
 # Application services and orchestration in application layer
 
-load("//tools/buck:python.bzl", "pynomaly_workspace_package")
-load("//tools/buck:testing.bzl", "pynomaly_comprehensive_tests")
+load("//tools/buck:python.bzl", "monorepo_workspace_package")
+load("//tools/buck:testing.bzl", "monorepo_comprehensive_tests")
 
 # ==========================================
 # Services Package
 # ==========================================
 
-pynomaly_workspace_package(
+monorepo_workspace_package(
     name = "services",
     layer = "application",
     package_type = "services",
@@ -24,7 +24,7 @@ pynomaly_workspace_package(
 # Test Suite
 # ==========================================
 
-pynomaly_comprehensive_tests(
+monorepo_comprehensive_tests(
     package_name = "services",
     deps = [
         "//src/packages/core:core",

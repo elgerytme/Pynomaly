@@ -11,16 +11,16 @@ from uuid import uuid4
 import numpy as np
 import pandas as pd
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from monorepo.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.application.services.autonomous_preprocessing import (
+from monorepo.application.services.autonomous_preprocessing import (
     AutonomousPreprocessingOrchestrator,
     DataQualityReport,
 )
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.shared.protocols import (
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.exceptions import DataValidationError
+from monorepo.shared.protocols import (
     DataLoaderProtocol,
     DetectionResultRepositoryProtocol,
     DetectorRepositoryProtocol,
@@ -729,7 +729,7 @@ class AutonomousDetectionService:
                     self.logger.info(f"Processing results for {rec.algorithm}")
 
                 # Create detection result
-                from pynomaly.domain.entities import Anomaly
+                from monorepo.domain.entities import Anomaly
 
                 anomalies = []
                 for i, (score, pred) in enumerate(
@@ -804,7 +804,7 @@ class AutonomousDetectionService:
     ) -> Detector:
         """Create detector instance from recommendation."""
 
-        from pynomaly.domain.value_objects import ContaminationRate
+        from monorepo.domain.value_objects import ContaminationRate
 
         detector_id = uuid4()
         contamination_rate = ContaminationRate(

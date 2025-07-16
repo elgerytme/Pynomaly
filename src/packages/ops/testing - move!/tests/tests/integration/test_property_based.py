@@ -13,10 +13,10 @@ from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 from hypothesis.extra.pandas import columns, data_frames
 
-from pynomaly.application.use_cases import DetectAnomalies, TrainDetector
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
+from monorepo.application.use_cases import DetectAnomalies, TrainDetector
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
 
 
 # Hypothesis strategies for generating test data

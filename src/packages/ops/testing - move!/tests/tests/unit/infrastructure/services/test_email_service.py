@@ -7,14 +7,14 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.services.email_service import (
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.services.email_service import (
     EmailConfig,
     EmailService,
     EmailTemplate,
     get_email_service,
 )
-from pynomaly.shared.exceptions import ConfigurationError, EmailError
+from monorepo.shared.exceptions import ConfigurationError, EmailError
 
 
 class TestEmailConfig:
@@ -777,7 +777,7 @@ class TestEmailServiceHelpers:
 
     def test_get_email_service_configured(self):
         """Test getting email service when configured."""
-        with patch("pynomaly.infrastructure.services.email_service.get_settings") as mock_settings:
+        with patch("monorepo.infrastructure.services.email_service.get_settings") as mock_settings:
             mock_settings.return_value = MagicMock(
                 smtp_server="smtp.gmail.com",
                 smtp_username="test@gmail.com",
@@ -792,7 +792,7 @@ class TestEmailServiceHelpers:
 
     def test_get_email_service_not_configured(self):
         """Test getting email service when not configured."""
-        with patch("pynomaly.infrastructure.services.email_service.get_settings") as mock_settings:
+        with patch("monorepo.infrastructure.services.email_service.get_settings") as mock_settings:
             mock_settings.return_value = MagicMock(
                 smtp_server=None,
                 smtp_username=None,
@@ -806,7 +806,7 @@ class TestEmailServiceHelpers:
 
     def test_get_email_service_singleton(self):
         """Test that email service is singleton."""
-        with patch("pynomaly.infrastructure.services.email_service.get_settings") as mock_settings:
+        with patch("monorepo.infrastructure.services.email_service.get_settings") as mock_settings:
             mock_settings.return_value = MagicMock(
                 smtp_server="smtp.gmail.com",
                 smtp_username="test@gmail.com",

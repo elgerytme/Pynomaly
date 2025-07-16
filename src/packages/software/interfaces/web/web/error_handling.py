@@ -167,7 +167,7 @@ class WebUILogger:
             ]
         )
 
-        return structlog.get_logger("pynomaly.web_ui")
+        return structlog.get_logger("monorepo.web_ui")
 
     def log_error(
         self,

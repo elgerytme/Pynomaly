@@ -6,11 +6,11 @@ import numpy as np
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from pynomaly_detection.application.services.drift_detection_service import DriftDetectionService
-from pynomaly_detection.application.use_cases.drift_monitoring_use_case import (
+from monorepo.application.services.drift_detection_service import DriftDetectionService
+from monorepo.application.use_cases.drift_monitoring_use_case import (
     DriftMonitoringUseCase,
 )
-from pynomaly_detection.domain.entities.drift_detection import (
+from monorepo.domain.entities.drift_detection import (
     DriftAlert,
     DriftDetectionMethod,
     DriftDetectionResult,
@@ -19,7 +19,7 @@ from pynomaly_detection.domain.entities.drift_detection import (
     DriftSeverity,
     ModelMonitoringConfig,
 )
-from pynomaly_detection.presentation.api.docs.response_models import (
+from monorepo.presentation.api.docs.response_models import (
     HTTPResponses,
     SuccessResponse,
 )

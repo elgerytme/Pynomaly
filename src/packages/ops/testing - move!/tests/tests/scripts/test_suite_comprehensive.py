@@ -53,7 +53,7 @@ class ComprehensiveTestSuite:
         # Test container dependency injection
         start_time = time.time()
         try:
-            from pynomaly.infrastructure.config.container import Container
+            from monorepo.infrastructure.config.container import Container
 
             container = Container()
 
@@ -90,7 +90,7 @@ class ComprehensiveTestSuite:
         for adapter in adapters:
             start_time = time.time()
             try:
-                module_path = f"pynomaly.infrastructure.adapters.{adapter}"
+                module_path = f"monorepo.infrastructure.adapters.{adapter}"
                 __import__(module_path)
 
                 infrastructure_results.append(
@@ -146,7 +146,7 @@ class ComprehensiveTestSuite:
         for service in domain_services:
             start_time = time.time()
             try:
-                module_path = f"pynomaly.domain.services.{service}"
+                module_path = f"monorepo.domain.services.{service}"
                 __import__(module_path)
 
                 algorithm_results.append(
@@ -310,7 +310,7 @@ class ComprehensiveTestSuite:
             initial_memory = process.memory_info().rss / 1024 / 1024  # MB
 
             # Import main components
-            from pynomaly.infrastructure.config.container import Container
+            from monorepo.infrastructure.config.container import Container
 
             Container()
 

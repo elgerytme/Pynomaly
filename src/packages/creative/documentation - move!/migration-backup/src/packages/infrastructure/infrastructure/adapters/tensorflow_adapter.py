@@ -9,14 +9,14 @@ from uuid import uuid4
 import numpy as np
 import structlog
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
-from pynomaly.domain.exceptions import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult
+from monorepo.domain.exceptions import (
     AdapterError,
     DetectorNotFittedError,
     FittingError,
     InvalidAlgorithmError,
 )
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
 
 logger = structlog.get_logger(__name__)
 

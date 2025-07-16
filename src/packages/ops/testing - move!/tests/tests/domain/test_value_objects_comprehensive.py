@@ -9,14 +9,14 @@ from datetime import datetime
 
 import pytest
 
-from pynomaly.domain.exceptions import InvalidValueError
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
-from pynomaly.domain.value_objects.contamination_rate import ContaminationRate
-from pynomaly.domain.value_objects.model_storage_info import ModelStorageInfo
-from pynomaly.domain.value_objects.performance_metrics import PerformanceMetrics
-from pynomaly.domain.value_objects.semantic_version import SemanticVersion
-from pynomaly.domain.value_objects.threshold_config import ThresholdConfig
+from monorepo.domain.exceptions import InvalidValueError
+from monorepo.domain.value_objects.anomaly_score import AnomalyScore
+from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
+from monorepo.domain.value_objects.contamination_rate import ContaminationRate
+from monorepo.domain.value_objects.model_storage_info import ModelStorageInfo
+from monorepo.domain.value_objects.performance_metrics import PerformanceMetrics
+from monorepo.domain.value_objects.semantic_version import SemanticVersion
+from monorepo.domain.value_objects.threshold_config import ThresholdConfig
 
 
 class TestSemanticVersion:

@@ -425,8 +425,8 @@ async def deploy_model(
             deployment_name=request.deployment_name,
             environment=request.environment,
             status="deploying",
-            endpoint_url=f"https://api.pynomaly.com/models/{deployment_id}/predict",
-            health_check_url=f"https://api.pynomaly.com/models/{deployment_id}/health",
+            endpoint_url=f"https://api.monorepo.com/models/{deployment_id}/predict",
+            health_check_url=f"https://api.monorepo.com/models/{deployment_id}/health",
             deployed_at=datetime.now().isoformat(),
             metrics={
                 "cpu_usage": 0.0,
@@ -472,8 +472,8 @@ async def list_deployments(
                 deployment_name=f"deployment_{i}",
                 environment="production" if i % 3 == 0 else "staging",
                 status="active" if i % 4 != 0 else "inactive",
-                endpoint_url=f"https://api.pynomaly.com/models/deploy_{i:06d}/predict",
-                health_check_url=f"https://api.pynomaly.com/models/deploy_{i:06d}/health",
+                endpoint_url=f"https://api.monorepo.com/models/deploy_{i:06d}/predict",
+                health_check_url=f"https://api.monorepo.com/models/deploy_{i:06d}/health",
                 deployed_at=f"2024-01-{(i % 28) + 1:02d}T10:00:00Z",
                 metrics={
                     "cpu_usage": 25.5 + i % 50,

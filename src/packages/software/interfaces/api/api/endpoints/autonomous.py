@@ -5,21 +5,21 @@ from uuid import UUID
 from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
-from pynomaly_detection.application.services.automl_service import (
+from monorepo.application.services.automl_service import (
     AutoMLService,
     OptimizationObjective,
 )
-from pynomaly_detection.application.services.autonomous_service import (
+from monorepo.application.services.autonomous_service import (
     AutonomousConfig,
     AutonomousDetectionService,
 )
-from pynomaly_detection.application.services.ensemble_service import EnsembleService
-from pynomaly_detection.infrastructure.config import Container
-from pynomaly_detection.infrastructure.data_loaders.csv_loader import CSVLoader
-from pynomaly_detection.infrastructure.data_loaders.excel_loader import ExcelLoader
-from pynomaly_detection.infrastructure.data_loaders.json_loader import JSONLoader
-from pynomaly_detection.infrastructure.data_loaders.parquet_loader import ParquetLoader
-from pynomaly_detection.presentation.api.deps import get_container, get_current_user
+from monorepo.application.services.ensemble_service import EnsembleService
+from monorepo.infrastructure.config import Container
+from monorepo.infrastructure.data_loaders.csv_loader import CSVLoader
+from monorepo.infrastructure.data_loaders.excel_loader import ExcelLoader
+from monorepo.infrastructure.data_loaders.json_loader import JSONLoader
+from monorepo.infrastructure.data_loaders.parquet_loader import ParquetLoader
+from monorepo.presentation.api.deps import get_container, get_current_user
 
 router = APIRouter()
 

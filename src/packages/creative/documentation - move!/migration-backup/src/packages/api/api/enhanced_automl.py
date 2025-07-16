@@ -5,12 +5,12 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from pynomaly.application.services.enhanced_automl_service import (
+from monorepo.application.services.enhanced_automl_service import (
     EnhancedAutoMLConfig,
     EnhancedAutoMLResult,
     EnhancedAutoMLService,
 )
-from pynomaly.infrastructure.config.container import Container
+from monorepo.infrastructure.config.container import Container
 
 
 # Request/Response Models
@@ -154,7 +154,7 @@ async def optimize_hyperparameters(
     """
     try:
         # Configure enhanced AutoML
-        from pynomaly.infrastructure.automl import (
+        from monorepo.infrastructure.automl import (
             AcquisitionFunction,
             OptimizationStrategy,
         )
@@ -207,7 +207,7 @@ async def auto_optimize(
     """
     try:
         # Configure enhanced AutoML
-        from pynomaly.infrastructure.automl import OptimizationStrategy
+        from monorepo.infrastructure.automl import OptimizationStrategy
 
         strategy_enum = OptimizationStrategy(request.strategy)
 

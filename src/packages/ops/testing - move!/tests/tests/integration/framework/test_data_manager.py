@@ -18,8 +18,8 @@ import numpy as np
 import pandas as pd
 from faker import Faker
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.infrastructure.config.container import Container
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.infrastructure.config.container import Container
 
 logger = logging.getLogger(__name__)
 

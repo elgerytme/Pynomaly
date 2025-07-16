@@ -406,7 +406,7 @@ INSERT INTO detection_results (detector_id, dataset_id, anomaly_count) VALUES
                 # Simulate configuration files
                 config_files = {
                     "production.yml": {
-                        "app_name": "pynomaly",
+                        "app_name": "monorepo",
                         "environment": "production",
                         "database": {
                             "host": "prod-db.internal",

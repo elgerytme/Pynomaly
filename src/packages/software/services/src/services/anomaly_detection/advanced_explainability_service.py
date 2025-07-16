@@ -8,24 +8,24 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.application.services.explainability_analyzers import (
+from monorepo.application.services.explainability_analyzers import (
     BiasAnalyzer,
     CounterfactualAnalyzer,
     TrustScoreAnalyzer,
 )
-from pynomaly.application.services.explainability_core import (
+from monorepo.application.services.explainability_core import (
     BiasAnalysisConfig,
     ExplanationConfig,
     ExplanationReport,
     GlobalExplanation,
     TrustScoreConfig,
 )
-from pynomaly.application.services.explainability_engines import (
+from monorepo.application.services.explainability_engines import (
     GlobalExplanationEngine,
     LocalExplanationEngine,
 )
-from pynomaly.domain.entities import Dataset
-from pynomaly.shared.protocols import DetectorProtocol
+from monorepo.domain.entities import Dataset
+from monorepo.shared.protocols import DetectorProtocol
 
 logger = logging.getLogger(__name__)
 

@@ -5,14 +5,14 @@ from unittest.mock import patch
 import pytest
 from fastapi import HTTPException
 
-from pynomaly.domain.exceptions import AuthenticationError
-from pynomaly.infrastructure.auth.rate_limiting import RateLimiter
-from pynomaly.infrastructure.security.audit_logging import (
+from monorepo.domain.exceptions import AuthenticationError
+from monorepo.infrastructure.auth.rate_limiting import RateLimiter
+from monorepo.infrastructure.security.audit_logging import (
     AuditEvent,
     AuditEventType,
     AuditSeverity,
 )
-from pynomaly.infrastructure.security.validation import (
+from monorepo.infrastructure.security.validation import (
     InputSanitizer,
     InputValidator,
     ThreatDetector,
@@ -371,7 +371,7 @@ class TestAuditLogging:
     @pytest.mark.asyncio
     async def test_audit_context_manager(self, audit_logger):
         """Test audit context manager for operation tracking."""
-        from pynomaly.infrastructure.security.audit_logging import audit_context
+        from monorepo.infrastructure.security.audit_logging import audit_context
 
         with patch.object(audit_logger, "log_data_access") as mock_log:
             async with audit_context(

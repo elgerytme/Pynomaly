@@ -10,21 +10,21 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from pynomaly.infrastructure.preprocessing.data_cleaner import (
+from monorepo.infrastructure.preprocessing.data_cleaner import (
     DataCleaner,
     MissingValueStrategy,
     OutlierStrategy,
 )
-from pynomaly.infrastructure.preprocessing.data_transformer import (
+from monorepo.infrastructure.preprocessing.data_transformer import (
     DataTransformer,
     EncodingStrategy,
     FeatureSelectionStrategy,
     ScalingStrategy,
 )
-from pynomaly.infrastructure.preprocessing.preprocessing_pipeline import (
+from monorepo.infrastructure.preprocessing.preprocessing_pipeline import (
     PreprocessingPipeline,
 )
-from pynomaly.presentation.cli.container import get_cli_container
+from monorepo.presentation.cli.container import get_cli_container
 
 app = typer.Typer()
 console = Console()
@@ -207,7 +207,7 @@ def clean_data(
                 import uuid
                 from datetime import datetime
 
-                from pynomaly.domain.entities import Dataset
+                from monorepo.domain.entities import Dataset
 
                 new_dataset = Dataset(
                     id=str(uuid.uuid4()),
@@ -464,7 +464,7 @@ def transform_data(
                 import uuid
                 from datetime import datetime
 
-                from pynomaly.domain.entities import Dataset
+                from monorepo.domain.entities import Dataset
 
                 new_dataset = Dataset(
                     id=str(uuid.uuid4()),

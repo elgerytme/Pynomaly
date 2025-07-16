@@ -23,8 +23,8 @@ import yaml
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 try:
-    from pynomaly.infrastructure.config import create_container
-    from pynomaly.presentation.api.app import create_app
+    from monorepo.infrastructure.config import create_container
+    from monorepo.presentation.api.app import create_app
 except ImportError as e:
     print(f"Warning: Could not import Pynomaly modules: {e}")
     print("API documentation will be generated from static analysis")
@@ -334,7 +334,7 @@ class APIDocumentationGenerator:
                 "contact": {
                     "name": "Pynomaly Team",
                     "url": "https://github.com/pynomaly/pynomaly",
-                    "email": "support@pynomaly.com"
+                    "email": "support@monorepo.com"
                 },
                 "license": {
                     "name": "MIT",
@@ -347,7 +347,7 @@ class APIDocumentationGenerator:
                     "description": "Development server"
                 },
                 {
-                    "url": "https://api.pynomaly.com",
+                    "url": "https://api.monorepo.com",
                     "description": "Production server"
                 }
             ],
@@ -635,7 +635,7 @@ The Pynomaly API provides comprehensive anomaly detection capabilities with buil
 ## Base URL
 
 - **Development**: `http://localhost:8000`
-- **Production**: `https://api.pynomaly.com`
+- **Production**: `https://api.monorepo.com`
 
 ## Authentication
 
@@ -760,7 +760,7 @@ The API uses RFC 7807 Problem Details for HTTP APIs format:
 
 ```json
 {
-  "type": "https://api.pynomaly.com/problems/validation-error",
+  "type": "https://api.monorepo.com/problems/validation-error",
   "title": "Validation Error",
   "detail": "The request body contains invalid data",
   "status": 400,
@@ -871,8 +871,8 @@ api.detectAnomalies([1, 2, 3, 4, 5, 100, 6, 7, 8, 9])
 
 For support and questions:
 - GitHub Issues: https://github.com/pynomaly/pynomaly/issues
-- Email: support@pynomaly.com
-- Documentation: https://docs.pynomaly.com
+- Email: support@monorepo.com
+- Documentation: https://docs.monorepo.com
 """
 
         return guide
@@ -1096,7 +1096,7 @@ Pynomaly API follows semantic versioning and provides multiple versioning strate
 
 ### Header Versioning (Alternative)
 ```
-Accept: application/vnd.pynomaly.v1+json
+Accept: application/vnd.monorepo.v1+json
 ```
 
 ## Version Lifecycle
@@ -1151,7 +1151,7 @@ class VersionedClient:
 
     def get_headers(self) -> dict:
         return {
-            "Accept": f"application/vnd.pynomaly.{self.version}+json",
+            "Accept": f"application/vnd.monorepo.{self.version}+json",
             "User-Agent": "Pynomaly-Client/1.0"
         }
 ```
@@ -1351,7 +1351,7 @@ openapi-generator-cli generate -i openapi.json -g javascript -o javascript-sdk/
 
 - **GitHub**: https://github.com/pynomaly/pynomaly
 - **Issues**: https://github.com/pynomaly/pynomaly/issues
-- **Email**: support@pynomaly.com
+- **Email**: support@monorepo.com
 
 ## Security
 

@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 def test_app_imports():
     """Test that the app imports correctly after URL changes."""
     try:
-        from pynomaly.presentation.web.app import create_web_app, mount_web_ui, router
+        from monorepo.presentation.web.app import create_web_app, mount_web_ui, router
 
         print("✅ App imports successfully")
         return True
@@ -30,7 +30,7 @@ def test_router_prefix():
     try:
         from fastapi import FastAPI
 
-        from pynomaly.presentation.web.app import mount_web_ui
+        from monorepo.presentation.web.app import mount_web_ui
 
         # Create a test FastAPI app
         app = FastAPI()

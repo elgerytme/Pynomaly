@@ -61,19 +61,19 @@ class ComprehensiveValidator:
         core_imports = [
             (
                 "container",
-                "from pynomaly.infrastructure.config.container import Container",
+                "from monorepo.infrastructure.config.container import Container",
             ),
-            ("entities", "from pynomaly.domain.entities import Dataset, Detector"),
+            ("entities", "from monorepo.domain.entities import Dataset, Detector"),
             (
                 "sklearn_adapter",
-                "from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter",
+                "from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter",
             ),
             (
                 "pyod_adapter",
-                "from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter",
+                "from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter",
             ),
-            ("cli_app", "from pynomaly.presentation.cli.app import main"),
-            ("api_app", "from pynomaly.presentation.api.app import create_app"),
+            ("cli_app", "from monorepo.presentation.cli.app import main"),
+            ("api_app", "from monorepo.presentation.api.app import create_app"),
         ]
 
         for test_name, import_stmt in core_imports:
@@ -103,9 +103,9 @@ class ComprehensiveValidator:
     def test_cli_commands(self) -> None:
         """Test CLI command availability."""
         cli_commands = [
-            ("help", ["python3", "-m", "pynomaly", "--help"]),
-            ("version", ["python3", "-m", "pynomaly", "--version"]),
-            ("detect_help", ["python3", "-m", "pynomaly", "detect", "--help"]),
+            ("help", ["python3", "-m", "monorepo", "--help"]),
+            ("version", ["python3", "-m", "monorepo", "--version"]),
+            ("detect_help", ["python3", "-m", "monorepo", "detect", "--help"]),
         ]
 
         for test_name, cmd in cli_commands:
@@ -153,7 +153,7 @@ class ComprehensiveValidator:
         """Test API application startup."""
         start_time = time.time()
         try:
-            from pynomaly.presentation.api.app import create_app
+            from monorepo.presentation.api.app import create_app
 
             app = create_app(testing=True)
 
@@ -187,7 +187,7 @@ class ComprehensiveValidator:
             cmd = [
                 "python3",
                 "-m",
-                "pynomaly",
+                "monorepo",
                 "auto",
                 "detect",
                 str(test_file),

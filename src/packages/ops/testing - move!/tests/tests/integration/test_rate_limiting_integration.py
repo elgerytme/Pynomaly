@@ -11,11 +11,11 @@ import pytest
 from fastapi.testclient import TestClient
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from pynomaly.infrastructure.security.rate_limiting_middleware import (
+from monorepo.infrastructure.security.rate_limiting_middleware import (
     RateLimitResult,
     RateLimitStrategy,
 )
-from pynomaly.presentation.api.app import create_app
+from monorepo.presentation.api.app import create_app
 
 
 class TestRateLimitingIntegration:
@@ -25,7 +25,7 @@ class TestRateLimitingIntegration:
     def mock_redis(self):
         """Mock Redis client."""
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.redis"
+            "monorepo.infrastructure.security.rate_limiting_middleware.redis"
         ) as mock_redis:
             mock_client = Mock()
             mock_redis.from_url.return_value = mock_client
@@ -62,7 +62,7 @@ class TestRateLimitingIntegration:
     @pytest.fixture
     def app_with_rate_limiting(self, mock_redis, mock_settings):
         """Create FastAPI app with rate limiting enabled."""
-        with patch("pynomaly.infrastructure.config.create_container") as mock_container:
+        with patch("monorepo.infrastructure.config.create_container") as mock_container:
             container = Mock()
             container.config.return_value = mock_settings
             mock_container.return_value = container
@@ -88,7 +88,7 @@ class TestRateLimitingIntegration:
         client = TestClient(app_with_rate_limiting)
 
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
+            "monorepo.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
         ) as mock_check:
             mock_check.return_value = RateLimitResult(
                 allowed=True, limit=100, remaining=99, reset_time=int(time.time()) + 60
@@ -109,7 +109,7 @@ class TestRateLimitingIntegration:
         client = TestClient(app_with_rate_limiting)
 
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
+            "monorepo.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
         ) as mock_check:
             mock_check.return_value = RateLimitResult(
                 allowed=False,
@@ -152,7 +152,7 @@ class TestRateLimitingIntegration:
         client = TestClient(app_with_rate_limiting)
 
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
+            "monorepo.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
         ) as mock_check:
             # Mock different rate limit results for different scopes
             mock_check.side_effect = [
@@ -183,7 +183,7 @@ class TestRateLimitingIntegration:
         client = TestClient(app_with_rate_limiting)
 
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
+            "monorepo.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
         ) as mock_check:
             # Mock auth endpoint rate limit exceeded
             mock_check.return_value = RateLimitResult(
@@ -208,7 +208,7 @@ class TestRateLimitingIntegration:
         client = TestClient(app_with_rate_limiting)
 
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
+            "monorepo.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
         ) as mock_check:
             # Simulate Redis connection error
             mock_check.side_effect = RedisConnectionError("Redis connection failed")
@@ -223,10 +223,10 @@ class TestRateLimitingIntegration:
         client = TestClient(app_with_rate_limiting)
 
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
+            "monorepo.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
         ) as mock_check:
             with patch(
-                "pynomaly.infrastructure.security.rate_limiting_middleware.get_audit_logger"
+                "monorepo.infrastructure.security.rate_limiting_middleware.get_audit_logger"
             ) as mock_audit:
                 mock_logger = Mock()
                 mock_audit.return_value = mock_logger
@@ -261,7 +261,7 @@ class TestRateLimitingIntegration:
 
         for strategy in strategies:
             with patch(
-                "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
+                "monorepo.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
             ) as mock_check:
                 mock_check.return_value = RateLimitResult(
                     allowed=True,
@@ -278,7 +278,7 @@ class TestRateLimitingIntegration:
         client = TestClient(app_with_rate_limiting)
 
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
+            "monorepo.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
         ) as mock_check:
             mock_check.return_value = RateLimitResult(
                 allowed=True,
@@ -300,7 +300,7 @@ class TestRateLimitingIntegration:
         client = TestClient(app_with_rate_limiting)
 
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimitMiddleware"
+            "monorepo.infrastructure.security.rate_limiting_middleware.RateLimitMiddleware"
         ) as mock_middleware:
             # Verify middleware was initialized with settings
             mock_middleware.assert_called_once()
@@ -312,7 +312,7 @@ class TestRateLimitingIntegration:
         client = TestClient(app_with_rate_limiting)
 
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
+            "monorepo.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
         ) as mock_check:
             mock_check.return_value = RateLimitResult(
                 allowed=True, limit=100, remaining=99, reset_time=int(time.time()) + 60
@@ -336,7 +336,7 @@ class TestRateLimitingIntegration:
         client = TestClient(app_with_rate_limiting)
 
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
+            "monorepo.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
         ) as mock_check:
             mock_check.return_value = RateLimitResult(
                 allowed=True, limit=100, remaining=99, reset_time=int(time.time()) + 60
@@ -361,7 +361,7 @@ class TestRateLimitingIntegration:
         client = TestClient(app_with_rate_limiting)
 
         with patch(
-            "pynomaly.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
+            "monorepo.infrastructure.security.rate_limiting_middleware.RateLimiter.check_rate_limit"
         ) as mock_check:
             mock_check.return_value = RateLimitResult(
                 allowed=True, limit=100, remaining=99, reset_time=int(time.time()) + 60

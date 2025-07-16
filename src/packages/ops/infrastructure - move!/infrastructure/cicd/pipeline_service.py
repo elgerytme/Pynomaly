@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.models.cicd import (
+from monorepo.domain.models.cicd import (
     Pipeline,
     PipelineMetrics,
     PipelineStage,

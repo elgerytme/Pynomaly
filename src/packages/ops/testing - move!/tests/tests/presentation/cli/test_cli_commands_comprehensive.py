@@ -15,8 +15,8 @@ import pytest
 from click.testing import CliRunner as ClickRunner
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.app import app
-from pynomaly.presentation.cli.lazy_app import lazy_app
+from monorepo.presentation.cli.app import app
+from monorepo.presentation.cli.lazy_app import lazy_app
 
 
 class TestCLIApplication:
@@ -80,7 +80,7 @@ class TestDetectionCommands:
         assert result.exit_code == 0
         assert "detect" in result.stdout.lower()
 
-    @patch("pynomaly.presentation.cli.commands.detection.detect_anomalies")
+    @patch("monorepo.presentation.cli.commands.detection.detect_anomalies")
     def test_detect_command_basic(self, mock_detect, runner, sample_data_file):
         """Test basic detect command."""
         mock_detect.return_value = {"anomalies": []}
@@ -93,7 +93,7 @@ class TestDetectionCommands:
         # Should not crash
         assert result.exit_code in [0, 1]  # May fail due to missing dependencies
 
-    @patch("pynomaly.presentation.cli.commands.detection.detect_anomalies")
+    @patch("monorepo.presentation.cli.commands.detection.detect_anomalies")
     def test_detect_command_with_options(self, mock_detect, runner, sample_data_file):
         """Test detect command with various options."""
         mock_detect.return_value = {"anomalies": []}
@@ -162,7 +162,7 @@ class TestDetectorCommands:
         assert result.exit_code == 0
         assert "create" in result.stdout.lower()
 
-    @patch("pynomaly.presentation.cli.commands.detectors.create_detector")
+    @patch("monorepo.presentation.cli.commands.detectors.create_detector")
     def test_detector_create_command(self, mock_create, runner):
         """Test detector create command."""
         mock_create.return_value = {"id": "test-detector"}
@@ -188,7 +188,7 @@ class TestDetectorCommands:
         assert result.exit_code == 0
         assert "delete" in result.stdout.lower()
 
-    @patch("pynomaly.presentation.cli.commands.detectors.delete_detector")
+    @patch("monorepo.presentation.cli.commands.detectors.delete_detector")
     def test_detector_delete_command(self, mock_delete, runner):
         """Test detector delete command."""
         mock_delete.return_value = True
@@ -235,7 +235,7 @@ class TestDatasetCommands:
         assert result.exit_code == 0
         assert "upload" in result.stdout.lower()
 
-    @patch("pynomaly.presentation.cli.commands.datasets.upload_dataset")
+    @patch("monorepo.presentation.cli.commands.datasets.upload_dataset")
     def test_dataset_upload_command(self, mock_upload, runner, sample_dataset_file):
         """Test dataset upload command."""
         mock_upload.return_value = {"id": "test-dataset"}
@@ -261,7 +261,7 @@ class TestDatasetCommands:
         assert result.exit_code == 0
         assert "download" in result.stdout.lower()
 
-    @patch("pynomaly.presentation.cli.commands.datasets.download_dataset")
+    @patch("monorepo.presentation.cli.commands.datasets.download_dataset")
     def test_dataset_download_command(self, mock_download, runner):
         """Test dataset download command."""
         mock_download.return_value = b"test data"
@@ -330,7 +330,7 @@ class TestConfigCommands:
         assert result.exit_code == 0
         assert "set" in result.stdout.lower()
 
-    @patch("pynomaly.presentation.cli.commands.config.set_config")
+    @patch("monorepo.presentation.cli.commands.config.set_config")
     def test_config_set_command(self, mock_set, runner):
         """Test config set command."""
         mock_set.return_value = True
@@ -350,7 +350,7 @@ class TestConfigCommands:
         # Should not crash
         assert result.exit_code in [0, 1]
 
-    @patch("pynomaly.presentation.cli.commands.config.load_config")
+    @patch("monorepo.presentation.cli.commands.config.load_config")
     def test_config_import_command(self, mock_load, runner, temp_config_file):
         """Test config import command."""
         mock_load.return_value = {"api_url": "http://localhost:8000"}
@@ -389,7 +389,7 @@ class TestAutoMLCommands:
         assert result.exit_code == 0
         assert "automl" in result.stdout.lower()
 
-    @patch("pynomaly.presentation.cli.commands.automl.run_automl")
+    @patch("monorepo.presentation.cli.commands.automl.run_automl")
     def test_automl_run_command(self, mock_run, runner):
         """Test AutoML run command."""
         mock_run.return_value = {"experiment_id": "test-exp"}
@@ -439,7 +439,7 @@ class TestEnsembleCommands:
         assert result.exit_code == 0
         assert "ensemble" in result.stdout.lower()
 
-    @patch("pynomaly.presentation.cli.commands.ensemble.create_ensemble")
+    @patch("monorepo.presentation.cli.commands.ensemble.create_ensemble")
     def test_ensemble_create_command(self, mock_create, runner):
         """Test ensemble create command."""
         mock_create.return_value = {"id": "test-ensemble"}
@@ -487,7 +487,7 @@ class TestServerCommands:
         assert result.exit_code == 0
         assert "server" in result.stdout.lower()
 
-    @patch("pynomaly.presentation.cli.commands.server.start_server")
+    @patch("monorepo.presentation.cli.commands.server.start_server")
     def test_server_start_command(self, mock_start, runner):
         """Test server start command."""
         mock_start.return_value = None
@@ -529,7 +529,7 @@ class TestExportCommands:
         assert result.exit_code == 0
         assert "export" in result.stdout.lower()
 
-    @patch("pynomaly.presentation.cli.commands.export.export_data")
+    @patch("monorepo.presentation.cli.commands.export.export_data")
     def test_export_dataset_command(self, mock_export, runner):
         """Test export dataset command."""
         mock_export.return_value = True
@@ -551,7 +551,7 @@ class TestExportCommands:
         # Should not crash
         assert result.exit_code in [0, 1]
 
-    @patch("pynomaly.presentation.cli.commands.export.export_results")
+    @patch("monorepo.presentation.cli.commands.export.export_results")
     def test_export_results_command(self, mock_export, runner):
         """Test export results command."""
         mock_export.return_value = True

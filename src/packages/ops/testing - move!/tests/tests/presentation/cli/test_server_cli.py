@@ -12,7 +12,7 @@ import pytest
 import requests
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.server import app
+from monorepo.presentation.cli.server import app
 
 
 class TestServerCLI:
@@ -85,7 +85,7 @@ class TestServerCLI:
 
         # Check that uvicorn.run was called with expected parameters
         args, kwargs = mock_uvicorn.call_args
-        assert "pynomaly.presentation.api:app" in args or "app" in kwargs
+        assert "monorepo.presentation.api:app" in args or "app" in kwargs
         assert kwargs.get("host", "localhost") == "localhost"
         assert kwargs.get("port", 8000) == 8000
 
@@ -480,7 +480,7 @@ class TestServerCLI:
     def test_config_show(self, runner):
         """Test showing server configuration."""
         with patch(
-            "pynomaly.presentation.cli.container.get_cli_container"
+            "monorepo.presentation.cli.container.get_cli_container"
         ) as mock_container:
             container = Mock()
             config = Mock()

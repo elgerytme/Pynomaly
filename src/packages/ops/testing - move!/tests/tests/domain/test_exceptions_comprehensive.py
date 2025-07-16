@@ -7,31 +7,31 @@ and business rule violations.
 
 from uuid import uuid4
 
-from pynomaly.domain.exceptions.base import (
+from monorepo.domain.exceptions.base import (
     BusinessRuleViolation,
     DomainException,
     ValidationError,
 )
-from pynomaly.domain.exceptions.dataset_exceptions import (
+from monorepo.domain.exceptions.dataset_exceptions import (
     DatasetCorruptionError,
     DatasetFormatError,
     DatasetSchemaError,
     DatasetSizeError,
     DatasetValidationError,
 )
-from pynomaly.domain.exceptions.detector_exceptions import (
+from monorepo.domain.exceptions.detector_exceptions import (
     DetectorConfigurationError,
     DetectorNotTrainedError,
     DetectorStateError,
     DetectorValidationError,
 )
-from pynomaly.domain.exceptions.entity_exceptions import (
+from monorepo.domain.exceptions.entity_exceptions import (
     EntityConstraintViolationError,
     EntityNotFoundError,
     EntityStateError,
     EntityValidationError,
 )
-from pynomaly.domain.exceptions.result_exceptions import (
+from monorepo.domain.exceptions.result_exceptions import (
     ResultInconsistencyError,
     ResultProcessingError,
     ResultStorageError,

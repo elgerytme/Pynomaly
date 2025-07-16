@@ -11,8 +11,8 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.prompt import Confirm
 from rich.table import Table
 
-from pynomaly.application.services.multi_tenant_service import MultiTenantService
-from pynomaly.domain.entities.tenant import SubscriptionTier, TenantStatus
+from monorepo.application.services.multi_tenant_service import MultiTenantService
+from monorepo.domain.entities.tenant import SubscriptionTier, TenantStatus
 
 console = Console()
 

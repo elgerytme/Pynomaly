@@ -499,7 +499,7 @@ def main():
         [str(python_path), "-c", "import mypy; print('mypy available')"],
 
         # Import tests
-        [str(python_path), "-c", "import sys; sys.path.insert(0, 'src'); import pynomaly; print('✓ pynomaly imports successfully')"],
+        [str(python_path), "-c", "import sys; sys.path.insert(0, 'src'); import monorepo; print('✓ pynomaly imports successfully')"],
     ]
 
     for i, cmd in enumerate(test_commands, 1):

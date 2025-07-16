@@ -12,7 +12,7 @@ def test_cli_async_utils():
     print("Testing CLI async utilities...")
     
     try:
-        from pynomaly.presentation.cli.async_utils import cli_runner, run_async_safely
+        from monorepo.presentation.cli.async_utils import cli_runner, run_async_safely
         
         # Test basic async operation
         import asyncio
@@ -36,7 +36,7 @@ def test_config_attributes():
     print("Testing configuration attributes...")
     
     try:
-        from pynomaly.infrastructure.config.settings import Settings
+        from monorepo.infrastructure.config.settings import Settings
         
         settings = Settings()
         
@@ -64,7 +64,7 @@ def test_security_monitoring():
     print("Testing security monitoring...")
     
     try:
-        from pynomaly.presentation.web.security_monitoring import SecurityMonitoringService
+        from monorepo.presentation.web.security_monitoring import SecurityMonitoringService
         
         # This should not raise event loop errors
         service = SecurityMonitoringService()
@@ -86,7 +86,7 @@ def test_cli_import():
     print("Testing CLI import...")
     
     try:
-        from pynomaly.presentation.cli.app import app
+        from monorepo.presentation.cli.app import app
         
         # Check that the app has commands
         assert hasattr(app, 'registered_commands')

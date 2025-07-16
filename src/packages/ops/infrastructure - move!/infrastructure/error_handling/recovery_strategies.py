@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from typing import Any, TypeVar
 
-from pynomaly.domain.exceptions import InfrastructureError, PynamolyError
+from monorepo.domain.exceptions import InfrastructureError, PynamolyError
 
 T = TypeVar("T")
 

@@ -257,7 +257,7 @@ def create_consolidated_pyproject() -> str:
 # Consolidated pyproject.toml structure recommendation
 
 [project]
-name = "pynomaly"
+name = "monorepo"
 dependencies = [
     # Core dependencies only
     "pyod>=2.0.5",

@@ -16,17 +16,17 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 # Application imports
-from pynomaly.application.services.deep_learning_integration_service import (
+from monorepo.application.services.deep_learning_integration_service import (
     DeepLearningIntegrationService,
     DLOptimizationConfig,
 )
 
 # Domain imports
-from pynomaly.domain.entities import Dataset
-from pynomaly.infrastructure.config.feature_flags import require_feature
+from monorepo.domain.entities import Dataset
+from monorepo.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
-from pynomaly.infrastructure.data_loaders import CSVLoader, ParquetLoader
+from monorepo.infrastructure.data_loaders import CSVLoader, ParquetLoader
 
 console = Console()
 

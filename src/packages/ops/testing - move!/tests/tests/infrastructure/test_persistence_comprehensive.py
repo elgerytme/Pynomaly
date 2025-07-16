@@ -11,23 +11,23 @@ import numpy as np
 import pytest
 from sqlalchemy import text
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import RepositoryError
-from pynomaly.domain.value_objects import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.exceptions import RepositoryError
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ConfidenceInterval,
     ContaminationRate,
 )
-from pynomaly.infrastructure.persistence import (
+from monorepo.infrastructure.persistence import (
     DatasetModel,
     DetectionResultModel,
     DetectorModel,
 )
-from pynomaly.infrastructure.persistence.database import (
+from monorepo.infrastructure.persistence.database import (
     DatabaseConnection,
     init_database,
 )
-from pynomaly.infrastructure.persistence.database_repositories import (
+from monorepo.infrastructure.persistence.database_repositories import (
     DatabaseDatasetRepository,
     DatabaseDetectionResultRepository,
     DatabaseDetectorRepository,

@@ -20,29 +20,29 @@ from rich.progress import (
 )
 from rich.table import Table
 
-from pynomaly_detection.application.dto.optimization_dto import (
+from monorepo.application.dto.optimization_dto import (
     OptimizationObjectiveDTO,
     ResourceConstraintsDTO,
     create_default_objectives,
 )
 
 # Application imports
-from pynomaly_detection.application.services.advanced_automl_service import AdvancedAutoMLService
+from monorepo.application.services.advanced_automl_service import AdvancedAutoMLService
 
 # Domain imports
-from pynomaly_detection.domain.entities import Dataset
-from pynomaly_detection.domain.services.advanced_detection_service import DetectionAlgorithm
-from pynomaly_detection.domain.services.automl_service import (
+from monorepo.domain.entities import Dataset
+from monorepo.domain.services.advanced_detection_service import DetectionAlgorithm
+from monorepo.domain.services.automl_service import (
     OptimizationConfig,
     OptimizationMetric,
     SearchStrategy,
     get_automl_service,
 )
-from pynomaly_detection.infrastructure.config.feature_flags import require_feature
+from monorepo.infrastructure.config.feature_flags import require_feature
 
 # Infrastructure imports
-from pynomaly_detection.infrastructure.data_loaders.csv_loader import CSVLoader
-from pynomaly_detection.infrastructure.data_loaders.parquet_loader import ParquetLoader
+from monorepo.infrastructure.data_loaders.csv_loader import CSVLoader
+from monorepo.infrastructure.data_loaders.parquet_loader import ParquetLoader
 
 console = Console()
 app = typer.Typer()
@@ -677,7 +677,7 @@ def comprehensive(
         console.print("🔧 Initializing comprehensive AutoML service...")
 
         # Import comprehensive service
-        from pynomaly_detection.application.services.comprehensive_automl_service import (
+        from monorepo.application.services.comprehensive_automl_service import (
             ComprehensiveAutoMLService,
             ComprehensiveOptimizationConfig,
             EnsembleMethod,

@@ -237,7 +237,7 @@ metadata:
 spec:
   acme:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
-    email: admin@pynomaly.local
+    email: admin@monorepo.local
     privateKeySecretRef:
       name: letsencrypt-staging
     solvers:
@@ -252,7 +252,7 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: admin@pynomaly.local
+    email: admin@monorepo.local
     privateKeySecretRef:
       name: letsencrypt-prod
     solvers:
@@ -798,21 +798,21 @@ logging:
 
 ingress:
   hosts:
-    - host: api.pynomaly.localhost
+    - host: api.monorepo.localhost
       paths:
         - path: /
           pathType: Prefix
           service:
             name: pynomaly-api
             port: 8000
-    - host: grafana.pynomaly.localhost
+    - host: grafana.monorepo.localhost
       paths:
         - path: /
           pathType: Prefix
           service:
             name: grafana
             port: 3000
-    - host: jaeger.pynomaly.localhost
+    - host: jaeger.monorepo.localhost
       paths:
         - path: /
           pathType: Prefix
@@ -896,9 +896,9 @@ def main():
         print("   ./scripts/orchestration/scale.sh api 5")
         print("\n5. Access services:")
         if setup_local:
-            print("   - API: http://api.pynomaly.localhost")
-            print("   - Grafana: http://grafana.pynomaly.localhost")
-            print("   - Jaeger: http://jaeger.pynomaly.localhost")
+            print("   - API: http://api.monorepo.localhost")
+            print("   - Grafana: http://grafana.monorepo.localhost")
+            print("   - Jaeger: http://jaeger.monorepo.localhost")
         else:
             print("   - Configure DNS to point to your cluster ingress")
 

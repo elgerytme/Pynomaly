@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 from uuid import UUID
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
 
 T = TypeVar("T")
 

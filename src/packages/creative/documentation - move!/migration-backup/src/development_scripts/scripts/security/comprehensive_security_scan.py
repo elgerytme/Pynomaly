@@ -574,7 +574,7 @@ class ComprehensiveSecurityScanner:
             # Import and use existing vulnerability scanner
             sys.path.append(str(self.project_root / "src"))
             
-            from pynomaly.presentation.api.security.vulnerability_scanner import VulnerabilityScanner
+            from monorepo.presentation.api.security.vulnerability_scanner import VulnerabilityScanner
             
             scanner = VulnerabilityScanner()
             
@@ -589,7 +589,7 @@ class ComprehensiveSecurityScanner:
             
             # Code paths to scan
             code_paths = [
-                str(self.project_root / "src" / "pynomaly"),
+                str(self.project_root / "src" / "monorepo"),
                 str(self.project_root / "src" / "packages"),
             ]
             

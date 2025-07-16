@@ -8,16 +8,16 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.dto.selection_dto import (
+from monorepo.application.dto.selection_dto import (
     AlgorithmPerformanceDTO,
     DatasetCharacteristicsDTO,
     OptimizationConstraintsDTO,
     SelectionRecommendationDTO,
 )
-from pynomaly.application.services.intelligent_selection_service import (
+from monorepo.application.services.intelligent_selection_service import (
     IntelligentSelectionService,
 )
-from pynomaly.domain.entities import Dataset
+from monorepo.domain.entities import Dataset
 
 
 class TestIntelligentSelectionService:
@@ -385,7 +385,7 @@ class TestIntelligentSelectionService:
     def test_analyze_algorithm_performance(self):
         """Test algorithm performance analysis."""
         # Add some dummy history manually
-        from pynomaly.application.dto.selection_dto import SelectionHistoryDTO
+        from monorepo.application.dto.selection_dto import SelectionHistoryDTO
 
         characteristics = DatasetCharacteristicsDTO(
             n_samples=1000,

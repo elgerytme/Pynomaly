@@ -20,7 +20,7 @@ def test_backup_manager_import():
         sys.path.insert(0, "src")
 
         # Test individual components
-        from pynomaly.infrastructure.backup.backup_manager import (
+        from monorepo.infrastructure.backup.backup_manager import (
             BackupMetadata,
             BackupStatus,
             BackupType,
@@ -42,7 +42,7 @@ def test_disaster_recovery_import():
 
         sys.path.insert(0, "src")
 
-        from pynomaly.infrastructure.backup.disaster_recovery_service import (
+        from monorepo.infrastructure.backup.disaster_recovery_service import (
             RecoveryPlan,
             RecoveryPoint,
             RecoveryPriority,
@@ -63,7 +63,7 @@ def test_backup_metadata():
 
         sys.path.insert(0, "src")
 
-        from pynomaly.infrastructure.backup.backup_manager import (
+        from monorepo.infrastructure.backup.backup_manager import (
             BackupMetadata,
             BackupStatus,
             BackupType,
@@ -101,7 +101,7 @@ def test_recovery_point():
 
         sys.path.insert(0, "src")
 
-        from pynomaly.infrastructure.backup.disaster_recovery_service import (
+        from monorepo.infrastructure.backup.disaster_recovery_service import (
             RecoveryPoint,
             RecoveryPriority,
         )
@@ -137,7 +137,7 @@ def test_recovery_plan():
 
         sys.path.insert(0, "src")
 
-        from pynomaly.infrastructure.backup.disaster_recovery_service import (
+        from monorepo.infrastructure.backup.disaster_recovery_service import (
             RecoveryPlan,
             RecoveryPoint,
             RecoveryPriority,
@@ -195,7 +195,7 @@ def test_backup_config_loading():
                     "host": "localhost",
                     "port": 5432,
                     "username": "postgres",
-                    "database": "pynomaly",
+                    "database": "monorepo",
                 }
             },
             "files": {

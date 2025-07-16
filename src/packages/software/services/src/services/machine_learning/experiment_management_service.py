@@ -6,17 +6,17 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities import (
+from monorepo.domain.entities import (
     Experiment,
     ExperimentRun,
     ExperimentStatus,
     ExperimentType,
 )
-from pynomaly.domain.exceptions import (
+from monorepo.domain.exceptions import (
     ExperimentNotFoundError,
     InvalidExperimentStateError,
 )
-from pynomaly.shared.protocols import (
+from monorepo.shared.protocols import (
     ExperimentRepositoryProtocol,
     ExperimentRunRepositoryProtocol,
 )

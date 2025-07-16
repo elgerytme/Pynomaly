@@ -6,14 +6,14 @@ import ast
 import subprocess
 from pathlib import Path
 
-from pynomaly.infrastructure.config.tdd_config import (
+from monorepo.infrastructure.config.tdd_config import (
     TDDConfigManager,
     TDDRuleEngine,
     TDDSettings,
     TDDViolation,
     TestRequirement,
 )
-from pynomaly.infrastructure.persistence.tdd_repository import (
+from monorepo.infrastructure.persistence.tdd_repository import (
     FileTDDRepository,
     TestDrivenDevelopmentRepositoryProtocol,
 )

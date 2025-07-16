@@ -15,10 +15,10 @@ from contextlib import asynccontextmanager
 import gc
 import json
 
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.services.advanced_classification_service import AdvancedClassificationService
-from pynomaly.domain.services.threshold_severity_classifier import ThresholdSeverityClassifier
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.services.advanced_classification_service import AdvancedClassificationService
+from monorepo.domain.services.threshold_severity_classifier import ThresholdSeverityClassifier
+from monorepo.domain.value_objects import ContaminationRate
 
 
 @dataclass

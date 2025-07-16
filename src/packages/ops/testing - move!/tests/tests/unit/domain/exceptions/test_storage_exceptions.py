@@ -2,8 +2,8 @@
 
 import pytest
 
-from pynomaly.domain.exceptions.base import InfrastructureError, PynamolyError
-from pynomaly.domain.exceptions.storage_exceptions import (
+from monorepo.domain.exceptions.base import InfrastructureError, PynamolyError
+from monorepo.domain.exceptions.storage_exceptions import (
     SerializationError,
     StorageConfigurationError,
     StorageConnectionError,

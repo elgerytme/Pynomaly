@@ -76,7 +76,7 @@ class SDKGenerator:
             },
             "java": {
                 "generator": "java",
-                "package_name": "com.pynomaly.client",
+                "package_name": "com.monorepo.client",
                 "client_name": "PynomaliClient",
                 "additional_properties": {
                     "groupId": "com.pynomaly",
@@ -89,10 +89,10 @@ class SDKGenerator:
             },
             "go": {
                 "generator": "go",
-                "package_name": "pynomaly",
+                "package_name": "monorepo",
                 "client_name": "Client",
                 "additional_properties": {
-                    "packageName": "pynomaly",
+                    "packageName": "monorepo",
                     "packageVersion": "1.0.0",
                     "packageUrl": "github.com/pynomaly/go-client",
                     "withGoCodegenComment": "true",
@@ -119,7 +119,7 @@ class SDKGenerator:
                     "packageName": "pynomaly/client",
                     "packageVersion": "1.0.0",
                     "invokerPackage": "Pynomaly\\Client",
-                    "composerVendorName": "pynomaly",
+                    "composerVendorName": "monorepo",
                     "composerProjectName": "client",
                 },
             },
@@ -134,7 +134,7 @@ class SDKGenerator:
                     "gemSummary": "Ruby client library for Pynomaly API",
                     "gemDescription": "Ruby client library for Pynomaly anomaly detection API",
                     "gemAuthor": "Pynomaly Team",
-                    "gemAuthorEmail": "support@pynomaly.com",
+                    "gemAuthorEmail": "support@monorepo.com",
                 },
             },
             "rust": {
@@ -144,7 +144,7 @@ class SDKGenerator:
                 "additional_properties": {
                     "packageName": "pynomaly_client",
                     "packageVersion": "1.0.0",
-                    "packageAuthors": "Pynomaly Team <support@pynomaly.com>",
+                    "packageAuthors": "Pynomaly Team <support@monorepo.com>",
                     "supportAsync": "true",
                     "library": "reqwest",
                 },
@@ -336,7 +336,7 @@ pip install pynomaly-client
 from pynomaly_client import PynomaliClient
 
 # Initialize client
-client = PynomaliClient(base_url="https://api.pynomaly.com")
+client = PynomaliClient(base_url="https://api.monorepo.com")
 
 # Authenticate
 token_response = client.auth.login("username", "password")
@@ -363,7 +363,7 @@ import { PynomaliClient } from '@pynomaly/client';
 
 // Initialize client
 const client = new PynomaliClient({
-    basePath: 'https://api.pynomaly.com'
+    basePath: 'https://api.monorepo.com'
 });
 
 // Authenticate
@@ -405,15 +405,15 @@ implementation 'com.pynomaly:pynomaly-client:1.0.0'
 ## Quick Start
 
 ```java
-import com.pynomaly.client.ApiClient;
-import com.pynomaly.client.Configuration;
-import com.pynomaly.client.api.AuthApi;
-import com.pynomaly.client.api.DetectionApi;
-import com.pynomaly.client.model.*;
+import com.monorepo.client.ApiClient;
+import com.monorepo.client.Configuration;
+import com.monorepo.client.api.AuthApi;
+import com.monorepo.client.api.DetectionApi;
+import com.monorepo.client.model.*;
 
 // Initialize client
 ApiClient client = Configuration.getDefaultApiClient();
-client.setBasePath("https://api.pynomaly.com");
+client.setBasePath("https://api.monorepo.com");
 
 // Authenticate
 AuthApi authApi = new AuthApi(client);
@@ -456,13 +456,13 @@ import (
 
 func main() {
     // Initialize client
-    client := pynomaly.NewAPIClient(pynomaly.NewConfiguration())
-    client.GetConfig().BasePath = "https://api.pynomaly.com"
+    client := monorepo.NewAPIClient(monorepo.NewConfiguration())
+    client.GetConfig().BasePath = "https://api.monorepo.com"
 
     ctx := context.Background()
 
     // Authenticate
-    loginReq := pynomaly.LoginRequest{
+    loginReq := monorepo.LoginRequest{
         Username: "username",
         Password: "password",
     }
@@ -473,10 +473,10 @@ func main() {
     }
 
     // Set authentication
-    auth := context.WithValue(ctx, pynomaly.ContextAccessToken, tokenResp.AccessToken)
+    auth := context.WithValue(ctx, monorepo.ContextAccessToken, tokenResp.AccessToken)
 
     // Detect anomalies
-    detectReq := pynomaly.DetectionRequest{
+    detectReq := monorepo.DetectionRequest{
         Data:      []float64{1.0, 2.0, 3.0, 100.0, 4.0, 5.0},
         Algorithm: "isolation_forest",
         Parameters: map[string]interface{}{
@@ -561,8 +561,8 @@ The SDK automatically handles rate limiting with exponential backoff:
 
 ## Support
 
-- **Documentation**: https://docs.pynomaly.com
-- **Support**: support@pynomaly.com
+- **Documentation**: https://docs.monorepo.com
+- **Support**: support@monorepo.com
 - **Issues**: https://github.com/pynomaly/{language}-client/issues
 
 ## License
@@ -595,7 +595,7 @@ from pynomaly_client.exceptions import ApiException
 async def main():
     """Basic usage example."""
     # Initialize client
-    client = PynomaliClient(base_url="https://api.pynomaly.com")
+    client = PynomaliClient(base_url="https://api.monorepo.com")
 
     try:
         # Login
@@ -659,7 +659,7 @@ logger = logging.getLogger(__name__)
 class PynomaliWrapper:
     """Advanced wrapper with retry logic and error handling."""
 
-    def __init__(self, base_url: str = "https://api.pynomaly.com"):
+    def __init__(self, base_url: str = "https://api.monorepo.com"):
         self.client = PynomaliClient(base_url=base_url)
         self.authenticated = False
 
@@ -1194,8 +1194,8 @@ go mod tidy
         summary_content += """
 ## Support
 
-- **Documentation**: https://docs.pynomaly.com
-- **Support**: support@pynomaly.com
+- **Documentation**: https://docs.monorepo.com
+- **Support**: support@monorepo.com
 - **Issues**: https://github.com/pynomaly/client-sdks/issues
 """
 

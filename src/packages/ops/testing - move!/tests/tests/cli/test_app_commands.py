@@ -8,7 +8,7 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.app import app
+from monorepo.presentation.cli.app import app
 
 
 class TestAppCommands:
@@ -23,7 +23,7 @@ class TestAppCommands:
     def mock_container(self):
         """Mock CLI container with all required dependencies."""
         with patch(
-            "pynomaly.presentation.cli.app.get_cli_container"
+            "monorepo.presentation.cli.app.get_cli_container"
         ) as mock_get_container:
             # Create mock container
             container = Mock()
@@ -31,7 +31,7 @@ class TestAppCommands:
             # Mock config
             config = Mock()
             config.app.version = "1.0.0"
-            config.app_name = "pynomaly"
+            config.app_name = "monorepo"
             config.version = "1.0.0"
             config.debug = False
             config.storage_path = "/tmp/pynomaly"
@@ -308,7 +308,7 @@ class TestAppCommands:
         assert "Quickstart cancelled." in result.stdout
         mock_confirm.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.ux_improvements.create_setup_wizard")
+    @patch("monorepo.presentation.cli.ux_improvements.create_setup_wizard")
     def test_setup_command_success(self, mock_wizard, runner, mock_container):
         """Test setup command when wizard completes successfully."""
         mock_config = {
@@ -336,7 +336,7 @@ class TestAppCommands:
 
         mock_wizard.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.ux_improvements.create_setup_wizard")
+    @patch("monorepo.presentation.cli.ux_improvements.create_setup_wizard")
     def test_setup_command_failure(self, mock_wizard, runner, mock_container):
         """Test setup command when wizard fails."""
         mock_wizard.side_effect = Exception("Setup wizard failed")
@@ -347,7 +347,7 @@ class TestAppCommands:
         assert "Setup wizard failed: Setup wizard failed" in result.stdout
         mock_wizard.assert_called_once()
 
-    @patch("pynomaly.presentation.cli.ux_improvements.create_setup_wizard")
+    @patch("monorepo.presentation.cli.ux_improvements.create_setup_wizard")
     def test_setup_command_no_config(self, mock_wizard, runner, mock_container):
         """Test setup command when wizard returns no config."""
         mock_wizard.return_value = None
@@ -459,7 +459,7 @@ class TestAppCommandsErrorHandling:
             assert result.exit_code == 1
             assert "Failed to save config: Permission denied" in result.stdout
 
-    @patch("pynomaly.presentation.cli.app.get_cli_container")
+    @patch("monorepo.presentation.cli.app.get_cli_container")
     def test_version_command_container_error(self, mock_get_container, runner):
         """Test version command when container fails."""
         mock_get_container.side_effect = Exception("Container initialization failed")
@@ -468,7 +468,7 @@ class TestAppCommandsErrorHandling:
 
         assert result.exit_code != 0
 
-    @patch("pynomaly.presentation.cli.app.get_cli_container")
+    @patch("monorepo.presentation.cli.app.get_cli_container")
     def test_settings_command_container_error(self, mock_get_container, runner):
         """Test settings command when container fails."""
         mock_get_container.side_effect = Exception("Container initialization failed")
@@ -477,7 +477,7 @@ class TestAppCommandsErrorHandling:
 
         assert result.exit_code != 0
 
-    @patch("pynomaly.presentation.cli.app.get_cli_container")
+    @patch("monorepo.presentation.cli.app.get_cli_container")
     def test_status_command_repository_error(self, mock_get_container, runner):
         """Test status command when repository calls fail."""
         container = Mock()

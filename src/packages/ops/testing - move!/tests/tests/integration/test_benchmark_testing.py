@@ -14,9 +14,9 @@ import pandas as pd
 import psutil
 import pytest
 
-from pynomaly.domain.entities import Detector
-from pynomaly.infrastructure.adapters.pyod_adapter import PyODAdapter
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.domain.entities import Detector
+from monorepo.infrastructure.adapters.pyod_adapter import PyODAdapter
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 @dataclass

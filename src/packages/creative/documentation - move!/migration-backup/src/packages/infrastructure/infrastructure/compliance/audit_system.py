@@ -18,7 +18,7 @@ try:
 except ImportError:
     AIOFILES_AVAILABLE = False
 
-from pynomaly.shared.config import Config
+from monorepo.shared.config import Config
 
 # from ..monitoring.opentelemetry_service import get_telemetry_service
 # from ..monitoring.distributed_tracing import get_distributed_tracer

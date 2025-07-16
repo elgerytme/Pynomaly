@@ -12,16 +12,16 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities.ab_testing import ABTesting
-from pynomaly.domain.entities.continuous_learning import ContinuousLearning
-from pynomaly.domain.entities.deployment import Deployment
-from pynomaly.domain.entities.drift_detection import DriftDetection
-from pynomaly.domain.entities.explainable_ai import ExplainableAI
-from pynomaly.domain.entities.model_registry import ModelRegistry
-from pynomaly.domain.entities.model_version import ModelVersion
-from pynomaly.domain.entities.security_compliance import SecurityCompliance
-from pynomaly.domain.exceptions import ValidationError
-from pynomaly.domain.value_objects import (
+from monorepo.domain.entities.ab_testing import ABTesting
+from monorepo.domain.entities.continuous_learning import ContinuousLearning
+from monorepo.domain.entities.deployment import Deployment
+from monorepo.domain.entities.drift_detection import DriftDetection
+from monorepo.domain.entities.explainable_ai import ExplainableAI
+from monorepo.domain.entities.model_registry import ModelRegistry
+from monorepo.domain.entities.model_version import ModelVersion
+from monorepo.domain.entities.security_compliance import SecurityCompliance
+from monorepo.domain.exceptions import ValidationError
+from monorepo.domain.value_objects import (
     ModelStorageInfo,
     PerformanceMetrics,
     SemanticVersion,

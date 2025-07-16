@@ -9,8 +9,8 @@ from unittest.mock import patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli import autonomous, datasets, detectors
-from pynomaly.presentation.cli.app import app
+from monorepo.presentation.cli import autonomous, datasets, detectors
+from monorepo.presentation.cli.app import app
 
 
 class TestCLIErrorHandling:
@@ -92,7 +92,7 @@ class TestCLIErrorHandling:
     def test_graceful_keyboard_interrupt(self, runner):
         """Test graceful handling of keyboard interrupts."""
         with patch(
-            "pynomaly.presentation.cli.autonomous.AutonomousDetectionService"
+            "monorepo.presentation.cli.autonomous.AutonomousDetectionService"
         ) as mock_service:
             mock_service.return_value.detect_anomalies.side_effect = KeyboardInterrupt()
 

@@ -95,13 +95,13 @@ class DatabaseConfig(BaseModel):
             if self.file_path:
                 return f"sqlite:///{self.file_path}"
             else:
-                return "sqlite:///./data/pynomaly.db"
+                return "sqlite:///./data/monorepo.db"
 
         elif self.db_type == DatabaseType.POSTGRESQL:
             host = self.host or "localhost"
             port = self.port or 5432
-            database = self.database or "pynomaly"
-            username = self.username or "pynomaly"
+            database = self.database or "monorepo"
+            username = self.username or "monorepo"
             password = self.password or ""
 
             if password:
@@ -112,8 +112,8 @@ class DatabaseConfig(BaseModel):
         elif self.db_type == DatabaseType.MYSQL:
             host = self.host or "localhost"
             port = self.port or 3306
-            database = self.database or "pynomaly"
-            username = self.username or "pynomaly"
+            database = self.database or "monorepo"
+            username = self.username or "monorepo"
             password = self.password or ""
 
             if password:
@@ -124,8 +124,8 @@ class DatabaseConfig(BaseModel):
         elif self.db_type == DatabaseType.MARIADB:
             host = self.host or "localhost"
             port = self.port or 3306
-            database = self.database or "pynomaly"
-            username = self.username or "pynomaly"
+            database = self.database or "monorepo"
+            username = self.username or "monorepo"
             password = self.password or ""
 
             if password:
@@ -202,7 +202,7 @@ class DatabaseConfigManager:
         profiles[DatabaseProfile.DEVELOPMENT] = DatabaseConfig(
             profile=DatabaseProfile.DEVELOPMENT,
             db_type=DatabaseType.SQLITE,
-            file_path=Path("./data/pynomaly.db"),
+            file_path=Path("./data/monorepo.db"),
             echo=False,
             wal_mode=True,
             pool_size=5,

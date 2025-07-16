@@ -77,7 +77,7 @@ def main():
     # Step 1: Uninstall the wrong pynomaly package
     print("\n📌 Step 1: Remove conflicting pynomaly package")
     success = run_command(
-        [sys.executable, "-m", "pip", "uninstall", "pynomaly", "-y"],
+        [sys.executable, "-m", "pip", "uninstall", "monorepo", "-y"],
         "Uninstalling existing pynomaly package",
     )
 
@@ -111,13 +111,13 @@ def main():
 
     # Test imports
     try:
-        import pynomaly
+        import monorepo
 
         print("✅ pynomaly package imports successfully")
         print(f"   Version: {getattr(pynomaly, '__version__', 'development')}")
-        print(f"   Location: {pynomaly.__file__}")
+        print(f"   Location: {monorepo.__file__}")
     except ImportError as e:
-        print(f"❌ Failed to import pynomaly: {e}")
+        print(f"❌ Failed to import monorepo: {e}")
 
     # Test CLI availability
     try:
@@ -125,7 +125,7 @@ def main():
             [
                 sys.executable,
                 "-c",
-                "from pynomaly.presentation.cli.app import app; print('CLI available')",
+                "from monorepo.presentation.cli.app import app; print('CLI available')",
             ],
             capture_output=True,
             text=True,
@@ -141,7 +141,7 @@ def main():
 
     # Step 5: Show next steps
     print("\n📌 Next Steps:")
-    print("1. Try running: python -m pynomaly.presentation.cli.app --help")
+    print("1. Try running: python -m monorepo.presentation.cli.app --help")
     print("2. Or use PowerShell script: ./fix_windows_setup.ps1")
     print("3. For API server: python scripts/run_api.py")
     print("4. For full setup: python -m pip install -e .[production] --user")

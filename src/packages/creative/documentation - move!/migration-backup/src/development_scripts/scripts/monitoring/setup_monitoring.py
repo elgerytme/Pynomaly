@@ -21,8 +21,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 # Import monitoring components (optional)
 try:
-    from pynomaly.infrastructure.monitoring.alerts import AlertManager, HealthChecker
-    from pynomaly.infrastructure.monitoring.dashboard import (
+    from monorepo.infrastructure.monitoring.alerts import AlertManager, HealthChecker
+    from monorepo.infrastructure.monitoring.dashboard import (
         DashboardWebServer,
         create_dashboard_templates,
     )
@@ -193,7 +193,7 @@ class MonitoringSetup:
             "dashboard": {
                 "id": None,
                 "title": "Pynomaly Monitoring Dashboard",
-                "tags": ["pynomaly", "monitoring"],
+                "tags": ["monorepo", "monitoring"],
                 "timezone": "browser",
                 "panels": [
                     {
@@ -295,7 +295,7 @@ class MonitoringSetup:
         alertmanager_config = {
             "global": {
                 "smtp_smarthost": "localhost:587",
-                "smtp_from": "alerts@pynomaly.com"
+                "smtp_from": "alerts@monorepo.com"
             },
             "route": {
                 "group_by": ["alertname"],
@@ -309,7 +309,7 @@ class MonitoringSetup:
                     "name": "web.hook",
                     "email_configs": [
                         {
-                            "to": "admin@pynomaly.com",
+                            "to": "admin@monorepo.com",
                             "subject": "Pynomaly Alert: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}",
                             "body": "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}"
                         }
@@ -452,8 +452,8 @@ echo "Alertmanager: $(curl -s http://localhost:9093/-/healthy || echo 'NOT READY
 
 # Start Python monitoring services
 echo "🐍 Starting Python monitoring services..."
-python3 -m pynomaly.infrastructure.monitoring.alerts &
-python3 -m pynomaly.infrastructure.monitoring.dashboard &
+python3 -m monorepo.infrastructure.monitoring.alerts &
+python3 -m monorepo.infrastructure.monitoring.dashboard &
 
 echo "✅ Monitoring stack started!"
 echo "📊 Access points:"
@@ -470,7 +470,7 @@ echo "  - Dashboard: http://localhost:8080"
 echo "🛑 Stopping Pynomaly monitoring stack..."
 
 # Stop Python services
-pkill -f "pynomaly.infrastructure.monitoring"
+pkill -f "monorepo.infrastructure.monitoring"
 
 # Stop Docker services
 docker-compose -f docker-compose.monitoring.yml down
@@ -541,7 +541,7 @@ User=pynomaly
 Group=pynomaly
 WorkingDirectory={self.project_root}
 Environment=PYTHONPATH={self.project_root}/src
-ExecStart=/usr/bin/python3 -m pynomaly.infrastructure.monitoring.alerts
+ExecStart=/usr/bin/python3 -m monorepo.infrastructure.monitoring.alerts
 Restart=always
 RestartSec=10
 StandardOutput=journal
@@ -563,7 +563,7 @@ User=pynomaly
 Group=pynomaly
 WorkingDirectory={self.project_root}
 Environment=PYTHONPATH={self.project_root}/src
-ExecStart=/usr/bin/python3 -m pynomaly.infrastructure.monitoring.dashboard
+ExecStart=/usr/bin/python3 -m monorepo.infrastructure.monitoring.dashboard
 Restart=always
 RestartSec=10
 StandardOutput=journal

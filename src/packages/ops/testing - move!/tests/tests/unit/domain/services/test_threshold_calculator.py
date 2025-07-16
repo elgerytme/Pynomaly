@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from pynomaly.domain.services.threshold_calculator import ThresholdCalculator
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.services.threshold_calculator import ThresholdCalculator
+from monorepo.domain.value_objects import ContaminationRate
 
 
 class TestThresholdCalculatorByContamination:

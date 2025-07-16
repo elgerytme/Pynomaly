@@ -9,14 +9,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
 
-from pynomaly_detection.application.services.user_management_service import UserManagementService
-from pynomaly_detection.domain.entities.user import TenantPlan, TenantStatus, UserRole, UserStatus
-from pynomaly_detection.infrastructure.security.audit_logging import (
+from monorepo.application.services.user_management_service import UserManagementService
+from monorepo.domain.entities.user import TenantPlan, TenantStatus, UserRole, UserStatus
+from monorepo.infrastructure.security.audit_logging import (
     AuditEventType,
     AuditSeverity,
     get_audit_logger,
 )
-from pynomaly_detection.shared.exceptions import (
+from monorepo.shared.exceptions import (
     AuthenticationError,
     AuthorizationError,
     ResourceLimitError,
@@ -24,7 +24,7 @@ from pynomaly_detection.shared.exceptions import (
     UserNotFoundError,
     ValidationError,
 )
-from pynomaly_detection.shared.types import TenantId, UserId
+from monorepo.shared.types import TenantId, UserId
 
 # Router setup
 router = APIRouter(prefix="/api/users", tags=["User Management"])
@@ -131,7 +131,7 @@ class ChangePasswordRequest(BaseModel):
 # Dependency injection
 async def get_user_management_service() -> UserManagementService:
     """Get user management service instance."""
-    from pynomaly_detection.infrastructure.persistence.repository_factory import (
+    from monorepo.infrastructure.persistence.repository_factory import (
         get_session_repository,
         get_tenant_repository,
         get_user_repository,

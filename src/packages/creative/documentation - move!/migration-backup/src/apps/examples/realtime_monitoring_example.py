@@ -21,9 +21,9 @@ from queue import Empty, Queue
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.domain.entities import Dataset
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 class RealTimeMonitor:

@@ -12,11 +12,11 @@ import sys
 import typer
 from rich.console import Console
 
-from pynomaly_detection.presentation.cli.container import get_cli_container
+from monorepo.presentation.cli.container import get_cli_container
 
 # Create Typer app with lazy loading
 app = typer.Typer(
-    name="pynomaly",
+    name="monorepo",
     help="Pynomaly - State-of-the-art anomaly detection CLI",
     add_completion=True,
     rich_markup_mode="rich",
@@ -28,27 +28,27 @@ console = Console()
 
 # Lazy module registry - no imports at startup
 _LAZY_MODULES = {
-    "auto": ("pynomaly.presentation.cli.autonomous", "app"),
-    "automl": ("pynomaly.presentation.cli.automl", "app"),
-    "config": ("pynomaly.presentation.cli.config", "app"),
-    "detector": ("pynomaly.presentation.cli.detectors", "app"),
-    "dataset": ("pynomaly.presentation.cli.datasets", "app"),
-    "data": ("pynomaly.presentation.cli.preprocessing", "app"),
-    "detect": ("pynomaly.presentation.cli.detection", "app"),
-    "tdd": ("pynomaly.presentation.cli.tdd", "app"),
-    "deep-learning": ("pynomaly.presentation.cli.deep_learning", "app"),
-    "explainability": ("pynomaly.presentation.cli.explainability", "app"),
-    "selection": ("pynomaly.presentation.cli.selection", "app"),
-    "export": ("pynomaly.presentation.cli.export", "export_app"),
-    "server": ("pynomaly.presentation.cli.server", "app"),
-    "perf": ("pynomaly.presentation.cli.performance", "performance_app"),
-    "validate": ("pynomaly.presentation.cli.validation", "app"),
-    "migrate": ("pynomaly.presentation.cli.migrations", "app"),
+    "auto": ("monorepo.presentation.cli.autonomous", "app"),
+    "automl": ("monorepo.presentation.cli.automl", "app"),
+    "config": ("monorepo.presentation.cli.config", "app"),
+    "detector": ("monorepo.presentation.cli.detectors", "app"),
+    "dataset": ("monorepo.presentation.cli.datasets", "app"),
+    "data": ("monorepo.presentation.cli.preprocessing", "app"),
+    "detect": ("monorepo.presentation.cli.detection", "app"),
+    "tdd": ("monorepo.presentation.cli.tdd", "app"),
+    "deep-learning": ("monorepo.presentation.cli.deep_learning", "app"),
+    "explainability": ("monorepo.presentation.cli.explainability", "app"),
+    "selection": ("monorepo.presentation.cli.selection", "app"),
+    "export": ("monorepo.presentation.cli.export", "export_app"),
+    "server": ("monorepo.presentation.cli.server", "app"),
+    "perf": ("monorepo.presentation.cli.performance", "performance_app"),
+    "validate": ("monorepo.presentation.cli.validation", "app"),
+    "migrate": ("monorepo.presentation.cli.migrations", "app"),
 }
 
 # Optional modules that may not be available
 _OPTIONAL_MODULES = {
-    "recommend": ("pynomaly.presentation.cli.recommendation", "app"),
+    "recommend": ("monorepo.presentation.cli.recommendation", "app"),
 }
 
 
@@ -100,26 +100,26 @@ def _add_lazy_subcommand(
 
 
 # Import standardized help text
-from pynomaly_detection.presentation.cli.help_formatter import get_standard_help
+from monorepo.presentation.cli.help_formatter import get_standard_help
 
 # Add lazy subcommands with standardized help text
 lazy_commands = [
-    ("auto", "pynomaly.presentation.cli.autonomous", "app"),
-    ("automl", "pynomaly.presentation.cli.automl", "app"),
-    ("config", "pynomaly.presentation.cli.config", "app"),
-    ("detector", "pynomaly.presentation.cli.detectors", "app"),
-    ("dataset", "pynomaly.presentation.cli.datasets", "app"),
-    ("data", "pynomaly.presentation.cli.preprocessing", "app"),
-    ("detect", "pynomaly.presentation.cli.detection", "app"),
-    ("tdd", "pynomaly.presentation.cli.tdd", "app"),
-    ("deep-learning", "pynomaly.presentation.cli.deep_learning", "app"),
-    ("explainability", "pynomaly.presentation.cli.explainability", "app"),
-    ("selection", "pynomaly.presentation.cli.selection", "app"),
-    ("export", "pynomaly.presentation.cli.export", "export_app"),
-    ("server", "pynomaly.presentation.cli.server", "app"),
-    ("perf", "pynomaly.presentation.cli.performance", "performance_app"),
-    ("validate", "pynomaly.presentation.cli.validation", "app"),
-    ("migrate", "pynomaly.presentation.cli.migrations", "app"),
+    ("auto", "monorepo.presentation.cli.autonomous", "app"),
+    ("automl", "monorepo.presentation.cli.automl", "app"),
+    ("config", "monorepo.presentation.cli.config", "app"),
+    ("detector", "monorepo.presentation.cli.detectors", "app"),
+    ("dataset", "monorepo.presentation.cli.datasets", "app"),
+    ("data", "monorepo.presentation.cli.preprocessing", "app"),
+    ("detect", "monorepo.presentation.cli.detection", "app"),
+    ("tdd", "monorepo.presentation.cli.tdd", "app"),
+    ("deep-learning", "monorepo.presentation.cli.deep_learning", "app"),
+    ("explainability", "monorepo.presentation.cli.explainability", "app"),
+    ("selection", "monorepo.presentation.cli.selection", "app"),
+    ("export", "monorepo.presentation.cli.export", "export_app"),
+    ("server", "monorepo.presentation.cli.server", "app"),
+    ("perf", "monorepo.presentation.cli.performance", "performance_app"),
+    ("validate", "monorepo.presentation.cli.validation", "app"),
+    ("migrate", "monorepo.presentation.cli.migrations", "app"),
 ]
 
 for cmd_name, module_path, attr_name in lazy_commands:
@@ -131,7 +131,7 @@ for cmd_name, module_path, attr_name in lazy_commands:
 if "recommend" in _OPTIONAL_MODULES:
     _add_lazy_subcommand(
         "recommend",
-        "pynomaly.presentation.cli.recommendation",
+        "monorepo.presentation.cli.recommendation",
         "app",
         "Intelligent recommendations",
     )

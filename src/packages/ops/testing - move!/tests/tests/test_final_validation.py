@@ -12,7 +12,7 @@ def test_enhanced_settings_core():
     print("Testing enhanced settings core functionality...")
 
     # Test basic import
-    from pynomaly.infrastructure.config.settings import (
+    from monorepo.infrastructure.config.settings import (
         EnvironmentSecretsProvider,
         SecretsBackend,
         SecretsManager,
@@ -62,7 +62,7 @@ def test_container_integration():
     print("\nTesting DI container integration...")
 
     try:
-        from pynomaly.infrastructure.config.container import create_container
+        from monorepo.infrastructure.config.container import create_container
 
         # Test container creation with enhanced settings
         os.environ["PYNOMALY_SECRET_KEY"] = "container-test-key"
@@ -86,7 +86,7 @@ def test_environment_files():
     """Test environment file loading."""
     print("\nTesting environment file loading...")
 
-    from pynomaly.infrastructure.config.settings import MultiEnvSettingsConfigDict
+    from monorepo.infrastructure.config.settings import MultiEnvSettingsConfigDict
 
     # Test basic config dict creation
     config = MultiEnvSettingsConfigDict()

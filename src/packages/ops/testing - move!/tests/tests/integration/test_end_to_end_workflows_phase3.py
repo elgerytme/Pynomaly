@@ -149,7 +149,7 @@ class TestEndToEndWorkflowsPhase3:
         for cmd in cli_commands:
             # Verify command structure
             parts = cmd.split()
-            assert parts[0] == "pynomaly"
+            assert parts[0] == "monorepo"
             assert len(parts) >= 3
             assert parts[1] in ["detector", "dataset", "server"]
 
@@ -235,7 +235,7 @@ class TestEndToEndWorkflowsPhase3:
 
             # Mock adapter creation
             with patch(
-                f"pynomaly.infrastructure.adapters.{framework}_adapter.{adapter_class}"
+                f"monorepo.infrastructure.adapters.{framework}_adapter.{adapter_class}"
             ) as mock_adapter:
                 mock_instance = MagicMock()
                 mock_instance.supported_algorithms = algorithms
@@ -424,7 +424,7 @@ class TestComponentIntegrationPhase3:
         }
 
         # Mock configuration loading
-        with patch("pynomaly.infrastructure.config.settings.Settings") as mock_settings:
+        with patch("monorepo.infrastructure.config.settings.Settings") as mock_settings:
             mock_settings_instance = MagicMock()
 
             # Configure mock settings

@@ -15,7 +15,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from pynomaly.infrastructure.config.settings import get_settings
+from monorepo.infrastructure.config.settings import get_settings
 
 
 class CSRFProtectionMiddleware(BaseHTTPMiddleware):

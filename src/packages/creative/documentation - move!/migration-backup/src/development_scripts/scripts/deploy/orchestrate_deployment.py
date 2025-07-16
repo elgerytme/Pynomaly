@@ -365,7 +365,7 @@ class DeploymentOrchestrator:
             "cluster_name": f"pynomaly-{self.environment}",
             "environment": self.environment,
             "domain_name": self.config.get("environment", {}).get(
-                "domain", "pynomaly.ai"
+                "domain", "monorepo.ai"
             ),
             "node_desired_capacity": self.config.get("resources", {})
             .get("api", {})

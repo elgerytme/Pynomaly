@@ -14,8 +14,8 @@ import pytest
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.domain.entities import Dataset
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
 
 
 class TestBoundaryConditions:
@@ -88,7 +88,7 @@ class TestBoundaryConditions:
 
     def test_floating_point_edge_cases(self):
         """Test floating point edge cases."""
-        from pynomaly.infrastructure.data.numeric_utils import NumericProcessor
+        from monorepo.infrastructure.data.numeric_utils import NumericProcessor
 
         processor = NumericProcessor()
 
@@ -135,7 +135,7 @@ class TestBoundaryConditions:
 
     def test_string_boundary_conditions(self):
         """Test string handling boundary conditions."""
-        from pynomaly.infrastructure.validation.string_validator import StringValidator
+        from monorepo.infrastructure.validation.string_validator import StringValidator
 
         validator = StringValidator()
 
@@ -183,7 +183,7 @@ class TestDataTypeEdgeCases:
 
     def test_mixed_data_types(self):
         """Test handling of mixed data types."""
-        from pynomaly.infrastructure.data.type_detector import TypeDetector
+        from monorepo.infrastructure.data.type_detector import TypeDetector
 
         detector = TypeDetector()
 
@@ -222,7 +222,7 @@ class TestDataTypeEdgeCases:
 
     def test_datetime_edge_cases(self):
         """Test datetime edge cases."""
-        from pynomaly.infrastructure.data.datetime_processor import DateTimeProcessor
+        from monorepo.infrastructure.data.datetime_processor import DateTimeProcessor
 
         processor = DateTimeProcessor()
 
@@ -275,7 +275,7 @@ class TestDataTypeEdgeCases:
 
     def test_categorical_edge_cases(self):
         """Test categorical data edge cases."""
-        from pynomaly.infrastructure.data.categorical_processor import (
+        from monorepo.infrastructure.data.categorical_processor import (
             CategoricalProcessor,
         )
 
@@ -323,7 +323,7 @@ class TestMemoryAndPerformanceEdges:
 
     def test_memory_efficient_operations(self):
         """Test memory-efficient operations for large datasets."""
-        from pynomaly.infrastructure.data.memory_efficient import (
+        from monorepo.infrastructure.data.memory_efficient import (
             MemoryEfficientProcessor,
         )
 
@@ -360,7 +360,7 @@ class TestMemoryAndPerformanceEdges:
 
     def test_streaming_data_edge_cases(self):
         """Test streaming data processing edge cases."""
-        from pynomaly.infrastructure.data.streaming import StreamProcessor
+        from monorepo.infrastructure.data.streaming import StreamProcessor
 
         processor = StreamProcessor()
 
@@ -405,7 +405,7 @@ class TestMemoryAndPerformanceEdges:
 
     def test_parallel_processing_edge_cases(self):
         """Test parallel processing edge cases."""
-        from pynomaly.infrastructure.processing.parallel import ParallelProcessor
+        from monorepo.infrastructure.processing.parallel import ParallelProcessor
 
         processor = ParallelProcessor()
 
@@ -450,7 +450,7 @@ class TestStatisticalEdgeCases:
 
     def test_distribution_edge_cases(self):
         """Test statistical distribution edge cases."""
-        from pynomaly.infrastructure.statistics.distributions import (
+        from monorepo.infrastructure.statistics.distributions import (
             DistributionAnalyzer,
         )
 
@@ -492,7 +492,7 @@ class TestStatisticalEdgeCases:
 
     def test_correlation_edge_cases(self):
         """Test correlation computation edge cases."""
-        from pynomaly.infrastructure.statistics.correlation import CorrelationAnalyzer
+        from monorepo.infrastructure.statistics.correlation import CorrelationAnalyzer
 
         analyzer = CorrelationAnalyzer()
 
@@ -528,7 +528,7 @@ class TestStatisticalEdgeCases:
 
     def test_time_series_edge_cases(self):
         """Test time series analysis edge cases."""
-        from pynomaly.infrastructure.statistics.time_series import TimeSeriesAnalyzer
+        from monorepo.infrastructure.statistics.time_series import TimeSeriesAnalyzer
 
         analyzer = TimeSeriesAnalyzer()
 

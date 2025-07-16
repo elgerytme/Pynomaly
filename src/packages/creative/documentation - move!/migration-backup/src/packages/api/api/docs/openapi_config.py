@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
 
-from pynomaly.infrastructure.config.settings import Settings
+from monorepo.infrastructure.config.settings import Settings
 
 
 class OpenAPIConfig:
@@ -127,7 +127,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
 
 ## Support
 
-- **Documentation**: [https://pynomaly.readthedocs.io](https://pynomaly.readthedocs.io)
+- **Documentation**: [https://monorepo.readthedocs.io](https://monorepo.readthedocs.io)
 - **GitHub**: [https://github.com/pynomaly/pynomaly](https://github.com/pynomaly/pynomaly)
 - **Issues**: [https://github.com/pynomaly/pynomaly/issues](https://github.com/pynomaly/pynomaly/issues)
         """
@@ -154,13 +154,13 @@ The API uses standard HTTP status codes and returns detailed error messages:
         elif environment == "staging":
             servers.append(
                 {
-                    "url": "https://staging-api.pynomaly.io",
+                    "url": "https://staging-api.monorepo.io",
                     "description": "Staging server",
                 }
             )
         elif environment == "production":
             servers.append(
-                {"url": "https://api.pynomaly.io", "description": "Production server"}
+                {"url": "https://api.monorepo.io", "description": "Production server"}
             )
 
         return servers
@@ -172,13 +172,13 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "contact": {
                     "name": "Pynomaly Team",
                     "url": "https://github.com/pynomaly/pynomaly",
-                    "email": "team@pynomaly.io",
+                    "email": "team@monorepo.io",
                 },
                 "license": {
                     "name": "MIT",
                     "url": "https://github.com/pynomaly/pynomaly/blob/main/LICENSE",
                 },
-                "termsOfService": "https://pynomaly.io/terms",
+                "termsOfService": "https://monorepo.io/terms",
                 "x-logo": {
                     "url": "/static/img/pynomaly-logo.png",
                     "altText": "Pynomaly Logo",
@@ -186,7 +186,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
             },
             "externalDocs": {
                 "description": "Full Documentation",
-                "url": "https://pynomaly.readthedocs.io",
+                "url": "https://monorepo.readthedocs.io",
             },
         }
 
@@ -232,7 +232,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "User authentication and authorization endpoints",
                 "externalDocs": {
                     "description": "Authentication Guide",
-                    "url": "https://pynomaly.readthedocs.io/auth",
+                    "url": "https://monorepo.readthedocs.io/auth",
                 },
             },
             {"name": "Health", "description": "System health and monitoring endpoints"},
@@ -241,7 +241,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "Dataset management and data preprocessing operations",
                 "externalDocs": {
                     "description": "Dataset Guide",
-                    "url": "https://pynomaly.readthedocs.io/datasets",
+                    "url": "https://monorepo.readthedocs.io/datasets",
                 },
             },
             {
@@ -249,7 +249,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "Anomaly detector configuration and management",
                 "externalDocs": {
                     "description": "Detector Guide",
-                    "url": "https://pynomaly.readthedocs.io/detectors",
+                    "url": "https://monorepo.readthedocs.io/detectors",
                 },
             },
             {
@@ -257,7 +257,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "Anomaly detection training and inference operations",
                 "externalDocs": {
                     "description": "Detection Guide",
-                    "url": "https://pynomaly.readthedocs.io/detection",
+                    "url": "https://monorepo.readthedocs.io/detection",
                 },
             },
             {
@@ -265,7 +265,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "Experiment tracking and model management",
                 "externalDocs": {
                     "description": "Experiments Guide",
-                    "url": "https://pynomaly.readthedocs.io/experiments",
+                    "url": "https://monorepo.readthedocs.io/experiments",
                 },
             },
             {"name": "Export", "description": "Data and model export operations"},
@@ -274,7 +274,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "Automated machine learning and hyperparameter optimization",
                 "externalDocs": {
                     "description": "AutoML Guide",
-                    "url": "https://pynomaly.readthedocs.io/automl",
+                    "url": "https://monorepo.readthedocs.io/automl",
                 },
             },
             {
@@ -282,7 +282,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "Advanced AutoML with meta-learning and multi-objective optimization",
                 "externalDocs": {
                     "description": "Enhanced AutoML Guide",
-                    "url": "https://pynomaly.readthedocs.io/enhanced-automl",
+                    "url": "https://monorepo.readthedocs.io/enhanced-automl",
                 },
             },
             {
@@ -290,7 +290,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "Ensemble methods and model combination strategies",
                 "externalDocs": {
                     "description": "Ensemble Guide",
-                    "url": "https://pynomaly.readthedocs.io/ensemble",
+                    "url": "https://monorepo.readthedocs.io/ensemble",
                 },
             },
             {
@@ -298,7 +298,7 @@ The API uses standard HTTP status codes and returns detailed error messages:
                 "description": "Model interpretation and explanation generation",
                 "externalDocs": {
                     "description": "Explainability Guide",
-                    "url": "https://pynomaly.readthedocs.io/explainability",
+                    "url": "https://monorepo.readthedocs.io/explainability",
                 },
             },
             {

@@ -10,7 +10,7 @@ from __future__ import annotations
 import functools
 from typing import Any
 
-from pynomaly.infrastructure.config.settings import Settings, get_settings
+from monorepo.infrastructure.config.settings import Settings, get_settings
 
 
 class FastCLIContainer:
@@ -33,7 +33,7 @@ class FastCLIContainer:
         """Get detector repository (in-memory for CLI)."""
         if "detector" not in self._repositories:
             # Use in-memory repository for CLI to avoid database overhead
-            from pynomaly.infrastructure.persistence.memory_repository import (
+            from monorepo.infrastructure.persistence.memory_repository import (
                 MemoryRepository,
             )
 
@@ -43,7 +43,7 @@ class FastCLIContainer:
     def dataset_repository(self):
         """Get dataset repository (in-memory for CLI)."""
         if "dataset" not in self._repositories:
-            from pynomaly.infrastructure.persistence.memory_repository import (
+            from monorepo.infrastructure.persistence.memory_repository import (
                 MemoryRepository,
             )
 
@@ -53,7 +53,7 @@ class FastCLIContainer:
     def result_repository(self):
         """Get result repository (in-memory for CLI)."""
         if "result" not in self._repositories:
-            from pynomaly.infrastructure.persistence.memory_repository import (
+            from monorepo.infrastructure.persistence.memory_repository import (
                 MemoryRepository,
             )
 
@@ -90,19 +90,19 @@ class FastCLIContainer:
 
     def _create_detector_service(self):
         """Create detector service."""
-        from pynomaly.application.services.detector_service import DetectorService
+        from monorepo.application.services.detector_service import DetectorService
 
         return DetectorService(self.detector_repository())
 
     def _create_dataset_service(self):
         """Create dataset service."""
-        from pynomaly.application.services.dataset_service import DatasetService
+        from monorepo.application.services.dataset_service import DatasetService
 
         return DatasetService(self.dataset_repository())
 
     def _create_detection_service(self):
         """Create detection service."""
-        from pynomaly.application.services.detection_service import DetectionService
+        from monorepo.application.services.detection_service import DetectionService
 
         return DetectionService(
             self.detector_repository(),
@@ -112,7 +112,7 @@ class FastCLIContainer:
 
     def _create_training_service(self):
         """Create training service."""
-        from pynomaly.application.services.training_service import TrainingService
+        from monorepo.application.services.training_service import TrainingService
 
         return TrainingService(
             self.detector_repository(),

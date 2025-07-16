@@ -3,15 +3,15 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.services.advanced_classification_service import AdvancedClassificationService
-from pynomaly.domain.services.threshold_severity_classifier import ThresholdSeverityClassifier
-from pynomaly.domain.value_objects.anomaly_classification import (
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.services.advanced_classification_service import AdvancedClassificationService
+from monorepo.domain.services.threshold_severity_classifier import ThresholdSeverityClassifier
+from monorepo.domain.value_objects.anomaly_classification import (
     AnomalySubType,
     ClassificationMethod,
     ConfidenceLevel,
 )
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.value_objects import ContaminationRate
 
 
 class TestAdvancedClassificationService:

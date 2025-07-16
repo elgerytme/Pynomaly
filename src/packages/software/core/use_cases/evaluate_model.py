@@ -13,8 +13,8 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.shared.protocols import DetectorProtocol, DetectorRepositoryProtocol
+from monorepo.domain.entities import Dataset
+from monorepo.shared.protocols import DetectorProtocol, DetectorRepositoryProtocol
 
 
 @dataclass

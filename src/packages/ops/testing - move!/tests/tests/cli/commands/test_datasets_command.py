@@ -10,8 +10,8 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.domain.exceptions import DatasetError, ValidationError
-from pynomaly.presentation.cli.datasets import app as datasets_app
+from monorepo.domain.exceptions import DatasetError, ValidationError
+from monorepo.presentation.cli.datasets import app as datasets_app
 
 
 class TestDatasetsCommand:
@@ -26,7 +26,7 @@ class TestDatasetsCommand:
     def mock_container(self):
         """Mock CLI container."""
         with patch(
-            "pynomaly.presentation.cli.datasets.get_cli_container"
+            "monorepo.presentation.cli.datasets.get_cli_container"
         ) as mock:
             container = Mock()
             

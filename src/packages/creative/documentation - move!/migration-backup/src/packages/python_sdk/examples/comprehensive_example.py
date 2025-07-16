@@ -462,7 +462,7 @@ class PynomagySDKDemo:
         # Configure client
         config = ClientConfig(
             api_key=self.api_key,
-            base_url="https://api.pynomaly.com/v1",
+            base_url="https://api.monorepo.com/v1",
             timeout=30,
             max_retries=3,
             enable_caching=True,

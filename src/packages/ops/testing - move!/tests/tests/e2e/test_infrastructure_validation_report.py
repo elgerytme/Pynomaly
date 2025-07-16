@@ -40,10 +40,10 @@ def run_pytest_collection():
 async def test_async_repositories():
     """Test async repository wrapper functionality."""
     try:
-        from pynomaly.infrastructure.repositories.async_wrappers import (
+        from monorepo.infrastructure.repositories.async_wrappers import (
             AsyncDetectorRepositoryWrapper,
         )
-        from pynomaly.infrastructure.repositories.in_memory_repositories import (
+        from monorepo.infrastructure.repositories.in_memory_repositories import (
             InMemoryDetectorRepository,
         )
 
@@ -65,7 +65,7 @@ async def test_async_repositories():
 def test_security_infrastructure():
     """Test security exception and authentication infrastructure."""
     try:
-        from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
+        from monorepo.domain.exceptions import AuthenticationError, AuthorizationError
 
         # Test exception creation
         AuthenticationError("Test error", username="test")
@@ -79,8 +79,8 @@ def test_security_infrastructure():
 def test_api_infrastructure():
     """Test FastAPI application creation and endpoint availability."""
     try:
-        from pynomaly.infrastructure.config import create_container
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.infrastructure.config import create_container
+        from monorepo.presentation.api.app import create_app
 
         container = create_container()
         app = create_app(container)

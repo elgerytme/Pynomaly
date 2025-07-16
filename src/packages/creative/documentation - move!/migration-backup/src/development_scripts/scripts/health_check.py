@@ -50,14 +50,14 @@ class ProductionHealthChecker:
         """Get base URLs for different environments."""
         urls = {
             "production": {
-                "api": "https://api.pynomaly.com",
-                "health": "https://api.pynomaly.com/health",
-                "metrics": "https://api.pynomaly.com/metrics",
+                "api": "https://api.monorepo.com",
+                "health": "https://api.monorepo.com/health",
+                "metrics": "https://api.monorepo.com/metrics",
             },
             "staging": {
-                "api": "https://staging-api.pynomaly.com",
-                "health": "https://staging-api.pynomaly.com/health",
-                "metrics": "https://staging-api.pynomaly.com/metrics",
+                "api": "https://staging-api.monorepo.com",
+                "health": "https://staging-api.monorepo.com/health",
+                "metrics": "https://staging-api.monorepo.com/metrics",
             },
             "testing": {
                 "api": "http://localhost:8000",

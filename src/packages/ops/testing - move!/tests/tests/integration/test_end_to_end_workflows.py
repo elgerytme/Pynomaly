@@ -51,7 +51,7 @@ class TestCompleteAnomalyDetectionWorkflow:
         async def create_detector():
             """Create anomaly detector."""
             try:
-                from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+                from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                     PyODAdapter,
                 )
 
@@ -358,7 +358,7 @@ class TestCompleteAnomalyDetectionWorkflow:
         async def run_algorithm_comparison():
             """Run multiple algorithms and compare."""
             try:
-                from pynomaly.infrastructure.algorithms.adapters.pyod_adapter import (
+                from monorepo.infrastructure.algorithms.adapters.pyod_adapter import (
                     PyODAdapter,
                 )
 

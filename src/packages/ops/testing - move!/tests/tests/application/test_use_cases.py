@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.use_cases import (
+from monorepo.application.use_cases import (
     DetectAnomaliesRequest,
     DetectAnomaliesUseCase,
     EvaluateModelRequest,
@@ -17,10 +17,10 @@ from pynomaly.application.use_cases import (
     ExplainAnomalyUseCase,
     TrainDetectorUseCase,
 )
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.services import FeatureValidator
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.infrastructure.repositories import InMemoryDetectorRepository
+from monorepo.domain.entities import Dataset, DetectionResult
+from monorepo.domain.services import FeatureValidator
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.infrastructure.repositories import InMemoryDetectorRepository
 
 
 @pytest.fixture
@@ -38,7 +38,7 @@ def sample_dataset():
 @pytest.fixture
 def sample_detector():
     """Create a sample detector for testing."""
-    from pynomaly.infrastructure.adapters import SklearnAdapter
+    from monorepo.infrastructure.adapters import SklearnAdapter
 
     return SklearnAdapter(
         algorithm_name="IsolationForest",
@@ -121,7 +121,7 @@ class TestDetectAnomaliesUseCase:
         """Test detection with non-existent detector."""
         from uuid import uuid4
 
-        from pynomaly.application.use_cases.detect_anomalies import (
+        from monorepo.application.use_cases.detect_anomalies import (
             DetectAnomaliesRequest,
         )
 
@@ -143,7 +143,7 @@ class TestDetectAnomaliesUseCase:
         self, detector_repository, feature_validator, sample_detector
     ):
         """Test detection with invalid features."""
-        from pynomaly.application.use_cases.detect_anomalies import (
+        from monorepo.application.use_cases.detect_anomalies import (
             DetectAnomaliesRequest,
         )
 
@@ -196,7 +196,7 @@ class TestDetectAnomaliesUseCase:
         self, detector_repository, feature_validator, sample_detector, sample_dataset
     ):
         """Test detection with feature preprocessing."""
-        from pynomaly.application.use_cases.detect_anomalies import (
+        from monorepo.application.use_cases.detect_anomalies import (
             DetectAnomaliesRequest,
         )
 
@@ -247,7 +247,7 @@ class TestDetectAnomaliesUseCase:
         self, detector_repository, feature_validator, sample_detector
     ):
         """Test batch processing of multiple datasets."""
-        from pynomaly.application.use_cases.detect_anomalies import (
+        from monorepo.application.use_cases.detect_anomalies import (
             DetectAnomaliesRequest,
         )
 
@@ -316,7 +316,7 @@ class TestTrainDetectorUseCase:
         self, detector_repository, feature_validator, sample_detector, sample_dataset
     ):
         """Test successful detector training."""
-        from pynomaly.application.use_cases.train_detector import TrainDetectorRequest
+        from monorepo.application.use_cases.train_detector import TrainDetectorRequest
 
         # Repository methods are synchronous
         detector_repository.save(sample_detector)
@@ -368,8 +368,8 @@ class TestTrainDetectorUseCase:
         self, detector_repository, feature_validator, sample_detector
     ):
         """Test training with insufficient samples."""
-        from pynomaly.application.use_cases.train_detector import TrainDetectorRequest
-        from pynomaly.domain.exceptions import InsufficientDataError
+        from monorepo.application.use_cases.train_detector import TrainDetectorRequest
+        from monorepo.domain.exceptions import InsufficientDataError
 
         # Repository methods are synchronous
         detector_repository.save(sample_detector)
@@ -403,7 +403,7 @@ class TestTrainDetectorUseCase:
         self, detector_repository, feature_validator, sample_detector, sample_dataset
     ):
         """Test training with validation split."""
-        from pynomaly.application.use_cases.train_detector import TrainDetectorRequest
+        from monorepo.application.use_cases.train_detector import TrainDetectorRequest
 
         # Repository methods are synchronous
         detector_repository.save(sample_detector)
@@ -457,7 +457,7 @@ class TestTrainDetectorUseCase:
         self, detector_repository, feature_validator, sample_detector, sample_dataset
     ):
         """Test training with hyperparameter tuning."""
-        from pynomaly.application.use_cases.train_detector import TrainDetectorRequest
+        from monorepo.application.use_cases.train_detector import TrainDetectorRequest
 
         # Repository methods are synchronous
         detector_repository.save(sample_detector)
@@ -519,7 +519,7 @@ class TestTrainDetectorUseCase:
     ):
         """Test comprehensive training request with full response pattern."""
 
-        from pynomaly.application.use_cases.train_detector import TrainDetectorRequest
+        from monorepo.application.use_cases.train_detector import TrainDetectorRequest
 
         detector_repository.save(sample_detector)
 
@@ -604,7 +604,7 @@ class TestTrainDetectorUseCase:
         """Test training with non-existent detector following DetectAnomaliesUseCase pattern."""
         from uuid import uuid4
 
-        from pynomaly.application.use_cases.train_detector import TrainDetectorRequest
+        from monorepo.application.use_cases.train_detector import TrainDetectorRequest
 
         use_case = TrainDetectorUseCase(
             detector_repository=detector_repository,
@@ -626,7 +626,7 @@ class TestTrainDetectorUseCase:
         self, detector_repository, feature_validator, sample_detector
     ):
         """Test training with data quality warnings following DetectAnomaliesUseCase pattern."""
-        from pynomaly.application.use_cases.train_detector import TrainDetectorRequest
+        from monorepo.application.use_cases.train_detector import TrainDetectorRequest
 
         detector_repository.save(sample_detector)
 
@@ -691,7 +691,7 @@ class TestTrainDetectorUseCase:
         self, detector_repository, feature_validator, sample_detector
     ):
         """Test batch training simulation following DetectAnomaliesUseCase pattern."""
-        from pynomaly.application.use_cases.train_detector import TrainDetectorRequest
+        from monorepo.application.use_cases.train_detector import TrainDetectorRequest
 
         detector_repository.save(sample_detector)
 
@@ -763,7 +763,7 @@ class TestTrainDetectorUseCase:
         self, detector_repository, feature_validator, sample_detector, sample_dataset
     ):
         """Test minimal vs comprehensive response patterns."""
-        from pynomaly.application.use_cases.train_detector import TrainDetectorRequest
+        from monorepo.application.use_cases.train_detector import TrainDetectorRequest
 
         detector_repository.save(sample_detector)
 
@@ -983,7 +983,7 @@ class TestExplainAnomalyUseCase:
         self, detector_repository, sample_detector, sample_dataset
     ):
         """Test successful anomaly explanation."""
-        from pynomaly.application.use_cases.explain_anomaly import ExplainAnomalyRequest
+        from monorepo.application.use_cases.explain_anomaly import ExplainAnomalyRequest
 
         detector_repository.save(sample_detector)
 
@@ -1019,7 +1019,7 @@ class TestExplainAnomalyUseCase:
         self, detector_repository, sample_detector, sample_dataset
     ):
         """Test SHAP-based explanation."""
-        from pynomaly.application.use_cases.explain_anomaly import ExplainAnomalyRequest
+        from monorepo.application.use_cases.explain_anomaly import ExplainAnomalyRequest
 
         detector_repository.save(sample_detector)
 
@@ -1055,7 +1055,7 @@ class TestExplainAnomalyUseCase:
         self, detector_repository, sample_detector, sample_dataset
     ):
         """Test LIME-based explanation."""
-        from pynomaly.application.use_cases.explain_anomaly import ExplainAnomalyRequest
+        from monorepo.application.use_cases.explain_anomaly import ExplainAnomalyRequest
 
         detector_repository.save(sample_detector)
 
@@ -1091,7 +1091,7 @@ class TestExplainAnomalyUseCase:
         self, detector_repository, sample_detector, sample_dataset
     ):
         """Test explanation of multiple anomalies in one request."""
-        from pynomaly.application.use_cases.explain_anomaly import ExplainAnomalyRequest
+        from monorepo.application.use_cases.explain_anomaly import ExplainAnomalyRequest
 
         detector_repository.save(sample_detector)
 

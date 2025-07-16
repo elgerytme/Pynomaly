@@ -1,7 +1,7 @@
 """Dataset repository implementations - DEPRECATED.
 
 This module is deprecated. Use DatasetRepositoryProtocol from
-pynomaly.shared.protocols.repository_protocol instead.
+monorepo.shared.protocols.repository_protocol instead.
 """
 
 from __future__ import annotations
@@ -11,13 +11,13 @@ from typing import Any
 from uuid import UUID
 from warnings import warn
 
-from pynomaly.domain.entities.dataset import Dataset
+from monorepo.domain.entities.dataset import Dataset
 
 
 class DatasetRepository(ABC):
     """Abstract dataset repository interface.
 
-    DEPRECATED: Use DatasetRepositoryProtocol from pynomaly.shared.protocols instead.
+    DEPRECATED: Use DatasetRepositoryProtocol from monorepo.shared.protocols instead.
     This class exists only for backward compatibility and will be removed in v2.0.
     """
 
@@ -25,7 +25,7 @@ class DatasetRepository(ABC):
         """Initialize repository with deprecation warning."""
         warn(
             "DatasetRepository is deprecated. Use DatasetRepositoryProtocol from "
-            "pynomaly.shared.protocols.repository_protocol instead.",
+            "monorepo.shared.protocols.repository_protocol instead.",
             DeprecationWarning,
             stacklevel=2,
         )

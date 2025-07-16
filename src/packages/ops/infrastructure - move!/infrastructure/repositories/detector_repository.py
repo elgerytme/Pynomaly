@@ -2,8 +2,8 @@
 
 from uuid import UUID
 
-from pynomaly.domain.entities import Detector
-from pynomaly.shared.protocols import DetectorRepositoryProtocol
+from monorepo.domain.entities import Detector
+from monorepo.shared.protocols import DetectorRepositoryProtocol
 
 
 class DetectorRepository(DetectorRepositoryProtocol):

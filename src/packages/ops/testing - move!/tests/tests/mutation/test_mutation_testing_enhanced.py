@@ -11,7 +11,7 @@ from typing import Any
 import numpy as np
 import pytest
 
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.value_objects import AnomalyScore
 
 
 class MutationOperator:

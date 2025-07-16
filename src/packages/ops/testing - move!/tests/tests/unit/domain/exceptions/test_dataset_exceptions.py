@@ -2,8 +2,8 @@
 
 import pytest
 
-from pynomaly.domain.exceptions.base import DomainError, PynamolyError, ValidationError
-from pynomaly.domain.exceptions.dataset_exceptions import (
+from monorepo.domain.exceptions.base import DomainError, PynamolyError, ValidationError
+from monorepo.domain.exceptions.dataset_exceptions import (
     DatasetError,
     DataTypeError,
     DataValidationError,

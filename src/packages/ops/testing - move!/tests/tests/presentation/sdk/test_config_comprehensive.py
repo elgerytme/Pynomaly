@@ -14,7 +14,7 @@ from unittest.mock import mock_open, patch
 import pytest
 import yaml
 
-from pynomaly.presentation.sdk.config import (
+from monorepo.presentation.sdk.config import (
     ConfigurationError,
     PynomalyConfig,
     create_default_config,
@@ -44,7 +44,7 @@ class TestPynomalyConfigInitialization:
     def test_config_custom_initialization(self):
         """Test PynomalyConfig initialization with custom values."""
         config = PynomalyConfig(
-            base_url="https://api.pynomaly.com",
+            base_url="https://api.monorepo.com",
             api_key="test-api-key",
             timeout=60.0,
             max_retries=5,
@@ -53,7 +53,7 @@ class TestPynomalyConfigInitialization:
             debug=True,
         )
 
-        assert config.base_url == "https://api.pynomaly.com"
+        assert config.base_url == "https://api.monorepo.com"
         assert config.api_key == "test-api-key"
         assert config.timeout == 60.0
         assert config.max_retries == 5

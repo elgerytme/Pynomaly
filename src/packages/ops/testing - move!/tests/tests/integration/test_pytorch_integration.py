@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters.pytorch_adapter import (
+from monorepo.domain.entities import Dataset
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.infrastructure.adapters.pytorch_adapter import (
     TORCH_AVAILABLE,
     PyTorchAdapter,
 )
@@ -172,8 +172,8 @@ class TestPyTorchIntegration:
 @pytest.mark.skipif(TORCH_AVAILABLE, reason="Testing PyTorch unavailable scenario")
 def test_pytorch_unavailable_error():
     """Test error when PyTorch is not available."""
-    from pynomaly.domain.exceptions import AdapterError
-    from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+    from monorepo.domain.exceptions import AdapterError
+    from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
     with pytest.raises(AdapterError, match="PyTorch is not available"):
         PyTorchAdapter(algorithm_name="AutoEncoder")

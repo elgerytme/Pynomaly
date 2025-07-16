@@ -22,8 +22,8 @@ from rich.table import Table
 # Add the project root to the path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.pynomaly.infrastructure.config import Settings
-from src.pynomaly.infrastructure.security.waf_middleware import (
+from src.monorepo.infrastructure.config import Settings
+from src.monorepo.infrastructure.security.waf_middleware import (
     AttackType,
     ThreatLevel,
     ThreatSignature,

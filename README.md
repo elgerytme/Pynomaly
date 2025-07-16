@@ -1,4 +1,4 @@
-# Pynomaly Monorepo 🏗️
+# Monorepo 🏗️
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -18,7 +18,7 @@ A general-purpose Python monorepo implementing clean architecture patterns with 
 This monorepo demonstrates modern software engineering practices with a focus on maintainability, scalability, and clean architecture. It contains multiple domain packages, shared infrastructure, and comprehensive development tooling.
 
 ```
-pynomaly/
+monorepo/
 ├── src/packages/           # 🎯 Domain packages (clean architecture)
 │   ├── core/              # Shared domain logic & foundational patterns
 │   ├── anomaly_detection/ # Data analysis and anomaly detection domain
@@ -90,8 +90,8 @@ package_name/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pynomaly.git
-cd pynomaly
+git clone https://github.com/yourusername/monorepo.git
+cd monorepo
 
 # Create and activate virtual environment
 python -m venv environments/.venv
@@ -102,7 +102,7 @@ source environments/.venv/bin/activate  # Linux/macOS
 pip install -e ".[dev,test]"
 
 # Verify setup
-python -c "import pynomaly; print('Setup successful')"
+python -c "import monorepo; print('Setup successful')"
 ```
 
 ### Repository Structure Exploration
@@ -256,8 +256,8 @@ git --version
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pynomaly.git
-cd pynomaly
+git clone https://github.com/yourusername/monorepo.git
+cd monorepo
 
 # Create virtual environment in organized structure
 python -m venv environments/.venv
@@ -272,7 +272,7 @@ environments\.venv\Scripts\activate
 pip install -e ".[dev,test]"
 
 # Verify installation
-python -c "import pynomaly; print('Installation successful')"
+python -c "import monorepo; print('Installation successful')"
 ```
 
 ### Package Installation Options
@@ -376,20 +376,20 @@ cat src/packages/data_platform/README.md
 
 ```bash
 # Show all available commands
-pynomaly --help
+monorepo --help
 
 # Basic system information
-pynomaly version          # Show version info
-pynomaly status           # System health check
+monorepo version          # Show version info
+monorepo status           # System health check
 
 # Package operations
-pynomaly packages list    # List available packages
-pynomaly packages info    # Package information
+monorepo packages list    # List available packages
+monorepo packages info    # Package information
 
 # Development tools
-pynomaly dev validate     # Validate repository structure
-pynomaly dev analyze      # Run analysis tools
-pynomaly dev test         # Run test suites
+monorepo dev validate     # Validate repository structure
+monorepo dev analyze      # Run analysis tools
+monorepo dev test         # Run test suites
 ```
 
 ### Python API Examples
@@ -524,8 +524,8 @@ src/packages/{package_name}/
 
 ```bash
 # Clone and setup development environment
-git clone https://github.com/yourusername/pynomaly.git
-cd pynomaly
+git clone https://github.com/yourusername/monorepo.git
+cd monorepo
 
 # Create development environment
 python -m venv environments/.venv
@@ -539,7 +539,7 @@ pip install -e ".[dev,test,lint]"
 pre-commit install
 
 # Verify setup
-python -c "import pynomaly; print('Setup successful')"
+python -c "import monorepo; print('Setup successful')"
 ```
 
 ### Daily Development

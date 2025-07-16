@@ -10,7 +10,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from pynomaly.shared.types import DatasetId, DetectorId, TenantId, UserId
+from monorepo.shared.types import DatasetId, DetectorId, TenantId, UserId
 
 
 class ReportType(str, Enum):

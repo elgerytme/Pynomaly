@@ -1,1 +1,1 @@
-"""Protocol tests for pynomaly.shared.protocols."""
+"""Protocol tests for monorepo.shared.protocols."""

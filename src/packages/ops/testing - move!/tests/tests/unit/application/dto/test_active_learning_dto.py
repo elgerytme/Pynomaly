@@ -6,7 +6,7 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.dto.active_learning_dto import (
+from monorepo.application.dto.active_learning_dto import (
     AnnotationTaskRequest,
     AnnotationTaskResponse,
     BatchFeedbackRequest,
@@ -24,17 +24,17 @@ from pynomaly.application.dto.active_learning_dto import (
     UpdateModelRequest,
     UpdateModelResponse,
 )
-from pynomaly.domain.entities.active_learning_session import (
+from monorepo.domain.entities.active_learning_session import (
     SamplingStrategy,
     SessionStatus,
 )
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.entities.human_feedback import (
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.entities.human_feedback import (
     FeedbackConfidence,
     FeedbackType,
     HumanFeedback,
 )
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
+from monorepo.domain.value_objects.anomaly_score import AnomalyScore
 
 
 class TestCreateSessionRequest:

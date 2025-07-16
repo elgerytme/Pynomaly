@@ -12,8 +12,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.presentation.cli import autonomous, datasets, detectors
-from pynomaly.presentation.cli.app import app
+from monorepo.presentation.cli import autonomous, datasets, detectors
+from monorepo.presentation.cli.app import app
 
 
 class TestCLIPerformance:
@@ -35,7 +35,7 @@ class TestCLIPerformance:
     def test_large_dataset_handling(self, stable_cli_runner, large_dataset):
         """Test CLI with large datasets."""
         with patch(
-            "pynomaly.presentation.cli.container.get_cli_container"
+            "monorepo.presentation.cli.container.get_cli_container"
         ) as mock_container:
             container = Mock()
             dataset_repo = Mock()
@@ -67,7 +67,7 @@ class TestCLIPerformance:
     def test_memory_usage_stability(self, stable_cli_runner, sample_dataset):
         """Test memory usage remains stable during operations."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -137,7 +137,7 @@ class TestCLIStability:
     def test_resource_cleanup(self, stable_cli_runner, sample_dataset):
         """Test proper resource cleanup."""
         with patch(
-            "pynomaly.presentation.cli.container.get_cli_container"
+            "monorepo.presentation.cli.container.get_cli_container"
         ) as mock_container:
             container = Mock()
             dataset_repo = Mock()
@@ -161,7 +161,7 @@ class TestCLIStability:
         """Test handling of interruption signals."""
         # This tests graceful handling of KeyboardInterrupt
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -339,7 +339,7 @@ class TestCLIResourceManagement:
         # Run multiple file operations
         for i in range(10):
             with patch(
-                "pynomaly.presentation.cli.container.get_cli_container"
+                "monorepo.presentation.cli.container.get_cli_container"
             ) as mock_container:
                 container = Mock()
                 dataset_repo = Mock()
@@ -363,7 +363,7 @@ class TestCLIResourceManagement:
         temp_files_before = len(list(temp_dir.glob("*")))
 
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -386,7 +386,7 @@ class TestCLIResourceManagement:
     def test_memory_pressure_handling(self, stable_cli_runner, large_dataset):
         """Test handling under memory pressure."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -427,7 +427,7 @@ class TestCLISecurityAndSafety:
     def test_output_sanitization(self, stable_cli_runner):
         """Test that outputs are properly sanitized."""
         with patch(
-            "pynomaly.presentation.cli.container.get_cli_container"
+            "monorepo.presentation.cli.container.get_cli_container"
         ) as mock_container:
             container = Mock()
             dataset_repo = Mock()

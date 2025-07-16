@@ -2,14 +2,14 @@
 
 import numpy as np
 
-from pynomaly.application.services.workflow_simplification_service import (
+from monorepo.application.services.workflow_simplification_service import (
     UserExperience,
     WorkflowComplexity,
     WorkflowRecommendation,
     WorkflowSimplificationService,
     WorkflowStep,
 )
-from pynomaly.domain.entities import Dataset
+from monorepo.domain.entities import Dataset
 
 
 class TestWorkflowSimplificationBasic:

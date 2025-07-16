@@ -12,8 +12,8 @@ from sklearn.datasets import make_blobs
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
 
 
 class TestDataGenerator:

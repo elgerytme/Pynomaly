@@ -738,7 +738,7 @@ class AuthenticationService:
         """Create default admin user if none exists."""
         admin_username = self.config.get("default_admin_username", "admin")
         admin_password = self.config.get("default_admin_password", "admin123")
-        admin_email = self.config.get("default_admin_email", "admin@pynomaly.com")
+        admin_email = self.config.get("default_admin_email", "admin@monorepo.com")
 
         # Check if admin already exists
         existing_admin = await self.user_store.get_user_by_username(admin_username)
@@ -972,7 +972,7 @@ async def main():
         "jwt_secret": "your-secret-key-here",
         "default_admin_username": "admin",
         "default_admin_password": "SecureAdminPass123!",
-        "default_admin_email": "admin@pynomaly.com",
+        "default_admin_email": "admin@monorepo.com",
         "max_login_attempts": 3,
         "lockout_minutes": 15,
     }

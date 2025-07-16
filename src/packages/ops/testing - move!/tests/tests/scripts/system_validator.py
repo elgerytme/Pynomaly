@@ -139,7 +139,7 @@ class SystemValidator:
         try:
             env = {**os.environ, "PYTHONPATH": str(self.project_root / "src")}
             result = subprocess.run(
-                ["python3", "-m", "pynomaly", "auto", "--help"],
+                ["python3", "-m", "monorepo", "auto", "--help"],
                 capture_output=True,
                 text=True,
                 timeout=10,
@@ -206,7 +206,7 @@ class SystemValidator:
 
         # Test FastAPI app creation
         try:
-            from pynomaly.presentation.api.app import create_app
+            from monorepo.presentation.api.app import create_app
 
             app = create_app()
 
@@ -259,7 +259,7 @@ class SystemValidator:
 
         # Test container creation
         try:
-            from pynomaly.infrastructure.config.container import (
+            from monorepo.infrastructure.config.container import (
                 Container,
                 create_container,
             )
@@ -306,7 +306,7 @@ class SystemValidator:
 
         # Test settings
         try:
-            from pynomaly.infrastructure.config.settings import get_settings
+            from monorepo.infrastructure.config.settings import get_settings
 
             settings = get_settings()
 
@@ -331,7 +331,7 @@ class SystemValidator:
 
         # Test feature flags
         try:
-            from pynomaly.infrastructure.config.feature_flags import get_feature_flags
+            from monorepo.infrastructure.config.feature_flags import get_feature_flags
 
             get_feature_flags()
 
@@ -364,7 +364,7 @@ class SystemValidator:
         # Test startup time
         start_time = time.time()
         try:
-            from pynomaly.infrastructure.config.container import Container
+            from monorepo.infrastructure.config.container import Container
 
             Container()
             startup_time = time.time() - start_time

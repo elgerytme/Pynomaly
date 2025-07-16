@@ -6,7 +6,7 @@ from uuid import UUID, uuid4
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     AlgorithmConfigDTO,
     AlgorithmConfigurationDTO,
     ConfigurationExportRequestDTO,
@@ -1257,7 +1257,7 @@ class TestConfigurationDTOIntegration:
     def test_backward_compatibility_aliases(self):
         """Test backward compatibility aliases."""
         # Test that aliases work correctly
-        from pynomaly.application.dto.configuration_dto import (
+        from monorepo.application.dto.configuration_dto import (
             DatasetConfigurationDTO,
             EvaluationConfigurationDTO,
             PreprocessingConfigurationDTO,

@@ -44,7 +44,7 @@ class Alert:
     status: AlertStatus = AlertStatus.ACTIVE
     created_at: datetime = field(default_factory=datetime.utcnow)
     resolved_at: datetime | None = None
-    source: str = "pynomaly"
+    source: str = "monorepo"
     tags: dict[str, str] = field(default_factory=dict)
     metrics: dict[str, Any] = field(default_factory=dict)
     suppressed_until: datetime | None = None

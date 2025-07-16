@@ -9,13 +9,13 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities.anomaly_event import (
+from monorepo.domain.entities.anomaly_event import (
     AnomalyEvent,
     AnomalyEventData,
     EventSeverity,
     EventType,
 )
-from pynomaly.domain.entities.streaming_session import (
+from monorepo.domain.entities.streaming_session import (
     SessionStatus,
     SessionSummary,
     StreamingAlert,
@@ -25,7 +25,7 @@ from pynomaly.domain.entities.streaming_session import (
     StreamingMetrics,
     StreamingSession,
 )
-from pynomaly.shared.protocols.repository_protocol import ModelRepositoryProtocol
+from monorepo.shared.protocols.repository_protocol import ModelRepositoryProtocol
 
 logger = logging.getLogger(__name__)
 

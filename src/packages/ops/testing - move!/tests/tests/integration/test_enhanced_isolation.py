@@ -206,11 +206,11 @@ class TestEnhancedIntegrationIsolation:
 
     def test_data_pipeline_isolated(self, mocked_dependencies, isolated_filesystem):
         """Test complete data pipeline with isolated dependencies."""
-        from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+        from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
         # Setup mocked PyOD dependencies
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.IsolationForest"
+            "monorepo.infrastructure.adapters.pyod_adapter.IsolationForest"
         ) as mock_if:
             mock_if.return_value = mocked_dependencies.pyod_mocks["IsolationForest"]
 
@@ -219,7 +219,7 @@ class TestEnhancedIntegrationIsolation:
 
             # Mock data loader
             with patch(
-                "pynomaly.infrastructure.data_loaders.csv_loader.CSVLoader"
+                "monorepo.infrastructure.data_loaders.csv_loader.CSVLoader"
             ) as mock_loader:
                 mock_data = np.random.randn(100, 3)
                 mock_loader.return_value.load.return_value = mock_data
@@ -244,7 +244,7 @@ class TestEnhancedIntegrationIsolation:
 
         # Mock async database session
         with patch(
-            "pynomaly.infrastructure.persistence.async_session_maker"
+            "monorepo.infrastructure.persistence.async_session_maker"
         ) as mock_session_maker:
             mock_session_maker.return_value = mocked_dependencies.database_mocks[
                 "session"
@@ -252,7 +252,7 @@ class TestEnhancedIntegrationIsolation:
 
             # Mock repository
             with patch(
-                "pynomaly.infrastructure.repositories.detector_repository.DetectorRepository"
+                "monorepo.infrastructure.repositories.detector_repository.DetectorRepository"
             ) as mock_repo:
                 mock_detector = Mock()
                 mock_detector.id = str(uuid.uuid4())
@@ -266,7 +266,7 @@ class TestEnhancedIntegrationIsolation:
                 mock_repo.return_value.update = AsyncMock(return_value=mock_detector)
 
                 # Test async service operations
-                from pynomaly.application.services.detection_service import (
+                from monorepo.application.services.detection_service import (
                     DetectionService,
                 )
 
@@ -293,7 +293,7 @@ class TestEnhancedIntegrationIsolation:
 
         # Mock Redis client
         with patch(
-            "pynomaly.infrastructure.caching.redis_cache.RedisCache"
+            "monorepo.infrastructure.caching.redis_cache.RedisCache"
         ) as mock_cache:
             mock_cache.return_value.get = mocked_dependencies.redis_mocks["client"].get
             mock_cache.return_value.set = mocked_dependencies.redis_mocks["client"].set
@@ -328,7 +328,7 @@ class TestEnhancedIntegrationIsolation:
             mock_post.return_value = mocked_dependencies.api_mocks["response"]
 
             # Test external API calls
-            from pynomaly.infrastructure.external_services.ml_model_service import (
+            from monorepo.infrastructure.external_services.ml_model_service import (
                 MLModelService,
             )
 
@@ -357,13 +357,13 @@ class TestEnhancedIntegrationIsolation:
         # Setup comprehensive mocking
         with (
             patch(
-                "pynomaly.infrastructure.adapters.pyod_adapter.IsolationForest"
+                "monorepo.infrastructure.adapters.pyod_adapter.IsolationForest"
             ) as mock_if,
             patch(
-                "pynomaly.infrastructure.persistence.async_session_maker"
+                "monorepo.infrastructure.persistence.async_session_maker"
             ) as mock_session,
             patch(
-                "pynomaly.infrastructure.data_loaders.csv_loader.CSVLoader"
+                "monorepo.infrastructure.data_loaders.csv_loader.CSVLoader"
             ) as mock_loader,
         ):
             # Setup mocks
@@ -385,7 +385,7 @@ class TestEnhancedIntegrationIsolation:
                 workflow_steps.append("✓ Data loaded successfully")
 
                 # Step 2: Model Creation
-                from pynomaly.infrastructure.adapters.sklearn_adapter import (
+                from monorepo.infrastructure.adapters.sklearn_adapter import (
                     SklearnAdapter,
                 )
 
@@ -428,7 +428,7 @@ class TestEnhancedIntegrationIsolation:
 
         # Test database connection failure recovery
         with patch(
-            "pynomaly.infrastructure.persistence.get_database_session"
+            "monorepo.infrastructure.persistence.get_database_session"
         ) as mock_db:
             # Simulate database failure then recovery
             mock_db.side_effect = [
@@ -436,7 +436,7 @@ class TestEnhancedIntegrationIsolation:
                 mocked_dependencies.database_mocks["session"],
             ]
 
-            from pynomaly.infrastructure.repositories.detector_repository import (
+            from monorepo.infrastructure.repositories.detector_repository import (
                 DetectorRepository,
             )
 
@@ -466,7 +466,7 @@ class TestEnhancedIntegrationIsolation:
 
         # Mock concurrent detector operations
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
         ) as mock_adapter:
 
             def create_mock_detector(algorithm_name):
@@ -522,7 +522,7 @@ class TestEnhancedIntegrationIsolation:
 
             # Mock database connection
             with patch(
-                "pynomaly.infrastructure.persistence.create_connection"
+                "monorepo.infrastructure.persistence.create_connection"
             ) as mock_conn:
                 mock_connection = Mock()
                 mock_connection.close = Mock()
@@ -565,7 +565,7 @@ class TestEnhancedIntegrationIsolation:
 
         # Mock performance-sensitive operations
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
         ) as mock_adapter:
 
             def timed_operation(data_size):

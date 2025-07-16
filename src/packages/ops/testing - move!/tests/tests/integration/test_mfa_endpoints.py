@@ -9,8 +9,8 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.application.dto.mfa_dto import MFAMethodType
-from pynomaly.presentation.api.app import create_app
+from monorepo.application.dto.mfa_dto import MFAMethodType
+from monorepo.presentation.api.app import create_app
 
 
 class TestMFAEndpoints:
@@ -101,7 +101,7 @@ class TestMFAEndpoints:
     @pytest.fixture
     def app_with_mfa(self, mock_settings, mock_user, mock_admin_user, mock_mfa_service, mock_auth_service):
         """Create FastAPI app with MFA endpoints."""
-        with patch("pynomaly.infrastructure.config.create_container") as mock_container:
+        with patch("monorepo.infrastructure.config.create_container") as mock_container:
             container = Mock()
             container.config.return_value = mock_settings
             mock_container.return_value = container
@@ -111,16 +111,16 @@ class TestMFAEndpoints:
             # Mock dependencies
             app.dependency_overrides = {}
 
-            with patch("pynomaly.presentation.api.endpoints.mfa.get_current_user") as mock_get_user:
+            with patch("monorepo.presentation.api.endpoints.mfa.get_current_user") as mock_get_user:
                 mock_get_user.return_value = mock_user
 
-                with patch("pynomaly.presentation.api.endpoints.mfa.require_admin_simple") as mock_get_admin:
+                with patch("monorepo.presentation.api.endpoints.mfa.require_admin_simple") as mock_get_admin:
                     mock_get_admin.return_value = mock_admin_user
 
-                    with patch("pynomaly.presentation.api.endpoints.mfa.get_mfa_service") as mock_get_mfa:
+                    with patch("monorepo.presentation.api.endpoints.mfa.get_mfa_service") as mock_get_mfa:
                         mock_get_mfa.return_value = mock_mfa_service
 
-                        with patch("pynomaly.presentation.api.endpoints.mfa.get_auth") as mock_get_auth:
+                        with patch("monorepo.presentation.api.endpoints.mfa.get_auth") as mock_get_auth:
                             mock_get_auth.return_value = mock_auth_service
 
                             yield app

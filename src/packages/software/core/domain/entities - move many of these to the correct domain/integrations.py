@@ -9,7 +9,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from pynomaly.shared.types import TenantId, UserId
+from monorepo.shared.types import TenantId, UserId
 
 
 class IntegrationType(str, Enum):
@@ -224,7 +224,7 @@ class NotificationPayload:
         return {
             "payload": {
                 "summary": self.title,
-                "source": "pynomaly",
+                "source": "monorepo",
                 "severity": severity_map.get(self.level, "info"),
                 "timestamp": self.timestamp.isoformat(),
                 "custom_details": {

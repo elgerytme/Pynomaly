@@ -177,7 +177,7 @@ class TidyStructureChecker:
 
     def _check_source_organization(self):
         """Check source code directory organization."""
-        src_path = self.root_path / "src" / "pynomaly"
+        src_path = self.root_path / "src" / "monorepo"
 
         if not src_path.exists():
             self.violations.append("Source directory src/pynomaly/ not found")

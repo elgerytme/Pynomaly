@@ -11,9 +11,9 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataLoadError
-from pynomaly.shared.protocols import DataLoaderProtocol
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import DataLoadError
+from monorepo.shared.protocols import DataLoaderProtocol
 
 logger = logging.getLogger(__name__)
 

@@ -286,7 +286,7 @@ def main():
         print("- Install dependencies: pip install pynomaly[cloud-storage]")
         print("- Configure credentials for your cloud provider")
         print("- Use factory pattern: StorageFactory().create_adapter('s3')")
-        print("- Use CLI: python -m pynomaly.infrastructure.storage.cli")
+        print("- Use CLI: python -m monorepo.infrastructure.storage.cli")
         
         return True
     else:

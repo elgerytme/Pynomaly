@@ -115,7 +115,7 @@ class MutationTester:
 
 if __name__ == "__main__":
     # Simple test of the framework
-    tester = MutationTester("pynomaly.domain.entities")
+    tester = MutationTester("monorepo.domain.entities")
     summary = tester.run_mutation_tests()
     print(f"Mutation Score: {summary.mutation_score:.2f}%")
     print(f"Killed: {summary.killed_mutants}/{summary.total_mutants}")

@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.models.monitoring import Dashboard, DashboardType, DashboardWidget
+from monorepo.domain.models.monitoring import Dashboard, DashboardType, DashboardWidget
 
 
 class DashboardMetrics:

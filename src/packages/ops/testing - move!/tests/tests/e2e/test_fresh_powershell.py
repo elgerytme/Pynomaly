@@ -8,7 +8,7 @@ print("Python:", sys.version.split()[0])
 try:
     print("SUCCESS - Package import")
 
-    from pynomaly.presentation.sdk.models import AnomalyScore
+    from monorepo.presentation.sdk.models import AnomalyScore
 
     score = AnomalyScore(value=0.95, confidence=0.88)
     print("SUCCESS - Model creation:", score.value)

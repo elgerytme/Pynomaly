@@ -14,8 +14,8 @@ from hypothesis import assume, given
 from hypothesis import strategies as st
 from hypothesis.extra.numpy import arrays
 
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.value_objects import (
+from monorepo.domain.entities import Dataset, DetectionResult
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ConfidenceInterval,
     ContaminationRate,
@@ -279,7 +279,7 @@ class TestAlgorithmProperties:
         parameters = {"random_state": 42}
 
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
         ) as mock_adapter:
             # Mock deterministic behavior
             mock_model = Mock()
@@ -318,7 +318,7 @@ class TestAlgorithmProperties:
     def test_algorithm_contamination_property(self, dataset: Dataset, algorithm: str):
         """Test that contamination parameter affects results appropriately."""
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
         ) as mock_adapter:
             adapter = mock_adapter.return_value
 
@@ -368,7 +368,7 @@ class TestAlgorithmProperties:
     def test_algorithm_scale_invariance(self, data: np.ndarray, contamination: float):
         """Test that algorithms are invariant to data scaling."""
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
         ) as mock_adapter:
             adapter = mock_adapter.return_value
 
@@ -410,7 +410,7 @@ class TestAlgorithmProperties:
     def test_algorithm_subset_consistency(self, dataset: Dataset, n_subsets: int):
         """Test algorithm consistency across data subsets."""
         with patch(
-            "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+            "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
         ) as mock_adapter:
             adapter = mock_adapter.return_value
 
@@ -468,7 +468,7 @@ class TestDataTransformationProperties:
     def test_normalization_properties(self, data: np.ndarray):
         """Test data normalization properties."""
         with patch(
-            "pynomaly.infrastructure.preprocessing.data_transformer.DataTransformer"
+            "monorepo.infrastructure.preprocessing.data_transformer.DataTransformer"
         ) as mock_transformer:
             transformer = mock_transformer.return_value
 
@@ -514,7 +514,7 @@ class TestDataTransformationProperties:
     def test_scaling_invertibility(self, data: np.ndarray):
         """Test that scaling transformations are invertible."""
         with patch(
-            "pynomaly.infrastructure.preprocessing.data_transformer.DataTransformer"
+            "monorepo.infrastructure.preprocessing.data_transformer.DataTransformer"
         ) as mock_transformer:
             transformer = mock_transformer.return_value
 
@@ -573,7 +573,7 @@ class TestDataTransformationProperties:
         assume(target_dimensions < n_features)
 
         with patch(
-            "pynomaly.infrastructure.preprocessing.data_transformer.DataTransformer"
+            "monorepo.infrastructure.preprocessing.data_transformer.DataTransformer"
         ) as mock_transformer:
             transformer = mock_transformer.return_value
 
@@ -617,7 +617,7 @@ class TestDataTransformationProperties:
     def test_outlier_removal_properties(self, data: np.ndarray, contamination: float):
         """Test outlier removal properties."""
         with patch(
-            "pynomaly.infrastructure.preprocessing.data_transformer.DataTransformer"
+            "monorepo.infrastructure.preprocessing.data_transformer.DataTransformer"
         ) as mock_transformer:
             transformer = mock_transformer.return_value
 
@@ -674,7 +674,7 @@ class TestServiceProperties:
     def test_detection_service_properties(self, dataset: Dataset, algorithm: str):
         """Test detection service properties."""
         with patch(
-            "pynomaly.application.services.detection_service.DetectionService"
+            "monorepo.application.services.detection_service.DetectionService"
         ) as mock_service:
             service = mock_service.return_value
 
@@ -721,7 +721,7 @@ class TestServiceProperties:
     ):
         """Test ensemble service properties."""
         with patch(
-            "pynomaly.application.services.ensemble_service.EnsembleService"
+            "monorepo.application.services.ensemble_service.EnsembleService"
         ) as mock_service:
             service = mock_service.return_value
 
@@ -794,7 +794,7 @@ class TestServiceProperties:
     def test_cross_validation_properties(self, dataset: Dataset, n_folds: int):
         """Test cross-validation properties."""
         with patch(
-            "pynomaly.application.services.validation_service.ValidationService"
+            "monorepo.application.services.validation_service.ValidationService"
         ) as mock_service:
             service = mock_service.return_value
 
@@ -896,7 +896,7 @@ class TestRobustnessProperties:
     def test_numerical_stability(self, data: np.ndarray):
         """Test numerical stability with extreme but valid inputs."""
         with patch(
-            "pynomaly.infrastructure.preprocessing.data_transformer.DataTransformer"
+            "monorepo.infrastructure.preprocessing.data_transformer.DataTransformer"
         ) as mock_transformer:
             transformer = mock_transformer.return_value
 

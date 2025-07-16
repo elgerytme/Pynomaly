@@ -90,7 +90,7 @@ def test_api_versioning():
 
     # Test 5: Check version endpoint import
     print("\n5. Checking version endpoint...")
-    if 'version,' in content and 'from pynomaly.presentation.api.endpoints import' in content:
+    if 'version,' in content and 'from monorepo.presentation.api.endpoints import' in content:
         print("✅ Version endpoint imported")
     else:
         print("❌ Version endpoint not imported")

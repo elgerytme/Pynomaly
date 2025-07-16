@@ -11,9 +11,9 @@ import pytest
 from fastapi import HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials
 
-from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
-from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, UserModel
-from pynomaly.infrastructure.auth.middleware import (
+from monorepo.domain.exceptions import AuthenticationError, AuthorizationError
+from monorepo.infrastructure.auth.jwt_auth import JWTAuthService, UserModel
+from monorepo.infrastructure.auth.middleware import (
     PermissionChecker,
     RateLimiter,
     create_auth_context,
@@ -49,7 +49,7 @@ class TestRateLimiterSecurity:
     def test_rate_limiter_dos_protection(self, mock_cache, mock_request):
         """Test rate limiter protection against DoS attacks."""
         with patch(
-            "pynomaly.infrastructure.auth.middleware.get_cache", return_value=mock_cache
+            "monorepo.infrastructure.auth.middleware.get_cache", return_value=mock_cache
         ):
             # Create strict rate limiter (1 request per minute)
             limiter = RateLimiter(requests=1, window=60)
@@ -70,7 +70,7 @@ class TestRateLimiterSecurity:
     def test_rate_limiter_distributed_dos_protection(self, mock_cache):
         """Test rate limiter against distributed DoS attacks."""
         with patch(
-            "pynomaly.infrastructure.auth.middleware.get_cache", return_value=mock_cache
+            "monorepo.infrastructure.auth.middleware.get_cache", return_value=mock_cache
         ):
             limiter = RateLimiter(requests=2, window=60)
 
@@ -98,7 +98,7 @@ class TestRateLimiterSecurity:
     def test_rate_limiter_proxy_header_security(self, mock_cache):
         """Test rate limiter security with proxy headers."""
         with patch(
-            "pynomaly.infrastructure.auth.middleware.get_cache", return_value=mock_cache
+            "monorepo.infrastructure.auth.middleware.get_cache", return_value=mock_cache
         ):
             limiter = RateLimiter(requests=1, window=60)
 
@@ -149,7 +149,7 @@ class TestRateLimiterSecurity:
     def test_rate_limiter_cache_poisoning_protection(self, mock_cache):
         """Test rate limiter protection against cache poisoning."""
         with patch(
-            "pynomaly.infrastructure.auth.middleware.get_cache", return_value=mock_cache
+            "monorepo.infrastructure.auth.middleware.get_cache", return_value=mock_cache
         ):
             limiter = RateLimiter(requests=5, window=60)
 
@@ -172,7 +172,7 @@ class TestRateLimiterSecurity:
     def test_rate_limiter_time_window_security(self, mock_cache):
         """Test rate limiter time window security."""
         with patch(
-            "pynomaly.infrastructure.auth.middleware.get_cache", return_value=mock_cache
+            "monorepo.infrastructure.auth.middleware.get_cache", return_value=mock_cache
         ):
             # Test very short time window (potential for timing attacks)
             limiter = RateLimiter(requests=1, window=1)
@@ -196,7 +196,7 @@ class TestRateLimiterSecurity:
     def test_rate_limiter_concurrent_requests(self, mock_cache):
         """Test rate limiter under concurrent request load."""
         with patch(
-            "pynomaly.infrastructure.auth.middleware.get_cache", return_value=mock_cache
+            "monorepo.infrastructure.auth.middleware.get_cache", return_value=mock_cache
         ):
             limiter = RateLimiter(requests=10, window=60)
 
@@ -536,7 +536,7 @@ class TestRequestMetricsSecurityAndPrivacy:
             return response
 
         with patch(
-            "pynomaly.infrastructure.monitoring.get_telemetry", return_value=telemetry
+            "monorepo.infrastructure.monitoring.get_telemetry", return_value=telemetry
         ):
             result = asyncio.run(track_request_metrics(request, mock_call_next))
 
@@ -581,7 +581,7 @@ class TestRequestMetricsSecurityAndPrivacy:
             return response
 
         with patch(
-            "pynomaly.infrastructure.monitoring.get_telemetry", return_value=telemetry
+            "monorepo.infrastructure.monitoring.get_telemetry", return_value=telemetry
         ):
             asyncio.run(track_request_metrics(request, mock_call_next))
 
@@ -625,7 +625,7 @@ class TestRequestMetricsSecurityAndPrivacy:
             start_time = time.time()
 
             with patch(
-                "pynomaly.infrastructure.monitoring.get_telemetry",
+                "monorepo.infrastructure.monitoring.get_telemetry",
                 return_value=telemetry,
             ):
                 asyncio.run(track_request_metrics(request, mock_call_next))
@@ -660,7 +660,7 @@ class TestRequestMetricsSecurityAndPrivacy:
             return response
 
         with patch(
-            "pynomaly.infrastructure.monitoring.get_telemetry", return_value=telemetry
+            "monorepo.infrastructure.monitoring.get_telemetry", return_value=telemetry
         ):
             asyncio.run(track_request_metrics(request, mock_call_next))
 
@@ -698,7 +698,7 @@ class TestAuthContextSecurity:
         ]
 
         with patch(
-            "pynomaly.infrastructure.auth.middleware.get_auth",
+            "monorepo.infrastructure.auth.middleware.get_auth",
             return_value=auth_service,
         ):
             context = create_auth_context(user)
@@ -759,7 +759,7 @@ class TestAuthContextSecurity:
         ]
 
         with patch(
-            "pynomaly.infrastructure.auth.middleware.get_auth",
+            "monorepo.infrastructure.auth.middleware.get_auth",
             return_value=auth_service,
         ):
             context = create_auth_context(user)

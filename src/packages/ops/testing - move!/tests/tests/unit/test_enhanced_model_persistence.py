@@ -7,17 +7,17 @@ from unittest.mock import AsyncMock, Mock
 import numpy as np
 import pytest
 
-from pynomaly.application.services.enhanced_model_persistence_service import (
+from monorepo.application.services.enhanced_model_persistence_service import (
     EnhancedModelPersistenceService,
     ModelSerializationError,
     UnsupportedFormatError,
 )
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.entities.model_version import ModelStatus, ModelVersion
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.domain.value_objects.model_storage_info import SerializationFormat
-from pynomaly.domain.value_objects.performance_metrics import PerformanceMetrics
-from pynomaly.domain.value_objects.semantic_version import SemanticVersion
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.entities.model_version import ModelStatus, ModelVersion
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.domain.value_objects.model_storage_info import SerializationFormat
+from monorepo.domain.value_objects.performance_metrics import PerformanceMetrics
+from monorepo.domain.value_objects.semantic_version import SemanticVersion
 
 
 class MockDetector(Detector):
@@ -42,8 +42,8 @@ class MockDetector(Detector):
 
     def detect(self, dataset: Dataset):
         """Mock detect method."""
-        from pynomaly.domain.entities import DetectionResult
-        from pynomaly.domain.value_objects import AnomalyScore
+        from monorepo.domain.entities import DetectionResult
+        from monorepo.domain.value_objects import AnomalyScore
 
         n_samples = len(dataset.data)
         scores = [AnomalyScore(0.5) for _ in range(n_samples)]
@@ -60,7 +60,7 @@ class MockDetector(Detector):
 
     def score(self, dataset: Dataset):
         """Mock score method."""
-        from pynomaly.domain.value_objects import AnomalyScore
+        from monorepo.domain.value_objects import AnomalyScore
 
         n_samples = len(dataset.data)
         return [AnomalyScore(0.5) for _ in range(n_samples)]
@@ -512,7 +512,7 @@ class TestEnhancedModelPersistenceService:
         with open(req_path) as f:
             requirements = f.read()
 
-        assert "pynomaly" in requirements
+        assert "monorepo" in requirements
         assert "numpy" in requirements
         assert "pandas" in requirements
         assert "scikit-learn" in requirements

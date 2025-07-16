@@ -34,7 +34,7 @@ def test_security_imports():
 def test_jwt_functionality():
     """Test JWT token functionality."""
     try:
-        from pynomaly.presentation.api.security.authentication import JWTManager
+        from monorepo.presentation.api.security.authentication import JWTManager
 
         jwt_manager = JWTManager("test-secret", "HS256")
 
@@ -58,7 +58,7 @@ def test_jwt_functionality():
 def test_input_validation():
     """Test input validation functionality."""
     try:
-        from pynomaly.presentation.api.security.input_validation import (
+        from monorepo.presentation.api.security.input_validation import (
             SecurityValidator,
         )
 
@@ -84,7 +84,7 @@ def test_input_validation():
 def test_rate_limiting():
     """Test rate limiting functionality."""
     try:
-        from pynomaly.presentation.api.security.rate_limiting import (
+        from monorepo.presentation.api.security.rate_limiting import (
             RateLimiter,
             RateLimitType,
         )
@@ -111,7 +111,7 @@ def test_rate_limiting():
 def test_encryption():
     """Test encryption functionality."""
     try:
-        from pynomaly.presentation.api.security.encryption import EncryptionManager
+        from monorepo.presentation.api.security.encryption import EncryptionManager
 
         encryption_manager = EncryptionManager()
 
@@ -134,7 +134,7 @@ def test_encryption():
 def test_vulnerability_scanner():
     """Test vulnerability scanner functionality."""
     try:
-        from pynomaly.presentation.api.security.vulnerability_scanner import (
+        from monorepo.presentation.api.security.vulnerability_scanner import (
             VulnerabilityScanner,
         )
 

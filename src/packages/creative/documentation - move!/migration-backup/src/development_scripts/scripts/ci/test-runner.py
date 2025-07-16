@@ -201,7 +201,7 @@ class TestRunner:
         # Add coverage if requested
         if coverage:
             cmd.extend([
-                f"--cov={self.project_root / 'src' / 'pynomaly'}",
+                f"--cov={self.project_root / 'src' / 'monorepo'}",
                 "--cov-report=xml",
                 "--cov-report=html",
                 "--cov-report=term-missing",

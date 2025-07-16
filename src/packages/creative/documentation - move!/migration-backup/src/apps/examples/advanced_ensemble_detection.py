@@ -23,10 +23,10 @@ import sys
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.value_objects import ConfidenceInterval
-from pynomaly.infrastructure.config import create_container
-from pynomaly.infrastructure.resilience import ml_resilient
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.value_objects import ConfidenceInterval
+from monorepo.infrastructure.config import create_container
+from monorepo.infrastructure.resilience import ml_resilient
 
 
 class EnsembleMethod(Enum):

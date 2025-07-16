@@ -36,14 +36,14 @@ def extract_imports_from_file(file_path):
         from_match = re.match(from_pattern, line)
         if from_match:
             module = from_match.group(1)
-            if module.startswith('pynomaly') or module.startswith('packages') or module.startswith('.'):
+            if module.startswith('monorepo') or module.startswith('packages') or module.startswith('.'):
                 imports.append(module)
         
         # Check for 'import' statements
         import_match = re.match(import_pattern, line)
         if import_match:
             module = import_match.group(1)
-            if module.startswith('pynomaly') or module.startswith('packages'):
+            if module.startswith('monorepo') or module.startswith('packages'):
                 imports.append(module)
     
     return imports
@@ -75,8 +75,8 @@ def get_package_from_module(module_name):
     """Extract the main package from a module name."""
     parts = module_name.split('.')
     if len(parts) >= 2:
-        if parts[0] == 'pynomaly':
-            return '.'.join(parts[:2])  # e.g., 'pynomaly.domain'
+        if parts[0] == 'monorepo':
+            return '.'.join(parts[:2])  # e.g., 'monorepo.domain'
         elif parts[0] == 'packages':
             return '.'.join(parts[:2])  # e.g., 'packages.core'
     return parts[0]
@@ -130,7 +130,7 @@ def build_dependency_graph():
             normalized_imp = normalize_module_path(imp, file_path)
             
             # Skip self-imports and standard library
-            if normalized_imp == module_name or not (normalized_imp.startswith('pynomaly') or normalized_imp.startswith('packages')):
+            if normalized_imp == module_name or not (normalized_imp.startswith('monorepo') or normalized_imp.startswith('packages')):
                 continue
             
             # Add to module dependencies
@@ -217,9 +217,9 @@ def main():
     # Domain should not import from Application or Infrastructure
     domain_violations = []
     for module, deps in module_deps.items():
-        if module.startswith('pynomaly.domain'):
+        if module.startswith('monorepo.domain'):
             for dep in deps:
-                if dep.startswith('pynomaly.application') or dep.startswith('pynomaly.infrastructure') or dep.startswith('pynomaly.presentation'):
+                if dep.startswith('monorepo.application') or dep.startswith('monorepo.infrastructure') or dep.startswith('monorepo.presentation'):
                     domain_violations.append((module, dep))
 
     if domain_violations:
@@ -230,9 +230,9 @@ def main():
     # Application should not import from Infrastructure (except interfaces)
     app_violations = []
     for module, deps in module_deps.items():
-        if module.startswith('pynomaly.application'):
+        if module.startswith('monorepo.application'):
             for dep in deps:
-                if dep.startswith('pynomaly.infrastructure') and 'interfaces' not in dep:
+                if dep.startswith('monorepo.infrastructure') and 'interfaces' not in dep:
                     app_violations.append((module, dep))
 
     if app_violations:

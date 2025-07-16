@@ -15,13 +15,13 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID
 
-from pynomaly.domain.entities.optimization_trial import OptimizationTrial
-from pynomaly.domain.entities.training_job import (
+from monorepo.domain.entities.optimization_trial import OptimizationTrial
+from monorepo.domain.entities.training_job import (
     TrainingJob,
     TrainingPriority,
     TrainingStatus,
 )
-from pynomaly.shared.exceptions import RepositoryError
+from monorepo.shared.exceptions import RepositoryError
 
 logger = logging.getLogger(__name__)
 

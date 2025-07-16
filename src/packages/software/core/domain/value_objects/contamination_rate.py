@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import ClassVar
 
-from pynomaly.domain.exceptions import InvalidValueError
+from monorepo.domain.exceptions import InvalidValueError
 
 
 @dataclass(frozen=True)

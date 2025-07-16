@@ -8,9 +8,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.services.advanced_detection_service import DetectionAlgorithm
-from pynomaly.domain.services.automl_service import (
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.services.advanced_detection_service import DetectionAlgorithm
+from monorepo.domain.services.automl_service import (
     AutoMLService,
     OptimizationConfig,
     OptimizationMetric,

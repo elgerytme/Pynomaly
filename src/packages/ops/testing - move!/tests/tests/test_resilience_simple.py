@@ -17,7 +17,7 @@ except ImportError as e:
 
 # Test our resilience configuration
 try:
-    from pynomaly.infrastructure.config.settings import Settings
+    from monorepo.infrastructure.config.settings import Settings
 
     settings = Settings()
     print(f"✓ Settings loaded - resilience enabled: {settings.resilience_enabled}")
@@ -51,7 +51,7 @@ def test_basic_retry():
 def test_circuit_breaker():
     """Test circuit breaker functionality."""
     try:
-        from pynomaly.infrastructure.resilience.circuit_breaker import CircuitBreaker
+        from monorepo.infrastructure.resilience.circuit_breaker import CircuitBreaker
 
         # Create circuit breaker
         cb = CircuitBreaker(failure_threshold=2, recovery_timeout=0.1)
@@ -92,7 +92,7 @@ def test_circuit_breaker():
 def test_enhanced_wrapper():
     """Test enhanced resilience wrapper."""
     try:
-        from pynomaly.infrastructure.resilience.enhanced_wrapper import (
+        from monorepo.infrastructure.resilience.enhanced_wrapper import (
             EnhancedResilienceWrapper,
             ResilienceConfig,
         )
@@ -127,7 +127,7 @@ def test_enhanced_wrapper():
 def test_resilient_decorator():
     """Test resilient decorator."""
     try:
-        from pynomaly.infrastructure.resilience.enhanced_wrapper import resilient
+        from monorepo.infrastructure.resilience.enhanced_wrapper import resilient
 
         attempt_count = 0
 

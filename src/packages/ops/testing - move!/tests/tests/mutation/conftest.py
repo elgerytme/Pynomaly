@@ -9,10 +9,10 @@ import pytest
 from ..conftest import *
 
 try:
-    from pynomaly.domain.entities import Dataset, Detector
-    from pynomaly.domain.value_objects import ContaminationRate
-    from pynomaly.infrastructure.adapters import PyODAdapter
-    from pynomaly.infrastructure.repositories import InMemoryDatasetRepository
+    from monorepo.domain.entities import Dataset, Detector
+    from monorepo.domain.value_objects import ContaminationRate
+    from monorepo.infrastructure.adapters import PyODAdapter
+    from monorepo.infrastructure.repositories import InMemoryDatasetRepository
     MUTATION_DEPENDENCIES_AVAILABLE = True
 except ImportError:
     MUTATION_DEPENDENCIES_AVAILABLE = False

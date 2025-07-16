@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Simple test script for domain abstractions."""
 
-from pynomaly.domain.abstractions import BaseEntity
+from monorepo.domain.abstractions import BaseEntity
 
 
 class TestEntity(BaseEntity):

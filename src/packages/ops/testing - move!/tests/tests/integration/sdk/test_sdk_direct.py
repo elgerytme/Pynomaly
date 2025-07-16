@@ -24,7 +24,7 @@ def test_direct_imports():
         print("✅ Infrastructure adapters import successful")
 
         # Test SDK models directly (bypassing __init__.py)
-        from pynomaly.presentation.sdk.models import (
+        from monorepo.presentation.sdk.models import (
             AnomalyScore,
             DatasetConfig,
             DetectionConfig,
@@ -44,7 +44,7 @@ def test_direct_imports():
 
         # Test sync client if available
         try:
-            from pynomaly.presentation.sdk.client import PynomaliClient
+            from monorepo.presentation.sdk.client import PynomaliClient
 
             print("✅ Sync client import successful")
 

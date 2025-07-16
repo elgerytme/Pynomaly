@@ -8,7 +8,7 @@ ensuring proper model lineage tracking, relationships, and metadata management.
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from pynomaly.domain.entities.lineage_record import (
+from monorepo.domain.entities.lineage_record import (
     LineageArtifact,
     LineageNode,
     LineageRecord,

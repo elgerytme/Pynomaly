@@ -9,10 +9,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
-from pynomaly.infrastructure.security.rate_limiting_middleware import (
+from monorepo.infrastructure.security.rate_limiting_middleware import (
     RateLimitMiddleware,
 )
-from pynomaly.presentation.api.middleware import SecurityHeadersMiddleware
+from monorepo.presentation.api.middleware import SecurityHeadersMiddleware
 
 # Optional prometheus dependency
 try:
@@ -25,10 +25,10 @@ except ImportError:
 
 # Production monitoring integration
 try:
-    from pynomaly.infrastructure.monitoring.fastapi_monitoring_middleware import (
+    from monorepo.infrastructure.monitoring.fastapi_monitoring_middleware import (
         setup_monitoring_middleware,
     )
-    from pynomaly.infrastructure.monitoring.production_monitoring_integration import (
+    from monorepo.infrastructure.monitoring.production_monitoring_integration import (
         create_production_monitoring,
     )
 
@@ -36,14 +36,14 @@ try:
 except ImportError:
     MONITORING_AVAILABLE = False
 
-from pynomaly.infrastructure.auth import init_auth, track_request_metrics
-from pynomaly.infrastructure.cache import init_cache
-from pynomaly.infrastructure.config import Container
+from monorepo.infrastructure.auth import init_auth, track_request_metrics
+from monorepo.infrastructure.cache import init_cache
+from monorepo.infrastructure.config import Container
 
 # Temporarily disabled telemetry
-# from pynomaly.infrastructure.monitoring import init_telemetry
-from pynomaly.presentation.api.docs import api_docs, configure_openapi_docs
-from pynomaly.presentation.api.endpoints import (
+# from monorepo.infrastructure.monitoring import init_telemetry
+from monorepo.presentation.api.docs import api_docs, configure_openapi_docs
+from monorepo.presentation.api.endpoints import (
     auth,
     events,
     export,
@@ -55,11 +55,11 @@ from pynomaly.presentation.api.endpoints import (
     streaming,
     version,
 )
-from pynomaly.presentation.api.router_factory import apply_openapi_overrides
+from monorepo.presentation.api.router_factory import apply_openapi_overrides
 
 # Enhanced AutoML endpoints
 try:
-    from pynomaly.presentation.api import enhanced_automl
+    from monorepo.presentation.api import enhanced_automl
 
     ENHANCED_AUTOML_AVAILABLE = True
 except ImportError:
@@ -74,7 +74,7 @@ DISTRIBUTED_API_AVAILABLE = False
 def _mount_web_ui_lazy(app):
     """Lazy import and mount web UI to avoid circular imports."""
     try:
-        from pynomaly.presentation.web.app import mount_web_ui
+        from monorepo.presentation.web.app import mount_web_ui
 
         mount_web_ui(app)
         return True
@@ -132,12 +132,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 
     # Cleanup services
     # Telemetry cleanup temporarily disabled
-    # from pynomaly.infrastructure.monitoring import get_telemetry
+    # from monorepo.infrastructure.monitoring import get_telemetry
     # telemetry = get_telemetry()
     # if telemetry:
     #     telemetry.shutdown()
 
-    from pynomaly.infrastructure.cache import get_cache
+    from monorepo.infrastructure.cache import get_cache
 
     cache = get_cache()
     if cache:
@@ -154,7 +154,7 @@ def create_app(container: Container | None = None) -> FastAPI:
         Configured FastAPI application
     """
     if container is None:
-        from pynomaly.infrastructure.config import create_container
+        from monorepo.infrastructure.config import create_container
 
         container = create_container()
     # If container is provided, skip wiring to avoid import issues during testing
@@ -199,7 +199,7 @@ def create_app(container: Container | None = None) -> FastAPI:
 ## Support
 
 - **GitHub**: [https://github.com/pynomaly/pynomaly](https://github.com/pynomaly/pynomaly)
-- **Documentation**: [https://pynomaly.readthedocs.io](https://pynomaly.readthedocs.io)
+- **Documentation**: [https://monorepo.readthedocs.io](https://monorepo.readthedocs.io)
 - **Issues**: [https://github.com/pynomaly/pynomaly/issues](https://github.com/pynomaly/pynomaly/issues)
         """,
         docs_url="/api/v1/docs" if settings.api.docs_enabled else None,
@@ -209,13 +209,13 @@ def create_app(container: Container | None = None) -> FastAPI:
         contact={
             "name": "Pynomaly Team",
             "url": "https://github.com/pynomaly/pynomaly",
-            "email": "team@pynomaly.io",
+            "email": "team@monorepo.io",
         },
         license_info={
             "name": "MIT",
             "url": "https://github.com/pynomaly/pynomaly/blob/main/LICENSE",
         },
-        terms_of_service="https://pynomaly.io/terms",
+        terms_of_service="https://monorepo.io/terms",
     )
 
     # Store container in app state
@@ -245,7 +245,7 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     # Setup comprehensive security monitoring for API
     try:
-        from pynomaly.presentation.web.security.security_monitor import (
+        from monorepo.presentation.web.security.security_monitor import (
             setup_security_monitoring,
         )
 
@@ -288,7 +288,7 @@ def create_app(container: Container | None = None) -> FastAPI:
 
     app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
 
-    from pynomaly.presentation.api.endpoints import mfa
+    from monorepo.presentation.api.endpoints import mfa
     app.include_router(mfa.router, prefix="/api/v1", tags=["mfa"])
 
     # app.include_router(
@@ -315,7 +315,7 @@ def create_app(container: Container | None = None) -> FastAPI:
     #         enhanced_automl.router, prefix="/api/v1", tags=["enhanced_automl"]
     #     )  # Temporarily disabled
 
-    from pynomaly.presentation.api.endpoints import ensemble, explainability
+    from monorepo.presentation.api.endpoints import ensemble, explainability
     app.include_router(ensemble.router, prefix="/api/v1/ensemble", tags=["ensemble"])
     app.include_router(
         explainability.router, prefix="/api/v1/explainability", tags=["explainability"]

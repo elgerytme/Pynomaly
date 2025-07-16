@@ -18,13 +18,13 @@ async def test_drift_detection_integration():
 
     try:
         # Test imports
-        from pynomaly.application.services.drift_detection_service import (
+        from monorepo.application.services.drift_detection_service import (
             DriftDetectionService,
         )
-        from pynomaly.application.use_cases.drift_monitoring_use_case import (
+        from monorepo.application.use_cases.drift_monitoring_use_case import (
             DriftMonitoringUseCase,
         )
-        from pynomaly.domain.entities.drift_detection import (
+        from monorepo.domain.entities.drift_detection import (
             DriftDetectionMethod,
             DriftSeverity,
             ModelMonitoringConfig,
@@ -296,7 +296,7 @@ async def test_drift_detection_integration():
         print("\n🧮 Testing Statistical Methods")
         print("-" * 32)
 
-        from pynomaly.application.services.drift_detection_service import (
+        from monorepo.application.services.drift_detection_service import (
             StatisticalDriftDetector,
         )
 

@@ -19,9 +19,9 @@ from unittest.mock import Mock
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
 
-from pynomaly.infrastructure.config.container import Container, create_container
-from pynomaly.infrastructure.config.settings import Settings
-from pynomaly.infrastructure.security.security_integration import (
+from monorepo.infrastructure.config.container import Container, create_container
+from monorepo.infrastructure.config.settings import Settings
+from monorepo.infrastructure.security.security_integration import (
     initialize_application_security,
 )
 
@@ -107,7 +107,7 @@ class IntegrationTestEnvironment:
         )
 
         # Create tables
-        from pynomaly.infrastructure.persistence.database_repositories import Base
+        from monorepo.infrastructure.persistence.database_repositories import Base
 
         Base.metadata.create_all(bind=engine)
 
@@ -115,7 +115,7 @@ class IntegrationTestEnvironment:
 
     async def _setup_cache_service(self) -> dict[str, Any]:
         """Set up cache service for testing."""
-        from pynomaly.infrastructure.cache.cache_core import InMemoryCache
+        from monorepo.infrastructure.cache.cache_core import InMemoryCache
 
         return {"cache": InMemoryCache(max_size=1000), "enabled": True}
 

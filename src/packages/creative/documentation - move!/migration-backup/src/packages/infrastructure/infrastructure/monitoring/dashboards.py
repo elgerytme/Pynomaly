@@ -15,7 +15,7 @@ PYNOMALY_DASHBOARD_TEMPLATE = {
     "dashboard": {
         "id": None,
         "title": "Pynomaly - Anomaly Detection System",
-        "tags": ["pynomaly", "anomaly-detection", "ml"],
+        "tags": ["monorepo", "anomaly-detection", "ml"],
         "style": "dark",
         "timezone": "browser",
         "refresh": "30s",
@@ -372,7 +372,7 @@ class DashboardGenerator:
         return DashboardConfig(
             title="Pynomaly - System Overview",
             description="High-level overview of Pynomaly anomaly detection system",
-            tags=["pynomaly", "overview", "monitoring"],
+            tags=["monorepo", "overview", "monitoring"],
             panels=OVERVIEW_PANELS + DETECTION_PANELS[:2] + SYSTEM_PANELS[:2],
         )
 
@@ -382,7 +382,7 @@ class DashboardGenerator:
         return DashboardConfig(
             title="Pynomaly - Anomaly Detection",
             description="Detailed metrics for anomaly detection operations",
-            tags=["pynomaly", "detection", "ml"],
+            tags=["monorepo", "detection", "ml"],
             panels=DETECTION_PANELS,
         )
 
@@ -392,7 +392,7 @@ class DashboardGenerator:
         return DashboardConfig(
             title="Pynomaly - Streaming Operations",
             description="Real-time streaming anomaly detection metrics",
-            tags=["pynomaly", "streaming", "realtime"],
+            tags=["monorepo", "streaming", "realtime"],
             panels=STREAMING_PANELS,
         )
 
@@ -402,7 +402,7 @@ class DashboardGenerator:
         return DashboardConfig(
             title="Pynomaly - Ensemble Detection",
             description="Ensemble anomaly detection methods and voting strategies",
-            tags=["pynomaly", "ensemble", "ml"],
+            tags=["monorepo", "ensemble", "ml"],
             panels=ENSEMBLE_PANELS,
         )
 
@@ -412,7 +412,7 @@ class DashboardGenerator:
         return DashboardConfig(
             title="Pynomaly - System Health",
             description="System performance, errors, and resource utilization",
-            tags=["pynomaly", "system", "health"],
+            tags=["monorepo", "system", "health"],
             panels=SYSTEM_PANELS,
         )
 
@@ -478,7 +478,7 @@ class DashboardGenerator:
         return DashboardConfig(
             title="Pynomaly - Business Metrics",
             description="Business-focused metrics and KPIs",
-            tags=["pynomaly", "business", "kpi"],
+            tags=["monorepo", "business", "kpi"],
             panels=business_panels,
         )
 
@@ -529,7 +529,7 @@ ALERT_RULES = {
         "alert": "PynomayHighErrorRate",
         "expr": "rate(pynomaly_errors_total[5m]) > 0.1",
         "for": "2m",
-        "labels": {"severity": "warning", "service": "pynomaly"},
+        "labels": {"severity": "warning", "service": "monorepo"},
         "annotations": {
             "summary": "High error rate detected in Pynomaly",
             "description": "Error rate is {{ $value }} errors/second",
@@ -539,7 +539,7 @@ ALERT_RULES = {
         "alert": "PynomayLowAccuracy",
         "expr": "avg(pynomaly_detection_accuracy_ratio) < 0.7",
         "for": "5m",
-        "labels": {"severity": "warning", "service": "pynomaly"},
+        "labels": {"severity": "warning", "service": "monorepo"},
         "annotations": {
             "summary": "Detection accuracy below threshold",
             "description": "Average detection accuracy is {{ $value | humanizePercentage }}",
@@ -549,7 +549,7 @@ ALERT_RULES = {
         "alert": "PynomayHighMemoryUsage",
         "expr": "pynomaly_memory_usage_bytes > 8e9",  # 8GB
         "for": "3m",
-        "labels": {"severity": "critical", "service": "pynomaly"},
+        "labels": {"severity": "critical", "service": "monorepo"},
         "annotations": {
             "summary": "High memory usage in Pynomaly",
             "description": "Memory usage is {{ $value | humanizeBytes }}",
@@ -559,7 +559,7 @@ ALERT_RULES = {
         "alert": "PynomayStreamingBackpressure",
         "expr": "rate(pynomaly_streaming_backpressure_events_total[1m]) > 0",
         "for": "1m",
-        "labels": {"severity": "warning", "service": "pynomaly"},
+        "labels": {"severity": "warning", "service": "monorepo"},
         "annotations": {
             "summary": "Streaming backpressure detected",
             "description": "Backpressure events occurring at {{ $value }} events/second",
@@ -577,7 +577,7 @@ def generate_alert_rules_yaml() -> str:
     import yaml
 
     rules_config = {
-        "groups": [{"name": "pynomaly.rules", "rules": list(ALERT_RULES.values())}]
+        "groups": [{"name": "monorepo.rules", "rules": list(ALERT_RULES.values())}]
     }
 
     return yaml.dump(rules_config, default_flow_style=False)

@@ -6,7 +6,7 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto.experiment_dto import (
+from monorepo.application.dto.experiment_dto import (
     CreateExperimentDTO,
     ExperimentDTO,
     ExperimentResponseDTO,

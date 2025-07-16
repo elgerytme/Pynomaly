@@ -9,7 +9,7 @@ trust metrics, and cohort explanations.
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto.explainability_dto import (
+from monorepo.application.dto.explainability_dto import (
     BiasMetric,
     CohortExplanationRequestDTO,
     ExplanationMethod,

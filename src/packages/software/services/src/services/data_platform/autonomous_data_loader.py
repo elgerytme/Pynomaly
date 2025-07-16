@@ -8,10 +8,10 @@ from typing import Any
 
 import pandas as pd
 
-from pynomaly.application.services.autonomous_detection_config import AutonomousConfig
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import DataValidationError
-from pynomaly.shared.protocols import DataLoaderProtocol
+from monorepo.application.services.autonomous_detection_config import AutonomousConfig
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import DataValidationError
+from monorepo.shared.protocols import DataLoaderProtocol
 
 logger = logging.getLogger(__name__)
 

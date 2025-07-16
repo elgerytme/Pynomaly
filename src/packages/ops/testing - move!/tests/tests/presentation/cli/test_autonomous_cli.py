@@ -12,7 +12,7 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.autonomous import app
+from monorepo.presentation.cli.autonomous import app
 
 
 class TestAutonomousCLI:
@@ -63,7 +63,7 @@ class TestAutonomousCLI:
     def mock_autonomous_service(self):
         """Mock autonomous detection service."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock:
             service = Mock()
 
@@ -494,7 +494,7 @@ class TestAutonomousCLI:
     def test_autonomous_service_error_handling(self, runner, sample_data_file):
         """Test handling of autonomous service errors."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service.side_effect = Exception("Service unavailable")
 
@@ -506,7 +506,7 @@ class TestAutonomousCLI:
     def test_autonomous_service_memory_error(self, runner, sample_data_file):
         """Test handling of memory errors."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             service = Mock()
             service.profile_data.side_effect = MemoryError("Out of memory")

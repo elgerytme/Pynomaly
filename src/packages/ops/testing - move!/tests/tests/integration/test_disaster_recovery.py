@@ -204,7 +204,7 @@ class TestDatabaseDisasterRecovery:
         
         start_time = time.time()
         
-        with patch('pynomaly.infrastructure.database.database_cluster.DatabaseCluster') as mock_cluster:
+        with patch('monorepo.infrastructure.database.database_cluster.DatabaseCluster') as mock_cluster:
             # Mock database cluster
             mock_cluster.return_value.primary_db = Mock(status="healthy")
             mock_cluster.return_value.secondary_db = Mock(status="healthy")
@@ -218,7 +218,7 @@ class TestDatabaseDisasterRecovery:
             # Step 2: Detect failure (should be automatic)
             detection_start = time.time()
             
-            with patch('pynomaly.infrastructure.monitoring.db_health_monitor.DBHealthMonitor') as mock_monitor:
+            with patch('monorepo.infrastructure.monitoring.db_health_monitor.DBHealthMonitor') as mock_monitor:
                 mock_monitor.return_value.check_primary_health.return_value = False
                 mock_monitor.return_value.detect_failure.return_value = True
                 
@@ -235,7 +235,7 @@ class TestDatabaseDisasterRecovery:
             # Step 3: Failover to secondary
             failover_start = time.time()
             
-            with patch('pynomaly.infrastructure.database.failover_manager.FailoverManager') as mock_failover:
+            with patch('monorepo.infrastructure.database.failover_manager.FailoverManager') as mock_failover:
                 mock_failover.return_value.failover_to_secondary.return_value = True
                 
                 failover_success = mock_failover.return_value.failover_to_secondary()
@@ -251,7 +251,7 @@ class TestDatabaseDisasterRecovery:
             # Step 4: Verify data integrity
             integrity_start = time.time()
             
-            with patch('pynomaly.infrastructure.database.integrity_checker.IntegrityChecker') as mock_checker:
+            with patch('monorepo.infrastructure.database.integrity_checker.IntegrityChecker') as mock_checker:
                 mock_checker.return_value.verify_data_integrity.return_value = {
                     "success": True,
                     "records_verified": 10000,
@@ -269,7 +269,7 @@ class TestDatabaseDisasterRecovery:
                 recovery_steps.append(f"Data integrity verified in {integrity_time:.1f}s")
             
             # Step 5: Redirect traffic
-            with patch('pynomaly.infrastructure.load_balancer.LoadBalancer') as mock_lb:
+            with patch('monorepo.infrastructure.load_balancer.LoadBalancer') as mock_lb:
                 mock_lb.return_value.redirect_traffic.return_value = True
                 
                 traffic_redirected = mock_lb.return_value.redirect_traffic("secondary_db")
@@ -319,7 +319,7 @@ class TestDatabaseDisasterRecovery:
         
         start_time = time.time()
         
-        with patch('pynomaly.infrastructure.database.database_manager.DatabaseManager') as mock_db:
+        with patch('monorepo.infrastructure.database.database_manager.DatabaseManager') as mock_db:
             # Mock database manager
             mock_db.return_value.is_healthy.return_value = True
             
@@ -331,7 +331,7 @@ class TestDatabaseDisasterRecovery:
             # Step 2: Detect corruption
             detection_start = time.time()
             
-            with patch('pynomaly.infrastructure.monitoring.corruption_detector.CorruptionDetector') as mock_detector:
+            with patch('monorepo.infrastructure.monitoring.corruption_detector.CorruptionDetector') as mock_detector:
                 mock_detector.return_value.scan_for_corruption.return_value = {
                     "corruption_found": True,
                     "affected_tables": ["datasets", "detectors"],
@@ -355,7 +355,7 @@ class TestDatabaseDisasterRecovery:
             # Step 4: Restore from backup
             restore_start = time.time()
             
-            with patch('pynomaly.infrastructure.backup.backup_manager.BackupManager') as mock_backup:
+            with patch('monorepo.infrastructure.backup.backup_manager.BackupManager') as mock_backup:
                 mock_backup.return_value.get_latest_backup.return_value = {
                     "backup_id": "backup_20231201_120000",
                     "timestamp": "2023-12-01T12:00:00Z",
@@ -384,7 +384,7 @@ class TestDatabaseDisasterRecovery:
             # Step 5: Verify integrity
             integrity_start = time.time()
             
-            with patch('pynomaly.infrastructure.database.integrity_checker.IntegrityChecker') as mock_checker:
+            with patch('monorepo.infrastructure.database.integrity_checker.IntegrityChecker') as mock_checker:
                 mock_checker.return_value.full_integrity_check.return_value = {
                     "success": True,
                     "tables_checked": 10,
@@ -447,7 +447,7 @@ class TestDatabaseDisasterRecovery:
         issues_found = []
         recovery_steps = []
         
-        with patch('pynomaly.infrastructure.backup.backup_manager.BackupManager') as mock_backup:
+        with patch('monorepo.infrastructure.backup.backup_manager.BackupManager') as mock_backup:
             # Test backup creation
             recovery_steps.append("Creating database backup")
             
@@ -583,7 +583,7 @@ class TestApplicationDisasterRecovery:
         
         start_time = time.time()
         
-        with patch('pynomaly.infrastructure.api.api_cluster.APICluster') as mock_cluster:
+        with patch('monorepo.infrastructure.api.api_cluster.APICluster') as mock_cluster:
             # Mock API cluster
             mock_cluster.return_value.primary_api = Mock(status="healthy")
             mock_cluster.return_value.backup_api = Mock(status="standby")
@@ -595,7 +595,7 @@ class TestApplicationDisasterRecovery:
             # Step 2: Detect failure
             detection_start = time.time()
             
-            with patch('pynomaly.infrastructure.monitoring.api_health_monitor.APIHealthMonitor') as mock_monitor:
+            with patch('monorepo.infrastructure.monitoring.api_health_monitor.APIHealthMonitor') as mock_monitor:
                 mock_monitor.return_value.check_api_health.return_value = False
                 mock_monitor.return_value.detect_failure.return_value = True
                 
@@ -612,7 +612,7 @@ class TestApplicationDisasterRecovery:
             # Step 3: Start backup server
             backup_start = time.time()
             
-            with patch('pynomaly.infrastructure.api.backup_manager.BackupAPIManager') as mock_backup:
+            with patch('monorepo.infrastructure.api.backup_manager.BackupAPIManager') as mock_backup:
                 mock_backup.return_value.start_backup_api.return_value = True
                 mock_backup.return_value.is_backup_ready.return_value = True
                 
@@ -629,7 +629,7 @@ class TestApplicationDisasterRecovery:
                 recovery_steps.append(f"Backup API started in {backup_time:.1f}s")
             
             # Step 4: Redirect traffic
-            with patch('pynomaly.infrastructure.load_balancer.LoadBalancer') as mock_lb:
+            with patch('monorepo.infrastructure.load_balancer.LoadBalancer') as mock_lb:
                 mock_lb.return_value.redirect_to_backup.return_value = True
                 
                 traffic_redirected = mock_lb.return_value.redirect_to_backup()
@@ -640,7 +640,7 @@ class TestApplicationDisasterRecovery:
                 recovery_steps.append("Traffic redirected to backup API")
             
             # Step 5: Verify functionality
-            with patch('pynomaly.infrastructure.api.api_tester.APITester') as mock_tester:
+            with patch('monorepo.infrastructure.api.api_tester.APITester') as mock_tester:
                 mock_tester.return_value.test_api_endpoints.return_value = {
                     "endpoints_tested": 10,
                     "endpoints_passed": 10,
@@ -693,7 +693,7 @@ class TestApplicationDisasterRecovery:
         
         start_time = time.time()
         
-        with patch('pynomaly.infrastructure.web.web_cluster.WebCluster') as mock_cluster:
+        with patch('monorepo.infrastructure.web.web_cluster.WebCluster') as mock_cluster:
             # Mock web cluster
             mock_cluster.return_value.primary_web = Mock(status="healthy")
             mock_cluster.return_value.backup_web = Mock(status="standby")
@@ -705,7 +705,7 @@ class TestApplicationDisasterRecovery:
             # Step 2: Detect failure
             detection_start = time.time()
             
-            with patch('pynomaly.infrastructure.monitoring.web_health_monitor.WebHealthMonitor') as mock_monitor:
+            with patch('monorepo.infrastructure.monitoring.web_health_monitor.WebHealthMonitor') as mock_monitor:
                 mock_monitor.return_value.check_web_health.return_value = False
                 mock_monitor.return_value.detect_failure.return_value = True
                 
@@ -722,7 +722,7 @@ class TestApplicationDisasterRecovery:
             # Step 3: Start backup web server
             backup_start = time.time()
             
-            with patch('pynomaly.infrastructure.web.backup_manager.BackupWebManager') as mock_backup:
+            with patch('monorepo.infrastructure.web.backup_manager.BackupWebManager') as mock_backup:
                 mock_backup.return_value.start_backup_web.return_value = True
                 mock_backup.return_value.is_backup_ready.return_value = True
                 
@@ -739,10 +739,10 @@ class TestApplicationDisasterRecovery:
                 recovery_steps.append(f"Backup web server started in {backup_time:.1f}s")
             
             # Step 4: Update DNS
-            with patch('pynomaly.infrastructure.dns.dns_manager.DNSManager') as mock_dns:
+            with patch('monorepo.infrastructure.dns.dns_manager.DNSManager') as mock_dns:
                 mock_dns.return_value.update_dns_record.return_value = True
                 
-                dns_updated = mock_dns.return_value.update_dns_record("web.pynomaly.com", "backup_web_ip")
+                dns_updated = mock_dns.return_value.update_dns_record("web.monorepo.com", "backup_web_ip")
                 
                 if not dns_updated:
                     issues_found.append("DNS update failed")
@@ -750,7 +750,7 @@ class TestApplicationDisasterRecovery:
                 recovery_steps.append("DNS updated to point to backup web server")
             
             # Step 5: Verify web access
-            with patch('pynomaly.infrastructure.web.web_tester.WebTester') as mock_tester:
+            with patch('monorepo.infrastructure.web.web_tester.WebTester') as mock_tester:
                 mock_tester.return_value.test_web_access.return_value = {
                     "pages_tested": 5,
                     "pages_accessible": 5,
@@ -830,7 +830,7 @@ class TestInfrastructureDisasterRecovery:
         
         start_time = time.time()
         
-        with patch('pynomaly.infrastructure.datacenter.datacenter_manager.DatacenterManager') as mock_dc:
+        with patch('monorepo.infrastructure.datacenter.datacenter_manager.DatacenterManager') as mock_dc:
             # Mock datacenter manager
             mock_dc.return_value.primary_dc = Mock(status="healthy")
             mock_dc.return_value.dr_dc = Mock(status="standby")
@@ -842,7 +842,7 @@ class TestInfrastructureDisasterRecovery:
             # Step 2: Detect failure
             detection_start = time.time()
             
-            with patch('pynomaly.infrastructure.monitoring.datacenter_monitor.DatacenterMonitor') as mock_monitor:
+            with patch('monorepo.infrastructure.monitoring.datacenter_monitor.DatacenterMonitor') as mock_monitor:
                 mock_monitor.return_value.check_datacenter_health.return_value = False
                 mock_monitor.return_value.detect_failure.return_value = True
                 
@@ -859,7 +859,7 @@ class TestInfrastructureDisasterRecovery:
             # Step 3: Activate DR site
             dr_activation_start = time.time()
             
-            with patch('pynomaly.infrastructure.dr.dr_manager.DRManager') as mock_dr:
+            with patch('monorepo.infrastructure.dr.dr_manager.DRManager') as mock_dr:
                 mock_dr.return_value.activate_dr_site.return_value = {
                     "success": True,
                     "services_activated": ["database", "api", "web", "storage"],
@@ -879,7 +879,7 @@ class TestInfrastructureDisasterRecovery:
             # Step 4: Restore services
             service_restore_start = time.time()
             
-            with patch('pynomaly.infrastructure.services.service_manager.ServiceManager') as mock_services:
+            with patch('monorepo.infrastructure.services.service_manager.ServiceManager') as mock_services:
                 mock_services.return_value.restore_all_services.return_value = {
                     "database": {"status": "healthy", "restore_time": 300},
                     "api": {"status": "healthy", "restore_time": 120},
@@ -903,7 +903,7 @@ class TestInfrastructureDisasterRecovery:
             # Step 5: Verify full functionality
             verification_start = time.time()
             
-            with patch('pynomaly.infrastructure.testing.system_tester.SystemTester') as mock_tester:
+            with patch('monorepo.infrastructure.testing.system_tester.SystemTester') as mock_tester:
                 mock_tester.return_value.full_system_test.return_value = {
                     "database_tests": {"passed": 10, "failed": 0},
                     "api_tests": {"passed": 25, "failed": 0},
@@ -987,7 +987,7 @@ class TestInfrastructureDisasterRecovery:
         
         start_time = time.time()
         
-        with patch('pynomaly.infrastructure.network.network_manager.NetworkManager') as mock_network:
+        with patch('monorepo.infrastructure.network.network_manager.NetworkManager') as mock_network:
             # Mock network manager
             mock_network.return_value.is_connected.return_value = True
             
@@ -999,7 +999,7 @@ class TestInfrastructureDisasterRecovery:
             # Step 2: Detect partition
             detection_start = time.time()
             
-            with patch('pynomaly.infrastructure.monitoring.network_monitor.NetworkMonitor') as mock_monitor:
+            with patch('monorepo.infrastructure.monitoring.network_monitor.NetworkMonitor') as mock_monitor:
                 mock_monitor.return_value.detect_partition.return_value = True
                 
                 partition_detected = mock_monitor.return_value.detect_partition()
@@ -1013,7 +1013,7 @@ class TestInfrastructureDisasterRecovery:
                 recovery_steps.append(f"Partition detected in {detection_time:.1f}s")
             
             # Step 3: Prevent split-brain
-            with patch('pynomaly.infrastructure.consensus.consensus_manager.ConsensusManager') as mock_consensus:
+            with patch('monorepo.infrastructure.consensus.consensus_manager.ConsensusManager') as mock_consensus:
                 mock_consensus.return_value.prevent_split_brain.return_value = True
                 mock_consensus.return_value.establish_quorum.return_value = True
                 
@@ -1031,7 +1031,7 @@ class TestInfrastructureDisasterRecovery:
             # Step 4: Restore network connectivity
             restore_start = time.time()
             
-            with patch('pynomaly.infrastructure.network.network_recovery.NetworkRecovery') as mock_recovery:
+            with patch('monorepo.infrastructure.network.network_recovery.NetworkRecovery') as mock_recovery:
                 mock_recovery.return_value.restore_connectivity.return_value = True
                 
                 connectivity_restored = mock_recovery.return_value.restore_connectivity()
@@ -1043,7 +1043,7 @@ class TestInfrastructureDisasterRecovery:
                 recovery_steps.append(f"Network connectivity restored in {restore_time:.1f}s")
             
             # Step 5: Verify cluster health
-            with patch('pynomaly.infrastructure.cluster.cluster_manager.ClusterManager') as mock_cluster:
+            with patch('monorepo.infrastructure.cluster.cluster_manager.ClusterManager') as mock_cluster:
                 mock_cluster.return_value.verify_cluster_health.return_value = {
                     "healthy_nodes": 3,
                     "total_nodes": 3,

@@ -10,14 +10,14 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from src.pynomaly.application.services.model_lineage_service import (
+from src.monorepo.application.services.model_lineage_service import (
     CircularDependencyError,
     LineageGraph,
     LineageTrackingError,
     ModelLineageService,
 )
-from src.pynomaly.domain.entities.dataset import Dataset
-from src.pynomaly.domain.entities.model import Model
+from src.monorepo.domain.entities.dataset import Dataset
+from src.monorepo.domain.entities.model import Model
 
 
 class TestModelLineageService:

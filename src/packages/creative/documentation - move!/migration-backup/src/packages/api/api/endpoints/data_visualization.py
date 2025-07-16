@@ -88,8 +88,8 @@ class ChartGenerationResponse(BaseModel):
                         {"name": "South", "data": [800, 900]}
                     ]
                 },
-                "chart_url": "https://api.pynomaly.com/charts/chart_123456789/view",
-                "thumbnail_url": "https://api.pynomaly.com/charts/chart_123456789/thumbnail",
+                "chart_url": "https://api.monorepo.com/charts/chart_123456789/view",
+                "thumbnail_url": "https://api.monorepo.com/charts/chart_123456789/thumbnail",
                 "metadata": {
                     "data_points": 4,
                     "series_count": 2,
@@ -180,8 +180,8 @@ class DashboardResponse(BaseModel):
                         "last_updated": "2024-01-15T10:30:00Z"
                     }
                 ],
-                "dashboard_url": "https://api.pynomaly.com/dashboards/dash_123456789/view",
-                "embed_url": "https://api.pynomaly.com/dashboards/dash_123456789/embed",
+                "dashboard_url": "https://api.monorepo.com/dashboards/dash_123456789/view",
+                "embed_url": "https://api.monorepo.com/dashboards/dash_123456789/embed",
                 "refresh_interval": 300,
                 "filters": [
                     {"column": "date", "type": "date_range", "default": "last_30_days"}
@@ -327,8 +327,8 @@ async def generate_chart(
         
         # Generate URLs
         chart_id = str(uuid4())
-        chart_url = f"https://api.pynomaly.com/charts/{chart_id}/view"
-        thumbnail_url = f"https://api.pynomaly.com/charts/{chart_id}/thumbnail"
+        chart_url = f"https://api.monorepo.com/charts/{chart_id}/view"
+        thumbnail_url = f"https://api.monorepo.com/charts/{chart_id}/thumbnail"
         
         # Chart metadata
         metadata = {
@@ -397,8 +397,8 @@ async def create_dashboard(
         
         # Generate URLs
         dashboard_id = str(uuid4())
-        dashboard_url = f"https://api.pynomaly.com/dashboards/{dashboard_id}/view"
-        embed_url = f"https://api.pynomaly.com/dashboards/{dashboard_id}/embed"
+        dashboard_url = f"https://api.monorepo.com/dashboards/{dashboard_id}/view"
+        embed_url = f"https://api.monorepo.com/dashboards/{dashboard_id}/embed"
         
         # Dashboard metadata
         metadata = {
@@ -455,8 +455,8 @@ async def generate_report(
         
         # Generate URLs
         report_id = str(uuid4())
-        report_url = f"https://api.pynomaly.com/reports/{report_id}/download"
-        preview_url = f"https://api.pynomaly.com/reports/{report_id}/preview"
+        report_url = f"https://api.monorepo.com/reports/{report_id}/download"
+        preview_url = f"https://api.monorepo.com/reports/{report_id}/preview"
         
         # Report metadata
         metadata = {
@@ -521,8 +521,8 @@ async def get_chart(
                 "categories": ["Jan", "Feb", "Mar"],
                 "series": [{"name": "Sales", "data": [1000, 1200, 1100]}]
             },
-            chart_url=f"https://api.pynomaly.com/charts/{chart_id}/view",
-            thumbnail_url=f"https://api.pynomaly.com/charts/{chart_id}/thumbnail",
+            chart_url=f"https://api.monorepo.com/charts/{chart_id}/view",
+            thumbnail_url=f"https://api.monorepo.com/charts/{chart_id}/thumbnail",
             metadata={
                 "data_points": 3,
                 "series_count": 1,
@@ -575,8 +575,8 @@ async def get_dashboard(
                     "last_updated": datetime.now().isoformat()
                 }
             ],
-            dashboard_url=f"https://api.pynomaly.com/dashboards/{dashboard_id}/view",
-            embed_url=f"https://api.pynomaly.com/dashboards/{dashboard_id}/embed",
+            dashboard_url=f"https://api.monorepo.com/dashboards/{dashboard_id}/view",
+            embed_url=f"https://api.monorepo.com/dashboards/{dashboard_id}/embed",
             refresh_interval=300,
             filters=[],
             metadata={

@@ -1,17 +1,17 @@
 """
 Domain Library Package
 
-A comprehensive domain catalog and logic management system for the Pynomaly ecosystem.
+A comprehensive domain catalog and logic management system for the Monorepo ecosystem.
 This package provides tools for managing domain entities, business logic templates,
 and cross-domain relationships.
 
-Author: Pynomaly Team
+Author: Monorepo Team
 License: MIT
 """
 
 __version__ = "0.1.0"
-__author__ = "Pynomaly Team"
-__email__ = "team@pynomaly.io"
+__author__ = "Monorepo Team"
+__email__ = "team@monorepo.io"
 
 from .domain.entities import (
     DomainEntity,

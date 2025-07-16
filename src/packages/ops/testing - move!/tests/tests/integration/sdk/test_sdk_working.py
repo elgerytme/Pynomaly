@@ -24,7 +24,7 @@ def test_working_sdk():
         print("✅ Infrastructure adapters import successful")
 
         # Test SDK models directly
-        from pynomaly.presentation.sdk.models import AnomalyScore, PerformanceMetrics
+        from monorepo.presentation.sdk.models import AnomalyScore, PerformanceMetrics
 
         print("✅ SDK models import successful")
 
@@ -42,7 +42,7 @@ def test_working_sdk():
 
         # Test sync client
         try:
-            from pynomaly.presentation.sdk.client import PynomaliClient
+            from monorepo.presentation.sdk.client import PynomaliClient
 
             print("✅ Sync client import successful")
 
@@ -56,7 +56,7 @@ def test_working_sdk():
             print(f"⚠️  Sync client import failed: {e}")
 
         # Test async client availability
-        from pynomaly.presentation.sdk import AsyncPynomaliClient
+        from monorepo.presentation.sdk import AsyncPynomaliClient
 
         if AsyncPynomaliClient is None:
             print("⚠️  Async client not available (missing aiohttp)")

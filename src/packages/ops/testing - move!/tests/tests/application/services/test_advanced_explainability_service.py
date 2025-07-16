@@ -6,10 +6,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.advanced_explainability_service import (
+from monorepo.application.services.advanced_explainability_service import (
     AdvancedExplainabilityService,
 )
-from pynomaly.application.services.explainability_core import (
+from monorepo.application.services.explainability_core import (
     BiasAnalysisConfig,
     BiasAnalysisResult,
     ExplanationConfig,
@@ -19,7 +19,7 @@ from pynomaly.application.services.explainability_core import (
     TrustScoreConfig,
     TrustScoreResult,
 )
-from pynomaly.domain.entities import Dataset
+from monorepo.domain.entities import Dataset
 
 
 class TestAdvancedExplainabilityService:

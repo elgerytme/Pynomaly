@@ -6,9 +6,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from pynomaly.infrastructure.config.tdd_config import get_tdd_config
-from pynomaly.infrastructure.persistence.tdd_repository import FileTDDRepository
-from pynomaly.infrastructure.tdd.enforcement import TDDEnforcementEngine
+from monorepo.infrastructure.config.tdd_config import get_tdd_config
+from monorepo.infrastructure.persistence.tdd_repository import FileTDDRepository
+from monorepo.infrastructure.tdd.enforcement import TDDEnforcementEngine
 
 
 class GitHookManager:
@@ -77,7 +77,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path.cwd() / 'src'))
 
 try:
-    from pynomaly.infrastructure.tdd.git_hooks import run_pre_commit_validation
+    from monorepo.infrastructure.tdd.git_hooks import run_pre_commit_validation
     exit_code = run_pre_commit_validation()
     sys.exit(exit_code)
 except Exception as e:
@@ -109,7 +109,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path.cwd() / 'src'))
 
 try:
-    from pynomaly.infrastructure.tdd.git_hooks import run_pre_push_validation
+    from monorepo.infrastructure.tdd.git_hooks import run_pre_push_validation
     exit_code = run_pre_push_validation()
     sys.exit(exit_code)
 except Exception as e:
@@ -142,7 +142,7 @@ exit 0
                     with open(hook_file) as f:
                         content = f.read()
 
-                    if "TDD" in content and "pynomaly" in content:
+                    if "TDD" in content and "monorepo" in content:
                         hook_file.unlink()
                         print(f"Removed TDD {hook_name} hook")
 
@@ -160,7 +160,7 @@ exit 0
         try:
             with open(hook_file) as f:
                 content = f.read()
-            return "TDD" in content and "pynomaly" in content
+            return "TDD" in content and "monorepo" in content
         except Exception:
             return False
 
@@ -372,7 +372,7 @@ class PreCommitConfig:
                 {
                     "id": "tdd-validation",
                     "name": "TDD Validation",
-                    "entry": "python -m pynomaly.infrastructure.tdd.git_hooks",
+                    "entry": "python -m monorepo.infrastructure.tdd.git_hooks",
                     "language": "system",
                     "files": r"\.py$",
                     "stages": ["commit"],

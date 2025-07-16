@@ -13,12 +13,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.dto.export_options import ExportFormat, ExportOptions
-from pynomaly.domain.entities.anomaly import Anomaly
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
-from pynomaly.infrastructure.adapters.excel_adapter import ExcelAdapter
+from monorepo.application.dto.export_options import ExportFormat, ExportOptions
+from monorepo.domain.entities.anomaly import Anomaly
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.value_objects.anomaly_score import AnomalyScore
+from monorepo.infrastructure.adapters.excel_adapter import ExcelAdapter
 
 
 @pytest.fixture
@@ -86,11 +86,11 @@ class TestExcelAdapter:
         """Test adapter initialization when no Excel libraries are available."""
         with (
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
                 False,
             ),
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
                 False,
             ),
         ):
@@ -104,11 +104,11 @@ class TestExcelAdapter:
         """Test successful adapter initialization with dependencies."""
         with (
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
                 True,
             ),
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
                 True,
             ),
         ):
@@ -120,11 +120,11 @@ class TestExcelAdapter:
         """Test supported formats method."""
         with (
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
                 True,
             ),
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
                 True,
             ),
         ):
@@ -138,11 +138,11 @@ class TestExcelAdapter:
         """Test file validation for valid Excel files."""
         with (
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
                 True,
             ),
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
                 True,
             ),
         ):
@@ -167,11 +167,11 @@ class TestExcelAdapter:
         """Test file validation for invalid file extensions."""
         with (
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
                 True,
             ),
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
                 True,
             ),
         ):
@@ -186,8 +186,8 @@ class TestExcelAdapter:
                 # Clean up
                 tmp_path.unlink()
 
-    @patch("pynomaly.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE", True)
-    @patch("pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
+    @patch("monorepo.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE", True)
+    @patch("monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
     def test_export_results_with_xlsxwriter(self, sample_detection_result):
         """Test export results using xlsxwriter."""
         adapter = ExcelAdapter()
@@ -230,8 +230,8 @@ class TestExcelAdapter:
             # Clean up
             tmp_path.unlink()
 
-    @patch("pynomaly.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE", False)
-    @patch("pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
+    @patch("monorepo.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE", False)
+    @patch("monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
     def test_export_results_with_openpyxl(self, sample_detection_result):
         """Test export results using openpyxl."""
         adapter = ExcelAdapter()
@@ -273,11 +273,11 @@ class TestExcelAdapter:
         """Test export results when no Excel libraries are available."""
         with (
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
                 False,
             ),
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
                 False,
             ),
         ):
@@ -294,7 +294,7 @@ class TestExcelAdapter:
                 # Clean up
                 tmp_path.unlink()
 
-    @patch("pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
+    @patch("monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
     @patch("pandas.read_excel")
     def test_import_dataset_success(self, mock_read_excel, sample_dataset):
         """Test successful dataset import from Excel."""
@@ -320,7 +320,7 @@ class TestExcelAdapter:
             # Clean up
             tmp_path.unlink()
 
-    @patch("pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
+    @patch("monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
     @patch("pandas.read_excel")
     def test_import_dataset_with_options(self, mock_read_excel, sample_dataset):
         """Test dataset import with custom options."""
@@ -351,11 +351,11 @@ class TestExcelAdapter:
         """Test import dataset when openpyxl is not available."""
         with (
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE",
                 False,
             ),
             patch(
-                "pynomaly.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
+                "monorepo.infrastructure.adapters.excel_adapter.XLSXWRITER_AVAILABLE",
                 True,
             ),
         ):
@@ -372,7 +372,7 @@ class TestExcelAdapter:
                 # Clean up
                 tmp_path.unlink()
 
-    @patch("pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
+    @patch("monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
     @patch("pandas.read_excel")
     def test_import_dataset_no_numeric_columns(self, mock_read_excel):
         """Test import dataset with no numeric columns."""
@@ -398,7 +398,7 @@ class TestExcelAdapter:
             # Clean up
             tmp_path.unlink()
 
-    @patch("pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
+    @patch("monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
     @patch("pandas.read_excel")
     def test_validate_and_clean_data_drop_missing(self, mock_read_excel):
         """Test data validation and cleaning with drop missing strategy."""
@@ -416,7 +416,7 @@ class TestExcelAdapter:
         assert len(cleaned_data) == 3  # Rows 0, 3, 4 remain
         assert not cleaned_data.isnull().any().any()
 
-    @patch("pynomaly.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
+    @patch("monorepo.infrastructure.adapters.excel_adapter.OPENPYXL_AVAILABLE", True)
     def test_validate_and_clean_data_fill_mean(self):
         """Test data validation and cleaning with mean fill strategy."""
         adapter = ExcelAdapter()

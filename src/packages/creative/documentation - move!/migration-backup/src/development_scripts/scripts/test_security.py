@@ -15,26 +15,26 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pynomaly.presentation.api.security.authentication import (
+from monorepo.presentation.api.security.authentication import (
     AuthenticationManager,
     JWTManager,
 )
-from pynomaly.presentation.api.security.authorization import (
+from monorepo.presentation.api.security.authorization import (
     AuthorizationManager,
     Permission,
     Role,
 )
-from pynomaly.presentation.api.security.encryption import EncryptionManager
-from pynomaly.presentation.api.security.input_validation import SecurityValidator
-from pynomaly.presentation.api.security.rate_limiting import RateLimiter, RateLimitType
-from pynomaly.presentation.api.security.security_manager import SecurityManager
-from pynomaly.presentation.api.security.security_monitoring import (
+from monorepo.presentation.api.security.encryption import EncryptionManager
+from monorepo.presentation.api.security.input_validation import SecurityValidator
+from monorepo.presentation.api.security.rate_limiting import RateLimiter, RateLimitType
+from monorepo.presentation.api.security.security_manager import SecurityManager
+from monorepo.presentation.api.security.security_monitoring import (
     SecurityEvent,
     SecurityEventType,
     SecurityMonitor,
     SecuritySeverity,
 )
-from pynomaly.presentation.api.security.vulnerability_scanner import (
+from monorepo.presentation.api.security.vulnerability_scanner import (
     VulnerabilityScanner,
 )
 
@@ -212,7 +212,7 @@ class SecurityTester:
         assert decrypted == test_data
 
         # Test field-level encryption
-        from pynomaly.presentation.api.security.encryption import FieldLevelEncryption
+        from monorepo.presentation.api.security.encryption import FieldLevelEncryption
 
         field_encryption = FieldLevelEncryption(encryption_manager)
 

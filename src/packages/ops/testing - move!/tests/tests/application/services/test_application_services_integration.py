@@ -9,8 +9,8 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.services import DetectionService, EnsembleService
-from pynomaly.domain.entities import Dataset, Detector
+from monorepo.application.services import DetectionService, EnsembleService
+from monorepo.domain.entities import Dataset, Detector
 
 
 class TestApplicationServicesIntegration:

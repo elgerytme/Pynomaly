@@ -4,7 +4,7 @@ import hashlib
 
 import pytest
 
-from pynomaly.domain.value_objects.model_storage_info import (
+from monorepo.domain.value_objects.model_storage_info import (
     ModelStorageInfo,
     SerializationFormat,
     StorageBackend,

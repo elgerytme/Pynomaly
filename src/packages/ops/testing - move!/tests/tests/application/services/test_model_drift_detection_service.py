@@ -8,7 +8,7 @@ ensuring proper data drift and concept drift detection capabilities.
 
 
 # TODO: Import actual service when implementation is complete
-# from src.pynomaly.application.services.model_drift_detection_service import ModelDriftDetectionService
+# from src.monorepo.application.services.model_drift_detection_service import ModelDriftDetectionService
 
 
 class TestModelDriftDetectionService:

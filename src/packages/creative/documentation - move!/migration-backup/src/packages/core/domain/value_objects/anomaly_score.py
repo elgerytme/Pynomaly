@@ -7,7 +7,7 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
-from pynomaly.domain.exceptions import ValidationError
+from monorepo.domain.exceptions import ValidationError
 
 
 @dataclass(frozen=True)

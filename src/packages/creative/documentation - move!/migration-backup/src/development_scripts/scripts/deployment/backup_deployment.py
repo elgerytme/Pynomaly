@@ -111,7 +111,7 @@ class BackupManager:
                 "encryption_key": os.getenv("BACKUP_ENCRYPTION_KEY"),
             },
             "notifications": {
-                "email": {"enabled": True, "recipients": ["ops@pynomaly.com"]},
+                "email": {"enabled": True, "recipients": ["ops@monorepo.com"]},
                 "slack": {
                     "enabled": True,
                     "webhook_url": os.getenv("SLACK_WEBHOOK_URL"),

@@ -17,13 +17,13 @@ def fix_cli_module(file_path):
     original_content = content
     
     # Check if async_utils is already imported
-    if "from pynomaly.presentation.cli.async_utils import cli_runner" not in content:
+    if "from monorepo.presentation.cli.async_utils import cli_runner" not in content:
         # Add import after other pynomaly imports
         import_pattern = r'(from pynomaly\.presentation\.cli\.container import[^\n]+\n)'
         if re.search(import_pattern, content):
             content = re.sub(
                 import_pattern,
-                r'\1from pynomaly.presentation.cli.async_utils import cli_runner\n',
+                r'\1from monorepo.presentation.cli.async_utils import cli_runner\n',
                 content
             )
         else:
@@ -35,7 +35,7 @@ def fix_cli_module(file_path):
             
             if last_rich_match:
                 pos = last_rich_match.end()
-                content = content[:pos] + '\nfrom pynomaly.presentation.cli.async_utils import cli_runner\n' + content[pos:]
+                content = content[:pos] + '\nfrom monorepo.presentation.cli.async_utils import cli_runner\n' + content[pos:]
     
     # Replace asyncio.run( with cli_runner.run(
     content = re.sub(r'asyncio\.run\(', 'cli_runner.run(', content)

@@ -7,7 +7,7 @@ import warnings
 from dataclasses import dataclass, field
 from typing import Any
 
-from pynomaly.domain.entities import Dataset
+from monorepo.domain.entities import Dataset
 
 from .data_cleaner import DataCleaner, MissingValueStrategy, OutlierStrategy
 from .data_transformer import (

@@ -13,8 +13,8 @@ from uuid import uuid4
 import numpy as np
 from pydantic import BaseModel, Field
 
-from pynomaly.domain.entities import AnomalyPoint, DetectionResult
-from pynomaly.domain.value_objects import ContaminationRate
+from monorepo.domain.entities import AnomalyPoint, DetectionResult
+from monorepo.domain.value_objects import ContaminationRate
 
 logger = logging.getLogger(__name__)
 

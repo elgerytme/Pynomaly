@@ -8,7 +8,7 @@ ensuring proper real-time data processing and anomaly detection capabilities.
 
 
 # TODO: Import actual service when implementation is complete
-# from src.pynomaly.application.services.streaming_service import StreamingService
+# from src.monorepo.application.services.streaming_service import StreamingService
 
 
 class TestStreamingService:

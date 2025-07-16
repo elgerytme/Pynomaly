@@ -8,8 +8,8 @@ from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
 
-from pynomaly.domain.entities.model_version import ModelStatus, ModelVersion
-from pynomaly.domain.value_objects.semantic_version import SemanticVersion
+from monorepo.domain.entities.model_version import ModelStatus, ModelVersion
+from monorepo.domain.value_objects.semantic_version import SemanticVersion
 
 
 class AccessLevel(Enum):

@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pynomaly.application.dto.cost_optimization_dto import (
+from monorepo.application.dto.cost_optimization_dto import (
     BudgetAlertDTO,
     CloudResourceDTO,
     CostAnalysisRequestDTO,

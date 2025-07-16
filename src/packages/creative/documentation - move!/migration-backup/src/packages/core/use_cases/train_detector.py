@@ -7,14 +7,14 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pynomaly.application.services.algorithm_adapter_registry import (
+from monorepo.application.services.algorithm_adapter_registry import (
     AlgorithmAdapterRegistry,
 )
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import FittingError, InsufficientDataError
-from pynomaly.domain.services import FeatureValidator
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.shared.protocols import DetectorRepositoryProtocol
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.exceptions import FittingError, InsufficientDataError
+from monorepo.domain.services import FeatureValidator
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.shared.protocols import DetectorRepositoryProtocol
 
 
 @dataclass

@@ -10,12 +10,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.services.enhanced_automl_service import (
+from monorepo.application.services.enhanced_automl_service import (
     EnhancedAutoMLConfig,
     EnhancedAutoMLResult,
     EnhancedAutoMLService,
 )
-from pynomaly.domain.entities import Dataset
+from monorepo.domain.entities import Dataset
 
 
 @pytest.fixture
@@ -153,7 +153,7 @@ class TestEnhancedAutoMLService:
 
         # Mock profile dataset method
         with patch.object(service, "profile_dataset") as mock_profile:
-            from pynomaly.application.services.automl_service import DatasetProfile
+            from monorepo.application.services.automl_service import DatasetProfile
 
             mock_profile.return_value = DatasetProfile(
                 n_samples=100,
@@ -232,7 +232,7 @@ class TestEnhancedAutoMLService:
         """Test conversion from basic to enhanced result."""
         service = enhanced_automl_service
 
-        from pynomaly.application.services.automl_service import AutoMLResult
+        from monorepo.application.services.automl_service import AutoMLResult
 
         basic_result = AutoMLResult(
             best_algorithm="IsolationForest",
@@ -443,7 +443,7 @@ class TestAdvancedOptimizationIntegration:
 
         # Mock basic optimization method
         with patch.object(service, "optimize_hyperparameters") as mock_optimize:
-            from pynomaly.application.services.automl_service import AutoMLResult
+            from monorepo.application.services.automl_service import AutoMLResult
 
             mock_basic_result = AutoMLResult(
                 best_algorithm="IsolationForest",
@@ -466,7 +466,7 @@ class TestAdvancedOptimizationIntegration:
         """Test advanced objective function creation."""
         service = enhanced_automl_service
 
-        from pynomaly.application.services.automl_service import (
+        from monorepo.application.services.automl_service import (
             AlgorithmConfig,
             AlgorithmFamily,
         )

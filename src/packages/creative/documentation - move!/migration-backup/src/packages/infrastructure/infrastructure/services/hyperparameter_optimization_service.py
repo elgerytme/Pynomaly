@@ -17,14 +17,14 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.domain.entities.optimization_trial import OptimizationTrial, TrialStatus
-from pynomaly.domain.value_objects.hyperparameters import (
+from monorepo.domain.entities.optimization_trial import OptimizationTrial, TrialStatus
+from monorepo.domain.value_objects.hyperparameters import (
     HyperparameterRange,
     HyperparameterSet,
     HyperparameterSpace,
 )
-from pynomaly.infrastructure.config.optimization_config import OptimizationConfig
-from pynomaly.shared.exceptions import OptimizationError
+from monorepo.infrastructure.config.optimization_config import OptimizationConfig
+from monorepo.shared.exceptions import OptimizationError
 
 logger = logging.getLogger(__name__)
 

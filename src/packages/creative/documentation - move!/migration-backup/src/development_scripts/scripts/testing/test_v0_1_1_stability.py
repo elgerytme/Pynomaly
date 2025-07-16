@@ -13,8 +13,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 import numpy as np
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
 
 
 def test_basic_import():
@@ -81,7 +81,7 @@ def test_pytorch_adapter():
     """Test PyTorchAdapter functionality with graceful fallbacks."""
     print("\n🔍 Testing PyTorchAdapter...")
     try:
-        from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+        from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
         # Test creating adapter without PyTorch
         try:
@@ -103,7 +103,7 @@ def test_tensorflow_adapter():
     """Test TensorFlowAdapter functionality with graceful fallbacks."""
     print("\n🔍 Testing TensorFlowAdapter...")
     try:
-        from pynomaly.infrastructure.adapters.tensorflow_adapter import (
+        from monorepo.infrastructure.adapters.tensorflow_adapter import (
             TensorFlowAdapter,
         )
 

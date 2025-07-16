@@ -3,21 +3,21 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
 
-from pynomaly_detection.application.dto import (
+from monorepo.application.dto import (
     CreateExperimentDTO,
     ExperimentDTO,
     LeaderboardEntryDTO,
     RunDTO,
 )
-from pynomaly_detection.infrastructure.auth import (
+from monorepo.infrastructure.auth import (
     UserModel,
     get_current_user,
     require_analyst,
     require_data_scientist,
     require_viewer,
 )
-from pynomaly_detection.infrastructure.config import Container
-from pynomaly_detection.presentation.api.deps import get_container
+from monorepo.infrastructure.config import Container
+from monorepo.presentation.api.deps import get_container
 
 router = APIRouter()
 

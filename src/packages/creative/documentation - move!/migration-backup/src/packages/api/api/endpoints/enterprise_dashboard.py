@@ -11,7 +11,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from fastapi.responses import JSONResponse
 
-from pynomaly.application.services.enterprise_dashboard_service import (
+from monorepo.application.services.enterprise_dashboard_service import (
     AlertPriority,
     BusinessMetric,
     DashboardAlert,
@@ -24,7 +24,7 @@ from pynomaly.application.services.enterprise_dashboard_service import (
 
 # Optional authentication
 try:
-    from pynomaly.infrastructure.auth import get_current_user, require_permission
+    from monorepo.infrastructure.auth import get_current_user, require_permission
 
     AUTH_AVAILABLE = True
 except ImportError:

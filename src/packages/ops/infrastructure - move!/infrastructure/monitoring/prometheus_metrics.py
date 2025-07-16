@@ -122,7 +122,7 @@ class PrometheusMetricsService:
         self,
         enable_default_metrics: bool = True,
         custom_registry: Any | None = None,
-        namespace: str = "pynomaly",
+        namespace: str = "monorepo",
         port: int | None = None,
     ):
         """Initialize Prometheus metrics service.
@@ -730,7 +730,7 @@ _metrics_service: PrometheusMetricsService | None = None
 
 def initialize_metrics(
     enable_default_metrics: bool = True,
-    namespace: str = "pynomaly",
+    namespace: str = "monorepo",
     port: int | None = None,
 ) -> PrometheusMetricsService:
     """Initialize global metrics service.

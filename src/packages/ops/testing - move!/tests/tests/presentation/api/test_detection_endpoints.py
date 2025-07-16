@@ -10,13 +10,13 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.application.dto import (
+from monorepo.application.dto import (
     ConfidenceInterval,
     DatasetDTO,
     DetectionResultDTO,
     DetectorDTO,
 )
-from pynomaly.presentation.api.app import create_app
+from monorepo.presentation.api.app import create_app
 
 
 class TestDetectionEndpoints:
@@ -31,7 +31,7 @@ class TestDetectionEndpoints:
     @pytest.fixture
     def mock_container(self):
         """Mock dependency injection container."""
-        with patch("pynomaly.presentation.api.deps.get_container") as mock:
+        with patch("monorepo.presentation.api.deps.get_container") as mock:
             container = Mock()
 
             # Mock repositories
@@ -50,7 +50,7 @@ class TestDetectionEndpoints:
     @pytest.fixture
     def mock_user(self):
         """Mock authenticated user."""
-        with patch("pynomaly.presentation.api.deps.get_current_user") as mock:
+        with patch("monorepo.presentation.api.deps.get_current_user") as mock:
             user = {
                 "user_id": "test-user-123",
                 "email": "test@example.com",
@@ -148,7 +148,7 @@ class TestDetectionEndpoints:
             "dataset_id": "87654321-4321-8765-2109-876543210987",
         }
 
-        with patch("pynomaly.presentation.api.deps.get_current_user") as mock_auth:
+        with patch("monorepo.presentation.api.deps.get_current_user") as mock_auth:
             mock_auth.side_effect = HTTPException(
                 status_code=401, detail="Not authenticated"
             )
@@ -544,7 +544,7 @@ class TestDetectionEndpoints:
 
     def test_insufficient_permissions(self, client, mock_container):
         """Test detection with insufficient permissions."""
-        with patch("pynomaly.presentation.api.deps.get_current_user") as mock_auth:
+        with patch("monorepo.presentation.api.deps.get_current_user") as mock_auth:
             mock_auth.return_value = {
                 "user_id": "test-user",
                 "permissions": ["detector:read"],  # Missing detect:create
@@ -570,7 +570,7 @@ class TestDetectionEndpointsIntegration:
 
     def test_complete_detection_workflow(self, client):
         """Test complete detection workflow from training to results."""
-        with patch("pynomaly.presentation.api.deps.get_current_user") as mock_auth:
+        with patch("monorepo.presentation.api.deps.get_current_user") as mock_auth:
             mock_auth.return_value = {
                 "user_id": "test-user",
                 "permissions": ["detect:create", "detector:read", "dataset:read"],
@@ -583,7 +583,7 @@ class TestDetectionEndpointsIntegration:
             }
 
             with patch(
-                "pynomaly.presentation.api.deps.get_container"
+                "monorepo.presentation.api.deps.get_container"
             ) as mock_container:
                 mock_container.return_value.train_detector_use_case.return_value.execute = (
                     AsyncMock()

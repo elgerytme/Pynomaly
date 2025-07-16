@@ -2,8 +2,8 @@
 
 import pytest
 
-from pynomaly.domain.exceptions.base import DomainError, PynamolyError
-from pynomaly.domain.exceptions.result_exceptions import (
+from monorepo.domain.exceptions.base import DomainError, PynamolyError
+from monorepo.domain.exceptions.result_exceptions import (
     InconsistentResultError,
     ResultError,
     ScoreCalculationError,

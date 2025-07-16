@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from typing import Literal
 
-from pynomaly.infrastructure.repositories.repository_service import RepositoryService
+from monorepo.infrastructure.repositories.repository_service import RepositoryService
 
 
 class RepositoryFactory:
@@ -66,7 +66,7 @@ class RepositoryFactory:
 
 def _create_memory_repositories() -> RepositoryService:
     """Create repository service with in-memory implementations."""
-    from pynomaly.infrastructure.repositories.memory_repository import (
+    from monorepo.infrastructure.repositories.memory_repository import (
         MemoryDatasetRepository,
         MemoryDetectionResultRepository,
         MemoryDetectorRepository,
@@ -81,7 +81,7 @@ def _create_memory_repositories() -> RepositoryService:
 
 def _create_filesystem_repositories(base_path: str) -> RepositoryService:
     """Create repository service with file system implementations."""
-    from pynomaly.infrastructure.repositories.memory_repository import (
+    from monorepo.infrastructure.repositories.memory_repository import (
         FileSystemDetectorRepository,
         MemoryDatasetRepository,
         MemoryDetectionResultRepository,

@@ -7,8 +7,8 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.domain.models.cicd import PipelineStatus, TestSuite, TestType
-from pynomaly.infrastructure.cicd.test_runner import TestRunner
+from monorepo.domain.models.cicd import PipelineStatus, TestSuite, TestType
+from monorepo.infrastructure.cicd.test_runner import TestRunner
 
 
 @pytest.fixture
@@ -68,7 +68,7 @@ class TestTestRunner:
         assert security_config["security_context"] is True
         assert "bandit" in security_config["default_command"]
 
-    @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
+    @patch("monorepo.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
     async def test_execute_test_suite_success(self, mock_subprocess, test_runner, sample_test_suite, workspace_path):
         """Test successful test suite execution."""
         # Mock subprocess
@@ -93,7 +93,7 @@ class TestTestRunner:
         assert sample_test_suite.passed_tests == 5
         assert sample_test_suite.failed_tests == 0
 
-    @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
+    @patch("monorepo.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
     async def test_execute_test_suite_failure(self, mock_subprocess, test_runner, sample_test_suite, workspace_path):
         """Test failed test suite execution."""
         # Mock subprocess failure
@@ -239,7 +239,7 @@ class TestTestRunner:
         assert result["valid"] is False
         assert "Workspace path does not exist" in result["errors"]
 
-    @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
+    @patch("monorepo.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
     async def test_execute_unit_tests(self, mock_subprocess, test_runner, workspace_path):
         """Test executing unit tests with coverage."""
         # Create test suite
@@ -273,7 +273,7 @@ class TestTestRunner:
         args, kwargs = mock_subprocess.call_args
         assert "--cov" in args[0]
 
-    @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
+    @patch("monorepo.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
     async def test_execute_integration_tests(self, mock_subprocess, test_runner, workspace_path):
         """Test executing integration tests with setup/teardown."""
         # Create test suite
@@ -303,7 +303,7 @@ class TestTestRunner:
         assert success
         assert len(test_suite.tests) >= 1
 
-    @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
+    @patch("monorepo.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
     async def test_execute_performance_tests(self, mock_subprocess, test_runner, workspace_path):
         """Test executing performance tests with benchmarking."""
         # Create test suite
@@ -337,7 +337,7 @@ class TestTestRunner:
         if "pytest-benchmark" in args[0]:
             assert "--benchmark-json" in args[0]
 
-    @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
+    @patch("monorepo.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell")
     async def test_execute_security_tests(self, mock_subprocess, test_runner, workspace_path):
         """Test executing security tests with multiple tools."""
         # Create test suite
@@ -602,7 +602,7 @@ class TestTestRunner:
         assert validation_result["valid"] is False
         assert "No dependency file found" in validation_result["errors"]
 
-    @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_exec")
+    @patch("monorepo.infrastructure.cicd.test_runner.asyncio.create_subprocess_exec")
     async def test_setup_integration_environment(self, mock_subprocess, test_runner, workspace_path):
         """Test setting up integration test environment with docker-compose."""
         # Create docker-compose test file
@@ -623,7 +623,7 @@ class TestTestRunner:
             stderr=asyncio.subprocess.PIPE,
         )
 
-    @patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_exec")
+    @patch("monorepo.infrastructure.cicd.test_runner.asyncio.create_subprocess_exec")
     async def test_cleanup_integration_environment(self, mock_subprocess, test_runner, workspace_path):
         """Test cleaning up integration test environment."""
         # Create docker-compose test file
@@ -707,7 +707,7 @@ def test_another():
         assert any("test_example.py" in test for test in discovered)
 
         # Note: Actual execution would require real pytest, so we mock it
-        with patch("pynomaly.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell") as mock_subprocess:
+        with patch("monorepo.infrastructure.cicd.test_runner.asyncio.create_subprocess_shell") as mock_subprocess:
             mock_process = AsyncMock()
             mock_process.returncode = 0
             mock_process.communicate.return_value = (

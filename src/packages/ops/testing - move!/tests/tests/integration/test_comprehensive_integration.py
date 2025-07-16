@@ -13,19 +13,19 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.pynomaly.domain.entities import Dataset, Detector
-from src.pynomaly.infrastructure.adapters import SklearnAdapter
-from src.pynomaly.infrastructure.data_processing import (
+from src.monorepo.domain.entities import Dataset, Detector
+from src.monorepo.infrastructure.adapters import SklearnAdapter
+from src.monorepo.infrastructure.data_processing import (
     DataValidator,
     MemoryOptimizedDataLoader,
     StreamingDataProcessor,
 )
-from src.pynomaly.infrastructure.monitoring import (
+from src.monorepo.infrastructure.monitoring import (
     PerformanceMonitor,
     get_monitor,
     init_monitor,
 )
-from src.pynomaly.infrastructure.repositories import (
+from src.monorepo.infrastructure.repositories import (
     InMemoryDatasetRepository,
     InMemoryDetectorRepository,
 )
@@ -216,7 +216,7 @@ class TestComprehensiveIntegration:
     def test_performance_monitoring_integration(self):
         """Test performance monitoring integration."""
         # Test with mock to avoid psutil dependencies in CI
-        with patch("src.pynomaly.infrastructure.monitoring.performance_monitor.psutil"):
+        with patch("src.monorepo.infrastructure.monitoring.performance_monitor.psutil"):
             performance_monitor = PerformanceMonitor()
 
             # Start operation tracking
@@ -277,7 +277,7 @@ class TestComprehensiveIntegration:
 
             with monitor.monitor_operation("file_processing_test", "integration_test"):
                 # 1. File validation
-                from src.pynomaly.infrastructure.data_processing import (
+                from src.monorepo.infrastructure.data_processing import (
                     validate_file_format,
                 )
 

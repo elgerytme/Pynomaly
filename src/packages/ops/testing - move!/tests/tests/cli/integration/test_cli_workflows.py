@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.app import app
+from monorepo.presentation.cli.app import app
 
 
 class TestCLIWorkflows:
@@ -26,23 +26,23 @@ class TestCLIWorkflows:
         """Mock all CLI services."""
         with (
             patch(
-                "pynomaly.presentation.cli.commands.datasets.dataset_service"
+                "monorepo.presentation.cli.commands.datasets.dataset_service"
             ) as mock_dataset,
             patch(
-                "pynomaly.presentation.cli.commands.detector.detector_service"
+                "monorepo.presentation.cli.commands.detector.detector_service"
             ) as mock_detector,
             patch(
-                "pynomaly.presentation.cli.commands.detector.training_service"
+                "monorepo.presentation.cli.commands.detector.training_service"
             ) as mock_training,
             patch(
-                "pynomaly.presentation.cli.commands.detector.evaluation_service"
+                "monorepo.presentation.cli.commands.detector.evaluation_service"
             ) as mock_evaluation,
-            patch("pynomaly.presentation.cli.export.export_service") as mock_export,
+            patch("monorepo.presentation.cli.export.export_service") as mock_export,
             patch(
-                "pynomaly.presentation.cli.commands.detect.detection_service"
+                "monorepo.presentation.cli.commands.detect.detection_service"
             ) as mock_detection,
             patch(
-                "pynomaly.presentation.cli.commands.autonomous.autonomous_service"
+                "monorepo.presentation.cli.commands.autonomous.autonomous_service"
             ) as mock_autonomous,
         ):
             services = {
@@ -494,7 +494,7 @@ class TestCLIWorkflows:
     def test_error_handling_workflow(self, runner, mock_services):
         """Test error handling across workflow steps."""
         # Test: Dataset not found error propagation
-        from pynomaly.domain.exceptions import DatasetError
+        from monorepo.domain.exceptions import DatasetError
 
         mock_services["dataset"].get_dataset.side_effect = DatasetError(
             "Dataset not found"
@@ -507,7 +507,7 @@ class TestCLIWorkflows:
         assert "Dataset not found" in dataset_error_result.stdout
 
         # Test: Detector not found error propagation
-        from pynomaly.domain.exceptions import DetectorError
+        from monorepo.domain.exceptions import DetectorError
 
         mock_services["detector"].get_detector.side_effect = DetectorError(
             "Detector not found"
@@ -567,7 +567,7 @@ class TestCLIWorkflows:
         mock_services["detector"].count.return_value = 5
         mock_services["dataset"].count.return_value = 3
 
-        with patch("pynomaly.presentation.cli.app.get_cli_container") as mock_container:
+        with patch("monorepo.presentation.cli.app.get_cli_container") as mock_container:
             container = Mock()
             container.detector_repository.return_value.count.return_value = 5
             container.dataset_repository.return_value.count.return_value = 3

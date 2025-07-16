@@ -14,8 +14,8 @@ from uuid import uuid4
 import structlog
 
 try:
-    from pynomaly_detection.core.config import get_settings
-    from pynomaly_detection.presentation.web.enhanced_auth import AuthenticationMethod, UserRole
+    from monorepo.core.config import get_settings
+    from monorepo.presentation.web.enhanced_auth import AuthenticationMethod, UserRole
 except ImportError:
     # Fallback for testing
     def get_settings():
@@ -201,7 +201,7 @@ class AuditLogger:
             cache_logger_on_first_use=True,
         )
 
-        return structlog.get_logger("pynomaly.audit")
+        return structlog.get_logger("monorepo.audit")
 
     def _setup_compliance_mappings(
         self,

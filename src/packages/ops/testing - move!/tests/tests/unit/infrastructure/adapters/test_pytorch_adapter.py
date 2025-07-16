@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters.pytorch_adapter import (
+from monorepo.domain.entities import Dataset
+from monorepo.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.infrastructure.adapters.pytorch_adapter import (
     TORCH_AVAILABLE,
     PyTorchAdapter,
 )
@@ -183,7 +183,7 @@ class TestPyTorchAdapter:
     def test_prepare_data_method(self, sample_dataset):
         """Test data preparation method works without PyTorch."""
         # Create a simple mock adapter to test data preparation
-        from pynomaly.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
+        from monorepo.infrastructure.adapters.pytorch_adapter import PyTorchAdapter
 
         if not TORCH_AVAILABLE:
             # Skip testing _prepare_data when PyTorch is not available

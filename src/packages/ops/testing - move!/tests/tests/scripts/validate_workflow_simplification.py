@@ -24,11 +24,11 @@ def test_workflow_simplification_service():
     print("🔧 Testing Workflow Simplification Service...")
 
     try:
-        from pynomaly.application.services.workflow_simplification_service import (
+        from monorepo.application.services.workflow_simplification_service import (
             UserExperience,
             WorkflowSimplificationService,
         )
-        from pynomaly.domain.entities import Dataset
+        from monorepo.domain.entities import Dataset
 
         # Create test data
         np.random.seed(42)
@@ -84,7 +84,7 @@ def test_container_integration():
     print("\n🔧 Testing Container Integration...")
 
     try:
-        from pynomaly.infrastructure.config.container import Container
+        from monorepo.infrastructure.config.container import Container
 
         # Create container
         container = Container()
@@ -133,7 +133,7 @@ def test_feature_flags():
     print("\n🔧 Testing Feature Flag System...")
 
     try:
-        from pynomaly.infrastructure.config.feature_flags import feature_flags
+        from monorepo.infrastructure.config.feature_flags import feature_flags
 
         # Test workflow simplification flags
         flags_to_test = ["cli_simplification", "interactive_guidance", "error_recovery"]
@@ -170,7 +170,7 @@ def test_workflow_data_classes():
     print("\n🔧 Testing Workflow Data Classes...")
 
     try:
-        from pynomaly.application.services.workflow_simplification_service import (
+        from monorepo.application.services.workflow_simplification_service import (
             UserExperience,
             WorkflowComplexity,
             WorkflowRecommendation,

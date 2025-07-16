@@ -13,8 +13,8 @@ from unittest.mock import Mock, patch
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.presentation.cli import (
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.presentation.cli import (
     autonomous,
     datasets,
     detection,
@@ -22,8 +22,8 @@ from pynomaly.presentation.cli import (
     preprocessing,
     server,
 )
-from pynomaly.presentation.cli.app import app
-from pynomaly.presentation.cli.export import export_app
+from monorepo.presentation.cli.app import app
+from monorepo.presentation.cli.export import export_app
 
 
 class TestMainCLIApp:
@@ -37,7 +37,7 @@ class TestMainCLIApp:
     @pytest.fixture
     def mock_container(self):
         """Mock CLI container."""
-        with patch("pynomaly.presentation.cli.container.get_cli_container") as mock:
+        with patch("monorepo.presentation.cli.container.get_cli_container") as mock:
             container = Mock()
 
             # Mock repositories
@@ -307,7 +307,7 @@ class TestDetectorsCLI:
     @pytest.fixture
     def mock_container(self):
         """Mock CLI container for detector operations."""
-        with patch("pynomaly.presentation.cli.container.get_cli_container") as mock:
+        with patch("monorepo.presentation.cli.container.get_cli_container") as mock:
             container = Mock()
 
             # Mock detector repository
@@ -353,7 +353,7 @@ class TestDetectorsCLI:
     def test_detector_create_success(self, runner, mock_container):
         """Test successful detector creation."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.PyODAdapter"
+            "monorepo.infrastructure.adapters.pyod_adapter.PyODAdapter"
         ) as mock_adapter:
             mock_instance = Mock()
             mock_adapter.return_value = mock_instance
@@ -423,10 +423,10 @@ class TestDetectorsCLI:
     def test_detector_algorithms_list(self, runner):
         """Test listing available algorithms."""
         with patch(
-            "pynomaly.infrastructure.adapters.pyod_adapter.PyODAdapter"
+            "monorepo.infrastructure.adapters.pyod_adapter.PyODAdapter"
         ) as mock_pyod:
             with patch(
-                "pynomaly.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
+                "monorepo.infrastructure.adapters.sklearn_adapter.SklearnAdapter"
             ) as mock_sklearn:
                 mock_pyod.ALGORITHM_MAPPING = {
                     "IsolationForest": "IF",
@@ -442,7 +442,7 @@ class TestDetectorsCLI:
     def test_detector_tune_hyperparameters(self, runner, mock_container):
         """Test hyperparameter tuning."""
         with patch(
-            "pynomaly.application.services.hyperparameter_tuning_service.HyperparameterTuningService"
+            "monorepo.application.services.hyperparameter_tuning_service.HyperparameterTuningService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -469,7 +469,7 @@ class TestDatasetsCLI:
     @pytest.fixture
     def mock_container(self):
         """Mock CLI container for dataset operations."""
-        with patch("pynomaly.presentation.cli.container.get_cli_container") as mock:
+        with patch("monorepo.presentation.cli.container.get_cli_container") as mock:
             container = Mock()
 
             # Mock dataset repository
@@ -596,7 +596,7 @@ class TestDatasetsCLI:
     def test_dataset_validate(self, runner, mock_container):
         """Test dataset validation."""
         with patch(
-            "pynomaly.application.services.data_validation_service.DataValidationService"
+            "monorepo.application.services.data_validation_service.DataValidationService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -622,7 +622,7 @@ class TestDetectionCLI:
     @pytest.fixture
     def mock_container(self):
         """Mock CLI container for detection operations."""
-        with patch("pynomaly.presentation.cli.container.get_cli_container") as mock:
+        with patch("monorepo.presentation.cli.container.get_cli_container") as mock:
             container = Mock()
 
             # Mock repositories
@@ -662,7 +662,7 @@ class TestDetectionCLI:
     def test_detection_train(self, runner, mock_container):
         """Test detector training."""
         with patch(
-            "pynomaly.application.use_cases.train_detector.TrainDetectorUseCase"
+            "monorepo.application.use_cases.train_detector.TrainDetectorUseCase"
         ) as mock_use_case:
             mock_use_case_instance = Mock()
             mock_use_case.return_value = mock_use_case_instance
@@ -682,7 +682,7 @@ class TestDetectionCLI:
         )
 
         with patch(
-            "pynomaly.application.use_cases.detect_anomalies.DetectAnomaliesUseCase"
+            "monorepo.application.use_cases.detect_anomalies.DetectAnomaliesUseCase"
         ) as mock_use_case:
             mock_use_case_instance = Mock()
             mock_use_case.return_value = mock_use_case_instance
@@ -712,7 +712,7 @@ class TestDetectionCLI:
         )
 
         with patch(
-            "pynomaly.application.use_cases.evaluate_detector.EvaluateDetectorUseCase"
+            "monorepo.application.use_cases.evaluate_detector.EvaluateDetectorUseCase"
         ) as mock_use_case:
             mock_use_case_instance = Mock()
             mock_use_case.return_value = mock_use_case_instance
@@ -748,7 +748,7 @@ class TestDetectionCLI:
     def test_detection_batch_multiple_detectors(self, runner, mock_container):
         """Test batch detection with multiple detectors."""
         with patch(
-            "pynomaly.application.use_cases.batch_detection.BatchDetectionUseCase"
+            "monorepo.application.use_cases.batch_detection.BatchDetectionUseCase"
         ) as mock_use_case:
             mock_use_case_instance = Mock()
             mock_use_case.return_value = mock_use_case_instance
@@ -793,7 +793,7 @@ class TestAutonomousCLI:
     def test_autonomous_detect(self, runner, sample_csv_file):
         """Test autonomous detection."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -821,7 +821,7 @@ class TestAutonomousCLI:
     def test_autonomous_profile(self, runner, sample_csv_file):
         """Test autonomous data profiling."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -844,7 +844,7 @@ class TestAutonomousCLI:
     def test_autonomous_quick(self, runner, sample_csv_file):
         """Test autonomous quick detection."""
         with patch(
-            "pynomaly.application.services.autonomous_service.AutonomousDetectionService"
+            "monorepo.application.services.autonomous_service.AutonomousDetectionService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -871,7 +871,7 @@ class TestPreprocessingCLI:
     @pytest.fixture
     def mock_container(self):
         """Mock CLI container for preprocessing operations."""
-        with patch("pynomaly.presentation.cli.container.get_cli_container") as mock:
+        with patch("monorepo.presentation.cli.container.get_cli_container") as mock:
             container = Mock()
 
             dataset_repo = Mock()
@@ -887,7 +887,7 @@ class TestPreprocessingCLI:
     def test_preprocessing_clean(self, runner, mock_container):
         """Test data cleaning."""
         with patch(
-            "pynomaly.application.services.preprocessing_service.PreprocessingService"
+            "monorepo.application.services.preprocessing_service.PreprocessingService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -911,7 +911,7 @@ class TestPreprocessingCLI:
     def test_preprocessing_transform(self, runner, mock_container):
         """Test data transformation."""
         with patch(
-            "pynomaly.application.services.preprocessing_service.PreprocessingService"
+            "monorepo.application.services.preprocessing_service.PreprocessingService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -933,7 +933,7 @@ class TestPreprocessingCLI:
     def test_preprocessing_pipeline_create(self, runner, mock_container):
         """Test preprocessing pipeline creation."""
         with patch(
-            "pynomaly.application.services.preprocessing_service.PreprocessingService"
+            "monorepo.application.services.preprocessing_service.PreprocessingService"
         ) as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
@@ -993,7 +993,7 @@ class TestExportCLI:
 
         try:
             with patch(
-                "pynomaly.infrastructure.exporters.excel_exporter.ExcelExporter"
+                "monorepo.infrastructure.exporters.excel_exporter.ExcelExporter"
             ) as mock_exporter:
                 mock_exporter_instance = Mock()
                 mock_exporter.return_value = mock_exporter_instance
@@ -1010,7 +1010,7 @@ class TestExportCLI:
     def test_export_powerbi(self, runner, sample_results_file):
         """Test Power BI export."""
         with patch(
-            "pynomaly.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
+            "monorepo.infrastructure.exporters.powerbi_exporter.PowerBIExporter"
         ) as mock_exporter:
             mock_exporter_instance = Mock()
             mock_exporter.return_value = mock_exporter_instance
@@ -1111,7 +1111,7 @@ class TestCLIIntegration:
     def test_complete_detection_workflow(self, runner):
         """Test complete detection workflow from CLI."""
         with patch(
-            "pynomaly.presentation.cli.container.get_cli_container"
+            "monorepo.presentation.cli.container.get_cli_container"
         ) as mock_container:
             container = Mock()
 

@@ -18,7 +18,7 @@ from sqlalchemy import Column, DateTime, Float, Integer, String, Text, create_en
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
-from pynomaly.application.services.training_automation_service import (
+from monorepo.application.services.training_automation_service import (
     TrainingJob,
     TrainingJobRepository,
     TrainingStatus,
@@ -234,7 +234,7 @@ class SQLiteTrainingJobRepository(TrainingJobRepository):
 
     def _model_to_job(self, model: TrainingJobModel) -> TrainingJob:
         """Convert database model to domain object."""
-        from pynomaly.application.services.training_automation_service import (
+        from monorepo.application.services.training_automation_service import (
             TrainingConfiguration,
         )
 

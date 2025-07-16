@@ -22,7 +22,7 @@ class TestGap:
 class TestCoverageAnalyzer:
     def __init__(self, project_root: str):
         self.project_root = Path(project_root)
-        self.src_dir = self.project_root / "src" / "pynomaly"
+        self.src_dir = self.project_root / "src" / "monorepo"
         self.test_dir = self.project_root / "tests"
         self.gaps: List[TestGap] = []
         

@@ -7,7 +7,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
-from pynomaly.domain.value_objects.model_metrics import ModelMetrics
+from monorepo.domain.value_objects.model_metrics import ModelMetrics
 
 
 class TestModelMetricsFixed:

@@ -56,7 +56,7 @@ class CLICoverageAnalyzer:
 
     def __init__(self, project_root: str):
         self.project_root = Path(project_root)
-        self.cli_src_path = self.project_root / "src" / "pynomaly" / "presentation" / "cli"
+        self.cli_src_path = self.project_root / "src" / "monorepo" / "presentation" / "cli"
         self.cli_test_path = self.project_root / "tests" / "cli"
 
         self.cli_modules: dict[str, CLIModule] = {}

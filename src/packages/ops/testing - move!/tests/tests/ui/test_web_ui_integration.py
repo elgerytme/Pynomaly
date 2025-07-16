@@ -9,13 +9,13 @@ import pytest
 from fastapi.testclient import TestClient
 from starlette.requests import Request
 
-from src.pynomaly.presentation.api.endpoints.frontend_support import (
+from src.monorepo.presentation.api.endpoints.frontend_support import (
     router as frontend_router,
 )
-from src.pynomaly.presentation.api.main import create_app
-from src.pynomaly.presentation.web.app import web_router
-from src.pynomaly.presentation.web.csrf import generate_csrf_token, get_csrf_token
-from src.pynomaly.presentation.web.monitoring import (
+from src.monorepo.presentation.api.main import create_app
+from src.monorepo.presentation.web.app import web_router
+from src.monorepo.presentation.web.csrf import generate_csrf_token, get_csrf_token
+from src.monorepo.presentation.web.monitoring import (
     PerformanceMonitor,
     SecurityMonitor,
     WebUILogger,

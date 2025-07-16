@@ -11,8 +11,8 @@ import pytest
 from requests import Response
 from requests.exceptions import ConnectionError, Timeout
 
-from pynomaly.presentation.sdk.client import PynomalyClient
-from pynomaly.presentation.sdk.exceptions import (
+from monorepo.presentation.sdk.client import PynomalyClient
+from monorepo.presentation.sdk.exceptions import (
     AuthenticationError,
     NetworkError,
     NotFoundError,
@@ -20,7 +20,7 @@ from pynomaly.presentation.sdk.exceptions import (
     ServerError,
     ValidationError,
 )
-from pynomaly.presentation.sdk.models import (
+from monorepo.presentation.sdk.models import (
     DatasetInfo,
     DetectionRequest,
     DetectionResponse,

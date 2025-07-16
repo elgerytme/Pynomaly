@@ -16,7 +16,7 @@ def run_server():
     try:
         # Add src to path for imports
         sys.path.insert(0, 'src')
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app()
         uvicorn.run(app, host="127.0.0.1", port=8123, log_level="warning")

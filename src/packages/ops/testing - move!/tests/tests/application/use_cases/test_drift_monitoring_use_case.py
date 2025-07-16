@@ -12,10 +12,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.application.use_cases.drift_monitoring_use_case import (
+from monorepo.application.use_cases.drift_monitoring_use_case import (
     DriftMonitoringUseCase,
 )
-from pynomaly.domain.entities.drift_detection import (
+from monorepo.domain.entities.drift_detection import (
     DriftAlert,
     DriftDetectionMethod,
     DriftDetectionResult,

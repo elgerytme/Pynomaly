@@ -7,13 +7,13 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, EmailStr, Field
 
-from pynomaly.infrastructure.auth import (
+from monorepo.infrastructure.auth import (
     get_auth,
     require_super_admin,
     require_tenant_admin,
 )
-from pynomaly.infrastructure.config import Container
-from pynomaly.presentation.api.auth_deps import get_container_simple
+from monorepo.infrastructure.config import Container
+from monorepo.presentation.api.auth_deps import get_container_simple
 
 router = APIRouter()
 

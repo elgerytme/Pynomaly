@@ -6,7 +6,7 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto.detector_dto import (
+from monorepo.application.dto.detector_dto import (
     CreateDetectorDTO,
     DetectionRequestDTO,
     DetectorDTO,

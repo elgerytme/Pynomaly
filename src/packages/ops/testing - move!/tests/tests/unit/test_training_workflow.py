@@ -18,7 +18,7 @@ def test_complete_workflow():
     try:
         # 1. Create container and services
         print("1. Setting up dependency injection container...")
-        from pynomaly.infrastructure.config import create_container
+        from monorepo.infrastructure.config import create_container
 
         container = create_container(testing=False)
 
@@ -51,7 +51,7 @@ def test_complete_workflow():
         )
 
         # Create dataset entity
-        from pynomaly.domain.entities import Dataset
+        from monorepo.domain.entities import Dataset
 
         training_dataset = Dataset(
             name="synthetic_training_data",
@@ -68,7 +68,7 @@ def test_complete_workflow():
 
         # 3. Create detector
         print("\n3. Creating anomaly detector...")
-        from pynomaly.domain.entities import Detector
+        from monorepo.domain.entities import Detector
 
         detector = Detector(
             name="test_isolation_forest",
@@ -88,7 +88,7 @@ def test_complete_workflow():
         # Check if we can access the algorithm adapter
         print("   Checking algorithm adapters...")
         try:
-            from pynomaly.infrastructure.adapters import PyODAdapter
+            from monorepo.infrastructure.adapters import PyODAdapter
 
             algorithms = PyODAdapter.list_algorithms()
             print(f"   ✓ PyOD adapter available with {len(algorithms)} algorithms")
@@ -103,7 +103,7 @@ def test_complete_workflow():
 
         # Test training request
         print("   Creating training request...")
-        from pynomaly.application.use_cases import TrainDetectorRequest
+        from monorepo.application.use_cases import TrainDetectorRequest
 
         training_request = TrainDetectorRequest(
             detector_id=detector.id,

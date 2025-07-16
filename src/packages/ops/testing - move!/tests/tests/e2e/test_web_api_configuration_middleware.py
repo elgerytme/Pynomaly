@@ -11,21 +11,21 @@ import pytest
 from fastapi import FastAPI, Request, Response
 from fastapi.testclient import TestClient
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     RequestConfigurationDTO,
     ResponseConfigurationDTO,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from monorepo.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.application.services.web_api_configuration_integration import (
+from monorepo.application.services.web_api_configuration_integration import (
     WebAPIConfigurationIntegration,
 )
-from pynomaly.infrastructure.middleware.configuration_middleware import (
+from monorepo.infrastructure.middleware.configuration_middleware import (
     ConfigurationAPIMiddleware,
     ConfigurationCaptureMiddleware,
 )
-from pynomaly.presentation.api.middleware_integration import (
+from monorepo.presentation.api.middleware_integration import (
     add_configuration_endpoints,
     setup_configuration_middleware,
 )
@@ -345,7 +345,7 @@ class TestConfigurationAPIMiddleware:
 
     def test_create_production_middleware(self, capture_service):
         """Test production middleware factory."""
-        with patch("pynomaly.infrastructure.config.feature_flags.require_feature"):
+        with patch("monorepo.infrastructure.config.feature_flags.require_feature"):
             middleware_factory = (
                 ConfigurationAPIMiddleware.create_production_middleware(
                     configuration_service=capture_service
@@ -512,7 +512,7 @@ class TestMiddlewareIntegration:
     def test_setup_configuration_middleware_disabled(self, app, capture_service):
         """Test middleware setup when feature is disabled."""
         with patch(
-            "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+            "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
             return_value=False,
         ):
             setup_configuration_middleware(app, capture_service, "development")
@@ -524,7 +524,7 @@ class TestMiddlewareIntegration:
     def test_setup_configuration_middleware_development(self, app, capture_service):
         """Test middleware setup for development environment."""
         with patch(
-            "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+            "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
             return_value=True,
         ):
             setup_configuration_middleware(app, capture_service, "development")
@@ -536,7 +536,7 @@ class TestMiddlewareIntegration:
     def test_setup_configuration_middleware_production(self, app, capture_service):
         """Test middleware setup for production environment."""
         with patch(
-            "pynomaly.infrastructure.config.feature_flags.is_feature_enabled",
+            "monorepo.infrastructure.config.feature_flags.is_feature_enabled",
             return_value=True,
         ):
             setup_configuration_middleware(app, capture_service, "production")

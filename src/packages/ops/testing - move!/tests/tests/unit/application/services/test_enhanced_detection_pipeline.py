@@ -4,15 +4,15 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from pynomaly.application.services.algorithm_recommendation_service import (
+from monorepo.application.services.algorithm_recommendation_service import (
     AlgorithmRecommendation,
 )
-from pynomaly.application.services.detection_pipeline_service import (
+from monorepo.application.services.detection_pipeline_service import (
     DetectionPipelineService,
 )
-from pynomaly.domain.entities import Dataset, DetectionResult
-from pynomaly.domain.exceptions import AdapterError, AlgorithmNotFoundError
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.entities import Dataset, DetectionResult
+from monorepo.domain.exceptions import AdapterError, AlgorithmNotFoundError
+from monorepo.domain.value_objects import AnomalyScore
 
 
 class TestDetectionPipelineService:

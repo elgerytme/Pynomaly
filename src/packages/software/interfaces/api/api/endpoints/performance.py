@@ -6,8 +6,8 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
-from pynomaly_detection.infrastructure.config.container import Container
-from pynomaly_detection.infrastructure.performance import QueryOptimizer
+from monorepo.infrastructure.config.container import Container
+from monorepo.infrastructure.performance import QueryOptimizer
 
 router = APIRouter(prefix="/performance", tags=["performance"])
 

@@ -242,8 +242,8 @@ class TestMainFunction:
         # Mock successful import
         with patch("builtins.__import__") as mock_import:
             mock_pynomaly = MagicMock()
-            mock_pynomaly.__version__ = "1.0.0"
-            mock_pynomaly.__file__ = "/path/to/pynomaly/__init__.py"
+            mock_monorepo.__version__ = "1.0.0"
+            mock_monorepo.__file__ = "/path/to/pynomaly/__init__.py"
             mock_import.return_value = mock_pynomaly
 
             # Mock subprocess for CLI test
@@ -275,13 +275,13 @@ class TestMainFunction:
 
         # Mock failed import
         with patch("builtins.__import__") as mock_import:
-            mock_import.side_effect = ImportError("No module named 'pynomaly'")
+            mock_import.side_effect = ImportError("No module named 'monorepo'")
 
             main()
 
             # Verify error handling
             mock_print.assert_any_call(
-                "❌ Failed to import pynomaly: No module named 'pynomaly'"
+                "❌ Failed to import monorepo: No module named 'monorepo'"
             )
 
     @patch("scripts.maintenance.fix_package_issues.run_command")
@@ -294,8 +294,8 @@ class TestMainFunction:
         # Mock successful import after minimal install
         with patch("builtins.__import__") as mock_import:
             mock_pynomaly = MagicMock()
-            mock_pynomaly.__version__ = "development"
-            mock_pynomaly.__file__ = "/path/to/pynomaly/__init__.py"
+            mock_monorepo.__version__ = "development"
+            mock_monorepo.__file__ = "/path/to/pynomaly/__init__.py"
             mock_import.return_value = mock_pynomaly
 
             # Mock subprocess for CLI test
@@ -320,8 +320,8 @@ class TestMainFunction:
         # Mock successful import
         with patch("builtins.__import__") as mock_import:
             mock_pynomaly = MagicMock()
-            mock_pynomaly.__version__ = "1.0.0"
-            mock_pynomaly.__file__ = "/path/to/pynomaly/__init__.py"
+            mock_monorepo.__version__ = "1.0.0"
+            mock_monorepo.__file__ = "/path/to/pynomaly/__init__.py"
             mock_import.return_value = mock_pynomaly
 
             # Mock subprocess for CLI test failure
@@ -347,8 +347,8 @@ class TestMainFunction:
         # Mock successful import
         with patch("builtins.__import__") as mock_import:
             mock_pynomaly = MagicMock()
-            mock_pynomaly.__version__ = "1.0.0"
-            mock_pynomaly.__file__ = "/path/to/pynomaly/__init__.py"
+            mock_monorepo.__version__ = "1.0.0"
+            mock_monorepo.__file__ = "/path/to/pynomaly/__init__.py"
             mock_import.return_value = mock_pynomaly
 
             # Mock subprocess for CLI test timeout
@@ -380,8 +380,8 @@ class TestMainFunction:
         # Mock successful import
         with patch("builtins.__import__") as mock_import:
             mock_pynomaly = MagicMock()
-            mock_pynomaly.__version__ = "1.0.0"
-            mock_pynomaly.__file__ = "/path/to/pynomaly/__init__.py"
+            mock_monorepo.__version__ = "1.0.0"
+            mock_monorepo.__file__ = "/path/to/pynomaly/__init__.py"
             mock_import.return_value = mock_pynomaly
 
             # Mock subprocess for CLI test

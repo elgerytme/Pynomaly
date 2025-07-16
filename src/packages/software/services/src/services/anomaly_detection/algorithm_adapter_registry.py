@@ -9,9 +9,9 @@ from typing import Any, Protocol
 import numpy as np
 import pandas as pd
 
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.domain.exceptions import FittingError, InvalidAlgorithmError
-from pynomaly.domain.value_objects import AnomalyScore
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.domain.exceptions import FittingError, InvalidAlgorithmError
+from monorepo.domain.value_objects import AnomalyScore
 
 
 class AlgorithmAdapter(Protocol):

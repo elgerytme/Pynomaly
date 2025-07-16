@@ -26,7 +26,7 @@ class TestSDKStreamingFeatures:
     def mock_streaming_client(self):
         """Create mock streaming client."""
         client = AsyncMock()
-        client.base_url = "https://api.pynomaly.com"
+        client.base_url = "https://api.monorepo.com"
         client.headers = {"X-API-Key": "test-key"}
         return client
 

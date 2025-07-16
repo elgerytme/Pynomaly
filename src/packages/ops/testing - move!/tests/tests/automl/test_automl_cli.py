@@ -9,7 +9,7 @@ import pandas as pd
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.automl import app
+from monorepo.presentation.cli.automl import app
 
 
 class TestAutoMLCLI:
@@ -45,9 +45,9 @@ class TestAutoMLCLI:
         assert "DATASET_PATH" in result.stdout
         assert "ALGORITHM_NAME" in result.stdout
 
-    @patch("pynomaly.presentation.cli.automl._load_dataset")
-    @patch("pynomaly.presentation.cli.automl.get_automl_service")
-    @patch("pynomaly.presentation.cli.automl.asyncio.run")
+    @patch("monorepo.presentation.cli.automl._load_dataset")
+    @patch("monorepo.presentation.cli.automl.get_automl_service")
+    @patch("monorepo.presentation.cli.automl.asyncio.run")
     def test_automl_run_command_success(
         self,
         mock_asyncio_run,
@@ -108,7 +108,7 @@ class TestAutoMLCLI:
         assert result.exit_code == 1
         assert "Unsupported algorithm" in result.stdout
 
-    @patch("pynomaly.presentation.cli.automl._load_dataset")
+    @patch("monorepo.presentation.cli.automl._load_dataset")
     def test_automl_run_dataset_loading_error(
         self, mock_load_dataset, runner, sample_csv_file
     ):
@@ -120,9 +120,9 @@ class TestAutoMLCLI:
         assert result.exit_code == 1
         assert "AutoML optimization failed" in result.stdout
 
-    @patch("pynomaly.presentation.cli.automl._load_dataset")
-    @patch("pynomaly.presentation.cli.automl.get_automl_service")
-    @patch("pynomaly.presentation.cli.automl.asyncio.run")
+    @patch("monorepo.presentation.cli.automl._load_dataset")
+    @patch("monorepo.presentation.cli.automl.get_automl_service")
+    @patch("monorepo.presentation.cli.automl.asyncio.run")
     def test_automl_run_with_output_file(
         self,
         mock_asyncio_run,
@@ -174,12 +174,12 @@ class TestAutoMLCLI:
         """Test that success criteria message appears when F1 improvement ≥ 15%."""
         with (
             patch(
-                "pynomaly.presentation.cli.automl._load_dataset"
+                "monorepo.presentation.cli.automl._load_dataset"
             ) as mock_load_dataset,
             patch(
-                "pynomaly.presentation.cli.automl.get_automl_service"
+                "monorepo.presentation.cli.automl.get_automl_service"
             ) as mock_get_service,
-            patch("pynomaly.presentation.cli.automl.asyncio.run") as mock_asyncio_run,
+            patch("monorepo.presentation.cli.automl.asyncio.run") as mock_asyncio_run,
         ):
             # Setup mocks for high performance
             mock_dataset = Mock()
@@ -210,12 +210,12 @@ class TestAutoMLCLI:
         """Test warning when F1 improvement < 15%."""
         with (
             patch(
-                "pynomaly.presentation.cli.automl._load_dataset"
+                "monorepo.presentation.cli.automl._load_dataset"
             ) as mock_load_dataset,
             patch(
-                "pynomaly.presentation.cli.automl.get_automl_service"
+                "monorepo.presentation.cli.automl.get_automl_service"
             ) as mock_get_service,
-            patch("pynomaly.presentation.cli.automl.asyncio.run") as mock_asyncio_run,
+            patch("monorepo.presentation.cli.automl.asyncio.run") as mock_asyncio_run,
         ):
             # Setup mocks for low performance
             mock_dataset = Mock()
@@ -248,7 +248,7 @@ class TestDatasetLoading:
 
     def test_load_csv_dataset(self):
         """Test loading CSV dataset."""
-        from pynomaly.presentation.cli.automl import _load_dataset
+        from monorepo.presentation.cli.automl import _load_dataset
 
         # Create sample CSV
         data = pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
@@ -269,7 +269,7 @@ class TestDatasetLoading:
 
     def test_load_parquet_dataset(self):
         """Test loading Parquet dataset."""
-        from pynomaly.presentation.cli.automl import _load_dataset
+        from monorepo.presentation.cli.automl import _load_dataset
 
         # Create sample Parquet file
         data = pd.DataFrame({"x": [1, 2, 3], "y": [10, 20, 30]})
@@ -291,7 +291,7 @@ class TestDatasetLoading:
 
     def test_load_unsupported_format(self):
         """Test loading unsupported file format."""
-        from pynomaly.presentation.cli.automl import _load_dataset
+        from monorepo.presentation.cli.automl import _load_dataset
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             txt_path = Path(f.name)

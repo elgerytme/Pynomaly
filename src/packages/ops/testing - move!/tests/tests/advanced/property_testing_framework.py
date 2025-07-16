@@ -159,7 +159,7 @@ class PropertyTester:
 
 if __name__ == "__main__":
     # Simple test of the framework
-    tester = PropertyTester("pynomaly.domain.entities")
+    tester = PropertyTester("monorepo.domain.entities")
     summary = tester.run_property_tests()
     print(
         f"Property Tests: {summary.passed_properties}/{summary.total_properties} passed"

@@ -16,12 +16,12 @@ import numpy as np
 import pandas as pd
 import psutil
 
-from pynomaly.application.services.autonomous_service import (
+from monorepo.application.services.autonomous_service import (
     AutonomousConfig,
     AutonomousDetectionService,
 )
-from pynomaly.infrastructure.data_loaders.csv_loader import CSVLoader
-from pynomaly.presentation.cli.container import get_cli_container
+from monorepo.infrastructure.data_loaders.csv_loader import CSVLoader
+from monorepo.presentation.cli.container import get_cli_container
 
 
 @dataclass

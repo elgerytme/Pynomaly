@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     AlgorithmConfigurationDTO,
     ConfigurationLevel,
     ConfigurationMetadataDTO,
@@ -17,13 +17,13 @@ from pynomaly.application.dto.configuration_dto import (
     ExperimentConfigurationDTO,
     PerformanceResultsDTO,
 )
-from pynomaly.application.services.configuration_capture_service import (
+from monorepo.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.application.services.configuration_recommendation_service import (
+from monorepo.application.services.configuration_recommendation_service import (
     ConfigurationRecommendationService,
 )
-from pynomaly.infrastructure.persistence.configuration_repository import (
+from monorepo.infrastructure.persistence.configuration_repository import (
     ConfigurationRepository,
 )
 
@@ -564,7 +564,7 @@ class TestConfigurationRecommendationService:
         self, recommendation_service, sample_dataset_characteristics
     ):
         """Test recommendation deduplication and scoring."""
-        from pynomaly.application.dto.configuration_dto import (
+        from monorepo.application.dto.configuration_dto import (
             ConfigurationRecommendationDTO,
         )
 

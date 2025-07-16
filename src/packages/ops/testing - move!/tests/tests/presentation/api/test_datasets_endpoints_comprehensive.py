@@ -12,8 +12,8 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.application.dto import DataQualityReportDTO, DatasetDTO
-from pynomaly.presentation.api.app import create_app
+from monorepo.application.dto import DataQualityReportDTO, DatasetDTO
+from monorepo.presentation.api.app import create_app
 
 
 class TestDatasetEndpoints:
@@ -28,7 +28,7 @@ class TestDatasetEndpoints:
     @pytest.fixture
     def mock_container(self):
         """Mock dependency injection container."""
-        with patch("pynomaly.presentation.api.deps.get_container") as mock:
+        with patch("monorepo.presentation.api.deps.get_container") as mock:
             container = Mock()
 
             # Mock repositories
@@ -42,7 +42,7 @@ class TestDatasetEndpoints:
     @pytest.fixture
     def mock_user(self):
         """Mock authenticated user."""
-        with patch("pynomaly.presentation.api.deps.get_current_user") as mock:
+        with patch("monorepo.presentation.api.deps.get_current_user") as mock:
             user = {
                 "user_id": "test-user-123",
                 "email": "test@example.com",
@@ -124,7 +124,7 @@ class TestDatasetEndpoints:
 
     def test_list_datasets_unauthorized(self, client, mock_container):
         """Test dataset listing without authentication."""
-        with patch("pynomaly.presentation.api.deps.get_current_user") as mock_auth:
+        with patch("monorepo.presentation.api.deps.get_current_user") as mock_auth:
             mock_auth.side_effect = HTTPException(
                 status_code=401, detail="Not authenticated"
             )
@@ -593,7 +593,7 @@ class TestDatasetEndpoints:
 
     def test_dataset_permission_denied(self, client, mock_container):
         """Test dataset operations with insufficient permissions."""
-        with patch("pynomaly.presentation.api.deps.get_current_user") as mock_auth:
+        with patch("monorepo.presentation.api.deps.get_current_user") as mock_auth:
             mock_auth.return_value = {
                 "user_id": "test-user",
                 "permissions": ["dataset:read"],  # Missing dataset:create
@@ -620,7 +620,7 @@ class TestDatasetEndpointsIntegration:
 
     def test_complete_dataset_lifecycle(self, client):
         """Test complete dataset lifecycle from upload to deletion."""
-        with patch("pynomaly.presentation.api.deps.get_current_user") as mock_auth:
+        with patch("monorepo.presentation.api.deps.get_current_user") as mock_auth:
             mock_auth.return_value = {
                 "user_id": "test-user",
                 "permissions": [
@@ -632,7 +632,7 @@ class TestDatasetEndpointsIntegration:
             }
 
             with patch(
-                "pynomaly.presentation.api.deps.get_container"
+                "monorepo.presentation.api.deps.get_container"
             ) as mock_container:
                 container = Mock()
                 container.dataset_repository.return_value = Mock()
@@ -679,7 +679,7 @@ class TestDatasetEndpointsIntegration:
 
     def test_dataset_validation_workflow(self, client):
         """Test dataset validation and quality checking workflow."""
-        with patch("pynomaly.presentation.api.deps.get_current_user") as mock_auth:
+        with patch("monorepo.presentation.api.deps.get_current_user") as mock_auth:
             mock_auth.return_value = {
                 "user_id": "test",
                 "permissions": ["dataset:read"],

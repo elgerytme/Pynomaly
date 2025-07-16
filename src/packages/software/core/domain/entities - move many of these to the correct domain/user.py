@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 
-from pynomaly.shared.types import RoleId, TenantId, UserId
+from monorepo.shared.types import RoleId, TenantId, UserId
 
 
 class UserRole(str, Enum):

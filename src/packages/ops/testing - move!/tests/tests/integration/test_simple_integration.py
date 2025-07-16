@@ -18,7 +18,7 @@ class TestSimpleIntegration:
     def test_basic_import(self):
         """Test basic imports work."""
         try:
-            from pynomaly.domain.entities import Dataset
+            from monorepo.domain.entities import Dataset
             assert Dataset is not None
         except ImportError:
             pytest.skip("Core imports not available")
@@ -26,7 +26,7 @@ class TestSimpleIntegration:
     def test_container_creation(self):
         """Test container creation."""
         try:
-            from pynomaly.infrastructure.config.container import create_container
+            from monorepo.infrastructure.config.container import create_container
             container = create_container()
             assert container is not None
         except ImportError:

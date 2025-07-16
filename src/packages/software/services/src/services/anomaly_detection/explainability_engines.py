@@ -7,12 +7,12 @@ from typing import Any
 
 import numpy as np
 
-from pynomaly.application.services.explainability_core import (
+from monorepo.application.services.explainability_core import (
     ExplanationConfig,
     GlobalExplanation,
     LocalExplanation,
 )
-from pynomaly.shared.protocols import DetectorProtocol
+from monorepo.shared.protocols import DetectorProtocol
 
 # Optional explainability imports with fallbacks
 try:

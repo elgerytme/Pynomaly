@@ -14,12 +14,12 @@ class TestFrontendJavaScript:
     @pytest.fixture
     def static_js_path(self):
         """Path to static JavaScript files"""
-        return Path(__file__).parent.parent.parent / "src" / "pynomaly" / "presentation" / "web" / "static" / "js"
+        return Path(__file__).parent.parent.parent / "src" / "monorepo" / "presentation" / "web" / "static" / "js"
 
     @pytest.fixture
     def frontend_src_path(self):
         """Path to frontend source files"""
-        return Path(__file__).parent.parent.parent / "src" / "pynomaly" / "presentation" / "web" / "static" / "js" / "src"
+        return Path(__file__).parent.parent.parent / "src" / "monorepo" / "presentation" / "web" / "static" / "js" / "src"
 
     def test_frontend_monitoring_structure(self, frontend_src_path):
         """Test frontend monitoring file structure"""
@@ -294,7 +294,7 @@ class TestFrontendJavaScript:
 
         # Check initialization sequence
         assert "window.pynomaly = new PynominalyFrontend()" in content
-        assert "window.pynomaly.init()" in content
+        assert "window.monorepo.init()" in content
         assert "_performInit" in content
 
     def test_browser_compatibility_features(self, frontend_src_path):
@@ -320,7 +320,7 @@ class TestJavaScriptIntegration:
 
     def test_template_script_includes(self):
         """Test that templates include JavaScript files"""
-        template_path = Path(__file__).parent.parent.parent / "src" / "pynomaly" / "presentation" / "web" / "templates" / "base.html"
+        template_path = Path(__file__).parent.parent.parent / "src" / "monorepo" / "presentation" / "web" / "templates" / "base.html"
         assert template_path.exists()
 
         content = template_path.read_text()
@@ -332,7 +332,7 @@ class TestJavaScriptIntegration:
 
     def test_csrf_meta_tag(self):
         """Test CSRF meta tag in templates"""
-        template_path = Path(__file__).parent.parent.parent / "src" / "pynomaly" / "presentation" / "web" / "templates" / "base.html"
+        template_path = Path(__file__).parent.parent.parent / "src" / "monorepo" / "presentation" / "web" / "templates" / "base.html"
         content = template_path.read_text()
 
         # Check CSRF meta tag
@@ -341,7 +341,7 @@ class TestJavaScriptIntegration:
 
     def test_external_dependencies(self):
         """Test external JavaScript dependencies"""
-        template_path = Path(__file__).parent.parent.parent / "src" / "pynomaly" / "presentation" / "web" / "templates" / "base.html"
+        template_path = Path(__file__).parent.parent.parent / "src" / "monorepo" / "presentation" / "web" / "templates" / "base.html"
         content = template_path.read_text()
 
         # Check external dependencies

@@ -796,7 +796,7 @@ Description: {alert.description or 'No description provided'}
                 "dedup_key": alert.fingerprint,
                 "payload": {
                     "summary": f"{alert.name} - {alert.severity.upper()}",
-                    "source": "pynomaly",
+                    "source": "monorepo",
                     "severity": alert.severity,
                     "component": alert.metric_name,
                     "custom_details": {

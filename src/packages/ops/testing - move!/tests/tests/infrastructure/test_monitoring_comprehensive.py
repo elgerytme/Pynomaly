@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from pynomaly.infrastructure.monitoring import (
+from monorepo.infrastructure.monitoring import (
     AlertManager,
     HealthCheckManager,
     MetricsCollector,
@@ -59,7 +59,7 @@ def sample_telemetry_service():
 def sample_metrics_collector():
     """Create a sample metrics collector for testing."""
     return MetricsCollector(
-        namespace="pynomaly",
+        namespace="monorepo",
         subsystem="test",
         labels={"environment": "test", "service": "anomaly_detection"},
     )
@@ -221,12 +221,12 @@ class TestMetricsCollector:
     def test_metrics_collector_initialization(self, mock_prometheus_client):
         """Test metrics collector initialization."""
         collector = MetricsCollector(
-            namespace="pynomaly",
+            namespace="monorepo",
             subsystem="detection",
             labels={"env": "prod", "version": "1.0"},
         )
 
-        assert collector.namespace == "pynomaly"
+        assert collector.namespace == "monorepo"
         assert collector.subsystem == "detection"
         assert collector.labels["env"] == "prod"
         assert collector.labels["version"] == "1.0"
@@ -422,13 +422,13 @@ class TestOpenTelemetryIntegration:
     def test_otel_integration_initialization(self, mock_otlp_exporter):
         """Test OpenTelemetry integration initialization."""
         integration = OpenTelemetryIntegration(
-            service_name="pynomaly",
+            service_name="monorepo",
             service_version="1.0.0",
             otlp_endpoint="http://otel-collector:4317",
             sampling_rate=0.1,
         )
 
-        assert integration.service_name == "pynomaly"
+        assert integration.service_name == "monorepo"
         assert integration.service_version == "1.0.0"
         assert integration.sampling_rate == 0.1
 
@@ -517,12 +517,12 @@ class TestPrometheusExporter:
     def test_prometheus_exporter_initialization(self, mock_prometheus_client):
         """Test Prometheus exporter initialization."""
         exporter = PrometheusExporter(
-            port=8000, endpoint="/metrics", namespace="pynomaly", registry=None
+            port=8000, endpoint="/metrics", namespace="monorepo", registry=None
         )
 
         assert exporter.port == 8000
         assert exporter.endpoint == "/metrics"
-        assert exporter.namespace == "pynomaly"
+        assert exporter.namespace == "monorepo"
 
     def test_prometheus_exporter_http_server(self, mock_prometheus_client):
         """Test Prometheus HTTP server setup."""
@@ -551,7 +551,7 @@ class TestPrometheusExporter:
 
     def test_prometheus_exporter_metric_formatting(self, mock_prometheus_client):
         """Test Prometheus metric formatting."""
-        exporter = PrometheusExporter(namespace="pynomaly")
+        exporter = PrometheusExporter(namespace="monorepo")
 
         # Test metric name formatting
         formatted_name = exporter.format_metric_name("detection_requests_total")

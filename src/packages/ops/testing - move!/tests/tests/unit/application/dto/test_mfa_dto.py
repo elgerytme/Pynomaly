@@ -10,7 +10,7 @@ from datetime import datetime
 import pytest
 from pydantic import ValidationError
 
-from src.pynomaly.application.dto.mfa_dto import (
+from src.monorepo.application.dto.mfa_dto import (
     BackupCodesResponse,
     BackupCodeVerificationRequest,
     EmailVerificationRequest,

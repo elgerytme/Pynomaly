@@ -12,7 +12,7 @@ from unittest.mock import AsyncMock, Mock
 import numpy as np
 import pytest
 
-from pynomaly.application.dto.streaming_dto import (
+from monorepo.application.dto.streaming_dto import (
     BackpressureConfigDTO,
     CheckpointConfigDTO,
     StreamConfigurationDTO,
@@ -21,7 +21,7 @@ from pynomaly.application.dto.streaming_dto import (
     StreamDetectionRequestDTO,
     WindowConfigDTO,
 )
-from pynomaly.application.use_cases.streaming_detection_use_case import (
+from monorepo.application.use_cases.streaming_detection_use_case import (
     BackpressureError,
     DetectorNotFoundError,
     StreamingDetectionUseCase,

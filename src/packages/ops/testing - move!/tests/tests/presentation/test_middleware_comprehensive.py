@@ -11,8 +11,8 @@ import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
-from pynomaly.infrastructure.config import create_container
-from pynomaly.presentation.api.app import create_app
+from monorepo.infrastructure.config import create_container
+from monorepo.presentation.api.app import create_app
 
 
 @pytest.fixture
@@ -218,7 +218,7 @@ class TestAuthenticationMiddleware:
         # Test with API key header
         api_key_headers = {"X-API-Key": "test_api_key_12345"}
 
-        with patch("pynomaly.infrastructure.auth.validate_api_key") as mock_validate:
+        with patch("monorepo.infrastructure.auth.validate_api_key") as mock_validate:
             mock_validate.return_value = {
                 "valid": True,
                 "user_id": "api_user_123",
@@ -236,7 +236,7 @@ class TestAuthenticationMiddleware:
         """Test invalid API key handling."""
         invalid_api_headers = {"X-API-Key": "invalid_api_key"}
 
-        with patch("pynomaly.infrastructure.auth.validate_api_key") as mock_validate:
+        with patch("monorepo.infrastructure.auth.validate_api_key") as mock_validate:
             mock_validate.return_value = {"valid": False}
 
             response = client_with_middleware.get(
@@ -393,7 +393,7 @@ class TestLoggingMiddleware:
 
     def test_request_logging(self, client_with_middleware: TestClient):
         """Test request logging."""
-        with patch("pynomaly.infrastructure.middleware.logging.logger") as mock_logger:
+        with patch("monorepo.infrastructure.middleware.logging.logger") as mock_logger:
             response = client_with_middleware.get("/api/health/")
 
             assert response.status_code == 200
@@ -413,7 +413,7 @@ class TestLoggingMiddleware:
 
     def test_response_logging(self, client_with_middleware: TestClient):
         """Test response logging."""
-        with patch("pynomaly.infrastructure.middleware.logging.logger") as mock_logger:
+        with patch("monorepo.infrastructure.middleware.logging.logger") as mock_logger:
             response = client_with_middleware.get("/api/health/")
 
             assert response.status_code == 200
@@ -426,7 +426,7 @@ class TestLoggingMiddleware:
 
     def test_error_logging(self, client_with_middleware: TestClient):
         """Test error logging."""
-        with patch("pynomaly.infrastructure.middleware.logging.logger") as mock_logger:
+        with patch("monorepo.infrastructure.middleware.logging.logger") as mock_logger:
             # Make request that will cause error
             response = client_with_middleware.get("/api/nonexistent/")
 
@@ -442,7 +442,7 @@ class TestLoggingMiddleware:
 
     def test_performance_logging(self, client_with_middleware: TestClient):
         """Test performance metric logging."""
-        with patch("pynomaly.infrastructure.middleware.logging.logger") as mock_logger:
+        with patch("monorepo.infrastructure.middleware.logging.logger") as mock_logger:
             response = client_with_middleware.get("/api/health/")
 
             assert response.status_code == 200
@@ -461,7 +461,7 @@ class TestLoggingMiddleware:
 
     def test_sensitive_data_masking(self, client_with_middleware: TestClient):
         """Test sensitive data masking in logs."""
-        with patch("pynomaly.infrastructure.middleware.logging.logger") as mock_logger:
+        with patch("monorepo.infrastructure.middleware.logging.logger") as mock_logger:
             # Make request with sensitive data
             sensitive_data = {
                 "password": "secret123",
@@ -511,7 +511,7 @@ class TestCompressionMiddleware:
 
         # Large response - should be compressed (if implemented)
         with patch(
-            "pynomaly.presentation.api.endpoints.health.get_health_status"
+            "monorepo.presentation.api.endpoints.health.get_health_status"
         ) as mock_health:
             # Mock large response
             large_data = {
@@ -693,7 +693,7 @@ class TestMiddlewareIntegration:
 
     def test_middleware_chain_execution_order(self, client_with_middleware: TestClient):
         """Test middleware execution order."""
-        with patch("pynomaly.infrastructure.middleware.logging.logger") as mock_logger:
+        with patch("monorepo.infrastructure.middleware.logging.logger") as mock_logger:
             response = client_with_middleware.get("/api/health/")
 
             assert response.status_code == 200
@@ -781,7 +781,7 @@ class TestMiddlewareIntegration:
         """Test middleware recovers from errors gracefully."""
         # Simulate middleware errors and verify recovery
         with patch(
-            "pynomaly.infrastructure.middleware.security.SecurityMiddleware"
+            "monorepo.infrastructure.middleware.security.SecurityMiddleware"
         ) as mock_middleware:
             # First request fails in middleware
             mock_middleware.side_effect = Exception("Middleware error")

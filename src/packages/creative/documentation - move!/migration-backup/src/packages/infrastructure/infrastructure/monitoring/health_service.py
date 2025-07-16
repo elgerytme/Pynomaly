@@ -14,7 +14,7 @@ import redis
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
 
-from pynomaly.domain.exceptions import InfrastructureError
+from monorepo.domain.exceptions import InfrastructureError
 
 
 class HealthStatus(Enum):

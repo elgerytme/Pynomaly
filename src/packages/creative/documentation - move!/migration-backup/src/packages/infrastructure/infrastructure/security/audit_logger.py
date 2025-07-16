@@ -244,7 +244,7 @@ class AuditLogger:
 
     def __init__(
         self,
-        logger_name: str = "pynomaly.audit",
+        logger_name: str = "monorepo.audit",
         enable_structured_logging: bool = True,
         enable_compliance_logging: bool = True,
         default_retention_days: int = 2555,
@@ -467,7 +467,7 @@ class AuditLogger:
         self, event: SecurityEvent | AuditEvent, standard: ComplianceStandard
     ) -> None:
         """Default compliance logging behavior."""
-        compliance_logger = logging.getLogger(f"pynomaly.compliance.{standard.lower()}")
+        compliance_logger = logging.getLogger(f"monorepo.compliance.{standard.lower()}")
 
         compliance_record = {
             "standard": standard,
@@ -598,7 +598,7 @@ def get_audit_logger() -> AuditLogger:
 
 
 def init_audit_logger(
-    logger_name: str = "pynomaly.audit",
+    logger_name: str = "monorepo.audit",
     enable_structured_logging: bool = True,
     enable_compliance_logging: bool = True,
 ) -> AuditLogger:

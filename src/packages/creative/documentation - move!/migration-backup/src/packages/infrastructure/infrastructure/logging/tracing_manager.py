@@ -96,7 +96,7 @@ class Span:
     parent_span_id: str | None = None
 
     # Span metadata
-    service_name: str = "pynomaly"
+    service_name: str = "monorepo"
     component: str | None = None
     span_kind: str = "internal"  # internal, server, client, producer, consumer
 
@@ -207,7 +207,7 @@ class TracingManager:
 
     def __init__(
         self,
-        service_name: str = "pynomaly",
+        service_name: str = "monorepo",
         jaeger_endpoint: str | None = None,
         sampling_rate: float = 1.0,
         max_spans_in_memory: int = 1000,
@@ -605,7 +605,7 @@ def get_default_tracer() -> TracingManager:
 
 
 def configure_tracing(
-    service_name: str = "pynomaly",
+    service_name: str = "monorepo",
     jaeger_endpoint: str | None = None,
     sampling_rate: float = 1.0,
     storage_path: Path | None = None,

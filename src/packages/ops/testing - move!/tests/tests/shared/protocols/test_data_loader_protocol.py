@@ -5,8 +5,8 @@ from typing import Any
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.shared.protocols.data_loader_protocol import DataLoaderProtocol
+from monorepo.domain.entities import Dataset
+from monorepo.shared.protocols.data_loader_protocol import DataLoaderProtocol
 
 
 class MockDataLoader:

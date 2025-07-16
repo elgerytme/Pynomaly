@@ -5,7 +5,7 @@ from datetime import datetime
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.application.dto.optimization_dto import (
+from monorepo.application.dto.optimization_dto import (
     AutoMLRequestDTO,
     AutoMLResponseDTO,
     DatasetCharacteristicsDTO,

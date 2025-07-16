@@ -9,13 +9,13 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.domain.entities.alert import Alert
-from pynomaly.domain.entities.cost_optimization import CostOptimization
-from pynomaly.domain.entities.dashboard import Dashboard
-from pynomaly.domain.entities.experiment import Experiment
-from pynomaly.domain.entities.governance import Governance
-from pynomaly.domain.entities.pipeline import Pipeline
-from pynomaly.domain.exceptions import ValidationError
+from monorepo.domain.entities.alert import Alert
+from monorepo.domain.entities.cost_optimization import CostOptimization
+from monorepo.domain.entities.dashboard import Dashboard
+from monorepo.domain.entities.experiment import Experiment
+from monorepo.domain.entities.governance import Governance
+from monorepo.domain.entities.pipeline import Pipeline
+from monorepo.domain.exceptions import ValidationError
 
 
 class TestExperiment:

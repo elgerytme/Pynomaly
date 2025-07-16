@@ -36,7 +36,7 @@ class VersioningStrategy(str, Enum):
     URL_PATH = "url_path"  # /api/v1/endpoint
     HEADER = "header"      # API-Version: v1
     QUERY = "query"        # ?version=v1
-    MEDIA_TYPE = "media_type"  # Accept: application/vnd.pynomaly.v1+json
+    MEDIA_TYPE = "media_type"  # Accept: application/vnd.monorepo.v1+json
 
 
 @dataclass
@@ -88,7 +88,7 @@ class APIVersionManager:
                 "basic_mlops"
             },
             breaking_changes=[],
-            migration_guide="https://docs.pynomaly.com/migration/v1"
+            migration_guide="https://docs.monorepo.com/migration/v1"
         )
 
         # Version 2.0 - Preview version with new features
@@ -112,7 +112,7 @@ class APIVersionManager:
                 "Detection response includes additional metadata",
                 "Training parameters validation is stricter"
             ],
-            migration_guide="https://docs.pynomaly.com/migration/v2"
+            migration_guide="https://docs.monorepo.com/migration/v2"
         )
 
     def register_version(self, version_info: APIVersionInfo) -> None:
@@ -252,9 +252,9 @@ class APIVersionMiddleware:
 
         # Try media type
         accept_header = request.headers.get("Accept", "")
-        if "vnd.pynomaly.v" in accept_header:
-            # Extract version from media type like application/vnd.pynomaly.v1+json
-            start = accept_header.find("vnd.pynomaly.v") + len("vnd.pynomaly.v")
+        if "vnd.monorepo.v" in accept_header:
+            # Extract version from media type like application/vnd.monorepo.v1+json
+            start = accept_header.find("vnd.monorepo.v") + len("vnd.monorepo.v")
             end = accept_header.find("+", start)
             if end == -1:
                 end = accept_header.find(";", start)

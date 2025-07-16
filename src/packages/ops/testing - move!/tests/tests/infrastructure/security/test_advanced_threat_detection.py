@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from pynomaly.infrastructure.security.advanced_threat_detection import (
+from monorepo.infrastructure.security.advanced_threat_detection import (
     AdvancedBehaviorAnalyzer,
     BehaviorProfile,
     DataExfiltrationDetector,
@@ -15,8 +15,8 @@ from pynomaly.infrastructure.security.advanced_threat_detection import (
     ThreatIntelligenceSource,
     create_advanced_threat_detectors,
 )
-from pynomaly.infrastructure.security.audit_logger import SecurityEventType
-from pynomaly.infrastructure.security.security_monitor import AlertType, ThreatLevel
+from monorepo.infrastructure.security.audit_logger import SecurityEventType
+from monorepo.infrastructure.security.security_monitor import AlertType, ThreatLevel
 
 
 class TestAdvancedBehaviorAnalyzer:
@@ -26,7 +26,7 @@ class TestAdvancedBehaviorAnalyzer:
     def analyzer(self):
         """Create analyzer instance."""
         with patch(
-            "pynomaly.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
+            "monorepo.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
         ) as mock_manager:
             # Mock the configuration manager to return None (use defaults)
             mock_manager.return_value.get_detector_config.return_value = None
@@ -152,7 +152,7 @@ class TestThreatIntelligenceDetector:
     def detector(self):
         """Create detector instance."""
         with patch(
-            "pynomaly.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
+            "monorepo.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
         ) as mock_manager:
             # Mock the configuration manager to return None (use defaults)
             mock_manager.return_value.get_detector_config.return_value = None
@@ -250,7 +250,7 @@ class TestDataExfiltrationDetector:
     def detector(self):
         """Create detector instance."""
         with patch(
-            "pynomaly.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
+            "monorepo.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
         ) as mock_manager:
             # Mock the configuration manager to return None (use defaults)
             mock_manager.return_value.get_detector_config.return_value = None
@@ -402,7 +402,7 @@ class TestFactoryFunction:
     def test_create_advanced_threat_detectors(self):
         """Test factory function creates all detectors."""
         with patch(
-            "pynomaly.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
+            "monorepo.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
         ) as mock_manager:
             # Mock the configuration manager to return None (use defaults)
             mock_manager.return_value.get_detector_config.return_value = None
@@ -429,7 +429,7 @@ class TestIntegration:
     async def test_multiple_detector_analysis(self):
         """Test that multiple detectors can analyze the same event."""
         with patch(
-            "pynomaly.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
+            "monorepo.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
         ) as mock_manager:
             # Mock the configuration manager to return None (use defaults)
             mock_manager.return_value.get_detector_config.return_value = None
@@ -460,7 +460,7 @@ class TestIntegration:
     async def test_detector_configuration_isolation(self):
         """Test that detector configurations are isolated."""
         with patch(
-            "pynomaly.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
+            "monorepo.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
         ) as mock_manager:
             # Mock the configuration manager to return None (use defaults)
             mock_manager.return_value.get_detector_config.return_value = None
@@ -477,7 +477,7 @@ class TestIntegration:
     def test_detector_enable_disable(self):
         """Test enabling and disabling detectors."""
         with patch(
-            "pynomaly.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
+            "monorepo.infrastructure.security.advanced_threat_detection.get_threat_detection_manager"
         ) as mock_manager:
             # Mock the configuration manager to return None (use defaults)
             mock_manager.return_value.get_detector_config.return_value = None

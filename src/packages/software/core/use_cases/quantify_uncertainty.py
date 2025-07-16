@@ -11,17 +11,17 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from pynomaly.application.dto.uncertainty_dto import (
+from monorepo.application.dto.uncertainty_dto import (
     EnsembleUncertaintyRequest,
     EnsembleUncertaintyResponse,
     UncertaintyRequest,
     UncertaintyResponse,
 )
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.services.uncertainty_service import (
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.services.uncertainty_service import (
     UncertaintyQuantificationService,
 )
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
+from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
 @dataclass

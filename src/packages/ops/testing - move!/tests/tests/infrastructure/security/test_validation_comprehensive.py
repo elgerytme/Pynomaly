@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 from fastapi import HTTPException
 
-from pynomaly.infrastructure.security.validation import (
+from monorepo.infrastructure.security.validation import (
     InputSanitizer,
     InputValidator,
     SecureBaseModel,
@@ -81,7 +81,7 @@ class TestInputSanitizer:
         sanitizer = InputSanitizer()
 
         with patch(
-            "pynomaly.infrastructure.security.validation.BLEACH_AVAILABLE", False
+            "monorepo.infrastructure.security.validation.BLEACH_AVAILABLE", False
         ):
             html_input = "<p>Hello <b>World</b></p>"
             result = sanitizer.sanitize_html(html_input)

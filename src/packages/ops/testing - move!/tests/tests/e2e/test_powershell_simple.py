@@ -25,7 +25,7 @@ def test_powershell_env():
 
         print("POWERSHELL - Package import successful")
 
-        from pynomaly.presentation.sdk.models import AnomalyScore, PerformanceMetrics
+        from monorepo.presentation.sdk.models import AnomalyScore, PerformanceMetrics
 
         print("POWERSHELL - SDK models import successful")
 

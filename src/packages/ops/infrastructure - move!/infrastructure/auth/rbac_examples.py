@@ -9,7 +9,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from pynomaly.infrastructure.auth.middleware import (
+from monorepo.infrastructure.auth.middleware import (
     require_analyst,
     require_data_scientist,
     require_role,
@@ -17,7 +17,7 @@ from pynomaly.infrastructure.auth.middleware import (
     require_tenant_admin,
     require_viewer,
 )
-from pynomaly.infrastructure.persistence.user_models import UserModel
+from monorepo.infrastructure.persistence.user_models import UserModel
 
 # Example router demonstrating RBAC usage
 rbac_examples_router = APIRouter()
@@ -176,7 +176,7 @@ RBAC_USAGE_PATTERNS = """
 ### 1. Using Predefined Role Dependencies
 
 ```python
-from pynomaly.infrastructure.auth.middleware import require_analyst
+from monorepo.infrastructure.auth.middleware import require_analyst
 
 @app.get("/analyst-endpoint")
 async def my_endpoint(user: Annotated[UserModel, Depends(require_analyst)]):
@@ -186,7 +186,7 @@ async def my_endpoint(user: Annotated[UserModel, Depends(require_analyst)]):
 ### 2. Using Custom Roles
 
 ```python
-from pynomaly.infrastructure.auth.middleware import require_role
+from monorepo.infrastructure.auth.middleware import require_role
 
 @app.get("/custom-endpoint")
 async def my_endpoint(user: Annotated[UserModel, Depends(require_role("custom_role"))]):

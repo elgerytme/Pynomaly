@@ -16,7 +16,7 @@ def test_app_creation():
 
     try:
         print("🔧 Testing app creation...")
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app()
         test_results.append(("✅ App creation", "PASS"))
@@ -62,7 +62,7 @@ def test_authentication_dependencies():
 
     try:
         print("🔐 Testing authentication dependencies...")
-        from pynomaly.presentation.api.auth_deps import (
+        from monorepo.presentation.api.auth_deps import (
             get_container_simple,
             get_current_user_simple,
         )

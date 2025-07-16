@@ -25,7 +25,7 @@ class MLSettings(BaseModel):
 
     # Streaming settings
     kafka_bootstrap_servers: str = "localhost:9092"
-    kafka_topic_prefix: str = "pynomaly"
+    kafka_topic_prefix: str = "monorepo"
     streaming_enabled: bool = False
     max_streaming_sessions: int = 10
 

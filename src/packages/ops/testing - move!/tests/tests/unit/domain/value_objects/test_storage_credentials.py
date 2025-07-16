@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from pynomaly.domain.value_objects.storage_credentials import (
+from monorepo.domain.value_objects.storage_credentials import (
     StorageAuthType,
     StorageCredentials,
 )

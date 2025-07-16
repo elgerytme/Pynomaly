@@ -7,7 +7,7 @@ error handling, and consistent behavior across the system.
 
 import pytest
 
-from pynomaly.shared.exceptions import (
+from monorepo.shared.exceptions import (
     ConcurrencyError,
     ConfigurationError,
     DataValidationError,

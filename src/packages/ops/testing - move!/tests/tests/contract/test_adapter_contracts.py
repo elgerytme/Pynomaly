@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pytest
 
-from pynomaly.infrastructure.adapters import PyODAdapter, SklearnAdapter
+from monorepo.infrastructure.adapters import PyODAdapter, SklearnAdapter
 
 
 class AdapterContractTest(ABC):

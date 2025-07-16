@@ -8,12 +8,12 @@ from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
 # Import domain entities and value objects
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.exceptions import (
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.exceptions import (
     InvalidAnomalyScoreError,
     InvalidContaminationRateError,
 )
-from pynomaly.domain.value_objects import (
+from monorepo.domain.value_objects import (
     AnomalyScore,
     ContaminationRate,
 )

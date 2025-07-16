@@ -1,14 +1,14 @@
 # Buck2 Build Configuration for MLOps Package
 # MLOps and model lifecycle management in application layer
 
-load("//tools/buck:python.bzl", "pynomaly_workspace_package")
-load("//tools/buck:testing.bzl", "pynomaly_comprehensive_tests")
+load("//tools/buck:python.bzl", "monorepo_workspace_package")
+load("//tools/buck:testing.bzl", "monorepo_comprehensive_tests")
 
 # ==========================================
 # MLOps Package
 # ==========================================
 
-pynomaly_workspace_package(
+monorepo_workspace_package(
     name = "mlops",
     layer = "application",
     package_type = "mlops",
@@ -25,7 +25,7 @@ pynomaly_workspace_package(
 # Test Suite
 # ==========================================
 
-pynomaly_comprehensive_tests(
+monorepo_comprehensive_tests(
     package_name = "mlops",
     deps = [
         "//src/packages/core:core",

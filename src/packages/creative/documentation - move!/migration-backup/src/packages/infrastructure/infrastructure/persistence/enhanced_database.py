@@ -11,7 +11,7 @@ import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from pynomaly.infrastructure.performance import (
+from monorepo.infrastructure.performance import (
     PoolConfiguration,
     QueryOptimizer,
     get_connection_pool_manager,

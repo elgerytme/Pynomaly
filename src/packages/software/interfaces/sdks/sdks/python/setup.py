@@ -24,14 +24,14 @@ setup(
     name="pynomaly-client",
     version=version["__version__"],
     author="Pynomaly Team",
-    author_email="support@pynomaly.com",
+    author_email="support@monorepo.com",
     description="Official Python client library for the Pynomaly anomaly detection API",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/pynomaly/pynomaly-python-sdk",
     project_urls={
         "Bug Tracker": "https://github.com/pynomaly/pynomaly-python-sdk/issues",
-        "Documentation": "https://docs.pynomaly.com/sdk/python",
+        "Documentation": "https://docs.monorepo.com/sdk/python",
         "Source Code": "https://github.com/pynomaly/pynomaly-python-sdk",
     },
     classifiers=[

@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 
 import numpy as np
 
-from pynomaly.domain.models.federated import (
+from monorepo.domain.models.federated import (
     AggregationMethod,
     FederatedDetector,
     FederatedParticipant,
@@ -20,7 +20,7 @@ from pynomaly.domain.models.federated import (
     PrivacyBudget,
     PrivacyMechanism,
 )
-from pynomaly.infrastructure.security.security_service import SecurityService
+from monorepo.infrastructure.security.security_service import SecurityService
 
 
 class FederatedCoordinator:

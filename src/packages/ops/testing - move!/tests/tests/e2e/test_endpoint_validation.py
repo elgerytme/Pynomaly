@@ -15,7 +15,7 @@ def validate_openapi_schema():
 
     try:
         print("📋 Validating OpenAPI schema structure...")
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app()
         openapi_schema = app.openapi()
@@ -67,7 +67,7 @@ def validate_endpoint_schemas():
 
     try:
         print("📄 Validating endpoint schemas...")
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app()
         openapi_schema = app.openapi()
@@ -108,7 +108,7 @@ def validate_migrated_routers():
 
     try:
         print("🔗 Validating migrated routers...")
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
 
         app = create_app()
         openapi_schema = app.openapi()

@@ -18,9 +18,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore
-from pynomaly.infrastructure.config.container import Container
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import AnomalyScore
+from monorepo.infrastructure.config.container import Container
 
 
 @pytest.mark.integration
@@ -448,7 +448,7 @@ class TestAPIIntegration:
 
         # Mock the detection service
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService"
         ) as mock_service:
             mock_service.return_value.detect_anomalies.return_value = DetectionResult(
                 detector_id="test-detector-id",
@@ -504,7 +504,7 @@ class TestAPIIntegration:
 
         # Mock the detection service
         with patch(
-            "pynomaly.application.services.anomaly_detection_service.AnomalyDetectionService"
+            "monorepo.application.services.anomaly_detection_service.AnomalyDetectionService"
         ) as mock_service:
             mock_service.return_value.detect_anomalies.return_value = DetectionResult(
                 detector_id="test-detector-id",

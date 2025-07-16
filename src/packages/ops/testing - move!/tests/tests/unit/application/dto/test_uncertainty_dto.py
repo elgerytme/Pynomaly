@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 
-from pynomaly.application.dto.uncertainty_dto import (
+from monorepo.application.dto.uncertainty_dto import (
     BayesianRequest,
     BootstrapRequest,
     EnsembleUncertaintyRequest,
@@ -13,9 +13,9 @@ from pynomaly.application.dto.uncertainty_dto import (
     UncertaintyRequest,
     UncertaintyResponse,
 )
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.value_objects.anomaly_score import AnomalyScore
-from pynomaly.domain.value_objects.confidence_interval import ConfidenceInterval
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.value_objects.anomaly_score import AnomalyScore
+from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
 
 
 class TestUncertaintyRequest:

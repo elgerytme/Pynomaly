@@ -7,7 +7,7 @@ sys.path.insert(0, "src")
 try:
     import uvicorn
 
-    from pynomaly.presentation.api import create_app
+    from monorepo.presentation.api import create_app
 
     print("✅ Imports successful")
 

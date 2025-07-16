@@ -544,7 +544,7 @@ class TestAPIContractCompliance:
     @pytest.fixture
     def test_client(self):
         """Create test client for contract testing."""
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
         
         app = create_app(testing=True)
         return TestClient(app)
@@ -558,7 +558,7 @@ class TestAPIContractCompliance:
         """Test health endpoint contract compliance."""
         
         # Mock health endpoint response
-        with patch('pynomaly.presentation.api.health.get_health_status') as mock_health:
+        with patch('monorepo.presentation.api.health.get_health_status') as mock_health:
             mock_health.return_value = {
                 "status": "healthy",
                 "timestamp": "2023-01-01T00:00:00Z",
@@ -577,7 +577,7 @@ class TestAPIContractCompliance:
         """Test datasets endpoint contract compliance."""
         
         # Test GET /api/v1/datasets
-        with patch('pynomaly.application.services.dataset_service.DatasetService') as mock_service:
+        with patch('monorepo.application.services.dataset_service.DatasetService') as mock_service:
             mock_service.return_value.list_datasets.return_value = [
                 Mock(id="dataset1", name="Test Dataset 1", created_at="2023-01-01T00:00:00Z"),
                 Mock(id="dataset2", name="Test Dataset 2", created_at="2023-01-02T00:00:00Z")
@@ -591,7 +591,7 @@ class TestAPIContractCompliance:
             contract_tester.test_results.append(result)
         
         # Test POST /api/v1/datasets
-        with patch('pynomaly.application.services.dataset_service.DatasetService') as mock_service:
+        with patch('monorepo.application.services.dataset_service.DatasetService') as mock_service:
             mock_service.return_value.create_dataset.return_value = Mock(
                 id="new_dataset",
                 name="New Dataset",
@@ -615,7 +615,7 @@ class TestAPIContractCompliance:
         """Test detectors endpoint contract compliance."""
         
         # Test GET /api/v1/detectors
-        with patch('pynomaly.application.services.detector_service.DetectorService') as mock_service:
+        with patch('monorepo.application.services.detector_service.DetectorService') as mock_service:
             mock_service.return_value.list_detectors.return_value = [
                 Mock(
                     id="detector1",
@@ -639,7 +639,7 @@ class TestAPIContractCompliance:
             contract_tester.test_results.append(result)
         
         # Test POST /api/v1/detectors
-        with patch('pynomaly.application.services.detector_service.DetectorService') as mock_service:
+        with patch('monorepo.application.services.detector_service.DetectorService') as mock_service:
             mock_service.return_value.create_detector.return_value = Mock(
                 id="new_detector",
                 name="New Detector",
@@ -666,7 +666,7 @@ class TestAPIContractCompliance:
     def test_detection_endpoint_contract(self, contract_tester):
         """Test detection endpoint contract compliance."""
         
-        with patch('pynomaly.application.services.detection_service.DetectionService') as mock_service:
+        with patch('monorepo.application.services.detection_service.DetectionService') as mock_service:
             mock_service.return_value.detect_anomalies.return_value = Mock(
                 predictions=[0, 1, 0, 0, 1],
                 anomaly_scores=[0.2, 0.8, 0.1, 0.3, 0.9],
@@ -691,7 +691,7 @@ class TestAPIContractCompliance:
         """Test error response contract compliance."""
         
         # Test 404 Not Found
-        with patch('pynomaly.application.services.dataset_service.DatasetService') as mock_service:
+        with patch('monorepo.application.services.dataset_service.DatasetService') as mock_service:
             mock_service.return_value.get_dataset.side_effect = ValueError("Dataset not found")
             
             result = contract_tester.test_endpoint_contract("GET", "/api/v1/datasets/nonexistent")
@@ -702,7 +702,7 @@ class TestAPIContractCompliance:
             contract_tester.test_results.append(result)
         
         # Test 400 Bad Request
-        with patch('pynomaly.application.services.dataset_service.DatasetService') as mock_service:
+        with patch('monorepo.application.services.dataset_service.DatasetService') as mock_service:
             mock_service.return_value.create_dataset.side_effect = ValueError("Invalid data")
             
             invalid_payload = {
@@ -721,7 +721,7 @@ class TestAPIContractCompliance:
         """Test request validation contract compliance."""
         
         # Test missing required fields
-        with patch('pynomaly.application.services.dataset_service.DatasetService') as mock_service:
+        with patch('monorepo.application.services.dataset_service.DatasetService') as mock_service:
             mock_service.return_value.create_dataset.side_effect = ValueError("Missing required field")
             
             invalid_payloads = [
@@ -739,7 +739,7 @@ class TestAPIContractCompliance:
                 contract_tester.test_results.append(result)
         
         # Test invalid data types
-        with patch('pynomaly.application.services.detector_service.DetectorService') as mock_service:
+        with patch('monorepo.application.services.detector_service.DetectorService') as mock_service:
             mock_service.return_value.create_detector.side_effect = ValueError("Invalid data type")
             
             invalid_payloads = [
@@ -760,7 +760,7 @@ class TestAPIContractCompliance:
         """Test API backward compatibility."""
         
         # Simulate API version changes
-        with patch('pynomaly.application.services.dataset_service.DatasetService') as mock_service:
+        with patch('monorepo.application.services.dataset_service.DatasetService') as mock_service:
             # Version 1 response
             mock_service.return_value.list_datasets.return_value = [
                 Mock(id="dataset1", name="Test Dataset", created_at="2023-01-01T00:00:00Z")
@@ -793,7 +793,7 @@ class TestAPIContractCompliance:
         import time
         
         # Mock slow response
-        with patch('pynomaly.application.services.dataset_service.DatasetService') as mock_service:
+        with patch('monorepo.application.services.dataset_service.DatasetService') as mock_service:
             def slow_response():
                 time.sleep(0.1)  # 100ms delay
                 return [Mock(id="dataset1", name="Test Dataset", created_at="2023-01-01T00:00:00Z")]
@@ -811,7 +811,7 @@ class TestAPIContractCompliance:
         """Test content type contract compliance."""
         
         # Test with different content types
-        with patch('pynomaly.application.services.dataset_service.DatasetService') as mock_service:
+        with patch('monorepo.application.services.dataset_service.DatasetService') as mock_service:
             mock_service.return_value.create_dataset.return_value = Mock(
                 id="dataset1",
                 name="Test Dataset",
@@ -1020,13 +1020,13 @@ async def test_async_contract_compliance():
     """Test async API contract compliance."""
     
     # Mock async API operations
-    with patch('pynomaly.application.services.dataset_service.DatasetService') as mock_service:
+    with patch('monorepo.application.services.dataset_service.DatasetService') as mock_service:
         mock_service.return_value.list_datasets = AsyncMock(return_value=[
             Mock(id="dataset1", name="Async Dataset", created_at="2023-01-01T00:00:00Z")
         ])
         
         # Test async endpoint
-        from pynomaly.presentation.api.app import create_app
+        from monorepo.presentation.api.app import create_app
         
         app = create_app(testing=True)
         client = TestClient(app)
@@ -1045,7 +1045,7 @@ async def test_async_contract_compliance():
 def test_contract_regression_detection():
     """Test contract regression detection."""
     
-    from pynomaly.presentation.api.app import create_app
+    from monorepo.presentation.api.app import create_app
     
     app = create_app(testing=True)
     client = TestClient(app)
@@ -1053,7 +1053,7 @@ def test_contract_regression_detection():
     contract_tester = APIContractTester(client)
     
     # Establish baseline
-    with patch('pynomaly.application.services.dataset_service.DatasetService') as mock_service:
+    with patch('monorepo.application.services.dataset_service.DatasetService') as mock_service:
         mock_service.return_value.list_datasets.return_value = [
             Mock(id="dataset1", name="Test Dataset", created_at="2023-01-01T00:00:00Z")
         ]

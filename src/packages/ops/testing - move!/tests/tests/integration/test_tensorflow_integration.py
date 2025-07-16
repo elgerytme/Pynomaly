@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities import Dataset
-from pynomaly.domain.value_objects import ContaminationRate
-from pynomaly.infrastructure.adapters.tensorflow_adapter import (
+from monorepo.domain.entities import Dataset
+from monorepo.domain.value_objects import ContaminationRate
+from monorepo.infrastructure.adapters.tensorflow_adapter import (
     HAS_TENSORFLOW,
     TensorFlowAdapter,
 )
@@ -310,8 +310,8 @@ class TestTensorFlowIntegration:
 @pytest.mark.skipif(HAS_TENSORFLOW, reason="Testing TensorFlow unavailable scenario")
 def test_tensorflow_unavailable_error():
     """Test error when TensorFlow is not available."""
-    from pynomaly.domain.exceptions import AdapterError
-    from pynomaly.infrastructure.adapters.tensorflow_adapter import TensorFlowAdapter
+    from monorepo.domain.exceptions import AdapterError
+    from monorepo.infrastructure.adapters.tensorflow_adapter import TensorFlowAdapter
 
     with pytest.raises(AdapterError, match="TensorFlow is not available"):
         TensorFlowAdapter(algorithm_name="AutoEncoder")

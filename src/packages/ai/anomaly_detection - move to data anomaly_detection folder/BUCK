@@ -1,9 +1,0 @@
-python_library(
-    name = "anomaly_detection",
-    srcs = glob(["**/*.py"]),
-    deps = [
-        "//src/packages/core:core",
-        "//src/packages/mathematics:mathematics",
-    ],
-    visibility = ["PUBLIC"],
-)

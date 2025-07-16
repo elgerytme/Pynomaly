@@ -7,7 +7,7 @@
 # Test the user models independently
 def test_user_models_import():
     """Test that user models can be imported without circular dependencies."""
-    from src.pynomaly.infrastructure.persistence.user_models import (
+    from src.monorepo.infrastructure.persistence.user_models import (
         APIKeyModel,
         PermissionModel,
         RoleModel,
@@ -24,8 +24,8 @@ def test_user_models_import():
 
 def test_auth_jwt_service():
     """Test JWT auth service functionality."""
-    from src.pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
-    from src.pynomaly.infrastructure.config import Settings
+    from src.monorepo.infrastructure.auth.jwt_auth import JWTAuthService
+    from src.monorepo.infrastructure.config import Settings
 
     # Create test settings
     settings = Settings()
@@ -41,7 +41,7 @@ def test_auth_jwt_service():
 def test_create_require_role_dependency():
     """Test creating role-based dependency functions."""
 
-    from src.pynomaly.infrastructure.auth.middleware import PermissionChecker
+    from src.monorepo.infrastructure.auth.middleware import PermissionChecker
 
     # Test creating a role checker
     admin_checker = PermissionChecker(["admin"])
@@ -50,7 +50,7 @@ def test_create_require_role_dependency():
 
 def test_default_roles_and_permissions():
     """Test default role and permission definitions."""
-    from src.pynomaly.domain.entities.user import DEFAULT_PERMISSIONS, UserRole
+    from src.monorepo.domain.entities.user import DEFAULT_PERMISSIONS, UserRole
 
     # Test that we have default permissions for all roles
     assert UserRole.SUPER_ADMIN in DEFAULT_PERMISSIONS
@@ -70,8 +70,8 @@ def test_default_roles_and_permissions():
 
 def test_api_key_generation():
     """Test API key generation and hashing."""
-    from src.pynomaly.infrastructure.auth.jwt_auth import JWTAuthService
-    from src.pynomaly.infrastructure.config import Settings
+    from src.monorepo.infrastructure.auth.jwt_auth import JWTAuthService
+    from src.monorepo.infrastructure.config import Settings
 
     settings = Settings()
     auth_service = JWTAuthService(settings)

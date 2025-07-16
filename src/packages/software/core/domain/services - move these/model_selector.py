@@ -13,8 +13,8 @@ from typing import Any
 import numpy as np
 from scipy.stats import ttest_ind
 
-from pynomaly.domain.entities.model_performance import ModelPerformanceMetrics
-from pynomaly.domain.services.metrics_calculator import MetricsCalculator
+from monorepo.domain.entities.model_performance import ModelPerformanceMetrics
+from monorepo.domain.services.metrics_calculator import MetricsCalculator
 
 
 class ParetoOptimizer:

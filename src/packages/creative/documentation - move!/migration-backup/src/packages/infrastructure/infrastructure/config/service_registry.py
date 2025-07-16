@@ -129,7 +129,7 @@ class RepositoryFactory:
 
     def _create_database_repository(self, repo_class: type) -> Any:
         """Create database repository with proper initialization."""
-        from pynomaly.infrastructure.persistence import DatabaseManager
+        from monorepo.infrastructure.persistence import DatabaseManager
 
         db_manager = DatabaseManager(
             database_url=self.config.database_url,
@@ -138,7 +138,7 @@ class RepositoryFactory:
 
         # Initialize database if needed
         try:
-            from pynomaly.infrastructure.persistence.migrations import DatabaseMigrator
+            from monorepo.infrastructure.persistence.migrations import DatabaseMigrator
 
             migrator = DatabaseMigrator(db_manager)
             if not migrator.check_tables_exist():
@@ -216,7 +216,7 @@ class ServiceGroupFactory:
         # Telemetry Service
         telemetry_provider = self.registry.create_singleton_provider(
             "telemetry_service",
-            service_name="pynomaly",
+            service_name="monorepo",
             environment=self.config.app.environment,
             otlp_endpoint=self.config.monitoring.otlp_endpoint,
         )
@@ -290,88 +290,88 @@ def register_all_services(registry: ServiceRegistry) -> ServiceRegistry:
 
     # Core data loaders
     registry.register_service(
-        "csv_loader", "pynomaly.infrastructure.data_loaders.CSVLoader"
+        "csv_loader", "monorepo.infrastructure.data_loaders.CSVLoader"
     )
     registry.register_service(
-        "parquet_loader", "pynomaly.infrastructure.data_loaders.ParquetLoader"
+        "parquet_loader", "monorepo.infrastructure.data_loaders.ParquetLoader"
     )
 
     # Optional data loaders
     registry.register_service(
-        "polars_loader", "pynomaly.infrastructure.data_loaders.PolarsLoader"
+        "polars_loader", "monorepo.infrastructure.data_loaders.PolarsLoader"
     )
     registry.register_service(
-        "arrow_loader", "pynomaly.infrastructure.data_loaders.ArrowLoader"
+        "arrow_loader", "monorepo.infrastructure.data_loaders.ArrowLoader"
     )
     registry.register_service(
-        "spark_loader", "pynomaly.infrastructure.data_loaders.SparkLoader"
+        "spark_loader", "monorepo.infrastructure.data_loaders.SparkLoader"
     )
 
     # Algorithm adapters
     registry.register_service(
-        "pyod_adapter", "pynomaly.infrastructure.adapters.PyODAdapter"
+        "pyod_adapter", "monorepo.infrastructure.adapters.PyODAdapter"
     )
     registry.register_service(
-        "sklearn_adapter", "pynomaly.infrastructure.adapters.SklearnAdapter"
+        "sklearn_adapter", "monorepo.infrastructure.adapters.SklearnAdapter"
     )
     registry.register_service(
-        "pygod_adapter", "pynomaly.infrastructure.adapters.PyGODAdapter"
+        "pygod_adapter", "monorepo.infrastructure.adapters.PyGODAdapter"
     )
     registry.register_service(
-        "pytorch_adapter", "pynomaly.infrastructure.adapters.PyTorchAdapter"
+        "pytorch_adapter", "monorepo.infrastructure.adapters.PyTorchAdapter"
     )
     registry.register_service(
-        "tensorflow_adapter", "pynomaly.infrastructure.adapters.TensorFlowAdapter"
+        "tensorflow_adapter", "monorepo.infrastructure.adapters.TensorFlowAdapter"
     )
     registry.register_service(
-        "jax_adapter", "pynomaly.infrastructure.adapters.JAXAdapter"
+        "jax_adapter", "monorepo.infrastructure.adapters.JAXAdapter"
     )
 
     # Authentication services
     registry.register_service(
-        "jwt_auth_service", "pynomaly.infrastructure.auth.JWTAuthService"
+        "jwt_auth_service", "monorepo.infrastructure.auth.JWTAuthService"
     )
     registry.register_service(
-        "permission_checker", "pynomaly.infrastructure.auth.PermissionChecker"
+        "permission_checker", "monorepo.infrastructure.auth.PermissionChecker"
     )
     registry.register_service(
-        "rate_limiter", "pynomaly.infrastructure.auth.RateLimiter"
+        "rate_limiter", "monorepo.infrastructure.auth.RateLimiter"
     )
 
     # Cache services
-    registry.register_service("redis_cache", "pynomaly.infrastructure.cache.RedisCache")
+    registry.register_service("redis_cache", "monorepo.infrastructure.cache.RedisCache")
     registry.register_service(
         "detector_cache_decorator",
-        "pynomaly.infrastructure.cache.DetectorCacheDecorator",
+        "monorepo.infrastructure.cache.DetectorCacheDecorator",
     )
 
     # Monitoring services
     registry.register_service(
-        "telemetry_service", "pynomaly.infrastructure.monitoring.TelemetryService"
+        "telemetry_service", "monorepo.infrastructure.monitoring.TelemetryService"
     )
     registry.register_service(
-        "health_service", "pynomaly.infrastructure.monitoring.HealthService"
+        "health_service", "monorepo.infrastructure.monitoring.HealthService"
     )
 
     # Database services
     registry.register_service(
-        "database_manager", "pynomaly.infrastructure.persistence.DatabaseManager"
+        "database_manager", "monorepo.infrastructure.persistence.DatabaseManager"
     )
 
     # AutoML services
     registry.register_service(
-        "automl_service", "pynomaly.application.services.AutoMLService"
+        "automl_service", "monorepo.application.services.AutoMLService"
     )
 
     # Explainability services
     registry.register_service(
-        "explainability_service", "pynomaly.domain.services.ExplainabilityService"
+        "explainability_service", "monorepo.domain.services.ExplainabilityService"
     )
     registry.register_service(
-        "shap_explainer", "pynomaly.infrastructure.explainers.SHAPExplainer"
+        "shap_explainer", "monorepo.infrastructure.explainers.SHAPExplainer"
     )
     registry.register_service(
-        "lime_explainer", "pynomaly.infrastructure.explainers.LIMEExplainer"
+        "lime_explainer", "monorepo.infrastructure.explainers.LIMEExplainer"
     )
 
     return registry

@@ -123,7 +123,7 @@ class AuditEvent:
 class AuditLogger:
     """Centralized audit logging service."""
 
-    def __init__(self, logger_name: str = "pynomaly.audit"):
+    def __init__(self, logger_name: str = "monorepo.audit"):
         """Initialize audit logger.
 
         Args:
@@ -498,7 +498,7 @@ def init_audit_logging() -> AuditLogger:
         if event.details is None:
             event.details = {}
         event.details["environment"] = "production"  # Get from config
-        event.details["service"] = "pynomaly"
+        event.details["service"] = "monorepo"
         return event
 
     _audit_logger.add_event_processor(add_environment_info)

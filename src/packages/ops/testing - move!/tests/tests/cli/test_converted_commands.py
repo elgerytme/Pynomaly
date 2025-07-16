@@ -13,7 +13,7 @@ import pandas as pd
 import pytest
 from typer.testing import CliRunner
 
-from pynomaly.presentation.cli.app import app
+from monorepo.presentation.cli.app import app
 
 
 class TestConvertedCommands:
@@ -70,13 +70,13 @@ class TestConvertedCommands:
         assert "--batch-size" in result.stdout
         assert "--gpu" in result.stdout
 
-    @patch("pynomaly.infrastructure.config.feature_flags.require_feature")
+    @patch("monorepo.infrastructure.config.feature_flags.require_feature")
     def test_deep_learning_frameworks(self, mock_feature, runner):
         """Test deep-learning frameworks command."""
         mock_feature.return_value = lambda func: func  # Mock decorator
 
         with patch(
-            "pynomaly.application.services.deep_learning_integration_service.DeepLearningIntegrationService"
+            "monorepo.application.services.deep_learning_integration_service.DeepLearningIntegrationService"
         ) as mock_service:
             mock_service.return_value.get_available_frameworks.return_value = {}
 
@@ -88,13 +88,13 @@ class TestConvertedCommands:
                 or "No deep learning frameworks available" in result.stdout
             )
 
-    @patch("pynomaly.infrastructure.config.feature_flags.require_feature")
+    @patch("monorepo.infrastructure.config.feature_flags.require_feature")
     def test_deep_learning_info(self, mock_feature, runner):
         """Test deep-learning info command."""
         mock_feature.return_value = lambda func: func  # Mock decorator
 
         with patch(
-            "pynomaly.application.services.deep_learning_integration_service.DeepLearningIntegrationService"
+            "monorepo.application.services.deep_learning_integration_service.DeepLearningIntegrationService"
         ) as mock_service:
             mock_service.return_value.get_available_frameworks.return_value = {}
 
@@ -143,13 +143,13 @@ class TestConvertedCommands:
         assert "--metrics" in result.stdout
         assert "--threshold" in result.stdout
 
-    @patch("pynomaly.infrastructure.config.feature_flags.require_feature")
+    @patch("monorepo.infrastructure.config.feature_flags.require_feature")
     def test_explainability_status(self, mock_feature, runner):
         """Test explainability status command."""
         mock_feature.return_value = lambda func: func  # Mock decorator
 
         with patch(
-            "pynomaly.application.services.advanced_explainability_service.AdvancedExplainabilityService"
+            "monorepo.application.services.advanced_explainability_service.AdvancedExplainabilityService"
         ) as mock_service:
             mock_service.return_value.get_service_info.return_value = {
                 "shap_available": False,
@@ -227,7 +227,7 @@ class TestConvertedCommands:
     def test_selection_status(self, runner):
         """Test selection status command."""
         with patch(
-            "pynomaly.application.services.intelligent_selection_service.IntelligentSelectionService"
+            "monorepo.application.services.intelligent_selection_service.IntelligentSelectionService"
         ) as mock_service:
             mock_service.return_value.get_service_info.return_value = {
                 "meta_learning_enabled": False,
@@ -342,8 +342,8 @@ class TestConvertedCommands:
 def test_cli_imports_successfully():
     """Test that CLI modules can be imported without errors."""
     try:
-        from pynomaly.presentation.cli import deep_learning, explainability, selection
-        from pynomaly.presentation.cli.app import app
+        from monorepo.presentation.cli import deep_learning, explainability, selection
+        from monorepo.presentation.cli.app import app
 
         # Verify they are Typer apps
         assert hasattr(deep_learning, "app")

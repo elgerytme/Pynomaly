@@ -9,8 +9,8 @@ from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from pynomaly.presentation.cli.container import get_cli_container
-from pynomaly.shared.error_handling import handle_cli_errors, print_error, print_success
+from monorepo.presentation.cli.container import get_cli_container
+from monorepo.shared.error_handling import handle_cli_errors, print_error, print_success
 
 app = typer.Typer()
 console = Console()
@@ -83,7 +83,7 @@ def train_detector(
         task = progress.add_task(f"Training {detector_obj.algorithm}...", total=None)
 
         try:
-            from pynomaly.application.use_cases import TrainDetectorRequest
+            from monorepo.application.use_cases import TrainDetectorRequest
 
             request = TrainDetectorRequest(
                 detector_id=detector_obj.id,
@@ -196,7 +196,7 @@ def detect_anomalies(
         task = progress.add_task("Detecting anomalies...", total=None)
 
         try:
-            from pynomaly.application.use_cases import DetectAnomaliesRequest
+            from monorepo.application.use_cases import DetectAnomaliesRequest
 
             request = DetectAnomaliesRequest(
                 detector_id=detector_obj.id,
@@ -450,7 +450,7 @@ def evaluate_detector(
         task = progress.add_task("Evaluating detector...", total=None)
 
         try:
-            from pynomaly.application.use_cases import EvaluateModelRequest
+            from monorepo.application.use_cases import EvaluateModelRequest
 
             request = EvaluateModelRequest(
                 detector_id=detector_obj.id,

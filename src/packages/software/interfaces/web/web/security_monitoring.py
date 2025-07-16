@@ -15,12 +15,12 @@ from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 
 try:
-    from pynomaly_detection.presentation.web.enhanced_auth import (
+    from monorepo.presentation.web.enhanced_auth import (
         AuthenticationMethod,
         Permission,
         get_auth_service,
     )
-    from pynomaly_detection.presentation.web.security_features import (
+    from monorepo.presentation.web.security_features import (
         SecurityEvent,
         SecurityEventType,
         SecurityThreatLevel,

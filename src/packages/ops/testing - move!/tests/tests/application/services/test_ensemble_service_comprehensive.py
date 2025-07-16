@@ -9,11 +9,11 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.application.services import EnsembleService
-from pynomaly.domain.entities.detection_result import DetectionResult
-from pynomaly.domain.entities.detector import Detector
-from pynomaly.domain.exceptions import DetectorError
-from pynomaly.domain.value_objects import AnomalyScore, PerformanceMetrics
+from monorepo.application.services import EnsembleService
+from monorepo.domain.entities.detection_result import DetectionResult
+from monorepo.domain.entities.detector import Detector
+from monorepo.domain.exceptions import DetectorError
+from monorepo.domain.value_objects import AnomalyScore, PerformanceMetrics
 
 
 class TestEnsembleService:

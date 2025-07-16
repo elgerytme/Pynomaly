@@ -257,7 +257,7 @@ class EmailNotificationProvider(NotificationProvider):
             smtp_port = self.config.get("smtp_port", 587)
             username = self.config.get("username")
             password = self.config.get("password")
-            from_email = self.config.get("from_email", "noreply@pynomaly.com")
+            from_email = self.config.get("from_email", "noreply@monorepo.com")
 
             # Create message
             msg = MimeMultipart()

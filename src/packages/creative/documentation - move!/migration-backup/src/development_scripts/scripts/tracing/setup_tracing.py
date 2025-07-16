@@ -203,7 +203,7 @@ exporters:
 
   prometheus:
     endpoint: "0.0.0.0:8889"
-    namespace: "pynomaly"
+    namespace: "monorepo"
     const_labels:
       environment: "production"
 
@@ -363,7 +363,7 @@ providers:
         "dashboard": {
             "id": None,
             "title": "Pynomaly Distributed Tracing",
-            "tags": ["pynomaly", "tracing"],
+            "tags": ["monorepo", "tracing"],
             "timezone": "browser",
             "panels": [
                 {
@@ -617,7 +617,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 try:
-    from src.pynomaly.infrastructure.tracing.distributed_tracer import (
+    from src.monorepo.infrastructure.tracing.distributed_tracer import (
         initialize_distributed_tracing,
         trace_function,
         trace_async_function,

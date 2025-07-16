@@ -4,15 +4,15 @@ from unittest.mock import Mock
 
 import pytest
 
-from pynomaly.domain.exceptions import AuthenticationError, AuthorizationError
-from pynomaly.infrastructure.auth.jwt_auth_enhanced import (
+from monorepo.domain.exceptions import AuthenticationError, AuthorizationError
+from monorepo.infrastructure.auth.jwt_auth_enhanced import (
     EnhancedJWTAuthService,
     JWKSResponse,
     TokenResponse,
     get_auth,
     init_auth,
 )
-from pynomaly.infrastructure.config import Settings
+from monorepo.infrastructure.config import Settings
 
 
 class TestEnhancedJWTAuthService:

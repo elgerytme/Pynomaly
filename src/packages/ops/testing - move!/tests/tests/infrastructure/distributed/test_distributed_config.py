@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from pynomaly.infrastructure.distributed.distributed_config import (
+from monorepo.infrastructure.distributed.distributed_config import (
     AggregationStrategy,
     ClusterConfig,
     ClusterMode,
@@ -287,7 +287,7 @@ class TestGlobalConfigurationFunctions:
 
     def test_get_distributed_config_manager(self):
         """Test getting global configuration manager."""
-        from pynomaly.infrastructure.distributed.distributed_config import (
+        from monorepo.infrastructure.distributed.distributed_config import (
             get_distributed_config_manager,
         )
 
@@ -299,7 +299,7 @@ class TestGlobalConfigurationFunctions:
 
     def test_init_distributed_config(self):
         """Test initializing global configuration manager."""
-        from pynomaly.infrastructure.distributed.distributed_config import (
+        from monorepo.infrastructure.distributed.distributed_config import (
             init_distributed_config,
         )
 

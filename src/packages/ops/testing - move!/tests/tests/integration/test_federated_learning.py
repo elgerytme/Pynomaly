@@ -6,8 +6,8 @@ from uuid import uuid4
 import numpy as np
 import pytest
 
-from pynomaly.domain.models.detector import Detector
-from pynomaly.domain.models.federated import (
+from monorepo.domain.models.detector import Detector
+from monorepo.domain.models.federated import (
     AggregationMethod,
     FederatedParticipant,
     FederationStrategy,
@@ -15,13 +15,13 @@ from pynomaly.domain.models.federated import (
     PrivacyBudget,
     PrivacyMechanism,
 )
-from pynomaly.domain.value_objects import AlgorithmType, DetectorConfig, ModelType
-from pynomaly.infrastructure.federated import (
+from monorepo.domain.value_objects import AlgorithmType, DetectorConfig, ModelType
+from monorepo.infrastructure.federated import (
     FederatedAggregationService,
     FederatedCoordinator,
     FederatedParticipantClient,
 )
-from pynomaly.infrastructure.security.security_service import SecurityService
+from monorepo.infrastructure.security.security_service import SecurityService
 
 
 @pytest.fixture
@@ -179,7 +179,7 @@ class TestFederatedLearningIntegration:
             )
 
         # Create mock model updates
-        from pynomaly.domain.models.federated import ModelUpdate
+        from monorepo.domain.models.federated import ModelUpdate
 
         updates = {}
         for i, client in enumerate(participant_clients[:3]):
@@ -255,7 +255,7 @@ class TestFederatedLearningIntegration:
             )
 
         # Create model updates (normal + Byzantine)
-        from pynomaly.domain.models.federated import ModelUpdate
+        from monorepo.domain.models.federated import ModelUpdate
 
         updates = {}
 
@@ -399,7 +399,7 @@ class TestFederatedLearningIntegration:
             contributing_participants = participants_data[:2]  # First 2 contribute
 
             for client, profile in contributing_participants:
-                from pynomaly.domain.models.federated import ModelUpdate
+                from monorepo.domain.models.federated import ModelUpdate
 
                 model_update = ModelUpdate(
                     update_id=uuid4(),
@@ -470,7 +470,7 @@ class TestFederatedLearningIntegration:
 
             # Send updates from all participants
             for client in participant_clients[:3]:
-                from pynomaly.domain.models.federated import ModelUpdate
+                from monorepo.domain.models.federated import ModelUpdate
 
                 model_update = ModelUpdate(
                     update_id=uuid4(),
@@ -599,7 +599,7 @@ class TestFederatedLearningIntegration:
         working_participants = participant_clients[:3]  # Only 3 out of 5 participate
 
         for client in working_participants:
-            from pynomaly.domain.models.federated import ModelUpdate
+            from monorepo.domain.models.federated import ModelUpdate
 
             model_update = ModelUpdate(
                 update_id=uuid4(),

@@ -11,7 +11,7 @@ def analyze_specific_modules():
     """Analyze specific modules and their test coverage"""
 
     base_path = Path("/mnt/c/Users/andre/Pynomaly")
-    src_path = base_path / "src" / "pynomaly"
+    src_path = base_path / "src" / "monorepo"
     test_path = base_path / "tests"
 
     # Key source modules to analyze

@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pynomaly.domain.entities.dataset import Dataset
-from pynomaly.domain.exceptions import InvalidDataError
+from monorepo.domain.entities.dataset import Dataset
+from monorepo.domain.exceptions import InvalidDataError
 
 
 class TestDatasetInitialization:

@@ -12,17 +12,17 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from pynomaly.application.dto.configuration_dto import (
+from monorepo.application.dto.configuration_dto import (
     ConfigurationCaptureRequestDTO,
     ConfigurationSource,
     PerformanceResultsDTO,
 )
-from pynomaly.application.services.advanced_automl_service import AdvancedAutoMLService
-from pynomaly.application.services.configuration_capture_service import (
+from monorepo.application.services.advanced_automl_service import AdvancedAutoMLService
+from monorepo.application.services.configuration_capture_service import (
     ConfigurationCaptureService,
 )
-from pynomaly.domain.entities import Dataset, Detector
-from pynomaly.infrastructure.config.feature_flags import require_feature
+from monorepo.domain.entities import Dataset, Detector
+from monorepo.infrastructure.config.feature_flags import require_feature
 
 logger = logging.getLogger(__name__)
 
@@ -516,7 +516,7 @@ class AutoMLConfigurationManager:
         Returns:
             List of AutoML configuration dictionaries
         """
-        from pynomaly.application.dto.configuration_dto import (
+        from monorepo.application.dto.configuration_dto import (
             ConfigurationSearchRequestDTO,
         )
 
@@ -635,7 +635,7 @@ class AutoMLConfigurationManager:
         Returns:
             Exported configuration data as string
         """
-        from pynomaly.application.dto.configuration_dto import (
+        from monorepo.application.dto.configuration_dto import (
             ConfigurationExportRequestDTO,
             ExportFormat,
         )

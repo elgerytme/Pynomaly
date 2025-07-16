@@ -10,12 +10,12 @@ from typing import Any
 
 import structlog
 
-from pynomaly.infrastructure.performance.connection_pooling import (
+from monorepo.infrastructure.performance.connection_pooling import (
     ConnectionPoolManager,
     PoolStats,
     get_connection_pool_manager,
 )
-from pynomaly.infrastructure.persistence.connection_pool_integration import (
+from monorepo.infrastructure.persistence.connection_pool_integration import (
     get_database_integration,
 )
 

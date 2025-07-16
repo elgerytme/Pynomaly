@@ -7,7 +7,7 @@ error handling, and consistent behavior across the domain layer.
 
 import pytest
 
-from pynomaly.domain.exceptions import DomainError, InvalidValueError, ValidationError
+from monorepo.domain.exceptions import DomainError, InvalidValueError, ValidationError
 
 
 class TestDomainError:

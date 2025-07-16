@@ -10,10 +10,10 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from pynomaly.application.dto.dataset_dto import (
+from monorepo.application.dto.dataset_dto import (
     DatasetResponseDTO,
 )
-from pynomaly.presentation.api.app import create_app
+from monorepo.presentation.api.app import create_app
 
 
 class TestDatasetEndpoints:
@@ -28,7 +28,7 @@ class TestDatasetEndpoints:
     @pytest.fixture
     def mock_auth(self):
         """Mock authentication."""
-        with patch("pynomaly.infrastructure.auth.jwt_auth.JWTAuthService") as mock:
+        with patch("monorepo.infrastructure.auth.jwt_auth.JWTAuthService") as mock:
             handler = Mock()
             handler.get_current_user.return_value = {
                 "id": "user123",
@@ -79,7 +79,7 @@ class TestDatasetEndpoints:
     ):
         """Test successful dataset creation."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.CreateDatasetUseCase"
+            "monorepo.application.use_cases.dataset_use_case.CreateDatasetUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = DatasetResponseDTO(
@@ -131,7 +131,7 @@ class TestDatasetEndpoints:
     def test_get_dataset_by_id(self, client, mock_auth, auth_headers):
         """Test retrieving dataset by ID."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.GetDatasetUseCase"
+            "monorepo.application.use_cases.dataset_use_case.GetDatasetUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = DatasetResponseDTO(
@@ -159,7 +159,7 @@ class TestDatasetEndpoints:
     def test_get_dataset_not_found(self, client, mock_auth, auth_headers):
         """Test retrieving non-existent dataset."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.GetDatasetUseCase"
+            "monorepo.application.use_cases.dataset_use_case.GetDatasetUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.side_effect = ValueError("Dataset not found")
@@ -172,7 +172,7 @@ class TestDatasetEndpoints:
     def test_list_datasets(self, client, mock_auth, auth_headers):
         """Test listing user's datasets."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.ListDatasetsUseCase"
+            "monorepo.application.use_cases.dataset_use_case.ListDatasetsUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = [
@@ -232,7 +232,7 @@ class TestDatasetEndpoints:
         }
 
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.UpdateDatasetUseCase"
+            "monorepo.application.use_cases.dataset_use_case.UpdateDatasetUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = DatasetResponseDTO(
@@ -261,7 +261,7 @@ class TestDatasetEndpoints:
     def test_delete_dataset(self, client, mock_auth, auth_headers):
         """Test deleting a dataset."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.DeleteDatasetUseCase"
+            "monorepo.application.use_cases.dataset_use_case.DeleteDatasetUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = True
@@ -274,7 +274,7 @@ class TestDatasetEndpoints:
     def test_delete_dataset_not_found(self, client, mock_auth, auth_headers):
         """Test deleting non-existent dataset."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.DeleteDatasetUseCase"
+            "monorepo.application.use_cases.dataset_use_case.DeleteDatasetUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.side_effect = ValueError("Dataset not found")
@@ -296,7 +296,7 @@ class TestDatasetEndpoints:
         }
 
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.UploadDatasetUseCase"
+            "monorepo.application.use_cases.dataset_use_case.UploadDatasetUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = DatasetUploadResponseDTO(
@@ -345,7 +345,7 @@ class TestDatasetEndpoints:
     def test_upload_status_check(self, client, mock_auth, auth_headers):
         """Test checking upload status."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.GetUploadStatusUseCase"
+            "monorepo.application.use_cases.dataset_use_case.GetUploadStatusUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = {
@@ -371,7 +371,7 @@ class TestDatasetEndpoints:
     def test_validate_dataset(self, client, mock_auth, auth_headers):
         """Test dataset validation."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.ValidateDatasetUseCase"
+            "monorepo.application.use_cases.dataset_use_case.ValidateDatasetUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = {
@@ -407,7 +407,7 @@ class TestDatasetEndpoints:
     def test_validate_dataset_with_errors(self, client, mock_auth, auth_headers):
         """Test dataset validation with errors."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.ValidateDatasetUseCase"
+            "monorepo.application.use_cases.dataset_use_case.ValidateDatasetUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = {
@@ -436,7 +436,7 @@ class TestDatasetEndpoints:
     def test_dataset_preview(self, client, mock_auth, auth_headers):
         """Test getting dataset preview."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.GetDatasetPreviewUseCase"
+            "monorepo.application.use_cases.dataset_use_case.GetDatasetPreviewUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = {
@@ -460,7 +460,7 @@ class TestDatasetEndpoints:
     def test_dataset_statistics(self, client, mock_auth, auth_headers):
         """Test getting dataset statistics."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.GetDatasetStatisticsUseCase"
+            "monorepo.application.use_cases.dataset_use_case.GetDatasetStatisticsUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = {
@@ -513,7 +513,7 @@ class TestDatasetEndpoints:
     def test_download_dataset(self, client, mock_auth, auth_headers):
         """Test downloading exported dataset."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.DownloadDatasetUseCase"
+            "monorepo.application.use_cases.dataset_use_case.DownloadDatasetUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = {
@@ -579,7 +579,7 @@ class TestDatasetEndpoints:
     ):
         """Test operations on dataset that is still processing."""
         with patch(
-            "pynomaly.application.use_cases.dataset_use_case.GetDatasetUseCase"
+            "monorepo.application.use_cases.dataset_use_case.GetDatasetUseCase"
         ) as mock_use_case:
             mock_instance = Mock()
             mock_instance.execute.return_value = DatasetResponseDTO(
@@ -616,7 +616,7 @@ class TestDatasetEndpointsIntegration:
     @pytest.fixture
     def authenticated_client(self, client):
         """Client with authentication setup."""
-        with patch("pynomaly.infrastructure.auth.jwt_auth.JWTAuthService") as mock:
+        with patch("monorepo.infrastructure.auth.jwt_auth.JWTAuthService") as mock:
             handler = Mock()
             handler.get_current_user.return_value = {
                 "id": "user123",

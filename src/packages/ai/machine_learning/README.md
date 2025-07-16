@@ -1,6 +1,6 @@
 # Machine Learning Package
 
-Comprehensive machine learning operations, model training, optimization, and lifecycle management for the Pynomaly platform.
+Comprehensive machine learning operations, model training, optimization, and lifecycle management for the Monorepo platform.
 
 ## Overview
 
@@ -30,7 +30,7 @@ machine_learning/
 
 ## Installation
 
-This package is part of the Pynomaly monorepo. Install ML dependencies:
+This package is part of the Monorepo monorepo. Install ML dependencies:
 
 ```bash
 # Core ML dependencies

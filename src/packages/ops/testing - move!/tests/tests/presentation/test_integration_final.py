@@ -10,16 +10,16 @@ import pytest
 from click.testing import CliRunner
 from fastapi.testclient import TestClient
 
-from pynomaly.application.services import (
+from monorepo.application.services import (
     DatasetService,
     DetectionService,
     DetectorService,
 )
-from pynomaly.domain.entities import Dataset, DetectionResult, Detector
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
-from pynomaly.infrastructure.auth.jwt_auth import JWTAuthService, UserModel
-from pynomaly.presentation.api.main import create_app
-from pynomaly.presentation.cli.main import cli
+from monorepo.domain.entities import Dataset, DetectionResult, Detector
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.infrastructure.auth.jwt_auth import JWTAuthService, UserModel
+from monorepo.presentation.api.main import create_app
+from monorepo.presentation.cli.main import cli
 
 
 class TestPresentationLayerCoverage:
@@ -82,7 +82,7 @@ class TestPresentationLayerCoverage:
         client = TestClient(app)
 
         with patch.multiple(
-            "pynomaly.presentation.api.dependencies", **mock_complete_services
+            "monorepo.presentation.api.dependencies", **mock_complete_services
         ):
             # Test all major API endpoints
             endpoints = [
@@ -115,10 +115,10 @@ class TestPresentationLayerCoverage:
         for cmd in commands:
             with (
                 patch(
-                    "pynomaly.presentation.cli.commands.get_detector_service"
+                    "monorepo.presentation.cli.commands.get_detector_service"
                 ) as mock_det,
                 patch(
-                    "pynomaly.presentation.cli.commands.get_dataset_service"
+                    "monorepo.presentation.cli.commands.get_dataset_service"
                 ) as mock_data,
             ):
                 mock_det.return_value = mock_complete_services["detector_service"]
@@ -134,7 +134,7 @@ class TestPresentationLayerCoverage:
 
         # Test various error scenarios
         with patch.multiple(
-            "pynomaly.presentation.api.dependencies", **mock_complete_services
+            "monorepo.presentation.api.dependencies", **mock_complete_services
         ):
             # Test 404 errors
             response = client.get("/nonexistent")
@@ -150,7 +150,7 @@ class TestPresentationLayerCoverage:
         client = TestClient(app)
 
         with patch.multiple(
-            "pynomaly.presentation.api.dependencies", **mock_complete_services
+            "monorepo.presentation.api.dependencies", **mock_complete_services
         ):
             # Test rapid requests
             start_time = time.time()
@@ -170,14 +170,14 @@ class TestPresentationLayerCoverage:
 
         # Test API + CLI integration
         with patch.multiple(
-            "pynomaly.presentation.api.dependencies", **mock_complete_services
+            "monorepo.presentation.api.dependencies", **mock_complete_services
         ):
             api_response = client.get(
                 "/detectors", headers={"Authorization": "Bearer test"}
             )
 
         with patch(
-            "pynomaly.presentation.cli.commands.get_detector_service"
+            "monorepo.presentation.cli.commands.get_detector_service"
         ) as mock_get:
             mock_get.return_value = mock_complete_services["detector_service"]
             cli_result = runner.invoke(cli, ["list", "detectors"])

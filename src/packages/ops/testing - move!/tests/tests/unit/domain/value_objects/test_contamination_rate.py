@@ -2,8 +2,8 @@
 
 import pytest
 
-from pynomaly.domain.exceptions import InvalidValueError
-from pynomaly.domain.value_objects.contamination_rate import ContaminationRate
+from monorepo.domain.exceptions import InvalidValueError
+from monorepo.domain.value_objects.contamination_rate import ContaminationRate
 
 
 class TestContaminationRate:

@@ -18,10 +18,10 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 # Try to import the dashboard module directly
 try:
-    from src.pynomaly.infrastructure.monitoring.realtime_dashboard import (
+    from src.monorepo.infrastructure.monitoring.realtime_dashboard import (
         RealtimeDashboard,
     )
-    from src.pynomaly.shared.logging import configure_logging
+    from src.monorepo.shared.logging import configure_logging
 except ImportError:
     # For testing without full package installation
     class RealtimeDashboard:

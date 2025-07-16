@@ -13,8 +13,8 @@ import pytest
 from typer.testing import CliRunner
 
 # Import CLI modules
-from pynomaly.presentation.cli.app import app
-from pynomaly.presentation.cli import autonomous, datasets, detectors, detection
+from monorepo.presentation.cli.app import app
+from monorepo.presentation.cli import autonomous, datasets, detectors, detection
 
 
 @pytest.fixture
@@ -102,7 +102,7 @@ class TestStableCLIIntegration:
         if result.exit_code == 0:
             assert len(result.stdout.strip()) > 0
     
-    @patch('pynomaly.presentation.cli.container.get_cli_container')
+    @patch('monorepo.presentation.cli.container.get_cli_container')
     def test_dataset_list_empty(self, mock_get_container, cli_runner, mock_container):
         """Test dataset list with no datasets."""
         mock_get_container.return_value = mock_container
@@ -114,7 +114,7 @@ class TestStableCLIIntegration:
         if result.exit_code == 0:
             assert 'No datasets found' in result.stdout or 'datasets' in result.stdout.lower()
     
-    @patch('pynomaly.presentation.cli.container.get_cli_container')
+    @patch('monorepo.presentation.cli.container.get_cli_container')
     def test_dataset_load_basic(self, mock_get_container, cli_runner, mock_container, sample_csv_file):
         """Test basic dataset loading."""
         mock_get_container.return_value = mock_container
@@ -132,7 +132,7 @@ class TestStableCLIIntegration:
         # Should handle gracefully even if dependencies are missing
         assert result.exit_code in [0, 1]
     
-    @patch('pynomaly.presentation.cli.container.get_cli_container')
+    @patch('monorepo.presentation.cli.container.get_cli_container')
     def test_detector_list_empty(self, mock_get_container, cli_runner, mock_container):
         """Test detector list with no detectors."""
         mock_get_container.return_value = mock_container
@@ -144,7 +144,7 @@ class TestStableCLIIntegration:
         if result.exit_code == 0:
             assert 'No detectors found' in result.stdout or 'detectors' in result.stdout.lower()
     
-    @patch('pynomaly.presentation.cli.container.get_cli_container')
+    @patch('monorepo.presentation.cli.container.get_cli_container')
     def test_detector_create_basic(self, mock_get_container, cli_runner, mock_container):
         """Test basic detector creation."""
         mock_get_container.return_value = mock_container
@@ -161,7 +161,7 @@ class TestStableCLIIntegration:
         
         assert result.exit_code in [0, 1]  # Allow graceful failures
     
-    @patch('pynomaly.application.services.autonomous_service.AutonomousDetectionService')
+    @patch('monorepo.application.services.autonomous_service.AutonomousDetectionService')
     def test_autonomous_detect_mocked(self, mock_service_class, cli_runner, sample_csv_file):
         """Test autonomous detection with mocked service."""
         # Mock the service
@@ -199,7 +199,7 @@ class TestStableCLIIntegration:
         if result.exit_code == 0:
             assert 'Available Export Formats' in result.stdout or 'formats' in result.stdout.lower()
     
-    @patch('pynomaly.presentation.cli.container.get_cli_container')
+    @patch('monorepo.presentation.cli.container.get_cli_container')
     def test_error_handling_invalid_dataset(self, mock_get_container, cli_runner, mock_container):
         """Test error handling for invalid dataset operations."""
         mock_get_container.return_value = mock_container
@@ -309,7 +309,7 @@ class TestCLIStabilityAndPerformance:
     
     def test_memory_usage_autonomous_detection(self, cli_runner, sample_csv_file):
         """Test memory usage during autonomous detection."""
-        with patch('pynomaly.application.services.autonomous_service.AutonomousDetectionService') as mock_service:
+        with patch('monorepo.application.services.autonomous_service.AutonomousDetectionService') as mock_service:
             mock_service_instance = Mock()
             mock_service.return_value = mock_service_instance
             
@@ -341,7 +341,7 @@ class TestCLIStabilityAndPerformance:
     
     def test_resource_cleanup(self, cli_runner, sample_csv_file):
         """Test that resources are properly cleaned up."""
-        with patch('pynomaly.presentation.cli.container.get_cli_container') as mock_get_container:
+        with patch('monorepo.presentation.cli.container.get_cli_container') as mock_get_container:
             container = Mock()
             mock_get_container.return_value = container
             

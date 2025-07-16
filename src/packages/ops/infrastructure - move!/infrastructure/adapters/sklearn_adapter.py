@@ -8,13 +8,13 @@ from typing import Any
 import numpy as np
 from sklearn.base import BaseEstimator
 
-from pynomaly.domain.entities import Anomaly, Dataset, DetectionResult
-from pynomaly.domain.exceptions import (
+from monorepo.domain.entities import Anomaly, Dataset, DetectionResult
+from monorepo.domain.exceptions import (
     DetectorNotFittedError,
     FittingError,
     InvalidAlgorithmError,
 )
-from pynomaly.domain.value_objects import AnomalyScore, ContaminationRate
+from monorepo.domain.value_objects import AnomalyScore, ContaminationRate
 
 
 class SklearnAdapter:

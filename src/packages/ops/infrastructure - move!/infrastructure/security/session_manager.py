@@ -19,7 +19,7 @@ import redis
 from fastapi import Request, Response
 from pydantic import BaseModel
 
-from pynomaly.infrastructure.config.settings import get_settings
+from monorepo.infrastructure.config.settings import get_settings
 
 
 class SessionData(BaseModel, ConfigDict):
