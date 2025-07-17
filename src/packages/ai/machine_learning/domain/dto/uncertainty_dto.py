@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from monorepo.domain.entities.detection_result import DetectionResult
-from monorepo.domain.value_objects.confidence_interval import ConfidenceInterval
+from ..entities.detection_result import DetectionResult
+from ..value_objects.confidence_interval import ConfidenceInterval
 
 
 @dataclass

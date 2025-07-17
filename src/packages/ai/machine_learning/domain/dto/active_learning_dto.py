@@ -13,17 +13,17 @@ from typing import Any
 
 import numpy as np
 
-from monorepo.domain.entities.active_learning_session import (
+from ..entities.active_learning_session import (
     SamplingStrategy,
     SessionStatus,
 )
-from monorepo.domain.entities.detection_result import DetectionResult
-from monorepo.domain.entities.human_feedback import (
+from ..entities.detection_result import DetectionResult
+from ..entities.human_feedback import (
     FeedbackConfidence,
     FeedbackType,
     HumanFeedback,
 )
-from monorepo.domain.value_objects.anomaly_score import AnomalyScore
+from ..value_objects.anomaly_score import AnomalyScore
 
 
 @dataclass
