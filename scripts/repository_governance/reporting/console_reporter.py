@@ -61,7 +61,7 @@ class ConsoleReporter(BaseReporter):
         # Footer
         lines.append("=" * 80)
         
-        return "\\n".join(lines)
+        return "\n".join(lines)
     
     def save_report(self, report_content: str, filename: str = None) -> bool:
         """Save the report to a file."""

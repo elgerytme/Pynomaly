@@ -174,7 +174,7 @@ class GitHubIssueReporter(BaseReporter):
         
         return {
             "title": title,
-            "body": "\\n".join(body_lines),
+            "body": "\n".join(body_lines),
             "labels": labels,
             "assignees": []
         }
@@ -249,7 +249,7 @@ class GitHubIssueReporter(BaseReporter):
         
         return {
             "title": title,
-            "body": "\\n".join(body_lines),
+            "body": "\n".join(body_lines),
             "labels": labels,
             "assignees": []
         }
@@ -276,7 +276,7 @@ class GitHubIssueReporter(BaseReporter):
             labels = issue.get("labels", [])
             assignees = issue.get("assignees", [])
             
-            script_lines.append(f"echo \\"Creating issue {i}/{len(issues)}: {title}\\"")
+            script_lines.append(f"echo \"Creating issue {i}/{len(issues)}: {title}\"")
             script_lines.append("gh issue create \\\\")
             script_lines.append(f'  --title "{title}" \\\\')
             script_lines.append(f'  --body "{body}" \\\\')
@@ -289,13 +289,13 @@ class GitHubIssueReporter(BaseReporter):
                 assignees_str = ",".join(assignees)
                 script_lines.append(f'  --assignee "{assignees_str}" \\\\')
             
-            script_lines.append("  || echo \\"Failed to create issue\\"")
+            script_lines.append("  || echo \"Failed to create issue\"")
             script_lines.append("")
         
-        script_lines.append("echo \\"All issues created!\\"")
+        script_lines.append("echo \"All issues created!\"")
         
         try:
-            script_path.write_text("\\n".join(script_lines), encoding='utf-8')
+            script_path.write_text("\n".join(script_lines), encoding='utf-8')
             # Make script executable
             script_path.chmod(0o755)
             print(f"GitHub CLI script saved to: {script_path}")
@@ -307,7 +307,7 @@ class GitHubIssueReporter(BaseReporter):
         templates = {
             "governance_summary": {
                 "title": "Repository Governance Summary",
-                "body": "## Repository Governance Summary\\n\\n**Generated:** {timestamp}\\n\\n### Summary\\n\\n- **Overall Score:** {score}\\n- **Grade:** {grade}\\n\\n### Actions Required\\n\\n- [ ] Review violations\\n- [ ] Apply fixes\\n- [ ] Update documentation\\n",
+                "body": "## Repository Governance Summary\n\n**Generated:** {timestamp}\n\n### Summary\n\n- **Overall Score:** {score}\n- **Grade:** {grade}\n\n### Actions Required\n\n- [ ] Review violations\n- [ ] Apply fixes\n- [ ] Update documentation\n",
                 "labels": ["governance", "repository-quality"],
                 "assignees": []
             },

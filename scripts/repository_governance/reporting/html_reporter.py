@@ -67,7 +67,7 @@ class HTMLReporter(BaseReporter):
         html_parts.append('</body>')
         html_parts.append('</html>')
         
-        return '\\n'.join(html_parts)
+        return '\n'.join(html_parts)
     
     def save_report(self, report_content: str, filename: str = None) -> bool:
         """Save the report to a file."""

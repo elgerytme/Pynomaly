@@ -63,7 +63,7 @@ class MarkdownReporter(BaseReporter):
         lines.extend(self._generate_recommendations_section(check_results))
         lines.append("")
         
-        return "\\n".join(lines)
+        return "\n".join(lines)
     
     def save_report(self, report_content: str, filename: str = None) -> bool:
         """Save the report to a file."""
