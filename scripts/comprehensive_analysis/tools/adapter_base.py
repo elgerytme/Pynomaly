@@ -191,11 +191,11 @@ class ToolAdapter(ABC):
             if f.suffix in supported_extensions or f.suffix.lower() in supported_extensions
         ]
     
-    def _create_temp_config(self, config_content: str, suffix: str = ".tmp") -> Path:
+    def _create_temp_config(self, config_content: str, suffix: str = ".tmp", prefix: str = None) -> Path:
         """Create a temporary configuration file."""
         import tempfile
         
-        with tempfile.NamedTemporaryFile(mode='w', suffix=suffix, delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode='w', suffix=suffix, prefix=prefix, delete=False) as f:
             f.write(config_content)
             return Path(f.name)
     

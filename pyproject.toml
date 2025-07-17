@@ -61,6 +61,13 @@ dependencies = [
     # Security and validation
     "cryptography>=41.0.0",
     "email-validator>=2.2.0",
+    # Core ML dependencies
+    "scikit-learn>=1.6.0",
+    "scipy>=1.15.0",
+    # CLI dependencies
+    "typer>=0.15.1",
+    "rich>=13.9.4",
+    "click>=8.0.0",
 ]
 
 [project.urls]
@@ -368,7 +375,7 @@ all = [
 ]
 
 [project.scripts]
-pynomaly = "pynomaly_detection.infrastructure.cli.cli.app:app"
+pynomaly = "pynomaly_detection.infrastructure.cli.cli:app"
 
 [project.gui-scripts]
 monorepo-gui = "packages.software.interfaces.web.app:main"

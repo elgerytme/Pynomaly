@@ -10,6 +10,10 @@ from .config.manager import AnalysisConfig
 from .tools.adapter_base import ToolAdapter, AnalysisResult
 from .tools.mypy_adapter import MyPyAdapter
 from .tools.ruff_adapter import RuffAdapter
+from .tools.bandit_adapter import BanditAdapter
+from .tools.safety_adapter import SafetyAdapter
+from .tools.vulture_adapter import VultureAdapter
+from .tools.pyright_adapter import PyrightAdapter
 from .utils.file_discovery import FileDiscovery
 from .utils.parallel_executor import ParallelExecutor
 
@@ -113,12 +117,37 @@ class AnalysisOrchestrator:
             if MyPyAdapter({**mypy_config, "python_version": self.config.python_version}).is_available():
                 tools.append(MyPyAdapter({**mypy_config, "python_version": self.config.python_version}))
                 logger.info("Initialized MyPy adapter")
+            
+            # Enhanced type checking with Pyright
+            pyright_config = self.config.tool_configs.get("pyright", {})
+            if PyrightAdapter(pyright_config).is_available():
+                tools.append(PyrightAdapter(pyright_config))
+                logger.info("Initialized Pyright adapter")
         
         # Code quality tools
         ruff_config = self.config.tool_configs.get("ruff", {})
         if RuffAdapter(ruff_config).is_available():
             tools.append(RuffAdapter(ruff_config))
             logger.info("Initialized Ruff adapter")
+        
+        # Dead code detection
+        if self.config.enable_dead_code_detection:
+            vulture_config = self.config.tool_configs.get("vulture", {})
+            if VultureAdapter(vulture_config).is_available():
+                tools.append(VultureAdapter(vulture_config))
+                logger.info("Initialized Vulture adapter")
+        
+        # Security analysis
+        if self.config.enable_security_analysis:
+            bandit_config = self.config.tool_configs.get("bandit", {})
+            if BanditAdapter(bandit_config).is_available():
+                tools.append(BanditAdapter(bandit_config))
+                logger.info("Initialized Bandit adapter")
+            
+            safety_config = self.config.tool_configs.get("safety", {})
+            if SafetyAdapter(safety_config).is_available():
+                tools.append(SafetyAdapter(safety_config))
+                logger.info("Initialized Safety adapter")
         
         if not tools:
             logger.warning("No analysis tools available or enabled")

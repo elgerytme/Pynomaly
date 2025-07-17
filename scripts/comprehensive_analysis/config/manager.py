@@ -38,7 +38,8 @@ class AnalysisConfig:
     
     # Analysis phases
     enable_type_checking: bool = True
-    enable_security_scanning: bool = True
+    enable_security_analysis: bool = True
+    enable_dead_code_detection: bool = True
     enable_performance_analysis: bool = True
     enable_documentation_checking: bool = True
     enable_reference_checking: bool = True
@@ -251,7 +252,7 @@ class ConfigManager:
             "include_patterns": config.include_patterns,
             "exclude_patterns": config.exclude_patterns,
             "enable_type_checking": config.enable_type_checking,
-            "enable_security_scanning": config.enable_security_scanning,
+            "enable_security_analysis": config.enable_security_analysis,
             "enable_performance_analysis": config.enable_performance_analysis,
             "enable_documentation_checking": config.enable_documentation_checking,
             "enable_reference_checking": config.enable_reference_checking,
