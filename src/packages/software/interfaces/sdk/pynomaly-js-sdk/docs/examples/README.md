@@ -10,7 +10,7 @@ This directory contains comprehensive examples demonstrating how to use the Pyno
 - [Configuration](./configuration.js) - SDK configuration options
 
 ### Core Features
-- [Anomaly Detection](./anomaly-detection.js) - Complete anomaly detection examples
+- [Pattern Analysis](./pattern-analysis.js) - Complete pattern analysis examples
 - [Data Quality Analysis](./data-quality.js) - Data quality assessment
 - [Data Profiling](./data-profiling.js) - Dataset profiling and statistics
 
