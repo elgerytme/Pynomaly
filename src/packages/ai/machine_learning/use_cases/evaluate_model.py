@@ -13,8 +13,8 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
-from monorepo.domain.entities import Dataset
-from monorepo.shared.protocols import DetectorProtocol, DetectorRepositoryProtocol
+# TODO: Create local Dataset entity
+# TODO: Create local DetectorProtocol, DetectorRepositoryProtocol
 
 
 @dataclass

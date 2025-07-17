@@ -18,7 +18,7 @@ from monorepo.application.services.automl_service import (
     AutoMLService,
     OptimizationObjective,
 )
-from monorepo.domain.entities import Dataset
+# TODO: Create local Dataset entity
 from monorepo.domain.exceptions import AutoMLError, DomainError
 
 logger = logging.getLogger(__name__)

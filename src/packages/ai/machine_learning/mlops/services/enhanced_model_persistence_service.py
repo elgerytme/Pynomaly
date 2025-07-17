@@ -724,7 +724,7 @@ detector = await service.deserialize_model(model_version)
 
 # Use for inference
 data = pd.read_csv("your_data.csv")
-from monorepo.domain.entities import Dataset
+# TODO: Create local Dataset entity
 
 dataset = Dataset(name="inference_data", data=data)
 result = detector.detect(dataset)
@@ -777,7 +777,7 @@ class ModelDeployment:
 
     def predict(self, data: pd.DataFrame) -> Dict[str, any]:
         """Predict anomalies."""
-        from monorepo.domain.entities import Dataset
+        # TODO: Create local Dataset entity
 
         dataset = Dataset(name="inference", data=data)
         result = self.detector.detect(dataset)

@@ -10,7 +10,7 @@ from typing import Any
 from uuid import UUID
 
 from monorepo.infrastructure.security.security_hardening import get_secure_serializer
-from monorepo.shared.protocols import DetectorProtocol, DetectorRepositoryProtocol
+# TODO: Create local DetectorProtocol, DetectorRepositoryProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -332,7 +332,7 @@ class {detector.name.replace(" ", "")}Detector:
         Returns:
             Dictionary with scores and labels
         """
-        from monorepo.domain.entities import Dataset
+        # TODO: Create local Dataset entity
 
         dataset = Dataset(name="input", data=data)
         result = self.detector.detect(dataset)
@@ -353,7 +353,7 @@ class {detector.name.replace(" ", "")}Detector:
         Returns:
             List of anomaly scores
         """
-        from monorepo.domain.entities import Dataset
+        # TODO: Create local Dataset entity
 
         dataset = Dataset(name="input", data=data)
         scores = self.detector.score(dataset)
@@ -558,7 +558,7 @@ if __name__ == "__main__":
 
         # Create a basic detector from the stub data
         from monorepo.domain.value_objects import ContaminationRate
-        from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+        # TODO: Create local sklearn adapter
 
         # Create a simple sklearn adapter as a fallback
         detector = SklearnAdapter(

@@ -21,7 +21,7 @@ from uuid import uuid4
 
 import pandas as pd
 
-from monorepo.domain.entities import Dataset, DetectionResult, Detector
+# TODO: Create local Dataset entity, DetectionResult, Detector
 from monorepo.domain.exceptions import TrainingError
 
 # Optional dependencies with graceful fallback

@@ -26,7 +26,7 @@ import pandas as pd
 
 from interfaces.domain.entities import Dataset
 from interfaces.domain.value_objects import ContaminationRate
-from monorepo.infrastructure.adapters.sklearn_adapter import SklearnAdapter
+# TODO: Create local sklearn adapter
 
 
 class SimpleExplainer:

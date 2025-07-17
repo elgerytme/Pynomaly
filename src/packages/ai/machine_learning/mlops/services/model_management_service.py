@@ -19,10 +19,7 @@ from monorepo.domain.value_objects import (
     PerformanceMetrics,
     SemanticVersion,
 )
-from monorepo.shared.protocols import (
-    ModelRepositoryProtocol,
-    ModelVersionRepositoryProtocol,
-)
+# TODO: Create local protocol interfaces
 
 
 class ModelManagementService:

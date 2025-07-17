@@ -14,10 +14,7 @@ from monorepo.domain.entities import (
     StepType,
 )
 from monorepo.domain.exceptions import InvalidPipelineStateError, PipelineNotFoundError
-from monorepo.shared.protocols import (
-    PipelineRepositoryProtocol,
-    PipelineRunRepositoryProtocol,
-)
+# TODO: Create local protocol interfaces
 
 
 class PipelineOrchestrationService:

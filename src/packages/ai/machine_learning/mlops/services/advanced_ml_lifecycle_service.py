@@ -28,11 +28,7 @@ from monorepo.domain.value_objects import (
     PerformanceMetrics,
     SemanticVersion,
 )
-from monorepo.shared.protocols import (
-    ExperimentRepositoryProtocol,
-    ModelRepositoryProtocol,
-    ModelVersionRepositoryProtocol,
-)
+# TODO: Create local protocol interfaces
 
 logger = logging.getLogger(__name__)
 

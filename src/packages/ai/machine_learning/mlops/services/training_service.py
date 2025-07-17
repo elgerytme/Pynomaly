@@ -30,7 +30,7 @@ from monorepo.application.services.algorithm_adapter_registry import AlgorithmAd
 from monorepo.application.services.model_persistence_service import (
     ModelPersistenceService,
 )
-from monorepo.domain.entities.dataset import Dataset
+# TODO: Create local Dataset entity
 from monorepo.domain.entities.model_version import ModelVersion
 from monorepo.domain.value_objects.model_metrics import ModelMetrics
 from monorepo.infrastructure.persistence.training_repository import TrainingRepository
@@ -223,7 +223,7 @@ class AutomatedTrainingService:
         # Create a detector with the best parameters
         from uuid import uuid4
 
-        from monorepo.domain.entities.detector import Detector
+        # TODO: Create local Detector entity
         from monorepo.domain.value_objects import ContaminationRate
 
         detector = Detector(
@@ -1347,7 +1347,7 @@ class AutomatedTrainingService:
         """Create a temporary detector for hyperparameter optimization."""
         from uuid import uuid4
 
-        from monorepo.domain.entities.detector import Detector
+        # TODO: Create local Detector entity
         from monorepo.domain.value_objects import ContaminationRate
 
         return Detector(

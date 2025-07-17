@@ -16,10 +16,7 @@ from monorepo.domain.exceptions import (
     ExperimentNotFoundError,
     InvalidExperimentStateError,
 )
-from monorepo.shared.protocols import (
-    ExperimentRepositoryProtocol,
-    ExperimentRunRepositoryProtocol,
-)
+# TODO: Create local protocol interfaces
 
 
 class ExperimentManagementService:
