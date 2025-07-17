@@ -1,0 +1,264 @@
+# Integration Test Configuration
+# Issue: #821 - Implement Integration Testing Suite
+
+test_timeout: 300
+api_base_url: "http://localhost:8000"
+database_url: "sqlite:///test.db"
+redis_url: "redis://localhost:6379/0"
+
+# Package configuration
+packages:
+  data.anomaly_detection:
+    api_endpoints:
+      - "/api/v1/anomaly/detect"
+      - "/api/v1/anomaly/batch"
+    dependencies:
+      - "formal_sciences.mathematics"
+    test_data_path: "tests/data/anomaly_samples.json"
+    performance_thresholds:
+      response_time_ms: 500
+      memory_usage_mb: 100
+
+  ai.mlops:
+    api_endpoints:
+      - "/api/v1/models/train"
+      - "/api/v1/models/predict"
+      - "/api/v1/models/evaluate"
+    dependencies:
+      - "data.anomaly_detection"
+      - "formal_sciences.mathematics"
+    test_data_path: "tests/data/ml_samples.json"
+    performance_thresholds:
+      response_time_ms: 1000
+      memory_usage_mb: 200
+
+  software.interfaces:
+    api_endpoints:
+      - "/api/v1/health"
+      - "/api/v1/status"
+      - "/api/v1/metrics"
+    dependencies: []
+    test_data_path: "tests/data/interface_samples.json"
+    performance_thresholds:
+      response_time_ms: 100
+      memory_usage_mb: 50
+
+  formal_sciences.mathematics:
+    api_endpoints:
+      - "/api/v1/math/statistics"
+      - "/api/v1/math/transforms"
+    dependencies: []
+    test_data_path: "tests/data/math_samples.json"
+    performance_thresholds:
+      response_time_ms: 200
+      memory_usage_mb: 75
+
+  ops.infrastructure:
+    api_endpoints:
+      - "/api/v1/infrastructure/health"
+      - "/api/v1/infrastructure/metrics"
+    dependencies: []
+    test_data_path: "tests/data/infrastructure_samples.json"
+    performance_thresholds:
+      response_time_ms: 300
+      memory_usage_mb: 150
+
+# Test scenarios
+test_scenarios:
+  data_flow_integration:
+    description: "Test data flow between mathematics and anomaly detection"
+    packages:
+      - "formal_sciences.mathematics"
+      - "data.anomaly_detection"
+    test_data:
+      input_size: 1000
+      anomaly_ratio: 0.05
+    expected_outcomes:
+      - "anomalies_detected > 0"
+      - "processing_time < 1.0"
+
+  api_integration:
+    description: "Test API integration between packages"
+    packages:
+      - "software.interfaces"
+      - "data.anomaly_detection"
+    test_data:
+      concurrent_requests: 10
+      request_timeout: 5.0
+    expected_outcomes:
+      - "all_requests_successful"
+      - "response_time < 0.5"
+
+  ml_pipeline_integration:
+    description: "Test ML pipeline integration"
+    packages:
+      - "ai.mlops"
+      - "data.anomaly_detection"
+      - "formal_sciences.mathematics"
+    test_data:
+      training_samples: 1000
+      test_samples: 100
+    expected_outcomes:
+      - "model_trained_successfully"
+      - "predictions_generated"
+      - "accuracy > 0.8"
+
+  event_driven_integration:
+    description: "Test event-driven integration"
+    packages:
+      - "software.interfaces"
+      - "ai.mlops"
+    test_data:
+      event_count: 100
+      event_delay_ms: 10
+    expected_outcomes:
+      - "all_events_processed"
+      - "no_message_loss"
+
+  database_integration:
+    description: "Test database integration"
+    packages:
+      - "ops.infrastructure"
+      - "data.anomaly_detection"
+    test_data:
+      record_count: 1000
+      query_complexity: "medium"
+    expected_outcomes:
+      - "data_consistency_maintained"
+      - "query_performance_acceptable"
+
+# API contracts
+api_contracts:
+  - endpoint: "/api/v1/health"
+    method: "GET"
+    request_schema: {}
+    response_schema:
+      type: "object"
+      properties:
+        status:
+          type: "string"
+          enum: ["healthy", "unhealthy"]
+        timestamp:
+          type: "number"
+        version:
+          type: "string"
+        services:
+          type: "object"
+    status_code: 200
+
+  - endpoint: "/api/v1/anomaly/detect"
+    method: "POST"
+    request_schema:
+      type: "object"
+      properties:
+        data:
+          type: "array"
+          items:
+            type: "number"
+        parameters:
+          type: "object"
+          properties:
+            contamination:
+              type: "number"
+              minimum: 0
+              maximum: 1
+    response_schema:
+      type: "object"
+      properties:
+        anomalies:
+          type: "array"
+          items:
+            type: "integer"
+        scores:
+          type: "array"
+          items:
+            type: "number"
+        count:
+          type: "integer"
+        processing_time:
+          type: "number"
+    status_code: 200
+
+  - endpoint: "/api/v1/models/train"
+    method: "POST"
+    request_schema:
+      type: "object"
+      properties:
+        data:
+          type: "array"
+        labels:
+          type: "array"
+        model_type:
+          type: "string"
+          enum: ["isolation_forest", "one_class_svm", "local_outlier_factor"]
+        parameters:
+          type: "object"
+    response_schema:
+      type: "object"
+      properties:
+        model_id:
+          type: "string"
+        accuracy:
+          type: "number"
+        training_time:
+          type: "number"
+        model_size:
+          type: "integer"
+    status_code: 200
+
+  - endpoint: "/api/v1/models/predict"
+    method: "POST"
+    request_schema:
+      type: "object"
+      properties:
+        model_id:
+          type: "string"
+        data:
+          type: "array"
+    response_schema:
+      type: "object"
+      properties:
+        predictions:
+          type: "array"
+          items:
+            type: "number"
+        probabilities:
+          type: "array"
+          items:
+            type: "number"
+        prediction_time:
+          type: "number"
+    status_code: 200
+
+# Environment configuration
+environment:
+  test_mode: true
+  log_level: "INFO"
+  parallel_execution: true
+  max_workers: 4
+  timeout_multiplier: 1.5
+  retry_attempts: 3
+  retry_delay: 1.0
+
+# Reporting configuration
+reporting:
+  generate_html: true
+  generate_json: true
+  include_performance_metrics: true
+  include_error_details: true
+  include_warnings: true
+  performance_charts: true
+  
+# Quality gates
+quality_gates:
+  max_failed_tests: 0
+  min_success_rate: 100.0
+  max_response_time: 1000
+  max_memory_usage: 500
+  
+# Notification settings
+notifications:
+  on_failure: true
+  on_success: false
+  email_recipients: []
+  slack_webhook: ""
