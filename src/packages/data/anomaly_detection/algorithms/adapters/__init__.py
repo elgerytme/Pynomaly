@@ -1,7 +1,21 @@
 """Infrastructure adapters for anomaly detection algorithms and business intelligence platforms."""
 
-from .pyod_adapter import PyODAdapter
-from .sklearn_adapter import SklearnAdapter
+# Core adapters - import with fallbacks for missing dependencies
+try:
+    from .pyod_adapter import PyODAdapter
+except ImportError:
+    PyODAdapter = None
+
+try:
+    from .sklearn_adapter import SklearnAdapter
+except ImportError:
+    SklearnAdapter = None
+
+# Simplified adapters that work without domain dependencies
+try:
+    from .simple_pyod_adapter import SimplePyODAdapter
+except ImportError:
+    SimplePyODAdapter = None
 
 # Optimized adapters for Phase 2
 try:
@@ -13,10 +27,15 @@ except ImportError:
     OptimizedEnsembleAdapter = None
     OPTIMIZED_ADAPTERS_AVAILABLE = False
 
-__all__ = [
-    "PyODAdapter",
-    "SklearnAdapter",
-]
+__all__ = []
+
+# Add working adapters to exports
+if PyODAdapter is not None:
+    __all__.append("PyODAdapter")
+if SklearnAdapter is not None:
+    __all__.append("SklearnAdapter")
+if SimplePyODAdapter is not None:
+    __all__.append("SimplePyODAdapter")
 
 if OPTIMIZED_ADAPTERS_AVAILABLE:
     __all__.extend(["OptimizedAdapter", "OptimizedEnsembleAdapter"])

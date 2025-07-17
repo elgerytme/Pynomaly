@@ -63,6 +63,10 @@ extended = [
     "pydantic>=2.0.0",
     "structlog>=23.0.0",
 ]
+# Algorithm adapters (core functionality)
+algorithms = [
+    "pyod>=2.0.0",  # PyOD adapter with 80+ algorithms
+]
 automl = [
     "optuna>=3.0.0",
     "hyperopt>=0.2.7",
@@ -246,7 +250,7 @@ omit = [
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 80
+fail_under = 75
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",

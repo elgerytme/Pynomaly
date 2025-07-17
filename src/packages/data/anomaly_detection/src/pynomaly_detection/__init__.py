@@ -165,6 +165,7 @@ class AnomalyDetector:
             data: Input data array of shape (n_samples, n_features)
             **kwargs: Additional parameters passed to the underlying algorithm.
                      Common parameters include:
+                     - algorithm: str, algorithm type ('lof', 'ocsvm', 'isolation_forest')
                      - contamination: float or 'auto', expected proportion
                        of outliers
                      - random_state: int, random seed for reproducibility
@@ -181,14 +182,44 @@ class AnomalyDetector:
             # Fallback implementation
             try:
                 from sklearn.ensemble import IsolationForest
+                from sklearn.neighbors import LocalOutlierFactor
+                from sklearn.svm import OneClassSVM
 
-                # Set default contamination if not provided
-                if "contamination" not in kwargs:
-                    kwargs["contamination"] = "auto"
-                self._model = IsolationForest(**kwargs)
-                self._model.fit(data)
-                self._trained = True
-                return self
+                algorithm = kwargs.get('algorithm', 'isolation_forest')
+                
+                if algorithm == 'lof':
+                    # LOF doesn't support separate fit/predict, store parameters for later
+                    lof_params = {
+                        k: v for k, v in kwargs.items() if k != 'algorithm'
+                    }
+                    self._model = ('lof', lof_params)
+                    self._trained = True
+                    return self
+                elif algorithm == 'ocsvm':
+                    # OneClassSVM setup
+                    ocsvm_params = {
+                        k: v for k, v in kwargs.items()
+                        if k not in ['algorithm', 'contamination']
+                    }
+                    model = OneClassSVM(**ocsvm_params)
+                    model.fit(data)
+                    self._model = model
+                    self._trained = True
+                    return self
+                else:
+                    # Default to IsolationForest
+                    fit_params = {
+                        k: v for k, v in kwargs.items() if k != 'algorithm'
+                    }
+                    
+                    # Set default contamination if not provided
+                    if "contamination" not in fit_params:
+                        fit_params["contamination"] = "auto"
+                        
+                    self._model = IsolationForest(**fit_params)
+                    self._model.fit(data)
+                    self._trained = True
+                    return self
             except ImportError:
                 msg = "sklearn is required for basic anomaly detection"
                 raise ImportError(msg) from None
@@ -213,7 +244,17 @@ class AnomalyDetector:
             if not self._trained or not self._model:
                 raise ValueError("Model must be trained before prediction")
 
-            predictions = self._model.predict(data)
+            # Handle different model types
+            if isinstance(self._model, tuple) and self._model[0] == 'lof':
+                # LOF requires fit_predict, not separate predict
+                from sklearn.neighbors import LocalOutlierFactor
+                _, lof_params = self._model
+                lof = LocalOutlierFactor(**lof_params)
+                predictions = lof.fit_predict(data)
+            else:
+                # Standard sklearn models (IsolationForest, OneClassSVM)
+                predictions = self._model.predict(data)
+                
             result: npt.NDArray[np.integer[Any]] = (predictions == -1).astype(int)
             return result
 
