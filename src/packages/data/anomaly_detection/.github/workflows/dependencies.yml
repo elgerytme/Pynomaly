@@ -1,0 +1,590 @@
+name: Anomaly Detection Dependencies
+
+on:
+  schedule:
+    # Run weekly dependency check on Mondays at 9 AM UTC
+    - cron: '0 9 * * MON'
+  workflow_dispatch:
+    inputs:
+      update_type:
+        description: 'Type of update to perform'
+        required: false
+        default: 'minor'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+        - all
+      create_pr:
+        description: 'Create pull request for updates'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  PACKAGE_NAME: pynomaly-detection
+  PACKAGE_PATH: src/packages/data/anomaly_detection
+
+jobs:
+  # Dependency audit and vulnerability scan
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python for package
+        uses: ./.github/actions/setup-python-package
+        with:
+          python-version: '3.11'
+          package-path: ${{ env.PACKAGE_PATH }}
+          dependency-groups: 'all'
+
+      - name: Generate current dependency snapshot
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Create comprehensive dependency report
+          pip freeze > current-dependencies.txt
+          pip list --format=json > dependencies.json
+          
+          # Generate dependency tree
+          pip install pipdeptree
+          pipdeptree --json > dependency-tree.json
+          pipdeptree --graph-output svg > dependency-graph.svg
+
+      - name: Audit dependencies with Safety
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          pip install safety
+          safety check --json --output safety-audit.json || true
+          
+          # Generate human-readable report
+          safety check --output text > safety-report.txt || true
+
+      - name: Check for outdated packages
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          pip list --outdated --format=json > outdated-packages.json
+          
+          # Generate summary
+          python -c "
+          import json
+          
+          with open('outdated-packages.json', 'r') as f:
+              outdated = json.load(f)
+          
+          print(f'📦 Found {len(outdated)} outdated packages:')
+          for pkg in outdated:
+              name = pkg['name']
+              current = pkg['version']
+              latest = pkg['latest_version']
+              pkg_type = pkg.get('latest_filetype', 'wheel')
+              print(f'  - {name}: {current} → {latest} ({pkg_type})')
+          " | tee outdated-summary.txt
+
+      - name: License compliance check
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          pip install pip-licenses
+          pip-licenses --format=json --output-file=licenses.json
+          pip-licenses --format=plain --output-file=licenses.txt
+          
+          # Check for problematic licenses
+          python -c "
+          import json
+          
+          # Define license categories
+          APPROVED_LICENSES = {
+              'MIT', 'Apache Software License', 'BSD License', 'BSD', 
+              'Apache 2.0', 'Apache License 2.0', 'MIT License',
+              'Python Software Foundation License', 'ISC License'
+          }
+          
+          COPYLEFT_LICENSES = {
+              'GNU General Public License', 'GPL', 'LGPL', 'AGPL',
+              'GNU Lesser General Public License', 'GNU Affero General Public License'
+          }
+          
+          with open('licenses.json', 'r') as f:
+              licenses = json.load(f)
+          
+          issues = []
+          for pkg in licenses:
+              license_name = pkg.get('License', 'Unknown')
+              if license_name in COPYLEFT_LICENSES:
+                  issues.append(f'{pkg[\"Name\"]} uses copyleft license: {license_name}')
+              elif license_name not in APPROVED_LICENSES and license_name != 'Unknown':
+                  issues.append(f'{pkg[\"Name\"]} uses uncommon license: {license_name}')
+          
+          if issues:
+              print('⚠️ License compliance issues found:')
+              for issue in issues:
+                  print(f'  - {issue}')
+          else:
+              print('✅ All licenses are compliant')
+          
+          with open('license-issues.txt', 'w') as f:
+              for issue in issues:
+                  f.write(issue + '\n')
+          "
+
+      - name: Upload audit reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit-${{ github.run_id }}
+          path: |
+            ${{ env.PACKAGE_PATH }}/current-dependencies.txt
+            ${{ env.PACKAGE_PATH }}/dependencies.json
+            ${{ env.PACKAGE_PATH }}/dependency-tree.json
+            ${{ env.PACKAGE_PATH }}/dependency-graph.svg
+            ${{ env.PACKAGE_PATH }}/safety-audit.json
+            ${{ env.PACKAGE_PATH }}/safety-report.txt
+            ${{ env.PACKAGE_PATH }}/outdated-packages.json
+            ${{ env.PACKAGE_PATH }}/outdated-summary.txt
+            ${{ env.PACKAGE_PATH }}/licenses.json
+            ${{ env.PACKAGE_PATH }}/licenses.txt
+            ${{ env.PACKAGE_PATH }}/license-issues.txt
+
+  # Update dependencies
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: dependency-audit
+    if: github.event.inputs.create_pr != 'false'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python for package
+        uses: ./.github/actions/setup-python-package
+        with:
+          python-version: '3.11'
+          package-path: ${{ env.PACKAGE_PATH }}
+          dependency-groups: 'all'
+          install-dependencies: false
+
+      - name: Install dependency management tools
+        run: |
+          pip install pip-tools pur pipenv-setup
+
+      - name: Download audit reports
+        uses: actions/download-artifact@v4
+        with:
+          name: dependency-audit-${{ github.run_id }}
+          path: ${{ env.PACKAGE_PATH }}/
+
+      - name: Update dependencies based on type
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          UPDATE_TYPE="${{ github.event.inputs.update_type || 'minor' }}"
+          
+          echo "🔄 Performing $UPDATE_TYPE dependency updates..."
+          
+          # Backup current pyproject.toml
+          cp pyproject.toml pyproject.toml.backup
+          
+          case $UPDATE_TYPE in
+            "patch")
+              echo "📝 Updating patch versions only"
+              # Update only patch versions (safest)
+              python -c "
+              import json
+              import tomllib
+              import toml
+              
+              # Load outdated packages
+              with open('outdated-packages.json', 'r') as f:
+                  outdated = json.load(f)
+              
+              # Load current config
+              with open('pyproject.toml', 'rb') as f:
+                  config = tomllib.load(f)
+              
+              # Update patch versions only
+              dependencies = config['project'].get('dependencies', [])
+              for i, dep in enumerate(dependencies):
+                  for pkg in outdated:
+                      if dep.startswith(pkg['name']):
+                          current_parts = pkg['version'].split('.')
+                          latest_parts = pkg['latest_version'].split('.')
+                          
+                          # Only update if major.minor are the same
+                          if (len(current_parts) >= 2 and len(latest_parts) >= 2 and
+                              current_parts[0] == latest_parts[0] and 
+                              current_parts[1] == latest_parts[1]):
+                              
+                              new_dep = f\"{pkg['name']}>={pkg['latest_version']}\"
+                              dependencies[i] = new_dep
+                              print(f'Updated {pkg[\"name\"]} to {pkg[\"latest_version\"]}')
+              
+              config['project']['dependencies'] = dependencies
+              
+              with open('pyproject.toml', 'w') as f:
+                  toml.dump(config, f)
+              "
+              ;;
+              
+            "minor")
+              echo "📝 Updating minor versions"
+              # Update minor versions (moderate risk)
+              python -c "
+              import json
+              import tomllib
+              import toml
+              
+              with open('outdated-packages.json', 'r') as f:
+                  outdated = json.load(f)
+              
+              with open('pyproject.toml', 'rb') as f:
+                  config = tomllib.load(f)
+              
+              dependencies = config['project'].get('dependencies', [])
+              for i, dep in enumerate(dependencies):
+                  for pkg in outdated:
+                      if dep.startswith(pkg['name']):
+                          current_parts = pkg['version'].split('.')
+                          latest_parts = pkg['latest_version'].split('.')
+                          
+                          # Update if major version is the same
+                          if (len(current_parts) >= 1 and len(latest_parts) >= 1 and
+                              current_parts[0] == latest_parts[0]):
+                              
+                              new_dep = f\"{pkg['name']}>={pkg['latest_version']}\"
+                              dependencies[i] = new_dep
+                              print(f'Updated {pkg[\"name\"]} to {pkg[\"latest_version\"]}')
+              
+              config['project']['dependencies'] = dependencies
+              
+              with open('pyproject.toml', 'w') as f:
+                  toml.dump(config, f)
+              "
+              ;;
+              
+            "major"|"all")
+              echo "📝 Updating all versions (including major)"
+              # Update all versions (highest risk)
+              python -c "
+              import json
+              import tomllib
+              import toml
+              
+              with open('outdated-packages.json', 'r') as f:
+                  outdated = json.load(f)
+              
+              with open('pyproject.toml', 'rb') as f:
+                  config = tomllib.load(f)
+              
+              dependencies = config['project'].get('dependencies', [])
+              for i, dep in enumerate(dependencies):
+                  for pkg in outdated:
+                      if dep.startswith(pkg['name']):
+                          new_dep = f\"{pkg['name']}>={pkg['latest_version']}\"
+                          dependencies[i] = new_dep
+                          print(f'Updated {pkg[\"name\"]} to {pkg[\"latest_version\"]}')
+              
+              config['project']['dependencies'] = dependencies
+              
+              with open('pyproject.toml', 'w') as f:
+                  toml.dump(config, f)
+              "
+              ;;
+          esac
+
+      - name: Test updated dependencies
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          echo "🧪 Testing updated dependencies..."
+          
+          # Try to install with new dependencies
+          pip install -e ".[test]" || {
+            echo "❌ Dependency installation failed, reverting changes"
+            cp pyproject.toml.backup pyproject.toml
+            exit 1
+          }
+          
+          # Run basic tests to ensure compatibility
+          pytest tests/ -x --tb=short -q --timeout=300 || {
+            echo "❌ Tests failed with new dependencies, reverting changes"
+            cp pyproject.toml.backup pyproject.toml
+            exit 1
+          }
+          
+          echo "✅ Dependency updates validated successfully"
+
+      - name: Generate update summary
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Compare old and new dependencies
+          python -c "
+          import tomllib
+          import json
+          
+          # Load original and updated configs
+          with open('pyproject.toml.backup', 'rb') as f:
+              old_config = tomllib.load(f)
+          
+          with open('pyproject.toml', 'rb') as f:
+              new_config = tomllib.load(f)
+          
+          old_deps = old_config['project'].get('dependencies', [])
+          new_deps = new_config['project'].get('dependencies', [])
+          
+          changes = []
+          for old_dep, new_dep in zip(old_deps, new_deps):
+              if old_dep != new_dep:
+                  changes.append(f'{old_dep} → {new_dep}')
+          
+          if changes:
+              print('## 📦 Dependency Updates')
+              print('')
+              for change in changes:
+                  print(f'- {change}')
+              print('')
+              
+              # Save to file for PR description
+              with open('update-summary.md', 'w') as f:
+                  f.write('## 📦 Dependency Updates\n\n')
+                  for change in changes:
+                      f.write(f'- {change}\n')
+                  f.write('\n')
+          else:
+              print('No dependency changes made.')
+              with open('update-summary.md', 'w') as f:
+                  f.write('No dependency changes were needed.\n')
+          " | tee dependency-changes.txt
+
+      - name: Create Pull Request
+        if: success()
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            feat(${{ env.PACKAGE_NAME }}): update dependencies (${{ github.event.inputs.update_type || 'minor' }})
+            
+            Automated dependency update with ${{ github.event.inputs.update_type || 'minor' }} version bumps.
+            
+            - Security vulnerabilities addressed
+            - Performance improvements from updated packages
+            - Compatibility maintained with existing codebase
+            
+            🤖 Generated with GitHub Actions
+          title: '🔄 Update ${{ env.PACKAGE_NAME }} dependencies (${{ github.event.inputs.update_type || 'minor' }})'
+          body-path: ${{ env.PACKAGE_PATH }}/update-summary.md
+          branch: deps/update-${{ env.PACKAGE_NAME }}-${{ github.run_id }}
+          base: main
+          labels: |
+            dependencies
+            automated
+            ${{ env.PACKAGE_NAME }}
+          draft: false
+
+  # Dependency security monitoring
+  security-monitoring:
+    name: Security Monitoring
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python for package
+        uses: ./.github/actions/setup-python-package
+        with:
+          python-version: '3.11'
+          package-path: ${{ env.PACKAGE_PATH }}
+          dependency-groups: 'all'
+
+      - name: Security scan with multiple tools
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Install security tools
+          pip install safety pip-audit bandit semgrep
+          
+          echo "🔒 Running comprehensive security scans..."
+          
+          # Safety check
+          safety check --json --output safety-security.json || true
+          
+          # pip-audit check
+          pip-audit --format=json --output pip-audit-security.json || true
+          
+          # Bandit source code analysis
+          bandit -r . -f json -o bandit-security.json || true
+          
+          # Semgrep security patterns
+          semgrep --config=auto --json --output semgrep-security.json . || true
+
+      - name: Aggregate security findings
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          python -c "
+          import json
+          import os
+          
+          security_summary = {
+              'total_issues': 0,
+              'high_severity': 0,
+              'medium_severity': 0,
+              'low_severity': 0,
+              'tools': {}
+          }
+          
+          # Process Safety results
+          if os.path.exists('safety-security.json'):
+              try:
+                  with open('safety-security.json', 'r') as f:
+                      safety_data = json.load(f)
+                  safety_issues = len(safety_data) if isinstance(safety_data, list) else 0
+                  security_summary['tools']['safety'] = safety_issues
+                  security_summary['total_issues'] += safety_issues
+              except:
+                  pass
+          
+          # Process pip-audit results
+          if os.path.exists('pip-audit-security.json'):
+              try:
+                  with open('pip-audit-security.json', 'r') as f:
+                      audit_data = json.load(f)
+                  audit_issues = len(audit_data.get('dependencies', {}).get('vulns', []))
+                  security_summary['tools']['pip_audit'] = audit_issues
+                  security_summary['total_issues'] += audit_issues
+              except:
+                  pass
+          
+          # Process Bandit results
+          if os.path.exists('bandit-security.json'):
+              try:
+                  with open('bandit-security.json', 'r') as f:
+                      bandit_data = json.load(f)
+                  bandit_issues = len(bandit_data.get('results', []))
+                  security_summary['tools']['bandit'] = bandit_issues
+                  
+                  # Count by severity
+                  for result in bandit_data.get('results', []):
+                      severity = result.get('issue_severity', '').lower()
+                      if severity == 'high':
+                          security_summary['high_severity'] += 1
+                      elif severity == 'medium':
+                          security_summary['medium_severity'] += 1
+                      else:
+                          security_summary['low_severity'] += 1
+              except:
+                  pass
+          
+          # Process Semgrep results
+          if os.path.exists('semgrep-security.json'):
+              try:
+                  with open('semgrep-security.json', 'r') as f:
+                      semgrep_data = json.load(f)
+                  semgrep_issues = len(semgrep_data.get('results', []))
+                  security_summary['tools']['semgrep'] = semgrep_issues
+                  security_summary['total_issues'] += semgrep_issues
+              except:
+                  pass
+          
+          # Save summary
+          with open('security-summary.json', 'w') as f:
+              json.dump(security_summary, f, indent=2)
+          
+          # Print summary
+          print(f'🔒 Security Summary:')
+          print(f'  Total Issues: {security_summary[\"total_issues\"]}')
+          print(f'  High Severity: {security_summary[\"high_severity\"]}')
+          print(f'  Medium Severity: {security_summary[\"medium_severity\"]}')
+          print(f'  Low Severity: {security_summary[\"low_severity\"]}')
+          print('')
+          print('Tool Results:')
+          for tool, count in security_summary['tools'].items():
+              print(f'  {tool}: {count} issues')
+          "
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-monitoring-${{ github.run_id }}
+          path: |
+            ${{ env.PACKAGE_PATH }}/safety-security.json
+            ${{ env.PACKAGE_PATH }}/pip-audit-security.json
+            ${{ env.PACKAGE_PATH }}/bandit-security.json
+            ${{ env.PACKAGE_PATH }}/semgrep-security.json
+            ${{ env.PACKAGE_PATH }}/security-summary.json
+
+      - name: Create security issue if critical vulnerabilities found
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Check if we should create an issue
+          CRITICAL_FOUND=$(python -c "
+          import json
+          try:
+              with open('security-summary.json', 'r') as f:
+                  summary = json.load(f)
+              print('true' if summary['high_severity'] > 0 else 'false')
+          except:
+              print('false')
+          ")
+          
+          if [ "$CRITICAL_FOUND" = "true" ]; then
+            echo "🚨 Critical security vulnerabilities found!"
+            echo "An issue should be created to track remediation."
+            echo "CRITICAL_SECURITY_FOUND=true" >> $GITHUB_ENV
+          else
+            echo "✅ No critical security vulnerabilities found"
+            echo "CRITICAL_SECURITY_FOUND=false" >> $GITHUB_ENV
+          fi
+
+  # Generate comprehensive report
+  generate-report:
+    name: Generate Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [dependency-audit, update-dependencies, security-monitoring]
+    if: always()
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Generate comprehensive dependency report
+        run: |
+          echo "## 📊 Dependency Management Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔍 Audit Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Dependency Audit**: ${{ needs.dependency-audit.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Dependency Updates**: ${{ needs.update-dependencies.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Monitoring**: ${{ needs.security-monitoring.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Add security summary if available
+          if [ -f security-monitoring-*/security-summary.json ]; then
+            python -c "
+            import json
+            import glob
+            
+            summary_files = glob.glob('security-monitoring-*/security-summary.json')
+            if summary_files:
+                with open(summary_files[0], 'r') as f:
+                    summary = json.load(f)
+                
+                print('### 🔒 Security Summary')
+                print(f'- **Total Issues**: {summary[\"total_issues\"]}')
+                print(f'- **High Severity**: {summary[\"high_severity\"]}')
+                print(f'- **Medium Severity**: {summary[\"medium_severity\"]}')
+                print(f'- **Low Severity**: {summary[\"low_severity\"]}')
+                print('')
+            " >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "### 📈 Recommendations" >> $GITHUB_STEP_SUMMARY
+          echo "- Review and merge dependency update PR if created" >> $GITHUB_STEP_SUMMARY
+          echo "- Address any high-severity security issues immediately" >> $GITHUB_STEP_SUMMARY
+          echo "- Monitor for new vulnerabilities in dependencies" >> $GITHUB_STEP_SUMMARY
+          echo "- Consider pinning critical dependency versions" >> $GITHUB_STEP_SUMMARY

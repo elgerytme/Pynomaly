@@ -1,0 +1,33 @@
+metadata:
+  type: autonomous
+  created: '2025-06-24T17:12:43.914893'
+  version: '1.0'
+  description: Pynomaly autonomous configuration
+autonomous:
+  data_source: data/autonomous_dataset.csv
+  analysis:
+    max_samples: 10000
+    profile_data: true
+    detect_seasonality: true
+    complexity_analysis: true
+  detection:
+    max_algorithms: 8
+    confidence_threshold: 0.8
+    auto_tune_hyperparams: true
+    ensemble_methods: true
+  output:
+    save_results: true
+    export_results: true
+    export_format: csv
+    verbose: true
+    generate_insights: true
+  quality_assurance:
+    validation_checks: true
+    result_consistency: true
+    performance_monitoring: true
+examples:
+  usage:
+  - pynomaly auto detect path/to/data.csv --output results.csv
+  - pynomaly auto profile path/to/data.csv --verbose
+  - pynomaly auto quick path/to/data.csv --contamination 0.05
+  description: Fully autonomous anomaly detection with minimal configuration

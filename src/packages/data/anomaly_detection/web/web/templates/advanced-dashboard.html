@@ -1,0 +1,498 @@
+{% extends "base.html" %}
+
+{% block title %}Advanced Dashboard - Pynomaly{% endblock %}
+
+{% block head %}
+<!-- Advanced Dashboard CSS -->
+<link rel="stylesheet" href="/static/css/advanced-dashboard.css">
+
+<!-- Chart Libraries -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+<!-- Advanced Features -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=5.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<style>
+/* Page-specific styles */
+.advanced-dashboard-page {
+  padding: 0;
+  margin: 0;
+  background: var(--color-background);
+  min-height: 100vh;
+}
+
+.advanced-dashboard-page main {
+  padding: 0;
+  margin: 0;
+}
+
+/* Hide base template navigation for full-screen dashboard */
+.advanced-dashboard-page nav {
+  display: none;
+}
+
+.advanced-dashboard-page footer {
+  display: none;
+}
+
+/* Dashboard-specific header */
+.dashboard-app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-4) var(--spacing-6);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-app-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+.dashboard-app-title h1 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.dashboard-app-logo {
+  font-size: var(--font-size-2xl);
+}
+
+.dashboard-app-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+}
+
+.dashboard-back-link {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  transition: var(--transition-colors);
+}
+
+.dashboard-back-link:hover {
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+}
+
+@media (max-width: 768px) {
+  .dashboard-app-header {
+    flex-direction: column;
+    gap: var(--spacing-3);
+    align-items: stretch;
+  }
+
+  .dashboard-app-controls {
+    justify-content: center;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="advanced-dashboard-page">
+  <!-- Dashboard App Header -->
+  <div class="dashboard-app-header">
+    <div class="dashboard-app-title">
+      <span class="dashboard-app-logo">🔍</span>
+      <h1>Advanced Analytics Dashboard</h1>
+    </div>
+    <div class="dashboard-app-controls">
+      <a href="/" class="dashboard-back-link">
+        ← Back to Main Dashboard
+      </a>
+      <div id="theme-toggle-container"></div>
+    </div>
+  </div>
+
+  <!-- Advanced Dashboard Container -->
+  <div id="advanced-dashboard-root"></div>
+</div>
+
+<!-- Loading State -->
+<div id="dashboard-loading" class="loading-overlay">
+  <div class="loading-content">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading Advanced Dashboard...</div>
+  </div>
+</div>
+
+<!-- Error State -->
+<div id="dashboard-error" class="error-state" style="display: none;">
+  <div class="error-icon">⚠️</div>
+  <h3>Dashboard Load Error</h3>
+  <p>There was a problem loading the advanced dashboard. Please check your connection and try again.</p>
+  <button class="btn-base btn-primary" onclick="location.reload()">Retry</button>
+</div>
+
+<!-- Performance Monitor (Development Mode) -->
+{% if debug %}
+<div id="performance-monitor" class="performance-monitor hidden">
+  <div class="performance-metric">
+    <span class="performance-label">FPS:</span>
+    <span class="performance-value" id="fps-value">60</span>
+  </div>
+  <div class="performance-metric">
+    <span class="performance-label">Memory:</span>
+    <span class="performance-value" id="memory-value">0MB</span>
+  </div>
+  <div class="performance-metric">
+    <span class="performance-label">Data Points:</span>
+    <span class="performance-value" id="datapoints-value">0</span>
+  </div>
+  <div class="performance-metric">
+    <span class="performance-label">Network:</span>
+    <span class="performance-value" id="network-value">Online</span>
+  </div>
+</div>
+{% endif %}
+
+<!-- Accessibility Announcements -->
+<div aria-live="polite" id="dashboard-announcements" class="sr-only"></div>
+<div aria-live="assertive" id="dashboard-alerts" class="sr-only"></div>
+
+<!-- Keyboard Shortcuts Help -->
+<div id="keyboard-help-modal" class="keyboard-help-modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Keyboard Shortcuts</h2>
+      <button class="modal-close" onclick="this.closest('.keyboard-help-modal').style.display='none'">&times;</button>
+    </div>
+    <div class="modal-body">
+      <dl class="keyboard-shortcuts">
+        <dt>Ctrl/Cmd + F</dt>
+        <dd>Toggle filters panel</dd>
+
+        <dt>Ctrl/Cmd + R</dt>
+        <dd>Toggle real-time updates</dd>
+
+        <dt>Ctrl/Cmd + E</dt>
+        <dd>Export dashboard</dd>
+
+        <dt>Ctrl/Cmd + D</dt>
+        <dd>Reset dashboard</dd>
+
+        <dt>Ctrl/Cmd + Shift + T</dt>
+        <dd>Toggle theme</dd>
+
+        <dt>Escape</dt>
+        <dd>Close modals/panels</dd>
+
+        <dt>Space</dt>
+        <dd>Pause/resume real-time stream</dd>
+
+        <dt>?</dt>
+        <dd>Show this help</dd>
+      </dl>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Advanced Dashboard Components -->
+<script type="module" src="/static/js/components/advanced-interactive-dashboard.js"></script>
+<script type="module" src="/static/js/services/enhanced-websocket-service.js"></script>
+<script type="module" src="/static/js/utils/enhanced-pwa-manager.js"></script>
+
+<!-- Enhanced Visualization Libraries -->
+<script src="/static/js/components/InteractiveDataVisualization.js"></script>
+<script src="/static/js/advanced_visualizations.js"></script>
+
+<!-- Dashboard Initialization -->
+<script type="module">
+import AdvancedInteractiveDashboard from '/static/js/components/advanced-interactive-dashboard.js';
+import EnhancedWebSocketService from '/static/js/services/enhanced-websocket-service.js';
+import EnhancedPWAManager from '/static/js/utils/enhanced-pwa-manager.js';
+
+// Dashboard Configuration
+const dashboardConfig = {
+  enableRealTime: true,
+  enableDrillDown: true,
+  enableCollaboration: {{ enable_collaboration|default(true)|tojson }},
+  enableAdvancedFiltering: true,
+  refreshInterval: 5000,
+  maxDataPoints: 10000,
+  enableWebGL: true,
+  debug: {{ debug|default(false)|tojson }}
+};
+
+// Performance Monitoring (Development)
+let performanceMonitor = null;
+if (dashboardConfig.debug) {
+  performanceMonitor = {
+    fps: 0,
+    frameCount: 0,
+    lastTime: performance.now(),
+    memory: 0,
+    dataPoints: 0,
+
+    update() {
+      const now = performance.now();
+      const delta = now - this.lastTime;
+
+      if (delta >= 1000) {
+        this.fps = Math.round((this.frameCount * 1000) / delta);
+        this.frameCount = 0;
+        this.lastTime = now;
+
+        // Update memory usage
+        if (performance.memory) {
+          this.memory = Math.round(performance.memory.usedJSHeapSize / 1048576);
+        }
+
+        // Update UI
+        this.updateUI();
+      }
+
+      this.frameCount++;
+      requestAnimationFrame(() => this.update());
+    },
+
+    updateUI() {
+      const fpsElement = document.getElementById('fps-value');
+      const memoryElement = document.getElementById('memory-value');
+      const datapointsElement = document.getElementById('datapoints-value');
+      const networkElement = document.getElementById('network-value');
+
+      if (fpsElement) {
+        fpsElement.textContent = this.fps;
+        fpsElement.className = `performance-value ${this.fps < 30 ? 'critical' : this.fps < 50 ? 'warning' : ''}`;
+      }
+
+      if (memoryElement) {
+        memoryElement.textContent = `${this.memory}MB`;
+        memoryElement.className = `performance-value ${this.memory > 100 ? 'critical' : this.memory > 50 ? 'warning' : ''}`;
+      }
+
+      if (datapointsElement) {
+        datapointsElement.textContent = this.dataPoints;
+      }
+
+      if (networkElement) {
+        networkElement.textContent = navigator.onLine ? 'Online' : 'Offline';
+        networkElement.className = `performance-value ${!navigator.onLine ? 'critical' : ''}`;
+      }
+    }
+  };
+
+  // Start performance monitoring
+  performanceMonitor.update();
+
+  // Show performance monitor
+  document.getElementById('performance-monitor')?.classList.remove('hidden');
+}
+
+// Initialize Dashboard
+async function initializeDashboard() {
+  try {
+    // Show loading state
+    const loadingElement = document.getElementById('dashboard-loading');
+    const errorElement = document.getElementById('dashboard-error');
+    const rootElement = document.getElementById('advanced-dashboard-root');
+
+    loadingElement.style.display = 'flex';
+    errorElement.style.display = 'none';
+
+    // Initialize PWA Manager
+    console.log('[Dashboard] Initializing PWA Manager...');
+    const pwaManager = EnhancedPWAManager.getInstance({
+      enableInstallPrompt: true,
+      enablePushNotifications: true,
+      enableBackgroundSync: true,
+      enableOfflineAnalytics: true
+    });
+
+    // Initialize WebSocket Service
+    console.log('[Dashboard] Initializing WebSocket Service...');
+    const wsService = EnhancedWebSocketService.getInstance({
+      enableCompression: true,
+      enableBinarySupport: true,
+      enableCollaboration: dashboardConfig.enableCollaboration
+    });
+
+    // Wait for initial connection
+    await new Promise((resolve) => {
+      const removeListener = wsService.addConnectionListener((event) => {
+        if (event === 'connected') {
+          removeListener();
+          resolve();
+        }
+      });
+
+      // Timeout after 5 seconds
+      setTimeout(resolve, 5000);
+    });
+
+    // Initialize Dashboard
+    console.log('[Dashboard] Initializing Advanced Dashboard...');
+    const dashboard = new AdvancedInteractiveDashboard(rootElement, dashboardConfig);
+
+    // Store global references
+    window.dashboardInstance = dashboard;
+    window.wsService = wsService;
+    window.pwaManager = pwaManager;
+    window.performanceMonitor = performanceMonitor;
+
+    // Set up event listeners
+    setupEventListeners(dashboard, wsService, pwaManager);
+
+    // Hide loading state
+    loadingElement.style.display = 'none';
+
+    console.log('[Dashboard] Advanced Dashboard initialized successfully');
+
+    // Announce to screen readers
+    announceToScreenReader('Advanced dashboard loaded successfully');
+
+  } catch (error) {
+    console.error('[Dashboard] Initialization failed:', error);
+
+    // Show error state
+    document.getElementById('dashboard-loading').style.display = 'none';
+    document.getElementById('dashboard-error').style.display = 'flex';
+
+    // Announce error to screen readers
+    announceToScreenReader('Dashboard failed to load. Please try refreshing the page.', true);
+  }
+}
+
+// Set up global event listeners
+function setupEventListeners(dashboard, wsService, pwaManager) {
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    // Help modal
+    if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      toggleKeyboardHelp();
+    }
+
+    // Space bar for stream pause/resume
+    if (e.key === ' ' && e.target === document.body) {
+      e.preventDefault();
+      dashboard.toggleStreamPause?.();
+    }
+  });
+
+  // Window visibility change
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      dashboard.pauseAnimations?.();
+    } else {
+      dashboard.resumeAnimations?.();
+    }
+  });
+
+  // Network status changes
+  window.addEventListener('online', () => {
+    announceToScreenReader('Connection restored. Real-time features are now available.');
+  });
+
+  window.addEventListener('offline', () => {
+    announceToScreenReader('Connection lost. Operating in offline mode.');
+  });
+
+  // Resize handling
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      dashboard.handleResize?.();
+    }, 250);
+  });
+
+  // Performance monitoring events
+  if (performanceMonitor) {
+    dashboard.on?.('data-update', (data) => {
+      performanceMonitor.dataPoints = data.totalPoints || 0;
+    });
+  }
+}
+
+// Helper functions
+function toggleKeyboardHelp() {
+  const modal = document.getElementById('keyboard-help-modal');
+  if (modal) {
+    modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+function announceToScreenReader(message, isAlert = false) {
+  const element = document.getElementById(isAlert ? 'dashboard-alerts' : 'dashboard-announcements');
+  if (element) {
+    element.textContent = message;
+
+    // Clear after a delay to allow for multiple announcements
+    setTimeout(() => {
+      element.textContent = '';
+    }, 1000);
+  }
+}
+
+// Error handling
+window.addEventListener('error', (event) => {
+  console.error('[Dashboard] JavaScript error:', event.error);
+  announceToScreenReader('An error occurred in the dashboard. Some features may not work correctly.', true);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[Dashboard] Unhandled promise rejection:', event.reason);
+  announceToScreenReader('A background operation failed. Please check your connection.', true);
+});
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeDashboard);
+} else {
+  initializeDashboard();
+}
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+  if (window.dashboardInstance) {
+    window.dashboardInstance.destroy();
+  }
+  if (window.wsService) {
+    window.wsService.disconnect();
+  }
+});
+</script>
+
+<!-- Analytics and Monitoring -->
+{% if enable_analytics %}
+<script>
+// Track dashboard usage
+if (window.gtag) {
+  gtag('event', 'page_view', {
+    page_title: 'Advanced Dashboard',
+    page_location: window.location.href
+  });
+}
+
+// Track feature usage
+document.addEventListener('dashboard-feature-used', (event) => {
+  if (window.gtag) {
+    gtag('event', 'dashboard_feature_used', {
+      feature_name: event.detail.feature,
+      feature_type: event.detail.type
+    });
+  }
+});
+</script>
+{% endif %}
+{% endblock %}

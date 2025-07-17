@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Monitoring Dashboard - Pynomaly</title>
+
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/tailwind.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/advanced-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/styles.css') }}">
+
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom styles for monitoring dashboard */
+        .monitoring-dashboard {
+            padding: 20px;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.status-healthy { background: #10b981; }
+        .status-dot.status-degraded { background: #f59e0b; }
+        .status-dot.status-unhealthy { background: #ef4444; }
+        .status-dot.status-unknown { background: #6b7280; }
+
+        .health-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .score-value.score-excellent { color: #10b981; }
+        .score-value.score-good { color: #3b82f6; }
+        .score-value.score-warning { color: #f59e0b; }
+        .score-value.score-critical { color: #ef4444; }
+
+        .connection-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .connection-indicator.connection-connected { background: #10b981; }
+        .connection-indicator.connection-disconnected { background: #6b7280; }
+        .connection-indicator.connection-error { background: #ef4444; }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .metric-header h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .metric-change {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .charts-section {
+            margin-bottom: 30px;
+        }
+
+        .chart-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container h3 {
+            margin: 0 0 20px 0;
+            font-size: 16px;
+            color: #1f2937;
+        }
+
+        .alerts-section, .errors-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .alert-count {
+            background: #ef4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .alert-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 4px solid;
+        }
+
+        .alert-item.alert-critical {
+            background: #fef2f2;
+            border-left-color: #ef4444;
+        }
+
+        .alert-item.alert-warning {
+            background: #fffbeb;
+            border-left-color: #f59e0b;
+        }
+
+        .web-vitals-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .vital-metric {
+            text-align: center;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+
+        .vital-rating.rating-good {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .vital-rating.rating-needs-improvement {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .vital-rating.rating-poor {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 768px) {
+            .chart-row {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .vitals-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="/">
+                    <img src="{{ url_for('static', path='/img/pynomaly-logo.png') }}" alt="Pynomaly" class="logo">
+                </a>
+            </div>
+            <div class="nav-menu">
+                <a href="/" class="nav-link">Dashboard</a>
+                <a href="/detection" class="nav-link">Detection</a>
+                <a href="/monitoring" class="nav-link active">Monitoring</a>
+                <a href="/docs" class="nav-link">Documentation</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Real-time Monitoring Dashboard</h1>
+                <p class="page-description">
+                    Comprehensive system health, performance metrics, and user analytics
+                </p>
+            </div>
+
+            <!-- Dashboard Container -->
+            <div id="monitoring-dashboard-container"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Pynomaly. Real-time anomaly detection platform.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Dependencies -->
+    <script src="{{ url_for('static', path='/js/monitoring-dashboard.js') }}"></script>
+
+    <script>
+        // Initialize the monitoring dashboard when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize monitoring dashboard
+            const dashboard = new MonitoringDashboard('monitoring-dashboard-container', {
+                autoRefresh: true,
+                refreshInterval: 5000,
+                enableWebSocket: true,
+                apiEndpoint: '/api/v1/monitoring',
+                wsEndpoint: '/api/v1/monitoring/ws'
+            });
+
+            // Handle page visibility changes to pause/resume monitoring
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    // Page is hidden, pause intensive operations
+                    console.log('Dashboard hidden, reducing update frequency');
+                } else {
+                    // Page is visible, resume normal operations
+                    console.log('Dashboard visible, resuming normal updates');
+                }
+            });
+
+            // Handle page unload to cleanup resources
+            window.addEventListener('beforeunload', function() {
+                if (dashboard && dashboard.destroy) {
+                    dashboard.destroy();
+                }
+            });
+
+            // Add error handling for WebSocket connection issues
+            window.addEventListener('online', function() {
+                console.log('Network connection restored');
+                // Dashboard will automatically reconnect
+            });
+
+            window.addEventListener('offline', function() {
+                console.log('Network connection lost');
+                // Dashboard will show offline status
+            });
+        });
+
+        // Global error handler for dashboard errors
+        window.addEventListener('error', function(event) {
+            console.error('Dashboard error:', event.error);
+
+            // Track error if monitoring is available
+            if (window.MonitoringDashboard) {
+                // This could be enhanced to automatically report errors
+                console.log('Error tracked for monitoring');
+            }
+        });
+
+        // Performance observer for Web Vitals tracking
+        if ('PerformanceObserver' in window) {
+            // Track Core Web Vitals
+            const observer = new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    // This could be enhanced to automatically send Web Vitals to the monitoring API
+                    console.log('Web Vital recorded:', entry.name, entry.value);
+                }
+            });
+
+            // Observe different performance metrics
+            try {
+                observer.observe({ entryTypes: ['navigation', 'paint', 'largest-contentful-paint'] });
+            } catch (e) {
+                console.log('Performance observation not supported');
+            }
+        }
+    </script>
+</body>
+</html>
