@@ -44,7 +44,7 @@ All feature flags use the `PYNOMALY_` prefix and can be set as environment varia
 
 ### Core Enhancement Features (Default: Enabled)
 
-- **Algorithm Optimization**: Performance improvements for detection algorithms
+- **Algorithm Optimization**: Performance improvements for pattern algorithms
 - **Memory Efficiency**: Memory-efficient streaming processing
 - **Performance Monitoring**: Real-time system monitoring
 - **CLI Simplification**: Simplified command-line workflows

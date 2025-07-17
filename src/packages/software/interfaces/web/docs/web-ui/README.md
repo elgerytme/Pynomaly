@@ -112,7 +112,7 @@ The Pynomaly Web UI is built with modern web technologies:
 - **Documentation**: Browse the guides in this documentation
 - **Troubleshooting**: Check the [troubleshooting guide](./troubleshooting.md)
 - **Community**: Join our community discussions
-- **Support**: Contact support for enterprise features
+- **Support**: Contact support for advanced features
 
 ## 🔗 External Resources
 

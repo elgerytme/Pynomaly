@@ -1,4 +1,4 @@
-🚨 Found 58 potential domain violations:
+🚨 Found 48 potential domain violations:
 ============================================================
 
 Package: data.anomaly_detection
@@ -181,21 +181,9 @@ Line 38: - **TensorFlow**: Google's ML platform
 Term: ml
 Severity: warning
 ----------------------------------------
-Package: software.interfaces.api.docs
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/api/docs/README.md
-Line 6: A comprehensive, production-ready anomaly processing system with enterprise-grade features.
-Term: enterprise
-Severity: warning
-----------------------------------------
-Package: software.interfaces.python_sdk.docs.getting-started
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/getting-started/README.md
-Line 8: Welcome to Pynomaly! This section will get you up and running with anomaly detection in minutes.
-Term: anomaly
-Severity: warning
-----------------------------------------
 Package: software.interfaces.python_sdk.docs.tutorials
 File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/tutorials/README.md
-Line 10: This directory contains the complete documentation suite for Pynomaly, covering all aspects of the state-of-the-art anomaly detection platform. The documentation is designed for multiple audiences including business users, technical implementers, data scientists, and system administrators.
+Line 10: This directory contains the complete documentation suite for Pynomaly, covering all aspects of the state-of-the-art pattern detection platform. The documentation is designed for multiple audiences including business users, technical implementers, data scientists, and system administrators.
 Term: detection
 Severity: warning
 ----------------------------------------
@@ -205,34 +193,10 @@ Line 150: - Use selection guide for algorithm choices
 Term: algorithm
 Severity: warning
 ----------------------------------------
-Package: software.interfaces.python_sdk.docs.tutorials
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/tutorials/README.md
-Line 188: - **Training Requests**: Available for enterprise customers
-Term: enterprise
-Severity: warning
-----------------------------------------
 Package: software.interfaces.python_sdk.docs.user-guides
 File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/README.md
-Line 3: Welcome to Pynomaly, the comprehensive enterprise-grade anomaly detection platform. This user guide will help you get started quickly and master advanced features for production deployments.
+Line 3: Welcome to Pynomaly, the comprehensive advanced-grade pattern detection platform. This user guide will help you get started quickly and master advanced features for production deployments.
 Term: detection
-Severity: warning
-----------------------------------------
-Package: software.interfaces.python_sdk.docs.user-guides
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/README.md
-Line 69: Pynomaly is designed for enterprise-scale anomaly detection across various domains:
-Term: enterprise
-Severity: warning
-----------------------------------------
-Package: software.interfaces.python_sdk.docs.user-guides.feature-flags
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/feature-flags/README.md
-Line 47: - **Algorithm Optimization**: Performance improvements for detection algorithms
-Term: detection
-Severity: warning
-----------------------------------------
-Package: software.interfaces.python_sdk.docs.user-guides.onboarding
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/onboarding/README.md
-Line 7: Welcome to Pynomaly's interactive onboarding system! This guide will help you get started with anomaly detection through a personalized, step-by-step journey tailored to your role and experience level.
-Term: anomaly
 Severity: warning
 ----------------------------------------
 Package: software.interfaces.python_sdk.docs.user-guides.onboarding
@@ -245,18 +209,6 @@ Package: software.interfaces.python_sdk.docs.user-guides.onboarding
 File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/onboarding/README.md
 Line 25: ### For Business Analysts
 Term: business
-Severity: warning
-----------------------------------------
-Package: software.interfaces.python_sdk.docs.user-guides.onboarding
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/onboarding/README.md
-Line 28: - **Use Case Identification** - Recognize opportunities for anomaly detection
-Term: anomaly
-Severity: warning
-----------------------------------------
-Package: software.interfaces.python_sdk.docs.user-guides.production-deployment
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/production-deployment/README.md
-Line 24: This comprehensive guide covers deploying Pynomaly to production environments with enterprise-grade reliability, security, and performance. Pynomaly is built on **FastAPI** with **SQLAlchemy** for database operations, **Redis** for caching, and supports multiple deployment architectures.
-Term: enterprise
 Severity: warning
 ----------------------------------------
 Package: software.interfaces.python_sdk.docs.user-guides.onboarding.role-specific
@@ -325,27 +277,15 @@ Line 294: js-yaml for enterprise
 Term: enterprise
 Severity: warning
 ----------------------------------------
-Package: software.interfaces.web.docs.design-system
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/docs/design-system/README.md
-Line 275: 1. **Charts** - Line charts, scatter plots, heatmaps for anomaly visualization
-Term: anomaly
-Severity: warning
-----------------------------------------
-Package: software.interfaces.web.docs.web-ui
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/docs/web-ui/README.md
-Line 115: - **Support**: Contact support for enterprise features
-Term: enterprise
-Severity: warning
-----------------------------------------
 Package: software.interfaces.web.web.static.js.src.components
 File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/web/static/js/src/components/README.md
-Line 5: A comprehensive, production-ready D3.js chart library for the Pynomaly anomaly detection platform. This library provides interactive, accessible, and responsive data visualization components with real-time updates, advanced interactions, and comprehensive accessibility support.
+Line 5: A comprehensive, production-ready D3.js chart library for the Pynomaly pattern detection platform. This library provides interactive, accessible, and responsive data visualization components with real-time updates, advanced interactions, and comprehensive accessibility support.
 Term: detection
 Severity: warning
 ----------------------------------------
 Package: software.interfaces.web.web.static.js.src.components
 File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/web/static/js/src/components/README.md
-Line 538: Part of the Pynomaly anomaly detection platform. See main project license for details.
+Line 538: Part of the Pynomaly pattern detection platform. See main project license for details.
 Term: detection
 Severity: warning
 ----------------------------------------

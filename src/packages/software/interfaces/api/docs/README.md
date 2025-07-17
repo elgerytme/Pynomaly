@@ -1,9 +1,9 @@
 # Software API Documentation
 
 
-# Software - Enterprise Anomaly Processing Platform
+# Software - Advanced Pattern Processing Platform
 
-A comprehensive, production-ready anomaly processing system with enterprise-grade features.
+A comprehensive, production-ready pattern processing system with advanced-grade features.
 
 ## Features
 
