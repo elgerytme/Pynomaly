@@ -8,9 +8,9 @@ build-backend = "hatchling.build"
 # Legacy Poetry configuration removed - using Hatch build system
 
 [project]
-name = "monorepo"
+name = "pynomaly"
 dynamic = ["version"]
-description = "Production-ready monorepo platform with clean architecture, AutoML, and 40+ algorithms"
+description = "Production-ready anomaly detection library with clean architecture, AutoML, and 40+ algorithms"
 authors = [{name = "Monorepo Team", email = "team@monorepo.io"}]
 license = {text = "MIT"}
 readme = "README.md"
@@ -368,7 +368,7 @@ all = [
 ]
 
 [project.scripts]
-monorepo = "packages.software.interfaces.cli.cli.app:app"
+pynomaly = "pynomaly_detection.infrastructure.cli.cli.app:app"
 
 [project.gui-scripts]
 monorepo-gui = "packages.software.interfaces.web.app:main"
@@ -378,7 +378,7 @@ monorepo-gui = "packages.software.interfaces.web.app:main"
 source = "vcs"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "src/packages/data/anomaly_detection/src/monorepo_detection/_version.py"
+version-file = "src/packages/data/anomaly_detection/src/pynomaly_detection/_version.py"
 
 # Buck2 integration (Buck2 is installed and available)
 # [tool.hatch.build.hooks.buck2]
@@ -397,20 +397,20 @@ version-file = "src/packages/data/anomaly_detection/src/monorepo_detection/_vers
 
 [tool.hatch.build]
 include = [
-    "src/packages/data/anomaly_detection/src/monorepo_detection/**/*.py",
-    "src/packages/data/anomaly_detection/src/monorepo_detection/**/*.pyi",
-    "src/packages/data/anomaly_detection/src/monorepo_detection/py.typed",
+    "src/packages/data/anomaly_detection/src/pynomaly_detection/**/*.py",
+    "src/packages/data/anomaly_detection/src/pynomaly_detection/**/*.pyi",
+    "src/packages/data/anomaly_detection/src/pynomaly_detection/py.typed",
     "src/packages/software/interfaces/**/*.py",
 ]
 exclude = [
-    "src/packages/data/anomaly_detection/src/monorepo_detection/**/*_test.py",
-    "src/packages/data/anomaly_detection/src/monorepo_detection/**/test_*.py",
+    "src/packages/data/anomaly_detection/src/pynomaly_detection/**/*_test.py",
+    "src/packages/data/anomaly_detection/src/pynomaly_detection/**/test_*.py",
     "src/packages/software/interfaces/**/*_test.py",
     "src/packages/software/interfaces/**/test_*.py",
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/packages/data/anomaly_detection/src/monorepo_detection", "src/packages/software/interfaces"]
+packages = ["src/packages/data/anomaly_detection/src/pynomaly_detection", "src/packages/software/interfaces"]
 
 [tool.hatch.build.targets.sdist]
 include = [

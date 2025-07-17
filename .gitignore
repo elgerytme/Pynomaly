@@ -236,6 +236,11 @@ artifacts/
 *.temp
 *.orig
 *.rej
+*_old.*
+*_backup.*
+*_temp.*
+*_orig.*
+*_original_backup.*
 
 # Local development
 .local/
