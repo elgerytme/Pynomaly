@@ -1,0 +1,410 @@
+name: Release Management
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      packages:
+        description: 'Packages to release (comma-separated, leave empty for all)'
+        required: false
+        type: string
+      pre_release:
+        description: 'Pre-release version'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Prepare release
+  prepare-release:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      packages: ${{ steps.packages.outputs.packages }}
+      release-notes: ${{ steps.release-notes.outputs.notes }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install release tools
+        run: |
+          pip install bump2version gitpython
+      
+      - name: Determine packages to release
+        id: packages
+        run: |
+          if [ -n "${{ github.event.inputs.packages }}" ]; then
+            packages="${{ github.event.inputs.packages }}"
+          else
+            # Get all packages
+            packages=$(find src/packages -name "pyproject.toml" -not -path "*/.*" | xargs dirname | sed 's|src/packages/||' | sort | tr '\n' ',' | sed 's/,$//')
+          fi
+          echo "packages=$packages" >> $GITHUB_OUTPUT
+      
+      - name: Calculate new version
+        id: version
+        run: |
+          current_version=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          current_version=${current_version#v}
+          
+          # Calculate new version based on release type
+          python -c "
+import re
+from packaging.version import Version
+
+current = Version('$current_version')
+release_type = '${{ github.event.inputs.release_type }}'
+
+if release_type == 'major':
+    new_version = Version(f'{current.major + 1}.0.0')
+elif release_type == 'minor':
+    new_version = Version(f'{current.major}.{current.minor + 1}.0')
+else:  # patch
+    new_version = Version(f'{current.major}.{current.minor}.{current.micro + 1}')
+
+if '${{ github.event.inputs.pre_release }}' == 'true':
+    new_version = Version(f'{new_version.base_version}rc1')
+
+print(f'version={new_version}')
+" >> $GITHUB_OUTPUT
+      
+      - name: Generate release notes
+        id: release-notes
+        run: |
+          python -c "
+import subprocess
+import re
+from datetime import datetime
+
+# Get commits since last release
+try:
+    last_tag = subprocess.check_output(['git', 'describe', '--tags', '--abbrev=0'], text=True).strip()
+    commits = subprocess.check_output(['git', 'log', f'{last_tag}..HEAD', '--oneline'], text=True).strip().split('\n')
+except:
+    commits = subprocess.check_output(['git', 'log', '--oneline'], text=True).strip().split('\n')
+
+# Categorize commits
+features = []
+fixes = []
+breaking = []
+other = []
+
+for commit in commits:
+    if not commit.strip():
+        continue
+    
+    if 'feat:' in commit or 'feature:' in commit:
+        features.append(commit)
+    elif 'fix:' in commit or 'bug:' in commit:
+        fixes.append(commit)
+    elif 'BREAKING:' in commit or 'breaking:' in commit:
+        breaking.append(commit)
+    else:
+        other.append(commit)
+
+# Generate release notes
+notes = []
+notes.append(f'# Release v${{ steps.version.outputs.version }}')
+notes.append('')
+notes.append(f'Released on {datetime.now().strftime(\"%Y-%m-%d\")}')
+notes.append('')
+
+if breaking:
+    notes.append('## 🚨 Breaking Changes')
+    for commit in breaking:
+        notes.append(f'- {commit}')
+    notes.append('')
+
+if features:
+    notes.append('## ✨ New Features')
+    for commit in features:
+        notes.append(f'- {commit}')
+    notes.append('')
+
+if fixes:
+    notes.append('## 🐛 Bug Fixes')
+    for commit in fixes:
+        notes.append(f'- {commit}')
+    notes.append('')
+
+if other:
+    notes.append('## 🔧 Other Changes')
+    for commit in other:
+        notes.append(f'- {commit}')
+    notes.append('')
+
+notes.append('## 📦 Packages Updated')
+packages = '${{ steps.packages.outputs.packages }}'.split(',')
+for package in packages:
+    notes.append(f'- {package}')
+
+release_notes = '\n'.join(notes)
+print(release_notes)
+
+# Save to file for later use
+with open('release-notes.md', 'w') as f:
+    f.write(release_notes)
+"
+          
+          # Output release notes (truncated for GitHub output)
+          head -20 release-notes.md | tr '\n' ' ' | sed 's/  */ /g' | tr -d '\r'
+      
+      - name: Upload release notes
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-notes
+          path: release-notes.md
+
+  # Update package versions
+  update-versions:
+    runs-on: ubuntu-latest
+    needs: prepare-release
+    strategy:
+      matrix:
+        package: ${{ fromJson(format('[{0}]', join(split(needs.prepare-release.outputs.packages, ','), '","'))) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install tools
+        run: |
+          pip install toml
+      
+      - name: Update package version
+        run: |
+          cd src/packages/${{ matrix.package }}
+          
+          # Update version in pyproject.toml
+          python -c "
+import toml
+
+with open('pyproject.toml', 'r') as f:
+    data = toml.load(f)
+
+data['project']['version'] = '${{ needs.prepare-release.outputs.version }}'
+
+with open('pyproject.toml', 'w') as f:
+    toml.dump(data, f)
+"
+      
+      - name: Update CHANGELOG
+        run: |
+          cd src/packages/${{ matrix.package }}
+          
+          # Create or update CHANGELOG.md
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
+          
+          # Add new version to changelog
+          temp_changelog=$(mktemp)
+          echo "# Changelog" > $temp_changelog
+          echo "" >> $temp_changelog
+          echo "## [${{ needs.prepare-release.outputs.version }}] - $(date +%Y-%m-%d)" >> $temp_changelog
+          echo "" >> $temp_changelog
+          echo "### Added" >> $temp_changelog
+          echo "- Release ${{ needs.prepare-release.outputs.version }}" >> $temp_changelog
+          echo "" >> $temp_changelog
+          
+          # Append existing changelog (skip first line)
+          tail -n +2 CHANGELOG.md >> $temp_changelog
+          mv $temp_changelog CHANGELOG.md
+      
+      - name: Commit version updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add src/packages/${{ matrix.package }}/pyproject.toml
+          git add src/packages/${{ matrix.package }}/CHANGELOG.md
+          git commit -m "chore: bump ${{ matrix.package }} version to ${{ needs.prepare-release.outputs.version }}" || true
+          git push || true
+
+  # Build and test packages
+  build-packages:
+    runs-on: ubuntu-latest
+    needs: [prepare-release, update-versions]
+    strategy:
+      matrix:
+        package: ${{ fromJson(format('[{0}]', join(split(needs.prepare-release.outputs.packages, ','), '","'))) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install build dependencies
+        run: |
+          pip install build twine
+      
+      - name: Build package
+        run: |
+          cd src/packages/${{ matrix.package }}
+          python -m build
+      
+      - name: Test package
+        run: |
+          cd src/packages/${{ matrix.package }}
+          pip install dist/*.whl
+          python -c "import sys; print(sys.version)"
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ matrix.package }}
+          path: src/packages/${{ matrix.package }}/dist/
+      
+      - name: Validate package
+        run: |
+          cd src/packages/${{ matrix.package }}
+          twine check dist/*
+
+  # Create release
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [prepare-release, update-versions, build-packages]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Download release notes
+        uses: actions/download-artifact@v3
+        with:
+          name: release-notes
+      
+      - name: Create and push tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a v${{ needs.prepare-release.outputs.version }} -m "Release v${{ needs.prepare-release.outputs.version }}"
+          git push origin v${{ needs.prepare-release.outputs.version }}
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.prepare-release.outputs.version }}
+          release_name: Release v${{ needs.prepare-release.outputs.version }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: ${{ github.event.inputs.pre_release }}
+
+  # Publish packages
+  publish-packages:
+    runs-on: ubuntu-latest
+    needs: [prepare-release, create-release]
+    if: ${{ !github.event.inputs.pre_release }}
+    strategy:
+      matrix:
+        package: ${{ fromJson(format('[{0}]', join(split(needs.prepare-release.outputs.packages, ','), '","'))) }}
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-${{ matrix.package }}
+          path: dist/
+      
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages_dir: dist/
+      
+      - name: Publish to GitHub Packages
+        run: |
+          # Configure for GitHub Packages
+          echo "Publishing to GitHub Packages..."
+          # Implementation would depend on specific setup
+
+  # Post-release tasks
+  post-release:
+    runs-on: ubuntu-latest
+    needs: [prepare-release, create-release, publish-packages]
+    if: always()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      
+      - name: Update documentation
+        run: |
+          # Update documentation with new version
+          python scripts/release/update_docs.py --version ${{ needs.prepare-release.outputs.version }}
+      
+      - name: Create next development version
+        run: |
+          # Update version to next development version
+          next_version="${{ needs.prepare-release.outputs.version }}.dev0"
+          
+          # Update all package versions to development version
+          for package in $(echo "${{ needs.prepare-release.outputs.packages }}" | tr ',' '\n'); do
+            cd src/packages/$package
+            python -c "
+import toml
+with open('pyproject.toml', 'r') as f:
+    data = toml.load(f)
+data['project']['version'] = '$next_version'
+with open('pyproject.toml', 'w') as f:
+    toml.dump(data, f)
+"
+            cd - > /dev/null
+          done
+      
+      - name: Commit development version
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git commit -m "chore: bump to development version $next_version" || true
+          git push || true
+      
+      - name: Notify release completion
+        run: |
+          echo "🎉 Release v${{ needs.prepare-release.outputs.version }} completed successfully!"
+          # Send notification to team channels
+      
+      - name: Trigger deployment
+        run: |
+          # Trigger deployment workflow for the new release
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/deploy.yml/dispatches \
+            -d '{"ref":"v${{ needs.prepare-release.outputs.version }}","inputs":{"environment":"production"}}'

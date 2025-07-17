@@ -1,0 +1,310 @@
+name: Deployment Automation
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      packages:
+        description: 'Packages to deploy (comma-separated, leave empty for all)'
+        required: false
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Determine deployment strategy
+  deployment-strategy:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.strategy.outputs.environment }}
+      packages: ${{ steps.strategy.outputs.packages }}
+      deploy-type: ${{ steps.strategy.outputs.deploy-type }}
+    steps:
+      - name: Determine deployment strategy
+        id: strategy
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "packages=${{ github.event.inputs.packages }}" >> $GITHUB_OUTPUT
+            echo "deploy-type=manual" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "packages=" >> $GITHUB_OUTPUT
+            echo "deploy-type=release" >> $GITHUB_OUTPUT
+          else
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "packages=" >> $GITHUB_OUTPUT
+            echo "deploy-type=continuous" >> $GITHUB_OUTPUT
+          fi
+
+  # Build and push container images
+  build-images:
+    runs-on: ubuntu-latest
+    needs: deployment-strategy
+    strategy:
+      matrix:
+        package: [
+          "ai/mlops",
+          "data/anomaly_detection",
+          "data/data_observability",
+          "software/interfaces",
+          "ops/infrastructure"
+        ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.package }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: src/packages/${{ matrix.package }}
+          file: src/packages/${{ matrix.package }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+            PACKAGE_NAME=${{ matrix.package }}
+
+  # Deploy to staging
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [deployment-strategy, build-images]
+    if: needs.deployment-strategy.outputs.environment == 'staging'
+    environment: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+      
+      - name: Deploy to staging
+        run: |
+          # Apply Kubernetes configurations
+          kubectl apply -f k8s/staging/
+          
+          # Update image tags
+          kubectl set image deployment/pynomaly-api pynomaly-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/software/interfaces:${{ github.sha }} -n pynomaly-staging
+          kubectl set image deployment/pynomaly-mlops pynomaly-mlops=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ai/mlops:${{ github.sha }} -n pynomaly-staging
+          kubectl set image deployment/pynomaly-data pynomaly-data=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/data/anomaly_detection:${{ github.sha }} -n pynomaly-staging
+          
+          # Wait for rollout
+          kubectl rollout status deployment/pynomaly-api -n pynomaly-staging --timeout=300s
+          kubectl rollout status deployment/pynomaly-mlops -n pynomaly-staging --timeout=300s
+          kubectl rollout status deployment/pynomaly-data -n pynomaly-staging --timeout=300s
+      
+      - name: Run deployment tests
+        run: |
+          # Run smoke tests against staging
+          python scripts/deployment/smoke_tests.py --environment staging
+      
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Staging deployment successful"
+          # Send notification to Slack/Teams/etc
+
+  # Deploy to production
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [deployment-strategy, build-images]
+    if: needs.deployment-strategy.outputs.environment == 'production'
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+      
+      - name: Blue-Green deployment
+        run: |
+          # Create green deployment
+          kubectl apply -f k8s/production/
+          
+          # Update green deployment with new images
+          kubectl set image deployment/pynomaly-api-green pynomaly-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/software/interfaces:${{ github.sha }} -n pynomaly-production
+          kubectl set image deployment/pynomaly-mlops-green pynomaly-mlops=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ai/mlops:${{ github.sha }} -n pynomaly-production
+          kubectl set image deployment/pynomaly-data-green pynomaly-data=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/data/anomaly_detection:${{ github.sha }} -n pynomaly-production
+          
+          # Wait for green deployment
+          kubectl rollout status deployment/pynomaly-api-green -n pynomaly-production --timeout=600s
+          kubectl rollout status deployment/pynomaly-mlops-green -n pynomaly-production --timeout=600s
+          kubectl rollout status deployment/pynomaly-data-green -n pynomaly-production --timeout=600s
+      
+      - name: Run production validation
+        run: |
+          # Run comprehensive validation against green deployment
+          python scripts/deployment/production_validation.py --environment production-green
+      
+      - name: Switch traffic to green
+        run: |
+          # Switch service selectors to green deployment
+          kubectl patch service pynomaly-api-service -n pynomaly-production -p '{"spec":{"selector":{"version":"green"}}}'
+          kubectl patch service pynomaly-mlops-service -n pynomaly-production -p '{"spec":{"selector":{"version":"green"}}}'
+          kubectl patch service pynomaly-data-service -n pynomaly-production -p '{"spec":{"selector":{"version":"green"}}}'
+      
+      - name: Monitor deployment
+        run: |
+          # Monitor for 10 minutes
+          sleep 600
+          
+          # Check health metrics
+          python scripts/deployment/health_check.py --environment production --duration 600
+      
+      - name: Cleanup old deployment
+        run: |
+          # Remove blue deployment
+          kubectl delete deployment pynomaly-api-blue -n pynomaly-production || true
+          kubectl delete deployment pynomaly-mlops-blue -n pynomaly-production || true
+          kubectl delete deployment pynomaly-data-blue -n pynomaly-production || true
+          
+          # Rename green to blue for next deployment
+          kubectl patch deployment pynomaly-api-green -n pynomaly-production -p '{"spec":{"selector":{"matchLabels":{"version":"blue"}},"template":{"metadata":{"labels":{"version":"blue"}}}}}'
+          kubectl patch deployment pynomaly-mlops-green -n pynomaly-production -p '{"spec":{"selector":{"matchLabels":{"version":"blue"}},"template":{"metadata":{"labels":{"version":"blue"}}}}}'
+          kubectl patch deployment pynomaly-data-green -n pynomaly-production -p '{"spec":{"selector":{"matchLabels":{"version":"blue"}},"template":{"metadata":{"labels":{"version":"blue"}}}}}'
+      
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Production deployment successful"
+          # Send notification to Slack/Teams/etc
+
+  # Rollback capability
+  rollback:
+    runs-on: ubuntu-latest
+    if: failure()
+    needs: [deploy-staging, deploy-production]
+    steps:
+      - name: Rollback deployment
+        run: |
+          # Rollback to previous version
+          kubectl rollout undo deployment/pynomaly-api -n pynomaly-${{ needs.deployment-strategy.outputs.environment }}
+          kubectl rollout undo deployment/pynomaly-mlops -n pynomaly-${{ needs.deployment-strategy.outputs.environment }}
+          kubectl rollout undo deployment/pynomaly-data -n pynomaly-${{ needs.deployment-strategy.outputs.environment }}
+          
+          # Wait for rollback
+          kubectl rollout status deployment/pynomaly-api -n pynomaly-${{ needs.deployment-strategy.outputs.environment }} --timeout=300s
+          kubectl rollout status deployment/pynomaly-mlops -n pynomaly-${{ needs.deployment-strategy.outputs.environment }} --timeout=300s
+          kubectl rollout status deployment/pynomaly-data -n pynomaly-${{ needs.deployment-strategy.outputs.environment }} --timeout=300s
+      
+      - name: Notify rollback
+        run: |
+          echo "🔄 Deployment rolled back due to failure"
+          # Send alert notification
+
+  # Release management
+  release:
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: needs.deployment-strategy.outputs.deploy-type == 'release'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Generate release notes
+        id: release-notes
+        run: |
+          # Generate release notes from commits
+          python scripts/release/generate_release_notes.py --tag ${{ github.ref_name }} > release-notes.md
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+      
+      - name: Update documentation
+        run: |
+          # Update documentation with new release
+          python scripts/release/update_docs.py --version ${{ github.ref_name }}
+      
+      - name: Notify release
+        run: |
+          echo "🚀 Release ${{ github.ref_name }} deployed successfully"
+          # Send release notification
+
+  # Deployment validation
+  post-deployment-validation:
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Run integration tests
+        run: |
+          # Run integration tests against deployed environment
+          python scripts/validation/integration_tests.py --environment ${{ needs.deployment-strategy.outputs.environment }}
+      
+      - name: Performance tests
+        run: |
+          # Run performance tests
+          python scripts/validation/performance_tests.py --environment ${{ needs.deployment-strategy.outputs.environment }}
+      
+      - name: Security validation
+        run: |
+          # Run security validation
+          python scripts/validation/security_tests.py --environment ${{ needs.deployment-strategy.outputs.environment }}
+      
+      - name: Generate deployment report
+        run: |
+          python scripts/validation/deployment_report.py --environment ${{ needs.deployment-strategy.outputs.environment }} --output deployment-report.json
+      
+      - name: Upload deployment report
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-report-${{ needs.deployment-strategy.outputs.environment }}
+          path: deployment-report.json
+      
+      - name: Update deployment status
+        run: |
+          # Update deployment status in monitoring systems
+          python scripts/monitoring/update_deployment_status.py --environment ${{ needs.deployment-strategy.outputs.environment }} --status success

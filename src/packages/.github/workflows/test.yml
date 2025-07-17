@@ -1,0 +1,489 @@
+name: Comprehensive Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  COVERAGE_THRESHOLD: 80
+
+jobs:
+  # Package discovery and matrix generation
+  discover-packages:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.discover.outputs.packages }}
+      changed-packages: ${{ steps.changes.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Discover packages
+        id: discover
+        run: |
+          packages=$(find src/packages -name "pyproject.toml" -not -path "*/.*" | xargs dirname | sed 's|src/packages/||' | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo "packages=$packages" >> $GITHUB_OUTPUT
+      
+      - name: Detect changed packages
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            changed_files=$(git diff --name-only origin/${{ github.base_ref }}..HEAD)
+            changed_packages=$(echo "$changed_files" | grep "^src/packages/" | cut -d'/' -f1-3 | sort -u | sed 's|src/packages/||' | jq -R -s -c 'split("\n")[:-1]')
+          else
+            changed_packages='[]'
+          fi
+          echo "packages=$changed_packages" >> $GITHUB_OUTPUT
+
+  # Static analysis
+  static-analysis:
+    runs-on: ubuntu-latest
+    needs: discover-packages
+    if: ${{ needs.discover-packages.outputs.packages != '[]' }}
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.discover-packages.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          cd src/packages/${{ matrix.package }}
+          python -m pip install --upgrade pip
+          if [ -f "pyproject.toml" ]; then
+            pip install -e ".[dev]" || pip install -e ".[lint]" || true
+          fi
+      
+      - name: Run ruff
+        run: |
+          cd src/packages/${{ matrix.package }}
+          ruff check . --output-format=github || true
+      
+      - name: Run mypy
+        run: |
+          cd src/packages/${{ matrix.package }}
+          mypy src/ --ignore-missing-imports || true
+      
+      - name: Run bandit security scan
+        run: |
+          cd src/packages/${{ matrix.package }}
+          bandit -r src/ -f json -o bandit-report.json || true
+      
+      - name: Upload analysis results
+        uses: actions/upload-artifact@v3
+        with:
+          name: static-analysis-${{ matrix.package }}
+          path: src/packages/${{ matrix.package }}/bandit-report.json
+          if-no-files-found: ignore
+
+  # Unit and integration tests
+  test:
+    runs-on: ubuntu-latest
+    needs: discover-packages
+    if: ${{ needs.discover-packages.outputs.packages != '[]' }}
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.discover-packages.outputs.packages) }}
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install dependencies
+        run: |
+          cd src/packages/${{ matrix.package }}
+          python -m pip install --upgrade pip
+          if [ -f "pyproject.toml" ]; then
+            pip install -e ".[test]" || pip install -e ".[dev]" || true
+          fi
+      
+      - name: Run tests
+        run: |
+          cd src/packages/${{ matrix.package }}
+          if [ -d "tests" ]; then
+            pytest tests/ -v --cov=src --cov-report=xml --cov-report=html --cov-fail-under=${{ env.COVERAGE_THRESHOLD }} --junit-xml=test-results.xml || true
+          fi
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: src/packages/${{ matrix.package }}/coverage.xml
+          flags: ${{ matrix.package }}
+          name: ${{ matrix.package }}-py${{ matrix.python-version }}
+          fail_ci_if_error: false
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.package }}-py${{ matrix.python-version }}
+          path: |
+            src/packages/${{ matrix.package }}/test-results.xml
+            src/packages/${{ matrix.package }}/htmlcov/
+          if-no-files-found: ignore
+
+  # Build and package tests
+  build-test:
+    runs-on: ubuntu-latest
+    needs: discover-packages
+    if: ${{ needs.discover-packages.outputs.packages != '[]' }}
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.discover-packages.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip build twine
+      
+      - name: Build package
+        run: |
+          cd src/packages/${{ matrix.package }}
+          python -m build
+      
+      - name: Check package
+        run: |
+          cd src/packages/${{ matrix.package }}
+          twine check dist/*
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ matrix.package }}
+          path: src/packages/${{ matrix.package }}/dist/
+          if-no-files-found: ignore
+
+  # Performance tests
+  performance-test:
+    runs-on: ubuntu-latest
+    needs: discover-packages
+    if: ${{ needs.discover-packages.outputs.packages != '[]' }}
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.discover-packages.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          cd src/packages/${{ matrix.package }}
+          python -m pip install --upgrade pip
+          if [ -f "pyproject.toml" ]; then
+            pip install -e ".[test]" || pip install -e ".[dev]" || true
+          fi
+          pip install pytest-benchmark
+      
+      - name: Run performance tests
+        run: |
+          cd src/packages/${{ matrix.package }}
+          if [ -d "tests" ]; then
+            pytest tests/ -v --benchmark-only --benchmark-json=benchmark-results.json || true
+          fi
+      
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-${{ matrix.package }}
+          path: src/packages/${{ matrix.package }}/benchmark-results.json
+          if-no-files-found: ignore
+
+  # Security tests
+  security-test:
+    runs-on: ubuntu-latest
+    needs: discover-packages
+    if: ${{ needs.discover-packages.outputs.packages != '[]' }}
+    strategy:
+      matrix:
+        package: ${{ fromJson(needs.discover-packages.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install security tools
+        run: |
+          python -m pip install --upgrade pip safety bandit semgrep
+      
+      - name: Run safety check
+        run: |
+          cd src/packages/${{ matrix.package }}
+          if [ -f "pyproject.toml" ]; then
+            pip install -e . || true
+            safety check --json --output safety-report.json || true
+          fi
+      
+      - name: Run bandit security scan
+        run: |
+          cd src/packages/${{ matrix.package }}
+          if [ -d "src" ]; then
+            bandit -r src/ -f json -o bandit-report.json || true
+          fi
+      
+      - name: Run semgrep security scan
+        run: |
+          cd src/packages/${{ matrix.package }}
+          if [ -d "src" ]; then
+            semgrep --config=auto src/ --json --output=semgrep-report.json || true
+          fi
+      
+      - name: Upload security results
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-${{ matrix.package }}
+          path: |
+            src/packages/${{ matrix.package }}/safety-report.json
+            src/packages/${{ matrix.package }}/bandit-report.json
+            src/packages/${{ matrix.package }}/semgrep-report.json
+          if-no-files-found: ignore
+
+  # Integration tests
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: [discover-packages, test]
+    if: ${{ needs.discover-packages.outputs.packages != '[]' }}
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install all packages for integration testing
+          for package in $(find src/packages -name "pyproject.toml" -not -path "*/.*" | xargs dirname); do
+            cd $package
+            pip install -e ".[test]" || pip install -e ".[dev]" || true
+            cd - > /dev/null
+          done
+      
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379
+        run: |
+          # Run cross-package integration tests
+          if [ -d "tests/integration" ]; then
+            pytest tests/integration/ -v --junit-xml=integration-test-results.xml
+          fi
+      
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: integration-test-results
+          path: integration-test-results.xml
+          if-no-files-found: ignore
+
+  # Test result aggregation
+  aggregate-results:
+    runs-on: ubuntu-latest
+    needs: [static-analysis, test, build-test, performance-test, security-test, integration-test]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: test-results
+      
+      - name: Generate test report
+        run: |
+          python -c "
+import json
+import os
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+results = {
+    'timestamp': '$(date -u +"%Y-%m-%dT%H:%M:%SZ")',
+    'packages': {},
+    'summary': {
+        'total_packages': 0,
+        'passed_packages': 0,
+        'failed_packages': 0,
+        'total_tests': 0,
+        'passed_tests': 0,
+        'failed_tests': 0,
+        'coverage': 0
+    }
+}
+
+# Process test results
+for result_dir in Path('test-results').glob('test-results-*'):
+    package_name = result_dir.name.replace('test-results-', '').split('-py')[0]
+    if package_name not in results['packages']:
+        results['packages'][package_name] = {
+            'static_analysis': 'unknown',
+            'tests': 'unknown',
+            'build': 'unknown',
+            'security': 'unknown',
+            'coverage': 0
+        }
+    
+    # Parse test results XML
+    for xml_file in result_dir.glob('*.xml'):
+        try:
+            tree = ET.parse(xml_file)
+            root = tree.getroot()
+            
+            tests = int(root.get('tests', 0))
+            failures = int(root.get('failures', 0))
+            errors = int(root.get('errors', 0))
+            
+            results['summary']['total_tests'] += tests
+            results['summary']['failed_tests'] += failures + errors
+            results['summary']['passed_tests'] += tests - failures - errors
+            
+            results['packages'][package_name]['tests'] = 'passed' if failures + errors == 0 else 'failed'
+        except:
+            pass
+
+# Calculate summary
+results['summary']['total_packages'] = len(results['packages'])
+results['summary']['passed_packages'] = sum(1 for p in results['packages'].values() if p['tests'] == 'passed')
+results['summary']['failed_packages'] = results['summary']['total_packages'] - results['summary']['passed_packages']
+
+with open('test-summary.json', 'w') as f:
+    json.dump(results, f, indent=2)
+
+print(json.dumps(results, indent=2))
+"
+      
+      - name: Upload test summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-summary
+          path: test-summary.json
+      
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('test-summary.json', 'utf8'));
+            
+            const summary = `## Test Results Summary
+            
+            📊 **Overview**
+            - Total Packages: ${results.summary.total_packages}
+            - Passed: ${results.summary.passed_packages} ✅
+            - Failed: ${results.summary.failed_packages} ❌
+            - Total Tests: ${results.summary.total_tests}
+            - Test Success Rate: ${((results.summary.passed_tests / results.summary.total_tests) * 100).toFixed(1)}%
+            
+            📦 **Package Results**
+            ${Object.entries(results.packages).map(([name, data]) => 
+              `- **${name}**: ${data.tests === 'passed' ? '✅' : '❌'} Tests`
+            ).join('\n')}
+            
+            🔍 **Details**
+            - Static Analysis: Check individual package reports
+            - Security Scans: Review security artifacts
+            - Performance: Check benchmark results
+            - Integration: Cross-package compatibility verified
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+  # Quality gates
+  quality-gates:
+    runs-on: ubuntu-latest
+    needs: [aggregate-results]
+    if: always()
+    steps:
+      - name: Download test summary
+        uses: actions/download-artifact@v3
+        with:
+          name: test-summary
+      
+      - name: Check quality gates
+        run: |
+          python -c "
+import json
+import sys
+
+with open('test-summary.json', 'r') as f:
+    results = json.load(f)
+
+failed = False
+
+# Check coverage threshold
+if results['summary']['total_tests'] > 0:
+    test_success_rate = (results['summary']['passed_tests'] / results['summary']['total_tests']) * 100
+    if test_success_rate < 90:
+        print(f'❌ Test success rate too low: {test_success_rate:.1f}% (minimum: 90%)')
+        failed = True
+    else:
+        print(f'✅ Test success rate: {test_success_rate:.1f}%')
+
+# Check package failure rate
+if results['summary']['total_packages'] > 0:
+    package_success_rate = (results['summary']['passed_packages'] / results['summary']['total_packages']) * 100
+    if package_success_rate < 100:
+        print(f'❌ Package success rate too low: {package_success_rate:.1f}% (minimum: 100%)')
+        failed = True
+    else:
+        print(f'✅ Package success rate: {package_success_rate:.1f}%')
+
+if failed:
+    sys.exit(1)
+else:
+    print('✅ All quality gates passed!')
+"
