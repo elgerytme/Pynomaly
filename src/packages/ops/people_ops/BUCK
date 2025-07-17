@@ -1,9 +1,0 @@
-python_library(
-    name = "people_ops",
-    srcs = glob(["**/*.py"]),
-    deps = [
-        "//src/packages/core:core",
-        "//src/packages/infrastructure:infrastructure",
-    ],
-    visibility = ["PUBLIC"],
-)
