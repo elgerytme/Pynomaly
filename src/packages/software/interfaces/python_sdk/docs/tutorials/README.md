@@ -7,7 +7,7 @@
 
 ## Overview
 
-This directory contains the complete documentation suite for Pynomaly, covering all aspects of the state-of-the-art pattern detection platform. The documentation is designed for multiple audiences including business users, technical implementers, data scientists, and system administrators.
+This directory contains the complete documentation suite for Pynomaly, covering all aspects of the state-of-the-art pattern analysis platform. The documentation is designed for multiple audiences including business users, technical implementers, data scientists, and system administrators.
 
 ## Documentation Structure
 

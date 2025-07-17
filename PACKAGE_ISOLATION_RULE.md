@@ -4,6 +4,14 @@
 
 **No package shall reference the domain, entities, business logic, or implementation details of another package except through simple import statements and the specific code or interface imported from that package.**
 
+## Exception Rules
+
+This rule has defined exceptions for reasonable cases. See [PACKAGE_ISOLATION_EXCEPTIONS.md](PACKAGE_ISOLATION_EXCEPTIONS.md) for comprehensive exception guidelines covering:
+- Third-party dependencies (node_modules)
+- Domain-appropriate usage within domain packages
+- User role terminology in interface documentation
+- Technical context terms in documentation
+
 ## Rules
 
 ### 1. Documentation Isolation

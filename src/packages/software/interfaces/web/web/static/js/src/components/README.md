@@ -2,7 +2,7 @@
 
 ## Overview
 
-A comprehensive, production-ready D3.js chart library for the Pynomaly pattern detection platform. This library provides interactive, accessible, and responsive data visualization components with real-time updates, advanced interactions, and comprehensive accessibility support.
+A comprehensive, production-ready D3.js chart library for the Pynomaly pattern analysis platform. This library provides interactive, accessible, and responsive data visualization components with real-time updates, advanced interactions, and comprehensive accessibility support.
 
 ## Features
 
@@ -535,7 +535,7 @@ See the comprehensive demo at `/d3-charts-demo.html` for interactive examples of
 
 ## License
 
-Part of the Pynomaly pattern detection platform. See main project license for details.
+Part of the Pynomaly pattern analysis platform. See main project license for details.
 
 ## Support
 

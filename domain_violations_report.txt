@@ -1,4 +1,4 @@
-🚨 Found 48 potential domain violations:
+🚨 Found 44 potential domain violations:
 ============================================================
 
 Package: data.anomaly_detection
@@ -183,20 +183,8 @@ Severity: warning
 ----------------------------------------
 Package: software.interfaces.python_sdk.docs.tutorials
 File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/tutorials/README.md
-Line 10: This directory contains the complete documentation suite for Pynomaly, covering all aspects of the state-of-the-art pattern detection platform. The documentation is designed for multiple audiences including business users, technical implementers, data scientists, and system administrators.
-Term: detection
-Severity: warning
-----------------------------------------
-Package: software.interfaces.python_sdk.docs.tutorials
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/tutorials/README.md
 Line 150: - Use selection guide for algorithm choices
 Term: algorithm
-Severity: warning
-----------------------------------------
-Package: software.interfaces.python_sdk.docs.user-guides
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/python_sdk/docs/user-guides/README.md
-Line 3: Welcome to Pynomaly, the comprehensive advanced-grade pattern detection platform. This user guide will help you get started quickly and master advanced features for production deployments.
-Term: detection
 Severity: warning
 ----------------------------------------
 Package: software.interfaces.python_sdk.docs.user-guides.onboarding
@@ -275,17 +263,5 @@ Package: software.interfaces.sdk.pynomaly-js-sdk.node_modules.@istanbuljs.load-n
 File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/sdk/pynomaly-js-sdk/node_modules/@istanbuljs/load-nyc-config/node_modules/js-yaml/README.md
 Line 294: js-yaml for enterprise
 Term: enterprise
-Severity: warning
-----------------------------------------
-Package: software.interfaces.web.web.static.js.src.components
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/web/static/js/src/components/README.md
-Line 5: A comprehensive, production-ready D3.js chart library for the Pynomaly pattern detection platform. This library provides interactive, accessible, and responsive data visualization components with real-time updates, advanced interactions, and comprehensive accessibility support.
-Term: detection
-Severity: warning
-----------------------------------------
-Package: software.interfaces.web.web.static.js.src.components
-File: /mnt/c/Users/andre/Pynomaly/src/packages/software/interfaces/web/web/static/js/src/components/README.md
-Line 538: Part of the Pynomaly pattern detection platform. See main project license for details.
-Term: detection
 Severity: warning
 ----------------------------------------

@@ -1,6 +1,6 @@
 # Pynomaly User Guide
 
-Welcome to Pynomaly, the comprehensive advanced-grade pattern detection platform. This user guide will help you get started quickly and master advanced features for production deployments.
+Welcome to Pynomaly, the comprehensive advanced-grade pattern analysis platform. This user guide will help you get started quickly and master advanced features for production deployments.
 
 ## 📚 Documentation Structure
 
