@@ -1,0 +1,174 @@
+name: 'Detect Package Changes'
+description: 'Detects which packages have changed in a monorepo for efficient CI/CD'
+inputs:
+  base-ref:
+    description: 'Base reference for comparison (e.g., main)'
+    required: false
+    default: 'main'
+  head-ref:
+    description: 'Head reference for comparison (e.g., current branch)'
+    required: false
+    default: 'HEAD'
+  package-paths:
+    description: 'JSON array of package paths to monitor'
+    required: true
+  always-run-packages:
+    description: 'JSON array of packages that should always run CI'
+    required: false
+    default: '[]'
+outputs:
+  changed-packages:
+    description: 'JSON array of changed package names'
+    value: ${{ steps.detect.outputs.changed-packages }}
+  all-packages:
+    description: 'JSON array of all package names'
+    value: ${{ steps.detect.outputs.all-packages }}
+  has-changes:
+    description: 'Boolean indicating if any packages have changes'
+    value: ${{ steps.detect.outputs.has-changes }}
+  
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Detect changed packages
+      id: detect
+      shell: bash
+      run: |
+        set -euo pipefail
+        
+        # Parse input JSON arrays
+        PACKAGE_PATHS='${{ inputs.package-paths }}'
+        ALWAYS_RUN='${{ inputs.always-run-packages }}'
+        BASE_REF='${{ inputs.base-ref }}'
+        HEAD_REF='${{ inputs.head-ref }}'
+        
+        echo "🔍 Detecting changes between $BASE_REF and $HEAD_REF"
+        
+        # Get changed files
+        if git rev-parse --verify "$BASE_REF" >/dev/null 2>&1; then
+          CHANGED_FILES=$(git diff --name-only "$BASE_REF"..."$HEAD_REF" || git diff --name-only HEAD^ HEAD)
+        else
+          # Fallback for initial commits or when base ref doesn't exist
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD 2>/dev/null || git ls-files)
+        fi
+        
+        echo "📁 Changed files:"
+        echo "$CHANGED_FILES" | head -20  # Show first 20 files
+        if [ $(echo "$CHANGED_FILES" | wc -l) -gt 20 ]; then
+          echo "... and $(( $(echo "$CHANGED_FILES" | wc -l) - 20 )) more files"
+        fi
+        
+        # Initialize arrays
+        CHANGED_PACKAGES=()
+        ALL_PACKAGES=()
+        
+        # Extract package paths and names
+        while IFS= read -r package_path; do
+          # Extract package name from path (last directory)
+          package_name=$(basename "$package_path")
+          
+          # Add to all packages
+          ALL_PACKAGES+=("$package_name")
+          
+          echo "🔎 Checking package: $package_name (path: $package_path)"
+          
+          # Check if package has changes
+          if echo "$CHANGED_FILES" | grep -q "^$package_path/"; then
+            echo "✅ Package $package_name has changes"
+            CHANGED_PACKAGES+=("$package_name")
+          else
+            echo "⏭️  Package $package_name has no changes"
+          fi
+        done < <(echo "$PACKAGE_PATHS" | jq -r '.[]')
+        
+        # Add always-run packages
+        if [ "$ALWAYS_RUN" != "[]" ]; then
+          echo "🔄 Adding always-run packages:"
+          while IFS= read -r package; do
+            echo "  - $package"
+            if [[ ! " ${CHANGED_PACKAGES[@]} " =~ " $package " ]]; then
+              CHANGED_PACKAGES+=("$package")
+            fi
+          done < <(echo "$ALWAYS_RUN" | jq -r '.[]')
+        fi
+        
+        # Check for global changes that affect all packages
+        GLOBAL_CHANGED=false
+        GLOBAL_PATTERNS=(
+          "^\.github/"
+          "^requirements\.txt$"
+          "^pyproject\.toml$"
+          "^setup\.py$"
+          "^setup\.cfg$"
+          "^Dockerfile"
+          "^docker-compose"
+          "^\.dockerignore$"
+          "^\.env"
+          "^Makefile$"
+          "^\.pre-commit-config\.yaml$"
+          "^\.gitignore$"
+          "^BUCK$"
+          "^\.buckconfig$"
+        )
+        
+        for pattern in "${GLOBAL_PATTERNS[@]}"; do
+          if echo "$CHANGED_FILES" | grep -qE "$pattern"; then
+            echo "🌍 Global change detected: $pattern"
+            GLOBAL_CHANGED=true
+            break
+          fi
+        done
+        
+        if [ "$GLOBAL_CHANGED" = true ]; then
+          echo "🔄 Global changes detected, running CI for all packages"
+          CHANGED_PACKAGES=("${ALL_PACKAGES[@]}")
+        fi
+        
+        # Convert arrays to JSON
+        CHANGED_JSON=$(printf '%s\n' "${CHANGED_PACKAGES[@]}" | jq -R . | jq -s .)
+        ALL_JSON=$(printf '%s\n' "${ALL_PACKAGES[@]}" | jq -R . | jq -s .)
+        
+        # Determine if there are changes
+        HAS_CHANGES="false"
+        if [ ${#CHANGED_PACKAGES[@]} -gt 0 ]; then
+          HAS_CHANGES="true"
+        fi
+        
+        # Output results
+        echo "📊 Summary:"
+        echo "  - Total packages: ${#ALL_PACKAGES[@]}"
+        echo "  - Changed packages: ${#CHANGED_PACKAGES[@]}"
+        echo "  - Package list: ${CHANGED_PACKAGES[*]}"
+        
+        # Set outputs
+        echo "changed-packages=$CHANGED_JSON" >> $GITHUB_OUTPUT
+        echo "all-packages=$ALL_JSON" >> $GITHUB_OUTPUT
+        echo "has-changes=$HAS_CHANGES" >> $GITHUB_OUTPUT
+        
+        # Create summary
+        {
+          echo "## 📦 Package Change Detection"
+          echo ""
+          echo "### 🎯 Changed Packages (${{#CHANGED_PACKAGES[@]}})"
+          if [ ${#CHANGED_PACKAGES[@]} -eq 0 ]; then
+            echo "No packages have changes."
+          else
+            for pkg in "${CHANGED_PACKAGES[@]}"; do
+              echo "- \`$pkg\`"
+            done
+          fi
+          echo ""
+          echo "### 📋 All Packages (${#ALL_PACKAGES[@]})"
+          for pkg in "${ALL_PACKAGES[@]}"; do
+            if [[ " ${CHANGED_PACKAGES[@]} " =~ " $pkg " ]]; then
+              echo "- \`$pkg\` ✅ (changed)"
+            else
+              echo "- \`$pkg\` ⏭️ (no changes)"
+            fi
+          done
+        } >> $GITHUB_STEP_SUMMARY

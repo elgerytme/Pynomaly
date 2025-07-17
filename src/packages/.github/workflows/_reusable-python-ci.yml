@@ -1,0 +1,440 @@
+name: Reusable Python CI/CD
+
+on:
+  workflow_call:
+    inputs:
+      package-name:
+        required: true
+        type: string
+        description: 'Name of the package to build and test'
+      package-path:
+        required: true
+        type: string
+        description: 'Path to the package directory'
+      python-version:
+        required: false
+        type: string
+        default: '3.11'
+        description: 'Python version to use'
+      python-versions:
+        required: false
+        type: string
+        default: '["3.9", "3.10", "3.11", "3.12"]'
+        description: 'JSON array of Python versions for matrix testing'
+      os-matrix:
+        required: false
+        type: string
+        default: '["ubuntu-latest", "windows-latest", "macos-latest"]'
+        description: 'JSON array of operating systems for matrix testing'
+      coverage-threshold:
+        required: false
+        type: number
+        default: 80
+        description: 'Minimum code coverage percentage'
+      run-performance-tests:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to run performance benchmarks'
+      run-security-scan:
+        required: false
+        type: boolean
+        default: true
+        description: 'Whether to run security scans'
+      publish-to-pypi:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to publish to PyPI on release'
+      run-integration-tests:
+        required: false
+        type: boolean
+        default: true
+        description: 'Whether to run integration tests'
+    secrets:
+      PYPI_API_TOKEN:
+        required: false
+      CODECOV_TOKEN:
+        required: false
+      SONAR_TOKEN:
+        required: false
+
+env:
+  FORCE_COLOR: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_PYTHON_VERSION_WARNING: "1"
+
+jobs:
+  # Quality Gates - Fast feedback
+  quality-gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: 'pip'
+
+      - name: Install package and dev dependencies
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,test,lint]"
+
+      - name: Lint with Ruff
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          ruff check . --output-format=github
+          ruff format --check .
+
+      - name: Type check with MyPy
+        working-directory: ${{ inputs.package-path }}
+        run: mypy .
+
+      - name: Check import sorting
+        working-directory: ${{ inputs.package-path }}
+        run: isort --check-only --diff .
+
+      - name: Security scan with Bandit
+        if: ${{ inputs.run-security-scan }}
+        working-directory: ${{ inputs.package-path }}
+        run: bandit -r . -f json -o bandit-report.json || true
+
+      - name: Upload security scan results
+        if: ${{ inputs.run-security-scan }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-${{ inputs.package-name }}
+          path: ${{ inputs.package-path }}/bandit-report.json
+
+  # Unit Tests - Matrix testing
+  test-matrix:
+    name: Test (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(inputs.os-matrix) }}
+        python-version: ${{ fromJson(inputs.python-versions) }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+
+      - name: Install package and dependencies
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[test]"
+
+      - name: Run unit tests
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          pytest tests/ \
+            --cov=. \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --cov-fail-under=${{ inputs.coverage-threshold }} \
+            --junitxml=test-results.xml \
+            -v
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: |
+            ${{ inputs.package-path }}/test-results.xml
+            ${{ inputs.package-path }}/coverage.xml
+
+      - name: Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == inputs.python-version
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ${{ inputs.package-path }}/coverage.xml
+          flags: ${{ inputs.package-name }}
+          name: ${{ inputs.package-name }}-coverage
+
+  # Integration Tests
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    if: ${{ inputs.run-integration-tests }}
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: 'pip'
+
+      - name: Install package and dependencies
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[test,extended]"
+
+      - name: Wait for services
+        run: |
+          timeout 30 bash -c 'until nc -z localhost 5432; do sleep 1; done'
+          timeout 30 bash -c 'until nc -z localhost 6379; do sleep 1; done'
+
+      - name: Run integration tests
+        working-directory: ${{ inputs.package-path }}
+        env:
+          DATABASE_URL: postgresql://test_user:test_pass@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          pytest tests/ -m "integration" \
+            --cov=. \
+            --cov-report=xml \
+            --junitxml=integration-test-results.xml \
+            -v
+
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results-${{ inputs.package-name }}
+          path: |
+            ${{ inputs.package-path }}/integration-test-results.xml
+            ${{ inputs.package-path }}/coverage.xml
+
+  # Performance Tests
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: ${{ inputs.run-performance-tests }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: 'pip'
+
+      - name: Install package and dependencies
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[test]" pytest-benchmark
+
+      - name: Run performance benchmarks
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          pytest tests/ -m "benchmark" \
+            --benchmark-only \
+            --benchmark-json=benchmark-results.json \
+            --benchmark-save=benchmark-$(date +%Y%m%d-%H%M%S) \
+            -v
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ inputs.package-name }}
+          path: ${{ inputs.package-path }}/benchmark-results.json
+
+      - name: Performance regression check
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          # Compare with previous benchmarks if available
+          python -c "
+          import json
+          import sys
+          try:
+              with open('benchmark-results.json', 'r') as f:
+                  results = json.load(f)
+              print('✅ Performance tests completed')
+              for benchmark in results.get('benchmarks', []):
+                  name = benchmark['name']
+                  mean_time = benchmark['stats']['mean']
+                  print(f'📊 {name}: {mean_time:.4f}s')
+          except Exception as e:
+              print(f'❌ Error processing benchmarks: {e}')
+              sys.exit(1)
+          "
+
+  # Security Scanning
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: ${{ inputs.run-security-scan }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: 'pip'
+
+      - name: Install package and dependencies
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" safety pip-audit
+
+      - name: Security audit with pip-audit
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          pip-audit --format=json --output=pip-audit-report.json || true
+
+      - name: Dependency vulnerability scan with Safety
+        working-directory: ${{ inputs.package-path }}
+        run: |
+          safety check --json --output=safety-report.json || true
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports-${{ inputs.package-name }}
+          path: |
+            ${{ inputs.package-path }}/pip-audit-report.json
+            ${{ inputs.package-path }}/safety-report.json
+
+  # Build and Package
+  build:
+    name: Build Package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [quality-gates, test-matrix]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: 'pip'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build package
+        working-directory: ${{ inputs.package-path }}
+        run: python -m build
+
+      - name: Check package
+        working-directory: ${{ inputs.package-path }}
+        run: twine check dist/*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ inputs.package-name }}
+          path: ${{ inputs.package-path }}/dist/
+
+  # Publish to PyPI (only on release)
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build, integration-tests, security-scan]
+    if: ${{ inputs.publish-to-pypi && github.event_name == 'release' && github.event.action == 'published' }}
+    environment:
+      name: pypi
+      url: https://pypi.org/p/${{ inputs.package-name }}
+    permissions:
+      id-token: write
+    
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-${{ inputs.package-name }}
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: dist/
+
+  # Generate Reports
+  report:
+    name: Generate Reports
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [quality-gates, test-matrix, integration-tests, security-scan, build]
+    if: always()
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Generate summary report
+        run: |
+          echo "# 📊 CI/CD Summary Report for ${{ inputs.package-name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🏗️ Build Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **Quality Gates**: ${{ needs.quality-gates.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Unit Tests**: ${{ needs.test-matrix.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Integration Tests**: ${{ needs.integration-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Security Scan**: ${{ needs.security-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build**: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📈 Coverage & Quality Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "- **Coverage Threshold**: ${{ inputs.coverage-threshold }}%" >> $GITHUB_STEP_SUMMARY
+          echo "- **Python Versions**: ${{ inputs.python-versions }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Operating Systems**: ${{ inputs.os-matrix }}" >> $GITHUB_STEP_SUMMARY
+          
+          # Add commit info
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📝 Commit Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit SHA**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Actor**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY

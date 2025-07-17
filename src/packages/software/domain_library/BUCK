@@ -1,0 +1,170 @@
+load("@prelude//python:defs.bzl", "python_library", "python_binary", "python_test")
+
+python_library(
+    name = "domain_library",
+    srcs = glob(["src/domain_library/**/*.py"]),
+    deps = [
+        "//third-party/python:pydantic",
+        "//third-party/python:structlog",
+        "//third-party/python:pyyaml",
+        "//third-party/python:networkx",
+        "//third-party/python:dependency-injector",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+python_binary(
+    name = "domain_library_cli",
+    main = "src/domain_library/presentation/cli/app.py",
+    deps = [
+        ":domain_library",
+        "//third-party/python:typer",
+        "//third-party/python:rich",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+python_test(
+    name = "domain_library_tests",
+    srcs = glob(["tests/**/*.py"]),
+    deps = [
+        ":domain_library",
+        "//third-party/python:pytest",
+        "//third-party/python:pytest-cov",
+        "//third-party/python:pytest-asyncio",
+        "//third-party/python:pytest-mock",
+        "//third-party/python:httpx",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# Unit tests
+python_test(
+    name = "unit_tests",
+    srcs = glob(["tests/unit/**/*.py"]),
+    deps = [
+        ":domain_library",
+        "//third-party/python:pytest",
+        "//third-party/python:pytest-asyncio",
+        "//third-party/python:pytest-mock",
+    ],
+    labels = ["unit"],
+    visibility = ["PUBLIC"],
+)
+
+# Integration tests
+python_test(
+    name = "integration_tests",
+    srcs = glob(["tests/integration/**/*.py"]),
+    deps = [
+        ":domain_library",
+        "//third-party/python:pytest",
+        "//third-party/python:pytest-asyncio",
+        "//third-party/python:httpx",
+    ],
+    labels = ["integration"],
+    visibility = ["PUBLIC"],
+)
+
+# Contract tests
+python_test(
+    name = "contract_tests",
+    srcs = glob(["tests/contract/**/*.py"]),
+    deps = [
+        ":domain_library",
+        "//third-party/python:pytest",
+        "//third-party/python:pytest-asyncio",
+    ],
+    labels = ["contract"],
+    visibility = ["PUBLIC"],
+)
+
+# End-to-end tests
+python_test(
+    name = "e2e_tests",
+    srcs = glob(["tests/e2e/**/*.py"]),
+    deps = [
+        ":domain_library",
+        "//third-party/python:pytest",
+        "//third-party/python:pytest-asyncio",
+        "//third-party/python:httpx",
+    ],
+    labels = ["e2e"],
+    visibility = ["PUBLIC"],
+)
+
+# Domain catalog management
+python_library(
+    name = "domain_catalog",
+    srcs = glob(["src/domain_library/domain/catalog/**/*.py"]),
+    deps = [
+        "//third-party/python:pydantic",
+        "//third-party/python:networkx",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# Business logic templates
+python_library(
+    name = "business_logic",
+    srcs = glob(["src/domain_library/domain/business_logic/**/*.py"]),
+    deps = [
+        ":domain_catalog",
+        "//third-party/python:pydantic",
+        "//third-party/python:structlog",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# Entity relationships
+python_library(
+    name = "entity_relationships",
+    srcs = glob(["src/domain_library/domain/relationships/**/*.py"]),
+    deps = [
+        ":domain_catalog",
+        "//third-party/python:pydantic",
+        "//third-party/python:networkx",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# API endpoints (optional)
+python_library(
+    name = "api_endpoints",
+    srcs = glob(["src/domain_library/presentation/api/**/*.py"]),
+    deps = [
+        ":domain_library",
+        "//third-party/python:fastapi",
+        "//third-party/python:uvicorn",
+        "//third-party/python:httpx",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# Web interface (optional)
+python_library(
+    name = "web_interface",
+    srcs = glob(["src/domain_library/presentation/web/**/*.py"]),
+    deps = [
+        ":domain_library",
+        "//third-party/python:jinja2",
+        "//third-party/python:aiofiles",
+    ],
+    visibility = ["PUBLIC"],
+)
+
+# Configuration files
+filegroup(
+    name = "requirements",
+    srcs = glob(["requirements/**/*.md"]),
+    visibility = ["PUBLIC"],
+)
+
+# Documentation
+genrule(
+    name = "docs",
+    srcs = glob(["docs/**/*.md"]),
+    out = "docs-html",
+    cmd = "mkdir -p $OUT && cp -r docs/* $OUT/",
+    visibility = ["PUBLIC"],
+)

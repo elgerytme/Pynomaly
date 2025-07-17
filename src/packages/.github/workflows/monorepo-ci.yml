@@ -1,0 +1,314 @@
+name: Monorepo CI/CD Orchestrator
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      force_run_all:
+        description: 'Force run all packages'
+        required: false
+        default: false
+        type: boolean
+      packages_to_run:
+        description: 'Comma-separated list of packages to run (leave empty for auto-detection)'
+        required: false
+        type: string
+      skip_packages:
+        description: 'Comma-separated list of packages to skip'
+        required: false
+        type: string
+
+env:
+  # Define all monitored packages
+  MONITORED_PACKAGES: |
+    {
+      "data/anomaly_detection": "src/packages/data/anomaly_detection",
+      "ai/mlops": "src/packages/ai/mlops",
+      "ops/infrastructure": "src/packages/ops/infrastructure",
+      "software/core": "src/packages/software/core",
+      "software/interfaces": "src/packages/software/interfaces",
+      "data/data_observability": "src/packages/data/data_observability",
+      "formal_sciences/mathematics": "src/packages/formal_sciences/mathematics"
+    }
+
+jobs:
+  # Detect which packages have changes
+  detect-changes:
+    name: Detect Package Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      changed-packages: ${{ steps.detection.outputs.changed-packages }}
+      all-packages: ${{ steps.detection.outputs.all-packages }}
+      has-changes: ${{ steps.detection.outputs.has-changes }}
+      matrix: ${{ steps.setup-matrix.outputs.matrix }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect package changes
+        id: detection
+        uses: ./.github/actions/detect-package-changes
+        with:
+          package-paths: |
+            [
+              "src/packages/data/anomaly_detection",
+              "src/packages/ai/mlops",
+              "src/packages/ops/infrastructure",
+              "src/packages/software/core",
+              "src/packages/software/interfaces",
+              "src/packages/data/data_observability",
+              "src/packages/formal_sciences/mathematics"
+            ]
+          always-run-packages: |
+            [
+              "software/core"
+            ]
+
+      - name: Setup build matrix
+        id: setup-matrix
+        run: |
+          CHANGED_PACKAGES='${{ steps.detection.outputs.changed-packages }}'
+          FORCE_ALL='${{ github.event.inputs.force_run_all }}'
+          MANUAL_PACKAGES='${{ github.event.inputs.packages_to_run }}'
+          SKIP_PACKAGES='${{ github.event.inputs.skip_packages }}'
+          
+          echo "🔧 Setting up build matrix..."
+          
+          # Determine which packages to build
+          if [ "$FORCE_ALL" = "true" ]; then
+            echo "🔄 Force running all packages"
+            PACKAGES_TO_BUILD='["data/anomaly_detection", "ai/mlops", "ops/infrastructure", "software/core", "software/interfaces", "data/data_observability", "formal_sciences/mathematics"]'
+          elif [ -n "$MANUAL_PACKAGES" ]; then
+            echo "📝 Using manually specified packages: $MANUAL_PACKAGES"
+            # Convert comma-separated to JSON array
+            PACKAGES_TO_BUILD=$(echo "$MANUAL_PACKAGES" | jq -R 'split(",") | map(select(length > 0) | gsub("^\\s+|\\s+$"; ""))')
+          else
+            echo "🎯 Using auto-detected packages"
+            PACKAGES_TO_BUILD="$CHANGED_PACKAGES"
+          fi
+          
+          # Remove skipped packages
+          if [ -n "$SKIP_PACKAGES" ]; then
+            echo "⏭️ Skipping packages: $SKIP_PACKAGES"
+            SKIP_ARRAY=$(echo "$SKIP_PACKAGES" | jq -R 'split(",") | map(select(length > 0) | gsub("^\\s+|\\s+$"; ""))')
+            PACKAGES_TO_BUILD=$(echo "$PACKAGES_TO_BUILD" | jq --argjson skip "$SKIP_ARRAY" '. - $skip')
+          fi
+          
+          # Create matrix
+          MATRIX=$(echo "$PACKAGES_TO_BUILD" | jq '{include: [.[] | {package: ., path: ("src/packages/" + .)}]}')
+          
+          echo "📊 Build matrix:"
+          echo "$MATRIX" | jq .
+          
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+  # Run package-specific CI/CD workflows
+  package-ci:
+    name: ${{ matrix.package }} CI/CD
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has-changes == 'true' || github.event.inputs.force_run_all == 'true'
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run package CI/CD
+        env:
+          PACKAGE_NAME: ${{ matrix.package }}
+          PACKAGE_PATH: ${{ matrix.path }}
+        run: |
+          echo "🚀 Running CI/CD for package: $PACKAGE_NAME"
+          echo "📁 Package path: $PACKAGE_PATH"
+          
+          # Check if package has a CI workflow
+          WORKFLOW_PATH="$PACKAGE_PATH/.github/workflows/ci.yml"
+          
+          if [ -f "$WORKFLOW_PATH" ]; then
+            echo "✅ Found CI workflow at $WORKFLOW_PATH"
+            
+            # Since we can't directly trigger workflows from within workflows,
+            # we'll use the workflow_dispatch API or rely on path-based triggers
+            echo "🔄 Package CI will be triggered by path-based workflow triggers"
+            echo "package_processed=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ No CI workflow found for $PACKAGE_NAME at $WORKFLOW_PATH"
+            echo "package_processed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate package structure
+        env:
+          PACKAGE_PATH: ${{ matrix.path }}
+        run: |
+          echo "🔍 Validating package structure for ${{ matrix.package }}"
+          
+          # Check for required files
+          REQUIRED_FILES=(
+            "pyproject.toml"
+            "README.md"
+            "__init__.py"
+          )
+          
+          cd "$PACKAGE_PATH"
+          
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ -f "$file" ] || [ -f "src/$file" ]; then
+              echo "✅ $file found"
+            else
+              echo "⚠️ $file missing"
+            fi
+          done
+          
+          # Check for tests directory
+          if [ -d "tests" ]; then
+            echo "✅ Tests directory found"
+            TEST_COUNT=$(find tests -name "test_*.py" -o -name "*_test.py" | wc -l)
+            echo "📊 Found $TEST_COUNT test files"
+          else
+            echo "⚠️ Tests directory missing"
+          fi
+
+  # Generate comprehensive report
+  ci-report:
+    name: Generate CI Report
+    runs-on: ubuntu-latest
+    needs: [detect-changes, package-ci]
+    if: always()
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate comprehensive report
+        env:
+          CHANGED_PACKAGES: ${{ needs.detect-changes.outputs.changed-packages }}
+          ALL_PACKAGES: ${{ needs.detect-changes.outputs.all-packages }}
+          HAS_CHANGES: ${{ needs.detect-changes.outputs.has-changes }}
+        run: |
+          echo "## 📊 Monorepo CI/CD Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 Package Detection Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Has Changes**: $HAS_CHANGES" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Parse and display changed packages
+          if [ "$HAS_CHANGES" = "true" ]; then
+            echo "### 📦 Changed Packages" >> $GITHUB_STEP_SUMMARY
+            echo "$CHANGED_PACKAGES" | jq -r '.[]' | while read package; do
+              echo "- \`$package\` ✅" >> $GITHUB_STEP_SUMMARY
+            done
+          else
+            echo "### 📦 No Package Changes Detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🏗️ Build Status" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package Detection**: ${{ needs.detect-changes.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package CI**: ${{ needs.package-ci.result }}" >> $GITHUB_STEP_SUMMARY
+          
+          # Add workflow inputs if manual trigger
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### ⚙️ Manual Trigger Options" >> $GITHUB_STEP_SUMMARY
+            echo "- **Force Run All**: ${{ github.event.inputs.force_run_all }}" >> $GITHUB_STEP_SUMMARY
+            if [ -n "${{ github.event.inputs.packages_to_run }}" ]; then
+              echo "- **Packages to Run**: ${{ github.event.inputs.packages_to_run }}" >> $GITHUB_STEP_SUMMARY
+            fi
+            if [ -n "${{ github.event.inputs.skip_packages }}" ]; then
+              echo "- **Skipped Packages**: ${{ github.event.inputs.skip_packages }}" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📈 Statistics" >> $GITHUB_STEP_SUMMARY
+          
+          TOTAL_PACKAGES=$(echo "$ALL_PACKAGES" | jq '. | length')
+          CHANGED_COUNT=$(echo "$CHANGED_PACKAGES" | jq '. | length')
+          
+          echo "- **Total Packages**: $TOTAL_PACKAGES" >> $GITHUB_STEP_SUMMARY
+          echo "- **Changed Packages**: $CHANGED_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "- **Change Percentage**: $(( CHANGED_COUNT * 100 / TOTAL_PACKAGES ))%" >> $GITHUB_STEP_SUMMARY
+          
+          # Add commit information
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 Commit Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **SHA**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Author**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "- **PR**: #${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Create status check
+        if: github.event_name == 'pull_request'
+        run: |
+          # Create a status check for the PR
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+            -d '{
+              "state": "${{ (needs.detect-changes.result == 'success' && needs.package-ci.result == 'success') && 'success' || 'failure' }}",
+              "target_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "description": "Monorepo CI/CD completed",
+              "context": "ci/monorepo"
+            }'
+
+  # Notification job for critical failures
+  notify-failures:
+    name: Notify Critical Failures
+    runs-on: ubuntu-latest
+    needs: [detect-changes, package-ci]
+    if: failure() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    timeout-minutes: 5
+    
+    steps:
+      - name: Send failure notification
+        run: |
+          echo "❌ Critical CI/CD failure detected on ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚨 Failed Jobs" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package Detection**: ${{ needs.detect-changes.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package CI**: ${{ needs.package-ci.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Review failed job logs" >> $GITHUB_STEP_SUMMARY
+          echo "2. Fix issues in failing packages" >> $GITHUB_STEP_SUMMARY
+          echo "3. Re-run CI/CD pipeline" >> $GITHUB_STEP_SUMMARY
+          echo "4. Consider hotfix if on main branch" >> $GITHUB_STEP_SUMMARY
+          
+          # Additional notification logic could be added here
+          # (Slack, email, etc.)
+
+  # Cleanup job
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    needs: [detect-changes, package-ci, ci-report]
+    if: always()
+    timeout-minutes: 5
+    
+    steps:
+      - name: Cleanup artifacts
+        run: |
+          echo "🧹 Performing cleanup tasks..."
+          
+          # Log final status
+          echo "Final Status Summary:"
+          echo "- Package Detection: ${{ needs.detect-changes.result }}"
+          echo "- Package CI: ${{ needs.package-ci.result }}"
+          echo "- CI Report: ${{ needs.ci-report.result }}"
+          
+          # Cleanup would go here (temporary files, etc.)
+          echo "✅ Cleanup completed"

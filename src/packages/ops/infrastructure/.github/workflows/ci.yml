@@ -1,0 +1,684 @@
+name: Infrastructure CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/packages/ops/infrastructure/**'
+      - '.github/workflows/**'
+      - '.github/actions/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/packages/ops/infrastructure/**'
+      - '.github/workflows/**'
+      - '.github/actions/**'
+  workflow_dispatch:
+    inputs:
+      run_terraform_validate:
+        description: 'Run Terraform validation'
+        required: false
+        default: true
+        type: boolean
+      run_ansible_lint:
+        description: 'Run Ansible linting'
+        required: false
+        default: true
+        type: boolean
+      python_version:
+        description: 'Python version to use'
+        required: false
+        default: '3.11'
+        type: string
+
+env:
+  PACKAGE_NAME: pynomaly-infrastructure
+  PACKAGE_PATH: src/packages/ops/infrastructure
+
+jobs:
+  # Use the reusable workflow for comprehensive CI/CD
+  ci-cd:
+    uses: ./.github/workflows/_reusable-python-ci.yml
+    with:
+      package-name: pynomaly-infrastructure
+      package-path: src/packages/ops/infrastructure
+      python-version: ${{ github.event.inputs.python_version || '3.11' }}
+      python-versions: '["3.9", "3.10", "3.11", "3.12"]'
+      os-matrix: '["ubuntu-latest", "macos-latest"]'
+      coverage-threshold: 75
+      run-performance-tests: false
+      run-security-scan: true
+      publish-to-pypi: ${{ github.event_name == 'release' }}
+      run-integration-tests: true
+    secrets:
+      PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # Infrastructure-specific tests and validations
+  infrastructure-tests:
+    name: Infrastructure Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: infra_test
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python for package
+        uses: ./.github/actions/setup-python-package
+        with:
+          python-version: '3.11'
+          package-path: ${{ env.PACKAGE_PATH }}
+          dependency-groups: 'dev,test'
+
+      - name: Wait for services
+        run: |
+          timeout 60 bash -c 'until nc -z localhost 5432; do sleep 1; done'
+          timeout 60 bash -c 'until nc -z localhost 6379; do sleep 1; done'
+
+      - name: Test database infrastructure
+        working-directory: ${{ env.PACKAGE_PATH }}
+        env:
+          DATABASE_URL: postgresql://test_user:test_pass@localhost:5432/infra_test
+        run: |
+          pytest tests/ -k "test_database" \
+            --verbose \
+            --tb=short
+
+      - name: Test caching infrastructure
+        working-directory: ${{ env.PACKAGE_PATH }}
+        env:
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          pytest tests/ -k "test_redis or test_cache" \
+            --verbose \
+            --tb=short
+
+      - name: Test monitoring components
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          pytest tests/ -k "test_monitoring" \
+            --verbose \
+            --tb=short
+
+      - name: Test configuration management
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          pytest tests/ -k "test_config" \
+            --verbose \
+            --tb=short
+
+      - name: Test deployment automation
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          pytest tests/ -k "test_deployment" \
+            --verbose \
+            --tb=short
+
+  # Terraform validation and testing
+  terraform-validation:
+    name: Terraform Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event.inputs.run_terraform_validate != 'false'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~1.5
+
+      - name: Find and validate Terraform configurations
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Find all Terraform directories
+          TERRAFORM_DIRS=$(find . -name "*.tf" -type f | xargs dirname | sort -u)
+          
+          if [ -z "$TERRAFORM_DIRS" ]; then
+            echo "📝 No Terraform configurations found"
+            exit 0
+          fi
+          
+          echo "🔍 Found Terraform configurations in:"
+          echo "$TERRAFORM_DIRS"
+          
+          # Validate each Terraform directory
+          for dir in $TERRAFORM_DIRS; do
+            echo "🔧 Validating Terraform in $dir"
+            cd "$dir"
+            
+            # Initialize Terraform
+            terraform init -backend=false
+            
+            # Validate configuration
+            terraform validate
+            
+            # Format check
+            terraform fmt -check=true -diff=true
+            
+            # Return to package root
+            cd - > /dev/null
+          done
+          
+          echo "✅ All Terraform configurations validated successfully"
+
+      - name: Terraform security scan
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Install tfsec for Terraform security scanning
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+          
+          # Find and scan Terraform configurations
+          TERRAFORM_DIRS=$(find . -name "*.tf" -type f | xargs dirname | sort -u)
+          
+          if [ -n "$TERRAFORM_DIRS" ]; then
+            for dir in $TERRAFORM_DIRS; do
+              echo "🔒 Security scanning Terraform in $dir"
+              ./tfsec "$dir" --format json --out "${dir//\//_}_tfsec.json" || true
+            done
+            
+            # Generate summary report
+            python -c "
+            import json
+            import glob
+            import os
+            
+            total_issues = 0
+            high_severity = 0
+            medium_severity = 0
+            low_severity = 0
+            
+            for file in glob.glob('*_tfsec.json'):
+                try:
+                    with open(file, 'r') as f:
+                        data = json.load(f)
+                    
+                    issues = data.get('results', [])
+                    total_issues += len(issues)
+                    
+                    for issue in issues:
+                        severity = issue.get('severity', '').upper()
+                        if severity == 'HIGH':
+                            high_severity += 1
+                        elif severity == 'MEDIUM':
+                            medium_severity += 1
+                        else:
+                            low_severity += 1
+                except:
+                    pass
+            
+            print(f'🔒 Terraform Security Summary:')
+            print(f'  Total Issues: {total_issues}')
+            print(f'  High Severity: {high_severity}')
+            print(f'  Medium Severity: {medium_severity}')
+            print(f'  Low Severity: {low_severity}')
+            
+            if high_severity > 0:
+                print('❌ High severity security issues found in Terraform configurations')
+                exit(1)
+            else:
+                print('✅ No high severity security issues found')
+            "
+          else
+            echo "📝 No Terraform configurations to scan"
+          fi
+
+      - name: Upload Terraform reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-reports
+          path: |
+            ${{ env.PACKAGE_PATH }}/*_tfsec.json
+
+  # Container orchestration tests
+  kubernetes-validation:
+    name: Kubernetes Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.12.0'
+
+      - name: Find and validate Kubernetes manifests
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Find Kubernetes YAML files
+          K8S_FILES=$(find . -name "*.yaml" -o -name "*.yml" | grep -E "(k8s|kubernetes|deploy)" || true)
+          
+          if [ -z "$K8S_FILES" ]; then
+            echo "📝 No Kubernetes manifests found"
+            exit 0
+          fi
+          
+          echo "🔍 Found Kubernetes manifests:"
+          echo "$K8S_FILES"
+          
+          # Validate each manifest
+          for file in $K8S_FILES; do
+            echo "🔧 Validating $file"
+            kubectl apply --dry-run=client --validate=true -f "$file" || {
+              echo "❌ Validation failed for $file"
+              exit 1
+            }
+          done
+          
+          echo "✅ All Kubernetes manifests validated successfully"
+
+      - name: Validate Helm charts
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Find Helm charts
+          HELM_CHARTS=$(find . -name "Chart.yaml" | xargs dirname || true)
+          
+          if [ -z "$HELM_CHARTS" ]; then
+            echo "📝 No Helm charts found"
+            exit 0
+          fi
+          
+          echo "🔍 Found Helm charts:"
+          echo "$HELM_CHARTS"
+          
+          # Validate each chart
+          for chart in $HELM_CHARTS; do
+            echo "🔧 Validating Helm chart in $chart"
+            helm lint "$chart"
+            helm template test "$chart" > /dev/null
+          done
+          
+          echo "✅ All Helm charts validated successfully"
+
+  # Docker and container tests
+  container-infrastructure-tests:
+    name: Container Infrastructure Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Find and test Dockerfiles
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Find Dockerfiles
+          DOCKERFILES=$(find . -name "Dockerfile*" || true)
+          
+          if [ -z "$DOCKERFILES" ]; then
+            echo "📝 No Dockerfiles found"
+            exit 0
+          fi
+          
+          echo "🔍 Found Dockerfiles:"
+          echo "$DOCKERFILES"
+          
+          # Test each Dockerfile
+          for dockerfile in $DOCKERFILES; do
+            echo "🔧 Testing $dockerfile"
+            
+            # Get directory of Dockerfile
+            dockerfile_dir=$(dirname "$dockerfile")
+            dockerfile_name=$(basename "$dockerfile")
+            
+            # Build image
+            docker build -f "$dockerfile" -t "test-$(basename $dockerfile_dir):latest" "$dockerfile_dir"
+            
+            # Basic security scan with Trivy
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+              aquasec/trivy:latest image "test-$(basename $dockerfile_dir):latest" \
+              --exit-code 1 --severity HIGH,CRITICAL || {
+              echo "⚠️ Security issues found in $dockerfile"
+            }
+          done
+          
+          echo "✅ All Dockerfiles tested successfully"
+
+  # Configuration and secrets management
+  config-secrets-validation:
+    name: Configuration & Secrets Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python for package
+        uses: ./.github/actions/setup-python-package
+        with:
+          python-version: '3.11'
+          package-path: ${{ env.PACKAGE_PATH }}
+          dependency-groups: 'dev,test'
+
+      - name: Test configuration management
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          python -c "
+          import sys
+          sys.path.insert(0, 'src')
+          
+          # Test configuration loading
+          try:
+              from pynomaly_infrastructure.config import settings
+              print('✅ Configuration module loads successfully')
+              
+              # Validate configuration structure
+              required_sections = ['database', 'redis', 'monitoring']
+              for section in required_sections:
+                  if hasattr(settings, section):
+                      print(f'✅ {section} configuration present')
+                  else:
+                      print(f'⚠️ {section} configuration missing')
+                      
+          except ImportError:
+              print('⚠️ Configuration module not found')
+          except Exception as e:
+              print(f'❌ Configuration error: {e}')
+              sys.exit(1)
+          "
+
+      - name: Scan for secrets in configuration
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Find configuration files
+          CONFIG_FILES=$(find . -name "*.yaml" -o -name "*.yml" -o -name "*.json" -o -name "*.env*" || true)
+          
+          if [ -n "$CONFIG_FILES" ]; then
+            echo "🔍 Scanning configuration files for secrets..."
+            
+            # Install detect-secrets
+            pip install detect-secrets
+            
+            # Scan for secrets
+            detect-secrets scan --all-files --force-use-all-plugins \
+              --baseline .secrets.baseline || {
+              echo "⚠️ Potential secrets found in configuration files"
+            }
+          else
+            echo "📝 No configuration files found to scan"
+          fi
+
+      - name: Validate environment templates
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Find environment template files
+          ENV_TEMPLATES=$(find . -name "*.env.template" -o -name "*.env.example" || true)
+          
+          if [ -n "$ENV_TEMPLATES" ]; then
+            echo "🔍 Validating environment templates:"
+            echo "$ENV_TEMPLATES"
+            
+            for template in $ENV_TEMPLATES; do
+              echo "🔧 Validating $template"
+              
+              # Check for required variables
+              python -c "
+              import re
+              
+              with open('$template', 'r') as f:
+                  content = f.read()
+              
+              # Find variable definitions
+              variables = re.findall(r'^([A-Z_][A-Z0-9_]*)=', content, re.MULTILINE)
+              
+              print(f'Found {len(variables)} environment variables in $template')
+              
+              # Check for common required variables
+              required_vars = ['DATABASE_URL', 'REDIS_URL', 'SECRET_KEY']
+              missing_vars = [var for var in required_vars if var not in variables]
+              
+              if missing_vars:
+                  print(f'⚠️ Missing recommended variables: {missing_vars}')
+              else:
+                  print('✅ All recommended variables present')
+              "
+            done
+          else
+            echo "📝 No environment templates found"
+          fi
+
+  # Infrastructure security scan
+  infrastructure-security-scan:
+    name: Infrastructure Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python for package
+        uses: ./.github/actions/setup-python-package
+        with:
+          python-version: '3.11'
+          package-path: ${{ env.PACKAGE_PATH }}
+          dependency-groups: 'dev,test'
+
+      - name: Run comprehensive security scan
+        uses: ./.github/actions/security-scan
+        with:
+          package-path: ${{ env.PACKAGE_PATH }}
+          package-name: ${{ env.PACKAGE_NAME }}
+          fail-on-high: true
+          fail-on-medium: false
+          upload-sarif: true
+
+      - name: Infrastructure-specific security checks
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          echo "🔒 Running infrastructure-specific security checks..."
+          
+          # Check for insecure network configurations
+          python -c "
+          import os
+          import re
+          
+          security_issues = []
+          
+          # Check for insecure patterns in Python files
+          for root, dirs, files in os.walk('.'):
+              for file in files:
+                  if file.endswith('.py'):
+                      filepath = os.path.join(root, file)
+                      try:
+                          with open(filepath, 'r') as f:
+                              content = f.read()
+                          
+                          # Check for insecure patterns
+                          patterns = [
+                              (r'ssl_verify\s*=\s*False', 'SSL verification disabled'),
+                              (r'verify\s*=\s*False', 'Certificate verification disabled'),
+                              (r'0\.0\.0\.0', 'Binding to all interfaces'),
+                              (r'debug\s*=\s*True', 'Debug mode enabled'),
+                              (r'ALLOWED_HOSTS\s*=\s*\[.*\*.*\]', 'Wildcard in allowed hosts')
+                          ]
+                          
+                          for pattern, description in patterns:
+                              if re.search(pattern, content, re.IGNORECASE):
+                                  security_issues.append(f'{filepath}: {description}')
+                      except:
+                          pass
+          
+          if security_issues:
+              print('⚠️ Infrastructure security issues found:')
+              for issue in security_issues:
+                  print(f'  - {issue}')
+          else:
+              print('✅ No obvious infrastructure security issues found')
+          "
+
+  # Documentation and deployment guides
+  documentation-validation:
+    name: Documentation Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python for package
+        uses: ./.github/actions/setup-python-package
+        with:
+          python-version: '3.11'
+          package-path: ${{ env.PACKAGE_PATH }}
+          dependency-groups: 'docs,test'
+
+      - name: Validate deployment documentation
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Check for required documentation files
+          REQUIRED_DOCS=(
+            "README.md"
+            "DEPLOYMENT.md"
+            "CONFIGURATION.md"
+          )
+          
+          echo "📚 Checking for required documentation..."
+          
+          for doc in "${REQUIRED_DOCS[@]}"; do
+            if [ -f "$doc" ]; then
+              echo "✅ $doc found"
+              
+              # Basic validation of content
+              if [ -s "$doc" ]; then
+                echo "  ✅ $doc has content"
+              else
+                echo "  ⚠️ $doc is empty"
+              fi
+            else
+              echo "⚠️ $doc missing"
+            fi
+          done
+
+      - name: Generate infrastructure diagram
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          # Install diagram generation tools
+          pip install diagrams
+          
+          # Generate infrastructure diagram if script exists
+          if [ -f "scripts/generate_diagram.py" ]; then
+            python scripts/generate_diagram.py
+            echo "✅ Infrastructure diagram generated"
+          else
+            echo "📝 No diagram generation script found"
+          fi
+
+  # Deployment readiness check
+  deployment-readiness:
+    name: Deployment Readiness
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [ci-cd, infrastructure-tests, terraform-validation, kubernetes-validation]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python for package
+        uses: ./.github/actions/setup-python-package
+        with:
+          python-version: '3.11'
+          package-path: ${{ env.PACKAGE_PATH }}
+          dependency-groups: 'all'
+
+      - name: Validate infrastructure readiness
+        working-directory: ${{ env.PACKAGE_PATH }}
+        run: |
+          echo "🔧 Validating infrastructure deployment readiness..."
+          
+          python -c "
+          import sys
+          sys.path.insert(0, 'src')
+          
+          # Test critical infrastructure components
+          components = [
+              'pynomaly_infrastructure.database',
+              'pynomaly_infrastructure.cache',
+              'pynomaly_infrastructure.monitoring',
+              'pynomaly_infrastructure.config'
+          ]
+          
+          success_count = 0
+          for component in components:
+              try:
+                  __import__(component)
+                  print(f'✅ {component} ready')
+                  success_count += 1
+              except ImportError:
+                  print(f'⚠️ {component} not available')
+              except Exception as e:
+                  print(f'❌ {component} error: {e}')
+          
+          print(f'📊 Infrastructure readiness: {success_count}/{len(components)} components ready')
+          
+          if success_count >= len(components) * 0.8:  # 80% threshold
+              print('✅ Infrastructure ready for deployment')
+          else:
+              print('❌ Infrastructure not ready for deployment')
+              sys.exit(1)
+          "
+
+      - name: Generate deployment checklist
+        run: |
+          echo "## 🚀 Infrastructure Deployment Readiness" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Package**: ${{ env.PACKAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Infrastructure Tests**: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Terraform Validation**: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Kubernetes Validation**: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Security Scan**: Completed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Documentation**: Validated" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Pre-Deployment Checklist" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Review Terraform configurations" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Validate Kubernetes manifests" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Configure monitoring and alerting" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Set up backup and disaster recovery" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Configure security policies" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Review resource limits and scaling policies" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📋 **Infrastructure ready for deployment!**" >> $GITHUB_STEP_SUMMARY

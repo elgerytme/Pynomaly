@@ -1,0 +1,322 @@
+name: 'Security Scan'
+description: 'Comprehensive security scanning for Python packages'
+inputs:
+  package-path:
+    description: 'Path to the package directory'
+    required: true
+  package-name:
+    description: 'Name of the package for reporting'
+    required: true
+  fail-on-high:
+    description: 'Fail the build on high severity vulnerabilities'
+    required: false
+    default: 'true'
+  fail-on-medium:
+    description: 'Fail the build on medium severity vulnerabilities'
+    required: false
+    default: 'false'
+  upload-sarif:
+    description: 'Whether to upload SARIF results to GitHub Security'
+    required: false
+    default: 'true'
+
+outputs:
+  vulnerabilities-found:
+    description: 'Number of vulnerabilities found'
+    value: ${{ steps.analyze.outputs.vulnerabilities-found }}
+  security-score:
+    description: 'Overall security score (0-100)'
+    value: ${{ steps.analyze.outputs.security-score }}
+  report-path:
+    description: 'Path to the security report'
+    value: ${{ steps.analyze.outputs.report-path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install security tools
+      shell: bash
+      run: |
+        python -m pip install --upgrade \
+          bandit[toml] \
+          safety \
+          pip-audit \
+          semgrep \
+          checkov
+
+    - name: Code security scan with Bandit
+      id: bandit
+      shell: bash
+      working-directory: ${{ inputs.package-path }}
+      run: |
+        set +e  # Don't fail on security issues, we'll handle them
+        
+        echo "🔒 Running Bandit security scan..."
+        
+        # Run Bandit with comprehensive settings
+        bandit -r . \
+          --format json \
+          --output bandit-report.json \
+          --severity-level medium \
+          --confidence-level medium \
+          --exclude tests/,test_*,*_test.py,conftest.py
+        
+        BANDIT_EXIT_CODE=$?
+        
+        # Run Bandit for SARIF output (for GitHub Security)
+        if [ "${{ inputs.upload-sarif }}" = "true" ]; then
+          bandit -r . \
+            --format sarif \
+            --output bandit-sarif.json \
+            --severity-level low \
+            --confidence-level low \
+            --exclude tests/,test_*,*_test.py,conftest.py || true
+        fi
+        
+        echo "bandit-exit-code=$BANDIT_EXIT_CODE" >> $GITHUB_OUTPUT
+        
+        if [ -f bandit-report.json ]; then
+          # Count issues by severity
+          HIGH_ISSUES=$(jq '[.results[] | select(.issue_severity == "HIGH")] | length' bandit-report.json 2>/dev/null || echo "0")
+          MEDIUM_ISSUES=$(jq '[.results[] | select(.issue_severity == "MEDIUM")] | length' bandit-report.json 2>/dev/null || echo "0")
+          LOW_ISSUES=$(jq '[.results[] | select(.issue_severity == "LOW")] | length' bandit-report.json 2>/dev/null || echo "0")
+          
+          echo "high-issues=$HIGH_ISSUES" >> $GITHUB_OUTPUT
+          echo "medium-issues=$MEDIUM_ISSUES" >> $GITHUB_OUTPUT
+          echo "low-issues=$LOW_ISSUES" >> $GITHUB_OUTPUT
+          
+          echo "🔍 Bandit found: $HIGH_ISSUES high, $MEDIUM_ISSUES medium, $LOW_ISSUES low severity issues"
+        else
+          echo "high-issues=0" >> $GITHUB_OUTPUT
+          echo "medium-issues=0" >> $GITHUB_OUTPUT
+          echo "low-issues=0" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Dependency vulnerability scan with Safety
+      id: safety
+      shell: bash
+      working-directory: ${{ inputs.package-path }}
+      run: |
+        set +e
+        
+        echo "🛡️ Running Safety dependency scan..."
+        
+        # Generate requirements.txt if it doesn't exist
+        if [ ! -f requirements.txt ] && [ -f pyproject.toml ]; then
+          pip freeze > temp-requirements.txt
+        elif [ -f requirements.txt ]; then
+          cp requirements.txt temp-requirements.txt
+        else
+          echo "No requirements found, creating empty file"
+          touch temp-requirements.txt
+        fi
+        
+        # Run Safety scan
+        safety check \
+          --file temp-requirements.txt \
+          --json \
+          --output safety-report.json || true
+        
+        SAFETY_EXIT_CODE=$?
+        
+        # Clean up
+        rm -f temp-requirements.txt
+        
+        echo "safety-exit-code=$SAFETY_EXIT_CODE" >> $GITHUB_OUTPUT
+        
+        if [ -f safety-report.json ]; then
+          # Count vulnerabilities
+          VULN_COUNT=$(jq '. | length' safety-report.json 2>/dev/null || echo "0")
+          echo "safety-vulnerabilities=$VULN_COUNT" >> $GITHUB_OUTPUT
+          echo "🛡️ Safety found: $VULN_COUNT vulnerabilities"
+        else
+          echo "safety-vulnerabilities=0" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Advanced dependency audit with pip-audit
+      id: pip-audit
+      shell: bash
+      working-directory: ${{ inputs.package-path }}
+      run: |
+        set +e
+        
+        echo "🔍 Running pip-audit scan..."
+        
+        # Run pip-audit
+        pip-audit \
+          --format=json \
+          --output=pip-audit-report.json \
+          --desc || true
+        
+        PIP_AUDIT_EXIT_CODE=$?
+        
+        echo "pip-audit-exit-code=$PIP_AUDIT_EXIT_CODE" >> $GITHUB_OUTPUT
+        
+        if [ -f pip-audit-report.json ]; then
+          # Count vulnerabilities
+          VULN_COUNT=$(jq '[.dependencies[].vulns[]] | length' pip-audit-report.json 2>/dev/null || echo "0")
+          echo "pip-audit-vulnerabilities=$VULN_COUNT" >> $GITHUB_OUTPUT
+          echo "🔍 pip-audit found: $VULN_COUNT vulnerabilities"
+        else
+          echo "pip-audit-vulnerabilities=0" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Static analysis with Semgrep
+      id: semgrep
+      shell: bash
+      working-directory: ${{ inputs.package-path }}
+      run: |
+        set +e
+        
+        echo "🔬 Running Semgrep static analysis..."
+        
+        # Run Semgrep with Python security rules
+        semgrep \
+          --config=auto \
+          --json \
+          --output=semgrep-report.json \
+          --exclude=tests/ \
+          --exclude=test_* \
+          . || true
+        
+        SEMGREP_EXIT_CODE=$?
+        
+        echo "semgrep-exit-code=$SEMGREP_EXIT_CODE" >> $GITHUB_OUTPUT
+        
+        if [ -f semgrep-report.json ]; then
+          # Count findings by severity
+          ERROR_COUNT=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' semgrep-report.json 2>/dev/null || echo "0")
+          WARNING_COUNT=$(jq '[.results[] | select(.extra.severity == "WARNING")] | length' semgrep-report.json 2>/dev/null || echo "0")
+          INFO_COUNT=$(jq '[.results[] | select(.extra.severity == "INFO")] | length' semgrep-report.json 2>/dev/null || echo "0")
+          
+          echo "semgrep-errors=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          echo "semgrep-warnings=$WARNING_COUNT" >> $GITHUB_OUTPUT
+          echo "semgrep-info=$INFO_COUNT" >> $GITHUB_OUTPUT
+          
+          echo "🔬 Semgrep found: $ERROR_COUNT errors, $WARNING_COUNT warnings, $INFO_COUNT info"
+        else
+          echo "semgrep-errors=0" >> $GITHUB_OUTPUT
+          echo "semgrep-warnings=0" >> $GITHUB_OUTPUT
+          echo "semgrep-info=0" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Analyze results and generate report
+      id: analyze
+      shell: bash
+      working-directory: ${{ inputs.package-path }}
+      run: |
+        # Collect all findings
+        BANDIT_HIGH=${{ steps.bandit.outputs.high-issues }}
+        BANDIT_MEDIUM=${{ steps.bandit.outputs.medium-issues }}
+        BANDIT_LOW=${{ steps.bandit.outputs.low-issues }}
+        SAFETY_VULNS=${{ steps.safety.outputs.safety-vulnerabilities }}
+        PIP_AUDIT_VULNS=${{ steps.pip-audit.outputs.pip-audit-vulnerabilities }}
+        SEMGREP_ERRORS=${{ steps.semgrep.outputs.semgrep-errors }}
+        SEMGREP_WARNINGS=${{ steps.semgrep.outputs.semgrep-warnings }}
+        
+        # Calculate total vulnerabilities
+        TOTAL_VULNS=$((BANDIT_HIGH + BANDIT_MEDIUM + SAFETY_VULNS + PIP_AUDIT_VULNS + SEMGREP_ERRORS))
+        
+        # Calculate security score (0-100, higher is better)
+        # Start with 100 and deduct points for issues
+        SECURITY_SCORE=100
+        SECURITY_SCORE=$((SECURITY_SCORE - (BANDIT_HIGH * 20)))       # -20 per high severity
+        SECURITY_SCORE=$((SECURITY_SCORE - (BANDIT_MEDIUM * 10)))     # -10 per medium severity
+        SECURITY_SCORE=$((SECURITY_SCORE - (BANDIT_LOW * 2)))         # -2 per low severity
+        SECURITY_SCORE=$((SECURITY_SCORE - (SAFETY_VULNS * 15)))      # -15 per dependency vuln
+        SECURITY_SCORE=$((SECURITY_SCORE - (PIP_AUDIT_VULNS * 15)))   # -15 per pip-audit vuln
+        SECURITY_SCORE=$((SECURITY_SCORE - (SEMGREP_ERRORS * 10)))    # -10 per semgrep error
+        SECURITY_SCORE=$((SECURITY_SCORE - (SEMGREP_WARNINGS * 2)))   # -2 per semgrep warning
+        
+        # Ensure score doesn't go below 0
+        if [ $SECURITY_SCORE -lt 0 ]; then
+          SECURITY_SCORE=0
+        fi
+        
+        # Generate comprehensive report
+        REPORT_FILE="security-report.json"
+        cat > $REPORT_FILE << EOF
+        {
+          "package": "${{ inputs.package-name }}",
+          "scan_timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+          "security_score": $SECURITY_SCORE,
+          "total_vulnerabilities": $TOTAL_VULNS,
+          "tools": {
+            "bandit": {
+              "high": $BANDIT_HIGH,
+              "medium": $BANDIT_MEDIUM,
+              "low": $BANDIT_LOW
+            },
+            "safety": {
+              "vulnerabilities": $SAFETY_VULNS
+            },
+            "pip_audit": {
+              "vulnerabilities": $PIP_AUDIT_VULNS
+            },
+            "semgrep": {
+              "errors": $SEMGREP_ERRORS,
+              "warnings": $SEMGREP_WARNINGS,
+              "info": ${{ steps.semgrep.outputs.semgrep-info }}
+            }
+          }
+        }
+        EOF
+        
+        # Set outputs
+        echo "vulnerabilities-found=$TOTAL_VULNS" >> $GITHUB_OUTPUT
+        echo "security-score=$SECURITY_SCORE" >> $GITHUB_OUTPUT
+        echo "report-path=$REPORT_FILE" >> $GITHUB_OUTPUT
+        
+        # Create summary
+        echo "## 🔒 Security Scan Results for ${{ inputs.package-name }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Overall Security Score: $SECURITY_SCORE/100" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔍 Vulnerabilities Found: $TOTAL_VULNS" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "#### 🛡️ Tool Results:" >> $GITHUB_STEP_SUMMARY
+        echo "- **Bandit**: $BANDIT_HIGH high, $BANDIT_MEDIUM medium, $BANDIT_LOW low" >> $GITHUB_STEP_SUMMARY
+        echo "- **Safety**: $SAFETY_VULNS dependency vulnerabilities" >> $GITHUB_STEP_SUMMARY
+        echo "- **pip-audit**: $PIP_AUDIT_VULNS dependency vulnerabilities" >> $GITHUB_STEP_SUMMARY
+        echo "- **Semgrep**: $SEMGREP_ERRORS errors, $SEMGREP_WARNINGS warnings" >> $GITHUB_STEP_SUMMARY
+        
+        # Determine overall status
+        if [ $SECURITY_SCORE -ge 90 ]; then
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Status**: Excellent security posture" >> $GITHUB_STEP_SUMMARY
+        elif [ $SECURITY_SCORE -ge 70 ]; then
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Status**: Good security posture with minor issues" >> $GITHUB_STEP_SUMMARY
+        elif [ $SECURITY_SCORE -ge 50 ]; then
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Status**: Moderate security issues need attention" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "❌ **Status**: Significant security issues require immediate attention" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Check failure conditions
+      shell: bash
+      run: |
+        SHOULD_FAIL=false
+        
+        if [ "${{ inputs.fail-on-high }}" = "true" ] && [ "${{ steps.bandit.outputs.high-issues }}" -gt 0 ]; then
+          echo "❌ Failing due to high severity security issues"
+          SHOULD_FAIL=true
+        fi
+        
+        if [ "${{ inputs.fail-on-medium }}" = "true" ] && [ "${{ steps.bandit.outputs.medium-issues }}" -gt 0 ]; then
+          echo "❌ Failing due to medium severity security issues"
+          SHOULD_FAIL=true
+        fi
+        
+        if [ "$SHOULD_FAIL" = "true" ]; then
+          exit 1
+        fi
+
+    - name: Upload SARIF to GitHub Security
+      if: inputs.upload-sarif == 'true' && always()
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ inputs.package-path }}/bandit-sarif.json
+        category: security-scan-${{ inputs.package-name }}
