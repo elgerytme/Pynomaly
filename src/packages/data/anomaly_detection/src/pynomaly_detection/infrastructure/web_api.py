@@ -5,15 +5,15 @@ Simple Web API implementation for Pynomaly anomaly detection.
 This module provides a minimal FastAPI-based web API for anomaly detection.
 """
 
-from typing import Any, Dict, List, Optional
-import uvicorn
-from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import numpy as np
-import pandas as pd
 import json
 from io import StringIO
+
+import numpy as np
+import pandas as pd
+import uvicorn
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 try:
     from pynomaly_detection import AnomalyDetector, __version__
@@ -28,13 +28,13 @@ except ImportError:
 # Pydantic models for request/response
 class DetectionRequest(BaseModel):
     """Request model for anomaly detection."""
-    data: List[List[float]]
+    data: list[list[float]]
     algorithm: str = "isolation_forest"
     contamination: float = 0.1
 
 class DetectionResponse(BaseModel):
     """Response model for anomaly detection."""
-    predictions: List[int]
+    predictions: list[int]
     anomaly_count: int
     total_count: int
     anomaly_rate: float
@@ -42,7 +42,7 @@ class DetectionResponse(BaseModel):
 
 class TrainingRequest(BaseModel):
     """Request model for training."""
-    data: List[List[float]]
+    data: list[list[float]]
     algorithm: str = "isolation_forest"
     contamination: float = 0.1
 
@@ -65,7 +65,7 @@ class AlgorithmInfo(BaseModel):
 
 class AlgorithmsResponse(BaseModel):
     """Response model for available algorithms."""
-    algorithms: List[AlgorithmInfo]
+    algorithms: list[AlgorithmInfo]
 
 # Create FastAPI app
 app = FastAPI(
@@ -88,7 +88,7 @@ app.add_middleware(
 # Global detector instance (in production, this would be session-based)
 detector = None
 
-@app.get("/", response_model=Dict[str, str])
+@app.get("/", response_model=dict[str, str])
 async def root():
     """Root endpoint with basic API information."""
     return {
@@ -151,22 +151,22 @@ async def detect_anomalies(request: DetectionRequest):
     try:
         # Convert data to numpy array
         data = np.array(request.data)
-        
+
         # Create detector
         detector = AnomalyDetector()
-        
+
         # Detect anomalies
         predictions = detector.detect(
             data,
             algorithm=request.algorithm,
             contamination=request.contamination
         )
-        
+
         # Calculate metrics
         anomaly_count = int(np.sum(predictions))
         total_count = len(predictions)
         anomaly_rate = anomaly_count / total_count
-        
+
         return DetectionResponse(
             predictions=predictions.tolist(),
             anomaly_count=anomaly_count,
@@ -174,9 +174,9 @@ async def detect_anomalies(request: DetectionRequest):
             anomaly_rate=anomaly_rate,
             algorithm=request.algorithm
         )
-        
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 @app.post("/train", response_model=TrainingResponse)
 async def train_detector(request: TrainingRequest):
@@ -184,19 +184,19 @@ async def train_detector(request: TrainingRequest):
     try:
         # Convert data to numpy array
         data = np.array(request.data)
-        
+
         # Create and train detector
         global detector
         detector = AnomalyDetector()
         detector.fit(data, contamination=request.contamination)
-        
+
         return TrainingResponse(
             status="success",
             message=f"Detector trained successfully with {request.algorithm}"
         )
-        
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 @app.post("/predict", response_model=DetectionResponse)
 async def predict_anomalies(request: DetectionRequest):
@@ -204,19 +204,20 @@ async def predict_anomalies(request: DetectionRequest):
     try:
         global detector
         if detector is None:
-            raise HTTPException(status_code=400, detail="Detector not trained. Call /train first.")
-        
+            msg = "Detector not trained. Call /train first."
+            raise HTTPException(status_code=400, detail=msg)
+
         # Convert data to numpy array
         data = np.array(request.data)
-        
+
         # Predict anomalies
         predictions = detector.predict(data)
-        
+
         # Calculate metrics
         anomaly_count = int(np.sum(predictions))
         total_count = len(predictions)
         anomaly_rate = anomaly_count / total_count
-        
+
         return DetectionResponse(
             predictions=predictions.tolist(),
             anomaly_count=anomaly_count,
@@ -224,16 +225,16 @@ async def predict_anomalies(request: DetectionRequest):
             anomaly_rate=anomaly_rate,
             algorithm=request.algorithm
         )
-        
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     """Upload a data file for processing."""
     try:
         contents = await file.read()
-        
+
         # Parse based on file type
         if file.filename.endswith('.csv'):
             # Parse CSV
@@ -245,15 +246,15 @@ async def upload_file(file: UploadFile = File(...)):
             data = np.array(json_data)
         else:
             raise HTTPException(status_code=400, detail="Unsupported file format")
-        
+
         return {
             "message": "File uploaded successfully",
             "shape": data.shape,
             "filename": file.filename
         }
-        
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 def run_api(host: str = "0.0.0.0", port: int = 8000, reload: bool = True):
     """Run the API server."""

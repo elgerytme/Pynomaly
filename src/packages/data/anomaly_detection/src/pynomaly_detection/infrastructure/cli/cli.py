@@ -2,13 +2,13 @@
 """
 Pynomaly CLI - Command Line Interface for Anomaly Detection
 
-This module provides a command-line interface for the Pynomaly anomaly detection platform.
+This module provides a command-line interface for the Pynomaly
+anomaly detection platform.
 """
 
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -48,14 +48,14 @@ def algorithms():
     table.add_column("Algorithm", style="cyan")
     table.add_column("Description", style="green")
     table.add_column("Status", style="yellow")
-    
+
     # Core algorithms
     table.add_row("isolation_forest", "Isolation Forest (default)", "✓ Working")
     table.add_row("lof", "Local Outlier Factor", "⚠ Requires sklearn")
     table.add_row("ocsvm", "One-Class SVM", "⚠ Requires sklearn")
     table.add_row("autoencoder", "Neural Network Autoencoder", "✗ Not implemented")
     table.add_row("ensemble", "Ensemble Methods", "✗ Not implemented")
-    
+
     console.print(table)
 
 
@@ -64,7 +64,7 @@ def detect(
     file: str = typer.Argument(..., help="Path to data file (CSV, JSON, or NPY)"),
     algorithm: str = typer.Option("isolation_forest", help="Algorithm to use"),
     contamination: float = typer.Option(0.1, help="Expected contamination rate"),
-    output: Optional[str] = typer.Option(None, help="Output file path"),
+    output: str | None = typer.Option(None, help="Output file path"),
     format: str = typer.Option("json", help="Output format (json, csv, or text)"),
 ):
     """Detect anomalies in a data file."""
@@ -72,33 +72,33 @@ def detect(
         # Load data
         console.print(f"Loading data from: {file}")
         data = load_data(file)
-        
+
         # Create detector
         detector = AnomalyDetector()
-        
+
         # Detect anomalies
         console.print(f"Running anomaly detection with {algorithm}...")
         predictions = detector.detect(data, contamination=contamination)
-        
+
         # Process results
         anomaly_count = np.sum(predictions)
         total_count = len(predictions)
         anomaly_rate = anomaly_count / total_count
-        
+
         # Show results
-        console.print(f"\n📊 Results:")
+        console.print("\n📊 Results:")
         console.print(f"  Total samples: {total_count}")
         console.print(f"  Anomalies detected: {anomaly_count}")
         console.print(f"  Anomaly rate: {anomaly_rate:.2%}")
-        
+
         # Save results if requested
         if output:
             save_results(predictions, output, format)
             console.print(f"  Results saved to: {output}")
-        
+
     except Exception as e:
         console.print(f"❌ Error: {str(e)}", style="red")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()
@@ -106,28 +106,28 @@ def train(
     file: str = typer.Argument(..., help="Path to training data file"),
     algorithm: str = typer.Option("isolation_forest", help="Algorithm to use"),
     contamination: float = typer.Option(0.1, help="Expected contamination rate"),
-    model_path: Optional[str] = typer.Option(None, help="Path to save trained model"),
+    model_path: str | None = typer.Option(None, help="Path to save trained model"),
 ):
     """Train a detector on data."""
     try:
         # Load data
         console.print(f"Loading training data from: {file}")
         data = load_data(file)
-        
+
         # Create and train detector
         detector = AnomalyDetector()
         detector.fit(data, contamination=contamination)
-        
+
         console.print(f"✅ Model trained successfully with {algorithm}")
-        
+
         # Save model if requested
         if model_path:
             # Note: Model saving would need to be implemented
-            console.print(f"Model saving not yet implemented")
-            
+            console.print("Model saving not yet implemented")
+
     except Exception as e:
         console.print(f"❌ Error: {str(e)}", style="red")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 @app.command()
@@ -137,30 +137,30 @@ def validate(
     """Validate data format and structure."""
     try:
         data = load_data(file)
-        
+
         console.print("✅ Data validation results:")
         console.print(f"  Shape: {data.shape}")
         console.print(f"  Data type: {data.dtype}")
         console.print(f"  Has NaN values: {np.isnan(data).any()}")
         console.print(f"  Has infinite values: {np.isinf(data).any()}")
-        
+
     except Exception as e:
         console.print(f"❌ Validation failed: {str(e)}", style="red")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from e
 
 
 def load_data(file_path: str) -> np.ndarray:
     """Load data from various file formats."""
     path = Path(file_path)
-    
+
     if not path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-    
+
     if path.suffix.lower() == '.csv':
         df = pd.read_csv(path)
         return df.select_dtypes(include=[np.number]).values
     elif path.suffix.lower() == '.json':
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
         return np.array(data)
     elif path.suffix.lower() == '.npy':
@@ -172,7 +172,7 @@ def load_data(file_path: str) -> np.ndarray:
 def save_results(predictions: np.ndarray, output_path: str, format: str):
     """Save detection results to file."""
     path = Path(output_path)
-    
+
     if format == "json":
         results = {
             "predictions": predictions.tolist(),

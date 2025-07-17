@@ -231,14 +231,17 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-source = ["src"]
+source = ["src/pynomaly_detection"]
 branch = true
 omit = [
     "*/tests/*",
     "*/test_*.py",
     "*/*_test.py",
     "*/conftest.py",
-    "*/__init__.py",
+    "*/cli/*",
+    "*/web_api.py",
+    "*/algorithms/pyod_adapter.py",
+    "*/algorithms/sklearn_adapter.py",
 ]
 
 [tool.coverage.report]

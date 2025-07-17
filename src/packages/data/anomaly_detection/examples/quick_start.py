@@ -8,9 +8,7 @@ Simple, focused example that gets you up and running quickly.
 
 import numpy as np
 from sklearn.datasets import make_blobs
-from pynomaly_detection.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
-from pynomaly_detection.domain.entities.detector import Detector
-from pynomaly_detection.domain.value_objects.contamination_rate import ContaminationRate
+from pynomaly_detection import AnomalyDetector
 
 
 def main():
@@ -32,31 +30,21 @@ def main():
     
     # Create detector
     print("🔧 Setting up detector...")
-    detector = Detector(
-        name="quick_detector",
-        algorithm="isolation_forest",
-        contamination=ContaminationRate(0.1)
-    )
-    print(f"   ✓ Using {detector.algorithm} algorithm")
+    detector = AnomalyDetector()
+    print(f"   ✓ Using IsolationForest algorithm")
     
     # Detect anomalies
     print("🔍 Detecting anomalies...")
-    use_case = DetectAnomaliesUseCase()
+    predictions = detector.detect(X, contamination=0.1)
     
-    # Convert to DataFrame format
-    import pandas as pd
-    df = pd.DataFrame(X, columns=['feature_1', 'feature_2'])
-    
-    result = use_case.execute(detector, df)
-    
-    anomalies_found = sum(result.predictions)
+    anomalies_found = sum(predictions)
     print(f"   ✓ Found {anomalies_found} anomalies")
     
     # Show results
     print("\n📈 Results:")
-    for i, (pred, score) in enumerate(zip(result.predictions, result.scores)):
-        if pred == 1:  # Anomaly
-            print(f"   🚨 Sample {i}: ANOMALY (score: {score:.3f})")
+    anomaly_indices = np.where(predictions == 1)[0]
+    for i, idx in enumerate(anomaly_indices):
+        print(f"   🚨 Sample {idx}: ANOMALY")
     
     print("\n🎉 Success! You've completed your first anomaly detection.")
     print("\n📚 What's next?")

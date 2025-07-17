@@ -14,9 +14,7 @@ It shows how to:
 import numpy as np
 import pandas as pd
 from sklearn.datasets import make_classification
-from pynomaly_detection.application.use_cases.detect_anomalies import DetectAnomaliesUseCase
-from pynomaly_detection.domain.entities.detector import Detector
-from pynomaly_detection.domain.value_objects.contamination_rate import ContaminationRate
+from pynomaly_detection import AnomalyDetector, get_default_detector
 
 
 def generate_sample_data(n_samples=1000, contamination=0.1):
@@ -68,35 +66,28 @@ def main():
     
     # Step 2: Initialize detector
     print("\n2. Initializing detector...")
-    detector = Detector(
-        name="basic_detector",
-        algorithm="isolation_forest",
-        contamination=ContaminationRate(0.1)
-    )
-    print(f"   Detector: {detector.name} using {detector.algorithm}")
+    detector = AnomalyDetector()
+    print(f"   Detector initialized using IsolationForest algorithm")
     
-    # Step 3: Create use case and detect anomalies
+    # Step 3: Run anomaly detection
     print("\n3. Running anomaly detection...")
-    use_case = DetectAnomaliesUseCase()
-    
-    # Convert to DataFrame for easier handling
-    df = pd.DataFrame(X, columns=[f"feature_{i}" for i in range(X.shape[1])])
     
     try:
-        result = use_case.execute(detector, df)
+        # Fit and predict in one step
+        predictions = detector.detect(X, contamination=0.1)
         print(f"   Detection completed successfully")
-        print(f"   Found {sum(result.predictions)} anomalies")
+        print(f"   Found {sum(predictions)} anomalies")
         
         # Step 4: Analyze results
         print("\n4. Analysis Results:")
         print(f"   True anomalies: {sum(y_true)}")
-        print(f"   Detected anomalies: {sum(result.predictions)}")
+        print(f"   Detected anomalies: {sum(predictions)}")
         
         # Calculate basic metrics
-        if len(result.predictions) == len(y_true):
-            true_positives = sum((y_true == 1) & (result.predictions == 1))
-            false_positives = sum((y_true == 0) & (result.predictions == 1))
-            false_negatives = sum((y_true == 1) & (result.predictions == 0))
+        if len(predictions) == len(y_true):
+            true_positives = sum((y_true == 1) & (predictions == 1))
+            false_positives = sum((y_true == 0) & (predictions == 1))
+            false_negatives = sum((y_true == 1) & (predictions == 0))
             
             precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
             recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
@@ -105,7 +96,8 @@ def main():
             print(f"   Recall: {recall:.3f}")
         
         # Show score distribution
-        scores = result.scores
+        # For now, use predictions as scores (since detect() only returns predictions)
+        scores = predictions.astype(float)
         print(f"\n5. Score Statistics:")
         print(f"   Min score: {min(scores):.3f}")
         print(f"   Max score: {max(scores):.3f}")
