@@ -1,0 +1,32 @@
+{
+  "name": "data-platform",
+  "sourceRoot": "src/packages/data-platform",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "buck2 build //src/packages/data-platform:data-platform",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "buck2 build //src/packages/data-platform:lint",
+        "cwd": "{workspaceRoot}"
+      }
+    },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "buck2 build //src/packages/data-platform:dev",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  },
+  "tags": [
+    null,
+    null
+  ]
+}
