@@ -2,6 +2,24 @@
 repos:
   - repo: local
     hooks:
+      - id: single-package-development
+        name: Single Package Development Rule
+        entry: python3 tools/validate_single_package_development.py
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [commit]
+        description: Ensures only one package is modified at a time
+        
+      - id: package-isolation
+        name: Package Isolation Rule
+        entry: python3 tools/scan_domain_violations_with_exceptions.py
+        language: system
+        always_run: true
+        pass_filenames: false
+        stages: [commit]
+        description: Validates package isolation boundaries
+        
       - id: domain-boundary-validator
         name: Domain Boundary Validator
         entry: python scripts/domain_boundary_validator.py
