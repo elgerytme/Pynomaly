@@ -1,0 +1,467 @@
+name: Documentation Deployment
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'docs/**'
+      - 'README.md'
+      - 'pyproject.toml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'docs/**'
+      - 'README.md'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  generate-api-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[docs,api]
+          pip install pyyaml
+
+      - name: Generate API documentation
+        run: |
+          python src/development_scripts/scripts/generate_api_docs.py
+
+      - name: Generate comprehensive API docs
+        run: |
+          python src/development_scripts/scripts/generate_comprehensive_api_docs.py
+
+      - name: Generate OpenAPI docs
+        run: |
+          python src/development_scripts/scripts/generate_openapi_docs.py
+
+      - name: Generate simple API docs
+        run: |
+          python src/development_scripts/scripts/generate_simple_api_docs.py
+
+      - name: Validate OpenAPI specification
+        run: |
+          python -c "
+          import yaml
+          import json
+          
+          # Validate OpenAPI spec
+          try:
+              with open('docs/api/generated/openapi.yaml', 'r') as f:
+                  spec = yaml.safe_load(f)
+              
+              # Basic validation
+              assert 'openapi' in spec
+              assert 'info' in spec
+              assert 'paths' in spec
+              assert 'components' in spec
+              
+              print('✅ OpenAPI specification is valid')
+          except Exception as e:
+              print(f'❌ OpenAPI specification validation failed: {e}')
+              exit(1)
+          "
+
+      - name: Generate documentation index
+        run: |
+          cat > docs/api/generated/README.md << 'EOF'
+          # Pynomaly API Documentation
+
+          This directory contains automatically generated API documentation.
+
+          ## Files
+
+          - `index.html` - Interactive Swagger UI documentation
+          - `openapi.json` - OpenAPI 3.0 specification (JSON format)
+          - `openapi.yaml` - OpenAPI 3.0 specification (YAML format)
+          - `pynomaly_api.postman_collection.json` - Postman collection for API testing
+          - `examples/` - Code examples in various languages
+
+          ## Usage
+
+          1. **Interactive Documentation**: Open `index.html` in your browser
+          2. **API Testing**: Import the Postman collection
+          3. **Integration**: Use the code examples in your applications
+
+          ## Authentication
+
+          All API endpoints require authentication via API key in the `X-API-Key` header.
+
+          ## Rate Limits
+
+          - Default: 1000 requests per minute
+          - Detection: 10,000 requests per minute
+          - Training: 10 concurrent jobs per user
+
+          Last updated: $(date)
+          EOF
+
+      - name: Upload documentation artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-documentation
+          path: docs/api/generated/
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/api/generated
+          destination_dir: api-docs
+          keep_files: false
+          enable_jekyll: false
+
+  generate-mkdocs:
+    runs-on: ubuntu-latest
+    needs: generate-api-docs
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[docs]
+
+      - name: Download API documentation
+        uses: actions/download-artifact@v3
+        with:
+          name: api-documentation
+          path: docs/api/generated/
+
+      - name: Create MkDocs configuration
+        run: |
+          cat > mkdocs.yml << 'EOF'
+          site_name: Pynomaly Documentation
+          site_description: Comprehensive documentation for Pynomaly anomaly detection platform
+          site_url: https://pynomaly.github.io/pynomaly
+          
+          theme:
+            name: material
+            palette:
+              - scheme: default
+                primary: blue
+                accent: blue
+                toggle:
+                  icon: material/brightness-7
+                  name: Switch to dark mode
+              - scheme: slate
+                primary: blue
+                accent: blue
+                toggle:
+                  icon: material/brightness-4
+                  name: Switch to light mode
+            features:
+              - navigation.tabs
+              - navigation.sections
+              - navigation.expand
+              - navigation.indexes
+              - toc.follow
+              - search.highlight
+              - search.share
+              - content.code.annotate
+              - content.code.copy
+          
+          plugins:
+            - search
+            - mkdocstrings:
+                handlers:
+                  python:
+                    options:
+                      show_source: true
+                      show_root_heading: true
+                      show_category_heading: true
+                      group_by_category: true
+                      heading_level: 2
+          
+          markdown_extensions:
+            - admonition
+            - pymdownx.details
+            - pymdownx.superfences
+            - pymdownx.tabbed:
+                alternate_style: true
+            - pymdownx.highlight:
+                anchor_linenums: true
+            - pymdownx.inlinehilite
+            - pymdownx.snippets
+            - attr_list
+            - md_in_html
+            - toc:
+                permalink: true
+          
+          nav:
+            - Home: index.md
+            - Getting Started:
+              - Installation: getting-started/installation.md
+              - Quick Start: getting-started/quickstart.md
+              - Configuration: getting-started/configuration.md
+            - API Reference:
+              - Overview: api/overview.md
+              - Authentication: api/authentication.md
+              - Endpoints: api/endpoints.md
+              - Examples: api/examples.md
+            - Architecture:
+              - Overview: architecture/overview.md
+              - Domain Structure: architecture/domain-structure.md
+              - Components: architecture/components.md
+            - Deployment:
+              - Production: deployment/production.md
+              - Docker: deployment/docker.md
+              - Kubernetes: deployment/kubernetes.md
+            - Monitoring:
+              - Health Checks: monitoring/health-checks.md
+              - Metrics: monitoring/metrics.md
+              - Alerting: monitoring/alerting.md
+          EOF
+
+      - name: Create documentation pages
+        run: |
+          mkdir -p docs/getting-started docs/api docs/architecture docs/deployment docs/monitoring
+          
+          # Create index page
+          cat > docs/index.md << 'EOF'
+          # Pynomaly Documentation
+
+          Welcome to the comprehensive documentation for Pynomaly, a state-of-the-art anomaly detection platform.
+
+          ## Features
+
+          - **40+ Algorithms**: Comprehensive collection of anomaly detection algorithms
+          - **AutoML**: Automated machine learning optimization
+          - **Clean Architecture**: Domain-driven design with clear separation of concerns
+          - **Production Ready**: Enterprise-grade monitoring and deployment
+          - **Multi-language SDKs**: Python, JavaScript, and more
+
+          ## Quick Start
+
+          ```bash
+          pip install monorepo[all]
+          ```
+
+          ```python
+          from pynomaly_client import PynomalyClient
+
+          client = PynomalyClient(api_key="your-api-key")
+          detector = client.detectors.create(
+              name="My Detector",
+              algorithm="IsolationForest"
+          )
+          ```
+
+          ## API Documentation
+
+          Interactive API documentation is available at [/api-docs](./api-docs/).
+
+          ## Architecture
+
+          Pynomaly follows a clean architecture pattern with clear domain boundaries:
+
+          - **Data Layer**: Anomaly detection algorithms and data processing
+          - **Software Layer**: Core business logic and interfaces
+          - **Infrastructure Layer**: Deployment, monitoring, and operations
+          - **AI/ML Layer**: AutoML and advanced machine learning capabilities
+
+          ## Support
+
+          - **Documentation**: [docs.pynomaly.com](https://docs.pynomaly.com)
+          - **GitHub**: [github.com/pynomaly/pynomaly](https://github.com/pynomaly/pynomaly)
+          - **Support**: support@pynomaly.com
+          EOF
+
+          # Create API overview
+          cat > docs/api/overview.md << 'EOF'
+          # API Overview
+
+          The Pynomaly API provides comprehensive REST endpoints for anomaly detection operations.
+
+          ## Base URL
+
+          - **Production**: `https://api.pynomaly.com`
+          - **Staging**: `https://staging-api.pynomaly.com`
+
+          ## Authentication
+
+          All API requests require authentication via API key in the `X-API-Key` header.
+
+          ## Rate Limits
+
+          - **Default**: 1000 requests per minute
+          - **Detection**: 10,000 requests per minute
+          - **Training**: 10 concurrent jobs per user
+
+          ## Interactive Documentation
+
+          Visit the [interactive API documentation](../api-docs/) for detailed endpoint information.
+          EOF
+
+          # Create health checks documentation
+          cat > docs/monitoring/health-checks.md << 'EOF'
+          # Health Checks
+
+          Pynomaly provides comprehensive health monitoring capabilities.
+
+          ## Health Endpoints
+
+          - `GET /health` - Basic health check
+          - `GET /health/detailed` - Detailed system health
+
+          ## Health Components
+
+          - **System**: CPU, memory, disk usage
+          - **Database**: Connection health and performance
+          - **Redis**: Cache status and metrics
+          - **API**: Request/response metrics
+          - **Detectors**: Active detector status
+          - **Workers**: Background job processing
+
+          ## Monitoring Dashboard
+
+          A real-time health dashboard is available at `/health/dashboard`.
+
+          ## Alerting
+
+          Alerts are triggered when:
+          - CPU usage > 80%
+          - Memory usage > 85%
+          - Disk usage > 90%
+          - Error rate > 5%
+          - Response time > 2 seconds
+          EOF
+
+      - name: Build documentation
+        run: |
+          mkdocs build --strict
+
+      - name: Deploy documentation to GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          keep_files: false
+          enable_jekyll: false
+
+  validate-docs:
+    runs-on: ubuntu-latest
+    needs: [generate-api-docs, generate-mkdocs]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download API documentation
+        uses: actions/download-artifact@v3
+        with:
+          name: api-documentation
+          path: docs/api/generated/
+
+      - name: Validate documentation
+        run: |
+          echo "Validating documentation..."
+          
+          # Check required files exist
+          files=(
+            "docs/api/generated/index.html"
+            "docs/api/generated/openapi.json"
+            "docs/api/generated/openapi.yaml"
+            "docs/api/generated/pynomaly_api.postman_collection.json"
+          )
+          
+          for file in "${files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "❌ Missing required file: $file"
+              exit 1
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+          
+          # Validate JSON files
+          echo "Validating JSON files..."
+          python -c "
+          import json
+          
+          files = [
+              'docs/api/generated/openapi.json',
+              'docs/api/generated/pynomaly_api.postman_collection.json'
+          ]
+          
+          for file in files:
+              try:
+                  with open(file, 'r') as f:
+                      json.load(f)
+                  print(f'✅ Valid JSON: {file}')
+              except Exception as e:
+                  print(f'❌ Invalid JSON: {file} - {e}')
+                  exit(1)
+          "
+          
+          # Check HTML files
+          echo "Validating HTML files..."
+          if grep -q "swagger-ui" docs/api/generated/index.html; then
+            echo "✅ Swagger UI properly configured"
+          else
+            echo "❌ Swagger UI not found in HTML"
+            exit 1
+          fi
+          
+          echo "✅ All documentation validation passed!"
+
+  notify-completion:
+    runs-on: ubuntu-latest
+    needs: [generate-api-docs, generate-mkdocs, validate-docs]
+    if: always()
+    steps:
+      - name: Generate completion report
+        run: |
+          echo "# Documentation Deployment Report" > report.md
+          echo "" >> report.md
+          echo "**Workflow:** ${{ github.workflow }}" >> report.md
+          echo "**Run ID:** ${{ github.run_id }}" >> report.md
+          echo "**Branch:** ${{ github.ref }}" >> report.md
+          echo "**Commit:** ${{ github.sha }}" >> report.md
+          echo "" >> report.md
+          echo "## Job Results" >> report.md
+          echo "- Generate API Docs: ${{ needs.generate-api-docs.result }}" >> report.md
+          echo "- Generate MkDocs: ${{ needs.generate-mkdocs.result }}" >> report.md
+          echo "- Validate Docs: ${{ needs.validate-docs.result }}" >> report.md
+          echo "" >> report.md
+          if [ "${{ needs.generate-api-docs.result }}" == "success" ] && [ "${{ needs.generate-mkdocs.result }}" == "success" ]; then
+            echo "✅ Documentation deployment completed successfully!" >> report.md
+            echo "📖 Documentation available at: https://pynomaly.github.io/pynomaly" >> report.md
+            echo "🔗 API Documentation: https://pynomaly.github.io/pynomaly/api-docs/" >> report.md
+          else
+            echo "❌ Documentation deployment failed!" >> report.md
+          fi
+          
+          cat report.md
+
+      - name: Upload completion report
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-report
+          path: report.md

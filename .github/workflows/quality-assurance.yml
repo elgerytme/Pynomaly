@@ -1,0 +1,295 @@
+name: Quality Assurance Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  performance-testing:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[performance-test,test]
+    
+    - name: Run performance tests
+      run: |
+        python scripts/testing/performance_framework.py ci
+    
+    - name: Upload performance report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-report
+        path: |
+          performance_report.html
+          performance_report.png
+          performance_baselines.json
+    
+    - name: Comment PR with performance results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('performance_report.html')) {
+            const comment = `## Performance Test Results
+            
+            Performance tests have been executed. Check the artifacts for detailed results.
+            
+            - Performance report: Available in artifacts
+            - Baselines: Updated automatically
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
+
+  integration-testing:
+    name: Integration Testing
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[test,api,cli]
+        pip install pyyaml
+    
+    - name: Run integration tests
+      run: |
+        python scripts/testing/integration_testing_suite.py ci
+    
+    - name: Upload integration test report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: integration-test-report
+        path: |
+          integration_test_report.html
+          integration_test_config.yaml
+    
+    - name: Comment PR with integration results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('integration_test_report.html')) {
+            const comment = `## Integration Test Results
+            
+            Integration tests have been executed. Check the artifacts for detailed results.
+            
+            - Cross-package workflows: Tested
+            - API contracts: Validated
+            - End-to-end flows: Verified
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
+
+  security-scanning:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[test,lint]
+        pip install pyyaml requests packaging
+    
+    - name: Run security scan
+      run: |
+        python scripts/security/security_scanning_framework.py ci
+    
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-report
+        path: |
+          security_report.html
+          security_policy.yaml
+    
+    - name: Comment PR with security results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('security_report.html')) {
+            const comment = `## Security Scan Results
+            
+            Security scanning has been completed. Check the artifacts for detailed results.
+            
+            - Dependency vulnerabilities: Scanned
+            - Static code analysis: Performed
+            - License compliance: Verified
+            - Security policy: Enforced
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          }
+
+  quality-gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    needs: [performance-testing, integration-testing, security-scanning]
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+    
+    - name: Evaluate quality gates
+      run: |
+        echo "Evaluating quality gates..."
+        
+        # Check if all jobs passed
+        PERFORMANCE_STATUS="${{ needs.performance-testing.result }}"
+        INTEGRATION_STATUS="${{ needs.integration-testing.result }}"
+        SECURITY_STATUS="${{ needs.security-scanning.result }}"
+        
+        echo "Performance Testing: $PERFORMANCE_STATUS"
+        echo "Integration Testing: $INTEGRATION_STATUS"
+        echo "Security Scanning: $SECURITY_STATUS"
+        
+        # Determine overall status
+        if [ "$PERFORMANCE_STATUS" = "success" ] && [ "$INTEGRATION_STATUS" = "success" ] && [ "$SECURITY_STATUS" = "success" ]; then
+          echo "✅ All quality gates passed!"
+          echo "QUALITY_STATUS=passed" >> $GITHUB_ENV
+        else
+          echo "❌ Quality gates failed!"
+          echo "QUALITY_STATUS=failed" >> $GITHUB_ENV
+          exit 1
+        fi
+    
+    - name: Create quality summary
+      run: |
+        cat > quality_summary.md << EOF
+        # Quality Assurance Summary
+        
+        **Status:** ${{ env.QUALITY_STATUS == 'passed' && '✅ PASSED' || '❌ FAILED' }}
+        **Date:** $(date)
+        **Branch:** ${{ github.ref }}
+        **Commit:** ${{ github.sha }}
+        
+        ## Test Results
+        
+        - **Performance Testing:** ${{ needs.performance-testing.result }}
+        - **Integration Testing:** ${{ needs.integration-testing.result }}
+        - **Security Scanning:** ${{ needs.security-scanning.result }}
+        
+        ## Artifacts
+        
+        - Performance Report: [Download](performance-report)
+        - Integration Test Report: [Download](integration-test-report)
+        - Security Report: [Download](security-report)
+        
+        ## Next Steps
+        
+        - Review detailed reports in artifacts
+        - Address any failing tests or security issues
+        - Update baselines if needed
+        
+        EOF
+    
+    - name: Upload quality summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: quality-summary
+        path: quality_summary.md
+    
+    - name: Comment PR with quality summary
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('quality_summary.md')) {
+            const summary = fs.readFileSync('quality_summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+          }
+
+  notification:
+    name: Notification
+    runs-on: ubuntu-latest
+    needs: [quality-gates]
+    if: always()
+    
+    steps:
+    - name: Notify on failure
+      if: needs.quality-gates.result == 'failure'
+      run: |
+        echo "Quality gates failed. Consider:"
+        echo "1. Reviewing performance regressions"
+        echo "2. Fixing integration test failures"
+        echo "3. Addressing security vulnerabilities"
+        echo "4. Updating documentation"
