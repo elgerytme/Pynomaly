@@ -1,0 +1,115 @@
+name: Repository Structure Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate-structure:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pathlib
+        
+    - name: Run Repository Structure Validation
+      run: |
+        echo "🔍 Running repository structure validation..."
+        python scripts/validate_repository_structure.py
+        
+    - name: Check for Prohibited Folders
+      run: |
+        echo "🔍 Checking for prohibited folder patterns..."
+        
+        # Check for core folders (excluding node_modules)
+        prohibited_found=false
+        
+        if find . -type d -name "core" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*" | grep -q .; then
+          echo "❌ ERROR: 'core' folders found. These are prohibited."
+          find . -type d -name "core" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*"
+          prohibited_found=true
+        fi
+        
+        # Check for other prohibited folders
+        for folder in common shared utils helpers lib misc; do
+          if find . -type d -name "$folder" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*" | grep -q .; then
+            echo "❌ ERROR: '$folder' folders found. These are prohibited."
+            find . -type d -name "$folder" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*"
+            prohibited_found=true
+          fi
+        done
+        
+        if [ "$prohibited_found" = true ]; then
+          echo ""
+          echo "📖 See REPOSITORY_RULES.md for naming conventions."
+          echo "📖 See docs/REPLACEMENT_FOLDERS_ISSUE.md for background."
+          echo "🔗 GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830"
+          exit 1
+        fi
+        
+        echo "✅ No prohibited folders found."
+        
+    - name: Check for Prohibited Files
+      run: |
+        echo "🔍 Checking for prohibited file patterns..."
+        
+        prohibited_found=false
+        
+        # Check for prohibited files
+        for file in core.py common.py utils.py helpers.py misc.py; do
+          if find . -type f -name "$file" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*" | grep -q .; then
+            echo "❌ ERROR: '$file' files found. These are prohibited."
+            find . -type f -name "$file" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*"
+            prohibited_found=true
+          fi
+        done
+        
+        if [ "$prohibited_found" = true ]; then
+          echo ""
+          echo "📖 See REPOSITORY_RULES.md for naming conventions."
+          echo "📖 See docs/REPLACEMENT_FOLDERS_ISSUE.md for background."
+          echo "🔗 GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830"
+          exit 1
+        fi
+        
+        echo "✅ No prohibited files found."
+        
+    - name: Validation Summary
+      if: success()
+      run: |
+        echo "🎉 Repository structure validation passed!"
+        echo "✅ No prohibited folders or files found"
+        echo "✅ Repository rules compliance verified"
+        echo ""
+        echo "📖 For more information:"
+        echo "   - REPOSITORY_RULES.md"
+        echo "   - docs/REPLACEMENT_FOLDERS_ISSUE.md"
+        echo "   - GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830"
+        
+    - name: Validation Failure
+      if: failure()
+      run: |
+        echo "❌ Repository structure validation failed!"
+        echo ""
+        echo "🛠️  To fix violations:"
+        echo "   1. Review the errors above"
+        echo "   2. Rename prohibited folders/files to specific names"
+        echo "   3. Update any references to renamed structures"
+        echo "   4. Run validation locally: python scripts/validate_repository_structure.py"
+        echo ""
+        echo "📖 For guidance:"
+        echo "   - REPOSITORY_RULES.md"
+        echo "   - docs/REPLACEMENT_FOLDERS_ISSUE.md"
+        echo "   - GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830"

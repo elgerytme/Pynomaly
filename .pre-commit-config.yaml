@@ -28,3 +28,51 @@ repos:
         pass_filenames: false
         always_run: true
         args: [--check-cycles, --check-dependencies]
+        
+  - repo: local
+    hooks:
+      - id: validate-repository-structure
+        name: Validate Repository Structure
+        entry: python scripts/validate_repository_structure.py
+        language: python
+        always_run: true
+        pass_filenames: false
+        description: "Prevent creation of prohibited folders and files"
+        
+      - id: check-prohibited-folders
+        name: Check for Prohibited Folders
+        entry: bash
+        language: system
+        always_run: true
+        pass_filenames: false
+        args:
+          - -c
+          - |
+            # Check for prohibited folder patterns
+            prohibited_found=false
+            
+            # Check for core folders (excluding node_modules)
+            if find . -type d -name "core" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*" | grep -q .; then
+              echo "ERROR: 'core' folders found. These are prohibited."
+              find . -type d -name "core" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*"
+              prohibited_found=true
+            fi
+            
+            # Check for other prohibited folders
+            for folder in common shared utils helpers lib misc; do
+              if find . -type d -name "$folder" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*" | grep -q .; then
+                echo "ERROR: '$folder' folders found. These are prohibited."
+                find . -type d -name "$folder" -not -path "*/node_modules/*" -not -path "*/.venv/*" -not -path "*/venv/*"
+                prohibited_found=true
+              fi
+            done
+            
+            if [ "$prohibited_found" = true ]; then
+              echo ""
+              echo "See REPOSITORY_RULES.md for naming conventions."
+              echo "See docs/REPLACEMENT_FOLDERS_ISSUE.md for background."
+              echo "GitHub Issue: https://github.com/elgerytme/Pynomaly/issues/830"
+              exit 1
+            fi
+            
+            echo "✅ No prohibited folders found."
